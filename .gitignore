@@ -12,3 +12,4 @@ preview.png
 # emitted theme trees (bulky SVG sets; regenerate with make_aurorae/make_plasma)
 aurorae/
 plasma/
+catalog/cotype/.delta-cache.json

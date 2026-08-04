@@ -9,9 +9,16 @@ directory is the project) in a string a human retypes.  A judgement that lives i
 a retyped command evaporates when the turn ends.  This module owns all three.
 
     worklist_gate.py                 # GATE: are all cited claims discharged?
-    worklist_gate.py --project       # regenerate WORKLIST.md from the claims
+    worklist_gate.py --project       # regenerate the projections from the claims
     worklist_gate.py --discriminate  # Δ: can each check actually FAIL?
-    worklist_gate.py --where         # where the engine and the project resolved
+    worklist_gate.py --where         # where the engine and the projects resolved
+    worklist_gate.py --only <name>   # one project (worklist | cotype)
+
+⚑ THERE ARE TWO PROJECTS, AND EVERY MODE RUNS BOTH.  `catalog/worklist/` is the
+repo's own claim graph; `catalog/cotype/` is the 4,600-line design log read
+structurally. They are separate paperkit projects because they answer different
+questions, but a gate that covered only one would report green while the other
+rotted — so the default is BOTH, and `--only` is the deliberate narrowing.
 
 ⚑ THE ENGINE IS LOCATED, NOT ASSUMED.  PAPERKIT is resolved from the environment,
 then from the conventional checkout, and this REFUSES with the reason when it
@@ -34,7 +41,13 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PROJECT = os.path.join(ROOT, "catalog", "worklist")
+
+# name -> project dir.  Order is the order they run in.
+PROJECTS = {
+    "worklist": os.path.join(ROOT, "catalog", "worklist"),
+    "cotype":   os.path.join(ROOT, "catalog", "cotype"),
+}
+PROJECT = PROJECTS["worklist"]          # kept: the repo's own graph is the default subject
 
 # Where the engine may live, in order.  The env var wins so a checkout elsewhere
 # needs no edit here.
@@ -78,11 +91,23 @@ def _reexec_under_uv():
 
 def main(argv):
     mode = None
-    for a in argv[1:]:
+    only = None
+    args = argv[1:]
+    if "--only" in args:
+        i = args.index("--only")
+        if i + 1 >= len(args) or args[i + 1] not in PROJECTS:
+            print(f"worklist_gate: --only needs one of: {', '.join(PROJECTS)}",
+                  file=sys.stderr)
+            return 2
+        only = args[i + 1]
+        args = args[:i] + args[i + 2:]
+    for a in args:
         if a == "--where":
             eng, why = locate()
             print(f"engine:  {eng or '(NOT FOUND) ' + why}")
-            print(f"project: {PROJECT}")
+            for name, path in PROJECTS.items():
+                print(f"project: {name:9} {path}"
+                      f"{'' if os.path.isdir(path) else '  (ABSENT)'}")
             print(f"venv:    {os.path.join(ROOT, '.venv')}"
                   f"{'' if os.path.isdir(os.path.join(ROOT, '.venv')) else ' (absent)'}")
             return 0
@@ -90,7 +115,8 @@ def main(argv):
             mode = a
         else:
             print(f"worklist_gate: unknown flag {a!r} "
-                  f"(known: --project, --discriminate, --where)", file=sys.stderr)
+                  f"(known: --project, --discriminate, --where, --only <name>)",
+                  file=sys.stderr)
             return 2
 
     rc = _reexec_under_uv()
@@ -101,10 +127,6 @@ def main(argv):
     if engine is None:
         print(f"worklist_gate: REFUSED — {why}", file=sys.stderr)
         return 2
-    if not os.path.isdir(PROJECT):
-        print(f"worklist_gate: REFUSED — no worklist project at {PROJECT}",
-              file=sys.stderr)
-        return 2
 
     script, label = ENTRY[mode]
     path = os.path.join(engine, "paperkit", script)
@@ -112,9 +134,21 @@ def main(argv):
         print(f"worklist_gate: REFUSED — the engine has no {script} "
               f"(looked in {os.path.dirname(path)})", file=sys.stderr)
         return 2
-    # The engine imports its own siblings by bare name, so it runs from its dir.
-    return subprocess.run([sys.executable, path, PROJECT],
-                          cwd=os.path.join(engine, "paperkit")).returncode
+
+    targets = {only: PROJECTS[only]} if only else PROJECTS
+    worst = 0
+    for name, proj in targets.items():
+        if not os.path.isdir(proj):
+            print(f"worklist_gate: REFUSED — no project at {proj}", file=sys.stderr)
+            worst = max(worst, 2)
+            continue
+        if len(targets) > 1:
+            print(f"── {name} ──")
+        # The engine imports its own siblings by bare name, so it runs from its dir.
+        rc = subprocess.run([sys.executable, path, proj],
+                            cwd=os.path.join(engine, "paperkit")).returncode
+        worst = max(worst, rc)
+    return worst
 
 
 def _selftest():
@@ -147,7 +181,11 @@ def _selftest():
 
     eng, why = locate()
     check("engine is locatable here", eng is not None, True)
-    check("project dir exists", os.path.isdir(PROJECT), True)
+    # ⚑ BOTH projects must exist, or the default gate silently covers less than
+    # it claims — the failure this tool exists to prevent, one level up.
+    missing = [n for n, p in PROJECTS.items() if not os.path.isdir(p)]
+    check(f"every project dir exists ({missing})", missing, [])
+    check("more than one project is wired", len(PROJECTS) > 1, True)
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 

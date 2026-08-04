@@ -1,0 +1,17 @@
+[paper]
+adequacy = true
+title = "el-openglo design log — mechanized"
+subtitle = "The log is a claim-DAG; this is what it says when read structurally."
+warrants = ["warrants.bib"]
+rubric = "rubric.tsv"
+out = "COTYPE-WORKLIST.md"
+numbered = false
+references = false
+
+# See ../worklist/paper.toml: the Δ sandbox root must be DECLARED, or it is
+# inferred as this file's parent (catalog/) and every check reaching back to the
+# repo grades `broken` — a fact about the sandbox read as a fact about the check.
+root = "../.."
+
+[checks.tool]
+cmd = "python3 ../../scripts/{target}"

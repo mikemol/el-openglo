@@ -1,0 +1,62 @@
+% warrants.bib — the design log, read as a claim-DAG.
+%
+% COTYPE.md is 4,600 lines of append-only session log across 72 sessions. It is
+% not prose: it has a grammar — ⊕symbols, closure sections, four-gate verdicts,
+% and a symbol ledger restated once per session. Answering "what is still open?"
+% by READING it is the shape the standing rule forbids, and at this length it is
+% also just unreliable: the contradicting lines are usually adjacent, but nobody
+% holds 4,600 lines at once.
+%
+% So the log is read by a tool (scripts/cotype_index.py) and its coherence is a
+% CLAIM (scripts/check_cotype_coherence.py) rather than an impression.
+%
+% ⚑ WHAT MECHANIZING IT IMMEDIATELY FOUND — none of it visible by reading:
+%   · two symbols marked closed AND listed open in the SAME final ledger:
+%     ⊕RENDER-GATE (ticked ✓, then "wire it into make_deb" as pending BUILD) and
+%     ⊕SEG-FONT-PROJECT (ticked "principle proven ✓PoC", also under RESEARCH).
+%     Built-but-unwired and proof-of-concept, both reading as done.
+%   · eleven PHANTOM symbols minted by a greedy regex over prose ("the ⊕GTK-class
+%     failure" -> ⊕GTK-). A parser artifact, fixed, and recorded because a
+%     phantom in a worklist is indistinguishable from a lost thread.
+%   · thirteen symbols introduced and then resolved NOWHERE — never closed,
+%     never ticked, never carried into the open set. ⊕SOLVER-SEMANTIC is one,
+%     and make_schemes.py's own comment cites it as what BLOCKS the solver
+%     default: the log lost the thread while the code still depends on it.
+%
+% ⚑ THE OPERATOR BUCKETS ARE NOT INTERCHANGEABLE. The log sorts open work by who
+% can do it: BUILD (touches the shipped package), RESEARCH (design, no package
+% impact), LIVE (operator=other — only a human at a real desktop can run it),
+% TUNE, TIER 3, RESIDUE. A LIVE item cannot be discharged by ANY check this repo
+% could write, so its claim is about whether the item is LEGIBLE and correctly
+% bucketed — never about whether it is done. Claiming otherwise would be an
+% unfalsifiable claim wearing a checkmark.
+
+% ── read ─────────────────────────────────────────────────────────────────────
+@misc{PARSE,
+  section = {read},
+  claim   = {the design log parses structurally — its sessions, symbols, closures and gates are read by a tool rather than by eye},
+  check   = {tool:cotype_index.py --selftest}
+}
+
+@misc{LEDGER,
+  section = {read},
+  claim   = {the symbol ledger is read as the series it is, taking the last block as current rather than any earlier snapshot},
+  rests-on = {PARSE},
+  check   = {tool:cotype_index.py --ledger-count}
+}
+
+% ── coherence ────────────────────────────────────────────────────────────────
+@misc{COHERENCE,
+  section = {coherence},
+  claim   = {every contradiction, ungated closure and unresolved symbol in the log is either fixed or waived with a stated reason},
+  rests-on = {PARSE, LEDGER},
+  check   = {tool:check_cotype_coherence.py}
+}
+
+% ── open ─────────────────────────────────────────────────────────────────────
+@misc{OPERATOR,
+  section = {open},
+  claim   = {the open worklist is bucketed by who can act on it, so work only a human at a real desktop can verify is never mistaken for work a check could close},
+  rests-on = {LEDGER},
+  check   = {tool:check_cotype_open.py}
+}

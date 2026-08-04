@@ -20,7 +20,7 @@ Every emission target reads its colours from the one palette, so no target can d
 
 ## Tooling
 
-The borrowed structural hooks pass their own selftests when run from this repo rather than the one they were written in [@HOOKS]; the structural-query hook reads a non-empty routing table of this repo's own, rather than degrading silently to a contentless refusal [@ROUTES].
+The borrowed structural hooks pass their own selftests when run from this repo rather than the one they were written in [@HOOKS]; the structural-query hook reads a non-empty routing table of this repo's own, rather than degrading silently to a contentless refusal [@ROUTES]; the design log is read structurally rather than by eye, so its open work and its self-contradictions are computed instead of recalled [@COTYPE].
 
 ## User decisions
 

@@ -148,6 +148,16 @@
   check   = {tool:check_routes.py}
 }
 
+% ⚑ THE DESIGN LOG IS READ BY A TOOL, NOT BY EYE.  COTYPE.md is 4,600 lines
+% across 72 sessions; "what is still open?" answered by reading it is both the
+% shape the standing rule forbids and, at that length, simply unreliable.  Its
+% own claim graph lives in catalog/cotype/ and is gated alongside this one.
+@misc{COTYPE,
+  section = {tooling},
+  claim   = {the design log is read structurally rather than by eye, so its open work and its self-contradictions are computed instead of recalled},
+  check   = {tool:cotype_index.py --selftest}
+}
+
 % ── decide ───────────────────────────────────────────────────────────────────
 % ⚑ A DECISION ITEM IS CLOSED WHILE DECIDED — it is not debt.  Its witness
 % discriminates on whether the decision is LEGIBLE (recorded where a reader will

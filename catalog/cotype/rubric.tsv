@@ -1,0 +1,4 @@
+# rubric.tsv — sections of the mechanized design log, in document order.
+read	Reading the log structurally
+coherence	Where the log contradicts itself
+open	The open worklist, by operator
