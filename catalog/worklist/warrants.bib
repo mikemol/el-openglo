@@ -170,6 +170,19 @@
   check   = {concept:palette-roles-distinct}
 }
 
+% ⚑ AN ARTIFACT EMBEDDED IN A PROGRAM IS UN-PREVIEWABLE.  Seven markup documents
+% — QML components, kcfg XML, an SVG — were held as Python string literals: no
+% viewer opens them, qmllint cannot reach them, and a diff says "the .py changed"
+% rather than which element moved. The 87-line SegmentChar is the sharpest case,
+% since it is the very artifact ⊕SEGMENT-SUBSTRATE wires into four surfaces.
+% Templates also end the brace-doubling that QML forces on an f-string.
+@misc{TEMPLATES,
+  section = {emitters},
+  claim   = {no generator holds a markup document as a string literal; each reads a template file that can be opened, linted and previewed on its own},
+  rests-on = {EMITTERS},
+  check   = {tool:check_embedded_markup.py}
+}
+
 % ⚑ THE WITNESS I DID NOT HAVE WHEN I NEEDED IT.  I read an offset ghost layer
 % off the wallpaper sample and filed it as a finding; the transforms are
 % identical. An unparameterised witness reaches for whatever state is at hand,
