@@ -32,6 +32,15 @@ package = [
 
 # ⚑ ABSENT, AND RECORDED RATHER THAN QUIETLY TOLERATED:
 #
+#   KvFlat  — NOT a Python dependency: make_kvantum.py recolours the upstream
+#   Kvantum theme "KvFlat" (by Tsu Jan, GPL-family licensing preserved per
+#   COTYPE.md), reading /tmp/KvFlat.kvconfig + /tmp/KvFlat.svg.  Those were staged
+#   in /tmp and did not survive the reset.  The generator is intact; its INPUT is
+#   absent, so it is the one emitter that cannot run here until KvFlat is fetched
+#   and staged.  This is a missing external input, not replay damage — recorded
+#   rather than repaired, because inventing a substitute theme would produce
+#   plausible output that is not the thing.
+#
 #   qml_sanity  — imported by make_deb.py (inside a function, so it never showed
 #   up as an import error).  It was a MODULE OF THIS PROJECT, not a PyPI package:
 #   the design log describes building and later rebuilding it as a genuine

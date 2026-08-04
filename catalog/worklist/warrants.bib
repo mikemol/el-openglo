@@ -101,11 +101,37 @@
   check   = {tool:check_token_source.py}
 }
 
+% ⚑ THE WITNESS COMPILING WAS TOO WEAK TO BE.  Three defects hid behind
+% @COMPILES — all in files the archive marked partial, none a syntax error: a
+% module-level forward reference, a mangled identifier, and a plural/singular API
+% mismatch.  A generator's job is to WRITE something, so the check runs it.
+@misc{EMITTERS,
+  section = {emitters},
+  claim   = {every generator actually runs and writes its artifact, in dependency order, rather than merely compiling},
+  rests-on = {COMPILES, TOKENS},
+  check   = {tool:check_emitters_run.py}
+}
+
 @misc{CHROME,
   section = {emitters},
   claim   = {the browser theme emits a valid manifest for every declared variant},
   rests-on = {TOKENS},
   check   = {tool:check_chrome.py}
+}
+
+% ⚑ OPEN, AND CORRECTLY RED.  Selection/ForegroundActive is illegible in ALL SIX
+% variants — measured 1.01:1 to 2.01:1 against its own background, where the
+% ForegroundNormal beside it runs 6.3:1 to 12.8:1.  It is too dark on the lit
+% variants and too bright on the rest, so no single literal fixes it: the token
+% choice itself is wrong for the one group where the palette inverts.  Found by
+% measuring, after repairing make_schemes.py made the value visible; the bug
+% predates the repair.  This claim stays undischarged until the token is fixed —
+% lowering the floor to make it green would be recording a decision as a fact.
+@misc{SELECTION,
+  section = {emitters},
+  claim   = {text on the lit selection background clears the legibility floor in every variant},
+  rests-on = {EMITTERS},
+  check   = {tool:check_selection_contrast.py}
 }
 
 % ── tooling ──────────────────────────────────────────────────────────────────

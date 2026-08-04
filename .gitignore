@@ -9,3 +9,6 @@ catalog/worklist/.delta-cache.json
 *-wallpaper.svg
 *-wallpaper.png
 preview.png
+# emitted theme trees (bulky SVG sets; regenerate with make_aurorae/make_plasma)
+aurorae/
+plasma/

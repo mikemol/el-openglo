@@ -36,7 +36,13 @@ def _ansi16(accent, ground, tint=0.22):
     """Phosphor-tinted ANSI that stays pairwise-distinct. Tint each Breeze ANSI
     toward the accent; if tinting collapses any pair below the distinctness
     floor, back the tint off for that scheme until all pairs clear it."""
-    floor = min(C.reference_floors().values()) * 0.5  # half the OI hue-floor: ANSI
+    # ⚑ RECOVERY REPAIR.  The archive called `C.reference_floors()` and took
+    # `min(...values())`; cvd_gate (also ** PARTIAL **) defines `reference_floor()`
+    # — singular — returning (min_dE, name_a, name_b, view), so the minimum IS
+    # element 0 and there is no dict to reduce.  A plural/singular mismatch left by
+    # the transcript replay; the intent (half the Okabe-Ito distinctness floor) is
+    # unchanged and is what the comment below already says.
+    floor = C.reference_floor()[0] * 0.5  # half the OI hue-floor: ANSI
     # pairs are allowed closer than palette pairs, but must stay separable.
     t = tint
     for _ in range(20):

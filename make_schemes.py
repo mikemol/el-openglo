@@ -130,14 +130,24 @@ import os as _os
 # the default until the solved palette is live-validated (operator=other). Flip
 # the flag to re-solve every token from (hue seed x thresholds) — e.g. a
 # WCAG->APCA threshold change becomes a one-line edit, not hand-chasing colors.
-USE_SOLVER = _os.environ.get("USE_SOLVER") == "1"
-if USE_SOLVER:
-    import make_palette as _mp
-    GRID = _mp.build_grid()
-else:
-    GRID = _AUTHORED_GRID  # noqa: F821  (defined just below as the residue table)
+# ⚑ RECOVERY REPAIR (2 of 2).  A THIRD copy of the solver-flag block stood here,
+# BEFORE _AUTHORED_GRID is defined, so importing this module raised NameError —
+# its own comment ("defined just below") admits the forward reference.  The
+# transcript replay left three near-duplicate copies of this block; the two that
+# remain both sit AFTER the table, and the last is the canonical form.  Removing
+# the premature copy is the whole fix: USE_SOLVER is re-read there anyway.
+#
+# ⚑ THIS IS WHY `** PARTIAL **` IS A LOAD-BEARING WARNING.  The file compiles
+# clean — a forward reference is only an error at RUN time — so check_compiles
+# passed it, and nothing imported it until a generator was actually executed.
 
-_AUTHORED__AUTHORED_GRID = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
+# ⚑ RECOVERY REPAIR (1 of 2).  The archive had this defined as `_AUTHORED__AUTHORED_GRID`
+# — a doubled prefix left by a transcript-replay str_replace whose anchor text
+# mismatched.  It is what `** PARTIAL **` meant for this file: it BYTE-COMPILES
+# (the name is valid) and fails at import, which is why compiling is too weak a
+# witness for a partial file.  The three reference sites all say `_AUTHORED_GRID`,
+# so the intended name is unambiguous.
+_AUTHORED_GRID = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
   ("openglo","off"): (IND_OFF, IND_OFF), ("openglo","lit"): (IND_LIT, IND_OFF),
   ("azure","off"):   (AZR_OFF, AZR_OFF), ("azure","lit"):   (AZR_LIT, AZR_OFF),
   ("amber","off"):   (AMB_OFF, AMB_OFF), ("amber","lit"):   (AMB_LIT, AMB_OFF),

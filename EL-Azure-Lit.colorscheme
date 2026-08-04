@@ -1,98 +1,98 @@
 [Background]
-Color=6,11,13
+Color=178,220,250
 
 [BackgroundFaint]
-Color=6,11,13
+Color=178,220,250
 
 [BackgroundIntense]
-Color=10,18,20
+Color=165,210,244
 
 [Color0]
-Color=10,18,20
+Color=8,18,30
 
 [Color0Faint]
-Color=9,16,18
+Color=68,89,107
 
 [Color0Intense]
-Color=39,46,48
+Color=3,17,31
 
 [Color1]
-Color=255,110,99
+Color=166,35,24
 
 [Color1Faint]
-Color=135,62,58
+Color=171,118,126
 
 [Color1Intense]
-Color=255,161,154
+Color=182,75,66
 
 [Color2]
-Color=85,240,160
+Color=10,122,66
 
 [Color2Faint]
-Color=47,130,89
+Color=86,166,149
 
 [Color2Intense]
-Color=144,245,193
+Color=54,146,100
 
 [Color3]
-Color=255,180,84
+Color=138,90,10
 
 [Color3Faint]
-Color=135,99,50
+Color=156,148,118
 
 [Color3Intense]
-Color=255,206,144
+Color=159,120,54
 
 [Color4]
-Color=79,168,232
+Color=20,90,170
 
 [Color4Faint]
-Color=44,93,127
+Color=91,148,206
 
 [Color4Intense]
-Color=141,198,240
+Color=62,120,185
 
 [Color5]
-Color=176,140,232
+Color=106,58,154
 
 [Color5Faint]
-Color=94,78,127
+Color=138,131,197
 
 [Color5Intense]
-Color=204,180,240
+Color=133,93,172
 
 [Color6]
-Color=0,224,194
+Color=6,120,138
 
 [Color6Faint]
-Color=3,122,107
+Color=83,165,188
 
 [Color6Intense]
-Color=89,235,215
+Color=51,144,159
 
 [Color7]
-Color=140,232,218
+Color=90,140,170
 
 [Color7Faint]
-Color=76,126,120
+Color=130,176,206
 
 [Color7Intense]
-Color=180,240,231
+Color=120,161,185
 
 [Foreground]
-Color=140,232,218
+Color=10,26,42
 
 [ForegroundFaint]
-Color=93,155,146
+Color=69,94,115
 
 [ForegroundIntense]
-Color=168,255,242
+Color=3,17,31
 
 [General]
 Anchors=0.5,0.5
 Blur=false
 ColorRandomization=false
-Description=EL Openglo
+Description=EL Azure Lit
 FillStyle=Tile
 Opacity=1
 Wallpaper=
