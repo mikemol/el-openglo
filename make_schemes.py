@@ -2,7 +2,7 @@
 """EL scheme generator: the knob, for the whole theme.
 
 Emits KDE .colors and Konsole .colorscheme files for every cell of the grid
-    phosphor {indiglo, azure, amber} x mode {off, lit}
+    phosphor {openglo, azure, amber} x mode {off, lit}
 from per-variant token tables. 'off' = backlight off (EL segments illuminate a
 black panel); 'lit' = backlight on (dark LCD occludes the glowing panel).
 
@@ -19,7 +19,7 @@ import sys, os
 # contrast against it (lit modes).
 
 IND_OFF = dict(
-  name="EL Indiglo", id="EL-Indiglo",
+  name="EL Openglo", id="EL-Openglo",
   view="6,11,13", view_alt="10,18,20", window="12,21,23", window_alt="10,19,21",
   button="18,34,37", button_alt="16,30,33", header="8,16,18", header_alt="10,18,20",
   hdr_in_bg="6,11,13", hdr_in_alt="8,14,16", comp="6,11,13", comp_alt="8,14,16",
@@ -70,7 +70,7 @@ AMB_OFF = dict(
 )
 
 IND_LIT = dict(
-  name="EL Indiglo Lit", id="EL-Indiglo-Lit",
+  name="EL Openglo Lit", id="EL-Openglo-Lit",
   view="175,242,226", view_alt="160,235,218", window="157,230,213", window_alt="147,222,204",
   button="138,218,203", button_alt="126,208,192", header="147,222,204", header_alt="160,235,218",
   hdr_in_bg="196,237,228", hdr_in_alt="196,237,228", comp=None, comp_alt=None,
@@ -138,7 +138,7 @@ else:
     GRID = _AUTHORED_GRID  # noqa: F821  (defined just below as the residue table)
 
 _AUTHORED__AUTHORED_GRID = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
-  ("indiglo","off"): (IND_OFF, IND_OFF), ("indiglo","lit"): (IND_LIT, IND_OFF),
+  ("openglo","off"): (IND_OFF, IND_OFF), ("openglo","lit"): (IND_LIT, IND_OFF),
   ("azure","off"):   (AZR_OFF, AZR_OFF), ("azure","lit"):   (AZR_LIT, AZR_OFF),
   ("amber","off"):   (AMB_OFF, AMB_OFF), ("amber","lit"):   (AMB_LIT, AMB_OFF),
 }
@@ -225,10 +225,10 @@ def mix(a, b, k): return tuple(round(x + (y - x) * k) for x, y in zip(rgb(a) if 
 def s3(c): return ",".join(map(str, c))
 
 ANSI = {  # variant id -> (c0, c1..c7 bases); fg/bg pulled from token table
-  "EL-Indiglo":    ("10,18,20","255,110,99","85,240,160","255,180,84","79,168,232","176,140,232","0,224,194","140,232,218"),
+  "EL-Openglo":    ("10,18,20","255,110,99","85,240,160","255,180,84","79,168,232","176,140,232","0,224,194","140,232,218"),
   "EL-Azure":      ("9,16,24","255,110,99","85,240,160","255,180,84","79,168,255","176,140,232","79,227,232","138,196,242"),
   "EL-Amber":      ("20,16,9","255,110,99","85,240,160","255,235,110","100,170,235","176,140,232","111,216,232","232,196,140"),
-  "EL-Indiglo-Lit":("11,31,28","166,35,24","10,122,66","138,90,10","10,90,154","106,58,154","0,112,95","96,160,150"),
+  "EL-Openglo-Lit":("11,31,28","166,35,24","10,122,66","138,90,10","10,90,154","106,58,154","0,112,95","96,160,150"),
   "EL-Azure-Lit":  ("8,18,30","166,35,24","10,122,66","138,90,10","20,90,170","106,58,154","6,120,138","90,140,170"),
   "EL-Amber-Lit":  ("33,23,6","150,30,20","6,95,48","108,86,6","20,80,150","100,55,145","8,105,120","150,120,80"),
 }
@@ -291,7 +291,7 @@ if __name__ == "__main__":
     if verify:
         print("\n-- byte-exact check vs hand-made .colors --")
         import subprocess
-        for f in ["EL-Indiglo.colors", "EL-Azure.colors", "EL-Indiglo-Lit.colors"]:
+        for f in ["EL-Openglo.colors", "EL-Azure.colors", "EL-Openglo-Lit.colors"]:
             r = subprocess.run(["git", "diff", "--no-index", "--stat", f"/tmp/hand/{f}", f],
                                capture_output=True, text=True)
             print(f, "IDENTICAL" if r.returncode == 0 else "DIFFERS")

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""EL-Indiglo wallpaper generator.
+"""EL-Openglo wallpaper generator.
 
 Draws a seven-segment watch face: the full 'ghost' segment field (every LCD
 segment faintly present, as on a real watch) with 12:00 lit over it -- the
@@ -7,11 +7,39 @@ just-reset flashing clock. Emits SVG, and a PNG if cairosvg is available.
 """
 
 W, H = 3840, 2160
-BG_EDGE = "#04080A"
-BG_MID = "#081114"
-GHOST = "#152826"          # unlit segment
-LIT = "#66F5DF"            # lit segment core
-GLOW = "#00E0C2"           # phosphor glow
+
+# ⚑ THE COLOURS ARE SOURCED, NOT SPELLED.  This is the OLDEST generator — it
+# predates make_preview/make_schemes, so it grew its own hexes, and it was the
+# one emitter of ten still doing so.  That is precisely the drift the
+# one-palette design exists to prevent: a target with private colours silently
+# stops matching the theme when the palette is re-solved.  Measured by
+# scripts/check_token_source.py, which is why this is wired rather than noted.
+#
+# The literals remain as the FALLBACK, so the wallpaper still renders standalone
+# (no scheme file, no cairosvg install) — and they are exactly the values this
+# file used before, so sourcing is appearance-neutral by construction.
+_FALLBACK = {"ground": "#04080A", "panel": "#081114", "ghost": "#152826",
+             "lit": "#66F5DF", "accent": "#00E0C2"}
+
+
+def _tokens(variant="EL-Openglo"):
+    """Palette tokens from the scheme, falling back to this file's own literals."""
+    try:
+        import make_preview as MP
+        c = MP.parse_scheme(variant)
+        return {"ground": c["ground"], "panel": c.get("panel", c["ground"]),
+                "ghost": _FALLBACK["ghost"],      # ghost is derived, not a scheme key
+                "lit": c["phosphor"], "accent": c["accent"]}
+    except Exception:                              # noqa: BLE001 - any absence
+        return dict(_FALLBACK)
+
+
+_C = _tokens()
+BG_EDGE = _C["ground"]
+BG_MID = _C["panel"]
+GHOST = _C["ghost"]        # unlit segment
+LIT = _C["lit"]            # lit segment core
+GLOW = _C["accent"]        # phosphor glow
 
 # seven-segment geometry -----------------------------------------------------
 SEGS = {  # (kind, x, y) in units of L; kind h/v; origin = digit top-left
@@ -98,14 +126,14 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewB
 </g>
 </svg>'''
 
-open("EL-Indiglo-wallpaper.svg", "w").write(svg)
+open("EL-Openglo-wallpaper.svg", "w").write(svg)
 print("wrote SVG")
 try:
     import cairosvg
-    cairosvg.svg2png(url="EL-Indiglo-wallpaper.svg",
-                     write_to="EL-Indiglo-wallpaper.png",
+    cairosvg.svg2png(url="EL-Openglo-wallpaper.svg",
+                     write_to="EL-Openglo-wallpaper.png",
                      output_width=2560, output_height=1440)
-    cairosvg.svg2png(url="EL-Indiglo-wallpaper.svg",
+    cairosvg.svg2png(url="EL-Openglo-wallpaper.svg",
                      write_to="preview.png", output_width=1280, output_height=720)
     print("wrote PNGs")
 except Exception as e:

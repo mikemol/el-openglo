@@ -131,8 +131,8 @@ ForegroundPositive=10,122,66
 ForegroundVisited=42,106,116
 
 [General]
-ColorScheme=EL-Indiglo-Lit
-Name=EL Indiglo Lit
+ColorScheme=EL-Openglo-Lit
+Name=EL Openglo Lit
 shadeSortColumn=true
 
 [KDE]

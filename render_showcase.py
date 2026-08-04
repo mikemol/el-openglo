@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # [RECONSTRUCTED from this session's own tool calls — later compacted session, not on-disk
 #  transcript. Faithful to the heredoc content. Verify before trusting as final.]
-"""Real renderings of the segment displays in the EL Indiglo phosphor aesthetic:
+"""Real renderings of the segment displays in the EL Openglo phosphor aesthetic:
 lit segments bright, OFF segments faint ghost (present-but-not-active), on OLED void.
 Every stroke thickened perpendicular (handles h/v/d uniformly) so diagonals render."""
 import matplotlib

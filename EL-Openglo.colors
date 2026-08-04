@@ -131,8 +131,8 @@ ForegroundPositive=85,240,160
 ForegroundVisited=58,151,166
 
 [General]
-ColorScheme=EL-Indiglo
-Name=EL Indiglo
+ColorScheme=EL-Openglo
+Name=EL Openglo
 shadeSortColumn=true
 
 [KDE]

@@ -47,7 +47,7 @@ const hsl2rgb = ([h,s,l]) => { h=((h%360)+360)%360/360;
 const hue = (c) => rgb2hsl(c)[0];
 const css = (c) => `rgb(${c[0]},${c[1]},${c[2]})`;
 
-// ---------- canonical token shapes (indiglo, base hue 172) ----------
+// ---------- canonical token shapes (openglo, base hue 172) ----------
 const BASE_HUE = 172;
 const PHOSPHOR_OFF = { view:[6,11,13], view_alt:[10,18,20], window:[12,21,23], window_alt:[10,19,21],
   button:[18,34,37], button_alt:[16,30,33], fg:[140,232,218], fg_act:[168,255,242], fg_in:[61,102,96],

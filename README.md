@@ -1,39 +1,67 @@
-# EL Indiglo — a KDE theme for people who reset a lot of watches
+# EL Openglo — a desktop theme for people who reset a lot of watches
 
 The look of a ZnS:Cu electroluminescent backlight: near-black LCD panel, blue-green
 phosphor glow (~505 nm), unlit "ghost" segments, and one deliberate inversion —
-**selecting anything presses the Indiglo button** (glowing teal background, dark
-digits), the way the whole panel lit when you held the crown.
+**selecting anything switches the backlight on** (glowing teal background, dark
+digits), the way the whole panel lit when you held the button down.
+
+Everything is *generated*. The palette is solved once and emitted to every surface,
+so no two surfaces can drift apart: desktop colour scheme, terminal, window
+decoration, widget style, boot splash, wallpapers, notification ticker, and browser.
+
+## Generating
+
+The environment is `uv`-managed; the manifest is `pyproject.toml`.
+
+    uv sync                      # the core emission path
+    uv sync --extra research     # + the font-ingest / glyph-matching pipeline
+
+Each generator runs standalone, e.g.:
+
+    uv run python3 make_schemes.py      # the colour schemes
+    uv run python3 make_preview.py      # preview renders
+    uv run python3 make_chrome.py       # browser theme manifests
 
 ## Contents
 
-- `EL-Indiglo.colors` — system-wide Plasma/Qt color scheme (the main event)
-- `EL-Indiglo.colorscheme` — matching Konsole terminal scheme
-- `EL-Indiglo-wallpaper.svg` / `.png` — ghost-segment "12:00" watch-face wallpaper
-- `make_wallpaper.py` — parametric generator (change the time, sizes, or colors and re-run)
-- `COTYPE.md` — design log: palette tokens, decisions, and deferred variants
+| file | emits |
+|---|---|
+| `make_palette.py` | solves the palette (upstream of everything; CVD-gated) |
+| `make_schemes.py` | `*.colors` — the Plasma/Qt colour schemes |
+| `make_preview.py` | preview renders; owns `parse_scheme`, the token reader |
+| `make_konsole.py` | `*.colorscheme` — terminal |
+| `make_aurorae.py` | window decoration (watch-case bezel) |
+| `make_kvantum.py` | Kvantum widget style |
+| `make_plasma.py` | Plasma desktop theme SVGs |
+| `make_plymouth.py` | boot splash |
+| `make_wallpaper.py`, `make_wallpaper_live.py` | wallpapers, static and live |
+| `make_notify_marquee.py` | notification ticker |
+| `make_clock.py`, `make_segment_display.py` | segment clock widget + QML display |
+| `make_chrome.py` | browser theme (manifest v3) |
+| `make_font.py`, `make_glyph_ink.py` | segment fonts, TTF ink fields |
+| `make_deb.py` | the `.deb` packages |
+| `segment_topology.py` | the 7/9/14/16/22-segment lattice (see below) |
+| `glyph_match.py`, `project_font.py` | the glyph-matching research pipeline |
+| `cvd_gate.py` | colour-vision-deficiency gating |
+| `COTYPE.md` | design log — the reasoning behind every decision above |
 
 ## Install
 
-Color scheme, GUI route: System Settings → Colors & Themes → Colors →
-"Install from File…" → pick `EL-Indiglo.colors`. Or by hand:
+Colour scheme, GUI route: System Settings → Colors & Themes → Colors →
+"Install from File…" → pick `EL-Openglo.colors`. Or by hand:
 
     mkdir -p ~/.local/share/color-schemes
-    cp EL-Indiglo.colors ~/.local/share/color-schemes/
+    cp EL-Openglo.colors ~/.local/share/color-schemes/
 
 Konsole scheme:
 
     mkdir -p ~/.local/share/konsole
-    cp EL-Indiglo.colorscheme ~/.local/share/konsole/
+    cp EL-Openglo.colorscheme ~/.local/share/konsole/
 
-then Konsole → Settings → Edit Current Profile → Appearance → EL Indiglo.
+then Konsole → Settings → Edit Current Profile → Appearance → EL Openglo.
 
 Wallpaper: right-click desktop → Configure Desktop and Wallpaper → add the PNG
 (or the SVG; Plasma renders it crisply at any resolution).
-
-Optional finishing touches that push it further: set the panel clock's font to
-**DSEG7 Classic** (free seven-segment font) for a true digital readout, and pick
-Breeze Dark as the application style so the scheme sits on flat surfaces.
 
 ## Palette tokens
 
@@ -44,16 +72,31 @@ Breeze Dark as the application style so the scheme sits on flat surfaces.
 | body-glow | `#8CE8DA` | normal text |
 | hot-glow | `#A8FFF2` | active text |
 | el-core | `#00E0C2` | focus ring / accent |
-| indiglo-on | `#00CDB0` on `#04211D` | selection (the backlight press) |
+| openglo-on | `#00CDB0` on `#04211D` | selection (the backlight press) |
 | ghost | `#3D6660` | inactive / unlit segment |
 | amber-EL | `#FFB454` | warnings (amber EL panels were real, too) |
 
-## Next steps (invoke by symbol)
+## The segment lattice
 
-- ⊕LIT — full "backlight-on" variant: glowing background, dark digits everywhere
-- ⊕AMB — amber EL variant (same value structure, phosphor hue swapped)
-- ⊕AUR — Aurorae window decoration: watch-case bezel, glow on the active titlebar
-- ⊕PLA — full Plasma desktop theme SVG set (panel, system tray, widgets)
-- ⊕KVT — Kvantum widget style for deeper Qt control styling
-- ⊕GTK — GTK3/4 sync so Firefox/GIMP-type apps match
-- ⊕SEG — DSEG7 seven-segment clock widget setup
+`segment_topology.py` holds one canonical geometry and derives the rest:
+7 / 9 / 14 / 16 / 22 segments, where the coarser formats are projections
+(mask + merge) of the 16-segment cell. 22 is the odd one — not a coarsening but a
+*superset*: 16 plus six additions (two dots, one extra diagonal, three descender
+bars below the baseline), so lowercase letters with descenders resolve. Projecting
+22 back to 16 is byte-equal to native 16, which the module asserts:
+
+    uv run python3 segment_topology.py --selftest
+
+## Status
+
+This repo is a **recovery**. The original was lost before it was ever pushed, and
+the tree was replayed from session transcripts; eight files are at an intermediate
+state and one module (`qml_sanity.py`) did not survive at all. `RECOVERY-NOTES.md`
+records what is trustworthy and what is not.
+
+What is *checked* rather than asserted lives in `catalog/worklist/` — a claim graph
+where every sentence carries a machine-checkable witness, and an item is open
+exactly when its check fails:
+
+    python3 scripts/worklist_gate.py              # are all claims discharged?
+    python3 scripts/worklist_gate.py --project    # regenerate WORKLIST.md

@@ -7,7 +7,7 @@ A stored value is a cache of a computation that goes stale when the constraint
 changes; solving on demand means nothing can rot.
 
 Two inputs are NOT derivable and remain explicit:
-  1. HUE_SEED — the identity (indiglo/azure/amber). No contrast constraint implies
+  1. HUE_SEED — the identity (openglo/azure/amber). No contrast constraint implies
      a hue; derive it and all variants collapse to the same legible palette and
      identity evaporates. The seed picks WHERE in the admissible region we sit.
   2. THRESHOLDS — Lc readability ceiling, chroma floor, void luminance. Judgment
@@ -25,7 +25,7 @@ import cvd_gate as C
 
 # ---- the two non-derivable inputs -----------------------------------------
 HUE_SEEDS = {          # base hue (HSV degrees) — the identity, chosen not solved
-    "indiglo": 168.0,  # teal-green electroluminescent
+    "openglo": 168.0,  # teal-green electroluminescent
     "azure":   210.0,  # blue backlight
     "amber":   35.0,   # classic LCD amber
 }

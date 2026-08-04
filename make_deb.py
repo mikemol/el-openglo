@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
-"""Build el-indiglo-themes_<ver>_all.deb (⊕VER-DEB).
+"""Build el-openglo-themes_<ver>_all.deb (⊕VER-DEB).
 
 One MAPPING, two scopes:
   SYSTEM (into the .deb, /usr/share): color-schemes, konsole, aurorae, plasma
     desktoptheme, plasmoid, fonts, wallpapers.
-  PER-USER (via the shipped `el-indiglo-apply` helper): GTK gtk.css + Kvantum
+  PER-USER (via the shipped `el-openglo-apply` helper): GTK gtk.css + Kvantum
     config link, plus live plasma-apply of the chosen variant.
 
-All six grid variants ship. Helper defaults to EL-Indiglo.
+All six grid variants ship. Helper defaults to EL-Openglo.
 """
 import os, shutil, subprocess, stat, hashlib
 
 VERSION = "1.2.0"
 ARCH = "all"
-PKG = "el-indiglo-themes"
-VARIANTS = ["EL-Indiglo", "EL-Indiglo-Lit", "EL-Azure", "EL-Azure-Lit",
+PKG = "el-openglo-themes"
+VARIANTS = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
             "EL-Amber", "EL-Amber-Lit"]
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BUILD = "/tmp/eldeb"
@@ -51,7 +51,7 @@ def system_mapping():
     # fonts (system font dir; postinst runs fc-cache)
     for fn in os.listdir(os.path.join(ROOT, "fonts")):
         if fn.endswith((".ttf", ".svg")):
-            m.append((f"fonts/{fn}", f"usr/share/fonts/truetype/el-indiglo/{fn}"))
+            m.append((f"fonts/{fn}", f"usr/share/fonts/truetype/el-openglo/{fn}"))
     # wallpapers: one VALID KDE wallpaper package per variant (metadata.json +
     # contents/images/<res>.png). A wallpaper package without metadata.json is
     # not selectable; the previous single-dir dump was invalid.
@@ -72,12 +72,12 @@ def system_mapping():
 # alternative, then rebuild the initramfs ONCE; kernel updates re-bundle it
 # automatically (no DKMS, no per-kernel logic). Root-only.
 PLYMOUTH_HELPER = r'''#!/bin/sh
-# el-indiglo-plymouth — select an EL Indiglo boot splash. Run with sudo.
+# el-openglo-plymouth — select an EL Openglo boot splash. Run with sudo.
 set -eu
-VARIANT="${1:-EL-Indiglo}"
-THEME="/usr/share/plymouth/themes/el-indiglo-$VARIANT/el-indiglo.plymouth"
+VARIANT="${1:-EL-Openglo}"
+THEME="/usr/share/plymouth/themes/el-openglo-$VARIANT/el-openglo.plymouth"
 if [ "$(id -u)" -ne 0 ]; then
-  echo "Run with sudo: sudo el-indiglo-plymouth $VARIANT" >&2; exit 1
+  echo "Run with sudo: sudo el-openglo-plymouth $VARIANT" >&2; exit 1
 fi
 if [ ! -f "$THEME" ]; then echo "no plymouth theme for $VARIANT" >&2; exit 1; fi
 # register + select the default.plymouth alternative
@@ -88,7 +88,7 @@ update-alternatives --set default.plymouth "$THEME" >/dev/null 2>&1 || true
 if command -v update-initramfs >/dev/null 2>&1; then
   update-initramfs -u
 fi
-echo "Boot splash set to EL Indiglo ($VARIANT)."
+echo "Boot splash set to EL Openglo ($VARIANT)."
 echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; plymouth --quit"
 '''
 
@@ -101,32 +101,32 @@ echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; pl
 # (without it the background is silently ignored — KDE bug 370521). Root-only
 # because it writes under /usr/share and /etc.
 SDDM_HELPER = r'''#!/bin/sh
-# el-indiglo-sddm — point the stock Breeze SDDM login theme at an EL Indiglo
+# el-openglo-sddm — point the stock Breeze SDDM login theme at an EL Openglo
 # phosphor watch-face background. Run with sudo. Does NOT replace the greeter,
 # so login/unlock behavior is unchanged (no boot-lockout risk).
 set -eu
-VARIANT="${1:-EL-Indiglo}"
+VARIANT="${1:-EL-Openglo}"
 WP="/usr/share/wallpapers/$VARIANT/contents/images/1920x1080.png"
 BREEZE=/usr/share/sddm/themes/breeze
 if [ "$(id -u)" -ne 0 ]; then
-  echo "Run with sudo: sudo el-indiglo-sddm $VARIANT" >&2; exit 1
+  echo "Run with sudo: sudo el-openglo-sddm $VARIANT" >&2; exit 1
 fi
 if [ ! -f "$WP" ]; then echo "no wallpaper for $VARIANT" >&2; exit 1; fi
 if [ ! -d "$BREEZE" ]; then echo "stock breeze SDDM theme not found" >&2; exit 1; fi
 # copy the bg into the theme dir and register it WITH the required type=image key
-cp "$WP" "$BREEZE/el-indiglo-bg.png"
+cp "$WP" "$BREEZE/el-openglo-bg.png"
 cat > "$BREEZE/theme.conf.user" <<EOF
 [General]
-background=el-indiglo-bg.png
+background=el-openglo-bg.png
 type=image
 EOF
 # ensure SDDM uses the breeze theme
 mkdir -p /etc/sddm.conf.d
-cat > /etc/sddm.conf.d/el-indiglo.conf <<EOF
+cat > /etc/sddm.conf.d/el-openglo.conf <<EOF
 [Theme]
 Current=breeze
 EOF
-echo "SDDM login background set to EL Indiglo ($VARIANT)."
+echo "SDDM login background set to EL Openglo ($VARIANT)."
 echo "Preview without rebooting:  sddm-greeter-qt6 --test-mode --theme $BREEZE"
 '''
 
@@ -137,9 +137,9 @@ echo "Preview without rebooting:  sddm-greeter-qt6 --test-mode --theme $BREEZE"
 # plasmanotifyrc — the feed still flows to the marquee's model; only the toasts
 # are silenced. Reversible.
 NOTIFY_HELPER = r'''#!/bin/sh
-# el-indiglo-notify — add the phosphor notification ticker + silence the popups.
+# el-openglo-notify — add the phosphor notification ticker + silence the popups.
 set -eu
-VARIANT="${1:-EL-Indiglo}"
+VARIANT="${1:-EL-Openglo}"
 WIDGET="org.el.notifymarquee.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
 PKG="/usr/share/plasma/plasmoids/$WIDGET"
 if [ ! -d "$PKG" ]; then echo "no marquee widget for $VARIANT" >&2; exit 1; fi
@@ -169,10 +169,10 @@ echo "Tip: for full popup suppression, System Settings > Notifications > Do Not 
 # lock screen (via kscreenlockerrc wallpaperPlugin key). Desktop stays cheap
 # (1Hz clock tick); lock enables the breathe animation (the seen+idle surface).
 LIVE_HELPER = r'''#!/bin/sh
-# el-indiglo-live — set the LIVING phosphor watch face as desktop + lock wallpaper.
+# el-openglo-live — set the LIVING phosphor watch face as desktop + lock wallpaper.
 set -eu
-VARIANT="${1:-EL-Indiglo}"
-PLUGIN="org.el.indiglo.live.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
+VARIANT="${1:-EL-Openglo}"
+PLUGIN="org.el.openglo.live.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
 PKG="/usr/share/plasma/wallpapers/$PLUGIN"
 if [ ! -d "$PKG" ]; then echo "no live wallpaper for $VARIANT" >&2; exit 1; fi
 # Desktop: set the wallpaper PLUGIN on every desktop containment (cheap: no breathe)
@@ -183,7 +183,7 @@ if command -v qdbus6 >/dev/null 2>&1; then
       ds[i].wallpaperPlugin = '$PLUGIN';
     }
   " 2>/dev/null && echo "  Desktop: live watch face set ($PLUGIN)" \
-    || echo "  Desktop: set Wallpaper type to 'EL Indiglo Live' manually"
+    || echo "  Desktop: set Wallpaper type to 'EL Openglo Live' manually"
 fi
 # Lock screen: select the plugin + enable breathe (the seen, idle surface)
 kwriteconfig6 --file kscreenlockerrc --group Greeter --key WallpaperPlugin "$PLUGIN" 2>/dev/null || true
@@ -196,22 +196,22 @@ echo "Done. Run 'plasmashell --replace &' or re-login if the desktop doesn't upd
 
 # --- per-user apply helper (installed to /usr/bin, run by the user) ---------
 APPLY_HELPER = r'''#!/bin/sh
-# el-indiglo-apply — apply an EL Indiglo variant for the CURRENT user.
+# el-openglo-apply — apply an EL Openglo variant for the CURRENT user.
 # System files were installed by the .deb; this wires the per-user bits
 # (GTK, Kvantum) and applies the live selection. No root needed.
 set -eu
-VARIANT="${1:-EL-Indiglo}"
+VARIANT="${1:-EL-Openglo}"
 SHARE=/usr/share
-case " EL-Indiglo EL-Indiglo-Lit EL-Azure EL-Azure-Lit EL-Amber EL-Amber-Lit " in
+case " EL-Openglo EL-Openglo-Lit EL-Azure EL-Azure-Lit EL-Amber EL-Amber-Lit " in
   *" $VARIANT "*) : ;;
   *) echo "unknown variant: $VARIANT" >&2
-     echo "choose one of: EL-Indiglo EL-Indiglo-Lit EL-Azure EL-Azure-Lit EL-Amber EL-Amber-Lit" >&2
+     echo "choose one of: EL-Openglo EL-Openglo-Lit EL-Azure EL-Azure-Lit EL-Amber EL-Amber-Lit" >&2
      exit 2 ;;
 esac
 echo "Applying $VARIANT ..."
 
 # 0. Global Theme (Look-and-Feel) — the single entry that flips the KDE chrome
-PID="org.el.indiglo.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
+PID="org.el.openglo.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
 if command -v plasma-apply-lookandfeel >/dev/null 2>&1; then
   plasma-apply-lookandfeel -a "$PID" 2>/dev/null || true
 fi
@@ -225,7 +225,7 @@ if command -v plasma-apply-desktoptheme >/dev/null 2>&1; then
   plasma-apply-desktoptheme "$VARIANT" || true
 fi
 # 3. GTK 3/4 overrides -> per-user gtk.css (system source shipped read-only)
-GSRC="$SHARE/el-indiglo/gtk/$VARIANT"
+GSRC="$SHARE/el-openglo/gtk/$VARIANT"
 if [ -d "$GSRC" ]; then
   mkdir -p "$HOME/.config/gtk-3.0" "$HOME/.config/gtk-4.0"
   cp "$GSRC/gtk3.css" "$HOME/.config/gtk-3.0/gtk.css"
@@ -233,7 +233,7 @@ if [ -d "$GSRC" ]; then
   echo "  GTK: wrote ~/.config/gtk-{3,4}.0/gtk.css"
 fi
 # 4. Kvantum config -> per-user
-KSRC="$SHARE/el-indiglo/kvantum/$VARIANT"
+KSRC="$SHARE/el-openglo/kvantum/$VARIANT"
 if [ -d "$KSRC" ]; then
   mkdir -p "$HOME/.config/Kvantum/$VARIANT"
   cp "$KSRC"/* "$HOME/.config/Kvantum/$VARIANT/" 2>/dev/null || true
@@ -282,7 +282,7 @@ if command -v qdbus6 >/dev/null 2>&1; then
     echo "  Clock: add via panel > Add Widgets > 'EL Segment Clock' if not shown"
 fi
 # 5. Chrome/Chromium theme (can't be auto-installed from disk; point the user)
-CTHEME="$SHARE/el-indiglo/chrome/$VARIANT"
+CTHEME="$SHARE/el-openglo/chrome/$VARIANT"
 if [ -d "$CTHEME" ]; then
   echo "  Chrome: load $CTHEME"
   echo "          via chrome://extensions -> Developer mode -> Load unpacked"
@@ -300,26 +300,26 @@ if [ -f "$WP" ]; then
     --group org.kde.image --group General --key Image "file://$WP" 2>/dev/null \
     && echo "  Lock screen: watch-face wallpaper set (auth unchanged)"
 fi
-TDIR="$SHARE/el-indiglo/terminals"
+TDIR="$SHARE/el-openglo/terminals"
 if [ -d "$TDIR" ]; then
   echo "  Alacritty: import $TDIR/$VARIANT.alacritty.toml"
   echo "  foot:      include $TDIR/$VARIANT.foot.ini"
 fi
 echo "Done. Some changes (GTK, Kvantum) may need apps to restart."
-echo "Login screen (SDDM): sudo el-indiglo-sddm $VARIANT  (sets the phosphor login background)"
-echo "Boot splash (Plymouth): sudo el-indiglo-plymouth $VARIANT  (sets the phosphor boot splash)"
-echo "Living watch face:      el-indiglo-live $VARIANT  (animated clock on desktop + lock)"
-echo "Notification ticker:    el-indiglo-notify $VARIANT  (marquee subsumes popups)"
+echo "Login screen (SDDM): sudo el-openglo-sddm $VARIANT  (sets the phosphor login background)"
+echo "Boot splash (Plymouth): sudo el-openglo-plymouth $VARIANT  (sets the phosphor boot splash)"
+echo "Living watch face:      el-openglo-live $VARIANT  (animated clock on desktop + lock)"
+echo "Notification ticker:    el-openglo-notify $VARIANT  (marquee subsumes popups)"
 '''
 
-# GTK + Kvantum are shipped read-only under /usr/share/el-indiglo for the helper
+# GTK + Kvantum are shipped read-only under /usr/share/el-openglo for the helper
 def helper_source_mapping():
     m = []
     for v in VARIANTS:
         for sub in ("gtk", "kvantum"):
             src = f"{sub}/{v}"
             if os.path.isdir(os.path.join(ROOT, src)):
-                m.append((src, f"usr/share/el-indiglo/{sub}/{v}"))
+                m.append((src, f"usr/share/el-openglo/{sub}/{v}"))
     return m
 
 
@@ -341,7 +341,7 @@ def build_lnf_packages():
     shutil.rmtree(LNF_STAGE, ignore_errors=True)
     mapping = []
     for v in VARIANTS:
-        pid = f"org.el.indiglo.{v.lower().replace('-', '')}"
+        pid = f"org.el.openglo.{v.lower().replace('-', '')}"
         pkg_dir = os.path.join(LNF_STAGE, pid)
         contents = os.path.join(pkg_dir, "contents")
         os.makedirs(contents, exist_ok=True)
@@ -349,13 +349,13 @@ def build_lnf_packages():
         meta = {
             "KPackageStructure": "Plasma/LookAndFeel",
             "KPlugin": {
-                "Authors": [{"Name": "EL Indiglo", "Email": "el@local"}],
+                "Authors": [{"Name": "EL Openglo", "Email": "el@local"}],
                 "Category": "Plasma Look And Feel",
                 "Description": f"Electroluminescent watch display — {v}",
                 "EnabledByDefault": True,
                 "Id": pid,
                 "License": "GPLv3",
-                "Name": f"EL Indiglo ({v})",
+                "Name": f"EL Openglo ({v})",
                 "ServiceTypes": ["Plasma/LookAndFeel"],
                 "Version": VERSION,
             },
@@ -386,7 +386,7 @@ def build_lnf_packages():
         layouts = os.path.join(contents, "layouts")
         os.makedirs(layouts, exist_ok=True)
         wp_path = f"/usr/share/wallpapers/{v}/contents/images/1920x1080.png"
-        layout_js = f'''// EL Indiglo desktop layout — sets wallpaper + adds the EL segment clock.
+        layout_js = f'''// EL Openglo desktop layout — sets wallpaper + adds the EL segment clock.
 var plasma = getApiVersion(1);
 
 // set the wallpaper on every desktop containment
@@ -506,14 +506,14 @@ Architecture: {ARCH}
 Depends: plasma-workspace
 Recommends: kvantum, fontconfig
 Suggests: qt6ct
-Maintainer: EL Indiglo <el@local>
+Maintainer: EL Openglo <el@local>
 Installed-Size: {{size}}
-Description: EL Indiglo — electroluminescent watch-display theme for KDE Plasma
+Description: EL Openglo — electroluminescent watch-display theme for KDE Plasma
  A backlit digital-watch aesthetic across the whole desktop: color schemes,
  Konsole schemes, Aurorae window decorations, Plasma styles, a seven/multi-
  segment and dot-matrix clock plasmoid, and installable segment/matrix fonts.
- Six phosphor variants (Indiglo, Azure, Amber; each lit/unlit). After install
- run `el-indiglo-apply [VARIANT]` to apply per-user GTK/Kvantum bits and select
+ Six phosphor variants (Openglo, Azure, Amber; each lit/unlit). After install
+ run `el-openglo-apply [VARIANT]` to apply per-user GTK/Kvantum bits and select
  the look live.
 """
 
@@ -521,15 +521,15 @@ POSTINST = r'''#!/bin/sh
 set -e
 # refresh font cache for the system font dir we populated
 if command -v fc-cache >/dev/null 2>&1; then
-  fc-cache -f /usr/share/fonts/truetype/el-indiglo >/dev/null 2>&1 || true
+  fc-cache -f /usr/share/fonts/truetype/el-openglo >/dev/null 2>&1 || true
 fi
 # rebuild KDE's service/package cache so the new Global Theme previews are picked
 # up (a plain file-copy into /usr/share doesn't invalidate the running cache).
 if command -v kbuildsycoca6 >/dev/null 2>&1; then
   kbuildsycoca6 --noincremental >/dev/null 2>&1 || true
 fi
-echo "el-indiglo-themes installed. Run:  el-indiglo-apply EL-Indiglo"
-echo "(variants: EL-Indiglo[-Lit], EL-Azure[-Lit], EL-Amber[-Lit])"
+echo "el-openglo-themes installed. Run:  el-openglo-apply EL-Openglo"
+echo "(variants: EL-Openglo[-Lit], EL-Azure[-Lit], EL-Amber[-Lit])"
 echo "If Global Theme thumbnails still show Breeze, log out and back in (or run"
 echo "kquitapp6 plasmashell && kstart plasmashell) to refresh the preview cache."
 exit 0
@@ -601,9 +601,9 @@ def build():
             wmeta = {
                 "KPlugin": {
                     "Id": v,
-                    "Name": f"EL Indiglo ({v})",
+                    "Name": f"EL Openglo ({v})",
                     "License": "GPLv3",
-                    "Authors": [{"Name": "EL Indiglo"}],
+                    "Authors": [{"Name": "EL Openglo"}],
                 },
                 "KPackageStructure": "Plasma/Wallpaper",
             }
@@ -613,7 +613,7 @@ def build():
     # Chrome/Chromium themes (⊕CHROME-THEME): per-variant manifest.json emitted
     # from the same scheme tokens, loadable unpacked via chrome://extensions.
     import make_chrome as _chrome
-    cdirs = {v: os.path.join(DEB_ROOT, f"usr/share/el-indiglo/chrome/{v}")
+    cdirs = {v: os.path.join(DEB_ROOT, f"usr/share/el-openglo/chrome/{v}")
              for v in VARIANTS}
     _chrome.render_all(VARIANTS, cdirs)
 
@@ -624,7 +624,7 @@ def build():
     os.makedirs(kdir, exist_ok=True)
     for v in VARIANTS:
         open(os.path.join(kdir, f"{v}.colorscheme"), "w").write(_kon.colorscheme(v))
-    tdir = os.path.join(DEB_ROOT, "usr/share/el-indiglo/terminals")
+    tdir = os.path.join(DEB_ROOT, "usr/share/el-openglo/terminals")
     os.makedirs(tdir, exist_ok=True)
     for v in VARIANTS:
         open(os.path.join(tdir, f"{v}.alacritty.toml"), "w").write(_kon.alacritty_toml(v))
@@ -632,7 +632,7 @@ def build():
 
     # Plymouth boot-splash themes (⊕PLYMOUTH): 7th emitter, the earliest seam.
     import make_plymouth as _ply
-    pdirs = {v: os.path.join(DEB_ROOT, f"usr/share/plymouth/themes/el-indiglo-{v}")
+    pdirs = {v: os.path.join(DEB_ROOT, f"usr/share/plymouth/themes/el-openglo-{v}")
              for v in VARIANTS}
     _ply.render_all(VARIANTS, pdirs)
 
@@ -641,7 +641,7 @@ def build():
     import make_wallpaper_live as _wpl
     wldirs = {v: os.path.join(
         DEB_ROOT,
-        f"usr/share/plasma/wallpapers/org.el.indiglo.live.{v.lower().replace('-', '')}")
+        f"usr/share/plasma/wallpapers/org.el.openglo.live.{v.lower().replace('-', '')}")
         for v in VARIANTS}
     _wpl.render_all(VARIANTS, wldirs)
 
@@ -667,28 +667,28 @@ def build():
                              + "; ".join(f"{n} eff={e:.2f}<floor={f}" for n, m, ok, e, f, d in _bad))
 
     # helper binary
-    hp = os.path.join(DEB_ROOT, "usr/bin/el-indiglo-apply")
+    hp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-apply")
     os.makedirs(os.path.dirname(hp), exist_ok=True)
     open(hp, "w").write(APPLY_HELPER)
     os.chmod(hp, 0o755)
 
     # root SDDM helper (run with sudo)
-    sp = os.path.join(DEB_ROOT, "usr/bin/el-indiglo-sddm")
+    sp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-sddm")
     open(sp, "w").write(SDDM_HELPER)
     os.chmod(sp, 0o755)
 
     # root Plymouth helper (run with sudo)
-    pp = os.path.join(DEB_ROOT, "usr/bin/el-indiglo-plymouth")
+    pp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-plymouth")
     open(pp, "w").write(PLYMOUTH_HELPER)
     os.chmod(pp, 0o755)
 
     # live-wallpaper helper (per-user, opt-in)
-    lp = os.path.join(DEB_ROOT, "usr/bin/el-indiglo-live")
+    lp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-live")
     open(lp, "w").write(LIVE_HELPER)
     os.chmod(lp, 0o755)
 
     # notification-marquee helper (per-user, opt-in)
-    np = os.path.join(DEB_ROOT, "usr/bin/el-indiglo-notify")
+    np = os.path.join(DEB_ROOT, "usr/bin/el-openglo-notify")
     open(np, "w").write(NOTIFY_HELPER)
     os.chmod(np, 0o755)
 

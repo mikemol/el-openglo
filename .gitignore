@@ -4,3 +4,8 @@ __pycache__/
 .gate-outcomes.tsv
 .selftest-last.tsv
 catalog/worklist/.delta-cache.json
+
+# generated artifacts — emitted by the make_* generators, never source
+*-wallpaper.svg
+*-wallpaper.png
+preview.png

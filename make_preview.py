@@ -88,7 +88,7 @@ def render_all(variants, out_map):
 
 
 if __name__ == "__main__":
-    variants = ["EL-Indiglo", "EL-Indiglo-Lit", "EL-Azure", "EL-Azure-Lit",
+    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
                 "EL-Amber", "EL-Amber-Lit"]
     outs = {v: f"/tmp/preview-{v}.png" for v in variants}
     render_all(variants, outs)

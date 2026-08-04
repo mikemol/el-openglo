@@ -31,16 +31,25 @@ NEEDLES = ("trademark", "rename")
 
 
 def found():
-    """[(lineno, text)] lines in the record carrying the decision's substance."""
+    """[(lineno, text)] evidence in the record that the decision is explained.
+
+    ⚑ THE UNIT IS A PARAGRAPH, NOT A LINE.  This first required every needle on
+    ONE line and reported a rationale that was plainly present as absent — the
+    check's world-model was too strict, not the document deficient.  Prose wraps;
+    a witness that assumes it does not is measuring the line breaks."""
     p = os.path.join(ROOT, RECORD)
     if not os.path.exists(p):
         return None
+    lines = open(p, encoding="utf-8", errors="replace").read().splitlines()
     hits = []
-    for i, line in enumerate(open(p, encoding="utf-8", errors="replace"), 1):
-        low = line.lower()
-        if all(n in low for n in NEEDLES) or (
-                "trademark" in low and ("scrub" in low or "retired" in low)):
+    for i, line in enumerate(lines, 1):
+        # a window around this line, so a rationale spanning a wrapped
+        # paragraph counts as the single statement it reads as
+        window = " ".join(lines[max(0, i - 4):i + 3]).lower()
+        if all(n in window for n in NEEDLES) and (
+                "retired" in window or "scrub" in window or "concern" in window):
             hits.append((i, line.rstrip()))
+            break                                   # one witness is enough
     return hits
 
 

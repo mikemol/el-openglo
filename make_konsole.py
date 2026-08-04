@@ -80,7 +80,7 @@ def colorscheme(variant):
         out.append(block(f"Color{i}", ansi[i]))
         out.append(block(f"Color{i}Faint", faint[i]))
         out.append(block(f"Color{i}Intense", intense[i]))
-    out.append(f"[General]\nDescription=EL Indiglo ({variant})\n"
+    out.append(f"[General]\nDescription=EL Openglo ({variant})\n"
                f"Opacity=1\nBlur=false\nColorRandomization=false\nWallpaper=\n")
     return "\n".join(out)
 
@@ -96,7 +96,7 @@ def render_all(variants, out_map):
 
 
 if __name__ == "__main__":
-    variants = ["EL-Indiglo", "EL-Indiglo-Lit", "EL-Azure", "EL-Azure-Lit",
+    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
                 "EL-Amber", "EL-Amber-Lit"]
     outs = {v: f"/tmp/{v}.colorscheme" for v in variants}
     render_all(variants, outs)

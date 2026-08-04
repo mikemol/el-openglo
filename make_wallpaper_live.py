@@ -50,8 +50,8 @@ def colors_for(variant):
 def _variant_key(variant):
     v = variant.lower()
     mode = "lit" if v.endswith("-lit") else "off"
-    if "indiglo" in v:
-        ph = "indiglo"
+    if "openglo" in v:
+        ph = "openglo"
     elif "azure" in v:
         ph = "azure"
     else:
@@ -63,11 +63,11 @@ def metadata(variant):
     return {
         "KPackageStructure": "Plasma/Wallpaper",
         "KPlugin": {
-            "Id": f"org.el.indiglo.live.{variant.lower().replace('-', '')}",
-            "Name": f"EL Indiglo Live ({variant})",
+            "Id": f"org.el.openglo.live.{variant.lower().replace('-', '')}",
+            "Name": f"EL Openglo Live ({variant})",
             "Description": f"Living electroluminescent watch face — {variant}",
             "License": "GPLv3",
-            "Authors": [{"Name": "EL Indiglo"}],
+            "Authors": [{"Name": "EL Openglo"}],
         },
         "X-Plasma-API-Minimum-Version": "6.0",
     }
@@ -229,7 +229,7 @@ def render_all(variants, dir_map):
 
 
 if __name__ == "__main__":
-    variants = ["EL-Indiglo", "EL-Indiglo-Lit", "EL-Azure", "EL-Azure-Lit",
+    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
                 "EL-Amber", "EL-Amber-Lit"]
     outs = {v: f"/tmp/wplive-{v}" for v in variants}
     render_all(variants, outs)

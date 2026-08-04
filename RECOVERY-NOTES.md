@@ -3,6 +3,62 @@
 Reconstructed after a container filesystem reset wiped the local (never-pushed) git repo.
 Source: /mnt/transcripts (on-disk sessions through 2026-07-04 21:37).
 
+---
+
+## THE RENAME: why this file still says "Indiglo" and nothing else does
+
+The project was first built as **el-indiglo**. "Indiglo" is a registered trademark
+(Timex), so the project was **renamed to el-openglo** and the prior mark was retired
+**everywhere** — not only as the project name, but in descriptive prose and in palette
+token names (`indiglo-on` became `openglo-on`). The scrub is deliberately total rather
+than nominative: the concern is a trademark, and keeping the word for "the effect it
+describes" keeps the exposure. Prose that leaned on the mark was rewritten to describe
+the effect instead ("selecting anything switches the backlight on").
+
+Two files are excluded from the scrub, by policy, because they are **historical
+records** and rewriting them would falsify the history they exist to preserve:
+
+- **this file** — the verbatim provenance record of the pre-rename recovery;
+- **COTYPE.md** — the append-only design log.
+
+`scripts/check_mark.py` is the only place that spells the retired mark; it is the sole
+authority on the scrub and the worklist cites it. It excludes those two paths by PATH,
+never by obfuscating the search string — a needle spelled `"ind" + "iglo"` would hide
+from the very grep a human runs to audit the check.
+
+---
+
+## CORRECTIONS TO THIS FILE (verified against the tree, 2026-08-04)
+
+⚑ **The "main rebuild gap" below is STALE, and it is the reason this repo computes
+status instead of recording it.** The notes say `segment_topology.py`'s later API — the
+FORMATS 7/9/14/16/22 lattice, `project()`, and the `DIGITS16`/`LETTERS16`/`SYMBOLS16`
+glyph tables — was not recovered. **All of those are present** in the recovered file.
+
+What was genuinely absent, measured by diffing consumer references against module
+exports: **`SEG22`, `GEOM22`, and `endpoints`** — three symbols, not a whole API.
+
+- `endpoints` shipped in `segment_topology_ADDITIONS.py`, now merged in (that file is
+  gone; its docstring said to append it).
+- `SEG22` / `GEOM22` were **reconstructed** from COTYPE.md session 27 (⊕SEG22) and its
+  closure section, which pin the structure exactly: 22-seg = 16-seg + six additions
+  (two dots `p1`/`p2`, one lower-left diagonal `n1`, three descender bars `dl`/`dc`/`dr`
+  below the baseline). The identifiers and their roles are **recovered**; the literal
+  coordinates did **not** survive and are **derived** in the existing cell convention.
+  The log also states the gate that makes this checkable rather than invented —
+  *projection 22→16 is byte-equal to native `glyph16`* — and `segment_topology.py
+  --selftest` asserts it across all uppercase and digits.
+
+⚑ **A file the notes never knew was missing: `qml_sanity.py`.** `make_deb.py` imports it
+from *inside a function body*, so its absence never surfaced as an import error. COTYPE.md
+shows it was a module of this project (a qmllint gate over the emitted QML, using
+PySide6), not a package. It is recorded as absent in `pyproject.toml`; the packaging
+path's QML gate is missing until it is rebuilt.
+
+⚑ **The lowercase 22-segment glyph tables are NOT recoverable** and no consumer
+references them. The design log describes them (s/x use the extra diagonal, i uses the
+two dots) but contains no table.
+
 ## What this IS
 - The el-indiglo working tree as it existed in the ON-DISK transcript sessions.
 - COTYPE.md = first creation + all 140 heredoc appends found on disk (the design log).

@@ -30,7 +30,7 @@ def manifest(variant):
     return {
         "manifest_version": 3,
         "version": VERSION,
-        "name": f"EL Indiglo ({variant})",
+        "name": f"EL Openglo ({variant})",
         "description": f"Electroluminescent watch display — {variant}",
         "theme": {
             "colors": {
@@ -70,7 +70,7 @@ def render_all(variants, out_dir_map):
 
 
 if __name__ == "__main__":
-    variants = ["EL-Indiglo", "EL-Indiglo-Lit", "EL-Azure", "EL-Azure-Lit",
+    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
                 "EL-Amber", "EL-Amber-Lit"]
     outs = {v: f"/tmp/chrome-{v}" for v in variants}
     render_all(variants, outs)

@@ -33,7 +33,7 @@ def metadata(variant):
             "Description": "Phosphor scrolling ticker that subsumes notification popups",
             "Category": "System Information",
             "License": "GPLv3",
-            "Authors": [{"Name": "EL Indiglo"}],
+            "Authors": [{"Name": "EL Openglo"}],
         },
         "X-Plasma-API-Minimum-Version": "6.0",
     }
@@ -148,7 +148,7 @@ def render_all(variants, dir_map):
 
 
 if __name__ == "__main__":
-    variants = ["EL-Indiglo", "EL-Indiglo-Lit", "EL-Azure", "EL-Azure-Lit",
+    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
                 "EL-Amber", "EL-Amber-Lit"]
     outs = {v: f"/tmp/nm-{v}" for v in variants}
     render_all(variants, outs)
