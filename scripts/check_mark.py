@@ -41,21 +41,54 @@ EXCLUDE = {
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-def hits():
-    """[(path, n_occurrences)] for tracked files carrying the mark, excluding EXCLUDE."""
+# Directories never worth scanning (and ruinous to walk).
+_SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".mypy_cache"}
+
+
+def _hits_git():
+    """Fast path: ask git, which already knows what is tracked.  None if unavailable."""
     r = subprocess.run(["git", "-C", ROOT, "grep", "-Iic", "-e", MARK, "--", "."],
                        capture_output=True, text=True)
-    # rc 1 = no match (clean); rc >1 = a real error we must not read as "clean".
+    # rc 1 = no match (clean); rc >1 = git could not answer (e.g. not a repo).
     if r.returncode > 1:
-        print(f"check_mark: git grep failed (rc={r.returncode}): {r.stderr.strip()}",
-              file=sys.stderr)
-        sys.exit(2)
+        return None
     out = []
     for line in r.stdout.splitlines():
         path, _, count = line.rpartition(":")
-        if path and path not in EXCLUDE:
+        if path:
             out.append((path, int(count)))
     return out
+
+
+def _hits_walk():
+    """Fallback: walk the tree.
+
+    ⚑ WHY THIS EXISTS.  The git path cannot run where there is no git repo — which
+    is precisely the Δ mutation sandbox, a plain copy of the tree.  With only the
+    git path this check REFUSED there, so paperkit could not grade it and it stood
+    `broken`: an ungradeable check is one nobody has shown can fail.  The scan must
+    be able to answer wherever the files are, not only where the VCS is."""
+    out = []
+    for dp, dns, fns in os.walk(ROOT):
+        dns[:] = [d for d in dns if d not in _SKIP_DIRS]
+        for fn in sorted(fns):
+            p = os.path.join(dp, fn)
+            try:
+                text = open(p, encoding="utf-8", errors="replace").read()
+            except OSError:
+                continue
+            n = text.lower().count(MARK)
+            if n:
+                out.append((os.path.relpath(p, ROOT), n))
+    return sorted(out)
+
+
+def hits():
+    """[(path, n_occurrences)] for files carrying the mark, excluding EXCLUDE."""
+    got = _hits_git()
+    if got is None:
+        got = _hits_walk()
+    return [(p, n) for p, n in got if p not in EXCLUDE]
 
 
 def main(argv):
@@ -103,6 +136,24 @@ def _selftest():
     h = hits()
     check("hits() shape", all(isinstance(p, str) and n > 0 for p, n in h), True)
     check("hits() excludes EXCLUDE", not any(p in EXCLUDE for p, _ in h), True)
+
+    # ⚑ THE SCAN MUST SEE THE MARK, or its all-clear means nothing.  Both paths
+    # are exercised: the walk is the one the Δ sandbox uses (no git there), so
+    # testing only the git path would leave the load-bearing branch unproven.
+    import tempfile
+    global ROOT
+    keep = ROOT
+    try:
+        with tempfile.TemporaryDirectory() as td:
+            open(os.path.join(td, "planted.txt"), "w").write(f"a {MARK} here\n")
+            ROOT = td
+            walked = _hits_walk()
+            check("the walk SEES a planted mark", walked, [("planted.txt", 1)])
+            check("the walk is used when git cannot answer", _hits_git(), None)
+            os.remove(os.path.join(td, "planted.txt"))
+            check("the walk reports clean when absent", _hits_walk(), [])
+    finally:
+        ROOT = keep
     print("check_mark selftest:", "PASS" if ok else "FAIL")
     return ok
 
