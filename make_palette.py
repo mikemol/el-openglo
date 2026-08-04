@@ -332,8 +332,28 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS):
         "tt_bg": _s(tt_bg), "tt_alt": _s(_lum_nudge(tt_bg, 0.01 * up)),
         # phosphor foregrounds = the solved lit / ghost primitives
         "fg": _s(lit), "fg_act": _s(accent), "fg_in": _s(ghost),
-        "focus": _s(lit),
-        "hover": _s(accent),
+        # ⚑ THE FOCUS RING IS THE ACCENT, NOT THE BODY TEXT.  `focus` read
+        # `_s(lit)` — the same value as `fg` — so DecorationFocus and
+        # View/ForegroundNormal emitted byte-identically in all six variants, and
+        # a focus ring the exact colour of the text it surrounds cannot mark
+        # anything. The README names them as different roles (`body-glow` is
+        # normal text, `el-core` is the focus ring / accent), and `accent` was
+        # already solved and already in use for fg_act and hover.
+        #
+        # ⚑ NO EXISTING GATE COULD SEE IT.  Every colour check here asks whether
+        # something is legible AGAINST A BACKGROUND, and both values are — just
+        # not from each other. "Is this role distinguishable from THAT role" is a
+        # different question, and it took rendering the palette into
+        # catalog/library/ and looking at the swatch to ask it.
+        # ⚑ AND HOVER IS NOT FOCUS EITHER.  Pointing `focus` at `accent` alone
+        # would have moved the collision rather than removed it, since `hover`
+        # was already `accent`. The log records the intended relation — "old
+        # focus demoted to hover" (:277) — so they are two decoration STATES: the
+        # ring you have focused and the one you are merely over. Hover is the
+        # accent stepped toward the ground, which keeps the hue and separates the
+        # state.
+        "focus": _s(accent),
+        "hover": _s(_lum_nudge(accent, -0.12 if C._wcag_L(ground) < 0.4 else 0.12)),
         # semantic accents — from the JOINT constellation solve (mutually distinct)
         "link": _s(_sem["link"]),
         "visited": _s(_sem["visited"]),
@@ -353,7 +373,15 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS):
         # measuring 7.2:1-14.3:1), so ACTIVE is that same inversion pushed further
         # from the background rather than nearer to it — active text should be the
         # MOST legible thing in the group, not the least.
-        "sel_bg": _s(accent), "sel_act": _s(_lum_nudge(ground, -0.15)),
+        # ⚑ THE SELECTION FIELD IS THE ACCENT'S HUE, NOT THE ACCENT'S VALUE.
+        # `sel_bg` read `_s(accent)` — byte-identical to `focus` once the focus
+        # ring stopped borrowing `lit` — so a focused item inside a selection had
+        # a ring the exact colour of the field it sat on. Sharing the HUE is the
+        # design ("selecting anything switches the backlight on", the same
+        # el-core family); sharing the VALUE erases the boundary between the two.
+        # Nudged toward the ground, as `sel_alt` beside it already does.
+        "sel_bg": _s(_lum_nudge(accent, -0.08 if C._wcag_L(ground) < 0.4 else 0.08)),
+        "sel_act": _s(_lum_nudge(ground, -0.15)),
         "sel_alt": _s(_lum_nudge(accent, -0.05)),
         "sel_fg": _s(ground), "sel_in": _s(_mix(accent, ground, 0.5)),
         "sel_link": _s(ground), "sel_vis": _s(_mix(ground, accent, 0.3)),

@@ -2,24 +2,24 @@
   <rect width="384" height="256" fill="#9dc2e8"/>
   <!-- window -->
   <rect x="42" y="40" width="230" height="150" rx="6" fill="#a1c5e9"
-        stroke="#001429" stroke-width="1.5"/>
-  <rect x="42" y="40" width="230" height="22" rx="6" fill="#082a4c"/>
+        stroke="#082a4c" stroke-width="1.5"/>
+  <rect x="42" y="40" width="230" height="22" rx="6" fill="#0c3e71"/>
   <circle cx="56" cy="51" r="4" fill="#001429"/>
-  <circle cx="70" cy="51" r="4" fill="#001429"/>
+  <circle cx="70" cy="51" r="4" fill="#082a4c"/>
   <!-- phosphor text lines -->
   <rect x="58" y="80"  width="140" height="7" rx="2" fill="#001429"/>
   <rect x="58" y="98"  width="180" height="7" rx="2" fill="#001429" opacity="0.75"/>
   <rect x="58" y="116" width="110" height="7" rx="2" fill="#001429" opacity="0.55"/>
-  <rect x="58" y="150" width="70"  height="20" rx="3" fill="#001429"/>
+  <rect x="58" y="150" width="70"  height="20" rx="3" fill="#082a4c"/>
   <!-- segment clock motif -->
   <g transform="translate(322,150)" font-family="monospace" font-weight="bold">
     <rect x="-59.0" y="-26" width="118.0" height="44" rx="4" fill="#9dc2e8"
-          stroke="#001429" stroke-width="1"/>
-    <text x="0" y="7" font-size="30" fill="#001429" text-anchor="middle"
+          stroke="#082a4c" stroke-width="1"/>
+    <text x="0" y="7" font-size="30" fill="#082a4c" text-anchor="middle"
           letter-spacing="2">12:00</text>
   </g>
   <!-- panel -->
   <rect x="0" y="230" width="384" height="26" fill="#a1c5e9"/>
-  <rect x="8" y="237" width="40" height="12" rx="3" fill="#001429"/>
+  <rect x="8" y="237" width="40" height="12" rx="3" fill="#082a4c"/>
   <rect x="314" y="237" width="60" height="12" rx="3" fill="#001429" opacity="0.7"/>
 </svg>

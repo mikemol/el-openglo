@@ -7,8 +7,8 @@
   <text x="252" y="120" font-family="monospace" font-size="13" fill="#000000">panel #a1e9da</text>
   <rect x="476" y="34" width="220" height="96" fill="#002921"/>
   <text x="484" y="120" font-family="monospace" font-size="13" fill="#ffffff">phosphor #002921</text>
-  <rect x="708" y="34" width="220" height="96" fill="#002921"/>
-  <text x="716" y="120" font-family="monospace" font-size="13" fill="#ffffff">accent #002921</text>
-  <rect x="940" y="34" width="220" height="96" fill="#084c3f"/>
-  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #084c3f</text>
+  <rect x="708" y="34" width="220" height="96" fill="#084c3f"/>
+  <text x="716" y="120" font-family="monospace" font-size="13" fill="#ffffff">accent #084c3f</text>
+  <rect x="940" y="34" width="220" height="96" fill="#0c715e"/>
+  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #0c715e</text>
 </svg>
