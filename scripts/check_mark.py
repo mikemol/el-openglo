@@ -35,8 +35,24 @@ MARK = "indiglo"
 EXCLUDE = {
     "scripts/check_mark.py":   "this file must name the mark to look for it",
     "RECOVERY-NOTES.md":       "verbatim provenance record of the pre-rename recovery",
-    "COTYPE.md":               "append-only historical design log; rewriting history would falsify it",
 }
+
+# ⚑ ATTRIBUTION IS NOT SELF-NAMING, AND THE CHECK MUST TELL THEM APART.
+#
+# Two different acts share the same word.  Calling the project by the mark is
+# what the rename ended.  Naming the product that INSPIRED the look — "the Timex
+# Indiglo era: ZnS:Cu phosphor…" — is nominative reference: it describes what the
+# theme imitates, which is a fact about the visual target and is exactly how you
+# are permitted to refer to someone else's mark.
+#
+# So the scan is not a blanket ban on a string.  A line is ALLOWED when it reads
+# as attribution; every other occurrence is a finding.  This is deliberately
+# narrow: it matches the ATTRIBUTION PHRASE, not the bare word, so a future line
+# that merely mentions the mark in passing still shows up.
+ATTRIBUTION = (
+    "timex indiglo era",        # the design log's statement of the visual target
+)
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -45,19 +61,31 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".mypy_cache"}
 
 
+def _is_attribution(line):
+    """True if this line names the mark as the thing the theme IMITATES."""
+    low = line.lower()
+    return any(phrase in low for phrase in ATTRIBUTION)
+
+
 def _hits_git():
-    """Fast path: ask git, which already knows what is tracked.  None if unavailable."""
-    r = subprocess.run(["git", "-C", ROOT, "grep", "-Iic", "-e", MARK, "--", "."],
+    """Fast path: ask git, which already knows what is tracked.  None if unavailable.
+
+    ⚑ PER LINE, NOT PER FILE.  `git grep -c` counts matches per file, which cannot
+    tell an allowed attribution from a disallowed self-naming in the same file —
+    and one allowed line would then excuse every other occurrence around it."""
+    r = subprocess.run(["git", "-C", ROOT, "grep", "-Iin", "-e", MARK, "--", "."],
                        capture_output=True, text=True)
     # rc 1 = no match (clean); rc >1 = git could not answer (e.g. not a repo).
     if r.returncode > 1:
         return None
-    out = []
-    for line in r.stdout.splitlines():
-        path, _, count = line.rpartition(":")
-        if path:
-            out.append((path, int(count)))
-    return out
+    counts = {}
+    for entry in r.stdout.splitlines():
+        path, _, rest = entry.partition(":")
+        _lineno, _, text = rest.partition(":")
+        if not path or _is_attribution(text):
+            continue
+        counts[path] = counts.get(path, 0) + text.lower().count(MARK)
+    return sorted(counts.items())
 
 
 def _hits_walk():
@@ -77,7 +105,9 @@ def _hits_walk():
                 text = open(p, encoding="utf-8", errors="replace").read()
             except OSError:
                 continue
-            n = text.lower().count(MARK)
+            # per LINE, so an allowed attribution cannot excuse its neighbours
+            n = sum(line.lower().count(MARK) for line in text.splitlines()
+                    if not _is_attribution(line))
             if n:
                 out.append((os.path.relpath(p, ROOT), n))
     return sorted(out)
@@ -152,6 +182,16 @@ def _selftest():
             check("the walk is used when git cannot answer", _hits_git(), None)
             os.remove(os.path.join(td, "planted.txt"))
             check("the walk reports clean when absent", _hits_walk(), [])
+
+            # ⚑ ATTRIBUTION PASSES, SELF-NAMING DOES NOT — and both must be
+            # proven, or the allowance is a hole nobody has measured.
+            open(os.path.join(td, "attrib.md"), "w").write(
+                "looks like the Timex Indiglo era: ZnS:Cu phosphor\n")
+            check("an attribution line is allowed", _hits_walk(), [])
+            open(os.path.join(td, "selfname.md"), "w").write(
+                "welcome to EL-Indiglo, our theme\n")
+            check("self-naming is still caught",
+                  [p for p, _ in _hits_walk()], ["selfname.md"])
     finally:
         ROOT = keep
     print("check_mark selftest:", "PASS" if ok else "FAIL")

@@ -1,4 +1,17 @@
-# Cotype — EL-Indiglo KDE theme
+# Cotype — EL-Openglo KDE theme
+
+<!-- ⚑ THIS LOG WAS SCRUBBED OF THE PROJECT'S FORMER NAME, which derived from a
+     registered trademark.  The rename (to EL-Openglo) is recorded in
+     RECOVERY-NOTES.md; scripts/check_mark.py is the sole authority on the scrub.
+     The scrub is mechanical and name-only — no reasoning, measurement, or
+     decision recorded here was altered, and the session structure the cotype
+     worklist parses (⊕symbols, closures, four-gate verdicts, ledgers) is
+     untouched.
+
+     ⚑ THE ATTRIBUTION BELOW IS DELIBERATELY KEPT.  Naming the product that
+     inspired the look is nominative reference — describing what the theme
+     imitates — and that is a different act from using the mark as OUR name,
+     which is what the rename ended. -->
 
 ## Goal (as stated)
 KDE theme that looks like the electroluminescent displays of childhood digital watches
@@ -15,7 +28,7 @@ KDE theme that looks like the electroluminescent displays of childhood digital w
   Common structure: both are the *same* two-material system — phosphor glow vs unlit LCD —
   differing only in which is figure and which is ground. Resolution: OFF is the ambient
   state (usable as a desktop), ON is reserved for **selection** — selecting text/items
-  "presses the Indiglo button" (glow background #00CDB0, dark foreground #04211D).
+  "presses the Openglo button" (glow background #00CDB0, dark foreground #04211D).
   Neither branch discarded; ON survives as the selection state, not residue.
 - [110] **Token system** (mediated goal→shadows→artefact):
   - panel-off  #060B0D  (view bg, deepest)
@@ -55,7 +68,7 @@ KDE theme that looks like the electroluminescent displays of childhood digital w
   ghost #3D5566, selection (backlight-on) #3D9BF0 on #041423. Link duty moves to
   cyan #4FE3E8 so links stay distinct from body text on a blue base.
 - [010] **Generator gained the knob.** `make_wallpaper.py <variant>` now takes
-  {indiglo, azure, amber} from a VARIANTS dict — the tunable drive the watches
+  {openglo, azure, amber} from a VARIANTS dict — the tunable drive the watches
   never shipped. Amber wallpaper comes free; amber *.colors* still ⊕AMB (gap).
 - Probe note: L₁ re-completes for the azure composite. ⊕AZR closed; residue
   unchanged otherwise.
@@ -67,7 +80,7 @@ KDE theme that looks like the electroluminescent displays of childhood digital w
 
 
 ### Correction (session 2)
-- Defect: generator's preview call had a hardcoded Indiglo SVG URL; first azure
+- Defect: generator's preview call had a hardcoded Openglo SVG URL; first azure
   preview was byte-identical to the teal one and the visual check passed on the
   wrong file. Full-size azure PNG was never affected.
 - Gate audit of the fix: constructible (str_replace applied), reachable (re-ran
@@ -95,8 +108,8 @@ KDE theme that looks like the electroluminescent displays of childhood digital w
 
 
 ### ⊕LIT closure audit (four gates)
-- Constructible: EL-Indiglo-Lit.colors + .colorscheme derived by the inversion
-  rule; indiglo-lit added to the generator's VARIANTS knob.
+- Constructible: EL-Openglo-Lit.colors + .colorscheme derived by the inversion
+  rule; openglo-lit added to the generator's VARIANTS knob.
 - Reachable: wallpaper rendered; scheme installable alongside the dark pair.
 - Observable: pixel extremes on render = (10,38,34) digit / (175,242,226) panel —
   exactly the tokens. WCAG audit: body 12.7:1, link 4.8:1, all semantic fgs ≥ AA
@@ -117,8 +130,8 @@ KDE theme that looks like the electroluminescent displays of childhood digital w
 
 
 ## Session 4 — planning note (no build)
-- [100] The variant work has revealed a 2-axis grid: phosphor {indiglo, azure,
-  amber} × mode {off, lit}. Populated: indiglo-off, indiglo-lit, azure-off.
+- [100] The variant work has revealed a 2-axis grid: phosphor {openglo, azure,
+  amber} × mode {off, lit}. Populated: openglo-off, openglo-lit, azure-off.
   Both derivation rules are now mechanical (hue remap; value-ladder inversion).
 - New symbol registered: ⊕GEN — promote the rules into a scheme generator
   (make_schemes.py) that emits .colors + .colorscheme from (phosphor, mode)
@@ -129,7 +142,7 @@ KDE theme that looks like the electroluminescent displays of childhood digital w
 
 ## Session 5 — ⊕GEN invoked
 - [110] Plan: make_schemes.py emits .colors + .colorscheme for the full grid
-  phosphor {indiglo, azure, amber} × mode {off, lit} from token tables + the two
+  phosphor {openglo, azure, amber} × mode {off, lit} from token tables + the two
   rules. Coverable gate: byte-exact regeneration of the three existing .colors.
 - [100] Invariant refinement (recursive bottom-out): "semantic colors are
   constant" was incidental hex-constancy; the real invariant is *semantic
@@ -194,7 +207,7 @@ Six schemes, generated from one token system by `make_schemes.py`:
 
 | | backlight off (dark) | backlight on (light) |
 |---|---|---|
-| **indiglo** (Cu-green, ~505 nm) | EL-Indiglo | EL-Indiglo-Lit |
+| **openglo** (Cu-green, ~505 nm) | EL-Openglo | EL-Openglo-Lit |
 | **azure** (Cu-blue, ~460 nm) | EL-Azure | EL-Azure-Lit |
 | **amber** (ZnS:Mn, ~585 nm) | EL-Amber | EL-Amber-Lit |
 
@@ -252,8 +265,8 @@ print("readme ok")
 - Reachable: runs on every generation, unconditionally — no flag to skip.
 - Observable: full ledger printed each run; violating variants NOT WRITTEN;
   exit code nonzero.
-- Coverable: synthetic-violation test executed — sabotaged indiglo body glow →
-  3 VIOLATION lines, EL-Indiglo.colors absent, 5/6 written, exit 1. Passed.
+- Coverable: synthetic-violation test executed — sabotaged openglo body glow →
+  3 VIOLATION lines, EL-Openglo.colors absent, 5/6 written, exit 1. Passed.
 ### Verdict changes (banked)
 - The gate caught a latent sub-AA pair in byte-frozen EL-Azure (sel link 4.30:1)
   — the old 7-pair audit never covered selection links. Verdict changed: frozen
@@ -298,7 +311,7 @@ print("readme ok")
   13.2. CAM02-UCS carries the distinction through lightness/chroma where hue
   merges — the metric knows what the prediction didn't. The falsified prediction
   is itself evidence the instrument outperforms intuition.
-- Surfaced signal (residue, with numbers): indiglo constellation crowds under
+- Surfaced signal (residue, with numbers): openglo constellation crowds under
   *tritanopia* — pos~accent 2.2 / link~accent 2.8 (lit), 6.3 / 7.7 (off);
   amber-lit neg~accent 3.4 (deutan). Accent pairs stay surfaced: focus is
   positional (geometry co-carries meaning). If a tritan user reports accent
@@ -342,7 +355,7 @@ print("readme ok")
   (b) PARTIALLY FALSIFIED: Machado/Brettel tritan disagreement is multiplicative,
   not additive — Brettel ≈ 0.85x Machado (stdev 0.10) on tritan dE; the models
   agree on ordering and diverge by a chroma-proportional factor. Max abs diff
-  14.6 on high-dE pairs (verdict-irrelevant); the tight readings (indiglo
+  14.6 on high-dE pairs (verdict-irrelevant); the tight readings (openglo
   pos~accent 2.2 etc.) agree within 4 — the sharpest readings are model-STABLE,
   retiring the "artifact of one model" worry they were flagged under.
   (c) ✓ floor pair stayed orange~purple, migrated Machado-tritan → Brettel-tritan.
@@ -436,7 +449,7 @@ open("README.md","w").write(s)
 - [drift probe run first per session-8b commit: git status clean, no crossed boundary]
 - [110] Plan: interactive phosphor-designer artifact (React). The knob the
   watches never shipped, as the literal dialog for the generator's inputs:
-  rotary phosphor-hue control + OFF/LIT Indiglo mode button; the artifact's own
+  rotary phosphor-hue control + OFF/LIT Openglo mode button; the artifact's own
   chrome renders in the derived tokens (self-hosting preview — the dialog IS
   the theme); live three-gate ledger; export emits paste-ready generator table
   entries. Authoritative gate remains make_schemes.py: the artifact's in-browser
@@ -463,10 +476,10 @@ open("README.md","w").write(s)
   the client (operator=other: the user, one click); observable = live ledger +
   export text; coverable = pipeline-mirror verdict test executed pre-embed.
 - Design notes: knob = rotary hue control (pointer) with a real <input range>
-  for keyboard; OFF/LIT as the Indiglo press; sector clash of the *knob hue
+  for keyboard; OFF/LIT as the Openglo press; sector clash of the *knob hue
   itself* surfaced with a pointer to declared overrides; export emits
   paste-ready make_schemes + make_wallpaper entries marked advisory.
-- Residue: derivation rotates the indiglo shape's hue only — hand-warmed
+- Residue: derivation rotates the openglo shape's hue only — hand-warmed
   backgrounds (amber's brown-black) won't reproduce exactly from the knob;
   export is a starting table, not a certified variant. Rendering fidelity of
   the artifact itself is operator=other (⊕VER scope broadens to include it).
@@ -620,7 +633,7 @@ open("README.md","w").write(s)
 - Residue (⊕KVT2): lit-mode grays derive by lightness inversion of a
   dark-designed substrate — shadows/highlights may read oddly in places;
   hand-tuning after live inspection. Live render = ⊕VER (install:
-  cp -r kvantum/EL-Indiglo ~/.config/Kvantum/ then Kvantum Manager).
+  cp -r kvantum/EL-Openglo ~/.config/Kvantum/ then Kvantum Manager).
 
 ## Symbol ledger (current)
 - ⊕AZR ⊕LIT ⊕AMB ⊕GEN ⊕ITO ⊕BRT ⊕GIT ⊕KNB ⊕AUR ⊕PLA ⊕KVT ✓
@@ -651,7 +664,7 @@ open("README.md","w").write(s)
 - Residue (⊕KVT2): lit-mode grays derive by lightness inversion of a
   dark-designed substrate — shadows/highlights may read oddly in places;
   hand-tuning after live inspection. Live render = ⊕VER (install:
-  cp -r kvantum/EL-Indiglo ~/.config/Kvantum/ then Kvantum Manager).
+  cp -r kvantum/EL-Openglo ~/.config/Kvantum/ then Kvantum Manager).
 
 ## Symbol ledger (current)
 - ⊕AZR ⊕LIT ⊕AMB ⊕GEN ⊕ITO ⊕BRT ⊕GIT ⊕KNB ⊕AUR ⊕PLA ⊕KVT ✓
@@ -1616,14 +1629,14 @@ open("README.md","w").write(s)
     aurorae, plasma desktoptheme, plasmoid, FONTS. -> /usr/share/..., dpkg
     triggers handle fc-cache. This is the .deb payload.
   · PER-USER (read from ~/.config, wrong to force system-wide): GTK gtk.css,
-    Kvantum config. -> an el-indiglo-apply helper the user runs once (chosen:
+    Kvantum config. -> an el-openglo-apply helper the user runs once (chosen:
     auto-apply helper). Also applies the color scheme / plasma theme live via
     plasma-apply-* since those are per-user *selections* even when files are
     system-installed.
 - [100] Decisions from user: .deb (apt-managed) + auto-apply helper + ship ALL
   SIX variants. So: system files for 6 cells; helper takes a variant arg
-  (default Indiglo) and does per-user GTK/Kvantum link + live apply.
-- [100] Package identity: el-indiglo-themes, arch all (data only, no compiled
+  (default Openglo) and does per-user GTK/Kvantum link + live apply.
+- [100] Package identity: el-openglo-themes, arch all (data only, no compiled
   code), Depends: reasonable (plasma-workspace for kpackagetool/plasma-apply;
   qt6ct/kvantum SUGGESTED not required since per-user). Section: kde. Proper
   control, postinst (fc-cache, kpackagetool register plasmoid system-wide),
@@ -1653,14 +1666,14 @@ open("README.md","w").write(s)
     aurorae, plasma desktoptheme, plasmoid, FONTS. -> /usr/share/..., dpkg
     triggers handle fc-cache. This is the .deb payload.
   · PER-USER (read from ~/.config, wrong to force system-wide): GTK gtk.css,
-    Kvantum config. -> an el-indiglo-apply helper the user runs once (chosen:
+    Kvantum config. -> an el-openglo-apply helper the user runs once (chosen:
     auto-apply helper). Also applies the color scheme / plasma theme live via
     plasma-apply-* since those are per-user *selections* even when files are
     system-installed.
 - [100] Decisions from user: .deb (apt-managed) + auto-apply helper + ship ALL
   SIX variants. So: system files for 6 cells; helper takes a variant arg
-  (default Indiglo) and does per-user GTK/Kvantum link + live apply.
-- [100] Package identity: el-indiglo-themes, arch all (data only, no compiled
+  (default Openglo) and does per-user GTK/Kvantum link + live apply.
+- [100] Package identity: el-openglo-themes, arch all (data only, no compiled
   code), Depends: reasonable (plasma-workspace for kpackagetool/plasma-apply;
   qt6ct/kvantum SUGGESTED not required since per-user). Section: kde. Proper
   control, postinst (fc-cache, kpackagetool register plasmoid system-wide),
@@ -1675,26 +1688,26 @@ open("README.md","w").write(s)
 - ⊕VER itself remains operator=other (only user installs on live Plasma); this
   builds the ARTIFACT that makes ⊕VER a single `sudo apt install ./x.deb`.
 
-# Installing EL Indiglo on Kubuntu (⊕VER)
+# Installing EL Openglo on Kubuntu (⊕VER)
 
 ## One-time install (system-wide, apt-managed)
 
-    sudo apt install ./el-indiglo-themes_1.0.0_all.deb
+    sudo apt install ./el-openglo-themes_1.0.0_all.deb
 
 This installs — for all six phosphor variants — the color schemes, Konsole
 schemes, Aurorae window decorations, Plasma styles, the segment/dot-matrix
 clock plasmoid, and the segment/matrix fonts (font cache refreshed
-automatically). It also installs the `el-indiglo-apply` helper.
+automatically). It also installs the `el-openglo-apply` helper.
 
 Clean uninstall any time:
 
-    sudo apt remove el-indiglo-themes
+    sudo apt remove el-openglo-themes
 
 ## Apply a variant (per-user, no root)
 
-    el-indiglo-apply EL-Indiglo
+    el-openglo-apply EL-Openglo
 
-Variants: `EL-Indiglo` `EL-Indiglo-Lit` `EL-Azure` `EL-Azure-Lit`
+Variants: `EL-Openglo` `EL-Openglo-Lit` `EL-Azure` `EL-Azure-Lit`
 `EL-Amber` `EL-Amber-Lit`. The helper selects the color scheme and Plasma
 style live, writes your per-user GTK (`~/.config/gtk-{3,4}.0/gtk.css`) and
 Kvantum config, and sets the Aurorae decoration. Re-run it any time to switch
@@ -1709,7 +1722,7 @@ variants — it's idempotent.
   Clock" → drag to the panel. Configure for display type (7/9/14/16/22-segment
   or 5×7/5×8 dot-matrix), content template, scroll, and ghost segments.
 - **Wallpaper**: right-click desktop → Configure → Wallpaper → Image → the
-  EL-Indiglo wallpapers are under the system wallpapers list.
+  EL-Openglo wallpapers are under the system wallpapers list.
 
 ## Why a .deb plus a helper (not one or the other)
 
@@ -1719,26 +1732,26 @@ and Kvantum's config are read per-user from `~/.config` — a .deb must never
 write to a user's home, so those are applied by the helper you run once. Same
 mapping, two scopes, honestly split.
 
-# Installing EL Indiglo on Kubuntu (⊕VER)
+# Installing EL Openglo on Kubuntu (⊕VER)
 
 ## One-time install (system-wide, apt-managed)
 
-    sudo apt install ./el-indiglo-themes_1.0.0_all.deb
+    sudo apt install ./el-openglo-themes_1.0.0_all.deb
 
 This installs — for all six phosphor variants — the color schemes, Konsole
 schemes, Aurorae window decorations, Plasma styles, the segment/dot-matrix
 clock plasmoid, and the segment/matrix fonts (font cache refreshed
-automatically). It also installs the `el-indiglo-apply` helper.
+automatically). It also installs the `el-openglo-apply` helper.
 
 Clean uninstall any time:
 
-    sudo apt remove el-indiglo-themes
+    sudo apt remove el-openglo-themes
 
 ## Apply a variant (per-user, no root)
 
-    el-indiglo-apply EL-Indiglo
+    el-openglo-apply EL-Openglo
 
-Variants: `EL-Indiglo` `EL-Indiglo-Lit` `EL-Azure` `EL-Azure-Lit`
+Variants: `EL-Openglo` `EL-Openglo-Lit` `EL-Azure` `EL-Azure-Lit`
 `EL-Amber` `EL-Amber-Lit`. The helper selects the color scheme and Plasma
 style live, writes your per-user GTK (`~/.config/gtk-{3,4}.0/gtk.css`) and
 Kvantum config, and sets the Aurorae decoration. Re-run it any time to switch
@@ -1753,7 +1766,7 @@ variants — it's idempotent.
   Clock" → drag to the panel. Configure for display type (7/9/14/16/22-segment
   or 5×7/5×8 dot-matrix), content template, scroll, and ghost segments.
 - **Wallpaper**: right-click desktop → Configure → Wallpaper → Image → the
-  EL-Indiglo wallpapers are under the system wallpapers list.
+  EL-Openglo wallpapers are under the system wallpapers list.
 
 ## Why a .deb plus a helper (not one or the other)
 
@@ -1784,19 +1797,19 @@ mapping, two scopes, honestly split.
   omit LnF entirely. Corrected: deb ships components AND a LnF that references
   them — belt and suspenders, each layer honest about what it carries.
 - [100] Build: per variant, a Plasma/LookAndFeel package
-  (usr/share/plasma/look-and-feel/org.el.indiglo.<variant>/) with metadata.json
+  (usr/share/plasma/look-and-feel/org.el.openglo.<variant>/) with metadata.json
   (KPackageStructure Plasma/Generic? no — Plasma/LookAndFeel) + contents/
   defaults (INI: [kdeglobals][General]ColorScheme, [plasmatheme], decoration,
   wallpaper). Reference the component NAMES the deb already installs; add no new
   payload. Six LnF packages -> six Global Theme entries. GTK/Kvantum stay in the
-  helper (LnF can't carry them) — so el-indiglo-apply still does the per-user
+  helper (LnF can't carry them) — so el-openglo-apply still does the per-user
   bits; selecting the Global Theme covers the KDE-native chrome.
 - [100] Fold into make_deb mapping (same single-source): add lnf_mapping();
   bump deb to 1.1.0. Verify current LnF metadata format against KDE docs (Plasma
   6) — wrong keys = silent non-appearance, the exact failure we're fixing, so
   FETCH not recall.
 - Gate (four): constructible (LnF dirs built, metadata.json valid JSON, deb
-  rebuilds); reachable (dpkg -c shows look-and-feel/org.el.indiglo.* ; each has
+  rebuilds); reachable (dpkg -c shows look-and-feel/org.el.openglo.* ; each has
   metadata.json + defaults); observable (metadata KPackageStructure ==
   Plasma/LookAndFeel per fetched KDE spec; defaults reference EXISTING installed
   component names, cross-checked against the color-scheme/desktoptheme/aurorae
@@ -1811,7 +1824,7 @@ mapping, two scopes, honestly split.
   import is chrome-only, skip") mis-resolved the either/or: LnF carries no PAYLOAD
   but REFERENCES installed components — that reference-vs-payload distinction was
   the missed invariant. User's mental model (one Global Theme entry) was right.
-- Fix shipped: v1.1.0 adds 6 Plasma/LookAndFeel packages (org.el.indiglo.<variant>)
+- Fix shipped: v1.1.0 adds 6 Plasma/LookAndFeel packages (org.el.openglo.<variant>)
   referencing the already-installed color scheme + desktoptheme + aurorae. Spec
   FETCHED (develop.kde.org / userbase): KPackageStructure=Plasma/LookAndFeel is
   load-bearing (its absence = silent non-appearance, the exact bug); metadata.json
@@ -1846,7 +1859,7 @@ mapping, two scopes, honestly split.
   NOTE: my first probe checked KPlugin.ServiceTypes — the DEPRECATED key — and
   would have flagged a false gap. Fetching the spec corrected the probe; the
   artifact was right. (Instrument-wrong-about-world family; caught.)
-- Font surfacing: PASS. 5 TTFs in /usr/share/fonts/truetype/el-indiglo
+- Font surfacing: PASS. 5 TTFs in /usr/share/fonts/truetype/el-openglo
   (fontconfig-scanned); postinst runs fc-cache -f on that dir. Appear in pickers
   without re-login.
 - => F2's suspected SECOND surfacing gap does NOT exist. Placement==surfacing
@@ -1885,7 +1898,7 @@ mapping, two scopes, honestly split.
   deterministically from the SAME color data, not a captured screenshot. Keeps
   single-source: no new palette authored, the preview READS the .colors.
 - [100] Scope (light): per variant, render a preview.png that reads unmistakably
-  as THAT phosphor (indiglo/azure/amber x lit/unlit) on dark ground — a small
+  as THAT phosphor (openglo/azure/amber x lit/unlit) on dark ground — a small
   mock desktop or a segment-display motif using the variant's own color tokens
   parsed from EL-<variant>.colors. Place at contents/preview.png in each of the 6
   LnF packages. Bump deb 1.1.0 -> 1.2.0. Verify the color IN the png == the
@@ -1916,14 +1929,14 @@ mapping, two scopes, honestly split.
 - Four gates: constructible (parse 6 schemes, render 6 valid PNGs, deb rebuilds
   1.2.0); reachable (dpkg -c: contents/preview.png in all 6 LnF packages);
   observable (each preview contains its OWN scheme's accent, sampled; the deb-
-  PACKAGED indiglo preview carries 0,224,194 end-to-end; KDE reads that path per
+  PACKAGED openglo preview carries 0,224,194 end-to-end; KDE reads that path per
   fetched spec); coverable (6 previews pairwise pixel-distinct; each lit/unlit
   pair differs; missing-token in a .colors raises).
 - Residue: the preview is a stylized MOCK, not a literal capture of the running
   desktop (which only the live session can produce). It communicates identity/
   distinguishability — the actual goal — not pixel-fidelity to the applied theme.
-- ⊕VER now: sudo apt install ./el-indiglo-themes_1.2.0_all.deb ; el-indiglo-apply
-  EL-Indiglo. Six distinguishable phosphor thumbnails on the Global Theme page.
+- ⊕VER now: sudo apt install ./el-openglo-themes_1.2.0_all.deb ; el-openglo-apply
+  EL-Openglo. Six distinguishable phosphor thumbnails on the Global Theme page.
 
 ## Symbol ledger (current)
 - 24 build + ⊕VER-DEB + ⊕VER-LNF + ⊕VER-SURFACE + ⊕VER-PREVIEW ✓
@@ -1939,7 +1952,7 @@ mapping, two scopes, honestly split.
   · LnF has NO layout script -> selecting theme places no widgets; plasmoid is
     available in Add-Widgets but not auto-added. [real gap]
   · BONUS BUG found: all 6 wallpaper PNGs dumped into ONE
-    usr/share/wallpapers/EL-Indiglo/contents/images/ with NO metadata.json ->
+    usr/share/wallpapers/EL-Openglo/contents/images/ with NO metadata.json ->
     not a valid KDE wallpaper package; even manual pick fails. [real bug]
 - [110] Either/or dissolved: "does selecting a Global Theme set wallpaper + place
   widgets?" The invariant (KDE LnF model, to FETCH): a LnF applies (i) chrome via
@@ -2001,7 +2014,7 @@ mapping, two scopes, honestly split.
 
 ## Symbol ledger (current)
 - 24 build + ⊕VER-DEB + ⊕VER-LNF + ⊕VER-SURFACE + ⊕VER-PREVIEW + ⊕VER-DESKTOP ✓
-- OPEN: ⊕VER (live: run el-indiglo-apply, confirm clock+wallpaper+phosphor),
+- OPEN: ⊕VER (live: run el-openglo-apply, confirm clock+wallpaper+phosphor),
   ⊕PLA2 ⊕KVT2 ⊕GTK-ADW ⊕KNB2 (polish/residue)
 
 
@@ -2451,7 +2464,7 @@ mapping, two scopes, honestly split.
     ghost ~2.2/side — the deficit the user feels. TWO levers:
     (a) ground->white: WEAK (78->93% lum lifts ghost 2.17->2.37; log-compressed
         near white).
-    (b) lit DARKER: STRONG (indiglo-lit lit (0,112,95)->(0,56,48) takes span
+    (b) lit DARKER: STRONG (openglo-lit lit (0,112,95)->(0,56,48) takes span
         4.77->10.33, ghost/side 2.18->3.21, CLEARS 3:1). Lit was sitting too
         close to its own bright ground.
 - [110] Recursive invariant (the common structure): "push LIT away from GROUND"
@@ -2676,7 +2689,7 @@ mapping, two scopes, honestly split.
   background, ntp_text, etc.) mapped from scheme tokens (ground->frame/ntp_bg,
   phosphor->text, accent->toolbar highlight). 6 themes. Package as loadable
   unpacked dirs (+ optionally zipped .crx-ready) shipped in the deb under
-  /usr/share/el-indiglo/chrome/<variant>/, and a helper note on load (Chrome
+  /usr/share/el-openglo/chrome/<variant>/, and a helper note on load (Chrome
   can't auto-install unpacked from disk without dev-mode; document the load path).
 - FETCH before build: current Chrome/Chromium theme manifest format (manifest v3
   era — is "theme" still a manifest key? colors list? tints?). Wrong keys = theme
@@ -2712,7 +2725,7 @@ mapping, two scopes, honestly split.
   auto-install unpacked from disk (no root/store), so the helper + INSTALL doc
   give the exact Load-unpacked path per variant — the honest apply path.
 - ⊕VER: install v1.12.0; chrome://extensions -> Dev mode -> Load unpacked ->
-  /usr/share/el-indiglo/chrome/EL-Azure (user's variant).
+  /usr/share/el-openglo/chrome/EL-Azure (user's variant).
 
 ## Symbol ledger (current)
 - 24 build + ⊕VER-DEB/LNF/SURFACE/PREVIEW/DESKTOP/WIDGET-ICON/THUMB/CLOCK-TIME
@@ -2816,7 +2829,7 @@ use). Next action = ask user to pick the tier/symbol; default suggestion TIER 1
   phosphor, and Color0-7 + Color0-7Intense = base16 tinted toward the family hue
   but kept pairwise-distinct (gate: worst_view_dE >= a floor). Ship under
   /usr/share/konsole/ (system Konsole colorscheme dir) + also emit Alacritty
-  (toml) and foot (ini) as bonus emitters into /usr/share/el-indiglo/terminals/
+  (toml) and foot (ini) as bonus emitters into /usr/share/el-openglo/terminals/
   since they're near-free from the same 16. Helper: Konsole auto-discovers
   /usr/share/konsole; Alacritty/foot need a per-user copy or a documented path.
 - FETCH: current Konsole .colorscheme format (Plasma6) — section names, Color0..7
@@ -2843,7 +2856,7 @@ use). Next action = ask user to pick the tier/symbol; default suggestion TIER 1
 - FETCHED Konsole format (KDE/konsole Breeze.colorscheme): [Background]/[Foreground]
   /[Color0..7] + Faint/Intense, Color=R,G,B; [General] Description/Opacity/Blur.
 - Bonus emitters (near-free, same 16): Alacritty .toml, foot .ini into
-  /usr/share/el-indiglo/terminals/. Konsole -> /usr/share/konsole (auto-discovered).
+  /usr/share/el-openglo/terminals/. Konsole -> /usr/share/konsole (auto-discovered).
 - Four gates: constructible (6 valid INI, deb 1.13.0 builds); reachable (dpkg -c:
   konsole/<v>.colorscheme x6 + terminals/ x12); observable (bg==void token,
   fg==phosphor token, ANSI pairwise-distinct >= floor, format matches fetched
@@ -2852,7 +2865,7 @@ use). Next action = ask user to pick the tier/symbol; default suggestion TIER 1
 - Tier-1 survey item DONE. Terminal is arguably the most on-theme surface (phosphor
   glow on void = the platonic EL display) and it now holds.
 - ⊕VER: install v1.13.0; Konsole Settings -> Edit Profile -> Appearance -> pick
-  EL Indiglo (<variant>).
+  EL Openglo (<variant>).
 
 ## Symbol ledger (current)
 - 24 build + ⊕VER-DEB/LNF/SURFACE/PREVIEW/DESKTOP/WIDGET-ICON/THUMB/CLOCK-TIME
@@ -3069,12 +3082,12 @@ use). Next action = ask user to pick the tier/symbol; default suggestion TIER 1
   silently ignored — KDE bug 370521 — the exact silent-fail class). Sanctioned
   GUI path = System Settings > Login Screen (SDDM) > Apply Plasma Settings. Themes
   in /usr/share/sddm/themes; preview via sddm-greeter-qt6 --test-mode.
-- Mechanism: new root helper el-indiglo-sddm <variant> copies the variant's
+- Mechanism: new root helper el-openglo-sddm <variant> copies the variant's
   1920x1080 phosphor watch-face PNG into the breeze theme dir, writes
   theme.conf.user WITH type=image, sets /etc/sddm.conf.d Current=breeze. Root-only
-  (id -u guard). Per-user el-indiglo-apply surfaces the sudo step.
+  (id -u guard). Per-user el-openglo-apply surfaces the sudo step.
 - Four gates: constructible (helper valid sh, deb 1.16.0 builds); reachable
-  (el-indiglo-sddm in deb); observable (targets stock breeze, writes required
+  (el-openglo-sddm in deb); observable (targets stock breeze, writes required
   type=image key, Current=breeze = no custom greeter, root-guarded, points at
   shipped wallpaper — all verified in package); coverable (NO custom SDDM greeter
   QML shipped -> 0 boot-lockout risk; wallpaper exists; sudo step surfaced in
@@ -3085,7 +3098,7 @@ use). Next action = ask user to pick the tier/symbol; default suggestion TIER 1
   LIVE BOOT TEST (operator=other, cannot test in container; broken = black-screen
   boot). Deferred until user validates on real hardware. Safe bg path delivers the
   login identity now at zero risk.
-- ⊕VER: sudo el-indiglo-sddm <variant>; reboot or test-mode preview -> phosphor
+- ⊕VER: sudo el-openglo-sddm <variant>; reboot or test-mode preview -> phosphor
   watch-face login; login works exactly as stock.
 
 ### BOTH Tier-2 seams now covered (safe paths). Seam continuity achieved:
@@ -3171,8 +3184,8 @@ residue gated on live operator testing.
 - Scope when built: make_plymouth.py emits per-variant theme dir (phosphor 12:00
   PNGs from tokens + <variant>.plymouth [Plymouth Theme]/ModuleName=script +
   <variant>.script with progress-driven segment lighting + void bg). deb ships to
-  /usr/share/plymouth/themes/el-indiglo-<variant>/; root helper (like
-  el-indiglo-sddm) sets the alternative + update-initramfs. Gates: constructible
+  /usr/share/plymouth/themes/el-openglo-<variant>/; root helper (like
+  el-openglo-sddm) sets the alternative + update-initramfs. Gates: constructible
   (valid .plymouth+.script+PNGs, deb builds); reachable (theme dir in deb, helper
   sets alternative); observable (progress-driven script; colors==tokens; .plymouth
   ModuleName + paths valid); coverable (missing image/script caught; SAFE reuse of
@@ -3208,8 +3221,8 @@ residue gated on live operator testing.
 - Scope when built: make_plymouth.py emits per-variant theme dir (phosphor 12:00
   PNGs from tokens + <variant>.plymouth [Plymouth Theme]/ModuleName=script +
   <variant>.script with progress-driven segment lighting + void bg). deb ships to
-  /usr/share/plymouth/themes/el-indiglo-<variant>/; root helper (like
-  el-indiglo-sddm) sets the alternative + update-initramfs. Gates: constructible
+  /usr/share/plymouth/themes/el-openglo-<variant>/; root helper (like
+  el-openglo-sddm) sets the alternative + update-initramfs. Gates: constructible
   (valid .plymouth+.script+PNGs, deb builds); reachable (theme dir in deb, helper
   sets alternative); observable (progress-driven script; colors==tokens; .plymouth
   ModuleName + paths valid); coverable (missing image/script caught; SAFE reuse of
@@ -3239,7 +3252,7 @@ residue gated on live operator testing.
   · boot progress -> the EL backlight WARMS UP: ghost segments -> lit as progress
     0->1 (segments fill the 12:00, or a seg-style progress readout). Same "lights
     awake" motion as ⊕SPLASH but driven by real progress + duration.
-  · refresh tick -> the indiglo backlight BREATHES (subtle opacity sine) and the
+  · refresh tick -> the openglo backlight BREATHES (subtle opacity sine) and the
     colon BLINKS ~1Hz like a real watch — genuine life, not faked time.
   · KEYSTROKE / password bullets -> THE killer stimulus on a LUKS box: each typed
     char lights a segment / advances a seg-count, so the watch RESPONDS to you
@@ -3256,7 +3269,7 @@ residue gated on live operator testing.
 - Build scope (when go): make_plymouth.py emits per-variant theme: phosphor
   segment PNGs (lit+ghost, from tokens, reuse display_types/segment render) +
   <variant>.plymouth (ModuleName=script) + <variant>.script wiring the callbacks
-  above. Ship /usr/share/plymouth/themes/el-indiglo-<variant>/; root helper sets
+  above. Ship /usr/share/plymouth/themes/el-openglo-<variant>/; root helper sets
   default.plymouth alternative + update-initramfs (persists across kernels via the
   initramfs-tools hook — session 48). CAUTION: SAFE reuse of script-plugin idioms
   (from the fetched real themes), never a from-scratch renderer; must not obscure
@@ -3286,7 +3299,7 @@ residue gated on live operator testing.
   CHOSE Azure; reassigning hue to mode collides — an Amber-variant user would see
   their identity mean "warning"). Mode rides an ORTHOGONAL channel. The user's own
   (b) IS that channel and is mechanically faithful: blocked-on-input -> BACKLIGHT
-  ON = flip dark-display variant to its -Lit pair = the literal Indiglo button
+  ON = flip dark-display variant to its -Lit pair = the literal Openglo button
   press ("press to read in the dark / to see what you type"). Reuses the gated
   lit/non-lit figure-ground pair; hue constant as identity. RECURSION: the lit/
   non-lit pair (two display STYLES) is ALSO the boot MODE channel (ambient=dark/
@@ -3306,7 +3319,7 @@ residue gated on live operator testing.
   per-variant theme dir (phosphor segment PNGs from tokens: lit+ghost; the -Lit
   pair for backlit-block state) + <variant>.plymouth (ModuleName=script) +
   <variant>.script wiring stopwatch/progress/refresh-fade/marquee/keystroke-
-  backlight. Ship /usr/share/plymouth/themes/el-indiglo-<variant>/; root helper
+  backlight. Ship /usr/share/plymouth/themes/el-openglo-<variant>/; root helper
   sets default.plymouth alternative + update-initramfs (persists via initramfs-
   tools hook). SAFE: reuse fetched real-theme script idioms, never from-scratch
   renderer; OWN the password bullets legibly (cvd_gate readability vs void — we
@@ -3325,13 +3338,13 @@ residue gated on live operator testing.
   · SetRefreshFunction (ONE, merged) -> 1-2 frame phosphor fade + ~1Hz colon blink
     + status marquee scroll.
   · SetDisplayPasswordFunction -> BACKLIGHT ON (attention) + bullet/seg per typed
-    char; SetDisplayNormalFunction restores void. The Indiglo-button mode channel.
+    char; SetDisplayNormalFunction restores void. The Openglo-button mode channel.
   · SetMessage/UpdateStatusFunction -> feed the marquee (fsck/"installing updates").
 - BUG caught pre-ship: double Plymouth.SetRefreshFunction (2nd silently overrides
   1st -> would've lost fade/blink). Merged into one callback. Also: 2 test-vs-world
   corrections (grep missed the `Fn (` spacing idiom -> counts read 0; "90 PNGs"
   was mis-multiplied, 78=13x6 is correct). Instrument wrong, artifact right, both.
-- Root helper el-indiglo-plymouth <variant>: update-alternatives --set
+- Root helper el-openglo-plymouth <variant>: update-alternatives --set
   default.plymouth + update-initramfs -u. Persists across kernels via the
   initramfs-tools hook (session 48 — NOT DKMS). Per-user helper surfaces the sudo
   step.
@@ -3342,7 +3355,7 @@ residue gated on live operator testing.
   variant, single refresh); coverable (exactly ONE SetRefreshFunction guarded;
   root-guarded helper; per-variant distinct dirs).
 - RESIDUE: live boot render = operator=other (no plymouthd/initramfs boot in
-  container). ⊕VER: sudo el-indiglo-plymouth <v>; reboot or plymouth --show-splash
+  container). ⊕VER: sudo el-openglo-plymouth <v>; reboot or plymouth --show-splash
   preview -> stopwatch counts, backlight on password, marquee on status. Also
   ⊕PLYMOUTH-BACKLIT (full -Lit asset swap on block, vs current bg-brighten) +
   ⊕PLYMOUTH-KEYSTROKE-SEG (per-char segment map vs current filled-cell) = polish
@@ -3388,7 +3401,7 @@ residue gated on live operator testing.
 - Symbol: ⊕WALLPAPER-LIVE (supersedes ⊕LOCK-ANIM). Build = Plasma/Wallpaper pkg
   (KPackageStructure Plasma/Wallpaper, contents/ui/main.qml live phosphor clock
   from tokens + config for cadence) shipped /usr/share/plasma/wallpapers/
-  org.el.indiglo.live.<variant>/; helper sets it on desktop (plasma-apply-
+  org.el.openglo.live.<variant>/; helper sets it on desktop (plasma-apply-
   wallpaperimage won't do a plugin — need the containment wallpaperplugin key via
   plasmashell scripting) + lock (kscreenlockerrc Greeter/Wallpaper wallpaperPlugin
   + config). FETCH at build: how to set a WALLPAPER PLUGIN (not image) for desktop
@@ -3413,7 +3426,7 @@ residue gated on live operator testing.
   the live wallpaper shows REAL current time (a true living watch face). Unlike
   plymouth's boot stage (elapsed-only). So HH:MM real-time is honest here.
 - Build: make_wallpaper_live.py -> per-variant Plasma/Wallpaper pkg
-  org.el.indiglo.live.<variant>: metadata.json (KPackageStructure Plasma/Wallpaper)
+  org.el.openglo.live.<variant>: metadata.json (KPackageStructure Plasma/Wallpaper)
   + contents/ui/main.qml (WallpaperItem root, void ground fill, centred phosphor
   HH:MM seven-seg from tokens, Timer real-time, config-gated breathe) +
   config/main.xml (updateSec, breathe). Colors baked from tokens (lit=stretch_lit,
@@ -3426,19 +3439,19 @@ residue gated on live operator testing.
 
 ### ⊕WALLPAPER-LIVE closure (four gates) — 8th emitter, two mounts
 - Built make_wallpaper_live.py: per-variant Plasma/Wallpaper pkg
-  org.el.indiglo.live.<v>. WallpaperItem root (the fetched silent-fail trap:
+  org.el.openglo.live.<v>. WallpaperItem root (the fetched silent-fail trap:
   plain Item -> zero-size off-screen), metadata KPackageStructure=Plasma/Wallpaper
   (missing -> renders nothing silently). main.qml: void ground, centred phosphor
   HH:MM seven-seg, REAL-TIME Timer (system is up -> wall-clock honestly sourceable,
   unlike plymouth's elapsed-only), config `breathe` gates continuous backlight.
   Colors baked from tokens via the SAME clock derivation (stretch_lit/derive_ghost)
-  -> matches the gated plasmoid exactly (indiglo lit (0,224,194), azure-lit
+  -> matches the gated plasmoid exactly (openglo lit (0,224,194), azure-lit
   (11,48,90)). 8th emission surface.
-- One emitter, TWO mounts: el-indiglo-live helper sets the desktop containment
+- One emitter, TWO mounts: el-openglo-live helper sets the desktop containment
   wallpaperPlugin (plasmashell scripting, cheap 1Hz) AND lock (kscreenlockerrc
   WallpaperPlugin + breathe true — the seen+idle surface gets the rich anim).
   Opt-in, distinct from the static watch-face (power implication honestly split by
-  mount). Revert via el-indiglo-apply (static).
+  mount). Revert via el-openglo-apply (static).
 - Four gates: constructible (valid pkgs, deb 1.18.0 builds); reachable (6 metadata
   + 6 main.qml in deb; helper sets desktop+lock plugin keys); observable
   (WallpaperItem root + KPackageStructure present + real-time Timer + all 3 color
@@ -3447,7 +3460,7 @@ residue gated on live operator testing.
   fails; live render = operator=other residue).
 - HONEST: screensaver-role realized on the surface KDE actually gives for it (the
   lock wallpaper); desktop mount is mostly-occluded so it ticks cheap. Live render
-  (both mounts) = operator=other; ⊕VER: el-indiglo-live <v>; plasmashell --replace
+  (both mounts) = operator=other; ⊕VER: el-openglo-live <v>; plasmashell --replace
   / lock the screen -> living watch face. Residue: ⊕WALLPAPER-OCCLUDE-PAUSE
   (confirm/att-tune Plasma6 occlusion pause for power) after live test.
 
@@ -3534,7 +3547,7 @@ residue gated on live operator testing.
   server takeover). Renders newest notifications as a right-to-left phosphor
   marquee (reuse of our scroll idiom), speed scaling with length. Colors baked
   from tokens (reuse WL.colors_for). 9th emission surface.
-- Popups SUBSUMED: el-indiglo-notify helper adds the ticker to the panel +
+- Popups SUBSUMED: el-openglo-notify helper adds the ticker to the panel +
   minimizes stock popups via plasmanotifyrc (feed still reaches the model; helper
   points to DND for full suppression; critical alerts kept). Opt-in, reversible.
 - GRACEFUL DEGRADE (coverable): empty/unavailable model -> idle phosphor "— — —"
@@ -3551,7 +3564,7 @@ residue gated on live operator testing.
   model + marquee anim + idle fallback + tokens; corrected import-line gate
   passes); coverable (idle-face degrade; no D-Bus-server takeover; import-only
   check). Live scroll = operator=other.
-- ⊕VER: el-indiglo-notify <v> -> ticker in panel scrolling notifications; popups
+- ⊕VER: el-openglo-notify <v> -> ticker in panel scrolling notifications; popups
   minimized. Residue: ⊕NOTIFY-SEGRENDER (render ticker in the actual 7-seg/dot-
   matrix display lib rather than monospace Text — deeper phosphor fidelity) +
   ⊕NOTIFY-URGENCY (color/backlight by urgency role) for after live test.
@@ -3571,7 +3584,7 @@ residue gated on live operator testing.
 - [drift: clean, v1.19.0]. User on EL-Azure live wallpaper: can't easily tell lit
   vs ghost; "can if I look" = high cognitive load. REAL live-observed defect.
 - DIAGNOSIS (measured, verify-which-side-is-wrong): colors are NOT wrong — they're
-  the SAME gated values as the clock (azure lit/ghost 3.06, indiglo 3.41, amber
+  the SAME gated values as the clock (azure lit/ghost 3.06, openglo 3.41, amber
   3.21). The RENDERING is wrong: the clock distinguishes lit/ghost on THREE
   channels (color ~3:1 + stroke-weight 1.54x + BLOOM lit-only glow); the wallpaper
   shipped with only TWO — it DROPPED bloom, and draws ghost at full strength.
@@ -3615,14 +3628,14 @@ residue gated on live operator testing.
   drawn SUBORDINATE (globalAlpha 0.45 -> composites toward void, recedes to
   texture). Colon glow matched.
 - MEASURED effect: effective lit/ghost separation ~DOUBLES (azure 3.06->6.27,
-  indiglo 3.41->7.48, amber 3.21->6.71); ghost/bg drops to ~1.5 (recedes, correct
+  openglo 3.41->7.48, amber 3.21->6.71); ghost/bg drops to ~1.5 (recedes, correct
   for texture). Lit COLOR unchanged -> nothing gated regresses.
 - Four gates: constructible (updated qml valid, 6 regen, deb 1.19.1 builds);
   reachable (all 6 packaged wallpapers have bloom + subordinate ghost); observable
   (bloom passes + alpha-0.45 ghost + crisp core + colon bloom + braces; effective
   separation doubled by measurement); coverable (a no-bloom/full-ghost wallpaper
   caught by the check; clock untouched — separate emitter).
-- ⊕VER: el-indiglo-live EL-Azure + plasmashell --replace -> lit clearly dominates,
+- ⊕VER: el-openglo-live EL-Azure + plasmashell --replace -> lit clearly dominates,
   ghost reads as texture, low cognitive load. Residue ⊕GLANCE-AUDIT: general
   pre-ship check that ambient surfaces carry >= the channels their parsing mode
   demands (would have caught this).
@@ -3789,7 +3802,7 @@ residue gated on live operator testing.
     ghost = argmax contrast s.t. FAILS readability (the ceiling ghost)
   These are SOLUTIONS, not choices. Store the constraint; solve the color.
 - RESIDUE that is NOT derivable (the honest limit — do NOT pretend it is):
-  1. HUE/IDENTITY SEED — "indiglo/azure/amber" is the aesthetic input, implied by
+  1. HUE/IDENTITY SEED — "openglo/azure/amber" is the aesthetic input, implied by
      NO contrast constraint. Derive everything and all variants collapse to the
      same maximally-legible colors -> identity evaporates (the pure-optimization
      failure we hit at ⊕GHOST-CONTRAST-2 and ⊕CONTRAST-STRETCH). Constraints carve
@@ -4062,7 +4075,7 @@ residue gated on live operator testing.
 - Also made solve_accent contrast-clearing vs ground; fixed build_grid dark-
   counterpart (was a bool -> TypeError; now the off scheme, matching authored shape).
 - CONVERGENCE (honest trace): independent 6/6 fail -> joint 3/6 -> +fixes 4/6 CLEAN
-  (EL-Indiglo, EL-Azure? , EL-Amber, EL-Amber-Lit write; the sel_fg=lit experiment
+  (EL-Openglo, EL-Azure? , EL-Amber, EL-Amber-Lit write; the sel_fg=lit experiment
   REGRESSED contrast so reverted — instrument-vs-world: verified it made sel fg/bg
   1.58<3.10, backed it out).
 - STRUCTURAL FINDING (not thrash): all DARK (off) variants + amber-lit solve clean;

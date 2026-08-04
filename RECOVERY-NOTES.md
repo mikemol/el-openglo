@@ -15,11 +15,24 @@ than nominative: the concern is a trademark, and keeping the word for "the effec
 describes" keeps the exposure. Prose that leaned on the mark was rewritten to describe
 the effect instead ("selecting anything switches the backlight on").
 
-Two files are excluded from the scrub, by policy, because they are **historical
-records** and rewriting them would falsify the history they exist to preserve:
+⚑ **ATTRIBUTION IS NOT SELF-NAMING, AND ONLY THE SECOND WAS RETIRED.** Naming the
+product that inspired the look — "the Timex Indiglo era: ZnS:Cu phosphor, blue-green
+~505 nm glow" — is *nominative reference*: it describes what the theme imitates, and
+that is how you are permitted to refer to someone else's mark. Calling the project by
+that mark is the different act, and it is the one the rename ended.
+`scripts/check_mark.py` encodes the distinction: it matches the attribution PHRASE, not
+the bare word, so a future line that merely drops the mark in passing is still a finding.
 
-- **this file** — the verbatim provenance record of the pre-rename recovery;
-- **COTYPE.md** — the append-only design log.
+**COTYPE.md was scrubbed** (94 occurrences → the one attribution line) when the repo was
+made public. The scrub was mechanical and name-only: no reasoning, measurement, or
+decision recorded in it was altered, and the structure `catalog/cotype/` parses
+(⊕symbols, closure sections, four-gate verdicts, ledger blocks) is untouched — verified
+by re-running the index across the scrub, which reports the identical 72 sessions, 111
+symbols, 46 closed, and the same 13 coherence findings.
+
+**One file remains excluded** from the scan, because it is the verbatim provenance record
+of the pre-rename recovery and rewriting it would falsify the history it exists to
+preserve: **this file**.
 
 `scripts/check_mark.py` is the only place that spells the retired mark; it is the sole
 authority on the scrub and the worklist cites it. It excludes those two paths by PATH,
