@@ -41,6 +41,7 @@ tooling = [
     "panflute",         # substrate/scratch/mdstruct.py — pandoc AST (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
     "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG
+    "python-magic>=0.4.27",
 ]
 # QML linting for the packaged widgets.  ⚑ NOT YET SATISFIABLE — see below.
 package = [

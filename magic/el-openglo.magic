@@ -1,0 +1,33 @@
+# el-openglo.magic — signatures for the artifact kinds stock file(1) calls text/plain.
+#
+# ⚑ MEASURED, NOT ASSUMED.  Stock file-5.46 identifies this repo's SVG and Python
+# correctly and returns text/plain for QML, .colors and .bib — three of five
+# artifact kinds. Each signature below closes a gap that was observed, not one
+# that was imagined.
+#
+# ⚑ SEARCH, NOT OFFSET 0.  Every one of these begins with something other than
+# its identifying token: QML files open with a `//` comment, .bib with a long
+# prose header, .colors with a [ColorEffects:...] group that is not first in
+# every variant. An `0 string` anchor matched NONE of them; `search/<n>` does,
+# and the window has to be wide enough — .bib needed 8192 because the warrants
+# files carry several hundred bytes of commentary before the first @misc{.
+#
+# ⚑ AND THIS FILE AUGMENTS, IT DOES NOT REPLACE.  `file --magic-file X` uses X
+# ALONE: SVG and Python silently regress to text/plain. The caller must
+# colon-append the system database, which scripts/identify.py does.
+
+# QML — the dominant artifact kind here (Plasma widgets, the SegmentChar substrate)
+0	search/512	import\ QtQuick	QML source
+!:mime	text/x-qml
+
+# KDE colour scheme — the emitted .colors files, one per variant
+0	search/256	[ColorEffects:	KDE color scheme
+!:mime	text/x-kde-colorscheme
+
+# BibTeX — the paperkit warrants that carry this repo's claim graph
+0	search/8192	@misc{	BibTeX warrants
+!:mime	text/x-bibtex
+
+# Konsole scheme — the terminal counterpart of .colors
+0	search/256	[Background]	Konsole color scheme
+!:mime	text/x-konsole-colorscheme

@@ -36,8 +36,24 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # A literal at or above this many lines is an artifact, not a primitive.
 DOCUMENT_LINES = 8
 
-# Markers that make a string markup rather than prose.
-MARKUP = ("<svg", "<?xml", "import QtQuick", "<!DOCTYPE", "<html")
+# ⚑ THE KINDS THAT ARE ARTIFACTS RATHER THAN PROSE, BY MIME.
+#
+# This was a hand-written tuple of markers — ("<svg", "<?xml", "import QtQuick",
+# …) — which is a worse libmagic that I maintain. scripts/identify.py owns the
+# question now, backed by libmagic plus this repo's own signatures, so adding a
+# kind means adding a SIGNATURE rather than remembering to edit a tuple here.
+#
+# Prose (text/plain) and Python are not artifacts; a payload identifying as one
+# of these is a document that belongs in a file.
+ARTIFACT_MIMES = (
+    "text/x-qml",
+    "image/svg+xml",
+    "text/xml",
+    "application/xml",
+    "text/html",
+    "text/x-kde-colorscheme",
+    "text/x-konsole-colorscheme",
+)
 
 # Embeddings accepted with a stated reason. path -> why.
 WAIVERS = {}
@@ -63,10 +79,20 @@ def embeddings(root=None, min_lines=DOCUMENT_LINES):
                 n = text.count("\n") + 1
                 if n < min_lines:
                     continue
-                hit = next((m for m in MARKUP if m in text), None)
-                if hit:
-                    out.append((fn, node.lineno, hit, n))
+                kind = _identify(text)
+                if kind in ARTIFACT_MIMES:
+                    out.append((fn, node.lineno, kind, n))
     return out
+
+
+def _identify(text):
+    """The MIME kind of a string payload, via the repo's identification tool."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    try:
+        import identify
+    except ImportError:
+        return None
+    return identify.of_string(text)
 
 
 def _docstrings(tree):
@@ -162,6 +188,22 @@ def _selftest():
               [f for f in findings(td) if f[0] == "prim.py"], [])
     check("this tool does not fire on itself",
           [f for f in findings() if f[0] == "check_embedded_markup.py"], [])
+
+    # ⚑ IDENTIFICATION ALONE WOULD FIRE ON PROSE, AND POSITION IS WHAT SAVES IT.
+    # A docstring DESCRIBING QML identifies AS QML — measured in identify.py's
+    # own selftest. So the docstring guard above is not belt-and-braces: without
+    # it this tool reports its own documentation as an embedded artifact. Assert
+    # the hazard is real, so nobody later "simplifies" the guard away.
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    try:
+        import identify
+        prose = ("The QML lives in templates/, not here. A generator that "
+                 "writes\n\n    import QtQuick\n    Item { id: root }\n\n"
+                 "inline has hidden an artifact inside a program.\n")
+        check("prose about QML DOES identify as QML (position is the guard)",
+              identify.of_string(prose), "text/x-qml")
+    except ImportError:
+        check("identify.py is importable", False, True)
     check("every waiver carries a reason", all(WAIVERS.values()), True)
     print("check_embedded_markup selftest:", "PASS" if ok else "FAIL")
     return ok
