@@ -43,6 +43,23 @@
   check   = {cmd:python3 concepts.py preview-clock-fits}
 }
 
+% ⚑ AUTHORED AFTER BEING WRONG WITHOUT IT.  Looking at the wallpaper sample I
+% reported "an offset ghost layer reading as a second overlapping clock" and
+% filed it as a predicted defect. The transforms are identical; what I saw was
+% the ghost 88:88 showing around the lit 12:00, which is the motif. My eyes were
+% the witness, and an unparameterised witness reaches for whatever state is at
+% hand — here, an impression of a picture.
+%
+% It takes the SVG as an argument, so the selftest can hand it a deliberately
+% offset file and prove it fails. It asserts the RELATION (every lit group has a
+% ghost at the same origin) rather than the coordinates, so the clock may move.
+@misc{ghost-registers,
+  section = {library},
+  claim   = {the ghost segment field registers exactly under the lit digits, so it reads as the unlit surface behind them rather than as a second display},
+  rests-on = {samples-exist},
+  check   = {cmd:python3 concepts.py ghost-registers}
+}
+
 @misc{palette-roles-distinct,
   section = {library},
   claim   = {each palette role renders as its own colour, so a role can be told apart from the others and not merely read against the background},

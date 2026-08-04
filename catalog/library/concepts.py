@@ -34,18 +34,19 @@ SAMPLES = os.path.join(HERE, "samples")
 sys.path.insert(0, ROOT)
 
 
-def samples_exist():
+def samples_exist(targets=None, min_bytes=128):
     """Every declared sample is present and non-empty.
 
     The library is a place to LOOK; a missing sample is a hole in the thing
     being looked at, and an empty SVG is a hole that still lists in the index."""
-    sys.path.insert(0, HERE)
-    import render_samples as RS
-    tgts = RS.targets()
-    assert tgts, "no sample targets — the scheme files are missing"
-    bad = [(v, s) for v, s, p, _d, _f in tgts
-           if not os.path.isfile(p) or os.path.getsize(p) < 128]
-    assert not bad, f"{len(bad)} of {len(tgts)} sample(s) missing or empty: {bad[:4]}"
+    if targets is None:
+        sys.path.insert(0, HERE)
+        import render_samples as RS
+        targets = RS.targets()
+    assert targets, "no sample targets — the scheme files are missing"
+    bad = [(v, s) for v, s, p, _d, _f in targets
+           if not os.path.isfile(p) or os.path.getsize(p) < min_bytes]
+    assert not bad, f"{len(bad)} of {len(targets)} sample(s) missing or empty: {bad[:4]}"
 
 
 def index_is_generated():
@@ -104,6 +105,46 @@ def palette_roles_are_distinct():
         f"{collisions[:4]}\n  fixes: {len(kinds)}")
 
 
+def ghost_registers_with_lit(svg_path=None):
+    """The ghost segment field sits EXACTLY under the lit digits.
+
+    ⚑ THIS WITNESS EXISTS BECAUSE I WAS WRONG WITHOUT ONE.  Looking at the
+    wallpaper sample, I reported "an offset ghost layer reading as a second
+    overlapping clock" and filed it as the empty-digit bug the design log
+    predicts. It was not: the ghost and lit groups share the IDENTICAL transform,
+    and what I read as a second clock is the ghost 88:88 showing around the lit
+    12:00 — precisely the motif the README describes. The sample was right and my
+    eyes were the witness.
+
+    That is what an unparameterised witness looks like: the judgement had no
+    arguments, so it reached for the only state available — my impression of a
+    picture. A witness that TAKES the transforms answers "offset = 0" and cannot
+    be talked into a finding.
+
+    ⚑ AND IT MUST NOT PIN THE COORDINATES.  Asserting translate(466,740) would
+    freeze today's layout and fail the moment the clock legitimately moves. What
+    is invariant is the RELATION: every lit group registers with a ghost group at
+    the same origin. Move the clock and this still holds; offset one layer and it
+    does not."""
+    import re
+    path = svg_path or os.path.join(SAMPLES, "wallpaper.svg")
+    assert os.path.isfile(path), f"no wallpaper sample at {path}"
+    text = open(path, encoding="utf-8").read()
+    # (transform, is_lit) per group; the lit layers are the filtered ones.
+    groups = [(m.group(1), "filter=" in m.group(0))
+              for m in re.finditer(r'<g transform="(translate\([^)]*\)[^"]*)"[^>]*>', text)]
+    lit = {t for t, is_lit in groups if is_lit}
+    ghost = {t for t, is_lit in groups if not is_lit}
+    assert lit, "no lit (filtered) groups found — the scan is broken, not the art flat"
+    assert ghost, "no ghost groups found"
+    unregistered = sorted(lit - ghost)
+    assert not unregistered, (
+        f"{len(unregistered)} lit group(s) have no ghost at the same origin — the "
+        f"layers are offset, so the ghost reads as a second display rather than "
+        f"as the unlit field behind this one: {unregistered}\n"
+        f"  fixes: {len(unregistered)}")
+
+
 def preview_clock_fits():
     """The preview's clock digits fit inside their bezel.
 
@@ -130,6 +171,7 @@ CONCEPTS = {
     "index-generated": index_is_generated,
     "palette-roles-distinct": palette_roles_are_distinct,
     "preview-clock-fits": preview_clock_fits,
+    "ghost-registers": ghost_registers_with_lit,
 }
 
 
@@ -173,6 +215,34 @@ def _selftest():
           all((f.__doc__ or "").strip() for f in CONCEPTS.values()), True)
     # ⚑ THE "NOT MINE" CONTRACT IS THE ONE A DOWNSTREAM CONSUMER DEPENDS ON.
     check("an unknown key exits 2, not 1", main(["no-such-concept"]), 2)
+
+    # ⚑ THE PARAMETRIC PAYOFF, DEMONSTRATED.  Because ghost_registers_with_lit
+    # TAKES its subject, the selftest can hand it a deliberately-offset SVG and
+    # prove the witness fails — instead of only ever observing it pass on the one
+    # file that happens to be on disk. A witness that cannot be shown to fail is
+    # the thing my own eyes were: unfalsifiable.
+    import tempfile
+    aligned = ('<svg xmlns="http://www.w3.org/2000/svg">'
+               '<g transform="translate(10,20) skewX(-5)"><rect/></g>'
+               '<g transform="translate(10,20) skewX(-5)" filter="url(#glow)"><rect/></g>'
+               '</svg>')
+    offset = aligned.replace('translate(10,20) skewX(-5)" filter',
+                             'translate(10,99) skewX(-5)" filter')
+    with tempfile.TemporaryDirectory() as td:
+        ok_p = os.path.join(td, "ok.svg")
+        bad_p = os.path.join(td, "bad.svg")
+        open(ok_p, "w").write(aligned)
+        open(bad_p, "w").write(offset)
+        try:
+            ghost_registers_with_lit(ok_p)
+            check("registration passes when the layers align", True, True)
+        except AssertionError as e:
+            check("registration passes when the layers align", f"raised {e}", True)
+        try:
+            ghost_registers_with_lit(bad_p)
+            check("registration FAILS when a layer is offset", "passed", "raised")
+        except AssertionError:
+            check("registration FAILS when a layer is offset", "raised", "raised")
     check("--list works", main(["--list"]), 0)
     print("concepts selftest:", "PASS" if ok else "FAIL")
     return ok
