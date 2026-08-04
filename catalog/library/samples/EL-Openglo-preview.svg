@@ -12,10 +12,10 @@
   <rect x="58" y="116" width="110" height="7" rx="2" fill="#99ffeb" opacity="0.55"/>
   <rect x="58" y="150" width="70"  height="20" rx="3" fill="#99ffeb"/>
   <!-- segment clock motif -->
-  <g transform="translate(288,150)" font-family="monospace" font-weight="bold">
-    <rect x="-4" y="-26" width="76" height="44" rx="4" fill="#0c1f1a"
+  <g transform="translate(322,150)" font-family="monospace" font-weight="bold">
+    <rect x="-59.0" y="-26" width="118.0" height="44" rx="4" fill="#0c1f1a"
           stroke="#99ffeb" stroke-width="1"/>
-    <text x="34" y="7" font-size="30" fill="#99ffeb" text-anchor="middle"
+    <text x="0" y="7" font-size="30" fill="#99ffeb" text-anchor="middle"
           letter-spacing="2">12:00</text>
   </g>
   <!-- panel -->

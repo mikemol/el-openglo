@@ -10,11 +10,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hook_structural_query.py\""
+            "command": "STRUCT_HOOK_BLOCK=1 python3 \"$CLAUDE_PROJECT_DIR/scripts/hook_structural_query.py\""
           },
           {
             "type": "command",
-            "command": "python3 \"$CLAUDE_PROJECT_DIR/scripts/hook_no_chaining.py\""
+            "command": "NOCHAIN_HOOK_BLOCK=1 python3 \"$CLAUDE_PROJECT_DIR/scripts/hook_no_chaining.py\""
           }
         ]
       }

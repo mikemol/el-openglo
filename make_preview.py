@@ -45,9 +45,48 @@ def parse_scheme(variant):
     }
 
 
+# ⚑ CLOCK_FIT — the bezel is DERIVED from the text it contains, not guessed.
+#
+# It was a hardcoded 76px box around 30px monospace "12:00" with 2px letter
+# spacing: 5 glyphs x 18px advance + 4 x 2px = 98px of text in a 76px bezel,
+# overflowing 15px left and 11px right. Only the right clip was VISIBLE (the left
+# ran under the window), so it read as one bug and was two.
+#
+# Nothing caught it because every check here asks about COLOUR — is this legible
+# against that. The SVG was valid, its palette correct, every contrast gate
+# green: the artifact was right and the LAYOUT was wrong, which is a property
+# only a rendering has. It took putting the samples somewhere they could be
+# looked at (catalog/library/) to see it at all.
+#
+# So the geometry now follows the content. Change the time, the font size or the
+# tracking and the bezel resizes with it; the previous form would silently clip
+# again on any of those.
+CLOCK_TEXT = "12:00"
+CLOCK_FONT_PX = 30
+CLOCK_TRACKING = 2
+CLOCK_PAD = 10                      # breathing room between glyphs and bezel
+# A monospace advance is ~0.6em. This is an ESTIMATE and is named as one: SVG has
+# no measurable text without a rasteriser, so the honest move is a conservative
+# constant plus padding, not a false precision.
+CLOCK_ADVANCE_EM = 0.6
+
+
+def clock_geometry(text=CLOCK_TEXT, font_px=CLOCK_FONT_PX,
+                   tracking=CLOCK_TRACKING, pad=CLOCK_PAD):
+    """(text_width, bezel_x, bezel_width) — the bezel sized to hold `text`.
+
+    The text is centred on the bezel, so the box is the text plus padding on
+    both sides and the anchor sits at its middle."""
+    n = len(text)
+    tw = n * font_px * CLOCK_ADVANCE_EM + max(0, n - 1) * tracking
+    bw = tw + 2 * pad
+    return tw, -pad - tw / 2, bw
+
+
 def preview_svg(c):
     """A small mock desktop: dark ground, a panel, a window with phosphor text,
     and a segment-style clock reading the accent — unmistakably THIS variant."""
+    _tw, _bx, _bw = clock_geometry()
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
   <rect width="{W}" height="{H}" fill="{c['ground']}"/>
   <!-- window -->
@@ -62,11 +101,11 @@ def preview_svg(c):
   <rect x="58" y="116" width="110" height="7" rx="2" fill="{c['phosphor']}" opacity="0.55"/>
   <rect x="58" y="150" width="70"  height="20" rx="3" fill="{c['accent']}"/>
   <!-- segment clock motif -->
-  <g transform="translate(288,150)" font-family="monospace" font-weight="bold">
-    <rect x="-4" y="-26" width="76" height="44" rx="4" fill="{c['ground']}"
+  <g transform="translate(322,150)" font-family="monospace" font-weight="bold">
+    <rect x="{_bx:.1f}" y="-26" width="{_bw:.1f}" height="44" rx="4" fill="{c['ground']}"
           stroke="{c['accent']}" stroke-width="1"/>
-    <text x="34" y="7" font-size="30" fill="{c['accent']}" text-anchor="middle"
-          letter-spacing="2">12:00</text>
+    <text x="0" y="7" font-size="{CLOCK_FONT_PX}" fill="{c['accent']}" text-anchor="middle"
+          letter-spacing="{CLOCK_TRACKING}">{CLOCK_TEXT}</text>
   </g>
   <!-- panel -->
   <rect x="0" y="{H-26}" width="{W}" height="26" fill="{c['panel']}"/>

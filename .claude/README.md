@@ -1,11 +1,29 @@
 # `.claude/` — harness wiring
 
-## The two PreToolUse hooks are ARMED
+## The two PreToolUse hooks are ARMED, on the COMMAND LINE
 
-`settings.json` sets both env vars, so the hooks REFUSE rather than merely comment:
+    "command": "NOCHAIN_HOOK_BLOCK=1 python3 \"$CLAUDE_PROJECT_DIR/scripts/…\""
 
-    STRUCT_HOOK_BLOCK=1     # hook_structural_query.py denies
-    NOCHAIN_HOOK_BLOCK=1    # hook_no_chaining.py denies
+⚑ **THE `env` BLOCK ALONE WAS NOT ENOUGH, AND I REPORTED IT AS ARMED FOR SEVERAL
+COMMITS.** `settings.json` also declares these under `env`, which is correct and
+insufficient: a session already running when the file changed never picks them up,
+so the hooks kept exiting 0 — detecting every violation and reporting none. The
+declaration was true and the behaviour was unchanged, which is the worst pairing:
+a guard that reads as armed in review and is off in fact.
+
+Measured, not assumed: `env | grep HOOK` in the tool's own shell showed both
+UNSET while `settings.json` plainly set them. **Verify a guard by making it FIRE,
+never by reading the file that configures it** — the same discipline the repo
+applies to claims, applied to its own wiring.
+
+Setting the variable on the command line removes the dependency on session
+environment entirely. The `env` block stays for new sessions and as documentation
+of intent; the command line is what makes it true in this one.
+
+To confirm at any time, feed a violation to a hook and look for `permissionDecision`:
+
+    printf '%s' '{"tool_name":"Bash","tool_input":{"command":"a | b"}}' \
+      | NOCHAIN_HOOK_BLOCK=1 python3 scripts/hook_no_chaining.py
 
 ⚑ **ADVISORY MODE IS SILENT TO THE AGENT, NOT MERELY NON-BLOCKING — and this file
 previously said otherwise.** Unarmed, a hook prints its advisory and exits 0 with no
