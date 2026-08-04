@@ -90,17 +90,29 @@ def clock(text, x, y, L, t, color, ghost_all=False):
 
 L, T = 340, 62                       # segment length / thickness (big digits)
 Ls, Ts = 150, 30                     # seconds digits
-ghost_big, wb = clock("88:88", 0, 0, L, T, GHOST, ghost_all=True)
-lit_big, _ = clock("12:00", 0, 0, L, T, LIT)
-ghost_sec, ws = clock("88", 0, 0, Ls, Ts, GHOST, ghost_all=True)
-lit_sec, _ = clock("00", 0, 0, Ls, Ts, LIT)
+def wallpaper_svg():
+    """The wallpaper as an SVG string — no file written, nothing printed.
 
-total_w = wb + 90 + ws
-ox = (W - total_w) / 2
-oy = (H - 2 * L) / 2
-sec_x, sec_y = ox + wb + 90, oy + 2 * L - 2 * Ls
+    ⚑ THIS WAS MODULE-LEVEL CODE, WHICH MADE THE WALLPAPER UNSAMPLEABLE.  The
+    whole render ran on IMPORT and wrote EL-Openglo-wallpaper.svg as a side
+    effect, so the only way to see it was to run the module and read a file whose
+    name it chose. The sample library therefore had no wallpaper at all: its
+    renderer called a `wallpaper_svg()` that did not exist, and the surface
+    stayed silently absent from the thing built for looking at surfaces.
 
-svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
+    Building it now RETURNS; __main__ still writes the files it always wrote.
+    """
+    ghost_big, wb = clock("88:88", 0, 0, L, T, GHOST, ghost_all=True)
+    lit_big, _ = clock("12:00", 0, 0, L, T, LIT)
+    ghost_sec, ws = clock("88", 0, 0, Ls, Ts, GHOST, ghost_all=True)
+    lit_sec, _ = clock("00", 0, 0, Ls, Ts, LIT)
+
+    total_w = wb + 90 + ws
+    ox = (W - total_w) / 2
+    oy = (H - 2 * L) / 2
+    sec_x, sec_y = ox + wb + 90, oy + 2 * L - 2 * Ls
+
+    return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <defs>
   <radialGradient id="panel" cx="50%" cy="46%" r="75%">
     <stop offset="0%" stop-color="{BG_MID}"/>
@@ -126,15 +138,20 @@ svg = f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewB
 </g>
 </svg>'''
 
-open("EL-Openglo-wallpaper.svg", "w").write(svg)
-print("wrote SVG")
-try:
-    import cairosvg
-    cairosvg.svg2png(url="EL-Openglo-wallpaper.svg",
-                     write_to="EL-Openglo-wallpaper.png",
-                     output_width=2560, output_height=1440)
-    cairosvg.svg2png(url="EL-Openglo-wallpaper.svg",
-                     write_to="preview.png", output_width=1280, output_height=720)
-    print("wrote PNGs")
-except Exception as e:
-    print("no PNG:", e)
+if __name__ == "__main__":
+    # ⚑ THE SIDE EFFECTS LIVE HERE NOW, NOT AT IMPORT.  A module that writes
+    # files and prints when merely imported cannot be sampled, tested, or
+    # composed — every consumer inherits its filenames and its stdout.
+    svg = wallpaper_svg()
+    open("EL-Openglo-wallpaper.svg", "w").write(svg)
+    print("wrote SVG")
+    try:
+        import cairosvg
+        cairosvg.svg2png(url="EL-Openglo-wallpaper.svg",
+                         write_to="EL-Openglo-wallpaper.png",
+                         output_width=2560, output_height=1440)
+        cairosvg.svg2png(url="EL-Openglo-wallpaper.svg",
+                         write_to="preview.png", output_width=1280, output_height=720)
+        print("wrote PNGs")
+    except Exception as e:
+        print("no PNG:", e)

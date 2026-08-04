@@ -104,12 +104,16 @@ def _rgb(hexstr):
 
 
 def _wallpaper(variant, path):
-    """The wallpaper SVG — vector, so it is diffable as text as well as visible."""
+    """The wallpaper — the surface ⊕SEGMENT-SUBSTRATE rewires, so it is sampled.
+
+    ⚑ SAMPLED BECAUSE IT IS ABOUT TO CHANGE.  The BUILD work rewires the
+    wallpaper's clock from an inline stroke table to the shared segment
+    substrate. "Does it still look right afterward" is answerable only against a
+    BEFORE, so the before is captured here first — that is what the library is
+    for, and saying a human must check by hand while a sample library sits
+    unused would be the same evasion twice."""
     import make_wallpaper as MW
-    svg = MW.wallpaper_svg() if hasattr(MW, "wallpaper_svg") else None
-    if svg is None:
-        raise RuntimeError("make_wallpaper exposes no svg builder")
-    open(path, "w", encoding="utf-8").write(svg)
+    open(path, "w", encoding="utf-8").write(MW.wallpaper_svg())
 
 
 SURFACES = (
@@ -119,6 +123,16 @@ SURFACES = (
      "the scheme rendered as a mock desktop"),
 )
 
+# ⚑ NOT EVERY SURFACE IS PER-VARIANT, and pretending otherwise would emit six
+# identical files. The wallpaper reads module-level colours with a standalone
+# fallback rather than taking a variant, so it renders ONCE. The distinction is
+# in the data instead of a special case in targets(): a surface is either keyed
+# by variant or it is not.
+SINGLETONS = (
+    ("wallpaper", "wallpaper.svg", _wallpaper,
+     "the desktop wallpaper — the clock face ⊕SEGMENT-SUBSTRATE rewires"),
+)
+
 
 def targets():
     """[(variant, surface, path, describe, renderer)] for everything renderable."""
@@ -126,6 +140,8 @@ def targets():
     for v in variants():
         for name, tmpl, fn, desc in SURFACES:
             out.append((v, name, os.path.join(SAMPLES, tmpl.format(v=v)), desc, fn))
+    for name, fname, fn, desc in SINGLETONS:
+        out.append(("(all)", name, os.path.join(SAMPLES, fname), desc, fn))
     return out
 
 
@@ -215,8 +231,11 @@ def _selftest():
 
     check("variants are discovered", len(variants()) > 0, True)
     check("every surface has a describer", all(d for _n, _t, _f, d in SURFACES), True)
-    check("targets cover variants x surfaces",
-          len(targets()), len(variants()) * len(SURFACES))
+    check("targets cover variants x surfaces, plus the singletons",
+          len(targets()), len(variants()) * len(SURFACES) + len(SINGLETONS))
+    check("every singleton has a describer", all(d for _n, _f, _r, d in SINGLETONS), True)
+    check("singleton filenames carry no variant slot",
+          [f for _n, f, _r, _d in SINGLETONS if "{v}" in f], [])
     check("_rgb parses a hex triple", _rgb("#0c1517"), (12, 21, 23))
     print("render_samples selftest:", "PASS" if ok else "FAIL")
     return ok
