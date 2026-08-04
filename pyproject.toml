@@ -25,6 +25,23 @@ research = [
     "matplotlib",       # the phosphor showcase renderer
     "scipy",            # the matcher's strata / congruence machinery
 ]
+
+# ⚑ THE BORROWED TOOLS' DEPENDENCIES, WHICH NOTHING HERE IMPORTS.
+#
+# `.claude/skills/struct-tools/SKILL.md` routes .py to substrate's pycodemod and
+# .md to its mdstruct — and BOTH sat in that table unable to run, because their
+# dependencies are not this repo's. check_deps.py walks THIS tree's imports, so
+# it reported "8 of 8 accounted for" while the named owner of two artifact kinds
+# raised ModuleNotFoundError. Every gate stayed green; the structural hook
+# refused grep and pointed at a tool that could not start.
+#
+# That is the routing table naming a capability the machine does not have. The
+# dependency belongs here even though no local `import` will ever justify it.
+tooling = [
+    "panflute",         # substrate/scratch/mdstruct.py — pandoc AST (pandoc itself is on PATH)
+    "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
+    "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG
+]
 # QML linting for the packaged widgets.  ⚑ NOT YET SATISFIABLE — see below.
 package = [
     "PySide6",          # supplies qmllint, which qml_sanity.py wrapped
