@@ -90,18 +90,29 @@ def _edges(bib):
     # ⚑ THIS PARSER WAS WRONG ONCE, BY GUESSING THE SHAPE INSTEAD OF READING IT:
     # it took field 0 as the key and returned two "claims" named `edges` and
     # `rests-on`. A tool's output format is something to look at, not infer.
-    out = {}
+    out, enables = {}, {}
     for line in r.stdout.splitlines():
         if "->" not in line:
             continue
-        lhs, _, parent = line.partition("->")
+        lhs, _, target = line.partition("->")
         parts = lhs.split()
-        if len(parts) < 2 or parts[0] != "rests-on":
-            continue                      # `from` is prose order, not grounding
-        child, parent = parts[1], parent.strip()
-        out.setdefault(child, []).append(parent)
-        out.setdefault(parent, [])
-    return out
+        if len(parts) < 2:
+            continue
+        rel, src, target = parts[0], parts[1], target.strip()
+        if rel == "rests-on":
+            out.setdefault(src, []).append(target)
+            out.setdefault(target, [])
+        elif rel == "enables":
+            # ⚑ `enables` RAISES LEVERAGE AND NOT LAYER.  It is SEQUENCING — this
+            # work is cheaper or safer first — whereas `rests-on` is GROUNDING: a
+            # claim cannot be TRUE unless its premises are. Feeding sequencing
+            # into the topological layer would assert a premise the source never
+            # made, just to obtain a sort order.
+            enables.setdefault(src, []).append(target)
+            out.setdefault(src, [])
+            out.setdefault(target, [])
+        # `from` is prose order — neither grounding nor sequencing.
+    return out, enables
 
 
 def order(open_keys, bib):
@@ -119,9 +130,10 @@ def order(open_keys, bib):
          one. Closed dependents are not counted, so discharging a claim collapses
          the cone it was holding open: the ordering updates itself rather than
          aging."""
-    edges = _edges(bib)
-    if edges is None:
+    got = _edges(bib)
+    if got is None:
         return None
+    edges, enables = got
     openk = set(open_keys)
 
     depth, seen = {}, set()
@@ -141,11 +153,15 @@ def order(open_keys, bib):
     for k in edges:
         layer(k)
 
-    # transitive OPEN dependents = leverage
+    # transitive OPEN dependents = leverage.  BOTH relations contribute here:
+    # grounding (what rests on this) and sequencing (what this unblocks).
     dependents = {k: set() for k in edges}
     for k, parents in edges.items():
         for p in parents:
             dependents.setdefault(p, set()).add(k)
+    for k, targets in enables.items():
+        for t in targets:
+            dependents.setdefault(k, set()).add(t)
 
     def cone(k, acc=None):
         acc = set() if acc is None else acc

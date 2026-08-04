@@ -60,3 +60,73 @@
   rests-on = {LEDGER},
   check   = {tool:check_cotype_open.py}
 }
+
+% ── work ─────────────────────────────────────────────────────────────────────
+% ⚑ THE MIGRATION WAS HALF-DONE UNTIL THESE EXISTED.  The four claims above are
+% about the READING APPARATUS — does the log parse, is it coherent, are its
+% buckets legible. Not one was about the WORK. Four meta-claims over 35 open
+% items meant the log had become legible without becoming checkable: "what is
+% actually done?" still resolved to somebody's reading of prose rather than to
+% the tree.
+%
+% Each claim below asserts that a whole bucket of the log's own open work is
+% PRESENT IN THE TREE, witnessed per symbol by scripts/check_symbol.py. They are
+% RED on arrival, and that is the design: the worklist is the projection of the
+% undischarged subgraph, so open work must read as open.
+%
+% ⚑ A WITNESS IS NECESSARY, NOT SUFFICIENT. It asserts the artifact EXISTS; only
+% an operator at a real desktop can say it is RIGHT. That half is @OPERATOR's,
+% and conflating the two would be the overclaim the log's own `✓PoC` avoided.
+%
+% ⚑ THE LIVE BUCKET HAS NO CLAIM HERE, BY DESIGN. Eleven items are
+% operator=other — no predicate over this tree can discharge "does the boot
+% splash look right". A green check for one would be an unfalsifiable claim
+% wearing a checkmark. @OPERATOR covers them as a legibility question instead.
+
+% ⚑ `enables` IS READ BY THE ORDERING, NOT BY THE ENGINE — and `bibstruct
+% --dropped` will report it as a field paperkit ignores. That is expected, not a
+% defect: substrate's own warrants carry 14 of them. The projector renders prose
+% from `claim`/`section`/`from`; `enables` exists for worklist_gate's ranking.
+% Reading the --dropped line as "delete this field" would remove the sequencing.
+%
+% ⚑ THE ORDER IS THE LOG'S, NOT MINE.  The final ledger says BUILD is "do first"
+% because it "touches shipped deb", and marks RESEARCH "design, no deb impact".
+% That is sequencing, so it is `enables` — which the ranking counts toward
+% leverage — and NOT `rests-on`, which would assert BUILD must be TRUE before the
+% others can be, a claim the log never makes. Conflating the two would put a false
+% premise under four claims to get a sort order.
+@misc{BUILD,
+  section = {work},
+  claim   = {the rollout that touches the shipped package is present in the tree — one segment substrate under wallpaper, clock, marquee and splash},
+  rests-on = {OPERATOR},
+  enables = {RESEARCH, TUNE, TIER3, RESIDUE},
+  check   = {tool:check_symbol.py --bucket BUILD}
+}
+
+@misc{RESEARCH,
+  section = {work},
+  claim   = {the font-projection research is wired to real glyph ingest, calibrated and validated, rather than resting at the proof of principle the log is careful to call one},
+  rests-on = {OPERATOR},
+  check   = {tool:check_symbol.py --bucket RESEARCH}
+}
+
+@misc{TUNE,
+  section = {work},
+  claim   = {the parameter and inheritance work is present — solved UI tokens, icon and cursor inheritance, the richer panel layout, the task switcher},
+  rests-on = {OPERATOR},
+  check   = {tool:check_symbol.py --bucket TUNE}
+}
+
+@misc{TIER3,
+  section = {work},
+  claim   = {the two vector surfaces dropped from the ledger and restored by measurement — the clock and the boot splash — are actually vector},
+  rests-on = {OPERATOR},
+  check   = {tool:check_symbol.py --bucket TIER_3}
+}
+
+@misc{RESIDUE,
+  section = {work},
+  claim   = {the residue kept as deliberately-unbuilt is either built or still honestly absent, each item witnessed rather than assumed},
+  rests-on = {OPERATOR},
+  check   = {tool:check_symbol.py --bucket RESIDUE}
+}
