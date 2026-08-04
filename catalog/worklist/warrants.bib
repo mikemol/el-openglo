@@ -1,0 +1,136 @@
+% warrants.bib — the el-openglo worklist as a claim-DAG.
+%
+% THE GOVERNING INVARIANT: every claim here is UNDISCHARGED until its check
+% passes, and the item is incomplete until it can be discharged.  Those are the
+% same fact — a claim whose check exits non-zero is a claim the gate refuses to
+% certify, so `open item` and `red check` are one state, computed fresh on every
+% run.
+%
+% ⚑ THERE IS NO open/closed FIELD, AND THERE MUST NEVER BE ONE.  Openness is
+% computed from exit codes; nothing records it, so nothing about it can go
+% stale.  Recording open-ness is precisely the failure mode this design exists
+% to dissolve — and this repo is a RECOVERY, where a stale status note is
+% exactly what went wrong: RECOVERY-NOTES.md still calls the segment API "the
+% main rebuild gap" after most of it had been recovered.
+%
+% `claim` is the COMMITMENT — one line.  The finding it came from lives in the
+% plan and in COTYPE.md.  Do not grow these into paragraphs: the one-line limit
+% is what forces a figure into a checkable [tag].
+%
+% `rests-on` is GROUNDING (a claim cannot be TRUE unless its premises are);
+% prose order is separate.  Do not conflate the two.
+%
+% This file is SOURCE and is meant to be edited.  WORKLIST.md is the projection
+% and must never be hand-edited — the gate refuses it.
+%
+% ⚑ ON NAMING: this document must never spell the retired mark, or the very
+% file certifying its absence would be a counterexample to its own claim.  It is
+% "the prior mark" throughout, and scripts/check_mark.py is its only speller.
+
+% ── rename ───────────────────────────────────────────────────────────────────
+@misc{MARK,
+  section = {rename},
+  claim   = {no file in the tree carries the prior mark, outside the historical records that must quote it},
+  check   = {tool:check_mark.py}
+}
+
+@misc{MARK-SEES,
+  section = {rename},
+  claim   = {the scrub's own scan is proven able to SEE the mark, so its all-clear is a measurement rather than a blind spot},
+  rests-on = {MARK},
+  check   = {tool:check_mark.py --selftest}
+}
+
+% ── recovery ─────────────────────────────────────────────────────────────────
+% ⚑ The archive shipped 8 files marked ** PARTIAL ** — replayed to an
+% INTERMEDIATE state because a later edit's anchor text was not found.  They all
+% BYTE-COMPILE, which is exactly why compiling is too weak a witness to certify
+% them: the recovery's own honesty is that they may be syntactically fine and
+% behaviourally wrong.  Compilation is claimed here as what it is, and no more.
+@misc{COMPILES,
+  section = {recovery},
+  claim   = {every recovered generator byte-compiles},
+  check   = {tool:check_compiles.py}
+}
+
+@misc{PARTIAL,
+  section = {recovery},
+  claim   = {every file the archive marked partial is still recorded as partial, so a syntactically-clean file is never mistaken for a verified one},
+  rests-on = {COMPILES},
+  check   = {tool:check_partial.py}
+}
+
+@misc{DEPS,
+  section = {recovery},
+  claim   = {every third-party import in the tree is accounted for in one manifest, declared or recorded as deliberately absent},
+  check   = {tool:check_deps.py}
+}
+
+% ── pipeline ─────────────────────────────────────────────────────────────────
+% ⚑ THE ONE REAL RECOVERY GAP.  Consumers import ST.SEG22 / ST.GEOM22; the
+% recovered segment_topology.py defines neither.  Everything else the recovery
+% notes called missing (the FORMATS lattice, project(), the glyph tables) was
+% verified PRESENT — that note is stale, which is the standing argument for
+% computing status instead of recording it.
+@misc{ST22,
+  section = {pipeline},
+  claim   = {segment_topology exports the 22-segment geometry its consumers import},
+  check   = {tool:check_st_api.py}
+}
+
+@misc{ST-ADD,
+  section = {pipeline},
+  claim   = {the endpoint and display-geometry helpers shipped as a separate additions file are merged into the module that owns them},
+  check   = {stsym:endpoints}
+}
+
+@misc{CONSUMERS,
+  section = {pipeline},
+  claim   = {the matcher and the showcase renderer import cleanly against that geometry},
+  rests-on = {ST22, ST-ADD},
+  check   = {tool:check_consumers.py}
+}
+
+% ── emitters ─────────────────────────────────────────────────────────────────
+% ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
+% tokens so the targets cannot drift apart; a claim that they agree is therefore
+% a claim about the whole system, not about one file.
+@misc{TOKENS,
+  section = {emitters},
+  claim   = {every emission target reads its colours from the one palette, so no target can drift from the scheme},
+  check   = {tool:check_token_source.py}
+}
+
+@misc{CHROME,
+  section = {emitters},
+  claim   = {the browser theme emits a valid manifest for every declared variant},
+  rests-on = {TOKENS},
+  check   = {tool:check_chrome.py}
+}
+
+% ── tooling ──────────────────────────────────────────────────────────────────
+@misc{HOOKS,
+  section = {tooling},
+  claim   = {the borrowed structural hooks pass their own selftests when run from this repo rather than the one they were written in},
+  check   = {tool:check_hooks.py}
+}
+
+@misc{ROUTES,
+  section = {tooling},
+  claim   = {the structural-query hook reads a non-empty routing table of this repo's own, rather than degrading silently to a contentless refusal},
+  rests-on = {HOOKS},
+  check   = {tool:check_routes.py}
+}
+
+% ── decide ───────────────────────────────────────────────────────────────────
+% ⚑ A DECISION ITEM IS CLOSED WHILE DECIDED — it is not debt.  Its witness
+% discriminates on whether the decision is LEGIBLE (recorded where a reader will
+% find it), never on whether it was the right call.  There is deliberately no
+% always-true `premise:` verb here: paperkit's own Δ grader marks a check that
+% cannot fail `indeterminate`, and an unfalsifiable claim the gate certifies is
+% worse than no claim at all.
+@misc{SCOPE,
+  section = {decide},
+  claim   = {the decision to retire the prior mark everywhere, including descriptive prose, is recorded where a reader meets the rename},
+  check   = {tool:check_scope_recorded.py}
+}

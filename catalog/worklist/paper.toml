@@ -1,0 +1,47 @@
+[paper]
+adequacy = true
+title = "el-openglo worklist"
+subtitle = "The worklist is the projection of the undischarged subgraph."
+warrants = ["warrants.bib"]
+rubric = "rubric.tsv"
+out = "WORKLIST.md"
+numbered = false
+references = false
+
+# ⚑ THE Δ SANDBOX ROOT IS DECLARED, NOT INFERRED.  The mutation grader copies a
+# bounded root into a clean sandbox and re-runs each check there.  Inferred, that
+# root would be this file's PARENT (`catalog/`) — so every check reaching back to
+# the repo would find an empty tree and grade `broken`, reporting a fact about the
+# sandbox as a fact about the check.  The claims are about the WHOLE repo, so the
+# repo root is the honest bounded root.
+root = "../.."
+
+# ── project-declared check types ─────────────────────────────────────────────
+# A `<custom>:<target>` type is declared HERE, not in the engine (paperkit's
+# resolver: "a new domain adds named types in paper.toml without touching the
+# engine").  Each resolves as a cmd template with {target} substituted.
+#
+# Checks run with the project dir as cwd, so every path is ../../-relative back
+# to the repo root.  That indirection is the price of keeping the worklist in
+# its own directory; it is paid once here rather than in each claim.
+
+# pycompile:<file> — the file byte-compiles.
+[checks.pycompile]
+cmd = "python3 -m py_compile ../../{target}"
+
+# imports:<module> — the module imports cleanly (a stronger claim than
+# compiling: it runs top-level code and resolves its own imports).
+[checks.imports]
+cmd = "python3 -c \"import sys; sys.path.insert(0,'../..'); import {target}\""
+
+# stsym:<name> — segment_topology exports {name}.  The recovery's stated gap is
+# exactly a set of missing ST attributes, so it gets a verb.
+[checks.stsym]
+cmd = "python3 -c \"import sys; sys.path.insert(0,'../..'); import segment_topology as ST; ST.{target}\""
+
+# tool:<script> — run a repo tool by name; it exits 0 iff its question is
+# answered YES.  The tool OWNS the question (substrate's standing rule: a
+# judgement in a shell line evaporates when the turn ends), so a claim cites the
+# tool rather than restating its logic in a cmd template.
+[checks.tool]
+cmd = "python3 ../../scripts/{target}"

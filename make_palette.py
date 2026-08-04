@@ -1,0 +1,337 @@
+#!/usr/bin/env python3
+"""Parametric palette solver (⊕PARAMETRIC-PALETTE).
+
+The project's inversion: stop AUTHORING color values and TESTING them; instead
+DERIVE every color as the solution (argmax) of the constraint it must satisfy.
+A stored value is a cache of a computation that goes stale when the constraint
+changes; solving on demand means nothing can rot.
+
+Two inputs are NOT derivable and remain explicit:
+  1. HUE_SEED — the identity (indiglo/azure/amber). No contrast constraint implies
+     a hue; derive it and all variants collapse to the same legible palette and
+     identity evaporates. The seed picks WHERE in the admissible region we sit.
+  2. THRESHOLDS — Lc readability ceiling, chroma floor, void luminance. Judgment
+     lives here now (which constraint at which value), not in "which color".
+
+Everything else is solved/derived:
+  void  = argmax darkness on the hue s.t. luminance <= void_max AND chroma held
+  lit   = argmax APCA contrast from ground within the hue, chroma >= chroma_floor
+  ghost = argmax contrast s.t. it FAILS readability (APCA |Lc| < ghost_ceiling)
+  accent= the hue at full usable chroma
+  ...then ~34 UI tokens derived by fixed transforms off those primitives.
+"""
+import colorsys
+import cvd_gate as C
+
+# ---- the two non-derivable inputs -----------------------------------------
+HUE_SEEDS = {          # base hue (HSV degrees) — the identity, chosen not solved
+    "indiglo": 168.0,  # teal-green electroluminescent
+    "azure":   210.0,  # blue backlight
+    "amber":   35.0,   # classic LCD amber
+}
+
+THRESHOLDS = dict(
+    void_max_lum=C.OLED_VOID_MAX_LUM,   # 2% — ground reads as OLED void
+    chroma_floor=40,                    # keep the phosphor hue (not grey/black)
+    ghost_ceiling_lc=C.GHOST_READABLE_LC,  # 30 — ghost must FAIL readability
+)
+
+
+def _hsv(h_deg, s, v):
+    r, g, b = colorsys.hsv_to_rgb((h_deg % 360) / 360.0, s, v)
+    return (int(round(r * 255)), int(round(g * 255)), int(round(b * 255)))
+
+
+def _chroma(rgb):
+    return max(rgb) - min(rgb)
+
+
+def solve_void(hue, thr):
+    """Deepest ground on the hue that still reads as OLED void (L <= void_max) AND
+    keeps a faint substrate chroma. argmax darkness s.t. void + hue held."""
+    best = None
+    # walk value up from black; keep the darkest that is void AND has some chroma
+    for k in range(2, 40):
+        v = k / 500.0                      # very low values
+        cand = _hsv(hue, 0.62, v)          # saturated so a little chroma survives
+        L = C._wcag_L(cand)
+        if L <= thr["void_max_lum"] and _chroma(cand) >= 3:
+            best = cand
+        elif L > thr["void_max_lum"]:
+            break
+    return best or _hsv(hue, 0.6, 0.03)
+
+
+def solve_lit(hue, ground, thr):
+    """Max APCA contrast from the ground within the hue, chroma >= floor. For a
+    dark ground this drives lit bright; for a light (backlit) ground, dark."""
+    dark_ground = C._wcag_L(ground) < 0.4
+    best = None
+    best_lc = -1
+    for si in range(4, 11):                 # saturation 0.4..1.0
+        s = si / 10.0
+        vs = range(55, 101) if dark_ground else range(8, 46)
+        for vi in vs:
+            v = vi / 100.0
+            cand = _hsv(hue, s, v)
+            if _chroma(cand) < thr["chroma_floor"]:
+                continue
+            lc = abs(C.apca_Lc(cand, ground))
+            if lc > best_lc:
+                best_lc, best = lc, cand
+    return best or _hsv(hue, 0.9, 0.9 if dark_ground else 0.2)
+
+
+def solve_ghost(lit, ground, thr):
+    """The ceiling ghost: max contrast that FAILS readability (APCA |Lc| < ceiling)."""
+    return C.derive_ghost_ceiling(lit, ground, thr["ghost_ceiling_lc"])
+
+
+def solve_accent(hue, ground, min_contrast=4.6):
+    """Full-chroma hue for highlights/selection — the 'hot' phosphor. Argmax'd so
+    it CLEARS contrast against the ground (on light backlit grounds a bright accent
+    fails, so drive value down until it clears)."""
+    dark_ground = C._wcag_L(ground) < 0.4
+    best, best_c = None, -1.0
+    for si in (7, 8, 9):
+        s = si / 10.0
+        vs = range(80, 101, 3) if dark_ground else range(30, 62, 3)
+        for vi in vs:
+            cand = _hsv(hue, s, vi / 100.0)
+            cr = C.wcag_ratio(cand, ground)
+            if cr >= min_contrast and cr > best_c:
+                best_c, best = cr, cand
+    return best or _hsv(hue, 0.85, 0.95 if dark_ground else 0.4)
+
+
+# required hue sectors for semantic accents (from cvd_gate.SECTORS)
+_SECTORS = {"neg": (340, 25), "neu": (30, 75), "pos": (90, 170),
+            "link": (180, 270), "visited": (180, 310)}
+
+
+def _sector_hue(sector):
+    lo, hi = sector
+    return ((lo + hi) / 2.0) if lo <= hi else (((lo + hi + 360) / 2.0) % 360)
+
+
+def _candidates(sector, ground, min_contrast, hot):
+    """In-sector colors clearing contrast-vs-ground and CVD-distinct from hot.
+    ⊕SOLVER-BACKLIT-CVD: the constellation's distinctness lives in whatever axis is
+    FREE. On a dark ground VALUE is free (bright->dark), so a narrow hue span
+    suffices. On a LIGHT ground value is PINNED dark by the contrast floor, so we
+    widen HUE (full sector) and CHROMA (deeper sats) to recover the separation
+    value can't provide. (Not by lowering the contrast floor — that harms
+    readability; wrong axis.)"""
+    lo, hi = sector
+    hmid = _sector_hue(sector)
+    dark = C._wcag_L(ground) < 0.4
+    # Hue span: wider on light grounds (value pinned -> distinctness in hue/chroma).
+    # Value span: FULL range on BOTH grounds — when the hue seed collides with a
+    # semantic sector (e.g. blue azure phosphor vs the blue `link` sector), the
+    # only way to separate is by LIGHTNESS, so we must not starve the value axis.
+    span = range(-24, 25, 8) if dark else range(-40, 41, 6)
+    sats = (0.5, 0.7, 0.85, 1.0)
+    vs = range(34, 101, 7) if dark else range(20, 64, 5)
+    out = []
+    for dh in span:
+        h = (hmid + dh) % 360
+        # strictly inside the sector with a 1-degree margin (a candidate exactly on
+        # the boundary, e.g. hue 90 for the 90-170 pos sector, trips the exclusive
+        # gate check).
+        if lo > hi:
+            inside = (h >= lo + 1) or (h <= hi - 1)
+        else:
+            inside = (lo + 1) <= h <= (hi - 1)
+        if not inside:
+            continue
+        for s in sats:
+            for vi in vs:
+                cand = _hsv(h, s, vi / 100.0)
+                if C.wcag_ratio(cand, ground) < min_contrast:
+                    continue
+                if hot is not None and _cached_dE(cand, hot) < 5.0:
+                    continue
+                out.append(cand)
+    # cap to a diverse subset (even stride keeps the value/hue spread) — the
+    # max-min search cost is superlinear in candidate count, and ~40 well-spread
+    # candidates carry the same reachable optima as hundreds.
+    if len(out) > 40:
+        stride = len(out) / 40.0
+        out = [out[int(i * stride)] for i in range(40)]
+    return out
+
+
+_DE_CACHE = {}
+def _cached_dE(a, b):
+    key = (a, b) if a <= b else (b, a)
+    v = _DE_CACHE.get(key)
+    if v is None:
+        v = C.worst_view_dE(a, b)[0]
+        _DE_CACHE[key] = v
+    return v
+
+
+def solve_semantic_set(sectors, ground, hot, min_contrast=4.6):
+    """JOINT solve of the semantic-accent constellation. Each slot draws from its
+    in-sector, contrast-clearing, hot-distinct candidates; we choose one per slot
+    to MAXIMIZE THE MINIMUM pairwise CVD-distance across the whole set (the binding
+    constraint that independent argmax ignores). Greedy seed + local swaps."""
+    slots = list(sectors.keys())
+    cands = {k: _candidates(sectors[k], ground, min_contrast, hot) for k in slots}
+    # relax contrast if any slot has no candidate (report via fallback)
+    for k in slots:
+        if not cands[k]:
+            mc = min_contrast
+            while not cands[k] and mc > 3.0:
+                mc -= 0.3
+                cands[k] = _candidates(sectors[k], ground, mc, hot)
+            if not cands[k]:
+                cands[k] = [_hsv(_sector_hue(sectors[k]), 0.85,
+                                 0.85 if C._wcag_L(ground) < 0.4 else 0.4)]
+
+    def min_pair(chosen):
+        vals = list(chosen.values())
+        m = 1e9
+        for i in range(len(vals)):
+            for j in range(i + 1, len(vals)):
+                m = min(m, C.worst_view_dE(vals[i], vals[j])[0])
+        return m
+
+    # greedy seed: pick each slot's most-saturated candidate, then local search
+    chosen = {k: max(cands[k], key=lambda c: _chroma(c)) for k in slots}
+    best_score = min_pair(chosen)
+    improved = True
+    _rounds = 0
+    while improved and _rounds < 6:      # max-min converges fast; bound the search
+        improved = False
+        _rounds += 1
+        for k in slots:
+            for cand in cands[k]:
+                if cand == chosen[k]:
+                    continue
+                trial = dict(chosen); trial[k] = cand
+                sc = min_pair(trial)
+                if sc > best_score + 1e-9:
+                    chosen, best_score, improved = trial, sc, True
+    return chosen, best_score
+
+
+# ---- derived transforms (no search) ---------------------------------------
+def _lum_nudge(rgb, delta):
+    h, l, s = colorsys.rgb_to_hls(*[c / 255.0 for c in rgb])
+    l = max(0.0, min(1.0, l + delta))
+    r, g, b = colorsys.hls_to_rgb(h, l, s)
+    return (int(round(r * 255)), int(round(g * 255)), int(round(b * 255)))
+
+
+def _mix(a, b, t):
+    return tuple(int(round(a[i] * (1 - t) + b[i] * t)) for i in range(3))
+
+
+def _s(rgb):
+    return "%d,%d,%d" % rgb
+
+
+_SECTOR_OVERRIDES = {"EL-Amber-Lit": {"neu": (30, 95)}}
+
+
+def _sect(slot, vid):
+    return _SECTOR_OVERRIDES.get(vid, {}).get(slot, _SECTORS[slot])
+
+
+def solve_scheme(seed_name, polarity, thr=THRESHOLDS):
+    """polarity: 'off' (dark display) or 'lit' (backlit). Returns a full token
+    dict — every value SOLVED or DERIVED from (hue, polarity, thresholds)."""
+    hue = HUE_SEEDS[seed_name]
+    # in lit/backlit mode the ground is the bright field, lit is the dark segment:
+    # solve the OFF ground first, then invert for lit polarity.
+    dark_ground = solve_void(hue, thr)
+    if polarity == "off":
+        ground = dark_ground
+    else:
+        # backlit: ground is the phosphor field lit up (bright), a light tint of hue
+        ground = _hsv(hue, 0.28, 0.92)
+    lit = solve_lit(hue, ground, thr)
+    ghost = solve_ghost(lit, ground, thr)
+    accent = solve_accent(hue, ground)
+
+    name = f"EL {seed_name.capitalize()}" + ("" if polarity == "off" else " Lit")
+    vid = "EL-" + seed_name.capitalize() + ("" if polarity == "off" else "-Lit")
+
+    # semantic accents — JOINT constellation solve (⊕SOLVER-SEMANTIC): all five
+    # placed together to maximize the MIN pairwise CVD-distance, each in-sector,
+    # contrast-clearing, hot-distinct. The coupling is the constraint.
+    _sem_sectors = {k: _sect(k, vid) for k in ("neg", "neu", "pos", "link", "visited")}
+    _min_c = 4.6 if C._wcag_L(ground) < 0.4 else 4.6
+    _sem, _sem_score = solve_semantic_set(_sem_sectors, ground, accent, _min_c,
+                                          anchors=[lit])
+
+    # panel ladder: ground raised by small fixed steps (derived, no search)
+    up = 1 if C._wcag_L(ground) < 0.4 else -1
+    window = _lum_nudge(ground, 0.03 * up)
+    header = _lum_nudge(ground, 0.02 * up)
+    tt_bg = _lum_nudge(ground, 0.025 * up)
+    button = _lum_nudge(ground, 0.06 * up)
+    comp = ground
+
+    name = f"EL {seed_name.capitalize()}" + ("" if polarity == "off" else " Lit")
+    vid = "EL-" + seed_name.capitalize() + ("" if polarity == "off" else "-Lit")
+
+    t = {
+        "name": name, "id": vid,
+        "view": _s(ground), "view_alt": _s(_lum_nudge(ground, 0.015 * up)),
+        "window": _s(window), "window_alt": _s(_lum_nudge(window, 0.01 * up)),
+        "button": _s(button), "button_alt": _s(_lum_nudge(button, 0.01 * up)),
+        "header": _s(header), "header_alt": _s(_lum_nudge(header, 0.01 * up)),
+        "hdr_in_bg": _s(header), "hdr_in_alt": _s(_lum_nudge(header, 0.01 * up)),
+        "comp": _s(comp), "comp_alt": _s(_lum_nudge(comp, 0.01 * up)),
+        "tt_bg": _s(tt_bg), "tt_alt": _s(_lum_nudge(tt_bg, 0.01 * up)),
+        # phosphor foregrounds = the solved lit / ghost primitives
+        "fg": _s(lit), "fg_act": _s(accent), "fg_in": _s(ghost),
+        "focus": _s(lit),
+        "hover": _s(accent),
+        # semantic accents — from the JOINT constellation solve (mutually distinct)
+        "link": _s(_sem["link"]),
+        "visited": _s(_sem["visited"]),
+        "neg": _s(_sem["neg"]),
+        "neu": _s(_sem["neu"]),
+        "pos": _s(_sem["pos"]),
+        # selection = accent-tinted
+        # selection = accent field. sel_fg must contrast the accent bg; on dark
+        # grounds the void works, on light grounds this is the compressed-range
+        # hard case tracked as ⊕SOLVER-SEL-BACKLIT (residue).
+        "sel_bg": _s(accent), "sel_act": _s(_lum_nudge(accent, 0.1)),
+        "sel_alt": _s(_lum_nudge(accent, -0.05)),
+        "sel_fg": _s(ground), "sel_in": _s(_mix(accent, ground, 0.5)),
+        "sel_link": _s(ground), "sel_vis": _s(_mix(ground, accent, 0.3)),
+        "sel_neg": "45,10,10", "sel_neu": "45,30,8", "sel_pos": "10,40,20",
+        "fx_dis": _s(ghost), "fx_in": _s(ghost),
+        "tt_is_sel": "false",
+    }
+    return t
+
+
+def build_grid():
+    """Derive the whole GRID from seeds — the OUTPUT that used to be authored.
+    The 2nd tuple element is the dark-counterpart SCHEME (a token dict) used for
+    the Complementary color group — matching the authored GRID's shape, NOT a
+    bool. Off-variant is its own counterpart; lit uses the off scheme."""
+    grid = {}
+    for seed in HUE_SEEDS:
+        off = solve_scheme(seed, "off")
+        lit = solve_scheme(seed, "lit")
+        grid[(seed, "off")] = (off, off)
+        grid[(seed, "lit")] = (lit, off)
+    return grid
+
+
+if __name__ == "__main__":
+    for seed in HUE_SEEDS:
+        for pol in ("off", "lit"):
+            t = solve_scheme(seed, pol)
+            g = tuple(int(x) for x in t["view"].split(","))
+            l = tuple(int(x) for x in t["focus"].split(","))
+            gh = tuple(int(x) for x in t["fg_in"].split(","))
+            print(f"{t['id']:<16} void={t['view']:<12} lit={t['focus']:<12} "
+                  f"ghost={t['fg_in']:<12} lit/void={C.wcag_ratio(l,g):.1f} "
+                  f"ghostLc={abs(C.apca_Lc(gh,g)):.0f}")

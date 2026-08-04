@@ -1,0 +1,8 @@
+# rubric.tsv — the worklist's sections, in document order.  Coverage requires
+# each heading to appear and each section-tagged warrant to be cited in it.
+rename	The rename
+recovery	The recovered tree
+pipeline	The segment pipeline
+emitters	The emission targets
+tooling	Tooling
+decide	User decisions

@@ -1,0 +1,47 @@
+[project]
+name = "el-openglo"
+version = "0.1.0"
+description = "An electroluminescent-display desktop theme, generated from one palette"
+requires-python = ">=3.11"
+
+# ⚑ A DEPENDENCY NAMED ONLY IN A DOCSTRING IS A PERMISSION SLIP.  Every import in
+# the tree is declared here or recorded below as deliberately absent.  The list
+# was DISCOVERED by walking the AST of every module, not remembered — see
+# scripts/check_deps.py, which re-runs that walk and refuses if the two disagree.
+#
+# The base set is what the CORE emission path needs: solve the palette, emit the
+# schemes, render the previews and wallpapers.
+dependencies = [
+    "cairosvg",         # SVG -> PNG for previews, wallpapers, and the package build
+    "colorspacious",    # CVD (colour-vision-deficiency) gating of the palette
+    "numpy",            # the palette solver and the glyph matcher
+    "pillow",           # raster compositing for the boot splash and font ingest
+]
+
+[project.optional-dependencies]
+# The research pipeline: font ingest and the cohomological glyph matcher.
+research = [
+    "fonttools",        # native TTF winding -> ink field
+    "matplotlib",       # the phosphor showcase renderer
+    "scipy",            # the matcher's strata / congruence machinery
+]
+# QML linting for the packaged widgets.  ⚑ NOT YET SATISFIABLE — see below.
+package = [
+    "PySide6",          # supplies qmllint, which qml_sanity.py wrapped
+]
+
+# ⚑ ABSENT, AND RECORDED RATHER THAN QUIETLY TOLERATED:
+#
+#   qml_sanity  — imported by make_deb.py (inside a function, so it never showed
+#   up as an import error).  It was a MODULE OF THIS PROJECT, not a PyPI package:
+#   the design log describes building and later rebuilding it as a genuine
+#   qmllint gate over the emitted QML, using PySide6's qmllint, plus
+#   render_nonempty() / render_segment_char() harness functions.  It did NOT
+#   survive the recovery and the archive's own notes never listed it as missing.
+#   Rebuilding it is open work; until then the packaging path's QML gate is
+#   absent, which is a hole in the package build, not in the theme.
+
+[tool.uv]
+# Environment is uv-managed: `uv sync` for the base, `uv sync --extra research`
+# to add the pipeline.  Never `pip install` into an ambient interpreter.
+package = false

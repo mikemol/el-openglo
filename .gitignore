@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+.gate-outcomes.tsv
+.selftest-last.tsv
+catalog/worklist/.delta-cache.json
