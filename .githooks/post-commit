@@ -38,9 +38,9 @@ advisory="$(
   # minutes.  An advisory that hangs blocks the amend, and a missing amend blocks
   # the push — so this is capped. A TIMEOUT IS PRINTED AS A TIMEOUT: silence here
   # would read as "no adequacy problems", which is the one thing it must not mean.
-  if ! timeout 240 python3 "$ROOT/scripts/worklist_gate.py" --discriminate 2>/dev/null \
+  if ! timeout 45 python3 "$ROOT/scripts/worklist_gate.py" --discriminate 2>/dev/null \
        | grep -E 'indeterminate|vacuous|summary'; then
-    echo "  Δ adequacy: NOT MEASURED this commit (exceeded 240s, or nothing to report)."
+    echo "  Δ adequacy: NOT MEASURED this commit (exceeded 45s, or nothing to report)."
     echo "  Run: python3 scripts/worklist_gate.py --discriminate"
   fi
 
