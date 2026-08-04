@@ -38,7 +38,7 @@ def samples_exist():
     """Every declared sample is present and non-empty.
 
     The library is a place to LOOK; a missing sample is a hole in the thing
-    being looked at, and an empty PNG is a hole that still lists in the index."""
+    being looked at, and an empty SVG is a hole that still lists in the index."""
     sys.path.insert(0, HERE)
     import render_samples as RS
     tgts = RS.targets()
@@ -101,7 +101,7 @@ def preview_clock_fits():
 
     ⚑ THE SECOND DEFECT THE PICTURES FOUND, AND ANOTHER ONE NO GATE COULD ASK.
     Every sample preview clips the final `0` of `12:00` against the right edge of
-    the clock bezel — reproducibly, in all six variants. The PNG is valid, its
+    the clock bezel — reproducibly, in all six variants. The SVG is valid, its
     colours are correct, every contrast check passes: the artifact is right and
     the LAYOUT is wrong, which is a property only a rendering has.
 

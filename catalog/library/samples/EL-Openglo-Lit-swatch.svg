@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1172" height="152" viewBox="0 0 1172 152">
+  <rect width="1172" height="152" fill="#9de8d8"/>
+  <text x="12" y="22" font-family="monospace" font-size="14" fill="#002921">EL-Openglo-Lit</text>
+  <rect x="12" y="34" width="220" height="96" fill="#9de8d8"/>
+  <text x="20" y="120" font-family="monospace" font-size="13" fill="#000000">ground #9de8d8</text>
+  <rect x="244" y="34" width="220" height="96" fill="#a1e9da"/>
+  <text x="252" y="120" font-family="monospace" font-size="13" fill="#000000">panel #a1e9da</text>
+  <rect x="476" y="34" width="220" height="96" fill="#002921"/>
+  <text x="484" y="120" font-family="monospace" font-size="13" fill="#ffffff">phosphor #002921</text>
+  <rect x="708" y="34" width="220" height="96" fill="#002921"/>
+  <text x="716" y="120" font-family="monospace" font-size="13" fill="#ffffff">accent #002921</text>
+  <rect x="940" y="34" width="220" height="96" fill="#084c3f"/>
+  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #084c3f</text>
+</svg>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1172" height="152" viewBox="0 0 1172 152">
+  <rect width="1172" height="152" fill="#e8c89d"/>
+  <text x="12" y="22" font-family="monospace" font-size="14" fill="#291800">EL-Amber-Lit</text>
+  <rect x="12" y="34" width="220" height="96" fill="#e8c89d"/>
+  <text x="20" y="120" font-family="monospace" font-size="13" fill="#000000">ground #e8c89d</text>
+  <rect x="244" y="34" width="220" height="96" fill="#e9caa1"/>
+  <text x="252" y="120" font-family="monospace" font-size="13" fill="#000000">panel #e9caa1</text>
+  <rect x="476" y="34" width="220" height="96" fill="#291800"/>
+  <text x="484" y="120" font-family="monospace" font-size="13" fill="#ffffff">phosphor #291800</text>
+  <rect x="708" y="34" width="220" height="96" fill="#291800"/>
+  <text x="716" y="120" font-family="monospace" font-size="13" fill="#ffffff">accent #291800</text>
+  <rect x="940" y="34" width="220" height="96" fill="#4c3008"/>
+  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #4c3008</text>
+</svg>

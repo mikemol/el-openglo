@@ -41,8 +41,13 @@ def variants():
 # surface -> (filename template, renderer). Each renderer takes (variant, path)
 # and writes that file, or raises.
 def _preview(variant, path):
+    """The scheme rendered as a mock desktop — VECTOR, straight from the emitter.
+
+    ⚑ make_preview ALREADY BUILDS THIS AS SVG and then rasterises it (its
+    render_all calls cairosvg.svg2png). Taking preview_svg() directly skips a
+    lossy step to reach a file that diffs as text."""
     import make_preview as MP
-    MP.render_all([variant], {variant: path})
+    open(path, "w", encoding="utf-8").write(MP.preview_svg(MP.parse_scheme(variant)))
 
 
 def _swatch(variant, path):
@@ -51,21 +56,46 @@ def _swatch(variant, path):
     ⚑ THE ONE SAMPLE THAT IS NOT AN EMITTER'S OUTPUT.  The emitters render the
     theme in USE; this renders the palette ITSELF, which is what you want when
     the question is "did that token change?" rather than "does the desktop look
-    right"."""
-    from PIL import Image, ImageDraw
+    right".
+
+    ⚑ SVG, AND THE FORMAT IS THE POINT.  A raster swatch diffs as "binary file
+    changed" — it shows you that the palette moved but never WHICH token, so a
+    reviewer has to open two images side by side and compare by eye. In SVG the
+    hex is literally in the diff: `fill="#99ffeb"` becomes `fill="#8ce8da"` on
+    the labelled element. That turns the sample from something you look at into
+    something you can REVIEW, which is what a library in a git repo is for.
+    It also drops the Pillow dependency from this path — one fewer reason a
+    sample fails to render on a machine that has not run `uv sync`."""
     import make_preview as MP
     c = MP.parse_scheme(variant)
     order = [k for k in ("ground", "panel", "phosphor", "accent", "sel") if k in c]
-    sw, sh, pad = 220, 96, 12
+    sw, sh, pad, top = 220, 96, 12, 34
     W = pad + len(order) * (sw + pad)
-    im = Image.new("RGB", (W, sh + 56), _rgb(c["ground"]))
-    d = ImageDraw.Draw(im)
-    d.text((pad, 8), f"{variant}", fill=_rgb(c["phosphor"]))
+    H = top + sh + 22
+    # ⚑ THE LABEL MUST BE READABLE ON THE SWATCH IT LABELS, and the first version
+    # was not: it drew every label in `ground`, so the `ground` and `panel` cells
+    # rendered as invisible text on themselves — a swatch that cannot say which
+    # colour it is showing. Pick whichever of black/white contrasts better,
+    # measured with cvd_gate's WCAG function rather than a fresh one, so the
+    # sample and the gates agree on what "readable" means.
+    import cvd_gate as C
+    cells = []
     for i, k in enumerate(order):
         x = pad + i * (sw + pad)
-        d.rectangle([x, 34, x + sw, 34 + sh], fill=_rgb(c[k]))
-        d.text((x + 6, 34 + sh - 18), f"{k} {c[k]}", fill=_rgb(c["ground"]))
-    im.save(path)
+        bg = _rgb(c[k])
+        ink = "#000000" if C.wcag_ratio(bg, (0, 0, 0)) >= C.wcag_ratio(bg, (255, 255, 255)) \
+              else "#ffffff"
+        cells.append(
+            f'  <rect x="{x}" y="{top}" width="{sw}" height="{sh}" fill="{c[k]}"/>\n'
+            f'  <text x="{x + 8}" y="{top + sh - 10}" font-family="monospace"'
+            f' font-size="13" fill="{ink}">{k} {c[k]}</text>')
+    open(path, "w", encoding="utf-8").write(
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}"'
+        f' viewBox="0 0 {W} {H}">\n'
+        f'  <rect width="{W}" height="{H}" fill="{c["ground"]}"/>\n'
+        f'  <text x="{pad}" y="22" font-family="monospace" font-size="14"'
+        f' fill="{c["phosphor"]}">{variant}</text>\n'
+        + "\n".join(cells) + "\n</svg>\n")
 
 
 def _rgb(hexstr):
@@ -83,9 +113,9 @@ def _wallpaper(variant, path):
 
 
 SURFACES = (
-    ("swatch", "{v}-swatch.png", _swatch,
+    ("swatch", "{v}-swatch.svg", _swatch,
      "the palette itself — every scheme token, labelled"),
-    ("preview", "{v}-preview.png", _preview,
+    ("preview", "{v}-preview.svg", _preview,
      "the scheme rendered as a mock desktop"),
 )
 

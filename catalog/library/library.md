@@ -6,58 +6,58 @@
 
 **preview** — the scheme rendered as a mock desktop
 
-![EL-Amber preview](samples/EL-Amber-preview.png)
+![EL-Amber preview](samples/EL-Amber-preview.svg)
 
 **swatch** — the palette itself — every scheme token, labelled
 
-![EL-Amber swatch](samples/EL-Amber-swatch.png)
+![EL-Amber swatch](samples/EL-Amber-swatch.svg)
 
 ## EL-Amber-Lit
 
 **preview** — the scheme rendered as a mock desktop
 
-![EL-Amber-Lit preview](samples/EL-Amber-Lit-preview.png)
+![EL-Amber-Lit preview](samples/EL-Amber-Lit-preview.svg)
 
 **swatch** — the palette itself — every scheme token, labelled
 
-![EL-Amber-Lit swatch](samples/EL-Amber-Lit-swatch.png)
+![EL-Amber-Lit swatch](samples/EL-Amber-Lit-swatch.svg)
 
 ## EL-Azure
 
 **preview** — the scheme rendered as a mock desktop
 
-![EL-Azure preview](samples/EL-Azure-preview.png)
+![EL-Azure preview](samples/EL-Azure-preview.svg)
 
 **swatch** — the palette itself — every scheme token, labelled
 
-![EL-Azure swatch](samples/EL-Azure-swatch.png)
+![EL-Azure swatch](samples/EL-Azure-swatch.svg)
 
 ## EL-Azure-Lit
 
 **preview** — the scheme rendered as a mock desktop
 
-![EL-Azure-Lit preview](samples/EL-Azure-Lit-preview.png)
+![EL-Azure-Lit preview](samples/EL-Azure-Lit-preview.svg)
 
 **swatch** — the palette itself — every scheme token, labelled
 
-![EL-Azure-Lit swatch](samples/EL-Azure-Lit-swatch.png)
+![EL-Azure-Lit swatch](samples/EL-Azure-Lit-swatch.svg)
 
 ## EL-Openglo
 
 **preview** — the scheme rendered as a mock desktop
 
-![EL-Openglo preview](samples/EL-Openglo-preview.png)
+![EL-Openglo preview](samples/EL-Openglo-preview.svg)
 
 **swatch** — the palette itself — every scheme token, labelled
 
-![EL-Openglo swatch](samples/EL-Openglo-swatch.png)
+![EL-Openglo swatch](samples/EL-Openglo-swatch.svg)
 
 ## EL-Openglo-Lit
 
 **preview** — the scheme rendered as a mock desktop
 
-![EL-Openglo-Lit preview](samples/EL-Openglo-Lit-preview.png)
+![EL-Openglo-Lit preview](samples/EL-Openglo-Lit-preview.svg)
 
 **swatch** — the palette itself — every scheme token, labelled
 
-![EL-Openglo-Lit swatch](samples/EL-Openglo-Lit-swatch.png)
+![EL-Openglo-Lit swatch](samples/EL-Openglo-Lit-swatch.svg)

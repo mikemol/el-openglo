@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1172" height="152" viewBox="0 0 1172 152">
+  <rect width="1172" height="152" fill="#9dc2e8"/>
+  <text x="12" y="22" font-family="monospace" font-size="14" fill="#001429">EL-Azure-Lit</text>
+  <rect x="12" y="34" width="220" height="96" fill="#9dc2e8"/>
+  <text x="20" y="120" font-family="monospace" font-size="13" fill="#000000">ground #9dc2e8</text>
+  <rect x="244" y="34" width="220" height="96" fill="#a1c5e9"/>
+  <text x="252" y="120" font-family="monospace" font-size="13" fill="#000000">panel #a1c5e9</text>
+  <rect x="476" y="34" width="220" height="96" fill="#001429"/>
+  <text x="484" y="120" font-family="monospace" font-size="13" fill="#ffffff">phosphor #001429</text>
+  <rect x="708" y="34" width="220" height="96" fill="#001429"/>
+  <text x="716" y="120" font-family="monospace" font-size="13" fill="#ffffff">accent #001429</text>
+  <rect x="940" y="34" width="220" height="96" fill="#082a4c"/>
+  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #082a4c</text>
+</svg>
