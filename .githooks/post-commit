@@ -32,8 +32,17 @@ advisory="$(
   # the work that would make it falsifiable is still open.  But an
   # `indeterminate` or `vacuous` grade means the gate is certifying a claim that
   # cannot fail, so it must be SEEN on every commit rather than discovered later.
-  python3 "$ROOT/scripts/worklist_gate.py" --discriminate 2>/dev/null \
-    | grep -E 'indeterminate|vacuous|summary' || true
+  #
+  # ⚑ BOUNDED, AND THE BOUND IS REPORTED.  The Δ grader re-runs every check inside
+  # a fresh sandbox, where the palette cache does not apply and the solve costs
+  # minutes.  An advisory that hangs blocks the amend, and a missing amend blocks
+  # the push — so this is capped. A TIMEOUT IS PRINTED AS A TIMEOUT: silence here
+  # would read as "no adequacy problems", which is the one thing it must not mean.
+  if ! timeout 240 python3 "$ROOT/scripts/worklist_gate.py" --discriminate 2>/dev/null \
+       | grep -E 'indeterminate|vacuous|summary'; then
+    echo "  Δ adequacy: NOT MEASURED this commit (exceeded 240s, or nothing to report)."
+    echo "  Run: python3 scripts/worklist_gate.py --discriminate"
+  fi
 
   # The partial-recovery roster: a reminder of which files remain unverified,
   # printed so the uncertainty stays visible instead of decaying into an
