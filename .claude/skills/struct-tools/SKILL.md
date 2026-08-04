@@ -42,7 +42,8 @@ the emitters agree on one palette); they are not general readers and do not repl
 | markdown — headers, tables, cells | `../substrate/scratch/mdstruct.py` | `python3 ../substrate/scratch/mdstruct.py` | `.md` |
 | BibTeX — the claim-DAG, not its text | `../substrate/scratch/bibstruct.py` | `python3 ../substrate/scratch/bibstruct.py` | `.bib` |
 | this repo's Python: does it compile / import | `scripts/check_compiles.py` + `scripts/check_consumers.py` | `python3 scripts/check_compiles.py --list` | — |
-| the claim graph's STATUS (are claims discharged) | `scripts/worklist_gate.py` | `python3 scripts/worklist_gate.py --where` | — |
+| the claim graph's STATUS (are claims discharged) | `scripts/worklist_gate.py` | `python3 scripts/worklist_gate.py --summary` | — |
+| **what to work on next** | `scripts/worklist_gate.py --next` | `python3 scripts/worklist_gate.py --next` | — |
 | the design log's symbols, closures and open set | `scripts/cotype_index.py` | `python3 scripts/cotype_index.py` | — |
 | Plasma / Konsole colour schemes | `scripts/check_selection_contrast.py` | `python3 scripts/check_selection_contrast.py --report` | `.colors` `.colorscheme` |
 | the retired trademark, anywhere in the tree | `scripts/check_mark.py` | `python3 scripts/check_mark.py --files` | — |

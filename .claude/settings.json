@@ -1,4 +1,8 @@
 {
+  "env": {
+    "STRUCT_HOOK_BLOCK": "1",
+    "NOCHAIN_HOOK_BLOCK": "1"
+  },
   "hooks": {
     "PreToolUse": [
       {

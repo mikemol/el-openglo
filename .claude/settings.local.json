@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 scripts/worklist_gate.py *)",
+      "Bash(python3 scripts/check_mark.py *)",
+      "Bash(python3 scripts/check_compiles.py *)",
+      "Bash(python3 scripts/check_consumers.py *)",
+      "Bash(python3 scripts/check_deps.py *)",
+      "Bash(python3 scripts/check_token_source.py *)",
+      "Bash(python3 scripts/check_st_api.py *)",
+      "Bash(python3 scripts/check_chrome.py *)",
+      "Bash(python3 scripts/check_partial.py *)",
+      "Bash(python3 scripts/check_hooks.py *)",
+      "Bash(python3 scripts/check_routes.py *)",
+      "Bash(python3 scripts/check_scope_recorded.py *)",
+      "Bash(python3 scripts/check_selection_contrast.py *)",
+      "Bash(python3 scripts/check_emitters_run.py *)",
+      "Bash(python3 scripts/check_standards.py *)",
+      "Bash(python3 scripts/check_palette_chain.py *)",
+      "Bash(python3 scripts/check_cotype_coherence.py *)",
+      "Bash(python3 scripts/check_cotype_open.py *)",
+      "Bash(python3 scripts/cotype_index.py *)",
+      "Bash(python3 segment_topology.py *)",
+      "Bash(python3 cvd_gate.py *)",
+      "Bash(python3 /home/mikemol/github/substrate/scratch/bibstruct.py *)",
+      "Bash(python3 /home/mikemol/github/substrate/scratch/mdstruct.py *)",
+      "Bash(python3 /home/mikemol/github/substrate/scratch/pycodemod.py *)",
+      "Bash(python3 /home/mikemol/github/substrate/scratch/agda_defs.py *)",
+      "Bash(python3 scripts/hook_no_chaining.py *)",
+      "Bash(python3 scripts/hook_structural_query.py *)",
+      "Bash(uv run *)",
+      "Bash(ls *)",
+      "Read(//home/mikemol/github/**)"
+    ]
+  }
+}

@@ -9,6 +9,8 @@ directory is the project) in a string a human retypes.  A judgement that lives i
 a retyped command evaporates when the turn ends.  This module owns all three.
 
     worklist_gate.py                 # GATE: are all cited claims discharged?
+    worklist_gate.py --summary       # one line per project, plus the open claims
+    worklist_gate.py --next          # the open claims, RANKED by what they unblock
     worklist_gate.py --project       # regenerate the projections from the claims
     worklist_gate.py --discriminate  # Δ: can each check actually FAIL?
     worklist_gate.py --where         # where the engine and the projects resolved
@@ -62,6 +64,104 @@ ENTRY = {
     "--discriminate":  ("discriminate.py", "DISCRIMINATE"),
 }
 
+# ⚑ `--summary` EXISTS BECAUSE ITS ABSENCE WAS BEING PAPERED OVER WITH A PIPE.
+# The verdict lines were repeatedly extracted with `… | grep -E 'FAILED|PASS'`,
+# which is the judgement living in the turn instead of in a program — the exact
+# shape the no-chaining hook refuses. The honest response to "no mode answers
+# this" is to add the mode, so: one line per project, plus the open claims.
+_VERDICT = ("paperkit-gate: check FAILED", "paperkit-gate: PASS",
+            "paperkit-gate: FAIL", "cited/placed/grounded", "coverage complete")
+
+# substrate's structural reader for a warrants .bib — the claim-DAG, not its text.
+BIBSTRUCT = os.path.expanduser("~/github/substrate/scratch/bibstruct.py")
+
+
+def _edges(bib):
+    """{key: [keys it rests on]} — read with substrate's reader, not a regex.
+
+    ⚑ ASK THE TOOL THAT OWNS THE FORMAT.  paperkit's own bib.py opens by recording
+    that it consolidated THREE parsers which had each re-derived the format; adding
+    a fourth here to save one subprocess is how that happens again."""
+    r = subprocess.run([sys.executable, BIBSTRUCT, "--edges", bib],
+                       capture_output=True, text=True)
+    if r.returncode != 0:
+        return None
+    # The reader emits "  <relation>  CHILD  -> PARENT", then a summary line.
+    # ⚑ THIS PARSER WAS WRONG ONCE, BY GUESSING THE SHAPE INSTEAD OF READING IT:
+    # it took field 0 as the key and returned two "claims" named `edges` and
+    # `rests-on`. A tool's output format is something to look at, not infer.
+    out = {}
+    for line in r.stdout.splitlines():
+        if "->" not in line:
+            continue
+        lhs, _, parent = line.partition("->")
+        parts = lhs.split()
+        if len(parts) < 2 or parts[0] != "rests-on":
+            continue                      # `from` is prose order, not grounding
+        child, parent = parts[1], parent.strip()
+        out.setdefault(child, []).append(parent)
+        out.setdefault(parent, [])
+    return out
+
+
+def order(open_keys, bib):
+    """Open claims, topologically layered then ranked by unblocking leverage.
+
+    ⚑ AN ORDER I ASSERT IS A GUESS; AN ORDER THE DAG COMPUTES IS A FACT ABOUT THE
+    DAG.  Lifted from substrate's worklist_gate.order(), whose docstring records
+    the failure this prevents: a worklist ordered by what the author happened to
+    have open — sunk-cost ordering — while cheap high-leverage items sat untouched.
+
+    Two keys, in precedence:
+      1. TOPOLOGICAL LAYER — a claim cannot precede what it `rests-on`. Grounding
+         is the only hard constraint.
+      2. LEVERAGE within a layer — how many OPEN claims transitively rest on this
+         one. Closed dependents are not counted, so discharging a claim collapses
+         the cone it was holding open: the ordering updates itself rather than
+         aging."""
+    edges = _edges(bib)
+    if edges is None:
+        return None
+    openk = set(open_keys)
+
+    depth, seen = {}, set()
+
+    def layer(k):
+        if k in depth:
+            return depth[k]
+        if k in seen:                      # a cycle is a fact to report, not to crash on
+            return 0
+        seen.add(k)
+        d = 0
+        for p in edges.get(k, ()):
+            d = max(d, layer(p) + 1)
+        depth[k] = d
+        return d
+
+    for k in edges:
+        layer(k)
+
+    # transitive OPEN dependents = leverage
+    dependents = {k: set() for k in edges}
+    for k, parents in edges.items():
+        for p in parents:
+            dependents.setdefault(p, set()).add(k)
+
+    def cone(k, acc=None):
+        acc = set() if acc is None else acc
+        for d in dependents.get(k, ()):
+            if d not in acc:
+                acc.add(d)
+                cone(d, acc)
+        return acc
+
+    rows = []
+    for k in sorted(openk):
+        lev = len(cone(k) & openk)
+        rows.append((depth.get(k, 0), -lev, k, lev))
+    rows.sort()
+    return [(k, d, lev) for d, _n, k, lev in rows]
+
 
 def locate():
     """(engine_dir, None) or (None, reason) — never a silent skip."""
@@ -93,6 +193,11 @@ def main(argv):
     mode = None
     only = None
     args = argv[1:]
+    summary = "--summary" in args
+    want_next = "--next" in args
+    args = [a for a in args if a not in ("--summary", "--next")]
+    if want_next:
+        summary = True
     if "--only" in args:
         i = args.index("--only")
         if i + 1 >= len(args) or args[i + 1] not in PROJECTS:
@@ -114,8 +219,8 @@ def main(argv):
         if a in ENTRY:
             mode = a
         else:
-            print(f"worklist_gate: unknown flag {a!r} "
-                  f"(known: --project, --discriminate, --where, --only <name>)",
+            print(f"worklist_gate: unknown flag {a!r} (known: --project, "
+                  f"--discriminate, --summary, --next, --where, --only <name>)",
                   file=sys.stderr)
             return 2
 
@@ -142,12 +247,39 @@ def main(argv):
             print(f"worklist_gate: REFUSED — no project at {proj}", file=sys.stderr)
             worst = max(worst, 2)
             continue
-        if len(targets) > 1:
+        if len(targets) > 1 and not summary:
             print(f"── {name} ──")
         # The engine imports its own siblings by bare name, so it runs from its dir.
-        rc = subprocess.run([sys.executable, path, proj],
-                            cwd=os.path.join(engine, "paperkit")).returncode
-        worst = max(worst, rc)
+        run = subprocess.run([sys.executable, path, proj],
+                             cwd=os.path.join(engine, "paperkit"),
+                             capture_output=summary, text=True)
+        if summary:
+            lines = (run.stdout or "").splitlines() + (run.stderr or "").splitlines()
+            verdict = [l.strip() for l in lines
+                       if any(v in l for v in _VERDICT)]
+            failed = [l.strip() for l in verdict if "FAILED" in l]
+            state = "PASS" if run.returncode == 0 else "FAIL"
+            counted = next((l for l in verdict if "cited/placed/grounded" in l), "")
+            print(f"{name:9} {state}  {counted.split(': ', 1)[-1] if counted else ''}"
+                  .rstrip())
+            open_keys = []
+            for f in failed:
+                tail = f.split("for ", 1)[-1]
+                key = tail.split("]")[0].lstrip("[@").strip()
+                open_keys.append(key)
+                if not want_next:
+                    print(f"          open: {tail}")
+            if want_next and open_keys:
+                ranked = order(open_keys, os.path.join(proj, "warrants.bib"))
+                if ranked is None:
+                    print("          (cannot rank: bibstruct unavailable)")
+                    for k in open_keys:
+                        print(f"          open: @{k}")
+                else:
+                    for k, d, lev in ranked:
+                        blocks = f"unblocks {lev}" if lev else "unblocks nothing yet"
+                        print(f"          @{k}  layer {d}, {blocks}")
+        worst = max(worst, run.returncode)
     return worst
 
 
