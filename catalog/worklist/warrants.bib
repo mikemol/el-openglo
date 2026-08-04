@@ -134,6 +134,26 @@
   check   = {tool:check_selection_contrast.py}
 }
 
+% ⚑ THE BREAK THAT NOTHING CAUGHT.  8 of the 10 cvd_gate attributes consumers call
+% went missing in the recovery — WCAG, APCA, the ghost derivations, the gate's own
+% normalized-q metric — so make_palette could not import and make_schemes fell back
+% to the authored table. Every file byte-compiled; the only symptom was a washed-out
+% palette. @COMPILES said so about itself, and @CONSUMERS' roster was the gap: it
+% covered the segment pipeline and not the colour chain.
+@misc{PALETTE-CHAIN,
+  section = {emitters},
+  claim   = {the colour chain imports and solves, so the shipped schemes are solver output rather than whatever a silent fallback produced},
+  rests-on = {CONSUMERS},
+  check   = {tool:check_palette_chain.py}
+}
+
+@misc{STANDARDS,
+  section = {emitters},
+  claim   = {every external standard this project applies is recorded with the module that applies it, and every cited applier still exists},
+  rests-on = {PALETTE-CHAIN},
+  check   = {tool:check_standards.py}
+}
+
 % ── tooling ──────────────────────────────────────────────────────────────────
 @misc{HOOKS,
   section = {tooling},

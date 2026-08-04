@@ -23,8 +23,25 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # The reconstructed research pipeline — the modules most at risk from the
 # recovery, each importing the segment API this repo had to rebuild.
-MODULES = ("segment_topology", "glyph_match", "render_showcase",
-           "project_font", "make_glyph_ink", "display_types")
+#
+# ⚑ THE COLOUR CHAIN IS HERE BECAUSE ITS ABSENCE WAS THE GAP.  This roster once
+# held only the SEGMENT pipeline, and the gate was correct for that scope — but
+# scope was the whole problem: cvd_gate -> make_palette -> make_schemes was
+# broken (8 of 10 referenced cvd_gate attributes absent) and NOTHING went red.
+# check_compiles passed, because the files byte-compile; the only symptom was a
+# washed-out palette on screen, which is what a scheme looks like when the gate
+# that enforced its separation never ran.
+#
+# The rule this encodes: a module that DERIVES what ships belongs in an import
+# gate, not merely a compile gate.
+MODULES = (
+    # segment pipeline
+    "segment_topology", "glyph_match", "render_showcase",
+    "project_font", "make_glyph_ink", "display_types",
+    # colour chain — cvd_gate is the authority, make_palette the solver,
+    # make_schemes the emitter that every other target reads
+    "cvd_gate", "make_palette", "make_schemes", "make_preview",
+)
 
 
 def main(argv):

@@ -21,6 +21,7 @@ Everything else is solved/derived:
   ...then ~34 UI tokens derived by fixed transforms off those primitives.
 """
 import colorsys
+import random as _random
 import cvd_gate as C
 
 # ---- the two non-derivable inputs -----------------------------------------
@@ -105,8 +106,13 @@ def solve_accent(hue, ground, min_contrast=4.6):
 
 
 # required hue sectors for semantic accents (from cvd_gate.SECTORS)
-_SECTORS = {"neg": (340, 25), "neu": (30, 75), "pos": (90, 170),
-            "link": (180, 270), "visited": (180, 310)}
+# ⚑ THE SECTOR TABLE IS NOT OURS TO KEEP A COPY OF.  A private `_SECTORS` fork
+# lived here — the same table the gate audits against, duplicated in the module
+# that optimises against it.  Two copies of one authority is the carrier-locality
+# disease: edit the gate's table and the solver keeps optimising for the old
+# sectors, silently, with every scheme still "passing" its own stale assumption.
+# One table, one home, imported.
+_SECTORS = C.SECTORS
 
 
 def _sector_hue(sector):
@@ -171,11 +177,26 @@ def _cached_dE(a, b):
     return v
 
 
-def solve_semantic_set(sectors, ground, hot, min_contrast=4.6):
+def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
     """JOINT solve of the semantic-accent constellation. Each slot draws from its
     in-sector, contrast-clearing, hot-distinct candidates; we choose one per slot
-    to MAXIMIZE THE MINIMUM pairwise CVD-distance across the whole set (the binding
-    constraint that independent argmax ignores). Greedy seed + local swaps."""
+    to MAXIMIZE THE MINIMUM pairwise separation across the whole set (the binding
+    constraint that independent argmax ignores).
+
+    `anchors` are colours already fixed (the lit foreground) that the constellation
+    must ALSO stay separated from — they participate in the min-pair objective but
+    are never chosen.
+
+    ⚑ THE OBJECTIVE IS THE GATE'S OWN METRIC, NOT RAW ΔE.  This is the ⊕SOLVER-
+    BACKLIT-CVD result, and it is the whole reason the solver can be trusted to
+    ship: the gate normalizes ΔE by a per-view floor and fails if q < 1 in ANY
+    view, so a solver maximising raw global min-ΔE optimises a PROXY and can hand
+    back a palette the gate then rejects. Instrument-vs-world. Maximise q.
+
+    ⚑ MULTI-RESTART, NOT SINGLE GREEDY.  Greedy local optima oscillated under the
+    floor; a greedy seed plus deterministic random restarts converges reliably.
+    The seed is fixed, so the solve is reproducible — a palette that changed
+    between runs would make every downstream diff meaningless."""
     slots = list(sectors.keys())
     cands = {k: _candidates(sectors[k], ground, min_contrast, hot) for k in slots}
     # relax contrast if any slot has no candidate (report via fallback)
@@ -189,31 +210,54 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6):
                 cands[k] = [_hsv(_sector_hue(sectors[k]), 0.85,
                                  0.85 if C._wcag_L(ground) < 0.4 else 0.4)]
 
+    _floors = C.reference_floors()
+
     def min_pair(chosen):
-        vals = list(chosen.values())
+        """The GATE's metric: worst normalized q over every pair, anchors included."""
+        vals = list(chosen.values()) + [tuple(a) for a in anchors]
         m = 1e9
         for i in range(len(vals)):
             for j in range(i + 1, len(vals)):
-                m = min(m, C.worst_view_dE(vals[i], vals[j])[0])
+                q = C._worst_normalized(vals[i], vals[j], _floors)[0]
+                m = min(m, q)
         return m
 
-    # greedy seed: pick each slot's most-saturated candidate, then local search
-    chosen = {k: max(cands[k], key=lambda c: _chroma(c)) for k in slots}
-    best_score = min_pair(chosen)
-    improved = True
-    _rounds = 0
-    while improved and _rounds < 6:      # max-min converges fast; bound the search
-        improved = False
-        _rounds += 1
-        for k in slots:
-            for cand in cands[k]:
-                if cand == chosen[k]:
-                    continue
-                trial = dict(chosen); trial[k] = cand
-                sc = min_pair(trial)
-                if sc > best_score + 1e-9:
-                    chosen, best_score, improved = trial, sc, True
+    def _hillclimb(seed):
+        """Local search from one seed; returns (chosen, score)."""
+        chosen = dict(seed)
+        best_score = min_pair(chosen)
+        improved, _rounds = True, 0
+        while improved and _rounds < 6:  # max-min converges fast; bound the search
+            improved = False
+            _rounds += 1
+            for k in slots:
+                for cand in cands[k]:
+                    if cand == chosen[k]:
+                        continue
+                    trial = dict(chosen, **{k: cand})
+                    s = min_pair(trial)
+                    if s > best_score:
+                        chosen, best_score, improved = trial, s, True
+        return chosen, best_score
+
+    # greedy seed: each slot's most-saturated candidate …
+    greedy = {k: max(cands[k], key=lambda c: _chroma(c)) for k in slots}
+    chosen, best_score = _hillclimb(greedy)
+
+    # … then deterministic random restarts, because greedy alone oscillated under
+    # the floor.  Stop early once the gate is satisfied (q >= 1 in every view).
+    if best_score < 1.0:
+        rng = _random.Random(20260804)          # fixed: the solve must reproduce
+        for _ in range(8):
+            seed = {k: rng.choice(cands[k]) for k in slots}
+            cand_chosen, cand_score = _hillclimb(seed)
+            if cand_score > best_score:
+                chosen, best_score = cand_chosen, cand_score
+            if best_score >= 1.0:
+                break
     return chosen, best_score
+
+
 
 
 # ---- derived transforms (no search) ---------------------------------------
@@ -300,7 +344,16 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS):
         # selection = accent field. sel_fg must contrast the accent bg; on dark
         # grounds the void works, on light grounds this is the compressed-range
         # hard case tracked as ⊕SOLVER-SEL-BACKLIT (residue).
-        "sel_bg": _s(accent), "sel_act": _s(_lum_nudge(accent, 0.1)),
+        # ⚑ sel_act IS A FOREGROUND, AND IT WAS BEING DERIVED FROM THE BACKGROUND.
+        # It read `_lum_nudge(accent, 0.1)` — the selection background nudged 10%
+        # in luminance — so by construction it could never contrast with the
+        # surface it is drawn on. Measured across all six variants: 1.00:1 to
+        # 1.89:1, i.e. text very nearly the exact colour of its own background.
+        # `sel_fg` beside it already had the right idea (the inverted `ground`,
+        # measuring 7.2:1-14.3:1), so ACTIVE is that same inversion pushed further
+        # from the background rather than nearer to it — active text should be the
+        # MOST legible thing in the group, not the least.
+        "sel_bg": _s(accent), "sel_act": _s(_lum_nudge(ground, -0.15)),
         "sel_alt": _s(_lum_nudge(accent, -0.05)),
         "sel_fg": _s(ground), "sel_in": _s(_mix(accent, ground, 0.5)),
         "sel_link": _s(ground), "sel_vis": _s(_mix(ground, accent, 0.3)),

@@ -163,24 +163,74 @@ import os as _os
 # solved palette for development. Unblocks when ⊕SOLVER-SEMANTIC solves the
 # semantic accents too (then flip the default — the user installs deb-only, so the
 # solved palette must be the DEFAULT to be reachable at all).
-if _os.environ.get("EL_SOLVER") == "1":
+# ⚑ RECOVERY REPAIR (3 of 3): THE SOLVER DEFAULT WAS INVERTED *AND* DUPLICATED.
+#
+# Two near-identical blocks stood here, gated on DIFFERENT env vars — EL_SOLVER
+# then USE_SOLVER — and the second silently overwrote the first. So `EL_SOLVER=1`
+# re-solved the whole palette and then threw the result away: the emitted schemes
+# were always the authored fallback, and no error was raised. That is the
+# washed-out palette the audit set out to explain, and it is invisible from the
+# outside because a fallback palette is a perfectly valid one — just not the
+# solved one.
+#
+# The design log settles the polarity (⊕SOLVER-DEFAULT, FLIPPED): once all six
+# variants solved clean, the SOLVED palette became the default and the authored
+# table was kept as residue behind EL_AUTHORED_PALETTE=1. The recovered file had
+# it backwards. Reachability is the reason it matters: the user installs from the
+# .deb, so a palette reachable only via an env var nobody sets is not shipped.
+#
+# ⚑ THE FALLBACK STILL EXISTS AND IS STILL NAMED. Keeping _AUTHORED_GRID is not
+# hedging — it is the residue the shadow-engineer loop requires, and it is what
+# makes `EL_AUTHORED_PALETTE=1` a one-line A/B against the solver.
+#
+# ⚑ AND THE SOLVE IS CACHED, BECAUSE IT RUNS AT IMPORT TIME.  build_grid() is a
+# multi-restart hillclimb over six variants — measured at ~108s — and this line
+# is module-level, so EVERY importer paid it just to read GRID. A two-minute
+# import turns any gate that touches the colour chain into a timeout, which is
+# how a check gets quietly removed for being "flaky" instead of fixed.
+#
+# The cache is keyed by the inputs that can change the answer (the solver source
+# and its threshold authority), so editing either invalidates it automatically.
+# Delete .palette-cache.json, or set EL_NO_PALETTE_CACHE=1, to force a re-solve.
+def _solved_grid():
+    import hashlib
+    import json
     import make_palette as _mp
-    GRID = _mp.build_grid()
-else:
-    GRID = _AUTHORED_GRID
 
-import os as _os
-# ⊕PARAMETRIC-PALETTE: USE_SOLVER=1 DERIVES the GRID by solving each token against
-# its constraint (make_palette) from (hue seed x thresholds), instead of the
-# authored table above. Authored GRID kept as residue (shadow-engineer loop),
-# default until the solved palette is live-validated (operator=other). Flipping
-# the flag re-solves every token — e.g. a WCAG->APCA threshold change is then a
-# one-line edit, not hand-chasing colors.
-if _os.environ.get("USE_SOLVER") == "1":
-    import make_palette as _mp
-    GRID = _mp.build_grid()
-else:
+    cache = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                          ".palette-cache.json")
+    key = hashlib.sha256()
+    for dep in ("make_palette.py", "cvd_gate.py"):
+        p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), dep)
+        try:
+            key.update(open(p, "rb").read())
+        except OSError:
+            key.update(b"<absent>")
+    stamp = key.hexdigest()
+
+    if _os.environ.get("EL_NO_PALETTE_CACHE") != "1":
+        try:
+            blob = json.load(open(cache, encoding="utf-8"))
+            if blob.get("stamp") == stamp:
+                # JSON has no tuple keys; the grid is keyed (phosphor, mode).
+                return {tuple(k.split("\t")): v for k, v in blob["grid"].items()}
+        except (OSError, ValueError, KeyError):
+            pass
+
+    grid = _mp.build_grid()
+    try:
+        json.dump({"stamp": stamp,
+                   "grid": {"\t".join(k): v for k, v in grid.items()}},
+                  open(cache, "w", encoding="utf-8"))
+    except OSError:
+        pass                                    # a cache we cannot write is not an error
+    return grid
+
+
+if _os.environ.get("EL_AUTHORED_PALETTE") == "1":
     GRID = _AUTHORED_GRID
+else:
+    GRID = _solved_grid()
 
 # ---------------------------------------------------------------- .colors emit
 def fgset(t):
@@ -198,7 +248,19 @@ def section(title, bg_alt, bg, focus, hover, fgs, fg_normal_override=None):
             f"ForegroundPositive={p}\nForegroundVisited={v}\n")
 
 def emit_colors(t, dark):
-    selfgs = (t["fg_act"], t["sel_in"], t["sel_link"], t["sel_neg"],
+    # ⚑ THE SELECTION GROUP IS THE ONE PLACE THE PALETTE INVERTS, so it is the one
+    # place a BODY token is the wrong answer.  The active slot here was `fg_act` —
+    # the body's hot-glow, chosen to sit on the dark ground — while every other
+    # slot in this tuple is a `sel_*` token chosen to sit on the LIT selection
+    # background.  Measured across all six variants, that put ForegroundActive at
+    # 1.00:1 against its own background: text exactly the colour it is drawn on.
+    #
+    # `sel_act` is the selection's own active foreground, defaulting to `sel_fg`
+    # (the slot proven legible on this background, 7.2:1-14.3:1) so a variant that
+    # does not distinguish active-vs-normal in the inverted group stays readable
+    # rather than invisible.
+    sel_act = t.get("sel_act", t["sel_fg"])
+    selfgs = (sel_act, t["sel_in"], t["sel_link"], t["sel_neg"],
               t["sel_neu"], t["sel_fg"], t["sel_pos"], t["sel_vis"])
     sf = t.get("sel_focus", t["focus"]); sh = t.get("sel_hover", t["hover"])
     ttfgs = selfgs if t["tt_is_sel"] else fgset(t)

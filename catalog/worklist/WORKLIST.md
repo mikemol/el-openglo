@@ -16,7 +16,7 @@ Segment_topology exports the 22-segment geometry its consumers import [@ST22]; t
 
 ## The emission targets
 
-Every emission target reads its colours from the one palette, so no target can drift from the scheme [@TOKENS]; every generator actually runs and writes its artifact, in dependency order, rather than merely compiling [@EMITTERS] (grounded above in [@COMPILES]); the browser theme emits a valid manifest for every declared variant [@CHROME] (grounded above in [@TOKENS]); text on the lit selection background clears the legibility floor in every variant [@SELECTION] (grounded above in [@EMITTERS]).
+Every emission target reads its colours from the one palette, so no target can drift from the scheme [@TOKENS]; every generator actually runs and writes its artifact, in dependency order, rather than merely compiling [@EMITTERS] (grounded above in [@COMPILES]); the browser theme emits a valid manifest for every declared variant [@CHROME] (grounded above in [@TOKENS]); text on the lit selection background clears the legibility floor in every variant [@SELECTION] (grounded above in [@EMITTERS]); the colour chain imports and solves, so the shipped schemes are solver output rather than whatever a silent fallback produced [@PALETTE-CHAIN] (grounded above in [@CONSUMERS]); every external standard this project applies is recorded with the module that applies it, and every cited applier still exists [@STANDARDS].
 
 ## Tooling
 

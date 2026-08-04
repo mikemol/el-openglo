@@ -36,13 +36,16 @@ def _ansi16(accent, ground, tint=0.22):
     """Phosphor-tinted ANSI that stays pairwise-distinct. Tint each Breeze ANSI
     toward the accent; if tinting collapses any pair below the distinctness
     floor, back the tint off for that scheme until all pairs clear it."""
-    # ⚑ RECOVERY REPAIR.  The archive called `C.reference_floors()` and took
-    # `min(...values())`; cvd_gate (also ** PARTIAL **) defines `reference_floor()`
-    # — singular — returning (min_dE, name_a, name_b, view), so the minimum IS
-    # element 0 and there is no dict to reduce.  A plural/singular mismatch left by
-    # the transcript replay; the intent (half the Okabe-Ito distinctness floor) is
-    # unchanged and is what the comment below already says.
-    floor = C.reference_floor()[0] * 0.5  # half the OI hue-floor: ANSI
+    # ⚑ REVERTED TO THE ORIGINAL CALL, AND THE EARLIER "REPAIR" WAS THE WRONG
+    # DIAGNOSIS.  This line called `C.reference_floors()` (plural, dict-valued); an
+    # earlier pass read that as a replay typo for the singular `reference_floor()`
+    # and rewrote it to `reference_floor()[0]`.  It was not a typo: the plural is a
+    # real, separate function that returns the floor PER PAIR CLASS, and it had
+    # simply gone missing with the rest of the cvd_gate API.  Rewriting the caller
+    # made the symptom disappear while the actual break — 8 of 10 referenced
+    # attributes absent — stayed invisible.  Fixing a caller to match a damaged
+    # module is how a gap gets sealed over instead of found.
+    floor = min(C.reference_floors().values()) * 0.5  # half the OI hue-floor: ANSI
     # pairs are allowed closer than palette pairs, but must stay separable.
     t = tint
     for _ in range(20):
