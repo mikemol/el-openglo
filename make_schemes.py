@@ -154,15 +154,20 @@ _AUTHORED_GRID = {  # (phosphor, mode) -> (tokens, dark-counterpart for Compleme
 }
 
 import os as _os
-# ⊕PARAMETRIC-PALETTE / ⊕SOLVER-DEFAULT (BLOCKED): the solver (make_palette) so far
-# solves only the 4 DISPLAY primitives (void/lit/ghost/accent). The ~5 SEMANTIC
-# tokens (neg/neu/pos/link/visited) are still generic and FAIL make_schemes' own
-# hue-sector + contrast-vs-view + neg~pos-distinctness gates on the derived
-# grounds. So the solved palette is NOT yet shippable as a complete scheme.
-# Default stays AUTHORED (ships correct today); EL_SOLVER=1 builds the partial
-# solved palette for development. Unblocks when ⊕SOLVER-SEMANTIC solves the
-# semantic accents too (then flip the default — the user installs deb-only, so the
-# solved palette must be the DEFAULT to be reachable at all).
+# ⊕PARAMETRIC-PALETTE / ⊕SOLVER-DEFAULT — UNBLOCKED, and the default is SOLVED.
+#
+# ⚑ THIS COMMENT SAID "BLOCKED" LONG AFTER IT WASN'T.  It described the solver as
+# handling only the 4 display primitives while the ~5 semantic tokens still failed
+# the hue-sector and distinctness gates — true once, and the log records the two
+# closures that ended it: ⊕SOLVER-SEMANTIC (the joint constellation solver) and
+# ⊕SOLVER-BACKLIT-CVD (widened candidates + the objective re-pointed at the gate's
+# own normalized-q), after which ⊕SOLVER-DEFAULT was FLIPPED and all six variants
+# solve clean. The comment outlived every one of those.
+#
+# It is worth naming what that cost: the stale text sat directly above the code it
+# contradicted, and it argued for exactly the inverted default the recovery had
+# left behind — so anyone reading to check the polarity found a rationale for the
+# wrong answer. A comment is not inert; a stale one actively defends the bug.
 # ⚑ RECOVERY REPAIR (3 of 3): THE SOLVER DEFAULT WAS INVERTED *AND* DUPLICATED.
 #
 # Two near-identical blocks stood here, gated on DIFFERENT env vars — EL_SOLVER

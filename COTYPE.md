@@ -4666,3 +4666,11 @@ residue gated on live operator testing.
   ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
   (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
+- TIER 3: ⊕CLOCK-VECTOR, ⊕PLYMOUTH-VECTOR.
+  (RESTORED — dropped from this ledger, never closed. Both stood open at the
+  session-57 ledger, one of them explicitly marked "resume", beside siblings that
+  DID survive into this block; they carry no closure section and no tick, they
+  simply stopped being restated. Found mechanically by
+  scripts/check_cotype_coherence.py — the class is "introduced, never closed,
+  never carried forward" — which is the argument for computing the open set
+  rather than retyping it each session.)

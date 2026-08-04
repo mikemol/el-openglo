@@ -63,6 +63,26 @@ WAIVERS = {
     "⊕KVANTUM": "prose spelling of ⊕KVT, which is closed",
     "⊕PARAMETRIC": "prose stem of ⊕PARAMETRIC-PALETTE",
     "⊕SEG-FONT-KERN": "the log marks it closed-by-design (a deliberate non-goal)",
+
+    # ── UNRESOLVED, triaged by READING each symbol's context in the log ──
+    # ⚑ EACH LINE BELOW IS A VERDICT WITH A CITATION, NOT A DISMISSAL.  A waiver
+    # that says "not a real item" without saying how that was established is an
+    # exemption list growing into a blindfold.
+    "⊕LOCK-ANIM": "superseded — the log states ⊕WALLPAPER-LIVE supersedes it (:3401)",
+    "⊕LOCK-AUTH": "a sub-risk CONSTRAINT (never replace the auth widget), honored as "
+                  "a decision, not a work item (:2976, :2986)",
+    "⊕AZR-LIT": "deliberately unnumbered — 'derivable by composing the two existing "
+                "rules; left open, unnumbered' (:123)",
+    "⊕SHAPE-AA-TUNE": "conditional on a LIVE observation — 'if Qt Shape AA still soft "
+                      "on this GPU' (:4257); it has no standing until someone looks",
+    "⊕TERM-ALACRITTY": "named once as a BONUS off ⊕KONSOLE's same 16 colours (:2843); "
+                       "an aspiration mentioned in passing, never scoped",
+    "⊕TERM-FOOT": "as ⊕TERM-ALACRITTY — the same single bonus mention (:2843)",
+    "⊕SOLVER-CEILING-GHOST-SPLASH": "named only inside another item's parenthetical "
+                                    "describing the in-flight splash work (:3922, :3964)",
+    "⊕SOLVER-SEL-BACKLIT": "the light-ground selection-contrast residue; its substance "
+                           "was discharged by the @SELECTION fix (12/12 pairs now clear, "
+                           "worst 5.52:1) — the symbol outlived the problem",
 }
 
 
@@ -157,14 +177,35 @@ def _selftest():
     f = findings()
     check("the index answers", f is not None, True)
     if f is not None:
-        # ⚑ THE CHECK MUST FIND THE DEFECTS IT WAS BUILT FROM.  If these two stop
-        # appearing, either the log was fixed (then update this) or the detector
-        # broke (then it is blind).  Either way it must not pass silently.
-        check("detects the ⊕RENDER-GATE contradiction",
-              "⊕RENDER-GATE" in f["CONTRADICTION"], True)
-        check("detects the ⊕SEG-FONT-PROJECT contradiction",
-              "⊕SEG-FONT-PROJECT" in f["CONTRADICTION"], True)
+        # ⚑ THESE ONCE PINNED TWO SPECIFIC FINDINGS, AND THE PIN WENT STALE THE
+        # RIGHT WAY.  The selftest asserted it detected the ⊕RENDER-GATE and
+        # ⊕SEG-FONT-PROJECT contradictions, with a note that failure meant either
+        # the log was fixed or the detector had gone blind. The log turned out to
+        # be right and the READER wrong — both findings dissolved — so the
+        # assertions failed exactly as intended, and the pre-commit gate caught
+        # it. Pinning a finding tests the SUBJECT; what wants testing is the
+        # DETECTOR, which must still discriminate after its subject changes.
+        check("the three finding classes are all reachable",
+              sorted(f), ["CONTRADICTION", "UNGATED", "UNRESOLVED"])
         check("finds ungated closures", len(f["UNGATED"]) > 0, True)
+        # A contradiction must be RECOGNISED when one exists: closed-and-open is
+        # the predicate, so a symbol in both sets must land in CONTRADICTION.
+        import json as _json
+        import subprocess as _sp
+        d = _json.loads(_sp.run([sys.executable, INDEX, "--json"],
+                                capture_output=True, text=True, cwd=ROOT).stdout)
+        open_all = {s for v in d["open"].values() for s in v}
+        closed = {s for s, x in d["symbols"].items() if x["closed"]}
+        check("no symbol is closed AND open (else CONTRADICTION must list it)",
+              sorted(closed & open_all), sorted(f["CONTRADICTION"]))
+        # ⚑ NO STALE WAIVERS.  A waiver naming a symbol that is no longer a
+        # finding is an exemption nobody has re-examined — the way a waiver list
+        # decays into a blindfold. (Written and then caught: the first version of
+        # this check ended in `or True`, which cannot fail — the vacuous-claim
+        # shape the whole worklist exists to refuse.)
+        all_found = {s for d_ in f.values() for s in d_}
+        check(f"no waiver is stale ({sorted(set(WAIVERS) - all_found)})",
+              sorted(set(WAIVERS) - all_found), [])
     print("check_cotype_coherence selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -42,6 +42,9 @@ COTYPE = os.path.join(ROOT, "COTYPE.md")
 # one of which then reported as a dangling never-resolved item.  A symbol ends
 # on an alphanumeric.
 SYMBOL = re.compile(r"⊕[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?")
+
+# `✓PoC`, `✓ partial`, `✓(4/6)` — a tick the log itself qualifies. Not a closure.
+_QUALIFIED_TICK = re.compile(r"✓\s*(PoC|partial|WIP|\(\d+\s*/\s*\d+\))", re.I)
 # The operator buckets the final ledger uses, in the log's own words.
 BUCKETS = ("BUILD", "RESEARCH", "LIVE", "TUNE", "TIER 3", "RESIDUE", "OPEN")
 
@@ -117,8 +120,22 @@ def open_set(text=None):
     for line in body.splitlines():
         stripped = line.strip()
         if not stripped.startswith("-"):
-            # a continuation line keeps the bucket it is indented under
-            if bucket:
+            # ⚑ A CONTINUATION LINE CARRIES THE ITEM'S PROSE, AND PROSE NAMES
+            # OTHER SYMBOLS.  This harvested every ⊕ in a rollout's numbered
+            # steps — so "wire ⊕RENDER-GATE into make_deb here", describing HOW
+            # the open item proceeds, listed ⊕RENDER-GATE itself as open. It is a
+            # DEPENDENCY of the open work, not the open work; the log had ticked
+            # it closed one line above, and the two readings collided into a
+            # contradiction the log never made.
+            #
+            # ⚑ THE DISCRIMINATOR IS THE NUMBERED STEP, and getting it wrong in
+            # EITHER direction loses information. Most buckets (LIVE, RESEARCH,
+            # RESIDUE) wrap ONE comma-separated list of open symbols across
+            # continuation lines — dropping those loses 20 real open items. BUILD
+            # instead continues into numbered sub-steps ("1. wallpaper -> …")
+            # that decompose HOW the item proceeds and name its dependencies.
+            # So: continuation lines contribute, EXCEPT a numbered sub-step.
+            if bucket and not re.match(r"^\d+\.\s", stripped):
                 for s in SYMBOL.findall(line):
                     found.setdefault(bucket, []).append(s)
             continue
@@ -152,16 +169,60 @@ def ledger_closed(text=None):
     blocks = ledger_blocks(text)
     if not blocks:
         return set()
-    out = set()
-    for line in blocks[-1][1].splitlines():
-        if "✓" in line and not line.strip().upper().startswith("- OPEN"):
-            out |= set(SYMBOL.findall(line.split("✓")[0]))
+
+    def _ticked(body):
+        """Symbols on this block's ✓ ENTRIES — entry-wise, not line-wise.
+
+        ⚑ A LEDGER ENTRY WRAPS, AND THE ✓ LANDS WHEREVER THE PROSE PUT IT.  Read
+        line-by-line, `- …prior… + ⊕SOLVER-SEMANTIC + ⊕SOLVER-DEFAULT` followed by
+        `  + ⊕X (FLIPPED, solved ships) ✓` never associates that ✓ with the
+        symbols above it — so a symbol the log plainly closed reported as never
+        resolved. Join each `-` bullet with its continuation lines first, then
+        look for the tick."""
+        got, entries, cur = set(), [], None
+        for line in body.splitlines():
+            if line.strip().startswith("-"):
+                if cur is not None:
+                    entries.append(cur)
+                cur = line
+            elif cur is not None:
+                cur += " " + line.strip()
+        if cur is not None:
+            entries.append(cur)
+        for entry in entries:
+            if entry.strip().upper().startswith("- OPEN"):
+                continue
+            # ⚑ A QUALIFIED TICK IS NOT A CLOSURE. The log writes `✓PoC` for a
+            # proven PRINCIPLE that is not a shipped pipeline, and says so in the
+            # same breath ("WATCH / not yet done … Do not overstate"). Reading
+            # `✓PoC` as ✓ turned the log's own carefulness into a contradiction
+            # the log never made.
+            m = _QUALIFIED_TICK.search(entry)
+            if m:
+                # Only the symbol the qualifier attaches to is excluded — the
+                # nearest one before it. The rest of the entry still ticks.
+                head = entry[:m.start()]
+                syms = SYMBOL.findall(head)
+                got |= set(syms[:-1])
+                continue
+            if "✓" in entry:
+                got |= set(SYMBOL.findall(entry.split("✓")[0]))
+        return got
+
+    out = _ticked(blocks[-1][1])
     # "…prior… + ⊕X ✓" carries earlier ledgers by reference, so fold them in.
-    if any("prior" in l.lower() for l in blocks[-1][1].splitlines()):
+    if "prior" in blocks[-1][1].lower():
         for _, body in blocks[:-1]:
-            for line in body.splitlines():
-                if "✓" in line and not line.strip().upper().startswith("- OPEN"):
-                    out |= set(SYMBOL.findall(line.split("✓")[0]))
+            out |= _ticked(body)
+
+    # ⚑ AN EARLIER TICK IS A SNAPSHOT; THE CURRENT OPEN LIST OVERRIDES IT.  Work
+    # REOPENS — ⊕SEGMENT-SUBSTRATE was ticked when SegmentChar was built and is
+    # open again for its rollout; ⊕VER is ticked at every install and reopens for
+    # the next one. Folding prior ledgers without this made those look like
+    # self-contradictions, which is a fact about reading history as if it were
+    # the present, not about the log.
+    current_open = {s for v in open_set(text).values() for s in v}
+    return out - current_open
     return out
 
 
@@ -277,6 +338,27 @@ def _selftest():
     if clo:
         s = sorted(clo)[0]
         check(f"a closed symbol reads closed ({s})", symbols(text)[s]["closed"], True)
+
+    # ⚑ THE FOUR READING RULES, EACH ASSERTED BECAUSE EACH WAS WRONG ONCE.
+    syms, opn = symbols(text), open_set(text)
+    open_all = {s for v in opn.values() for s in v}
+    tick = ledger_closed(text)
+    # 1. a ✓ on a WRAPPED entry still closes the symbols above it
+    check("a wrapped tick closes its entry (⊕SOLVER-SEMANTIC)",
+          "⊕SOLVER-SEMANTIC" in tick, True)
+    # 2. a QUALIFIED tick (`✓PoC`) does not close
+    check("a qualified tick does not close (⊕SEG-FONT-PROJECT)",
+          "⊕SEG-FONT-PROJECT" not in tick, True)
+    # 3. a symbol named inside an open item's numbered sub-steps is a DEPENDENCY,
+    #    not itself open
+    check("a sub-step dependency is not listed open (⊕RENDER-GATE)",
+          "⊕RENDER-GATE" not in open_all, True)
+    # 4. the current open list overrides an earlier ledger's tick (work reopens)
+    check("reopened work is not also closed (⊕SEGMENT-SUBSTRATE)",
+          "⊕SEGMENT-SUBSTRATE" in open_all and "⊕SEGMENT-SUBSTRATE" not in tick, True)
+    # and no symbol may be both at once
+    both = sorted(s for s in syms if syms[s]["closed"] and s in open_all)
+    check(f"nothing is closed AND open ({both})", both, [])
     # The grammar assumptions must hold on THIS document, or the parse is fiction.
     # ⚑ NOT EVERY `closure` HEADING IS A SYMBOL CLOSURE.  The log also carries
     # META-audits — "### Gate closure audit (four gates on the gate)" — which
