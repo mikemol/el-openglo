@@ -91,9 +91,17 @@ def palette_roles_are_distinct():
             for j in range(i + 1, len(roles)):
                 if c[roles[i]] == c[roles[j]]:
                     collisions.append(f"{v}: {roles[i]}=={roles[j]} ({c[roles[i]]})")
+    # ⚑ REPORT DISTINCT FIXES, NOT FAILURE COUNT.  Six collisions — one per
+    # variant — are ONE change: make `accent` differ from `phosphor` in the
+    # solver. A consumer that counted the failures would size this as six times
+    # the work it is, so the witness says which number it means rather than
+    # leaving a reader to infer it from the prose.
+    kinds = {tuple(sorted(x.split(": ", 1)[-1].split(" (")[0].split("==")))
+             for x in collisions}
     assert not collisions, (
-        f"{len(collisions)} role collision(s); a role sharing another's colour "
-        f"cannot be distinguished from it: {collisions[:4]}")
+        f"{len(collisions)} role collision(s) of {len(kinds)} kind(s); a role "
+        f"sharing another's colour cannot be distinguished from it: "
+        f"{collisions[:4]}\n  fixes: {len(kinds)}")
 
 
 def preview_clock_fits():

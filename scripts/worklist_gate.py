@@ -10,7 +10,8 @@ a retyped command evaporates when the turn ends.  This module owns all three.
 
     worklist_gate.py                 # GATE: are all cited claims discharged?
     worklist_gate.py --summary       # one line per project, plus the open claims
-    worklist_gate.py --next          # the open claims, RANKED by what they unblock
+    worklist_gate.py --next          # the open claims, RANKED: grounding, then
+                                     #   leverage, then cost (all three derived)
     worklist_gate.py --project       # regenerate the projections from the claims
     worklist_gate.py --discriminate  # Δ: can each check actually FAIL?
     worklist_gate.py --where         # where the engine and the projects resolved
@@ -39,6 +40,7 @@ exists and it is not already inside one.  Otherwise a red check would report the
 INTERPRETER's missing module as the THEME's defect.
 """
 import os
+import re
 import subprocess
 import sys
 
@@ -115,7 +117,79 @@ def _edges(bib):
     return out, enables
 
 
-def order(open_keys, bib):
+def cost(key, proj, engine):
+    """How many DISTINCT things a claim's witness says must change. None if unknown.
+
+    ⚑ LEVERAGE ALONE RANKED A DAY'S WORK ABOVE A ONE-LINE FIX.  `@BUILD` sorted
+    first on leverage 4 while `@ROLES` and `@CLOCKFIT` — each a single change,
+    each already measured and visible in the sample library — sat below it with
+    leverage 0. "What unblocks the most" is a real key and it is not the only
+    one; ordering by it alone tells you to start the largest item first, which is
+    exactly the sunk-cost ordering the leverage model was introduced to prevent,
+    arrived at from the other direction.
+
+    ⚑ COST IS DERIVED, NEVER DECLARED.  A hand-assigned effort number is a guess
+    wearing a measurement's clothes, and it goes stale the moment the work moves.
+    This asks the WITNESS instead: a failing check already enumerates what is
+    wrong, and the number of DISTINCT items it names is the honest proxy for how
+    many things must change.
+
+    ⚑ AND DISTINCT IS NOT THE FAILURE COUNT.  @ROLES reports SIX collisions — one
+    per variant — that reduce to ONE fix: make `accent` differ from `phosphor` in
+    the solver. @BUILD reports THREE, in three different files, each its own
+    change. Counting failures would have ranked @ROLES as the larger job; counting
+    distinct kinds gets it right.
+
+    Returns None when the witness names nothing enumerable — grade UNAVAILABLE,
+    not zero, so the caller falls back rather than treating it as free.
+    """
+    script, _label = ENTRY[None]
+    path = os.path.join(engine, "paperkit", script)
+    r = subprocess.run([sys.executable, path, proj],
+                       cwd=os.path.join(engine, "paperkit"),
+                       capture_output=True, text=True)
+    text = (r.stdout or "") + (r.stderr or "")
+    line = next((l for l in text.splitlines()
+                 if "FAILED" in l and f"[@{key}]" in l), None)
+    if line is None:
+        return None
+    check = line.split(":", 2)[-1].strip()
+    # Re-run the witness alone and count the DISTINCT items it names. The witness
+    # is the authority on its own failure; this reads its report, never re-derives
+    # the finding.
+    parts = check.split(":", 1)
+    if parts[0] == "tool":
+        argv_ = parts[1].split()
+        cmd = [sys.executable, os.path.join(ROOT, "scripts", argv_[0])] + argv_[1:]
+    elif parts[0] == "concept":
+        cmd = [sys.executable, os.path.join(ROOT, "catalog", "library", "concepts.py"),
+               parts[1].strip()]
+    else:
+        return None
+    w = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    out = (w.stdout or "") + (w.stderr or "")
+    # ⚑ THE WITNESS DECLARES ITS OWN COST; THIS DOES NOT INFER IT.  The first
+    # version scraped the failure prose for quoted findings and counted those —
+    # and matched the APOSTROPHE in "another's colour", reporting @ROLES as 2
+    # distinct fixes when it is 1. Inferring a number from someone else's
+    # sentence is the same error as guessing a tool's output format: the witness
+    # knows what it found, so it should say, in a form nobody has to parse.
+    #
+    #     fixes: <n>          — n distinct things must change
+    #
+    # A witness that says nothing returns None (grade UNAVAILABLE), and the
+    # fallback below counts indented item lines, which is a SHAPE rather than a
+    # guess at meaning.
+    m = re.search(r"^\s*fixes:\s*(\d+)\s*$", out, re.M)
+    if m:
+        return int(m.group(1))
+    items = [l.strip() for l in out.splitlines() if l.startswith("    ") and l.strip()]
+    if items:
+        return len(items)
+    return 1 if w.returncode else None
+
+
+def order(open_keys, bib, costs=None):
     """Open claims, topologically layered then ranked by unblocking leverage.
 
     ⚑ AN ORDER I ASSERT IS A GUESS; AN ORDER THE DAG COMPUTES IS A FACT ABOUT THE
@@ -174,9 +248,21 @@ def order(open_keys, bib):
     rows = []
     for k in sorted(openk):
         lev = len(cone(k) & openk)
-        rows.append((depth.get(k, 0), -lev, k, lev))
+        c = costs.get(k) if costs else None
+        # ⚑ THREE KEYS, IN PRECEDENCE, AND THE ORDER OF THE KEYS IS THE ARGUMENT.
+        #   1. LAYER — grounding. A claim cannot precede what it rests-on. Hard.
+        #   2. LEVERAGE — how many OPEN claims this unblocks. What to do first
+        #      among things nothing is waiting on.
+        #   3. COST — how many distinct things must change, derived from the
+        #      witness. A TIEBREAK, never a promotion: cheap must not outrank
+        #      grounding, or the ordering would tell you to do leaves first and
+        #      leave the thing everything waits on until last.
+        # Unknown cost sorts LAST within its tier, not first: an unmeasured item
+        # is not a free one.
+        rows.append((depth.get(k, 0), -lev,
+                     c if c is not None else 1 << 30, k, lev, c))
     rows.sort()
-    return [(k, d, lev) for d, _n, k, lev in rows]
+    return [(k, d, lev, c) for d, _n, _c, k, lev, c in rows]
 
 
 def locate():
@@ -286,15 +372,17 @@ def main(argv):
                 if not want_next:
                     print(f"          open: {tail}")
             if want_next and open_keys:
-                ranked = order(open_keys, os.path.join(proj, "warrants.bib"))
+                costs = {k: cost(k, proj, engine) for k in open_keys}
+                ranked = order(open_keys, os.path.join(proj, "warrants.bib"), costs)
                 if ranked is None:
                     print("          (cannot rank: bibstruct unavailable)")
                     for k in open_keys:
                         print(f"          open: @{k}")
                 else:
-                    for k, d, lev in ranked:
+                    for k, d, lev, c in ranked:
                         blocks = f"unblocks {lev}" if lev else "unblocks nothing yet"
-                        print(f"          @{k}  layer {d}, {blocks}")
+                        eff = f", {c} to change" if c is not None else ", cost unknown"
+                        print(f"          @{k}  layer {d}, {blocks}{eff}")
         worst = max(worst, run.returncode)
     return worst
 
@@ -334,6 +422,30 @@ def _selftest():
     missing = [n for n, p in PROJECTS.items() if not os.path.isdir(p)]
     check(f"every project dir exists ({missing})", missing, [])
     check("more than one project is wired", len(PROJECTS) > 1, True)
+
+    # ⚑ THE RANKING'S KEY ORDER IS THE ARGUMENT, so it is asserted rather than
+    # left to a reading of the sort tuple. Grounding outranks leverage outranks
+    # cost: a cheap leaf must never be promoted above the thing everything waits
+    # on, which is what ordering by cost alone would do.
+    fake_edges = {"deep": ["mid"], "mid": ["base"], "base": [], "leaf": []}
+
+    def _fake(_bib, _e=fake_edges):
+        return _e, {}
+
+    real, globals()["_edges"] = _edges, _fake
+    try:
+        # same layer, differing cost -> cheaper first
+        r = order(["base", "leaf"], "x", {"base": 9, "leaf": 1})
+        check("within a layer, cheaper sorts first", [k for k, *_ in r],
+              ["leaf", "base"])
+        # deeper layer never outranks a shallower one, however cheap
+        r = order(["base", "deep"], "x", {"base": 9, "deep": 1})
+        check("cost never beats grounding", [k for k, *_ in r], ["base", "deep"])
+        # unknown cost sorts last in its tier, not first
+        r = order(["base", "leaf"], "x", {"base": 2, "leaf": None})
+        check("unknown cost is not free", [k for k, *_ in r], ["base", "leaf"])
+    finally:
+        globals()["_edges"] = real
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 
