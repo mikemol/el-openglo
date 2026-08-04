@@ -147,6 +147,36 @@
   check   = {tool:check_palette_chain.py}
 }
 
+% ⚑ CITED, NOT RE-AUTHORED.  `concept:` imports a witness the LIBRARY owns and
+% grades. The alternative — a scripts/check_*.py asking the same question — is how
+% two views end up certifying different answers to one fact: fix one, and the
+% other keeps passing on the old one.
+@misc{SAMPLES,
+  section = {emitters},
+  claim   = {the theme is rendered into a sample library, so it can be looked at rather than only described},
+  rests-on = {TOKENS},
+  check   = {concept:samples-exist}
+}
+
+% ⚑ BOTH OF THESE CAME FROM LOOKING AT THE PICTURES, AND NEITHER WAS REACHABLE BY
+% ANY CHECK THAT EXISTED.  Every colour gate here asks whether something is
+% legible AGAINST A BACKGROUND; both of these pass that and fail anyway — one
+% role indistinguishable from another role, and a layout that clips. The library
+% paid for itself the first time it was opened.
+@misc{ROLES,
+  section = {emitters},
+  claim   = {each palette role renders as its own colour, so the focus ring can be told from the body text it surrounds},
+  rests-on = {SAMPLES},
+  check   = {concept:palette-roles-distinct}
+}
+
+@misc{CLOCKFIT,
+  section = {emitters},
+  claim   = {the rendered clock digits fit inside their bezel rather than clipping at its edge},
+  rests-on = {SAMPLES},
+  check   = {concept:preview-clock-fits}
+}
+
 @misc{STANDARDS,
   section = {emitters},
   claim   = {every external standard this project applies is recorded with the module that applies it, and every cited applier still exists},

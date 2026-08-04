@@ -1,0 +1,51 @@
+% concepts.bib — the concepts this library OWNS and grades.
+%
+% A concept is authored once here and its witness lives in concepts.py. Any view
+% that cites it resolves `concept:<key>` by IMPORTING that proof rather than
+% re-authoring a parallel, and usually weaker, one.
+%
+% ⚑ THE LIBRARY EXISTS TO BE LOOKED AT.  library/samples/ holds the theme
+% rendered — one swatch and one preview per variant — because nine emitters in
+% this tree produce images and every one of them wrote to /tmp or to a gitignored
+% path. The theme was fully generated, fully gated, and completely invisible.
+% These concepts are what keep the thing you look at honest.
+%
+% ⚑ AND LOOKING WORKED.  `palette-roles-distinct` exists because the swatch made
+% a defect visible that no gate had asked about: `phosphor` and `accent` render
+% as ONE colour in all six variants (Button/DecorationFocus == View/
+% ForegroundNormal, byte for byte), while the README gives them different jobs —
+% body text and the focus ring. Every existing check asked whether a colour was
+% legible AGAINST A BACKGROUND; both of these are perfectly legible, just not
+% from each other. That is a different question, and only a picture asked it.
+
+@misc{samples-exist,
+  section = {library},
+  claim   = {every declared sample is present and non-empty, so the library is a place where something can actually be seen},
+  check   = {cmd:python3 concepts.py samples-exist}
+}
+
+@misc{index-generated,
+  section = {library},
+  claim   = {the index names exactly the samples that exist, having been regenerated rather than hand-edited},
+  rests-on = {samples-exist},
+  check   = {cmd:python3 concepts.py index-generated}
+}
+
+% ⚑ AND LOOKING FOUND A SECOND ONE.  Every preview clips the final `0` of `12:00`
+% against its bezel, in all six variants. The PNG is valid, the colours are
+% right, every contrast check passes — the artifact is correct and the LAYOUT is
+% wrong, which is a property only a rendering has. Two findings from one
+% afternoon of pictures, neither reachable by any check that existed.
+@misc{preview-clock-fits,
+  section = {library},
+  claim   = {the preview's clock digits fit inside their bezel rather than clipping at its edge},
+  rests-on = {samples-exist},
+  check   = {cmd:python3 concepts.py preview-clock-fits}
+}
+
+@misc{palette-roles-distinct,
+  section = {library},
+  claim   = {each palette role renders as its own colour, so a role can be told apart from the others and not merely read against the background},
+  rests-on = {samples-exist},
+  check   = {cmd:python3 concepts.py palette-roles-distinct}
+}

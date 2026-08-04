@@ -42,7 +42,7 @@ A deferred item is usually deferred FROM something adjacent that already exists,
 so the near miss is the DEFAULT failure, not an unlucky one. When the log
 enumerates what remains ("NOT wired to fontTools, NOT calibrated, NOT validated
 against all 44"), that list IS the witness. When it does not, aim at a definition
-rather than a mention — `def \w*validate` over the word "validate".
+rather than a mention — a `def`-anchored pattern over the bare word "validate".
 """
 import os
 import re

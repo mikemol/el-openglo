@@ -14,3 +14,9 @@ aurorae/
 plasma/
 catalog/cotype/.delta-cache.json
 .palette-cache.json
+
+# ⚑ THE SAMPLE LIBRARY IS THE EXCEPTION: build output that EXISTS to be looked
+# at, on GitHub, in a diff, by someone who has run nothing. A gitignored sample
+# is a sample nobody sees.
+!catalog/library/samples/
+!catalog/library/samples/*.png
