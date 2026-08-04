@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Versioned pre-commit hook (enabled via: git config core.hooksPath .githooks)
+#
+# GATES BLOCK HERE; ADVISORIES FIRE POST-COMMIT.  A gate is a claim the tree must
+# satisfy to land a commit.  An advisory has real false positives and must never
+# abort a commit, so it lives in post-commit, which git cannot let fail.
+#
+# ⚑ EVERY GATE RUNS THROUGH `run`, WHICH IS THE CAPTURE POINT.  It times each gate
+# and appends the outcome to .gate-outcomes.tsv, so gate ORDER can be derived from
+# measured failure rate (fail-fast on what actually fails) instead of guessed.  A
+# gate invoked directly, bypassing `run`, is invisible to that ledger — so don't.
+set -uo pipefail
+
+ROOT="$(git rev-parse --show-toplevel)"
+cd "$ROOT" || exit 1
+
+LEDGER="$ROOT/.gate-outcomes.tsv"
+FAILED=0
+
+# The checks import the project's declared dependencies, so they run in the
+# project environment.  Outside it, a red gate would report the INTERPRETER's
+# missing module as the TREE's defect.
+if [ -d "$ROOT/.venv" ] && command -v uv >/dev/null 2>&1; then
+  RUNNER=(uv run --no-sync python3)
+else
+  RUNNER=(python3)
+fi
+
+run() {
+  local name="$1"; shift
+  local start end rc
+  start=$(date +%s%N)
+  "$@"
+  rc=$?
+  end=$(date +%s%N)
+  printf '%s\t%s\t%d\t%d\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$name" "$rc" \
+      "$(( (end - start) / 1000000 ))" >> "$LEDGER"
+  if [ $rc -ne 0 ]; then
+    echo "pre-commit: GATE FAILED — $name" >&2
+    FAILED=1
+  fi
+  return $rc
+}
+
+echo "── pre-commit gates ──"
+
+# 1. The tools that answer every other question must themselves be sound.
+#    ⚑ THIS RUNS FIRST BY DESIGN: a broken checker makes every gate after it a
+#    lie in whichever direction the breakage leans.
+for t in "$ROOT"/scripts/check_*.py "$ROOT"/scripts/worklist_gate.py; do
+  [ -e "$t" ] || continue
+  run "selftest:$(basename "$t" .py)" "${RUNNER[@]}" "$t" --selftest >/dev/null
+done
+
+# 2. The borrowed hooks pass their own selftests FROM HERE (they are symlinks;
+#    passing upstream is not passing here).
+for h in hook_no_chaining hook_structural_query; do
+  [ -e "$ROOT/scripts/$h.py" ] || continue
+  run "selftest:$h" python3 "$ROOT/scripts/$h.py" --selftest >/dev/null
+done
+
+# 3. The segment lattice's own invariants — including the 22->16 byte-equality
+#    that makes the reconstructed geometry a reconstruction rather than a guess.
+run "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest >/dev/null
+
+# 4. THE WORKLIST.  Every cited claim must be discharged.  This subsumes the
+#    individual checks: it is the projection over all of them.
+run "worklist" python3 "$ROOT/scripts/worklist_gate.py" >/dev/null 2>&1 || {
+  echo "    (run: python3 scripts/worklist_gate.py — it names each undischarged claim)" >&2
+}
+
+if [ $FAILED -ne 0 ]; then
+  echo "pre-commit: REFUSED. Fix the gate above, or --no-verify if you know why." >&2
+  exit 1
+fi
+echo "pre-commit: all gates pass"
+exit 0

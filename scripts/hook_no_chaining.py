@@ -1,0 +1,1 @@
+../../substrate/scripts/hook_no_chaining.py

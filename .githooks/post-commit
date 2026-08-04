@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Versioned post-commit hook (enabled via: git config core.hooksPath .githooks)
+#
+# Runs the ADVISORIES after the commit lands, and folds their output into the
+# commit message by amending.
+#
+# WHY HERE RATHER THAN PRE-COMMIT.  An advisory must FIRE to be consulted — one
+# you have to remember to run is barely above a passive note — but it must not
+# BLOCK, because advisories have real false positives.  post-commit is exactly
+# that binding layer: it fires on every commit and git ignores its exit status,
+# so it can never abort one.  Gates live in pre-commit; advisories live here.
+#
+# The amend is guarded so it never recurses (the amend itself re-fires this hook)
+# and never rewrites a commit mid-rebase/merge/cherry-pick.
+set -uo pipefail
+
+[ -n "${_POST_COMMIT_AMENDING:-}" ] && exit 0
+
+ROOT="$(git rev-parse --show-toplevel)"
+GITDIR="$(git rev-parse --git-dir)"
+
+if [ -d "$ROOT/.venv" ] && command -v uv >/dev/null 2>&1; then
+  RUNNER=(uv run --no-sync python3)
+else
+  RUNNER=(python3)
+fi
+
+advisory="$(
+  echo "── post-commit advisory (non-blocking; gates ran pre-commit) ──"
+
+  # Δ ADEQUACY.  Not a gate: a claim can be legitimately hard to falsify while
+  # the work that would make it falsifiable is still open.  But an
+  # `indeterminate` or `vacuous` grade means the gate is certifying a claim that
+  # cannot fail, so it must be SEEN on every commit rather than discovered later.
+  python3 "$ROOT/scripts/worklist_gate.py" --discriminate 2>/dev/null \
+    | grep -E 'indeterminate|vacuous|summary' || true
+
+  # The partial-recovery roster: a reminder of which files remain unverified,
+  # printed so the uncertainty stays visible instead of decaying into an
+  # assumption that everything recovered cleanly.
+  "${RUNNER[@]}" "$ROOT/scripts/check_partial.py" 2>/dev/null | tail -1 || true
+)"
+printf '%s\n' "$advisory"
+
+for m in rebase-merge rebase-apply MERGE_HEAD CHERRY_PICK_HEAD REVERT_HEAD; do
+  [ -e "$GITDIR/$m" ] && exit 0
+done
+
+# Idempotent: never append the advisory twice (e.g. a manual --amend).
+if git log -1 --format=%B | grep -q 'post-commit advisory (auto-captured)'; then
+  exit 0
+fi
+
+if [ -n "$advisory" ]; then
+  msg="$(git log -1 --format=%B)
+
+post-commit advisory (auto-captured):
+$(printf '%s\n' "$advisory" | sed 's/^/    /')"
+  _POST_COMMIT_AMENDING=1 git commit --amend --no-verify -F - <<<"$msg" >/dev/null 2>&1 || true
+fi
+exit 0
