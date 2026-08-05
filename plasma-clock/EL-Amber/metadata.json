@@ -1,0 +1,18 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Name": "EL watch themes"
+      }
+    ],
+    "Category": "Date and Time",
+    "Description": "Seven-segment EL clock matching the watch wallpaper",
+    "Icon": "clock",
+    "Id": "org.el.segclock.elamber",
+    "Name": "EL Segment Clock (EL Amber)",
+    "Version": "1.0",
+    "License": "GPLv3"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}

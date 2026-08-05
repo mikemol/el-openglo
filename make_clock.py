@@ -47,41 +47,17 @@ def metadata(t):
         "KPackageStructure": "Plasma/Applet",
         "X-Plasma-API-Minimum-Version": "6.0"}, indent=2)
 
-CONFIG_XML = """<?xml version="1.0" encoding="UTF-8"?>
-<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0">
- <kcfgfile name=""/>
- <group name="General">
-  <entry name="showGhost" type="Bool"><default>true</default></entry>
-  <entry name="use24h" type="Bool"><default>true</default></entry>
-  <entry name="showSeconds" type="Bool"><default>false</default></entry>
-  <entry name="blinkColon" type="Bool"><default>true</default></entry>
-  <entry name="bloom" type="Double"><default>1.5</default></entry>
-  <entry name="weight" type="Double"><default>1.0</default></entry>
- </group>
-</kcfg>
-"""
+# ⚑ THE ARTIFACTS ARE FILES: templates/clock-config.kcfg and clock-config.qml.
+# Both were plain `\"\"\"...\"\"\"` constants — no substitution at all — so holding
+# them here bought nothing and cost everything: kcfg is XML no schema validator
+# could reach, and the config page is QML qmllint could not lint.
+def _t(name):
+    import templates.loader as TL
+    return TL.render(name)
 
-CONFIG_QML = """import QtQuick
-import org.kde.kcm as KCM
-import org.kde.kirigami as Kirigami
-import QtQuick.Controls as QQC2
-import QtQuick.Layouts
 
-KCM.SimpleKCM {
-    property alias cfg_showGhost: showGhost.checked
-    property alias cfg_use24h: use24h.checked
-    property alias cfg_showSeconds: showSeconds.checked
-    property alias cfg_blinkColon: blinkColon.checked
-    Kirigami.FormLayout {
-        QQC2.CheckBox { id: showGhost; Kirigami.FormData.label: "Show ghost segments:" }
-        QQC2.CheckBox { id: use24h; Kirigami.FormData.label: "24-hour clock:" }
-        QQC2.CheckBox { id: showSeconds; Kirigami.FormData.label: "Show seconds:" }
-        QQC2.CheckBox { id: blinkColon; Kirigami.FormData.label: "Blink colon:" }
-        QQC2.Slider { id: bloomSlider; from: 0; to: 4; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
-        QQC2.Slider { id: weightSlider; from: 0; to: 1; stepSize: 0.25; Kirigami.FormData.label: "Lit stroke weight:" }
-    }
-}
-"""
+CONFIG_XML = _t("clock-config.kcfg")
+CONFIG_QML = _t("clock-config.qml")
 
 def main_qml(t):
     import cvd_gate as _cvd
@@ -101,111 +77,14 @@ def main_qml(t):
     # not taken from fg_in (which failed WCAG on every lit-mode variant).
     _g = _cvd.derive_ghost(_litS, _bg)
     ghost = '"#%02x%02x%02x"' % _g
-    return f'''import QtQuick
-import QtQuick.Layouts
-import QtQuick.Effects
-import org.kde.plasma.plasmoid
-import org.kde.plasma.core as PlasmaCore
-import org.kde.kirigami as Kirigami
-
-PlasmoidItem {{
-    id: root
-    // --- geometry: the SAME tables as the wallpaper (do not hand-edit) ---
-{qml_tables()}
-    property color litColor: {lit}
-    property color ghostColor: {ghost}
-    property color hotColor: {hot}
-    property int segLen: Math.max(6, Math.floor(height * 0.42))
-    property int segThick: Math.max(2, Math.floor(segLen * 0.18))
-
-    property string timeStr: "0000"
-    property bool colonOn: true
-
-    Timer {{
-        interval: 500; running: true; repeat: true
-        onTriggered: {{
-            var d = new Date();
-            var h = d.getHours();
-            if (!plasmoid.configuration.use24h) {{ h = h % 12; if (h === 0) h = 12; }}
-            var mm = d.getMinutes();
-            var ss = d.getSeconds();
-            var s = (h < 10 ? "0" : "") + h + (mm < 10 ? "0" : "") + mm;
-            if (plasmoid.configuration.showSeconds) s += (ss < 10 ? "0" : "") + ss;
-            root.timeStr = s;
-            if (plasmoid.configuration.blinkColon) root.colonOn = !root.colonOn;
-            else root.colonOn = true;
-        }}
-    }}
-
-    preferredRepresentation: fullRepresentation
-    fullRepresentation: Item {{
-        Layout.preferredWidth: segRow.implicitWidth + segLen
-        Layout.minimumWidth: segRow.implicitWidth + segLen
-        Row {{
-            id: segRow
-            anchors.centerIn: parent
-            spacing: Math.floor(segLen * 0.25)
-            Repeater {{
-                model: root.timeStr.length
-                Digit {{
-                    ch: root.timeStr.charAt(index)
-                    insertColon: (index === 2)
-                }}
-            }}
-        }}
-    }}
-
-    component Digit: Item {{
-        property string ch: "8"
-        property bool insertColon: false
-        width: segLen + (insertColon ? segLen * 0.7 : 0)
-        height: segLen * 2
-
-        // one seven-segment glyph; ghost layer under lit layer
-        Repeater {{
-            model: ["A","B","C","D","E","F","G"]
-            Segment {{
-                seg: modelData
-                on: root.digSegs[parent.ch] !== undefined
-                    && root.digSegs[parent.ch].indexOf(modelData) !== -1
-            }}
-        }}
-        // colon dots after this digit
-        Rectangle {{
-            visible: parent.insertColon
-            width: segThick; height: segThick; radius: segThick/2
-            color: root.colonOn ? root.litColor : root.ghostColor
-            x: segLen + segLen*0.25; y: segLen*0.62
-        }}
-        Rectangle {{
-            visible: parent.insertColon
-            width: segThick; height: segThick; radius: segThick/2
-            color: root.colonOn ? root.litColor : root.ghostColor
-            x: segLen + segLen*0.25; y: segLen*1.38 - segThick
-        }}
-    }}
-
-    component Segment: Item {{
-        property string seg: "A"
-        property bool on: false
-        property var g: root.segGeom[seg]         // [kind, ux, uy]
-        property bool horiz: g[0] === "h"
-        property real gap: segThick * 0.62
-        anchors.fill: parent
-        Rectangle {{
-            property bool showGhost: plasmoid.configuration.showGhost
-            visible: parent.on || showGhost
-            color: parent.on ? root.litColor : root.ghostColor
-            antialiasing: true
-            radius: segThick/2
-            width:  horiz ? segLen - gap*2 : segThick
-            height: horiz ? segThick : segLen - gap*2
-            x: (g[1] * segLen) + (horiz ? gap : 0)
-            y: (g[2] * segLen) + (horiz ? 0 : gap)
-        }}
-    }}
-}}
-'''
+    # ⚑ THE QML IS templates/clock-main.qml.  It was 104 lines of markup in an
+    # f-string, which cost ~40 DOUBLED BRACE PAIRS — every `{{` and `}}` an
+    # artifact of surviving as a Python literal rather than anything QML asked
+    # for. As a template it is the document verbatim: qmllint can read it, an
+    # editor can open it, and a diff shows which binding moved.
+    import templates.loader as TL
+    return TL.render("clock-main.qml", tables=qml_tables(),
+                     lit=lit, ghost=ghost, hot=hot)
 
 # ------------------------------------------------------------------ gate
 def balanced(s, o, c):
