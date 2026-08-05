@@ -203,13 +203,15 @@ WallpaperItem {{
 
 
 def config_main_xml():
-    return ('<?xml version="1.0" encoding="UTF-8"?>\n'
-            '<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0">\n'
-            '  <kcfgfile name=""/>\n'
-            '  <group name="General">\n'
-            '    <entry name="breathe" type="Bool"><default>false</default></entry>\n'
-            '  </group>\n'
-            '</kcfg>\n')
+    """The kcfg schema — templates/live-wallpaper-config.kcfg.
+
+    ⚑ IT WAS AN IMPLICIT CONCATENATION, which is the same defect wearing a
+    different shape: seven adjacent string literals, each ending in a visible
+    `\\n`, reassembled at parse time. The AST sees ONE constant (which is why the
+    scanner caught it), but a reader sees escape sequences instead of XML, and no
+    schema validator sees it at all."""
+    import templates.loader as TL
+    return TL.render("live-wallpaper-config.kcfg")
 
 
 def render_all(variants, dir_map):

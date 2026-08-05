@@ -22,12 +22,28 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = os.path.join(ROOT, "templates")
 
 
-def value_of(module, accessor):
-    """The artifact a module holds, whether a constant or a zero-arg function."""
+def value_of(module, accessor, arg=None):
+    """The artifact a module holds: a constant, or a function of zero or one arg.
+
+    ⚑ ONE ARGUMENT, BECAUSE THE GENERATORS TAKE ONE.  main_qml(variant) and
+    main_qml(t) are the shape here — a surface rendered per variant or per token
+    dict. Refusing them would mean hand-transcribing 88 lines of QML, which is
+    precisely the transcription risk this tool exists to remove. `arg` names a
+    module-level value or a zero-arg callable in the same module, so the caller
+    never has to know what a token dict is."""
     sys.path.insert(0, ROOT)
     mod = importlib.import_module(module)
     obj = getattr(mod, accessor)
-    return obj() if callable(obj) else obj
+    if not callable(obj):
+        return obj
+    if arg is None:
+        return obj()
+    # A bare LITERAL is the common case (a variant name); a module attribute is
+    # for arguments the caller cannot spell, like a solved token dict.
+    if hasattr(mod, arg):
+        supplied = getattr(mod, arg)
+        return obj(supplied() if callable(supplied) else supplied)
+    return obj(arg)
 
 
 def main(argv):
@@ -37,13 +53,17 @@ def main(argv):
         if a.startswith("--") and a != "--verify":
             print(f"extract_template: unknown flag {a!r}", file=sys.stderr)
             return 2
-    if len(args) != 3:
-        print("usage: extract_template.py [--verify] <module> <accessor> <name>",
-              file=sys.stderr)
+    if len(args) not in (3, 4):
+        print("usage: extract_template.py [--verify] <module> <accessor> <name> "
+              "[<arg-name>]", file=sys.stderr)
         return 2
-    module, accessor, name = args
+    arg = None
+    if len(args) == 4:
+        module, accessor, name, arg = args
+    else:
+        module, accessor, name = args
     try:
-        text = value_of(module, accessor)
+        text = value_of(module, accessor, arg)
     except Exception as e:                       # noqa: BLE001
         print(f"extract_template: REFUSED — cannot read {module}.{accessor}: "
               f"{type(e).__name__}: {e}", file=sys.stderr)

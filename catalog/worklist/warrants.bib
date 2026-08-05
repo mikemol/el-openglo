@@ -183,6 +183,19 @@
   check   = {tool:check_embedded_markup.py}
 }
 
+% ⚑ EXTRACTION MUST BE OUTPUT-NEUTRAL, AND SAYING SO IS NOT SHOWING IT.  Moving a
+% document out of an f-string means re-typing dozens of doubled brace pairs as
+% singles and every {name} hole as $name — the edit that still parses, still
+% lints, and emits subtly different markup. The baseline is recorded BEFORE the
+% rewrite (capture_baseline refuses to overwrite one, so it cannot drift to match
+% the code) and this asserts the generator still reproduces it.
+@misc{PARITY,
+  section = {emitters},
+  claim   = {every extracted template still emits its pre-extraction baseline byte for byte, so moving an artifact to a file changed no output},
+  rests-on = {TEMPLATES},
+  check   = {tool:check_template_parity.py}
+}
+
 % ⚑ THE WITNESS I DID NOT HAVE WHEN I NEEDED IT.  I read an offset ghost layer
 % off the wallpaper sample and filed it as a finding; the transforms are
 % identical. An unparameterised witness reaches for whatever state is at hand,

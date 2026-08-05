@@ -31,10 +31,24 @@ PAIRS = (
     ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
     ("make_clock", "CONFIG_XML", None, "clock-config.kcfg"),
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
+    ("make_wallpaper_live", "config_main_xml", None, "live-wallpaper-config.kcfg"),
+    # ⚑ A PER-VARIANT SURFACE IS PINNED AT ONE VARIANT, and that is enough: the
+    # holes are filled from the same call either way, so a transcription error in
+    # the 88 lines AROUND them shows up here regardless of which variant is used.
+    ("make_notify_marquee", "main_qml", "EL-Openglo",
+     "marquee-main-EL-Openglo.qml"),
+    ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"'), "splash.qml"),
 )
 
 
 def _value(module, accessor, argsrc):
+    # ⚑ THE GENERATORS READ FILES BY BARE NAME, so the WORKING DIRECTORY is part
+    # of their contract, not just sys.path. make_clock opens "make_wallpaper.py"
+    # at import to pull the shared SEG/DIGIT tables; imported from anywhere else
+    # that is a FileNotFoundError. The gate runs checks from the paperkit project
+    # directory, so this passed standalone and failed under the gate — a
+    # difference in cwd reported as a difference in output.
+    os.chdir(ROOT)
     sys.path.insert(0, ROOT)
     import importlib
     mod = importlib.import_module(module)
@@ -43,7 +57,19 @@ def _value(module, accessor, argsrc):
         return obj
     if argsrc is None:
         return obj()
-    return obj(getattr(mod, argsrc)())
+
+    def _one(token):
+        # a module attribute when the argument cannot be spelled (a token dict);
+        # otherwise the literal itself (a variant name, a colour)
+        if hasattr(mod, token):
+            v = getattr(mod, token)
+            return v() if callable(v) else v
+        return token
+
+    # a tuple names several arguments; a bare string names one
+    if isinstance(argsrc, tuple):
+        return obj(*[_one(a) for a in argsrc])
+    return obj(_one(argsrc))
 
 
 def compare():

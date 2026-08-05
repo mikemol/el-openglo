@@ -451,51 +451,16 @@ def _splash_qml(ground_hex, lit_hex):
     increments 1..6). A row of '12:00' digits on void ground; ghost digits always
     faint, lit digits fill left-to-right as stage rises, so the boot literally
     lights the watch face awake. Ghost = the lit phosphor at low opacity (same
-    material, un-energised) — consistent with the ghost/lit model everywhere else."""
-    return f'''import QtQuick 2.15
+    material, un-energised) — consistent with the ghost/lit model everywhere else.
 
-Item {{
-    id: root
-    property int stage: 0
-    readonly property int total: 6
-    anchors.fill: parent
+    ⚑ THE QML IS templates/splash.qml.  The last of the six embedded documents:
+    43 lines of markup in an f-string, brace-doubled, invisible to qmllint. Two
+    holes go in — the void ground and the lit phosphor — and the document comes
+    out."""
+    import templates.loader as TL
+    return TL.render("splash.qml", ground=ground_hex, lit=lit_hex)
 
-    Rectangle {{ anchors.fill: parent; color: {ground_hex} }}
 
-    Row {{
-        anchors.centerIn: parent
-        spacing: parent.width * 0.02
-        Repeater {{
-            model: ["1","2",":","0","0"]
-            Item {{
-                width: root.width*0.07; height: root.width*0.12
-                property bool lit: index <= (root.stage / root.total) * 5
-                Text {{
-                    anchors.fill: parent
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    text: modelData
-                    font.pixelSize: parent.height
-                    font.family: "monospace"; font.bold: true
-                    color: {lit_hex}
-                    opacity: 0.22
-                }}
-                Text {{
-                    anchors.fill: parent
-                    horizontalAlignment: Text.AlignHCenter
-                    verticalAlignment: Text.AlignVCenter
-                    text: modelData
-                    font.pixelSize: parent.height
-                    font.family: "monospace"; font.bold: true
-                    color: {lit_hex}
-                    opacity: parent.lit ? 1.0 : 0.0
-                    Behavior on opacity {{ NumberAnimation {{ duration: 220 }} }}
-                }}
-            }}
-        }}
-    }}
-}}
-'''
 
 
 CONTROL = f"""Package: {PKG}
