@@ -42,14 +42,27 @@ LIT = _C["lit"]            # lit segment core
 GLOW = _C["accent"]        # phosphor glow
 
 # seven-segment geometry -----------------------------------------------------
-SEGS = {  # (kind, x, y) in units of L; kind h/v; origin = digit top-left
-    "A": ("h", 0, 0), "G": ("h", 0, 1), "D": ("h", 0, 2),
-    "F": ("v", 0, 0), "B": ("v", 1, 0), "E": ("v", 0, 1), "C": ("v", 1, 1),
-}
-DIGIT = {
-    "0": "ABCDEF", "1": "BC", "2": "ABGED", "3": "ABGCD", "4": "FGBC",
-    "5": "AFGCD", "6": "AFGEDC", "7": "ABC", "8": "ABCDEFG", "9": "ABCFGD",
-}
+# ⚑ DERIVED FROM THE SUBSTRATE, NOT OWNED HERE (⊕SEGMENT-SUBSTRATE).
+#
+# These were two hand-authored tables, and three other surfaces carried their own
+# copies of the same shapes — the defect the design log names outright:
+# "GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOR. I did this for COLOR (palette
+# solver feeds all) but NOT for GEOMETRY." make_clock went further and re-read
+# THESE tables out of this file's SOURCE with a regex at import time.
+#
+# segment_topology is the one lattice; a surface chooses a FORMAT, never a shape.
+# The wallpaper is digits-only, so it projects to "7".
+#
+# ⚑ THE RENAME IS THE SUBSTRATE'S OWN, NOT A TRANSLATION LAYER.  The substrate
+# labels 7-seg strokes a..g; this file's SVG has always used A..G, and
+# segment_topology carries SEG7_RENAME/glyph7_letters precisely so the two agree.
+# Its selftest asserts the projection is BYTE-EQUAL to the table that used to
+# live here, which is what makes this replacement provably behaviour-preserving
+# rather than a re-derivation that happens to look right.
+import segment_topology as _ST
+
+SEGS = _ST.seg7_svg_grid()
+DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
 
 def seg_poly(kind, L, t, gap):
     h = t / 2.0

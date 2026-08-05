@@ -131,6 +131,34 @@ def glyph7_letters(ch):
     coarse = project(glyph16(ch), "7")
     return "".join(sorted(SEG7_RENAME[s] for s in coarse if s in SEG7_RENAME))
 
+
+# The 7-seg strokes in the COARSE cell the SVG/QML surfaces draw in: a 2-wide,
+# 3-tall grid of (kind, ux, uy) where a horizontal spans the full width at row
+# uy and a vertical spans one row at column ux. GEOM16's cell is 2x4 in half-row
+# units; this is that cell at 7-seg granularity.
+_SEG7_GRID = {
+    "A": ("h", 0, 0), "G": ("h", 0, 1), "D": ("h", 0, 2),
+    "F": ("v", 0, 0), "B": ("v", 1, 0), "E": ("v", 0, 1), "C": ("v", 1, 1),
+}
+
+
+def seg7_svg_grid():
+    """{A..G: (kind, ux, uy)} — the 7-seg cell the raster/SVG surfaces render in.
+
+    ⚑ THE SURFACES HAD THIS TABLE, EACH ITS OWN COPY (⊕SEGMENT-SUBSTRATE).  The
+    wallpaper, the clock and the boot splash each carried the same seven strokes;
+    the clock went further and re-read the wallpaper's SOURCE with a regex, so a
+    hand edit to one file's literal silently redefined another's geometry.
+
+    ⚑ WHY THIS IS A PROJECTION AND NOT A SECOND TABLE.  GEOM16 is the lattice, in
+    a 2x4 half-row cell that supports diagonals and split bars. A 7-seg renderer
+    draws in a coarser 2x3 cell — no diagonals, no split bars — and the mapping
+    between them is fixed. Deriving the coarse cell from GEOM16 element-by-element
+    would re-derive that fixed mapping on every call; naming it once, HERE, keeps
+    one owner. The parity gate below is what makes it a projection rather than a
+    fork: project()'s own 7-seg output must agree with these keys."""
+    return dict(_SEG7_GRID)
+
 # --- 22-segment: 16-seg topology PLUS a descender sub-cell ------------------
 # ⚑ RECONSTRUCTED.  The original definition was lost with the repo; this is
 # rebuilt from the design log (COTYPE.md, session 27 "⊕SEG22 invoked" and its
@@ -235,6 +263,18 @@ def _selftest():
     # every segment must have well-formed endpoints
     bad = [k for k in SEG22 if len(endpoints(k)) != 4]
     check(f"every segment has endpoints ({bad})", bad, [])
+
+    # ⚑ THE COARSE 7-SEG CELL IS A PROJECTION, NOT A FORK.  seg7_svg_grid names
+    # the 2x3 cell the SVG/QML surfaces draw in. If its key set ever diverged
+    # from what project(..., "7") actually emits, it would be a second geometry
+    # wearing a projection's name — which is the silo this replaced.
+    grid = set(seg7_svg_grid())
+    emitted = set()
+    for ch in "0123456789":
+        emitted |= set(glyph7_letters(ch))
+    check(f"the 7-seg grid covers what project() emits ({sorted(emitted - grid)})",
+          sorted(emitted - grid), [])
+    check("the 7-seg grid has exactly seven strokes", len(grid), 7)
     # the descenders must actually lie below the baseline, or they are not descenders
     below = [k for k in ("dl", "dc", "dr") if endpoints(k)[3] <= 4]
     check(f"descenders reach below the baseline ({below})", below, [])

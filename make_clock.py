@@ -19,12 +19,20 @@ import os, re, sys, json, shutil
 import xml.etree.ElementTree as ET
 from make_schemes import GRID
 
-# --- single source of truth: pull SEG/DIG straight from the wallpaper gen ---
-_wp = open("make_wallpaper.py").read()
-SEG_SRC = re.search(r'SEGS = \{.*?\}', _wp, re.S).group(0)
-DIG_SRC = re.search(r'DIGIT = \{.*?\}', _wp, re.S).group(0)
-SEGS = eval(SEG_SRC[SEG_SRC.index("{"):])
-DIGIT = eval(DIG_SRC[DIG_SRC.index("{"):])
+# --- single source of truth: the segment substrate (⊕SEGMENT-SUBSTRATE) ------
+# ⚑ THIS READ THE WALLPAPER'S SOURCE TEXT AND eval'd IT.  Three lines of regex
+# over another module's FILE, pulling out `SEGS = {...}` and `DIGIT = {...}` as
+# literals — so this file's geometry depended on the wallpaper's literal SYNTAX,
+# not on any interface. Reformatting that dict, or deriving it, broke this file
+# at import with a NoneType.group() traceback naming neither cause nor cure.
+#
+# It called itself "single source of truth", and it was the opposite: a COPY
+# taken by scraping. The substrate is the source; both surfaces read it, and the
+# format ("7" for digits) is the only per-surface choice.
+import segment_topology as _ST
+
+SEGS = _ST.seg7_svg_grid()
+DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
 
 def qml_tables():
     segs = ", ".join(f'"{k}": ["{v[0]}", {v[1]}, {v[2]}]' for k, v in SEGS.items())
