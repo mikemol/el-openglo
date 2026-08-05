@@ -28,19 +28,28 @@ import segment_topology as ST
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
-# 7-seg segment set per digit (which of the coarse 7 segments are lit).
+# ⚑ DERIVED FROM THE SUBSTRATE (⊕SEGMENT-SUBSTRATE).  This file was the HARDEST
+# silo to see: it already imported segment_topology, so every scan asking "does
+# this read the shared geometry?" answered yes — while it carried its own copy of
+# both the digit glyphs and the coarse strokes and rendered from those. Importing
+# an authority and then not using it looks exactly like compliance.
+#
+# The copies happened to be correct (all ten digits matched the substrate's
+# projection, measured before the change), which is the worst case: correct by
+# luck rather than by construction, and free to drift the moment either side
+# moved. scripts/check_plymouth_digits.py is the gate that would have caught it.
+#
 # coarse names: a(top) b(top-right) c(bot-right) d(bottom) e(bot-left) f(top-left) g(middle)
-SEVENSEG = {
-    "0": set("abcdef"), "1": set("bc"), "2": set("abdeg"), "3": set("abcdg"),
-    "4": set("bcfg"), "5": set("acdfg"), "6": set("acdefg"), "7": set("abc"),
-    "8": set("abcdefg"), "9": set("abcdfg"),
-}
+SEVENSEG = {d: set(ST.project(ST.glyph16(d), "7")) for d in "0123456789"}
 # coarse 7-seg -> GEOM16 strokes (2 wide x 4 tall grid; y down)
-SEG_STROKE = {
-    "a": ("h", 0, 2, 0), "g": ("h", 0, 2, 2), "d": ("h", 0, 2, 4),
-    "f": ("v", 0, 0, 2), "b": ("v", 2, 0, 2),
-    "e": ("v", 0, 2, 4), "c": ("v", 2, 2, 4),
-}
+# ⚑ A COARSE BAR IS THE UNION OF TWO HALF-BARS, NOT ONE OF THEM.  My first
+# derivation mapped "a" to GEOM16["a1"] — and a1 spans x=0..1, half the cell,
+# because 16-seg SPLITS the top and bottom bars so letters can light one side.
+# 7-seg does not split them, so the coarse bar runs the full width and the
+# merge in FORMATS["7"] is what says so. Rendering the half-bar produced digits
+# with clipped horizontals: valid PNGs, wrong glyphs, and only visible in the
+# sample. That is what the library is for.
+SEG_STROKE = ST.seg7_strokes()
 
 CELL_W, CELL_H = 2.0, 4.0
 

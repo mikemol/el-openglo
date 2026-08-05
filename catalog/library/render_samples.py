@@ -128,9 +128,39 @@ SURFACES = (
 # fallback rather than taking a variant, so it renders ONCE. The distinction is
 # in the data instead of a special case in targets(): a surface is either keyed
 # by variant or it is not.
+def _splash_digits(variant, path):
+    """The boot splash's digit strip — the surface that renders in PIL, not SVG.
+
+    ⚑ SAMPLED BECAUSE ⊕SEGMENT-SUBSTRATE REWIRES ITS GEOMETRY.  Plymouth draws
+    with Pillow rather than emitting markup, so it has no SVG to diff and no QML
+    to lint: the only way to see whether its digits still form is to render them
+    and look. It was also the hardest silo to detect — it IMPORTED the substrate
+    while carrying its own stroke table — so "does it still look right" is
+    exactly the question that could not be answered from the source."""
+    from PIL import Image
+    import make_plymouth as MPL
+    import make_preview as MP
+    c = MP.parse_scheme(variant)
+    ground = MPL._rgb(c["ground"])
+    lit = MPL._rgb(c["phosphor"])
+    ghost = MPL.ghost_from(lit, ground)
+    digits = [MPL.render_digit(d, lit, ghost, U=28) for d in "0123456789"]
+    w = sum(d.width for d in digits)
+    h = max(d.height for d in digits)
+    strip = Image.new("RGBA", (w, h), ground + (255,))
+    x = 0
+    for d in digits:
+        strip.alpha_composite(d, (x, 0))
+        x += d.width
+    strip.save(path)
+
+
 SINGLETONS = (
     ("wallpaper", "wallpaper.svg", _wallpaper,
      "the desktop wallpaper — the clock face ⊕SEGMENT-SUBSTRATE rewires"),
+    ("splash-digits", "splash-digits.png", lambda _v, p:
+     _splash_digits("EL-Openglo", p),
+     "the boot splash's 0-9, rendered in PIL from the shared geometry"),
 )
 
 

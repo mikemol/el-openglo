@@ -4,6 +4,10 @@
 
 ## (all)
 
+**splash-digits** — the boot splash's 0-9, rendered in PIL from the shared geometry
+
+![(all) splash-digits](samples/splash-digits.png)
+
 **wallpaper** — the desktop wallpaper — the clock face ⊕SEGMENT-SUBSTRATE rewires
 
 ![(all) wallpaper](samples/wallpaper.svg)

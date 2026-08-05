@@ -20,3 +20,7 @@ catalog/cotype/.delta-cache.json
 # is a sample nobody sees.
 !catalog/library/samples/
 !catalog/library/samples/*.svg
+# ⚑ AND PNG, because not every surface emits markup. Plymouth draws with Pillow,
+# so its sample is a raster or it is nothing — and a raster sample is still the
+# only way to see whether its digits form.
+!catalog/library/samples/*.png

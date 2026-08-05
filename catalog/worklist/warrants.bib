@@ -196,6 +196,31 @@
   check   = {tool:check_template_parity.py}
 }
 
+% ⚑ GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOUR, and this is @TOKENS on the
+% shape axis. Four surfaces each re-implemented the segment shapes while
+% segment_topology — the emitter built to supply them — fed none of them. The
+% clock went further and re-read the wallpaper's SOURCE with a regex, so its
+% geometry depended on another file's literal syntax rather than any interface.
+% A surface chooses a FORMAT ("7" digits / "22" alphanumeric); carrying a stroke
+% table is a re-implementation.
+@misc{GEOMETRY,
+  section = {emitters},
+  claim   = {every segment surface renders from the one geometry substrate rather than carrying its own stroke table},
+  rests-on = {TOKENS},
+  check   = {tool:check_geometry_source.py}
+}
+
+% ⚑ PLYMOUTH LOOKED DE-SILOED AND WAS NOT — it IMPORTED the substrate while
+% rendering from its own copies, so an import census reported compliance. The
+% copies were correct by luck rather than construction, which is worse than
+% wrong: free to drift the moment either side moved.
+@misc{SPLASHGLYPH,
+  section = {emitters},
+  claim   = {the boot splash's digits are the substrate's own seven-segment projection, not a parallel table that happens to agree},
+  rests-on = {GEOMETRY},
+  check   = {tool:check_plymouth_digits.py}
+}
+
 % ⚑ THE WITNESS I DID NOT HAVE WHEN I NEEDED IT.  I read an offset ghost layer
 % off the wallpaper sample and filed it as a finding; the transforms are
 % identical. An unparameterised witness reaches for whatever state is at hand,

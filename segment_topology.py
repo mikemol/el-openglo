@@ -142,6 +142,28 @@ _SEG7_GRID = {
 }
 
 
+def seg7_strokes():
+    """{a..g: (kind, ...)} — the coarse 7-seg strokes in GEOM16's own 2x4 cell.
+
+    ⚑ A COARSE BAR IS THE UNION OF THE HALVES IT MERGES.  16-seg SPLITS the top,
+    middle and bottom bars (a1|a2, g1|g2, d1|d2) so a letter can light one side;
+    7-seg does not, and FORMATS["7"]'s merge map is the statement of that. Taking
+    either half alone gives a bar of half the width — which renders as a valid
+    image of a wrong glyph, the failure mode a picture catches and a type check
+    does not.
+
+    Verticals are unsplit in both formats, so they pass through unchanged."""
+    merged = {}
+    for coarse, parts in (("a", ("a1", "a2")), ("g", ("g1", "g2")),
+                          ("d", ("d1", "d2"))):
+        xs = [GEOM16[p][1] for p in parts] + [GEOM16[p][2] for p in parts]
+        y = GEOM16[parts[0]][3]
+        merged[coarse] = ("h", min(xs), max(xs), y)
+    for coarse in ("f", "b", "e", "c"):
+        merged[coarse] = GEOM16[coarse]
+    return merged
+
+
 def seg7_svg_grid():
     """{A..G: (kind, ux, uy)} — the 7-seg cell the raster/SVG surfaces render in.
 
@@ -275,6 +297,16 @@ def _selftest():
     check(f"the 7-seg grid covers what project() emits ({sorted(emitted - grid)})",
           sorted(emitted - grid), [])
     check("the 7-seg grid has exactly seven strokes", len(grid), 7)
+
+    # ⚑ THE COARSE BARS SPAN THE WHOLE CELL, which is what taking one half-bar
+    # got wrong — and got wrong INVISIBLY, as a valid image of a clipped glyph.
+    st = seg7_strokes()
+    check("seg7_strokes has seven strokes", len(st), 7)
+    wide = [k for k in ("a", "g", "d")
+            if not (st[k][1] == 0 and st[k][2] == 2)]
+    check(f"the horizontals span the full 2-wide cell ({wide})", wide, [])
+    tall = [k for k in ("f", "b", "e", "c") if st[k][0] != "v"]
+    check(f"the verticals stay vertical ({tall})", tall, [])
     # the descenders must actually lie below the baseline, or they are not descenders
     below = [k for k in ("dl", "dc", "dr") if endpoints(k)[3] <= 4]
     check(f"descenders reach below the baseline ({below})", below, [])
