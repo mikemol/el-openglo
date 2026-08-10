@@ -84,6 +84,86 @@ def against_substrate():
     return bad
 
 
+def font_structure():
+    """[problem] — glyphs whose STRUCTURE contradicts the font they belong to.
+
+    ⚑ A WRONG GLYPH ROUND-TRIPS PERFECTLY.  The emission check compares Python to
+    Python, so a malformed letter survives it untouched; the collision count stays
+    0 because a malformed 'A' still differs from every other letter. 'A' shipped
+    with its crossbar one row low and a flat apex, and the only thing that caught
+    it was rendering the marquee and LOOKING.
+
+    So this asks what a picture asks: does each glyph agree with the others about
+    where the shared features of this font sit? These are NOT general typographic
+    truths — they are relations WITHIN this 5x7 set, checkable because the set is
+    internally consistent everywhere except where it is wrong.
+
+    ⚑ THE WEAKNESS, STATED.  This cannot certify a glyph is CORRECT — only that it
+    does not contradict its own font. A letter wrong in a way every other letter
+    is also wrong passes. Rendering and looking remains the only witness for that,
+    which is why catalog/library/samples/marquee.svg exists and is committed."""
+    r = DT.registry()
+    font = r["font5x7"]
+    bad = []
+
+    def rows_of(ch):
+        cols = font.get(ch)
+        if cols is None:
+            return None
+        return [{c for c, b in enumerate(cols) if b & (1 << row)} for row in range(7)]
+
+    # 1. every glyph must fit the declared cell — a column byte above 0x7f would
+    #    light a row that does not exist.
+    for ch, cols in sorted(font.items()):
+        if len(cols) != 5:
+            bad.append(f"{ch!r}: {len(cols)} columns, not 5")
+        for i, b in enumerate(cols):
+            if b & ~0x7f:
+                bad.append(f"{ch!r} column {i} = 0x{b:02x} lights a row past 7")
+
+    # 2. THE CROSSBAR FAMILY.  A, H and E all carry a full-width or near-full
+    #    horizontal bar, and in a 7-row cell it belongs on the middle row (3).
+    #    'A' had it on row 4 while 'H' and 'E' had it on 3 — the disagreement that
+    #    was visible in the render and in nothing else.
+    for ch in ("A", "H"):
+        rows = rows_of(ch)
+        if rows is None:
+            bad.append(f"{ch!r}: absent from the font")
+            continue
+        full = [i for i, on in enumerate(rows) if len(on) == 5]
+        if full != [3]:
+            bad.append(f"{ch!r}: full-width row(s) at {full}, expected [3] — the "
+                       f"crossbar disagrees with the rest of the font")
+
+    # 3. 'E' bars the top, middle and bottom; its middle bar shares row 3.
+    rows = rows_of("E")
+    if rows is not None:
+        barred = [i for i, on in enumerate(rows) if len(on) >= 4]
+        if barred != [0, 3, 6]:
+            bad.append(f"'E': barred rows {barred}, expected [0, 3, 6]")
+
+    # 4. symmetric letters must be left-right symmetric in their columns.
+    #
+    # ⚑ '0' IS DELIBERATELY EXCLUDED, AND I HAD IT WRONG FIRST.  I listed it as
+    # symmetric and the check fired on the real font — but this '0' carries the
+    # slashed/dotted diagonal that distinguishes it from 'O' (0x3e,0x51,0x49,
+    # 0x45,0x3e: the lit bits walk from bottom-left to top-right), so its
+    # asymmetry is the FEATURE. My instrument was wrong about the world before the
+    # artifact was, which is the recurring family ⊕DOT-WIRE's residue names.
+    for ch in ("A", "H", "O", "T", "U", "V", "W", "X", "M"):
+        cols = font.get(ch)
+        if cols and list(cols) != list(reversed(cols)):
+            bad.append(f"{ch!r} is not left-right symmetric: "
+                       f"{[hex(c) for c in cols]}")
+
+    # 5. no glyph but ' ' may be blank — a silently empty cell is how a missing
+    #    glyph looks on the panel.
+    for ch, cols in sorted(font.items()):
+        if ch != " " and not any(cols):
+            bad.append(f"{ch!r}: every column is empty")
+    return bad
+
+
 def counts():
     r = DT.registry()
     return {
@@ -95,11 +175,38 @@ def counts():
 
 
 def main(argv):
-    known = {"--show", "--selftest"}
+    known = {"--show", "--glyph", "--selftest"}
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_display_registry: unknown flag {a!r}", file=sys.stderr)
             return 2
+
+    if "--glyph" in argv:
+        # ⚑ THIS MODE EXISTS BECAUSE A RENDERED SAMPLE CAUGHT A BAD GLYPH AND THE
+        # SOURCE COULD NOT SETTLE IT.  FONT5x7's comment says
+        # 'A' = 0x7e,0x09,0x09,0x09,0x7e and the table one line below holds
+        # 0x7e,0x11,0x11,0x11,0x7e — the two disagree about the middle columns.
+        # "Which is right" was being answered by squinting at a picture, i.e. in
+        # the turn. Printing the bitmap makes it a one-command question.
+        rest = [a for a in argv[1:] if not a.startswith("--")]
+        if not rest:
+            print("check_display_registry: --glyph needs a character",
+                  file=sys.stderr)
+            return 2
+        r = DT.registry()
+        font, shown = r["font5x7"], 0
+        for ch in rest[0]:
+            cols = font.get(ch) or font.get(ch.upper())
+            if cols is None:
+                print(f"{ch!r}: not in the font ({len(font)} glyphs)")
+                continue
+            shown += 1
+            print(f"{ch!r}  {', '.join(f'0x{c:02x}' for c in cols)}")
+            for row in range(7):
+                print("  " + "".join("#" if c & (1 << row) else "."
+                                     for c in cols))
+        print(f"glyph: {shown} of {len(rest[0])} character(s) in the font")
+        return 0 if shown else 1
 
     n = counts()
     if "--show" in argv:
@@ -118,6 +225,7 @@ def main(argv):
 
     ok, bad = roundtrip()
     bad += against_substrate()
+    bad += font_structure()
     total = sum(n.values())
     if bad:
         print(f"check_display_registry: REFUSED — {len(bad)} disagreement(s) over "
@@ -154,6 +262,40 @@ def _selftest():
     check("the real registry agrees", main(["x"]), 0)
     check("the round trip is clean", roundtrip()[0], True)
     check("nothing disagrees with the substrate", against_substrate(), [])
+    check("the font is structurally consistent", font_structure(), [])
+
+    # ⚑ THE EXACT BYTES THAT SHIPPED WRONG.  'A' held 0x7e,0x11,0x11,0x11,0x7e —
+    # crossbar on row 4, flat apex — and every check was green because the
+    # emission round-tripped and the collision count was unaffected. If this
+    # regression case does not fail, the structural check is decoration.
+    saved_font = DT.FONT5x7["A"]
+    try:
+        DT.FONT5x7["A"] = [0x7e, 0x11, 0x11, 0x11, 0x7e]
+        probs = font_structure()
+        check("sees the 'A' that shipped (crossbar one row low)",
+              any("'A'" in p and "crossbar" in p for p in probs), True)
+        # and it must still round-trip cleanly, which is WHY looking was needed
+        check("...while the round trip stays clean", roundtrip()[0], True)
+    finally:
+        DT.FONT5x7["A"] = saved_font
+
+    # an asymmetric 'H' is a different failure the same check must catch
+    saved_h = DT.FONT5x7["H"]
+    try:
+        DT.FONT5x7["H"] = [0x7f, 0x08, 0x08, 0x08, 0x3f]
+        check("sees an asymmetric symmetric letter",
+              any("'H'" in p and "symmetric" in p for p in font_structure()), True)
+    finally:
+        DT.FONT5x7["H"] = saved_h
+
+    # a column byte that lights a row outside the cell
+    saved_z = DT.FONT5x7["Z"]
+    try:
+        DT.FONT5x7["Z"] = [0xff, 0x51, 0x49, 0x45, 0x43]
+        check("sees a column past the cell",
+              any("'Z'" in p and "past" in p for p in font_structure()), True)
+    finally:
+        DT.FONT5x7["Z"] = saved_z
 
     # 1. a serialisation that DROPS a table
     saved = DT.as_qml_js

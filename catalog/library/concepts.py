@@ -66,6 +66,51 @@ def index_is_generated():
     assert not unnamed, f"on disk but absent from the index: {unnamed[:4]}"
 
 
+def marquee_sample_covers_the_font(text=None, font=None):
+    """The marquee sample exercises every glyph the font declares.
+
+    ⚑ THIS WITNESS EXISTS BECAUSE THE SAMPLE COULD NOT SHOW THE BUG IT WAS ADDED
+    TO CATCH.  'A' shipped malformed — crossbar one row low, flat apex — and
+    check_display_registry could not see it, because that check compares the
+    emission to registry() (Python to Python) and a wrong glyph round-trips
+    perfectly. Rendering the ticker caught it, exactly as a rendered sample caught
+    plymouth's clipped digits.
+
+    Then I fixed the font, re-rendered, and the picture was BYTE-IDENTICAL — which
+    I briefly misread as the fix not landing. The sample read "EL OPENGLO 13:37",
+    which contains no 'A'. The defect was fixed and the witness was blind to it.
+
+    ⚑ A SAMPLE THAT CANNOT SHOW THE DEFECT IS NOT A WITNESS FOR IT.  Coverage of
+    the artifact is not coverage of the FONT, and the difference is invisible
+    while the sample happens to contain the broken glyph. So this asserts the
+    relation: every declared glyph appears in the rendered string.
+
+    ⟡PARAMETRIC: both the text and the font are arguments, so the selftest can
+    hand it a deliberately short string and prove it fails."""
+    if font is None:
+        import display_types as DT
+        font = DT.FONT5x7
+    if text is None:
+        sys.path.insert(0, HERE)
+        import render_samples as RS
+        import inspect
+        src = inspect.getsource(RS._marquee)
+        # the sample's own string, read from the renderer that draws it — so the
+        # witness cannot drift from what is actually rendered
+        for line in src.splitlines():
+            s = line.strip()
+            if s.startswith("text = "):
+                text = s.split("=", 1)[1].strip().strip('"')
+                break
+    assert text, "could not determine the marquee sample's text"
+    assert font, "the font is empty"
+    shown = set(text) | {c.upper() for c in text}
+    missing = sorted(ch for ch in font if ch != " " and ch not in shown)
+    assert not missing, (
+        f"{len(missing)} of {len(font)} declared glyph(s) never appear in the "
+        f"marquee sample, so a defect in them is invisible to it: {missing[:12]}")
+
+
 def palette_roles_are_distinct():
     """Each palette ROLE renders as its own colour.
 
@@ -172,6 +217,7 @@ CONCEPTS = {
     "palette-roles-distinct": palette_roles_are_distinct,
     "preview-clock-fits": preview_clock_fits,
     "ghost-registers": ghost_registers_with_lit,
+    "marquee-covers-font": marquee_sample_covers_the_font,
 }
 
 
@@ -243,6 +289,29 @@ def _selftest():
             check("registration FAILS when a layer is offset", "passed", "raised")
         except AssertionError:
             check("registration FAILS when a layer is offset", "raised", "raised")
+    # ⚑ THE BLIND SAMPLE, VERBATIM.  "EL OPENGLO 13:37" is what the marquee sample
+    # actually read while 'A' was malformed — no 'A' in it, so the defect was
+    # invisible to the very picture added to catch it. If this case does not fail,
+    # the coverage witness is decoration.
+    import display_types as _DT
+    try:
+        marquee_sample_covers_the_font("EL OPENGLO 13:37", _DT.FONT5x7)
+        check("a sample missing glyphs FAILS coverage", "passed", "raised")
+    except AssertionError:
+        check("a sample missing glyphs FAILS coverage", "raised", "raised")
+    try:
+        marquee_sample_covers_the_font(
+            "ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*?", _DT.FONT5x7)
+        check("the full-alphabet sample passes coverage", True, True)
+    except AssertionError as e:
+        check("the full-alphabet sample passes coverage", f"raised {e}", True)
+    # and lowercase input must count as covering its uppercase glyph
+    try:
+        marquee_sample_covers_the_font("ab", {"A": [1], "B": [1]})
+        check("lowercase covers the uppercase glyph", True, True)
+    except AssertionError as e:
+        check("lowercase covers the uppercase glyph", f"raised {e}", True)
+
     check("--list works", main(["--list"]), 0)
     print("concepts selftest:", "PASS" if ok else "FAIL")
     return ok

@@ -155,12 +155,86 @@ def _splash_digits(variant, path):
     strip.save(path)
 
 
+def _marquee(variant, path):
+    """The notification ticker's 5x7 dot-matrix face, from the SHIPPED registry.
+
+    ⚑ THIS SAMPLE EXISTS BECAUSE NOTHING ELSE CAN SEE THE TICKER.  The marquee
+    emits QML, so there is no SVG to diff and no bitmap to open; its gate
+    (check_display_registry) compares Python to Python and therefore cannot tell
+    a correct font from one rendered upside down. Plymouth shipped CLIPPED DIGITS
+    with every check green — valid PNGs of wrong glyphs — and the only thing that
+    caught it was a rendered sample. This is that exposure, on a new surface.
+
+    ⚑ IT IS A MIRROR, AND THE MIRROR CAN LIE.  This draws the dots in SVG the way
+    MatrixChar.qml draws them in QML; it does not run the QML. So it witnesses
+    that THE FONT AND THE REGISTRY are right — a mangled glyph, a bad bit order, a
+    dropped column all show up here — and NOT that the QML consuming them renders.
+    Two ways to disagree remain: this mirror could drift from the component, and
+    the component could be wrong in a way the data is not. Stated rather than
+    papered over, because a sample that overclaims is worse than none.
+
+    To keep the drift as small as possible it reads the SAME registry emission the
+    plasmoid receives (`as_qml_js("5x7")`, parsed back) rather than reaching into
+    display_types — if the emission is broken, this picture breaks with it."""
+    import json
+    import make_notify_marquee as MM
+    import make_preview as MP
+    import display_types as DT
+
+    reg = json.loads(DT.as_qml_js("5x7"))
+    disp = reg["displays"]["5x7"]
+    font = reg["font5x7"]
+    cols, rows = disp["cols"], disp["rows"]
+
+    ground, lit, ghost = MM.WL.colors_for(variant)
+    # ⚑ THE SAMPLE MUST EXERCISE THE FONT, NOT JUST THE SURFACE.  This first read
+    # "EL OPENGLO 13:37" — which contains no 'A', the one glyph that was WRONG.
+    # I fixed the font, re-rendered, and the picture was byte-identical, which I
+    # briefly misread as the fix not landing. A sample that cannot show the defect
+    # is not a witness for it, so this spans the full alphabet and digits: every
+    # glyph in the font appears, and a malformed one is visible on sight.
+    text = "ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*?"
+
+    u = 9.0                       # dot pitch, px
+    fill = 0.82                   # matches MatrixChar.dotFill
+    pad = u * 2
+    adv = cols * u + u            # cell plus one blank column, as the Row spacing does
+    W = pad * 2 + adv * len(text) - u
+    H = pad * 2 + rows * u
+
+    def _h(rgb):
+        return "#%02x%02x%02x" % rgb
+
+    dots = []
+    for i, ch in enumerate(text):
+        colbytes = font.get(ch) or font.get(ch.upper()) or []
+        ox = pad + i * adv
+        for c in range(cols):
+            byte = colbytes[c] if c < len(colbytes) else 0
+            for r in range(rows):
+                on = bool(byte & (1 << r))
+                cx = ox + c * u + u / 2
+                cy = pad + r * u + u / 2
+                dots.append(
+                    f'  <circle cx="{cx:.1f}" cy="{cy:.1f}" r="{u * fill / 2:.2f}"'
+                    f' fill="{_h(lit) if on else _h(ghost)}"'
+                    f' opacity="{"1" if on else "0.28"}"/>')
+
+    open(path, "w", encoding="utf-8").write(
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.0f}" height="{H:.0f}"'
+        f' viewBox="0 0 {W:.0f} {H:.0f}">\n'
+        f'  <rect width="{W:.0f}" height="{H:.0f}" fill="{_h(ground)}"/>\n'
+        + "\n".join(dots) + "\n</svg>\n")
+
+
 SINGLETONS = (
     ("wallpaper", "wallpaper.svg", _wallpaper,
      "the desktop wallpaper — the clock face ⊕SEGMENT-SUBSTRATE rewires"),
     ("splash-digits", "splash-digits.png", lambda _v, p:
      _splash_digits("EL-Openglo", p),
      "the boot splash's 0-9, rendered in PIL from the shared geometry"),
+    ("marquee", "marquee.svg", lambda _v, p: _marquee("EL-Openglo", p),
+     "the notification ticker's 5x7 matrix face, mirrored from the shipped registry"),
 )
 
 

@@ -171,6 +171,33 @@
   check   = {tool:check_display_registry.py --selftest}
 }
 
+% ⚑ A WRONG GLYPH ROUND-TRIPS PERFECTLY, WHICH IS WHY @REGISTRY WAS NOT ENOUGH.
+% The 5x7 'A' shipped with its crossbar one row low and a flat apex. The emission
+% check compares Python to Python so it survived untouched; the collision count
+% stayed 0 because a malformed 'A' still differs from every other letter; and the
+% source CONTRADICTED ITSELF — the comment above FONT5x7 gives 'A' as
+% 0x7e,0x09,0x09,0x09,0x7e while the table held 0x11,0x11,0x11, with ⊕DOT's
+% closure claiming the canonical glyphs were verified against references.
+% Rendering the marquee and LOOKING is what caught it, the same way plymouth's
+% clipped digits were caught.
+@misc{FONT,
+  section = {emitters},
+  claim   = {every glyph in the matrix font agrees with the font it belongs to about where that font's shared features sit, so a malformed letter is caught by a check rather than only by a picture},
+  rests-on = {REGISTRY},
+  check   = {tool:check_display_registry.py}
+}
+
+% ⚑ THE SAMPLE MUST BE ABLE TO SHOW THE DEFECT.  After fixing 'A' the picture
+% re-rendered byte-identical, because the sample read "EL OPENGLO 13:37" — no 'A'
+% in it. Coverage of the SURFACE is not coverage of the FONT, and the difference
+% is invisible while the sample happens to contain the broken glyph.
+@misc{FONTSEEN,
+  section = {emitters},
+  claim   = {the marquee sample renders every glyph the font declares, so the picture can show a malformed one},
+  rests-on = {SAMPLES, FONT},
+  check   = {concept:marquee-covers-font}
+}
+
 % ── emitters ─────────────────────────────────────────────────────────────────
 % ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
 % tokens so the targets cannot drift apart; a claim that they agree is therefore

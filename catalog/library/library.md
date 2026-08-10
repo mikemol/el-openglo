@@ -4,6 +4,10 @@
 
 ## (all)
 
+**marquee** — the notification ticker's 5x7 matrix face, mirrored from the shipped registry
+
+![(all) marquee](samples/marquee.svg)
+
 **splash-digits** — the boot splash's 0-9, rendered in PIL from the shared geometry
 
 ![(all) splash-digits](samples/splash-digits.png)

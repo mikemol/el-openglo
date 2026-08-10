@@ -66,3 +66,23 @@
   rests-on = {samples-exist},
   check   = {cmd:python3 concepts.py palette-roles-distinct}
 }
+
+% ⚑ AND LOOKING FOUND A THIRD — then caught the SAMPLE being blind to it.
+% The 5x7 'A' shipped malformed (crossbar one row low, flat apex) and no check
+% could see it: check_display_registry compares the emission to registry(),
+% Python to Python, so a wrong glyph round-trips perfectly, and the 5x7 collision
+% count stays 0 because a malformed 'A' still differs from every other letter.
+% Rendering the ticker caught it, exactly as a rendered sample caught plymouth's
+% clipped digits.
+%
+% Then the fix re-rendered BYTE-IDENTICAL, because the sample read
+% "EL OPENGLO 13:37" — which contains no 'A'. The defect was real, the fix was
+% real, and the witness was blind to both. A sample that cannot show the defect
+% is not a witness for it, so coverage of the FONT is now asserted separately
+% from coverage of the surface.
+@misc{marquee-covers-font,
+  section = {library},
+  claim   = {the marquee sample renders every glyph the font declares, so a malformed glyph is visible in the picture rather than only in the glyphs the sample happens to contain},
+  rests-on = {samples-exist},
+  check   = {cmd:python3 concepts.py marquee-covers-font}
+}
