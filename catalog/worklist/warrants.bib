@@ -91,6 +91,86 @@
   check   = {tool:check_consumers.py}
 }
 
+% ⚑ THE CONSTRAINT EDGES HAD NO SINGLE AUTHORITY, AND THREE DEFECTS LIVED IN THE
+% GAP: cvd_gate.audit_variant — the only consumer of ENFORCED/SURFACED — had NO
+% CALLER, so eight separation pairs were declared and never gated; reference_floors()
+% returns two identical scalars while _worst_normalized reads only one, so the
+% enforced/surfaced distinction its docstring defends does not exist in the
+% arithmetic; and _candidates prunes on a raw dE the module's own doctrine forbids.
+% Three names for one fact: the table, the gate and the objective could disagree
+% with nothing able to notice.
+@misc{GRAPH,
+  section = {pipeline},
+  claim   = {the palette's constraint edges are named in one authority that the gate, the solver and the checks all read, so no two of them can disagree about which pairs are constrained},
+  check   = {tool:check_palette_graph.py}
+}
+
+% ⚑ WHAT A PER-EDGE CHECK CANNOT SEE.  On a cycle, pairwise-satisfied constraints
+% need not GLUE — every individual check passes and the composite is still wrong.
+% That is the shape of both palette bugs found by looking rather than by checking
+% (phosphor == accent; sel_act at 1.00:1), and b1 counts how many such failures the
+% graph can hide.  Measured, not assumed: b1 = 24.
+%
+% ⚑ THIS CHECK'S OWN FIRST RUN IS THE ARGUMENT FOR THE SELFTEST.  It reported 26,
+% because spanning_tree grows ONE tree from nodes[0] and the selection tokens form a
+% SECOND component whose every edge then reads as a cycle.  Its docstring had already
+% named the trap — "rather than counting E-V+C and hoping the graph is connected" —
+% while the code hoped exactly that.
+@misc{GRAPH-SEES,
+  section = {pipeline},
+  claim   = {the cycle-rank measurement is proven able to distinguish a cyclic graph from a tree and to refuse an empty population, so its number is a measurement rather than an artefact of the walk},
+  rests-on = {GRAPH},
+  check   = {tool:check_palette_graph.py --selftest}
+}
+
+% ⚑ DECLARED IS NOT GATED, AND THE DIFFERENCE WAS INVISIBLE.  cvd_gate.audit_variant
+% is the only consumer of the ENFORCED/SURFACED pair lists and NOTHING CALLED IT —
+% no script, no __main__, no other module.  Eight pairs read as covered while no run
+% ever evaluated them, which is worse than not declaring them at all.  Measured on
+% the first run: all 24 enforced pairs (6 variants x 4) clear the floor — the pairs
+% were fine, and nothing in the tree knew it.
+@misc{SEPARATION,
+  section = {pipeline},
+  claim   = {every separation pair the authority declares enforced is evaluated against the CVD floor on every variant, rather than merely being listed},
+  rests-on = {GRAPH},
+  check   = {tool:check_separation.py}
+}
+
+% ⚑ AN ALL-CLEAR AND A NEVER-RUN ARE THE SAME SILENCE.  That equivalence is exactly
+% how the uncalled gate went unnoticed, so this witness feeds the walker a variant
+% engineered to fail and asserts it says so.
+@misc{SEPARATION-SEES,
+  section = {pipeline},
+  claim   = {the separation walk is proven able to SEE a violation, so its all-clear differs from its never-having-run},
+  rests-on = {SEPARATION},
+  check   = {tool:check_separation.py --selftest}
+}
+
+% ⚑ A CLOSURE OUTLIVED THE CAPABILITY IT CERTIFIED.  COTYPE.md's ⊕DOT-WIRE closure
+% states that make_clock emits the whole display_types registry via
+% `as_qml_js()` — "single source, nothing retyped".  Measured: as_qml_js had ZERO
+% definitions and ZERO callers, and litPrimitives was absent from every consumer.
+% The machinery was lost in the recovery and the prose asserting it survived —
+% the same stale-status shape as RECOVERY-NOTES.md's "main rebuild gap", which is
+% the standing argument for computing status rather than recording it.
+%
+% ⚑ AND IT IS A SUBSET, NOT THE WHOLE.  Emitting everything shipped five segment
+% formats (48 glyphs each) into a DOT-MATRIX widget that reads none of them.
+% "Single source" means a surface never SPELLS a table, not that it carries every
+% table; registry_for() restricts to the displays a surface instantiates.
+@misc{REGISTRY,
+  section = {pipeline},
+  claim   = {the display registry a surface receives is the emission of the Python one, restricted to the displays it instantiates, rather than a table retyped into QML},
+  check   = {tool:check_display_registry.py}
+}
+
+@misc{REGISTRY-SEES,
+  section = {pipeline},
+  claim   = {the registry comparison is proven able to see a dropped table, a mangled one, a subset that carries the wrong displays, and a registry that disagrees with the substrate},
+  rests-on = {REGISTRY},
+  check   = {tool:check_display_registry.py --selftest}
+}
+
 % ── emitters ─────────────────────────────────────────────────────────────────
 % ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
 % tokens so the targets cannot drift apart; a claim that they agree is therefore

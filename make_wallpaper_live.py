@@ -20,8 +20,30 @@ import json
 import make_clock as MC
 import make_preview as MP
 import cvd_gate as C
+# ⚑ GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOUR.  This surface carried its own
+# seven-seg map AND its own stroke table, hand-written INSIDE a QML f-string —
+# which is why two separate gates were blind to them: check_geometry_source scans
+# module-level assignments, and a table living in a string literal is not one;
+# check_embedded_markup looks for markup strings, and found the QML but had no
+# reason to care what was nested inside it.
+#
+# Measured after the swap: the substrate's projection is SEMANTICALLY IDENTICAL to
+# what was hand-written here — same segments per digit, same (kind, x0, x1, y) per
+# stroke. The tables were right; nothing could prove they would stay right.
+import segment_topology as _ST
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
+
+# The one lattice, projected to this surface's FORMAT ("7" digits).  A surface may
+# choose a format; carrying a shape is a re-implementation.
+#
+# ⚑ LOWERCASE, AND THAT IS WHY THIS PROJECTION AND NOT `glyph7_letters`.  That one
+# renames to A..G for the SVG wallpaper's table; the QML canvas keys its strokes by
+# `seg7_strokes()`'s own a..g, so the two must be the same projection read at the
+# same case or a digit silently lights nothing.
+SEGS = _ST.seg7_strokes()
+DIGIT = {ch: "".join(sorted(_ST.project(_ST.glyph16(ch), "7")))
+         for ch in "0123456789"}
 
 
 def _rgb(css):
@@ -73,133 +95,29 @@ def metadata(variant):
     }
 
 
+def _qml_obj(table):
+    """A Python table as a QML/JS object literal.
+
+    ⚑ json.dumps IS THE RIGHT TOOL AND ALMOST THE WRONG ONE.  QML object literals
+    are JSON-compatible for these shapes, so this is a serialisation rather than a
+    hand-built string — and the stroke table holds TUPLES, which json renders as
+    ARRAYS, which is exactly what the canvas indexes with spec[0]/spec[1]. Had it
+    rendered them as anything else the digits would draw nothing, which is why the
+    parity baseline compares the emitted document rather than this function."""
+    return json.dumps(table, sort_keys=True)
+
+
 def main_qml(variant):
+    """The live wallpaper — templates/live-wallpaper-main.qml.
+
+    ⚑ THE COLOURS AND THE GEOMETRY ARE HOLES; THE DOCUMENT IS A FILE.  This was
+    120 lines of QML in an f-string, brace-doubled throughout, carrying two tables
+    it had no business owning. Five holes go in; the document comes out."""
     ground, lit, ghost = colors_for(variant)
-    gnd = _hex(ground)
-    litc = _hex(lit)
-    ghc = _hex(ghost)
-    # seven-seg strokes on a 2x4 grid (matches make_plymouth / clock)
-    return f'''import QtQuick
-import org.kde.plasma.plasmoid
-
-// WallpaperItem is REQUIRED as the root (plain Item renders zero-size off-screen).
-WallpaperItem {{
-    id: root
-    property color litColor: {litc}
-    property color ghostColor: {ghc}
-    property color voidColor: {gnd}
-    property bool breathe: (wallpaper.configuration.breathe === undefined) ? false
-                           : wallpaper.configuration.breathe
-
-    Rectangle {{ anchors.fill: parent; color: root.voidColor }}
-
-    // seven-seg geometry: which coarse segments are lit per digit
-    property var seg: ({{
-        "0":"abcdef","1":"bc","2":"abdeg","3":"abcdg","4":"bcfg",
-        "5":"acdfg","6":"acdefg","7":"abc","8":"abcdefg","9":"abcdfg"
-    }})
-
-    property string timeStr: "00:00"
-    function tick() {{
-        var d = new Date();
-        var h = d.getHours(); var m = d.getMinutes();
-        root.timeStr = (h<10?"0":"")+h + ":" + (m<10?"0":"")+m;
-        clockCanvas.requestPaint();
-    }}
-    Timer {{ interval: 1000; running: true; repeat: true; triggeredOnStart: true; onTriggered: root.tick() }}
-
-    // gentle backlight breathe (lock mount); off on desktop (config)
-    property real glow: 1.0
-    SequentialAnimation on glow {{
-        running: root.breathe; loops: Animation.Infinite
-        NumberAnimation {{ from: 0.85; to: 1.0; duration: 2200; easing.type: Easing.InOutSine }}
-        NumberAnimation {{ from: 1.0; to: 0.85; duration: 2200; easing.type: Easing.InOutSine }}
-    }}
-    onGlowChanged: clockCanvas.requestPaint()
-
-    Canvas {{
-        id: clockCanvas
-        anchors.centerIn: parent
-        width: parent.width * 0.6
-        height: width * 0.32
-        renderTarget: Canvas.FramebufferObject
-        onPaint: {{
-            var ctx = getContext("2d"); ctx.reset();
-            var s = root.timeStr;               // "HH:MM"
-            var U = height / 5.0;                // unit; digit is 2U x 4U
-            var T = U * 0.40;                    // lit stroke (stroke-weight)
-            var Tg = U * 0.26;                   // ghost stroke
-            var g = 0;
-            var stroke = {{
-                "a":["h",0,2,0],"g":["h",0,2,2],"d":["h",0,2,4],
-                "f":["v",0,0,2],"b":["v",2,0,2],"e":["v",0,2,4],"c":["v",2,2,4]
-            }};
-            function drawStroke(spec, U, T, ox, oy, style) {{
-                ctx.fillStyle = style; var gg = T*0.6;
-                ctx.beginPath();
-                if (spec[0]==="h") {{ var a=spec[1]*U,b=spec[2]*U,y=spec[3]*U;
-                    ctx.moveTo(ox+a+gg,oy+y-T/2);ctx.lineTo(ox+b-gg,oy+y-T/2);
-                    ctx.lineTo(ox+b-gg,oy+y+T/2);ctx.lineTo(ox+a+gg,oy+y+T/2); }}
-                else {{ var x=spec[1]*U,y0=spec[2]*U,y1=spec[3]*U;
-                    ctx.moveTo(ox+x-T/2,oy+y0+gg);ctx.lineTo(ox+x+T/2,oy+y0+gg);
-                    ctx.lineTo(ox+x+T/2,oy+y1-gg);ctx.lineTo(ox+x-T/2,oy+y1-gg); }}
-                ctx.closePath(); ctx.fill();
-            }}
-            // ⊕WALLPAPER-CONTRAST: lit-vs-ghost separation scales with parsing
-            // mode. This is a GLANCED-AT ambient surface, so lit must POP: (1) the
-            // ghost is drawn SUBORDINATE (low alpha — it recedes to texture, since
-            // here only the lit time is parsed), (2) lit gets a BLOOM glow (the
-            // channel the clock has and this surface was missing). Canvas-native
-            // glow = lit stroke drawn underneath at wider T and low alpha.
-            function drawDigit(ch, ox, oy) {{
-                var on = root.seg[ch] || "";
-                // pass 1: ghost, subordinate (recedes to texture)
-                ctx.globalAlpha = 0.45;
-                for (var k in stroke) {{
-                    if (on.indexOf(k) < 0) drawStroke(stroke[k], U, Tg, ox, oy, root.ghostColor);
-                }}
-                ctx.globalAlpha = 1.0;
-                // pass 2: lit bloom halo (wide, faint, lit-only) — makes lit POP
-                ctx.globalAlpha = 0.18;
-                for (var k2 in stroke) {{
-                    if (on.indexOf(k2) >= 0) drawStroke(stroke[k2], U, T*2.1, ox, oy, root.litColor);
-                }}
-                ctx.globalAlpha = 0.30;
-                for (var k3 in stroke) {{
-                    if (on.indexOf(k3) >= 0) drawStroke(stroke[k3], U, T*1.5, ox, oy, root.litColor);
-                }}
-                // pass 3: crisp lit core
-                ctx.globalAlpha = 1.0;
-                for (var k4 in stroke) {{
-                    if (on.indexOf(k4) >= 0) drawStroke(stroke[k4], U, T, ox, oy, root.litColor);
-                }}
-            }}
-            var digitW = U*2 + U*0.6;
-            var colonW = U*0.8;
-            var chars = [s.charAt(0), s.charAt(1), ":", s.charAt(3), s.charAt(4)];
-            var totalW = digitW*4 + colonW;
-            var x = (width - totalW)/2;
-            var y = (height - U*4)/2;
-            ctx.globalAlpha = root.glow;
-            for (var i=0;i<chars.length;i++) {{
-                if (chars[i]===":") {{
-                    var r=U*0.18;
-                    // colon bloom halo (match the digit glow) then crisp core
-                    ctx.fillStyle = root.litColor;
-                    ctx.globalAlpha = 0.22;
-                    ctx.beginPath(); ctx.arc(x+colonW/2, y+U*1.3, r*2.0,0,2*Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(x+colonW/2, y+U*2.7, r*2.0,0,2*Math.PI); ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                    ctx.beginPath(); ctx.arc(x+colonW/2, y+U*1.3, r,0,2*Math.PI); ctx.fill();
-                    ctx.beginPath(); ctx.arc(x+colonW/2, y+U*2.7, r,0,2*Math.PI); ctx.fill();
-                    x += colonW;
-                }} else {{ drawDigit(chars[i], x, y); x += digitW; }}
-            }}
-            ctx.globalAlpha = 1.0;
-        }}
-    }}
-}}
-'''
+    import templates.loader as TL
+    return TL.render("live-wallpaper-main.qml",
+                     lit=_hex(lit), ghost=_hex(ghost), ground=_hex(ground),
+                     seg=_qml_obj(DIGIT), stroke=_qml_obj(SEGS))
 
 
 def config_main_xml():

@@ -50,6 +50,15 @@ package = [
 
 # ⚑ ABSENT, AND RECORDED RATHER THAN QUIETLY TOLERATED:
 #
+#   gcalc  — the g-calculus solver, LOCATED at ~/github/gcalculus and not vendored,
+#   exactly as paperkit is (scripts/worklist_gate.py owns where THAT lives).  It is
+#   not a PyPI distribution and must not become one here: it is a sibling working
+#   tree, so declaring it as a dependency would name a package that does not exist
+#   and make `uv sync` fail.  scripts/check_palette_graph.py imports it for
+#   cycle_basis and SKIPS — counted and printed — when it is not importable, since
+#   a missing optional dependency is a fact about the machine, not the artifact.
+#   NOT CONFIRMED IS NOT FAILED.
+#
 #   KvFlat  — NOT a Python dependency: make_kvantum.py recolours the upstream
 #   Kvantum theme "KvFlat" (by Tsu Jan, GPL-family licensing preserved per
 #   COTYPE.md), reading /tmp/KvFlat.kvconfig + /tmp/KvFlat.svg.  Those were staged

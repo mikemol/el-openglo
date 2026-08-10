@@ -18,6 +18,15 @@ widget shows an idle phosphor face rather than crashing.
 import os
 import json
 import make_wallpaper_live as WL   # reuse colors_for (token-derived lit/ghost/void)
+# ⚑ THIS SURFACE IS A DOT-MATRIX DISPLAY, NOT A SEGMENT ONE, AND NOT STYLED TEXT.
+# It rendered `font.family: "monospace"` — a phosphor ticker drawn in whatever the
+# system serves — because ⊕NOTIFY-MATRIXRENDER was never built. The obvious repair
+# (project to "22" and draw segments) is the one ⊕NOTIFY-SEGRENDER already tried
+# and moved to RESIDUE: ⊕DOT rejected "matrix as FORMATS['5x7'], reuse project()"
+# outright, because a segment is a subset of a topology and a pixel-cell is a
+# raster — no shared substrate. The abstraction was lifted one level instead, so
+# this consumes THE REGISTRY and dispatches on `kind`.
+import display_types as DT
 
 
 def _hex(rgb):
@@ -42,13 +51,24 @@ def metadata(variant):
 def main_qml(variant):
     """The marquee plasmoid — templates/marquee-main.qml.
 
-    ⚑ THE COLOURS ARE THE ONLY THING THIS FUNCTION OWNS.  Everything else was 88
-    lines of QML held in an f-string, brace-doubled throughout. Three holes go
-    in; the document comes out."""
+    ⚑ THE COLOURS AND THE REGISTRY ARE THE ONLY THINGS THIS FUNCTION OWNS, and it
+    owns neither of them either — both are READS. Four holes go in; the document
+    comes out. The registry carries the 5x7 font, so the ticker renders as a real
+    dot-matrix display instead of as monospace text tinted phosphor."""
     ground, lit, ghost = WL.colors_for(variant)
     import templates.loader as TL
     return TL.render("marquee-main.qml", lit=_hex(lit), ghost=_hex(ghost),
-                     ground=_hex(ground))
+                     ground=_hex(ground), registry=DT.as_qml_js("5x7"))
+
+
+def matrix_char_component():
+    """The reusable dot-matrix character component — templates/MatrixChar.qml.
+
+    The twin of make_segment_display.segment_char_component, and deliberately a
+    SEPARATE component rather than a mode of it (⊕DOT: no shared substrate, one
+    shared contract)."""
+    import templates.loader as TL
+    return TL.render("MatrixChar.qml")
 
 
 
@@ -61,6 +81,11 @@ def render_all(variants, dir_map):
         open(os.path.join(d, "metadata.json"), "w").write(
             json.dumps(metadata(v), indent=2))
         open(os.path.join(ui, "main.qml"), "w").write(main_qml(v))
+        # ⚑ THE COMPONENT SHIPS BESIDE THE PLASMOID OR THE IMPORT RESOLVES TO
+        # NOTHING.  main.qml instantiates MatrixChar by bare name, which QML
+        # resolves from the same directory — emitting one without the other gives
+        # a widget that loads and draws an empty panel.
+        open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
         written[v] = d
     return written
 

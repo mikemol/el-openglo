@@ -1,0 +1,277 @@
+"""palette_graph — THE CONSTRAINT GRAPH, AS DATA.  One authority; everything else READS.
+
+⚑ THIS MODULE INVENTS NOTHING.  Every edge below already existed, scattered across four
+sites that had no way to notice when they disagreed:
+
+    cvd_gate.ENFORCED           4 separation pairs   — declared, and NEVER GATED (no caller)
+    cvd_gate.SURFACED           4 separation pairs   — printed, never enforced
+    make_palette.solve_semantic_set   the K6 implied by `min_pair` over 5 slots + 1 anchor
+    make_palette._candidates    the contrast floor and the raw-dE hot prune
+
+Naming the union is the whole content.  The four sites become readers, and three defects
+close as a CONSEQUENCE of there being one authority rather than as three separate repairs:
+
+  * `audit_variant` had no caller.  An authority has a consumer list, so the gate acquires one.
+  * `reference_floors()` returns two IDENTICAL scalars and `_worst_normalized` reads only
+    `enforced`, so the enforced/surfaced distinction its docstring defends does not exist in
+    the arithmetic.  Here the class is a FIELD ON THE EDGE, so two equal floats can no longer
+    masquerade as a distinction — the class travels with the edge that is judged by it.
+  * `_candidates` prunes against `hot` with a raw `_cached_dE < 5.0`, contradicting the
+    module's own doctrine that the solver must optimise THE GATE'S metric, not raw dE.
+
+⚑ THE THREE NAMESPACES COLLAPSE HERE OR NOWHERE.  There are three vocabularies for one set
+of roles, and until this module they were related only by a reader's memory:
+
+    SOLVER LOCAL   ground, lit, ghost, accent      locals in solve_scheme; never emitted
+    EMITTED KEY    view, fg, fg_in, fg_act, ...    the 44 keys a variant actually carries
+    GATE NAME      fg, focus, neg, neu, pos, link  what ENFORCED/SURFACED are written against
+
+`NODES` states the mapping once and `check_palette_graph.py` proves it total in both
+directions.  Without that proof this file is a FOURTH namespace and strictly worse than the
+scatter it replaces — which is why the check is not optional decoration.
+
+⚑ WHAT THIS FILE DOES NOT DO.  It holds no colours, computes no distances, and imports
+nothing from the solver.  It is the SHAPE of the problem, available before any colour is
+chosen — which is exactly what makes `b1` computable in advance of a solve.
+"""
+from __future__ import annotations
+
+
+# ── the roles, one namespace, stated once ────────────────────────────────────
+#
+# A Node is (key, solver_local, gate_name).  `None` means "this role has no name in that
+# vocabulary", and that is DATA rather than an omission: `visited` appears in the solver's
+# sector table and in the emitted keys but in NO gate pair, and the honest record of that is
+# a hole, not a silently-dropped row.
+
+class Node:
+    """One palette role, under every name it answers to.
+
+    ⚑ TWO ROLES SHARING A VALUE ARE STILL TWO NODES.  `fg_act` and `focus` are both the
+    solved `accent`, and `fx_dis`/`fx_in`/`fg_in` are all the solved `ghost`.  Collapsing
+    them here would erase exactly the distinction whose absence WAS the @ROLES bug — a
+    focus ring the colour of the text it surrounds passed every check because no check
+    asked whether two ROLES differ.  Aliasing is recorded (`same_as`) and never merged."""
+    __slots__ = ("key", "local", "gate", "same_as")
+
+    def __init__(self, key, local=None, gate=None, same_as=None):
+        self.key, self.local, self.gate, self.same_as = key, local, gate, same_as
+
+    def __repr__(self):
+        return f"<node {self.key}>"
+
+
+NODES = (
+    # emitted key   solver local   gate name    alias-of
+    Node("view",    "ground",      None),
+    Node("fg",      "lit",         "fg"),
+    Node("fg_in",   "ghost",       None),
+    Node("fg_act",  "accent",      None),
+    Node("focus",   "accent",      "focus",     same_as="fg_act"),
+    Node("hover",   None,          None),
+    Node("neg",     None,          "neg"),
+    Node("neu",     None,          "neu"),
+    Node("pos",     None,          "pos"),
+    Node("link",    None,          "link"),
+    Node("visited", None,          None),
+    Node("sel_bg",  None,          None),
+    Node("sel_fg",  None,          None),
+    Node("sel_act", None,          None),
+)
+
+BY_KEY = {n.key: n for n in NODES}
+
+
+# ── the edge families ────────────────────────────────────────────────────────
+
+LEGIBILITY = "legibility"        # wcag_ratio(fg, bg) >= floor
+SEPARATION = "separation"        # worst_view_dE(a, b) / need >= 1
+DERIVATION = "derivation"        # b is computed FROM a; no floor, a forward arrow
+
+# ⚑ A CONSTRAINT IN THE WRONG METRIC, NAMED SO IT CAN BE ARGUED WITH.
+# `_candidates` prunes each semantic candidate against `hot` (the accent) with a
+# RAW worst-view dE below this number — while the very function that consumes the
+# result documents the opposite doctrine: "THE OBJECTIVE IS THE GATE'S OWN METRIC,
+# NOT RAW ΔE ... a solver maximising raw global min-ΔE optimises a PROXY and can
+# hand back a palette the gate then rejects."  The filter and the objective it
+# feeds disagree, inside one function.
+#
+# It is 5.0 here and not `reference_floors()["enforced"] * 0.8` (≈ the gate's
+# number) because CHANGING IT CHANGES WHICH CANDIDATES SURVIVE, and therefore the
+# emitted colours.  That is step 4/5 work, gated by re-captured baselines and by
+# LOOKING at the samples.  Naming it is what makes the divergence visible and the
+# swap a one-line decision instead of an archaeology of why 5.0.
+HOT_PRUNE_DE = 5.0
+
+# pair classes, per cvd_gate's comment: colour-as-sole-carrier -> enforced;
+# accent-adjacent (geometry co-carries meaning) -> surfaced.
+ENFORCED_CLS = "enforced"
+SURFACED_CLS = "surfaced"
+
+
+class Edge:
+    """One constraint, with the floor it is judged against and the class of that floor.
+
+    ⚑ THE CLASS IS A FIELD, NOT A LOOKUP.  `_worst_normalized(a, b, floors)` reads
+    `floors["enforced"]` unconditionally, so a SURFACED pair is silently judged by the
+    ENFORCED floor.  That is invisible today only because `reference_floors()` happens to
+    return the same number twice; the day those diverge, four pairs change class without
+    anything changing in the code.  Carrying the class on the edge makes the read take it."""
+    __slots__ = ("u", "v", "family", "cls", "floor", "why")
+
+    def __init__(self, u, v, family, cls=None, floor=None, why=""):
+        self.u, self.v, self.family, self.cls = u, v, family, cls
+        self.floor, self.why = floor, why
+
+    @property
+    def key(self):
+        return (self.u, self.v) if self.u <= self.v else (self.v, self.u)
+
+    def __repr__(self):
+        return f"<{self.family} {self.u}~{self.v}>"
+
+
+# The five semantic slots plus the body-text anchor: `solve_semantic_set.min_pair` walks
+# every pair of these, so the distinctness family is the COMPLETE graph on them.  The
+# complete-ness is not a modelling choice here — it is read off `min_pair`'s double loop.
+SEMANTIC = ("neg", "neu", "pos", "link", "visited")
+CONSTELLATION = SEMANTIC + ("fg",)
+
+# Which of those pairs cvd_gate additionally declares, and at which class.  Everything in
+# CONSTELLATION is already an edge; these rows say what CLASS each declared pair carries.
+_DECLARED_CLASS = {
+    ("neg", "pos"): ENFORCED_CLS, ("neg", "neu"): ENFORCED_CLS,
+    ("neu", "pos"): ENFORCED_CLS, ("fg", "link"): ENFORCED_CLS,
+    ("focus", "neu"): SURFACED_CLS, ("focus", "link"): SURFACED_CLS,
+    ("focus", "neg"): SURFACED_CLS, ("focus", "pos"): SURFACED_CLS,
+}
+
+
+def _separation_edges():
+    """The constellation K6, plus the accent fan — with each pair's declared class.
+
+    ⚑ AN UNDECLARED PAIR IS STILL AN EDGE.  `min_pair` optimises all 15 constellation
+    pairs while `ENFORCED` names only 4 of them, so 11 pairs are solved-for and never
+    gated.  Defaulting them to `enforced` would invent a floor nobody wrote; they are
+    carried with class `None`, which reads as "optimised, not gated" and is the truth."""
+    out = []
+    n = len(CONSTELLATION)
+    for i in range(n):
+        for j in range(i + 1, n):
+            u, v = CONSTELLATION[i], CONSTELLATION[j]
+            k = (u, v) if u <= v else (v, u)
+            out.append(Edge(u, v, SEPARATION, cls=_DECLARED_CLASS.get(k),
+                            floor="reference_floors", why="solve_semantic_set.min_pair"))
+    for (u, v), cls in _DECLARED_CLASS.items():
+        if "focus" in (u, v):
+            out.append(Edge(u, v, SEPARATION, cls=cls, floor="reference_floors",
+                            why="cvd_gate.SURFACED"))
+    return tuple(out)
+
+
+def _legibility_edges():
+    """Every foreground against the ground it is drawn on.
+
+    ⚑ `hot` IS THIS FAMILY WEARING THE OTHER FAMILY'S CLOTHES.  `_candidates` prunes each
+    semantic candidate against `accent` with a raw `_cached_dE < 5.0` — a SEPARATION
+    constraint with a hardcoded floor in the wrong metric, sitting inside the contrast
+    filter.  It is recorded here as what it is, so the repair is a floor swap rather than
+    an archaeology of why 5.0."""
+    out = [
+        Edge("fg", "view", LEGIBILITY, floor="solve_lit/apca-argmax",
+             why="argmax |Lc|, no floor; chroma_floor=40 is the only gate"),
+        Edge("fg_in", "view", LEGIBILITY, floor="GHOST_READABLE_LC",
+             why="an UPPER ceiling, not a floor: derive_ghost_ceiling"),
+        Edge("fg_in", "fg", LEGIBILITY, floor="feasible_ghost_floor",
+             why="the {lit, ghost, ground} series chain"),
+        Edge("fg_act", "view", LEGIBILITY, floor="4.6", why="solve_accent min_contrast"),
+        Edge("sel_fg", "sel_bg", LEGIBILITY, floor="3.0",
+             why="check_selection_contrast FLOOR"),
+        Edge("sel_act", "sel_bg", LEGIBILITY, floor="3.0",
+             why="check_selection_contrast FLOOR"),
+    ]
+    for s in SEMANTIC:
+        out.append(Edge(s, "view", LEGIBILITY, floor="4.6",
+                        why="_candidates min_contrast"))
+        out.append(Edge(s, "fg_act", SEPARATION, cls=None, floor=HOT_PRUNE_DE,
+                        why="_candidates hot-prune — RAW dE, not the gate's metric"))
+    return tuple(out)
+
+
+def _derivation_edges():
+    """Forward arrows: b is computed FROM a.  No floor — these are not constraints.
+
+    ⚑ RECORDED PRECISELY BECAUSE THEY ARE NOT CONSTRAINTS.  `sel_act = _lum_nudge(ground,
+    -0.15)` is a derivation whose RESULT is judged by a legibility edge against `sel_bg`,
+    and it reached 1.00:1 because nothing related the two.  Holding derivations in the same
+    graph is what lets a check ask "is this token derived from something it must also
+    contrast with?" — the question that would have caught it."""
+    return (
+        Edge("fg_act", "hover", DERIVATION, why="_lum_nudge(accent, -+0.12)"),
+        Edge("fg_act", "sel_bg", DERIVATION, why="_lum_nudge(accent, -+0.08)"),
+        Edge("view", "sel_act", DERIVATION, why="_lum_nudge(ground, -0.15)"),
+        Edge("view", "sel_fg", DERIVATION, why="sel_fg = ground inverted"),
+        Edge("view", "fg_in", DERIVATION, why="ghost lerps along lit->ground"),
+        Edge("fg", "fg_in", DERIVATION, why="ghost lerps along lit->ground"),
+    )
+
+
+EDGES = _separation_edges() + _legibility_edges() + _derivation_edges()
+
+
+# ── reads ────────────────────────────────────────────────────────────────────
+
+def edges(family=None, cls=None, constraining_only=False):
+    """The edge set, filtered.  ⟡PARAMETRIC: a caller takes what it needs as an argument.
+
+    `constraining_only` drops DERIVATION, which carries no floor — the netlist wants
+    constraints, the derivation-cycle check wants everything."""
+    out = EDGES
+    if family is not None:
+        out = tuple(e for e in out if e.family == family)
+    if cls is not None:
+        out = tuple(e for e in out if e.cls == cls)
+    if constraining_only:
+        out = tuple(e for e in out if e.family != DERIVATION)
+    return out
+
+
+def nodes(constraining_only=False):
+    """The nodes actually touched by the selected edges — never a hardcoded list.
+
+    Derived from the edges so the two cannot disagree; a node in NODES that no edge
+    mentions is a finding, and `check_palette_graph.py` reports it rather than hiding it."""
+    es = edges(constraining_only=constraining_only)
+    seen = []
+    for e in es:
+        for v in (e.u, e.v):
+            if v not in seen:
+                seen.append(v)
+    return tuple(sorted(seen))
+
+
+def netlist_edges(constraining_only=True):
+    """{(u, v): generator-name} — the shape `gcalc.solver.netlist` consumes.
+
+    One generator per edge, named for the pair, so the symbolic term that comes back out
+    of the elimination mentions the CONSTRAINT by name rather than a positional index."""
+    out = {}
+    for e in edges(constraining_only=constraining_only):
+        u, v = e.key
+        out[(u, v)] = f"y_{u}_{v}"
+    return out
+
+
+def gate_pairs(cls):
+    """The (name, a, b) triples cvd_gate.audit_variant walks — in GATE vocabulary.
+
+    ⚑ THIS IS WHERE ENFORCED/SURFACED NOW COME FROM.  The literal lists in cvd_gate become
+    readers of this, so a pair cannot be declared in one place and judged in another."""
+    out = []
+    for e in edges(family=SEPARATION, cls=cls):
+        a, b = BY_KEY[e.u], BY_KEY[e.v]
+        if a.gate is None or b.gate is None:
+            continue
+        label = f"{a.gate}~{b.gate}"
+        out.append((label, a.gate, b.gate))
+    return tuple(sorted(set(out)))

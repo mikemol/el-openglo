@@ -37,6 +37,13 @@ PAIRS = (
     # the 88 lines AROUND them shows up here regardless of which variant is used.
     ("make_notify_marquee", "main_qml", "EL-Openglo",
      "marquee-main-EL-Openglo.qml"),
+    # ⚑ THE GEOMETRY MOVED TOO, NOT ONLY THE MARKUP.  This surface's seven-seg map
+    # and stroke table were hand-written inside the f-string; they are now
+    # segment_topology's projection. So this pair proves TWO things at once — that
+    # the 120 lines transcribed correctly, and that the substrate's tables are
+    # byte-identical to the ones this file used to author.
+    ("make_wallpaper_live", "main_qml", "EL-Openglo",
+     "live-wallpaper-main-EL-Openglo.qml"),
     ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"'), "splash.qml"),
 )
 
@@ -92,12 +99,55 @@ def compare():
     return out
 
 
+def diff(match):
+    """The unified diff for the pair(s) whose label contains `match`.
+
+    ⚑ "DIFFERS (6065 vs 5746 bytes)" NAMES THAT SOMETHING CHANGED AND NOT WHAT.
+    Answering "what changed" then happens in the turn — a shell diff against a
+    regenerated file — which is the judgement living outside a program. The pair
+    is declared HERE, so the comparison belongs here too."""
+    import difflib
+    shown = 0
+    for module, accessor, argsrc, name in PAIRS:
+        label = f"{module}.{accessor}"
+        if match not in label and match not in name:
+            continue
+        shown += 1
+        path = os.path.join(BASELINES, name)
+        if not os.path.isfile(path):
+            print(f"{label}: NO BASELINE ({name})")
+            continue
+        want = open(path, encoding="utf-8").read()
+        try:
+            got = _value(module, accessor, argsrc)
+        except Exception as e:                   # noqa: BLE001
+            print(f"{label}: RAISED {type(e).__name__}: {e}")
+            continue
+        if got == want:
+            print(f"{label}: ok (byte-identical)")
+            continue
+        for line in difflib.unified_diff(
+                want.splitlines(), got.splitlines(),
+                fromfile=f"baseline/{name}", tofile=f"{label}()", lineterm="", n=2):
+            print(line)
+    print(f"diff: {shown} of {len(PAIRS)} pair(s) matched {match!r}")
+    return 0 if shown else 2
+
+
 def main(argv):
-    known = {"--pairs"}
-    for a in argv[1:]:
+    known = {"--pairs", "--diff"}
+    flags = [a for a in argv[1:] if a.startswith("--")]
+    for a in flags:
         if a not in known:
             print(f"check_template_parity: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--diff" in argv:
+        rest = [a for a in argv[1:] if not a.startswith("--")]
+        if not rest:
+            print("check_template_parity: --diff needs a pair to match "
+                  "(a module, accessor or baseline name)", file=sys.stderr)
+            return 2
+        return diff(rest[0])
     if "--pairs" in argv:
         for module, accessor, argsrc, name in PAIRS:
             print(f"{module}.{accessor}\t<-> catalog/baselines/{name}")

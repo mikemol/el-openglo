@@ -23,6 +23,7 @@ Everything else is solved/derived:
 import colorsys
 import random as _random
 import cvd_gate as C
+import palette_graph as _PG
 
 # ---- the two non-derivable inputs -----------------------------------------
 HUE_SEEDS = {          # base hue (HSV degrees) — the identity, chosen not solved
@@ -155,7 +156,14 @@ def _candidates(sector, ground, min_contrast, hot):
                 cand = _hsv(h, s, vi / 100.0)
                 if C.wcag_ratio(cand, ground) < min_contrast:
                     continue
-                if hot is not None and _cached_dE(cand, hot) < 5.0:
+                # ⚑ THE FLOOR IS THE AUTHORITY'S, AND IT IS IN THE WRONG METRIC.
+                # This is a SEPARATION constraint (candidate vs the accent) wearing
+                # the contrast filter's clothes, and it measures RAW dE while the
+                # objective it feeds is documented to use the gate's normalized q.
+                # palette_graph.HOT_PRUNE_DE holds the number and the argument;
+                # swapping it to the gate's metric moves colours, so it is staged
+                # behind re-captured baselines rather than smuggled in here.
+                if hot is not None and _cached_dE(cand, hot) < _PG.HOT_PRUNE_DE:
                     continue
                 out.append(cand)
     # cap to a diverse subset (even stride keeps the value/hue spread) — the

@@ -225,35 +225,61 @@ def derive_ghost_ceiling(lit, ground, ceiling_lc=GHOST_READABLE_LC):
     return best
 
 
-def _worst_normalized(a, b, floors, factor=0.8):
+def _worst_normalized(a, b, floors, factor=0.8, cls="enforced"):
     """Worst-view separation NORMALIZED by the floor its class is judged against.
 
     ⚑ THIS IS THE GATE'S OWN METRIC, AND IT IS WHY IT EXISTS.  The ⊕SOLVER-SEMANTIC
     result was that the solver must optimise THE GATE'S metric, not raw ΔE — a
     palette maximising raw distance can still fail the gate, because the gate
     judges each pair against its class floor.  A value >= 1.0 clears; below 1.0
-    is the shortfall as a fraction, so pairs of different classes are comparable."""
+    is the shortfall as a fraction, so pairs of different classes are comparable.
+
+    ⚑ THE CLASS IS NOW READ, AND IT WAS NOT BEFORE.  This hardcoded
+    `floors["enforced"]` while taking the whole `floors` mapping — so a SURFACED
+    pair was silently judged by the ENFORCED floor, and the docstring on
+    `reference_floors` ("they are NOT interchangeable") described an intent the
+    arithmetic did not implement.  It is invisible today ONLY because
+    `reference_floors()` returns the same number twice; the day those diverge,
+    four pairs change class with nothing in the code changing.
+
+    `cls` defaults to "enforced" so every existing caller keeps its exact
+    behaviour — this repair is output-neutral BY CONSTRUCTION, and the parity
+    baselines are what prove it rather than my say-so."""
     d, view = worst_view_dE(a, b)
-    need = floors["enforced"] * factor
+    need = floors[cls] * factor
     return (d / need if need else float("inf")), view, d
 
-# pair classes: color-as-sole-carrier -> enforced; accent-adjacent (geometry
-# co-carries meaning) -> surfaced
-ENFORCED = [("neg~pos", "neg", "pos"), ("neg~neu", "neg", "neu"),
-            ("neu~pos", "neu", "pos"), ("link~body", "link", "fg")]
-SURFACED = [("neu~accent", "neu", "focus"), ("link~accent", "link", "focus"),
-            ("neg~accent", "neg", "focus"), ("pos~accent", "pos", "focus")]
+# ⚑ PAIR CLASSES NOW COME FROM THE AUTHORITY, NOT FROM A LITERAL HERE.
+# These lists were the ONLY declaration of which pairs are constrained, and
+# `audit_variant` — their only consumer — HAD NO CALLER anywhere in the tree.
+# Declared and never gated is the worst of both: it reads as coverage.
+# palette_graph names the union of every constraint edge; these are its
+# projection into the gate's vocabulary, so the table and the gate cannot
+# disagree.  Kept as module attributes because they are part of the published
+# surface (`check_st_api`/`check_palette_chain` resolve them by name).
+def _pairs(cls):
+    import palette_graph as _pg
+    return [tuple(p) for p in _pg.gate_pairs(cls)]
 
-def audit_variant(t, floor, factor=0.8):
+ENFORCED = _pairs("enforced")
+SURFACED = _pairs("surfaced")
+
+def audit_variant(t, floor, factor=0.8, enforced=None, surfaced=None):
+    """Walk the declared pairs of one variant; return the ENFORCED violations.
+
+    ⟡PARAMETRIC: the pair lists are ARGUMENTS with the authority as the default,
+    so a caller can audit a hypothetical edge set without mutating module state —
+    which is what `scripts/check_separation.py --selftest` needs in order to prove
+    this walk can SEE a violation rather than merely never reporting one."""
     need = floor * factor
     viol = []
-    for name, a, b in ENFORCED:
+    for name, a, b in (ENFORCED if enforced is None else enforced):
         d, view = worst_view_dE(rgb(t[a]), rgb(t[b]))
         ok = d >= need
         print(f"  {t['id']:16s} {name:12s} dE={d:5.1f} worst={view:11s} need {need:.1f}  {'ok' if ok else 'VIOLATION'}")
         if not ok:
             viol.append(f"{name} dE={d:.1f}<{need:.1f} ({view})")
-    for name, a, b in SURFACED:
+    for name, a, b in (SURFACED if surfaced is None else surfaced):
         d, view = worst_view_dE(rgb(t[a]), rgb(t[b]))
         print(f"  {t['id']:16s} {name:12s} dE={d:5.1f} worst={view:11s} (surfaced)")
     return viol

@@ -135,6 +135,126 @@ def collision_classes(disp_key, charset):
     return [sorted(g) for g in groups.values() if len(g) > 1]
 
 
+# --- the registry, emitted for QML (⊕DOT-WIRE) -------------------------------
+#
+# ⚑ THIS FUNCTION WAS LOST IN THE RECOVERY, AND ITS CLOSURE TEXT OUTLIVED IT.
+# COTYPE.md's ⊕DOT-WIRE closure reads "make_clock emits the whole display_types
+# registry (geom16+segFormats+segGlyphs+font5x7+font5x8+displays) via
+# display_types.as_qml_js() — single source, nothing retyped", and measured:
+# `as_qml_js` had ZERO definitions and ZERO callers, and `litPrimitives` was
+# absent from every consumer. A closure describing machinery that is not there is
+# exactly the stale-status failure this repo was rebuilt to stop making — the same
+# shape as RECOVERY-NOTES.md's "main rebuild gap".
+#
+# ⚑ WHAT THE CONTRACT IS, AND WHY THE QML CANNOT JUST TAKE SEGMENTS.  ⊕DOT
+# rejected "matrix as FORMATS['5x7'], reuse project()" as a side-pick: a segment
+# is a subset of a topology, a pixel-cell is a raster, and they share no
+# substrate. The abstraction was lifted one level instead — both displays expose
+# `cell_aspect()` and `lit_primitives()`, and a renderer consumes A DISPLAY. So
+# this emits BOTH kinds under one registry with `kind` as the dispatch tag, and
+# the QML branches on that rather than on which table it was handed.
+
+def _seg_endpoints(spec):
+    """Any stroke -> (ax, ay, bx, by) in unit-grid coords.
+
+    ⚑ DELIBERATELY THE SAME NORMALISATION make_segment_display._endpoints DOES,
+    and that duplication is a finding rather than a design: two functions turning
+    GEOM16 specs into endpoints is two places to disagree. Recorded here and left
+    for a follow-up, because merging them changes make_segment_display's emitted
+    bytes and this commit is meant to restore a lost capability, not move output."""
+    k = spec[0]
+    if k == "h":
+        return (spec[1], spec[3], spec[2], spec[3])
+    if k == "v":
+        return (spec[1], spec[2], spec[1], spec[3])
+    if k == "d":
+        return (spec[1][0], spec[1][1], spec[2][0], spec[2][1])
+    raise ValueError(f"unknown stroke kind {k!r}")
+
+
+def registry():
+    """The whole display registry as plain data — the thing QML needs, as Python.
+
+    Separated from its serialisation so a CHECK can compare this against what the
+    QML carries without re-parsing JavaScript. `as_qml_js` is then a one-line read
+    of this, and the two cannot drift."""
+    seg_geom = {k: list(_seg_endpoints(_seg.GEOM22[k])) for k in _seg.SEG22}
+
+    seg_glyphs = {}
+    for fmt in ("7", "9", "14", "16", "22"):
+        if fmt not in _seg.FORMATS:
+            continue
+        table = {}
+        for tbl in (_seg.DIGITS16, _seg.LETTERS16, _seg.SYMBOLS16):
+            for ch, segs in tbl.items():
+                g = set(segs.split()) if segs else set()
+                table[ch] = sorted(_seg.project(g, fmt)) if g else []
+        seg_glyphs[fmt] = table
+
+    displays = {}
+    for key, d in DISPLAYS.items():
+        entry = {"kind": d.kind, "cell": list(d.cell_aspect())}
+        if d.kind == "segment":
+            entry["fmt"] = d.fmt
+        else:
+            entry["cols"], entry["rows"] = d.cols, d.rows
+            entry["font"] = "5x7"
+        displays[key] = entry
+
+    return {
+        "segGeom": seg_geom,
+        "segGlyphs": seg_glyphs,
+        "font5x7": {ch: list(cols) for ch, cols in FONT5x7.items()},
+        "displays": displays,
+        "lattice": list(LATTICE_ORDER),
+    }
+
+
+def registry_for(*keys):
+    """The registry restricted to the displays a surface actually instantiates.
+
+    ⚑ "ONE SOURCE" IS NOT "EVERY TABLE IN EVERY SURFACE".  Emitting the whole
+    registry into the marquee shipped all five segment formats — 48 glyphs each,
+    ~9KB — into a DOT-MATRIX widget that reads none of them. That is not
+    single-sourcing; it is a surface carrying tables it cannot use, which is the
+    same weight the silo had with none of the locality.
+
+    The single-source property is that a surface never SPELLS a table. Taking
+    only the displays it names preserves that exactly, and a surface asking for a
+    display the registry lacks is a REFUSAL rather than a silently empty cell."""
+    r = registry()
+    unknown = [k for k in keys if k not in r["displays"]]
+    if unknown:
+        raise KeyError(f"no such display(s): {unknown}; have {sorted(r['displays'])}")
+    displays = {k: r["displays"][k] for k in keys}
+    kinds = {d["kind"] for d in displays.values()}
+    out = {"displays": displays, "lattice": r["lattice"]}
+    if "segment" in kinds:
+        out["segGeom"] = r["segGeom"]
+        # only the formats the requested segment displays actually project to
+        fmts = {d["fmt"] for d in displays.values() if d["kind"] == "segment"}
+        out["segGlyphs"] = {f: r["segGlyphs"][f] for f in sorted(fmts)}
+    if "matrix" in kinds:
+        out["font5x7"] = r["font5x7"]
+    return out
+
+
+def as_qml_js(*keys, indent=None):
+    """The registry as a QML/JS object literal — ONE source, nothing retyped.
+
+    ⚑ THE POINT IS THAT A SURFACE NEVER SPELLS A TABLE.  make_wallpaper_live
+    carried its own seven-seg map and stroke table inside a QML string, and
+    check_geometry_source could not see them because they were not module-level
+    assignments. A surface that reads this cannot hold a private shape, because
+    there is nothing left for it to hold.
+
+    With no keys this emits everything, which is what a surface offering the full
+    display picker needs; with keys it emits only those displays' tables."""
+    import json as _json
+    data = registry_for(*keys) if keys else registry()
+    return _json.dumps(data, sort_keys=True, indent=indent)
+
+
 if __name__ == "__main__":
     # verify the canonical 'A' bitmap and print it, plus lattice legibility
     m = MatrixDisplay()
@@ -147,3 +267,11 @@ if __name__ == "__main__":
     for k in LATTICE_ORDER:
         n = sum(len(g) - 1 for g in collision_classes(k, charset))
         print(f"  {k:4s}: {n} colliding chars")
+    r = registry()
+    print("\nregistry (⊕DOT-WIRE), as QML would receive it:")
+    print(f"  segGeom   : {len(r['segGeom'])} strokes")
+    print(f"  segGlyphs : {', '.join(f'{k}={len(v)}' for k, v in sorted(r['segGlyphs'].items()))}")
+    print(f"  font5x7   : {len(r['font5x7'])} glyphs")
+    kinds = ", ".join(f"{k}({v['kind']})" for k, v in sorted(r["displays"].items()))
+    print(f"  displays  : {kinds}")
+    print(f"  as_qml_js : {len(as_qml_js())} bytes")

@@ -25,8 +25,19 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# The authorities: importing either of these IS reading the shared geometry.
-AUTHORITIES = ("segment_topology", "make_segment_display")
+# The authorities: importing any of these IS reading the shared geometry.
+#
+# ⚑ `display_types` WAS MISSING, AND ITS ABSENCE READ AS A SURFACE'S FAULT.  ⊕DOT
+# lifted the abstraction one level — display_type = (primitive_geometry,
+# glyph_table), with SegmentDisplay and MatrixDisplay as two instances behind one
+# contract — precisely so a DOT-MATRIX surface could source its shape without
+# pretending to be a segment one. This list knew only the segment half, so the
+# marquee (a matrix display) could not satisfy it by any correct means: the only
+# way to go green was to adopt a geometry it should not have.
+#
+# That is a checker reporting a fact about ITS OWN COVERAGE as a fact about the
+# tree — the same error as reading `no match found` as `no such thing exists`.
+AUTHORITIES = ("segment_topology", "make_segment_display", "display_types")
 
 # Names that, assigned at module level, mean this file OWNS a stroke table.
 # Measured from the four silos the log names, not guessed.
