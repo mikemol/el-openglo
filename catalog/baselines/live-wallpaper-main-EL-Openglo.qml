@@ -5,7 +5,7 @@ import org.kde.plasma.plasmoid
 WallpaperItem {
     id: root
     property color litColor: "#4bfad7"
-    property color ghostColor: "#277e6c"
+    property color ghostColor: "#267c6b"
     property color voidColor: "#081411"
     property bool breathe: (wallpaper.configuration.breathe === undefined) ? false
                            : wallpaper.configuration.breathe

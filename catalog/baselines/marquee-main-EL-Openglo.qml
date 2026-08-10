@@ -9,7 +9,7 @@ import org.kde.notificationmanager as NotificationManager
 PlasmoidItem {
     id: root
     property color litColor: "#4bfad7"
-    property color ghostColor: "#277e6c"
+    property color ghostColor: "#267c6b"
     property color voidColor: "#081411"
 
     preferredRepresentation: fullRepresentation

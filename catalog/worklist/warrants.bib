@@ -198,6 +198,39 @@
   check   = {concept:marquee-covers-font}
 }
 
+% ⚑ A SCAN CANNOT BE SHOWN WRONG, WHICH IS THE DEFECT — NOT ITS ERROR.
+% derive_ghost walked 99 points along lit->ground and returned the best SAMPLE;
+% nothing in that answer says whether the true optimum lies between two of them.
+% The balance point is a closed form: with a, b the offset luminances of lit and
+% ground, the two sides are a/y and y/b, they move oppositely, so max-min is where
+% they MEET — y = sqrt(ab), the geometric mean, each side sqrt(span). cvd_gate's
+% own docstring already asserted "the achievable optimum is ~sqrt(contrast)"; it
+% is a THEOREM, and the scan was rediscovering it to two decimals on every call.
+%
+% The difference is of KIND, not magnitude. Measured: the solve improves the worse
+% side on 4 of 6 variants and ties on 2, by ~0.01-0.04 — small numbers that are
+% easy to misreport as a small win. They are not. One answer is the best of a
+% sample; the other satisfies an identity that can be checked, perturbed and
+% refuted, which is what this check does.
+@misc{GHOST,
+  section = {emitters},
+  claim   = {the ghost is the solved balance point of its two sides rather than the best of a sampled grid, and its solve is never worse than the scan it replaces},
+  rests-on = {PALETTE-CHAIN},
+  check   = {tool:check_ghost_balance.py}
+}
+
+% ⚑ THE ALGEBRA IS CHECKED AGAINST ITS OWN DEFINITION, NOT AGAINST THE SCAN.
+% Checking a solve against the thing it replaces only shows they agree — including
+% where both are wrong. So the witness verifies that y = sqrt(ab) EQUALISES the two
+% sides, and that perturbing y in EITHER direction lowers the worse one, which is
+% what makes it a maximum rather than merely a fixed point.
+@misc{GHOST-SEES,
+  section = {emitters},
+  claim   = {the balance condition is verified as an identity and shown to fail on a deliberately unbalanced ghost, and the ceiling solve is shown to stay strictly under its threshold rather than reaching it},
+  rests-on = {GHOST},
+  check   = {tool:check_ghost_balance.py --selftest}
+}
+
 % ── emitters ─────────────────────────────────────────────────────────────────
 % ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
 % tokens so the targets cannot drift apart; a claim that they agree is therefore

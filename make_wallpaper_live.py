@@ -31,6 +31,7 @@ import cvd_gate as C
 # what was hand-written here — same segments per digit, same (kind, x0, x1, y) per
 # stroke. The tables were right; nothing could prove they would stay right.
 import segment_topology as _ST
+import ghost_solve as _GS
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -65,7 +66,10 @@ def colors_for(variant):
     ground = tuple(int(x) for x in tok["view"].split(","))
     lit0 = _rgb(MC.rgbcss(tok, "focus"))
     litS = C.stretch_lit(lit0, ground)
-    ghost = C.derive_ghost(litS, ground)
+    # ⚑ SOLVED, NOT SCANNED.  The balance point is y = sqrt(ab) in offset
+    # luminance — the fixed point of the involution that exchanges the ghost's two
+    # sides — so this is a closed form rather than the best of 99 samples.
+    ghost = _GS.derive_ghost(litS, ground)
     return ground, litS, ghost
 
 

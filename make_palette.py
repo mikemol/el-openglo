@@ -24,6 +24,7 @@ import colorsys
 import random as _random
 import cvd_gate as C
 import palette_graph as _PG
+import ghost_solve as _GS
 
 # ---- the two non-derivable inputs -----------------------------------------
 HUE_SEEDS = {          # base hue (HSV degrees) — the identity, chosen not solved
@@ -85,8 +86,18 @@ def solve_lit(hue, ground, thr):
 
 
 def solve_ghost(lit, ground, thr):
-    """The ceiling ghost: max contrast that FAILS readability (APCA |Lc| < ceiling)."""
-    return C.derive_ghost_ceiling(lit, ground, thr["ghost_ceiling_lc"])
+    """The ceiling ghost: max contrast that FAILS readability (APCA |Lc| < ceiling).
+
+    ⚑ SOLVED, NOT SCANNED.  This read `C.derive_ghost_ceiling`, which walked 99
+    points and returned the best sample. `ghost_solve` finds the CONSTRAINT
+    BOUNDARY by bisection and steps back to the last colour strictly under it —
+    the honest form of a supremum that must be approached and never touched.
+
+    The difference is of kind, not magnitude: a grid returns the best of 99 and
+    says nothing about whether the optimum lies between two samples, so its answer
+    cannot be shown wrong. This one can be checked against the condition it claims
+    to satisfy, which is what scripts/check_ghost_balance.py does."""
+    return _GS.derive_ghost_ceiling(lit, ground, thr["ghost_ceiling_lc"])
 
 
 def solve_accent(hue, ground, min_contrast=4.6):
