@@ -98,8 +98,50 @@ def worst_pair(assignment, floors=None):
     return m, binding
 
 
-def solve_roles(roles, pinned=None, members=None):
+def eligible(ground, floor=3.0, members=None):
+    """Members clearing `floor` contrast against `ground` — the ground constraint.
+
+    ⚑ MUTUAL DISTINCTNESS AND LEGIBILITY-ON-A-GROUND ARE TWO DIFFERENT OBJECTIVES,
+    AND SOLVING ONE SAYS NOTHING ABOUT THE OTHER.  Filed by substrate against this
+    module's first output: the assignment scored q=1.494, cleared the separation
+    floor, and rendered THREE OF SIX EDGES NEARLY INVISIBLE as strokes on a white
+    page — `yellow` at 1.32:1, `sky` at 2.31:1, `orange` at 2.25:1 against WCAG's
+    3:1 non-text minimum. Verified here rather than relayed.
+
+    The palette member did not change; the ROLE did, from region to line. `yellow`
+    is a fine FILL with black text on it — which is how el-openglo uses it — and a
+    near-invisible 1px stroke on white.
+
+    ⚑ AND IT IS THE `edgecolor=` DEFECT ONE LEVEL UP, as substrate names it: an
+    artifact that passes its own check and is wrong on the page it is for, found
+    only by rendering. The separation floor has NO NOTION OF A GROUND, so it cannot
+    see this and never could.
+
+    `ground=None` means no ground was declared and every member is eligible — a
+    consumer drawing filled regions is not lying by omission, it genuinely has no
+    ground constraint."""
+    members = members or pool()
+    if ground is None:
+        return dict(members)
+    g = tuple(ground)
+    return {n: c for n, c in members.items() if C.wcag_ratio(c, g) >= floor}
+
+
+def solve_roles(roles, pinned=None, members=None, ground=None, ground_floor=3.0):
     """Assign palette members to `roles`, maximising the WORST pair's separation.
+
+    `ground`, when given, restricts the pool to members clearing `ground_floor`
+    contrast against it, so the assignment is legible AS A STROKE on that ground as
+    well as mutually distinct.
+
+    ⚑ AN INFEASIBLE GROUND IS A REFUSAL, NOT A WORSE ASSIGNMENT.  Measured: only 4
+    of the 7 Okabe-Ito members clear 3:1 on white (blue, bluegreen, purple,
+    vermillion), so substrate's six declared roles CANNOT all be placed. Returning
+    a best-effort assignment there would hand back exactly the silently-wrong
+    artifact this constraint exists to prevent — three roles below the floor, with
+    a q-score that looks fine. The refusal names the deficit and the eligible set,
+    because a consumer needs to know whether to drop a role, widen the pool, or
+    accept an off-palette colour.
 
     `pinned` maps a role to another role whose colour it must SHARE — a constraint,
     not a free slot.  Substrate pins `roundtrip` to `flow` deliberately (weight and
@@ -112,13 +154,23 @@ def solve_roles(roles, pinned=None, members=None):
     magnitude larger.  Here the optimum is FOUND, not approached, so the result
     carries no seed and no restart budget — and `solved_exhaustively` says so, so a
     reader never has to ask whether a better assignment was missed."""
-    members = members or pool()
+    full = members or pool()
+    members = eligible(ground, ground_floor, full)
     pinned = dict(pinned or {})
 
     free = [r for r in roles if r not in pinned]
     if not free:
         raise ValueError("every role is pinned; there is nothing to solve")
     if len(free) > len(members):
+        if ground is not None and len(free) <= len(full):
+            raise ValueError(
+                f"{len(free)} free role(s) but only {len(members)} of {len(full)} "
+                f"member(s) clear {ground_floor}:1 against the declared ground "
+                f"{_hex(ground)} — eligible: {', '.join(sorted(members)) or '(none)'}. "
+                f"The pool covers the roles for SEPARATION and not for LEGIBILITY on "
+                f"this ground, and a best-effort assignment would place "
+                f"{len(free) - len(members)} role(s) below the floor while still "
+                f"scoring well. Drop a role, widen the pool, or declare no ground.")
         raise ValueError(
             f"{len(free)} free role(s) over {len(members)} palette member(s): the "
             f"pool cannot cover them, and an assignment reusing a colour would make "
@@ -142,14 +194,26 @@ def solve_roles(roles, pinned=None, members=None):
     out = dict(chosen)
     for role, target in pinned.items():
         out[role] = chosen[target]
+    colours = {r: members[n] for r, n in out.items()}
+    # ⚑ THE GROUND TRAVELS WITH THE ANSWER.  A consumer reading the artifact must be
+    # able to tell WHICH objective was solved — an assignment optimal for mutual
+    # distinctness and one optimal for distinctness-on-white are different answers
+    # that look identical as a role->hex table.
+    ground_contrast = None
+    if ground is not None:
+        ground_contrast = {r: round(C.wcag_ratio(c, tuple(ground)), 2)
+                           for r, c in colours.items()}
     return {
         "roles": list(roles),
         "assignment": out,                       # role -> member NAME
-        "colours": {r: members[n] for r, n in out.items()},
+        "colours": colours,
         "worst_q": q,
         "binding_pair": list(binding) if binding else None,
         "pinned": pinned,
         "floor_dE": C.reference_floor()[0],
+        "ground": _hex(ground) if ground is not None else None,
+        "ground_floor": ground_floor if ground is not None else None,
+        "ground_contrast": ground_contrast,
         "solved_exhaustively": True,
     }
 
@@ -177,6 +241,18 @@ def as_json(solved, indent=2):
         "palette": "Okabe & Ito (2008) Color Universal Design, chromatic members",
         "metric": "worst_view_dE under Machado(2009) protan/deutan/tritan, "
                   "normalised by the Okabe-Ito reference floor",
+        # ⚑ NULL HERE MEANS "NO GROUND WAS DECLARED", NOT "IT PASSES ON ANY GROUND".
+        # Stated in the artifact because the difference is invisible in a role->hex
+        # table and cost substrate three near-invisible edges.
+        "ground": solved.get("ground"),
+        "ground_floor": solved.get("ground_floor"),
+        "ground_contrast": solved.get("ground_contrast"),
+        "ground_note": ("solved for mutual distinctness ONLY — no ground was "
+                        "declared, so these may be illegible as strokes on a "
+                        "particular background; pass ground= to constrain that"
+                        if solved.get("ground") is None else
+                        f"every role also clears {solved['ground_floor']}:1 "
+                        f"against {solved['ground']}"),
         "solved_exhaustively": solved["solved_exhaustively"],
     }, indent=indent, sort_keys=True) + "\n"
 
@@ -278,6 +354,39 @@ def _selftest():
             check(f"refuses {label}", "passed", "raised")
         except ValueError:
             check(f"refuses {label}", "raised", "raised")
+
+    # ⚑ THE GROUND CONSTRAINT, AND THE REFUSAL THAT MATTERS MOST.
+    # Only 4 of 7 members clear 3:1 on white (blue, bluegreen, purple, vermillion),
+    # so substrate's SIX roles are INFEASIBLE and must refuse rather than place
+    # three roles below the floor with a healthy-looking q.
+    WHITE = (255, 255, 255)
+    el = eligible(WHITE, 3.0)
+    check("4 of 7 members clear 3:1 on white", len(el), 4)
+    check("no ground means every member is eligible", len(eligible(None)), 7)
+    try:
+        solve_roles(["read", "write", "pywrite", "flow", "roundtrip", "returns"],
+                    ground=WHITE)
+        check("six roles on white REFUSE", "passed", "raised")
+    except ValueError as e:
+        check("six roles on white REFUSE", "raised", "raised")
+        check("...and the refusal names the eligible set", "eligible:" in str(e), True)
+        check("...and distinguishes separation from legibility",
+              "LEGIBILITY" in str(e), True)
+
+    # four roles on white IS feasible, and every one must clear the ground floor
+    g4 = solve_roles(["read", "write", "pywrite", "flow"], ground=WHITE)
+    check("four roles on white solve", len(g4["assignment"]), 4)
+    check("every role clears the ground floor",
+          all(v >= 3.0 for v in g4["ground_contrast"].values()), True)
+    check("the ground travels with the answer", g4["ground"], "#ffffff")
+    # ⚑ AND THE UNGROUNDED SOLVE MUST *FAIL* THAT SAME TEST, or the constraint is
+    # decoration — this is the exact defect substrate measured.
+    u4 = solve_roles(["read", "write", "pywrite", "flow"])
+    ung = {r: C.wcag_ratio(c, WHITE) for r, c in u4["colours"].items()}
+    check("the ungrounded solve does NOT clear white",
+          any(v < 3.0 for v in ung.values()), True)
+    check("an ungrounded answer says so rather than implying safety",
+          json.loads(as_json(u4))["ground"], None)
 
     # the emitted forms must be parseable without this module
     doc = json.loads(as_json(s))

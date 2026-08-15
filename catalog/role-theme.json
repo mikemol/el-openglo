@@ -12,6 +12,10 @@
     "write"
   ],
   "floor_dE": 10.97,
+  "ground": null,
+  "ground_contrast": null,
+  "ground_floor": null,
+  "ground_note": "solved for mutual distinctness ONLY \u2014 no ground was declared, so these may be illegible as strokes on a particular background; pass ground= to constrain that",
   "member": {
     "flow": "sky",
     "pywrite": "orange",
