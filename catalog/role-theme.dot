@@ -1,0 +1,15 @@
+// role -> colour, SOLVED rather than listed.
+// palette: Okabe & Ito (2008), chromatic members.
+// metric:  worst_view_dE under Machado(2009) protan/deutan/tritan,
+//          normalised by the Okabe-Ito reference floor (dE 11.0).
+// worst pair: q=1.494 at read~write  (>= 1.0 clears the gate)
+// exhaustive over the pool: the optimum is FOUND, not approached.
+
+graph role_theme {
+  read [color="#0072b2"]  // blue
+  write [color="#009e73"]  // bluegreen
+  pywrite [color="#e69f00"]  // orange
+  flow [color="#56b4e9"]  // sky
+  roundtrip [color="#d55e00"]  // vermillion
+  returns [color="#f0e442"]  // yellow
+}

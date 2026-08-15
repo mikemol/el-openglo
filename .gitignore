@@ -24,3 +24,8 @@ catalog/cotype/.delta-cache.json
 # so its sample is a raster or it is nothing — and a raster sample is still the
 # only way to see whether its digits form.
 !catalog/library/samples/*.png
+
+# The summit drop zone: incoming letters must not dirty this tree.
+# Ruling: ~/github/summit/proceedings/rulings/inbox-drop-zone.md
+# Ignored from HERE rather than by a file inside it, so provisioning adds nothing to git status.
+/inbox/

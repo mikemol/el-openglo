@@ -231,6 +231,80 @@
   check   = {tool:check_ghost_balance.py --selftest}
 }
 
+% ⚑ ADMISSIBILITY IS VISIBLE TO A CHECKER; OPTIMALITY IS ONLY VISIBLE TO A SOLVE.
+% Filed for summit's ask-cvd-graphviz-theme (by substrate), and measuring its
+% premise first corrected it twice: substrate had ALREADY stopped transcribing
+% hexes, and picking from Okabe-Ito cannot fail the floor — all 2520 assignments of
+% 5 roles over the 7 members clear q >= 1.0, necessarily, because the floor IS that
+% palette's own tightest pair. So a check asserting q >= 1.0 would be
+% UNFALSIFIABLE here and Δ would grade it vacuous.
+%
+% What can fail is OPTIMALITY, and the roles are an ARGUMENT, never ours: ours are
+% neg/neu/pos/link/visited, theirs read/write/pywrite/flow/roundtrip/returns, and a
+% theme hardcoding ours would be a bag of hexes with extra steps.
+%
+% ⚑ AND THE HEADLINE NUMBER I FIRST REPORTED WAS AN ARTIFACT OF MY OWN GUESSES.
+% I read substrate's source and inferred two things: that `roundtrip` deliberately
+% shared `flow`'s hue (its comment says weight carries the distinction) and that
+% `returns` was not a palette role. Both wrong — the comment PREDATES the edge, and
+% `returns` is real and wants a member. On those inferences the solve read q=2.758
+% against a live 1.494 and I reported "54% of achievable". Corrected by the
+% consumer, over its ACTUAL six roles, the optimum is q=1.494 — IDENTICAL to what
+% it had already hand-assigned. Its four assigned colours were already optimal; the
+% solve's contribution is placing the two it had not assigned (`roundtrip` off a
+% shared hue, `returns` off the non-palette `neutral`) WITHOUT degrading the worst
+% pair. A source read cannot recover intent, and the claim is what survived the
+% correction rather than what the first measurement flattered.
+@misc{ROLETHEME,
+  section = {emitters},
+  claim   = {the emitted role theme assigns palette members to a consumer's declared roles so that no other assignment over the same pool separates better, rather than merely clearing the floor},
+  rests-on = {SEPARATION},
+  check   = {tool:check_role_theme.py}
+}
+
+% ⚑ AND THE .dot MUST RENDER, NOT MERELY PARSE. The first emitter wrote
+% `edgecolor=` — an attribute graphviz does not have — so the file parsed, `dot`
+% exited 0, and every colour silently vanished into the default black. A valid
+% artifact that is wrong is this repo's standing failure mode (a focus ring the
+% colour of its own text; a foreground at 1.00:1; a malformed 5x7 glyph), so the
+% witness renders the emitted file and asserts the colours SURVIVE INTO THE SVG.
+@misc{ROLETHEME-SEES,
+  section = {emitters},
+  claim   = {the role-theme witness is proven to see a sub-optimal assignment and to see a colour that parses but does not reach the render, so its all-clear is a measurement},
+  rests-on = {ROLETHEME},
+  check   = {tool:check_role_theme.py --selftest}
+}
+
+% ⚑ THE CONSTRAINTS ARE STATED AS RELATIONS, NOT AS A PROCEDURE.  The palette's
+% requirements were only ever expressed as the code that searched for them, so
+% "what must hold" and "how we currently look for it" were one artifact — and a
+% defect in the search read as a defect in the palette.  catalog/relations.md is
+% the prose statement and palette_relations.py the machine-readable one, derived
+% from the ONE edge authority rather than restated beside it.
+%
+% ⚑ AND THE HANDOFF IS THE WHOLE INTERFACE.  `netlist_input()` emits exactly the
+% shape gcalc.solver consumes; nothing about elimination order, cost or verdicts
+% appears, because those are the solver's and a relation presuming them would be a
+% procedure wearing a relation's clothes.  Measured: the 42 relations reduce to 3
+% symbolic terms between the 3 pinned terminals, 62 Q, verdict=halt.
+@misc{RELATIONS,
+  section = {pipeline},
+  claim   = {every palette constraint is stated as a declarative relation with a named quantity and a kind, derived from the edge authority and accepted by the symbolic solver, rather than existing only as the search that looks for it},
+  rests-on = {GRAPH},
+  check   = {tool:check_relations.py}
+}
+
+% ⚑ A RELATION SET THAT HID ITS GAPS WOULD READ AS FINISHED.  Three are recorded
+% and printed by --list: the discrete occupancy problem is unmeasured, the
+% series-composition claim wants a witness, and the biases already in the code
+% (the stride cap, every _lum_nudge) are expressible as no constraint.
+@misc{RELATIONS-SEES,
+  section = {pipeline},
+  claim   = {the relation check is proven to see an invented role, a floor with no bound, a relation naming no quantity, a free node nothing reaches, and an empty set, and it records what the relations do NOT determine},
+  rests-on = {RELATIONS},
+  check   = {tool:check_relations.py --selftest}
+}
+
 % ── emitters ─────────────────────────────────────────────────────────────────
 % ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
 % tokens so the targets cannot drift apart; a claim that they agree is therefore
