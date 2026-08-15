@@ -70,7 +70,21 @@ def _q(a, b, floors):
     inside a permutation loop.
 
     Keyed on the colour pair rather than the roles, because the same two colours
-    score identically whatever roles hold them."""
+    score identically whatever roles hold them.
+
+    ⚑ THE BOUND WAS HANDED TO ME AND HAS NEVER BEEN EXERCISED, WHICH IS LUCK AND
+    NOT A MEASUREMENT.  21 entries is C(7,2) — a ceiling the seven-member pool
+    imposes, not one this cache enforces. Nothing here tests what it does at scale
+    because with this pool nothing CAN: it cannot grow past 21 no matter how many
+    assignments are swept. Anyone widening the pool inherits an unbounded dict on a
+    key space that grows quadratically, and should measure the memory rather than
+    assume this line kept working.
+
+    Recorded because substrate paid for the other half of this lesson in its own
+    tree — a cache it added for speed OOM-killed its suite under a memory lease,
+    and the suite VANISHED rather than failing. Its sharper statement, which
+    applies to this cache too: a bound you did not push until it failed differently
+    is not a measurement."""
     key = (a, b) if a <= b else (b, a)
     v = _Q_CACHE.get(key)
     if v is None:
