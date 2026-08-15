@@ -4,14 +4,14 @@
 //          normalised by the Okabe-Ito reference floor (dE 11.0).
 // worst pair: q=1.494 at read~write  (>= 1.0 clears the gate)
 // exhaustive over the pool: the optimum is FOUND, not approached.
-// ground: NONE DECLARED — solved for mutual distinctness only. These may be
-//         illegible as strokes on a particular background; see role-theme-on-white.dot.
+// ground: every role also clears 3.0:1 against #ffffff, so these are legible AS STROKES on it.
+//         tightest: pywrite at 3.06:1.
+// roundtrip is PINNED to flow — a declared constraint, not a free slot.
 
 graph role_theme {
   read [color="#0072b2"]  // blue
   write [color="#009e73"]  // bluegreen
-  pywrite [color="#e69f00"]  // orange
-  flow [color="#56b4e9"]  // sky
+  pywrite [color="#cc79a7"]  // purple
+  flow [color="#d55e00"]  // vermillion
   roundtrip [color="#d55e00"]  // vermillion
-  returns [color="#f0e442"]  // yellow
 }

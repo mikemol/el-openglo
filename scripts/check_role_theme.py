@@ -74,9 +74,39 @@ LIVE = {"read": "blue", "write": "bluegreen", "pywrite": "purple",
 ARTIFACT_DOT = "catalog/role-theme.dot"
 ARTIFACT_JSON = "catalog/role-theme.json"
 
+# ⚑ THE GROUNDED VARIANT IS A SECOND ARTIFACT, NOT A REPLACEMENT.  Substrate's six
+# roles are INFEASIBLE on white (only 4 of 7 members clear 3:1), so it keeps five
+# chromatic roles plus a declared off-palette `neutral` for `returns`. That set IS
+# solvable, and emitting it separately is the honest form: the two files answer two
+# different questions and a consumer picks by whether it draws strokes or regions.
+# ⚑ AND FIVE FREE ROLES ON WHITE REFUSES TOO — I NEARLY EMITTED IT WITHOUT
+# CHECKING.  Four eligible members cover four free roles, not five. The pinned form
+# solves: `roundtrip` shares `vermillion` with `flow`, which is legitimate here for
+# a reason substrate has now GATED in its own tree — a reused hue is allowed only
+# while a distinct (style, penwidth, arrowhead, arrowtail) tuple carries the
+# distinction the colour cannot.
+#
+# ⚑⚑ AND THE SOLVE LANDS EXACTLY ON SUBSTRATE'S LIVE ASSIGNMENT: blue, bluegreen,
+# purple, vermillion, with roundtrip on vermillion. Its hand-picked set was the
+# CONSTRAINED OPTIMUM all along — it had run this solve by hand without writing it
+# down, and recorded the forced reuse as a free design choice. The artifact
+# re-derives the decision from the outside, which is the only thing that could have
+# caught a record that was wrong about a right answer.
+GROUND = (255, 255, 255)
+GROUND_ROLES = ("read", "write", "pywrite", "flow", "roundtrip")
+GROUND_PINNED = {"roundtrip": "flow"}
+ARTIFACT_GROUND_DOT = "catalog/role-theme-on-white.dot"
+ARTIFACT_GROUND_JSON = "catalog/role-theme-on-white.json"
+
 
 def solved():
     return RT.solve_roles(list(ROLES), pinned=dict(PINNED))
+
+
+def solved_on_ground():
+    """The same consumer's roles, constrained to be legible as strokes on white."""
+    return RT.solve_roles(list(GROUND_ROLES), pinned=dict(GROUND_PINNED),
+                          ground=GROUND)
 
 
 def renders(dot_text):
@@ -140,7 +170,28 @@ def problems():
         if not (isinstance(v, str) and v.startswith("#") and len(v) == 7):
             bad.append(f"assignment[{r!r}] = {v!r} is not a #rrggbb hex")
 
-    # 4. ⚑ THE .dot MUST RENDER, NOT MERELY PARSE
+    # 4. ⚑ THE GROUNDED VARIANT MUST ACTUALLY CLEAR ITS GROUND, or it is the same
+    # silently-wrong artifact wearing a reassuring filename.
+    try:
+        g = solved_on_ground()
+    except ValueError as e:
+        bad.append(f"the grounded solve refuses: {e}")
+        g = None
+    if g is not None:
+        if g.get("ground") != "#ffffff":
+            bad.append(f"the grounded artifact records ground={g.get('ground')!r}, "
+                       f"so a consumer cannot tell which objective it answers")
+        for r, ratio in (g.get("ground_contrast") or {}).items():
+            if ratio < 3.0:
+                bad.append(f"grounded: {r} is {ratio}:1 against white, below the "
+                           f"3:1 non-text minimum it claims to satisfy")
+        # and the pin must hold — a reused hue is legitimate only as a DECLARED
+        # constraint, never as a solve that quietly ran out of colours
+        for role, target in GROUND_PINNED.items():
+            if g["colours"].get(role) != g["colours"].get(target):
+                bad.append(f"grounded: {role!r} is pinned to {target!r} and differs")
+
+    # 5. ⚑ THE .dot MUST RENDER, NOT MERELY PARSE
     ok, detail = renders(RT.as_dot(s))
     if ok is None:
         pass                                     # SKIP — reported by the caller
@@ -174,10 +225,12 @@ def main(argv):
         # no-chaining hook refused — correctly: a judgement about WHERE the theme
         # lives and WHAT it is named would have evaporated with the turn, and the
         # next reader would have re-derived it differently. The paths are here.
-        s = solved()
+        s, g = solved(), solved_on_ground()
         out = []
         for name, text in ((ARTIFACT_DOT, RT.as_dot(s)),
-                           (ARTIFACT_JSON, RT.as_json(s))):
+                           (ARTIFACT_JSON, RT.as_json(s)),
+                           (ARTIFACT_GROUND_DOT, RT.as_dot(g)),
+                           (ARTIFACT_GROUND_JSON, RT.as_json(g))):
             path = os.path.join(ROOT, name)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w", encoding="utf-8") as fh:
@@ -271,8 +324,12 @@ def _selftest():
     # subject. The same shape as the marquee fixture that omitted `focus`.
     saved = RT.solve_roles
     try:
-        def _worse(roles, pinned=None, members=None):
-            s = saved(roles, pinned=pinned, members=members)
+        def _worse(roles, pinned=None, members=None, **kw):
+            # ⚑ **kw, BECAUSE A STUB WITH A FROZEN SIGNATURE BREAKS ON THE NEXT
+            # ARGUMENT.  This stub omitted `ground=` and raised TypeError the moment
+            # the real function grew one — the selftest failing on its own fixture
+            # rather than on the subject, for the third time in this session.
+            s = saved(roles, pinned=pinned, members=members, **kw)
             # a deliberately worse assignment over ALL the declared roles: shove
             # two roles onto near neighbours so the worst pair drops.
             bad = dict(s["assignment"])
@@ -290,6 +347,33 @@ def _selftest():
               any("not optimal" in b for b in probs), True)
     finally:
         RT.solve_roles = saved
+
+    # ⚑ THE GROUNDED VARIANT, AND ITS GATE MUST BITE.  The grounded solve is the
+    # answer to a different question, and an artifact claiming a ground it does not
+    # clear is the silently-wrong file wearing a reassuring filename.
+    g = solved_on_ground()
+    check("the grounded solve records its ground", g["ground"], "#ffffff")
+    check("every grounded role clears 3:1",
+          all(v >= 3.0 for v in g["ground_contrast"].values()), True)
+    check("the grounded pin holds",
+          g["colours"]["roundtrip"], g["colours"]["flow"])
+    # ⚑ AND IT MUST REFUSE ONE ROLE FURTHER — five FREE roles over four eligible
+    # members. I nearly emitted that without checking, which is why it is an arm.
+    try:
+        RT.solve_roles(list(GROUND_ROLES), ground=GROUND)
+        check("five FREE roles on white refuse", "passed", "raised")
+    except ValueError:
+        check("five FREE roles on white refuse", "raised", "raised")
+
+    saved_g = solved_on_ground
+    try:
+        globals()["solved_on_ground"] = lambda: dict(
+            g, ground_contrast=dict(g["ground_contrast"], read=1.32))
+        probs, _ = problems()
+        check("sees a grounded role below its own floor",
+              any("below the" in b and "3:1" in b for b in probs), True)
+    finally:
+        globals()["solved_on_ground"] = saved_g
 
     # ⚑ AND THE RENDER ARM MUST BITE ON A COLOUR THAT DOES NOT SURVIVE.
     # `edgecolor` is the exact mistake the first version shipped.

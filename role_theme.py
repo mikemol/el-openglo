@@ -283,6 +283,22 @@ def as_dot(solved):
         + "  (>= 1.0 clears the gate)",
         "// exhaustive over the pool: the optimum is FOUND, not approached.",
     ]
+    # ⚑ THE GROUND MUST BE IN THE .dot TOO, NOT ONLY THE JSON.  A reader opening
+    # this file alone cannot otherwise tell WHICH objective it answers, and the two
+    # variants are byte-different files that look interchangeable — the same
+    # absent-vs-empty confusion the null `ground` note exists to prevent.
+    if solved.get("ground"):
+        lines.append(f"// ground: every role also clears "
+                     f"{solved['ground_floor']}:1 against {solved['ground']}, so "
+                     f"these are legible AS STROKES on it.")
+        if solved.get("ground_contrast"):
+            worst = min(solved["ground_contrast"].items(), key=lambda kv: kv[1])
+            lines.append(f"//         tightest: {worst[0]} at {worst[1]}:1.")
+    else:
+        lines.append("// ground: NONE DECLARED — solved for mutual distinctness "
+                     "only. These may be")
+        lines.append("//         illegible as strokes on a particular background; "
+                     "see role-theme-on-white.dot.")
     if solved["pinned"]:
         for role, target in sorted(solved["pinned"].items()):
             lines.append(f"// {role} is PINNED to {target} — a declared constraint, "

@@ -1,0 +1,45 @@
+{
+  "assignment": {
+    "flow": "#d55e00",
+    "pywrite": "#cc79a7",
+    "read": "#0072b2",
+    "roundtrip": "#d55e00",
+    "write": "#009e73"
+  },
+  "binding_pair": [
+    "read",
+    "write"
+  ],
+  "floor_dE": 10.97,
+  "ground": "#ffffff",
+  "ground_contrast": {
+    "flow": 3.87,
+    "pywrite": 3.06,
+    "read": 5.19,
+    "roundtrip": 3.87,
+    "write": 3.42
+  },
+  "ground_floor": 3.0,
+  "ground_note": "every role also clears 3.0:1 against #ffffff",
+  "member": {
+    "flow": "vermillion",
+    "pywrite": "purple",
+    "read": "blue",
+    "roundtrip": "vermillion",
+    "write": "bluegreen"
+  },
+  "metric": "worst_view_dE under Machado(2009) protan/deutan/tritan, normalised by the Okabe-Ito reference floor",
+  "palette": "Okabe & Ito (2008) Color Universal Design, chromatic members",
+  "pinned": {
+    "roundtrip": "flow"
+  },
+  "roles": [
+    "read",
+    "write",
+    "pywrite",
+    "flow",
+    "roundtrip"
+  ],
+  "solved_exhaustively": true,
+  "worst_q": 1.4936
+}
