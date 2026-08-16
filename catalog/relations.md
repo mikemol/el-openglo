@@ -25,6 +25,43 @@ composable at all, because the two primitives are only defined on that carrier.
 colour is a READ of a node, taken at the end, and three-channel — which is why §5 exists
 as a separate concern rather than being folded in.
 
+### ⚑ GEOMETRY IS THE SAME CARRIER, AND SPLITTING THEM WAS MY ERROR
+
+I carried "the palette's discrete half" and "geometry fit as a network" as two items.
+They are one. **Measured against the live constants:** every geometry quantity in this
+tree is already a *fraction of the cell unit*, never an absolute length —
+
+    litHalf   u*0.20      ghostHalf u*0.13      endGap    u*0.10
+    dotFill   0.82        pitch     height*0.72 / rows
+
+`litHalf = u*0.20` is "a fifth of the unit", not "4 pixels". So each is dimensionless
+with 1.0 as its pass threshold, which is **the carrier above, exactly**. A geometry
+requirement written as `measured / required` is the same kind of object as a contrast
+margin, and the two compose under the same two primitives.
+
+That the split existed at all is the error §1's own note warns about: *"had one
+constraint been a ratio and another an absolute difference, they would not compose."*
+They are both ratios. Nothing had to be made compatible; I had failed to notice they
+already were.
+
+⚑ **AND IT IS ALREADY A FINDING, NOT A FORMALITY.** Written as margins, one of them
+reads BELOW ONE right now:
+
+| requirement | as a margin | value |
+|---|---|---|
+| ghost is subordinate to lit | `litHalf / ghostHalf` | 1.538 ✓ |
+| ends do not overlap | `endGap / litHalf` | **0.500** ⚑ |
+| aperture stays open | `(1 − 2·litHalf) / min_aperture` | 0.60 / m |
+| dots separate | `(1 − dotFill) / min_gap` | 0.180 / m |
+
+`endGap` is *half* the stroke half-width, so adjacent strokes overlap by design — which
+may be correct (the segments are meant to meet at a corner) or may be the shape defect
+nobody has measured. **Stating it as a margin is what makes that a question with an
+answer** instead of a constant nobody has reason to doubt.
+
+The three magic numbers this is really about — `0.20`, `0.10`, `0.82` — are then not
+tuning constants but *unsolved node values in the same netlist as the colours*.
+
 ---
 
 ## 1. Nodes

@@ -153,4 +153,17 @@ def open_questions():
          "not expressible as constraints, so none can be checked, removed or "
          "compared. The fix is to move them INTO the satisfactory set, not to add "
          "a bias mechanism."),
+        ("geometry-is-the-same-netlist",
+         "⚑ GEOMETRY IS NOT A SECOND NETWORK — it is unstated edges of THIS one, "
+         "and carrying it as separate work was an error corrected by measurement. "
+         "Every geometry quantity here is already a fraction of the cell unit "
+         "(litHalf u*0.20, ghostHalf u*0.13, endGap u*0.10, dotFill 0.82, pitch "
+         "height*0.72/rows) — never an absolute length — so each is dimensionless "
+         "with 1.0 as its pass threshold, which is exactly the carrier the colour "
+         "relations use. Nothing had to be made compatible; they already were. "
+         "AND ONE READS BELOW ONE ALREADY: endGap/litHalf = 0.500, so adjacent "
+         "strokes overlap by design — correct if segments are meant to meet at a "
+         "corner, a shape defect if not, and NOBODY HAS MEASURED WHICH. The three "
+         "magic numbers (0.20, 0.10, 0.82) are unsolved node values in the same "
+         "netlist as the colours, not tuning constants."),
     )
