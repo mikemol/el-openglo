@@ -340,6 +340,38 @@
   check   = {tool:check_ghost_composite.py --selftest}
 }
 
+% ⚑ A GRAPH READ AS A TABLE IS HOW A CYCLE STAYS INVISIBLE. 21 nodes over four
+% families, with b1=24 counting the places pairwise satisfaction need not compose
+% — none of which a per-edge listing can show. The render carries the graph's own
+% structure (family, pinned-ness, cycle membership, elimination step) rather than
+% laying out a bag of circles, and the elimination SEQUENCE shows the star->mesh
+% fill-in that a static picture cannot.
+%
+% ⚑ AND THE ORDER IS A GAUGE WHILE THE COST IS NOT, which the frames make visible:
+% min_degree spends 62 Q over 15 steps and the relations check's fixed order spends
+% 68, same terminals and same three surviving terms. Eight of those steps cost ZERO
+% — the geometry and selection tails are degree-1 — and the constellation then
+% collapses 27 edges to 3 in five steps.
+@misc{NETLISTVIEW,
+  section = {tooling},
+  claim   = {the constraint netlist is emitted as a graph that renders, with every node present and every family distinguishable, and as an elimination sequence whose fill-in is drawn},
+  rests-on = {RELATIONS},
+  check   = {tool:check_netlist_render.py}
+}
+
+% ⚑ A PICTURE THAT RENDERS IS NOT A PICTURE THAT IS LEGIBLE, and no check can
+% assert the second. This one asserts the dot LOADS, the family colours SURVIVE
+% INTO THE SVG (the `edgecolor=` lesson: an attribute graphviz does not have parses
+% fine and draws everything black), every node appears, and the frame count matches
+% the elimination length. Whether 21 nodes lay out readably is a question only
+% LOOKING answers, which is why --write emits the files.
+@misc{NETLISTVIEW-SEES,
+  section = {tooling},
+  claim   = {the render witness is proven to see a missing node, a family whose colour never reaches the output, and an empty elimination sequence},
+  rests-on = {NETLISTVIEW},
+  check   = {tool:check_netlist_render.py --selftest}
+}
+
 % ── emitters ─────────────────────────────────────────────────────────────────
 % ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
 % tokens so the targets cannot drift apart; a claim that they agree is therefore
