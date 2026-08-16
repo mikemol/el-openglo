@@ -136,6 +136,23 @@ DOT_FILL = 0.82        # MatrixChar: dot diameter as a fraction of the pitch
 CELL_W = 2.0           # GEOM16's digit box: 2u wide
 CELL_H = 4.0           # ... 4u tall (5u with the descender band)
 
+# ⚑ THE GHOST'S ALPHA, AND IT IS THE EDGE THAT COUPLES SHAPE TO COLOUR.
+# SegmentChar.qml:73 draws the unlit core at `opacity: 0.45`, so what the eye
+# receives is a BLEND of ghostColor over the ground — not ghostColor. Every colour
+# check measures `fg_in` against `view` DIRECTLY and none of them knows this
+# number exists, so the ghost the gate certifies is not the ghost anyone sees.
+GHOST_ALPHA = 0.45
+
+
+def composite(fg, bg, alpha=GHOST_ALPHA):
+    """Source-over: what the eye receives when `fg` is drawn at `alpha` on `bg`.
+
+    ⚑ THE RENDER APPLIES THIS AND NO CHECK DOES.  Measured on the shipped palette:
+    the declared ghost contrast is 4.16:1 on EL-Openglo and the composited one is
+    1.79:1 — a 2.37 drop that lives entirely between the gate and the screen."""
+    return tuple(int(round(f * alpha + b * (1 - alpha)))
+                 for f, b in zip(fg, bg))
+
 # ⚑ A CONSTRAINT IN THE WRONG METRIC, NAMED SO IT CAN BE ARGUED WITH.
 # `_candidates` prunes each semantic candidate against `hot` (the accent) with a
 # RAW worst-view dE below this number — while the very function that consumes the
@@ -298,6 +315,29 @@ def _geometry_edges():
         Edge("cell", "lit_stroke", GEOMETRY, floor="stroke_fits",
              why=f"litHalf = {LIT_HALF}u against a {CELL_W}x{CELL_H}u cell; a stroke "
                  f"wider than the cell's own features cannot render"),
+
+        # ⚑⚑ THE EDGE THAT CROSSES. Everything above is shape-to-shape and
+        # everything in the colour families is colour-to-colour; this one joins
+        # them, and until it existed the graph was one graph with two disjoint
+        # halves.
+        #
+        # THE GHOST IS SUBORDINATED BY THREE KNOBS MULTIPLYING INTO ONE PERCEIVED
+        # QUANTITY: its colour (`fg_in` vs `view`), its ALPHA (0.45, SegmentChar
+        # :73), and its WIDTH (ghostHalf/litHalf = 0.65). Trading any one against
+        # the others is invisible to every check, because the colour checks do not
+        # know about alpha or width and the shape constants are not colours.
+        #
+        # ⚑ AND IT IS ALREADY BROKEN ON ALL SIX VARIANTS. Measured: the composited
+        # ghost is UNDER `feasible_ghost_floor` everywhere — EL-Openglo declares
+        # 4.16:1 and renders 1.79:1 against a floor of 3.00. The CEILING is
+        # satisfied with huge margin (|Lc| 29.8 declared, 7.7 composited against a
+        # 30 limit), so the solve is optimising hard against the bound that is not
+        # in danger while nothing watches the one that is.
+        Edge("fg_in", "ghost_stroke", GEOMETRY, floor="ghost_visible_as_shape",
+             why=f"the ghost's SUBORDINATION is carried by colour AND alpha "
+                 f"({GHOST_ALPHA}) AND width ({GHOST_HALF / LIT_HALF:.2f}x) "
+                 f"multiplying into one perceived quantity; composited it is under "
+                 f"feasible_ghost_floor on all six variants"),
     ]
     return tuple(out)
 

@@ -305,6 +305,41 @@
   check   = {tool:check_relations.py --selftest}
 }
 
+% ⚑ THIS CLAIM IS RED AND MUST BE. It is not a check that fails; it is a DEFECT
+% the check found, and the no-open/closed-field rule is what lets it sit here
+% honestly rather than as a note somebody has to remember.
+%
+% SegmentChar.qml:73 draws the unlit core at `opacity: 0.45`. Every colour check
+% measures `fg_in` against `view` DIRECTLY and none knows that number exists, so
+% the ghost the gate certifies is not the ghost anyone sees: EL-Openglo is gated
+% at 4.16:1 and renders at 1.79:1 against a floor of 3.00. All six variants are
+% UNDER. The three Lit ones were already under before compositing.
+%
+% ⚑ AND THE SOLVE IS OPTIMISING THE BOUND THAT IS NOT IN DANGER. The ghost has a
+% CEILING (must not read as text) and a FLOOR (must still read as shape); alpha
+% makes the ceiling SAFER and the floor HARDER. Measured |Lc|: 29.8 declared, 7.7
+% composited, against a limit of 30. derive_ghost_ceiling pushes to within 0.2 of
+% a bound with a 22-point margin while nothing models the one being missed.
+%
+% ⚑ NO SINGLE-CONCERN CHECK COULD HAVE SEEN IT. Ghost subordination is carried by
+% COLOUR and ALPHA (0.45) and WIDTH (0.65x) multiplying into one perceived
+% quantity. A colour check sees no lengths and a geometry check sees no colours,
+% which is why this lives at the JOIN — and why the fg_in~ghost_stroke edge that
+% carries it is the first edge in the graph to cross between the two halves.
+@misc{GHOSTCOMP,
+  section = {emitters},
+  claim   = {the ghost that renders clears the same floor the ghost that is gated does, so no contrast lives between the check and the screen},
+  rests-on = {GHOST, RELATIONS},
+  check   = {tool:check_ghost_composite.py}
+}
+
+@misc{GHOSTCOMP-SEES,
+  section = {emitters},
+  claim   = {the composite model is verified against arithmetic endpoints and shown to catch both a ghost below its floor and one over its readability ceiling, so the red above is a measurement rather than an artefact of the model},
+  rests-on = {GHOSTCOMP},
+  check   = {tool:check_ghost_composite.py --selftest}
+}
+
 % ── emitters ─────────────────────────────────────────────────────────────────
 % ⚑ THE DESIGN'S CORE RISK.  Every emission target reads the SAME palette
 % tokens so the targets cannot drift apart; a claim that they agree is therefore

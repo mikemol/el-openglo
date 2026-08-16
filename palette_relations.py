@@ -173,17 +173,25 @@ def open_questions():
          "geometry family is now 5 edges over 8 nodes in the ONE authority, and "
          "the unified netlist (21 nodes, 40 edges) hands to the solver and "
          "eliminates to the same 3 terms at 62 Q."),
-        ("geometry-and-colour-do-not-yet-TOUCH",
-         "⚑ AND THE UNIFICATION CURRENTLY DOES NO WORK, WHICH IS THE HONEST "
-         "RESULT. Measured: 5 connected components, and ZERO of them mix colour "
-         "and geometry — one colour component of 10 nodes carrying all 24 cycles, "
-         "one 3-node selection component, and three geometry components of 4, 2 "
-         "and 2 nodes, every one of them a TREE (b1=0). So the two share a CARRIER "
-         "and no CONSTRAINT: no colour value is determined by a shape value or the "
-         "reverse, and b1 is unchanged at 24. The coupling that WOULD do work is "
-         "already named in the source and written nowhere: SegmentChar.qml:17 "
-         "calls ghostHalf the 'stroke-weight channel', so a thinner ghost stroke "
-         "and a lower-contrast ghost colour BUY THE SAME THING — the {lit, ghost, "
-         "ground} series chain has a geometry leg. Until that edge exists the "
-         "graph is one graph and the solve is two solves."),
+        ("geometry-and-colour-now-TOUCH",
+         "⚑ CLOSED, AND THE EDGE FOUND A LIVE DEFECT. The halves were disjoint — "
+         "5 components, none mixing colour and geometry — until fg_in~ghost_stroke "
+         "was written. Now 4 components with the main one MIXED (14 nodes, b1=24), "
+         "and the solve cost moved 62 Q -> 68 Q with `fg ~ view` growing from 7 "
+         "parts to 9, so the edge composes into the surviving terms rather than "
+         "sitting inert. THE DEFECT: SegmentChar.qml:73 draws the unlit core at "
+         "opacity 0.45, so ghost subordination is carried by COLOUR and ALPHA and "
+         "WIDTH (0.65x) multiplying into one perceived quantity — and the "
+         "composited ghost is UNDER feasible_ghost_floor on all six variants "
+         "(EL-Openglo gated at 4.16:1, renders at 1.79:1, floor 3.00). @GHOSTCOMP "
+         "is RED and must be."),
+        ("the-solve-optimises-the-bound-not-in-danger",
+         "The ghost has a CEILING (must not read as text) and a FLOOR (must still "
+         "read as shape), and alpha makes the ceiling SAFER while making the floor "
+         "HARDER. Measured |Lc|: 29.8 declared, 7.7 composited, against a limit of "
+         "30 — derive_ghost_ceiling pushes to within 0.2 of a bound carrying a "
+         "22-point margin, while nothing models the one being missed. The fix is "
+         "NOT to lower alpha or widen the stroke by hand: it is to give the ghost "
+         "solve a floor term in the composited quantity, so the three knobs are "
+         "solved together instead of traded blind. NOT YET BUILT."),
     )
