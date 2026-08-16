@@ -52,7 +52,11 @@ def problems():
     if not rels:
         return ["no relations declared; the statement is empty, not the palette free"]
 
-    known = {n.key for n in PG.NODES}
+    # ⚑ `declared_nodes()`, NOT `NODES` — the latter is the colour half only, and
+    # asking it refused every geometry edge for naming a role the authority "does
+    # not" declare. The check was right; the split was mine, and the union lives in
+    # the authority so a consumer cannot ask the wrong half.
+    known = {n.key for n in PG.declared_nodes()}
     for r in rels:
         for side in (r.u, r.v):
             if side not in known:

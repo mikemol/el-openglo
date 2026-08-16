@@ -106,6 +106,12 @@ def namespace_report():
     for _, a, b in tuple(cvd_gate.ENFORCED) + tuple(cvd_gate.SURFACED):
         gate_names |= {a, b}
 
+    # ⚑ GEOMETRY NODES ANSWER TO NO EMITTED KEY, AND THAT IS NOT A GAP.  A stroke
+    # half-width is not a token in a `.colors` file, so requiring one would refuse
+    # a node for lacking a name it cannot have — the check reporting its own
+    # coverage as the tree's fault, which is exactly what check_geometry_source did
+    # before `display_types` was added to its AUTHORITIES. They are still required
+    # to be REAL NODES that edges may name; only the emitted-key arm is skipped.
     bad = []
     for n in PG.NODES:
         if emitted and n.key not in emitted:
@@ -214,7 +220,13 @@ def main(argv):
         return 0
 
     if "--edges" in argv:
-        for fam in (PG.SEPARATION, PG.LEGIBILITY, PG.DERIVATION):
+        # ⚑ THE FAMILY LIST WAS HARDCODED AND WENT STALE THE MOMENT A FAMILY WAS
+        # ADDED.  It read (SEPARATION, LEGIBILITY, DERIVATION), so the geometry
+        # edges existed in the authority and were INVISIBLE to the mode that lists
+        # the authority — a check reporting its own coverage as the tree's content,
+        # which is the shape this repo keeps paying for. Derived from the edges now,
+        # so a fourth family cannot hide the same way.
+        for fam in sorted({e.family for e in PG.edges()}):
             es = PG.edges(family=fam)
             print(f"{fam} ({len(es)}):")
             for e in es:

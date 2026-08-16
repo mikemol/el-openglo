@@ -79,7 +79,35 @@ NODES = (
     Node("sel_act", None,          None),
 )
 
+# ⚑ THE GEOMETRY NODES ARE THE SAME GRAPH, NOT A SECOND ONE.  They are kept in
+# their own tuple only because they answer to no EMITTED KEY and no GATE NAME —
+# a stroke half-width is not a token in a `.colors` file — so folding them into
+# NODES would make the namespace-totality check refuse them for lacking names they
+# cannot have.  `nodes()` unions both, and `check_palette_graph` skips the
+# emitted-key arm for these while still requiring every edge to name a real node.
+GEOMETRY_NODES = (
+    Node("cell"),           # the 2u x 4u digit box every fraction is taken of
+    Node("lit_stroke"),     # litHalf
+    Node("ghost_stroke"),   # ghostHalf
+    Node("end_gap"),        # endGap
+    Node("aperture"),       # the open counter a glyph needs to stay legible
+    Node("collinear_join"), # the b~c / e~f vertical stacks endGap governs
+    Node("dot_fill"),       # dotFill
+    Node("dot_gap"),        # the space between adjacent matrix dots
+)
+
 BY_KEY = {n.key: n for n in NODES}
+
+
+def declared_nodes():
+    """Every node the authority declares — colour AND geometry, in one read.
+
+    ⚑ A SECOND LIST IS A SECOND AUTHORITY UNLESS SOMETHING UNIONS IT.  Adding
+    GEOMETRY_NODES beside NODES immediately broke `check_relations`, which asked
+    `PG.NODES` and correctly refused five geometry edges for naming roles "the edge
+    authority does not" — the check was right and the split was mine. Consumers ask
+    THIS rather than either tuple, so a third family cannot repeat it."""
+    return NODES + GEOMETRY_NODES
 
 
 # ── the edge families ────────────────────────────────────────────────────────
@@ -87,6 +115,26 @@ BY_KEY = {n.key: n for n in NODES}
 LEGIBILITY = "legibility"        # wcag_ratio(fg, bg) >= floor
 SEPARATION = "separation"        # worst_view_dE(a, b) / need >= 1
 DERIVATION = "derivation"        # b is computed FROM a; no floor, a forward arrow
+GEOMETRY = "geometry"            # a ratio of lengths in the cell >= floor
+
+# ── the geometry quantities, as fractions of the cell unit ───────────────────
+#
+# ⚑ GEOMETRY IS NOT A SECOND NETWORK — IT IS UNSTATED EDGES OF THIS ONE, and
+# carrying it as separate work was an error corrected by measurement.  Every value
+# below is already a FRACTION OF THE CELL UNIT and never an absolute length, so
+# each is dimensionless with 1.0 as its pass threshold — which is exactly the
+# carrier the colour edges use.  Nothing had to be made compatible; they already
+# were, and `catalog/relations.md` §1 states the test I failed to run: "had one
+# constraint been a ratio and another an absolute difference, they would not
+# compose."  Both are ratios.
+#
+# Read from templates/SegmentChar.qml and MatrixChar.qml rather than remembered.
+LIT_HALF = 0.20        # SegmentChar: lit stroke half-width, u*0.20
+GHOST_HALF = 0.13      # SegmentChar: ghost half-width, u*0.13
+END_GAP = 0.10         # SegmentChar: ends pulled in, u*0.10
+DOT_FILL = 0.82        # MatrixChar: dot diameter as a fraction of the pitch
+CELL_W = 2.0           # GEOM16's digit box: 2u wide
+CELL_H = 4.0           # ... 4u tall (5u with the descender band)
 
 # ⚑ A CONSTRAINT IN THE WRONG METRIC, NAMED SO IT CAN BE ARGUED WITH.
 # `_candidates` prunes each semantic candidate against `hot` (the accent) with a
@@ -198,6 +246,62 @@ def _legibility_edges():
     return tuple(out)
 
 
+def _geometry_edges():
+    """Shape requirements as MARGINS in the same carrier as the colour edges.
+
+    ⚑ EVERY ONE IS `measured / required`, A RATIO OF LENGTHS IN ONE CELL, so it is
+    dimensionless with 1.0 as the pass threshold — identical in kind to a contrast
+    margin, and composable with it under the same two primitives.
+
+    ⚑ AND ONE RELATION I FIRST WROTE HERE WAS WRONG, CAUGHT BY MEASURING THE REAL
+    GEOMETRY.  I had `endGap / litHalf` as "ends do not overlap" and it read 0.500 —
+    a margin below 1.0, apparently contradicting SegmentChar's own comment that
+    endGap exists so segments do not overlap.  Measured against `seg7_strokes()`:
+    of the 10 stroke pairs sharing a vertex, only TWO are collinear (b~c and e~f,
+    the vertical stacks).  The other 8 are PERPENDICULAR corner joins, where endGap
+    cannot separate anything — the pullback is ALONG each stroke and the width is
+    ACROSS it, so a horizontal and a vertical overlap in a square of side litHalf
+    whatever endGap is.  So the failing margin was a relation that does not hold
+    rather than a defect in the shape, and encoding it would have gated a false
+    constraint into the tree.
+
+    What endGap DOES govern is the collinear case, and there it clears."""
+    out = [
+        # ⚑ THE GHOST MUST BE SUBORDINATE, which is the stroke-weight channel the
+        # design log names: the unlit field recedes to texture rather than
+        # competing with the lit glyph.  Same relation as the colour ghost's
+        # readability CEILING, one axis over.
+        Edge("lit_stroke", "ghost_stroke", GEOMETRY, floor="ghost_subordinate",
+             why=f"litHalf/ghostHalf = {LIT_HALF / GHOST_HALF:.3f}; the unlit field "
+                 f"must read as texture, not as a second glyph"),
+
+        # The aperture: two parallel strokes bounding a counter must leave a gap.
+        # At litHalf=0.20 a 1u span between stroke CENTRES leaves 1 - 2*0.20 = 0.60u
+        # of open counter. Below zero the glyph closes into a blob.
+        Edge("lit_stroke", "aperture", GEOMETRY, floor="aperture_open",
+             why=f"(1 - 2*litHalf) = {1 - 2 * LIT_HALF:.2f}u of counter across a 1u "
+                 f"span; at 0 the glyph closes up"),
+
+        # ⚑ COLLINEAR ONLY — the case endGap actually governs, measured.
+        Edge("end_gap", "collinear_join", GEOMETRY, floor="ends_separate",
+             why=f"2*endGap = {2 * END_GAP:.2f}u between the drawn ends of b~c and "
+                 f"e~f, the only two collinear shared-vertex pairs of the 10"),
+
+        # The matrix dot must not touch its neighbour, or the field becomes a blob.
+        Edge("dot_fill", "dot_gap", GEOMETRY, floor="dots_separate",
+             why=f"(1 - dotFill) = {1 - DOT_FILL:.2f} of the pitch between adjacent "
+                 f"dots; at 0 the matrix reads as filled area"),
+
+        # ⚑ THE CELL IS THE GROUND EVERY SHAPE QUANTITY IS A FRACTION OF, which is
+        # what makes them commensurable at all — the same role `view` plays for the
+        # colour edges.
+        Edge("cell", "lit_stroke", GEOMETRY, floor="stroke_fits",
+             why=f"litHalf = {LIT_HALF}u against a {CELL_W}x{CELL_H}u cell; a stroke "
+                 f"wider than the cell's own features cannot render"),
+    ]
+    return tuple(out)
+
+
 def _derivation_edges():
     """Forward arrows: b is computed FROM a.  No floor — these are not constraints.
 
@@ -216,7 +320,10 @@ def _derivation_edges():
     )
 
 
-EDGES = _separation_edges() + _legibility_edges() + _derivation_edges()
+EDGES = (_separation_edges() + _legibility_edges() + _geometry_edges()
+         + _derivation_edges())
+
+BY_KEY.update({n.key: n for n in GEOMETRY_NODES})
 
 
 # ── reads ────────────────────────────────────────────────────────────────────

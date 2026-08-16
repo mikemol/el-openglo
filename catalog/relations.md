@@ -44,23 +44,48 @@ constraint been a ratio and another an absolute difference, they would not compo
 They are both ratios. Nothing had to be made compatible; I had failed to notice they
 already were.
 
-⚑ **AND IT IS ALREADY A FINDING, NOT A FORMALITY.** Written as margins, one of them
-reads BELOW ONE right now:
-
-| requirement | as a margin | value |
-|---|---|---|
-| ghost is subordinate to lit | `litHalf / ghostHalf` | 1.538 ✓ |
-| ends do not overlap | `endGap / litHalf` | **0.500** ⚑ |
-| aperture stays open | `(1 − 2·litHalf) / min_aperture` | 0.60 / m |
-| dots separate | `(1 − dotFill) / min_gap` | 0.180 / m |
-
-`endGap` is *half* the stroke half-width, so adjacent strokes overlap by design — which
-may be correct (the segments are meant to meet at a corner) or may be the shape defect
-nobody has measured. **Stating it as a margin is what makes that a question with an
-answer** instead of a constant nobody has reason to doubt.
-
 The three magic numbers this is really about — `0.20`, `0.10`, `0.82` — are then not
 tuning constants but *unsolved node values in the same netlist as the colours*.
+
+⚑ **AND WRITING THEM AS MARGINS IMMEDIATELY CAUGHT A RELATION I HAD WRONG.** My first
+pass had *"ends do not overlap"* as `endGap / litHalf`, which reads **0.500** — a margin
+below 1.0, apparently contradicting `SegmentChar.qml:18`'s own comment that `endGap`
+exists *"so segments don't overlap"*. Measured against `seg7_strokes()`: of the **10**
+stroke pairs sharing a vertex, only **two** are collinear (`b~c`, `e~f` — the vertical
+stacks). The other **8 are perpendicular corner joins**, where `endGap` cannot separate
+anything at all — the pullback is *along* each stroke and the width is *across* it, so a
+horizontal and a vertical overlap in a square of side `litHalf` whatever `endGap` is.
+
+So the failing margin was **a relation that does not hold**, not a defect in the shape,
+and encoding it would have gated a false constraint into the tree. What `endGap` governs
+is the collinear case, and there it clears.
+
+### What the unified graph measures — and what it does not
+
+**Built.** The geometry family is 5 edges over 8 nodes in the one authority; the unified
+netlist is **21 nodes, 40 edges**, hands to `frontier_solve`, and eliminates to the same
+3 terms at 62 Q.
+
+⚑ **AND IT CURRENTLY DOES NO WORK, WHICH IS THE HONEST RESULT.** Measured — 5 connected
+components, and **zero** of them mix colour and geometry:
+
+| component | nodes | edges | b₁ |
+|---|---|---|---|
+| colour (the constellation) | 10 | 33 | **24** |
+| geometry (cell/stroke/aperture) | 4 | 3 | 0 |
+| colour (selection) | 3 | 2 | 0 |
+| geometry (endGap) | 2 | 1 | 0 |
+| geometry (dots) | 2 | 1 | 0 |
+
+The two share a **carrier** and no **constraint**. No colour value is determined by a
+shape value or the reverse, every geometry component is a tree, and `b₁` is unchanged at
+24. One graph, still two solves.
+
+⚑ **THE COUPLING THAT WOULD DO WORK IS ALREADY NAMED IN THE SOURCE AND WRITTEN NOWHERE.**
+`SegmentChar.qml:17` calls `ghostHalf` the **"stroke-weight channel"** — so a thinner
+ghost stroke and a lower-contrast ghost colour *buy the same thing*, and the
+`{lit, ghost, ground}` series chain of §3 has a geometry leg nobody has stated. Until
+that edge exists, the unification is real and idle.
 
 ---
 

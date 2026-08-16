@@ -88,6 +88,15 @@ def relations():
         elif e.family == _PG.LEGIBILITY:
             kind = "ceiling" if "ceiling" in (e.why or "") else "floor"
             out.append(Relation(e.u, e.v, kind, "wcag_ratio", e.floor, e.why))
+        elif e.family == _PG.GEOMETRY:
+            # ⚑ A STROKE WIDTH IS NOT A COLOUR DISTANCE, AND SAYING SO MATTERS.
+            # The else-branch below labels every non-legibility edge `worst_view_dE`,
+            # which silently gave the geometry edges the COLOUR metric — the same
+            # kind-confusion `_worst_normalized` reading only `floors["enforced"]`
+            # had. The carrier is shared (a dimensionless ratio clearing 1.0); the
+            # QUANTITY is not, and a relation that names the wrong one cannot be
+            # checked against anything real.
+            out.append(Relation(e.u, e.v, "floor", "length_ratio", e.floor, e.why))
         else:
             out.append(Relation(e.u, e.v, "floor", "worst_view_dE", e.floor, e.why))
 
@@ -157,13 +166,24 @@ def open_questions():
          "⚑ GEOMETRY IS NOT A SECOND NETWORK — it is unstated edges of THIS one, "
          "and carrying it as separate work was an error corrected by measurement. "
          "Every geometry quantity here is already a fraction of the cell unit "
-         "(litHalf u*0.20, ghostHalf u*0.13, endGap u*0.10, dotFill 0.82, pitch "
-         "height*0.72/rows) — never an absolute length — so each is dimensionless "
-         "with 1.0 as its pass threshold, which is exactly the carrier the colour "
-         "relations use. Nothing had to be made compatible; they already were. "
-         "AND ONE READS BELOW ONE ALREADY: endGap/litHalf = 0.500, so adjacent "
-         "strokes overlap by design — correct if segments are meant to meet at a "
-         "corner, a shape defect if not, and NOBODY HAS MEASURED WHICH. The three "
-         "magic numbers (0.20, 0.10, 0.82) are unsolved node values in the same "
-         "netlist as the colours, not tuning constants."),
+         "(litHalf u*0.20, ghostHalf u*0.13, endGap u*0.10, dotFill 0.82) — never "
+         "an absolute length — so each is dimensionless with 1.0 as its pass "
+         "threshold, which is exactly the carrier the colour relations use. "
+         "Nothing had to be made compatible; they already were. BUILT: the "
+         "geometry family is now 5 edges over 8 nodes in the ONE authority, and "
+         "the unified netlist (21 nodes, 40 edges) hands to the solver and "
+         "eliminates to the same 3 terms at 62 Q."),
+        ("geometry-and-colour-do-not-yet-TOUCH",
+         "⚑ AND THE UNIFICATION CURRENTLY DOES NO WORK, WHICH IS THE HONEST "
+         "RESULT. Measured: 5 connected components, and ZERO of them mix colour "
+         "and geometry — one colour component of 10 nodes carrying all 24 cycles, "
+         "one 3-node selection component, and three geometry components of 4, 2 "
+         "and 2 nodes, every one of them a TREE (b1=0). So the two share a CARRIER "
+         "and no CONSTRAINT: no colour value is determined by a shape value or the "
+         "reverse, and b1 is unchanged at 24. The coupling that WOULD do work is "
+         "already named in the source and written nowhere: SegmentChar.qml:17 "
+         "calls ghostHalf the 'stroke-weight channel', so a thinner ghost stroke "
+         "and a lower-contrast ghost colour BUY THE SAME THING — the {lit, ghost, "
+         "ground} series chain has a geometry leg. Until that edge exists the "
+         "graph is one graph and the solve is two solves."),
     )
