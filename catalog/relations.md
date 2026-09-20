@@ -169,6 +169,45 @@ maximum whose optimum is a **supremum that is never attained** — the constrain
 because a ghost that reaches the threshold *reads as text* and stops being ghost. There is
 no geometric mean to reach for; the relation is an open boundary.
 
+### 3b. The ghost is judged where it is SEEN, and both of its bounds share one metric
+
+    seen(ghost)  =  composite(ghost, ground, α)  =  lerp(lit, ground, 1 − α(1 − t))
+
+    GHOST_VISIBLE_LC  ≤  |Lc|(seen(ghost), ground)  <  GHOST_READABLE_LC
+              25.0                                          30.0
+
+**Relation.** The renderer draws the unlit core at alpha `α` over the ground. Source-over
+of a flat alpha toward `ground` is a lerp toward `ground`, so the seen ghost is a point on
+the SAME `lit→ground` segment as the declared one — at `t′ = 1 − α(1 − t)`. Every bound on
+the ghost is therefore a bound on `t′`, and the declaration is recovered by
+`t = 1 − (1 − t′)/α`. The ceiling of §3a is solved on `t′` and inverted
+(`ghost_solve.derive_ghost_through_alpha`); before 2026-09-20 it was solved on `t`, and the
+gate certified a ghost 2.2–2.5 WCAG points brighter than anyone saw (@GHOSTCOMP, 6 of 6).
+
+**α is solved, not authored, and it is ONE number.** `SegmentChar.qml` held `opacity: 0.45`
+as a literal. Measured, at 0.45 three of six variants could not reach the floor by any
+colour. `α = max over variants of a_min`, where `a_min = 1 − t_floor` is the smallest alpha
+at which the lit colour itself, composited, clears the floor (`ghost_solve.solve_ghost_alpha`;
+operator ruling 2026-09-20: one global value). The variant whose `a_min` sets `α` renders
+exactly on its floor by construction, so `α` is rounded UP. It is emitted with the schemes
+(`make_palette` stamps `ghost_alpha` on every token; `make_schemes.GHOST_ALPHA` reads it) and
+filled into the template hole `$ghostAlpha`; `check_ghost_composite` parses the emitted QML
+back and refuses if it carries any other number.
+
+**One metric, because APCA is polarity-asymmetric.** The floor was WCAG 3.0 and the ceiling
+APCA 30. On the three light-ground (Lit) variants, |Lc| = 30 is only ~1.9:1 WCAG — the two
+bounds were *jointly infeasible* there in any colour at any alpha, and nothing in either
+bound said so. Both are now APCA. `GHOST_VISIBLE_LC = 25` is **derived**: the three Off
+variants, solved through alpha at the ceiling, render at composited |Lc| 29.8 / 25.4 / 29.9
+(2026-09-20); the floor is their minimum rounded down, so what exists passes and a
+regression below what was achieved does not. Re-derive by the same read if the ceiling or
+the alpha solve moves. The WCAG floor is kept as residue in
+`cvd_gate.feasible_ghost_floor`.
+
+**Recorded, not gated:** the lit bloom underlay and the matrix surface's own
+`ghostOpacity: 0.28` are further instances of the same relation and are not yet solved
+through it.
+
 ---
 
 ## 4. The constellation — the discrete relation

@@ -185,6 +185,118 @@ def derive_ghost_ceiling(lit, ground, ceiling_lc=None):
     return C._lerp(lit, ground, t)
 
 
+def solve_floor_t(lit, ground, floor_lc):
+    """The LARGEST t along lit->ground whose |Lc| against ground still clears `floor_lc`.
+
+    |Lc| is monotone decreasing in t (t=1 IS the ground, Lc 0), so the boundary
+    is a root and bisection finds it. Returns None when even the lit end (t=0)
+    cannot clear the floor — a refusal, not a clamp.
+
+    ⚑ IN APCA, LIKE THE CEILING.  This solved a WCAG floor until 2026-09-20; see
+    `cvd_gate.feasible_ghost_floor` (residue) for why one metric is required."""
+    def ratio_at(t):
+        return abs(C.apca_Lc(C._lerp(lit, ground, t), ground))
+    if ratio_at(0.0) < floor_lc:
+        return None
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        mid = (lo + hi) / 2.0
+        if ratio_at(mid) >= floor_lc:
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
+def alpha_min(lit, ground, floor=None):
+    """The smallest render alpha at which SOME declared ghost can clear `floor` on screen.
+
+    ⚑ THE COMPOSITE IS A POINT ON THE SAME SEGMENT.  Source-over of a flat alpha
+    toward `ground` is a lerp toward `ground`, so a ghost declared at t renders at
+    t' = 1 - a(1 - t).  The most contrast any declared ghost can give is at t=0
+    (the lit colour itself), which renders at t' = 1 - a; that clears the floor
+    iff 1 - a <= t_floor, i.e. a >= 1 - t_floor.  Below this alpha the ghost's
+    COLOUR cannot fix the floor, whatever it is solved to.
+
+    Returns None when the floor is unreachable at any alpha (the lit colour itself
+    fails it) — which would be a palette defect, not an alpha one."""
+    if floor is None:
+        floor = C.feasible_ghost_floor_lc(lit, ground)
+    t_floor = solve_floor_t(lit, ground, floor)
+    return None if t_floor is None else 1.0 - t_floor
+
+
+def solve_ghost_alpha(pairs):
+    """ONE global alpha for every variant: the max of their alpha_min values.
+
+    ⚑ ONE KNOB, SOLVED, NOT SIX AND NOT AUTHORED.  Operator ruling 2026-09-20 (W3):
+    a single global alpha, owned by the palette authority and EMITTED to the
+    renderer — replacing the 0.45 that SegmentChar.qml:73 held as a constant no
+    check could see. The max is the only global value at which every variant's
+    ghost colour still has room to be solved; anything lower makes at least one
+    variant's floor unreachable by colour.
+
+    `pairs` is [(id, lit, ground)]. Returns (alpha, [(id, alpha_min)]); refuses
+    (raises) on an empty population or an unreachable floor, because a silently
+    returned default IS the defect this replaces."""
+    rows = []
+    for vid, lit, ground in pairs:
+        a = alpha_min(lit, ground)
+        if a is None:
+            raise ValueError(f"{vid}: the lit colour itself cannot clear the ghost "
+                             f"floor — no alpha helps; the palette is the defect")
+        rows.append((vid, a))
+    if not rows:
+        raise ValueError("solve_ghost_alpha: empty population — nothing was solved")
+    return max(a for _v, a in rows), rows
+
+
+def derive_ghost_through_alpha(lit, ground, alpha, ceiling_lc=None):
+    """The DECLARED ghost whose RENDERED form (at `alpha` over ground) is the ceiling ghost.
+
+    ⚑ THE SOLVE HAPPENS ON THE SCREEN'S SEGMENT AND IS INVERTED TO THE DECLARATION.
+    `derive_ghost_ceiling` answers "which point on lit->ground is the most visible
+    ghost that does not read as text" — but the renderer composites the declared
+    colour at `alpha`, and source-over toward ground is a lerp toward ground, so
+    the eye sees t' = 1 - alpha(1 - t), not t.  Solving the ceiling on t' and then
+    emitting t = 1 - (1 - t')/alpha makes the gated ghost and the seen ghost the
+    same point — the property @GHOSTCOMP measures.
+
+    ⚑ THE REACHABLE WINDOW IS [1 - alpha, 1].  A declared colour cannot lie beyond
+    the lit end, so t' >= 1 - alpha.  The target is therefore
+    max(t_ceiling, 1 - alpha): the ceiling point when it is reachable, and the lit
+    colour itself (t = 0) when alpha is the binding constraint — which, at the
+    solved global alpha (`solve_ghost_alpha`), is exactly the case on the variant
+    whose a_min set it.  If even 1 - alpha exceeds the FLOOR's boundary the
+    caller's alpha was not solved by this module, and `check_ghost_composite`
+    will say so; this function refuses nothing it cannot see.
+
+    Returns (declared_colour, t_declared, t_screen)."""
+    if ceiling_lc is None:
+        ceiling_lc = C.GHOST_READABLE_LC
+    t_c, _lc = solve_ceiling_t(lit, ground, ceiling_lc)
+    if t_c is None:
+        t_c = 0.5                              # the scan's own fallback, kept
+    t_screen = max(t_c, 1.0 - alpha)
+    t_declared = 1.0 - (1.0 - t_screen) / alpha
+    t_declared = min(1.0, max(0.0, t_declared))   # 1e-16 noise, never a real clamp
+    # ⚑ THE STRICT BOUND IS CHECKED ON THE QUANTISED PIPELINE, NOT THE REAL ONE.
+    # The boundary was found in continuous t, but the declared colour is 8-bit and
+    # the renderer composites 8-bit — two roundings that can land the seen ghost a
+    # few tenths of an Lc OVER the ceiling (measured: 30.2 against 30 on EL-Openglo).
+    # Step the declaration toward ground until the composite of the ROUNDED colour
+    # is strictly under; each step is one part in 4096 of the segment.
+    import palette_graph as _pg
+    colour = C._lerp(lit, ground, t_declared)
+    for _ in range(64):
+        seen = _pg.composite(colour, ground, alpha)
+        if abs(C.apca_Lc(seen, ground)) < ceiling_lc:
+            break
+        t_declared = min(1.0, t_declared + 1.0 / 4096)
+        colour = C._lerp(lit, ground, t_declared)
+    return colour, t_declared, t_screen
+
+
 def balance_report(lit, ground, ghost=None):
     """How well a ghost balances: (side_lit, side_ground, ideal, skew).
 

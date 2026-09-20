@@ -198,13 +198,43 @@ def derive_ghost(lit, ground, floor=None):
 
 
 def feasible_ghost_floor(lit, ground):
-    """The floor `derive_ghost` can actually be held to for this pair.
+    """RESIDUE — the ghost floor in WCAG, superseded by `feasible_ghost_floor_lc`.
 
     min(3.0, sqrt(span) * 0.95): the target where the span allows it, and a
-    proportion of the achievable optimum where it does not — so the gate passes
-    on a tight span and still flags a genuinely off-optimum ghost."""
+    proportion of the achievable optimum where it does not.
+
+    ⚑ WHY IT IS RESIDUE AND NOT DELETED.  The ghost's CEILING is APCA (|Lc| < 30,
+    `GHOST_READABLE_LC`) and this floor was WCAG.  APCA is polarity-asymmetric by
+    design: on the three Lit (light-ground) variants, |Lc| = 30 corresponds to only
+    ~1.9:1 WCAG, so a 3.0 floor and a 30 ceiling were JOINTLY INFEASIBLE there in
+    any colour at any alpha — measured 2026-09-20 by `check_ghost_composite
+    --compare` after fg_in was solved through alpha (Off variants 4.16/3.70/4.22
+    ≥ 3.0; Lit variants 1.86/2.06/1.94 at Lc 29.7-29.9).  Two bounds in two
+    metrics do not commute across polarity.  Operator ruling 2026-09-20 (W3):
+    state the floor in APCA too.  Kept so the old number can be re-read."""
     span = wcag_ratio(lit, ground)
     return min(STRETCH_TARGET, (span ** 0.5) * 0.95)
+
+
+# ⚑ THE GHOST FLOOR, IN THE CEILING'S OWN METRIC.  "Visible as shape" is a lower
+# bound on the same |Lc| that "does not read as text" is an upper bound on; one
+# metric means one polarity behaviour, so a bound that is feasible on the dark
+# grounds is feasible on the light ones.  DERIVED, NOT AUTHORED: the three Off
+# variants, solved through alpha at the ceiling, render at composited |Lc|
+# 29.8 / 25.4 / 29.9 (2026-09-20, `check_ghost_composite --compare`); the floor
+# is the min of those rounded DOWN, so the palette that exists today passes it
+# and a ghost that regresses below what was achieved does not.  Re-derive by the
+# same read if the ceiling or the alpha solve changes.
+GHOST_VISIBLE_LC = 25.0
+
+
+def feasible_ghost_floor_lc(lit, ground):
+    """The APCA floor the composited ghost is held to for this pair.
+
+    min(GHOST_VISIBLE_LC, 0.95 * |Lc(lit, ground)|): the stated floor where the
+    lit/ground span allows it, and a proportion of that span where it does not —
+    the same shape as the WCAG residue, in the ceiling's metric."""
+    return min(GHOST_VISIBLE_LC, 0.95 * abs(apca_Lc(lit, ground)))
 
 
 def derive_ghost_ceiling(lit, ground, ceiling_lc=GHOST_READABLE_LC):

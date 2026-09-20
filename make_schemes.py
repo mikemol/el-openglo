@@ -205,7 +205,7 @@ def _solved_grid():
     cache = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
                           ".palette-cache.json")
     key = hashlib.sha256()
-    for dep in ("make_palette.py", "cvd_gate.py"):
+    for dep in ("make_palette.py", "cvd_gate.py", "ghost_solve.py"):
         p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), dep)
         try:
             key.update(open(p, "rb").read())
@@ -236,6 +236,38 @@ if _os.environ.get("EL_AUTHORED_PALETTE") == "1":
     GRID = _AUTHORED_GRID
 else:
     GRID = _solved_grid()
+
+
+# ⚑ THE GHOST'S RENDER ALPHA IS SOLVED HERE AND EMITTED, NOT HELD IN THE QML.
+# SegmentChar.qml:73 carried `opacity: 0.45` as a constant no colour check could
+# see, and at 0.45 three of the six variants cannot clear the ghost floor by ANY
+# choice of fg_in (measured: check_ghost_composite.py --solve, a_min 0.49-0.51 on
+# the Lit variants). Colour, alpha and width are one subordination quantity; the
+# one of the three that was authored is now the one that is solved.  Operator
+# ruling 2026-09-20: ONE global alpha, the max of the per-variant minima, so every
+# variant keeps room for its colour solve.  Consumers read THIS; palette_graph's
+# GHOST_ALPHA remains the record of what the renderer draws until it reads this.
+def _ghost_alpha():
+    """The grid's ghost alpha — READ from the emitted tokens, never re-solved here.
+
+    ⚑ ONE SOLVE, ONE VALUE. `make_palette.build_grid` solves alpha once and stamps
+    it on every token dict as `ghost_alpha`, and `fg_in` was solved THROUGH it. A
+    second solve here could only agree by luck or disagree silently, so this reads
+    the carried value and REFUSES if the variants do not all carry the same one.
+    The authored fallback grid predates the field and gets the value its ghosts
+    were drawn at, 0.45, recorded as such."""
+    seen = set()
+    for value in GRID.values():
+        t = value[0] if isinstance(value, (list, tuple)) else value
+        if isinstance(t, dict) and "view" in t:
+            seen.add(t.get("ghost_alpha", "0.45"))
+    if len(seen) != 1:
+        raise ValueError(f"GRID carries {len(seen)} distinct ghost_alpha values "
+                         f"{sorted(seen)}; the grid-wide solve did not happen")
+    return float(seen.pop())
+
+
+GHOST_ALPHA = _ghost_alpha()
 
 # ---------------------------------------------------------------- .colors emit
 def fgset(t):

@@ -85,19 +85,59 @@ def solve_lit(hue, ground, thr):
     return best or _hsv(hue, 0.9, 0.9 if dark_ground else 0.2)
 
 
-def solve_ghost(lit, ground, thr):
-    """The ceiling ghost: max contrast that FAILS readability (APCA |Lc| < ceiling).
+def solve_ghost(lit, ground, thr, alpha):
+    """The ceiling ghost, solved ON THE SCREEN: the declared colour whose composite
+    at `alpha` is the max contrast that FAILS readability (APCA |Lc| < ceiling).
 
     ⚑ SOLVED, NOT SCANNED.  This read `C.derive_ghost_ceiling`, which walked 99
     points and returned the best sample. `ghost_solve` finds the CONSTRAINT
     BOUNDARY by bisection and steps back to the last colour strictly under it —
     the honest form of a supremum that must be approached and never touched.
 
+    ⚑ AND SOLVED THROUGH ALPHA.  The renderer draws the ghost at `alpha`, so the
+    boundary is found on the composited segment and inverted to the declaration
+    (`ghost_solve.derive_ghost_through_alpha`); before this the gate certified a
+    ghost 2.2-2.5 contrast points brighter than anyone saw (@GHOSTCOMP, 6 of 6).
+
     The difference is of kind, not magnitude: a grid returns the best of 99 and
     says nothing about whether the optimum lies between two samples, so its answer
     cannot be shown wrong. This one can be checked against the condition it claims
     to satisfy, which is what scripts/check_ghost_balance.py does."""
-    return _GS.derive_ghost_ceiling(lit, ground, thr["ghost_ceiling_lc"])
+    colour, _t, _ts = _GS.derive_ghost_through_alpha(lit, ground, alpha,
+                                                     thr["ghost_ceiling_lc"])
+    return colour
+
+
+def solve_field(seed_name, polarity, thr=THRESHOLDS):
+    """(ground, lit) for a variant — the two colours every other solve is relative to."""
+    hue = HUE_SEEDS[seed_name]
+    dark_ground = solve_void(hue, thr)
+    # in lit/backlit mode the ground is the bright field, lit is the dark segment:
+    # solve the OFF ground first, then invert for lit polarity.
+    ground = dark_ground if polarity == "off" else _hsv(hue, 0.28, 0.92)
+    return ground, solve_lit(hue, ground, thr)
+
+
+def solve_ghost_alpha(thr=THRESHOLDS):
+    """ONE render alpha for the whole grid, solved from every variant's (lit, ground).
+
+    ⚑ COMPUTED BEFORE ANY GHOST, BECAUSE EVERY GHOST DEPENDS ON IT.  Alpha is the
+    max over variants of the smallest alpha at which that variant's ghost floor
+    is reachable on screen at all (`ghost_solve.solve_ghost_alpha`); it depends
+    on `fg` and `view` only, so it is solvable from the fields alone and then
+    threaded into each variant's ghost solve.  Operator ruling 2026-09-20 (W3):
+    one global value, not six, not authored."""
+    pairs = []
+    for seed in HUE_SEEDS:
+        for pol in ("off", "lit"):
+            ground, lit = solve_field(seed, pol, thr)
+            pairs.append((f"{seed}-{pol}", lit, ground))
+    alpha, _rows = _GS.solve_ghost_alpha(pairs)
+    # ⚑ ROUNDED UP, NEVER TO NEAREST.  The variant whose a_min set alpha renders
+    # EXACTLY on its floor by construction; rounding to nearest can land it a
+    # thousandth under, which the gate reads as a miss. Up keeps the bound.
+    import math
+    return math.ceil(alpha * 1000) / 1000
 
 
 def solve_accent(hue, ground, min_contrast=4.6):
@@ -302,20 +342,17 @@ def _sect(slot, vid):
     return _SECTOR_OVERRIDES.get(vid, {}).get(slot, _SECTORS[slot])
 
 
-def solve_scheme(seed_name, polarity, thr=THRESHOLDS):
+def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
     """polarity: 'off' (dark display) or 'lit' (backlit). Returns a full token
-    dict — every value SOLVED or DERIVED from (hue, polarity, thresholds)."""
+    dict — every value SOLVED or DERIVED from (hue, polarity, thresholds).
+
+    `alpha` is the grid-wide ghost render alpha; None solves it (over ALL variants,
+    since it is one number for the grid) — build_grid passes it in once."""
     hue = HUE_SEEDS[seed_name]
-    # in lit/backlit mode the ground is the bright field, lit is the dark segment:
-    # solve the OFF ground first, then invert for lit polarity.
-    dark_ground = solve_void(hue, thr)
-    if polarity == "off":
-        ground = dark_ground
-    else:
-        # backlit: ground is the phosphor field lit up (bright), a light tint of hue
-        ground = _hsv(hue, 0.28, 0.92)
-    lit = solve_lit(hue, ground, thr)
-    ghost = solve_ghost(lit, ground, thr)
+    if alpha is None:
+        alpha = solve_ghost_alpha(thr)
+    ground, lit = solve_field(seed_name, polarity, thr)
+    ghost = solve_ghost(lit, ground, thr, alpha)
     accent = solve_accent(hue, ground)
 
     name = f"EL {seed_name.capitalize()}" + ("" if polarity == "off" else " Lit")
@@ -407,6 +444,11 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS):
         "sel_neg": "45,10,10", "sel_neu": "45,30,8", "sel_pos": "10,40,20",
         "fx_dis": _s(ghost), "fx_in": _s(ghost),
         "tt_is_sel": "false",
+        # ⚑ THE GHOST'S RENDER ALPHA TRAVELS WITH THE GHOST.  `fg_in` was solved
+        # to be seen THROUGH this number, so a consumer that draws it at any other
+        # alpha renders a ghost the gate never measured. One value grid-wide,
+        # carried on every token dict so the emitted scheme is self-describing.
+        "ghost_alpha": str(alpha),
     }
     return t
 
@@ -417,9 +459,10 @@ def build_grid():
     the Complementary color group — matching the authored GRID's shape, NOT a
     bool. Off-variant is its own counterpart; lit uses the off scheme."""
     grid = {}
+    alpha = solve_ghost_alpha()                 # once: it is one number for the grid
     for seed in HUE_SEEDS:
-        off = solve_scheme(seed, "off")
-        lit = solve_scheme(seed, "lit")
+        off = solve_scheme(seed, "off", alpha=alpha)
+        lit = solve_scheme(seed, "lit", alpha=alpha)
         grid[(seed, "off")] = (off, off)
         grid[(seed, "lit")] = (lit, off)
     return grid

@@ -13,6 +13,9 @@ Item {
     property color ghostColor: "gray"
     property real glow: 1.0
     property real bloomStrength: 0.30
+    // ghost core opacity — SOLVED by the palette (make_schemes.GHOST_ALPHA) and
+    // filled here at emit time; it was a literal 0.45 no colour check could see.
+    property real ghostAlpha: 0.503
     property real litHalf: u*0.20    // lit stroke half-width
     property real ghostHalf: u*0.13  // ghost thinner (stroke-weight channel)
     property real endGap: u*0.10     // pull ends in so segments don't overlap
@@ -70,7 +73,7 @@ Item {
             // crisp core (lit or ghost), thickened perpendicular
             Shape {
                 anchors.fill: parent; antialiasing: true
-                opacity: parent.on ? sc.glow : 0.45
+                opacity: parent.on ? sc.glow : sc.ghostAlpha
                 ShapePath {
                     fillColor: parent.on ? sc.litColor : sc.ghostColor
                     strokeWidth: -1

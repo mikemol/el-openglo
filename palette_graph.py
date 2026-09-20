@@ -136,20 +136,27 @@ DOT_FILL = 0.82        # MatrixChar: dot diameter as a fraction of the pitch
 CELL_W = 2.0           # GEOM16's digit box: 2u wide
 CELL_H = 4.0           # ... 4u tall (5u with the descender band)
 
-# ⚑ THE GHOST'S ALPHA, AND IT IS THE EDGE THAT COUPLES SHAPE TO COLOUR.
-# SegmentChar.qml:73 draws the unlit core at `opacity: 0.45`, so what the eye
-# receives is a BLEND of ghostColor over the ground — not ghostColor. Every colour
-# check measures `fg_in` against `view` DIRECTLY and none of them knows this
-# number exists, so the ghost the gate certifies is not the ghost anyone sees.
-GHOST_ALPHA = 0.45
+# ⚑ THE GHOST'S ALPHA IS THE EDGE THAT COUPLES SHAPE TO COLOUR — AND IT NO LONGER
+# LIVES HERE.  SegmentChar.qml drew the unlit core at a literal `opacity: 0.45`,
+# so what the eye received was a BLEND of ghostColor over the ground that no colour
+# check knew existed; this file carried the 0.45 as a read-from-the-QML record.
+# Measured (check_ghost_composite --solve), at 0.45 three of six variants cannot
+# clear the ghost floor by ANY choice of colour — alpha was the binding knob and
+# the one of the three subordination channels that was authored.  It is now SOLVED
+# (`ghost_solve.solve_ghost_alpha`) and EMITTED (`make_schemes.GHOST_ALPHA`) into
+# the template hole `$ghostAlpha`.  A solved quantity is a colour-chain OUTPUT,
+# and this module holds the shape of the problem before any colour is chosen, so
+# `composite` takes alpha as an argument rather than defaulting to a number that
+# would drift from the emitted one.
 
 
-def composite(fg, bg, alpha=GHOST_ALPHA):
+def composite(fg, bg, alpha):
     """Source-over: what the eye receives when `fg` is drawn at `alpha` on `bg`.
 
-    ⚑ THE RENDER APPLIES THIS AND NO CHECK DOES.  Measured on the shipped palette:
-    the declared ghost contrast is 4.16:1 on EL-Openglo and the composited one is
-    1.79:1 — a 2.37 drop that lives entirely between the gate and the screen."""
+    ⚑ THE RENDER APPLIES THIS, AND THE CHECK NOW APPLIES THE SAME NUMBER — pass
+    `make_schemes.GHOST_ALPHA`, the value the template is filled with.  Measured
+    on the shipped palette at the old 0.45: declared ghost contrast 4.16:1 on
+    EL-Openglo, composited 1.79:1 — a 2.37 drop between the gate and the screen."""
     return tuple(int(round(f * alpha + b * (1 - alpha)))
                  for f, b in zip(fg, bg))
 
@@ -322,22 +329,27 @@ def _geometry_edges():
         # halves.
         #
         # THE GHOST IS SUBORDINATED BY THREE KNOBS MULTIPLYING INTO ONE PERCEIVED
-        # QUANTITY: its colour (`fg_in` vs `view`), its ALPHA (0.45, SegmentChar
-        # :73), and its WIDTH (ghostHalf/litHalf = 0.65). Trading any one against
-        # the others is invisible to every check, because the colour checks do not
-        # know about alpha or width and the shape constants are not colours.
+        # QUANTITY: its colour (`fg_in` vs `view`), its ALPHA, and its WIDTH
+        # (ghostHalf/litHalf = 0.65). Trading any one against the others is
+        # invisible to every check, because the colour checks do not know about
+        # alpha or width and the shape constants are not colours.
         #
-        # ⚑ AND IT IS ALREADY BROKEN ON ALL SIX VARIANTS. Measured: the composited
-        # ghost is UNDER `feasible_ghost_floor` everywhere — EL-Openglo declares
-        # 4.16:1 and renders 1.79:1 against a floor of 3.00. The CEILING is
-        # satisfied with huge margin (|Lc| 29.8 declared, 7.7 composited against a
-        # 30 limit), so the solve is optimising hard against the bound that is not
-        # in danger while nothing watches the one that is.
+        # ⚑ IT WAS BROKEN ON ALL SIX VARIANTS, AND ALPHA WAS THE KNOB. Measured at
+        # the authored 0.45: the composited ghost was UNDER `feasible_ghost_floor`
+        # everywhere — EL-Openglo declared 4.16:1 and rendered 1.79:1 against a
+        # floor of 3.00 — and on the three Lit variants NO colour could fix it
+        # (`check_ghost_composite --solve`: a_min 0.49-0.51 with fg_in = lit). The
+        # CEILING was satisfied with huge margin (|Lc| 29.8 declared, 7.7
+        # composited against 30), so the solve optimised the bound not in danger.
+        # Alpha is now SOLVED (`ghost_solve.solve_ghost_alpha`) and EMITTED
+        # (`make_schemes.GHOST_ALPHA` -> SegmentChar.qml's `$ghostAlpha`); the
+        # value is not quoted here because this graph holds relations, not
+        # solver output — `check_ghost_composite` reads the emitted number.
         Edge("fg_in", "ghost_stroke", GEOMETRY, floor="ghost_visible_as_shape",
              why=f"the ghost's SUBORDINATION is carried by colour AND alpha "
-                 f"({GHOST_ALPHA}) AND width ({GHOST_HALF / LIT_HALF:.2f}x) "
-                 f"multiplying into one perceived quantity; composited it is under "
-                 f"feasible_ghost_floor on all six variants"),
+                 f"(solved: make_schemes.GHOST_ALPHA) AND width "
+                 f"({GHOST_HALF / LIT_HALF:.2f}x) multiplying into one perceived "
+                 f"quantity; the composited ghost must clear feasible_ghost_floor"),
     ]
     return tuple(out)
 

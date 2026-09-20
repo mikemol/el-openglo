@@ -66,7 +66,11 @@ def segment_char_component():
     editor and its braces need no escaping. This function is now the ACCESSOR,
     which is what every caller already expected it to be."""
     import templates.loader as TL
-    return TL.render("SegmentChar.qml")
+    import make_schemes
+    # ⚑ THE ONE HOLE IS THE GHOST ALPHA, and it is filled from the palette
+    # authority: the value is SOLVED (ghost_solve.solve_ghost_alpha) so that every
+    # variant's ghost can clear its floor on screen, not authored in the markup.
+    return TL.render("SegmentChar.qml", ghostAlpha=make_schemes.GHOST_ALPHA)
 
 
 
