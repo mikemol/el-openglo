@@ -77,6 +77,25 @@ def _any(paths, pat):
 # symbol -> (what the witness looks for, predicate)
 # ⚑ EACH PREDICATE IS DERIVED FROM THE LOG'S OWN STATEMENT of the item, cited by
 # line. A witness invented from the symbol's NAME would test my paraphrase.
+def _emitted_clock_is_vector():
+    """The EMITTED clock QML has no Canvas and draws segments as antialiased items.
+
+    Reads the artifact the way check_template_parity does — through the
+    generator's accessor with a real token dict — so a template edit is what is
+    measured, not the generator's source text."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    os.chdir(ROOT)                       # make_clock reads sibling files by bare name
+    import make_clock
+    import make_schemes
+    t = next(v[0] for v in make_schemes.GRID.values())
+    qml = make_clock.main_qml(t)
+    no_canvas = re.search(r"\bCanvas\b|ctx\.fill|getContext", qml) is None
+    segment = re.search(r"component Segment:.*?(Rectangle|Shape)\s*\{.*?antialiasing:\s*true",
+                        qml, re.S) is not None
+    return no_canvas and segment
+
+
 def _tool(*args):
     """True iff a repo tool exits 0 — the witness IS the tool that owns the question."""
     r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", args[0]), *args[1:]],
@@ -163,12 +182,27 @@ WITNESS = {
         lambda: _any(["make_plasma.py", "make_deb.py"], r"(?i)windowswitcher|tabbox|taskswitch")),
 
     # ── TIER 3 ──
+    # ⚑ THE WITNESS LOOKED IN THE GENERATOR FOR ONE IDIOM.  It read make_clock.py
+    # for `Shape {` / `ShapePath` / `SegmentChar` — but the QML was extracted to
+    # templates/clock-main.qml (@TEMPLATES), and the log's criterion (:4221-4225)
+    # is "no Canvas fill for digits; strokes as scene-graph vector, GPU-AA on".
+    # The emitted clock draws every segment as an antialiased scene-graph
+    # Rectangle and has no Canvas at all — vector by the log's own definition,
+    # in an idiom the regex did not know. Measured 2026-09-20: the witness was
+    # stale on both FILE and IDIOM, and read OPEN for a surface that was done.
+    # It now reads the EMITTED artifact and asks the criterion.
     "⊕CLOCK-VECTOR": (
-        "the clock draws vector segments rather than raster (:4228)",
-        lambda: _reads("make_clock.py", r"(?i)Shape\s*\{|ShapePath|SegmentChar")),
+        "the clock draws vector segments rather than raster — no Canvas in the emitted"
+        " QML, every segment a scene-graph item with antialiasing (:4228)",
+        lambda: _emitted_clock_is_vector()),
+    # ⚑ PLYMOUTH IS PNG-BAKED BY DESIGN and the log says what vector means there:
+    # "pre-render at target res or SVG support if the theme allows" (:4229). The
+    # splash renders PIL polygons from the substrate at a FIXED U=48, so it is
+    # neither. The witness asks for either form, not for the word.
     "⊕PLYMOUTH-VECTOR": (
-        "the boot splash is vector rather than PNG-baked (:4228)",
-        lambda: _reads("make_plymouth.py", r"(?i)svg|vector|SegmentChar")),
+        "the boot splash is vector rather than PNG-baked: rendered at the target"
+        " resolution, or emitted as SVG (:4228)",
+        lambda: _reads("make_plymouth.py", r"(?i)target.?res|screen.?(w|width|res)|\.svg\b")),
 
     # ── RESIDUE: kept, deliberately unbuilt ──
     "⊕NOTIFY-SEGRENDER": (

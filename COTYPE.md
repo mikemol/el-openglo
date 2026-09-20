@@ -4763,3 +4763,46 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
 - TIER 3: ⊕CLOCK-VECTOR, ⊕PLYMOUTH-VECTOR (unblocked by the substrate closure:
   both draw from one geometry now; vector-vs-raster is the remaining question).
+
+
+## Session 68 — ⊕CLOCK-VECTOR was done and its witness could not see it; ⊕PLYMOUTH-VECTOR defined
+- [drift: clean]. W9 of the paths-forward loop; measure-first, as W5 taught.
+- ⊕CLOCK-VECTOR: the emitted clock (templates/clock-main.qml via make_clock.main_qml)
+  has NO Canvas — every segment is an antialiased scene-graph Rectangle, which is
+  the criterion :4221-4225 states ("no Canvas fill for digits; strokes as
+  scene-graph vector, GPU-AA on"). The check_symbol witness read make_clock.py for
+  `Shape {`/`ShapePath`/`SegmentChar` — stale on FILE (the QML moved to a
+  template, @TEMPLATES) and on IDIOM (Rectangle is vector too) — and reported OPEN
+  for a surface that was done. Same failure as ⊕SEGMENT-SUBSTRATE's noun witness
+  one session earlier, in the other direction. The witness now reads the EMITTED
+  QML through the generator with a real token dict and asks the criterion.
+- ⊕PLYMOUTH-VECTOR: genuinely open, and now DEFINED rather than named. The splash
+  renders PIL polygons from the substrate's own geometry (SEG_STROKE from
+  segment_topology) at a FIXED U=48 — vector geometry, baked at one size. :4229
+  already says what vector means for a script-plugin theme: "pre-render at target
+  res or SVG support if the theme allows". The witness asks for either form.
+- FOUND, carried to ⊕GHOST-DENSITY: the ghost colour is a SILO on two surfaces.
+  make_clock.py:86 derives its own via cvd_gate.derive_ghost (the balance scan)
+  and draws it OPAQUE; make_plymouth.py:107 `ghost_from` lerps 0.6 toward ground
+  and draws at alpha 0.5. Neither reads the palette's fg_in, which was solved
+  THROUGH alpha for the SegmentChar surfaces (relations.md §3b). The gated ghost
+  is the seen ghost on two of four surfaces.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (session 67) + ⊕CLOCK-VECTOR ✓ (session 68:
+  no Canvas, antialiased scene-graph segments; witness reads the emitted QML) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (+ the clock's and the splash's own-ghost silos, sessions 67-68).
+- LIVE (operator=other): ⊕VER, ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-UI-TOKENS, ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT,
+  ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
+- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG).
