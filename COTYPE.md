@@ -4806,3 +4806,71 @@ residue gated on live operator testing.
 - RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
   (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
 - TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG).
+
+
+## Session 69 — the gated ghost reaches NO surface; SegmentChar has zero consumers (correction to 67)
+- [drift: clean]. W8 of the paths-forward loop. Set out to fix "the clock and the
+  splash derive their own ghost" and measured all four surfaces first.
+- MEASURED (scripts/check_ghost_surfaces.py --map, 2026-09-20): 24 of 24
+  surface×variant emissions differ from the palette. Every segment surface
+  derives its own lit AND ghost on the way in — make_wallpaper_live.colors_for
+  (lit = stretch_lit(focus), ghost = derive_ghost(lit)), the marquee via the
+  same function, make_clock.main_qml (the same pipeline, ghost drawn OPAQUE),
+  make_plymouth (lerp 0.6 toward ground, alpha 0.5). The lit is taken from
+  `focus` (the ACCENT), not `fg` (the solved lit); the ghost is the session-39
+  ⊕CONTRAST-STRETCH pipeline, written before the palette solver existed
+  (sessions 57-58) and never retired when solve_lit took over the same "push
+  lit away from ground" invariant. The solver's fg/fg_in — and everything W3
+  did to fg_in (alpha solved, ghost solved through it, floor in APCA) — reach
+  the .colors files and NO display.
+- AND THE COMPONENT NOBODY SHIPS: templates/SegmentChar.qml, the shared
+  component session 64 called "BUILT + render-verified" and whose `$ghostAlpha`
+  hole W3 wired, is emitted by make_segment_display.segment_char_component() —
+  whose only callers are its own __main__ and check_ghost_composite. The live
+  wallpaper is a Canvas renderer with its own stroke loop; the clock draws
+  Rectangles; the marquee is MatrixChar (ghostOpacity 0.28, its own); plymouth
+  is PIL. The rollout list ("wallpaper -> SegmentChar fmt 7; clock ->
+  SegmentChar") in every ledger since session 63 never happened.
+- CORRECTION TO SESSION 67 (residue, not rewrite): its closure said the rollout
+  list "is what the gates above witness as DONE for geometry". Half right. The
+  four gates witness that every surface reads the substrate's TABLES (geometry
+  source: true, and @SUBSTRATE-COVERABLE holds), not that any surface USES the
+  substrate's COMPONENT. ⊕SEGMENT-SUBSTRATE as stated at :4419 ("make
+  segment_topology the ONLY geometry source. Each QML/PIL surface imports
+  as_js_object() or GEOM/project and renders from it") is what closed; the
+  SegmentChar rollout is a separate build and is reopened here as
+  ⊕SEGMENT-ROLLOUT so the closure stays honest and the work stays visible.
+- AND A CORRECTION TO W3'S CLAIM: @GHOSTCOMP green proves the relation on the
+  token and on the component. It says nothing about what a surface hands its
+  renderer. check_ghost_surfaces asks that question; it is red 24 of 24, wired
+  as @GHOST-SURFACES (cotype, grounded in BUILD).
+- [110] The same invariant as the recovery notes, on the colour chain: a
+  solver that feeds one emitter (the .colors files) while the surfaces keep a
+  hand pipeline is exactly the silo ⊕SEGMENT-SUBSTRATE named for geometry.
+  Colour has it too, and the one place all four surfaces could read is the
+  token dict they already hold.
+- OPEN DECISION (operator): the surfaces render lit from `focus` (accent) and
+  the palette says lit = `fg`. Switching surfaces to fg/fg_in/ghost_alpha
+  changes what every display shows. The measured relation says it should; the
+  screen is the operator's.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (session 67, scoped: geometry SOURCE) +
+  ⊕CLOCK-VECTOR ✓ (session 68) + (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: ⊕SEGMENT-ROLLOUT — every surface
+  draws the palette's fg/fg_in at ghost_alpha (@GHOST-SURFACES red 24 of 24);
+  live wallpaper Canvas -> SegmentChar; clock -> SegmentChar or reads the tokens;
+  MatrixChar's ghostOpacity through the same relation; plymouth reads tokens.
+  Then marquee -> MATRIX ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY.
+- LIVE (operator=other): ⊕VER, ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-UI-TOKENS, ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT,
+  ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
+- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG).

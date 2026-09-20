@@ -119,6 +119,21 @@
   check   = {tool:check_geometry_source.py --coverable}
 }
 
+% ⚑ THE GATED GHOST REACHES NO SURFACE. @GHOSTCOMP (worklist) proves the palette's
+% fg_in composited at the emitted alpha clears its floor — on the token and on
+% the SegmentChar component. Measured 2026-09-20 (session 69): every segment
+% surface derives its OWN lit and ghost on the way in (a session-39 pipeline
+% from `focus` that predates the solver), and SegmentChar.qml has zero shipping
+% consumers. 24 of 24 surface×variant emissions differ from the palette. This
+% is the relation @GHOSTCOMP states, asked of what ships; grounded in BUILD
+% because closing it IS the SegmentChar rollout the ledger names.
+@misc{GHOST-SURFACES,
+  section = {work},
+  claim   = {every display surface draws the palette's solved ghost at the palette's alpha, rather than deriving its own on the way in},
+  rests-on = {BUILD},
+  check   = {tool:check_ghost_surfaces.py}
+}
+
 @misc{RESEARCH,
   section = {work},
   claim   = {the font-projection research is wired to real glyph ingest, calibrated and validated, rather than resting at the proof of principle the log is careful to call one},

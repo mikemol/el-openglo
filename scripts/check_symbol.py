@@ -117,6 +117,14 @@ WITNESS = {
         " is refused; the four gates are stated at :4427 (:4399)",
         lambda: _tool("check_geometry_source.py") and
                 _tool("check_geometry_source.py", "--coverable")),
+    # ⚑ REOPENED FROM ⊕SEGMENT-SUBSTRATE'S CLOSURE (session 69). The substrate is
+    # the geometry SOURCE on every surface — that closed. Whether any surface USES
+    # the substrate's COMPONENT, and draws the palette's ghost, is this: the
+    # witness is the tool that asks what each surface EMITS.
+    "⊕SEGMENT-ROLLOUT": (
+        "every surface draws the palette's fg/fg_in at ghost_alpha rather than deriving"
+        " its own on the way in; check_ghost_surfaces measures what each emits (:4419)",
+        lambda: _tool("check_ghost_surfaces.py")),
     "⊕NOTIFY-MATRIXRENDER": (
         "the marquee renders via a MATRIX, not a font — the topology the user corrected (:4524)",
         lambda: _reads("make_notify_marquee.py", r"(?i)matrix")),
