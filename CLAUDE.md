@@ -76,9 +76,10 @@ Every tool in `scripts/` follows the same shape, and a new one should too:
 
 ## Borrowed tooling: some scripts are SYMLINKS into ../substrate
 
-`scripts/hook_no_chaining.py`, `hook_structural_query.py`, `ratchet.py`,
-`gate_ledger.py`, `run_selftests.py`, and `.githooks/pre-push` point into
-`../../substrate/`. **Editing one edits substrate.** Change it there and run BOTH repos'
+`scripts/hook_no_chaining.py`, `hook_structural_query.py`, `hook_cmdparse.py` (the
+tokenizer both hooks import — `scripts/__init__.py` exists so that `from scripts import
+hook_cmdparse` resolves against THIS tree), `ratchet.py`, `gate_ledger.py`,
+`run_selftests.py`, and `.githooks/pre-push` point into `../../substrate/`. **Editing one edits substrate.** Change it there and run BOTH repos'
 selftests. `scripts/check_hooks.py --list` shows where each resolves.
 
 They read their data from THIS repo (each derives its root from `__file__`, and

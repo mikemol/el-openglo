@@ -58,6 +58,15 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the partial-recovery record | `scripts/check_partial.py` | `python3 scripts/check_partial.py --list` | — |
 | the segment lattice's own invariants | `segment_topology.py` | `python3 segment_topology.py --selftest` | — |
 | Agda source (`ELProjection.agda`) | `../substrate/scratch/agda_defs.py` + `agda_lex.py` | `python3 ../substrate/scratch/agda_defs.py <name>` | `.agda` `.agdai` `.lagda` |
+| the git hooks: which are installed, where each resolves | `scripts/check_hooks.py` | `python3 scripts/check_hooks.py --list` | `pre-commit` `post-commit` `pre-push` |
+| the paths-forward queue (symbols, order, lock, residue) | `scripts/paths_forward.py` | `python3 scripts/paths_forward.py --queue` | `paths-forward.json` `paths-forward.ledger` |
+
+⚑ **THE LAST TWO ROWS CLAIM FILENAMES, NOT SUFFIXES.** A hook script has no suffix, so a
+suffix-only table could never route it; the borrowed hook's selftest asserts that the
+live table carries both kinds of claim, and this repo's table failed that arm (54/55)
+the day the hooks first ran here. Suffix wins over filename when both match, so
+`paths-forward.json` is still routed by `.json` to `check_chrome.py` — the row here
+records ownership; the routing precedence is substrate's.
 
 ⚑ **THE AGDA ROW POINTS OUT OF THIS REPO, AND THAT IS CORRECT.** `ELProjection.agda`
 models this system in substrate's F₂ vocabulary, and substrate *provides* the readers for
