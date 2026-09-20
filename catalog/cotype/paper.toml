@@ -8,6 +8,12 @@ out = "COTYPE-WORKLIST.md"
 numbered = false
 references = false
 
+# `enables` is read by worklist_gate's ranking, not by paperkit; undeclared, the
+# engine DROPS it (loudly, every run) rather than carrying it through. Declared
+# here it is carried engine-inert, like `note` — see warrants.bib's own comment
+# on why sequencing lives in a field the engine does not interpret.
+consumer_fields = ["enables"]
+
 # See ../worklist/paper.toml: the Δ sandbox root must be DECLARED, or it is
 # inferred as this file's parent (catalog/) and every check reaching back to the
 # repo grades `broken` — a fact about the sandbox read as a fact about the check.
