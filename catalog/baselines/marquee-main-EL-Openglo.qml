@@ -8,9 +8,14 @@ import org.kde.notificationmanager as NotificationManager
 
 PlasmoidItem {
     id: root
-    property color litColor: "#4bfad7"
-    property color ghostColor: "#267c6b"
+    property color litColor: "#99ffeb"
+    property color ghostColor: "#8debd9"
     property color voidColor: "#081411"
+    // the unlit dot field's opacity — the palette's solved ghost_alpha, passed to
+    // every MatrixChar below in place of the component's authored 0.28. Whether a
+    // DOT FIELD at this alpha reads as the same texture as strokes do is
+    // ⊕GHOST-DENSITY's question, still open; the relation itself is one.
+    property real ghostAlpha: 0.503
 
     preferredRepresentation: fullRepresentation
 
@@ -85,6 +90,7 @@ PlasmoidItem {
                     u: rep.pitch
                     litColor: root.ghostColor
                     ghostColor: root.ghostColor
+                    ghostOpacity: root.ghostAlpha
                     glow: 0.5
                 }
             }
@@ -106,6 +112,7 @@ PlasmoidItem {
                     u: rep.pitch
                     litColor: root.litColor
                     ghostColor: root.ghostColor
+                    ghostOpacity: root.ghostAlpha
                 }
             }
             NumberAnimation on x {

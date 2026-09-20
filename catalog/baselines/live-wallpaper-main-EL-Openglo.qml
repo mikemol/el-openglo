@@ -4,9 +4,12 @@ import org.kde.plasma.plasmoid
 // WallpaperItem is REQUIRED as the root (plain Item renders zero-size off-screen).
 WallpaperItem {
     id: root
-    property color litColor: "#4bfad7"
-    property color ghostColor: "#267c6b"
+    property color litColor: "#99ffeb"
+    property color ghostColor: "#8debd9"
     property color voidColor: "#081411"
+    // ghost pass opacity — SOLVED by the palette (ghost_alpha on every token), not
+    // the 0.45 this held as a literal no colour check could see.
+    property real ghostAlpha: 0.503
     property bool breathe: (wallpaper.configuration.breathe === undefined) ? false
                            : wallpaper.configuration.breathe
 
@@ -71,7 +74,7 @@ WallpaperItem {
             function drawDigit(ch, ox, oy) {
                 var on = root.seg[ch] || "";
                 // pass 1: ghost, subordinate (recedes to texture)
-                ctx.globalAlpha = 0.45;
+                ctx.globalAlpha = root.ghostAlpha;
                 for (var k in stroke) {
                     if (on.indexOf(k) < 0) drawStroke(stroke[k], U, Tg, ox, oy, root.ghostColor);
                 }

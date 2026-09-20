@@ -57,20 +57,27 @@ def _hex(rgb):
 
 
 def colors_for(variant):
-    """Derive the same lit/ghost/void the clock plasmoid uses, from tokens."""
-    t = MC.variant_tokens(variant) if hasattr(MC, "variant_tokens") else None
-    # fall back to GRID lookup keyed by variant name
+    """(ground, lit, ghost, ghost_alpha) — READ from the palette's tokens, not re-derived.
+
+    ⚑ THIS DERIVED ITS OWN LIT AND GHOST, AND SO DID EVERY OTHER SURFACE.  It took
+    `focus` (the ACCENT) as lit, pushed it through cvd_gate.stretch_lit and then
+    ghost_solve.derive_ghost — the session-39 ⊕CONTRAST-STRETCH pipeline, written
+    before the palette solver existed and never retired when make_palette.solve_lit
+    took over the same "push lit away from ground" invariant. Measured 2026-09-20
+    (scripts/check_ghost_surfaces.py): 24 of 24 surface×variant emissions differed
+    from the palette, so the solver's fg/fg_in — and every fix made to fg_in
+    (alpha solved, ghost solved THROUGH it, floor in APCA) — reached the .colors
+    files and no display. Operator ruling 2026-09-20 (W8): one colour chain.
+    The token dict is the authority; this function is a READ of it, shared by the
+    live wallpaper and the marquee."""
     from make_schemes import GRID
     ph, mode = _variant_key(variant)
     tok = [tt for (p, m), (tt, d) in GRID.items() if p == ph and m == mode][0]
     ground = tuple(int(x) for x in tok["view"].split(","))
-    lit0 = _rgb(MC.rgbcss(tok, "focus"))
-    litS = C.stretch_lit(lit0, ground)
-    # ⚑ SOLVED, NOT SCANNED.  The balance point is y = sqrt(ab) in offset
-    # luminance — the fixed point of the involution that exchanges the ghost's two
-    # sides — so this is a closed form rather than the best of 99 samples.
-    ghost = _GS.derive_ghost(litS, ground)
-    return ground, litS, ghost
+    lit = tuple(int(x) for x in tok["fg"].split(","))
+    ghost = tuple(int(x) for x in tok["fg_in"].split(","))
+    alpha = float(tok["ghost_alpha"])
+    return ground, lit, ghost, alpha
 
 
 def _variant_key(variant):
@@ -117,10 +124,11 @@ def main_qml(variant):
     ⚑ THE COLOURS AND THE GEOMETRY ARE HOLES; THE DOCUMENT IS A FILE.  This was
     120 lines of QML in an f-string, brace-doubled throughout, carrying two tables
     it had no business owning. Five holes go in; the document comes out."""
-    ground, lit, ghost = colors_for(variant)
+    ground, lit, ghost, alpha = colors_for(variant)
     import templates.loader as TL
     return TL.render("live-wallpaper-main.qml",
                      lit=_hex(lit), ghost=_hex(ghost), ground=_hex(ground),
+                     ghostAlpha=alpha,
                      seg=_qml_obj(DIGIT), stroke=_qml_obj(SEGS))
 
 

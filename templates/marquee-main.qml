@@ -11,6 +11,11 @@ PlasmoidItem {
     property color litColor: "$lit"
     property color ghostColor: "$ghost"
     property color voidColor: "$ground"
+    // the unlit dot field's opacity — the palette's solved ghost_alpha, passed to
+    // every MatrixChar below in place of the component's authored 0.28. Whether a
+    // DOT FIELD at this alpha reads as the same texture as strokes do is
+    // ⊕GHOST-DENSITY's question, still open; the relation itself is one.
+    property real ghostAlpha: $ghostAlpha
 
     preferredRepresentation: fullRepresentation
 
@@ -85,6 +90,7 @@ PlasmoidItem {
                     u: rep.pitch
                     litColor: root.ghostColor
                     ghostColor: root.ghostColor
+                    ghostOpacity: root.ghostAlpha
                     glow: 0.5
                 }
             }
@@ -106,6 +112,7 @@ PlasmoidItem {
                     u: rep.pitch
                     litColor: root.litColor
                     ghostColor: root.ghostColor
+                    ghostOpacity: root.ghostAlpha
                 }
             }
             NumberAnimation on x {

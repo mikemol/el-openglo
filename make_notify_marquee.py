@@ -55,10 +55,11 @@ def main_qml(variant):
     owns neither of them either — both are READS. Four holes go in; the document
     comes out. The registry carries the 5x7 font, so the ticker renders as a real
     dot-matrix display instead of as monospace text tinted phosphor."""
-    ground, lit, ghost = WL.colors_for(variant)
+    ground, lit, ghost, alpha = WL.colors_for(variant)
     import templates.loader as TL
     return TL.render("marquee-main.qml", lit=_hex(lit), ghost=_hex(ghost),
-                     ground=_hex(ground), registry=DT.as_qml_js("5x7"))
+                     ground=_hex(ground), ghostAlpha=alpha,
+                     registry=DT.as_qml_js("5x7"))
 
 
 def matrix_char_component():
