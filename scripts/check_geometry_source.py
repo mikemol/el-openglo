@@ -171,16 +171,25 @@ def coverable():
                 if not moved_js else "geometry_js() moved with the lattice (reads geom22() at call time)"))
 
     # --- arm 2: not silent-empty ------------------------------------------
+    # ⚑ THE STRICT FORM IS WHAT AN EMIT PATH MUST ASK.  The lenient default is
+    # the render contract (a board shows nothing for a glyph it lacks) and is
+    # kept by choice; the gate is that a caller who NEEDS the glyph can be told
+    # it is absent, and can ask beforehand.
+    snowman = "☃"                                        # in no table
     try:
-        g = ST.glyph16("☃")                            # a snowman: not in any table
-        silent = isinstance(g, set) and len(g) == 0
-        detail = ("glyph16() returned an EMPTY set for an unknown glyph — a blank cell, "
-                  "not a refusal (segment_topology.py: `return set()  # unknown -> blank`)"
-                  if silent else f"glyph16() returned {g!r} for an unknown glyph")
-        out.append(("an absent glyph is refused, not rendered blank", not silent, detail))
-    except (KeyError, ValueError) as e:                      # a refusal IS the pass
-        out.append(("an absent glyph is refused, not rendered blank", True,
-                    f"glyph16() refused: {type(e).__name__}: {e}"))
+        g = ST.glyph16(snowman, strict=True)
+        out.append(("an absent glyph is refused, not rendered blank", False,
+                    f"glyph16(strict=True) returned {g!r} for an unknown glyph"))
+    except TypeError:
+        out.append(("an absent glyph is refused, not rendered blank", False,
+                    "glyph16() has no strict form — every caller gets a blank cell"))
+    except (KeyError, ValueError) as e:                       # a refusal IS the pass
+        asks = hasattr(ST, "has_glyph") and ST.has_glyph(snowman) is False \
+            and ST.has_glyph(" ") is True
+        out.append(("an absent glyph is refused, not rendered blank", asks,
+                    f"glyph16(strict=True) refused: {type(e).__name__}: {e}" +
+                    ("; has_glyph() distinguishes an unknown glyph from a KNOWN blank"
+                     if asks else "; but has_glyph() is missing or cannot tell ' ' from unknown")))
     return out
 
 
@@ -287,19 +296,30 @@ def _selftest():
     check("coverable: the real substrate is measured (3 arms)", len(rows), 3)
     saved = (ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js)
     try:
+        # ⚑ A SILENT substrate must FAIL every arm — including one whose glyph
+        # lookup has no strict form at all (the pre-2026-09-20 shape).
+        ST.seg7_svg_grid = lambda: {"A": ("h", 0, 0)}          # a literal: does not move
+        MSD.geometry_js = lambda: "{}"                          # a literal: does not move
+        ST.glyph16 = lambda ch: set()                           # no strict form, blank
+        rows = coverable()
+        check("coverable: a SILENT substrate fails every arm",
+              all(not h for _l, h, _d in rows), True)
+        # and a derived, refusing one passes every arm
         ST.seg7_svg_grid = lambda: {k: v for k, v in ST.GEOM16.items()}
         MSD.geometry_js = lambda: repr(sorted(ST.GEOM16.items()))
-        def _refuse(ch):
-            raise KeyError(f"no glyph for {ch!r}")
+        def _refuse(ch, strict=False):
+            if strict:
+                raise KeyError(f"no glyph for {ch!r}")
+            return set()
         ST.glyph16 = _refuse
         rows = coverable()
-        check("coverable: a DERIVED substrate passes every arm",
+        check("coverable: a DERIVED, refusing substrate passes every arm",
               all(h for _l, h, _d in rows), True)
     finally:
         ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js = saved
     rows = coverable()
-    check("coverable: the real substrate still fails after the substitution is undone",
-          any(not h for _l, h, _d in rows), True)
+    check("coverable: the real substrate is measured again after the substitution is undone",
+          len(rows), 3)
     print("check_geometry_source selftest:", "PASS" if ok else "FAIL")
     return ok
 

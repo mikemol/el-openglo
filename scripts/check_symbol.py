@@ -77,13 +77,27 @@ def _any(paths, pat):
 # symbol -> (what the witness looks for, predicate)
 # ⚑ EACH PREDICATE IS DERIVED FROM THE LOG'S OWN STATEMENT of the item, cited by
 # line. A witness invented from the symbol's NAME would test my paraphrase.
+def _tool(*args):
+    """True iff a repo tool exits 0 — the witness IS the tool that owns the question."""
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", args[0]), *args[1:]],
+                       cwd=ROOT, capture_output=True, text=True)
+    return r.returncode == 0
+
+
 WITNESS = {
     # ── BUILD: touches the shipped package ──
+    # ⚑ THIS WAS A NOUN WITNESS — `SegmentChar` mentioned in four surfaces — the
+    # exact near-miss the docstring above warns of, and it read as DONE while the
+    # log's fourth gate had never been run. The log states four gates (:4427-4432);
+    # check_geometry_source owns reachable + observable (default mode) and
+    # coverable (--coverable, 3 arms: a lattice edit reaches every surface, an
+    # absent glyph is refused). Session 67 records the closure with those tools.
     "⊕SEGMENT-SUBSTRATE": (
-        "SegmentChar is the one geometry substrate under wallpaper/clock/marquee/plymouth,"
-        " not just defined in its own emitter (:4399)",
-        lambda: _any(["make_wallpaper.py", "make_wallpaper_live.py", "make_clock.py",
-                      "make_plymouth.py"], r"SegmentChar")),
+        "one geometry substrate under wallpaper/clock/marquee/plymouth: every surface"
+        " reads it, none owns a table, a lattice edit reaches all, an absent glyph"
+        " is refused; the four gates are stated at :4427 (:4399)",
+        lambda: _tool("check_geometry_source.py") and
+                _tool("check_geometry_source.py", "--coverable")),
     "⊕NOTIFY-MATRIXRENDER": (
         "the marquee renders via a MATRIX, not a font — the topology the user corrected (:4524)",
         lambda: _reads("make_notify_marquee.py", r"(?i)matrix")),

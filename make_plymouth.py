@@ -40,7 +40,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # moved. scripts/check_plymouth_digits.py is the gate that would have caught it.
 #
 # coarse names: a(top) b(top-right) c(bot-right) d(bottom) e(bot-left) f(top-left) g(middle)
-SEVENSEG = {d: set(ST.project(ST.glyph16(d), "7")) for d in "0123456789"}
+SEVENSEG = {d: set(ST.project(ST.glyph16(d, strict=True), "7")) for d in "0123456789"}
 # coarse 7-seg -> GEOM16 strokes (2 wide x 4 tall grid; y down)
 # ⚑ A COARSE BAR IS THE UNION OF TWO HALF-BARS, NOT ONE OF THEM.  My first
 # derivation mapped "a" to GEOM16["a1"] — and a1 spans x=0..1, half the cell,

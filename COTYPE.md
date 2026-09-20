@@ -4674,3 +4674,92 @@ residue gated on live operator testing.
   scripts/check_cotype_coherence.py — the class is "introduced, never closed,
   never carried forward" — which is the argument for computing the open set
   rather than retyping it each session.)
+
+
+## Session 67 — ⊕SEGMENT-SUBSTRATE closure (measured, not recorded from memory)
+- [drift: clean]. Reached via the paths-forward loop (W5), not by resuming the
+  rollout list above. First move was to MEASURE the four gates the session-63 plan
+  states (:4427-4432) against the tools that exist today, before writing anything:
+  three of four were already witnessed and the ledger had never been told; the
+  fourth had NO witness and, once written, FAILED 3 of 3. The item was not
+  "unrecorded as closed" — it was open on the gate nobody had run. Both facts came
+  from running tools, which is the argument for this repo's standing rule.
+- What the coverable witness found (scripts/check_geometry_source.py --coverable,
+  2026-09-20, commit 062146e): `_SEG7_GRID` was a SECOND LITERAL in a 2x3 cell,
+  independent of GEOM16's coordinates, related to the lattice by a key-parity
+  selftest only — a GEOM16 edit reached none of the three surfaces drawing it.
+  GEOM22 was `dict(GEOM16) + extras` taken ONCE at import. And glyph16() returned
+  set() for an unknown glyph, commented `# unknown -> blank` — the silent-empty
+  the gate forbids, by name. One module, three tables, equality gates: weaker
+  than "one place", and nothing could say so until the witness existed.
+- [110] The fix is the palette's fix on the shape axis: the fixed 2x4->2x3 mapping
+  (ux=x/2, uy=y/2, merged bars full-width) is written ONCE as a function of
+  seg7_strokes(); geom22() composes the six additions over GEOM16 at call time
+  (module-level GEOM22 kept as the import snapshot for table consumers);
+  geometry_js() reads geom22(). The derivation reproduces the retired literal
+  byte for byte (selftest), parity 7 of 7 unchanged. A lattice the projection
+  cannot express is REFUSED with the stroke named — and the witness counts a
+  refusal as a move, because a refusal is the opposite of silence (a7b6d55).
+- The absent-glyph contract, stated instead of silent: the callers split.
+  SegmentDisplay.glyph RENDERS arbitrary text, where a board showing nothing for a
+  glyph it lacks is the intended behaviour; every other caller feeds a fixed set
+  (digits) where an absence is a defect. So glyph16(ch, strict=False) keeps the
+  render contract by CHOICE, strict=True refuses with the glyph named, has_glyph()
+  lets a caller ask first, and " " (a KNOWN blank, in SYMBOLS16) is never refused.
+  The digit paths (glyph7_letters, make_wallpaper_live.DIGIT, make_plymouth
+  .SEVENSEG) ask strictly.
+- INSTRUMENT-VS-WORLD (banked, ~9th): the witness's second arm first reported
+  GEOM22 "not derived from GEOM16". It IS derived — once, at import — which a
+  runtime perturbation cannot see. The arm was partly measuring its own method.
+  Corrected to name what it measures (snapshot vs call-time read) before the
+  substrate was changed to satisfy it.
+
+### ⊕SEGMENT-SUBSTRATE closure (four gates) — one lattice under every surface, witnessed
+- Four gates: constructible (@EMITTERS, @SAMPLES, @PARITY); reachable (@GEOMETRY:
+  5 of 5 surfaces import an authority); observable (@GEOMETRY: none owns a table,
+  by AST; @SPLASHGLYPH); coverable (@SUBSTRATE-COVERABLE: 3 of 3 arms — a
+  lattice edit reaches every surface at call time, an absent glyph is refused).
+  Every gate names the TOOL that witnesses it, and each tool's selftest proves
+  it can fail. Detail per gate below.
+- constructible: every generator runs and writes its artifact in dependency order
+  (@EMITTERS, scripts/check_emitters_run.py); the theme renders into the sample
+  library (@SAMPLES); the shared SegmentChar component is emitted from
+  templates/SegmentChar.qml and pinned byte-for-byte (@PARITY).
+- reachable: 5 of 5 surfaces import a geometry authority — segment_topology for
+  wallpaper, live wallpaper, clock, plymouth; display_types for the (matrix)
+  marquee (@GEOMETRY, scripts/check_geometry_source.py --map).
+- observable: no surface binds a literal stroke table (AST, not grep — a DERIVED
+  `SEGS = _ST.seg7_svg_grid()` is the fix, not the defect) (@GEOMETRY); the boot
+  splash's digits are the substrate's own projection (@SPLASHGLYPH).
+- coverable: a GEOM16 edit reaches the coarse 7-seg cell AND the 22-seg geometry
+  at call time, and an absent glyph is refused by the strict form while has_glyph
+  distinguishes it from a known blank — 3 of 3 arms
+  (@SUBSTRATE-COVERABLE, scripts/check_geometry_source.py --coverable). The
+  selftest proves a SILENT substrate fails every arm and a derived, refusing one
+  passes every arm, so the green is a measurement.
+- RESIDUE, named: the ledger's rollout list (wallpaper/clock -> SegmentChar fmt"7",
+  plymouth import) is what the gates above witness as DONE for geometry; the
+  marquee's MATRIX path (⊕NOTIFY-MATRIXRENDER, ⊕MATRIX-FONT-INPUT) is its own
+  BUILD item and stays. make_clock.py:86 still derives its own GHOST COLOUR via
+  cvd_gate.derive_ghost rather than reading the palette's fg_in/ghost_alpha —
+  a colour silo, not a geometry one; carried on ⊕GHOST-DENSITY / W8.
+
+## Symbol ledger (current)
+- ...prior... + ⊕RENDER-GATE + ⊕SEGMENT-SUBSTRATE ✓ (session 67, four gates
+  witnessed by tools; @SUBSTRATE-COVERABLE green) + (research) ⊕SEG-FONT-PROJECT
+  principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (+ the clock's own-ghost finding, session 67).
+- LIVE (operator=other): ⊕VER, ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-UI-TOKENS, ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT,
+  ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
+- TIER 3: ⊕CLOCK-VECTOR, ⊕PLYMOUTH-VECTOR (unblocked by the substrate closure:
+  both draw from one geometry now; vector-vs-raster is the remaining question).

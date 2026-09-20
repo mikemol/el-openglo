@@ -116,19 +116,44 @@ SYMBOLS16 = {
     "0": DIGITS16["0"],
 }
 
-def glyph16(ch):
+def has_glyph(ch):
+    """Whether the tables carry `ch` (case-folded). A KNOWN blank — " " — is True."""
+    ch = ch.upper()
+    return ch in DIGITS16 or ch in LETTERS16 or ch in SYMBOLS16
+
+
+def glyph16(ch, strict=False):
+    """The 16-seg segment set for `ch`.
+
+    ⚑ TWO CONTRACTS, STATED, BECAUSE ONE OF THEM WAS SILENT.  This returned an
+    empty set for an unknown glyph with the comment `# unknown -> blank`, which
+    is the exact silent-empty the ⊕SEGMENT-SUBSTRATE gate forbids: a blank cell
+    is a valid image of the wrong answer.  Measured by `check_geometry_source
+    --coverable` (2026-09-20).  But the callers split: `SegmentDisplay.glyph`
+    RENDERS arbitrary text, where a departure board showing nothing for a glyph
+    it lacks is the intended display behaviour, while every other caller feeds a
+    fixed set (digits) where an absence is a defect.  So the lenient form stays
+    the default for rendering and `strict=True` refuses with the glyph named;
+    `has_glyph()` lets a caller ask first.  A KNOWN blank (" ", in SYMBOLS16)
+    is a glyph and is never refused."""
     ch = ch.upper()
     if ch in DIGITS16: return set(DIGITS16[ch].split())
     if ch in LETTERS16: return set(LETTERS16[ch].split())
     if ch in SYMBOLS16: return set(SYMBOLS16[ch].split()) if SYMBOLS16[ch] else set()
-    return set()  # unknown -> blank
+    if strict:
+        raise KeyError(f"no 16-seg glyph for {ch!r}; the tables carry "
+                       f"{len(DIGITS16)} digits, {len(LETTERS16)} letters, "
+                       f"{len(SYMBOLS16)} symbols")
+    return set()  # unknown -> blank: the RENDER contract, by choice, see above
 
 # 7-seg glyph via projection, in the OLD naming (A..G) so it can be proven
 # byte-equal to make_wallpaper's DIGIT table.
 SEG7_RENAME = {"a": "A", "b": "B", "c": "C", "d": "D", "e": "E", "f": "F", "g": "G"}
 def glyph7_letters(ch):
-    """Project to 7-seg and rename to A..G for parity with the wallpaper table."""
-    coarse = project(glyph16(ch), "7")
+    """Project to 7-seg and rename to A..G for parity with the wallpaper table.
+
+    Strict: every caller feeds digits, where an absent glyph is a defect."""
+    coarse = project(glyph16(ch, strict=True), "7")
     return "".join(sorted(SEG7_RENAME[s] for s in coarse if s in SEG7_RENAME))
 
 

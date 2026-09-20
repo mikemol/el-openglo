@@ -43,8 +43,8 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # `seg7_strokes()`'s own a..g, so the two must be the same projection read at the
 # same case or a digit silently lights nothing.
 SEGS = _ST.seg7_strokes()
-DIGIT = {ch: "".join(sorted(_ST.project(_ST.glyph16(ch), "7")))
-         for ch in "0123456789"}
+DIGIT = {ch: "".join(sorted(_ST.project(_ST.glyph16(ch, strict=True), "7")))
+         for ch in "0123456789"}                  # strict: a missing digit is a defect
 
 
 def _rgb(css):

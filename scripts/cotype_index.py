@@ -354,8 +354,20 @@ def _selftest():
     check("a sub-step dependency is not listed open (⊕RENDER-GATE)",
           "⊕RENDER-GATE" not in open_all, True)
     # 4. the current open list overrides an earlier ledger's tick (work reopens)
-    check("reopened work is not also closed (⊕SEGMENT-SUBSTRATE)",
-          "⊕SEGMENT-SUBSTRATE" in open_all and "⊕SEGMENT-SUBSTRATE" not in tick, True)
+    # ⚑ ON A SYNTHETIC DOCUMENT, NOT ON THIS ONE.  This arm was pinned to
+    # ⊕SEGMENT-SUBSTRATE as the log's live example of reopened work, and the day
+    # that symbol actually closed (session 67) the arm failed — reporting a fact
+    # about the fixture as a fact about the parser. A rule about REOPENING must
+    # be exercised on a document where something is reopened, whatever the real
+    # log currently holds.
+    synthetic = ("## Session 1 — ⊕X invoked\n- built\n\n## Symbol ledger (current)\n"
+                 "- ⊕X ✓\n\n## Session 2 — ⊕X rollout\n- more to do\n\n"
+                 "## Symbol ledger (current)\n- ...prior... + ⊕Y ✓\n"
+                 "- OPEN — BUILD: ⊕X rollout\n")
+    s_open = {s for v in open_set(synthetic).values() for s in v}
+    s_tick = ledger_closed(synthetic)
+    check("reopened work is not also closed (synthetic ⊕X)",
+          "⊕X" in s_open and "⊕X" not in s_tick and "⊕Y" in s_tick, True)
     # and no symbol may be both at once
     both = sorted(s for s in syms if syms[s]["closed"] and s in open_all)
     check(f"nothing is closed AND open ({both})", both, [])
