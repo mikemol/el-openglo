@@ -107,8 +107,88 @@ def survey():
     return out
 
 
+def coverable():
+    """The design log's fourth gate for ⊕SEGMENT-SUBSTRATE (COTYPE.md:4431), measured.
+
+        coverable: change GEOM in ONE place -> all surfaces move; a substrate glyph
+        absent -> that surface reports unrenderable, not silent-empty.
+
+    Two arms, each returning (label, holds, detail):
+
+    1. ONE PLACE.  Perturb one GEOM16 coordinate (the lattice root) and re-derive
+       what each surface actually consumes: `seg7_svg_grid()` for the 7-seg
+       surfaces (wallpaper, clock, plymouth) and `geometry_js()` for the
+       SegmentChar surfaces (live wallpaper, marquee). A consumer whose output
+       does not move was never reading the lattice — it was reading a table
+       that merely AGREES with the lattice today.
+
+    2. NOT SILENT-EMPTY.  Ask the substrate for a glyph it does not carry. A
+       glyph that comes back as an empty set renders as a blank cell and looks
+       like a design decision; the gate requires a refusal.
+
+    ⚑ MEASURED 2026-09-20, BOTH ARMS FAIL, AND THAT IS THE FINDING.
+    `seg7_svg_grid()` returns `_SEG7_GRID`, a second literal in a 2x3 cell whose
+    coordinates are independent of GEOM16's; the lattice and the coarse cell are
+    related by a KEY-parity gate, not by derivation. And `glyph16()` documents
+    its own failure — `return set()  # unknown -> blank`. Three of the four
+    gates were already green; this one was assumed."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import segment_topology as ST
+    import make_segment_display as MSD
+    out = []
+
+    # --- arm 1: one place --------------------------------------------------
+    before_7 = repr(ST.seg7_svg_grid())
+    before_js = MSD.geometry_js()
+    saved = dict(ST.GEOM16)
+    try:
+        k, v = "a1", ST.GEOM16["a1"]
+        ST.GEOM16[k] = (v[0], v[1], v[2], v[3] + 0.5)      # move the top bar down half a row
+        after_7 = repr(ST.seg7_svg_grid())
+        after_js = MSD.geometry_js()
+    finally:
+        ST.GEOM16.clear()
+        ST.GEOM16.update(saved)
+    moved_7 = after_7 != before_7
+    moved_js = after_js != before_js
+    out.append(("7-seg surfaces (wallpaper/clock/plymouth) move with GEOM16",
+                moved_7,
+                "seg7_svg_grid() is `_SEG7_GRID`, a second literal — a GEOM16 edit does not reach it"
+                if not moved_7 else "seg7_svg_grid() re-derived from the perturbed lattice"))
+    out.append(("SegmentChar surfaces (live wallpaper/marquee) move with GEOM16",
+                moved_js,
+                "geometry_js() reads GEOM22, which is not derived from GEOM16 — a GEOM16 edit does not reach it"
+                if not moved_js else "geometry_js() moved with the lattice"))
+
+    # --- arm 2: not silent-empty ------------------------------------------
+    try:
+        g = ST.glyph16("☃")                            # a snowman: not in any table
+        silent = isinstance(g, set) and len(g) == 0
+        detail = ("glyph16() returned an EMPTY set for an unknown glyph — a blank cell, "
+                  "not a refusal (segment_topology.py: `return set()  # unknown -> blank`)"
+                  if silent else f"glyph16() returned {g!r} for an unknown glyph")
+        out.append(("an absent glyph is refused, not rendered blank", not silent, detail))
+    except (KeyError, ValueError) as e:                      # a refusal IS the pass
+        out.append(("an absent glyph is refused, not rendered blank", True,
+                    f"glyph16() refused: {type(e).__name__}: {e}"))
+    return out
+
+
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--coverable"}
+    if "--coverable" in argv:
+        rows = coverable()
+        bad = [r for r in rows if not r[1]]
+        for label, holds, detail in rows:
+            print(f"  {'ok  ' if holds else 'FAIL'} {label}\n        {detail}")
+        if bad:
+            print(f"check_geometry_source --coverable: REFUSED — {len(bad)} of {len(rows)} "
+                  f"coverable arm(s) do not hold; ⊕SEGMENT-SUBSTRATE's fourth gate is open",
+                  file=sys.stderr)
+            return 1
+        print(f"check_geometry_source --coverable: {len(rows)} of {len(rows)} arms hold")
+        return 0
     for a in argv[1:]:
         if a not in known:
             print(f"check_geometry_source: unknown flag {a!r}", file=sys.stderr)
@@ -185,6 +265,32 @@ def _selftest():
         open(p2, "w").write("import segment_topology as ST\nx = ST.SEG22\n")
         check("sees an authority import",
               bool(_imports(p2) & set(AUTHORITIES)), True)
+
+    # ⚑ THE COVERABLE WITNESS MUST BE ABLE TO SEE A PASS, or its three FAILs are
+    # a complaint rather than a measurement. Substitute a substrate whose coarse
+    # cell and 22-seg table are DERIVED from GEOM16 and whose glyph lookup
+    # refuses, and every arm must flip.
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import segment_topology as ST
+    import make_segment_display as MSD
+    rows = coverable()
+    check("coverable: the real substrate is measured (3 arms)", len(rows), 3)
+    saved = (ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js)
+    try:
+        ST.seg7_svg_grid = lambda: {k: v for k, v in ST.GEOM16.items()}
+        MSD.geometry_js = lambda: repr(sorted(ST.GEOM16.items()))
+        def _refuse(ch):
+            raise KeyError(f"no glyph for {ch!r}")
+        ST.glyph16 = _refuse
+        rows = coverable()
+        check("coverable: a DERIVED substrate passes every arm",
+              all(h for _l, h, _d in rows), True)
+    finally:
+        ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js = saved
+    rows = coverable()
+    check("coverable: the real substrate still fails after the substitution is undone",
+          any(not h for _l, h, _d in rows), True)
     print("check_geometry_source selftest:", "PASS" if ok else "FAIL")
     return ok
 

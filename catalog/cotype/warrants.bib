@@ -103,6 +103,22 @@
   check   = {tool:check_symbol.py --bucket BUILD}
 }
 
+% ⚑ THE FOURTH GATE OF ⊕SEGMENT-SUBSTRATE, MEASURED RATHER THAN ASSUMED. The
+% log's own gate plan (COTYPE.md:4427-4432) names four; three were already
+% witnessed by tools (check_geometry_source reachable+observable, @EMITTERS and
+% @SAMPLES constructible) and the fourth — "change GEOM in ONE place -> all
+% surfaces move; an absent glyph is reported, not silent-empty" — had no witness.
+% Written 2026-09-20 it fails 3 of 3: GEOM16, GEOM22 and _SEG7_GRID are three
+% literals held coherent by equality gates, not one place; glyph16() returns an
+% empty set for an unknown glyph. Grounded in BUILD because it is the reason
+% ⊕SEGMENT-SUBSTRATE is honestly still open there.
+@misc{SUBSTRATE-COVERABLE,
+  section = {work},
+  claim   = {the geometry substrate is ONE place — a lattice edit reaches every surface — and an absent glyph is refused rather than rendered blank},
+  rests-on = {BUILD},
+  check   = {tool:check_geometry_source.py --coverable}
+}
+
 @misc{RESEARCH,
   section = {work},
   claim   = {the font-projection research is wired to real glyph ingest, calibrated and validated, rather than resting at the proof of principle the log is careful to call one},
