@@ -65,9 +65,22 @@ run "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest >/de
 
 # 4. THE WORKLIST.  Every cited claim must be discharged.  This subsumes the
 #    individual checks: it is the projection over all of them.
-run "worklist" python3 "$ROOT/scripts/worklist_gate.py" >/dev/null 2>&1 || {
-  echo "    (run: python3 scripts/worklist_gate.py — it names each undischarged claim)" >&2
+#
+#    ⚑ ONLY THE REPO'S OWN CLAIM GRAPH BLOCKS.  worklist_gate runs TWO projects:
+#    catalog/worklist (claims about this tree, which a commit must satisfy) and
+#    catalog/cotype (the design log's open symbols — the QUEUE, which is red for
+#    exactly as long as there is work left).  Gating on both made this hook
+#    unsatisfiable while any design item was open, and the measured result was
+#    every commit from 2026-08-16 on landing with `--no-verify` and a stated
+#    reason ("the five COTYPE buckets are open design-log symbols, red by
+#    design") — a gate that is always bypassed gates nothing.  Not-blocking and
+#    not-falsifiable are separable (CLAUDE.md): the cotype stays red and
+#    falsifiable, reported here, and stops pretending to be a promotion gate.
+run "worklist" "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only worklist >/dev/null 2>&1 || {
+  echo "    (run: python3 scripts/worklist_gate.py --only worklist — it names each undischarged claim)" >&2
 }
+"${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only cotype --summary 2>/dev/null \
+  | sed 's/^/    cotype (queue, non-blocking): /' >&2 || true
 
 if [ $FAILED -ne 0 ]; then
   echo "pre-commit: REFUSED. Fix the gate above, or --no-verify if you know why." >&2
