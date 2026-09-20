@@ -38,7 +38,10 @@ def _endpoints(spec):
 def geometry_js():
     """The canonical geometry as a JS object literal: {seg: [ax,ay,bx,by]} for all
     GEOM22 strokes, from the substrate (single source)."""
-    geo = {k: list(_endpoints(ST.GEOM22[k])) for k in ST.SEG22}
+    # ⚑ READ AT CALL TIME, NOT FROM THE IMPORT SNAPSHOT — so a lattice edit
+    # reaches this surface (check_geometry_source --coverable).
+    g22 = ST.geom22()
+    geo = {k: list(_endpoints(g22[k])) for k in g22}
     return json.dumps(geo)
 
 

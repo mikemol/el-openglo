@@ -136,7 +136,17 @@ def glyph7_letters(ch):
 # 3-tall grid of (kind, ux, uy) where a horizontal spans the full width at row
 # uy and a vertical spans one row at column ux. GEOM16's cell is 2x4 in half-row
 # units; this is that cell at 7-seg granularity.
-_SEG7_GRID = {
+#
+# ⚑ THIS WAS A LITERAL, AND THE COVERABLE WITNESS CAUGHT IT.  `_SEG7_GRID` held
+# the seven strokes as a second table whose coordinates were INDEPENDENT of
+# GEOM16's — related to the lattice by a key-parity selftest only. Its docstring
+# argued that naming the fixed 2x4->2x3 mapping once "keeps one owner"; measured
+# (check_geometry_source --coverable, 2026-09-20), moving a GEOM16 coordinate
+# reached none of the three surfaces that read this. The mapping IS fixed, so it
+# is written once — as a function of the lattice, not as a copy that agrees with
+# it today. The old literal is kept in the selftest as the expected value the
+# derivation must reproduce, so the change is provably output-neutral.
+_SEG7_GRID_EXPECTED = {
     "A": ("h", 0, 0), "G": ("h", 0, 1), "D": ("h", 0, 2),
     "F": ("v", 0, 0), "B": ("v", 1, 0), "E": ("v", 0, 1), "C": ("v", 1, 1),
 }
@@ -175,11 +185,27 @@ def seg7_svg_grid():
     ⚑ WHY THIS IS A PROJECTION AND NOT A SECOND TABLE.  GEOM16 is the lattice, in
     a 2x4 half-row cell that supports diagonals and split bars. A 7-seg renderer
     draws in a coarser 2x3 cell — no diagonals, no split bars — and the mapping
-    between them is fixed. Deriving the coarse cell from GEOM16 element-by-element
-    would re-derive that fixed mapping on every call; naming it once, HERE, keeps
-    one owner. The parity gate below is what makes it a projection rather than a
-    fork: project()'s own 7-seg output must agree with these keys."""
-    return dict(_SEG7_GRID)
+    between them is fixed: `ux = x/2, uy = y/2`, a merged horizontal spanning the
+    full width at its row, a vertical occupying one row at its column. It is
+    DERIVED here, at call time, from `seg7_strokes()` (which merges the split
+    halves in the lattice's own cell), so a lattice edit reaches every surface
+    that draws this cell. The parity gate in the selftest is what makes it a
+    projection rather than a fork: project()'s own 7-seg output must agree with
+    these keys, and the derivation must reproduce the table this replaced."""
+    out = {}
+    for coarse, spec in seg7_strokes().items():
+        key = SEG7_RENAME[coarse]
+        if spec[0] == "h":
+            _k, x0, x1, y = spec
+            if (x0, x1) != (0, 2) or y % 2:
+                raise ValueError(f"7-seg bar {coarse!r} does not span the cell on a row: {spec}")
+            out[key] = ("h", 0, y // 2)
+        else:
+            _k, x, y0, y1 = spec
+            if y1 - y0 != 2 or x % 2 or y0 % 2:
+                raise ValueError(f"7-seg vertical {coarse!r} is not one coarse row tall: {spec}")
+            out[key] = ("v", x // 2, y0 // 2)
+    return out
 
 # --- 22-segment: 16-seg topology PLUS a descender sub-cell ------------------
 # ⚑ RECONSTRUCTED.  The original definition was lost with the repo; this is
@@ -204,8 +230,11 @@ def seg7_svg_grid():
 # soft part and the identifiers, roles, and the 22->16 invariant as the hard part.
 DESCENDER_DEPTH = 2                      # the sub-cell below the baseline, in L
 
-GEOM22 = dict(GEOM16)
-GEOM22.update({
+# The six additions, placed relative to the body cell.  Stated once; GEOM22 is
+# the lattice plus these, DERIVED by `geom22()` so that a GEOM16 edit reaches
+# every 22-seg consumer at call time.  The module-level `GEOM22` is that
+# derivation taken once at import, for consumers that index it as a table.
+_SEG22_ADDITIONS = {
     # two dots flanking the middle vertical — the i/j tittle and punctuation.
     # Rendered as degenerate (zero-length) verticals: a dot is a point the
     # renderer thickens, exactly as it thickens a bar.
@@ -219,7 +248,21 @@ GEOM22.update({
     "dl": ("v", 0, 4, 4 + DESCENDER_DEPTH),
     "dc": ("v", 1, 4, 4 + DESCENDER_DEPTH),
     "dr": ("v", 2, 4, 4 + DESCENDER_DEPTH),
-})
+}
+
+
+def geom22():
+    """The 22-segment geometry: the 16-seg lattice plus the six additions, NOW.
+
+    A function rather than a table so that the body strokes are read from
+    GEOM16 at the moment of asking — the property `check_geometry_source
+    --coverable` measures. `GEOM22` below is this, snapshotted at import."""
+    g = dict(GEOM16)
+    g.update(_SEG22_ADDITIONS)
+    return g
+
+
+GEOM22 = geom22()
 SEG22 = list(GEOM22.keys())
 
 # The six segments 22 adds to 16 — the exact set the 22->16 projection drops.
@@ -290,6 +333,20 @@ def _selftest():
     # the 2x3 cell the SVG/QML surfaces draw in. If its key set ever diverged
     # from what project(..., "7") actually emits, it would be a second geometry
     # wearing a projection's name — which is the silo this replaced.
+    # ⚑ THE DERIVATION REPRODUCES THE TABLE IT REPLACED, byte for byte — so
+    # moving from a literal to a function changed no surface's output.
+    check("seg7_svg_grid() reproduces the retired literal",
+          seg7_svg_grid(), _SEG7_GRID_EXPECTED)
+    # ⚑ AND IT IS LIVE: a lattice edit reaches the coarse cell without a re-import.
+    _saved = GEOM16["g1"], GEOM16["g2"]
+    try:
+        GEOM16["g1"] = ("h", 0, 1, 2.0); GEOM16["g2"] = ("h", 1, 2, 2.0)  # same row, float form
+        check("the coarse cell is read from GEOM16 at call time",
+              seg7_svg_grid()["G"], ("h", 0, 1))
+        check("geom22() is read from GEOM16 at call time",
+              geom22()["g1"], ("h", 0, 1, 2.0))
+    finally:
+        GEOM16["g1"], GEOM16["g2"] = _saved
     grid = set(seg7_svg_grid())
     emitted = set()
     for ch in "0123456789":

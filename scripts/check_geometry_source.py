@@ -145,8 +145,17 @@ def coverable():
     try:
         k, v = "a1", ST.GEOM16["a1"]
         ST.GEOM16[k] = (v[0], v[1], v[2], v[3] + 0.5)      # move the top bar down half a row
-        after_7 = repr(ST.seg7_svg_grid())
-        after_js = MSD.geometry_js()
+        # ⚑ A REFUSAL IS A MOVE.  A derivation that rejects a lattice it cannot
+        # project has SEEN the edit — the opposite of a copy that renders the
+        # old shape unchanged. Only silence fails this arm.
+        try:
+            after_7 = repr(ST.seg7_svg_grid())
+        except ValueError as e:
+            after_7 = f"REFUSED: {e}"
+        try:
+            after_js = MSD.geometry_js()
+        except ValueError as e:
+            after_js = f"REFUSED: {e}"
     finally:
         ST.GEOM16.clear()
         ST.GEOM16.update(saved)
@@ -158,8 +167,8 @@ def coverable():
                 if not moved_7 else "seg7_svg_grid() re-derived from the perturbed lattice"))
     out.append(("SegmentChar surfaces (live wallpaper/marquee) move with GEOM16",
                 moved_js,
-                "geometry_js() reads GEOM22, which is not derived from GEOM16 — a GEOM16 edit does not reach it"
-                if not moved_js else "geometry_js() moved with the lattice"))
+                "geometry_js() reads a GEOM22 snapshot taken at import — a GEOM16 edit does not reach it until re-import"
+                if not moved_js else "geometry_js() moved with the lattice (reads geom22() at call time)"))
 
     # --- arm 2: not silent-empty ------------------------------------------
     try:
