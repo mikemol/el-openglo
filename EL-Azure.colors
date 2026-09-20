@@ -145,3 +145,6 @@ activeForeground=75,162,250
 inactiveBackground=11,19,27
 inactiveBlend=153,204,255
 inactiveForeground=153,204,255
+
+[EL]
+GhostAlpha=0.503

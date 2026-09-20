@@ -12,6 +12,10 @@ $tables
     property color litColor: $lit
     property color ghostColor: $ghost
     property color hotColor: $hot
+    // ghost opacity — SOLVED by the palette (ghost_alpha on every token). The
+    // ghost segments were drawn OPAQUE here, so the seen ghost was the declared
+    // colour rather than its composite over the ground the palette solved for.
+    property real ghostAlpha: $ghostAlpha
     property int segLen: Math.max(6, Math.floor(height * 0.42))
     property int segThick: Math.max(2, Math.floor(segLen * 0.18))
 
@@ -72,12 +76,14 @@ $tables
             visible: parent.insertColon
             width: segThick; height: segThick; radius: segThick/2
             color: root.colonOn ? root.litColor : root.ghostColor
+            opacity: root.colonOn ? 1.0 : root.ghostAlpha
             x: segLen + segLen*0.25; y: segLen*0.62
         }
         Rectangle {
             visible: parent.insertColon
             width: segThick; height: segThick; radius: segThick/2
             color: root.colonOn ? root.litColor : root.ghostColor
+            opacity: root.colonOn ? 1.0 : root.ghostAlpha
             x: segLen + segLen*0.25; y: segLen*1.38 - segThick
         }
     }
@@ -93,6 +99,7 @@ $tables
             property bool showGhost: plasmoid.configuration.showGhost
             visible: parent.on || showGhost
             color: parent.on ? root.litColor : root.ghostColor
+            opacity: parent.on ? 1.0 : root.ghostAlpha
             antialiasing: true
             radius: segThick/2
             width:  horiz ? segLen - gap*2 : segThick

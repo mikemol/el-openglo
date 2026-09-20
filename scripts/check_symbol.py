@@ -213,6 +213,14 @@ WITNESS = {
         lambda: _reads("make_plymouth.py", r"(?i)target.?res|screen.?(w|width|res)|\.svg\b")),
 
     # ── RESIDUE: kept, deliberately unbuilt ──
+    # ⚑ THE COMPONENT WITH NO CONSUMER (session 69-70). The colour relation now
+    # holds on every surface in its own idiom; this asks whether any shipped
+    # surface INSTANTIATES the shared component — an idiom question, kept open.
+    "⊕SEGMENTCHAR-ADOPT": (
+        "a shipped surface instantiates templates/SegmentChar.qml rather than drawing"
+        " segments in its own idiom (:4419)",
+        lambda: _any(["templates/live-wallpaper-main.qml", "templates/clock-main.qml",
+                      "templates/marquee-main.qml"], r"\bSegmentChar\s*\{")),
     "⊕NOTIFY-SEGRENDER": (
         "the ticker renders in the actual 7-seg/dot primitive (:3568)",
         lambda: _reads("make_notify_marquee.py", r"(?i)SegmentChar|segment_topology")),

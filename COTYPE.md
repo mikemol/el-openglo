@@ -4805,7 +4805,7 @@ residue gated on live operator testing.
   ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
   (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
-- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG).
+- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG). [s68]
 
 
 ## Session 69 — the gated ghost reaches NO surface; SegmentChar has zero consumers (correction to 67)
@@ -4873,4 +4873,72 @@ residue gated on live operator testing.
   ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
   (wrong turn: marquee is matrix). ⊕PLA2 ⊕KVT2 ⊕KNB2.
-- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG).
+- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG). [s69]
+
+
+## Session 70 — ⊕SEGMENT-ROLLOUT closure: every surface draws the palette's ghost
+- [drift: clean]. W8 of the paths-forward loop, three bounded steps over two ticks,
+  each measured by scripts/check_ghost_surfaces.py before the next.
+- The collapse point was make_wallpaper_live.colors_for — shared by the live
+  wallpaper and the marquee — which became a READ of the token dict (ground, fg,
+  fg_in, ghost_alpha) instead of the session-39 re-derivation from `focus`.
+  live-wallpaper-main.qml's ghost pass had `globalAlpha = 0.45` (a third authored
+  copy of the number); the marquee's MatrixChars had `ghostOpacity: 0.28`. Both
+  now take the solved alpha as a hole. 12 of 24.
+- make_clock.main_qml: fg/fg_in/ghost_alpha from the token dict it already held;
+  stretch_lit/derive_ghost retired there (residue in their cvd_gate docstrings);
+  clock-main.qml's Segment rectangles and colon dots take `opacity: on ? 1 :
+  ghostAlpha` — they were OPAQUE. 18 of 24.
+- make_plymouth: the splash sources from the .colors file (make_preview
+  .parse_scheme), which carried no alpha — so make_schemes now emits an `[EL]
+  GhostAlpha=` section into every scheme (KDE ignores it; the file becomes
+  self-describing, as the token dict is) and parse_scheme reads `ghost`
+  (ForegroundInactive) and `ghost_alpha`. render_assets passes both;
+  `ghost_from` (lerp 0.6, the FOURTH ghost model in the tree) is residue. 24 of 24.
+- [110] What this closes is the colour-chain half of the invariant
+  ⊕SEGMENT-SUBSTRATE closed for geometry: one solve, every surface a read of it.
+  The .colors emit and the token dict are the two authorities CLAUDE.md names;
+  both now carry the alpha, so a surface sourcing from either draws the ghost
+  the palette solved, at the alpha it was solved through.
+- NOT done, by name: no surface instantiates templates/SegmentChar.qml (the
+  component still has zero shipping consumers — the live wallpaper stays Canvas,
+  the clock Rectangles). That was the ledger's literal rollout text since
+  session 63; what the operator ruled on (W8) and what @GHOST-SURFACES measures
+  is the COLOUR relation, which now holds on every surface regardless of
+  idiom. Adopting the component is idiom, not relation, and is left open as
+  ⊕SEGMENTCHAR-ADOPT (RESIDUE: the component exists, is gated, and is unused).
+
+### ⊕SEGMENT-ROLLOUT closure (four gates) — the gated ghost is the seen ghost on every surface
+- Four gates: constructible (@EMITTERS: 7 of 8 run, kvantum's input absent as
+  recorded; @PARITY 7 of 7 after two deliberate re-captures); reachable (every
+  surface reads fg/fg_in/ghost_alpha from a palette authority — the token dict
+  or the .colors [EL] section — @TOKENS); observable (@GHOST-SURFACES:
+  scripts/check_ghost_surfaces.py, 24 of 24 surface×variant emissions equal the
+  palette's colour AND alpha, read from what each generator emits); coverable
+  (the witness's selftest sees a surface drawing its own ghost and one drawing
+  at its own alpha; a .colors file that predates the [EL] section reads as
+  0.45 and is reported as a miss, not silently accepted).
+- RESIDUE: ⊕SEGMENTCHAR-ADOPT (above); ⊕GHOST-DENSITY (the matrix's dot field
+  and the 22-seg stroke pitch at the solved alpha — the relation holds, the
+  perceptual term is unmeasured); cvd_gate.stretch_lit / derive_ghost and
+  make_plymouth.ghost_from kept as residue with their reasons.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (session 70: @GHOST-SURFACES 24 of 24) + (research)
+  ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER, ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-UI-TOKENS, ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT,
+  ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation). ⊕PLA2 ⊕KVT2 ⊕KNB2.
+- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG). [s70]

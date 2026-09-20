@@ -88,8 +88,11 @@ def surfaces(variant_id):
     import make_plymouth as MP
     import make_preview
     c = make_preview.parse_scheme(variant_id)
-    ground, ph = MP._rgb(c["ground"]), MP._rgb(c["phosphor"])
-    out.append(("make_plymouth", ph, MP.ghost_from(ph, ground), 0.5))
+    # what render_assets hands render_digit: the scheme's phosphor, its
+    # ForegroundInactive, and [EL] GhostAlpha (parse_scheme defaults 0.45 when
+    # the .colors predates the solve — which this check then reports as a miss)
+    out.append(("make_plymouth", MP._rgb(c["phosphor"]), MP._rgb(c["ghost"]),
+                float(c["ghost_alpha"])))
     return out
 
 

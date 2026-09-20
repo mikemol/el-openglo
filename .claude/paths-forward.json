@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 11,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-20T20:57:10+00:00",
-  "job_id": "cd86e5e3",
+  "heartbeat": "2026-09-20T22:51:25+00:00",
+  "job_id": "edf7312a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -13,7 +13,10 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": null,
+  "lock": {
+    "holder": "session-ef09ca0b",
+    "taken_at": "2026-09-20T23:10:20+00:00"
+  },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -115,7 +118,7 @@
     {
       "symbol": "W5",
       "title": "SegmentChar as the one geometry substrate under wallpaper/clock/marquee/plymouth — cotype ⊕SEGMENT-SUBSTRATE",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W9"
       ],
@@ -126,10 +129,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: the vector clock and vector splash (W9) both need the substrate first",
-      "next_bounded_step": "Write the coverable witness: `check_geometry_source.py --coverable` — for each SURFACE, obtain its emitted geometry-bearing artifact through an accessor (make_segment_display.geometry_js/glyphs_js for the QML surfaces; make_plymouth's digit projection for PIL), monkeypatch ONE stroke in segment_topology.GEOM22, re-emit, and assert every surface's output changed; then request a glyph the table lacks and assert a refusal, not an empty set. Selftest: prove the witness sees a surface that IGNORES the substrate. Then append a `### ⊕SEGMENT-SUBSTRATE closure (four gates)` section + re-stated ledger to COTYPE.md so check_symbol closes it.",
-      "evidence": "MEASURED (tick 9) against the log's own four-gate plan (COTYPE.md:4427-4432): reachable — check_geometry_source --map: 5 of 5 surfaces import an authority (segment_topology ×4, display_types for the matrix marquee); observable — check_geometry_source: 5 of 5, no surface binds a literal stroke table (AST, not grep); constructible — @EMITTERS and @SAMPLES green. Coverable — NO WITNESS: nothing proves that moving one GEOM stroke moves every surface, or that an absent glyph is reported rather than rendered empty. The cotype ledger still lists ⊕SEGMENT-SUBSTRATE open because no closure section was ever written; three of four gates are already measured by tools.",
+      "next_bounded_step": "—",
+      "evidence": "DONE (tick 12, commit e212032): glyph16(strict=)/has_glyph contract; digit paths strict; --coverable 3 of 3; @SUBSTRATE-COVERABLE green; COTYPE.md session 67 + closure section + ledger; `check_symbol.py SEGMENT-SUBSTRATE` → present; BUILD bucket 1 of 2 open (⊕MATRIX-FONT-INPUT only). Reading apparatus fixed twice: check_symbol witness now runs the tool (was a noun regex); cotype_index selftest rule 4 on a synthetic doc (was pinned to this symbol).",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-20T20:56:44+00:00",
+      "last_worked": "2026-09-20T21:57:33+00:00",
       "ticks_blocked": 0
     },
     {
@@ -170,7 +173,7 @@
     },
     {
       "symbol": "W8",
-      "title": "Ghost separation re-verified at 22-seg inter-stroke density — cotype ⊕GHOST-DENSITY",
+      "title": "⊕SEGMENT-ROLLOUT: every surface draws the palette fg/fg_in at ghost_alpha — 24 of 24 emissions differ; SegmentChar.qml has zero consumers (+ ⊕GHOST-DENSITY)",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -179,32 +182,30 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "rank_reason": "re-verifying ghost contrast at density is meaningless while the gated ghost is not the rendered ghost",
-      "next_bounded_step": "W3 landed. Read the cotype entry ⊕GHOST-DENSITY (:4459); state what \"22-seg inter-stroke density\" changes in the composite model (the bloom underlay and neighbouring-stroke overlap are the two recorded-not-gated instances in relations.md §3b) and which of them this item is; then extend check_ghost_composite or add a witness.",
-      "evidence": "check_symbol.py --bucket RESEARCH: open (:4459).",
+      "rank_reason": "collapse (operator-decided): one colour chain — surfaces read fg/fg_in/ghost_alpha; retires stretch_lit/derive_ghost in four surfaces and makes W3 reach the screen",
+      "next_bounded_step": "Step 2: make_clock.main_qml — read lit=t[\"fg\"], ghost=t[\"fg_in\"], alpha=t[\"ghost_alpha\"]; drop stretch_lit/derive_ghost there (record as residue in the docstring: session-39 pipeline retired); clock-main.qml gets `property real ghostAlpha: $ghostAlpha` and the Segment rectangle gets `opacity: parent.on ? 1.0 : root.ghostAlpha` (colon dots too). Baseline: clock has no main_qml parity pair (only CONFIG_*), so none to re-capture. Step 3: make_plymouth.render_assets reads fg_in + ghost_alpha via parse_scheme tokens (check parse_scheme exposes fg_in/ghost_alpha; else read GRID); alpha byte = round(255*ghost_alpha). Re-run check_ghost_surfaces → 24 of 24; then ⊕SEGMENT-ROLLOUT closure in COTYPE (Four gates line) and ⊕GHOST-DENSITY next.",
+      "evidence": "STEP 1 (tick 15, commit 34d54bd): colors_for reads (ground, fg, fg_in, ghost_alpha) from the tokens; live-wallpaper-main.qml ghost pass uses $ghostAlpha (was literal 0.45); marquee passes ghostOpacity=$ghostAlpha to every MatrixChar (was 0.28, flagged for ⊕GHOST-DENSITY). check_ghost_surfaces: 12 of 24 match (was 0). Two baselines re-captured. Worklist 44/44.",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-20T20:47:02+00:00",
+      "last_worked": "2026-09-20T22:34:43+00:00",
       "ticks_blocked": 0
     },
     {
       "symbol": "W9",
-      "title": "Clock and boot splash draw vector segments rather than raster — cotype ⊕CLOCK-VECTOR, ⊕PLYMOUTH-VECTOR",
-      "status": "blocked",
+      "title": "⊕PLYMOUTH-VECTOR: the boot splash pre-rendered at the target resolution (or SVG) — ⊕CLOCK-VECTOR done",
+      "status": "ready",
       "enables": [],
       "touches": [
         "segment-geometry",
         "clock",
         "plymouth"
       ],
-      "blocked_on": [
-        "W5"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "rank_reason": "TIER 3; both need the shared substrate before they can draw from it",
-      "next_bounded_step": "After W5: pick the clock first (it already has @CLOCKFIT as a witness).",
-      "evidence": "check_symbol.py --bucket TIER_3: 2 of 2 open (:4228).",
+      "next_bounded_step": "Find where the splash size/target is known (make_deb? the plymouth script plugin reads Window.GetWidth()/GetHeight() at boot — assets cannot know the screen at build time). So the honest form is likely: emit digits at a set of standard resolutions (or a U derived from a declared target), and have the plymouth .script pick by Window.GetHeight(). Read make_plymouth render_assets callers and the .script template; state the mechanism in evidence before building.",
+      "evidence": "MEASURED (tick 13, commit f94ff8c): ⊕CLOCK-VECTOR was DONE — emitted clock has no Canvas, segments are antialiased scene-graph Rectangles (the :4221-4225 criterion); witness was stale on file+idiom, now reads the emitted QML. ⊕PLYMOUTH-VECTOR genuinely open: PIL polygons from the substrate at FIXED U=48; log defines vector there as pre-render at target res or SVG; witness asks for either. TIER 3: 1 of 2. COTYPE session 68. Found: ghost colour silo on clock (:86 derive_ghost, opaque) AND plymouth (:107 ghost_from lerp .6, alpha .5) → W8.",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": null,
+      "last_worked": "2026-09-20T22:08:53+00:00",
       "ticks_blocked": 0
     },
     {

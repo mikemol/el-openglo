@@ -68,23 +68,20 @@ CONFIG_XML = _t("clock-config.kcfg")
 CONFIG_QML = _t("clock-config.qml")
 
 def main_qml(t):
-    import cvd_gate as _cvd
-    def _rgb(css): css=css.strip().strip('"').lstrip("#"); return tuple(int(css[i:i+2],16) for i in (0,2,4))
-    def _tup(v): return tuple(int(x) for x in v.split(","))
-    lit = rgbcss(t, "focus"); hot = rgbcss(t, "fg_act")
-    _bg = _tup(t["view"])
-    _lit0 = _rgb(lit)
-    # ⊕CONTRAST-STRETCH: span = contrast(lit, ground) bounds the ghost's per-side
-    # contrast. Push lit away from ground (into the mode's aesthetic envelope) to
-    # widen the span so {lit, ghost, ground} separate evenly. Backlit (bright)
-    # grounds gain the most (lit was too close to its own ground); dark-display
-    # grounds already have wide span so stretch is a near no-op there.
-    _litS = _cvd.stretch_lit(_lit0, _bg)
-    lit = '"#%02x%02x%02x"' % _litS
-    # ghost is DERIVED to balance against BOTH live and ground (⊕GHOST-CONTRAST/2),
-    # not taken from fg_in (which failed WCAG on every lit-mode variant).
-    _g = _cvd.derive_ghost(_litS, _bg)
-    ghost = '"#%02x%02x%02x"' % _g
+    # ⚑ THE COLOURS ARE READ FROM THE TOKEN DICT, NOT RE-DERIVED HERE.  This took
+    # `focus` (the ACCENT) as lit, pushed it through cvd_gate.stretch_lit
+    # (⊕CONTRAST-STRETCH, session 39) and then cvd_gate.derive_ghost (the 99-point
+    # balance scan) — "not taken from fg_in (which failed WCAG on every lit-mode
+    # variant)", as the old comment said, and that was true of the AUTHORED
+    # palette. The solver (sessions 57-58) then took over both: solve_lit embodies
+    # the same push-lit-away-from-ground invariant, and fg_in is solved THROUGH the
+    # render alpha against an APCA floor (relations.md §3b). Nobody retired this
+    # copy, so the clock drew a lit and a ghost the palette never saw and drew the
+    # ghost OPAQUE — measured 2026-09-20 by scripts/check_ghost_surfaces.py, 6 of 6
+    # variants. Operator ruling (W8): one colour chain. The residue is the docstring
+    # of cvd_gate.stretch_lit / derive_ghost, which still exist for the checks.
+    lit = rgbcss(t, "fg"); ghost = rgbcss(t, "fg_in"); hot = rgbcss(t, "fg_act")
+    alpha = float(t["ghost_alpha"])
     # ⚑ THE QML IS templates/clock-main.qml.  It was 104 lines of markup in an
     # f-string, which cost ~40 DOUBLED BRACE PAIRS — every `{{` and `}}` an
     # artifact of surviving as a Python literal rather than anything QML asked
@@ -92,7 +89,7 @@ def main_qml(t):
     # editor can open it, and a diff shows which binding moved.
     import templates.loader as TL
     return TL.render("clock-main.qml", tables=qml_tables(),
-                     lit=lit, ghost=ghost, hot=hot)
+                     lit=lit, ghost=ghost, hot=hot, ghostAlpha=alpha)
 
 # ------------------------------------------------------------------ gate
 def balanced(s, o, c):

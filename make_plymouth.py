@@ -72,9 +72,13 @@ def _draw_stroke(dr, spec, U, T, ox, oy, color):
     dr.polygon([(ox + px, oy + py) for px, py in pts], fill=color)
 
 
-def render_digit(ch, lit_rgb, ghost_rgb, U=48, weight=1.0, ghost=True):
+def render_digit(ch, lit_rgb, ghost_rgb, U=48, weight=1.0, ghost=True, ghost_alpha=0.5):
     """Render a 7-seg digit (or blank) to an RGBA PNG image. Lit segments in
-    lit_rgb; unlit in ghost_rgb (faint) when ghost=True."""
+    lit_rgb; unlit in ghost_rgb at `ghost_alpha` when ghost=True.
+
+    ⚑ THE ALPHA IS THE PALETTE'S.  This baked the ghost at 0.5 — its own copy of
+    the number every surface authored separately — while the palette solved
+    fg_in to be seen through a DIFFERENT alpha. The caller passes the scheme's."""
     W = int(CELL_W * U + U)
     H = int(CELL_H * U + U)
     img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
@@ -87,7 +91,7 @@ def render_digit(ch, lit_rgb, ghost_rgb, U=48, weight=1.0, ghost=True):
         if seg in on:
             _draw_stroke(dr, spec, U, T_lit, ox, oy, lit_rgb + (255,))
         elif ghost:
-            _draw_stroke(dr, spec, U, T_gh, ox, oy, ghost_rgb + (int(255 * 0.5),))
+            _draw_stroke(dr, spec, U, T_gh, ox, oy, ghost_rgb + (int(round(255 * ghost_alpha)),))
     return img
 
 
@@ -105,7 +109,13 @@ def render_colon(lit_rgb, U=48, on=True):
 
 
 def ghost_from(lit_rgb, ground_rgb):
-    """Dim phosphor toward ground for the unlit segment tint (same model)."""
+    """RESIDUE — the splash's own ghost: phosphor lerped 0.6 toward ground.
+
+    "Same model", the docstring said, and it was a fourth model: the clock used
+    derive_ghost, the wallpaper stretch_lit+derive_ghost, the palette solve_ghost
+    through alpha, and this a fixed lerp. Retired 2026-09-20 (W8): render_assets
+    reads the scheme's ForegroundInactive and [EL] GhostAlpha. Kept so the old
+    number can be re-read; no caller in the emit path."""
     return tuple(int(round(lit_rgb[i] + (ground_rgb[i] - lit_rgb[i]) * 0.6)) for i in range(3))
 
 
@@ -113,17 +123,18 @@ def render_assets(variant, out_dir, U=48):
     """Render all digit/colon PNGs (lit-on-void 'normal' set + backlit set) into
     out_dir. Returns the list of written files."""
     c = MP.parse_scheme(variant)
-    ground = _rgb(c["ground"])
     phosphor = _rgb(c["phosphor"])
-    gh = ghost_from(phosphor, ground)
+    # the palette's ghost and the alpha it was solved through — read from the
+    # scheme, not re-derived (ghost_from is residue)
+    gh, ga = _rgb(c["ghost"]), c["ghost_alpha"]
     os.makedirs(out_dir, exist_ok=True)
     written = []
     # normal (dark display): phosphor-lit segments, ghost dim, transparent bg
     for d in list("0123456789"):
         p = os.path.join(out_dir, f"d{d}.png")
-        render_digit(d, phosphor, gh, U=U).save(p)
+        render_digit(d, phosphor, gh, U=U, ghost_alpha=ga).save(p)
         written.append(p)
-    render_digit(" ", phosphor, gh, U=U).save(os.path.join(out_dir, "dblank.png"))
+    render_digit(" ", phosphor, gh, U=U, ghost_alpha=ga).save(os.path.join(out_dir, "dblank.png"))
     written.append(os.path.join(out_dir, "dblank.png"))
     render_colon(phosphor, U=U, on=True).save(os.path.join(out_dir, "colon_on.png"))
     render_colon(phosphor, U=U, on=False).save(os.path.join(out_dir, "colon_off.png"))

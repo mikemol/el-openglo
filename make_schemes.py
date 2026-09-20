@@ -325,6 +325,13 @@ def emit_colors(t, dark):
       f"activeForeground={t['fg_act']}\n"
       f"inactiveBackground={t['hdr_in_bg'] if t['tt_is_sel'] else t['view']}\n"
       f"inactiveBlend={t['fg_in']}\ninactiveForeground={t['fg_in']}\n",
+      # ⚑ THE GHOST'S RENDER ALPHA TRAVELS WITH THE SCHEME.  KDE ignores an
+      # unknown section, so this costs nothing there; make_preview.parse_scheme
+      # reads it, which is how the surfaces that source from the .colors file
+      # (plymouth) draw the ghost the palette solved — fg_in was solved to be
+      # seen THROUGH this number, and a .colors file without it carries a colour
+      # whose meaning depends on a value it does not state.
+      f"[EL]\nGhostAlpha={t.get('ghost_alpha', '0.45')}\n",
     ]
     return "\n".join(parts)
 

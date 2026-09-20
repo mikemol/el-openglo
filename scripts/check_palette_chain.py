@@ -143,8 +143,26 @@ def _selftest():
     check("the AST walk found references", len(refs) > 0, True)
     # ⚑ The walk must see the attributes whose absence WAS the break, or it is
     # blind to exactly the defect it was written for.
-    for needed in ("apca_Lc", "wcag_ratio", "derive_ghost"):
+    #
+    # ⚑ `derive_ghost` WAS ON THIS LIST AND IS NO LONGER REFERENCED BY ANY
+    # CONSUMER — retired from make_clock on 2026-09-20 (W8) when the surfaces
+    # switched to the palette's solved fg_in. The arm then failed, reporting a
+    # fact about the FIXTURE (a name pinned to the tree's state when the check
+    # was written) as a fact about the WALK. The walk's ability to see an
+    # attribute is proved on a planted module below, where the reference cannot
+    # go away; the live list keeps only what the chain still reads.
+    for needed in ("apca_Lc", "wcag_ratio"):
         check(f"walk sees C.{needed}", needed in refs, True)
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        p = os.path.join(td, "planted.py")
+        open(p, "w").write("import cvd_gate as C\nx = C.derive_ghost\ny = C.nothing_here\n")
+        tree = ast.parse(open(p).read())
+        seen = {n.attr for n in ast.walk(tree)
+                if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)
+                and n.value.id == "C"}
+        check("walk sees a planted C.derive_ghost", "derive_ghost" in seen, True)
+        check("...and a planted attribute cvd_gate lacks", "nothing_here" in seen, True)
     print("check_palette_chain selftest:", "PASS" if ok else "FAIL")
     return ok
 
