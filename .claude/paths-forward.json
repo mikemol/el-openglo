@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 11,
+  "counter": 19,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-20T22:51:25+00:00",
-  "job_id": "edf7312a",
+  "heartbeat": "2026-09-20T23:34:00+00:00",
+  "job_id": "eed2e3f9",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-20T23:10:20+00:00"
+    "taken_at": "2026-09-20T23:55:16+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -174,7 +174,7 @@
     {
       "symbol": "W8",
       "title": "⊕SEGMENT-ROLLOUT: every surface draws the palette fg/fg_in at ghost_alpha — 24 of 24 emissions differ; SegmentChar.qml has zero consumers (+ ⊕GHOST-DENSITY)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "ghost",
@@ -183,10 +183,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse (operator-decided): one colour chain — surfaces read fg/fg_in/ghost_alpha; retires stretch_lit/derive_ghost in four surfaces and makes W3 reach the screen",
-      "next_bounded_step": "Step 2: make_clock.main_qml — read lit=t[\"fg\"], ghost=t[\"fg_in\"], alpha=t[\"ghost_alpha\"]; drop stretch_lit/derive_ghost there (record as residue in the docstring: session-39 pipeline retired); clock-main.qml gets `property real ghostAlpha: $ghostAlpha` and the Segment rectangle gets `opacity: parent.on ? 1.0 : root.ghostAlpha` (colon dots too). Baseline: clock has no main_qml parity pair (only CONFIG_*), so none to re-capture. Step 3: make_plymouth.render_assets reads fg_in + ghost_alpha via parse_scheme tokens (check parse_scheme exposes fg_in/ghost_alpha; else read GRID); alpha byte = round(255*ghost_alpha). Re-run check_ghost_surfaces → 24 of 24; then ⊕SEGMENT-ROLLOUT closure in COTYPE (Four gates line) and ⊕GHOST-DENSITY next.",
-      "evidence": "STEP 1 (tick 15, commit 34d54bd): colors_for reads (ground, fg, fg_in, ghost_alpha) from the tokens; live-wallpaper-main.qml ghost pass uses $ghostAlpha (was literal 0.45); marquee passes ghostOpacity=$ghostAlpha to every MatrixChar (was 0.28, flagged for ⊕GHOST-DENSITY). check_ghost_surfaces: 12 of 24 match (was 0). Two baselines re-captured. Worklist 44/44.",
+      "next_bounded_step": "—",
+      "evidence": "DONE (tick 16, commit 2dca20e): clock reads fg/fg_in/ghost_alpha, segments+colon at solved alpha; make_schemes emits [EL] GhostAlpha into every .colors; parse_scheme reads ghost+ghost_alpha; plymouth reads both (ghost_from residue). check_ghost_surfaces 24 of 24; @GHOST-SURFACES green; ⊕SEGMENT-ROLLOUT closed (COTYPE session 70, Four gates line); ⊕SEGMENTCHAR-ADOPT opened as residue with a witness. check_palette_chain selftest fixture (pinned to C.derive_ghost) moved to a planted module. Worklist 44/44. ⊕GHOST-DENSITY remains the RESEARCH follow-on.",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-20T22:34:43+00:00",
+      "last_worked": "2026-09-20T23:18:09+00:00",
       "ticks_blocked": 0
     },
     {
@@ -224,6 +224,160 @@
       "evidence": "check_symbol.py --bucket TUNE: 4 of 6 open.",
       "issued_at": "2026-09-20T00:00:00Z",
       "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W12",
+      "title": "Gentoo overlay under overlay/ + a live ebuild (git-r3, this repo) that runs the emitters and installs what make_deb installs, + check_ebuild.py witness",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "packaging",
+        "make_deb",
+        "overlay"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
+      "next_bounded_step": "Measure first: read make_deb.py for the install manifest (which files land where — that IS the ebuild src_install), and luthen-observability/overlay for the layout.conf/repo_name shape already on this host. Then overlay/{metadata/layout.conf,profiles/repo_name,x11-themes/el-openglo/el-openglo-9999.ebuild}; wire /etc/portage/repos.conf/el-openglo.conf with location = this checkout (the luthen pattern — local path, no sync). Witness: check_ebuild.py — overlay parses (pkgcheck or `ebuild ... manifest` under sandbox), install set == make_deb install set, refuses on empty set.",
+      "evidence": "Host: eselect repository shows guru, haskell, and luthen = /home/mikemol/github/luthen-observability/overlay (an overlay/ subdirectory wired by local path — the pattern to reuse). Repo remote: github.com/mikemol/el-openglo. Category for a desktop theme: x11-themes. ALSO a candidate first ebuild for the overlay: kde-plasma/union-6.7.5-r100 with the unconditional qttools[qdoc] BDEPEND dropped (+ the doc CMake switch off), if the operator prefers that to building two clang toolchains for qdoc — test whether union builds without qdoc; that is a measurement the overlay makes cheap.",
+      "issued_at": "2026-09-20T23:28:07+00:00",
+      "last_worked": "2026-09-20T23:35:21+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W13",
+      "title": "Upstream contribution routes for every theme target — where each is published, how to submit, licensing gates, whether generated themes are welcome",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "publishing",
+        "every-emitter"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "unblocked; the cheapest real step is the operator reading store.kde.org/product/add once (turns every [MEM] line to [WEB]); the machine-side step is a make_store_bundle emitter that packages each target with the preview + description the store wants, keyed by OCS category id",
+      "next_bounded_step": "Two tracks. HUMAN: open store.kde.org/product/add once and read the form (licence selector? preview reqs? is 114 or 717 offered for decorations?) — ask the operator, record as [WEB]. MACHINE: add catalog/publishing.md (or a relations-style table) mapping each emitter → OCS category id + xdg_type + licence + preview asset, sourced from the inbox letter; then a witness that every emitter has a row and every row cites a category id that exists in a fetched OCS listing (check_publishing.py, OCS fetch cached, SKIP offline).",
+      "evidence": "ANSWERED by linux-sources-ef 2026-09-20 → inbox/2026-09-20-linux-sources-contribution-routes-per-target.md (verbatim, sourcing-tagged). Headline: 9 of 10 targets go to the KDE Store via OCS categories read from the API itself (colours 112, Plasma style 104, Aurorae 114/717, Global Theme 722, Konsole 462, Plymouth 108, wallpaper plugin 715, clock 708, applets 706); Kvantum has NO store category (GitHub repo or PR to tsujan/Kvantum, GPL-3); Chrome = Web Store ($5 reg, themes exempt from item limit); packaging = own overlay (W12) / GURU PR / Debian discouraged for self-promotion. Generated-theme acceptance: ABSENT at every venue. The store HTML is Anubis-walled; the OCS API is not. Upload-form details are [MEM] — one operator login upgrades them.",
+      "issued_at": "2026-09-20T23:28:28+00:00",
+      "last_worked": "2026-09-20T23:33:13+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W14",
+      "title": "Union theme emitter — the palette emitted as a KDE Union style description (CSS input via cxx-rust-cssparser; Plasma-SVG input defunct 2025-10-09), the sink that subsumes make_kvantum + make_plasma + the QQC2 half of breeze",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "emitters",
+        "union",
+        "kvantum",
+        "plasma-style"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "collapse: Union replaces three current engines with one description; a generated palette is exactly its input shape. Measure the format before emitting — the engine is 6.7.5 ~arch, not yet default, and the format may still move",
+      "next_bounded_step": "Measure first: fetch the Union source (invent.kde.org/plasma/union) and read the CSS input grammar — which selectors/properties exist (colour, border, shadow, corner, text), how a theme is packaged and discovered (plasma platform plugin), and what union-ruleinspector validates. Map the 44 token keys → CSS properties; list properties with NO palette relation (new relations for catalog/relations.md). Then make_union.py reading GRID like make_plasma; check_token_source lists it; witness runs union-ruleinspector when installed, SKIPs otherwise. Reuse-search: make_kvantum widget→token map.",
+      "evidence": "Host 2026-09-20: plasmashell 6.7.5, qtbase 6.11.2; kde-plasma/union-6.7.5 ~amd64 not installed. Ebuild read: IUSE tools (dobin union-ruleinspector — the validator the witness should call) widgets (QtWidgets output, Breeze base); ECM examples = two QML snippets, NOT theme examples (skip); BDEPEND qttools[qdoc] UNCONDITIONAL → drags clang 22+23 toolchains; CMake: BUILD_INPUT_CSS=ON (CSS is the default input), BUILD_INPUT_PLASMASVG=OFF (defunct), outputs QTQUICK/KIRIGAMI/QTWIDGETS, BUILD_PLATFORM_PLASMA. Nothing in ::gentoo rdepends on union. Operator hit the qdoc USE requirement; advised unversioned `dev-qt/qttools qdoc` or an overlay -r100 dropping the qdoc BDEPEND (W12 can carry it).",
+      "issued_at": "2026-09-20T23:31:29+00:00",
+      "last_worked": "2026-09-20T23:35:12+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W15",
+      "title": "Firefox theme emitter — the palette as a WebExtension theme (manifest.json \"theme\" key), the nearest sibling of make_chrome",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "emitters",
+        "browser",
+        "make_chrome"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "collapse: make_chrome already emits a browser-theme manifest per variant; Firefox theme manifests share most of the shape (colors.frame/toolbar/tab_*), so this is a second output of one emitter, not a new one. Venue is AMO (addons.mozilla.org), a signed upload",
+      "next_bounded_step": "Measure first: read make_chrome.py (which tokens map to which manifest colour keys) and the Firefox theme manifest reference (extensionworkshop.com / MDN \"theme\" manifest key: colors, images, properties); table the key-by-key correspondence and the Firefox-only keys with NO relation yet. Then extend make_chrome (or split a make_browser) to emit both; witness: manifest validates (web-ext lint if present, else schema keys), every colour is a palette token (check_token_source lists it). Route for W13: AMO signed upload, unlisted or listed.",
+      "evidence": "",
+      "issued_at": "2026-09-20T23:38:29+00:00",
+      "last_worked": "2026-09-20T23:38:29+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W16",
+      "title": "Windows theme emitters — a .theme file (desktop colours, accent, wallpaper) and a Windows Terminal colour scheme (JSON), from the same palette",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "emitters",
+        "windows",
+        "make_konsole"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "sweep-ish: both formats are small, documented, and map cleanly onto tokens already emitted for KDE (.colors) and Konsole (make_konsole is the Terminal scheme sibling). No store: .theme and Terminal schemes ship as files",
+      "next_bounded_step": "Measure first: the .theme INI format ([Control Panel\\\\Colors], [Theme] wallpaper, accent via [Control Panel\\\\Desktop]) and the Windows Terminal scheme JSON (name, background, foreground, cursorColor, selectionBackground, the 16 ANSI keys) — make_konsole already derives the ANSI 16 from the palette, so the Terminal scheme is a re-emit of that table. Table the token→key map; witness: JSON parses, INI sections present, every colour is a token. Route for W13: none official; GitHub release assets.",
+      "evidence": "",
+      "issued_at": "2026-09-20T23:38:39+00:00",
+      "last_worked": "2026-09-20T23:38:39+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W17",
+      "title": "GNOME theming — what of the palette can reach GTK3, GTK4/libadwaita and GNOME Shell, and through which mechanism (gtk.css, adw-gtk3-style theme, Shell user-theme, or the libadwaita accent API), given ⊕GTK-ADW says pure-libadwaita apps honour no override",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "emitters",
+        "gnome",
+        "gtk",
+        "make_gtk?"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "measure-first: the design log already records libadwaita as UNREACHABLE by design (⊕GTK-ADW, :704) and make_deb ships breeze-gtk-shaped GTK3 bits; the question is which GNOME surfaces still take a theme in 2026 (GTK3 via a theme dir; GTK4 via ~/.config/gtk-4.0/gtk.css and the libadwaita accent-color portal; Shell via the user-theme extension) and whether a generated theme is more than a recolour of adw-gtk3. Venue: gnome-look.org — the SAME pling/OCS backend as the KDE Store, so W13's category-id witness extends",
+      "next_bounded_step": "Measure first, no build: (1) what GTK output exists in the tree today (check_emitters_run --list, make_deb) and what ⊕GTK-ADW closed as unreachable; (2) the three mechanisms and which honour a colour override in current GNOME (libadwaita 1.6+ accent colours via the settings portal are the one sanctioned channel — a palette accent, not a theme); (3) gnome-look.org OCS categories via api.gnome-look.org/ocs/v1/content/categories. Record which surfaces are reachable, which are residue with a reason, and which single mechanism gives the most for one emitter.",
+      "evidence": "",
+      "issued_at": "2026-09-20T23:38:54+00:00",
+      "last_worked": "2026-09-20T23:38:54+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W18",
+      "title": "Android — how a solved palette reaches an Android device: Material You derives its OWN tonal palette from the wallpaper (Monet), so the honest emit may be a wallpaper whose seed colour steers Monet toward the palette, plus a check that Monet's derived scheme agrees with ours",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "android",
+        "wallpaper",
+        "relations"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "measure-first with a relation question inside it: Android does not take a theme, it derives one — the palette solver and Monet are two solvers over one seed, and whether they agree is a relation (catalog/relations.md) before it is an emitter. Venue: none for a theme; a wallpaper is a file, a wallpaper APP is the Play Store",
+      "next_bounded_step": "Measure first: read the Material colour-utilities algorithm (the open-source material-color-utilities: seed → tonal palettes → scheme roles) and run it over each variant's lit/accent as seed; compare Monet's derived surface/primary/on-surface against the palette's view/fg/fg_act with the same separation checks the palette uses. Record the agreement per variant; if it holds, the emit is the wallpaper (make_wallpaper already renders one) + a documented seed; if not, the disagreement is the finding. Also: Android 12+ themed icons and the terminal apps (Termux colours.properties = another ANSI-16 re-emit).",
+      "evidence": "",
+      "issued_at": "2026-09-20T23:39:05+00:00",
+      "last_worked": "2026-09-20T23:39:05+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W19",
+      "title": "Web / IndieWeb theme — the palette as CSS custom properties (one :root block per variant, prefers-color-scheme mapping Off/Lit), the sink every site theme reads; the operator's future IndieWeb site is the first consumer",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "emitters",
+        "web",
+        "css",
+        "indieweb"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "collapse: CSS custom properties are the lowest-common-denominator of every browser/GNOME/Union sink already queued (Union input IS CSS; Firefox/Chrome themes are colour maps) — emitting the palette as CSS tokens once gives W14, W15 and the site a shared read. Cheap, and it makes the palette linkable from the web (rel=stylesheet, or a theme CSS the IndieWeb templates import)",
+      "next_bounded_step": "Emit catalog/el-openglo.css (or a make_css.py): --el-view/--el-fg/--el-fg-in/--el-ghost-alpha/… per variant, with the role names from palette_graph.NODES (not invented ones), @media (prefers-color-scheme) selecting Off vs Lit, and the ghost composite expressed as color-mix() so the seen ghost is one CSS expression. Witness: the file parses (tinycss2 is already in the venv), every custom property is a token, the 44 keys are all present per variant. Then a sample HTML page in catalog/library rendered with it (@SAMPLES). IndieWeb specifics (microformats, h-card colours) wait for the site to exist.",
+      "evidence": "",
+      "issued_at": "2026-09-20T23:39:19+00:00",
+      "last_worked": "2026-09-20T23:39:19+00:00",
       "ticks_blocked": 0
     }
   ],

@@ -179,6 +179,20 @@ def set_fields(state: dict, sym: str, kvs: list[str]) -> None:
     save(state)
 
 
+def add(state: dict, title: str, kvs: list[str]) -> str:
+    """Mint the next symbol (counter only ever increments) and append a ready waypoint."""
+    state["counter"] += 1
+    sym = f"W{state['counter']}"
+    w = {"symbol": sym, "title": title, "status": "ready", "enables": [], "touches": [],
+         "blocked_on": [], "blocked_kind": None, "rank_reason": "", "next_bounded_step": "",
+         "evidence": "", "issued_at": now(), "last_worked": None, "ticks_blocked": 0}
+    state["waypoints"].append(w)
+    save(state)
+    if kvs:
+        set_fields(state, sym, kvs)
+    return sym
+
+
 def ledger(line: str) -> None:
     with open(os.path.join(ROOT, ".claude", "paths-forward.ledger"), "a", encoding="utf-8") as fh:
         fh.write(f"{now()}  {line}\n")
@@ -205,6 +219,7 @@ def main(argv: list[str]) -> int:
     g.add_argument("--armed", metavar="JOB_ID", help="record job_id + heartbeat after CronList verifies")
     g.add_argument("--set", nargs="+", metavar=("SYMBOL", "key=value"), help="update a waypoint's fields")
     g.add_argument("--ledger", metavar="LINE", help="append one line (timestamp is prepended)")
+    g.add_argument("--add", nargs="+", metavar=("TITLE", "key=value"), help="mint the next W<n> as a ready waypoint")
     a = ap.parse_args(argv)
     if a.selftest:
         return selftest()
@@ -219,6 +234,8 @@ def main(argv: list[str]) -> int:
         set_fields(state, a.set[0], a.set[1:]); print(f"{a.set[0]} updated; hash={state_hash(state)}")
     elif a.ledger:
         ledger(a.ledger); print("ledger appended")
+    elif a.add:
+        sym = add(state, a.add[0], a.add[1:]); print(f"{sym} added; hash={state_hash(load())}")
     elif a.hash:
         print(state_hash(state))
     elif a.render:
