@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 50,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T19:02:04+00:00",
-  "job_id": "1a0ecbe7",
+  "heartbeat": "2026-09-21T19:13:59+00:00",
+  "job_id": "110ed355",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-1a0ecbe7",
-    "taken_at": "2026-09-21T19:03:53+00:00"
+    "holder": "tick-110ed355",
+    "taken_at": "2026-09-21T19:18:36+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -843,10 +843,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(1) opa version + a one-rule pilot: check_qml_lint --json (documents[] with lint[] and bound_running[]), policy/qml_lint.rego with deny/withheld + D0 empty-population deny, qml_lint_test.rego with the refuse/admit pair (the marquee's running binding as the refusing fixture); opa test policy/ green; (2) opa_gate.py; (3) the warrant cites the rule; (4) the pattern written into CLAUDE.md's Writing a check section.",
-      "evidence": "",
+      "next_bounded_step": "(2) check_marquee_body --json (the ring traces + parse/join results are already JSON) + policy/marquee_body.rego with the traversal rules (every unshown id appears in exactly one ring; a shown-and-gone id never reappears; a replace re-shows) and their refuse/admit pairs; the Python cases table becomes the FIXTURE the rego reads. Per-policy package names (el.NAME), never a shared package main - cassian's partial sets UNION silently across files (linux-sources' reading). A predicate over a host fact goes in the MEASUREMENT, never inferred from another document (cassian C4: a check in the wrong document is a comment again).",
+      "evidence": "8101ae4: policy/qml_lint.rego + _test (7/7 under opa test); check_qml_lint --json; scripts/opa_gate.py (qml_lint admitted 0/0; selftest PASS); @QMLLINT cites the gate, @REGO cites opa test; CLAUDE.md pattern; COTYPE s99",
       "issued_at": "2026-09-21T19:04:23+00:00",
-      "last_worked": "2026-09-21T19:04:23+00:00",
+      "last_worked": "2026-09-21T19:12:49+00:00",
       "ticks_blocked": 0
     }
   ],

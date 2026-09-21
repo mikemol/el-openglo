@@ -6784,3 +6784,55 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s99]
+
+## Session 100 — the traversal invariant as rego; opa test in the pre-commit gate
+- W50 (2)+(4), 2026-09-22. check_marquee_body --json reports every case with
+  EXPECTED beside GOT (parse, join) and every ring scenario with its steps,
+  its stated boundaries and the trace the shipped .js produced; a runner-less
+  host is `runner: false`. policy/marquee_body.rego rules: M0 empty
+  population; M1 a body's text, its styled runs, no surviving tag; M2 the
+  summary is plain; M3 each boundary's ring and queue equal the statement;
+  M4 — derived from the STEPS, not the expectation — every arrival is rung
+  at some boundary at or after its arrival, so a scenario whose expectation
+  forgot an arrival passes M3 and fails M4; W withheld. 10 refuse/admit
+  tests; 17/17 across both policies. opa_gate's selftest now asks every
+  policy the one question that generalises: an EMPTY measurement is never
+  admitted (denied or withheld). @MARQUEE-BODY cites the gate; the Python
+  selftest is down to "the measurement carries expected beside got". The
+  pre-commit hook runs `opa_gate.py --test` through `run` (timed, ledgered),
+  right after the borrowed hooks' selftests.
+- Measured on the way: a colon inside a METADATA `title:` is YAML and opa
+  refuses to load the file — quote the title. cassian's `package main`
+  across files unions partial sets silently (linux-sources' reading);
+  every policy here is `package el.<name>`.
+- Residue: two of ~45 checks migrated (the sweep continues, smallest first);
+  M3 compares to a STATED trace while M4 derives — the other traversal
+  clauses (a shown-and-gone id never reappears; a replace re-shows the new
+  text) are still stated, not derived; opa_gate runs each check as a
+  subprocess (~a qml launch per call); the rego METADATA prose is not yet
+  projected anywhere a reader sees (paperkit could read `opa inspect -a`).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-98 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-98 —
+  confirm after re-emerge: every notification scrolls once, none vanish, the
+  board never goes dead), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s100]

@@ -169,6 +169,27 @@ def all_problems(res):
 N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES)
 
 
+def measure(res):
+    """The MEASUREMENT, as policy/marquee_body.rego reads it (W50): every case
+    with what was EXPECTED beside what the shipped parser RETURNED, and every ring
+    scenario with its steps beside the trace. The comparison is the policy's; the
+    runner's absence is a `withheld` fact, not a pass."""
+    if res is None:
+        return {"runner": False, "parse": [], "join": [], "ring": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": []}
+    for (body, text, runs), got in zip(CASES, res["parse"]):
+        out["parse"].append({"body": body, "expected_text": text, "text": got["text"],
+                             "expected_runs": [list(r) for r in runs], "runs": [list(r) for r in _styled(got)]})
+    for (args, text, runs), got in zip(JOIN_CASES, res["join"]):
+        out["join"].append({"args": list(args), "expected_text": text, "text": got["text"],
+                            "expected_runs": [list(r) for r in runs], "runs": [list(r) for r in _styled(got)]})
+    for (label, steps, want), trace in zip(RING_CASES, res["ring"]):
+        out["ring"].append({"label": label, "steps": steps,
+                            "expected": [{"ring": r, "queue": q} for r, q in want],
+                            "trace": trace})
+    return out
+
+
 def _flag(run_):
     if run_["bold"]:
         return "bold"
@@ -197,12 +218,15 @@ def problems(results):
 
 
 def main(argv):
-    known = {"--cases", "--selftest"}
+    known = {"--cases", "--json", "--selftest"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_marquee_body: unknown flag {a!r}", file=sys.stderr)
             return 2
     res = run()
+    if "--json" in argv:
+        print(json.dumps(measure(res), indent=1))
+        return 0
     if res is None:
         print(f"check_marquee_body: SKIP — {QML} not present; 0 of {N_CASES} cases run", file=sys.stderr)
         return 0
@@ -242,27 +266,19 @@ def _selftest():
     results = res["parse"]
     chk("every case returns", (len(results), len(res["join"]), len(res["ring"])),
         (len(CASES), len(JOIN_CASES), len(RING_CASES)))
-    chk("the real cases agree", all_problems(res), [])
-    # ⚑ THE INVARIANT CHECKS MUST BE ABLE TO FAIL
-    wrong = json.loads(json.dumps(res["ring"]))
-    wrong[0][0]["ring"] = []                       # the expired-before-boundary item never shown
-    chk("an item that never scrolls is seen", any("arrive-and-expire" in b for b in ring_problems(wrong)), True)
-    wrong = json.loads(json.dumps(res["ring"]))
-    wrong[4][1]["text"] = "n1#1"                    # a replace that kept the old text
-    chk("a replace keeping the old text is seen", any("replace" in b for b in ring_problems(wrong)), True)
-    wrong = json.loads(json.dumps(res["join"]))
-    wrong[0]["runs"] = [{"start": 16, "end": 18, "bold": True, "italic": False, "underline": False, "link": "", "color": ""}]
-    chk("a summary parsed as markup is seen", any("join" in b for b in join_problems(wrong)), True)
+    # ⚑ THE MEASUREMENT CAN SEE (W50). Whether a case's result is a DEFECT is
+    # policy/marquee_body.rego's ruling (M1 parse, M2 join, M3 trace, M4 every
+    # arrival rung), with the refuse/admit pairs in policy/marquee_body_test.rego
+    # under `opa test`. Here: the measurement carries expected beside got for
+    # every case, and a runner-less host reports withheld, not a pass.
+    m = measure(res)
+    chk("every parse case carries expected and got", all("expected_text" in c and "text" in c for c in m["parse"]), True)
+    chk("every ring scenario carries steps, expected and trace",
+        all(len(s["trace"]) == len(s["expected"]) and s["steps"] for s in m["ring"]), True)
+    chk("a runner-less host is withheld", measure(None)["runner"], False)
     two = results[-1]["runs"]
     links = [r["link"] for r in two if r["link"]]
     chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])
-    # ⚑ THE COMPARISON MUST BE ABLE TO FAIL: a wrong text and a wrong run are seen
-    wrong = json.loads(json.dumps(results))
-    wrong[1]["text"] = "<b>hi</b>"
-    chk("a tag surviving into the text is seen", any("survived" in b or "text" in b for b in problems(wrong)), True)
-    wrong = json.loads(json.dumps(results))
-    wrong[1]["runs"][0]["bold"] = False
-    chk("a lost bold run is seen", any("runs" in b for b in problems(wrong)), True)
     # the shipped file IS the tested file
     import make_notify_marquee as MM
     chk("the package ships the parser this ran",

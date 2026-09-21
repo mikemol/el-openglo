@@ -59,6 +59,10 @@ for h in hook_no_chaining hook_structural_query; do
   run "selftest:$h" python3 "$ROOT/scripts/$h.py" --selftest >/dev/null
 done
 
+# 2b. THE REQUIREMENTS ARE REGO (W50): every rule's refusing and admitting case,
+#    under opa test. SKIPs (exit 0, printed) when opa is absent.
+run "opa-test" "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" --test >/dev/null
+
 # 3. The segment lattice's own invariants — including the 22->16 byte-equality
 #    that makes the reconstructed geometry a reconstruction rather than a guess.
 run "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest >/dev/null

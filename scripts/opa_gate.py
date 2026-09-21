@@ -119,9 +119,11 @@ def _selftest():
     ps = policies()
     chk("at least one policy", len(ps) > 0, True)
     for n in ps:
-        # every policy answers to its name and denies an empty population (D0)
-        sets = evaluate(n, {"documents": [], "qmllint": True})
-        chk(f"{n}: an empty population is denied", len(sets["deny"]) > 0, True)
+        # every policy answers to its name and ADMITS NOTHING on an empty input:
+        # a measurement that measured nothing is denied (D0) or withheld, never
+        # admitted (verdict 0)
+        sets = evaluate(n, {})
+        chk(f"{n}: an empty measurement is not admitted", verdict(sets) != 0, True)
         chk(f"{n}: a check with --json exists", os.path.isfile(os.path.join(ROOT, "scripts", f"check_{n}.py")), True)
     chk("verdict maps deny to 1", verdict({"deny": ["x"], "withheld": []}), 1)
     chk("verdict maps withheld-only to 3", verdict({"deny": [], "withheld": ["x"]}), 3)

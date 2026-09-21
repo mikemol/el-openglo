@@ -680,7 +680,7 @@
 
 @misc{MARQUEE-BODY,
   claim    = {Notification bodies are markup (the freedesktop spec allows b i u a img; Plasma passes its sanitised subset with br and entities) and the marquee scrolls their TEXT: templates/marquee-body.js parses a body to plain text plus style runs, shipped beside the plasmoid and run headless by check_marquee_body under Qt's qml runner on synthetic bodies — a surviving tag, a wrong run span or an encoded entity fails; SKIP without the runner},
-  check    = {tool:check_marquee_body.py},
+  check    = {tool:opa_gate.py marquee_body},
   section  = {emitters}
 }
 
