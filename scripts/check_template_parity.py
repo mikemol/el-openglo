@@ -55,8 +55,7 @@ PAIRS = (
     # segment_topology's projection. So this pair proves TWO things at once — that
     # the 120 lines transcribed correctly, and that the substrate's tables are
     # byte-identical to the ones this file used to author.
-    ("make_wallpaper_live", "main_qml", "EL-Openglo",
-     "live-wallpaper-main-EL-Openglo.qml"),
+    ("make_wallpaper_live", "main_qml", None, "live-wallpaper-main.qml"),   # one package since W35
     # the ONE switcher package (⊕ONE-THEME, W35): one hole, the global ghost alpha
     ("make_taskswitch", "main_qml", None, "taskswitch-main.qml"),
     # four holes since W8: ground, lit, and the scheme's ghost + ghost_alpha
@@ -209,7 +208,7 @@ INSTALLED = {
     "marquee-config.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui/configGeneral.qml",
     "taskswitch-main.qml": "/usr/share/kwin/tabbox/org.el.taskswitch/contents/ui/main.qml",
     "clock-main.qml": "/usr/share/plasma/plasmoids/org.el.segclock/contents/ui/main.qml",
-    "live-wallpaper-main-EL-Openglo.qml": "/usr/share/plasma/wallpapers/org.el.livewallpaper.elopenglo/contents/ui/main.qml",
+    "live-wallpaper-main.qml": "/usr/share/plasma/wallpapers/org.el.openglo.live/contents/ui/main.qml",
 }
 
 

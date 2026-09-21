@@ -184,7 +184,7 @@ def coverable():
 
     def emit_all():
         return {"clock": MC.main_qml(),
-                "live-wallpaper": MWL.main_qml(variant),
+                "live-wallpaper": MWL.main_qml(),
                 "wallpaper": MW.wallpaper_svg(variant)}
     before = emit_all()
     saved_m = dict(ST.MODULE_METRICS)

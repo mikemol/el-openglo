@@ -172,10 +172,11 @@ echo "Tip: for full popup suppression, System Settings > Notifications > Do Not 
 LIVE_HELPER = r'''#!/bin/sh
 # el-openglo-live — set the LIVING phosphor watch face as desktop + lock wallpaper.
 set -eu
-VARIANT="${1:-EL-Openglo}"
-PLUGIN="org.el.openglo.live.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
+# ONE plugin since W35: its colours are the active colour scheme's (the variant is
+# whichever EL-*.colors el-openglo-apply applied), so no variant argument
+PLUGIN="org.el.openglo.live"
 PKG="/usr/share/plasma/wallpapers/$PLUGIN"
-if [ ! -d "$PKG" ]; then echo "no live wallpaper for $VARIANT" >&2; exit 1; fi
+if [ ! -d "$PKG" ]; then echo "the live wallpaper is not installed" >&2; exit 1; fi
 # Desktop: set the wallpaper PLUGIN on every desktop containment (cheap: no breathe)
 if command -v qdbus6 >/dev/null 2>&1; then
   qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
@@ -728,12 +729,9 @@ def stage(root):
 
     # Live wallpaper plugins (⊕WALLPAPER-LIVE): 8th emitter, mounts on desktop +
     # lock. One Plasma/Wallpaper package per variant.
+    # ONE Plasma/Wallpaper package since W35 (⊕ONE-THEME), bound to the scheme.
     import make_wallpaper_live as _wpl
-    wldirs = {v: os.path.join(
-        DEB_ROOT,
-        f"usr/share/plasma/wallpapers/org.el.openglo.live.{v.lower().replace('-', '')}")
-        for v in VARIANTS}
-    _wpl.render_all(VARIANTS, wldirs)
+    _wpl.render_all(os.path.join(DEB_ROOT, "usr/share/plasma/wallpapers", _wpl.PACKAGE_ID))
 
     # The notification-marquee plasmoid (⊕NOTIFY-MARQUEE): 9th emitter — phosphor
     # ticker that subsumes the occluding popups. ONE Plasma/Applet since W35

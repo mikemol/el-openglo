@@ -40,7 +40,7 @@ DOCS = (
     ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
     ("make_clock", "main_qml", None, "clock-main.qml"),   # one package since W35
-    ("make_wallpaper_live", "main_qml", "EL-Openglo", "live-wallpaper-main.qml"),
+    ("make_wallpaper_live", "main_qml", None, "live-wallpaper-main.qml"),   # one package since W35
     ("make_notify_marquee", "main_qml", ("PARITY_FONT",), "marquee-main.qml"),   # one package since W35
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     ("make_notify_marquee", "matrix_char_component", None, "MatrixChar.qml"),

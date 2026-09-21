@@ -93,10 +93,12 @@ def surfaces(variant_id):
                if isinstance(v[0], dict) and v[0].get("id") == variant_id)
     out = []
 
+    # bound since W35 (one package): what the wallpaper draws under this variant is
+    # the token the scheme writes into the role each colour is bound to
     import make_wallpaper_live as WL
-    qml = WL.main_qml(variant_id)
-    out.append(("make_wallpaper_live", _hole(qml, "litColor") or _hole(qml, "lit"),
-                _hole(qml, "ghostColor") or _hole(qml, "ghost"), _alpha(qml)))
+    qml = WL.main_qml()
+    out.append(("make_wallpaper_live", _bound(qml, "litColor", "textColor", tok["fg"]),
+                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]), _alpha(qml)))
 
     # bound since W35 (one package): what it draws under this variant is the token
     # the scheme writes into the role each colour is bound to

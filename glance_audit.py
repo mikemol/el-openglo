@@ -98,7 +98,7 @@ def surface_registry(variant="EL-Azure"):
     import make_wallpaper_live as WL
     ground, lit, ghost, alpha_looked = WL.colors_for(variant, parsing="looked_at")
     _g, _l, _gh, alpha_glanced = WL.colors_for(variant, parsing="glanced_at")
-    wq = WL.main_qml(variant)
+    wq = WL.main_qml()            # one package since W35; the idiom flags below are variant-free
     reg = []
 
     # clock plasmoid — LOOKED-AT; color + subordinated ghost + stroke-weight + bloom

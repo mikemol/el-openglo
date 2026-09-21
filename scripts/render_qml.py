@@ -94,7 +94,7 @@ def subject(surface, variant):
         qml, kcfg = make_clock.main_qml(), make_clock.CONFIG_XML
     elif surface == "live-wallpaper":
         import make_wallpaper_live
-        qml = make_wallpaper_live.main_qml(variant)
+        qml = make_wallpaper_live.main_qml()      # one package since W35
         kcfg = make_wallpaper_live.config_main_xml()
     else:
         raise ValueError(f"unknown surface {surface!r}; clock or live-wallpaper")

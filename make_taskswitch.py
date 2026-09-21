@@ -32,12 +32,9 @@ PACKAGE_ID = "org.el.taskswitch"
 
 
 def ghost_alpha():
-    """The solved ghost alpha, ONE value across every variant — or a refusal."""
-    alphas = {v: WL.colors_for(v)[3] for v in VARIANTS}
-    if len(set(alphas.values())) != 1:
-        raise ValueError(f"the ghost alpha is per variant again ({alphas}); a single package "
-                         f"cannot bake it — see catalog/one-theme.md, Residue")
-    return next(iter(alphas.values()))
+    """The solved looked-at ghost alpha, ONE value across every variant — or a refusal
+    (make_wallpaper_live.global_alpha owns the measurement; the glanced twin is there too)."""
+    return WL.global_alpha("looked_at")
 
 
 def package_id():

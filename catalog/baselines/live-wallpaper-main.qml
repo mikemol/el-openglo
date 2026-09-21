@@ -1,14 +1,23 @@
 import QtQuick
 import QtQuick.Effects
 import org.kde.plasma.plasmoid
+// the ACTIVE colour scheme's roles (⊕ONE-THEME, W35); Kirigami is live inside a
+// WallpaperItem — the stock org.kde.color wallpaper reads Kirigami.Units there
+import org.kde.kirigami as Kirigami
 
 // WallpaperItem is REQUIRED as the root (plain Item renders zero-size off-screen).
 WallpaperItem {
     id: root
-    property color litColor: "#99ffeb"
-    property color ghostColor: "#7ed3c3"
-    property color voidColor: "#081411"
-    // ghost pass opacity — SOLVED by the palette (ghost_alpha on every token), not
+    // ⚑ BOUND, NOT BAKED (catalog/one-theme.md): lit = ForegroundNormal (fg),
+    // ghost = ForegroundInactive (fg_in), void = [Colors:View] BackgroundNormal
+    // (view), under the View set. ONE package: the applied EL-*.colors is the variant.
+    Kirigami.Theme.colorSet: Kirigami.Theme.View
+    Kirigami.Theme.inherit: false
+    property color litColor: Kirigami.Theme.textColor
+    property color ghostColor: Kirigami.Theme.disabledTextColor
+    property color voidColor: Kirigami.Theme.backgroundColor
+    // ghost pass opacity — SOLVED by the palette for a GLANCED-AT surface
+    // (ghost_alpha_glanced), global across the variants (0.309) and so baked; not
     // the 0.45 this held as a literal no colour check could see.
     property real ghostAlpha: 0.309
     property bool breathe: (wallpaper.configuration.breathe === undefined) ? false

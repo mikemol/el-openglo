@@ -87,6 +87,23 @@ def colors_for(variant, parsing="looked_at"):
     return ground, lit, ghost, alpha
 
 
+ALL_VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
+                "EL-Amber", "EL-Amber-Lit")
+
+
+def global_alpha(parsing="looked_at"):
+    """The solved ghost alpha for `parsing`, ONE value across every variant — or a
+    refusal. ⊕ONE-THEME (W35): a single package bakes it as a constant, which is
+    honest only while the solve keeps it global (0.566 looked-at, 0.309 glanced-at
+    since W23); if a future solve makes it per variant, this refuses and the
+    six-row-lookup fallback in catalog/one-theme.md applies."""
+    alphas = {v: colors_for(v, parsing)[3] for v in ALL_VARIANTS}
+    if len(set(alphas.values())) != 1:
+        raise ValueError(f"the {parsing} ghost alpha is per variant ({alphas}); a single "
+                         f"package cannot bake it — see catalog/one-theme.md, Residue")
+    return next(iter(alphas.values()))
+
+
 def _variant_key(variant):
     v = variant.lower()
     mode = "lit" if v.endswith("-lit") else "off"
@@ -99,13 +116,19 @@ def _variant_key(variant):
     return ph, mode
 
 
-def metadata(variant):
+# ⚑ ONE PACKAGE, THE VARIANT IS THE ACTIVE COLOUR SCHEME (⊕ONE-THEME, W35):
+# lit / ghost / void are Kirigami.Theme roles under View; the glanced alpha is
+# global and baked.
+PACKAGE_ID = "org.el.openglo.live"
+
+
+def metadata():
     return {
         "KPackageStructure": "Plasma/Wallpaper",
         "KPlugin": {
-            "Id": f"org.el.openglo.live.{variant.lower().replace('-', '')}",
-            "Name": f"EL Openglo Live ({variant})",
-            "Description": f"Living electroluminescent watch face — {variant}",
+            "Id": PACKAGE_ID,
+            "Name": "EL Openglo Live",
+            "Description": "Living electroluminescent watch face, coloured by the active scheme",
             "License": "GPLv3",
             "Authors": [{"Name": "EL Openglo"}],
         },
@@ -125,21 +148,20 @@ def _qml_obj(table):
     return json.dumps(table, sort_keys=True)
 
 
-def main_qml(variant):
+def main_qml():
     """The live wallpaper — templates/live-wallpaper-main.qml.
 
-    ⚑ THE COLOURS AND THE GEOMETRY ARE HOLES; THE DOCUMENT IS A FILE.  This was
-    120 lines of QML in an f-string, brace-doubled throughout, carrying two tables
-    it had no business owning. Five holes go in; the document comes out."""
-    ground, lit, ghost, alpha = colors_for(variant, parsing="glanced_at")   # ambient: glanced
+    ⚑ THE GEOMETRY AND THE ALPHA ARE HOLES; THE DOCUMENT IS A FILE.  This was 120
+    lines of QML in an f-string, brace-doubled throughout, carrying two tables it
+    had no business owning. Since W35 the colours are not holes either: the
+    template binds them to the active scheme's roles (one package)."""
     import templates.loader as TL
     # pitch / stroke / dot from the substrate's module metrics, in U (H = 4U);
     # the lit stroke at weight=1 is 1.25x the base
     import segment_topology as _ST
     m = _ST.metrics(4.0)
     return TL.render("live-wallpaper-main.qml",
-                     lit=_hex(lit), ghost=_hex(ghost), ground=_hex(ground),
-                     ghostAlpha=alpha,
+                     ghostAlpha=global_alpha("glanced_at"),     # ambient: glanced
                      seg=_qml_obj(DIGIT), stroke=_qml_obj(SEGS),
                      pitch=f"{m['pitch']:.3f}", strokeBase=f"{m['stroke'] / 1.25:.3f}",
                      dotR=f"{m['dot'] / 2:.3f}", colonAdvance=f"{m['colon_advance']:.3f}")
@@ -157,28 +179,19 @@ def config_main_xml():
     return TL.render("live-wallpaper-config.kcfg")
 
 
-def render_all(variants, dir_map):
-    written = {}
-    for v in variants:
-        d = dir_map[v]
-        ui = os.path.join(d, "contents", "ui")
-        cfg = os.path.join(d, "contents", "config")
-        os.makedirs(ui, exist_ok=True)
-        os.makedirs(cfg, exist_ok=True)
-        open(os.path.join(d, "metadata.json"), "w").write(
-            json.dumps(metadata(v), indent=2))
-        open(os.path.join(ui, "main.qml"), "w").write(main_qml(v))
-        open(os.path.join(cfg, "main.xml"), "w").write(config_main_xml())
-        written[v] = d
-    return written
+def render_all(d):
+    """Write the ONE package into d."""
+    ui = os.path.join(d, "contents", "ui")
+    cfg = os.path.join(d, "contents", "config")
+    os.makedirs(ui, exist_ok=True)
+    os.makedirs(cfg, exist_ok=True)
+    open(os.path.join(d, "metadata.json"), "w").write(json.dumps(metadata(), indent=2))
+    open(os.path.join(ui, "main.qml"), "w").write(main_qml())
+    open(os.path.join(cfg, "main.xml"), "w").write(config_main_xml())
+    return d
 
 
 if __name__ == "__main__":
-    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-                "EL-Amber", "EL-Amber-Lit"]
-    outs = {v: f"/tmp/wplive-{v}" for v in variants}
-    render_all(variants, outs)
-    print("rendered", len(outs), "live wallpapers")
-    for v in variants:
-        g, l, gh, a = colors_for(v)
-        print(f"  {v}: void={g} lit={l} ghost={gh}@{a}")
+    out = "/tmp/wplive-el"
+    render_all(out)
+    print(f"rendered the live wallpaper ({PACKAGE_ID}) into {out}; glanced alpha={global_alpha('glanced_at')}")

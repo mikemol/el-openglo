@@ -7271,3 +7271,61 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s107]
+
+## Session 108 — ⊕ONE-THEME, the live wallpaper: the fourth surface binds; the panel needs a migration
+- W35 (4), 2026-09-22. Measured first: Kirigami is live inside a
+  WallpaperItem (the stock org.kde.color wallpaper reads Kirigami.Units
+  there), and the GLANCED alpha is 0.309 on all six variants — a second
+  global. make_wallpaper_live.global_alpha(parsing) owns both measurements
+  (refusing if a solve makes either per variant); make_taskswitch.
+  ghost_alpha delegates to it (the import runs the other way). The
+  template binds lit / ghost / void under View; main_qml() and metadata()
+  lose the variant; PACKAGE_ID org.el.openglo.live; render_all(d); make_deb
+  stages one wallpaper and el-openglo-live names it. Rendered under
+  EL-Amber through the real theme: 2313 lit px of EL-Amber's fg, modal
+  #140f08 = EL-Amber's view (the wallpaper's void has always been the View
+  background; the census labels Window's as "expected ground" — the
+  standing residue, unchanged by binding). glance_audit reads the one
+  emission (an in-function importer the census missed; `--calls main_qml .`
+  found it). ghost_surfaces 30 of 30; parity 13 of 13 (the pair is
+  live-wallpaper-main.qml now); --installed maps the one plugin.
+- The operator emerged 322e734 and plasmashell logged `package
+  org.el.segclock.elazure does not exist` / `org.el.notifymarquee.elazure
+  does not exist`: the panel still references the per-variant ids. The
+  quick route is el-openglo-apply / el-openglo-notify (they add the one
+  widgets); the RIGHT route is a shipped Plasma one-shot update script
+  (plasma/shells/org.kde.plasma.desktop/contents/updates/*.js) rewriting
+  the ids in place — folded into W35 (5) with the LnF record, and pinned
+  in ⊕ONE-THEME's open witness so all-four-bound does not read as closed.
+- Residue: the migration script's mechanism is to be measured on this
+  host (does plasmashell run updates from a package's contents/updates, or
+  only the shell's own?); the census's "expected ground" is Window's
+  background while the wallpaper draws View's; the clock's Add-Widgets
+  icon is one phosphor; the LnF stays one per variant (it is the selector).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; s104-108
+  all four live surfaces bound and one package each; next the shipped
+  migration + the LnF record, then the closure). RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-108 the
+  one marquee, clock and live wallpaper follow plasma-apply-colorscheme
+  live), ⊕VER-MARQUEE (s89-103 — after re-emerge: a lone notify-send
+  scrolls once; every notification scrolls once, none vanish, the board
+  never goes dead, a parked pointer pulses the ring; ticks read
+  check_marquee_host), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s108]

@@ -133,7 +133,13 @@ WITNESS = {
         lambda: _tool("opa_gate.py", "taskswitch") and
                 _reads("templates/marquee-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
                 _reads("templates/clock-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
-                _reads("templates/live-wallpaper-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View")),
+                _reads("templates/live-wallpaper-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
+                # s108: all four surfaces bind; what remains is the shipped MIGRATION
+                # (a Plasma one-shot update script rewriting the per-variant applet
+                # ids on the panel — the operator's log after emerging 322e734) and
+                # the LnF record in one-theme.md
+                _reads("make_deb.py", r"contents/updates/") and
+                _reads("catalog/one-theme.md", r"(?m)^## The Look-and-Feel")),
     # ⚑ THIS WAS A NOUN WITNESS — `SegmentChar` mentioned in four surfaces — the
     # exact near-miss the docstring above warns of, and it read as DONE while the
     # log's fourth gate had never been run. The log states four gates (:4427-4432);
@@ -235,7 +241,7 @@ def _emitted_surfaces():
     import make_clock
     import make_wallpaper_live
     return {"clock": make_clock.main_qml(),
-            "live-wallpaper": make_wallpaper_live.main_qml("EL-Openglo")}
+            "live-wallpaper": make_wallpaper_live.main_qml()}
 
 
 def _arith(expr, **env):
