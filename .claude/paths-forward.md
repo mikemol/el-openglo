@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T09:01:48+00:00 · job `d8461f7a` · counter 26 · hash `6698b37198f02470`
+heartbeat 2026-09-21T09:30:52+00:00 · job `00feb7fe` · counter 26 · hash `16c9866cacd69319`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -13,7 +13,7 @@ heartbeat 2026-09-21T09:01:48+00:00 · job `d8461f7a` · counter 26 · hash `669
 | W4 | done | cotype warrants.bib's `enables` field is DROPPED by paperkit until catalog/cotype/paper.toml declares consumer_fields | — | — |
 | W5 | done | SegmentChar as the one geometry substrate under wallpaper/clock/marquee/plymouth — cotype ⊕SEGMENT-SUBSTRATE | — | — |
 | W6 | ready | Arbitrary text reaches the matrix by rasterising a font into it — cotype ⊕MATRIX-FONT-INPUT | — | Read the cotype entry (:4534) and the matrix font emitter; state the input contract in evidence. |
-| W7 | ready | Segment projection chain: real fontTools ingest → calibrate bandwidth/tau → validate against the authored 44 → descenders in 22-seg — cotype ⊕SEG-FONT-PROJECT, ⊕SEG-PROJECT-CALIBRATE, ⊕SEG-TABLE-VALIDATE, ⊕SEG22-DESCENDERS | — | 2636946 closed ⊕SEG-TABLE-VALIDATE (validate_projection + check_projection @PROJECTION-VALIDATE 57; measured mean Jaccard 0.58, 7/36 exact, narrow-glyph frame defect: sides b c e f → centre j m). NEXT in the chain: ⊕SEG-PROJECT-CALIBRATE — the frame first: glyph_match._ink_bbox_sw maps the ink bbox to the 2x4 cell by stretching; a narrow glyph ('1') fills the cell width and its single stroke lands on the centre column. Measure: for 1/4/H/A/W, what x-scale preserves aspect (fit on HEIGHT, centre horizontally) and does agreement rise? Solve bandwidth (sw*0.7) and tau from agreement over the 36 — a calibrate_projection() that returns (params, mean_jaccard) and the report before/after; the witness aims at that def. Then ⊕SEG22-DESCENDERS. |
+| W7 | done | Segment projection chain: real fontTools ingest → calibrate bandwidth/tau → validate against the authored 44 → descenders in 22-seg — cotype ⊕SEG-FONT-PROJECT, ⊕SEG-PROJECT-CALIBRATE, ⊕SEG-TABLE-VALIDATE, ⊕SEG22-DESCENDERS | — |  |
 | W8 | done | ⊕SEGMENT-ROLLOUT: every surface draws the palette fg/fg_in at ghost_alpha — 24 of 24 emissions differ; SegmentChar.qml has zero consumers (+ ⊕GHOST-DENSITY) | — | — |
 | W9 | done | ⊕PLYMOUTH-VECTOR: the boot splash pre-rendered at the target resolution (or SVG) — ⊕CLOCK-VECTOR done | — | — |
 | W10 | done | TUNE bucket: cursor inherit, icons inherit, solver-owned UI tokens, Alt+Tab switcher — cotype ⊕CURSOR-INHERIT, ⊕ICONS-INHERIT, ⊕SOLVER-UI-TOKENS, ⊕TASKSWITCH | — | — |
@@ -58,7 +58,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W4** — catalog/cotype/paper.toml: consumer_fields = ["enables"]. `python3 scripts/worklist_gate.py` no longer prints the DROPPED warning; COTYPE-WORKLIST.md ≡ projection (unchanged).
 - **W5** — DONE (tick 12, commit e212032): glyph16(strict=)/has_glyph contract; digit paths strict; --coverable 3 of 3; @SUBSTRATE-COVERABLE green; COTYPE.md session 67 + closure section + ledger; `check_symbol.py SEGMENT-SUBSTRATE` → present; BUILD bucket 1 of 2 open (⊕MATRIX-FONT-INPUT only). Reading apparatus fixed twice: check_symbol witness now runs the tool (was a noun regex); cotype_index selftest rule 4 on a synthetic doc (was pinned to this symbol).
 - **W6** — check_symbol.py --bucket BUILD: open.
-- **W7** — 2636946; check_projection report 2026-09-21
+- **W7** — 5f2fc5a: glyph_match.calibrate_projection + SW_BAND=0.85 solved; check_projection --calibrate/--frame; mean Jaccard 0.58->0.65, 9/36 exact; frame hypothesis rejected (fit 0.43), crossbar stroke-width defect fixed; COTYPE s75; ⊕SEG-PROJECT-CALIBRATE in check_symbol.CLOSED (33 witnessed). Residue -> ⊕SEG-DOTPRODUCT-TEMPLATES (witnessed open, RESEARCH)
 - **W8** — DONE (tick 16, commit 2dca20e): clock reads fg/fg_in/ghost_alpha, segments+colon at solved alpha; make_schemes emits [EL] GhostAlpha into every .colors; parse_scheme reads ghost+ghost_alpha; plymouth reads both (ghost_from residue). check_ghost_surfaces 24 of 24; @GHOST-SURFACES green; ⊕SEGMENT-ROLLOUT closed (COTYPE session 70, Four gates line); ⊕SEGMENTCHAR-ADOPT opened as residue with a witness. check_palette_chain selftest fixture (pinned to C.derive_ghost) moved to a planted module. Worklist 44/44. ⊕GHOST-DENSITY remains the RESEARCH follow-on.
 - **W9** — 7a0e543: mechanism measured (Image.Scale in script-lib-image.c; target res only at boot) → ASSET_U=192 oversampled, script scales to 0.20·sh, module pitch layout; COTYPE session 72 closure; witness reads the emitted script; TIER 3 bucket closed out (@TIER3 green). ⊕VER: plymouth not installed on luthen — the boot itself waits.
 - **W10** — b176de5: states measured at q 0.06-0.75 (authored nudges never separated them); relations §4b + solve_state_steps (smallest feasible step, infeasibility named); check_states @STATES (56); the KNOWN_INFEASIBLE pin fired (2.94→3.33) and left the table; COTYPE s73 closes ⊕SOLVER-UI-TOKENS (31 witnessed). OPEN by name: sel_in, link/visited on selection, sel_alt/sel_act, panel ladder; ⊕SOLVER-PERF untouched. ⊕VER: the Off variants' hover ring is darker now.

@@ -5251,3 +5251,65 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s75]
+
+## Session 76 — ⊕MATRIX-FONT-INPUT: the input contract stated and the ingest built (not yet wired)
+- W6, 2026-09-21. The CONTRACT, read from the code rather than recalled: the
+  marquee reads DT.as_qml_js("5x7") -> `font5x7`, a dict char -> 5 column bytes
+  with bit r = row r (HD44780 column-byte convention; FONT5x8 adds row 7 as
+  descent under FONT5x8_BASELINE = 6). MatrixDisplay.glyph returns an EMPTY set
+  for a char the table lacks — blank, not the '?' the :4534 entry asked for. So
+  "arbitrary text reaches the matrix" = a function font -> column bytes in that
+  convention, and a fallback decision the CALLER makes.
+- make_glyph_ink.matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold,
+  sub) is the ingest. ⚑ THE FRAME IS THE FONT'S, NOT THE GLYPH'S: ink_field's
+  bbox stretch is right for a segment module (every glyph fills it) and wrong
+  for a matrix with a baseline — 'g' would fill all eight rows, 'a' would stand
+  as tall as 'H'. Body rows span cap height -> baseline (OS/2 sCapHeight, else
+  the 'H' bbox); the descent row spans baseline -> the LOWEST point g j p q y
+  actually reach (hhea.descent is -615 on LiberationMono, 'g' reaches -400, and
+  a row spanning -615 left row 7 dark — measured, then changed). A cell lights
+  at coverage >= threshold over a sub x sub sample, not a centre sample.
+  Returns None for a char the font lacks (the fallback is the caller's).
+- FOUND ON THE WAY: make_glyph_ink.contours used a plain RecordingPen, which
+  records `addComponent` and nothing else for a COMPOSITE glyph — 'é' ingested as
+  0 contours, i.e. every accented character was EMPTY INK, for the matcher too.
+  DecomposingRecordingPen now. That is a defect in the shared ingest that s74/s75
+  could not see because the authored 36 are all simple glyphs.
+- MEASURED (scripts/check_matrix_input.py --compare, LiberationMono): 70 of 70
+  authored glyphs rasterise, 0 blank, 13 exact (H E C L O P R T U 2 + ? space),
+  mean Jaccard 0.64. Not gated on agreement: the authored table is designed
+  pixel art (A's flat 3-dot apex vs the raster's pointed one; '-' sits a row
+  lower in the face). Gated: a glyph with contours never rasterises blank; a
+  missing char is None; a descender lights row 7; the threshold can change the
+  raster (0.05 vs 0.95 on 'A').
+- NOT DONE (the symbol stays OPEN): wiring. The marquee still spells only the
+  authored table; the next step is make_notify_marquee reading a font through
+  matrix_glyph for chars beyond FONT5x8, with the '?' fallback, and the registry
+  carrying the result — that is what the open witness (rasteri in the emitter)
+  looks for. Residue: 'y' and 'j' tails are too thin for a 0.5 coverage at 5x8;
+  'é' merges the acute into the e's top row.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT (s76: ingest built and measured —
+  make_glyph_ink.matrix_glyph, check_matrix_input; wiring into the marquee next).
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-DOTPRODUCT-TEMPLATES (curvature-aware templates — the measured
+  ceiling: round walls, diagonals-to-centre), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s76]

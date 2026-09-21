@@ -12,7 +12,7 @@ conjunction matcher needs. Farming fill to matplotlib/PIL discarded that orienta
 error. Curves are flattened to fine polylines (orientation preserved; NOT the same as
 rasterizing to a pixel grid — no boundary detail is quantized away)."""
 from fontTools.ttLib import TTFont
-from fontTools.pens.recordingPen import RecordingPen
+from fontTools.pens.recordingPen import DecomposingRecordingPen
 
 
 def _flatten_q(p0, c, p1, n=12):
@@ -22,9 +22,15 @@ def _flatten_q(p0, c, p1, n=12):
 
 
 def contours(path, ch):
-    """Native oriented contours as closed polylines (winding preserved)."""
+    """Native oriented contours as closed polylines (winding preserved).
+
+    ⚑ COMPOSITE GLYPHS DECOMPOSE.  A plain RecordingPen records `addComponent`
+    for 'é' (= 'e' + acute) and nothing else, so every accented character
+    ingested as EMPTY ink — measured 2026-09-21 (⊕MATRIX-FONT-INPUT, session
+    76): 'e' 2 contours, 'é' 0. The decomposing pen draws the components
+    through the glyph set with their offsets applied."""
     f = TTFont(path); gs = f.getGlyphSet(); cmap = f.getBestCmap()
-    pen = RecordingPen(); gs[cmap[ord(ch)]].draw(pen)
+    pen = DecomposingRecordingPen(gs); gs[cmap[ord(ch)]].draw(pen)
     polys = []; cur = []; last = (0, 0)
     for op, a in pen.value:
         if op == "moveTo":
@@ -94,3 +100,89 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
         raise ValueError(f"ink_field: unknown frame {frame!r} (stretch|fit)")
     tp = [[(ox+(px-x0)*sx, H-oy-(py-y0)*sy) for px, py in pl] for pl in polys]
     return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
+
+
+# ── ⊕MATRIX-FONT-INPUT: a font glyph into the dot matrix ─────────────────────
+#
+# ⚑ THE FRAME IS THE FONT'S, NOT THE GLYPH'S.  ink_field stretches a glyph's own
+# bbox onto the cell, which is right for a segment display (every glyph fills
+# the module) and WRONG for a matrix with a baseline: 'g' would fill all eight
+# rows and 'a' would stand as tall as 'H'. Here the body rows (0..baseline) span
+# CAP HEIGHT -> BASELINE in font units and the rows below span BASELINE ->
+# DESCENDER, so an x-height glyph lands short and a descender goes under —
+# the same convention FONT5x8 is authored in (display_types.FONT5x8_BASELINE).
+# Horizontally the glyph's own bbox is stretched to the columns: a matrix font
+# is monospace, and the authored table does the same by hand.
+
+DESCENDER_PROBES = "gjpqy"
+
+
+def font_frame(path):
+    """(cap_height, descender) in font units. Cap height: OS/2 sCapHeight when
+    declared, else the 'H' bbox top. Descender: the LOWEST point the font's
+    descender glyphs (g j p q y) actually reach, not hhea.descent — measured
+    2026-09-21 on LiberationMono: hhea says -615, 'g' reaches -400, and a single
+    descent row spanning -615 left 'g' under the coverage threshold with row 7
+    dark. Falls back to hhea when none of the probes exist."""
+    f = TTFont(path); gs = f.getGlyphSet(); cmap = f.getBestCmap()
+    from fontTools.pens.boundsPen import BoundsPen
+    cap = getattr(f["OS/2"], "sCapHeight", 0) if "OS/2" in f else 0
+    if not cap and ord("H") in cmap:
+        bp = BoundsPen(gs); gs[cmap[ord("H")]].draw(bp)
+        cap = bp.bounds[3]
+    lows = []
+    for ch in DESCENDER_PROBES:
+        if ord(ch) in cmap:
+            bp = BoundsPen(gs); gs[cmap[ord(ch)]].draw(bp)
+            if bp.bounds:
+                lows.append(bp.bounds[1])
+    desc = min(lows) if lows else (f["hhea"].descent if "hhea" in f else -cap * 0.25)
+    return float(cap), float(desc)
+
+
+def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
+    """Rasterise one glyph of an outline font into column bytes in the
+    display_types convention (bit r of column c = row r lit), or None when the
+    font has no glyph for `ch` — the caller decides the fallback ('?' per the
+    log, blank per MatrixDisplay.glyph today), not this function.
+
+    A cell is lit when at least `threshold` of its sub x sub sample points are
+    inside the winding (a COVERAGE threshold, not a centre sample — a thin
+    stroke that misses every cell centre would otherwise vanish)."""
+    f = TTFont(path); cmap = f.getBestCmap()
+    if ord(ch) not in cmap:
+        return None
+    polys = contours(path, ch)
+    if not polys:
+        return [0] * cols                       # a space: present, nothing lit
+    cap, desc = font_frame(path)
+    xs = [p[0] for pl in polys for p in pl]
+    x0, x1 = min(xs), max(xs)
+    if x1 - x0 <= 0:
+        return [0] * cols
+    body = baseline + 1
+    below = rows - body
+
+    def font_y(cell_y):
+        if cell_y <= body:
+            return cap - cell_y / body * cap
+        return (cell_y - body) / max(1, below) * desc
+
+    out = [0] * cols
+    for c in range(cols):
+        for r in range(rows):
+            hits = 0
+            for i in range(sub):
+                for j in range(sub):
+                    fx = x0 + (c + (i + 0.5) / sub) / cols * (x1 - x0)
+                    fy = font_y(r + (j + 0.5) / sub)
+                    if _winding(fx, fy, polys) != 0:
+                        hits += 1
+            if hits >= threshold * sub * sub:
+                out[c] |= 1 << r
+    return out
+
+
+def matrix_rows(colbytes, rows=8):
+    """Column bytes -> row strings ('#' lit), the readable form _cols() authors in."""
+    return ["".join("#" if b & (1 << r) else "." for b in colbytes) for r in range(rows)]
