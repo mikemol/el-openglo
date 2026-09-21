@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 26,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T07:46:30+00:00",
-  "job_id": "87d85579",
+  "heartbeat": "2026-09-21T08:01:34+00:00",
+  "job_id": "becb1d93",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T07:52:07+00:00"
+    "taken_at": "2026-09-21T08:08:43+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -192,7 +192,7 @@
     {
       "symbol": "W9",
       "title": "⊕PLYMOUTH-VECTOR: the boot splash pre-rendered at the target resolution (or SVG) — ⊕CLOCK-VECTOR done",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "segment-geometry",
@@ -202,10 +202,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "TIER 3; both need the shared substrate before they can draw from it",
-      "next_bounded_step": "Find where the splash size/target is known (make_deb? the plymouth script plugin reads Window.GetWidth()/GetHeight() at boot — assets cannot know the screen at build time). So the honest form is likely: emit digits at a set of standard resolutions (or a U derived from a declared target), and have the plymouth .script pick by Window.GetHeight(). Read make_plymouth render_assets callers and the .script template; state the mechanism in evidence before building.",
-      "evidence": "MEASURED (tick 13, commit f94ff8c): ⊕CLOCK-VECTOR was DONE — emitted clock has no Canvas, segments are antialiased scene-graph Rectangles (the :4221-4225 criterion); witness was stale on file+idiom, now reads the emitted QML. ⊕PLYMOUTH-VECTOR genuinely open: PIL polygons from the substrate at FIXED U=48; log defines vector there as pre-render at target res or SVG; witness asks for either. TIER 3: 1 of 2. COTYPE session 68. Found: ghost colour silo on clock (:86 derive_ghost, opaque) AND plymouth (:107 ghost_from lerp .6, alpha .5) → W8.",
+      "next_bounded_step": "—",
+      "evidence": "7a0e543: mechanism measured (Image.Scale in script-lib-image.c; target res only at boot) → ASSET_U=192 oversampled, script scales to 0.20·sh, module pitch layout; COTYPE session 72 closure; witness reads the emitted script; TIER 3 bucket closed out (@TIER3 green). ⊕VER: plymouth not installed on luthen — the boot itself waits.",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-20T22:08:53+00:00",
+      "last_worked": "2026-09-21T08:00:54+00:00",
       "ticks_blocked": 0
     },
     {

@@ -267,8 +267,13 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
                 mc -= 0.3
                 cands[k] = _candidates(sectors[k], ground, mc, hot)
             if not cands[k]:
-                cands[k] = [_hsv(_sector_hue(sectors[k]), 0.85,
-                                 0.85 if C._wcag_L(ground) < 0.4 else 0.4)]
+                # ⚑ THE FALLBACK GUESSED POLARITY FROM L < 0.4 and handed a
+                # mid-luminance ground (the Azure selection field, L 0.27) a
+                # bright green at 1.77:1 (W10). Offer both tones and the darkest,
+                # and take the one that contrasts MOST with this ground.
+                h = _sector_hue(sectors[k])
+                cands[k] = [max((_hsv(h, 0.85, v) for v in (0.85, 0.4, 0.2)),
+                                key=lambda c: C.wcag_ratio(c, ground))]
 
     _floors = C.reference_floors()
 
@@ -363,12 +368,22 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
     # placed together to maximize the MIN pairwise CVD-distance, each in-sector,
     # contrast-clearing, hot-distinct. The coupling is the constraint.
     _sem_sectors = {k: _sect(k, vid) for k in ("neg", "neu", "pos", "link", "visited")}
-    _min_c = 4.6 if C._wcag_L(ground) < 0.4 else 4.6
+    # ⚑ THIS READ `4.6 if dark else 4.6` — an either/or with one side, which a
+    # reader takes for a polarity decision. It is one floor for both polarities.
+    _min_c = 4.6
     _sem, _sem_score = solve_semantic_set(_sem_sectors, ground, accent, _min_c,
                                           anchors=[lit])
 
-    # panel ladder: ground raised by small fixed steps (derived, no search)
+    # the selection field and the semantic set drawn ON it — solved over that
+    # field exactly as the window's set is solved over the ground (W10)
     up = 1 if C._wcag_L(ground) < 0.4 else -1
+    sel_bg = _lum_nudge(accent, -0.08 if C._wcag_L(ground) < 0.4 else 0.08)
+    sel_fg, sel_act = ground, _lum_nudge(ground, -0.15)
+    _sel_sem, _sel_score = solve_semantic_set(
+        {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent, _min_c,
+        anchors=[sel_fg, sel_act])
+
+    # panel ladder: ground raised by small fixed steps (derived, no search)
     window = _lum_nudge(ground, 0.03 * up)
     header = _lum_nudge(ground, 0.02 * up)
     tt_bg = _lum_nudge(ground, 0.025 * up)
@@ -437,12 +452,21 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
         # design ("selecting anything switches the backlight on", the same
         # el-core family); sharing the VALUE erases the boundary between the two.
         # Nudged toward the ground, as `sel_alt` beside it already does.
-        "sel_bg": _s(_lum_nudge(accent, -0.08 if C._wcag_L(ground) < 0.4 else 0.08)),
-        "sel_act": _s(_lum_nudge(ground, -0.15)),
+        "sel_bg": _s(sel_bg),
+        "sel_act": _s(sel_act),
         "sel_alt": _s(_lum_nudge(accent, -0.05)),
-        "sel_fg": _s(ground), "sel_in": _s(_mix(accent, ground, 0.5)),
+        "sel_fg": _s(sel_fg), "sel_in": _s(_mix(accent, ground, 0.5)),
         "sel_link": _s(ground), "sel_vis": _s(_mix(ground, accent, 0.3)),
-        "sel_neg": "45,10,10", "sel_neu": "45,30,8", "sel_pos": "10,40,20",
+        # ⚑ THESE WERE THREE LITERALS — "45,10,10" / "45,30,8" / "10,40,20" — the
+        # same bytes in every variant, never solved, never checked (W10,
+        # 2026-09-21: check_selection_contrast --semantic read 1.46:1 to 3.05:1
+        # on every Lit variant: dark authored tones on a dark selection field;
+        # they passed on the Off variants only because the field there is
+        # bright). The selection field is a GROUND like any other, so its
+        # semantic set is the same joint constellation solve, over sel_bg,
+        # anchored to the selection's own text.
+        "sel_neg": _s(_sel_sem["neg"]), "sel_neu": _s(_sel_sem["neu"]),
+        "sel_pos": _s(_sel_sem["pos"]),
         "fx_dis": _s(ghost), "fx_in": _s(ghost),
         "tt_is_sel": "false",
         # ⚑ THE GHOST'S RENDER ALPHA TRAVELS WITH THE GHOST.  `fg_in` was solved

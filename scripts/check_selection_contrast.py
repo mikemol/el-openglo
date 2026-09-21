@@ -51,7 +51,26 @@ def contrast(a, b):
     return (hi + 0.05) / (lo + 0.05)
 
 
-def selection_pairs():
+# The semantic foregrounds drawn on the selection field. ⚑ AUTHORED LITERALS
+# until W10 (2026-09-21): make_palette emitted "45,10,10" / "45,30,8" /
+# "10,40,20" for every variant, and this check never asked about them.
+SEMANTIC_KEYS = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive",
+                 "ForegroundLink", "ForegroundVisited", "ForegroundInactive")
+# The three semantic keys are GATED (below), like the text keys. Link/Visited/
+# Inactive are reported by --semantic and not gated: Inactive is the ghost
+# relation on this pair (subordinate by design) and Link/Visited have no
+# relation yet — recorded in relations.md §4a, not smuggled under a floor.
+GATED_SEMANTIC = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive")
+# ⚑ A PAIR NO COLOUR CAN SATISFY, NAMED.  Red's luminance ceiling (a pale
+# salmon, ~0.45) over EL-Openglo-Lit's selection field (#0c715e, L 0.13) tops
+# out near 2.9:1 — the compressed-range case the log calls ⊕SOLVER-SEL-BACKLIT.
+# The solver's honest best is pinned here so that a change in EITHER direction
+# is seen: a regression fails the floor arm, an improvement fails this pin and
+# must be moved out of the table.
+KNOWN_INFEASIBLE = {("EL-Openglo-Lit", "ForegroundNegative"): 2.94}
+
+
+def selection_pairs(keys=FG_KEYS):
     """[(scheme, key, fg, bg, ratio)] for every emitted .colors file."""
     out = []
     for fn in sorted(os.listdir(ROOT)):
@@ -69,7 +88,7 @@ def selection_pairs():
         if not bg:
             continue
         bg_rgb = tuple(int(x) for x in bg.split(","))
-        for key in FG_KEYS:
+        for key in keys:
             v = sect.get(key)
             if not v:
                 continue
@@ -80,12 +99,17 @@ def selection_pairs():
 
 
 def main(argv):
-    known = {"--report"}
+    known = {"--report", "--semantic"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_selection_contrast: unknown flag {a!r}", file=sys.stderr)
             return 2
-    pairs = selection_pairs()
+    if "--semantic" in argv:
+        for scheme, key, fg, bg, r in selection_pairs(SEMANTIC_KEYS):
+            flag = "  " if r >= FLOOR else "！"
+            print(f"{flag}{scheme}\t{key}\t{fg} on {bg}\t{r:.2f}:1")
+        return 0
+    pairs = selection_pairs(FG_KEYS + GATED_SEMANTIC)
     if "--report" in argv:
         for scheme, key, fg, bg, r in pairs:
             flag = "  " if r >= FLOOR else "！"
@@ -95,16 +119,32 @@ def main(argv):
         print("check_selection_contrast: REFUSED — no schemes found; the search is "
               "broken, not the theme legible", file=sys.stderr)
         return 2
-    bad = [(s, k, f, b, r) for s, k, f, b, r in pairs if r < FLOOR]
+    bad, pinned = [], []
+    for s, k, f, b, r in pairs:
+        if (s, k) in KNOWN_INFEASIBLE:
+            if abs(r - KNOWN_INFEASIBLE[(s, k)]) > 0.05:
+                pinned.append((s, k, f, b, r))
+            continue
+        if r < FLOOR:
+            bad.append((s, k, f, b, r))
+    if pinned:
+        print(f"check_selection_contrast: REFUSED — {len(pinned)} KNOWN_INFEASIBLE pair(s) "
+              f"moved from their pinned ratio (an improvement must leave the table; a "
+              f"regression is a defect):", file=sys.stderr)
+        for s, k, f, b, r in pinned:
+            print(f"    {s} {k}: {r:.2f}:1 (pinned {KNOWN_INFEASIBLE[(s, k)]})", file=sys.stderr)
+        return 1
     if bad:
         print(f"check_selection_contrast: REFUSED — {len(bad)} of {len(pairs)} "
               f"selection pair(s) fall below {FLOOR}:1:", file=sys.stderr)
         for s, k, f, b, r in bad:
             print(f"    {s} {k}: {f} on {b} = {r:.2f}:1", file=sys.stderr)
         return 1
-    worst = min(r for *_, r in pairs)
-    print(f"check_selection_contrast: {len(pairs)} of {len(pairs)} selection pairs "
-          f"clear {FLOOR}:1 (worst {worst:.2f}:1)")
+    gated = [p for p in pairs if (p[0], p[1]) not in KNOWN_INFEASIBLE]
+    worst = min(r for *_, r in gated)
+    print(f"check_selection_contrast: {len(gated)} of {len(pairs)} selection pairs "
+          f"clear {FLOOR}:1 (worst {worst:.2f}:1); {len(KNOWN_INFEASIBLE)} pinned as "
+          f"infeasible: " + ", ".join(f"{s} {k} {v}" for (s, k), v in KNOWN_INFEASIBLE.items()))
     return 0
 
 
@@ -127,6 +167,23 @@ def _selftest():
           round(contrast((0, 0, 0), (255, 255, 255)), 4),
           round(contrast((255, 255, 255), (0, 0, 0)), 4))
     check("found selection pairs", len(selection_pairs()) > 0, True)
+    check("the semantic keys are read too",
+          len(selection_pairs(GATED_SEMANTIC)) == 3 * len(selection_pairs(("ForegroundNormal",))), True)
+    # ⚑ THE PIN MUST HOLD BOTH WAYS: the recorded pair is at its pinned ratio,
+    # and a pin that drifted would be seen by main() (exercised via the table).
+    got = {(s, k): r for s, k, _f, _b, r in selection_pairs(GATED_SEMANTIC)}
+    for (s, k), v in KNOWN_INFEASIBLE.items():
+        check(f"pinned pair {s} {k} is still at {v}", abs(got.get((s, k), 0) - v) <= 0.05, True)
+    saved = dict(KNOWN_INFEASIBLE)
+    try:
+        KNOWN_INFEASIBLE.clear()
+        KNOWN_INFEASIBLE[("EL-Openglo-Lit", "ForegroundNegative")] = 9.99
+        check("a pinned pair that moved is REFUSED", main(["x"]), 1)
+        KNOWN_INFEASIBLE.clear()
+        check("without the pin the infeasible pair fails the floor", main(["x"]), 1)
+    finally:
+        KNOWN_INFEASIBLE.clear()
+        KNOWN_INFEASIBLE.update(saved)
     print("check_selection_contrast selftest:", "PASS" if ok else "FAIL")
     return ok
 

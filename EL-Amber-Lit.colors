@@ -82,10 +82,10 @@ DecorationHover=131,83,14
 ForegroundActive=221,172,107
 ForegroundInactive=156,128,88
 ForegroundLink=235,207,169
-ForegroundNegative=45,10,10
-ForegroundNeutral=45,30,8
+ForegroundNegative=247,162,124
+ForegroundNeutral=247,203,124
 ForegroundNormal=235,207,169
-ForegroundPositive=10,40,20
+ForegroundPositive=58,247,0
 ForegroundVisited=187,159,121
 
 [Colors:Tooltip]
@@ -96,10 +96,10 @@ DecorationHover=131,83,14
 ForegroundActive=221,172,107
 ForegroundInactive=156,128,88
 ForegroundLink=235,207,169
-ForegroundNegative=45,10,10
-ForegroundNeutral=45,30,8
+ForegroundNegative=247,162,124
+ForegroundNeutral=247,203,124
 ForegroundNormal=235,207,169
-ForegroundPositive=10,40,20
+ForegroundPositive=58,247,0
 ForegroundVisited=187,159,121
 
 [Colors:View]

@@ -324,6 +324,24 @@ than merely retired, and it is honestly open. The machinery to try it exists
 (`spanning_tree`/`cycle_basis`, cut and cycle sides of the same duality) but nothing here
 has measured it.
 
+**The authored tokens (⊕SOLVER-UI-TOKENS, W10, 2026-09-21).** `make_palette.solve_scheme`
+was swept for values a relation does not determine:
+
+| token | was | now |
+|---|---|---|
+| `sel_neg`, `sel_neu`, `sel_pos` | three RGB literals, identical in every variant; 1.46–3.05:1 on every Lit selection field | the §4 constellation solve over `sel_bg` as ground, anchored to `sel_fg`/`sel_act` — 17 of 18 pairs clear the selection floor |
+| `sel_in` (ForegroundInactive on selection) | `mix(accent, ground, 0.5)`; 1.85–2.70:1 on 5 of 6 | **OPEN** — it is the ghost relation (§3b) on the selection pair and should be `alpha_min`-solved like Union's indicator; not gated, reported by `check_selection_contrast --semantic` |
+| `sel_vis`, `sel_link` | `mix(ground, accent, 0.3)` / `ground` | **OPEN** — link/visited on a selection have no relation; 2.69:1 on EL-Openglo-Lit |
+| `hover` ±0.12, `sel_bg` ±0.08, `sel_alt` −0.05, `sel_act` −0.15 | luminance nudges | **OPEN** — a state-separation relation (focused vs hovered vs selected) is stated in prose at `solve_scheme`, not as a floor here |
+| panel ladder 0.03 / 0.02 / 0.025 / 0.06 / 0.015 / 0.01 | fixed luminance steps | **OPEN** — derived steps, not a relation; the ladder is legible and byte-stable, which is why it is left |
+| `_min_c = 4.6 if dark else 4.6` | an either/or with one side | one floor, written once |
+
+**One pair is infeasible and pinned, not smoothed.** EL-Openglo-Lit's negative-on-selection:
+red's luminance ceiling over a field at L 0.13 tops out near 2.9:1. That is the
+compressed-range case the log calls ⊕SOLVER-SEL-BACKLIT — a constraint on `sel_bg`'s
+lightness, not on the red — and `check_selection_contrast.KNOWN_INFEASIBLE` holds it at
+2.94 so that a regression or an improvement is red until the record moves.
+
 ---
 
 ## 5. Reads — where a relation becomes a colour
