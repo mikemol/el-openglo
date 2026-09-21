@@ -157,7 +157,8 @@ Window {
             while (harness.next < timeline.length && timeline[harness.next].t <= now) { apply(timeline[harness.next]); harness.next += 1; }
             var s = subject.item;
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
-                           paused: s.boardPaused, ring: s.ringOpacity, count: model().count });
+                           paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
+                           lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor) });
             if (s.boardPaused) harness.pausedSeen += 1;
             // the run ends on its CONDITION, else on the clock (a cap, not a plan):
             // the hovered run once enough paused samples are seen; the main run
@@ -175,25 +176,26 @@ Window {
 """
 
 
-def subject(hover_pause=False):
+def subject(hover_pause=False, variant=VARIANT):
     """The emitted marquee, rewritten as render_qml rewrites it, plus its companions.
 
     hover_pause is OFF for the measured run: the offscreen platform's pointer rests at
     (0,0), so the Row is "hovered" the moment its left edge reaches the board's, and
     the hover-pause (a setting since W49, on by default) would hold every run there.
     The `--hovered` mode runs WITH it on, to show that this is the pointer and not
-    the widget."""
+    the widget. `variant` selects the scheme the run resolves under (the emission is
+    one package; the variant is the theme it is run in)."""
     import render_qml as RQ
     import make_notify_marquee as NM
     import make_preview
-    qml = NM.main_qml(VARIANT)
+    qml = NM.main_qml()
     for pat, rep in RQ.SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.M)
-    config = RQ._kcfg_defaults(NM.config_xml(VARIANT))
+    config = RQ._kcfg_defaults(NM.config_xml())
     config["speed"] = 8.0        # a rotation ~1.5 s on the 420 px board
     config["hoverPause"] = hover_pause
     config["debugLog"] = True         # the widget's own trace lines ride on stderr
-    return qml, config, make_preview.parse_scheme(VARIANT)["ground"], {
+    return qml, config, make_preview.parse_scheme(variant)["ground"], {
         "MatrixChar.qml": NM.matrix_char_component(),
         "MatrixField.qml": NM.matrix_field_component(),
         "marquee-body.js": NM.body_parser(),
@@ -204,21 +206,31 @@ HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples a
 HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
 
 
-def run(hover_pause=False, end_ms=None, stop_paused=0):
+def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
     ⚑ THE HOVERED RUN ENDS ON ITS CONDITION, NOT THE CLOCK (measured 2026-09-22:
     a 2.6 s cap passed on an idle host and refused under the pre-commit gate's
     load, where the board had not yet reached the pointer). The timeline is
     wall-clock inside qml; every rule is over order and presence, and now the
-    run length is too."""
+    run length is too.
+
+    ⚑ UNDER THE REAL THEME (W35): the widget is BOUND to Kirigami.Theme, so the
+    run happens in theme_probe.env_for(variant) — the KDE platform theme reading
+    a private kdeglobals that IS the variant's .colors, as a widgets app. What
+    the board draws is what that variant's scheme resolves to."""
     if not os.path.isfile(QML):
         return None
     os.chdir(ROOT)
-    qml, config, ground, files = subject(hover_pause)
+    import theme_probe as TP
+    if TP.scheme_path(variant) is None:
+        return None
+    qml, config, ground, files = subject(hover_pause, variant)
     with tempfile.TemporaryDirectory() as td:
         stub = os.path.join(td, "stub", "org", "kde", "notificationmanager")
         os.makedirs(stub)
+        xdg = os.path.join(td, "xdg")
+        os.makedirs(xdg)
         open(os.path.join(stub, "qmldir"), "w").write(STUB_QMLDIR)
         open(os.path.join(stub, "StubRegistry.qml"), "w").write(STUB_REGISTRY)
         open(os.path.join(stub, "Notifications.qml"), "w").write(STUB_MODEL)
@@ -229,12 +241,13 @@ def run(hover_pause=False, end_ms=None, stop_paused=0):
         open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
             "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused})
-        # (no QT_LOGGING_RULES *.debug=false here: console.log IS a debug message,
-        # and the RESULT line rides on it)
-        env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
-                   QML2_IMPORT_PATH=os.path.join(td, "stub"),
+        # theme_probe's environment (the real theme on the variant's scheme) plus the
+        # notification stub on the import path. console.log IS a debug message and
+        # the RESULT line rides on it, so only kirigami's own category is quieted.
+        env = TP.env_for(variant, xdg)
+        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"),
                    QT_QUICK_BACKEND=os.environ.get("EL_QUICK_BACKEND", "software"))
-        r = subprocess.run([QML, os.path.join(td, "harness.qml")], env=env,
+        r = subprocess.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env,
                            capture_output=True, text=True, timeout=120)
     log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
     for line in (r.stdout + r.stderr).splitlines():
@@ -247,33 +260,52 @@ def run(hover_pause=False, end_ms=None, stop_paused=0):
     raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
 
 
-def run_hovered():
-    return run(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES)
+def run_hovered(variant=VARIANT):
+    return run(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES, variant=variant)
 
 
-def measure(res, hovered=None):
+def expected_colors(variant):
+    """The variant's solved tokens as the widget's bound colours must resolve (W35)."""
+    import make_wallpaper_live as WL
+    ground, lit, ghost, _a = WL.colors_for(variant)
+    return {"lit": "#%02x%02x%02x" % lit, "ghost": "#%02x%02x%02x" % ghost, "ground": "#%02x%02x%02x" % ground}
+
+
+def measure(res, hovered=None, variant=VARIANT):
     """The measurement: the main run, and (W51) the HOVERED run — hover-pause on,
     the offscreen pointer at (0,0) holding the board — so the pulse rule has a
-    paused trace to range over. Both are the real widget."""
+    paused trace to range over. Both are the real widget, run under `variant`'s
+    scheme (W35); `expected` carries that variant's tokens for the binding rule."""
     if res is None:
-        return {"runner": False, "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}}
-    return {"runner": True, "events": res["events"], "samples": res["samples"], "width": res["width"],
+        return {"runner": False, "variant": variant, "expected": expected_colors(variant),
+                "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}}
+    return {"runner": True, "variant": variant, "expected": expected_colors(variant),
+            "events": res["events"], "samples": res["samples"], "width": res["width"],
             "log": res.get("log", []),
             "hovered": {"samples": hovered["samples"] if hovered else []}}
 
 
 def main(argv):
-    known = {"--json", "--trace", "--hovered", "--selftest"}
-    for a in argv[1:]:
+    known = {"--json", "--trace", "--hovered", "--variant", "--selftest"}
+    variant = VARIANT
+    args = list(argv[1:])
+    if "--variant" in args:
+        i = args.index("--variant")
+        if i + 1 >= len(args):
+            print("check_marquee_live: --variant needs a name", file=sys.stderr)
+            return 2
+        variant = args[i + 1]
+        del args[i:i + 2]
+    for a in args:
         if a not in known:
             print(f"check_marquee_live: unknown flag {a!r}", file=sys.stderr)
             return 2
-    if "--hovered" in argv:
+    if "--hovered" in args:
         # the pointer explanation, shown: with hover-pause ON the run halts at x≈0.
         # With --json too, the stalled trace is emitted AS THE MAIN RUN — the
         # policy's refusing input for L6, produced by the real widget rather than typed.
-        h = run_hovered()
-        m = measure(h, h)
+        h = run_hovered(variant)
+        m = measure(h, h, variant)
         if "--json" in argv:
             print(json.dumps(m, indent=1))
             return 0
@@ -283,15 +315,16 @@ def main(argv):
               f"while running (the offscreen pointer at (0,0) hovers the Row); "
               f"the ring took {pulsing} distinct opacities while paused")
         return 0
-    m = measure(run(), run_hovered())
+    m = measure(run(variant=variant), run_hovered(variant), variant)
     if "--trace" in argv:
+        print(f"variant {variant}: expected lit {m['expected']['lit']} ghost {m['expected']['ghost']} ground {m['expected']['ground']}")
         for l in m["log"]:
             print(f"widget {l}")
         for e in m["events"]:
             print(f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']} shows {e['shows']!r}")
         for s in m["samples"]:
             print(f"sample t={s['t']:6.0f}  x={s['x']:7.1f} raw={s['raw']:7.1f} w={s['w']:6.1f}  running={s['running']!s:5s} "
-                  f"paused={s['paused']!s:5s} ring={s['ring']:.2f}  count={s['count']}  {s['text']!r}")
+                  f"paused={s['paused']!s:5s} ring={s['ring']:.2f} lit={s['lit']}  count={s['count']}  {s['text']!r}")
         for s in m["hovered"]["samples"]:
             print(f"hovered t={s['t']:6.0f}  x={s['x']:7.1f}  running={s['running']!s:5s} paused={s['paused']!s:5s} ring={s['ring']:.2f}  {s['text']!r}")
         return 0
@@ -321,8 +354,13 @@ def _selftest():
     last = m["samples"][-1]
     chk("the run ended with every event fired and the board drained",
         (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
-    chk("a sample carries text, x, raw, w, running, paused, ring, count",
-        sorted(m["samples"][0].keys()), ["count", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
+    chk("a sample carries text, x, raw, w, running, paused, ring, count and the bound colours",
+        sorted(m["samples"][0].keys()),
+        ["count", "ghost", "ground", "lit", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
+    # ⚑ THE THEME CAN SEE (W35): run under another variant, the bound colours change
+    amber = measure(run(variant="EL-Amber", end_ms=1500), None, "EL-Amber")
+    chk("under EL-Amber the sampled lit is EL-Amber's fg", amber["samples"][-1]["lit"], amber["expected"]["lit"])
+    chk("...and differs from EL-Openglo's", amber["samples"][-1]["lit"] != m["expected"]["lit"], True)
     chk("the hovered run has paused samples", any(s["paused"] for s in m["hovered"]["samples"]), True)
     chk("the stub reported its rows to the board (some sample saw text)", any(s["text"] for s in m["samples"]), True)
     chk("a runner-less host is withheld", measure(None)["runner"], False)

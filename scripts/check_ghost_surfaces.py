@@ -98,10 +98,12 @@ def surfaces(variant_id):
     out.append(("make_wallpaper_live", _hole(qml, "litColor") or _hole(qml, "lit"),
                 _hole(qml, "ghostColor") or _hole(qml, "ghost"), _alpha(qml)))
 
+    # bound since W35 (one package): what it draws under this variant is the token
+    # the scheme writes into the role each colour is bound to
     import make_notify_marquee as NM
-    qml = NM.main_qml(variant_id)
-    out.append(("make_notify_marquee", _hole(qml, "litColor") or _hole(qml, "lit"),
-                _hole(qml, "ghostColor") or _hole(qml, "ghost"), _alpha(qml)))
+    qml = NM.main_qml()
+    out.append(("make_notify_marquee", _bound(qml, "litColor", "textColor", tok["fg"]),
+                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]), _alpha(qml)))
 
     # ⚑ A BOUND SURFACE (⊕ONE-THEME, W35): the switcher is ONE package whose
     # colours are Kirigami.Theme roles of the ACTIVE scheme, so "what it draws

@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
+// the ACTIVE colour scheme's roles (⊕ONE-THEME, W35)
+import org.kde.kirigami as Kirigami
 // PUBLIC notification model (libnotificationmanager) — the same feed the stock
 // applet reads. NOT the deprecated org.kde.plasma.private.notifications.
 import org.kde.notificationmanager as NotificationManager
@@ -10,12 +12,19 @@ import "marquee-body.js" as Body
 
 PlasmoidItem {
     id: root
-    property color litColor: "#99ffeb"
-    property color ghostColor: "#7ed3c3"
-    property color voidColor: "#081411"
-    // the unlit dot field's opacity — the palette's solved ghost_alpha, passed to
-    // every MatrixChar below in place of the component's authored 0.28. Whether a
-    // DOT FIELD at this alpha reads as the same texture as strokes do is
+    // ⚑ BOUND, NOT BAKED (catalog/one-theme.md): lit = ForegroundNormal (the fg
+    // token), ghost = ForegroundInactive (fg_in), void = [Colors:View]
+    // BackgroundNormal (view) — read from the active scheme under the View set.
+    // ONE package: applying EL-Amber.colors is what makes this board amber.
+    Kirigami.Theme.colorSet: Kirigami.Theme.View
+    Kirigami.Theme.inherit: false
+    property color litColor: Kirigami.Theme.textColor
+    property color ghostColor: Kirigami.Theme.disabledTextColor
+    property color voidColor: Kirigami.Theme.backgroundColor
+    // the unlit dot field's opacity — the palette's solved ghost_alpha, GLOBAL
+    // across the variants (W23) and so bakeable in one package; passed to every
+    // MatrixChar below in place of the component's authored 0.28. Whether a DOT
+    // FIELD at this alpha reads as the same texture as strokes do is
     // ⊕GHOST-DENSITY's question, still open; the relation itself is one.
     property real ghostAlpha: 0.566
 
@@ -126,11 +135,18 @@ PlasmoidItem {
     // spans), read below as a fuller dot, a gated hue, an underline, a href.
     property var tickerRuns: []
 
-    // ⚑ THE SOLVED HUE TABLE (relations.md §5a; make_palette.hue_table, gated by
-    // check_rehue). Twelve buckets, index = hue / 30; a bucket the gate refused
-    // already holds the lit token, so a lookup can never produce an unreadable
-    // colour. The widget does no colour arithmetic beyond finding the bucket.
-    property var hueTable: ["#ff9999", "#ffcc99", "#ffff99", "#ccff99", "#99ff99", "#99ffcc", "#99ffff", "#99ffeb", "#99ffeb", "#99ffeb", "#ff99ff", "#99ffeb"]
+    // ⚑ THE SOLVED HUE TABLES (relations.md §5a; make_palette.hue_table, gated by
+    // check_rehue). Twelve buckets per variant, index = hue / 30; a bucket the
+    // gate refused already holds the lit token, so a lookup can never produce an
+    // unreadable colour. ONE package carries every variant's table keyed by that
+    // variant's fg hex, and the row is picked from the LIVE lit colour — the one
+    // per-variant fact that is not a scheme role (catalog/one-theme.md). A
+    // foreign scheme (a fg matching no variant) gets the fallback row, whose
+    // buckets fall back to fg anyway. No colour arithmetic beyond the lookup.
+    readonly property var hueTables: ({"#99ffeb": ["#ff9999", "#ffcc99", "#ffff99", "#ccff99", "#99ff99", "#99ffcc", "#99ffff", "#99ffeb", "#99ffeb", "#99ffeb", "#ff99ff", "#99ffeb"], "#002921": ["#290000", "#291400", "#292900", "#142900", "#002900", "#002914", "#002929", "#001429", "#000029", "#140029", "#290029", "#290014"], "#99ccff": ["#ff9999", "#ffcc99", "#ffff99", "#ccff99", "#99ff99", "#99ffcc", "#99ffff", "#99ccff", "#99ccff", "#99ccff", "#99ccff", "#ff99cc"], "#001429": ["#290000", "#291400", "#292900", "#142900", "#002900", "#002914", "#002929", "#001429", "#000029", "#140029", "#290029", "#290014"], "#ffd499": ["#ffd499", "#ffd499", "#ffff99", "#ccff99", "#99ff99", "#99ffcc", "#99ffff", "#99ccff", "#ffd499", "#ffd499", "#ff99ff", "#ff99cc"], "#291800": ["#290000", "#291400", "#292900", "#142900", "#002900", "#002914", "#002929", "#001429", "#000029", "#140029", "#290029", "#290014"]})
+    readonly property string fallbackFg: "#99ffeb"
+    readonly property var hueTable: (String(root.litColor) in hueTables) ? hueTables[String(root.litColor)]
+                                                                        : hueTables[fallbackFg]
     // bold is a fuller dot: the clock's weight ratio, on the dot's area
     readonly property real boldFill: 1.15
 

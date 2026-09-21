@@ -561,7 +561,9 @@ CLOSED = {
                 _reads("templates/marquee-body.js", r"(?m)^function parseBody\(") and
                 # W39 widget half: the solved hue table is a hole, a run's colour is a
                 # table LOOKUP, bold is a fuller dot — no colour arithmetic in the widget
-                _reads("templates/marquee-main.qml", r"(?m)^\s*property var hueTable:\s*\$hueTable") and
+                # W35: every variant's table, keyed by fg; the row is picked from the LIVE lit
+                _reads("templates/marquee-main.qml", r"(?m)^\s*readonly property var hueTables:\s*\$hueTables") and
+                _reads("templates/marquee-main.qml", r"hueTables\[String\(root\.litColor\)\]") and
                 _reads("templates/marquee-main.qml", r"litColorOverride:\s*root\.overrideFor\(") and
                 _reads("templates/MatrixChar.qml", r"(?m)^\s*property color litColorOverride") and
                 _reads("make_notify_marquee.py", r"MP\.hue_table\(") and

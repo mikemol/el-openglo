@@ -40,10 +40,10 @@ PAIRS = (
     # by ABSOLUTE PATH (make_notify_marquee.PARITY_FONT); a host without that
     # file SKIPs this pair — printed, counted — rather than reporting a host
     # difference as a template difference.
-    ("make_notify_marquee", "main_qml", ("EL-Openglo", "PARITY_FONT"),
-     "marquee-main-EL-Openglo.qml"),
-    # the settings (W34 c): the kcfg carries the solved ghost alpha as its default
-    ("make_notify_marquee", "config_xml", "EL-Openglo", "marquee-config-EL-Openglo.kcfg"),
+    # ONE package since W35: no variant argument; the font is still pinned
+    ("make_notify_marquee", "main_qml", ("PARITY_FONT",), "marquee-main.qml"),
+    # the settings (W34 c): the kcfg carries the solved (global) ghost alpha as its default
+    ("make_notify_marquee", "config_xml", None, "marquee-config.kcfg"),
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     ("make_notify_marquee", "body_parser", None, "marquee-body.js"),
     # the fixed field + its ring (W51): a component the plasmoid instantiates by bare name
@@ -200,10 +200,12 @@ def diff(match):
 # notify-send showed nothing after a plasmashell replace — the first question is
 # whether the installed marquee is the tree's)
 INSTALLED = {
-    "marquee-main-EL-Openglo.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/ui/main.qml",
-    "marquee-body.js": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/ui/marquee-body.js",
-    "marquee-config-EL-Openglo.kcfg": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/config/main.xml",
-    "marquee-config.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/ui/configGeneral.qml",
+    # ONE marquee package since W35 (a host still on the per-variant build shows NOT INSTALLED)
+    "marquee-main.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui/main.qml",
+    "marquee-body.js": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui/marquee-body.js",
+    "marquee-config.kcfg": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/config/main.xml",
+    "marquee-config.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui/configGeneral.qml",
+    "taskswitch-main.qml": "/usr/share/kwin/tabbox/org.el.taskswitch/contents/ui/main.qml",
     "live-wallpaper-main-EL-Openglo.qml": "/usr/share/plasma/wallpapers/org.el.livewallpaper.elopenglo/contents/ui/main.qml",
 }
 

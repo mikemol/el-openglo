@@ -140,10 +140,11 @@ echo "Preview without rebooting:  sddm-greeter-qt6 --test-mode --theme $BREEZE"
 NOTIFY_HELPER = r'''#!/bin/sh
 # el-openglo-notify — add the phosphor notification ticker + silence the popups.
 set -eu
-VARIANT="${1:-EL-Openglo}"
-WIDGET="org.el.notifymarquee.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
+# ONE widget since W35: its colours are the active colour scheme's, so the
+# variant is whichever EL-*.colors is applied (el-openglo-apply), not a package
+WIDGET="org.el.notifymarquee"
 PKG="/usr/share/plasma/plasmoids/$WIDGET"
-if [ ! -d "$PKG" ]; then echo "no marquee widget for $VARIANT" >&2; exit 1; fi
+if [ ! -d "$PKG" ]; then echo "the marquee widget is not installed" >&2; exit 1; fi
 # suppress the stock notification popups (feed still reaches the ticker model)
 # CriticalInDndMode stays on so critical alerts are never hidden.
 kwriteconfig6 --file plasmanotifyrc --group DoNotDisturb --key WhenScreenSharing false 2>/dev/null || true
@@ -733,14 +734,11 @@ def stage(root):
         for v in VARIANTS}
     _wpl.render_all(VARIANTS, wldirs)
 
-    # Notification-marquee plasmoids (⊕NOTIFY-MARQUEE): 9th emitter — phosphor
-    # ticker that subsumes the occluding popups. One Plasma/Applet per variant.
+    # The notification-marquee plasmoid (⊕NOTIFY-MARQUEE): 9th emitter — phosphor
+    # ticker that subsumes the occluding popups. ONE Plasma/Applet since W35
+    # (⊕ONE-THEME), bound to the active scheme's roles.
     import make_notify_marquee as _nm
-    nmdirs = {v: os.path.join(
-        DEB_ROOT,
-        f"usr/share/plasma/plasmoids/org.el.notifymarquee.{v.lower().replace('-', '')}")
-        for v in VARIANTS}
-    _nm.render_all(VARIANTS, nmdirs)
+    _nm.render_all(os.path.join(DEB_ROOT, "usr/share/plasma/plasmoids", _nm.PACKAGE_ID))
 
     # ⊕GLANCE-AUDIT gate: every ghost-bearing surface must clear its parsing-mode
     # floor (glanced-at needs more separation than looked-at). A surface that drops

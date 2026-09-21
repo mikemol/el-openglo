@@ -7146,3 +7146,68 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s105]
+
+## Session 106 — ⊕ONE-THEME, the marquee: one package, bound, rendered under the real theme per variant
+- W35 (2b), 2026-09-22. make_notify_marquee emits ONE package
+  (org.el.notifymarquee): lit / ghost / void bound to Kirigami.Theme's
+  textColor / disabledTextColor / backgroundColor under colorSet View with
+  inherit false; the ghost alpha baked from make_taskswitch.ghost_alpha
+  (the measured-global constant); the one per-variant fact that is not a
+  role — the sender-hue table — rides as ALL SIX tables keyed by each
+  variant's fg hex, and the widget picks the row from String(litColor),
+  with EL-Openglo's row as the fallback for a foreign scheme (whose
+  buckets fall back to fg anyway). main_qml(font_path) / config_xml() /
+  metadata() / render_all(dir) lost their variant argument; make_deb stages
+  one plasmoid (staged and listed beside the six clocks); the notify helper
+  names the one widget. render_qml keeps the org.kde.kirigami import (it
+  was stripped; the real module loads headless).
+- check_marquee_live runs the widget under theme_probe.env_for(variant)
+  as a widgets app — the REAL Kirigami.Theme on a private kdeglobals that
+  is the variant's .colors — with `--variant` (default EL-Openglo); every
+  sample carries the board's live lit / ghost / ground and the measurement
+  carries the variant's expected tokens; policy/marquee_live.rego L8: after
+  the theme settles (400 ms), every sample's bound colours equal the
+  variant's fg / fg_in / view, reported once at onset (49/49). Measured:
+  under EL-Amber the board's lit is #ffd499 from the first sample; the
+  selftest runs a second variant and sees the colours change. The gates
+  followed: check_ghost_surfaces resolves the marquee's bindings through
+  _bound; check_ghost_composite reads the one alpha; parity pairs
+  marquee-main.qml + marquee-config.kcfg (12 of 12); check_qml_lint lints
+  the one document; --installed maps the new paths (the host, on the
+  per-variant build, will read NOT INSTALLED until it emerges); the
+  ⊕NOTIFY-MATRIXRENDER witness pins hueTables + the live lookup.
+- ⊕ONE-THEME: two of four live surfaces bound; the witness still asks the
+  clock and the live wallpaper, then the LnF as one package.
+- Residue: the host's applet instance is still org.el.notifymarquee.elazure
+  until the operator re-adds the one widget (the notify helper does it);
+  the hue tables are keyed by exact fg hex — a scheme whose fg differs by a
+  rounding step gets the fallback row; L8's 400 ms settle is authored;
+  three qml launches per marquee measurement (main, hovered, selftest's
+  second variant).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; s104 the
+  switcher; s105 resolution per variant headless; s106 the marquee; next
+  the clock, the live wallpaper, the LnF). RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106 the one
+  marquee follows plasma-apply-colorscheme on the panel), ⊕VER-MARQUEE
+  (s89-103 — after re-emerge: a lone notify-send scrolls once; every
+  notification scrolls once, none vanish, the board never goes dead, a
+  parked pointer pulses the ring; ticks read check_marquee_host),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s106]

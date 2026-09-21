@@ -41,7 +41,8 @@ QML = "/usr/lib64/qt6/bin/qml"
 # its own fullRepresentation, exactly as the applet loader would
 SUBSTITUTIONS = (
     (r"^import org\.kde\.plasma\.[^\n]*\n", ""),
-    (r"^import org\.kde\.kirigami[^\n]*\n", ""),
+    # org.kde.kirigami is KEPT (W35): the real module loads headless, and a bound
+    # surface reads Kirigami.Theme — theme_probe.env_for makes it resolve a variant
     (r"^PlasmoidItem \{",
      "Item {\n    property var preferredRepresentation\n"
      "    property Component fullRepresentation\n"

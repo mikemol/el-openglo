@@ -206,6 +206,30 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L8 — the bound colours resolve to the variant's tokens, throughout"
+# description: |
+#   ⊕ONE-THEME (W35): the widget binds lit / ghost / ground to the active
+#   scheme's roles, and the harness runs it under the variant's scheme with the
+#   real Kirigami.Theme. After the theme settles (the first 400 ms), every
+#   sample's lit / ghost / ground must equal the variant's solved fg / fg_in /
+#   view. A baked hex, a wrong role or a missing colorSet fails here on the
+#   RENDERED widget, not on its text.
+off_token(i, k) if {
+	s := input.samples[i]
+	s.t >= 400
+	s[k] != input.expected[k]
+}
+
+deny contains msg if {
+	some i
+	some k, want in input.expected
+	off_token(i, k)
+	not off_token(i - 1, k) # the onset, once
+	s := input.samples[i]
+	msg := sprintf("L8: under %s from t=%v, %s is %v, not the variant's %v", [input.variant, s.t, k, s[k], want])
+}
+
+# METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
 	not input.runner

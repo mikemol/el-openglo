@@ -208,9 +208,10 @@ def matrix_dot_fill():
 
 
 def matrix_rendered_alpha(variant_id):
-    """The ghostAlpha the EMITTED marquee passes to MatrixChar for `variant_id`."""
+    """The ghostAlpha the EMITTED marquee passes to MatrixChar — ONE package since
+    W35, so the same baked (measured-global) alpha for every `variant_id`."""
     import make_notify_marquee
-    for line in make_notify_marquee.main_qml(variant_id).splitlines():
+    for line in make_notify_marquee.main_qml().splitlines():
         s = line.strip()
         if s.startswith("property real ghostAlpha:"):
             return float(s.split(":", 1)[1].strip())

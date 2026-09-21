@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Notification-marquee plasmoid emitter (⊕NOTIFY-MARQUEE).
+"""Notification-marquee plasmoid emitter (⊕NOTIFY-MARQUEE; ONE package since W35, ⊕ONE-THEME).
 
 A panel widget that SUBSUMES the occluding notification popups into a phosphor
 scrolling ticker (an airport departure-board for your desktop). It restores the
@@ -8,16 +8,23 @@ behavior late Plasma 4 had before Plasma 5 replaced the ticker with popups.
 Architecture (fetched): reads the PUBLIC NotificationManager.Notifications model
 (import org.kde.notificationmanager) — the same feed the stock applet consumes —
 rather than trying to become the D-Bus notification server. Root is PlasmoidItem
-(KF6), entry ui/main.qml, KPackageStructure=Plasma/Applet. Colors bake from the
-scheme tokens like every other emitter (9th emission surface). A companion helper
-suppresses the stock popups (plasmanotifyrc) so the marquee replaces them.
+(KF6), entry ui/main.qml, KPackageStructure=Plasma/Applet.
+
+⚑ ONE PACKAGE, THE VARIANT IS THE ACTIVE COLOUR SCHEME (catalog/one-theme.md).
+lit / ghost / ground are Kirigami.Theme's textColor / disabledTextColor /
+backgroundColor under colorSet View — the roles make_schemes.emit_colors writes
+fg / fg_in / view into. What is NOT a role: the ghost alpha, global across the
+variants (make_taskswitch.ghost_alpha refuses otherwise), baked; and the
+sender-hue table, per variant — so the widget carries ALL SIX tables keyed by
+the variant's fg hex and picks the row from the live lit colour (hue_tables_js).
 
 Degrades gracefully: if the model is empty or the import is unavailable, the
 widget shows an idle phosphor face rather than crashing.
 """
 import os
 import json
-import make_wallpaper_live as WL   # reuse colors_for (token-derived lit/ghost/void)
+import make_wallpaper_live as WL   # colors_for: the token-derived lit/ghost/void per variant
+import make_taskswitch as TS       # ghost_alpha(): the measured-global constant; VARIANTS
 # ⚑ THIS SURFACE IS A DOT-MATRIX DISPLAY, NOT A SEGMENT ONE, AND NOT STYLED TEXT.
 # It rendered `font.family: "monospace"` — a phosphor ticker drawn in whatever the
 # system serves — because ⊕NOTIFY-MATRIXRENDER was never built. The obvious repair
@@ -28,18 +35,24 @@ import make_wallpaper_live as WL   # reuse colors_for (token-derived lit/ghost/v
 # this consumes THE REGISTRY and dispatches on `kind`.
 import display_types as DT
 
+PACKAGE_ID = "org.el.notifymarquee"
+VARIANTS = TS.VARIANTS
+# the variant whose hue row is the FALLBACK when the live fg matches no variant
+# (a foreign scheme applied over the theme): its buckets fall back to fg anyway
+FALLBACK_VARIANT = "EL-Openglo"
+
 
 def _hex(rgb):
     return "#%02x%02x%02x" % rgb
 
 
-def metadata(variant):
+def metadata():
     return {
         "KPackageStructure": "Plasma/Applet",
         "KPlugin": {
-            "Id": f"org.el.notifymarquee.{variant.lower().replace('-', '')}",
-            "Name": f"EL Notification Marquee ({variant})",
-            "Description": "Phosphor scrolling ticker that subsumes notification popups",
+            "Id": PACKAGE_ID,
+            "Name": "EL Notification Marquee",
+            "Description": "Phosphor scrolling ticker that subsumes notification popups, coloured by the active scheme",
             "Category": "System Information",
             "License": "GPLv3",
             "Authors": [{"Name": "EL Openglo"}],
@@ -79,32 +92,39 @@ def matrix_font():
     return p
 
 
-def main_qml(variant, font_path=None):
+def main_qml(font_path=None):
     """The marquee plasmoid — templates/marquee-main.qml.
 
-    ⚑ THE COLOURS AND THE REGISTRY ARE THE ONLY THINGS THIS FUNCTION OWNS, and it
-    owns neither of them either — both are READS. Four holes go in; the document
-    comes out. The registry carries the 5x8 font — the authored table plus the
-    Latin-1 extension rasterised from `font_path` (matrix_font() when None) — so
-    arbitrary notification text renders as a dot-matrix display, and a char
-    outside the charset renders as '?' rather than as a blank cell."""
-    ground, lit, ghost, alpha = WL.colors_for(variant)
+    ⚑ THE ALPHA, THE HUE TABLES AND THE REGISTRY ARE THE ONLY HOLES, and all three
+    are READS: the colours themselves are Kirigami.Theme bindings in the template.
+    The registry carries the 5x8 font — the authored table plus the Latin-1
+    extension rasterised from `font_path` (matrix_font() when None) — so arbitrary
+    notification text renders as a dot-matrix display, and a char outside the
+    charset renders as '?' rather than as a blank cell."""
     import templates.loader as TL
-    return TL.render("marquee-main.qml", lit=_hex(lit), ghost=_hex(ghost),
-                     ground=_hex(ground), ghostAlpha=alpha,
-                     hueTable=hue_table_js(variant),
+    return TL.render("marquee-main.qml", ghostAlpha=TS.ghost_alpha(),
+                     hueTables=hue_tables_js(), fallbackFg=_hex(WL.colors_for(FALLBACK_VARIANT)[1]),
                      registry=DT.as_qml_js(MATRIX_DISPLAY,
                                            font_path=font_path or matrix_font()))
 
 
-def hue_table_js(variant):
-    """The variant's 12-bucket sender-hue table as a JS array of hex colours
-    (index = hue / 30), SOLVED by make_palette.hue_table at build time — a
-    fallback bucket already holds fg, so the widget only ever looks up
-    (relations.md §5a; the gate is check_rehue's)."""
+def hue_table(variant):
+    """The variant's 12-bucket sender-hue table as hex colours (index = hue / 30),
+    SOLVED by make_palette.hue_table at build time — a fallback bucket already
+    holds fg, so the widget only ever looks up (relations.md §5a; check_rehue)."""
     import make_palette as MP
     ground, lit, ghost, _alpha = WL.colors_for(variant)
-    return "[" + ", ".join(f'"{_hex(col)}"' for _h, col, _ok in MP.hue_table(lit, ground, ghost)) + "]"
+    return [_hex(col) for _h, col, _ok in MP.hue_table(lit, ground, ghost)]
+
+
+def hue_tables_js():
+    """ALL variants' tables as one JS object keyed by the variant's fg hex — the
+    key the widget derives from its live litColor (catalog/one-theme.md)."""
+    rows = []
+    for v in VARIANTS:
+        fg = _hex(WL.colors_for(v)[1])
+        rows.append(f'"{fg}": [' + ", ".join(f'"{c}"' for c in hue_table(v)) + "]")
+    return "({" + ", ".join(rows) + "})"
 
 
 def matrix_char_component():
@@ -125,20 +145,18 @@ def matrix_field_component():
     return TL.render("MatrixField.qml")
 
 
-
 def body_parser():
     """templates/marquee-body.js — notification body markup -> text + style runs."""
     import templates.loader as TL
     return TL.render("marquee-body.js")
 
 
-def config_xml(variant):
+def config_xml():
     """contents/config/main.xml — the settings' kcfg. The ghostAlpha DEFAULT is the
-    palette's solved alpha, filled here: the slider is a per-user override, so an
-    unconfigured widget draws exactly what check_ghost_surfaces measured."""
-    _g, _l, _gh, alpha = WL.colors_for(variant)
+    palette's solved (global) alpha, filled here: the slider is a per-user override,
+    so an unconfigured widget draws exactly what check_ghost_surfaces measured."""
     import templates.loader as TL
-    return TL.render("marquee-config.kcfg", ghostAlpha=alpha)
+    return TL.render("marquee-config.kcfg", ghostAlpha=TS.ghost_alpha())
 
 
 def config_qml():
@@ -152,39 +170,32 @@ CONFIG_MODEL = ('import org.kde.plasma.configuration\n\nConfigModel {\n'
                 '        source: "configGeneral.qml"\n    }\n}\n')
 
 
-def render_all(variants, dir_map):
-    written = {}
-    for v in variants:
-        d = dir_map[v]
-        ui = os.path.join(d, "contents", "ui")
-        cfg = os.path.join(d, "contents", "config")
-        os.makedirs(ui, exist_ok=True)
-        os.makedirs(cfg, exist_ok=True)
-        open(os.path.join(d, "metadata.json"), "w").write(
-            json.dumps(metadata(v), indent=2))
-        open(os.path.join(ui, "main.qml"), "w").write(main_qml(v))
-        # the settings page (W34 c): the same three files the clock ships
-        open(os.path.join(ui, "configGeneral.qml"), "w").write(config_qml())
-        open(os.path.join(cfg, "main.xml"), "w").write(config_xml(v))
-        open(os.path.join(cfg, "config.qml"), "w").write(CONFIG_MODEL)
-        # ⚑ THE COMPONENT SHIPS BESIDE THE PLASMOID OR THE IMPORT RESOLVES TO
-        # NOTHING.  main.qml instantiates MatrixChar by bare name, which QML
-        # resolves from the same directory — emitting one without the other gives
-        # a widget that loads and draws an empty panel.
-        open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
-        open(os.path.join(ui, "MatrixField.qml"), "w").write(matrix_field_component())
-        # the body-markup parser (W39): main.qml imports it by bare name
-        open(os.path.join(ui, "marquee-body.js"), "w").write(body_parser())
-        written[v] = d
-    return written
+def render_all(d):
+    """Write the ONE package into d."""
+    ui = os.path.join(d, "contents", "ui")
+    cfg = os.path.join(d, "contents", "config")
+    os.makedirs(ui, exist_ok=True)
+    os.makedirs(cfg, exist_ok=True)
+    open(os.path.join(d, "metadata.json"), "w").write(json.dumps(metadata(), indent=2))
+    open(os.path.join(ui, "main.qml"), "w").write(main_qml())
+    # the settings page (W34 c): the same three files the clock ships
+    open(os.path.join(ui, "configGeneral.qml"), "w").write(config_qml())
+    open(os.path.join(cfg, "main.xml"), "w").write(config_xml())
+    open(os.path.join(cfg, "config.qml"), "w").write(CONFIG_MODEL)
+    # ⚑ THE COMPONENT SHIPS BESIDE THE PLASMOID OR THE IMPORT RESOLVES TO
+    # NOTHING.  main.qml instantiates MatrixChar by bare name, which QML
+    # resolves from the same directory — emitting one without the other gives
+    # a widget that loads and draws an empty panel.
+    open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
+    open(os.path.join(ui, "MatrixField.qml"), "w").write(matrix_field_component())
+    # the body-markup parser (W39): main.qml imports it by bare name
+    open(os.path.join(ui, "marquee-body.js"), "w").write(body_parser())
+    return d
 
 
 if __name__ == "__main__":
-    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-                "EL-Amber", "EL-Amber-Lit"]
-    outs = {v: f"/tmp/nm-{v}" for v in variants}
-    render_all(variants, outs)
-    print("rendered", len(outs), "notification-marquee plasmoids")
-    for v in variants:
-        g, l, gh, a = WL.colors_for(v)
-        print(f"  {v}: void={g} lit={l} ghost={gh}@{a}")
+    out = "/tmp/nm-el"
+    render_all(out)
+    print(f"rendered the notification-marquee plasmoid ({PACKAGE_ID}) into {out}; alpha={TS.ghost_alpha()}")
+    for v in VARIANTS:
+        print(f"  hue row for fg {_hex(WL.colors_for(v)[1])}: {v}")

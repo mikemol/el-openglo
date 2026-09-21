@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
+// the ACTIVE colour scheme's roles (⊕ONE-THEME, W35)
+import org.kde.kirigami as Kirigami
 // PUBLIC notification model (libnotificationmanager) — the same feed the stock
 // applet reads. NOT the deprecated org.kde.plasma.private.notifications.
 import org.kde.notificationmanager as NotificationManager
@@ -10,12 +12,19 @@ import "marquee-body.js" as Body
 
 PlasmoidItem {
     id: root
-    property color litColor: "$lit"
-    property color ghostColor: "$ghost"
-    property color voidColor: "$ground"
-    // the unlit dot field's opacity — the palette's solved ghost_alpha, passed to
-    // every MatrixChar below in place of the component's authored 0.28. Whether a
-    // DOT FIELD at this alpha reads as the same texture as strokes do is
+    // ⚑ BOUND, NOT BAKED (catalog/one-theme.md): lit = ForegroundNormal (the fg
+    // token), ghost = ForegroundInactive (fg_in), void = [Colors:View]
+    // BackgroundNormal (view) — read from the active scheme under the View set.
+    // ONE package: applying EL-Amber.colors is what makes this board amber.
+    Kirigami.Theme.colorSet: Kirigami.Theme.View
+    Kirigami.Theme.inherit: false
+    property color litColor: Kirigami.Theme.textColor
+    property color ghostColor: Kirigami.Theme.disabledTextColor
+    property color voidColor: Kirigami.Theme.backgroundColor
+    // the unlit dot field's opacity — the palette's solved ghost_alpha, GLOBAL
+    // across the variants (W23) and so bakeable in one package; passed to every
+    // MatrixChar below in place of the component's authored 0.28. Whether a DOT
+    // FIELD at this alpha reads as the same texture as strokes do is
     // ⊕GHOST-DENSITY's question, still open; the relation itself is one.
     property real ghostAlpha: $ghostAlpha
 
@@ -126,11 +135,18 @@ PlasmoidItem {
     // spans), read below as a fuller dot, a gated hue, an underline, a href.
     property var tickerRuns: []
 
-    // ⚑ THE SOLVED HUE TABLE (relations.md §5a; make_palette.hue_table, gated by
-    // check_rehue). Twelve buckets, index = hue / 30; a bucket the gate refused
-    // already holds the lit token, so a lookup can never produce an unreadable
-    // colour. The widget does no colour arithmetic beyond finding the bucket.
-    property var hueTable: $hueTable
+    // ⚑ THE SOLVED HUE TABLES (relations.md §5a; make_palette.hue_table, gated by
+    // check_rehue). Twelve buckets per variant, index = hue / 30; a bucket the
+    // gate refused already holds the lit token, so a lookup can never produce an
+    // unreadable colour. ONE package carries every variant's table keyed by that
+    // variant's fg hex, and the row is picked from the LIVE lit colour — the one
+    // per-variant fact that is not a scheme role (catalog/one-theme.md). A
+    // foreign scheme (a fg matching no variant) gets the fallback row, whose
+    // buckets fall back to fg anyway. No colour arithmetic beyond the lookup.
+    readonly property var hueTables: $hueTables
+    readonly property string fallbackFg: "$fallbackFg"
+    readonly property var hueTable: (String(root.litColor) in hueTables) ? hueTables[String(root.litColor)]
+                                                                        : hueTables[fallbackFg]
     // bold is a fuller dot: the clock's weight ratio, on the dot's area
     readonly property real boldFill: 1.15
 

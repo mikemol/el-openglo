@@ -149,6 +149,28 @@ test_l7_refuses_a_lit_ring_while_not_paused if {
 	contains(msg, "ring is lit")
 }
 
+# W35: the bound colours under the variant's scheme
+bound_ok := object.union(clean, {"variant": "EL-Amber", "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "ground": "#140f08"},
+	"samples": [
+		{"t": 100, "text": "", "x": 421, "running": false, "count": 0, "lit": "#000000", "ghost": "#000000", "ground": "#000000"},
+		{"t": 500, "text": "app: hello", "x": 300, "running": true, "count": 1, "lit": "#ffd499", "ghost": "#e5bf89", "ground": "#140f08"},
+		{"t": 540, "text": "app: hello", "x": 280, "running": true, "count": 1, "lit": "#ffd499", "ghost": "#e5bf89", "ground": "#140f08"},
+	]})
+
+test_l8_admits_the_variant_tokens_after_settling if {
+	count([m | some m in ml.deny with input as bound_ok; startswith(m, "L8:")]) == 0
+}
+
+test_l8_refuses_a_colour_off_the_variant if {
+	off := object.union(bound_ok, {"samples": [
+		{"t": 500, "text": "app: hello", "x": 300, "running": true, "count": 1, "lit": "#99ffeb", "ghost": "#e5bf89", "ground": "#140f08"},
+		{"t": 540, "text": "app: hello", "x": 280, "running": true, "count": 1, "lit": "#99ffeb", "ghost": "#e5bf89", "ground": "#140f08"},
+	]})
+	msgs := [m | some m in ml.deny with input as off; startswith(m, "L8:")]
+	count(msgs) == 1
+	contains(msgs[0], "lit is #99ffeb")
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp

@@ -26,7 +26,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APPLETSRC = os.path.expanduser("~/.config/plasma-org.kde.plasma.desktop-appletsrc")
-PLUGIN_PREFIX = "org.el.notifymarquee."
+PLUGIN_PREFIX = "org.el.notifymarquee"    # the one package (W35) and the older per-variant ids
 
 
 def instances(path=APPLETSRC):
