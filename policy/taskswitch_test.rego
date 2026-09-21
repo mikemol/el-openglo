@@ -8,7 +8,22 @@ roles := {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundC
 clean := {"qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch",
 	"defaults_id": "org.el.taskswitch", "root": true, "roles": roles, "colorSet": "View",
 	"bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
-	"alpha": 0.566, "lint": []}
+	"alpha": 0.566, "lint": [],
+	"resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"},
+		"expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}}}
+
+test_t5_refuses_a_binding_that_resolves_elsewhere if {
+	bad := object.union(clean, {"resolution": {"EL-Amber": {"resolved": {"lit": "#140f08", "ghost": "#e5bf89", "void": "#140f08"},
+		"expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}}})
+	some msg in ts.deny with input as bad
+	contains(msg, "T5: under EL-Amber, lit resolves to #140f08")
+}
+
+test_t5_withheld_without_a_runner if {
+	inp := object.union(clean, {"resolution": null})
+	count(ts.deny) == 0 with input as inp
+	count(ts.withheld) == 1 with input as inp
+}
 
 test_admits_clean if {
 	count(ts.deny) == 0 with input as clean

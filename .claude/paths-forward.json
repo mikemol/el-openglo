@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 51,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T21:16:33+00:00",
-  "job_id": "63629c89",
+  "heartbeat": "2026-09-21T21:51:25+00:00",
+  "job_id": "3d484805",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-63629c89b",
-    "taken_at": "2026-09-21T21:36:00+00:00"
+    "holder": "tick-3d484805",
+    "taken_at": "2026-09-21T22:04:55+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -618,10 +618,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "The switcher PoC, ONE package: templates/taskswitch-main.qml binds Kirigami.Theme.colorSet: Kirigami.Theme.View and litColor: Kirigami.Theme.textColor, ghostColor: disabledTextColor, voidColor: backgroundColor; ghostAlpha stays a baked constant (global); make_taskswitch emits ONE package id (org.el.taskswitch) and make_deb stages one; the LnF defaults name it; check_taskswitch reads the BINDINGS (the three role names present, no baked hole) instead of hex holes; check_ghost_surfaces: the switcher row asserts bindings; parity: one pair; qml_sanity; render_qml: skip the switcher (no harness). Then the ⊕VER probe: plasma-apply-colorscheme EL-Azure -> EL-Amber, Alt+Tab follows without reinstall. Clock/marquee/wallpaper/LnF collapse after the probe confirms.",
-      "evidence": "77d9923: catalog/one-theme.md (hole -> role table; alphas global; hue table keyed by live fg; what collapses / stays / gates); ⊕ONE-THEME opened in BUILD with a witness at the switcher PoC; COTYPE s97",
+      "next_bounded_step": "(2) the MARQUEE bound: design the six-row hue table keyed by the live fg hex (make_palette.hue_table per variant, emitted as one JS object; hueOf(root.litColor) picks the row), bind lit/ghost/ground to Kirigami.Theme under View, bake the alpha; render_qml/check_marquee_live gain a Kirigami.Theme MOCK with a variant's tokens (--variant) so the headless run still renders; policy/marquee_live gains the binding rule; one marquee package; then (3) clock, (4) live wallpaper, (5) LnF one package whose defaults select ColorScheme. The VER probe (bound switcher follows plasma-apply-colorscheme) after the operator's emerge.",
+      "evidence": "23f2117: make_taskswitch one package bound to Kirigami.Theme roles (colorSet View), ghost_alpha() refuses a per-variant alpha; policy/taskswitch.rego T4 (45/45); check_ghost_surfaces binding resolution; parity 12 of 12; make_deb stages one tabbox package; COTYPE s104",
       "issued_at": "2026-09-21T14:51:57+00:00",
-      "last_worked": "2026-09-21T18:15:06+00:00",
+      "last_worked": "2026-09-21T21:50:06+00:00",
       "ticks_blocked": 0
     },
     {
@@ -642,16 +642,16 @@
     {
       "symbol": "W37",
       "title": "PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own?",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [],
-      "blocked_on": "W35",
+      "blocked_on": "",
       "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "When W35 lands its LnF shape: add the engine choice (widgetStyle=oxygen + library=org.kde.oxygen, cursors Oxygen_Black as one more inherit parent) — one LnF field if collapsed, else an --engine flavour of build_lnf_packages. check_inherit gains Oxygen_Black as a known parent.",
+      "next_bounded_step": "Oxygen flavour: the LnF defaults choose ColorScheme + engine (widgetStyle/decoration); design in catalog/one-theme.md, LnF section, then emit EL-Oxygen as an LnF variant whose defaults select the Oxygen engines (org.kde.oxygen widget style + decoration) with the EL scheme; measure that oxygen reads the scheme roles the way Breeze does (s95). After W35 (5).",
       "evidence": "a4e7b59: measured on the host (COTYPE s95): oxygen/air Plasma Styles carry fixed colors files; org.kde.oxygen defaults name widgetStyle=oxygen, ColorScheme=OxygenDark, icons oxygen, plasma theme oxygen, cursors Oxygen_Black, decoration org.kde.oxygen, Horos. The scheme-reading engines are already EL's; an Oxygen flavour is an LnF defaults choice. Build deferred to W35's shape (one LnF with an engine choice vs six more).",
       "issued_at": "2026-09-21T14:52:17+00:00",
-      "last_worked": "2026-09-21T17:24:24+00:00",
+      "last_worked": "2026-09-21T21:50:14+00:00",
       "ticks_blocked": 0
     },
     {

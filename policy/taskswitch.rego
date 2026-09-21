@@ -77,8 +77,29 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "T5 — the bindings RESOLVE to each variant's tokens under the real Kirigami.Theme"
+# description: |
+#   theme_probe runs the emitted binding lines under a private kdeglobals that
+#   IS the variant's .colors, with the KDE platform theme and Kirigami's
+#   org.kde.desktop platform plugin: what a bound switcher draws when that
+#   scheme is applied. Each variant's resolved lit / ghost / void must equal
+#   the tokens the palette solved (fg / fg_in / view). This is the "follows
+#   plasma-apply-colorscheme" probe, headless.
+deny contains msg if {
+	some v, r in input.resolution
+	some hole, got in r.resolved
+	got != r.expected[hole]
+	msg := sprintf("T5: under %s, %s resolves to %s, not the variant's %s", [v, hole, got, r.expected[hole]])
+}
+
+# METADATA
 # title: "W — qmllint is absent, so T2's lint arm measured nothing"
 withheld contains msg if {
 	not input.qmllint
 	msg := "qmllint is not installed on this host; the switcher QML was not linted"
+}
+
+withheld contains msg if {
+	input.resolution == null
+	msg := "the qml runner or the .colors files are absent; the bindings were not resolved (T5)"
 }

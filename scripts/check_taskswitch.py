@@ -47,14 +47,35 @@ def bindings(qml):
     return out, (cs.group(1) if cs else None)
 
 
-def measure(qml=None):
+def resolution(qml):
+    """{variant: {'resolved': {lit, ghost, void}, 'expected': {lit, ghost, void}}} — the emitted
+    binding lines RUN under each variant's scheme by the real Kirigami.Theme (theme_probe),
+    beside the tokens the palette solved for that variant. None when the runner is absent."""
+    import theme_probe as TP
+    import make_wallpaper_live as WL
+    names = [f"{k}Color" for k in ROLES]
+    block = TP.binding_block(qml, names)
+    out = {}
+    for v in MT.VARIANTS:
+        got = TP.resolve(v, block, names)
+        if got is None:
+            return None
+        ground, lit, ghost, _a = WL.colors_for(v)
+        out[v] = {"resolved": {"lit": got["litColor"], "ghost": got["ghostColor"], "void": got["voidColor"]},
+                  "expected": {"lit": "#%02x%02x%02x" % lit, "ghost": "#%02x%02x%02x" % ghost, "void": "#%02x%02x%02x" % ground}}
+    return out
+
+
+def measure(qml=None, resolve=True):
     """The package's facts; `qml` overrides the emission (the selftest's synthetic input)."""
     meta = MT.metadata()
     qml = MT.main_qml() if qml is None else qml
     m = re.search(r"LayoutName=(\S+)", MT.defaults_fragment())
     alpha = re.search(r"property real ghostAlpha:\s*([0-9.]+)", qml)
     b, cs = bindings(qml)
+    res = resolution(qml) if resolve else None
     return {
+        "resolution": res,                 # None = the qml runner is absent (withheld)
         "qmllint": bool(QS._qmllint()),
         "structure": meta.get("KPackageStructure"),
         "id": meta["KPlugin"].get("Id"),
@@ -81,6 +102,9 @@ def main(argv):
     if "--map" in argv:
         print(f"{m['id']}  colorSet {m['colorSet']}  " + "  ".join(f"{k} -> {v}" for k, v in m["bindings"].items())
               + f"  alpha {m['alpha']}")
+        for v, r in (m["resolution"] or {}).items():
+            flags = "".join(f" {k}≠" for k in r["resolved"] if r["resolved"][k] != r["expected"][k])
+            print(f"  {v:16s} resolves lit {r['resolved']['lit']} ghost {r['resolved']['ghost']} void {r['resolved']['void']}{flags}")
         return 0
     print("check_taskswitch: one switcher package measured; the verdict is "
           "`opa_gate.py taskswitch` (policy/taskswitch.rego)")
@@ -105,10 +129,19 @@ def _selftest():
     base = MT.main_qml()
     r = measure(base.replace("KWin.TabBoxSwitcher {", "Item {{")
                 .replace("property color litColor: Kirigami.Theme.textColor", 'property color litColor: "#99ffeb"')
-                .replace("Kirigami.Theme.colorSet: Kirigami.Theme.View", ""))
+                .replace("Kirigami.Theme.colorSet: Kirigami.Theme.View", ""), resolve=False)
     chk("a missing root is a fact", r["root"], False)
     chk("a baked hex is a fact", r["bindings"]["lit"], "#99ffeb")
     chk("a missing colorSet is a fact", r["colorSet"], None)
+    # ⚑ THE RESOLUTION CAN SEE: the real Kirigami.Theme, under a variant's scheme,
+    # resolves a WRONG role to a colour that is not the variant's token
+    if m["resolution"] is not None:
+        wrong = resolution(base.replace("property color litColor: Kirigami.Theme.textColor",
+                                        "property color litColor: Kirigami.Theme.backgroundColor"))
+        chk("a wrong role resolves to the wrong colour", wrong["EL-Amber"]["resolved"]["lit"] == wrong["EL-Amber"]["expected"]["lit"], False)
+        chk("the right role resolves to the token", m["resolution"]["EL-Amber"]["resolved"], m["resolution"]["EL-Amber"]["expected"])
+    else:
+        print("  SKIP the qml runner is absent — the resolution arm did not run")
     if m["qmllint"]:
         chk("a syntax error is a fact", bool(r["lint"]), True)
     else:

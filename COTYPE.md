@@ -7085,3 +7085,64 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s104]
+
+## Session 105 — the theme mock that is not a mock: the real Kirigami.Theme resolves per variant, headless
+- W35 (2a), 2026-09-22. Measured, in order: a QML-defined stub of
+  Kirigami.Theme cannot exist — `Kirigami.Theme.colorSet:` is an ATTACHED
+  property ("Non-existent attached object"), which only a C++ type provides.
+  The REAL module loads under `qml` offscreen but resolves to black with no
+  platform theme. With QT_QPA_PLATFORMTHEME=kde and Kirigami's
+  org.kde.desktop platform plugin the Qt PALETTE read a private
+  XDG_CONFIG_HOME/kdeglobals holding EL-Amber.colors (palette.text #ffd499
+  = fg, palette.base #140f08 = view) while Kirigami.Theme still read black —
+  because its colours arrive one event-loop turn after load and because the
+  platform theme hands its palette to a WIDGETS application (`qml --apptype
+  widget`). With both: View textColor #ffd499 / disabledTextColor #e5bf89 /
+  backgroundColor #140f08 — the fg / fg_in / view tokens, exactly as
+  one-theme.md maps the roles. Six variants, six exact resolutions.
+- theme_probe.py holds it: resolve(variant, binding_lines, names) runs an
+  emission's binding lines verbatim in a probe root under the variant's
+  private kdeglobals and returns what they resolve to; a check asserts what
+  the emitted text RESOLVES to, not what it says. check_taskswitch's
+  measurement gained `resolution` (resolved beside expected, per variant)
+  and policy/taskswitch.rego T5 refuses a binding that resolves to anything
+  but the variant's token (47/47; withheld without the runner); the selftest
+  shows a wrong role resolving to the wrong colour. This is "a bound surface
+  follows plasma-apply-colorscheme", measured headless on this host without
+  touching the operator's desktop — the private kdeglobals is the apply, in
+  a sandbox. The ⊕VER probe for the switcher is therefore answered here;
+  what remains live is only that KWin loads the package (s86's residue).
+- Residue: the probe root is an Item, not KWin's TabBoxSwitcher (which
+  cannot load headless) — a binding depending on the surface's own
+  hierarchy resolves here as at the root; six qml launches per measurement
+  (~0.6 s wall each, low CPU); the 300 ms settle is authored; the same
+  environment is what check_marquee_live needs once the marquee binds
+  (`--apptype widget` + the platform theme + a variant's kdeglobals), which
+  makes the harness render the REAL theme per variant.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-103 corrected live and headless) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; s104 the
+  switcher bound and one package; s105 the bindings resolve per variant
+  headless; next the marquee, clock, live wallpaper, LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen), ⊕VER-MARQUEE
+  (s89-103 — after re-emerge: a lone notify-send scrolls once; every
+  notification scrolls once, none vanish, the board never goes dead, a
+  parked pointer pulses the ring; ticks read check_marquee_host),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s105]
