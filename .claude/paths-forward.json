@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 19,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T00:26:03+00:00",
-  "job_id": "221be1d8",
+  "heartbeat": "2026-09-21T00:41:44+00:00",
+  "job_id": "6c221ca7",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T00:34:06+00:00"
+    "taken_at": "2026-09-21T00:51:20+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -239,10 +239,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
-      "next_bounded_step": "DECIDED (operator, tick 18): PER-MODE alpha. Step 2b: in ghost_solve add solve_ghost_alpha_for_mode: for a mode floor F (lit vs seen-ghost WCAG), a_max(F) is the LARGEST alpha at which composite(fg_in, ground, a) still clears F against lit — the glanced-at alpha is min over variants of a_max(5.5), bounded below by the ground-floor a_min (if a_min > a_max on a variant, that variant is jointly infeasible: report it, do not clamp). Emit BOTH: tokens ghost_alpha (looked-at, today's) + ghost_alpha_glanced; .colors [EL] GhostAlphaGlanced; surfaces choose by mode (clock = looked; live wallpaper, splash, plymouth = glanced); check_ghost_surfaces compares each surface to ITS mode's alpha; glance_audit reads per-mode. relations.md §3c. Then re-run `make_deb.py --stage` to completion → overlay (step 3).",
-      "evidence": "STEP 2 (tick 18): glance_audit.surface_registry now reads the palette (fg/fg_in/ghost_alpha) instead of a hand model per surface (clock alpha 1.0; wallpaper alpha grepped from QML; splash/plymouth ghost=lit at a THIRD copy of the adaptive scan). Measured EL-Azure: clock 4.71 ≥ 3.0 OK; wallpaper-live 4.71 < 5.5; splash/plymouth 3.15 < 5.5 FAIL. RELATION CONFLICT, not a bug: the ceiling solve (§3a) pushes the seen ghost toward lit (max |Lc| from ground under 30) while the glance floors (session 55, ⊕GLANCE-AUDIT) demand distance FROM lit per parsing mode (3.0 looked-at / 4.5 transitional / 5.5 glanced-at). Same shape as W3's floor/ceiling conflict, one relation over. Staging is gated on this audit, so W12 waits on the ruling. Step 1 evidence: commit 2001eb1.",
+      "next_bounded_step": "Step 2c: add `--mode glanced` to check_ghost_composite (composite at ghost_alpha_glanced, report composited |Lc| per variant); derive GHOST_VISIBLE_LC_GLANCED = min over Off variants rounded down (cvd_gate, comment dated); relations.md §3c (per-mode alpha, both floors, the infeasibility and its resolution); flip the infeasible flag to compare against the per-mode ground floor. Then `make_deb.py --stage <scratch>` to completion and list the tree. Then Step 3: overlay/ + el-openglo-9999.ebuild + check_ebuild.py; repos.conf → ask.",
+      "evidence": "STEP 2b (tick 19, commit 13c9b1d): per-mode alpha solved (ghost_solve.alpha_max_vs_lit + solve_ghost_alpha_for_mode; build_grid second pass); tokens + .colors carry GhostAlphaGlanced=0.308 and GhostAlphaGlancedInfeasible=true; surfaces choose by parsing mode (colors_for(parsing=)); check_ghost_surfaces 24 of 24 per-mode; glance_audit ALL OK (EL-Azure: clock 4.71/3.0, wallpaper 8.23/5.5, splash+plymouth 5.51/5.5). FINDING: at 0.308 the glanced ghost is under the Lc-25 ground floor (a_min 0.36-0.51) — the two floors are jointly infeasible on every variant; flagged, not clamped. The Lc-25 floor was derived from LOOKED-AT surfaces; glance_audit says a glanced ghost \"recedes to texture\", so the ground floor is per-mode too — derive GHOST_VISIBLE_LC_GLANCED from what 0.308 achieves (as 25 was), record in relations.md §3c, and re-run. Staging gate (glance) now passes; `make_deb.py --stage` should run to completion.",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-21T00:24:01+00:00",
+      "last_worked": "2026-09-21T00:41:09+00:00",
       "ticks_blocked": 0
     },
     {

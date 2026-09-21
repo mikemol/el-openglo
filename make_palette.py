@@ -477,7 +477,10 @@ def build_grid():
     for key, (t, _d) in grid.items():
         rgb = lambda s: tuple(int(x) for x in s.split(","))
         lit_c, ground_c, ghost_c = rgb(t["fg"]), rgb(t["view"]), rgb(t["fg_in"])
-        a_min = _GS.alpha_min(lit_c, ground_c) or 0.0
+        # the ground-side minimum for THIS mode's floor (glanced: "recedes to
+        # texture", cvd_gate.GHOST_VISIBLE_LC_GLANCED), not the looked-at one
+        a_min = _GS.alpha_min(lit_c, ground_c,
+                              C.feasible_ghost_floor_lc(lit_c, ground_c, "glanced_at")) or 0.0
         rows.append(("-".join(key), lit_c, ground_c, ghost_c, a_min))
     g_alpha, _per, infeasible = _GS.solve_ghost_alpha_for_mode(rows, _ga.MODE_FLOOR[_ga.GLANCED_AT])
     import math

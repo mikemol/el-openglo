@@ -149,4 +149,4 @@ inactiveForeground=153,204,255
 [EL]
 GhostAlpha=0.503
 GhostAlphaGlanced=0.308
-GhostAlphaGlancedInfeasible=true
+GhostAlphaGlancedInfeasible=false

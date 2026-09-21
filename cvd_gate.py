@@ -227,14 +227,38 @@ def feasible_ghost_floor(lit, ground):
 # same read if the ceiling or the alpha solve changes.
 GHOST_VISIBLE_LC = 25.0
 
+# ⚑ THE GROUND FLOOR IS PER PARSING MODE, LIKE THE LIT FLOOR.  25 was derived
+# from the looked-at surfaces (the clock, at ghost_alpha). A glanced-at surface
+# draws the ghost at the lower ghost_alpha_glanced so that it sits 5.5:1 from lit
+# (glance_audit.MODE_FLOOR) — and at that alpha the seen ghost is UNDER 25 on
+# every variant (W12, 2026-09-20: flagged GhostAlphaGlancedInfeasible). Holding
+# a glanced ghost to the looked-at floor asks it to be as present as a ghost
+# you read, which is the opposite of what the glance audit says a glanced ghost
+# is for ("recedes to texture"). So the glanced floor is DERIVED the same way 25
+# was — from what the solved glanced alpha achieves on the Off variants, min,
+# rounded down — and the joint-infeasibility flag compares to THIS.
+# Measured 2026-09-20 (`check_ghost_composite --mode glanced --compare`): at the
+# solved glanced alpha 0.308 the seen ghost is at composited |Lc| 13.4 / 10.6 /
+# 13.2 on the Off variants (17.8-18.0 on Lit); min 10.6, rounded DOWN → 10 —
+# APCA's barely-perceptible band, which is what "recedes to texture" means in
+# the ceiling's metric. Re-derive by the same read if the glance floors move.
+GHOST_VISIBLE_LC_GLANCED = 10.0
+GHOST_VISIBLE_LC_BY_MODE = {
+    "looked_at": GHOST_VISIBLE_LC,
+    "glanced_at": GHOST_VISIBLE_LC_GLANCED,
+}
 
-def feasible_ghost_floor_lc(lit, ground):
-    """The APCA floor the composited ghost is held to for this pair.
 
-    min(GHOST_VISIBLE_LC, 0.95 * |Lc(lit, ground)|): the stated floor where the
-    lit/ground span allows it, and a proportion of that span where it does not —
-    the same shape as the WCAG residue, in the ceiling's metric."""
-    return min(GHOST_VISIBLE_LC, 0.95 * abs(apca_Lc(lit, ground)))
+def feasible_ghost_floor_lc(lit, ground, mode="looked_at"):
+    """The APCA floor the composited ghost is held to for this pair, per parsing mode.
+
+    min(floor, 0.95 * |Lc(lit, ground)|): the stated floor where the lit/ground
+    span allows it, and a proportion of that span where it does not — the same
+    shape as the WCAG residue, in the ceiling's metric."""
+    floor = GHOST_VISIBLE_LC_BY_MODE.get(mode)
+    if floor is None:
+        raise ValueError(f"no ghost ground floor recorded for mode {mode!r}")
+    return min(floor, 0.95 * abs(apca_Lc(lit, ground)))
 
 
 def derive_ghost_ceiling(lit, ground, ceiling_lc=GHOST_READABLE_LC):

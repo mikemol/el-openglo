@@ -204,9 +204,42 @@ regression below what was achieved does not. Re-derive by the same read if the c
 the alpha solve moves. The WCAG floor is kept as residue in
 `cvd_gate.feasible_ghost_floor`.
 
-**Recorded, not gated:** the lit bloom underlay and the matrix surface's own
-`ghostOpacity: 0.28` are further instances of the same relation and are not yet solved
-through it.
+**Recorded, not gated:** the lit bloom underlay is a further instance of the same
+relation and is not yet solved through it. (The matrix surface's `ghostOpacity` now
+takes the solved alpha — W8; whether a dot FIELD reads the same as strokes at that alpha
+is ⊕GHOST-DENSITY.)
+
+### 3c. The ghost has TWO floors and a parsing mode, so it has TWO alphas
+
+    ground side:  GHOST_VISIBLE_LC[mode]  ≤  |Lc|(seen, ground)  <  GHOST_READABLE_LC
+    lit side:     WCAG(lit, seen)  ≥  MODE_FLOOR[mode]          (glance_audit: 3.0 / 4.5 / 5.5)
+
+**The conflict.** §3a's ceiling solve pushes the seen ghost as far from `ground` as
+readability allows — which is as close to `lit` as possible. The glance audit (session
+55) bounds the ghost on the *other* side: a surface you only glance at (wallpaper,
+splash, boot) needs the ghost further from lit than one you read (the clock). Measured
+2026-09-20 with the audit reading the real palette: clock 4.71 ≥ 3.0, but wallpaper
+4.71 and splash/plymouth 3.15 against 5.5. Two constraints on one interior node,
+pulling apart — §3b's floor/ceiling conflict, one relation over.
+
+**Resolution (operator ruling 2026-09-20): a per-mode alpha.** Alpha is bounded from
+below by the ground floor (`ghost_solve.alpha_min`) and from above by the lit floor
+(`ghost_solve.alpha_max_vs_lit`: the more opaque, the closer to lit). For a mode with lit
+floor F, `solve_ghost_alpha_for_mode` takes the largest alpha clearing F on every variant
+and NAMES any variant where that falls below its a_min rather than clamping. Two numbers
+travel with every token and every `.colors` file: `ghost_alpha` (looked-at, 0.503) and
+`ghost_alpha_glanced` (0.308), plus `GhostAlphaGlancedInfeasible`. Surfaces choose by
+parsing mode — `colors_for(variant, parsing=…)` — and `check_ghost_surfaces` holds each
+surface to *its* mode's alpha.
+
+**And the ground floor is per-mode too, derived the same way §3b derived 25.** At 0.308
+the glanced ghost sat under Lc 25 on every variant — flagged, not hidden. But 25 was
+read off the looked-at surfaces; the audit's own definition of a glanced ghost is one
+that "recedes to texture". `GHOST_VISIBLE_LC_GLANCED = 10` is the minimum the solved
+glanced alpha achieves on the Off variants (13.4 / 10.6 / 13.2), rounded down — APCA's
+barely-perceptible band, which is what receding to texture means in the ceiling's
+metric. With the floor stated per mode the flag reads false on every variant; the
+resolution is a definition made explicit, not a bound relaxed.
 
 ---
 

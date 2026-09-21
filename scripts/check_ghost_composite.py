@@ -48,10 +48,24 @@ import cvd_gate as C                                              # noqa: E402
 import palette_graph as PG                                        # noqa: E402
 
 
+# The parsing mode under measurement (W12): looked-at surfaces draw ghost_alpha,
+# glanced-at ones ghost_alpha_glanced, and each mode has its own ground floor.
+MODE = "looked_at"
+
+
 def _alpha():
     """The alpha the renderer is filled with — the palette authority's, not a copy."""
     import make_schemes
-    return make_schemes.GHOST_ALPHA
+    if MODE == "looked_at":
+        return make_schemes.GHOST_ALPHA
+    seen = set()
+    for value in make_schemes.GRID.values():
+        t = value[0] if isinstance(value, (list, tuple)) else value
+        if isinstance(t, dict) and "view" in t:
+            seen.add(t.get("ghost_alpha_glanced", t.get("ghost_alpha", "0.45")))
+    if len(seen) != 1:
+        raise ValueError(f"GRID carries {len(seen)} distinct ghost_alpha_glanced values")
+    return float(seen.pop())
 
 
 def rendered_alpha():
@@ -101,7 +115,7 @@ def measure():
             vid,
             C.wcag_ratio(ghost, ground),
             C.wcag_ratio(comp, ground),
-            C.feasible_ghost_floor_lc(lit, ground),
+            C.feasible_ghost_floor_lc(lit, ground, MODE),
             abs(C.apca_Lc(ghost, ground)),
             abs(C.apca_Lc(comp, ground)),
         ))
@@ -188,7 +202,14 @@ def _solve_report():
 
 
 def main(argv):
-    known = {"--compare", "--selftest", "--solve"}
+    global MODE
+    known = {"--compare", "--selftest", "--solve", "--mode", "looked", "glanced"}
+    if "--mode" in argv:
+        i = argv.index("--mode")
+        if i + 1 >= len(argv) or argv[i + 1] not in ("looked", "glanced"):
+            print("check_ghost_composite: --mode needs `looked` or `glanced`", file=sys.stderr)
+            return 2
+        MODE = "looked_at" if argv[i + 1] == "looked" else "glanced_at"
     if "--solve" in argv:
         if not variants():
             print("check_ghost_composite: REFUSED — no variants", file=sys.stderr)
@@ -240,7 +261,9 @@ def main(argv):
     # ⚑ THE MEASUREMENT ABOVE USED THE SOLVED ALPHA; THE SCREEN MUST USE IT TOO.
     # If the emitted component carries a different number, everything above was
     # measured against an alpha nobody renders — the original defect, one level up.
-    rendered = rendered_alpha()
+    # In glanced mode the component question is check_ghost_surfaces' (which
+    # surface draws which mode's alpha); SegmentChar carries the looked-at one.
+    rendered = rendered_alpha() if MODE == "looked_at" else _alpha()
     if rendered is None or abs(rendered - _alpha()) > 1e-9:
         print(f"check_ghost_composite: REFUSED — the emitted SegmentChar.qml carries "
               f"ghostAlpha={rendered}, not the solved {_alpha()}; the gate measured "
