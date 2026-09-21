@@ -34,9 +34,13 @@ either family.
 
 ⚑ THE WEAKNESS, STATED.  This models source-over compositing of a flat alpha, which
 is what the QML does for the unlit CORE. It does NOT model the lit bloom underlay
-(a second, wider, fainter pass) or the matrix surface's own `ghostOpacity: 0.28`.
-Those are further instances of the same shape and are recorded rather than gated —
-a check that claimed to cover them would be asserting more than it measures.
+(a second, wider, fainter pass). The matrix surface is MEASURED, not gated
+(`--matrix`, ⊕GHOST-DENSITY, session 80): per dot its ghost is the stroke ghost,
+as a field it is thinned by the dot's coverage — Lc ~10 against a 25 floor on
+every variant — and whether the eye reads a dot field per dot or per cell is not
+a thing this arithmetic can decide.
+
+    scripts/check_ghost_composite.py --matrix   # the dot field's ghost beside the stroke's
 """
 import os
 import sys
@@ -181,6 +185,86 @@ def solve_through_alpha(lit, ground, alpha=None, floor=None, ceiling=None):
     }
 
 
+# ── ⊕GHOST-DENSITY: the dot field beside the stroke ─────────────────────────
+#
+# ⚑ A DOT IS THE STROKE'S COMPOSITE; A DOT FIELD IS NOT.  MatrixChar draws every
+# unlit dot at the same ghostAlpha SegmentChar draws its core, so per DOT the
+# seen ghost is identical to the stroke ghost. But a dot covers only
+# dotFill^2 * pi/4 of its cell, and at a glance the eye averages the cell: the
+# FIELD's mean colour is the dot composite lerped toward ground by the coverage
+# — i.e. an effective alpha of ghostAlpha * coverage. That is the density
+# question the log left open at s65 (:4519): the same alpha reads as a thinner
+# texture on the matrix than on a stroke, by exactly this factor.
+
+def matrix_dot_fill():
+    """MatrixChar's dotFill, parsed from the EMITTED component (not the template
+    hole): None if the property is absent."""
+    import make_notify_marquee
+    for line in make_notify_marquee.matrix_char_component().splitlines():
+        s = line.strip()
+        if s.startswith("property real dotFill:"):
+            return float(s.split(":", 1)[1].split("//")[0].strip())
+    return None
+
+
+def matrix_rendered_alpha(variant_id):
+    """The ghostAlpha the EMITTED marquee passes to MatrixChar for `variant_id`."""
+    import make_notify_marquee
+    for line in make_notify_marquee.main_qml(variant_id).splitlines():
+        s = line.strip()
+        if s.startswith("property real ghostAlpha:"):
+            return float(s.split(":", 1)[1].strip())
+    return None
+
+
+def measure_matrix(dot_fill=None):
+    """[(id, lc_stroke, lc_dot, lc_field, coverage, floor_lc, alpha_field_equiv)].
+
+    lc_dot equals lc_stroke by construction when the marquee carries the same
+    alpha (asserted separately); lc_field is the area-averaged cell against
+    ground; alpha_field_equiv is the alpha a STROKE would need to read like the
+    dot field does."""
+    import math
+    fill = matrix_dot_fill() if dot_fill is None else dot_fill
+    if fill is None:
+        return []
+    coverage = fill * fill * math.pi / 4.0
+    rows = []
+    for vid, ground, lit, ghost in variants():
+        a = _alpha()
+        dot = PG.composite(ghost, ground, a)
+        field = PG.composite(dot, ground, coverage)
+        rows.append((vid, abs(C.apca_Lc(dot, ground)), abs(C.apca_Lc(dot, ground)),
+                     abs(C.apca_Lc(field, ground)), coverage,
+                     C.feasible_ghost_floor_lc(lit, ground, MODE), a * coverage))
+    return rows
+
+
+def _matrix_report():
+    rows = measure_matrix()
+    if not rows:
+        print("check_ghost_composite: REFUSED — no variants, or MatrixChar carries no dotFill",
+              file=sys.stderr)
+        return 2
+    fill = matrix_dot_fill()
+    print(f"alpha = {_alpha()}; MatrixChar dotFill = {fill} -> a dot covers "
+          f"{rows[0][4]:.3f} of its cell; the field's effective alpha is {rows[0][6]:.3f}\n")
+    print(f"{'variant':18s} {'Lc stroke':>9s} {'Lc dot':>7s} {'Lc field':>9s} {'floor':>6s}  marquee alpha")
+    agree = 0
+    for vid, lc_s, lc_d, lc_f, cov, floor, a_eq in rows:
+        ma = matrix_rendered_alpha(vid)
+        same = ma is not None and abs(ma - _alpha()) < 1e-9
+        agree += same
+        flag = "" if lc_f >= floor else "  ⚑ FIELD UNDER FLOOR"
+        print(f"{vid:18s} {lc_s:9.1f} {lc_d:7.1f} {lc_f:9.1f} {floor:6.1f}  "
+              f"{ma}{'' if same else '  ⚑ NOT THE SOLVED ALPHA'}{flag}")
+    print(f"\n{agree} of {len(rows)} marquee emissions carry the solved alpha; per dot the ghost "
+          f"is the stroke ghost, as a FIELD it reads {rows[0][6]/_alpha():.2f}x as dense "
+          f"(reported, not gated: whether the eye judges a dot field per dot or per cell is "
+          f"⊕GLANCE-CALIBRATE's live question)")
+    return 0 if agree == len(rows) else 1
+
+
 def _solve_report():
     print(f"alpha = {_alpha()}; the on-screen ghost is lerp(lit, ground, 1 - "
           f"alpha(1 - t)), so fg_in is solved on the SAME segment through alpha.\n")
@@ -209,7 +293,9 @@ def _solve_report():
 
 def main(argv):
     global MODE
-    known = {"--compare", "--selftest", "--solve", "--mode", "looked", "glanced"}
+    known = {"--compare", "--selftest", "--solve", "--mode", "looked", "glanced", "--matrix"}
+    if "--matrix" in argv:
+        return _matrix_report()
     if "--mode" in argv:
         i = argv.index("--mode")
         if i + 1 >= len(argv) or argv[i + 1] not in ("looked", "glanced"):
@@ -344,6 +430,21 @@ def _selftest():
     check("the emitted SegmentChar.qml carries the solved alpha",
           rendered_alpha() is not None and abs(rendered_alpha() - _alpha()) < 1e-9,
           True)
+
+    # ⚑ ⊕GHOST-DENSITY: the dot field is the dot composite thinned by coverage,
+    # and the arm must SEE a coverage change. dotFill 1.0 -> coverage pi/4; a
+    # field can never be denser than its dots; a full cell (coverage 1) IS the dot.
+    import math
+    m1 = measure_matrix(dot_fill=1.0)
+    check("dotFill 1.0 covers pi/4 of the cell", m1 and abs(m1[0][4] - math.pi / 4) < 1e-9, True)
+    check("a field is never denser than its dots", all(r[3] <= r[2] + 1e-9 for r in m1), True)
+    m_full = measure_matrix(dot_fill=math.sqrt(4 / math.pi))      # coverage exactly 1
+    check("at coverage 1 the field IS the dot", all(abs(r[3] - r[2]) < 0.6 for r in m_full), True)
+    m_small = measure_matrix(dot_fill=0.5)
+    check("a smaller dot thins the field", all(s[3] < b[3] for s, b in zip(m_small, m1)), True)
+    check("the emitted MatrixChar carries a dotFill", matrix_dot_fill() is not None, True)
+    check("the emitted marquee carries the solved alpha",
+          matrix_rendered_alpha(variants()[0][0]) == _alpha() if variants() else False, True)
 
     saved = globals()["measure"]
     saved_r = globals()["rendered_alpha"]

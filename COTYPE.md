@@ -5503,3 +5503,53 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s79]
+
+## Session 80 — ⊕GHOST-DENSITY, the dot half: the same alpha is half the ghost on the matrix
+- W29, 2026-09-21. check_ghost_composite --matrix. A dot is the stroke's
+  composite (MatrixChar draws every unlit dot at the solved ghostAlpha, and the
+  emitted marquee carries it — 6 of 6, parsed from the emission). A dot FIELD
+  is not: a dot covers dotFill^2 * pi/4 = 0.528 of its cell (dotFill 0.82,
+  parsed from the emitted component), so the cell's mean colour is the dot
+  composite lerped toward ground by the coverage — an effective alpha of
+  0.566 * 0.528 = 0.299.
+- MEASURED, all six variants: Lc stroke = Lc dot = 29.7-29.9; Lc FIELD 9.9-10.3
+  (Off) and 15.0-15.4 (Lit), against a floor of 25. Per dot the marquee's ghost
+  is exactly the segment ghost; per cell it is half as dense and under the
+  floor everywhere. Matching the field to the stroke by alpha alone would need
+  alpha / 0.528 > 1 — infeasible; a denser field means a bigger dot (dotFill)
+  or a ghost colour of its own, not an alpha. NOT gated: whether the eye
+  reads a dot field per dot or per cell at panel scale is a live question
+  (⊕GLANCE-CALIBRATE's), and this arithmetic cannot settle it. The number is
+  the input to that look.
+- Selftest arms: dotFill 1.0 covers pi/4; a field is never denser than its dots;
+  at coverage 1 the field IS the dot; a smaller dot thins the field; the emitted
+  MatrixChar carries a dotFill; the emitted marquee carries the solved alpha.
+- NOT DONE: the 22-seg half — the log's own words at :4459 are "inter-stroke
+  density, where strokes tighten and the same Lc may read mushier"; that is a
+  segment question (22 strokes in the same cell as 16) and the open witness
+  looks for it in the contrast tools. The symbol stays OPEN for that half.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest +
+  validate all 44), ⊕SEG22-DESCENDERS, ⊕GHOST-DENSITY (s80: dot half measured —
+  field Lc ~10 vs stroke ~30; 22-seg inter-stroke half open).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?),
+  ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s80]
