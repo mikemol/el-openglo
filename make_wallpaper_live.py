@@ -133,10 +133,16 @@ def main_qml(variant):
     it had no business owning. Five holes go in; the document comes out."""
     ground, lit, ghost, alpha = colors_for(variant, parsing="glanced_at")   # ambient: glanced
     import templates.loader as TL
+    # pitch / stroke / dot from the substrate's module metrics, in U (H = 4U);
+    # the lit stroke at weight=1 is 1.25x the base
+    import segment_topology as _ST
+    m = _ST.metrics(4.0)
     return TL.render("live-wallpaper-main.qml",
                      lit=_hex(lit), ghost=_hex(ghost), ground=_hex(ground),
                      ghostAlpha=alpha,
-                     seg=_qml_obj(DIGIT), stroke=_qml_obj(SEGS))
+                     seg=_qml_obj(DIGIT), stroke=_qml_obj(SEGS),
+                     pitch=f"{m['pitch']:.3f}", strokeBase=f"{m['stroke'] / 1.25:.3f}",
+                     dotR=f"{m['dot'] / 2:.3f}", colonAdvance=f"{m['colon_advance']:.3f}")
 
 
 def config_main_xml():

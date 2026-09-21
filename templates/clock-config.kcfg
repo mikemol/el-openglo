@@ -9,6 +9,6 @@
   <entry name="bloom" type="Double"><default>1.5</default></entry>
   <entry name="weight" type="Double"><default>1.0</default></entry>
   <entry name="ghostWeight" type="Double"><default>0.81</default></entry>
-  <entry name="digitGap" type="Double"><default>0.45</default></entry>
+  <entry name="digitGap" type="Double"><default>$digitGap</default></entry>
  </group>
 </kcfg>

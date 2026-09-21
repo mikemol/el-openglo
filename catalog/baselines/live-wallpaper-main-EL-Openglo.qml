@@ -19,10 +19,16 @@ WallpaperItem {
     // -> 0.40U vs 0.26U as session 41 built it, weight=0 -> equal 0.32U.
     property real weight: (wallpaper.configuration.weight === undefined) ? 1.0
                           : wallpaper.configuration.weight
-    property real strokeLit: 0.32 * (1 + 0.25 * weight)
+    // stroke base in U (H = 4U): the substrate's module stroke (0.105 H) at weight=1
+    property real strokeLit: 0.338 * (1 + 0.25 * weight)
     property real ghostWeight: (wallpaper.configuration.ghostWeight === undefined) ? 0.81
                                : wallpaper.configuration.ghostWeight
-    property real strokeGhost: 0.32 * ghostWeight
+    property real strokeGhost: 0.338 * ghostWeight
+    // digit PITCH in U (segment_topology.MODULE_METRICS): four datasheets agree on
+    // 12.7 mm for a 14.22 mm digit, and the 88:88 module keeps it across the colon
+    property real pitch: 3.572
+    property real colonAdvance: 0.000
+    property real dotR: 0.211
     // ⊕BLOOM: the halo is a BLUR of a lit-only canvas under the crisp one — not
     // the two wider opaque rectangles this drew before (the stepped halo the
     // operator photographed, 2026-09-21). Ghost is never bloomed. 0 = off.
@@ -96,15 +102,17 @@ WallpaperItem {
                 if (on.indexOf(k4) >= 0) drawStroke(stroke[k4], U, T, ox, oy, root.litColor);
             }
         }
-        var digitW = U*2 + U*0.6;
-        var colonW = U*0.8;
+        var digitW = U * root.pitch;          // box 2U + the module gap
+        var colonW = U * root.colonAdvance;   // zero: the colon lives in the gap
         var chars = [s.charAt(0), s.charAt(1), ":", s.charAt(3), s.charAt(4)];
-        var totalW = digitW*4 + colonW;
+        var totalW = digitW*3 + U*2 + colonW; // four boxes, three gaps, the colon slot
         var x = (width - totalW)/2;
         var y = (height - U*4)/2;
         for (var i=0;i<chars.length;i++) {
             if (chars[i]===":") {
-                var r=U*0.18;
+                var r = U * root.dotR;
+                // centre of the space between the previous box and the next
+                var cxDot = x - (digitW - U*2)/2 + colonW/2;
                 if (root.colonOn) {
                     ctx.fillStyle = root.litColor; ctx.globalAlpha = root.glow;
                 } else if (pass === "all") {
@@ -112,8 +120,8 @@ WallpaperItem {
                 } else {
                     x += colonW; continue;      // an off colon is ghost: never bloomed
                 }
-                ctx.beginPath(); ctx.arc(x+colonW/2, y+U*1.3, r,0,2*Math.PI); ctx.fill();
-                ctx.beginPath(); ctx.arc(x+colonW/2, y+U*2.7, r,0,2*Math.PI); ctx.fill();
+                ctx.beginPath(); ctx.arc(cxDot, y+U*1.3, r,0,2*Math.PI); ctx.fill();
+                ctx.beginPath(); ctx.arc(cxDot, y+U*2.7, r,0,2*Math.PI); ctx.fill();
                 x += colonW;
             } else { drawDigit(chars[i], x, y); x += digitW; }
         }

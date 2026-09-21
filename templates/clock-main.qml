@@ -17,7 +17,9 @@ $tables
     // colour rather than its composite over the ground the palette solved for.
     property real ghostAlpha: $ghostAlpha
     property int segLen: Math.max(6, Math.floor(height * 0.42))
-    property int segThick: Math.max(2, Math.floor(segLen * 0.18))
+    // stroke base in segLen: the substrate's module stroke (0.105 H) at weight=1
+    property int segThick: Math.max(2, Math.floor(segLen * $strokeBase))
+    property real dotSize: Math.max(2, segLen * $dot)
     // ⊕STROKE-WEIGHT: perceived brightness = luminance x AREA, so the lit stroke
     // is drawn FULLER than the ghost outline (a real EL segment is physically
     // fuller than its etched ghost). weight=1 -> lit 1.25x, ghost 0.81x, ratio
@@ -31,9 +33,10 @@ $tables
     property real ghostWeight: (plasmoid.configuration.ghostWeight === undefined) ? 0.81
                                : plasmoid.configuration.ghostWeight
     property real strokeGhost: segThick * ghostWeight
-    // gap between digit boxes, in segLen (the strokes overhang the box by half a
-    // stroke each side, so the SEEN gap is this minus one stroke)
-    property real digitGap: (plasmoid.configuration.digitGap === undefined) ? 0.45
+    // gap between digit boxes, in segLen: the substrate's module PITCH minus the
+    // box (segment_topology.MODULE_METRICS — four datasheets agree on 12.7 mm
+    // for a 14.22 mm digit). It is a FLOOR: the slider starts here.
+    property real digitGap: (plasmoid.configuration.digitGap === undefined) ? $digitGap
                             : plasmoid.configuration.digitGap
     // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never
     // a wider opaque copy. 0 disables the layer (crisp fallback); default 1.5.
@@ -88,9 +91,10 @@ $tables
     component Digit: Item {
         property string ch: "8"
         property bool insertColon: false
-        // the colon slot is one extra gap wide, so digit|colon|digit spaces evenly
-        property real colonSlot: segLen * root.digitGap + segThick
-        property real colonX: segLen + (colonSlot + segRow.spacing) / 2 - segThick / 2
+        // the colon adds the substrate's colon_advance (ZERO on the 88:88 module —
+        // the dots sit in the ordinary gap, centred between the two digits)
+        property real colonSlot: segLen * $colonAdvance
+        property real colonX: segLen + (colonSlot + segRow.spacing) / 2 - root.dotSize / 2
         width: segLen + (insertColon ? colonSlot : 0)
         height: segLen * 2
 
@@ -136,7 +140,7 @@ $tables
                 }
             }
             ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*0.62 }
-            ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*1.38 - segThick }
+            ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*1.38 - root.dotSize }
         }
         Repeater {
             model: ["A","B","C","D","E","F","G"]
@@ -158,12 +162,12 @@ $tables
             visible: parent.insertColon
             color: root.colonOn ? root.litColor : root.ghostColor
             opacity: root.colonOn ? 1.0 : root.ghostAlpha
-            y: segLen*1.38 - segThick
+            y: segLen*1.38 - root.dotSize
         }
     }
 
     component ColonDot: Rectangle {
-        width: segThick; height: segThick; radius: segThick/2
+        width: root.dotSize; height: root.dotSize; radius: root.dotSize/2
         color: root.litColor
         antialiasing: true
         x: parent.colonX !== undefined ? parent.colonX : parent.parent.colonX

@@ -170,6 +170,35 @@ def coverable():
                 "geometry_js() reads a GEOM22 snapshot taken at import — a GEOM16 edit does not reach it until re-import"
                 if not moved_js else "geometry_js() moved with the lattice (reads geom22() at call time)"))
 
+    # --- arm 1b: the PITCH is one place too -------------------------------
+    # ⚑ THE CELL WAS SUBSTRATE AND THE ADVANCE WAS NOT (W22, 2026-09-21): three
+    # surfaces authored three digit pitches. Perturb MODULE_METRICS["pitch"] and
+    # every emitted surface that lays out digits must change; one that does not
+    # is still carrying its own advance.
+    import make_clock as MC
+    import make_wallpaper as MW
+    import make_wallpaper_live as MWL
+    import make_schemes as MS
+    tok = next(v[0] for v in MS.GRID.values())
+    variant = tok["id"]
+
+    def emit_all():
+        return {"clock": MC.main_qml(tok),
+                "live-wallpaper": MWL.main_qml(variant),
+                "wallpaper": MW.wallpaper_svg(variant)}
+    before = emit_all()
+    saved_m = dict(ST.MODULE_METRICS)
+    try:
+        ST.MODULE_METRICS["pitch"] = saved_m["pitch"] * 1.5
+        after = emit_all()
+    finally:
+        ST.MODULE_METRICS.clear()
+        ST.MODULE_METRICS.update(saved_m)
+    stuck = [n for n in before if before[n] == after[n]]
+    out.append(("every digit surface moves with MODULE_METRICS pitch", not stuck,
+                f"{', '.join(stuck)} did not move — still authoring an advance" if stuck
+                else f"{len(before)} of {len(before)} surfaces re-emitted at the perturbed pitch"))
+
     # --- arm 2: not silent-empty ------------------------------------------
     # ⚑ THE STRICT FORM IS WHAT AN EMIT PATH MUST ASK.  The lenient default is
     # the render contract (a board shows nothing for a glyph it lacks) and is
@@ -293,20 +322,25 @@ def _selftest():
     import segment_topology as ST
     import make_segment_display as MSD
     rows = coverable()
-    check("coverable: the real substrate is measured (3 arms)", len(rows), 3)
-    saved = (ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js)
+    check("coverable: the real substrate is measured (4 arms)", len(rows), 4)
+    saved = (ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js, ST.metrics)
+    frozen = ST.metrics(1.0)
     try:
         # ⚑ A SILENT substrate must FAIL every arm — including one whose glyph
-        # lookup has no strict form at all (the pre-2026-09-20 shape).
+        # lookup has no strict form at all (the pre-2026-09-20 shape), and one
+        # whose metrics() ignores MODULE_METRICS (an authored pitch in disguise).
         ST.seg7_svg_grid = lambda: {"A": ("h", 0, 0)}          # a literal: does not move
         MSD.geometry_js = lambda: "{}"                          # a literal: does not move
         ST.glyph16 = lambda ch: set()                           # no strict form, blank
+        ST.metrics = lambda H: {k: (v * H if k != "slant_deg" else v)
+                                for k, v in frozen.items()}   # frozen: does not move
         rows = coverable()
         check("coverable: a SILENT substrate fails every arm",
               all(not h for _l, h, _d in rows), True)
         # and a derived, refusing one passes every arm
         ST.seg7_svg_grid = lambda: {k: v for k, v in ST.GEOM16.items()}
         MSD.geometry_js = lambda: repr(sorted(ST.GEOM16.items()))
+        ST.metrics = saved[3]
         def _refuse(ch, strict=False):
             if strict:
                 raise KeyError(f"no glyph for {ch!r}")
@@ -316,10 +350,10 @@ def _selftest():
         check("coverable: a DERIVED, refusing substrate passes every arm",
               all(h for _l, h, _d in rows), True)
     finally:
-        ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js = saved
+        ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js, ST.metrics = saved
     rows = coverable()
     check("coverable: the real substrate is measured again after the substitution is undone",
-          len(rows), 3)
+          len(rows), 4)
     print("check_geometry_source selftest:", "PASS" if ok else "FAIL")
     return ok
 

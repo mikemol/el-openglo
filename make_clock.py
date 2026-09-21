@@ -59,13 +59,26 @@ def metadata(t):
 # Both were plain `\"\"\"...\"\"\"` constants — no substitution at all — so holding
 # them here bought nothing and cost everything: kcfg is XML no schema validator
 # could reach, and the config page is QML qmllint could not lint.
-def _t(name):
+def _t(name, **holes):
     import templates.loader as TL
-    return TL.render(name)
+    return TL.render(name, **holes)
 
 
-CONFIG_XML = _t("clock-config.kcfg")
-CONFIG_QML = _t("clock-config.qml")
+# ⚑ PITCH, STROKE AND DOT ARE THE SUBSTRATE'S (segment_topology.MODULE_METRICS,
+# four datasheets), in this surface's unit: the digit is 2·segLen tall and its
+# centreline box is segLen wide, so the Row gap is pitch - segLen. The lit
+# stroke at weight=1 is 1.25x the base, so the base is stroke/1.25. The colon
+# adds no advance (the 88:88 module keeps 12.7 across it).
+def _metrics_holes():
+    m = _ST.metrics(2.0)                      # H = 2 segLen -> lengths in segLen
+    return {"digitGap": f"{m['pitch'] - 1.0:.3f}",
+            "strokeBase": f"{m['stroke'] / 1.25:.3f}",
+            "dot": f"{m['dot']:.3f}",
+            "colonAdvance": f"{m['colon_advance']:.3f}"}
+
+
+CONFIG_XML = _t("clock-config.kcfg", **_metrics_holes())
+CONFIG_QML = _t("clock-config.qml", **_metrics_holes())
 
 def main_qml(t):
     # ⚑ THE COLOURS ARE READ FROM THE TOKEN DICT, NOT RE-DERIVED HERE.  This took
@@ -89,7 +102,8 @@ def main_qml(t):
     # editor can open it, and a diff shows which binding moved.
     import templates.loader as TL
     return TL.render("clock-main.qml", tables=qml_tables(),
-                     lit=lit, ghost=ghost, hot=hot, ghostAlpha=alpha)
+                     lit=lit, ghost=ghost, hot=hot, ghostAlpha=alpha,
+                     **_metrics_holes())
 
 # ------------------------------------------------------------------ gate
 def balanced(s, o, c):

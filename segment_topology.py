@@ -232,6 +232,57 @@ def seg7_svg_grid():
             out[key] = ("v", x // 2, y0 // 2)
     return out
 
+# --- module metrics: PITCH, stroke, dot, slant — from published packages -----
+# ⚑ THE CELL WAS SUBSTRATE; THE ADVANCE WAS NOT.  Every surface read the 2x4
+# cell and the masks from here, and then authored its own digit pitch: the
+# static wallpaper 1.55L, the live wallpaper 2.6U, the clock a 0.25 -> 0.45 gap
+# tuned by eye ("the crime is in the kerning", operator, 2026-09-21). The
+# operator's next question — "aren't there published standards for this?" —
+# is answered by the parts themselves. Four datasheets, 14.22 mm (0.56") digits,
+# read 2026-09-21 from the manufacturers' dimension drawings:
+#
+#   Kingbright SA56-11  single   package 12.7 wide; char width 8.0; seg 1.5; 8°; DP Ø1.5
+#   Kingbright DA56-11  dual     digit pitch 12.7; char 8.0; seg 1.3; 8°; DP Ø1.68
+#   Kingbright CC56-12  quad     pitch 12.7 x3; seg 1.5; 8°; DP Ø1.5
+#   Avago HDSP-B0xG     88:88    pitch 12.7 x3 = 38.10 ACROSS THE COLON; 10°; dots Ø1.70
+#
+# Two independent witnesses agree exactly: a single package is character width
+# plus a 2.35 mm margin each side (8.0 + 2·2.35 = 12.7 — the floor when packages
+# abut), and the multi-digit modules print that same 12.7 as their pitch. The
+# clock module settles the colon: it takes NO advance; the dots sit in the
+# ordinary gap. Everything below is a RATIO OF DIGIT HEIGHT H, so a surface
+# whose unit is a half-height (the clock's segLen, H = 2·segLen) or a quarter
+# (the wallpaper's U, H = 4·U) reads the same number through `metrics(H)`.
+MODULE_METRICS = {
+    "pitch":      12.7 / 14.22,     # 0.893 H — digit centre to digit centre; the FLOOR
+    "char_width": 8.0 / 14.22,      # 0.563 H — outer width of the lit character
+    "stroke":     1.5 / 14.22,      # 0.105 H — segment width (SA56/CC56; DA56 gives 0.091)
+    "dot":        1.5 / 14.22,      # 0.105 H — DP / colon dot diameter (HDSP: 0.120)
+    "colon_advance": 0.0,           # the colon adds NO pitch (HDSP-B0xG: 12.7 x 3 for 88:88)
+    "slant_deg":  8.0,              # Kingbright 8°, Avago 10°
+    "source": "Kingbright SA56-11 / DA56-11 / CC56-12 and Avago HDSP-B0xG package "
+              "dimension drawings, 14.22 mm digits, read 2026-09-21",
+}
+
+
+def metrics(H):
+    """The module metrics in a surface's own units, given its digit height H.
+
+    ⚑ PITCH IS A FLOOR, NOT A TASTE: two packaged digits cannot sit closer than
+    `pitch`, so a spacing slider's MINIMUM is this and its default is this.
+    Returns pitch, char_width, stroke, dot, colon_advance (all lengths in the
+    caller's units) and slant_deg."""
+    m = MODULE_METRICS
+    return {
+        "pitch": m["pitch"] * H,
+        "char_width": m["char_width"] * H,
+        "stroke": m["stroke"] * H,
+        "dot": m["dot"] * H,
+        "colon_advance": m["colon_advance"] * H,
+        "slant_deg": m["slant_deg"],
+    }
+
+
 # --- 22-segment: 16-seg topology PLUS a descender sub-cell ------------------
 # ⚑ RECONSTRUCTED.  The original definition was lost with the repo; this is
 # rebuilt from the design log (COTYPE.md, session 27 "⊕SEG22 invoked" and its
@@ -353,6 +404,23 @@ def _selftest():
     # every segment must have well-formed endpoints
     bad = [k for k in SEG22 if len(endpoints(k)) != 4]
     check(f"every segment has endpoints ({bad})", bad, [])
+
+    # ⚑ THE MODULE METRICS ARE TWO WITNESSES, AND THEY MUST AGREE.  The single
+    # package's width (character + 2 margins) and the multi-digit module's pitch
+    # are independent drawings; the ratio is only a floor if both say so.
+    single_pkg, dual_pitch, quad_pitch, clock_pitch = 12.7, 12.7, 12.7, 38.10 / 3
+    char, margin = 8.0, 2.35
+    check("single package = character + 2 margins", round(char + 2 * margin, 2), single_pkg)
+    check("single package width = dual = quad = clock-module pitch",
+          len({single_pkg, dual_pitch, quad_pitch, round(clock_pitch, 2)}), 1)
+    check("MODULE_METRICS pitch is that ratio", round(MODULE_METRICS["pitch"] * 14.22, 2), 12.7)
+    check("the colon takes no advance (88:88 keeps 12.7 x 3)", MODULE_METRICS["colon_advance"], 0.0)
+    check("pitch exceeds character width (a gap exists)",
+          MODULE_METRICS["pitch"] > MODULE_METRICS["char_width"], True)
+    m2, m4 = metrics(2.0), metrics(4.0)
+    check("metrics() scales with H", round(m4["pitch"] / m2["pitch"], 6), 2.0)
+    check("metrics() carries every key", sorted(m2),
+          ["char_width", "colon_advance", "dot", "pitch", "slant_deg", "stroke"])
 
     # ⚑ THE COARSE 7-SEG CELL IS A PROJECTION, NOT A FORK.  seg7_svg_grid names
     # the 2x3 cell the SVG/QML surfaces draw in. If its key set ever diverged

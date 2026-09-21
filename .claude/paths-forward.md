@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T03:21:46+00:00 · job `fa04048c` · counter 21 · hash `ec3088445961f7c9`
+heartbeat 2026-09-21T03:21:46+00:00 · job `fa04048c` · counter 22 · hash `cdce11e534a0865e`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -43,6 +43,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 | W19 | done | Web / IndieWeb theme — the palette as CSS custom properties (one :root block per variant, prefers-color-scheme mapping Off/Lit), the sink every site theme reads; the operator's future IndieWeb site is the first consumer | — | — |
 | W20 | done | The pre-commit hook warms the palette cache before the worklist gate — a cold .palette-cache.json makes ~13 checks time out at once and the hook refuses a green tree | — | — |
 | W21 | done | Restore ⊕STROKE-WEIGHT and ⊕BLOOM to the clock — both CLOSED in COTYPE.md (sessions 40-41, deb 1.10/1.11) and lost in the recovery; templates/clock-main.qml draws lit and ghost at the same segThick with no MultiEffect (only the orphan Effects import survived). Operator, live 2026-09-21: ghost too close to lit; lit should read BIGGER | — | — |
+| W22 | ready | Digit PITCH is substrate, derived from a published module spec — segment_topology fixes the cell (2L×4L), naming and masks, but the ADVANCE per digit and per colon, the slant, and the stroke:height ratio are authored per surface: make_wallpaper 1.55L/0.72L, live wallpaper 2.6U/0.8U, clock digitGap 0.45 (placeholder, 2026-09-21). Operator: 'aren't there published standards for this?' — yes: multi-digit segment-module datasheets (digit pitch, character width, segment width, slant, colon offset) and segment fonts (DSEG advance widths) | — | Measure first, TWO witnesses that must agree: (a) a single-digit package: character width + 2×(segment-to-package-edge margin) = the minimum pitch when packages abut — the physical floor; (b) a dual/quad-digit module (operator has handled dual 7-seg modules): its printed digit pitch, same digit height. Cite part numbers + the dimension drawing lines. Also colon offset and slant from (b); segment width : digit height from either. Cross-check DSEG7's advance as the font-side witness. THEN segment_topology metrics: advance (as a FLOOR relation, pitch >= char + 2·margin, stated in relations.md as a geometry relation with its source), colon_advance, stroke ratio, slant — ratios of L; every surface reads them (make_wallpaper.clock adv, live-wallpaper digitW/colonW, clock digitGap default + colonSlot); check_geometry_source arm: no surface authors an advance (a perturbed metric reaches every surface); sliders keep taste, defaults = derived, and the slider's MINIMUM is the floor. @STANDARDS records the datasheets + DSEG with segment_topology as applier. |
 
 ## evidence
 
@@ -67,6 +68,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W19** — DONE (tick 22, commit 93fc427): make_css.py → catalog/el-openglo.css (6 variants; --el-<key> per token; both alphas; :root = EL-Openglo, prefers-color-scheme:light = -Lit; seen ghost as color-mix per mode); check_css.py wired as @CSS, 228 of 228 properties equal the palette; selftest sees stale/dropped/foreign/non-mix/mis-mapped; tinycss2 declared (tooling extra); make_css in the emitter roster; worklist 46 of 46. IndieWeb specifics wait for the site.
 - **W20** — DONE (tick 23, commit 596da31): make_schemes.py --warm (a mode); hook step 4a `run "palette-cache"` before the gate; step 4 captures the gate output and prints it on refusal. CORRECTION from the gate ledger: the three refusals took ~5 s (fast failures), NOT cold-cache timeouts — the reason was discarded by >/dev/null 2>&1; the cascade I saw was from running the gate by hand after a solver edit. Both fixed. The hook exercised itself on this commit.
 - **W21** — 3e498c1 (rebuild + @REGRESSIONS); dc55cb7: ⊕VER found config page blank (org.kde.kcm is KF5 → org.kde.kcmutils, blank since recovery) and the halo a haze (64px blurMax + brightness on a 3px stroke) — blur now scaled by stroke×slider; d14f963: scripts/render_qml.py — headless render via Qt's qml runner + grabToImage, RHI forced (offscreen defaults to the SOFTWARE scene graph where MultiEffect draws nothing), --pixels census; rendered clock at panel height and wallpaper look right. UNPUSHED: c8f9995 3e498c1 dc55cb7 d14f963.
+- **W22** — segment_topology.py:14-17 cell only; make_wallpaper.py:101,109; templates/live-wallpaper-main.qml digitW/colonW; templates/clock-main.qml digitGap; pycodemod --literal pitch/advance → 0 substrate sites
 
 ## residue
 

@@ -98,15 +98,21 @@ def digit_svg(ch, x, y, L, t, on_color, segs=None, opacity=1.0):
 def clock(text, x, y, L, t, color, ghost_all=False, opacity=1.0):
     """Render a HH:MM string; ':' becomes dots, digits advance the cursor."""
     out, cx = [], x
-    adv = L * 1.55
+    # the digit is L wide, 2L tall: pitch, dot and colon advance are the
+    # substrate's module metrics in L (segment_topology.MODULE_METRICS). This
+    # authored 1.55L and a 0.72L colon slot; the module says 1.786L and none.
+    m = _ST.metrics(2.0)
+    adv = L * m["pitch"]
     op = "" if opacity >= 1.0 else f' fill-opacity="{opacity:.3f}"'
     for ch in text:
         if ch == ":":
-            r = t * 0.62
+            r = L * m["dot"] / 2
+            # centred in the gap the previous digit left, plus any colon advance
+            dx = -(adv - L) / 2 + L * m["colon_advance"] / 2
             for dy in (L * 0.62, L * 1.38):
-                out.append(f'<rect x="{cx:.1f}" y="{y+dy-r:.1f}" '
+                out.append(f'<rect x="{cx+dx-r:.1f}" y="{y+dy-r:.1f}" '
                            f'width="{2*r:.1f}" height="{2*r:.1f}" fill="{color}"{op}/>')
-            cx += L * 0.72
+            cx += L * m["colon_advance"]
         else:
             segs = "ABCDEFG" if ghost_all else None
             out.append(digit_svg(ch, cx, y, L, t, color, segs, opacity))

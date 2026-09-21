@@ -25,6 +25,8 @@ KCM.SimpleKCM {
         QQC2.Slider { id: bloomSlider; from: 0; to: 4; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
         QQC2.Slider { id: weightSlider; from: 0; to: 1; stepSize: 0.25; Kirigami.FormData.label: "Lit stroke weight:" }
         QQC2.Slider { id: ghostWeightSlider; from: 0.3; to: 1.0; stepSize: 0.05; Kirigami.FormData.label: "Unlit stroke weight:" }
-        QQC2.Slider { id: digitGapSlider; from: 0.2; to: 1.0; stepSize: 0.05; Kirigami.FormData.label: "Digit spacing:" }
+        // the minimum is the module pitch (segment_topology.MODULE_METRICS): two
+        // packaged digits cannot sit closer, so the slider only opens the gap
+        QQC2.Slider { id: digitGapSlider; from: $digitGap; to: 2.0; stepSize: 0.05; Kirigami.FormData.label: "Digit spacing:" }
     }
 }

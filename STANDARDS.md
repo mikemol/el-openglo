@@ -50,6 +50,7 @@ the gate and diverges exactly at the margin — measured, and the reason
 | standard | applied by | note |
 |---|---|---|
 | **IEC 60617** seven-segment lettering | `segment_topology.GEOM16` (7-seg `a`–`g`) | positions verified against a standard decoder, 10/10 digits |
+| **Segment-module package drawings** — Kingbright SA56-11 / DA56-11 / CC56-12, Avago HDSP-B0xG (14.22 mm digits) | `segment_topology.MODULE_METRICS`, `segment_topology.metrics` | digit pitch 12.7 = char 8.0 + 2×2.35 margin (single package) = dual/quad/clock-module pitch; colon adds no advance; stroke 0.105 H; slant 8–10°. Read from the manufacturers' PDFs 2026-09-21; not a standards body, but the published physical floor |
 | **KDE/Plasma colour scheme** `.colors` schema | `make_schemes.emit_colors` | group/key contract read by every Qt app |
 | **Konsole** `.colorscheme` schema | `make_konsole` | |
 | **Plasma 6 `KPackageStructure`** | `make_plasma`, `make_clock` | traps recorded in the design log: `WallpaperItem` root required; QML property names must be lowercase |
