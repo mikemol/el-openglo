@@ -91,12 +91,62 @@ FONT5x7 = {
 }
 
 
+def _cols(*rows):
+    """Column bytes from row strings ('#' lit), bit r = row r — so a glyph can be
+    READ in the source instead of decoded from hex (the 'A' that was wrong for a
+    session was hex nobody could see)."""
+    w = len(rows[0])
+    assert all(len(r) == w for r in rows), "ragged glyph"
+    return [sum(1 << r for r, row in enumerate(rows) if row[c] == "#") for c in range(w)]
+
+
+# ⚑ "DESCENDER" IS PIXELS BELOW A DECLARED BASELINE LINE, NOT A TALLER GRID
+# (⊕DOT-FONT-DESC, session 26; the table itself was lost in the recovery and is
+# RE-AUTHORED here, W26 2026-09-21). Rows 0-6 are the body, shared byte-for-byte
+# with FONT5x7's uppercase and digits; row 7 is descent, used by g j p q y. The
+# lowercase follows standard pixel-font conventions (spleen / HD44780-A02
+# lineage) and is authored, not pinned to a vendor bitmap — the closure's residue.
+FONT5x8_BASELINE = 6            # the last BODY row; the baseline LINE is its bottom edge, cell-y 7
+FONT5x8 = dict(FONT5x7)
+FONT5x8.update({
+    "a": _cols(".....", ".....", ".###.", "....#", ".####", "#...#", ".####", "....."),
+    "b": _cols("#....", "#....", "####.", "#...#", "#...#", "#...#", "####.", "....."),
+    "c": _cols(".....", ".....", ".####", "#....", "#....", "#....", ".####", "....."),
+    "d": _cols("....#", "....#", ".####", "#...#", "#...#", "#...#", ".####", "....."),
+    "e": _cols(".....", ".....", ".###.", "#...#", "#####", "#....", ".####", "....."),
+    "f": _cols("..##.", ".#..#", ".#...", "###..", ".#...", ".#...", ".#...", "....."),
+    "g": _cols(".....", ".....", ".####", "#...#", "#...#", ".####", "....#", ".###."),
+    "h": _cols("#....", "#....", "####.", "#...#", "#...#", "#...#", "#...#", "....."),
+    "i": _cols("..#..", ".....", ".##..", "..#..", "..#..", "..#..", ".###.", "....."),
+    "j": _cols("...#.", ".....", "..##.", "...#.", "...#.", "...#.", "#..#.", ".##.."),
+    "k": _cols("#....", "#....", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "....."),
+    "l": _cols(".##..", "..#..", "..#..", "..#..", "..#..", "..#..", ".###.", "....."),
+    "m": _cols(".....", ".....", "##.#.", "#.#.#", "#.#.#", "#...#", "#...#", "....."),
+    "n": _cols(".....", ".....", "####.", "#...#", "#...#", "#...#", "#...#", "....."),
+    "o": _cols(".....", ".....", ".###.", "#...#", "#...#", "#...#", ".###.", "....."),
+    "p": _cols(".....", ".....", "####.", "#...#", "#...#", "####.", "#....", "#...."),
+    "q": _cols(".....", ".....", ".####", "#...#", "#...#", ".####", "....#", "....#"),
+    "r": _cols(".....", ".....", "#.##.", "##..#", "#....", "#....", "#....", "....."),
+    "s": _cols(".....", ".....", ".####", "#....", ".###.", "....#", "####.", "....."),
+    "t": _cols(".#...", ".#...", "###..", ".#...", ".#...", ".#..#", "..##.", "....."),
+    "u": _cols(".....", ".....", "#...#", "#...#", "#...#", "#..##", ".##.#", "....."),
+    "v": _cols(".....", ".....", "#...#", "#...#", "#...#", ".#.#.", "..#..", "....."),
+    "w": _cols(".....", ".....", "#...#", "#...#", "#.#.#", "#.#.#", ".#.#.", "....."),
+    "x": _cols(".....", ".....", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "....."),
+    "y": _cols(".....", ".....", "#...#", "#...#", "#...#", ".####", "....#", ".###."),
+    "z": _cols(".....", ".....", "#####", "...#.", "..#..", ".#...", "#####", "....."),
+})
+DESCENDERS = frozenset("gjpqy")
+
+
 class MatrixDisplay:
     kind = "matrix"
 
-    def __init__(self, cols=5, rows=7, font=None):
+    def __init__(self, cols=5, rows=7, font=None, baseline=None):
         self.cols, self.rows = cols, rows
         self.font = font or FONT5x7
+        # the last body row, or None for a top-aligned display with no baseline
+        self.baseline = baseline
         assert (cols, rows) == (5, 7) or font, "non-5x7 needs an explicit font"
 
     def cell_aspect(self):
@@ -135,9 +185,10 @@ DISPLAYS = {
     "7": SegmentDisplay("7"), "9": SegmentDisplay("9"),
     "14": SegmentDisplay("14"), "16": SegmentDisplay("16"),
     "5x7": MatrixDisplay(5, 7),
+    "5x8": MatrixDisplay(5, 8, font=FONT5x8, baseline=FONT5x8_BASELINE),
 }
 # partial order by expressiveness (NOT subset — matrix isn't a segment refinement)
-LATTICE_ORDER = ["7", "9", "14", "16", "5x7"]
+LATTICE_ORDER = ["7", "9", "14", "16", "5x7", "5x8"]
 
 
 def collision_classes(disp_key, charset):

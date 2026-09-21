@@ -432,6 +432,11 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # rebuilt W26 (2026-09-21): the 5x8 table re-authored, baseline as a LINE
+    "⊕DOT-FONT-DESC": ("FONT5x8 with lowercase whose g j p q y descend below a declared baseline line,"
+                       " built into a TTF with negative descent (:1496)",
+                       lambda: _reads("display_types.py", r"\bFONT5x8_BASELINE\b") and
+                       _reads("make_font.py", r"baseline=") and _tool("check_font.py")),
     # rebuilt W25 (2026-09-21), moved here from LOST
     "⊕VER-WIDGET-ICON": ("the plasmoid icon is a lit '12' over its ghost from the substrate (:2058)",
                          lambda: _reads("make_preview.py", r"def\s+icon_svg\b") and
@@ -470,15 +475,12 @@ NO_ARTIFACT = frozenset({
 # prints them as KNOWN-LOST with the waypoint that rebuilds them, and the
 # selftest asserts each is STILL absent — a rebuilt one must move to CLOSED, or
 # this table has become a stale status of its own.
-LOST = {
-    # ⚑ THE 5x8 TABLE ITSELF IS GONE, not just its emitter: display_types has
-    # FONT5x7 only, and the descender glyphs (g j p q y) were authored, not
-    # derived — re-authoring is the work, and nothing in the tree can witness a
-    # table that does not exist yet.
-    "⊕DOT-FONT-DESC": ("FONT5x8 (the descender matrix table) is absent from display_types; "
-                       "the 5x7 matrix TTF ships without descenders",
-                       lambda: not _reads("display_types.py", r"\bFONT5x8\b"), "W26"),
-}
+# ⚑ EMPTY SINCE W26 (2026-09-21): every closed symbol that names an artifact
+# now has one. The mechanism stays — the selftest refuses a closure placed
+# nowhere, and a LOST entry whose build returns — because the next recovery,
+# or the next quiet deletion, will need it. The eight entries this held on
+# 2026-09-21 are in git history (075d096).
+LOST = {}
 
 
 def open_symbols():
@@ -524,7 +526,8 @@ def main(argv):
                 print(f"    {s}: LOST says '{LOST[s][0]}' but the artifact exists", file=sys.stderr)
             return 1
         print(f"check_symbol: {len(CLOSED)} of {len(CLOSED)} witnessed closed symbols still "
-              f"re-derive from the tree; {len(LOST)} closed symbols KNOWN-LOST, named:")
+              f"re-derive from the tree; {len(LOST)} closed symbol(s) KNOWN-LOST"
+              + (", named:" if LOST else ""))
         for s in sorted(LOST):
             print(f"    {s}: {LOST[s][0]} → {LOST[s][2]}")
         return 0

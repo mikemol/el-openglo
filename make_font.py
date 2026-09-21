@@ -79,11 +79,11 @@ def glyph_contours(ch, fmt="7"):
 
 
 def matrix_contours(ch, cols=5, rows=7, dot=0.86):
-    """[[(x, y) x4], ...] — one square contour per LIT pixel of the 5x7 matrix
-    glyph (display_types.MatrixDisplay), cell units, y-down. Square, not round:
-    crisp at small TTF sizes (⊕DOT-FONT-TTF); the plasmoid's dots stay round."""
+    """[[(x, y) x4], ...] — one square contour per LIT pixel of the matrix glyph
+    (display_types.DISPLAYS['5x7' | '5x8']), cell units, y-down. Square, not
+    round: crisp at small TTF sizes (⊕DOT-FONT-TTF); the plasmoid's dots stay round."""
     import display_types as DT
-    d = DT.DISPLAYS["5x7"] if (cols, rows) == (5, 7) else DT.MatrixDisplay(cols, rows)
+    d = DT.DISPLAYS.get(f"{cols}x{rows}") or DT.MatrixDisplay(cols, rows)
     pad = (1.0 - dot) / 2
     out = []
     for (c, r) in sorted(d.glyph(ch)):
@@ -139,28 +139,38 @@ def emit_svg_font(fmt="7", family="EL Segment"):
 SEG_CHARSET = {"7": "0123456789ABCDEFHJLPU",
                "16": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
 MATRIX_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+LOWER_CHARSET = "abcdefghijklmnopqrstuvwxyz"
 _MARGIN = 0.15          # cell units of side bearing, both sides
 
 
-def _cell_to_font(cell_w, cell_h, em=EM):
-    """(scale, x_pad_units, y_flip) — fit a cell_w x cell_h cell into the em square
-    on HEIGHT (a 2x4 segment cell maps as before; a 5x7 matrix cell fits its aspect)."""
+def _cell_to_font(cell_w, cell_h, em=EM, baseline=None):
+    """(scale, x_pad, y_of) — fit a cell_w x cell_h cell into the em square on
+    HEIGHT. `baseline` is the cell-y LINE the font's y=0 sits on: None keeps the
+    old top-aligned map (y_font = (cell_h - y)·scale, byte-neutral for the segment
+    and 5x7 fonts); a number puts rows above it at positive y and rows below at
+    NEGATIVE y — real descent (⊕DOT-FONT-DESC: baseline is a LINE, and passing
+    the row INDEX put every body row's bottom below it — the off-by-one the
+    closure records)."""
     scale = em / cell_h
-    return scale, _MARGIN * scale
+    line = cell_h if baseline is None else baseline
+    return scale, _MARGIN * scale, (lambda y: round((line - y) * scale))
 
 
 def _shoelace(pts):
     return sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1])) / 2
 
 
-def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular"):
+def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular", baseline=None):
     """A fontTools TTFont from a CONTOUR SOURCE (ch -> [[(x, y)...]] in cell
     units, y-down) — display-agnostic (⊕DOT-FONT-TTF lifted it). TrueType wants
     clockwise outer contours; every contour here is a solid, so each is wound CW
-    after the y-flip (shoelace sign)."""
+    after the y-flip (shoelace sign). `baseline` (a cell-y line) gives real
+    descent metrics; None is top-aligned with descent 0."""
     from fontTools.fontBuilder import FontBuilder
     from fontTools.pens.ttGlyphPen import TTGlyphPen
-    scale, x_pad = _cell_to_font(cell_w, cell_h)
+    scale, x_pad, y_of = _cell_to_font(cell_w, cell_h, baseline=baseline)
+    ascent = EM if baseline is None else round(baseline * scale)
+    descent = 0 if baseline is None else -round((cell_h - baseline) * scale)
     advance = round(cell_w * scale + 2 * x_pad)
     names = ["space"] + [f"u{ord(c):04X}" for c in charset]
     fb = FontBuilder(EM, isTTF=True)
@@ -176,7 +186,7 @@ def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular"):
     for ch in charset:
         pen = TTGlyphPen(None)
         for pts in contours_of(ch):
-            fpts = [(round(x * scale + x_pad), round((cell_h - y) * scale)) for x, y in pts]
+            fpts = [(round(x * scale + x_pad), y_of(y)) for x, y in pts]
             if _shoelace(fpts) > 0:              # CCW after the flip -> reverse to CW
                 fpts = fpts[::-1]
             pen.moveTo(fpts[0])
@@ -187,9 +197,9 @@ def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular"):
         metrics[f"u{ord(ch):04X}"] = (advance, 0)
     fb.setupGlyf(glyphs)
     fb.setupHorizontalMetrics(metrics)
-    fb.setupHorizontalHeader(ascent=EM, descent=0)
+    fb.setupHorizontalHeader(ascent=ascent, descent=descent)
     fb.setupNameTable({"familyName": family, "styleName": style})
-    fb.setupOS2(sTypoAscender=EM, sTypoDescender=0, usWinAscent=EM, usWinDescent=0)
+    fb.setupOS2(sTypoAscender=ascent, sTypoDescender=descent, usWinAscent=ascent, usWinDescent=-descent)
     fb.setupPost(isFixedPitch=1)
     return fb.font
 
@@ -200,6 +210,12 @@ def build_segment_ttf(fmt="7"):
 
 
 def build_matrix_ttf(cols=5, rows=7):
+    """5x7: uppercase+digits, top-aligned. 5x8: adds lowercase with real descent —
+    the baseline LINE is the bottom of the last body row (FONT5x8_BASELINE + 1)."""
+    import display_types as DT
+    if (cols, rows) == (5, 8):
+        return build_ttf(lambda ch: matrix_contours(ch, 5, 8), MATRIX_CHARSET + LOWER_CHARSET,
+                         5.0, 8.0, "EL Matrix 5x8", baseline=DT.FONT5x8_BASELINE + 1)
     return build_ttf(lambda ch: matrix_contours(ch, cols, rows), MATRIX_CHARSET,
                      float(cols), float(rows), f"EL Matrix {cols}x{rows}")
 
@@ -251,8 +267,20 @@ def gate_ttf_orientation(font, contours_of, cell_h, chars):
 OUTPUTS = (("EL-Segment-7.ttf", lambda: build_segment_ttf("7")),
            ("EL-Segment-16.ttf", lambda: build_segment_ttf("16")),
            ("EL-Matrix-5x7.ttf", lambda: build_matrix_ttf(5, 7)),
+           ("EL-Matrix-5x8.ttf", lambda: build_matrix_ttf(5, 8)),
            ("EL-Segment-7.svg", lambda: emit_svg_font("7")),
            ("EL-Segment-16.svg", lambda: emit_svg_font("16")))
+
+
+def spec_for(name):
+    """(contour_source, charset, cell_h) for an OUTPUTS name — the one place the
+    name→display mapping lives, read by the gate and by check_font."""
+    if "Segment" in name:
+        fmt = name.split("-")[2].split(".")[0]
+        return (lambda ch: glyph_contours(ch, fmt)), SEG_CHARSET[fmt], CELL_H
+    cols, rows = (int(v) for v in name.split("-")[2].split(".")[0].split("x"))
+    charset = MATRIX_CHARSET + (LOWER_CHARSET if rows == 8 else "")
+    return (lambda ch: matrix_contours(ch, cols, rows)), charset, float(rows)
 
 
 def render_all(out_dir):
@@ -299,10 +327,7 @@ if __name__ == "__main__":
     for name, make in OUTPUTS:
         if name.endswith(".ttf"):
             f = make()
-            src = ((lambda ch: glyph_contours(ch, name.split("-")[2].split(".")[0]))
-                   if "Segment" in name else (lambda ch: matrix_contours(ch)))
-            cell_h = CELL_H if "Segment" in name else 7.0
-            chars = SEG_CHARSET.get(name.split("-")[2].split(".")[0], MATRIX_CHARSET)
+            src, chars, cell_h = spec_for(name)
             bad = gate_ttf_orientation(f, src, cell_h, chars)
             print(f"  {name}: {len(f.getGlyphOrder())} glyphs; orientation gate: "
                   f"{'ok' if not bad else bad}")
