@@ -39,3 +39,4 @@
 2026-09-21T04:45:33+00:00  tick W16 DONE a3f9937: .theme emitter + ansi_table with 5 serialisers (alacritty/foot recovery gap closed), @WINDOWS @TERMINALS (50); FOUND ghost==lit on Azure/Amber at the palette level → W23 added, first; re-armed faa618c3
 2026-09-21T05:08:35+00:00  tick W23 DONE 0511aa9: global alpha reached floors not ceilings (Azure seen ghost Lc 25 vs 29.8 elsewhere); alpha_ceiling + solve = max(max(a_min, 1-t_c)) → 0.566; composite check holds looked-at ghost to target; downstream regenerated; re-armed a979f03a
 2026-09-21T05:29:22+00:00  tick W15 DONE cc3afe0: Firefox theme emitter in Firefox's vocabulary, fills solved by the ghost relation, @FIREFOX (51); re-armed bb498c9d
+2026-09-21T05:44:24+00:00  tick W13 machine half DONE 1c61346: publishing.md (15 emitters → venues) + OCS listing cached + check_publishing @PUBLISHING (52); wallpaper id 299 read from the listing; W13 now blocked on the operator reading the upload form; re-armed d1fbddf3

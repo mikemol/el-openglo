@@ -69,6 +69,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the terminal palettes (Konsole, Alacritty, foot, Windows Terminal, Termux) — one ansi table, five syntaxes | `scripts/check_terminals.py` | `python3 scripts/check_terminals.py --map` | `.alacritty.toml` `.foot.ini` `.windows-terminal.json` `.termux.properties` |
 | the Windows .theme files: required sections, colour roles, accent | `scripts/check_windows.py` | `python3 scripts/check_windows.py --map` | `.theme` |
 | the Firefox theme manifests: key → role, required keys, colour_scheme, gecko id | `scripts/check_firefox.py` | `python3 scripts/check_firefox.py --map` | — |
+| the GTK sheets: libadwaita variable → role, the documented-name set, bg/fg pairs | `scripts/check_gtk.py` | `python3 scripts/check_gtk.py --map` | `gtk3.css` `gtk4.css` |
 | where each emission is published, and the KDE Store's category taxonomy (OCS) | `scripts/check_publishing.py` | `python3 scripts/check_publishing.py --rows` | `publishing.md` `ocs-categories.xml` |
 
 ⚑ **THE LAST TWO ROWS CLAIM FILENAMES, NOT SUFFIXES.** A hook script has no suffix, so a

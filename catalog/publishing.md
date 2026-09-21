@@ -28,6 +28,7 @@ Tags on the venue column are the letter's: **[OCS]** read from the store's API,
 | make_wallpaper_live | live wallpaper plugins | KDE Store | id 715 "Plasma 6 Wallpaper Plugins" [OCS] (not GHNS-installable: no xdg_type) | — | GPL-3 | screenshot | not submitted |
 | make_clock | segment clock plasmoids | KDE Store | id 708 "Plasma 6 Clocks" [OCS] | plasma6_plasmoids | GPL-3 | screenshot (render_qml) | not submitted |
 | make_notify_marquee | marquee plasmoids | KDE Store | id 706 "Plasma 6 Applets" [OCS] | plasma6_plasmoids | GPL-3 | screenshot | not submitted |
+| make_gtk | gtk3.css / gtk4.css ×6 | gnome-look.org (GTK3/4 Themes category) [MEM] — or the user's `~/.config/gtk-{3,4}.0/gtk.css` via el-openglo-apply | — | GPL-3 | screenshot | ships in the package |
 | make_css | `el-openglo.css` | the operator's site | consumed directly (W19) | — | — | — | ships |
 | make_union | Union styles ×6 | none yet | Union has no theme venue in 6.7.5 (styles are found by UNION_STYLE_NAME) | — | GPL-3 | — | ships in the package |
 | make_windows | `.theme` ×6 | GitHub release assets | Microsoft has no third-party theme venue | — | — | DesktopBackground png | ships in the package |

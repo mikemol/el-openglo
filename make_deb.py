@@ -659,6 +659,12 @@ def stage(root):
              for v in VARIANTS}
     _chrome.render_all(VARIANTS, cdirs)
 
+    # GTK sheets (⊕GTK, rebuilt W17): el-openglo-apply step 3 copies these to
+    # ~/.config/gtk-{3,4}.0/gtk.css — libadwaita reads the :root variables.
+    import make_gtk as _gtk
+    gdirs = {v: os.path.join(DEB_ROOT, "usr/share/el-openglo/gtk", v) for v in VARIANTS}
+    _gtk.render_all(VARIANTS, gdirs)
+
     # Firefox themes (W15): Firefox's own theme.colors vocabulary, from the same
     # tokens; installed via AMO signing (unlisted), so shipped as source folders.
     import make_firefox as _ff

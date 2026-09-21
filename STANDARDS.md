@@ -54,6 +54,7 @@ the gate and diverges exactly at the margin — measured, and the reason
 | **KDE/Plasma colour scheme** `.colors` schema | `make_schemes.emit_colors` | group/key contract read by every Qt app |
 | **Konsole** `.colorscheme` schema | `make_konsole` | |
 | **Plasma 6 `KPackageStructure`** | `make_plasma`, `make_clock` | traps recorded in the design log: `WallpaperItem` root required; QML property names must be lowercase |
+| **libadwaita CSS variables** (gnome.pages.gitlab.gnome.org/libadwaita/doc/main/css-variables.html) | `make_gtk.ADW_NAMED`, `make_gtk.ADW_VARS` | read 2026-09-21; `check_gtk` refuses any name outside the set — session 14's typo hole, kept closed |
 | **freedesktop** icon/cursor inheritance | *(unimplemented)* | open as ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT |
 | **Chrome/Chromium** theme manifest v3 | `make_chrome.manifest` | `theme.colors` as RGB triples |
 | **Debian** package layout | `make_deb` | |

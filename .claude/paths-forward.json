@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 23,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T05:29:16+00:00",
-  "job_id": "bb498c9d",
+  "heartbeat": "2026-09-21T05:44:18+00:00",
+  "job_id": "d1fbddf3",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T05:38:36+00:00"
+    "taken_at": "2026-09-21T05:54:15+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -250,19 +250,19 @@
     {
       "symbol": "W13",
       "title": "Upstream contribution routes for every theme target — where each is published, how to submit, licensing gates, whether generated themes are welcome",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "publishing",
         "every-emitter"
       ],
-      "blocked_on": [],
+      "blocked_on": "mikemol(human)",
       "blocked_kind": null,
       "rank_reason": "unblocked; the cheapest real step is the operator reading store.kde.org/product/add once (turns every [MEM] line to [WEB]); the machine-side step is a make_store_bundle emitter that packages each target with the preview + description the store wants, keyed by OCS category id",
-      "next_bounded_step": "Two tracks. HUMAN: open store.kde.org/product/add once and read the form (licence selector? preview reqs? is 114 or 717 offered for decorations?) — ask the operator, record as [WEB]. MACHINE: add catalog/publishing.md (or a relations-style table) mapping each emitter → OCS category id + xdg_type + licence + preview asset, sourced from the inbox letter; then a witness that every emitter has a row and every row cites a category id that exists in a fetched OCS listing (check_publishing.py, OCS fetch cached, SKIP offline).",
-      "evidence": "ANSWERED by linux-sources-ef 2026-09-20 → inbox/2026-09-20-linux-sources-contribution-routes-per-target.md (verbatim, sourcing-tagged). Headline: 9 of 10 targets go to the KDE Store via OCS categories read from the API itself (colours 112, Plasma style 104, Aurorae 114/717, Global Theme 722, Konsole 462, Plymouth 108, wallpaper plugin 715, clock 708, applets 706); Kvantum has NO store category (GitHub repo or PR to tsujan/Kvantum, GPL-3); Chrome = Web Store ($5 reg, themes exempt from item limit); packaging = own overlay (W12) / GURU PR / Debian discouraged for self-promotion. Generated-theme acceptance: ABSENT at every venue. The store HTML is Anubis-walled; the OCS API is not. Upload-form details are [MEM] — one operator login upgrades them.",
+      "next_bounded_step": "MACHINE half done at 1c61346: catalog/publishing.md (15 emitters → venues; OCS ids from the letter; wallpaper id 299 read from the cached listing) + check_publishing.py @PUBLISHING (52). HUMAN half: open store.kde.org/product/add once and read the form — licence selector? preview requirements? does Aurorae go to 114 or 717? — then record as [WEB] rows. Nudge ONCE, then leave.",
+      "evidence": "1c61346; inbox/2026-09-20-linux-sources-contribution-routes-per-target.md; catalog/ocs-categories.xml",
       "issued_at": "2026-09-20T23:28:28+00:00",
-      "last_worked": "2026-09-20T23:33:13+00:00",
+      "last_worked": "2026-09-21T05:43:37+00:00",
       "ticks_blocked": 0
     },
     {

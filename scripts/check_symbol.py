@@ -372,6 +372,13 @@ CLOSED = {
         "every segment surface blooms by BLURRING a lit-only layer (MultiEffect,"
         " gated by config bloom), never the ghost (:2567)",
         _closed_bloom),
+    # ⚑ THE THIRD CLOSED SYMBOL WITH NO BUILD (found 2026-09-21, W17): make_gtk,
+    # gtk/, and its gate were all absent; el-openglo-apply skipped the copy behind
+    # an isdir guard. The witness is the gate that carries session 14's name set.
+    "⊕GTK": (
+        "gtk/<id>/gtk{3,4}.css emit, every name a documented libadwaita one, values"
+        " the palette's, bg/fg pairs gated (:683)",
+        lambda: os.path.isfile(os.path.join(ROOT, "make_gtk.py")) and _tool("check_gtk.py")),
 }
 
 

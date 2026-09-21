@@ -15,6 +15,7 @@ plasma/
 union/
 windows/
 firefox/
+gtk/
 catalog/cotype/.delta-cache.json
 .palette-cache.json
 # check_ebuild's work dir: the index tree staged under sys-apps/sandbox. Under
