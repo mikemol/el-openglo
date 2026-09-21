@@ -692,6 +692,12 @@
 
 @misc{QMLLINT,
   claim    = {Every emitted QML document (nine: clock, marquee and its components, live wallpaper, switcher, configs) passes qmllint's error set, and no finite animation binds running: (a finite run assigns running=false when it ends, discarding the binding - the marquee's dead-after-first-drain defect, live 2026-09-22)},
-  check    = {tool:check_qml_lint.py},
+  check    = {tool:opa_gate.py qml_lint},
+  section  = {tooling}
+}
+
+@misc{REGO,
+  claim    = {Every requirement written as a rego policy (policy/NAME.rego, package el.NAME, deny + withheld sets, an empty-population deny first) has a refusing and an admitting test in policy/NAME_test.rego, and opa test policy/ passes; a policy answers to its name and its check has a --json measurement},
+  check    = {tool:opa_gate.py --test},
   section  = {tooling}
 }

@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 48,
+  "counter": 50,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T18:32:36+00:00",
-  "job_id": "875d7366",
+  "heartbeat": "2026-09-21T19:02:04+00:00",
+  "job_id": "1a0ecbe7",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-manual",
-    "taken_at": "2026-09-21T18:36:51+00:00"
+    "holder": "tick-1a0ecbe7",
+    "taken_at": "2026-09-21T19:03:53+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -762,16 +762,16 @@
     {
       "symbol": "W45",
       "title": "MARQUEE TRAVERSAL INVARIANT (operator 2026-09-22): a notification must ALWAYS scroll offscreen -> onscreen -> offscreen at least once; never 'just appear', never vanish, never tear visually or temporally. The s91 ring fails the at-least-once half: pendingText is rebuilt from the model on every count change, so an item that arrives and expires before the next boundary never shows. Design: a QUEUE keyed by notification id (the model's IdRole / index key) — an arrival is appended with shown=false; at a boundary the next ring is [every queued item with shown=false] (expired or not), which then scrolls exactly once; an item still in the model after its rotation may be re-queued (it keeps cycling while active); an item removed from the model finishes its current rotation and is dropped at the boundary; the ring NEVER changes mid-rotation. Pure functions in marquee-body.js (ringNext(queue, modelIds) -> {ring, queue}) so the headless harness proves the invariant on synthetic arrival/expiry sequences",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "templates/marquee-main.qml,templates/marquee-body.js,scripts/check_marquee_body.py",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "ALSO (operator screenshot 2026-09-22): the spec defines markup for the BODY only; the summary is plain text (Plasma's popup shows a summary's tags literally — correct). rebuild() joins app: summary — body and parses the whole string, so a summary's tags were stripped and styled. Fix in the same change: parse ONLY the body; the app name and summary are pushed as plain text (escape < and & before joining, or build the runs from two calls: plain(summary) + parseBody(body)). Harness case: a summary containing <b> stays literal while a body's <b> becomes a bold run — the harness tests parseBody, so add a joinItem(app, summary, body) pure function to marquee-body.js and test THAT. Then (1) marquee-body.js: ringNext(queue, liveIds, nowShownIds) pure; (2) marquee-main: rebuild() upserts into root.queue by id (text+runs per id, arrival order), swapRing() calls ringNext at the boundary and builds tickerText/tickerRuns from the ring's items; the idle-immediate swap stays; (3) harness cases: arrive-and-expire-before-boundary still scrolls once; an active item keeps cycling; an expired item drops only after its rotation; a mid-rotation arrival waits; (4) parity re-capture; witness pin (ringNext, joinItem). Bold reads faint (fuller dot 0.82->0.94): consider a boldFill setting later. COTYPE s98 under ⊕VER-MARQUEE.",
-      "evidence": "",
+      "next_bounded_step": "none - LIVE confirm after re-emerge is the operator's (VER-MARQUEE)",
+      "evidence": "2bbf9c5: marquee-body.js joinItem/queueUpsert/ringNext/ringJoin; check_marquee_body 27 of 27 (5 join, 6 ring scenarios); startRun replaces the running binding; check_qml_lint.py @QMLLINT 9 of 9 (refused HEAD 1 of 9 with the fix stashed); COTYPE s98",
       "issued_at": "2026-09-21T18:08:36+00:00",
-      "last_worked": "2026-09-21T18:10:46+00:00",
+      "last_worked": "2026-09-21T19:00:32+00:00",
       "ticks_blocked": 0
     },
     {
@@ -817,6 +817,36 @@
       "evidence": "",
       "issued_at": "2026-09-21T18:28:39+00:00",
       "last_worked": "2026-09-21T18:28:39+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W49",
+      "title": "THE WIDGET UNDER TEST: run the whole marquee headless against a STUBBED org.kde.notificationmanager (operator: a sandbox like headless chrome for integration tests). A stub module dir on QML2_IMPORT_PATH (qmldir + Notifications.qml = ListModel carrying the role enum incl. IdRole/SummaryRole/BodyRole/ApplicationNameRole, count, index(), data()) shadows the real import; render_qml gains a marquee harness that mocks plasmoid, drives the stub (append / remove / replace on timers), samples tickerText, marquee.x, rotation.running per frame and grabToImage snapshots; asserts the traversal trace (every id enters and leaves the viewport once; x never jumps; running stays true while text is non-empty; the board is never dead after a drain). check_marquee_live.py (@MARQUEE-LIVE) with a refusing arm that re-introduces the running binding. Tier 2 later: kwin_wayland --virtual + session bus + plasmoidviewer + notify-send, screenshots via KWin DBus (the VER-MARQUEE probe without a human).",
+      "status": "ready",
+      "enables": "W46,W35",
+      "touches": "marquee,render_qml,gates",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "(1) measure: does qml honour QML2_IMPORT_PATH shadowing of an installed module (write the stub, import it, print typeof); (2) the stub + the harness sampling tickerText/x/running for one arrive-expire cycle; (3) the trace assertions + the refusing arm; (4) warrant + SKILL row.",
+      "evidence": "",
+      "issued_at": "2026-09-21T19:00:44+00:00",
+      "last_worked": "2026-09-21T19:00:44+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W50",
+      "title": "REQUIREMENTS AS REGO (operator: OPA/Rego is a standardized, machine-parseable, machine-actionable spec format; the chk() arms overwhelm an LLM with cognitive load). Split every check into MEASUREMENT and POLICY: a check's --json mode emits what it measured (the population, per-item facts, SKIPs as withheld) and nothing else; policy/<check>.rego declares the requirement as deny/withheld sets over that JSON (luthen's shape: D0 vacuity guard first - an empty population is a deny; withheld separate from deny); policy/<check>_test.rego carries the refuse/admit pair per rule (this REPLACES the chk() falsifiability arms, which shrink to 'the measurement can see'); scripts/opa_gate.py runs opa eval per check and maps deny/withheld to exit 1/3; worklist warrants cite the rego rule. opa is at /usr/bin/opa. First: check_qml_lint (newest, smallest) as the pilot, then check_marquee_body's ring scenarios (already JSON), then the rest by sweep.",
+      "status": "ready",
+      "enables": "W46,W35,W44",
+      "touches": "gates,worklist,policy",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "(1) opa version + a one-rule pilot: check_qml_lint --json (documents[] with lint[] and bound_running[]), policy/qml_lint.rego with deny/withheld + D0 empty-population deny, qml_lint_test.rego with the refuse/admit pair (the marquee's running binding as the refusing fixture); opa test policy/ green; (2) opa_gate.py; (3) the warrant cites the rule; (4) the pattern written into CLAUDE.md's Writing a check section.",
+      "evidence": "",
+      "issued_at": "2026-09-21T19:04:23+00:00",
+      "last_worked": "2026-09-21T19:04:23+00:00",
       "ticks_blocked": 0
     }
   ],

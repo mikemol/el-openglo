@@ -80,7 +80,8 @@ the emitters agree on one palette); they are not general readers and do not repl
 | a sender's hue on the lit token, gated (the 12-bucket table per variant; which hues fall back) | `scripts/check_rehue.py` | `python3 scripts/check_rehue.py --map` | — |
 | the marquee's body-markup parser, run headless on synthetic bodies (`--cases` shows text + style runs) | `scripts/check_marquee_body.py` | `python3 scripts/check_marquee_body.py --cases` | `.js` |
 | the Alt+Tab switcher packages: structure, the id the LnF defaults name, the root, lint, the filled tokens | `scripts/check_taskswitch.py` | `python3 scripts/check_taskswitch.py --map` | — |
-| EVERY emitted QML document: qmllint's error set + the finite-animation `running:` binding rule (`--list` per document) | `scripts/check_qml_lint.py` | `python3 scripts/check_qml_lint.py --list` | `.qml` |
+| EVERY emitted QML document: qmllint's error set + the finite-animation `running:` binding rule (`--list` per document; `--json` is the MEASUREMENT policy/qml_lint.rego decides) | `scripts/check_qml_lint.py` | `python3 scripts/check_qml_lint.py --list` | `.qml` |
+| the REQUIREMENTS as rego: which policies exist, whether each check measures (`--list`), every rule's refuse/admit pair (`--test`), one check's verdict (`<name>`: deny / withheld sets → exit 0/1/3) | `scripts/opa_gate.py` | `python3 scripts/opa_gate.py --list` | `.rego` |
 | what Android's Monet derives from the palette (surface/primary/on_surface vs ground/lit/fg, per variant) | `scripts/check_monet.py` | `python3 scripts/check_monet.py --map` | — |
 | where each emission is published, and the KDE Store's category taxonomy (OCS) | `scripts/check_publishing.py` | `python3 scripts/check_publishing.py --rows` | `publishing.md` `ocs-categories.xml` |
 

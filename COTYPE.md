@@ -6729,3 +6729,58 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s98]
+
+## Session 99 — the requirement is rego, the Python is the measurement (W50 pilot)
+- Operator, 2026-09-22: "The point of OPA and Rego, here, is that it's a
+  standardized specification format that's machine-parseable and
+  machine-actionable. Our chk() arms, as they are, are following a pattern
+  I've seen overwhelm LLMs with cognitive load before." Asked around first:
+  luthen-observability (policy/plan.rego, docs/opa-demand.md, checks/
+  opa_plan.py) runs rego over MACHINE JSON at the seam where a declaration
+  meets an actuator — deny and withheld as SETS with messages, a refusing and
+  an admitting test per rule under opa test, a D0 rule that denies a partial
+  population before anything else, apply gated on the exit code never grep.
+- The split, piloted on the newest check: check_qml_lint --json emits the
+  MEASUREMENT only (per document: kept lint diagnostics, finite animations
+  binding running:, or a withheld reason; whether qmllint exists). policy/
+  qml_lint.rego (package el.qml_lint) is the REQUIREMENT — Q0 an empty
+  population is denied, Q1 lint, Q2 the running binding, W withheld — and
+  policy/qml_lint_test.rego carries the refuse/admit pair per rule with the
+  marquee's own binding as Q2's refusing fixture (7/7). scripts/opa_gate.py
+  <name> joins them (exit 0/1/3), --test runs the pairs, --list censuses
+  policies against checks; its selftest evaluates every policy on an empty
+  population. @QMLLINT now cites the gate; @REGO cites opa test. The
+  check's own selftest shrank to "the measurement can see" — the arms that
+  argued verdicts moved to the .rego test, which is where the cognitive load
+  goes: a rule reads as a requirement, not as Python that happens to assert.
+- Residue: one policy migrated of ~45 checks (a sweep, W50 continues); the
+  join is by NAME (check_<n>.py ↔ policy/<n>.rego ↔ package el.<n>) and
+  opa_gate's selftest is what notices a mismatch; opa eval runs the check as
+  a subprocess so a check's own cwd/sys.path contract still holds; the
+  pre-commit hook runs check selftests, not opa test — @REGO covers it via
+  the worklist gate.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-98 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-98 —
+  confirm after re-emerge: every notification scrolls once, none vanish, the
+  board never goes dead), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s99]

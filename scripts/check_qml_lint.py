@@ -108,12 +108,35 @@ def problems(docs):
     return out
 
 
+def measure(docs):
+    """The MEASUREMENT, as policy/qml_lint.rego reads it (W50): per document, the
+    lint diagnostics qml_sanity kept and the finite animations that bind running;
+    a document this host cannot render is `withheld` with its reason. No verdict
+    lives here — the requirement is the rego rule, tested by opa test."""
+    import qml_sanity as QS
+    out = {"documents": [], "qmllint": bool(QS._qmllint())}
+    for label, text in docs:
+        if text is None:
+            out["documents"].append({"id": label, "withheld": "a pinned host file is absent"})
+            continue
+        out["documents"].append({
+            "id": label,
+            "lint": list(QS.check_qml(text, label)) if out["qmllint"] else [],
+            "bound_running": [{"animation": n, "loops": l} for n, l in bound_running(text)],
+        })
+    return out
+
+
 def main(argv):
-    known = {"--list", "--selftest"}
+    known = {"--list", "--json", "--selftest"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_qml_lint: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(documents()), indent=1))
+        return 0
     res = problems(documents())
     skipped = [l for l, m in res if m == ["SKIP"]]
     bad = [(l, m) for l, m in res if m and m != ["SKIP"]]
@@ -159,12 +182,17 @@ def _selftest():
         bound_running("SequentialAnimation { loops: 3\n PauseAnimation { duration: 1 } }"), [])
     docs = documents()
     chk("the population is the declared documents", len(docs), len(DOCS))
-    res = problems(docs)
-    chk("the real documents pass or SKIP", [(l, m) for l, m in res if m and m != ["SKIP"]], [])
+    # ⚑ THE MEASUREMENT CAN SEE (W50). Whether what it sees is a DEFECT is
+    # policy/qml_lint.rego's ruling, with its refuse/admit pairs in
+    # policy/qml_lint_test.rego under `opa test` — not re-argued here.
+    m = measure([("bad.qml", "NumberAnimation { loops: 1; running: a.b }"), ("skip.qml", None)])
+    chk("the measurement reports a bound running as a fact", m["documents"][0]["bound_running"],
+        [{"animation": "NumberAnimation", "loops": "1"}])
+    chk("the measurement reports an unrenderable document as withheld", "withheld" in m["documents"][1], True)
     import qml_sanity as QS
     if QS._qmllint():
-        broken = [("broken.qml", 'import QtQuick\nItem { color: ""#000" }')]
-        chk("a syntax error is seen", bool(problems(broken)[0][1]), True)
+        broken = measure([("broken.qml", 'import QtQuick\nItem { color: ""#000" }')])
+        chk("the measurement reports a syntax error as a fact", bool(broken["documents"][0]["lint"]), True)
     else:
         print("  SKIP qmllint absent — the syntax arm did not run")
     print("check_qml_lint selftest:", "PASS" if ok else "FAIL")

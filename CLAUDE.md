@@ -74,6 +74,18 @@ Every tool in `scripts/` follows the same shape, and a new one should too:
 - **State the weakness in the docstring.** `check_compiles` says outright that compiling
   proves syntax and nothing else, because all eight partial files compile.
 
+⚑ **THE REQUIREMENT IS REGO; THE PYTHON IS THE MEASUREMENT** (operator, 2026-09-22: OPA/Rego
+is a standardized, machine-parseable, machine-actionable specification format; the
+`chk(label, got, want)` arms overwhelm a reader with cognitive load). A check gains
+`--json` and emits ONLY what it measured — the population, per-item facts, and a
+could-not-measure as a `withheld` fact. The requirement lives in `policy/<name>.rego`
+(`package el.<name>`; `deny` and `withheld` SETS with messages; the first rule denies an
+empty population). Its refusing and admitting cases live in `policy/<name>_test.rego`
+under `opa test` — that pair IS the falsifiability record, so the Python selftest shrinks
+to "the measurement can see". `scripts/opa_gate.py <name>` joins them (exit 0 admitted /
+1 denied / 3 withheld-only) and the warrant cites the gate. Pilot: `check_qml_lint` ↔
+`policy/qml_lint.rego`. New checks are written this way; old ones migrate by sweep.
+
 ## Borrowed tooling: some scripts are SYMLINKS into ../substrate
 
 `scripts/hook_no_chaining.py`, `hook_structural_query.py`, `hook_cmdparse.py` (the
