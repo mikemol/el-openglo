@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 20,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T02:08:46+00:00",
-  "job_id": "dc984948",
+  "heartbeat": "2026-09-21T02:30:44+00:00",
+  "job_id": "d8d6d0b5",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -13,7 +13,10 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": null,
+  "lock": {
+    "holder": "session-ef09ca0b",
+    "taken_at": "2026-09-21T02:31:31+00:00"
+  },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -238,11 +241,11 @@
       ],
       "blocked_kind": "human",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
-      "next_bounded_step": "OPERATOR: authorise the push of dab3fc4 (git-r3 builds from GitHub), then `sudo emerge -av x11-themes/el-openglo` again, then in System Settings → Global Theme pick EL Openglo (EL-Azure) and Apply (tick all parts in the dialog) — report: do previews show the phosphor render; do colours/Plasma style/decoration change. If not, name what did not. Then: overlay carries its own dev-python/colorspacious ebuild (copy guru's) so the BDEPEND resolves without guru.",
-      "evidence": "EMERGED (2026-09-21): x11-themes/el-openglo-9999 and kde-plasma/union installed — the BDEPEND set is proven. ⊕VER #1 on luthen: \"apply does nothing\" + stock preview images (screenshot). `qlist` MEASURED the install set: NO aurorae, NO plasma desktoptheme, NO wallpapers — system_mapping guarded gitignored generated outputs with isdir/exists; a git-r3 clone has none; check_ebuild staged the dirty working tree and could not see it. FIXED (tick 24, commit dab3fc4): emitters.py roster shared by @EMITTERS and make_deb.stage() (generate BEFORE mapping, guards removed → absent payload refuses by name); make_wallpaper parameterised (it emitted ONE variant; ghost was literal — eighth ghost model) → six wallpapers at the glanced alpha; LNF_STAGE per-run tempdir (was root-owned /tmp/eldeb/_lnf); LnF preview at contents/previews/preview.png (+fullscreenpreview.jpg) — was contents/preview.png, unread by Plasma 6; check_ebuild stages the INDEX tree via git write-tree+archive (+ cache copy). 317 files; 42 mapped paths. Guru-sourced colorspacious still a portability gap (open).",
+      "next_bounded_step": "MEASURED 2026-09-21: Konsole scheme file is well-formed; operator's edit created ~/.local/share/konsole/'Profile 1.profile' (ColorScheme=EL-Azure) but konsolerc has no DefaultProfile, so tabs stay on the read-only Built-in profile — nothing changed. Fix given (kwriteconfig6 konsolerc DefaultProfile). MACHINE: (1) make_konsole: also emit EL-<variant>.profile ([Appearance] ColorScheme=<v>; [General] Name=EL <v>, Parent=FALLBACK/) to usr/share/konsole/; el-openglo-apply writes konsolerc DefaultProfile=EL-<v>.profile; (2) LnF defaults: merge duplicated [kdeglobals][KDE] group (widgetStyle + LookAndFeelPackage) — plasma-apply-colorscheme by hand DID recolour widgets, so the scheme is sound and the LnF Apply is the fault; (3) colorspacious ebuild + check_ebuild BDEPEND-resolves arm. Restart-needing items HOLD until ~2026-09-24.",
+      "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open.",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-21T02:08:16+00:00",
-      "ticks_blocked": 1
+      "last_worked": "2026-09-21T02:32:23+00:00",
+      "ticks_blocked": 2
     },
     {
       "symbol": "W13",
@@ -276,10 +279,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: Union replaces three current engines with one description; a generated palette is exactly its input shape. Measure the format before emitting — the engine is 6.7.5 ~arch, not yet default, and the format may still move",
-      "next_bounded_step": "Measure first: fetch the Union source (invent.kde.org/plasma/union) and read the CSS input grammar — which selectors/properties exist (colour, border, shadow, corner, text), how a theme is packaged and discovered (plasma platform plugin), and what union-ruleinspector validates. Map the 44 token keys → CSS properties; list properties with NO palette relation (new relations for catalog/relations.md). Then make_union.py reading GRID like make_plasma; check_token_source lists it; witness runs union-ruleinspector when installed, SKIPs otherwise. Reuse-search: make_kvantum widget→token map.",
-      "evidence": "Host 2026-09-20: plasmashell 6.7.5, qtbase 6.11.2; kde-plasma/union-6.7.5 ~amd64 not installed. Ebuild read: IUSE tools (dobin union-ruleinspector — the validator the witness should call) widgets (QtWidgets output, Breeze base); ECM examples = two QML snippets, NOT theme examples (skip); BDEPEND qttools[qdoc] UNCONDITIONAL → drags clang 22+23 toolchains; CMake: BUILD_INPUT_CSS=ON (CSS is the default input), BUILD_INPUT_PLASMASVG=OFF (defunct), outputs QTQUICK/KIRIGAMI/QTWIDGETS, BUILD_PLATFORM_PLASMA. Nothing in ::gentoo rdepends on union. Operator hit the qdoc USE requirement; advised unversioned `dev-qt/qttools qdoc` or an overlay -r100 dropping the qdoc BDEPEND (W12 can carry it).",
+      "next_bounded_step": "Read defaults/generated-properties.css + extra-properties.css (the property vocabulary) and breeze/style.css (how a style composes/inherits). Then make_union.py emits /usr/share/union/css/styles/el-openglo/{style.css (imports breeze), variables.css override}: alphas from el-openglo.css tokens (ghost_alpha → indicator/press, ghost_alpha_glanced → hover/focus?) — each mapping justified by the relation or listed as an OPEN relation in relations.md §3d, not guessed; geometry from palette_graph constants. Install via make_deb mapping; witness check_union.py: the style dir parses (tinycss2), every overridden variable exists in breeze/variables.css, every value is a token or a stated relation; SKIP the ruleinspector arm until USE=tools.",
+      "evidence": "MEASURED (tick 25, union 6.7.5 installed, USE tools off — no union-ruleinspector): input is CSS at /usr/share/union/css/ — defaults/{generated-properties,extra-properties,default}.css + styles/breeze/{variables,button,bars,check,delegate,popup,tables,text,calendar,kirigami,application}.css; plugins union-input-css, union-platform-plasma, union-colorprovider-kcolorscheme; QtWidgets style registered as kstyle/themes/union.themerc. FINDING: styles/breeze/variables.css takes EVERY colour via custom-color(\"kcolorscheme\", state, set, role, name) — the active KDE colour scheme, i.e. our .colors — so the palette already reaches all Union outputs through ColorScheme=; a colour re-emit would be a second authority. What Union AUTHORS and we could SOLVE: --indicator-color/press/current = window-text at set-alpha 0.4/0.7/0.95 (the ghost relation with unsolved numbers), --highlight-hover-color set-alpha 0.3, --focus-outline-alpha 0.3, --shadow-color rgba(0,0,0,.1), --corner-radius 5px, spacings/grid-unit (palette_graph geometry constants are the analogue).",
       "issued_at": "2026-09-20T23:31:29+00:00",
-      "last_worked": "2026-09-20T23:35:12+00:00",
+      "last_worked": "2026-09-21T02:26:01+00:00",
       "ticks_blocked": 0
     },
     {

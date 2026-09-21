@@ -264,6 +264,15 @@ if [ -f "$WP" ]; then
   fi
 fi
 
+# 6b. Konsole — colours are PER PROFILE, and the stock profile is the read-only
+# Built-in one, so a scheme that no default profile names is never seen. Point
+# the default at the shipped profile; open tabs keep theirs until reopened.
+if [ -f "$SHARE/konsole/EL-Openglo-$VARIANT.profile" ] && command -v kwriteconfig6 >/dev/null 2>&1; then
+  kwriteconfig6 --file konsolerc --group "Desktop Entry" --key DefaultProfile \
+    "EL-Openglo-$VARIANT.profile" || true
+  echo "  Konsole: default profile -> EL-Openglo-$VARIANT (new tabs)"
+fi
+
 # 7. EL segment clock — add to the panel if not already present (uses Plasma's
 # scripting D-Bus interface; harmless if it fails / already added)
 PLASMOID="org.el.segclock.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
@@ -376,15 +385,20 @@ def build_lnf_packages():
         defaults = (
             "[kdeglobals][General]\n"
             f"ColorScheme={v}\n\n"
+            # ⚑ ONE [kdeglobals][KDE] GROUP.  This was written twice (widgetStyle
+            # here, LookAndFeelPackage further down); KConfig merges duplicate
+            # groups when READING, but the LnF Apply on luthen (2026-09-21) set
+            # plasmarc and left kdeglobals ColorScheme=BreezeLight while
+            # plasma-apply-colorscheme by hand recoloured everything — the
+            # defaults file is the one difference, so it gets the canonical shape.
             "[kdeglobals][KDE]\n"
-            f"widgetStyle=Breeze\n\n"
+            f"widgetStyle=Breeze\n"
+            f"LookAndFeelPackage={pid}\n\n"
             "[plasmarc][Theme]\n"
             f"name={v}\n\n"
             "[kwinrc][org.kde.kdecoration2]\n"
             "library=org.kde.kwin.aurorae\n"
             f"theme={_decoration_theme(v)}\n\n"
-            "[kdeglobals][KDE]\n"
-            f"LookAndFeelPackage={pid}\n\n"
             "[Wallpaper][org.kde.image][General]\n"
             f"Image=file:///usr/share/wallpapers/{v}/contents/images/1920x1080.png\n"
         )
@@ -642,6 +656,8 @@ def stage(root):
     os.makedirs(kdir, exist_ok=True)
     for v in VARIANTS:
         open(os.path.join(kdir, f"{v}.colorscheme"), "w").write(_kon.colorscheme(v))
+        # the profile that NAMES the scheme — without it nothing uses it
+        open(os.path.join(kdir, f"EL-Openglo-{v}.profile"), "w").write(_kon.profile(v))
     # ⚑ make_konsole.alacritty_toml / foot_ini DID NOT SURVIVE THE RECOVERY (fifth
     # gap in this packager). They are the ANSI-16 table re-emitted in two more
     # formats — the same shape W16's Windows Terminal scheme needs, so they come

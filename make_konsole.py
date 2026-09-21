@@ -94,6 +94,20 @@ def colorscheme(variant):
     return "\n".join(out)
 
 
+def profile(variant):
+    """A Konsole PROFILE naming this variant's scheme.
+
+    ⚑ A SCHEME NOBODY'S PROFILE NAMES IS NOT APPLIED.  Konsole colours are per
+    profile, not per kdeglobals, and the stock profile is the read-only Built-in
+    one. Measured 2026-09-21 on luthen: the six .colorscheme files were installed
+    and listed; picking one in the profile editor wrote ~/.local/share/konsole/
+    'Profile 1.profile' — but konsolerc named no DefaultProfile, so every tab
+    stayed on Built-in and "nothing changed". This file, plus el-openglo-apply
+    writing konsolerc DefaultProfile, is the missing half of ⊕KONSOLE."""
+    return (f"[Appearance]\nColorScheme={variant}\n\n"
+            f"[General]\nName=EL Openglo ({variant})\nParent=FALLBACK/\n")
+
+
 def render_all(variants, out_map):
     written = []
     for v in variants:
