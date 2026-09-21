@@ -6974,3 +6974,59 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s102]
+
+## Session 103 — the operator's trace: a lone notification is gone before countChanged; captured at insertion now
+- The trace arrived (operator, 2026-09-22, from plasmashell's stderr): every
+  single notify-send logged `rebuild count=0` and nothing else; a second
+  notification sent while the first was live logged `upsert id=2 … rebuild
+  count=1` — ONE row, the second's. So the real model inserts a lone
+  notification's row and removes it again before its countChanged reaches
+  the widget; a notification only stays in this model while another is
+  live (why libnotificationmanager does that is not measured here — the
+  widget's contract does not depend on it). The stub could not show this:
+  ListModel emits countChanged synchronously inside append(), so the widget
+  read the row mid-append. The stub is now a QtObject that signals like the
+  real model — rowsInserted synchronously at insertion with the rows
+  readable, count from a deferred call — and the timeline gained a FLASH
+  step (append and remove in one turn). With that, the unchanged widget was
+  refused by name: L2 "flash of id 9: app: flash never reached the board".
+- The fix: rows are CAPTURED on rowsInserted, delivered before anything can
+  remove them; countChanged/dataChanged still rebuild for replaces and
+  expiries. One upsertRow serves both. Headless: the flash is captured,
+  rings once with live=[], drains — the traversal invariant's "expired
+  before the boundary still scrolls once", on the real model's timing.
+  Witness pins onRowsInserted. Also this session: W50 slice (a),
+  check_taskswitch → policy/taskswitch.rego (44/44), and the hovered run
+  ends on its condition (20 paused samples) after the gate refused it once
+  under load at a 2.6 s cap — the wall-clock confound, measured.
+- Residue: WHY the real model drops a lone notification (popup handoff?
+  showExpired? the applet's own model holding it?) is unmeasured; a captured
+  item that later turns up live is upserted twice (rings, then cycles);
+  debugLog defaults on until ⊕VER-MARQUEE closes; the stub still carries no
+  urgency/actions behaviour (W46).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-103 corrected live and headless) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-103 —
+  after re-emerge: a lone notify-send scrolls once; every notification
+  scrolls once, none vanish, the board never goes dead, a parked pointer
+  pulses the ring; ticks read check_marquee_host), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s103]

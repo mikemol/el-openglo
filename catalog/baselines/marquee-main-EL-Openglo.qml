@@ -178,9 +178,42 @@ PlasmoidItem {
         sortMode: NotificationManager.Notifications.SortByDate
         groupMode: NotificationManager.Notifications.GroupDisabled
         Component.onCompleted: root.haveModel = true
+        // ⚑ CAPTURE AT INSERTION (operator's trace, 2026-09-22: every single
+        // notify-send logged `rebuild count=0` — the model had inserted the row
+        // and removed it again before its countChanged reached us, so nothing was
+        // ever read; only a second notification sent while one was live stayed
+        // long enough). rowsInserted is delivered synchronously, with the rows
+        // readable, before anything can remove them: an arrival is owed its
+        // rotation whatever its lifetime, and this is where it is claimed.
+        onRowsInserted: (parent, first, last) => root.capture(first, last)
         onCountChanged: root.rebuild()
         // a replace (same id, new text) changes no count; it changes data
         onDataChanged: root.rebuild()
+    }
+
+    function capture(first, last) {
+        var q = root.queue;
+        for (var i = first; i <= last; i++) q = root.upsertRow(q, i);
+        root.queue = q;
+        root.trace("capture rows " + first + "-" + last + " queue=" + q.length + " ticker=" + JSON.stringify(root.tickerText));
+        if (root.tickerText.length === 0) root.swapRing();
+    }
+
+    // one model row into the queue: a new id is owed a rotation, a known id with
+    // new text is owed one again, an unchanged id is left alone
+    function upsertRow(q, i) {
+        var idx = notifModel.index(i, 0);
+        var id = notifModel.data(idx, NotificationManager.Notifications.IdRole);
+        var app = notifModel.data(idx, NotificationManager.Notifications.ApplicationNameRole);
+        var sum = notifModel.data(idx, NotificationManager.Notifications.SummaryRole);
+        var body = notifModel.data(idx, NotificationManager.Notifications.BodyRole);
+        // the summary is PLAIN, the body is markup (W45): Body.joinItem
+        var item = Body.joinItem(app, sum, body);
+        if (!item.text.length || id === undefined) return q;
+        for (var k = 0; k < q.length; k++)
+            if (q[k].id === id && q[k].text === item.text) return q;
+        root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text));
+        return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs });
     }
 
     // the model changed: upsert every live notification into the queue. A new id
@@ -188,21 +221,7 @@ PlasmoidItem {
     // an unchanged id is left as it stands. The ring is NOT touched here.
     function rebuild() {
         var q = root.queue;
-        var known = {};
-        for (var k = 0; k < q.length; k++) known[q[k].id] = q[k].text;
-        for (var i = 0; i < notifModel.count; i++) {
-            var idx = notifModel.index(i, 0);
-            var id = notifModel.data(idx, NotificationManager.Notifications.IdRole);
-            var app = notifModel.data(idx, NotificationManager.Notifications.ApplicationNameRole);
-            var sum = notifModel.data(idx, NotificationManager.Notifications.SummaryRole);
-            var body = notifModel.data(idx, NotificationManager.Notifications.BodyRole);
-            // the summary is PLAIN, the body is markup (W45): Body.joinItem
-            var item = Body.joinItem(app, sum, body);
-            if (!item.text.length) continue;
-            if (id in known && known[id] === item.text) continue;
-            q = Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs });
-            root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text));
-        }
+        for (var i = 0; i < notifModel.count; i++) q = root.upsertRow(q, i);
         root.queue = q;
         root.trace("rebuild count=" + notifModel.count + " queue=" + q.length + " ticker=" + JSON.stringify(root.tickerText));
         // nothing is scrolling: start this rotation now rather than at a boundary

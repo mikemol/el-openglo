@@ -52,9 +52,25 @@ VARIANT = "EL-Openglo"
 STUB_QMLDIR = "module org.kde.notificationmanager\nNotifications 1.0 Notifications.qml\nsingleton StubRegistry 1.0 StubRegistry.qml\n"
 STUB_REGISTRY = "pragma Singleton\nimport QtQuick\nQtObject { property var models: [] }\n"
 STUB_MODEL = """import QtQuick
-ListModel {
+// ⚑ NOT A ListModel (measured 2026-09-22 against the operator's trace): ListModel
+// emits countChanged synchronously inside append(), so a widget reading rows on
+// countChanged saw a row the REAL model had already removed by the time its
+// countChanged arrived (`rebuild count=0` for every single notify-send). This
+// stub signals like the real one: rowsInserted synchronously at insertion with
+// the data readable, count updated from a deferred call.
+QtObject {
     id: stub
     readonly property bool isStub: true
+    property var rows: []
+    property int count: 0
+    signal rowsInserted(var parent, int first, int last)
+    signal rowsRemoved(var parent, int first, int last)
+    signal dataChanged(var topLeft, var bottomRight, var roles)
+    function syncCount() { stub.count = stub.rows.length; }
+    function get(i) { return stub.rows[i]; }
+    function append(obj) { stub.rows.push(obj); stub.rowsInserted(null, stub.rows.length - 1, stub.rows.length - 1); Qt.callLater(syncCount); }
+    function remove(i) { stub.rows.splice(i, 1); stub.rowsRemoved(null, i, i); Qt.callLater(syncCount); }
+    function set(i, obj) { stub.rows[i] = obj; stub.dataChanged(stub.index(i, 0), stub.index(i, 0), []); }
     enum Roles { IdRole = 256, SummaryRole, ImageRole, IsGroupRole, GroupChildrenCountRole, ExpandedGroupChildrenCountRole,
                  IsGroupExpandedRole, IsInGroupRole, TypeRole, CreatedRole, UpdatedRole, BodyRole, IconNameRole,
                  DesktopEntryRole, NotifyRcNameRole, ApplicationNameRole, ApplicationIconNameRole, OriginNameRole,
@@ -70,7 +86,7 @@ ListModel {
     property int groupMode: Notifications.GroupDisabled
     readonly property var roleNames: ({ 256: "notificationId", 257: "summary", 267: "body", 271: "applicationName",
                                         285: "urgency", 275: "percentage", 290: "expired" })
-    function data(idx, role) { var r = stub.get(idx.row); var k = roleNames[role]; return k ? r[k] : undefined; }
+    function data(idx, role) { var r = stub.get(idx.row); if (!r) return undefined; var k = roleNames[role]; return k ? r[k] : undefined; }
     function index(row, col) { return { row: row, column: col }; }
     Component.onCompleted: StubRegistry.models.push(stub)
 }
@@ -82,6 +98,11 @@ TIMELINE = [
     # (t ms, op, id, model fields, the text the board must show afterwards)
     (300, "arrive", 1, {"summary": "hello", "body": "", "applicationName": "app"}, "app: hello"),
     (2600, "expire", 1, {}, ""),
+    # ⚑ THE LIVE HOST'S CASE (operator's trace, 2026-09-22): the real model inserted
+    # the row and removed it within the SAME turn — every single notify-send logged
+    # `rebuild count=0`. A flash arrives and vanishes in one step; it is still owed
+    # a rotation.
+    (3900, "flash", 9, {"summary": "flash", "body": "", "applicationName": "app"}, "app: flash"),
     (5200, "arrive", 2, {"summary": "second", "body": "<b>bold</b>", "applicationName": "app"}, "app: second — bold"),
     (5600, "replace", 2, {"summary": "second", "body": "changed", "applicationName": "app"}, "app: second — changed"),
     (8200, "expire", 2, {}, ""),
@@ -112,6 +133,7 @@ Window {
         if (step.op === "arrive") m.append(Object.assign({ notificationId: step.id }, step.fields));
         else if (step.op === "expire") { var r = rowOf(step.id); if (r >= 0) m.remove(r); }
         else if (step.op === "replace") { var r2 = rowOf(step.id); if (r2 >= 0) m.set(r2, Object.assign({ notificationId: step.id }, step.fields)); }
+        else if (step.op === "flash") { m.append(Object.assign({ notificationId: step.id }, step.fields)); m.remove(rowOf(step.id)); }
         events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows });
     }
     property var timeline: %(timeline)s

@@ -538,6 +538,9 @@ CLOSED = {
                 _reads("templates/marquee-main.qml", r"(?m)^\s*property var queue:") and
                 _reads("templates/marquee-main.qml", r"Body\.queueUpsert\(") and
                 _reads("templates/marquee-main.qml", r"Body\.ringNext\(") and
+                # s103 (operator's trace): rows are CAPTURED on rowsInserted — the
+                # real model removes a lone notification before countChanged arrives
+                _reads("templates/marquee-main.qml", r"(?m)^\s*onRowsInserted:") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*loops:\s*1\b") and
                 _reads("templates/marquee-main.qml", r"onFinished:\s*\{[^}]*swapRing\(\)") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*function startRun\(\)") and
