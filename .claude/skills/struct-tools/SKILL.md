@@ -68,6 +68,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the Union styles: which Breeze alphas are solved, to what, and which are OPEN | `scripts/check_union.py` | `python3 scripts/check_union.py --map` | `overrides.css` `variables.css` |
 | the terminal palettes (Konsole, Alacritty, foot, Windows Terminal, Termux) — one ansi table, five syntaxes | `scripts/check_terminals.py` | `python3 scripts/check_terminals.py --map` | `.alacritty.toml` `.foot.ini` `.windows-terminal.json` `.termux.properties` |
 | the Windows .theme files: required sections, colour roles, accent | `scripts/check_windows.py` | `python3 scripts/check_windows.py --map` | `.theme` |
+| the Firefox theme manifests: key → role, required keys, colour_scheme, gecko id | `scripts/check_firefox.py` | `python3 scripts/check_firefox.py --map` | — |
 
 ⚑ **THE LAST TWO ROWS CLAIM FILENAMES, NOT SUFFIXES.** A hook script has no suffix, so a
 suffix-only table could never route it; the borrowed hook's selftest asserts that the

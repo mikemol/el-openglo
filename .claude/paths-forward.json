@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 23,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T04:45:26+00:00",
-  "job_id": "faa618c3",
+  "heartbeat": "2026-09-21T05:08:28+00:00",
+  "job_id": "a979f03a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T04:55:27+00:00"
+    "taken_at": "2026-09-21T05:23:09+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -434,16 +434,16 @@
     {
       "symbol": "W23",
       "title": "The palette's solved ghost EQUALS lit on EL-Azure and EL-Amber — check_ghost_surfaces --map (2026-09-21): fg_in == fg for both Off variants ((153,204,255); (255,212,153)); EL-Openglo differs slightly ((141,235,217) vs (153,255,235)). On those variants the ghost/lit distinction is alpha-only, no colour channel — the operator's live 'ghost too close to lit' on Azure at the PALETTE level; every surface is faithful to a degenerate solve and every check passes",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Measure first: run the solver's ghost step for EL-Azure by hand (make_palette.solve_ghost / ghost_solve.solve_ceiling_t): does the ceiling solve return t=0 (the lit end) because the Lc ceiling (GHOST_READABLE_LC 30) is unreachable / already exceeded at t=0, or because of the alpha_max_vs_lit bound (relations §3c)? Name which relation collapses the interior node onto lit. Then decide with the relations, not by hand: either the ceiling/floor pair admits an interior point (fix the solve) or it does not for those hues (then the relation set is inconsistent for Azure/Amber and relations.md §3b must say so — a ghost equal to lit at alpha 0.5 is the 'alpha-only ghost', which glance_audit should be flagging). Add an arm to check_ghost_composite: ghost != lit unless the palette records why. Then ⊕VER on Azure.",
-      "evidence": "scripts/check_ghost_surfaces.py --map output 2026-09-21; make_palette.solve_ghost; ghost_solve.solve_ceiling_t returns lerp(lit, ground, 0.5) when t is None",
+      "next_bounded_step": "—",
+      "evidence": "0511aa9: the defect was the global alpha = max(alpha_min) — reaches every FLOOR, not every CEILING; Azure's seen ghost sat at Lc 25.0 vs 29.8 elsewhere; declared==lit was the side effect. Now max(max(alpha_min, 1 - t_ceiling)) → 0.566; every variant within 1 Lc of the ceiling; check_ghost_composite holds looked-at ghosts to the TARGET (TARGET_SLACK 1 Lc), selftest plants Azure's shape. .colors/css/clock/samples/baselines regenerated; relations §3b. ⊕VER on Azure after emerge: ghost slightly MORE visible than before (ceiling), consistent across variants; fainter = a ceiling change.",
       "issued_at": "2026-09-21T04:44:54+00:00",
-      "last_worked": "2026-09-21T04:44:54+00:00",
+      "last_worked": "2026-09-21T05:07:57+00:00",
       "ticks_blocked": 0
     }
   ],

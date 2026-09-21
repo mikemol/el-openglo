@@ -659,6 +659,12 @@ def stage(root):
              for v in VARIANTS}
     _chrome.render_all(VARIANTS, cdirs)
 
+    # Firefox themes (W15): Firefox's own theme.colors vocabulary, from the same
+    # tokens; installed via AMO signing (unlisted), so shipped as source folders.
+    import make_firefox as _ff
+    fdirs = {v: os.path.join(DEB_ROOT, "usr/share/el-openglo/firefox", v) for v in VARIANTS}
+    _ff.render_all(VARIANTS, fdirs)
+
     # Windows .theme per variant (W16): wallpaper + accent are what Aero honours;
     # the colour table rides along for High Contrast. A folder, not a CAB.
     import make_windows as _win

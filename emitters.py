@@ -28,6 +28,7 @@ ORDER = (
     ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
     ("make_union",     "Union styles: Breeze with its alphas solved, from the schemes (W14)"),
     ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),
+    ("make_firefox",   "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
 )
 
 # Emitters that need an input this machine may not have.  Absent -> SKIP, named.

@@ -51,6 +51,7 @@ def parse_scheme(variant):
                   if ("[Colors:Window]", "DecorationFocus") in section
                   else rgb("[Colors:Button]", "DecorationFocus"),
         "view_bg": rgb("[Colors:View]", "BackgroundNormal"),
+        "sel_fg": rgb("[Colors:Selection]", "ForegroundNormal"),
         # the ghost as the palette solved it, and the alpha it was solved THROUGH
         # (make_schemes emits [EL] GhostAlpha; a scheme without it predates the
         # solve and is read at the 0.45 its ghost was drawn at)
