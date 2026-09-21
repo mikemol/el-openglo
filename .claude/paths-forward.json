@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 33,
+  "counter": 37,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T14:25:46+00:00",
-  "job_id": "87c29c45",
+  "heartbeat": "2026-09-21T14:57:24+00:00",
+  "job_id": "2abf96a3",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-52",
-    "taken_at": "2026-09-21T14:37:05+00:00"
+    "holder": "tick-55",
+    "taken_at": "2026-09-21T15:05:59+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -590,10 +590,70 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Measure: diff the two idioms as a table (property -> SegmentChar has / clock has), from the files, into COTYPE; decide the adoption ORDER (clock first: it is the looked-at surface and has the sliders); state what SegmentChar needs to gain (weight, ghostWeight, bloom, pitch as properties; the render gate + parity baseline for the clock will move). Do not port this tick.",
-      "evidence": "",
+      "next_bounded_step": "Port step (1)+(2) into templates/SegmentChar.qml ONLY (no surface adopts yet): properties weight (default 1.0), ghostWeight (0.81), bloom (1.5), strokeBase derived from the module (metrics: stroke/1.25 of the cell like make_clock._metrics_holes — pass as a hole or derive from u); litHalf = u*strokeBase*(1+0.25*weight)/2, ghostHalf = u*strokeBase*ghostWeight/2; REPLACE the wider-copy underlay with a lit-only layer under MultiEffect blur (blurMax = litHalf*4*bloom, opacity 0.75, layer.enabled: bloom > 0); rounded ends optional. Then: check_symbol's _bloom_is_blur/_stroke_ratio gain a SegmentChar read (both templates must satisfy), rm + capture_baseline make_segment_display segment_char_component SegmentChar.qml, qml_sanity, and a headless render of the component alone if render_qml has (or gains) a harness for it. Commit; the clock's adoption is the step after.",
+      "evidence": "3755cc7: COTYPE s88 property table (geometry, cell, lit/ghost stroke, end gap, alpha, bloom, pitch/colon, slant) + what SegmentChar must gain + what moves + adoption order",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-09-21T13:50:20+00:00",
+      "last_worked": "2026-09-21T14:42:37+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W34",
+      "title": "⊕VER-MARQUEE (operator, live 2026-09-22, screenshot): (a) the ghost pips SCROLL WITH the glyphs — a real board's unlit LEDs are fixed; the dot field must be a static bezel-to-bezel matrix and the lit glyphs scroll OVER it (lit dots light the field's own positions — snap the text to the field's cell pitch, or overlay); (b) the pips only span the message width, not the widget; (c) nothing configurable — the widget has no config page (the clock has one: templates/clock-config.qml/.kcfg + cfg_ aliases; import org.kde.kcmutils as KCM): speed, dot pitch/fill, ghost weight, blink/idle face, seconds of dwell. 'Clock looks amazing.'",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/marquee-main.qml,templates/MatrixChar.qml,make_notify_marquee,make_deb",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "(a)+(b) first, one change: split MatrixChar's field from its glyph — a MatrixField item draws the static ghost dots for the WHOLE widget width (cols = floor(width/pitch), rows from the display) and the scrolling Row draws LIT dots only (ghost disabled per char) positioned so lit dots land ON field cells (x snapped to pitch, or the field simply lies under). Keep the idle face on the field. render_samples marquee mirror follows. Then (c): marquee-config.qml + kcfg (speed, pitchScale, dotFill, ghostWeight/alpha slider, blink, idleText), wired like the clock (make_notify_marquee emits contents/config/main.xml + ui/configGeneral.qml, metadata X-Plasma-… as the clock's), qml_sanity, parity baseline re-capture.",
+      "evidence": "operator screenshot 2026-09-22: pips move with text and stop at its end; settings dialog shows only Keyboard Shortcuts/About",
+      "issued_at": "2026-09-21T14:43:42+00:00",
+      "last_worked": "2026-09-21T14:43:42+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W35",
+      "title": "ONE THEME, VARIANT SELECTABLE (operator 2026-09-22): collapse the six-of-everything into one set of packages that read the ACTIVE EL colour scheme at runtime — the clock, marquee, live wallpaper, switcher and LnF become one each; variant selection = applying a colour scheme (the .colors files stay six, that is how Plasma variants work). Design first: which solved tokens are reachable live from QML (Kirigami.Theme standard roles: highlight/text/background… — the palette solves fg/fg_in/view/hover/sel into those roles) and which are NOT (the [EL] group: ghost_alpha, ghost_alpha_glanced — a KConfig read the QML cannot do directly; options: bake ghost alpha into a standard-role relation, or ship a tiny helper, or read via a Plasma DataSource); what the gates become when colours are no longer in the emitted bytes (check_ghost_surfaces reads holes today; parity baselines lose the per-variant pairs)",
+      "status": "ready",
+      "enables": [],
+      "touches": "make_clock,make_notify_marquee,make_wallpaper_live,make_taskswitch,make_deb,check_ghost_surfaces",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Measure: a table of every colour hole each surface template fills (lit/ghost/ground/hot/ghostAlpha… via check_ghost_surfaces --map and the  in templates/) against the standard KColorScheme roles the palette writes them into in make_schemes (which token lands in which [Colors:*] role) — the MAPPING decides whether a surface can go live. Then a proof of concept on the switcher (smallest surface): Kirigami.Theme.* in place of the four holes, ONE package, and does it follow plasma-apply-colorscheme EL-Azure -> EL-Amber without reinstall (render_qml cannot see the live scheme; this is a ⊕VER probe). Record in COTYPE as a new symbol with a witness.",
+      "evidence": "",
+      "issued_at": "2026-09-21T14:51:57+00:00",
+      "last_worked": "2026-09-21T14:51:57+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W36",
+      "title": "PHOSPHOR CURSORS (operator 2026-09-22: 'isn't the cursor supposed to inherit something related to the color scheme?'): cursors cannot follow the colour scheme by inheritance (fixed images), but the host has /usr/share/icons/breeze_cursors/cursors_scalable/ (SVG sources) — an EL cursor set is a DERIVATION: recolour the SVGs from the palette (lit for the arrow fill? ground for the outline?) and build with xcursorgen per size. Cheap to measure first: how many SVGs, which colours they use (a census), whether xcursorgen is installed (x11-apps/xcursorgen)",
+      "status": "ready",
+      "enables": [],
+      "touches": "make_inherit,check_inherit",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Census only: count the SVGs in cursors_scalable, the distinct fill/stroke colours across them (an SVG colour census tool — check_chrome/check_windows style, or a small mode on check_inherit), and whether xcursorgen exists here; record; decide fill/outline mapping from the palette relation (the arrow must read on BOTH grounds it crosses — a cursor is a glanced-at surface over unknown ground, so it needs an outline, i.e. two tokens).",
+      "evidence": "",
+      "issued_at": "2026-09-21T14:52:08+00:00",
+      "last_worked": "2026-09-21T14:52:08+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W37",
+      "title": "PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own?",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": "",
+      "blocked_kind": "",
+      "rank_reason": "",
+      "next_bounded_step": "Measure on the host: is kde-plasma/oxygen installed (ls /usr/share/plasma/desktoptheme/ for oxygen + air; the Oxygen kstyle plugin; /usr/share/plasma/look-and-feel/ for org.kde.oxygen*); Read oxygen's desktoptheme metadata.json and whether a colors file exists beside it (a Plasma Style without one follows the system scheme; with one, its colours are fixed); Read a stock org.kde.oxygen LnF defaults to see exactly which engines it names. Then decide: an engine=oxygen flavour of build_lnf_packages (six more LnFs — or, if W35 lands, one LnF with an engine choice) and whether make_plasma should emit an Oxygen-shaped Plasma Style (only if Oxygen's bakes colours).",
+      "evidence": "",
+      "issued_at": "2026-09-21T14:52:17+00:00",
+      "last_worked": "2026-09-21T14:56:23+00:00",
       "ticks_blocked": 0
     }
   ],

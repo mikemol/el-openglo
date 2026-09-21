@@ -510,6 +510,10 @@ CLOSED = {
         " check_display_registry round-trips that emission against the substrate (:4524)",
         lambda: _reads("templates/marquee-main.qml", r"MatrixChar\s*\{") and
                 _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
+                # W34 (operator, live): the unlit field is a FIXED MatrixField and the
+                # scrolling characters draw lit dots only — the ghost must not scroll
+                _reads("templates/marquee-main.qml", r"MatrixField\s*\{") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*showGhost:\s*false") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

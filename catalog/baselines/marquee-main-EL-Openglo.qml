@@ -79,34 +79,29 @@ PlasmoidItem {
 
         Rectangle { anchors.fill: parent; color: root.voidColor; radius: height*0.1 }
 
-        // idle phosphor face when nothing is scrolling — the same display, so the
-        // idle state cannot drift from the active one.
-        Row {
-            anchors.centerIn: parent
-            visible: root.tickerText.length === 0
-            spacing: rep.pitch
-            Repeater {
-                model: ["-", " ", "-", " ", "-"]
-                MatrixChar {
-                    font: root.matrixFont
-                    cols: root.matrix.cols; rows: root.matrix.rows
-                    ch: modelData
-                    u: rep.pitch
-                    litColor: root.ghostColor
-                    ghostColor: root.ghostColor
-                    ghostOpacity: root.ghostAlpha
-                    glow: 0.5
-                }
-            }
+        // ⚑ THE FIELD IS THE HARDWARE.  Every unlit LED, bezel to bezel, drawn
+        // once and never moved; the idle face IS this field. (Operator, live
+        // 2026-09-22: the pips scrolled with the glyphs and stopped at the
+        // message's end — the ghost had been drawn per character.)
+        MatrixField {
+            id: field
+            anchors.fill: parent
+            rows: root.matrix.rows
+            u: rep.pitch
+            ghostColor: root.ghostColor
+            ghostOpacity: root.ghostAlpha
         }
 
-        // the marquee: scroll the ticker right-to-left across the panel
+        // the marquee: the LIT dots scroll right-to-left OVER the field. The
+        // characters draw no ghost of their own, and x is snapped to the field's
+        // pitch so every lit dot lands on a field cell rather than between two.
         Row {
             id: marquee
             visible: root.tickerText.length > 0
             spacing: rep.pitch
             y: (parent.height - rep.matrixHeight) / 2
-            x: rep.width
+            property real rawX: rep.width
+            x: Math.round(rawX / rep.pitch) * rep.pitch
             Repeater {
                 model: root.tickerText.split("")
                 MatrixChar {
@@ -117,9 +112,10 @@ PlasmoidItem {
                     litColor: root.litColor
                     ghostColor: root.ghostColor
                     ghostOpacity: root.ghostAlpha
+                    showGhost: false
                 }
             }
-            NumberAnimation on x {
+            NumberAnimation on rawX {
                 running: marquee.visible
                 from: rep.width; to: -marquee.width
                 // speed scales with length so long feeds don't crawl

@@ -106,6 +106,14 @@ def matrix_char_component():
     return TL.render("MatrixChar.qml")
 
 
+def matrix_field_component():
+    """The FIXED dot field — templates/MatrixField.qml: every unlit LED bezel to
+    bezel, drawn once; the characters scroll lit dots over it (W34, the
+    operator's live report that the ghost pips scrolled with the glyphs)."""
+    import templates.loader as TL
+    return TL.render("MatrixField.qml")
+
+
 
 def render_all(variants, dir_map):
     written = {}
@@ -121,6 +129,7 @@ def render_all(variants, dir_map):
         # resolves from the same directory — emitting one without the other gives
         # a widget that loads and draws an empty panel.
         open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
+        open(os.path.join(ui, "MatrixField.qml"), "w").write(matrix_field_component())
         written[v] = d
     return written
 

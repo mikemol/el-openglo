@@ -211,6 +211,16 @@ def _marquee(variant, path):
         return "#%02x%02x%02x" % rgb
 
     dots = []
+    # ⚑ THE FIELD FIRST, BEZEL TO BEZEL, then the lit dots over it — the way the
+    # widget draws since W34 (MatrixField under lit-only MatrixChars; the ghost
+    # had been per character and scrolled with the text — operator, 2026-09-22).
+    # The mirror pads the field to the whole sample width, at the solved alpha.
+    field_cols = int(W // u)
+    for c in range(field_cols):
+        for r in range(rows):
+            dots.append(
+                f'  <circle cx="{c * u + u / 2:.1f}" cy="{pad + r * u + u / 2:.1f}"'
+                f' r="{u * fill / 2:.2f}" fill="{_h(ghost)}" opacity="{_alpha:.3f}"/>')
     for i, ch in enumerate(text):
         # the same fallback chain MatrixChar.qml walks: char, uppercase, '?'
         colbytes = font.get(ch) or font.get(ch.upper()) or font.get("?") or []
@@ -218,13 +228,13 @@ def _marquee(variant, path):
         for c in range(cols):
             byte = colbytes[c] if c < len(colbytes) else 0
             for r in range(rows):
-                on = bool(byte & (1 << r))
+                if not (byte & (1 << r)):
+                    continue                      # unlit: the field's dot shows
                 cx = ox + c * u + u / 2
                 cy = pad + r * u + u / 2
                 dots.append(
                     f'  <circle cx="{cx:.1f}" cy="{cy:.1f}" r="{u * fill / 2:.2f}"'
-                    f' fill="{_h(lit) if on else _h(ghost)}"'
-                    f' opacity="{"1" if on else "0.28"}"/>')
+                    f' fill="{_h(lit)}"/>')
 
     open(path, "w", encoding="utf-8").write(
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.0f}" height="{H:.0f}"'

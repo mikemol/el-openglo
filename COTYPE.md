@@ -6143,3 +6143,58 @@ residue gated on live operator testing.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88: the
   gap measured — SegmentChar must gain weight/ghostWeight/a real bloom/round
   ends/the 7-seg read; the clock adopts first). ⊕PLA2 ⊕KVT2 ⊕KNB2. [s88]
+
+## Session 89 — ⊕VER, the marquee live: the ghost pips scrolled with the glyphs (corrected)
+- Operator, 2026-09-22, screenshot: "Clock looks amazing. Segment display
+  needs some work; right now, the pip ghosts are scrolling with the glyphs,
+  when the glyphs should be scrolling over the pips. And the pips don't span
+  the widget, they only go so far as the width of the message. Also, there's
+  nothing configurable in the notification widget." Three findings; the first
+  two are ONE defect: MatrixChar drew its ghost dots per character, so the
+  unlit field travelled with the text and ended where it did. On a real board
+  the unlit LEDs are the hardware and the text is what lights them.
+- The correction (W34 a+b): templates/MatrixField.qml — the fixed dot field,
+  every unlit LED bezel to bezel, drawn ONCE on a Canvas (one paint, not
+  cols x rows Items) at the display's pitch, vertically centred, at the
+  palette's ghost colour and solved alpha; cols = floor(width / u). MatrixChar
+  gains showGhost (default true — a standalone sample keeps its own field);
+  the marquee's characters set it false and draw LIT dots only, and the Row's
+  x is SNAPPED to the field's pitch (x = round(rawX / u) x u, the animation
+  drives rawX) so every lit dot lands on a field cell rather than between two.
+  The idle face IS the field (the ghost dashes went: a dark field is what an
+  idle board shows). make_notify_marquee emits MatrixField.qml beside
+  MatrixChar.qml (QML resolves it by bare name from the same directory —
+  emitting one without the other is an empty panel). The library sample
+  mirrors the new order: field first across the whole width at the solved
+  alpha, lit dots over it. Emitted QML lints clean (3 files); ghost-surfaces
+  30 of 30; parity baseline re-captured deliberately; the ticker's witness now
+  pins MatrixField + showGhost: false.
+- Finding (c), the config page, is W34's next step: the clock's kcmutils
+  pattern (speed, pitch scale, dot fill, ghost alpha/weight, blink, idle text).
+- s80's number, seen live: the field at Lc ~10 per cell reads faint but
+  present in the operator's screenshot — texture, not vanished. The field is
+  now the whole widget, so that reading applies bezel to bezel.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89 corrected live: the field is fixed, the glyphs scroll over it) +
+  ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) + ⊕NOTIFY-SEGRENDER ✓
+  ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s85 does Global Theme apply the icon + cursor groups?; s86 does
+  Alt+Tab load the EL switcher?; s89 the marquee field fixed — confirm live,
+  and the config page to come), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (the marquee field reads as texture live — one data
+  point), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s89]

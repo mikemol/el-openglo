@@ -19,6 +19,12 @@ Item {
     property real glow: 1.0
     property real dotFill: 0.82      // dot diameter as a fraction of the pitch
     property real ghostOpacity: 0.28 // the unlit field recedes to texture
+    // ⚑ THE GHOST BELONGS TO THE FIELD, NOT THE GLYPH.  A character that scrolls
+    // over a MatrixField sets this false and draws LIT dots only — its unlit
+    // positions are the field's own dots underneath (operator, 2026-09-22: the
+    // pips must not scroll with the glyphs). Standalone (a sample, a static
+    // label) it keeps drawing its own field.
+    property bool showGhost: true
 
     implicitWidth: cols * u
     implicitHeight: rows * u
@@ -39,6 +45,7 @@ Item {
             property int r: Math.floor(index / mc.cols)
             property int colByte: mc.colBytes.length > c ? mc.colBytes[c] : 0
             property bool on: (colByte & (1 << r)) !== 0
+            visible: on || mc.showGhost
 
             width: mc.u * mc.dotFill
             height: width
