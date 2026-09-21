@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T09:30:52+00:00 · job `00feb7fe` · counter 26 · hash `16c9866cacd69319`
+heartbeat 2026-09-21T09:41:42+00:00 · job `43018249` · counter 26 · hash `7014b62cdcd04048`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -12,7 +12,7 @@ heartbeat 2026-09-21T09:30:52+00:00 · job `00feb7fe` · counter 26 · hash `16c
 | W3 | done | The ghost that renders is not the ghost that is gated: alpha 0.45 lives between check and screen, 6 of 6 variants — @GHOSTCOMP | — | — |
 | W4 | done | cotype warrants.bib's `enables` field is DROPPED by paperkit until catalog/cotype/paper.toml declares consumer_fields | — | — |
 | W5 | done | SegmentChar as the one geometry substrate under wallpaper/clock/marquee/plymouth — cotype ⊕SEGMENT-SUBSTRATE | — | — |
-| W6 | ready | Arbitrary text reaches the matrix by rasterising a font into it — cotype ⊕MATRIX-FONT-INPUT | — | Read the cotype entry (:4534) and the matrix font emitter; state the input contract in evidence. |
+| W6 | ready | Arbitrary text reaches the matrix by rasterising a font into it — cotype ⊕MATRIX-FONT-INPUT | — | Wire it: make_notify_marquee reads a font (which? the operator's monospace via fc-match, or a shipped EL TTF — decide and record) through matrix_glyph for chars beyond FONT5x8, '?' fallback for None, and the registry carries the merged table; the open witness wants rasteri|font.*matrix in make_notify_marquee.py. Then close ⊕MATRIX-FONT-INPUT (four gates; move to CLOSED) and ⊕NOTIFY-MATRIXRENDER if its witness holds. |
 | W7 | done | Segment projection chain: real fontTools ingest → calibrate bandwidth/tau → validate against the authored 44 → descenders in 22-seg — cotype ⊕SEG-FONT-PROJECT, ⊕SEG-PROJECT-CALIBRATE, ⊕SEG-TABLE-VALIDATE, ⊕SEG22-DESCENDERS | — |  |
 | W8 | done | ⊕SEGMENT-ROLLOUT: every surface draws the palette fg/fg_in at ghost_alpha — 24 of 24 emissions differ; SegmentChar.qml has zero consumers (+ ⊕GHOST-DENSITY) | — | — |
 | W9 | done | ⊕PLYMOUTH-VECTOR: the boot splash pre-rendered at the target resolution (or SVG) — ⊕CLOCK-VECTOR done | — | — |
@@ -57,7 +57,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W3** — DONE (tick 8): floor in APCA — cvd_gate.GHOST_VISIBLE_LC=25 (derived from Off variants composited 29.8/25.4/29.9, rounded down) + feasible_ghost_floor_lc; WCAG floor kept as residue; ghost_solve.solve_floor_t/alpha_min in Lc; alpha rounded UP (0.503); check_ghost_composite floor/refusal/--compare in Lc, selftest 16/16 incl. the Lit case; relations.md §3b records the relation, the alpha derivation and the one-metric argument; baseline re-captured. `python3 scripts/check_ghost_composite.py` → 6 of 6 clear, worst Lc 25.0. `python3 scripts/worklist_gate.py` → paperkit-gate: PASS, 44 claims resolve. Note: a COLD .palette-cache.json makes ~13 checks time out under paperkit; warm it (any palette check) before reading the gate.
 - **W4** — catalog/cotype/paper.toml: consumer_fields = ["enables"]. `python3 scripts/worklist_gate.py` no longer prints the DROPPED warning; COTYPE-WORKLIST.md ≡ projection (unchanged).
 - **W5** — DONE (tick 12, commit e212032): glyph16(strict=)/has_glyph contract; digit paths strict; --coverable 3 of 3; @SUBSTRATE-COVERABLE green; COTYPE.md session 67 + closure section + ledger; `check_symbol.py SEGMENT-SUBSTRATE` → present; BUILD bucket 1 of 2 open (⊕MATRIX-FONT-INPUT only). Reading apparatus fixed twice: check_symbol witness now runs the tool (was a noun regex); cotype_index selftest rule 4 on a synthetic doc (was pinned to this symbol).
-- **W6** — check_symbol.py --bucket BUILD: open.
+- **W6** — 8ea97ec: contract stated (COTYPE s76); make_glyph_ink.matrix_glyph + font_frame + matrix_rows; contours() now decomposes composites (é was empty ink); scripts/check_matrix_input.py --render/--compare/--selftest: 70/70 rasterise, 0 blank, 13 exact, mean Jaccard 0.64
 - **W7** — 5f2fc5a: glyph_match.calibrate_projection + SW_BAND=0.85 solved; check_projection --calibrate/--frame; mean Jaccard 0.58->0.65, 9/36 exact; frame hypothesis rejected (fit 0.43), crossbar stroke-width defect fixed; COTYPE s75; ⊕SEG-PROJECT-CALIBRATE in check_symbol.CLOSED (33 witnessed). Residue -> ⊕SEG-DOTPRODUCT-TEMPLATES (witnessed open, RESEARCH)
 - **W8** — DONE (tick 16, commit 2dca20e): clock reads fg/fg_in/ghost_alpha, segments+colon at solved alpha; make_schemes emits [EL] GhostAlpha into every .colors; parse_scheme reads ghost+ghost_alpha; plymouth reads both (ghost_from residue). check_ghost_surfaces 24 of 24; @GHOST-SURFACES green; ⊕SEGMENT-ROLLOUT closed (COTYPE session 70, Four gates line); ⊕SEGMENTCHAR-ADOPT opened as residue with a witness. check_palette_chain selftest fixture (pinned to C.derive_ghost) moved to a planted module. Worklist 44/44. ⊕GHOST-DENSITY remains the RESEARCH follow-on.
 - **W9** — 7a0e543: mechanism measured (Image.Scale in script-lib-image.c; target res only at boot) → ASSET_U=192 oversampled, script scales to 0.20·sh, module pitch layout; COTYPE session 72 closure; witness reads the emitted script; TIER 3 bucket closed out (@TIER3 green). ⊕VER: plymouth not installed on luthen — the boot itself waits.

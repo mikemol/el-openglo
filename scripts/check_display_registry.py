@@ -345,6 +345,28 @@ def _selftest():
     check("a mixed subset carries both",
           "segGeom" in both and "font5x7" in both, True)
 
+    # ⚑ ⊕MATRIX-FONT-INPUT: the 5x8 display names the 5x8 font, and a font path
+    # EXTENDS that table without touching an authored glyph.
+    m8 = DT.registry_for("5x8")
+    check("a 5x8 subset carries font5x8, not font5x7",
+          "font5x8" in m8 and "font5x7" not in m8, True)
+    check("the 5x8 display names its font", m8["displays"]["5x8"]["font"], "5x8")
+    check("the 5x8 display carries its baseline", m8["displays"]["5x8"].get("baseline"), DT.FONT5x8_BASELINE)
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    from check_projection import find_font
+    font = find_font()
+    if font:
+        ext = DT.registry_for("5x8", font_path=font)
+        check("a font extends the 5x8 table", len(ext["font5x8"]) > len(m8["font5x8"]), True)
+        check("the extension is reported", ext.get("fontExtension", {}).get("glyphs", 0) > 0, True)
+        check("authored glyphs win over the font",
+              all(ext["font5x8"][ch] == list(DT.FONT5x8[ch]) for ch in DT.FONT5x8), True)
+        check("the extension reaches Latin-1 ('é')", "é" in ext["font5x8"], True)
+        check("no extension glyph is blank",
+              all(any(cb) for ch, cb in ext["font5x8"].items() if ch != " "), True)
+    else:
+        print("  SKIP the font-extension arms — no TTF on this host")
+
     try:
         DT.registry_for("no-such-display")
         check("an unknown display refuses", False, True)

@@ -5313,3 +5313,82 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s76]
+
+## Session 77 — ⊕MATRIX-FONT-INPUT wired; ⊕NOTIFY-MATRIXRENDER measured closed with it
+- W6, 2026-09-21. The registry: every matrix display's entry said `font: "5x7"`,
+  so the 5x8 display was emitted pointing at a table with no row 7 — found only
+  by switching the marquee to 5x8. registry() now emits font5x8 too and each
+  matrix display names its own table (and its baseline); registry_for carries
+  the fonts its displays name. display_types.font_extension(path, ...) rasterises
+  MATRIX_CHARSET (printable Latin-1: 0x20-0x7E, 0xA0-0xFF) through
+  make_glyph_ink.matrix_glyph for every char the authored table lacks — authored
+  glyphs WIN, a blank raster is dropped, a char the font lacks is absent — and
+  registry_for(..., font_path=) merges it under font5x8, reporting
+  fontExtension {path, glyphs}.
+- THE FONT DECISION, recorded in make_notify_marquee.matrix_font: a packaged
+  text face resolved at BUILD time — EL_MATRIX_FONT when set, else Liberation
+  Mono (media-fonts/liberation-fonts / fonts-liberation: a dependency both
+  packagings can name), else check_projection's candidates. NOT fc-match (the
+  emission would be a function of the build host); NOT a shipped EL TTF (the
+  segment/matrix faces have no Latin-1 lowercase to rasterise). None -> the
+  authored 70 only, and the SKIP is PRINTED. MATRIX_DISPLAY = "5x8".
+- The marquee reads displays["5x8"] and registry["font" + matrix.font];
+  MatrixChar's fallback chain is char -> uppercase -> '?' -> blank (the log's
+  fallback at :4534; before this a char outside the table VANISHED into an
+  empty cell). The library sample mirrors the same emission (as_qml_js("5x8",
+  font_path=matrix_font())) and its text now carries the lowercase row, five
+  Latin-1 letters, five ASCII symbols from the extension, and one char outside
+  the charset drawn as '?'. Rendered and looked at: the extension glyphs read;
+  the emitted QML lints clean (qml_sanity, 2 files, 0 errors).
+- Four gates (⊕MATRIX-FONT-INPUT): constructible (font_extension, matrix_font,
+  the '?' fallback, check_matrix_input); reachable (the emitted registry carries
+  font5x8 with the extension — measured 1 key, fontExtension present, 11270
+  bytes); observable (check_matrix_input --render/--compare; the sample;
+  fontExtension in the emission); coverable (check_display_registry: a 5x8
+  subset carries font5x8 not font5x7, authored wins, é reached, no blank
+  extension glyph, the extension is reported; check_matrix_input: a blank raster
+  of an inked glyph is REFUSED, a missing char is None, the threshold moves the
+  raster).
+- Four gates (⊕NOTIFY-MATRIXRENDER): the surface draws MatrixChar cells off the
+  emitted registry's 5x8 display (constructible/reachable); the sample and
+  check_display_registry --show observe it; the registry round trip, the
+  substrate comparison and the font-structure arms can each fail (coverable).
+  Its open witness had matched the word "matrix" in the emitter's comment.
+
+### ⊕MATRIX-FONT-INPUT closure (four gates)
+- Four gates: as above. Residue: 'y'/'j' tails too thin for 0.5 coverage at
+  5x8; é's acute merges into the e's top row; the charset is Latin-1, so Greek
+  / Cyrillic / CJK notification text renders as '?' (a wider charset is a
+  build-size trade, not a defect); the extension's look is the font's, and a
+  designed 5x8 lowercase beyond the authored 26 would be authored, not rasterised.
+
+### ⊕NOTIFY-MATRIXRENDER closure (four gates)
+- Four gates: as above. Residue: ⊕GHOST-DENSITY (does the dot field at the
+  solved alpha read as the same texture strokes do) stays open; the sample is a
+  mirror of the data, not a run of the QML (render_qml has no marquee harness).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77: the ticker is a 5x8 matrix over the authored table plus a Latin-1
+  extension rasterised from a recorded build-time font; '?' fallback) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-DOTPRODUCT-TEMPLATES (curvature-aware templates — the measured
+  ceiling: round walls, diagonals-to-centre), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s77]

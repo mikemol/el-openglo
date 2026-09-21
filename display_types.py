@@ -15,6 +15,7 @@ so make_wallpaper / make_clock render a DISPLAY, not specifically segments.
 
 This subsumes ⊕SEG*: SegmentDisplay is the segment path unchanged.
 """
+import os
 import segment_topology as _seg
 
 
@@ -264,19 +265,57 @@ def registry():
             entry["fmt"] = d.fmt
         else:
             entry["cols"], entry["rows"] = d.cols, d.rows
-            entry["font"] = "5x7"
+            # ⚑ the table a display READS is named by the display, not assumed:
+            # every matrix display said "5x7" here, so the 5x8 display was
+            # emitted pointing at a font with no row 7 (found wiring the marquee
+            # to 5x8, ⊕MATRIX-FONT-INPUT, session 77)
+            entry["font"] = f"{d.cols}x{d.rows}"
+            if d.baseline is not None:
+                entry["baseline"] = d.baseline
         displays[key] = entry
 
     return {
         "segGeom": seg_geom,
         "segGlyphs": seg_glyphs,
         "font5x7": {ch: list(cols) for ch, cols in FONT5x7.items()},
+        "font5x8": {ch: list(cols) for ch, cols in FONT5x8.items()},
         "displays": displays,
         "lattice": list(LATTICE_ORDER),
     }
 
 
-def registry_for(*keys):
+# ⚑ ⊕MATRIX-FONT-INPUT — the charset a ticker must be able to show, and the
+# font it is rasterised from.  Notification text is arbitrary; the authored
+# table is 70 glyphs. The extension covers printable Latin-1 (ASCII 0x20-0x7E
+# and 0xA0-0xFF) from an OUTLINE FONT resolved at BUILD time — the emission is
+# deterministic for a given font, and the font is a recorded build input
+# (make_notify_marquee.matrix_font), not whatever fc-match says on the host.
+# Authored glyphs WIN: the extension fills only what the table lacks, so a
+# designed 'A' is never replaced by a rasterised one. Anything outside the
+# charset falls back to '?' in the QML — the log's fallback (:4534).
+MATRIX_CHARSET = "".join(chr(c) for c in range(0x20, 0x7F)) + "".join(chr(c) for c in range(0xA0, 0x100))
+
+
+def font_extension(path, cols=5, rows=8, baseline=FONT5x8_BASELINE, charset=MATRIX_CHARSET,
+                   exclude=None):
+    """{ch: column bytes} rasterised from `path` for every char in `charset` that
+    is not in `exclude` and that the font has. Chars the font lacks are simply
+    absent (the QML's '?' fallback handles them); a glyph that rasterises blank
+    is DROPPED rather than shipped as an invisible cell."""
+    import make_glyph_ink as GI
+    exclude = exclude or {}
+    out = {}
+    for ch in charset:
+        if ch in exclude:
+            continue
+        cb = GI.matrix_glyph(path, ch, cols=cols, rows=rows, baseline=baseline)
+        if cb is None or (not any(cb) and ch != " "):
+            continue
+        out[ch] = cb
+    return out
+
+
+def registry_for(*keys, font_path=None):
     """The registry restricted to the displays a surface actually instantiates.
 
     ⚑ "ONE SOURCE" IS NOT "EVERY TABLE IN EVERY SURFACE".  Emitting the whole
@@ -301,11 +340,19 @@ def registry_for(*keys):
         fmts = {d["fmt"] for d in displays.values() if d["kind"] == "segment"}
         out["segGlyphs"] = {f: r["segGlyphs"][f] for f in sorted(fmts)}
     if "matrix" in kinds:
-        out["font5x7"] = r["font5x7"]
+        # only the fonts the requested matrix displays NAME
+        for fname in sorted({d["font"] for d in displays.values() if d["kind"] == "matrix"}):
+            out[f"font{fname}"] = dict(r[f"font{fname}"])
+        # ⊕MATRIX-FONT-INPUT: the rasterised extension goes under the authored
+        # table it extends — authored glyphs win, the font fills the rest
+        if font_path and "font5x8" in out:
+            ext = font_extension(font_path, exclude=out["font5x8"])
+            out["font5x8"] = {**ext, **out["font5x8"]}
+            out["fontExtension"] = {"path": os.path.basename(font_path), "glyphs": len(ext)}
     return out
 
 
-def as_qml_js(*keys, indent=None):
+def as_qml_js(*keys, indent=None, font_path=None):
     """The registry as a QML/JS object literal — ONE source, nothing retyped.
 
     ⚑ THE POINT IS THAT A SURFACE NEVER SPELLS A TABLE.  make_wallpaper_live
@@ -317,7 +364,7 @@ def as_qml_js(*keys, indent=None):
     With no keys this emits everything, which is what a surface offering the full
     display picker needs; with keys it emits only those displays' tables."""
     import json as _json
-    data = registry_for(*keys) if keys else registry()
+    data = registry_for(*keys, font_path=font_path) if keys else registry()
     return _json.dumps(data, sort_keys=True, indent=indent)
 
 

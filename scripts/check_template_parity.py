@@ -35,7 +35,12 @@ PAIRS = (
     # ⚑ A PER-VARIANT SURFACE IS PINNED AT ONE VARIANT, and that is enough: the
     # holes are filled from the same call either way, so a transcription error in
     # the 88 lines AROUND them shows up here regardless of which variant is used.
-    ("make_notify_marquee", "main_qml", "EL-Openglo",
+    # ⚑ THE MARQUEE'S BYTES DEPEND ON A BUILD-TIME FONT since ⊕MATRIX-FONT-INPUT
+    # (s77): the Latin-1 extension is rasterised from it. The pair pins the font
+    # by ABSOLUTE PATH (make_notify_marquee.PARITY_FONT); a host without that
+    # file SKIPs this pair — printed, counted — rather than reporting a host
+    # difference as a template difference.
+    ("make_notify_marquee", "main_qml", ("EL-Openglo", "PARITY_FONT"),
      "marquee-main-EL-Openglo.qml"),
     # ⚑ THE GEOMETRY MOVED TOO, NOT ONLY THE MARKUP.  This surface's seven-seg map
     # and stroke table were hand-written inside the f-string; they are now
@@ -47,6 +52,10 @@ PAIRS = (
     # four holes since W8: ground, lit, and the scheme's ghost + ghost_alpha
     ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"), "splash.qml"),
 )
+
+
+class _Skip(Exception):
+    """A pair that cannot be evaluated on this host (a pinned file is absent)."""
 
 
 def _value(module, accessor, argsrc):
@@ -71,7 +80,12 @@ def _value(module, accessor, argsrc):
         # otherwise the literal itself (a variant name, a colour)
         if hasattr(mod, token):
             v = getattr(mod, token)
-            return v() if callable(v) else v
+            v = v() if callable(v) else v
+            # an absolute path names a HOST FILE the pair depends on: absent, the
+            # pair is unverifiable here, which is a SKIP and not a difference
+            if isinstance(v, str) and v.startswith("/") and not os.path.isfile(v):
+                raise _Skip(f"{token} = {v} is not on this host")
+            return v
         return token
 
     # a tuple names several arguments; a bare string names one
@@ -126,6 +140,9 @@ def compare():
             continue
         try:
             got = _value(module, accessor, argsrc)
+        except _Skip as e:
+            out.append((label, f"SKIP ({e})"))
+            continue
         except Exception as e:                   # noqa: BLE001
             out.append((label, f"RAISED {type(e).__name__}: {e}"))
             continue
@@ -205,7 +222,10 @@ def main(argv):
         print("check_template_parity: REFUSED — no pairs declared; the check is "
               "vacuous, not the templates faithful", file=sys.stderr)
         return 2
-    bad = [(l, v) for l, v in results if v != "ok"]
+    skipped = [(l, v) for l, v in results if v.startswith("SKIP")]
+    bad = [(l, v) for l, v in results if v != "ok" and not v.startswith("SKIP")]
+    for label, verdict in skipped:
+        print(f"check_template_parity: {label}: {verdict}", file=sys.stderr)
     if bad:
         print(f"check_template_parity: REFUSED — {len(bad)} of {len(results)} "
               f"template(s) no longer emit their baseline:", file=sys.stderr)
@@ -213,8 +233,9 @@ def main(argv):
             print(f"    {label}: {verdict}", file=sys.stderr)
         print(f"  fixes: {len(bad)}", file=sys.stderr)
         return 1
-    print(f"check_template_parity: {len(results)} of {len(results)} templates "
-          f"emit their baseline byte-for-byte")
+    n = len(results) - len(skipped)
+    print(f"check_template_parity: {n} of {len(results)} templates "
+          f"emit their baseline byte-for-byte" + (f"; {len(skipped)} SKIPPED" if skipped else ""))
     return 0
 
 
@@ -257,6 +278,18 @@ def _selftest():
         finally:
             globals()["BASELINES"] = saved
     check("the real baselines share no inode", shared_inodes(), [])
+    # ⚑ A PINNED HOST FILE THAT IS ABSENT IS A SKIP, NOT A DIFFERENCE — and a
+    # SKIP is never 'ok'. Point the marquee pair's font at a path that does not
+    # exist and the verdict must say SKIP and name the attribute.
+    sys.path.insert(0, ROOT)
+    import make_notify_marquee as MM
+    saved_font = MM.PARITY_FONT
+    try:
+        MM.PARITY_FONT = "/nonexistent/font.ttf"
+        v = dict(compare()).get("make_notify_marquee.main_qml", "")
+        check("an absent pinned font SKIPs the pair", v.startswith("SKIP") and "PARITY_FONT" in v, True)
+    finally:
+        MM.PARITY_FONT = saved_font
     print("check_template_parity selftest:", "PASS" if ok else "FAIL")
     return ok
 

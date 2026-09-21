@@ -58,8 +58,12 @@ PlasmoidItem {
     // It rendered `font.family: "monospace"` before, which is why
     // check_geometry_source flagged it: a phosphor ticker drawn in the system's
     // font is not this theme, it is text that happens to be the right colour.
+    // 5x8: the body rows plus one descent row, so lowercase notification text
+    // keeps its descenders. The table is the authored FONT5x8 plus the Latin-1
+    // extension rasterised at build time (⊕MATRIX-FONT-INPUT).
     property var registry: $registry
-    property var matrix: registry.displays["5x7"]
+    property var matrix: registry.displays["5x8"]
+    property var matrixFont: registry["font" + matrix.font]
 
     fullRepresentation: Item {
         id: rep
@@ -84,7 +88,7 @@ PlasmoidItem {
             Repeater {
                 model: ["-", " ", "-", " ", "-"]
                 MatrixChar {
-                    font: root.registry.font5x7
+                    font: root.matrixFont
                     cols: root.matrix.cols; rows: root.matrix.rows
                     ch: modelData
                     u: rep.pitch
@@ -106,7 +110,7 @@ PlasmoidItem {
             Repeater {
                 model: root.tickerText.split("")
                 MatrixChar {
-                    font: root.registry.font5x7
+                    font: root.matrixFont
                     cols: root.matrix.cols; rows: root.matrix.rows
                     ch: modelData
                     u: rep.pitch

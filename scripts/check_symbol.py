@@ -138,12 +138,6 @@ WITNESS = {
         "every surface draws the palette's fg/fg_in at ghost_alpha rather than deriving"
         " its own on the way in; check_ghost_surfaces measures what each emits (:4419)",
         lambda: _tool("check_ghost_surfaces.py")),
-    "⊕NOTIFY-MATRIXRENDER": (
-        "the marquee renders via a MATRIX, not a font — the topology the user corrected (:4524)",
-        lambda: _reads("make_notify_marquee.py", r"(?i)matrix")),
-    "⊕MATRIX-FONT-INPUT": (
-        "arbitrary text reaches the matrix by rasterising a font into it (:4534)",
-        lambda: _reads("make_notify_marquee.py", r"(?i)rasteri|font.*matrix|matrix.*font")),
 
     # ── RESEARCH: design work, no package impact ──
     # ⚑ THE LOG STATES THIS ONE'S CRITERIA AND MY FIRST WITNESS IGNORED THEM.  It
@@ -432,6 +426,27 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 77 (W6, 2026-09-21). ⚑ THE OPEN WITNESSES MATCHED THE WORDS
+    # "matrix" and "rasteri" in the emitter — and the emitter had carried the word
+    # "matrix" in a comment since s65. These aim at the registry's extension def,
+    # the emitter's recorded font decision, the '?' fallback in the component,
+    # and the two tools that measure the table and the ingest.
+    "⊕NOTIFY-MATRIXRENDER": (
+        "the marquee draws MatrixChar cells off the emitted registry's 5x8 display, and"
+        " check_display_registry round-trips that emission against the substrate (:4524)",
+        lambda: _reads("templates/marquee-main.qml", r"MatrixChar\s*\{") and
+                _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
+                _reads("make_notify_marquee.py", r"as_qml_js\(") and
+                _tool("check_display_registry.py")),
+    "⊕MATRIX-FONT-INPUT": (
+        "display_types.font_extension rasterises a build-time font (make_notify_marquee."
+        "matrix_font, the decision recorded) into the 5x8 table for Latin-1 beyond the"
+        " authored glyphs; MatrixChar falls back to '?'; check_matrix_input measures (:4534)",
+        lambda: _reads("display_types.py", r"def\s+font_extension\b") and
+                _reads("make_notify_marquee.py", r"def\s+matrix_font\b") and
+                _reads("make_notify_marquee.py", r"font_path=") and
+                _reads("templates/MatrixChar.qml", r'font\["\?"\]') and
+                _tool("check_matrix_input.py")),
     # closed session 75 (W7, 2026-09-21). ⚑ ITS OPEN-SET WITNESS MATCHED "calibrat"
     # and read validate_projection's docstring — which NAMED this symbol as the
     # thing still to do — as its closure. This one aims at the solver def, at the

@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 26,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T09:30:52+00:00",
-  "job_id": "00feb7fe",
+  "heartbeat": "2026-09-21T09:41:42+00:00",
+  "job_id": "43018249",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-40",
-    "taken_at": "2026-09-21T09:33:08+00:00"
+    "holder": "tick-41",
+    "taken_at": "2026-09-21T09:50:03+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -147,10 +147,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "independent BUILD item; no downstream in the graph",
-      "next_bounded_step": "Read the cotype entry (:4534) and the matrix font emitter; state the input contract in evidence.",
-      "evidence": "check_symbol.py --bucket BUILD: open.",
+      "next_bounded_step": "Wire it: make_notify_marquee reads a font (which? the operator's monospace via fc-match, or a shipped EL TTF — decide and record) through matrix_glyph for chars beyond FONT5x8, '?' fallback for None, and the registry carries the merged table; the open witness wants rasteri|font.*matrix in make_notify_marquee.py. Then close ⊕MATRIX-FONT-INPUT (four gates; move to CLOSED) and ⊕NOTIFY-MATRIXRENDER if its witness holds.",
+      "evidence": "8ea97ec: contract stated (COTYPE s76); make_glyph_ink.matrix_glyph + font_frame + matrix_rows; contours() now decomposes composites (é was empty ink); scripts/check_matrix_input.py --render/--compare/--selftest: 70/70 rasterise, 0 blank, 13 exact, mean Jaccard 0.64",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": null,
+      "last_worked": "2026-09-21T09:40:55+00:00",
       "ticks_blocked": 0
     },
     {

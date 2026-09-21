@@ -48,18 +48,52 @@ def metadata(variant):
     }
 
 
-def main_qml(variant):
+# ⊕MATRIX-FONT-INPUT — the font the ticker's extension glyphs are rasterised
+# from. DECISION (session 77, recorded): a packaged text face resolved at BUILD
+# time, in this order — `EL_MATRIX_FONT` when set, else Liberation Mono (Gentoo
+# media-fonts/liberation-fonts, Debian fonts-liberation: a dependency both
+# packagings can name), else the other candidates check_projection already
+# knows. NOT fc-match: that makes the emission a function of the build host.
+# NOT a shipped EL TTF: those are the segment/matrix faces, which have no
+# Latin-1 lowercase to rasterise. None -> the authored 70 only, and the SKIP is
+# PRINTED, because a ticker that silently shows '?' for every lowercase letter
+# is the failure this symbol exists to close.
+MATRIX_DISPLAY = "5x8"
+# the font check_template_parity pins the marquee baseline to, by absolute path
+# (a host without it SKIPs the pair) — Liberation Mono where Gentoo installs it
+PARITY_FONT = "/usr/share/fonts/liberation-fonts/LiberationMono-Regular.ttf"
+
+
+def matrix_font():
+    """Path of the outline font for the matrix extension, or None (printed)."""
+    env = os.environ.get("EL_MATRIX_FONT")
+    if env:
+        return env if os.path.isfile(env) else None
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
+    from check_projection import find_font
+    p = find_font()
+    if not p:
+        print("make_notify_marquee: SKIP — no outline font for the matrix extension "
+              "(set EL_MATRIX_FONT); the ticker carries the authored glyphs only", file=sys.stderr)
+    return p
+
+
+def main_qml(variant, font_path=None):
     """The marquee plasmoid — templates/marquee-main.qml.
 
     ⚑ THE COLOURS AND THE REGISTRY ARE THE ONLY THINGS THIS FUNCTION OWNS, and it
     owns neither of them either — both are READS. Four holes go in; the document
-    comes out. The registry carries the 5x7 font, so the ticker renders as a real
-    dot-matrix display instead of as monospace text tinted phosphor."""
+    comes out. The registry carries the 5x8 font — the authored table plus the
+    Latin-1 extension rasterised from `font_path` (matrix_font() when None) — so
+    arbitrary notification text renders as a dot-matrix display, and a char
+    outside the charset renders as '?' rather than as a blank cell."""
     ground, lit, ghost, alpha = WL.colors_for(variant)
     import templates.loader as TL
     return TL.render("marquee-main.qml", lit=_hex(lit), ghost=_hex(ghost),
                      ground=_hex(ground), ghostAlpha=alpha,
-                     registry=DT.as_qml_js("5x7"))
+                     registry=DT.as_qml_js(MATRIX_DISPLAY,
+                                           font_path=font_path or matrix_font()))
 
 
 def matrix_char_component():

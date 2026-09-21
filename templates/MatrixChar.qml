@@ -26,9 +26,11 @@ Item {
     height: implicitHeight
 
     // the glyph's column bytes; bit b of column c = row b (b0 = top), HD44780
-    // lineage. An unknown char falls back to its uppercase form, then to blank —
-    // a missing glyph must render as an empty cell, never as a crash.
-    property var colBytes: font[ch] || font[ch.toUpperCase()] || []
+    // lineage. An unknown char falls back to its uppercase form, then to '?'
+    // (⊕MATRIX-FONT-INPUT: a char outside the table must be SEEN as unrenderable,
+    // not vanish into a blank cell), then to blank if the table has no '?' —
+    // never a crash.
+    property var colBytes: font[ch] || font[ch.toUpperCase()] || font["?"] || []
 
     Repeater {
         model: mc.cols * mc.rows

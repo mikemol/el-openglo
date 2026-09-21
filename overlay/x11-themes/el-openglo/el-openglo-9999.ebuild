@@ -33,7 +33,12 @@ BDEPEND="
 		dev-python/fonttools[${PYTHON_USEDEP}]
 	')
 	dev-qt/qtdeclarative:6
+	media-fonts/liberation-fonts
 "
+# liberation-fonts: the marquee's Latin-1 dot-matrix glyphs are rasterised from
+# Liberation Mono at BUILD time (make_notify_marquee.matrix_font, W6); without
+# it the ticker ships the 70 authored glyphs only and every lowercase
+# notification letter renders as '?'. A build input, so BDEPEND.
 # What the installed surfaces run inside.
 RDEPEND="
 	kde-plasma/plasma-workspace:6

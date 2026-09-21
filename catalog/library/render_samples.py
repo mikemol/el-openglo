@@ -181,9 +181,11 @@ def _marquee(variant, path):
     import make_preview as MP
     import display_types as DT
 
-    reg = json.loads(DT.as_qml_js("5x7"))
-    disp = reg["displays"]["5x7"]
-    font = reg["font5x7"]
+    # the SAME emission the plasmoid receives: the 5x8 display, the authored
+    # table plus the build-time font extension (⊕MATRIX-FONT-INPUT)
+    reg = json.loads(DT.as_qml_js(MM.MATRIX_DISPLAY, font_path=MM.matrix_font()))
+    disp = reg["displays"][MM.MATRIX_DISPLAY]
+    font = reg["font" + disp["font"]]
     cols, rows = disp["cols"], disp["rows"]
 
     ground, lit, ghost, _alpha = MM.WL.colors_for(variant)
@@ -192,8 +194,11 @@ def _marquee(variant, path):
     # I fixed the font, re-rendered, and the picture was byte-identical, which I
     # briefly misread as the fix not landing. A sample that cannot show the defect
     # is not a witness for it, so this spans the full alphabet and digits: every
-    # glyph in the font appears, and a malformed one is visible on sight.
-    text = "ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*?"
+    # glyph in the font appears, and a malformed one is visible on sight. The
+    # lowercase row shows the authored descenders; the last group is the font
+    # EXTENSION (Latin-1, rasterised) and one char outside it, drawn as '?'.
+    text = ("ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*? "
+            "abcdefghijklm nopqrstuvwxyz éèüñç {}[]@#% ☃")
 
     u = 9.0                       # dot pitch, px
     fill = 0.82                   # matches MatrixChar.dotFill
@@ -207,7 +212,8 @@ def _marquee(variant, path):
 
     dots = []
     for i, ch in enumerate(text):
-        colbytes = font.get(ch) or font.get(ch.upper()) or []
+        # the same fallback chain MatrixChar.qml walks: char, uppercase, '?'
+        colbytes = font.get(ch) or font.get(ch.upper()) or font.get("?") or []
         ox = pad + i * adv
         for c in range(cols):
             byte = colbytes[c] if c < len(colbytes) else 0
