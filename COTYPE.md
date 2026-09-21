@@ -5608,3 +5608,75 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s81]
+
+## Session 82 — ⊕SEG-FONT-PROJECT: validated over every authored key; the punctuation is a convention, pinned
+- W28, 2026-09-21. The log's "all 44" (:4644) is DIGITS16 + LETTERS16 +
+  SYMBOLS16 — 10 + 26 + 13 keys today, two of them known blanks (' ', ':') and
+  one a duplicate ('0' appears in SYMBOLS16 too): 46 non-blank glyphs.
+  glyph_match.AUTHORED_CHARS is that set, deduplicated, and
+  validate_projection's default. MEASURED (LiberationMono, 16-seg, stretch,
+  band 0.85, sagitta -0.15): mean 0.62, 13 of 46 exact — the 10 letters from
+  s79 plus + / \ — and six at exactly 0: 1 - _ = ' !.
+- WHY THE SIX ARE ZERO, measured both ways. Under "stretch" a thin symbol's
+  bbox becomes a slab (a hyphen fills the cell) and every band matches it
+  equally. So ink_field gained frame="metrics" — the FONT's frame, cap height
+  -> baseline, exactly what matrix_glyph uses (s76). Under it the symbols land
+  where the FACE sets them: '*' high (a1 a2 b f), '_' below the baseline (out
+  of the cell), '-' at x-height, "'" at the top. The authored table sets them
+  where a DISPLAY centres them: '-' on g, '_' on d, '*' on the whole centre
+  star. That is the same gap as '1' (b c on a display, centred in a face):
+  type convention vs display convention, not a frame or template defect.
+  Letters and digits are unchanged between the frames (0.62 both; Q up, 8
+  down under metrics). KNOWN_CONVENTION = {1 - _ = ' !} pins them by name;
+  the selftest refuses a pin that starts scoring, and the default frame stays
+  "stretch".
+- The s66 criterion — "wired to real fontTools glyph ingest and validated
+  across all 44, not the synthetic-stroke PoC" — is MET: make_glyph_ink
+  ingests native outlines through TTFont with a decomposing pen (s76), and
+  the validation runs over every authored key by default. The open witness had
+  wanted those WORDS in project_font.py; the CLOSED witness is TTFont in the
+  ingest, AUTHORED_CHARS and KNOWN_CONVENTION bound, and the default wired.
+- Four gates: constructible (AUTHORED_CHARS, KNOWN_CONVENTION, frame="metrics");
+  reachable (the default run covers every non-blank key — asserted, n of n);
+  observable (per-glyph report over 46; --frame metrics shows where the face
+  sets a symbol); coverable (selftest: the default covers every non-blank key,
+  no duplicate, every pin still scores 0, the pinned set is a strict minority).
+- ⊕SEG22-DESCENDERS, STATED not authored: the six additions already exist in
+  segment_topology (p1 p2 dots, n1 diagonal, dl dc dr descender bars below
+  y=4 to y=4+DESCENDER_DEPTH). A LETTERS22 table needs (a) lowercase sets over
+  SEG22 with dl/dc/dr for g j p q y, dc for j's tail, p1 for i/j's tittle;
+  (b) the invariant kept: project(LETTERS22[upper], "16") == LETTERS16 for
+  every uppercase; (c) a validation frame whose CELL is 2x6 (body + descent) —
+  ink_field(frame="metrics") maps cap -> 0 and baseline -> H today and would
+  need the descent row mapped 4 -> 6 from font_frame's measured descent, the
+  way matrix_glyph does; (d) check_projection --fmt 22 over the lowercase.
+  Not authored this tick.
+
+### ⊕SEG-FONT-PROJECT closure (four gates)
+- Four gates: as above. Residue: the six convention pins; the metrics frame
+  is a mode, not the default; descender validation needs the 2x6 cell.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82: fontTools ingest, validated over all 46 non-blank
+  authored keys, mean 0.62, 13 exact, six convention pins)
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG22-DESCENDERS (needs stated in s82).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?),
+  ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s82]

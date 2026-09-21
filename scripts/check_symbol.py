@@ -145,11 +145,6 @@ WITNESS = {
     # … NOT wired to fontTools glyph ingest, NOT calibrated, NOT validated against
     # all 44. A proven PRINCIPLE, not a shipped pipeline" (:4644). When the log
     # enumerates what remains, the witness is that list — not the name.
-    "⊕SEG-FONT-PROJECT": (
-        "wired to real fontTools glyph ingest and validated across all 44 glyphs,"
-        " not the synthetic-stroke PoC (:4644)",
-        lambda: _reads("project_font.py", r"(?i)fontTools|TTFont") and
-                _reads("project_font.py", r"(?i)all.?44|validate")),
     "⊕SEG22-DESCENDERS": (
         "lowercase g/j/p/q/y carry descender segments in a 22-seg glyph table (:4455)",
         lambda: _reads("segment_topology.py", r"LETTERS22|DESCENDER_GLYPHS|glyph22")),
@@ -413,6 +408,20 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 82 (W28, 2026-09-21). The log's criterion at :4644 — "wired to
+    # real fontTools glyph ingest and validated across all 44, not the synthetic-
+    # stroke PoC" — its open witness wanted those words in project_font. The
+    # ingest is make_glyph_ink (TTFont, decomposing pen); the validation runs
+    # over every authored key (glyph_match.AUTHORED_CHARS: 46 non-blank now);
+    # the convention-gap glyphs are pinned by name and the selftest holds the pin.
+    "⊕SEG-FONT-PROJECT": (
+        "make_glyph_ink ingests native TTF outlines through fontTools and"
+        " validate_projection runs over every authored key by default, the"
+        " convention-gap glyphs pinned in KNOWN_CONVENTION (:4644)",
+        lambda: _reads("make_glyph_ink.py", r"\bTTFont\b") and
+                _reads("glyph_match.py", r"(?m)^AUTHORED_CHARS\s*=") and
+                _reads("glyph_match.py", r"(?m)^KNOWN_CONVENTION\s*=") and
+                _reads("glyph_match.py", r"chars\s*=\s*AUTHORED_CHARS")),
     # closed session 81 (W29, 2026-09-21). The open witness looked in the CONTRAST
     # tools for the words "inter-stroke" / "density"; the measurement lives at the
     # join, in check_ghost_composite: the unlit FIELD's cell coverage per format

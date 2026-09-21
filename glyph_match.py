@@ -29,6 +29,18 @@ import project_font as PF
 
 SEG = {k: ST.endpoints(k) for k in ST.SEG22}
 RES = 64
+# every char the authored 16-seg tables know — the log's "all 44" (:4644): 10
+# digits, 26 letters, 8 symbols (two of which, ' ' and ':', are known blanks)
+AUTHORED_CHARS = "".join(dict.fromkeys(list(ST.DIGITS16) + list(ST.LETTERS16) + list(ST.SYMBOLS16)))
+# ⚑ PINNED BY NAME, NOT SMOOTHED (session 82). These score Jaccard 0 under every
+# frame because the authored table follows DISPLAY convention and the face
+# follows TYPE convention: '1' is b c on a display and centred in a font; the
+# punctuation sits where a display centres it (g for '-', d for '_') and
+# where a face sets it (x-height, below the baseline, high for '*' and "'").
+# Under "stretch" a thin symbol's bbox becomes a slab; under "metrics" it lands
+# where the face put it. An entry that starts scoring must LEAVE this set — the
+# selftest refuses a pin that has been outgrown.
+KNOWN_CONVENTION = frozenset("1-_='!")
 
 
 def ink_grid(G, res=RES):
@@ -211,12 +223,12 @@ def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stret
     would make this a gate is ⊕SEG-PROJECT-CALIBRATE's to solve, not this
     routine's to assume."""
     if chars is None:
-        chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        chars = AUTHORED_CHARS
     rows = []
     for ch in chars:
         authored = set(ST.project(ST.glyph16(ch), fmt))
         if not authored:
-            continue
+            continue          # a KNOWN blank (' ', ':') has nothing to agree with
         pres = ink_grid(_ingest(path, ch, kind, frame))
         _scores, lit22 = match(pres, top=len(ST.glyph16(ch)), band=band, sagitta=sagitta)
         projected = set(ST.project(lit22, fmt))
@@ -228,7 +240,7 @@ def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stret
 
 
 BAND_GRID = (0.4, 0.5, 0.6, 0.7, 0.85, 1.0, 1.2)
-FRAMES = ("stretch", "fit")
+FRAMES = ("stretch", "fit", "metrics")
 
 
 # negative = INWARD (toward the cell centre). Outward was the first guess and

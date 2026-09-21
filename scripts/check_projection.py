@@ -117,7 +117,7 @@ def main(argv):
     fmt = argv[argv.index("--fmt") + 1] if "--fmt" in argv else "16"
     frame = argv[argv.index("--frame") + 1] if "--frame" in argv else "stretch"
     if not font:
-        print("check_projection: SKIP — no TTF found (pass --font PATH); 0 of 36 glyphs measured",
+        print("check_projection: SKIP — no TTF found (pass --font PATH); 0 authored glyphs measured",
               file=sys.stderr)
         return 0
     sagitta = float(argv[argv.index("--sagitta") + 1]) if "--sagitta" in argv else None
@@ -221,7 +221,19 @@ def _selftest():
     by = GM.agreement_by_class(font, rows)
     chk("the digits fall into more than one class", len(by) > 1, True)
     chk("every digit is counted once", sum(v[2] for v in by.values()), len(rows))
-    print(f"  (measured on {os.path.basename(font)}: digits mean jaccard {mean_j:.2f}, {exact}/10 exact)")
+    # ⚑ THE FULL TABLE, AND THE PINS.  The default charset is every authored key
+    # (the log's "all 44", now 46 non-blank); the convention-gap glyphs score 0
+    # under the default frame and an entry that starts scoring must leave the pin.
+    full, (mj, ex, nn) = report(font, "16")
+    chk("the default run covers every non-blank authored glyph",
+        nn, len([c for c in GM.AUTHORED_CHARS if GM.ST.glyph16(c)]))
+    chk("no duplicate glyph in the run", len({r[0] for r in full}), nn)
+    score = {r[0]: r[6] for r in full}
+    outgrown = sorted(c for c in GM.KNOWN_CONVENTION if score.get(c, 0.0) > 0.0)
+    chk("every KNOWN_CONVENTION pin still scores 0 (an improvement must leave the set)", outgrown, [])
+    chk("the pinned set is a strict minority of the table", len(GM.KNOWN_CONVENTION) * 4 < nn, True)
+    print(f"  (measured on {os.path.basename(font)}: digits mean jaccard {mean_j:.2f}, {exact}/10 exact;"
+          f" full table {mj:.2f}, {ex}/{nn} exact)")
     print("check_projection selftest:", "PASS" if ok else "FAIL")
     return ok
 

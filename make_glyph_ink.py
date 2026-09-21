@@ -141,8 +141,18 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
         s = min(W/(x1-x0), H/(y1-y0))
         sx = sy = s
         ox, oy = (W-(x1-x0)*s)/2, (H-(y1-y0)*s)/2
+    elif frame == "metrics":
+        # ⚑ THE FONT'S FRAME, as matrix_glyph uses (session 76): x from the
+        # glyph's own bbox (a segment cell is monospace), y from CAP HEIGHT ->
+        # BASELINE so a hyphen stays a bar at mid-height instead of being
+        # stretched into a slab, and a descender goes below the cell (session
+        # 82: - _ = ' ! all scored 0 under "stretch" for exactly this reason).
+        cap, _desc = font_frame(path)
+        sx, sy = W/(x1-x0), H/cap
+        ox, oy = 0.0, 0.0
+        y0 = 0.0                      # font baseline is cell bottom
     else:
-        raise ValueError(f"ink_field: unknown frame {frame!r} (stretch|fit)")
+        raise ValueError(f"ink_field: unknown frame {frame!r} (stretch|fit|metrics)")
     tp = [[(ox+(px-x0)*sx, H-oy-(py-y0)*sy) for px, py in pl] for pl in polys]
     return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
 
