@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 23,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T05:08:28+00:00",
-  "job_id": "a979f03a",
+  "heartbeat": "2026-09-21T05:29:16+00:00",
+  "job_id": "bb498c9d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T05:23:09+00:00"
+    "taken_at": "2026-09-21T05:38:36+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -288,7 +288,7 @@
     {
       "symbol": "W15",
       "title": "Firefox theme emitter — the palette as a WebExtension theme (manifest.json \"theme\" key), the nearest sibling of make_chrome",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "emitters",
@@ -298,10 +298,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: make_chrome already emits a browser-theme manifest per variant; Firefox theme manifests share most of the shape (colors.frame/toolbar/tab_*), so this is a second output of one emitter, not a new one. Venue is AMO (addons.mozilla.org), a signed upload",
-      "next_bounded_step": "Measure first: read make_chrome.py (which tokens map to which manifest colour keys) and the Firefox theme manifest reference (extensionworkshop.com / MDN \"theme\" manifest key: colors, images, properties); table the key-by-key correspondence and the Firefox-only keys with NO relation yet. Then extend make_chrome (or split a make_browser) to emit both; witness: manifest validates (web-ext lint if present, else schema keys), every colour is a palette token (check_token_source lists it). Route for W13: AMO signed upload, unlisted or listed.",
-      "evidence": "",
+      "next_bounded_step": "—",
+      "evidence": "cc3afe0: make_firefox.py (38 keys → roles; borders/separators = seen ghost; hover/active fills = highlight over toolbar at glanced/looked floors), check_firefox @FIREFOX 36 of 36 (web-ext lint SKIP), worklist 51, staged usr/share/el-openglo/firefox/<v>/. Route for W13: AMO unlisted signing. ⊕VER: load in Firefox via about:debugging (temporary) or sign on AMO.",
       "issued_at": "2026-09-20T23:38:29+00:00",
-      "last_worked": "2026-09-20T23:38:29+00:00",
+      "last_worked": "2026-09-21T05:28:42+00:00",
       "ticks_blocked": 0
     },
     {

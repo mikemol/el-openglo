@@ -617,3 +617,11 @@
   section  = {emitters},
   rests-on = {CHROME}
 }
+
+@misc{PUBLISHING,
+  claim    = {Every emitter has a stated publishing route in catalog/publishing.md, and every KDE Store category id the table cites exists in the store's OCS listing cached in-tree — so no target ships without a venue and no number outlives the store's taxonomy unnoticed},
+  check    = {tool:check_publishing.py},
+  note     = {W13, 2026-09-21. Evidence: the linux-sources letter (inbox/, OCS-tagged ids) and catalog/ocs-categories.xml fetched from api.kde-look.org. The upload form itself is [MEM] until the operator opens store.kde.org/product/add once; the check claims only what it can reach.},
+  section  = {emitters},
+  rests-on = {EMITTERS}
+}
