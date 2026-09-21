@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 40,
+  "counter": 45,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T17:25:40+00:00",
-  "job_id": "d121acf9",
+  "heartbeat": "2026-09-21T17:58:47+00:00",
+  "job_id": "465a1b27",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-62",
-    "taken_at": "2026-09-21T17:39:14+00:00"
+    "holder": "tick-63",
+    "taken_at": "2026-09-21T18:03:30+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -236,15 +236,13 @@
         "make_deb",
         "overlay"
       ],
-      "blocked_on": [
-        "mikemol"
-      ],
+      "blocked_on": "mikemol",
       "blocked_kind": "human",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
-      "next_bounded_step": "ba7e4c3: overlay carries dev-python/colorspacious (from ::guru, thin manifest); check_ebuild deps_resolve arm + --deps (5 of 5 atoms). Pushed through d14f963; ba7e4c3 UNPUSHED. OPERATOR (no restart): after emerge of d14f963+ and plasmashell --replace — widget settings page draws? clock halo/weight look right? Applying EL-Azure ...\nThe requested theme \"EL-Azure\" is already set as the theme for the current Plasma session.\nThe requested theme \"EL-Azure\" is already set as the theme for the current Plasma session.\nSuccessfully set the wallpaper for all desktops to the image /usr/share/wallpapers/EL-Azure/contents/images/1920x1080.png\n  Wallpaper: set to EL-Azure\n  Konsole: default profile -> EL-Openglo-EL-Azure (new tabs)\n\n  Clock: EL segment clock added to panel (if not already present)\n  Chrome: load /usr/share/el-openglo/chrome/EL-Azure\n          via chrome://extensions -> Developer mode -> Load unpacked\n  Konsole: pick 'EL-Azure' in Settings -> Edit Profile -> Appearance\n  Lock screen: watch-face wallpaper set (auth unchanged)\nDone. Some changes (GTK, Kvantum) may need apps to restart.\nLogin screen (SDDM): sudo el-openglo-sddm EL-Azure  (sets the phosphor login background)\nBoot splash (Plymouth): sudo el-openglo-plymouth EL-Azure  (sets the phosphor boot splash)\nLiving watch face:      el-openglo-live EL-Azure  (animated clock on desktop + lock)\nNotification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) → new Konsole tab recoloured? re-Apply Global Theme → kdeglobals ColorScheme flips? MACHINE remaining: gate_ledger path mismatch (substrate symlink — fix THERE, run both selftests). Nudge ONCE for the probes at tick 6, then leave it.",
+      "next_bounded_step": "Operator is reviewing every few commits (2026-09-22) — the probes are being seen; stop nudging. Remaining MACHINE half: gate_ledger --report path mismatch (substrate symlink — fix THERE, both selftests). Leave blocked until the operator reports a specific live defect.",
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open.",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-21T03:21:09+00:00",
+      "last_worked": "2026-09-21T17:49:11+00:00",
       "ticks_blocked": 5
     },
     {
@@ -689,16 +687,91 @@
     {
       "symbol": "W40",
       "title": "MARQUEE HYPERLINKS (operator 2026-09-22: 'that would be awesome'). The parser already yields link runs with href (s92). Support = (a) a VISUAL: a link run's characters light their descent row (row 7) as an underline bar — the deferred 'underline -> lit descent row' of relations.md §5a, applied to links (and to <u> runs); (b) a TAP: a TapHandler on the marquee Row; on tap, hit-test the pointer x against the character advance (cellW + spacing) to an index, runAt(index), and Qt.openUrlExternally(run.link) when set; the ring keeps scrolling (or pauses while hovered — a HoverHandler pausing the rotation is the board-reading affordance); (c) the harness already covers link runs; add a case with two links; (d) a settings toggle openLinks (default true)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "templates/marquee-main.qml,templates/MatrixChar.qml,make_notify_marquee",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(a)+(b) in one change: MatrixChar gains underline (bool) lighting row 7 across its columns in litDrawn; the marquee sets underline: run && (run.link || run.underline); a HoverHandler pauses the rotation while hovered (rotation.paused) so a link can be aimed at; a TapHandler maps point.position.x -> index = floor(x / (rep.cellW + rep.pitch)), and opens run.link. qml_sanity; parity re-capture; a harness case with two links; the ticker's witness pins the TapHandler + openUrlExternally. COTYPE s96 under ⊕VER-MARQUEE.",
-      "evidence": "",
+      "next_bounded_step": "",
+      "evidence": "6d61149: MatrixChar.underline (descent row); HoverHandler pauses the rotation; TapHandler hit-tests to runAt and opens run.link; openLinks setting; harness two-link case; parity 10/10; witness pins; COTYPE s96. Live: notify-send with an a href after re-emerge.",
       "issued_at": "2026-09-21T17:24:43+00:00",
-      "last_worked": "2026-09-21T17:24:43+00:00",
+      "last_worked": "2026-09-21T17:47:21+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W41",
+      "title": "BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
+      "status": "ready",
+      "enables": [],
+      "touches": "make_firefox,make_chrome,catalog/publishing.md",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "After W35's shape: scripts/publish_browsers.py (or a make_deb target) that (1) zips each chrome/<variant> folder for the Store, (2) runs web-ext build + web-ext sign --channel unlisted per firefox/<variant> when WEB_EXT_API_KEY/SECRET are set (SKIP printed otherwise), (3) records the signed .xpi paths + an update manifest; a check that the zips/xpis exist and their manifests parse. Requires web-ext on the host (npm; not installed — residue) and the operator's AMO keys (operator). Decide first whether Firefox ships as ONE dynamic-theme extension (a background script + browser.theme.update from a stored variant choice) — if yes, make_firefox gains that shape and there is one .xpi to sign.",
+      "evidence": "",
+      "issued_at": "2026-09-21T17:49:03+00:00",
+      "last_worked": "2026-09-21T17:49:03+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W42",
+      "title": "THE CODOMAIN MAP (operator 2026-09-22: 'map out the codomain and make EL Openglo the stylistic equivalent of Kleenex'). A CENSUS of every surface a palette + segment/matrix substrate can reach, each with its CONTRACT (what it consumes: colour roles, fonts, meshes, shaders, CSS variables, ANSI tables, SVG, config keys), its VENUE (where it is published), its LICENCE expectation (GPLv3 is right for the desktop theme; engine assets and palettes are adopted under CC0/CC-BY/MIT — a licence split is an operator decision that gates reach), and its STATUS (emitted / contract read / unmeasured). Families: desktops (Plasma DONE; GNOME Shell/libadwaita partial; Xfce/Sway/Hyprland/waybar unmeasured; Windows .theme DONE; macOS none), browsers (Chrome/Firefox DONE, publishing W41), terminals (5 DONE; iTerm2, Windows Terminal DONE, kitty/wezterm/tmux unmeasured), editors (VS Code, JetBrains, Vim/Neovim, Emacs, Sublime, Zed — none; a colour theme per editor is a small JSON/VimL emission off the ANSI+roles table), shells/prompts (starship, oh-my-posh), chat/apps (Discord/Slack custom CSS, Obsidian), web (CSS vars DONE; a Tailwind preset; a design-token file — W3C DTCG JSON is the interchange), mobile (Android Monet DONE; iOS none), engines (W42), hardware (RGB keyboards via OpenRGB profiles; LED matrix signs — the matrix tables ARE the firmware's), print (a swatch card PDF), design tools (Figma/Penpot palette libraries; the DTCG token file feeds them). The map is a DOCUMENT with a CHECK, like catalog/publishing.md + check_publishing: catalog/codomain.md with one row per target and a tool that refuses a row missing its contract or status",
+      "status": "ready",
+      "enables": [],
+      "touches": "catalog,scripts",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
+      "evidence": "",
+      "issued_at": "2026-09-21T17:57:24+00:00",
+      "last_worked": "2026-09-21T17:57:24+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W43",
+      "title": "ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
+      "status": "ready",
+      "enables": [],
+      "touches": "segment_topology,make_palette,make_font,display_types",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "After W35 and W42's map: (1)+(3) as one tick — make_engine.py emitting per-variant material JSON and per-format .glb (check which of trimesh/pygltflib is installable; the ebuild BDEPEND follows) + check_engine.py (the .glb parses, node names = SEG22 ids, materials carry base+emissive from the palette); fonts mapped into the same output dir. The shader (4) next; Blender add-on after.",
+      "evidence": "",
+      "issued_at": "2026-09-21T17:57:42+00:00",
+      "last_worked": "2026-09-21T17:57:42+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W44",
+      "title": "RELICENSE TO APACHE-2.0 (operator 2026-09-22: 'I would prefer Apache2 over GPL-3'). A sweep with a check: (1) LICENSE at the root = Apache-2.0 text + NOTICE; (2) every emitted metadata License string (make_deb LnF + plasmoid + wallpaper metadata, make_notify_marquee, make_taskswitch, make_wallpaper_live, make_plymouth .plymouth, make_inherit comments, chrome/firefox manifests if they carry one, the Windows .theme, the Union styles) -> 'Apache-2.0'; (3) the ebuild LICENSE='Apache-2.0'; (4) catalog/publishing.md rows' licence column (the KDE Store accepts Apache; note it); (5) pyproject license field; (6) scripts/check_licence.py: the ONE licence, read from LICENSE, must be what every emitted License field and the ebuild say — a census over the staged tree's metadata.json / .desktop / .plymouth / .ebuild (parse, do not grep), refusing any GPL string; selftest plants a stray GPL. The overlay's copied colorspacious ebuild keeps ITS upstream licence (not ours). Assets (tokens, fonts, engine files) inherit Apache-2.0 unless the operator later splits them to CC0",
+      "status": "ready",
+      "enables": [],
+      "touches": "LICENSE,make_deb,make_notify_marquee,make_taskswitch,make_wallpaper_live,make_plymouth,overlay,catalog/publishing.md,pyproject.toml",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Write LICENSE (Apache-2.0 verbatim) + NOTICE; scripts/check_licence.py --map over a staging (make_deb --stage) listing every License field it finds and the ebuild's; then the sweep of emitters until the check is green; @LICENCE warrant. One tick if the census is small; measure first.",
+      "evidence": "",
+      "issued_at": "2026-09-21T18:04:24+00:00",
+      "last_worked": "2026-09-21T18:04:24+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W45",
+      "title": "MARQUEE TRAVERSAL INVARIANT (operator 2026-09-22): a notification must ALWAYS scroll offscreen -> onscreen -> offscreen at least once; never 'just appear', never vanish, never tear visually or temporally. The s91 ring fails the at-least-once half: pendingText is rebuilt from the model on every count change, so an item that arrives and expires before the next boundary never shows. Design: a QUEUE keyed by notification id (the model's IdRole / index key) — an arrival is appended with shown=false; at a boundary the next ring is [every queued item with shown=false] (expired or not), which then scrolls exactly once; an item still in the model after its rotation may be re-queued (it keeps cycling while active); an item removed from the model finishes its current rotation and is dropped at the boundary; the ring NEVER changes mid-rotation. Pure functions in marquee-body.js (ringNext(queue, modelIds) -> {ring, queue}) so the headless harness proves the invariant on synthetic arrival/expiry sequences",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/marquee-main.qml,templates/marquee-body.js,scripts/check_marquee_body.py",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "ALSO (operator screenshot 2026-09-22): the spec defines markup for the BODY only; the summary is plain text (Plasma's popup shows a summary's tags literally — correct). rebuild() joins app: summary — body and parses the whole string, so a summary's tags were stripped and styled. Fix in the same change: parse ONLY the body; the app name and summary are pushed as plain text (escape < and & before joining, or build the runs from two calls: plain(summary) + parseBody(body)). Harness case: a summary containing <b> stays literal while a body's <b> becomes a bold run — the harness tests parseBody, so add a joinItem(app, summary, body) pure function to marquee-body.js and test THAT. Then (1) marquee-body.js: ringNext(queue, liveIds, nowShownIds) pure; (2) marquee-main: rebuild() upserts into root.queue by id (text+runs per id, arrival order), swapRing() calls ringNext at the boundary and builds tickerText/tickerRuns from the ring's items; the idle-immediate swap stays; (3) harness cases: arrive-and-expire-before-boundary still scrolls once; an active item keeps cycling; an expired item drops only after its rotation; a mid-rotation arrival waits; (4) parity re-capture; witness pin (ringNext, joinItem). Bold reads faint (fuller dot 0.82->0.94): consider a boldFill setting later. COTYPE s98 under ⊕VER-MARQUEE.",
+      "evidence": "",
+      "issued_at": "2026-09-21T18:08:36+00:00",
+      "last_worked": "2026-09-21T18:10:46+00:00",
       "ticks_blocked": 0
     }
   ],

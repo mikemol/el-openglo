@@ -118,6 +118,18 @@ def _tool(*args):
 
 WITNESS = {
     # ── BUILD: touches the shipped package ──
+    # ⚑ ONE THEME (session 97, the operator's "one configurable theme"). The design
+    # is catalog/one-theme.md: every colour hole is a standard KColorScheme role
+    # readable live, the ghost alphas are global constants, the hue table is a
+    # six-row lookup keyed by the live fg. The witness is the first surface that
+    # BINDS the roles instead of baking them: the switcher, one package.
+    "⊕ONE-THEME": (
+        "a shipped surface reads the ACTIVE colour scheme (Kirigami.Theme textColor /"
+        " disabledTextColor / backgroundColor under colorSet View) instead of baked"
+        " holes, and ships as ONE package (catalog/one-theme.md) (:6603)",
+        lambda: _reads("templates/taskswitch-main.qml", r"Kirigami\.Theme\.textColor") and
+                _reads("templates/taskswitch-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
+                not _reads("templates/taskswitch-main.qml", r'property color litColor:\s*"\$lit"')),
     # ⚑ THIS WAS A NOUN WITNESS — `SegmentChar` mentioned in four surfaces — the
     # exact near-miss the docstring above warns of, and it read as DONE while the
     # log's fourth gate had never been run. The log states four gates (:4427-4432);

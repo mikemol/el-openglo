@@ -6599,3 +6599,55 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s96]
+
+## Session 97 — ⊕ONE-THEME designed: every colour hole is a live role; the alphas are constants
+- W35, 2026-09-22. The operator wants one configurable theme, not six. Measured
+  from the templates and make_schemes.emit_colors (section() writes Active,
+  Inactive, Link, Negative, Neutral, Normal, Positive, Visited): every surface's
+  colour holes are `view` -> [Colors:View] BackgroundNormal, `fg` ->
+  ForegroundNormal, `fg_in` -> ForegroundInactive, and the clock's `hot` ->
+  ForegroundActive — all STANDARD roles, readable live from QML as
+  Kirigami.Theme.backgroundColor / textColor / disabledTextColor /
+  activeTextColor under colorSet View. The two things that are not roles: the
+  ghost alphas ([EL] GhostAlpha / GhostAlphaGlanced) — GLOBAL since W23 (0.566,
+  0.309), so a single package bakes the constants — and the marquee's hue
+  table, per variant — so one package carries all six tables keyed by fg's hex
+  and picks the row from the live fg. Nothing needs a KConfig read from QML
+  (Plasma has none) or the scheme's name (Kirigami.Theme has none). Full table
+  and the per-package changes in catalog/one-theme.md.
+- What collapses: the clock, marquee, live wallpaper and switcher packages (one
+  each) and the LnF (one, whose defaults select a colour scheme — and, per W37,
+  an engine). What stays per variant: the six .colors files (that IS variant
+  selection), the Plasma Style SVGs, Aurorae, Union, GTK, terminals, browsers
+  — their consumers do not read KColorScheme. Gates: check_ghost_surfaces must
+  assert the BINDINGS (which role each hole became) since a live surface has no
+  hole; parity drops to one pair per package; render_qml must mock
+  Kirigami.Theme with a variant's tokens (a --variant flag).
+- ⊕ONE-THEME opened in the BUILD bucket with its witness at the first surface
+  to bind roles instead of baking them — the switcher, one package. The probe
+  that decides the design (a bound plasmoid following plasma-apply-colorscheme
+  without reinstall) is ⊕VER's.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-96 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-96 —
+  confirm after re-emerge), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s97]
