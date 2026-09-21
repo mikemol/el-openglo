@@ -40,6 +40,9 @@ NON_EMITTER = {
     "make_glyph_ink.py": "emits an ink field from font winding; carries no colour",
     "make_segment_display.py": "emits QML geometry; colour is bound by the caller",
     "make_deb.py":      "packages what the emitters produced; reads no token itself",
+    "make_inherit.py":  "emits icon/cursor themes that INHERIT Breeze and draw nothing; "
+                        "the palette reaches the icons through FollowsColorScheme, not "
+                        "through this file (W31)",
 }
 
 

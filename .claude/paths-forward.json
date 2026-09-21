@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 30,
+  "counter": 31,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T12:29:38+00:00",
-  "job_id": "ccb32500",
+  "heartbeat": "2026-09-21T12:55:38+00:00",
+  "job_id": "f9ab4f99",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-48",
-    "taken_at": "2026-09-21T12:39:06+00:00"
+    "holder": "tick-49",
+    "taken_at": "2026-09-21T13:10:25+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -509,16 +509,16 @@
     {
       "symbol": "W28",
       "title": "⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "project_font,glyph_match,segment_topology",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Author LETTERS22 in segment_topology: a lowercase table (26) over SEG22 using p1/p2/n1/dl/dc/dr, DESCENDER_GLYPHS = gjpqy, glyph22(ch) that falls back to glyph16 for uppercase/digits; the invariant project(glyph22(upper),'16') == glyph16(upper) for every uppercase must hold (selftest arm); validate with check_projection --fmt 22 over the lowercase on the 2x6 metrics frame (validate_projection needs a cell-height/frame choice per fmt: fmt 22 -> DESCENDER_H + metrics) and report per-glyph agreement against the probes. Then close (four gates; witness LETTERS22|DESCENDER_GLYPHS|glyph22 as the open witness already says).",
-      "evidence": "afea981: 2xH grid (_grid, ink_grid H=, _cell_height); metrics frame maps measured descent to the box bottom; descender_probe + check_projection --descenders: g/j/q->dr, p->dl, y->dc (5/5); COTYPE s83; symbol open for the LETTERS22 table",
+      "next_bounded_step": "",
+      "evidence": "d8823f8: segment_topology.LETTERS22/DESCENDER_GLYPHS/glyph22 + substrate arms (caught g==q); ink_field frame=lowercase (+font_xheight); validate at 22: 0.37, every tail bar hit; registry 22 carries lowercase; ⊕SEG22-DESCENDERS in CLOSED (39 witnessed; --regressions 58s CPU); RESEARCH bucket green; COTYPE s84",
       "issued_at": "2026-09-21T10:08:03+00:00",
-      "last_worked": "2026-09-21T12:28:40+00:00",
+      "last_worked": "2026-09-21T12:54:05+00:00",
       "ticks_blocked": 0
     },
     {
@@ -549,6 +549,21 @@
       "evidence": "",
       "issued_at": "2026-09-21T11:08:28+00:00",
       "last_worked": "2026-09-21T11:08:28+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W31",
+      "title": "TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present",
+      "status": "ready",
+      "enables": [],
+      "touches": "make_deb,make_plasma,templates",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Icons + cursor first (cheap, one emitter): make_inherit.py emitting usr/share/icons/EL-<variant>/index.theme (Inherits=breeze-dark|breeze by Lit/Off, Directories from the parent is NOT needed for a pure inheriting theme — verify against a stock breeze-dark index.theme) and usr/share/icons/EL-<variant>-cursors/index.theme + cursor.theme (Inherits=breeze_cursors); LnF defaults [Icons] Theme= and [kcminputrc][Mouse] cursorTheme=; check_inherit.py --map (@INHERIT in worklist warrants): every variant's theme names a parent that exists on the host (SKIP if breeze absent), witness in check_symbol; then close both (four gates each).",
+      "evidence": "",
+      "issued_at": "2026-09-21T12:54:47+00:00",
+      "last_worked": "2026-09-21T12:54:47+00:00",
       "ticks_blocked": 0
     }
   ],

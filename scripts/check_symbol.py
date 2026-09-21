@@ -151,12 +151,6 @@ WITNESS = {
         "the solver memoizes across variants rather than re-solving each (:4182)",
         lambda: _reads("make_schemes.py", r"_palette-cache|_solved_grid") or
                 _reads("make_palette.py", r"(?i)memo|lru_cache")),
-    "⊕ICONS-INHERIT": (
-        "an icon theme that INHERITS rather than reimplements a set (:2774)",
-        lambda: _any(["make_deb.py", "make_plasma.py"], r"(?i)Inherits=.*icon|icon.*Inherits")),
-    "⊕CURSOR-INHERIT": (
-        "a cursor theme that inherits (:2806)",
-        lambda: _any(["make_deb.py", "make_plasma.py"], r"(?i)cursor.*Inherits|Inherits=.*cursor")),
     # The BASIC layout.js already ships (it sets wallpaper + adds the clock); the
     # item is a RICHER template than that (:2785). Witnessing layout.js at all
     # reports the thing being improved on as the improvement.
@@ -405,6 +399,23 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 85 (W31, 2026-09-21). The open witnesses looked for
+    # "Inherits=" near "icon"/"cursor" in make_deb or make_plasma; the emitter is
+    # make_inherit, selected through the LnF defaults, checked by check_inherit.
+    "⊕ICONS-INHERIT": (
+        "make_inherit.icon_index: an icon theme that inherits breeze(-dark) with"
+        " FollowsColorScheme, selected by the LnF defaults [kdeglobals][Icons] (:2774)",
+        lambda: _reads("make_inherit.py", r"def\s+icon_index\b") and
+                _reads("make_inherit.py", r"FollowsColorScheme=true") and
+                _reads("make_deb.py", r"_inh\.defaults_fragment\(") and
+                _tool("check_inherit.py")),
+    "⊕CURSOR-INHERIT": (
+        "make_inherit.cursor_index: a cursor theme that inherits Breeze cursors by"
+        " ground, selected by the LnF defaults [kcminputrc][Mouse] (:2806)",
+        lambda: _reads("make_inherit.py", r"def\s+cursor_index\b") and
+                _reads("make_inherit.py", r"def\s+cursor_parent\b") and
+                _reads("make_inherit.py", r"cursorTheme=") and
+                _tool("check_inherit.py")),
     # closed session 84 (W28, 2026-09-21). The table, its invariants in the
     # substrate's own selftest (26 over SEG22, the descender glyphs exactly the
     # ones that hang, no two alike, uppercase untouched), and the validation at

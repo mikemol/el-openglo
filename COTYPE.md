@@ -5801,3 +5801,76 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s84]
+
+## Session 85 — ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT: themes that draw nothing, by design
+- W31, 2026-09-21. The contract read from the host (Plasma 6.7): an icon theme
+  is [Icon Theme] Name/Comment/Inherits (comma list, hicolor last)/Example/
+  FollowsColorScheme/size defaults/Directories — and KIconTheme rejects a
+  theme with no directories; a cursor theme is [Icon Theme] Name/Comment/
+  Inherits with the parent's cursors/ reached by inheritance, plus a
+  cursor.theme beside it for xcursor.
+- WHY INHERITING IS THE EMISSION, not a shortcut: Breeze's icons are
+  FollowsColorScheme=true — they take their colours from kdeglobals at render
+  time. An icon theme that inherits Breeze and is selected by the LnF is how
+  the SOLVED palette reaches every icon, with no SVG shipped and nothing
+  retyped. make_inherit.py: icon_index (Inherits=breeze-dark,breeze,hicolor
+  for the dark-ground Off variants, breeze,hicolor for Lit; one real directory,
+  256x256/apps, carrying the plasmoid's own el-segclock.png so the entry is
+  not a lie), cursor_index (DECISION: Off variants inherit Breeze_Light — light
+  arrows on a dark desktop; Lit inherit breeze_cursors), cursor_theme_file,
+  defaults_fragment ([kdeglobals][Icons] Theme= and [kcminputrc][Mouse]
+  cursorTheme=) which make_deb appends to every LnF defaults; render_all into
+  usr/share/icons/<variant>/ and <variant>-cursors/. First staging doubled the
+  prefix (EL-EL-Azure) — the variant name already carries EL-; fixed and
+  re-staged: 54 mapped paths, render gates green.
+- scripts/check_inherit.py (@INHERIT, worklist 58): reads the emissions back as
+  INI; requires the chain to end in hicolor, a declared directory, the defaults
+  to select the emitted names, and every parent to EXIST under /usr/share/icons
+  (SKIP, counted, when Breeze is absent — a fact about the host). Measured
+  here: 6 of 6, every parent installed. Selftest: synthetic broken chain /
+  missing directory / mismatched defaults are each seen; an empty icon root
+  SKIPs and does not refuse.
+- Four gates (both symbols): constructible (make_inherit, the defaults hook in
+  make_deb, check_inherit); reachable (staged under usr/share/icons for all
+  six; the LnF defaults name them); observable (--map; the staged tree);
+  coverable (the selftest's three synthetic failures; the parent lookup can
+  SKIP). The open witnesses looked for "Inherits=" near "icon"/"cursor" in
+  make_deb or make_plasma; the CLOSED witnesses aim at the emitter's defs,
+  the defaults hook, and the tool.
+
+### ⊕ICONS-INHERIT closure (four gates)
+- Four gates: as above. Residue: whether Global Theme actually applies the
+  [Icons] group on this host is a ⊕VER probe (the s73 kdeglobals question,
+  same shape); no EL-drawn icon exists beyond the plasmoid's.
+
+### ⊕CURSOR-INHERIT closure (four gates)
+- Four gates: as above. Residue: the light/dark cursor decision is by ground
+  and unmeasured against the eye (⊕VER); a phosphor-coloured cursor would be
+  a drawn set, not an inheritance.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85: make_inherit, selected by the LnF, checked by
+  check_inherit — 6 of 6 parents installed here)
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?;
+  s85 does Global Theme apply the icon + cursor groups?),
+  ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF (reads done by its witness). TIER 3: ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT (reads done), named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s85]

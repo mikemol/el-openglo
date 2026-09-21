@@ -665,3 +665,9 @@
   section  = {pipeline},
   rests-on = {ST22}
 }
+
+@misc{INHERIT,
+  claim    = {The icon and cursor themes draw nothing of their own: per variant, make_inherit emits an icon theme inheriting Breeze (FollowsColorScheme, so the scheme recolours every icon) and a cursor theme inheriting Breeze cursors by ground, selected by the Look-and-Feel defaults; check_inherit reads the emissions back as INI and requires a well-formed chain, a declared directory, matching defaults, and installed parents (SKIP when absent)},
+  check    = {tool:check_inherit.py},
+  section  = {emitters}
+}
