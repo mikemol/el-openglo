@@ -186,7 +186,7 @@ def _marquee(variant, path):
     font = reg["font5x7"]
     cols, rows = disp["cols"], disp["rows"]
 
-    ground, lit, ghost = MM.WL.colors_for(variant)
+    ground, lit, ghost, _alpha = MM.WL.colors_for(variant)
     # ⚑ THE SAMPLE MUST EXERCISE THE FONT, NOT JUST THE SURFACE.  This first read
     # "EL OPENGLO 13:37" — which contains no 'A', the one glyph that was WRONG.
     # I fixed the font, re-rendered, and the picture was byte-identical, which I

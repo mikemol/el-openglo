@@ -98,5 +98,5 @@ if __name__ == "__main__":
     render_all(variants, outs)
     print("rendered", len(outs), "notification-marquee plasmoids")
     for v in variants:
-        g, l, gh = WL.colors_for(v)
-        print(f"  {v}: void={g} lit={l}")
+        g, l, gh, a = WL.colors_for(v)
+        print(f"  {v}: void={g} lit={l} ghost={gh}@{a}")

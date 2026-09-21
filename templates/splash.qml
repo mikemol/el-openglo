@@ -23,8 +23,10 @@ Item {
                     text: modelData
                     font.pixelSize: parent.height
                     font.family: "monospace"; font.bold: true
-                    color: $lit
-                    opacity: 0.22
+                    // the ghost: the palette's fg_in at its solved alpha — not
+                    // the lit phosphor at a fixed 0.22 (a seventh ghost model)
+                    color: $ghost
+                    opacity: $ghostAlpha
                 }
                 Text {
                     anchors.fill: parent

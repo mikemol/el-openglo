@@ -87,7 +87,7 @@ def surface_registry(variant="EL-Azure"):
     """The live surfaces and how each renders lit/ghost, read from the emitters.
     (Channel flags reflect what each emitter actually draws.)"""
     import make_wallpaper_live as WL
-    ground, lit, ghost = WL.colors_for(variant)
+    ground, lit, ghost, _alpha = WL.colors_for(variant)   # alpha: the surfaces read it (W8)
     wq = WL.main_qml(variant)
     reg = []
 

@@ -44,7 +44,8 @@ PAIRS = (
     # byte-identical to the ones this file used to author.
     ("make_wallpaper_live", "main_qml", "EL-Openglo",
      "live-wallpaper-main-EL-Openglo.qml"),
-    ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"'), "splash.qml"),
+    # four holes since W8: ground, lit, and the scheme's ghost + ghost_alpha
+    ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"), "splash.qml"),
 )
 
 

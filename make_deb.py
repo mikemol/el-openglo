@@ -9,7 +9,7 @@ One MAPPING, two scopes:
 
 All six grid variants ship. Helper defaults to EL-Openglo.
 """
-import os, shutil, subprocess, stat, hashlib
+import os, shutil, subprocess, stat, hashlib, sys
 
 VERSION = "1.2.0"
 ARCH = "all"
@@ -49,7 +49,13 @@ def system_mapping():
             mid = f"org.el.segclock.{v.lower().replace('-', '')}"
             m.append((src, f"usr/share/plasma/plasmoids/{mid}"))
     # fonts (system font dir; postinst runs fc-cache)
-    for fn in os.listdir(os.path.join(ROOT, "fonts")):
+    # ⚑ `fonts/` DID NOT SURVIVE THE RECOVERY. This listdir crashed the whole
+    # packager at import — the first of three places the .deb build was dead on
+    # this checkout (with qml_sanity and the container output path). An absent
+    # optional payload is recorded, not fatal: the ebuild and the deb both need
+    # to stage what EXISTS and say what does not.
+    fonts = os.path.join(ROOT, "fonts")
+    for fn in (sorted(os.listdir(fonts)) if os.path.isdir(fonts) else ()):
         if fn.endswith((".ttf", ".svg")):
             m.append((f"fonts/{fn}", f"usr/share/fonts/truetype/el-openglo/{fn}"))
     # wallpapers: one VALID KDE wallpaper package per variant (metadata.json +
@@ -424,41 +430,36 @@ panel.addWidget("{plasmoid_id}");
         os.makedirs(splash_dir, exist_ok=True)
         gnd_hex = '"' + cols["ground"] + '"'
         lit_hex = '"' + cols["phosphor"] + '"'
-        # ⊕GHOST-CEILING for the splash: derive the ghost OPACITY so the ghost is
-        # "present but not active" — the max opacity whose lit/ghost separation
-        # still clears the glanced-at floor. Fixed 0.22 failed on backlit variants
-        # (compressed dark-lit-on-light-ground); this adapts per variant.
-        import cvd_gate as _cvd2
-        _lit_rgb = tuple(int(cols["phosphor"].lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
-        _gnd_rgb = tuple(int(cols["ground"].lstrip("#")[i:i+2], 16) for i in (0, 2, 4))
-        def _comp(fg, bg, a):
-            return tuple(int(round(fg[i]*a + bg[i]*(1-a))) for i in range(3))
-        _op = 0.05
-        for _k in range(5, 36):
-            _a = _k / 100.0
-            if _cvd2.wcag_ratio(_lit_rgb, _comp(_lit_rgb, _gnd_rgb, _a)) >= 5.8:
-                _op = _a
-            else:
-                break
+        # ⚑ RETIRED: a 5-35% opacity scan for WCAG >= 5.8 between lit and the
+        # lit-over-ground composite (a sixth ghost model, ⊕GHOST-CEILING-era).
+        # The scheme carries the palette's ghost and the alpha it was solved
+        # through ([EL] GhostAlpha, W8); the splash reads them like every other
+        # surface, so check_ghost_surfaces can see it.
         open(os.path.join(splash_dir, "Splash.qml"), "w").write(
-            _splash_qml(gnd_hex, lit_hex, _op))
+            _splash_qml(gnd_hex, lit_hex, '"' + cols["ghost"] + '"', cols["ghost_alpha"]))
         mapping.append((pkg_dir, f"usr/share/plasma/look-and-feel/{pid}"))
     return mapping
 
 
-def _splash_qml(ground_hex, lit_hex):
+def _splash_qml(ground_hex, lit_hex, ghost_hex, ghost_alpha):
     """A progress-reading phosphor splash. Root Item exposes `stage` (Plasma
     increments 1..6). A row of '12:00' digits on void ground; ghost digits always
     faint, lit digits fill left-to-right as stage rises, so the boot literally
-    lights the watch face awake. Ghost = the lit phosphor at low opacity (same
-    material, un-energised) — consistent with the ghost/lit model everywhere else.
+    lights the watch face awake.
 
     ⚑ THE QML IS templates/splash.qml.  The last of the six embedded documents:
-    43 lines of markup in an f-string, brace-doubled, invisible to qmllint. Two
-    holes go in — the void ground and the lit phosphor — and the document comes
-    out."""
+    43 lines of markup in an f-string, brace-doubled, invisible to qmllint.
+
+    ⚑ AND THE GHOST IS THE PALETTE'S, NOT A SEVENTH MODEL.  This said "ghost = the
+    lit phosphor at low opacity … consistent with the ghost/lit model everywhere
+    else" while the caller scanned 5-35% opacity for WCAG >= 5.8 against lit and
+    the extracted template hard-coded `$lit` at 0.22 — and the two disagreed with
+    each other (the call passed three arguments to a two-argument function, so
+    the LnF build had been dead since the extraction; nothing ran it here).
+    Four holes: ground, lit, and the scheme's ghost + ghost_alpha (W8)."""
     import templates.loader as TL
-    return TL.render("splash.qml", ground=ground_hex, lit=lit_hex)
+    return TL.render("splash.qml", ground=ground_hex, lit=lit_hex,
+                     ghost=ghost_hex, ghostAlpha=ghost_alpha)
 
 
 
@@ -511,9 +512,9 @@ exit 0
 '''
 
 
-def copy_into(src_rel, dst_rel):
+def copy_into(src_rel, dst_rel, root=None):
     src = os.path.join(ROOT, src_rel)
-    dst = os.path.join(DEB_ROOT, dst_rel)
+    dst = os.path.join(root or DEB_ROOT, dst_rel)
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     if os.path.isdir(src):
         shutil.copytree(src, dst, dirs_exist_ok=True)
@@ -521,9 +522,22 @@ def copy_into(src_rel, dst_rel):
         shutil.copy2(src, dst)
 
 
-def build():
-    shutil.rmtree(BUILD, ignore_errors=True)
-    os.makedirs(DEB_ROOT)
+def stage(root):
+    """Lay the whole install tree under `root` (a DESTDIR), and return the mapping.
+
+    ⚑ ONE STAGING, TWO PACKAGERS.  `build()` used to do this inline against the
+    module-level DEB_ROOT and then run dpkg-deb, so there was no way to ask "what
+    does this theme install?" without building a Debian package on a Debian box.
+    The Gentoo ebuild's src_install is `make_deb.py --stage "${D}"` — it calls
+    THIS, so the install set cannot drift between the two packagers, and
+    scripts/check_ebuild.py compares them by asking the same function.
+
+    Gates that need a tool this machine lacks are SKIPPED and printed (qml_sanity
+    did not survive the recovery — pyproject.toml records it — and its qmllint
+    needs PySide6); a skip is a fact about the machine, not the tree."""
+    global DEB_ROOT
+    DEB_ROOT = root
+    os.makedirs(DEB_ROOT, exist_ok=True)
 
     mapping = system_mapping() + helper_source_mapping()
     missing = [s for s, _ in mapping if not os.path.exists(os.path.join(ROOT, s))]
@@ -549,6 +563,16 @@ def build():
         pdir = os.path.join(DEB_ROOT, f"usr/share/plasma/plasmoids/{mid}")
         meta_p = os.path.join(pdir, "metadata.json")
         if not os.path.isfile(meta_p):
+            continue
+        # ⚑ make_preview.icon_svg DID NOT SURVIVE THE RECOVERY (measured 2026-09-20:
+        # 0 bindings in 79 files; the fourth gap in this packager after fonts/,
+        # qml_sanity and the container output path). Without it the plasmoid
+        # keeps KPlugin.Icon = "clock", the stock icon — a degraded listing, not a
+        # broken package. SKIP, printed and counted, until the renderer is rebuilt
+        # from ⊕VER-WIDGET-ICON's closure (COTYPE.md:2058).
+        if not hasattr(_mp, "icon_svg"):
+            print(f"make_deb: SKIP widget icon for {v} — make_preview.icon_svg is a "
+                  f"recovery gap; the plasmoid keeps the stock clock icon", file=sys.stderr)
             continue
         icons_dir = os.path.join(pdir, "contents", "icons")
         os.makedirs(icons_dir, exist_ok=True)
@@ -589,11 +613,19 @@ def build():
     os.makedirs(kdir, exist_ok=True)
     for v in VARIANTS:
         open(os.path.join(kdir, f"{v}.colorscheme"), "w").write(_kon.colorscheme(v))
-    tdir = os.path.join(DEB_ROOT, "usr/share/el-openglo/terminals")
-    os.makedirs(tdir, exist_ok=True)
-    for v in VARIANTS:
-        open(os.path.join(tdir, f"{v}.alacritty.toml"), "w").write(_kon.alacritty_toml(v))
-        open(os.path.join(tdir, f"{v}.foot.ini"), "w").write(_kon.foot_ini(v))
+    # ⚑ make_konsole.alacritty_toml / foot_ini DID NOT SURVIVE THE RECOVERY (fifth
+    # gap in this packager). They are the ANSI-16 table re-emitted in two more
+    # formats — the same shape W16's Windows Terminal scheme needs, so they come
+    # back together. SKIP, printed and counted.
+    if hasattr(_kon, "alacritty_toml") and hasattr(_kon, "foot_ini"):
+        tdir = os.path.join(DEB_ROOT, "usr/share/el-openglo/terminals")
+        os.makedirs(tdir, exist_ok=True)
+        for v in VARIANTS:
+            open(os.path.join(tdir, f"{v}.alacritty.toml"), "w").write(_kon.alacritty_toml(v))
+            open(os.path.join(tdir, f"{v}.foot.ini"), "w").write(_kon.foot_ini(v))
+    else:
+        print("make_deb: SKIP alacritty/foot terminal schemes — make_konsole.alacritty_toml/"
+              "foot_ini are a recovery gap (the ANSI-16 re-emit; see W16)", file=sys.stderr)
 
     # Plymouth boot-splash themes (⊕PLYMOUTH): 7th emitter, the earliest seam.
     import make_plymouth as _ply
@@ -662,15 +694,28 @@ def build():
     # the string-presence proxy that let a doubled-quote color ship a black
     # wallpaper in 1.23.0. Only genuine syntax/type errors fail the build; KDE
     # import-resolution warnings (modules absent in-container) are filtered.
-    import qml_sanity as _qs
-    _qml_errs = []
-    for _r, _d, _fs in os.walk(DEB_ROOT):
-        for _f in _fs:
-            if _f.endswith(".qml"):
-                _p = os.path.join(_r, _f)
-                _qml_errs += _qs.check_qml(open(_p).read(), _p.replace(DEB_ROOT, ""))
-    if _qml_errs:
-        raise SystemExit("QML-SANITY failed (real qmllint):\n  " + "\n  ".join(_qml_errs[:12]))
+    try:
+        import qml_sanity as _qs
+    except ImportError:
+        _qs = None
+        print("make_deb: SKIP qml-sanity — qml_sanity.py did not survive the recovery "
+              "(pyproject.toml records it); the staged .qml is unlinted", file=sys.stderr)
+    if _qs is not None:
+        _qml_errs = []
+        for _r, _d, _fs in os.walk(DEB_ROOT):
+            for _f in _fs:
+                if _f.endswith(".qml"):
+                    _p = os.path.join(_r, _f)
+                    _qml_errs += _qs.check_qml(open(_p).read(), _p.replace(DEB_ROOT, ""))
+        if _qml_errs:
+            raise SystemExit("QML-SANITY failed (real qmllint):\n  " + "\n  ".join(_qml_errs[:12]))
+    return mapping
+
+
+def build(out_dir=None):
+    """Stage into /tmp/eldeb and wrap it as a .deb. Debian-specific from here on."""
+    shutil.rmtree(BUILD, ignore_errors=True)
+    mapping = stage(os.path.join(BUILD, PKG))
 
     # control dir
     ctrl = os.path.join(DEB_ROOT, "DEBIAN")
@@ -691,11 +736,25 @@ def build():
     tmp_out = f"/tmp/{PKG}_{VERSION}_{ARCH}.deb"
     subprocess.run(["dpkg-deb", "--build", "--root-owner-group", DEB_ROOT, tmp_out],
                    check=True)
-    out = f"/mnt/user-data/outputs/{PKG}_{VERSION}_{ARCH}.deb"
+    # ⚑ `/mnt/user-data/outputs/` WAS THE CONTAINER THIS TRANSCRIPT WAS REPLAYED
+    # FROM, not a path on any machine that builds this. The output lands beside
+    # the build unless told otherwise.
+    out = os.path.join(out_dir or BUILD, f"{PKG}_{VERSION}_{ARCH}.deb")
     shutil.copy2(tmp_out, out)
     return out, mapping
 
 
 if __name__ == "__main__":
-    out, mapping = build()
-    print("built", out, "with", len(mapping), "mapped paths")
+    import sys as _sys
+    if "--stage" in _sys.argv:
+        # the DESTDIR form: `make_deb.py --stage "${D}"` is the ebuild's src_install
+        i = _sys.argv.index("--stage")
+        if i + 1 >= len(_sys.argv):
+            raise SystemExit("make_deb: --stage needs a directory")
+        m = stage(os.path.abspath(_sys.argv[i + 1]))
+        print("staged", len(m), "mapped paths (+ emitted packages) into", _sys.argv[i + 1])
+    elif len(_sys.argv) > 1:
+        raise SystemExit(f"make_deb: unknown flag {_sys.argv[1]!r} (modes: --stage DIR, or none)")
+    else:
+        out, mapping = build()
+        print("built", out, "with", len(mapping), "mapped paths")

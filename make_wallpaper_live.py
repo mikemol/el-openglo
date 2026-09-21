@@ -167,5 +167,5 @@ if __name__ == "__main__":
     render_all(variants, outs)
     print("rendered", len(outs), "live wallpapers")
     for v in variants:
-        g, l, gh = colors_for(v)
-        print(f"  {v}: void={g} lit={l} ghost={gh}")
+        g, l, gh, a = colors_for(v)
+        print(f"  {v}: void={g} lit={l} ghost={gh}@{a}")
