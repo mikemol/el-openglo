@@ -6836,3 +6836,77 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s100]
+
+## Session 101 — the widget under test: the marquee runs headless, and found two stalls the arithmetic could not
+- W49, 2026-09-22. Operator: "Is there a sandbox we can run the widget
+  within, to capture its output, and use that for positive validation that
+  it responds to notifications … like headless chrome?" Measured first: Qt's
+  `qml` honours a stub module on QML2_IMPORT_PATH over the installed
+  org.kde.notificationmanager (isStub=true), and a QML `enum` block gives the
+  widget its `Notifications.IdRole` (256, the real value from the qmltypes)
+  and `SortByDate` unchanged. scripts/check_marquee_live.py: the emitted
+  main.qml rewritten as render_qml rewrites it, its three companions, a stub
+  ListModel with the role enum and a role-keyed data(), a StubRegistry
+  singleton so the harness can reach the model the subject created; a
+  timeline (arrive, expire, arrive, replace, expire) and a 40 ms sampler of
+  tickerText / boardX / boardRunning (two root properties the Row and its
+  animation now report, since nothing inside fullRepresentation is
+  reachable by id). --trace prints it; --json is the measurement.
+- What the first trace showed, that no check had: the board scrolled in
+  once, parked at x≈7 with running true, and never moved again — the second
+  notification never showed. Two causes, both found by adding observables
+  and re-running, not by reasoning: (1) `to: -marquee.width` was READ on
+  the frame the Row became visible, when its width was still 0, and the
+  binding then moved the target under a run in flight — startRun now
+  declines until the Row has a width and SETS from/to as values, from a
+  deferred call; (2) the offscreen pointer rests at (0,0), and the Row
+  reaching it tripped the HoverHandler's pause — a paused animation still
+  reports running. The hover-pause is now a setting (hoverPause, default
+  on: a pointer parked on the panel does the same on a desktop, and the
+  operator wants a visible pulse for it — W51), off in the measured run;
+  `--hovered` reproduces the stall on demand.
+- policy/marquee_live.rego, derived from events and samples: L0 empty
+  trace; L1 a board with text scrolls (two samples' grace for the deferred
+  start); L2 every arrival and replace is shown; L3 an expiry or replace
+  never changes the board mid-rotation; L4 x never jumps forward except to
+  reset; L5 a drained board wakes; L6 a scrolling board MOVES — added when
+  the hovered trace passed L1..L5 (running stayed true while x sat still),
+  so the refusing input for L6 is the real widget's own stalled trace, not
+  a typed fixture. 12 tests; 30/30 across four policies. @MARQUEE-LIVE
+  cites the gate (64 claims). The final trace shows the whole invariant:
+  hello scrolls, cycles once while live, completes its rotation after
+  expiring mid-run, drains; second wakes the board; the replace waits for
+  the boundary; the last expiry finishes its rotation.
+- Residue: the stub is a ListModel, not libnotificationmanager (a role it
+  does not carry reads undefined); the timeline is wall-clock inside qml,
+  so rules are over order and presence, never duration; L4's reset
+  threshold (width-40) is authored; a run at speed 8 is the measured
+  configuration, not the shipped default; Tier 2 (kwin_wayland --virtual +
+  plasmoidviewer + notify-send) remains the ⊕VER-MARQUEE probe; the
+  boardX/boardRawX/boardWidth/boardRunning properties are test-facing
+  surface on the shipped widget.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-101 corrected live and headless) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-101 —
+  confirm after re-emerge: every notification scrolls once, none vanish, the
+  board never goes dead, a parked pointer holds it), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s101]

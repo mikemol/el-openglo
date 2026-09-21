@@ -17,5 +17,8 @@
   <entry name="maxItems" type="Int"><default>12</default></entry>
   <!-- a tap on a link run opens it externally (W40) -->
   <entry name="openLinks" type="Bool"><default>true</default></entry>
+  <!-- hovering the board pauses the scroll so a link can be aimed at (W40); a pointer
+       parked on the panel then holds the board still, so it is a choice (W49) -->
+  <entry name="hoverPause" type="Bool"><default>true</default></entry>
  </group>
 </kcfg>

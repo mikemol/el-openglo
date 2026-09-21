@@ -38,6 +38,8 @@ PlasmoidItem {
                               : plasmoid.configuration.maxItems
     property bool cfgOpenLinks: (plasmoid.configuration.openLinks === undefined) ? true
                                 : plasmoid.configuration.openLinks
+    property bool cfgHoverPause: (plasmoid.configuration.hoverPause === undefined) ? true
+                                 : plasmoid.configuration.hoverPause
 
     preferredRepresentation: fullRepresentation
 
@@ -63,6 +65,14 @@ PlasmoidItem {
     // only after its rotation. The arithmetic is pure and run headless by
     // check_marquee_body's ring scenarios.
     property var queue: []
+    // ⚑ OBSERVABLE FROM OUTSIDE (W49). The Row and its animation live inside
+    // fullRepresentation, which no harness can reach by id; the board reports
+    // its x and whether a rotation is running here so check_marquee_live can
+    // sample them per frame under the stubbed model.
+    property real boardX: 0
+    property real boardRawX: 0
+    property real boardWidth: 0
+    property bool boardRunning: false
 
     function liveIds() {
         var ids = [];
@@ -250,13 +260,28 @@ PlasmoidItem {
             // new notification made the Row visible but nothing ever ran again,
             // and rawX sat parked off the left edge. Now the Row starts the run
             // itself each time it becomes visible while nothing is running.
+            // ⚑ THE RUN'S ENDPOINTS ARE SET WHEN IT STARTS, NEVER BOUND (measured
+            // by check_marquee_live, 2026-09-22: the board scrolled in once,
+            // parked at x=7 with running stuck true, and never moved again). The
+            // Row's width is 0 on the frame it becomes visible and 212 one frame
+            // later; a run started on the 0 frame had `to: -marquee.width` read
+            // as 0, reached it, and then stalled when the binding moved its
+            // target underneath. So: decline until the Row has a width, set
+            // from/to as values, and start from a deferred call so the Row has
+            // laid out and a finished animation has returned before the next.
             function startRun() {
                 if (!marquee.visible || rotation.running) return;
+                if (marquee.width <= 0) { Qt.callLater(startRun); return; }
+                rotation.from = rep.width;
+                rotation.to = -marquee.width;
                 marquee.rawX = rep.width;
                 rotation.start();
             }
-            onVisibleChanged: startRun()
-            Component.onCompleted: startRun()
+            onVisibleChanged: Qt.callLater(startRun)
+            Component.onCompleted: Qt.callLater(startRun)
+            onXChanged: root.boardX = x
+            onRawXChanged: root.boardRawX = rawX
+            onWidthChanged: root.boardWidth = width
             Repeater {
                 model: root.tickerText.split("")
                 MatrixChar {
@@ -285,8 +310,13 @@ PlasmoidItem {
             // hit-tests the pointer's x against the character advance to the run
             // under it; a link run opens externally. The parser already carries
             // the href (marquee-body.js); this is the only place it is read.
+            // ⚑ A CHOICE, NOT A GIVEN (check_marquee_live, 2026-09-22: the
+            // offscreen pointer rests at (0,0), and the run froze the instant
+            // the Row's left edge reached it — a paused animation still reports
+            // running). A pointer parked on the panel does the same on a desktop.
             HoverHandler {
                 id: boardHover
+                enabled: root.cfgHoverPause
                 onHoveredChanged: rotation.paused = hovered && rotation.running
             }
             TapHandler {
@@ -303,17 +333,17 @@ PlasmoidItem {
             NumberAnimation {
                 id: rotation
                 target: marquee; property: "rawX"
-                from: rep.width; to: -marquee.width
+                // from / to are SET by startRun (see above); nothing binds them
                 // speed scales with length so long feeds don't crawl; the
                 // settings' speed factor divides the duration
                 duration: Math.max(1500, (rep.width + marquee.width) * 12 / root.cfgSpeed)
                 loops: 1
+                onRunningChanged: root.boardRunning = running
                 onFinished: {
                     root.swapRing();
-                    if (root.tickerText.length > 0) {
-                        marquee.rawX = rep.width;
-                        rotation.restart();
-                    }
+                    // the next run starts after this one has fully returned; if the
+                    // ring drained, the Row is now invisible and startRun declines
+                    Qt.callLater(marquee.startRun);
                 }
             }
         }

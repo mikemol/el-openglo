@@ -701,3 +701,9 @@
   check    = {tool:opa_gate.py --test},
   section  = {tooling}
 }
+
+@misc{MARQUEE-LIVE,
+  claim    = {The whole marquee, run headless against a stubbed org.kde.notificationmanager (a ListModel carrying the real role enum values, shadowing the installed module on QML2_IMPORT_PATH) and driven on a timeline of arrivals, an expiry, a replace and an expiry, satisfies the traversal invariant as policy/marquee_live.rego states it over the sampled trace: a board with text scrolls (L1) and moves (L6 - a paused animation still reports running), every arrival and replace is shown (L2), an expiry or replace never changes the board mid-rotation (L3), x never jumps forward except to reset (L4), a drained board wakes for the next arrival (L5); withheld without the qml runner},
+  check    = {tool:opa_gate.py marquee_live},
+  section  = {emitters}
+}
