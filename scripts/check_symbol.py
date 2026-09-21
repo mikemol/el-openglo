@@ -160,14 +160,6 @@ WITNESS = {
         "bandwidth/tau CALIBRATED from agreement with the authored 44, not hand-set (:4631)",
         lambda: _any(["project_font.py", "glyph_match.py"],
                      r"(?i)calibrat|bandwidth.*agree|tau.*agree")),
-    # ⚑ MATCHED THE WORD IN A COMMENT.  The first witness hit "cross-check" inside
-    # a segment_topology docstring — prose ABOUT the idea, not a routine doing it.
-    # A witness over source must aim at a definition, not a noun.
-    "⊕SEG-TABLE-VALIDATE": (
-        "a routine that cross-checks the projection against the authored table,"
-        " not a comment mentioning the idea (:4632)",
-        lambda: _any(["project_font.py", "glyph_match.py", "segment_topology.py"],
-                     r"def\s+\w*(?:validate|crosscheck|cross_check)\w*")),
     "⊕SEG22-DESCENDERS": (
         "lowercase g/j/p/q/y carry descender segments in a 22-seg glyph table (:4455)",
         lambda: _reads("segment_topology.py", r"LETTERS22|DESCENDER_GLYPHS|glyph22")),
@@ -436,6 +428,13 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 74 (W7, 2026-09-21). ⚑ ITS FIRST WITNESS MATCHED THE WORD
+    # "cross-check" in a docstring (s69); this one aims at the def and at the
+    # tool that runs it over a font and requires the instrument to discriminate.
+    "⊕SEG-TABLE-VALIDATE": (
+        "glyph_match.validate_projection cross-checks the projection against the authored"
+        " table per glyph, and check_projection runs it and requires distinct projections (:4632)",
+        lambda: _reads("glyph_match.py", r"def\s+validate_projection\b") and _tool("check_projection.py")),
     # closed session 73 (W10, 2026-09-21): three RGB literals became the
     # constellation solve over the selection field; the state nudges became
     # solve_state_steps — the witness names both halves

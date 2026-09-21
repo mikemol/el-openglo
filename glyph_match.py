@@ -120,6 +120,44 @@ def project_glyph(path, ch, kind="outline", top=None, tau=None):
     return match(pres, top=top, tau=tau)
 
 
+def validate_projection(path, chars=None, fmt="16", kind="outline"):
+    """⊕SEG-TABLE-VALIDATE: cross-check the PROJECTION against the AUTHORED table,
+    per glyph, and REPORT — a routine, not a comment (the first witness for this
+    symbol matched the word "cross-check" in a docstring; session 69).
+
+    For each glyph: project the font's ink at the 22-join with top-N = the
+    authored segment count (so the comparison is of WHICH segments, not how
+    many), derez to `fmt`, and compare to segment_topology's authored set.
+    Returns [(ch, authored, projected, hits, misses, extras, jaccard)] sorted by
+    agreement. No threshold is applied here: the honest ceiling is partial
+    (round glyph walls vs straight templates, session 83) and the number that
+    would make this a gate is ⊕SEG-PROJECT-CALIBRATE's to solve, not this
+    routine's to assume."""
+    if chars is None:
+        chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    rows = []
+    for ch in chars:
+        authored = set(ST.project(ST.glyph16(ch), fmt))
+        if not authored:
+            continue
+        G = (PF.raster_ink if kind == "bitmap" else PF.winding_ink)(path, ch)
+        _scores, lit22 = match(ink_grid(G), top=len(ST.glyph16(ch)))
+        projected = set(ST.project(lit22, fmt))
+        hits = authored & projected
+        union = authored | projected
+        rows.append((ch, authored, projected, hits, authored - projected,
+                     projected - authored, len(hits) / len(union) if union else 1.0))
+    return sorted(rows, key=lambda r: -r[6])
+
+
+def agreement_summary(rows):
+    """(mean jaccard, exact count, n) over validate_projection rows."""
+    if not rows:
+        return 0.0, 0, 0
+    exact = sum(1 for r in rows if not r[4] and not r[5])
+    return sum(r[6] for r in rows) / len(rows), exact, len(rows)
+
+
 if __name__ == "__main__":
     LIB = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
     for ch in "OE8L":

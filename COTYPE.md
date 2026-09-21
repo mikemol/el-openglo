@@ -5126,3 +5126,56 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s73]
+
+## Session 74 — ⊕SEG-TABLE-VALIDATE: the projection measured against the authored 36
+- The log said "cross-check the projection against the authored table" and its
+  first witness matched those words in a docstring (s69). W7, 2026-09-21:
+  glyph_match.validate_projection(path, chars, fmt) is the ROUTINE — project each
+  glyph's ink at the 22-join with top-N = the authored segment count (so the
+  comparison is WHICH segments, not how many), derez to fmt, and report per
+  glyph: authored, projected, hits, misses, extras, Jaccard. No threshold is
+  applied: the number that would make agreement a gate is
+  ⊕SEG-PROJECT-CALIBRATE's to solve. scripts/check_projection.py runs it over a real font and
+  gates one thing — that the instrument DISCRIMINATES (distinct projections over
+  the glyph set), so a dead matcher cannot report "ran".
+- MEASURED (LiberationMono-Regular, 16-seg, 36 glyphs): mean Jaccard 0.58,
+  7 of 36 exact — every all-straight glyph (I M N T X Y Z) exact, which is the
+  s83 ceiling argument confirmed by data. And the failures have a SHAPE: the
+  narrow glyphs (1 4 H A W, Jaccard 0.00-0.25) lose their side verticals b c e f
+  and gain the centre verticals j m — the ink's own bbox frame stretches a
+  narrow glyph's sides onto the template's centre column. That is a frame
+  calibration, not a template one, and it is the first concrete input
+  ⊕SEG-PROJECT-CALIBRATE has had.
+- Four gates: constructible (validate_projection + agreement_summary; the tool
+  finds a TTF on the host or SKIPs); reachable (runs over the whole authored
+  36, fmt 16 or 7); observable (per-glyph report; the digit fixture shows '1'
+  and '8' projecting differently); coverable (a matcher projecting everything
+  to one set is REFUSED; an empty table is REFUSED; no font is a SKIP).
+
+### ⊕SEG-TABLE-VALIDATE closure (four gates)
+- Four gates: as above. Residue, now quantified: mean 0.58, the narrow-glyph
+  frame defect, straight-vs-round — all ⊕SEG-PROJECT-CALIBRATE's inputs.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74: mean Jaccard 0.58, 7/36 exact, narrow-glyph frame defect named) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-36 agreement — the
+  s74 report is its input; the narrow-glyph frame defect first), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s74]
