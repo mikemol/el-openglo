@@ -15,5 +15,7 @@
   <!-- shown lit on the field when there is nothing to scroll; empty = the bare field -->
   <entry name="idleText" type="String"><default></default></entry>
   <entry name="maxItems" type="Int"><default>12</default></entry>
+  <!-- a tap on a link run opens it externally (W40) -->
+  <entry name="openLinks" type="Bool"><default>true</default></entry>
  </group>
 </kcfg>

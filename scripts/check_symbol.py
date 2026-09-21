@@ -533,6 +533,9 @@ CLOSED = {
                 _reads("templates/marquee-main.qml", r"litColorOverride:\s*root\.overrideFor\(") and
                 _reads("templates/MatrixChar.qml", r"(?m)^\s*property color litColorOverride") and
                 _reads("make_notify_marquee.py", r"MP\.hue_table\(") and
+                # W40: links are underlined (the descent row) and a tap opens the run's href
+                _reads("templates/MatrixChar.qml", r"(?m)^\s*property bool underline") and
+                _reads("templates/marquee-main.qml", r"TapHandler\s*\{[^}]*openUrlExternally\(run\.link\)") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

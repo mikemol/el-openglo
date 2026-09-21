@@ -36,6 +36,8 @@ PlasmoidItem {
                                  : plasmoid.configuration.idleText
     property int cfgMaxItems: (plasmoid.configuration.maxItems === undefined) ? 12
                               : plasmoid.configuration.maxItems
+    property bool cfgOpenLinks: (plasmoid.configuration.openLinks === undefined) ? true
+                                : plasmoid.configuration.openLinks
 
     preferredRepresentation: fullRepresentation
 
@@ -248,10 +250,30 @@ PlasmoidItem {
                     // is the solved table's bucket, never the sender's literal
                     dotFill: (run && run.bold) ? Math.min(1.0, root.cfgDotFill * root.boldFill) : root.cfgDotFill
                     litColorOverride: root.overrideFor(run)
+                    // a link (or a <u> run) is underlined: its descent row lit (W40)
+                    underline: run !== null && (run.link.length > 0 || run.underline)
                     litColor: root.litColor
                     ghostColor: root.ghostColor
                     ghostOpacity: root.cfgGhostAlpha
                     showGhost: false
+                }
+            }
+            // ⚑ HYPERLINKS (W40; operator: "that would be awesome"). Hovering the
+            // board PAUSES the rotation so a link can be aimed at — a reader's
+            // affordance, the board resumes when the pointer leaves — and a tap
+            // hit-tests the pointer's x against the character advance to the run
+            // under it; a link run opens externally. The parser already carries
+            // the href (marquee-body.js); this is the only place it is read.
+            HoverHandler {
+                id: boardHover
+                onHoveredChanged: rotation.paused = hovered && rotation.running
+            }
+            TapHandler {
+                enabled: root.cfgOpenLinks
+                onTapped: (eventPoint, button) => {
+                    var idx = Math.floor(eventPoint.position.x / (rep.cellW + rep.pitch));
+                    var run = root.runAt(idx);
+                    if (run && run.link.length > 0) Qt.openUrlExternally(run.link);
                 }
             }
             // ⚑ ONE ROTATION PER RUN, and the ring swaps at its END. Infinite loops

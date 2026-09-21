@@ -16,6 +16,7 @@ KCM.SimpleKCM {
     property alias cfg_showField: showField.checked
     property alias cfg_idleText: idleText.text
     property alias cfg_maxItems: maxItems.value
+    property alias cfg_openLinks: openLinks.checked
     Kirigami.FormLayout {
         QQC2.Slider { id: speedSlider; from: 0.25; to: 4.0; stepSize: 0.25; Kirigami.FormData.label: "Scroll speed:" }
         QQC2.Slider { id: pitchSlider; from: 0.5; to: 1.5; stepSize: 0.05; Kirigami.FormData.label: "Dot pitch:" }
@@ -25,5 +26,6 @@ KCM.SimpleKCM {
         QQC2.CheckBox { id: showField; Kirigami.FormData.label: "Show unlit field:" }
         QQC2.TextField { id: idleText; Kirigami.FormData.label: "Idle text:"; placeholderText: "(empty: bare field)" }
         QQC2.SpinBox { id: maxItems; from: 1; to: 50; Kirigami.FormData.label: "Notifications shown:" }
+        QQC2.CheckBox { id: openLinks; Kirigami.FormData.label: "Open links on click:" }
     }
 }

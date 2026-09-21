@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 39,
+  "counter": 40,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T17:17:56+00:00",
-  "job_id": "0f02d575",
+  "heartbeat": "2026-09-21T17:25:40+00:00",
+  "job_id": "d121acf9",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-61",
-    "taken_at": "2026-09-21T17:18:33+00:00"
+    "holder": "tick-62",
+    "taken_at": "2026-09-21T17:39:14+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -644,16 +644,16 @@
     {
       "symbol": "W37",
       "title": "PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own?",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": "",
-      "blocked_kind": "",
+      "blocked_on": "W35",
+      "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "Measure on the host: is kde-plasma/oxygen installed (ls /usr/share/plasma/desktoptheme/ for oxygen + air; the Oxygen kstyle plugin; /usr/share/plasma/look-and-feel/ for org.kde.oxygen*); Read oxygen's desktoptheme metadata.json and whether a colors file exists beside it (a Plasma Style without one follows the system scheme; with one, its colours are fixed); Read a stock org.kde.oxygen LnF defaults to see exactly which engines it names. Then decide: an engine=oxygen flavour of build_lnf_packages (six more LnFs — or, if W35 lands, one LnF with an engine choice) and whether make_plasma should emit an Oxygen-shaped Plasma Style (only if Oxygen's bakes colours).",
-      "evidence": "",
+      "next_bounded_step": "When W35 lands its LnF shape: add the engine choice (widgetStyle=oxygen + library=org.kde.oxygen, cursors Oxygen_Black as one more inherit parent) — one LnF field if collapsed, else an --engine flavour of build_lnf_packages. check_inherit gains Oxygen_Black as a known parent.",
+      "evidence": "a4e7b59: measured on the host (COTYPE s95): oxygen/air Plasma Styles carry fixed colors files; org.kde.oxygen defaults name widgetStyle=oxygen, ColorScheme=OxygenDark, icons oxygen, plasma theme oxygen, cursors Oxygen_Black, decoration org.kde.oxygen, Horos. The scheme-reading engines are already EL's; an Oxygen flavour is an LnF defaults choice. Build deferred to W35's shape (one LnF with an engine choice vs six more).",
       "issued_at": "2026-09-21T14:52:17+00:00",
-      "last_worked": "2026-09-21T14:56:23+00:00",
+      "last_worked": "2026-09-21T17:24:24+00:00",
       "ticks_blocked": 0
     },
     {
@@ -684,6 +684,21 @@
       "evidence": "b02c4d4: hue_table_js -> $hueTable hole; MatrixChar.litColorOverride; marquee runAt/hueOf/overrideFor, bold = dotFill x1.15; ghost-surfaces 30/30; parity 10/10; witness pins; COTYPE s94. Live: a coloured notify-send after re-emerge.",
       "issued_at": "2026-09-21T15:50:52+00:00",
       "last_worked": "2026-09-21T17:17:00+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W40",
+      "title": "MARQUEE HYPERLINKS (operator 2026-09-22: 'that would be awesome'). The parser already yields link runs with href (s92). Support = (a) a VISUAL: a link run's characters light their descent row (row 7) as an underline bar — the deferred 'underline -> lit descent row' of relations.md §5a, applied to links (and to <u> runs); (b) a TAP: a TapHandler on the marquee Row; on tap, hit-test the pointer x against the character advance (cellW + spacing) to an index, runAt(index), and Qt.openUrlExternally(run.link) when set; the ring keeps scrolling (or pauses while hovered — a HoverHandler pausing the rotation is the board-reading affordance); (c) the harness already covers link runs; add a case with two links; (d) a settings toggle openLinks (default true)",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/marquee-main.qml,templates/MatrixChar.qml,make_notify_marquee",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "(a)+(b) in one change: MatrixChar gains underline (bool) lighting row 7 across its columns in litDrawn; the marquee sets underline: run && (run.link || run.underline); a HoverHandler pauses the rotation while hovered (rotation.paused) so a link can be aimed at; a TapHandler maps point.position.x -> index = floor(x / (rep.cellW + rep.pitch)), and opens run.link. qml_sanity; parity re-capture; a harness case with two links; the ticker's witness pins the TapHandler + openUrlExternally. COTYPE s96 under ⊕VER-MARQUEE.",
+      "evidence": "",
+      "issued_at": "2026-09-21T17:24:43+00:00",
+      "last_worked": "2026-09-21T17:24:43+00:00",
       "ticks_blocked": 0
     }
   ],

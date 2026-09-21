@@ -33,6 +33,11 @@ Item {
     // computed here: the table was gated at build time; the field is untouched.
     property color litColorOverride: "transparent"
     readonly property color litDrawn: litColorOverride.a > 0 ? litColorOverride : litColor
+    // ⚑ UNDERLINE IS THE DESCENT ROW LIT (W40): a link's (or a <u> run's)
+    // characters light their bottom row across every column — the bar a
+    // departure board draws under a flight number. Nothing else in the glyph
+    // changes; a descender glyph's own bottom-row dots simply stay lit.
+    property bool underline: false
 
     implicitWidth: cols * u
     implicitHeight: rows * u
@@ -52,7 +57,7 @@ Item {
             property int c: index % mc.cols
             property int r: Math.floor(index / mc.cols)
             property int colByte: mc.colBytes.length > c ? mc.colBytes[c] : 0
-            property bool on: (colByte & (1 << r)) !== 0
+            property bool on: ((colByte & (1 << r)) !== 0) || (mc.underline && r === mc.rows - 1)
             visible: on || mc.showGhost
 
             width: mc.u * mc.dotFill

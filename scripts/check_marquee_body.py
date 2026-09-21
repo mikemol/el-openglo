@@ -44,6 +44,8 @@ CASES = [
     ("<unknown>k</unknown>", "k", []),
     # whitespace collapses INSIDE the parser so run offsets are exact
     ("  a \n\n <b>b</b>  c", "a b c", [(2, 3, "bold")]),
+    # two links in one body: two link runs, each carrying its own href (W40)
+    ('<a href="http://a/">A</a> and <a href="http://b/">B</a>', "A and B", [(0, 1, "link"), (6, 7, "link")]),
 ]
 
 HARNESS = """import QtQuick
@@ -145,6 +147,9 @@ def _selftest():
         return True
     chk("every case returns", len(results), len(CASES))
     chk("the real cases agree", problems(results), [])
+    two = results[-1]["runs"]
+    links = [r["link"] for r in two if r["link"]]
+    chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])
     # ⚑ THE COMPARISON MUST BE ABLE TO FAIL: a wrong text and a wrong run are seen
     wrong = json.loads(json.dumps(results))
     wrong[1]["text"] = "<b>hi</b>"

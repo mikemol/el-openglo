@@ -6554,3 +6554,48 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s95]
+
+## Session 96 — ⊕VER-MARQUEE: hyperlinks on the board
+- W40, 2026-09-22 (operator: "Can we support hyperlinks? Because that would
+  be awesome"). The parser had carried link runs with their href since s92;
+  this is the only place the href is read. (a) VISUAL: MatrixChar gains
+  `underline` — the descent row (row 7) lit across the character's columns
+  in litDrawn, the bar a departure board draws under a flight number; the
+  marquee sets it for a link run or a <u> run (so <u> is read now too).
+  (b) TAP: a HoverHandler PAUSES the rotation while the pointer is on the
+  board (rotation.paused), the reader's affordance — a link can be aimed at
+  and the board resumes on leave; a TapHandler maps the tap's x to a
+  character index (x / (cellW + pitch)), runAt(index), and
+  Qt.openUrlExternally(run.link) when the run is a link. A settings toggle
+  openLinks (kcfg default true, aliased). The harness gains a two-link body
+  (two runs, two distinct hrefs — asserted). Lint clean (3 files); parity
+  re-captured deliberately (main, kcfg, page); the ticker's witness pins the
+  underline property and the TapHandler's openUrlExternally.
+- Not proven live: a `notify-send 'see <a href="https://kde.org/">kde</a>'`
+  after re-emerge — the underline should read, hover should freeze the
+  scroll, the tap should open the browser. Residue: the hit-test assumes
+  the Row's characters advance uniformly (they do — one cell plus one
+  column gap each); a link on the idle text is not tappable (idle has no
+  runs); italic runs stay carried, unread.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-96 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen by selecting its engines), ⊕VER-MARQUEE (s89
+  field, s90 settings, s91 the ring, s92 bodies stripped, s93-94 styled
+  runs, s96 hyperlinks — confirm after re-emerge), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s96]
