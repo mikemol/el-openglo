@@ -127,13 +127,15 @@ WallpaperItem {
         renderTarget: Canvas.FramebufferObject
         visible: root.bloom > 0
         layer.enabled: root.bloom > 0
+        // halo radius scaled by the stroke (U*strokeLit) and the slider, never a
+        // fixed pixel count; no brightness lift on the transparent surround
         layer.effect: MultiEffect {
             blurEnabled: true
             blur: 1.0
-            blurMax: 64
-            blurMultiplier: root.bloom
-            brightness: 0.15
+            blurMax: Math.max(2, Math.round((height / 5.0) * root.strokeLit * 2 * root.bloom))
+            blurMultiplier: 1.0
         }
+        opacity: 0.75
         onPaint: root.paintFace(getContext("2d"), width, height, "lit")
     }
 

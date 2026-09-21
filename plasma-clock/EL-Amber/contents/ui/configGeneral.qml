@@ -1,5 +1,8 @@
 import QtQuick
-import org.kde.kcm as KCM
+// ⚑ org.kde.kcm was the KF5 name; on Plasma 6 the module is org.kde.kcmutils and
+// the old import made this page load NOTHING (blank, no error surfaced — the
+// operator opened it 2026-09-21; nobody had since the recovery).
+import org.kde.kcmutils as KCM
 import org.kde.kirigami as Kirigami
 import QtQuick.Controls as QQC2
 import QtQuick.Layouts

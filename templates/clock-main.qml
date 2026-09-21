@@ -95,13 +95,18 @@ $tables
             anchors.fill: parent
             visible: root.bloom > 0
             layer.enabled: root.bloom > 0
+            // ⚑ THE HALO IS SIZED BY THE STROKE, NOT IN PIXELS.  A fixed 64px
+            // blurMax on a 3px panel stroke smeared the whole digit into one haze
+            // (⊕VER 2026-09-21); `brightness` lifted the transparent surround
+            // too. The radius is a few stroke widths, scaled by the slider, and
+            // the halo is the lit colour itself at reduced opacity.
             layer.effect: MultiEffect {
                 blurEnabled: true
                 blur: 1.0
-                blurMax: 64
-                blurMultiplier: root.bloom
-                brightness: 0.15
+                blurMax: Math.max(2, Math.round(root.strokeLit * 2 * root.bloom))
+                blurMultiplier: 1.0
             }
+            opacity: 0.75
             Repeater {
                 model: ["A","B","C","D","E","F","G"]
                 Segment {
