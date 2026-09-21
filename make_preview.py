@@ -42,6 +42,15 @@ def parse_scheme(variant):
                     else rgb("[Colors:Button]", "ForegroundNormal"),
         "accent": rgb("[Colors:Button]", "DecorationFocus"),
         "sel":    rgb("[Colors:Selection]", "BackgroundNormal"),
+        # the window's own text and focus decoration, and the view ground —
+        # the pairs Union's variables.css composes alphas over (W14)
+        "window_fg": rgb("[Colors:Window]", "ForegroundNormal")
+                     if ("[Colors:Window]", "ForegroundNormal") in section
+                     else rgb("[Colors:View]", "ForegroundNormal"),
+        "focus":  rgb("[Colors:Window]", "DecorationFocus")
+                  if ("[Colors:Window]", "DecorationFocus") in section
+                  else rgb("[Colors:Button]", "DecorationFocus"),
+        "view_bg": rgb("[Colors:View]", "BackgroundNormal"),
         # the ghost as the palette solved it, and the alpha it was solved THROUGH
         # (make_schemes emits [EL] GhostAlpha; a scheme without it predates the
         # solve and is read at the 0.45 its ghost was drawn at)

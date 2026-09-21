@@ -64,7 +64,8 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the paths-forward queue (symbols, order, lock, residue) | `scripts/paths_forward.py` | `python3 scripts/paths_forward.py --queue` | `paths-forward.json` `paths-forward.ledger` |
 | the Gentoo overlay: markers, the ebuild, the staged install tree | `scripts/check_ebuild.py` | `python3 scripts/check_ebuild.py --tree` | `.ebuild` `layout.conf` `repo_name` |
 | the install set (what the theme puts under /usr) | `make_deb.py` | `python3 make_deb.py --stage <dir>` | — |
-| the palette as CSS custom properties (web / Union / site) | `scripts/check_css.py` | `python3 scripts/check_css.py --map` | `.css` |
+| the palette as CSS custom properties (web / site) | `scripts/check_css.py` | `python3 scripts/check_css.py --map` | `.css` |
+| the Union styles: which Breeze alphas are solved, to what, and which are OPEN | `scripts/check_union.py` | `python3 scripts/check_union.py --map` | `overrides.css` `variables.css` |
 
 ⚑ **THE LAST TWO ROWS CLAIM FILENAMES, NOT SUFFIXES.** A hook script has no suffix, so a
 suffix-only table could never route it; the borrowed hook's selftest asserts that the

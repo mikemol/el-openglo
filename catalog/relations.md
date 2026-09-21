@@ -241,6 +241,26 @@ barely-perceptible band, which is what receding to texture means in the ceiling'
 metric. With the floor stated per mode the flag reads false on every variant; the
 resolution is a definition made explicit, not a bound relaxed.
 
+### 3d. The same relation, on other pairs: Union's authored alphas
+
+    alpha(fg, ground, mode)  =  min a  such that  |Lc|(composite(fg, ground, a), ground) ≥ GHOST_VISIBLE_LC[mode]
+
+§3b/§3c solved this for one pair — the segment's `fg_in` over `ground`. KDE's Union
+engine composes *the scheme's own colours* at alphas its Breeze style authors: an
+indicator is "window text at 0.4", a hover fill "highlight at 0.3", the focus ring
+"decoration-focus at 0.3" (`/usr/share/union/css/styles/breeze/variables.css:75-106`).
+Each is this relation with the number guessed — and for EL-Openglo the solve returns
+0.396 for the indicator, which is what 0.4 was an eye's reading of. `make_union.SOLVED`
+names the pair and the mode per variable; `ghost_solve.alpha_min` solves it per variant
+(Azure's indicator needs 0.49, the Lit modes ~0.3); `check_union` holds the emission to
+the solve. The parsing mode is the judgement stated: an indicator and a focus ring must
+be *found* (looked-at floor, 25); a hover fill is *noticed* (glanced floor, 10).
+
+**OPEN — kept as Breeze authored, listed in `make_union.OPEN`:** the PRESSED states
+(`--indicator-press-color` 0.7, `--card-pressed-color` mix 0.3), the current indicator
+(0.95), the shadow (0.1), and the two 0.5 mixes. The palette has no relation for a press
+or a shadow; inventing one to make the table complete would be §6's error.
+
 ---
 
 ## 4. The constellation — the discrete relation

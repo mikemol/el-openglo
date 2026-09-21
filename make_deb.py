@@ -273,6 +273,16 @@ if [ -f "$SHARE/konsole/EL-Openglo-$VARIANT.profile" ] && command -v kwriteconfi
   echo "  Konsole: default profile -> EL-Openglo-$VARIANT (new tabs)"
 fi
 
+# 6c. Union (Plasma's new styling engine): the style is chosen per session by
+# UNION_STYLE_NAME; ~/.config/plasma-workspace/env/ is sourced at login, so
+# this takes effect at the NEXT login, not now.
+USTYLE="el-openglo-$(echo "$VARIANT" | tr 'A-Z' 'a-z')"
+if [ -f "$SHARE/union/css/styles/$USTYLE/style.css" ]; then
+  mkdir -p "$HOME/.config/plasma-workspace/env"
+  printf 'export UNION_STYLE_NAME=%s\n' "$USTYLE" > "$HOME/.config/plasma-workspace/env/el-openglo-union.sh"
+  echo "  Union: UNION_STYLE_NAME=$USTYLE (next login)"
+fi
+
 # 7. EL segment clock — add to the panel if not already present (uses Plasma's
 # scripting D-Bus interface; harmless if it fails / already added)
 PLASMOID="org.el.segclock.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
@@ -648,6 +658,14 @@ def stage(root):
     cdirs = {v: os.path.join(DEB_ROOT, f"usr/share/el-openglo/chrome/{v}")
              for v in VARIANTS}
     _chrome.render_all(VARIANTS, cdirs)
+
+    # Union styles (W14): Breeze with its composited alphas solved, one style per
+    # variant, rendered straight into the DESTDIR like the other render_all()
+    # emitters. Selected per session by UNION_STYLE_NAME (el-openglo-apply).
+    import make_union as _union
+    udirs = {v: os.path.join(DEB_ROOT, "usr/share/union/css/styles", _union.style_name(v))
+             for v in VARIANTS}
+    _union.render_all(VARIANTS, udirs)
 
     # Konsole colorschemes (⊕KONSOLE): 5th palette emitter, into the system
     # Konsole dir (auto-discovered). Plus Alacritty/foot off the same ANSI 16.

@@ -585,3 +585,11 @@
   section  = {emitters},
   rests-on = {COTYPE}
 }
+
+@misc{UNION,
+  claim    = {The palette is emitted as a KDE Union style per variant — Breeze imported, its composited alphas (indicator, focus, hover) replaced by the ghost relation solved over the scheme's own colour pairs, the rest left authored and listed OPEN — and every override names a variable Breeze defines and carries its solve},
+  check    = {tool:check_union.py},
+  note     = {W14, 2026-09-21. Union reads colours via kcolorscheme so only the alphas are ours; UNION_STYLE_NAME selects a style per session (no config file in 6.7.5). For EL-Openglo the solved indicator alpha is 0.396 — Breeze's authored 0.4.},
+  section  = {emitters},
+  rests-on = {GHOST}
+}

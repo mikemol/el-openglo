@@ -12,6 +12,7 @@ preview.png
 # emitted theme trees (bulky SVG sets; regenerate with make_aurorae/make_plasma)
 aurorae/
 plasma/
+union/
 catalog/cotype/.delta-cache.json
 .palette-cache.json
 # check_ebuild's work dir: the index tree staged under sys-apps/sandbox. Under
