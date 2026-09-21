@@ -17,8 +17,15 @@ WEAKNESS, STATED.  This stages the INDEX tree under sys-apps/sandbox (writes
 confined to a tempdir — Portage's own enforcement, run as the user) but with
 THIS checkout's Python and deps, not the ebuild's BDEPEND. A dependency the
 ebuild forgot to declare is invisible here (pkgcheck does not see it either);
-only an actual `emerge` proves the BDEPEND set. Staging is ~2 min cold (the
+only an actual `emerge` proves the BDEPEND set. What IS measured since
+2026-09-21: every atom the ebuild DOES declare has a visible provider on this
+host with the overlay in the repo set (deps_resolve). That still runs against
+this host's repos — it cannot prove the overlay's carried colorspacious is
+what resolves when ::guru is absent; the selftest asserts the carried ebuild
+exists, which is the structural half of that. Staging is ~2 min cold (the
 palette solve; the cache rides along) and seconds warm.
+
+    scripts/check_ebuild.py --deps     # the declared atoms and whether each resolves
 """
 import os
 import re
@@ -37,6 +44,44 @@ def overlay_markers():
     """[(path, present)] for the two files Portage needs to treat a dir as a repo."""
     return [(p, os.path.isfile(os.path.join(OVERLAY, p)))
             for p in ("metadata/layout.conf", "profiles/repo_name")]
+
+
+def bdepend_atoms(path=EBUILD):
+    """The package atoms in BDEPEND / DEPEND / RDEPEND, USE-deps stripped."""
+    text = open(path, encoding="utf-8").read()
+    atoms = []
+    for m in re.finditer(r'^(?:B|R)?DEPEND="([^"]*)"', text, re.M):
+        for tok in m.group(1).split():
+            tok = re.sub(r"\[.*?\]$", "", tok)
+            if "/" in tok and not tok.startswith("$"):
+                atoms.append(tok)
+    return sorted(set(atoms))
+
+
+def deps_resolve(path=EBUILD):
+    """(ok, detail): every BDEPEND atom resolves to a visible package on THIS host,
+    with the overlay itself in the repo set — so a dependency the overlay carries
+    (dev-python/colorspacious, from ::guru) counts. Not on Gentoo → SKIP.
+
+    ⚑ THIS ARM EXISTS BECAUSE THE WEAKNESS ABOVE WAS MEASURED: colorspacious
+    resolved on luthen only because ::guru happened to be enabled; on any other
+    host the ebuild would not merge. The overlay now carries it, and this asks
+    Portage — not the checkout — whether each atom has a provider."""
+    if not shutil.which("portageq"):
+        return True, "SKIP deps-resolve (portageq not installed; not a Gentoo host)"
+    atoms = bdepend_atoms(path)
+    if not atoms:
+        return False, "deps-resolve: the ebuild declares NO dependency atoms — the arm is vacuous"
+    env = dict(os.environ, PORTDIR_OVERLAY=OVERLAY)
+    unresolved = []
+    for a in atoms:
+        r = subprocess.run(["portageq", "best_visible", "/", a], env=env,
+                           capture_output=True, text=True)
+        if r.returncode != 0 or not r.stdout.strip():
+            unresolved.append(a)
+    if unresolved:
+        return False, f"deps-resolve: {len(unresolved)} of {len(atoms)} atom(s) have no visible provider: " + ", ".join(unresolved)
+    return True, f"deps-resolve: {len(atoms)} of {len(atoms)} atoms have a visible provider"
 
 
 def ebuild_wellformed(path=EBUILD):
@@ -146,11 +191,16 @@ def staged_tree(clean=True):
 
 
 def main(argv):
-    known = {"--tree", "--selftest"}
+    known = {"--tree", "--selftest", "--deps"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_ebuild: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--deps" in argv:
+        for a in bdepend_atoms():
+            print(a)
+        print(deps_resolve()[1])
+        return 0
     if "--tree" in argv:
         files, _m = staged_tree()
         for f in files:
@@ -162,6 +212,8 @@ def main(argv):
         (notes if ok else problems).append(f"overlay marker {p}: {'present' if ok else 'MISSING'}")
     ok, detail = ebuild_wellformed()
     (notes if ok else problems).append(f"ebuild: {detail}")
+    ok, detail = deps_resolve()
+    (notes if ok else problems).append(detail)
     try:
         files, missing = staged_tree()
         if missing:
@@ -207,6 +259,28 @@ def _selftest():
         check("an ebuild that does not parse is seen (bash -n / pkgcheck)", w_ok, False)
     e_ok, e_detail = ebuild_wellformed()
     check(f"the real ebuild is well-formed ({e_detail[:60]})", e_ok, True)
+    # ⚑ THE DEPS ARM MUST SEE AN ATOM NOBODY PROVIDES, and must refuse an
+    # ebuild that declares none (a vacuous all-clear).
+    with tempfile.TemporaryDirectory() as td:
+        p = os.path.join(td, "y-9999.ebuild")
+        open(p, "w").write('EAPI=8\nBDEPEND="\n\tdev-python/numpy[${PYTHON_USEDEP}]\n'
+                           '\tdev-nonesuch/el-openglo-selftest-absent\n"\n')
+        check("atoms are read with USE-deps stripped", bdepend_atoms(p),
+              ["dev-nonesuch/el-openglo-selftest-absent", "dev-python/numpy"])
+        d_ok, d_detail = deps_resolve(p)
+        if d_detail.startswith("SKIP"):
+            print(f"  SKIP deps arms — {d_detail}")
+        else:
+            check("an atom with no provider is seen", d_ok, False)
+            check("...and named", "el-openglo-selftest-absent" in d_detail, True)
+            open(p, "w").write('EAPI=8\n')
+            check("an ebuild with no atoms is refused, not passed", deps_resolve(p)[0], False)
+            r_ok, r_detail = deps_resolve()
+            check(f"the real ebuild's atoms all resolve ({r_detail})", r_ok, True)
+            # the carried colorspacious is what makes that true WITHOUT ::guru
+            check("the overlay carries dev-python/colorspacious",
+                  os.path.isfile(os.path.join(OVERLAY, "dev-python", "colorspacious",
+                                              "colorspacious-1.1.2.ebuild")), True)
     # ⚑ THE SANDBOX ARM MUST SEE A WRITE OUTSIDE THE TREE — the defect the second
     # emerge found. Run a planted script under the same wrapper and expect EACCES.
     if shutil.which("sandbox"):
