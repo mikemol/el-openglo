@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 51,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T20:03:31+00:00",
-  "job_id": "a5431f7e",
+  "heartbeat": "2026-09-21T20:40:21+00:00",
+  "job_id": "a11d75c6",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -13,10 +13,7 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": {
-    "holder": "tick-a5431f7e",
-    "taken_at": "2026-09-21T20:26:51+00:00"
-  },
+  "lock": null,
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -852,16 +849,16 @@
     {
       "symbol": "W51",
       "title": "HOVER-PAUSE INDICATOR (operator: 'a visual indicator for when hover is active. Perhaps a pulsing outline? the outermost pips of the matrix fading in and out - something clear, active, responsive, and will get someone to move the damn mouse'). While rotation.paused (hover-pause holding the board): MatrixField draws its outermost ring of pips (top row, bottom row, first and last columns) at a separate opacity that a SequentialAnimation pulses between the ghost alpha and the lit alpha (~0.8 s period, Easing.InOutSine); nothing else on the board changes, the run resumes when the pointer leaves. Colour: the ring pulses toward the lit token (not fg_act - this is attention, not alarm; W46's urgency owns hot). Harness: check_marquee_live --hovered samples a new root property boardPaused plus the field's ringOpacity; policy rule L7: while paused the ring opacity CHANGES across samples (a pulse), and while not paused it equals the ghost alpha. Settings: none new - the pulse belongs to hoverPause.",
-      "status": "ready",
+      "status": "done",
       "enables": "W46",
       "touches": "marquee,MatrixField,policy",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(1) MatrixField gains ringOpacity + a paint path that draws the outer ring separately; (2) marquee-main: root.boardPaused from rotation.onPausedChanged, a SequentialAnimation on field.ringOpacity running: boardPaused; (3) harness samples paused + ringOpacity; L7 + refuse/admit tests; (4) parity re-capture (main, MatrixField pair if one exists); COTYPE s102.",
-      "evidence": "",
+      "next_bounded_step": "none - LIVE confirm after re-emerge (a parked pointer pulses the ring)",
+      "evidence": "42efc30: MatrixField ring canvas + showGhost; marquee pulse on ringOpacity while boardPaused; harness hovered run + L7 (34/34); MatrixField parity pair (11 of 11); COTYPE s102",
       "issued_at": "2026-09-21T20:02:23+00:00",
-      "last_worked": "2026-09-21T20:02:23+00:00",
+      "last_worked": "2026-09-21T20:39:11+00:00",
       "ticks_blocked": 0
     }
   ],

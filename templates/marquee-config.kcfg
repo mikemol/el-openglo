@@ -22,6 +22,14 @@
   <entry name="hoverPause" type="Bool"><default>true</default></entry>
   <!-- print every rebuild / swap / start to plasmashell's stderr (the live host's
        twin of check_marquee_live's trace) -->
-  <entry name="debugLog" type="Bool"><default>false</default></entry>
+  <!-- ON while VER-MARQUEE is live (operator: "check the logs yourself on
+       ticks"): a plasmashell started from a terminal is unreadable except through
+       the config below, so the shipped default logs; it returns to false when the
+       live symbol closes -->
+  <entry name="debugLog" type="Bool"><default>true</default></entry>
+  <!-- the last lines of that log, kept HERE so a reader without the shell's stderr
+       (a plasmashell started from a terminal logs to that terminal) can still read
+       them from the appletsrc on disk; check_marquee_host.py does -->
+  <entry name="traceLog" type="String"><default></default></entry>
  </group>
 </kcfg>

@@ -47,7 +47,21 @@ PlasmoidItem {
     // start, on plasmashell's stderr, when the setting is on.
     property bool cfgDebugLog: (plasmoid.configuration.debugLog === undefined) ? false
                                : plasmoid.configuration.debugLog
-    function trace(what) { if (root.cfgDebugLog) console.log("el-marquee " + what); }
+    // ⚑ AND INTO THE APPLET'S CONFIG (operator: "check the logs yourself on
+    // ticks"). A plasmashell started from a terminal logs to that terminal,
+    // which nothing else can read; plasmoid.configuration is persisted to the
+    // appletsrc on disk, which scripts/check_marquee_host.py reads. The last
+    // ~6000 characters are kept, newest last, each line stamped in seconds
+    // since the widget loaded.
+    readonly property double loadedAt: Date.now()
+    function trace(what) {
+        if (!root.cfgDebugLog) return;
+        console.log("el-marquee " + what);
+        var line = ((Date.now() - root.loadedAt) / 1000).toFixed(2) + " " + what;
+        var log = (plasmoid.configuration.traceLog || "") + line + "\n";
+        if (log.length > 6000) log = log.substring(log.length - 6000);
+        plasmoid.configuration.traceLog = log;
+    }
 
     preferredRepresentation: fullRepresentation
 
