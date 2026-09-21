@@ -65,7 +65,10 @@ def against_substrate():
     for fmt, table in sorted(r["segGlyphs"].items()):
         for ch, segs in sorted(table.items()):
             src = None
-            for tbl in (ST.DIGITS16, ST.LETTERS16, ST.SYMBOLS16):
+            tables = (ST.DIGITS16, ST.LETTERS16, ST.SYMBOLS16)
+            if fmt == "22":
+                tables = tables + (ST.LETTERS22,)     # lowercase live at 22 only
+            for tbl in tables:
                 if ch in tbl:
                     src = tbl[ch]
                     break
@@ -260,6 +263,10 @@ def _selftest():
             print(f"  ok   {label}")
 
     check("the real registry agrees", main(["x"]), 0)
+    r0 = DT.registry()
+    check("the 22 table carries the lowercase", "g" in r0["segGlyphs"]["22"], True)
+    check("...and no coarser table does", all("g" not in r0["segGlyphs"][f] for f in ("7", "14", "16")), True)
+    check("a lowercase at 22 is glyph22's set", r0["segGlyphs"]["22"]["g"], sorted(ST.glyph22("g")))
     check("the round trip is clean", roundtrip()[0], True)
     check("nothing disagrees with the substrate", against_substrate(), [])
     check("the font is structurally consistent", font_structure(), [])

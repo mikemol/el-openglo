@@ -256,6 +256,11 @@ def registry():
             for ch, segs in tbl.items():
                 g = set(segs.split()) if segs else set()
                 table[ch] = sorted(_seg.project(g, fmt)) if g else []
+        if fmt == "22":
+            # the lowercase are 22-seg glyphs only (⊕SEG22-DESCENDERS): a 22-seg
+            # surface renders text, and at any coarser format they fold to upper
+            for ch, segs in _seg.LETTERS22.items():
+                table[ch] = sorted(set(segs.split()))
         seg_glyphs[fmt] = table
 
     displays = {}

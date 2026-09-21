@@ -145,9 +145,6 @@ WITNESS = {
     # … NOT wired to fontTools glyph ingest, NOT calibrated, NOT validated against
     # all 44. A proven PRINCIPLE, not a shipped pipeline" (:4644). When the log
     # enumerates what remains, the witness is that list — not the name.
-    "⊕SEG22-DESCENDERS": (
-        "lowercase g/j/p/q/y carry descender segments in a 22-seg glyph table (:4455)",
-        lambda: _reads("segment_topology.py", r"LETTERS22|DESCENDER_GLYPHS|glyph22")),
 
     # ── TUNE ──
     "⊕SOLVER-PERF": (
@@ -408,6 +405,19 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 84 (W28, 2026-09-21). The table, its invariants in the
+    # substrate's own selftest (26 over SEG22, the descender glyphs exactly the
+    # ones that hang, no two alike, uppercase untouched), and the validation at
+    # 22 on the lowercase frame with every tail's bar hit (check_projection).
+    "⊕SEG22-DESCENDERS": (
+        "segment_topology.LETTERS22 (26 lowercase over SEG22, g j p q y on dl/dc/dr,"
+        " DESCENDER_GLYPHS, glyph22) with its arms in the substrate selftest, validated"
+        " at 22 by check_projection on the lowercase frame (:4455)",
+        lambda: _reads("segment_topology.py", r"(?m)^LETTERS22\s*=") and
+                _reads("segment_topology.py", r"(?m)^DESCENDER_GLYPHS\s*=") and
+                _reads("segment_topology.py", r"def\s+glyph22\b") and
+                _reads("glyph_match.py", r"ST\.glyph22\(") and
+                _tool("check_projection.py", "--descenders")),
     # closed session 82 (W28, 2026-09-21). The log's criterion at :4644 — "wired to
     # real fontTools glyph ingest and validated across all 44, not the synthetic-
     # stroke PoC" — its open witness wanted those words in project_font. The
@@ -476,7 +486,9 @@ CLOSED = {
         " authored table; SW_BAND is its argmax, not a hand-set 0.7 (:4631)",
         lambda: _reads("glyph_match.py", r"def\s+calibrate_projection\b") and
                 _reads("glyph_match.py", r"(?m)^SW_BAND\s*=") and
-                _tool("check_projection.py", "--calibrate")),
+                # the selftest sweeps a 2x2 and refuses a flat one; the full
+                # --calibrate (14 x 46) pushed --regressions past the gate (s84)
+                _tool("check_projection.py", "--selftest")),
     # closed session 74 (W7, 2026-09-21). ⚑ ITS FIRST WITNESS MATCHED THE WORD
     # "cross-check" in a docstring (s69); this one aims at the def and at the
     # tool that runs it over a font and requires the instrument to discriminate.

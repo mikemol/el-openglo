@@ -5733,3 +5733,71 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s83]
+
+## Session 84 — ⊕SEG22-DESCENDERS: LETTERS22 authored against the probes, validated at 22, closed
+- W28, 2026-09-21. segment_topology.LETTERS22: 26 lowercase over SEG22 in the
+  lattice's convention — x-height is the LOWER half of the body (g1 g2 its top,
+  d1 d2 the baseline, e/m/c its verticals, i/l/n1 its diagonals), ascenders on
+  f/b/j, descenders on dl/dc/dr, the tittle of i/j on p1. The descender column
+  per glyph is the s83 probe's (g j q -> dr, p -> dl, y -> dc), not a guess.
+  DESCENDER_GLYPHS = gjpqy; glyph22(ch) is case-significant (lowercase from
+  LETTERS22, everything else glyph16's). Substrate selftest arms: a-z covered,
+  every segment a 22-seg id, the glyphs that hang are exactly DESCENDER_GLYPHS,
+  no two lowercase share a set (this arm CAUGHT g == q on the first draft; g
+  gained dc as an authored hook, recorded as authored not ink), uppercase
+  untouched, strict refusal. The 22->16 invariant holds unchanged.
+- VALIDATED at 22 (glyph_match.validate_projection fmt="22" consults glyph22,
+  places lowercase on the 2x6 cell). First under the "metrics" frame: mean
+  0.31 with g1 g2 MISSED ON EVERY GLYPH and the upper verticals/p1 gained — the
+  face's x-height is 0.80 of cap (1082/1349), the lattice's is the mid-bar.
+  The same type-vs-display gap as s82, at the scale of the whole lowercase. So
+  ink_field gained frame="lowercase": x-height -> the mid-bar (2), cap -> 0,
+  baseline -> 4, measured descent -> 6, piecewise, the way a display compresses
+  a lowercase body (make_glyph_ink.font_xheight: OS/2 sxHeight, else the 'x'
+  bbox). Under it: mean 0.37, and EVERY tail's bar is hit (dr for g j q, dl
+  for p, dc for y — a selftest pin). What remains is the round ceiling in a
+  half-height cell (bowl tops read as i/l/n1 meeting at the centre) and 'l'
+  as the '1' convention (a centred stem reads j m). Reported, not gated.
+- The registry's segGlyphs["22"] now carries the lowercase (a 22-seg surface
+  renders text; coarser tables do not carry them — a lowercase folds to its
+  uppercase there); check_display_registry consults LETTERS22 at 22 and holds
+  three arms on it. Parity unchanged (7 of 7).
+- Four gates: constructible (LETTERS22, DESCENDER_GLYPHS, glyph22, the
+  lowercase frame, the 22 registry table); reachable (validate at 22 over the
+  26, the descent reached on every descender glyph); observable
+  (check_projection --fmt 22 per glyph; --descenders; check_display_registry
+  --show); coverable (the substrate arms can each fail and one did; the
+  projection arms pin the tail bars; the registry arms pin where lowercase
+  live). The open witness had matched the NAMES in segment_topology; the
+  CLOSED witness is the bindings, the validation hook, and --descenders.
+
+### ⊕SEG22-DESCENDERS closure (four gates)
+- Four gates: as above. Residue: lowercase agreement 0.37 (round ceiling in a
+  half cell; 'l' convention); g's dc is authored, not ink; no SURFACE renders
+  22-seg text yet (the clock is 7/16, the marquee is matrix) — the table waits
+  for one. The RESEARCH bucket closes out with this.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84: LETTERS22, validated at
+  22 on the lowercase frame, 0.37, every tail's bar hit)
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?),
+  ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s84]

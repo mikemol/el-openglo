@@ -268,6 +268,20 @@ def _selftest():
         0 < sliver.any(axis=1).sum() < tall.any(axis=1).sum(), True)
     chk("the tall cell scores 'p' higher on dl than the body cell does",
         probe["p"][1]["dl"] > GM.match(body, top=8)[0]["dl"], True)
+    # ⚑ THE LOWERCASE TABLE VALIDATES AT 22, AND EVERY DESCENDER BAR AGREES: for
+    # g j p q y the authored dl/dc/dr must be HIT, and the table consulted must be
+    # glyph22's (case-significant), not the uppercase fold.
+    low = {r[0]: r for r in GM.validate_projection(font, "gjpqy", fmt="22")}
+    chk("the five descender glyphs validate at 22", sorted(low), list("gjpqy"))
+    # the bar on each tail's SIDE (the s83 probes) is hit; g's extra dc is an
+    # authored distinction from q, not ink, and is not claimed here
+    side = {"g": "dr", "j": "dr", "p": "dl", "q": "dr", "y": "dc"}
+    chk("the descender bar on each tail's side is hit",
+        [c for c, bar in side.items() if bar not in low[c][3]], [])
+    chk("lowercase is compared against glyph22, not the uppercase fold",
+        low["g"][1] == GM.ST.glyph22("g") and low["g"][1] != GM.ST.glyph16("G"), True)
+    chk("at 16 a lowercase folds to its uppercase",
+        GM.validate_projection(font, "g", fmt="16")[0][1] == GM.ST.glyph16("G"), True)
     # ⚑ THE FULL TABLE, AND THE PINS.  The default charset is every authored key
     # (the log's "all 44", now 46 non-blank); the convention-gap glyphs score 0
     # under the default frame and an entry that starts scoring must leave the pin.

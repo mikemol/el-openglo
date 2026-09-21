@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 30,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T12:08:06+00:00",
-  "job_id": "2321a055",
+  "heartbeat": "2026-09-21T12:29:38+00:00",
+  "job_id": "ccb32500",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-47",
-    "taken_at": "2026-09-21T12:19:11+00:00"
+    "holder": "tick-48",
+    "taken_at": "2026-09-21T12:39:06+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -515,10 +515,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "⊕SEG22-DESCENDERS, one bounded step: the 2x6 validation cell — ink_field(frame='metrics') mapping the descent row (y 4..4+DESCENDER_DEPTH) from font_frame's measured descent, and validate_projection(fmt='22') over one lowercase glyph ('g') against a HAND-STATED expected set (not a table yet) to prove the descender bars dl/dc/dr can be reached by the matcher. If they can, the LETTERS22 table is authoring work (26 glyphs), a separate tick.",
-      "evidence": "8592908: AUTHORED_CHARS (46 non-blank) default; KNOWN_CONVENTION pins 1 - _ = ' !; ink_field frame=metrics; ⊕SEG-FONT-PROJECT in CLOSED (38 witnessed); ⊕SEG22-DESCENDERS needs stated (COTYPE s82: lowercase sets over SEG22, 22->16 invariant, 2x6 validation cell, --fmt 22)",
+      "next_bounded_step": "Author LETTERS22 in segment_topology: a lowercase table (26) over SEG22 using p1/p2/n1/dl/dc/dr, DESCENDER_GLYPHS = gjpqy, glyph22(ch) that falls back to glyph16 for uppercase/digits; the invariant project(glyph22(upper),'16') == glyph16(upper) for every uppercase must hold (selftest arm); validate with check_projection --fmt 22 over the lowercase on the 2x6 metrics frame (validate_projection needs a cell-height/frame choice per fmt: fmt 22 -> DESCENDER_H + metrics) and report per-glyph agreement against the probes. Then close (four gates; witness LETTERS22|DESCENDER_GLYPHS|glyph22 as the open witness already says).",
+      "evidence": "afea981: 2xH grid (_grid, ink_grid H=, _cell_height); metrics frame maps measured descent to the box bottom; descender_probe + check_projection --descenders: g/j/q->dr, p->dl, y->dc (5/5); COTYPE s83; symbol open for the LETTERS22 table",
       "issued_at": "2026-09-21T10:08:03+00:00",
-      "last_worked": "2026-09-21T12:07:07+00:00",
+      "last_worked": "2026-09-21T12:28:40+00:00",
       "ticks_blocked": 0
     },
     {

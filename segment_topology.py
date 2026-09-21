@@ -349,6 +349,61 @@ SEG22_EXTRAS = ("p1", "p2", "n1", "dl", "dc", "dr")
 # to native 16 — the log's stated gate, asserted in _selftest below.
 FORMATS["22"] = {"mask": set(SEG22), "merge": {}}
 
+# ── lowercase, 22-seg (⊕SEG22-DESCENDERS, session 84) ────────────────────────
+#
+# ⚑ AUTHORED IN THE LATTICE, AGAINST THE PROBES, NOT PINNED TO A VENDOR TABLE.
+# The convention: the x-height is the LOWER half of the body cell (g1 g2 its
+# top, d1 d2 the baseline, e/m/c its verticals, i/l/n1 its diagonals); an
+# ascender rises on f (left) / b (right) / j (centre); a descender hangs on
+# dl/dc/dr; the tittle of i and j is p1. Authored 2026-09-21 with
+# check_projection --descenders showing what the matcher SEES for each glyph
+# (g j q -> dr, p -> dl, y -> dc), so the descender column per glyph is the
+# font's, not a guess. Distinctness is measured (display_types
+# collision_classes over "5x8"-like charsets and the selftest arm below), and
+# the 22->16 invariant for UPPERCASE is untouched: lowercase live only here.
+LETTERS22 = {
+    "a": "g1 g2 c d1 d2 m",
+    "b": "f e d1 d2 c g1 g2",
+    "c": "g1 g2 e d1 d2",
+    "d": "b c d1 d2 e g1 g2",
+    "e": "g1 g2 e d1 d2 l",
+    "f": "a2 j m g1 g2",
+    # g: q with the tail curling left. dc is an AUTHORED distinction (g and q
+    # were one set without it — the selftest caught the collision); the face
+    # does not draw it (validated at 22: dr hit, dc missed) and the projection
+    # selftest claims only dr for g.
+    "g": "g1 g2 c d1 d2 e dr dc",
+    "h": "f e c g1 g2",
+    "i": "p1 m",
+    "j": "p1 c dr",
+    "k": "f e g1 l",
+    "l": "f e",
+    "m": "e c m g1 g2",
+    "n": "e c g1 g2",
+    "o": "g1 g2 c d1 d2 e",
+    "p": "e dl g1 g2 c d1 d2",
+    "q": "c dr g1 g2 e d1 d2",
+    "r": "e g1 g2",
+    "s": "g1 g2 i d2 c",
+    "t": "j m g1 g2 d2",
+    "u": "e c d1 d2",
+    "v": "n1 c",
+    "w": "e c m d1 d2",
+    "x": "n1 l i",
+    "y": "e c g1 g2 dc",
+    "z": "g1 g2 i d1 d2",
+}
+DESCENDER_GLYPHS = frozenset("gjpqy")
+
+
+def glyph22(ch, strict=False):
+    """The 22-seg segment set for `ch`: lowercase from LETTERS22 (case is
+    SIGNIFICANT here — 'a' and 'A' are different glyphs); everything else is
+    glyph16's, which is a 22-seg glyph by the superset invariant."""
+    if ch in LETTERS22:
+        return set(LETTERS22[ch].split())
+    return glyph16(ch, strict=strict)
+
 
 def endpoints(key_or_spec):
     """Endpoint tuple (ax,ay,bx,by) for a GEOM22 segment key OR a raw spec.
@@ -404,6 +459,27 @@ def _selftest():
     # every segment must have well-formed endpoints
     bad = [k for k in SEG22 if len(endpoints(k)) != 4]
     check(f"every segment has endpoints ({bad})", bad, [])
+
+    # ⚑ THE LOWERCASE TABLE (⊕SEG22-DESCENDERS): 26 glyphs, every segment a real
+    # 22-seg id, the descender glyphs EXACTLY the ones that hang below the
+    # baseline, no two lowercase alike, and the uppercase path untouched.
+    check("LETTERS22 covers a-z", "".join(sorted(LETTERS22)), "abcdefghijklmnopqrstuvwxyz")
+    unknown = sorted({s for v in LETTERS22.values() for s in v.split()} - set(SEG22))
+    check(f"every lowercase segment is a 22-seg id ({unknown})", unknown, [])
+    hangs = frozenset(ch for ch in LETTERS22 if glyph22(ch) & set(("dl", "dc", "dr")))
+    check("the glyphs that hang below the baseline are DESCENDER_GLYPHS", hangs, DESCENDER_GLYPHS)
+    dup = {}
+    for ch in LETTERS22:
+        dup.setdefault(frozenset(glyph22(ch)), []).append(ch)
+    coll = sorted(v for v in dup.values() if len(v) > 1)
+    check(f"no two lowercase glyphs share a segment set ({coll})", coll, [])
+    check("glyph22 of an uppercase is glyph16's", glyph22("A"), glyph16("A"))
+    check("case is significant in glyph22", glyph22("a") != glyph22("A"), True)
+    try:
+        glyph22("☃", strict=True)
+        check("glyph22 of an unknown char refuses under strict", False, True)
+    except KeyError:
+        check("glyph22 of an unknown char refuses under strict", True, True)
 
     # ⚑ THE MODULE METRICS ARE TWO WITNESSES, AND THEY MUST AGREE.  The single
     # package's width (character + 2 margins) and the multi-digit module's pitch

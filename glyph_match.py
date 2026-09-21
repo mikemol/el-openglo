@@ -41,6 +41,11 @@ AUTHORED_CHARS = "".join(dict.fromkeys(list(ST.DIGITS16) + list(ST.LETTERS16) + 
 # where the face put it. An entry that starts scoring must LEAVE this set — the
 # selftest refuses a pin that has been outgrown.
 KNOWN_CONVENTION = frozenset("1-_='!")
+LOWER_CHARS = "".join(sorted(ST.LETTERS22))     # 22-seg only
+# the ingest frame for lowercase: "lowercase" maps the face's x-height to the
+# lattice mid-bar (measured 0.31 -> see session 84 under "metrics", which keeps
+# the face's 0.8-cap x-height and misses g1 g2 on every glyph)
+LOWER_FRAME = "lowercase"
 
 
 CELL_H = 4.0    # the body cell; a 22-seg cell with descenders is 6.0 (BODY + DESCENDER_DEPTH)
@@ -251,14 +256,24 @@ def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stret
     would make this a gate is ⊕SEG-PROJECT-CALIBRATE's to solve, not this
     routine's to assume."""
     if chars is None:
-        chars = AUTHORED_CHARS
+        chars = AUTHORED_CHARS if fmt != "22" else AUTHORED_CHARS + LOWER_CHARS
     rows = []
     for ch in chars:
-        authored = set(ST.project(ST.glyph16(ch), fmt))
+        # ⚑ LOWERCASE ARE 22-SEG GLYPHS ONLY (segment_topology.LETTERS22): at any
+        # coarser format they project to their UPPERCASE via glyph16's fold, so
+        # the table consulted is glyph22 at 22 and glyph16 elsewhere.
+        table = ST.glyph22(ch) if fmt == "22" else ST.glyph16(ch)
+        authored = set(ST.project(table, fmt))
         if not authored:
             continue          # a KNOWN blank (' ', ':') has nothing to agree with
-        pres = ink_grid(_ingest(path, ch, kind, frame))
-        _scores, lit22 = match(pres, top=len(ST.glyph16(ch)), band=band, sagitta=sagitta)
+        if fmt == "22" and ch in ST.LETTERS22:
+            # a lowercase glyph is placed by the font's metrics on the 2x6 cell,
+            # so its descender can reach the descent row (session 83)
+            G = PF.winding_ink(path, ch, box=(2.0, DESCENDER_H), frame=LOWER_FRAME)
+            pres = ink_grid(G, H=DESCENDER_H)
+        else:
+            pres = ink_grid(_ingest(path, ch, kind, frame))
+        _scores, lit22 = match(pres, top=len(table), band=band, sagitta=sagitta)
         projected = set(ST.project(lit22, fmt))
         hits = authored & projected
         union = authored | projected

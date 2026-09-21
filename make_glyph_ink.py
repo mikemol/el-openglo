@@ -141,6 +141,29 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
         s = min(W/(x1-x0), H/(y1-y0))
         sx = sy = s
         ox, oy = (W-(x1-x0)*s)/2, (H-(y1-y0)*s)/2
+    elif frame == "lowercase":
+        # ⚑ THE LOWERCASE FRAME (session 84): the lattice's lowercase convention
+        # puts the x-height at the MID-BAR (g, cell y=2) and the ascender at the
+        # top; a face puts its x-height at ~0.8 of cap (Liberation Mono: 1082 /
+        # 1349). Measured under "metrics" the whole lowercase table scored 0.31
+        # with g1 g2 missed on every glyph and the upper verticals gained. So
+        # this maps x-height -> 2, cap -> 0, baseline -> 4, descent -> H:
+        # piecewise, the way a segment display compresses a lowercase body.
+        cap, desc = font_frame(path)
+        xh = font_xheight(path) or cap * 0.5
+        sx = W/(x1-x0)
+        below = H - BODY_H
+
+        def _gy(py):
+            if py >= xh:
+                return (BODY_H/2) - (py-xh)/max(1e-9, cap-xh) * (BODY_H/2)
+            if py >= 0:
+                return BODY_H - py/xh * (BODY_H/2)
+            if below <= 0 or desc >= 0:
+                return BODY_H + 1e-3
+            return BODY_H + (py/desc) * below
+        tp = [[((px-x0)*sx, _gy(py)) for px, py in pl] for pl in polys]
+        return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
     elif frame == "metrics":
         # ⚑ THE FONT'S FRAME, as matrix_glyph uses (session 76): x from the
         # glyph's own bbox (a segment cell is monospace), y from CAP HEIGHT ->
@@ -208,6 +231,22 @@ def font_frame(path):
                 lows.append(bp.bounds[1])
     desc = min(lows) if lows else (f["hhea"].descent if "hhea" in f else -cap * 0.25)
     return float(cap), float(desc)
+
+
+def font_xheight(path):
+    """The x-height in font units: OS/2 sxHeight when declared, else the 'x'
+    bbox top; None when neither exists."""
+    f = TTFont(path)
+    xh = getattr(f["OS/2"], "sxHeight", 0) if "OS/2" in f else 0
+    if xh:
+        return float(xh)
+    gs = f.getGlyphSet(); cmap = f.getBestCmap()
+    if ord("x") in cmap:
+        from fontTools.pens.boundsPen import BoundsPen
+        bp = BoundsPen(gs); gs[cmap[ord("x")]].draw(bp)
+        if bp.bounds:
+            return float(bp.bounds[3])
+    return None
 
 
 def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
