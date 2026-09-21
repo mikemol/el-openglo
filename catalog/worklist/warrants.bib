@@ -570,3 +570,10 @@
   claim    = {the Gentoo overlay under overlay/ is a Portage repository whose live ebuild installs, through the same staging function the .deb wraps, a non-empty tree containing every mapped destination},
   check    = {tool:check_ebuild.py}
 }
+
+@misc{CSS,
+  section  = {emitters},
+  rests-on = {TOKENS},
+  claim    = {the palette is emitted as CSS custom properties — one block per variant, Off/Lit mapped onto prefers-color-scheme, the seen ghost stated as color-mix() — and every property equals its token},
+  check    = {tool:check_css.py}
+}

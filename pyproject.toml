@@ -42,6 +42,8 @@ tooling = [
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
     "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG
     "python-magic>=0.4.27",
+    "tinycss2",         # scripts/check_css.py — a real CSS tokenizer for the emitted stylesheet
+                        # (present transitively via cairosvg, but a check's dependency is declared)
 ]
 # QML linting for the packaged widgets.  ⚑ NOT YET SATISFIABLE — see below.
 package = [

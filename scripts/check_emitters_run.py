@@ -43,6 +43,7 @@ ORDER = (
     ("make_aurorae",   "window decoration, from GRID"),
     ("make_plasma",    "Plasma theme SVGs, from GRID"),
     ("make_wallpaper", "wallpaper; sources tokens with a standalone fallback"),
+    ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
 )
 
 # Emitters that need an input this machine may not have.  Absent -> SKIP, named.
