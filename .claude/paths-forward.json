@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 39,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T16:52:31+00:00",
-  "job_id": "b5a33efd",
+  "heartbeat": "2026-09-21T17:17:56+00:00",
+  "job_id": "0f02d575",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-60",
-    "taken_at": "2026-09-21T17:08:27+00:00"
+    "holder": "tick-61",
+    "taken_at": "2026-09-21T17:18:33+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -674,16 +674,16 @@
     {
       "symbol": "W39",
       "title": "HTML NOTIFICATION BODIES (operator 2026-09-22): some senders emit HTML bodies; parse the markup and let styling drive the dots — bold/strong as lit weight or glow, font color / span color as a HUE on the lit token where the palette allows (a relation gated by the same floors, never a raw literal on the phosphor), i/em perhaps as a slant or ghost weight. CENSUS FIRST: what markup actually arrives (Plasma's notification spec allows b i u a img; senders also emit font color and span style)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "templates/marquee-main.qml,make_notify_marquee,make_palette",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "The widget half: (1) make_notify_marquee.main_qml emits a hueTable hole (make_palette.hue_table(lit, ground, ghost) as a JS array of 12 hex colours; fallbacks already equal fg) — the registry stays the display's, the table is the variant's; (2) MatrixChar gains per-character overrides: litColorOverride (color, default transparent = use litColor) and glowBoost (real, default 0); (3) the marquee's Repeater reads root.tickerRuns at each index (a small runAt(i) function) — bold -> glow 1.25 (the clock's weight ratio), colour -> the nearest hue bucket from the table (hue of the parsed colour name/hex: a JS hex->hue is fine, names via a small map or ignore); (4) a harness case: a body with a font colour yields a run with color set; (5) check_ghost_surfaces still reads the emitted litColor/ghostColor holes (it must — the override is per char). qml_sanity; parity re-capture. Then W39 done; COTYPE s94 (⊕VER-MARQUEE).",
-      "evidence": "a78d873: make_palette.rehue + hue_table (60/72 accepted, fallbacks are the gate); scripts/check_rehue.py @REHUE (worklist 61); parser collapses whitespace so run offsets are exact (harness 15 cases); parity 10/10; COTYPE s93",
+      "next_bounded_step": "",
+      "evidence": "b02c4d4: hue_table_js -> $hueTable hole; MatrixChar.litColorOverride; marquee runAt/hueOf/overrideFor, bold = dotFill x1.15; ghost-surfaces 30/30; parity 10/10; witness pins; COTYPE s94. Live: a coloured notify-send after re-emerge.",
       "issued_at": "2026-09-21T15:50:52+00:00",
-      "last_worked": "2026-09-21T16:51:32+00:00",
+      "last_worked": "2026-09-21T17:17:00+00:00",
       "ticks_blocked": 0
     }
   ],

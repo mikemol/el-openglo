@@ -6498,3 +6498,59 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s94]
+
+## Session 95 — Plasma 6.7's revived Oxygen and Air, measured on the host (W37)
+- The operator (2026-09-22): 6.7 "dusts off some legacy themes"; the
+  announcement names OXYGEN (KDE 4's default) and AIR, "brought up to par
+  with Breeze", light/dark/twilight Global Themes, the Air and Horos
+  wallpapers; and UNION as a tech preview (already emitted, W14).
+- MEASURED here (kde-plasma/oxygen is installed): Plasma Styles
+  /usr/share/plasma/desktoptheme/oxygen and air; Global Themes
+  org.kde.oxygen, org.kde.oxygenlight, org.kde.air. Both Plasma Styles carry
+  a `colors` file — FIXED colours, they do not follow the system scheme —
+  with the same directory shape ours have (make_plasma emits an EL colors
+  file too). Their metadata declares no fallback chain. The stock
+  org.kde.oxygen LnF `defaults` names seven engines: widgetStyle=oxygen,
+  ColorScheme=OxygenDark, [Icons] Theme=oxygen, plasmarc theme=oxygen,
+  cursorTheme=Oxygen_Black, kdecoration2 library=org.kde.oxygen, and the
+  Horos wallpaper.
+- WHAT "EL OVER OXYGEN" IS, per engine: the widget style (oxygen kstyle)
+  and the decoration (org.kde.oxygen) read KColorScheme — an EL colour
+  scheme ALREADY colours them; nothing to emit, only to SELECT. The Plasma
+  Style does not follow the scheme, but its `colors` file colours the
+  chrome's TEXT while the chrome art is Oxygen's own baked SVGs — an EL
+  colors file over Oxygen's art would be EL text on Oxygen chrome, which is
+  not the phosphor; the EL Plasma Style stays. Oxygen icons do not follow
+  the scheme (Breeze's do — that is why W31 inherits Breeze). Oxygen_Black
+  cursors are one more inheritable parent, no different from Breeze's.
+- DECISION: an Oxygen flavour is a Global Theme DEFAULTS choice — the same
+  six LnFs with widgetStyle=oxygen and library=org.kde.oxygen (no Aurorae
+  theme) — and building six MORE LnFs cuts against the operator's "one
+  configurable theme" (W35). So the build waits on W35's shape: if the LnF
+  collapses to one, the engine becomes a choice inside it; if not, an
+  --engine flavour of build_lnf_packages is a small change. Meanwhile the
+  fact stands: applying an EL colour scheme and picking Oxygen's widget
+  style and decoration in System Settings IS EL over Oxygen today. Air and
+  Horos are wallpapers and a light Plasma Style — no EL relation to state.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-94 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen by selecting its engines), ⊕VER-MARQUEE (s89
+  field, s90 settings, s91 the ring, s92 bodies stripped, s93-94 styled runs
+  — confirm after re-emerge), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s95]
