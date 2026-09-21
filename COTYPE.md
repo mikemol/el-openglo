@@ -5439,3 +5439,67 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s78]
+
+## Session 79 — ⊕SEG-DOTPRODUCT-TEMPLATES: the arc field, solved INWARD, and what it did to each class
+- W27, 2026-09-21. glyph_match._arc_field(seg, cell, sw, sagitta): the band
+  of a segment bent to a quadratic arc whose apex sits at sagitta x the
+  segment length, sampled to ARC_N pieces; sagitta 0 is exactly the straight
+  band (asserted). Only ARC_SEGS bow — a1 a2 d1 d2 and b c e f, the strokes a
+  bowl replaces; the centre bars, centre verticals and diagonals stay straight
+  at every sagitta. match / validate_projection / calibrate_projection take
+  sagitta; check_projection --calibrate --arcs sweeps it at the solved
+  frame/band, --sagitta N sets it for a report or --classes.
+- THE FIRST GUESS WAS THE WRONG DIRECTION. Outward (the bow of a real bowl,
+  as I had pictured it): monotonically worse, 0.653 -> 0.626 -> 0.612. The
+  geometry: under the stretch frame a bowl's wall sits INSIDE the cell's
+  corners, so the outer strokes must bow toward the centre. Grid extended to
+  negatives: plateau -0.05..-0.15 (0.668-0.672, 10/36 exact), argmax -0.15;
+  -0.20 falls off (0.652) as b c e f bowing far enough hurts M K. SAGITTA =
+  -0.15 with the sweep in its comment.
+- PER CLASS at -0.15 vs 0: round 0.60 -> 0.62 (0 -> 1 exact: P), straight
+  0.77 -> 0.79, diagonal 0.67 -> 0.68. Both directions reported: the round
+  class moved UP and the straight class did NOT fall — the hypothesis holds,
+  modestly. Overall 0.653 -> 0.672.
+- WHAT IT DID NOT DO, stated: the round ceiling is 0.62, and '0' is still
+  a1a2d1d2 missed / g1g2 extra — the stretched oval's WAIST at mid-height
+  overlaps the centre bars more than its narrow top overlaps the outer ones.
+  That is not a bow of single strokes; it is which strokes a bowl maps to
+  (a bowl is one closed curve, the table is six straight pieces). A
+  curvature-aware template family beyond single-stroke arcs (a bowl
+  primitive scored as one, then attributed to its pieces) is the residue.
+- Four gates: constructible (_arc_field, SAGITTA solved, --arcs, --sagitta);
+  reachable (every ARC_SEGS band is bent in match; the sweep runs over the
+  36); observable (the landscape printed; --classes at any sagitta); coverable
+  (selftest: sagitta 0 equals the straight band, positive bows up, negative
+  bows down, a centre bar never bows, the solved sagitta is not worse than
+  straight on the digits — a pin that fails if SAGITTA drifts off the plateau;
+  --calibrate refuses a flat sweep).
+
+### ⊕SEG-DOTPRODUCT-TEMPLATES closure (four gates)
+- Four gates: as above. Residue: the bowl-as-one-primitive template; the '1'
+  b c convention; 7 and W classed round by their curved joins.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79: arc field solved inward, sagitta
+  -0.15; round 0.60 -> 0.62, straight 0.77 -> 0.79, overall 0.67, 10/36) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest +
+  validate all 44), ⊕SEG22-DESCENDERS, ⊕GHOST-DENSITY (dot field + 22-seg
+  pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s79]

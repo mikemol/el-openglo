@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T10:08:57+00:00 · job `56c7c4ed` · counter 29 · hash `01f5b222751ec12f`
+heartbeat 2026-09-21T10:28:49+00:00 · job `1a251c95` · counter 29 · hash `a143cf7f295e88a7`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -48,7 +48,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 | W24 | done | Rebuild the font family — ⊕SEG-FONT, ⊕SEG-FONT-TTF, ⊕DOT-FONT, ⊕DOT-FONT-TTF, ⊕DOT-FONT-DESC are CLOSED in COTYPE.md and KNOWN-LOST (check_symbol.LOST, sweep 2026-09-21): make_font.py is a recorded partial nobody imports, fonts/ is absent, make_deb maps fonts/ only if present | — | — |
 | W25 | done | Rebuild the three small KNOWN-LOST closures: ⊕VER-WIDGET-ICON (make_preview.icon_svg — the clock plasmoid's icon from the scheme; make_deb SKIPs it per variant), ⊕QML-SANITY (qml_sanity.py — the staged QML is unlinted; qmllint at /usr/lib64/qt6/bin exists here), ⊕RENDER-GATE (render_qml.py exists but make_deb does not run it as the fourth gate the closure at :4545 states) | — | — |
 | W26 | done | Re-author the 5x8 descender matrix table (⊕DOT-FONT-DESC, the last KNOWN-LOST closure): display_types.FONT5x8 with true descenders for g j p q y (and the lowercase set the closure at :1496 lists), MatrixDisplay(5, 8) in DISPLAYS, the marquee/matrix surfaces reading it, EL-Matrix-5x8.ttf from matrix_contours(cols=5, rows=8) | — | — |
-| W27 | ready | ⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention) | — | MEASURE first: per-class Jaccard table (round / straight / diagonal / narrow) from check_projection rows, as a --classes mode, so the ceiling is a number per class before any template changes. Then one template family (an arc field for the a/d/g horizontals following the round glyph wall) and re-run --calibrate; witness at a def matching _(curved|arc|bezier|curvature)\w*_field (check_symbol open witness). |
+| W27 | ready | ⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention) | — | The arc field: in glyph_match, _arc_field(seg, cell, sw, sagitta) bends a horizontal segment's band (a1 a2 d1 d2 g1 g2, and the side verticals b c e f) to a circular arc bowing OUTWARD by sagitta*cell; match() takes an arc sagitta parameter (0 = the straight band), calibrate_projection sweeps it; then --classes: round must move up from 0.60 and straight must not fall from 0.77 — report both. Witness = the def (check_symbol open witness regex). |
 | W28 | ready | ⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs | — | Read the ⊕SEG-FONT-PROJECT witness (:4644: fontTools ingest + validate all 44) and check_st_api — which 8 of the 44 are missing from validate_projection's 36 (SYMBOLS16?) — and extend the validation to them; then state what a 22-seg descender glyph table needs (segment_topology LETTERS22 / DESCENDER_GLYPHS) before authoring any. |
 | W29 | ready | ⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio | — | Add a --matrix arm to check_ghost_composite (or a sibling) that composites the dot field's AREA-WEIGHTED ghost (coverage 0.82^2*pi/4 of the cell at ghost_alpha over ground) and reports its Lc beside the stroke ghost's, per variant; the number decides whether the marquee needs its own alpha. |
 
@@ -80,7 +80,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W24** — 1ab38ca: glyph_contours/matrix_contours → one build_ttf; EL-Segment-{7,16}.ttf + EL-Matrix-5x7.ttf + SVG fonts under fonts/; source-relative orientation gate; check_font @FONT-EMIT (54); make_font in STAGE, mapping unguarded; fonttools to base deps + ebuild; 4 symbols LOST→CLOSED (28/1). Remaining: ⊕DOT-FONT-DESC — the 5x8 table is gone (W26).
 - **W25** — e570137: icon_svg ('12' over ghost at module pitch), qml_sanity.py on qmllint keyed by diagnostic id (Plasma context props not errors), render gate in make_deb (SKIP under SANDBOX_ON — the offscreen platform opens /dev/nvidiactl, a sandbox violation); BDEPEND +qtdeclarative; check_deps fixture de-pinned; three symbols LOST→CLOSED (24 witnessed / 5 lost).
 - **W26** — dc4b748: FONT5x8 authored via _cols row strings; baseline as a LINE (make_font baseline=); EL-Matrix-5x8.ttf with negative descent; check_font descender arm + off-by-one fixture; 'g' rendered with its tail below the baseline; check_symbol LOST now EMPTY (29 witnessed / 0 lost / 23 artifact-free).
-- **W27** — 
+- **W27** — e1fe97e: outline_stats + glyph_class + agreement_by_class; check_projection --classes: straight 0.77 (4/8), diagonal 0.67 (5/9), round 0.60 (0/19: 9P86GO5CQSU3JW207DB); COTYPE s78
 - **W28** — 
 - **W29** — 
 

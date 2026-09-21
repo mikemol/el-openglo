@@ -150,14 +150,6 @@ WITNESS = {
         " not the synthetic-stroke PoC (:4644)",
         lambda: _reads("project_font.py", r"(?i)fontTools|TTFont") and
                 _reads("project_font.py", r"(?i)all.?44|validate")),
-    # Named in glyph_match's banner since s83 (transcript), first placed in the
-    # ledger at s75 when the calibration measured the ceiling it exists to lift:
-    # straight bands cannot follow round walls (0 O D B) or diagonals-to-centre
-    # (A V 7 W). The witness is a template field that is not the straight band.
-    "⊕SEG-DOTPRODUCT-TEMPLATES": (
-        "curvature-aware segment templates in the matcher — a template field other than"
-        " the straight band, and the round glyphs' a/d agreement measured against it (:5204)",
-        lambda: _reads("glyph_match.py", r"def\s+_(curved|arc|bezier|curvature)\w*_field\b")),
     "⊕SEG22-DESCENDERS": (
         "lowercase g/j/p/q/y carry descender segments in a 22-seg glyph table (:4455)",
         lambda: _reads("segment_topology.py", r"LETTERS22|DESCENDER_GLYPHS|glyph22")),
@@ -426,6 +418,17 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 79 (W27, 2026-09-21). Named in glyph_match's banner since
+    # s83 (transcript), placed in the ledger at s75, its ceiling measured per
+    # class at s78 (round 0.60 over 19). The witness is the arc field, the solved
+    # (negative) sagitta, and the sweep mode that refuses a flat landscape.
+    "⊕SEG-DOTPRODUCT-TEMPLATES": (
+        "glyph_match._arc_field bends the outer strokes to an arc; SAGITTA is solved by"
+        " calibrate_projection --arcs (inward), and the round class is measured against"
+        " it by --classes (:5204)",
+        lambda: _reads("glyph_match.py", r"def\s+_arc_field\b") and
+                _reads("glyph_match.py", r"(?m)^SAGITTA\s*=\s*-") and
+                _tool("check_projection.py", "--classes")),
     # closed session 77 (W6, 2026-09-21). ⚑ THE OPEN WITNESSES MATCHED THE WORDS
     # "matrix" and "rasteri" in the emitter — and the emitter had carried the word
     # "matrix" in a comment since s65. These aim at the registry's extension def,

@@ -43,34 +43,44 @@ def find_font(explicit=None):
     return None
 
 
-def report(font, fmt="16", chars=None, frame="stretch"):
+def report(font, fmt="16", chars=None, frame="stretch", sagitta=None):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import glyph_match as GM
-    rows = GM.validate_projection(font, chars, fmt=fmt, frame=frame)
+    sag = GM.SAGITTA if sagitta is None else sagitta
+    rows = GM.validate_projection(font, chars, fmt=fmt, frame=frame, sagitta=sag)
     return rows, GM.agreement_summary(rows)
 
 
-def calibrate(font, fmt="16"):
-    """--calibrate: sweep frame x band, print the landscape and the argmax, and
-    REFUSE if the sweep is flat — a calibration that cannot move the number is
-    not calibrating anything."""
+def calibrate(font, fmt="16", arcs=False):
+    """--calibrate: sweep frame x band (x sagitta with --arcs), print the
+    landscape and the argmax, and REFUSE if the sweep is flat — a calibration
+    that cannot move the number is not calibrating anything."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import glyph_match as GM
-    params, best, table = GM.calibrate_projection(font, fmt=fmt)
-    print(f"font {font}  fmt {fmt}  calibrating frame x band")
-    for (frame, band), (mean_j, exact, n) in sorted(table.items(), key=lambda kv: -kv[1][0]):
-        mark = "  <- best" if (frame, band) == (params["frame"], params["band"]) else ""
-        print(f"  frame {frame:8}  band {band:.2f}  mean jaccard {mean_j:.3f}  {exact:2d}/{n} exact{mark}")
+    if arcs:
+        # the arc sweep holds the solved frame/band and moves only the bow
+        params, best, table = GM.calibrate_projection(
+            font, fmt=fmt, frames=("stretch",), bands=(GM.SW_BAND,), sagittas=GM.SAGITTA_GRID)
+        print(f"font {font}  fmt {fmt}  calibrating sagitta at frame stretch, band {GM.SW_BAND}")
+    else:
+        params, best, table = GM.calibrate_projection(font, fmt=fmt)
+        print(f"font {font}  fmt {fmt}  calibrating frame x band at sagitta {GM.SAGITTA}")
+    bkey = (params["frame"], params["band"], params["sagitta"])
+    for (frame, band, sag), (mean_j, exact, n) in sorted(table.items(), key=lambda kv: -kv[1][0]):
+        mark = "  <- best" if (frame, band, sag) == bkey else ""
+        print(f"  frame {frame:8}  band {band:.2f}  sagitta {sag:.2f}  mean jaccard {mean_j:.3f}"
+              f"  {exact:2d}/{n} exact{mark}")
     spread = max(v[0] for v in table.values()) - min(v[0] for v in table.values())
     if spread < 0.01:
         print(f"check_projection: REFUSED — the sweep is flat (spread {spread:.3f}); "
               f"the parameters do not reach the number", file=sys.stderr)
         return 1
-    default = table[("stretch", GM.SW_BAND)][0]
+    dkey = ("stretch", GM.SW_BAND, GM.SAGITTA)
+    default = table[dkey][0] if dkey in table else float("nan")
     print(f"check_projection: calibrated over {len(table)} settings — best {params} "
-          f"mean jaccard {best:.3f}; the module default (stretch, {GM.SW_BAND}) scores {default:.3f}")
+          f"mean jaccard {best:.3f}; the module default {dkey} scores {default:.3f}")
     return 0
 
 
@@ -97,7 +107,7 @@ def classes(font, fmt, rows):
 
 
 def main(argv):
-    known = {"--font", "--fmt", "--frame", "--calibrate", "--classes"}
+    known = {"--font", "--fmt", "--frame", "--calibrate", "--classes", "--arcs", "--sagitta"}
     args = [a for a in argv[1:] if a.startswith("--")]
     for a in args:
         if a not in known:
@@ -110,9 +120,10 @@ def main(argv):
         print("check_projection: SKIP — no TTF found (pass --font PATH); 0 of 36 glyphs measured",
               file=sys.stderr)
         return 0
+    sagitta = float(argv[argv.index("--sagitta") + 1]) if "--sagitta" in argv else None
     if "--calibrate" in argv:
-        return calibrate(font, fmt)
-    rows, (mean_j, exact, n) = report(font, fmt, frame=frame)
+        return calibrate(font, fmt, arcs="--arcs" in argv)
+    rows, (mean_j, exact, n) = report(font, fmt, frame=frame, sagitta=sagitta)
     if "--classes" in argv:
         return classes(font, fmt, rows)
     if not rows:
@@ -170,9 +181,29 @@ def _selftest():
     # swept settings — not a default smuggled in. ('1H' alone is flat: 1 scores 0 and
     # H scores 1 under every setting — measured, which is why the set is the digits.)
     params, best, table = GM.calibrate_projection(font, "0123456789", bands=(0.4, 1.0), frames=("stretch", "fit"))
-    chk("calibration sweeps every setting", sorted(table), sorted([(f, b) for f in ("stretch", "fit") for b in (0.4, 1.0)]))
-    chk("the argmax is a swept setting", (params["frame"], params["band"]) in table, True)
-    chk("the argmax's score is the returned best", table[(params["frame"], params["band"])][0], best)
+    chk("calibration sweeps every setting", sorted(table),
+        sorted([(f, b, GM.SAGITTA) for f in ("stretch", "fit") for b in (0.4, 1.0)]))
+    bkey = (params["frame"], params["band"], params["sagitta"])
+    chk("the argmax is a swept setting", bkey in table, True)
+    chk("the argmax's score is the returned best", table[bkey][0], best)
+    # ⚑ THE ARC MUST BE A STRAIGHT BAND AT SAGITTA 0 AND SOMETHING ELSE ABOVE IT
+    import numpy as np
+    seg = GM.SEG["a1"]; cell = (0.0, 2.0, 0.0, 4.0)
+    chk("sagitta 0 is the straight band", np.array_equal(GM._arc_field(seg, cell, 0.2, 0.0), GM._seg_field(seg, cell, 0.2)), True)
+    bowed = GM._arc_field(seg, cell, 0.2, 0.2)
+    chk("a bowed band differs from the straight one", np.array_equal(bowed, GM._seg_field(seg, cell, 0.2)), False)
+    chk("a positive bow of a top segment goes UP (outward), not into the cell",
+        int(np.where(bowed)[0].min()) <= int(np.where(GM._seg_field(seg, cell, 0.2))[0].min()), True)
+    inward = GM._arc_field(seg, cell, 0.2, -0.2)
+    chk("a negative bow of a top segment goes DOWN (inward)",
+        int(np.where(inward)[0].max()) >= int(np.where(GM._seg_field(seg, cell, 0.2))[0].max()), True)
+    chk("a centre bar never bows", "g1" in GM.ARC_SEGS or "g2" in GM.ARC_SEGS, False)
+    # ⚑ THE SOLVED SAGITTA MUST EARN ITS PLACE: on the digits it may not score
+    # below the straight band (a regression pin on the calibration's argmax)
+    _p, _b, t2 = GM.calibrate_projection(font, "0123456789", bands=(GM.SW_BAND,), frames=("stretch",),
+                                          sagittas=(0.0, GM.SAGITTA))
+    chk("the solved sagitta is not worse than straight on the digits",
+        t2[("stretch", GM.SW_BAND, GM.SAGITTA)][0] >= t2[("stretch", GM.SW_BAND, 0.0)][0], True)
     chk("the sweep is not flat", len({round(v[0], 3) for v in table.values()}) > 1, True)
     # the crossbar defect: H's stroke width must read as a stem, not the crossbar
     import numpy as np

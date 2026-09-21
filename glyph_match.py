@@ -92,20 +92,58 @@ def _ink_bbox_sw(pres, band=SW_BAND):
     return bb, max(0.12, sw*band)
 
 
+_GX, _GY = np.meshgrid(np.arange(RES+1)/RES*2.0, np.arange(RES+1)/RES*4.0)
+
+
+def _band(pts, sw):
+    """Grid points within `sw` of the polyline `pts` — vectorised over the grid
+    (the per-pixel Python loop it replaces pushed check_symbol --regressions to
+    3m15 once the arc field arrived, past the gate's timeout; session 79)."""
+    S = np.zeros((RES+1, RES+1), bool)
+    for (qx, qy), (rx, ry) in zip(pts, pts[1:]):
+        ex, ey = rx-qx, ry-qy; L2 = ex*ex+ey*ey or 1e-9
+        t = np.clip(((_GX-qx)*ex + (_GY-qy)*ey)/L2, 0.0, 1.0)
+        S |= np.hypot(_GX-(qx+t*ex), _GY-(qy+t*ey)) < sw
+    return S
+
+
 def _seg_field(seg, bb, sw):
     x0, x1, y0, y1 = bb; ax, ay, bx, by = seg
     sax, say = x0+(x1-x0)*ax/2, y0+(y1-y0)*ay/4
     sbx, sby = x0+(x1-x0)*bx/2, y0+(y1-y0)*by/4
-    dx, dy = sbx-sax, sby-say; L2 = dx*dx+dy*dy or 1e-9
-    S = np.zeros((RES+1, RES+1), bool)
-    for j in range(RES+1):
-        py = j/RES*4.0
-        for i in range(RES+1):
-            px = i/RES*2.0
-            t = max(0, min(1, ((px-sax)*dx+(py-say)*dy)/L2))
-            if math.hypot(px-(sax+t*dx), py-(say+t*dy)) < sw:
-                S[j, i] = True
-    return S
+    return _band([(sax, say), (sbx, sby)], sw)
+
+
+# ⊕SEG-DOTPRODUCT-TEMPLATES (session 79): which of the 22 may BOW. The outer
+# horizontals and the side verticals are the strokes a round glyph's bowl
+# replaces with an arc; the centre bars, the centre verticals and the diagonals
+# have no bowl to follow and stay straight at every sagitta.
+ARC_SEGS = frozenset({"a1", "a2", "d1", "d2", "b", "c", "e", "f"})
+ARC_N = 16
+
+
+def _arc_field(seg, bb, sw, sagitta):
+    """The band of `seg` bent to an arc bowing OUTWARD (away from the cell's
+    centre) by `sagitta` x the segment's length; sagitta 0 is exactly the
+    straight band. The arc is a quadratic Bezier through the chord's ends whose
+    apex sits at the sagitta, sampled to a polyline of ARC_N pieces; a point is
+    in the field when it lies within `sw` of any piece."""
+    if sagitta == 0:
+        return _seg_field(seg, bb, sw)
+    x0, x1, y0, y1 = bb; ax, ay, bx, by = seg
+    sax, say = x0+(x1-x0)*ax/2, y0+(y1-y0)*ay/4
+    sbx, sby = x0+(x1-x0)*bx/2, y0+(y1-y0)*by/4
+    dx, dy = sbx-sax, sby-say; L = math.hypot(dx, dy) or 1e-9
+    nx, ny = -dy/L, dx/L
+    mx, my = (sax+sbx)/2, (say+sby)/2
+    cx, cy = (x0+x1)/2, (y0+y1)/2
+    if (mx-cx)*nx + (my-cy)*ny < 0:          # make the normal point away from the centre
+        nx, ny = -nx, -ny
+    s = sagitta * L
+    px_, py_ = mx + 2*s*nx, my + 2*s*ny     # Bezier control: apex lands at s
+    pts = [((1-t)**2*sax + 2*(1-t)*t*px_ + t*t*sbx,
+            (1-t)**2*say + 2*(1-t)*t*py_ + t*t*sby) for t in (i/ARC_N for i in range(ARC_N+1))]
+    return _band(pts, sw)
 
 
 def _phi(S, G):
@@ -116,7 +154,15 @@ def _phi(S, G):
     return (a*d - b*c)/den if den > 0 else 0.0
 
 
-def match(pres, top=None, tau=None, band=SW_BAND):
+# The arc bow of ARC_SEGS as a fraction of segment length, NEGATIVE = inward.
+# SOLVED by calibrate_projection --arcs (session 79, LiberationMono, 36, 16-seg):
+# plateau -0.05..-0.15 (0.668-0.672, 10/36 exact), argmax -0.15; 0 scores
+# 0.653; every outward value is worse. Per class at -0.15: round 0.60 -> 0.62
+# (the first exact round glyph), straight 0.77 -> 0.79, diagonal 0.67 -> 0.68.
+SAGITTA = -0.15
+
+
+def match(pres, top=None, tau=None, band=SW_BAND, sagitta=SAGITTA):
     """Score every 22-seg by congruence (phi) with the ink; return {seg: phi}, and the
     lit set (top-N strongest, or phi>tau). Match at the 22-JOIN; derez with
     segment_topology.project(lit, fmt). `band` is the template half-width as a
@@ -127,7 +173,8 @@ def match(pres, top=None, tau=None, band=SW_BAND):
     # template into its bbox would put the frame defect back.
     _bb, sw = _ink_bbox_sw(pres, band)
     cell = (0.0, 2.0, 0.0, 4.0)
-    scores = {k: _phi(_seg_field(SEG[k], cell, sw), pres) for k in ST.SEG22}
+    scores = {k: _phi(_arc_field(SEG[k], cell, sw, sagitta if k in ARC_SEGS else 0.0), pres)
+              for k in ST.SEG22}
     if top is not None:
         lit = set(sorted(ST.SEG22, key=lambda k: -scores[k])[:top])
     elif tau is not None:
@@ -150,7 +197,7 @@ def project_glyph(path, ch, kind="outline", top=None, tau=None, frame="stretch")
 
 
 def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stretch",
-                        band=SW_BAND):
+                        band=SW_BAND, sagitta=SAGITTA):
     """⊕SEG-TABLE-VALIDATE: cross-check the PROJECTION against the AUTHORED table,
     per glyph, and REPORT — a routine, not a comment (the first witness for this
     symbol matched the word "cross-check" in a docstring; session 69).
@@ -171,7 +218,7 @@ def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stret
         if not authored:
             continue
         pres = ink_grid(_ingest(path, ch, kind, frame))
-        _scores, lit22 = match(pres, top=len(ST.glyph16(ch)), band=band)
+        _scores, lit22 = match(pres, top=len(ST.glyph16(ch)), band=band, sagitta=sagitta)
         projected = set(ST.project(lit22, fmt))
         hits = authored & projected
         union = authored | projected
@@ -184,25 +231,33 @@ BAND_GRID = (0.4, 0.5, 0.6, 0.7, 0.85, 1.0, 1.2)
 FRAMES = ("stretch", "fit")
 
 
+# negative = INWARD (toward the cell centre). Outward was the first guess and
+# is monotonically worse (session 79): a bowl sits inside the stretched cell's
+# corners, so the outer strokes must bow in, not out.
+SAGITTA_GRID = (-0.2, -0.15, -0.1, -0.075, -0.05, -0.025, 0.0, 0.05, 0.1, 0.2)
+
+
 def calibrate_projection(path, chars=None, fmt="16", kind="outline",
-                         bands=BAND_GRID, frames=FRAMES):
+                         bands=BAND_GRID, frames=FRAMES, sagittas=(SAGITTA,)):
     """⊕SEG-PROJECT-CALIBRATE: solve the matcher's free parameters — the ingest
-    frame and the template band fraction — by mean Jaccard against the authored
-    table over the whole glyph set. Returns (params, mean_jaccard, table) where
-    params = {"frame", "band"} and table = {(frame, band): (mean, exact, n)} is
-    the full sweep, so the reader sees the landscape, not just the argmax.
+    frame, the template band fraction and (⊕SEG-DOTPRODUCT-TEMPLATES) the arc
+    sagitta — by mean Jaccard against the authored table over the whole glyph
+    set. Returns (params, mean_jaccard, table) where params = {"frame", "band",
+    "sagitta"} and table = {(frame, band, sagitta): (mean, exact, n)} is the
+    full sweep, so the reader sees the landscape, not just the argmax.
 
     ⚑ What it does NOT solve: top-N is the authored count (the comparison is of
-    WHICH segments, so it cannot be free), and the ceiling is structural — the
-    straight templates cannot follow round walls (session 83). A calibrated
-    number is the best THIS matcher can do, not a proof that it is right."""
+    WHICH segments, so it cannot be free). A calibrated number is the best THIS
+    matcher can do, not a proof that it is right."""
     table = {}
     for frame in frames:
         for band in bands:
-            rows = validate_projection(path, chars, fmt=fmt, kind=kind, frame=frame, band=band)
-            table[(frame, band)] = agreement_summary(rows)
+            for sag in sagittas:
+                rows = validate_projection(path, chars, fmt=fmt, kind=kind, frame=frame,
+                                           band=band, sagitta=sag)
+                table[(frame, band, sag)] = agreement_summary(rows)
     best = max(table, key=lambda k: (table[k][0], table[k][1]))
-    return {"frame": best[0], "band": best[1]}, table[best][0], table
+    return {"frame": best[0], "band": best[1], "sagitta": best[2]}, table[best][0], table
 
 
 CLASS_CURVE = 0.35      # curve length fraction above which a glyph is "round"

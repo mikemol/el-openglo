@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 29,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T10:08:57+00:00",
-  "job_id": "56c7c4ed",
+  "heartbeat": "2026-09-21T10:28:49+00:00",
+  "job_id": "1a251c95",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-42",
-    "taken_at": "2026-09-21T10:20:38+00:00"
+    "holder": "tick-43",
+    "taken_at": "2026-09-21T10:33:51+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -500,10 +500,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "MEASURE first: per-class Jaccard table (round / straight / diagonal / narrow) from check_projection rows, as a --classes mode, so the ceiling is a number per class before any template changes. Then one template family (an arc field for the a/d/g horizontals following the round glyph wall) and re-run --calibrate; witness at a def matching _(curved|arc|bezier|curvature)\\w*_field (check_symbol open witness).",
-      "evidence": "",
+      "next_bounded_step": "The arc field: in glyph_match, _arc_field(seg, cell, sw, sagitta) bends a horizontal segment's band (a1 a2 d1 d2 g1 g2, and the side verticals b c e f) to a circular arc bowing OUTWARD by sagitta*cell; match() takes an arc sagitta parameter (0 = the straight band), calibrate_projection sweeps it; then --classes: round must move up from 0.60 and straight must not fall from 0.77 — report both. Witness = the def (check_symbol open witness regex).",
+      "evidence": "e1fe97e: outline_stats + glyph_class + agreement_by_class; check_projection --classes: straight 0.77 (4/8), diagonal 0.67 (5/9), round 0.60 (0/19: 9P86GO5CQSU3JW207DB); COTYPE s78",
       "issued_at": "2026-09-21T10:07:54+00:00",
-      "last_worked": "2026-09-21T10:07:54+00:00",
+      "last_worked": "2026-09-21T10:28:02+00:00",
       "ticks_blocked": 0
     },
     {
