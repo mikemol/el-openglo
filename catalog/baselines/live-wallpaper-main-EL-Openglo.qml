@@ -9,7 +9,7 @@ WallpaperItem {
     property color voidColor: "#081411"
     // ghost pass opacity — SOLVED by the palette (ghost_alpha on every token), not
     // the 0.45 this held as a literal no colour check could see.
-    property real ghostAlpha: 0.503
+    property real ghostAlpha: 0.308
     property bool breathe: (wallpaper.configuration.breathe === undefined) ? false
                            : wallpaper.configuration.breathe
 

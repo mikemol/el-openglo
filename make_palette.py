@@ -465,6 +465,26 @@ def build_grid():
         lit = solve_scheme(seed, "lit", alpha=alpha)
         grid[(seed, "off")] = (off, off)
         grid[(seed, "lit")] = (lit, off)
+    # ⚑ THE GLANCED-AT ALPHA IS A SECOND PASS, because it depends on every
+    # variant's SOLVED ghost (the looked-at solve sets fg_in; the glanced alpha
+    # asks how far that ghost must recede for a surface you only glance at).
+    # Operator ruling 2026-09-20 (W12): per-mode alpha. The lit-side floor is
+    # glance_audit's GLANCED_AT mode floor; the ground-side minimum is each
+    # variant's a_min. A variant that cannot satisfy both is NAMED on the token
+    # (`ghost_alpha_glanced_infeasible`), not clamped.
+    import glance_audit as _ga
+    rows = []
+    for key, (t, _d) in grid.items():
+        rgb = lambda s: tuple(int(x) for x in s.split(","))
+        lit_c, ground_c, ghost_c = rgb(t["fg"]), rgb(t["view"]), rgb(t["fg_in"])
+        a_min = _GS.alpha_min(lit_c, ground_c) or 0.0
+        rows.append(("-".join(key), lit_c, ground_c, ghost_c, a_min))
+    g_alpha, _per, infeasible = _GS.solve_ghost_alpha_for_mode(rows, _ga.MODE_FLOOR[_ga.GLANCED_AT])
+    import math
+    g_alpha = math.floor(g_alpha * 1000) / 1000        # DOWN: it is an upper bound
+    for key, (t, _d) in grid.items():
+        t["ghost_alpha_glanced"] = str(g_alpha)
+        t["ghost_alpha_glanced_infeasible"] = "true" if "-".join(key) in infeasible else "false"
     return grid
 
 

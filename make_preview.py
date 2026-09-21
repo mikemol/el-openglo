@@ -47,6 +47,11 @@ def parse_scheme(variant):
         # solve and is read at the 0.45 its ghost was drawn at)
         "ghost":  rgb("[Colors:View]", "ForegroundInactive"),
         "ghost_alpha": float(section.get(("[EL]", "GhostAlpha"), "0.45")),
+        # the glanced-at alpha (W12); a scheme without it falls back to the
+        # looked-at one, and a surface reading that is then reported by
+        # check_ghost_surfaces as drawing the wrong mode's alpha
+        "ghost_alpha_glanced": float(section.get(("[EL]", "GhostAlphaGlanced"),
+                                                 section.get(("[EL]", "GhostAlpha"), "0.45"))),
     }
 
 

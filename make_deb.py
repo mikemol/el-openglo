@@ -436,7 +436,8 @@ panel.addWidget("{plasmoid_id}");
         # through ([EL] GhostAlpha, W8); the splash reads them like every other
         # surface, so check_ghost_surfaces can see it.
         open(os.path.join(splash_dir, "Splash.qml"), "w").write(
-            _splash_qml(gnd_hex, lit_hex, '"' + cols["ghost"] + '"', cols["ghost_alpha"]))
+            _splash_qml(gnd_hex, lit_hex, '"' + cols["ghost"] + '"',
+                        cols["ghost_alpha_glanced"]))          # session splash: glanced-at
         mapping.append((pkg_dir, f"usr/share/plasma/look-and-feel/{pid}"))
     return mapping
 

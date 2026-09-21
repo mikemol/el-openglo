@@ -56,8 +56,12 @@ def _hex(rgb):
     return '"#%02x%02x%02x"' % rgb
 
 
-def colors_for(variant):
+def colors_for(variant, parsing="looked_at"):
     """(ground, lit, ghost, ghost_alpha) — READ from the palette's tokens, not re-derived.
+
+    `parsing` picks the alpha: "looked_at" (the clock, the marquee you read) or
+    "glanced_at" (the wallpaper, splash, plymouth — surfaces where the ghost must
+    recede further from lit; W12, relations.md §3c).
 
     ⚑ THIS DERIVED ITS OWN LIT AND GHOST, AND SO DID EVERY OTHER SURFACE.  It took
     `focus` (the ACCENT) as lit, pushed it through cvd_gate.stretch_lit and then
@@ -76,7 +80,10 @@ def colors_for(variant):
     ground = tuple(int(x) for x in tok["view"].split(","))
     lit = tuple(int(x) for x in tok["fg"].split(","))
     ghost = tuple(int(x) for x in tok["fg_in"].split(","))
-    alpha = float(tok["ghost_alpha"])
+    if parsing not in ("looked_at", "glanced_at"):
+        raise ValueError(f"colors_for: unknown parsing mode {parsing!r}")
+    key = "ghost_alpha" if parsing == "looked_at" else "ghost_alpha_glanced"
+    alpha = float(tok[key])
     return ground, lit, ghost, alpha
 
 
@@ -124,7 +131,7 @@ def main_qml(variant):
     ⚑ THE COLOURS AND THE GEOMETRY ARE HOLES; THE DOCUMENT IS A FILE.  This was
     120 lines of QML in an f-string, brace-doubled throughout, carrying two tables
     it had no business owning. Five holes go in; the document comes out."""
-    ground, lit, ghost, alpha = colors_for(variant)
+    ground, lit, ghost, alpha = colors_for(variant, parsing="glanced_at")   # ambient: glanced
     import templates.loader as TL
     return TL.render("live-wallpaper-main.qml",
                      lit=_hex(lit), ghost=_hex(ghost), ground=_hex(ground),

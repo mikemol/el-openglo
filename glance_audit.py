@@ -96,28 +96,29 @@ def surface_registry(variant="EL-Azure"):
     # instrument that models the world separately from the world is the
     # INSTRUMENT-VS-WORLD entry the log has banked nine times.
     import make_wallpaper_live as WL
-    ground, lit, ghost, alpha = WL.colors_for(variant)
+    ground, lit, ghost, alpha_looked = WL.colors_for(variant, parsing="looked_at")
+    _g, _l, _gh, alpha_glanced = WL.colors_for(variant, parsing="glanced_at")
     wq = WL.main_qml(variant)
     reg = []
 
     # clock plasmoid — LOOKED-AT; color + subordinated ghost + stroke-weight + bloom
     reg.append(dict(name="clock", mode=LOOKED_AT, lit=lit, ghost=ghost, ground=ground,
-                    ghost_alpha=alpha, bloom=True, stroke_weight=True))
+                    ghost_alpha=alpha_looked, bloom=True, stroke_weight=True))
 
     # live wallpaper — GLANCED-AT; the bloom and stroke-weight channels are still
     # detected from the emitted Canvas idiom (a dropped channel is what this audit
-    # was written to catch); the alpha is the palette's.
+    # was written to catch); the alpha is the palette's GLANCED one (W12 §3c).
     reg.append(dict(name="wallpaper-live", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground, ghost_alpha=alpha,
+                    ground=ground, ghost_alpha=alpha_glanced,
                     bloom=(("T*2.1" in wq and "T*1.5" in wq) or "U*0.84" in wq),
                     stroke_weight=(("U * 0.40" in wq and "U * 0.26" in wq)
                                    or ("U*0.40" in wq and "U*0.26" in wq))))
 
-    # KDE splash & plymouth — GLANCED-AT; the palette's ghost at the palette's alpha
+    # KDE splash & plymouth — GLANCED-AT; the palette's ghost at the glanced alpha
     reg.append(dict(name="kde-splash", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground, ghost_alpha=alpha, bloom=False, stroke_weight=False))
+                    ground=ground, ghost_alpha=alpha_glanced, bloom=False, stroke_weight=False))
     reg.append(dict(name="plymouth", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground, ghost_alpha=alpha, bloom=False, stroke_weight=False))
+                    ground=ground, ghost_alpha=alpha_glanced, bloom=False, stroke_weight=False))
 
     # notify marquee — lit text on void, no ghost -> exempt
     reg.append(dict(name="notify-marquee", mode=LOOKED_AT, lit=lit, ghost=ghost,

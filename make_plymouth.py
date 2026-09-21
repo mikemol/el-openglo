@@ -126,7 +126,7 @@ def render_assets(variant, out_dir, U=48):
     phosphor = _rgb(c["phosphor"])
     # the palette's ghost and the alpha it was solved through — read from the
     # scheme, not re-derived (ghost_from is residue)
-    gh, ga = _rgb(c["ghost"]), c["ghost_alpha"]
+    gh, ga = _rgb(c["ghost"]), c["ghost_alpha_glanced"]     # boot splash: glanced-at
     os.makedirs(out_dir, exist_ok=True)
     written = []
     # normal (dark display): phosphor-lit segments, ghost dim, transparent bg

@@ -51,14 +51,27 @@ def _alpha(qml):
     return float(m.group(1)) if m else None
 
 
+# Each surface's PARSING MODE (glance_audit's), which selects the alpha it must
+# draw: looked-at surfaces read ghost_alpha, glanced-at ones ghost_alpha_glanced.
+SURFACE_MODE = {
+    "make_wallpaper_live": "glanced_at",
+    "make_notify_marquee": "looked_at",
+    "make_clock": "looked_at",
+    "make_plymouth": "glanced_at",
+}
+
+
 def palette():
-    """{variant_id: (lit, ghost, alpha)} — what the palette SOLVED."""
+    """{variant_id: (lit, ghost, {mode: alpha})} — what the palette SOLVED."""
     import make_schemes
     out = {}
     for value in make_schemes.GRID.values():
         t = value[0] if isinstance(value, (list, tuple)) else value
         if isinstance(t, dict) and "fg_in" in t:
-            out[t["id"]] = (_rgb(t["fg"]), _rgb(t["fg_in"]), float(t.get("ghost_alpha", 0.45)))
+            out[t["id"]] = (_rgb(t["fg"]), _rgb(t["fg_in"]),
+                            {"looked_at": float(t.get("ghost_alpha", 0.45)),
+                             "glanced_at": float(t.get("ghost_alpha_glanced",
+                                                       t.get("ghost_alpha", 0.45)))})
     return out
 
 
@@ -92,15 +105,18 @@ def surfaces(variant_id):
     # ForegroundInactive, and [EL] GhostAlpha (parse_scheme defaults 0.45 when
     # the .colors predates the solve — which this check then reports as a miss)
     out.append(("make_plymouth", MP._rgb(c["phosphor"]), MP._rgb(c["ghost"]),
-                float(c["ghost_alpha"])))
+                float(c["ghost_alpha_glanced"])))            # what render_assets passes
     return out
 
 
 def measure():
-    """[(variant, surface, lit_ok, ghost_ok, alpha_ok, emitted, solved)]."""
+    """[(variant, surface, lit_ok, ghost_ok, alpha_ok, emitted, solved)].
+
+    The alpha a surface must draw is the one for ITS parsing mode (SURFACE_MODE)."""
     rows = []
-    for vid, (lit, ghost, alpha) in palette().items():
+    for vid, (lit, ghost, alphas) in palette().items():
         for name, s_lit, s_ghost, s_alpha in surfaces(vid):
+            alpha = alphas[SURFACE_MODE[name]]
             rows.append((vid, name, s_lit == lit, s_ghost == ghost,
                          s_alpha is not None and abs(s_alpha - alpha) < 1e-9,
                          (s_lit, s_ghost, s_alpha), (lit, ghost, alpha)))

@@ -251,6 +251,63 @@ def solve_ghost_alpha(pairs):
     return max(a for _v, a in rows), rows
 
 
+def alpha_max_vs_lit(lit, ground, ghost, lit_floor):
+    """The LARGEST alpha at which the SEEN ghost still sits `lit_floor` (WCAG) from lit.
+
+    ⚑ THE GHOST'S OTHER SIDE.  `alpha_min` bounds alpha from BELOW (the seen ghost
+    must clear the ground floor); this bounds it from ABOVE: the more opaque the
+    ghost, the closer it sits to lit, and a glanced-at surface needs it further
+    away than a looked-at one (glance_audit's MODE_FLOOR). Lit-vs-seen-ghost is
+    monotone decreasing in alpha for a ghost between lit and ground, so the
+    boundary is a root and bisection finds it. Returns None when even alpha 0
+    (the ghost IS the ground) cannot clear the floor — the lit/ground span itself
+    is too small for this mode."""
+    import palette_graph as _pg
+
+    def ratio_at(a):
+        return C.wcag_ratio(lit, _pg.composite(ghost, ground, a))
+
+    if ratio_at(0.0) < lit_floor:
+        return None
+    if ratio_at(1.0) >= lit_floor:
+        return 1.0
+    lo, hi = 0.0, 1.0
+    for _ in range(60):
+        mid = (lo + hi) / 2.0
+        if ratio_at(mid) >= lit_floor:
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
+def solve_ghost_alpha_for_mode(rows, lit_floor):
+    """ONE alpha for a parsing mode: the largest that clears `lit_floor` on EVERY variant.
+
+    `rows` is [(id, lit, ground, ghost, a_min)] — the ghost already solved through
+    the looked-at alpha, and each variant's ground-floor minimum. For each variant
+    a_max = alpha_max_vs_lit(...); the mode's alpha is min(a_max) over variants,
+    which every variant then clears on the lit side. ⚑ AND IT MUST STILL CLEAR THE
+    GROUND SIDE: if the mode alpha falls below any variant's a_min, that variant
+    cannot satisfy both floors at any alpha — a JOINT INFEASIBILITY reported by
+    name (like W3's Lit variants), never clamped into a number that looks solved.
+
+    Returns (alpha, [(id, a_min, a_max)], infeasible_ids). Refuses on an empty
+    population or a floor unreachable at alpha 0."""
+    if not rows:
+        raise ValueError("solve_ghost_alpha_for_mode: empty population — nothing was solved")
+    per = []
+    for vid, lit, ground, ghost, a_min in rows:
+        a_max = alpha_max_vs_lit(lit, ground, ghost, lit_floor)
+        if a_max is None:
+            raise ValueError(f"{vid}: lit/ground span cannot reach a {lit_floor}:1 "
+                             f"lit-vs-ghost floor at any alpha; the palette is the defect")
+        per.append((vid, a_min, a_max))
+    alpha = min(a for _v, _lo, a in per)
+    infeasible = [v for v, lo, _hi in per if alpha < lo]
+    return alpha, per, infeasible
+
+
 def derive_ghost_through_alpha(lit, ground, alpha, ceiling_lc=None):
     """The DECLARED ghost whose RENDERED form (at `alpha` over ground) is the ceiling ghost.
 

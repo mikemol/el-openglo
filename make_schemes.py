@@ -205,7 +205,7 @@ def _solved_grid():
     cache = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
                           ".palette-cache.json")
     key = hashlib.sha256()
-    for dep in ("make_palette.py", "cvd_gate.py", "ghost_solve.py"):
+    for dep in ("make_palette.py", "cvd_gate.py", "ghost_solve.py", "glance_audit.py"):
         p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), dep)
         try:
             key.update(open(p, "rb").read())
@@ -331,7 +331,12 @@ def emit_colors(t, dark):
       # (plymouth) draw the ghost the palette solved — fg_in was solved to be
       # seen THROUGH this number, and a .colors file without it carries a colour
       # whose meaning depends on a value it does not state.
-      f"[EL]\nGhostAlpha={t.get('ghost_alpha', '0.45')}\n",
+      # Two alphas since W12: looked-at (the clock) and glanced-at (surfaces you
+      # only glance at — wallpaper, splash, plymouth — where the ghost must sit
+      # further from lit). A variant that cannot satisfy both floors says so.
+      f"[EL]\nGhostAlpha={t.get('ghost_alpha', '0.45')}\n"
+      f"GhostAlphaGlanced={t.get('ghost_alpha_glanced', t.get('ghost_alpha', '0.45'))}\n"
+      f"GhostAlphaGlancedInfeasible={t.get('ghost_alpha_glanced_infeasible', 'false')}\n",
     ]
     return "\n".join(parts)
 
