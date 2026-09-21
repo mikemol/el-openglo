@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 33,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T13:51:15+00:00",
-  "job_id": "6abdc4b0",
+  "heartbeat": "2026-09-21T14:25:46+00:00",
+  "job_id": "87c29c45",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-51",
-    "taken_at": "2026-09-21T14:06:29+00:00"
+    "holder": "tick-52",
+    "taken_at": "2026-09-21T14:37:05+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -569,16 +569,16 @@
     {
       "symbol": "W32",
       "title": "RESIDUE sweep, the cheap two: ⊕NOTIFY-SEGRENDER (its criterion at :3568 is 'the ticker renders in the actual 7-seg/DOT primitive' — the dot matrix ticker of s77 satisfies the DOT half; propose the COLLAPSE into ⊕NOTIFY-MATRIXRENDER: re-aim its witness at MatrixChar dots, COTYPE closure naming the collapse, CLOSED) and ⊕SUPERSAMPLE-WP (:2583 'the wallpaper generator supersamples at generation time' — measure how make_wallpaper rasterises its PNG (cairosvg at 1920x1080 from the SVG?); if the SVG is rasterised at 1x, render at 2x and downscale with a box filter in the PNG step, check with a synthetic edge (aliasing energy falls), close)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "make_notify_marquee,make_wallpaper,check_symbol",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "NOTIFY-SEGRENDER first (a witness + a closure, 15 min): read the :3568 entry and the s65 correction; if the dot primitive satisfies it, write the s87 closure as a collapse into MATRIXRENDER (the 7-seg half is the wrong turn, recorded), move to CLOSED with a witness at MatrixChar's dot Rectangle + displays['5x8']. Then SUPERSAMPLE-WP: check_symbol --status shows its witness regex; read make_wallpaper's PNG step.",
-      "evidence": "",
+      "next_bounded_step": "",
+      "evidence": "751e394 (+ its parent): ⊕NOTIFY-SEGRENDER closed by collapse into MATRIXRENDER; ⊕SUPERSAMPLE-WP closed on measurement (2560x1440 + glow filter); coherence caught SOLVER-PERF/PANEL-LAYOUT dropped without closures — closed properly (s87b); 46 witnessed; RESIDUE now 6: HDR-EMIT KNB2 KVT2 PLA2 SEGMENTCHAR-ADOPT VER-SYSCLOCK",
       "issued_at": "2026-09-21T13:50:09+00:00",
-      "last_worked": "2026-09-21T13:50:09+00:00",
+      "last_worked": "2026-09-21T14:24:54+00:00",
       "ticks_blocked": 0
     },
     {

@@ -6064,3 +6064,82 @@ residue gated on live operator testing.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (component
   gated, unused; idiom not relation — and now the surface that would carry
   bloom/weight to all). ⊕PLA2 ⊕KVT2 ⊕KNB2. [s87b]
+
+## Session 88 — ⊕SEGMENTCHAR-ADOPT, measured: the two idioms side by side, and what the port is
+- W33, 2026-09-22. Read from the files, not recalled. templates/SegmentChar.qml
+  (the component, zero consumers) against templates/clock-main.qml (the
+  looked-at surface, with the sliders):
+  · geometry: SegmentChar takes `geom` {seg: [ax,ay,bx,by]} on the 22-seg
+    unit grid plus any `glyphs` table — it already spans 7/16/22 through the
+    registry; the clock takes $tables (segGeom {seg: [kind,ux,uy]} + digSegs)
+    — the 7-seg COARSE strokes from seg7_svg_grid, a different shape of the
+    same substrate.
+  · cell: SegmentChar 2.4u x 5u (descender band included, sharp
+    parallelograms via Shape fill); the clock segLen x 2 segLen (segLen = the
+    digit WIDTH, so L = segLen/2), rounded Rectangles (radius thick/2).
+  · lit stroke: SegmentChar litHalf = 0.20u FIXED; the clock strokeLit =
+    segThick x (1 + 0.25 x weight), segThick = segLen x strokeBase (0.168,
+    from the module stroke / 1.25) — the weight slider.
+  · ghost stroke: SegmentChar ghostHalf = 0.13u FIXED (ratio 0.65); the
+    clock strokeGhost = segThick x ghostWeight — its own slider (0.81).
+  · end gap: SegmentChar endGap 0.10u; the clock gap = segThick x 0.62.
+  · ghost opacity: BOTH draw the solved ghostAlpha (SegmentChar's hole is
+    what check_ghost_composite.rendered_alpha reads).
+  · bloom: SegmentChar draws a WIDER OPAQUE COPY (2.1 x half) at
+    bloomStrength x glow = 0.30 — exactly the thing check_symbol's
+    _bloom_is_blur arm says is NOT a bloom (s71: "a wider opaque copy is not
+    a bloom"); the clock blurs the lit layer with MultiEffect (blurMax =
+    strokeLit x 2 x bloom, opacity 0.75, never the ghost).
+  · pitch / digitGap / colon: SegmentChar has NONE — it is one character; the
+    clock owns the Row spacing (digitGap slider, floor = module pitch - 1)
+    and the ColonDot pair centred in the gap (colon_advance 0).
+  · slant: neither (residue, both).
+- WHAT SEGMENTCHAR MUST GAIN to be adoptable by the clock, in order: (1)
+  weight and ghostWeight as multipliers on a module-derived stroke base
+  (litHalf/ghostHalf become derived, not fixed); (2) a real bloom — the lit
+  pass under a MultiEffect blur layer, the wider-copy underlay removed;
+  (3) rounded stroke ends (radius = half) or the clock's look changes;
+  (4) the 7-seg coarse geometry — either SegmentChar renders the registry's
+  segGeom projected to the display's format (display_geom(fmt) gives
+  post-merge endpoints, so this is a registry_for("7") read), or the clock
+  hands it 22-seg endpoints and a 7-seg glyph set (the extras simply never
+  light). Pitch and colon stay in the SURFACE (a row of characters is not a
+  character); a SegmentRow could own them later.
+- WHAT MOVES when it does: the clock's render gate baseline (make_deb
+  render_nonempty) and the SegmentChar.qml parity baseline; check_symbol's
+  _stroke_ratio and _bloom_is_blur arms read clock-main.qml today and must
+  read SegmentChar after; check_ghost_composite.rendered_alpha already reads
+  SegmentChar; the sliders keep their kcfg keys and semantics; make_clock's
+  $tables hole may go (the registry via as_qml_js("7") replaces it).
+- ADOPTION ORDER: the clock first (looked-at, sliders, the render gate sees
+  it); then the live wallpaper (Canvas today — a different port); plymouth
+  is PNG-baked and stays.
+- NOT DONE: the port. The next bounded step is (1)+(2) in SegmentChar — the
+  component gains weight/ghostWeight/bloom and drops the wider copy — with
+  the parity baseline re-captured deliberately and a render of the component
+  alone (render_qml has a SegmentChar harness? — check) before any surface
+  adopts it.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) + ⊕NOTIFY-SEGRENDER ✓
+  ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?;
+  s85 does Global Theme apply the icon + cursor groups?; s86 does Alt+Tab
+  load the EL switcher?), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88: the
+  gap measured — SegmentChar must gain weight/ghostWeight/a real bloom/round
+  ends/the 7-seg read; the clock adopts first). ⊕PLA2 ⊕KVT2 ⊕KNB2. [s88]
