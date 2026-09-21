@@ -6293,3 +6293,47 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s90b]
+
+## Session 91 — ⊕VER-MARQUEE: the double-buffered ring (the blip)
+- W38, 2026-09-22. The operator, `watch notify-send hi`: the scrolling text
+  blipped in and out in step with the popups. From the template: rebuild()
+  wrote root.tickerText on every notifModel.onCountChanged, the Repeater's
+  model changed, and the Row was torn down mid-scroll each time a popup
+  appeared or expired. The operator's design, built as stated: ACTIVE
+  (tickerText — what scrolls, the Repeater's model) and PENDING (pendingText —
+  what rebuild() now writes); swapRing() copies pending to active and runs
+  ONLY at the rotation's end (the NumberAnimation is loops: 1 with an
+  onFinished that swaps, resets rawX to the right bezel and restarts when
+  there is text; an empty pending drains the ring to the idle field at the
+  boundary); the one exception is an idle ring — nothing is scrolling, so
+  rebuild() swaps immediately rather than waiting for a boundary that would
+  never come. Infinite loops would have re-read the model mid-flight; a
+  finite run that restarts itself is where "a full rotation" is a real
+  event. The pitch snap stays. Lint clean; parity re-captured deliberately;
+  the ticker's witness pins pendingText, the model writing it, loops: 1 and
+  the onFinished swap.
+- Not proven headless (the marquee imports org.kde.notificationmanager; no
+  harness — residue): the operator's `watch notify-send hi` after re-emerge
+  is the measurement, and the expected reading is that text arriving during
+  a rotation joins at the next one and nothing vanishes mid-word.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-91 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab), ⊕VER-MARQUEE (s89 field, s90 settings, s91 the ring — confirm
+  after re-emerge; s90b HTML bodies, W39), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s91]

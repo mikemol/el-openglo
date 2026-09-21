@@ -518,6 +518,12 @@ CLOSED = {
                 _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{") and
                 _reads("templates/marquee-config.kcfg", r'name="ghostAlpha"[^\n]*\$ghostAlpha') and
                 _reads("make_notify_marquee.py", r"configGeneral\.qml") and
+                # W38 (operator, live): a double-buffered ring — the model writes
+                # pendingText, the swap happens in the rotation's onFinished, one loop
+                _reads("templates/marquee-main.qml", r"(?m)^\s*property string pendingText") and
+                _reads("templates/marquee-main.qml", r"root\.pendingText\s*=") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*loops:\s*1\b") and
+                _reads("templates/marquee-main.qml", r"onFinished:\s*\{[^}]*swapRing\(\)") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

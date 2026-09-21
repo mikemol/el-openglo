@@ -38,8 +38,22 @@ PlasmoidItem {
     preferredRepresentation: fullRepresentation
 
     // --- the notification feed (degrades to idle if unavailable) ------------
-    property string tickerText: ""
+    //
+    // ⚑ A DOUBLE-BUFFERED RING (W38; operator, live 2026-09-22: "they blip in
+    // and out in accompaniment with the notification dialogs"). rebuild() used
+    // to replace the scrolling text on every count change, so the Row was torn
+    // down mid-scroll whenever a popup appeared or expired. Now the model
+    // writes PENDING only; ACTIVE is what scrolls and it is replaced by pending
+    // at the animation's loop boundary — a full rotation — never mid-word. A
+    // notification that expired leaves at the boundary too; an empty pending
+    // drains the ring to the idle field at the boundary.
+    property string tickerText: ""        // ACTIVE: what is scrolling now
+    property string pendingText: ""       // PENDING: what scrolls after this rotation
     property bool haveModel: false
+
+    function swapRing() {
+        root.tickerText = root.pendingText;
+    }
 
     NotificationManager.Notifications {
         id: notifModel
@@ -67,8 +81,11 @@ PlasmoidItem {
             seg = seg.replace(/\s+/g, " ").trim();
             if (seg.length) parts.push(seg);
         }
-        root.tickerText = parts.length ? parts.join("     •     ")
-                                       : "";   // empty -> idle face
+        root.pendingText = parts.length ? parts.join("     •     ")
+                                        : "";   // empty -> the ring drains to idle
+        // nothing is scrolling: start this rotation now rather than at a boundary
+        // that will never come
+        if (root.tickerText.length === 0) root.swapRing();
     }
 
     // ⚑ THE DISPLAY REGISTRY, EMITTED — NOT RETYPED.  display_types.as_qml_js()
@@ -158,13 +175,25 @@ PlasmoidItem {
                     showGhost: false
                 }
             }
-            NumberAnimation on rawX {
-                running: marquee.visible
+            // ⚑ ONE ROTATION PER RUN, and the ring swaps at its END. Infinite loops
+            // would re-read `to` and the model mid-flight; a finite run that
+            // restarts itself is where "a full rotation" is a real event.
+            NumberAnimation {
+                id: rotation
+                target: marquee; property: "rawX"
                 from: rep.width; to: -marquee.width
                 // speed scales with length so long feeds don't crawl; the
                 // settings' speed factor divides the duration
                 duration: Math.max(1500, (rep.width + marquee.width) * 12 / root.cfgSpeed)
-                loops: Animation.Infinite
+                loops: 1
+                running: marquee.visible
+                onFinished: {
+                    root.swapRing();
+                    if (root.tickerText.length > 0) {
+                        marquee.rawX = rep.width;
+                        rotation.restart();
+                    }
+                }
             }
         }
 
