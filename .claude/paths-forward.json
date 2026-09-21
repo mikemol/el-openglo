@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 22,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T03:52:29+00:00",
-  "job_id": "e52153fa",
+  "heartbeat": "2026-09-21T04:18:56+00:00",
+  "job_id": "566e84f4",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T04:09:52+00:00"
+    "taken_at": "2026-09-21T04:35:37+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -268,7 +268,7 @@
     {
       "symbol": "W14",
       "title": "Union theme emitter — the palette emitted as a KDE Union style description (CSS input via cxx-rust-cssparser; Plasma-SVG input defunct 2025-10-09), the sink that subsumes make_kvantum + make_plasma + the QQC2 half of breeze",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "emitters",
@@ -279,10 +279,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: Union replaces three current engines with one description; a generated palette is exactly its input shape. Measure the format before emitting — the engine is 6.7.5 ~arch, not yet default, and the format may still move",
-      "next_bounded_step": "Read defaults/generated-properties.css + extra-properties.css (the property vocabulary) and breeze/style.css (how a style composes/inherits). Then make_union.py emits /usr/share/union/css/styles/el-openglo/{style.css (imports breeze), variables.css override}: alphas from el-openglo.css tokens (ghost_alpha → indicator/press, ghost_alpha_glanced → hover/focus?) — each mapping justified by the relation or listed as an OPEN relation in relations.md §3d, not guessed; geometry from palette_graph constants. Install via make_deb mapping; witness check_union.py: the style dir parses (tinycss2), every overridden variable exists in breeze/variables.css, every value is a token or a stated relation; SKIP the ruleinspector arm until USE=tools.",
-      "evidence": "MEASURED (tick 25, union 6.7.5 installed, USE tools off — no union-ruleinspector): input is CSS at /usr/share/union/css/ — defaults/{generated-properties,extra-properties,default}.css + styles/breeze/{variables,button,bars,check,delegate,popup,tables,text,calendar,kirigami,application}.css; plugins union-input-css, union-platform-plasma, union-colorprovider-kcolorscheme; QtWidgets style registered as kstyle/themes/union.themerc. FINDING: styles/breeze/variables.css takes EVERY colour via custom-color(\"kcolorscheme\", state, set, role, name) — the active KDE colour scheme, i.e. our .colors — so the palette already reaches all Union outputs through ColorScheme=; a colour re-emit would be a second authority. What Union AUTHORS and we could SOLVE: --indicator-color/press/current = window-text at set-alpha 0.4/0.7/0.95 (the ghost relation with unsolved numbers), --highlight-hover-color set-alpha 0.3, --focus-outline-alpha 0.3, --shadow-color rgba(0,0,0,.1), --corner-radius 5px, spacings/grid-unit (palette_graph geometry constants are the analogue).",
+      "next_bounded_step": "—",
+      "evidence": "8a7c449: make_union.py (one style per variant; Breeze imported; indicator/focus/hover alphas solved by ghost_solve.alpha_min over the scheme's pairs — EL-Openglo indicator 0.396 vs Breeze's authored 0.4; OPEN list kept authored), check_union.py @UNION (worklist 48; 18 of 18 arms), staged under usr/share/union/css/styles/, apply writes UNION_STYLE_NAME env hook, relations.md §3d. ⊕VER after emerge + a LOGIN (HOLD ~2026-09-24): hover fills, focus ring, indicators follow the solve; engine cascade of a later :root is the unproven half.",
       "issued_at": "2026-09-20T23:31:29+00:00",
-      "last_worked": "2026-09-21T02:26:01+00:00",
+      "last_worked": "2026-09-21T04:18:27+00:00",
       "ticks_blocked": 0
     },
     {

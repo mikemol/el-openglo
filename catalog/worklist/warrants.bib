@@ -593,3 +593,19 @@
   section  = {emitters},
   rests-on = {GHOST}
 }
+
+@misc{TERMINALS,
+  claim    = {Every terminal format the theme ships — Konsole, Alacritty, foot, Windows Terminal, Termux — is a serialiser over ONE ansi table (make_konsole.ansi_table), parses with the parser its consumer uses, and reads back the same sixteen ANSI colours, ground and foreground},
+  check    = {tool:check_terminals.py},
+  note     = {W16/W18, 2026-09-21. alacritty_toml/foot_ini were a recovery gap (make_deb printed a SKIP); the Konsole .colorscheme is byte-identical before and after the refactor (cmp against the installed file).},
+  section  = {emitters},
+  rests-on = {TOKENS}
+}
+
+@misc{WINDOWS,
+  claim    = {The palette is emitted as a Windows .theme per variant that carries the three sections Microsoft's format requires (Desktop, VisualStyles, MasterThemeSelector MTSM=DABJDKT), the colour table as palette roles, the accent as ColorizationColor, and the wallpaper it references beside it},
+  check    = {tool:check_windows.py},
+  note     = {W16, 2026-09-21. Under Aero only wallpaper + accent reach the desktop; the colour table is the High Contrast path. Read from learn.microsoft.com themesfileformat-overview.},
+  section  = {emitters},
+  rests-on = {TOKENS}
+}

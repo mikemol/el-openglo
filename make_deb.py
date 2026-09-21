@@ -659,6 +659,12 @@ def stage(root):
              for v in VARIANTS}
     _chrome.render_all(VARIANTS, cdirs)
 
+    # Windows .theme per variant (W16): wallpaper + accent are what Aero honours;
+    # the colour table rides along for High Contrast. A folder, not a CAB.
+    import make_windows as _win
+    wdirs_ = {v: os.path.join(DEB_ROOT, "usr/share/el-openglo/windows", v) for v in VARIANTS}
+    _win.render_all(VARIANTS, wdirs_)
+
     # Union styles (W14): Breeze with its composited alphas solved, one style per
     # variant, rendered straight into the DESTDIR like the other render_all()
     # emitters. Selected per session by UNION_STYLE_NAME (el-openglo-apply).
@@ -676,19 +682,19 @@ def stage(root):
         open(os.path.join(kdir, f"{v}.colorscheme"), "w").write(_kon.colorscheme(v))
         # the profile that NAMES the scheme — without it nothing uses it
         open(os.path.join(kdir, f"EL-Openglo-{v}.profile"), "w").write(_kon.profile(v))
-    # ⚑ make_konsole.alacritty_toml / foot_ini DID NOT SURVIVE THE RECOVERY (fifth
-    # gap in this packager). They are the ANSI-16 table re-emitted in two more
-    # formats — the same shape W16's Windows Terminal scheme needs, so they come
-    # back together. SKIP, printed and counted.
-    if hasattr(_kon, "alacritty_toml") and hasattr(_kon, "foot_ini"):
-        tdir = os.path.join(DEB_ROOT, "usr/share/el-openglo/terminals")
-        os.makedirs(tdir, exist_ok=True)
-        for v in VARIANTS:
-            open(os.path.join(tdir, f"{v}.alacritty.toml"), "w").write(_kon.alacritty_toml(v))
-            open(os.path.join(tdir, f"{v}.foot.ini"), "w").write(_kon.foot_ini(v))
-    else:
-        print("make_deb: SKIP alacritty/foot terminal schemes — make_konsole.alacritty_toml/"
-              "foot_ini are a recovery gap (the ANSI-16 re-emit; see W16)", file=sys.stderr)
+    # ⚑ THE ANSI-16 TABLE IN EVERY FORMAT A TERMINAL ASKS FOR.  alacritty_toml /
+    # foot_ini did not survive the recovery (this printed a SKIP for them until
+    # 2026-09-21); they came back with W16/W18 as serialisers over
+    # make_konsole.ansi_table — one derivation, five syntaxes. Shipped under
+    # usr/share/el-openglo/terminals/ because none of these has a system-wide
+    # scheme directory: the user copies (or the README points) the one they use.
+    tdir = os.path.join(DEB_ROOT, "usr/share/el-openglo/terminals")
+    os.makedirs(tdir, exist_ok=True)
+    for v in VARIANTS:
+        open(os.path.join(tdir, f"{v}.alacritty.toml"), "w").write(_kon.alacritty_toml(v))
+        open(os.path.join(tdir, f"{v}.foot.ini"), "w").write(_kon.foot_ini(v))
+        open(os.path.join(tdir, f"{v}.windows-terminal.json"), "w").write(_kon.windows_terminal_json(v))
+        open(os.path.join(tdir, f"{v}.termux.properties"), "w").write(_kon.termux_properties(v))
 
     # Plymouth boot-splash themes (⊕PLYMOUTH): 7th emitter, the earliest seam.
     import make_plymouth as _ply
