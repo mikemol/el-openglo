@@ -617,16 +617,9 @@ def stage(root):
         meta_p = os.path.join(pdir, "metadata.json")
         if not os.path.isfile(meta_p):
             continue
-        # ⚑ make_preview.icon_svg DID NOT SURVIVE THE RECOVERY (measured 2026-09-20:
-        # 0 bindings in 79 files; the fourth gap in this packager after fonts/,
-        # qml_sanity and the container output path). Without it the plasmoid
-        # keeps KPlugin.Icon = "clock", the stock icon — a degraded listing, not a
-        # broken package. SKIP, printed and counted, until the renderer is rebuilt
-        # from ⊕VER-WIDGET-ICON's closure (COTYPE.md:2058).
-        if not hasattr(_mp, "icon_svg"):
-            print(f"make_deb: SKIP widget icon for {v} — make_preview.icon_svg is a "
-                  f"recovery gap; the plasmoid keeps the stock clock icon", file=sys.stderr)
-            continue
+        # make_preview.icon_svg was a recovery gap (SKIPped per variant until
+        # 2026-09-21, W25); it is rebuilt and its absence would now be a crash,
+        # which is right — a stock icon shipping in silence was the degraded case.
         icons_dir = os.path.join(pdir, "contents", "icons")
         os.makedirs(icons_dir, exist_ok=True)
         cols = _mp.parse_scheme(v)
@@ -775,12 +768,9 @@ def stage(root):
     # the string-presence proxy that let a doubled-quote color ship a black
     # wallpaper in 1.23.0. Only genuine syntax/type errors fail the build; KDE
     # import-resolution warnings (modules absent in-container) are filtered.
-    try:
-        import qml_sanity as _qs
-    except ImportError:
-        _qs = None
-        print("make_deb: SKIP qml-sanity — qml_sanity.py did not survive the recovery "
-              "(pyproject.toml records it); the staged .qml is unlinted", file=sys.stderr)
+    # qml_sanity.py was a recovery gap (SKIPped until 2026-09-21, W25); rebuilt on
+    # the host's qmllint — its absence is now an ImportError, on purpose.
+    import qml_sanity as _qs
     if _qs is not None:
         _qml_errs = []
         for _r, _d, _fs in os.walk(DEB_ROOT):
@@ -790,6 +780,13 @@ def stage(root):
                     _qml_errs += _qs.check_qml(open(_p).read(), _p.replace(DEB_ROOT, ""))
         if _qml_errs:
             raise SystemExit("QML-SANITY failed (real qmllint):\n  " + "\n  ".join(_qml_errs[:12]))
+        # ⊕RENDER-GATE: "loads" is not "draws" — the two surfaces render_qml can
+        # draw must put lit pixels on screen (the empty-digit bug loaded clean).
+        for _surface in ("clock", "live-wallpaper"):
+            _ok, _detail = _qs.render_nonempty(_surface)
+            if not _ok:
+                raise SystemExit(f"RENDER-GATE failed: {_detail}")
+            print(f"make_deb: render-gate {_detail}", file=sys.stderr)
     return mapping
 
 

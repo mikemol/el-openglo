@@ -123,6 +123,14 @@ def render(surface, variant, w, h, out_png, config_override=None):
         # bloom=0 rendered byte-identical). Ask for the RHI on OpenGL explicitly.
         env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_LOGGING_RULES="*.debug=false",
                    QT_QUICK_BACKEND="rhi", QSG_RHI_BACKEND="opengl", QSG_INFO="1")
+        # ⚑ UNDER A BUILD SANDBOX THE GPU IS A VIOLATION, NOT A RESOURCE.  Opening
+        # /dev/nvidiactl under sys-apps/sandbox failed the whole staging (measured
+        # 2026-09-21, check_ebuild). Portage's sandbox sets SANDBOX_ON; there the
+        # software scene graph draws the lit pixels the render gate asks for, and
+        # the halo (MultiEffect) is simply absent — reported as backend=software.
+        if os.environ.get("SANDBOX_ON") == "1" or os.environ.get("EL_RENDER_SOFTWARE") == "1":
+            env["QT_QUICK_BACKEND"] = "software"
+            env.pop("QSG_RHI_BACKEND", None)
         r = subprocess.run([QML, os.path.join(td, "harness.qml")], env=env,
                            capture_output=True, text=True, timeout=60)
     backend = "rhi" if "Creating QRhi" in r.stderr else (

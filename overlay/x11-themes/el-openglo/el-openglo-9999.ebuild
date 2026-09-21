@@ -21,6 +21,9 @@ KEYWORDS=""
 
 # The base set from pyproject.toml — what the CORE emission path needs. The
 # `research`/`tooling` extras are not needed to emit the theme.
+# qtdeclarative supplies qmllint and the qml runner that make_deb's QML-SANITY
+# and RENDER-GATE steps use at staging time (W25); a runner that cannot start
+# under the sandbox is a printed SKIP there, never a build failure.
 BDEPEND="
 	$(python_gen_any_dep '
 		media-gfx/cairosvg[${PYTHON_USEDEP}]
@@ -28,6 +31,7 @@ BDEPEND="
 		dev-python/numpy[${PYTHON_USEDEP}]
 		dev-python/pillow[${PYTHON_USEDEP}]
 	')
+	dev-qt/qtdeclarative:6
 "
 # What the installed surfaces run inside.
 RDEPEND="
@@ -54,8 +58,8 @@ src_install() {
 	# ⚑ ONE STAGING, TWO PACKAGERS. make_deb.stage(root) lays the whole install
 	# tree under a DESTDIR — the same function the Kubuntu .deb wraps — so the
 	# set of files this ebuild installs cannot drift from the .deb's.
-	# Recovery gaps (fonts/, qml_sanity, the widget icon, two terminal formats)
-	# are printed as counted SKIPs by make_deb and are not errors here.
+	# The one remaining recovery gap (fonts/, W24) is mapped only when present;
+	# a render-gate SKIP under the sandbox is printed and is not an error.
 	"${EPYTHON}" make_deb.py --stage "${ED}" || die "make_deb --stage failed"
 	# make_deb stages helper scripts into usr/bin; make sure they are executable
 	find "${ED}/usr/bin" -type f -exec chmod 0755 {} + || die

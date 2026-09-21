@@ -420,6 +420,16 @@ CLOSED = {
     "⊕VER-PREVIEW": ("the Global Theme previews render from the scheme (:1918)",
                      lambda: _reads("make_preview.py", r"def\s+preview_svg\b") and
                      _reads("make_deb.py", r"contents/previews")),
+    # rebuilt W25 (2026-09-21), moved here from LOST
+    "⊕VER-WIDGET-ICON": ("the plasmoid icon is a lit '12' over its ghost from the substrate (:2058)",
+                         lambda: _reads("make_preview.py", r"def\s+icon_svg\b") and
+                         _reads("make_deb.py", r"icon_svg\(")),
+    "⊕QML-SANITY": ("every staged .qml goes through Qt's qmllint, gated on error ids (:4318)",
+                    lambda: _reads("qml_sanity.py", r"def\s+check_qml\b") and
+                    _reads("make_deb.py", r"import qml_sanity")),
+    "⊕RENDER-GATE": ("make_deb renders the clock and live wallpaper headless and requires lit pixels (:4545)",
+                     lambda: _reads("make_deb.py", r"render_nonempty\(") and
+                     _reads("qml_sanity.py", r"def\s+render_nonempty\b")),
     "⊕VER-CLOCK-TIME": ("the clock advances by a Timer (:2184)",
                         lambda: os.path.isfile(os.path.join(ROOT, "templates", "clock-main.qml")) and
                         _reads("templates/clock-main.qml", r"Timer\s*\{")),
@@ -456,12 +466,6 @@ LOST = {
     "⊕DOT-FONT": ("the matrix font emit did not survive", lambda: not _reads("make_font.py", r"(?i)matrix|dot"), "W24"),
     "⊕DOT-FONT-TTF": ("as ⊕SEG-FONT-TTF", lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
     "⊕DOT-FONT-DESC": ("descender glyphs in the matrix font — the font is absent", lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
-    "⊕VER-WIDGET-ICON": ("make_preview.icon_svg did not survive; make_deb prints a SKIP per variant",
-                         lambda: not _reads("make_preview.py", r"def\s+icon_svg\b"), "W25"),
-    "⊕QML-SANITY": ("qml_sanity.py did not survive; make_deb prints a SKIP; render_qml.py carries the render half",
-                    lambda: not os.path.isfile(os.path.join(ROOT, "qml_sanity.py")), "W25"),
-    "⊕RENDER-GATE": ("its capability is render_qml.py (2026-09-21) but it is not wired into make_deb as the log's fourth gate said",
-                     lambda: not _reads("make_deb.py", r"render_qml"), "W25"),
 }
 
 

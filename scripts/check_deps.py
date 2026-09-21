@@ -76,8 +76,10 @@ def _symlink_siblings():
     return out
 
 
-def imports():
-    """{top-level module: {files}} for every non-stdlib, non-local import."""
+def imports(files=None):
+    """{top-level module: {files}} for every non-stdlib, non-local import.
+
+    `files` — [(label, path)] — overrides the tree walk, for a planted fixture."""
     std = set(sys.stdlib_module_names)
     local = {f[:-3] for f in os.listdir(ROOT) if f.endswith(".py")}
     # ⚑ A DIRECTORY IS NOT A PACKAGE, AND TREATING IT AS ONE HID A REAL
@@ -100,7 +102,7 @@ def imports():
     # LIVES rather than about this tree's dependencies.
     local |= _symlink_siblings()
     found = {}
-    for fn, path in _python_files():
+    for fn, path in (files if files is not None else _python_files()):
         try:
             tree = ast.parse(open(path, encoding="utf-8",
                                   errors="replace").read())
@@ -190,8 +192,18 @@ def _selftest():
     found = imports()
     check("the walk found imports", len(found) > 0, True)
     # The walk must see an import buried inside a function body, which is the
-    # case a naive top-of-file scan misses.
-    check("sees a function-body import (qml_sanity)", "qml_sanity" in found, True)
+    # case a naive top-of-file scan misses. ⚑ THIS FIXTURE WAS `qml_sanity` —
+    # a name that read as third-party only because the module was LOST in the
+    # recovery; when W25 rebuilt it (2026-09-21) the arm failed. A fixture
+    # pinned to the tree's damage is a fixture that breaks on repair. Synthetic:
+    # a planted module with a body-level import of a name nothing provides.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        open(os.path.join(td, "planted.py"), "w").write(
+            "def f():\n    import el_openglo_selftest_absent_dep\n    return 1\n")
+        planted = imports(files=[("planted.py", os.path.join(td, "planted.py"))])
+        check("the walk sees a function-body import (planted)",
+              "el_openglo_selftest_absent_dep" in planted, True)
     check("stdlib is excluded", "os" not in found and "sys" not in found, True)
     # ⚑ THE SCAN REACHES THE TOOLS, NOT ONLY THE ROOT.  It was root-only, so a
     # dependency introduced by a checker was invisible to the dependency

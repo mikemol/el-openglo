@@ -103,6 +103,36 @@ def clock_geometry(text=CLOCK_TEXT, font_px=CLOCK_FONT_PX,
     return tw, -pad - tw / 2, bw
 
 
+def icon_svg(c, size=256):
+    """The clock plasmoid's icon: one lit segment '8' over its ghost, on the variant's ground.
+
+    ⚑ REBUILT (W25, 2026-09-21). ⊕VER-WIDGET-ICON closed in session 33 and this
+    renderer did not survive the recovery; make_deb printed a SKIP per variant
+    and the Add-Widgets list showed the stock clock. The digit is the substrate's
+    7-seg projection through make_wallpaper.digit_svg — the same strokes every
+    surface draws — the ghost at the scheme's solved alpha under the lit digit,
+    so the icon is a true sample of the variant, not a picture of one."""
+    import make_wallpaper as MW
+    import segment_topology as ST
+    m = ST.metrics(2.0)                  # digit is L wide, 2L tall -> lengths in L
+    n = 2                                 # "12": an 8 would light every segment and hide the ghost
+    span = (n - 1) * m["pitch"] + 1.0     # first box to last box, in L
+    L = size * 0.78 / max(span, 2 * 1.0)  # fit the pair with a margin
+    t = L * m["stroke"]
+    x0 = (size - span * L) / 2
+    y = (size - 2 * L) / 2
+    parts = []
+    for i, ch in enumerate("12"):
+        x = x0 + i * m["pitch"] * L
+        parts.append(MW.digit_svg(ch, x, y, L, t, c["ghost"], segs="ABCDEFG",
+                                  opacity=float(c["ghost_alpha"])))
+        parts.append(MW.digit_svg(ch, x, y, L, t, c["phosphor"]))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
+            f'viewBox="0 0 {size} {size}">'
+            f'<rect width="{size}" height="{size}" rx="{size * 0.18:.0f}" fill="{c["ground"]}"/>'
+            + "".join(parts) + "</svg>")
+
+
 def preview_svg(c):
     """A small mock desktop: dark ground, a panel, a window with phosphor text,
     and a segment-style clock reading the accent — unmistakably THIS variant."""
