@@ -156,10 +156,14 @@ WITNESS = {
         " not the synthetic-stroke PoC (:4644)",
         lambda: _reads("project_font.py", r"(?i)fontTools|TTFont") and
                 _reads("project_font.py", r"(?i)all.?44|validate")),
-    "⊕SEG-PROJECT-CALIBRATE": (
-        "bandwidth/tau CALIBRATED from agreement with the authored 44, not hand-set (:4631)",
-        lambda: _any(["project_font.py", "glyph_match.py"],
-                     r"(?i)calibrat|bandwidth.*agree|tau.*agree")),
+    # Named in glyph_match's banner since s83 (transcript), first placed in the
+    # ledger at s75 when the calibration measured the ceiling it exists to lift:
+    # straight bands cannot follow round walls (0 O D B) or diagonals-to-centre
+    # (A V 7 W). The witness is a template field that is not the straight band.
+    "⊕SEG-DOTPRODUCT-TEMPLATES": (
+        "curvature-aware segment templates in the matcher — a template field other than"
+        " the straight band, and the round glyphs' a/d agreement measured against it (:5204)",
+        lambda: _reads("glyph_match.py", r"def\s+_(curved|arc|bezier|curvature)\w*_field\b")),
     "⊕SEG22-DESCENDERS": (
         "lowercase g/j/p/q/y carry descender segments in a 22-seg glyph table (:4455)",
         lambda: _reads("segment_topology.py", r"LETTERS22|DESCENDER_GLYPHS|glyph22")),
@@ -428,6 +432,17 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 75 (W7, 2026-09-21). ⚑ ITS OPEN-SET WITNESS MATCHED "calibrat"
+    # and read validate_projection's docstring — which NAMED this symbol as the
+    # thing still to do — as its closure. This one aims at the solver def, at the
+    # constant it solved (SW_BAND carries the sweep in its comment), and at the
+    # tool's --calibrate mode, which refuses a flat sweep.
+    "⊕SEG-PROJECT-CALIBRATE": (
+        "glyph_match.calibrate_projection solves frame x band by agreement over the"
+        " authored table; SW_BAND is its argmax, not a hand-set 0.7 (:4631)",
+        lambda: _reads("glyph_match.py", r"def\s+calibrate_projection\b") and
+                _reads("glyph_match.py", r"(?m)^SW_BAND\s*=") and
+                _tool("check_projection.py", "--calibrate")),
     # closed session 74 (W7, 2026-09-21). ⚑ ITS FIRST WITNESS MATCHED THE WORD
     # "cross-check" in a docstring (s69); this one aims at the def and at the
     # tool that runs it over a font and requires the instrument to discriminate.

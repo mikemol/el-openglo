@@ -29,9 +29,10 @@ def endpoints(spec):
 SEG = {k: endpoints(ST.GEOM22[k]) for k in ST.SEG22}
 
 
-def winding_ink(path, ch, box=(2.0, 4.0)):
-    """Outline font: CSG membership via winding. Curve intent preserved."""
-    return GI.ink_field(path, ch, box=box)
+def winding_ink(path, ch, box=(2.0, 4.0), frame="stretch"):
+    """Outline font: CSG membership via winding. Curve intent preserved.
+    `frame` is make_glyph_ink.ink_field's: "stretch" (measured better) | "fit"."""
+    return GI.ink_field(path, ch, box=box, frame=frame)
 
 
 def raster_ink(path, ch, box=(2.0, 4.0), cell=64):

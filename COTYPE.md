@@ -5179,3 +5179,75 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s74]
+
+## Session 75 — ⊕SEG-PROJECT-CALIBRATE: the frame hypothesis rejected, the crossbar defect found
+- s74 named a "narrow-glyph frame defect" from the failure shape (1 4 H A W lose
+  b c e f, gain j m). W7, 2026-09-21: MEASURED before fixing. The ink bbox that
+  glyph_match._ink_bbox_sw sees is ALWAYS the full cell — make_glyph_ink.ink_field
+  already stretches the glyph's own bbox onto the box — so the frame is upstream,
+  and H (full-width, stems on both sides) fails for a different reason: the
+  stroke width was read as the shortest run on the MID-ROW, and the mid-row of
+  H, A, 4, E, B is the crossbar. H measured sw = 1.4 cell: every template band
+  covered everything, all 22 phi collapsed toward 0, and the stems lost to noise.
+  Fix: stroke width = median over rows of each row's shortest run. That alone:
+  0.58 -> 0.64, H and F exact.
+- The frame hypothesis, tested as stated (aspect-preserving: fit on height,
+  centre horizontally — ink_field(frame="fit")): WORSE, 0.43. A LiberationMono
+  cap is ~0.68:1 against the cell's 1:2, so "fit" fits on width, leaves
+  top/bottom margins, and every a/d segment misses. Kept as a mode with the
+  measurement in its docstring; the default stays "stretch", which IS what a
+  segment display does to a glyph. The '1' residue is not a frame defect at all:
+  a font's '1' is centred and the authored 16-seg '1' is b c (the 7-seg
+  heritage) — a CONVENTION mismatch, pinned by measurement (Jaccard 0 under
+  every setting), not smoothed.
+- glyph_match.calibrate_projection(path, chars, fmt, bands, frames) solves the
+  free parameters by mean Jaccard over the authored table and returns
+  (params, best, table) — the whole landscape, not just the argmax. Landscape
+  (36 glyphs, 16-seg): band is a plateau 0.70-1.00 (0.638-0.653), argmax 0.85;
+  the old 0.7 was a guess on the plateau's edge. SW_BAND = 0.85 now, with the
+  sweep in its comment. Template laid out in the CELL, not the ink bbox (they
+  coincide under stretch; under fit the bbox would re-create the defect).
+  scripts/check_projection.py --calibrate prints the landscape and REFUSES a
+  flat sweep; --frame fit|stretch measures either ingest.
+- MEASURED after: mean Jaccard 0.65, 9 of 36 exact (was 0.58, 7). What remains
+  is the structural ceiling: round walls (0 O D B: a/d missed, g gained), the
+  diagonals-to-centre glyphs (A V 7 W: h i k m vs the authored b c e f), and
+  the '1' convention. Not the matcher's frame; ⊕SEG-DOTPRODUCT-TEMPLATES's.
+- Four gates: constructible (calibrate_projection; SW_BAND solved; --calibrate);
+  reachable (the sweep runs over frames x bands over the 36); observable (the
+  landscape printed with the argmax marked and the default's score beside it);
+  coverable (a flat sweep is REFUSED; selftest: the digit sweep is not flat, the
+  argmax is a swept setting, H's stroke width reads as a stem < 0.6 cell). The
+  open-set witness had matched "calibrat" in s74's docstring — the phrase that
+  NAMED this symbol as still-to-do — and read it as done; the CLOSED witness aims
+  at the def, the solved constant, and the tool mode.
+
+### ⊕SEG-PROJECT-CALIBRATE closure (four gates)
+- Four gates: as above. Residue: the ceiling is now measured per glyph class
+  (round, diagonal, the '1' convention); a threshold gate on agreement is still
+  not honest until the templates can follow a curve.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75: crossbar defect fixed, band solved 0.85,
+  frame hypothesis rejected by measurement; 0.58 -> 0.65, 9/36 exact) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-DOTPRODUCT-TEMPLATES (curvature-aware templates — the measured
+  ceiling: round walls, diagonals-to-centre), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s75]

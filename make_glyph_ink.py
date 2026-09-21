@@ -67,12 +67,30 @@ def _winding(px, py, polys):
     return wn
 
 
-def ink_field(path, ch, box=(2.0, 4.0)):
+def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
     """Two-valued native ink field G(gx,gy) in the segment box: +1 ink / -1 no-ink,
-    via nonzero winding (holes subtract). y-flipped (font up -> grid down)."""
+    via nonzero winding (holes subtract). y-flipped (font up -> grid down).
+
+    frame="stretch" (default): the glyph's own bbox is stretched anisotropically
+    onto the box. A display cell is 1:2; a LiberationMono cap is ~0.68:1, so
+    every glyph is squeezed to the cell — which is what a segment display does.
+    frame="fit": aspect-preserving — fit on the tighter axis, centre on the
+    other. ⚑ MEASURED WORSE (⊕SEG-PROJECT-CALIBRATE, COTYPE session 75): the
+    wide glyphs fit on width, leave top/bottom margins, and every a/d segment
+    misses — mean Jaccard 0.43 vs 0.64. Kept as a mode because the frame
+    hypothesis was the calibration's first input and its rejection is the
+    record; a proportional font's narrow glyphs may yet want it."""
     polys = contours(path, ch)
     xs = [p[0] for pl in polys for p in pl]; ys = [p[1] for pl in polys for p in pl]
     x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
     W, H = box
-    tp = [[((px-x0)/(x1-x0)*W, H-(py-y0)/(y1-y0)*H) for px, py in pl] for pl in polys]
+    if frame == "stretch":
+        sx, sy, ox, oy = W/(x1-x0), H/(y1-y0), 0.0, 0.0
+    elif frame == "fit":
+        s = min(W/(x1-x0), H/(y1-y0))
+        sx = sy = s
+        ox, oy = (W-(x1-x0)*s)/2, (H-(y1-y0)*s)/2
+    else:
+        raise ValueError(f"ink_field: unknown frame {frame!r} (stretch|fit)")
+    tp = [[(ox+(px-x0)*sx, H-oy-(py-y0)*sy) for px, py in pl] for pl in polys]
     return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1

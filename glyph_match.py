@@ -59,19 +59,37 @@ def strata(pres):
                 rim_frac=round(rim.sum()/max(1, pres.sum()), 3))
 
 
-def _ink_bbox_sw(pres):
+# Template half-width as a fraction of the measured stroke width. SOLVED by
+# calibrate_projection on LiberationMono, 36 glyphs, 16-seg (session 75): the
+# landscape is a plateau 0.70-1.00 (mean Jaccard 0.638-0.653), argmax 0.85; the
+# old 0.7 was a guess that happened to sit on the plateau's edge.
+SW_BAND = 0.85
+
+
+def _min_run(row):
+    runs = []; r = 0
+    for v in row:
+        if v: r += 1
+        elif r: runs.append(r); r = 0
+    if r: runs.append(r)
+    return min(runs) if runs else None
+
+
+def _ink_bbox_sw(pres, band=SW_BAND):
+    """The ink's bbox in cell units and the template band half-width.
+
+    ⚑ Stroke width is the MEDIAN over rows of each row's shortest run. It was
+    the mid-row's shortest run, and the mid-row of H, A, 4, E, B is the
+    CROSSBAR: H measured sw = 1.4 (the whole cell), every band covered
+    everything, and all 22 phi collapsed toward 0 — that is why H lost its
+    stems (⊕SEG-PROJECT-CALIBRATE, COTYPE session 75)."""
     ys, xs = np.where(pres)
     if len(xs) == 0:
         return (0, 2, 0, 4), 0.2
     bb = (xs.min()/RES*2, xs.max()/RES*2, ys.min()/RES*4, ys.max()/RES*4)
-    ym = (ys.min()+ys.max())//2
-    runs = []; r = 0
-    for v in pres[ym]:
-        if v: r += 1
-        elif r: runs.append(r); r = 0
-    if r: runs.append(r)
-    sw = (min(runs)/RES*2) if runs else 0.2
-    return bb, max(0.12, sw*0.7)
+    mins = [m for m in (_min_run(pres[y]) for y in range(ys.min(), ys.max()+1)) if m]
+    sw = (float(np.median(mins))/RES*2) if mins else 0.2
+    return bb, max(0.12, sw*band)
 
 
 def _seg_field(seg, bb, sw):
@@ -98,12 +116,18 @@ def _phi(S, G):
     return (a*d - b*c)/den if den > 0 else 0.0
 
 
-def match(pres, top=None, tau=None):
+def match(pres, top=None, tau=None, band=SW_BAND):
     """Score every 22-seg by congruence (phi) with the ink; return {seg: phi}, and the
     lit set (top-N strongest, or phi>tau). Match at the 22-JOIN; derez with
-    segment_topology.project(lit, fmt)."""
-    bb, sw = _ink_bbox_sw(pres)
-    scores = {k: _phi(_seg_field(SEG[k], bb, sw), pres) for k in ST.SEG22}
+    segment_topology.project(lit, fmt). `band` is the template half-width as a
+    fraction of the measured stroke width (calibrate_projection solves it)."""
+    # ⚑ The template is laid out in the CELL, not the ink's bbox. Under the
+    # anisotropic ("stretch") ingest the two coincide; under the aspect-preserving
+    # frame the ink of a narrow glyph does not fill the cell, and stretching the
+    # template into its bbox would put the frame defect back.
+    _bb, sw = _ink_bbox_sw(pres, band)
+    cell = (0.0, 2.0, 0.0, 4.0)
+    scores = {k: _phi(_seg_field(SEG[k], cell, sw), pres) for k in ST.SEG22}
     if top is not None:
         lit = set(sorted(ST.SEG22, key=lambda k: -scores[k])[:top])
     elif tau is not None:
@@ -113,14 +137,20 @@ def match(pres, top=None, tau=None):
     return scores, lit
 
 
-def project_glyph(path, ch, kind="outline", top=None, tau=None):
+def _ingest(path, ch, kind, frame):
+    if kind == "bitmap":
+        return PF.raster_ink(path, ch)
+    return PF.winding_ink(path, ch, frame=frame)
+
+
+def project_glyph(path, ch, kind="outline", top=None, tau=None, frame="stretch"):
     """Full pipeline: ingest by KIND -> presence grid -> congruence match @22."""
-    G = (PF.raster_ink if kind == "bitmap" else PF.winding_ink)(path, ch)
-    pres = ink_grid(G)
+    pres = ink_grid(_ingest(path, ch, kind, frame))
     return match(pres, top=top, tau=tau)
 
 
-def validate_projection(path, chars=None, fmt="16", kind="outline"):
+def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stretch",
+                        band=SW_BAND):
     """⊕SEG-TABLE-VALIDATE: cross-check the PROJECTION against the AUTHORED table,
     per glyph, and REPORT — a routine, not a comment (the first witness for this
     symbol matched the word "cross-check" in a docstring; session 69).
@@ -140,14 +170,39 @@ def validate_projection(path, chars=None, fmt="16", kind="outline"):
         authored = set(ST.project(ST.glyph16(ch), fmt))
         if not authored:
             continue
-        G = (PF.raster_ink if kind == "bitmap" else PF.winding_ink)(path, ch)
-        _scores, lit22 = match(ink_grid(G), top=len(ST.glyph16(ch)))
+        pres = ink_grid(_ingest(path, ch, kind, frame))
+        _scores, lit22 = match(pres, top=len(ST.glyph16(ch)), band=band)
         projected = set(ST.project(lit22, fmt))
         hits = authored & projected
         union = authored | projected
         rows.append((ch, authored, projected, hits, authored - projected,
                      projected - authored, len(hits) / len(union) if union else 1.0))
     return sorted(rows, key=lambda r: -r[6])
+
+
+BAND_GRID = (0.4, 0.5, 0.6, 0.7, 0.85, 1.0, 1.2)
+FRAMES = ("stretch", "fit")
+
+
+def calibrate_projection(path, chars=None, fmt="16", kind="outline",
+                         bands=BAND_GRID, frames=FRAMES):
+    """⊕SEG-PROJECT-CALIBRATE: solve the matcher's free parameters — the ingest
+    frame and the template band fraction — by mean Jaccard against the authored
+    table over the whole glyph set. Returns (params, mean_jaccard, table) where
+    params = {"frame", "band"} and table = {(frame, band): (mean, exact, n)} is
+    the full sweep, so the reader sees the landscape, not just the argmax.
+
+    ⚑ What it does NOT solve: top-N is the authored count (the comparison is of
+    WHICH segments, so it cannot be free), and the ceiling is structural — the
+    straight templates cannot follow round walls (session 83). A calibrated
+    number is the best THIS matcher can do, not a proof that it is right."""
+    table = {}
+    for frame in frames:
+        for band in bands:
+            rows = validate_projection(path, chars, fmt=fmt, kind=kind, frame=frame, band=band)
+            table[(frame, band)] = agreement_summary(rows)
+    best = max(table, key=lambda k: (table[k][0], table[k][1]))
+    return {"frame": best[0], "band": best[1]}, table[best][0], table
 
 
 def agreement_summary(rows):

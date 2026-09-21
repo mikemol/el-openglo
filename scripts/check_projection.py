@@ -11,7 +11,7 @@ round glyph walls) and the number that would make agreement gateable is
 over the whole table, and its report can distinguish a font from a mirror of
 itself (selftest) — i.e. the instrument works before anyone tunes with it.
 
-    scripts/check_projection.py [--font PATH] [--fmt 16|7]   # per-glyph agreement report
+    scripts/check_projection.py [--font PATH] [--fmt 16|7] [--frame fit|stretch]   # per-glyph agreement report
     scripts/check_projection.py --selftest
 
 SKIP (printed, exit 0) when no TTF is found and none is given.
@@ -41,16 +41,39 @@ def find_font(explicit=None):
     return None
 
 
-def report(font, fmt="16", chars=None):
+def report(font, fmt="16", chars=None, frame="stretch"):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import glyph_match as GM
-    rows = GM.validate_projection(font, chars, fmt=fmt)
+    rows = GM.validate_projection(font, chars, fmt=fmt, frame=frame)
     return rows, GM.agreement_summary(rows)
 
 
+def calibrate(font, fmt="16"):
+    """--calibrate: sweep frame x band, print the landscape and the argmax, and
+    REFUSE if the sweep is flat — a calibration that cannot move the number is
+    not calibrating anything."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import glyph_match as GM
+    params, best, table = GM.calibrate_projection(font, fmt=fmt)
+    print(f"font {font}  fmt {fmt}  calibrating frame x band")
+    for (frame, band), (mean_j, exact, n) in sorted(table.items(), key=lambda kv: -kv[1][0]):
+        mark = "  <- best" if (frame, band) == (params["frame"], params["band"]) else ""
+        print(f"  frame {frame:8}  band {band:.2f}  mean jaccard {mean_j:.3f}  {exact:2d}/{n} exact{mark}")
+    spread = max(v[0] for v in table.values()) - min(v[0] for v in table.values())
+    if spread < 0.01:
+        print(f"check_projection: REFUSED — the sweep is flat (spread {spread:.3f}); "
+              f"the parameters do not reach the number", file=sys.stderr)
+        return 1
+    default = table[("stretch", GM.SW_BAND)][0]
+    print(f"check_projection: calibrated over {len(table)} settings — best {params} "
+          f"mean jaccard {best:.3f}; the module default (stretch, {GM.SW_BAND}) scores {default:.3f}")
+    return 0
+
+
 def main(argv):
-    known = {"--font", "--fmt"}
+    known = {"--font", "--fmt", "--frame", "--calibrate"}
     args = [a for a in argv[1:] if a.startswith("--")]
     for a in args:
         if a not in known:
@@ -58,16 +81,19 @@ def main(argv):
             return 2
     font = find_font(argv[argv.index("--font") + 1] if "--font" in argv else None)
     fmt = argv[argv.index("--fmt") + 1] if "--fmt" in argv else "16"
+    frame = argv[argv.index("--frame") + 1] if "--frame" in argv else "stretch"
     if not font:
         print("check_projection: SKIP — no TTF found (pass --font PATH); 0 of 36 glyphs measured",
               file=sys.stderr)
         return 0
-    rows, (mean_j, exact, n) = report(font, fmt)
+    if "--calibrate" in argv:
+        return calibrate(font, fmt)
+    rows, (mean_j, exact, n) = report(font, fmt, frame=frame)
     if not rows:
         print("check_projection: REFUSED — the authored table is empty; nothing to validate",
               file=sys.stderr)
         return 2
-    print(f"font {font}  fmt {fmt}")
+    print(f"font {font}  fmt {fmt}  frame {frame}")
     for ch, authored, projected, hits, misses, extras, j in rows:
         print(f"  {ch}  jaccard {j:.2f}  hits {len(hits):2d}/{len(authored):2d}"
               f"  missed {''.join(sorted(misses)) or '-':8}  extra {''.join(sorted(extras)) or '-'}")
@@ -113,6 +139,22 @@ def _selftest():
         sys.path.insert(0, ROOT)
     import glyph_match as GM
     chk("agreement_summary of an empty report is (0, 0, 0)", GM.agreement_summary([]), (0.0, 0, 0))
+    # ⚑ THE CALIBRATION MUST BE ABLE TO MOVE THE NUMBER: a 2x2 sweep over the digits
+    # must yield distinct scores across settings, and the argmax must be one of the
+    # swept settings — not a default smuggled in. ('1H' alone is flat: 1 scores 0 and
+    # H scores 1 under every setting — measured, which is why the set is the digits.)
+    params, best, table = GM.calibrate_projection(font, "0123456789", bands=(0.4, 1.0), frames=("stretch", "fit"))
+    chk("calibration sweeps every setting", sorted(table), sorted([(f, b) for f in ("stretch", "fit") for b in (0.4, 1.0)]))
+    chk("the argmax is a swept setting", (params["frame"], params["band"]) in table, True)
+    chk("the argmax's score is the returned best", table[(params["frame"], params["band"])][0], best)
+    chk("the sweep is not flat", len({round(v[0], 3) for v in table.values()}) > 1, True)
+    # the crossbar defect: H's stroke width must read as a stem, not the crossbar
+    import numpy as np
+    presH = GM.ink_grid(GM._ingest(font, "H", "outline", "stretch"))
+    _bb, swH = GM._ink_bbox_sw(presH, 1.0)
+    chk("H's stroke width is a stem, not the crossbar (< 0.6 cell)", swH < 0.6, True)
+    xs = np.where(presH)[1]
+    chk("(H's ink spans the cell, so the old mid-row read the crossbar)", xs.max() - xs.min() > GM.RES // 2, True)
     print(f"  (measured on {os.path.basename(font)}: digits mean jaccard {mean_j:.2f}, {exact}/10 exact)")
     print("check_projection selftest:", "PASS" if ok else "FAIL")
     return ok

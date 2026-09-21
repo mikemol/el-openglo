@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 26,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T08:46:33+00:00",
-  "job_id": "ca48a3ec",
+  "heartbeat": "2026-09-21T09:01:48+00:00",
+  "job_id": "d8461f7a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T08:54:15+00:00"
+    "holder": "tick-39",
+    "taken_at": "2026-09-21T09:11:16+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -165,10 +165,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse candidate held open: four cotype symbols form one chain (ingest→calibrate→validate); kept as ONE waypoint pointing at four cotype identities, not merged in the cotype itself",
-      "next_bounded_step": "Confirm the chain order in the cotype (:4644,:4631,:4632,:4455); the first bounded step is ⊕SEG-TABLE-VALIDATE — a routine that cross-checks projection vs authored table — since calibration needs it as its measure.",
-      "evidence": "check_symbol.py --bucket RESEARCH: 4 of the 5 open items.",
+      "next_bounded_step": "2636946 closed ⊕SEG-TABLE-VALIDATE (validate_projection + check_projection @PROJECTION-VALIDATE 57; measured mean Jaccard 0.58, 7/36 exact, narrow-glyph frame defect: sides b c e f → centre j m). NEXT in the chain: ⊕SEG-PROJECT-CALIBRATE — the frame first: glyph_match._ink_bbox_sw maps the ink bbox to the 2x4 cell by stretching; a narrow glyph ('1') fills the cell width and its single stroke lands on the centre column. Measure: for 1/4/H/A/W, what x-scale preserves aspect (fit on HEIGHT, centre horizontally) and does agreement rise? Solve bandwidth (sw*0.7) and tau from agreement over the 36 — a calibrate_projection() that returns (params, mean_jaccard) and the report before/after; the witness aims at that def. Then ⊕SEG22-DESCENDERS.",
+      "evidence": "2636946; check_projection report 2026-09-21",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": null,
+      "last_worked": "2026-09-21T09:01:00+00:00",
       "ticks_blocked": 0
     },
     {
