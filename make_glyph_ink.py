@@ -54,6 +54,51 @@ def contours(path, ch):
     return polys
 
 
+def outline_stats(path, ch, axis_tol=0.15):
+    """Outline length by KIND, in font units: {"straight", "diagonal", "curve"}
+    plus "bbox". A lineTo whose direction is within `axis_tol` (as |dy/dx| or
+    |dx/dy|) of an axis is straight, any other lineTo is diagonal, and every
+    flattened curve piece is curve. This is what a glyph CLASS is read from
+    (⊕SEG-DOTPRODUCT-TEMPLATES, session 78): the shape the templates must
+    follow, measured on the ink rather than guessed from the letter."""
+    import math
+    f = TTFont(path); gs = f.getGlyphSet(); cmap = f.getBestCmap()
+    if ord(ch) not in cmap:
+        return None
+    pen = DecomposingRecordingPen(gs); gs[cmap[ord(ch)]].draw(pen)
+    out = {"straight": 0.0, "diagonal": 0.0, "curve": 0.0}
+    xs = []; ys = []
+    last = start = (0, 0)
+    for op, a in pen.value:
+        if op == "moveTo":
+            last = start = a[0]; xs.append(a[0][0]); ys.append(a[0][1])
+        elif op == "lineTo":
+            p = a[0]; dx, dy = p[0]-last[0], p[1]-last[1]
+            L = math.hypot(dx, dy)
+            if L:
+                ratio = min(abs(dx), abs(dy)) / max(abs(dx), abs(dy))
+                out["straight" if ratio <= axis_tol else "diagonal"] += L
+            last = p; xs.append(p[0]); ys.append(p[1])
+        elif op in ("qCurveTo", "curveTo"):
+            pts = list(a); on = pts[-1]
+            prev = last
+            for q in pts:
+                if q is None:
+                    continue
+                out["curve"] += math.hypot(q[0]-prev[0], q[1]-prev[1]); prev = q
+                xs.append(q[0]); ys.append(q[1])
+            last = on
+        elif op == "closePath":
+            dx, dy = start[0]-last[0], start[1]-last[1]
+            L = math.hypot(dx, dy)
+            if L:
+                ratio = min(abs(dx), abs(dy)) / max(abs(dx), abs(dy))
+                out["straight" if ratio <= axis_tol else "diagonal"] += L
+            last = start
+    out["bbox"] = (min(xs), max(xs), min(ys), max(ys)) if xs else None
+    return out
+
+
 def _is_left(a, b, p):
     return (b[0]-a[0])*(p[1]-a[1]) - (p[0]-a[0])*(b[1]-a[1])
 

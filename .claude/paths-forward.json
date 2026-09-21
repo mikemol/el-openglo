@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 26,
+  "counter": 29,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T09:41:42+00:00",
-  "job_id": "43018249",
+  "heartbeat": "2026-09-21T10:08:57+00:00",
+  "job_id": "56c7c4ed",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-41",
-    "taken_at": "2026-09-21T09:50:03+00:00"
+    "holder": "tick-42",
+    "taken_at": "2026-09-21T10:20:38+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -138,7 +138,7 @@
     {
       "symbol": "W6",
       "title": "Arbitrary text reaches the matrix by rasterising a font into it — cotype ⊕MATRIX-FONT-INPUT",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "matrix-font",
@@ -147,10 +147,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "independent BUILD item; no downstream in the graph",
-      "next_bounded_step": "Wire it: make_notify_marquee reads a font (which? the operator's monospace via fc-match, or a shipped EL TTF — decide and record) through matrix_glyph for chars beyond FONT5x8, '?' fallback for None, and the registry carries the merged table; the open witness wants rasteri|font.*matrix in make_notify_marquee.py. Then close ⊕MATRIX-FONT-INPUT (four gates; move to CLOSED) and ⊕NOTIFY-MATRIXRENDER if its witness holds.",
-      "evidence": "8ea97ec: contract stated (COTYPE s76); make_glyph_ink.matrix_glyph + font_frame + matrix_rows; contours() now decomposes composites (é was empty ink); scripts/check_matrix_input.py --render/--compare/--selftest: 70/70 rasterise, 0 blank, 13 exact, mean Jaccard 0.64",
+      "next_bounded_step": "",
+      "evidence": "b1e4b7f: display_types.font_extension + registry font5x8; make_notify_marquee.matrix_font (decision recorded; BDEPEND liberation-fonts); MatrixChar '?' fallback; sample re-rendered; parity pair pinned to PARITY_FONT with SKIP; ⊕MATRIX-FONT-INPUT + ⊕NOTIFY-MATRIXRENDER in CLOSED (35 witnessed); cotype BUILD bucket closed out; COTYPE s77",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-21T09:40:55+00:00",
+      "last_worked": "2026-09-21T10:07:46+00:00",
       "ticks_blocked": 0
     },
     {
@@ -489,6 +489,51 @@
       "evidence": "dc4b748: FONT5x8 authored via _cols row strings; baseline as a LINE (make_font baseline=); EL-Matrix-5x8.ttf with negative descent; check_font descender arm + off-by-one fixture; 'g' rendered with its tail below the baseline; check_symbol LOST now EMPTY (29 witnessed / 0 lost / 23 artifact-free).",
       "issued_at": "2026-09-21T07:04:21+00:00",
       "last_worked": "2026-09-21T07:30:51+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W27",
+      "title": "⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention)",
+      "status": "ready",
+      "enables": [],
+      "touches": "glyph_match,segment_topology,check_projection",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "MEASURE first: per-class Jaccard table (round / straight / diagonal / narrow) from check_projection rows, as a --classes mode, so the ceiling is a number per class before any template changes. Then one template family (an arc field for the a/d/g horizontals following the round glyph wall) and re-run --calibrate; witness at a def matching _(curved|arc|bezier|curvature)\\w*_field (check_symbol open witness).",
+      "evidence": "",
+      "issued_at": "2026-09-21T10:07:54+00:00",
+      "last_worked": "2026-09-21T10:07:54+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W28",
+      "title": "⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs",
+      "status": "ready",
+      "enables": [],
+      "touches": "project_font,glyph_match,segment_topology",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Read the ⊕SEG-FONT-PROJECT witness (:4644: fontTools ingest + validate all 44) and check_st_api — which 8 of the 44 are missing from validate_projection's 36 (SYMBOLS16?) — and extend the validation to them; then state what a 22-seg descender glyph table needs (segment_topology LETTERS22 / DESCENDER_GLYPHS) before authoring any.",
+      "evidence": "",
+      "issued_at": "2026-09-21T10:08:03+00:00",
+      "last_worked": "2026-09-21T10:08:03+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W29",
+      "title": "⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio",
+      "status": "ready",
+      "enables": [],
+      "touches": "check_ghost_composite,make_notify_marquee,MatrixChar",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Add a --matrix arm to check_ghost_composite (or a sibling) that composites the dot field's AREA-WEIGHTED ghost (coverage 0.82^2*pi/4 of the cell at ghost_alpha over ground) and reports its Lc beside the stroke ghost's, per variant; the number decides whether the marquee needs its own alpha.",
+      "evidence": "",
+      "issued_at": "2026-09-21T10:08:12+00:00",
+      "last_worked": "2026-09-21T10:08:12+00:00",
       "ticks_blocked": 0
     }
   ],

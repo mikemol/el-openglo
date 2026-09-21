@@ -12,6 +12,8 @@ over the whole table, and its report can distinguish a font from a mirror of
 itself (selftest) — i.e. the instrument works before anyone tunes with it.
 
     scripts/check_projection.py [--font PATH] [--fmt 16|7] [--frame fit|stretch]   # per-glyph agreement report
+    scripts/check_projection.py --classes      # the ceiling per glyph class (round / straight / diagonal / narrow)
+    scripts/check_projection.py --calibrate    # sweep frame x band, print the landscape
     scripts/check_projection.py --selftest
 
 SKIP (printed, exit 0) when no TTF is found and none is given.
@@ -72,8 +74,30 @@ def calibrate(font, fmt="16"):
     return 0
 
 
+def classes(font, fmt, rows):
+    """--classes: the agreement ceiling per glyph CLASS (narrow / round /
+    diagonal / straight, read from the outline), so a template change is judged
+    on the class it was aimed at. REFUSED if every glyph lands in one class —
+    a classifier that cannot separate the set is not measuring it."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import glyph_match as GM
+    by = GM.agreement_by_class(font, rows)
+    print(f"font {font}  fmt {fmt}  by class")
+    for k in ("straight", "round", "diagonal", "narrow", "unknown"):
+        if k in by:
+            m, e, n, chars = by[k]
+            print(f"  {k:9}  mean jaccard {m:.2f}  {e:2d}/{n:2d} exact  {chars}")
+    if len(by) < 2:
+        print(f"check_projection: REFUSED — every glyph classified {sorted(by)}; the classes"
+              f" do not separate the set", file=sys.stderr)
+        return 1
+    print(f"check_projection: {len(rows)} glyphs in {len(by)} classes (the ceiling per class, reported)")
+    return 0
+
+
 def main(argv):
-    known = {"--font", "--fmt", "--frame", "--calibrate"}
+    known = {"--font", "--fmt", "--frame", "--calibrate", "--classes"}
     args = [a for a in argv[1:] if a.startswith("--")]
     for a in args:
         if a not in known:
@@ -89,6 +113,8 @@ def main(argv):
     if "--calibrate" in argv:
         return calibrate(font, fmt)
     rows, (mean_j, exact, n) = report(font, fmt, frame=frame)
+    if "--classes" in argv:
+        return classes(font, fmt, rows)
     if not rows:
         print("check_projection: REFUSED — the authored table is empty; nothing to validate",
               file=sys.stderr)
@@ -155,6 +181,15 @@ def _selftest():
     chk("H's stroke width is a stem, not the crossbar (< 0.6 cell)", swH < 0.6, True)
     xs = np.where(presH)[1]
     chk("(H's ink spans the cell, so the old mid-row read the crossbar)", xs.max() - xs.min() > GM.RES // 2, True)
+    # ⚑ THE CLASSES MUST SEPARATE THE SET: O is round, H is straight, X is
+    # diagonal — three glyphs, three classes, or the per-class ceiling is one number
+    chk("'O' reads as round", GM.glyph_class(font, "O"), "round")
+    chk("'H' reads as straight", GM.glyph_class(font, "H"), "straight")
+    chk("'X' reads as diagonal", GM.glyph_class(font, "X"), "diagonal")
+    chk("a char the font lacks is 'unknown'", GM.glyph_class(font, "☃"), "unknown")
+    by = GM.agreement_by_class(font, rows)
+    chk("the digits fall into more than one class", len(by) > 1, True)
+    chk("every digit is counted once", sum(v[2] for v in by.values()), len(rows))
     print(f"  (measured on {os.path.basename(font)}: digits mean jaccard {mean_j:.2f}, {exact}/10 exact)")
     print("check_projection selftest:", "PASS" if ok else "FAIL")
     return ok

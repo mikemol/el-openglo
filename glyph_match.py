@@ -205,6 +205,44 @@ def calibrate_projection(path, chars=None, fmt="16", kind="outline",
     return {"frame": best[0], "band": best[1]}, table[best][0], table
 
 
+CLASS_CURVE = 0.35      # curve length fraction above which a glyph is "round"
+CLASS_DIAG = 0.20       # diagonal length fraction above which it is "diagonal"
+CLASS_NARROW = 0.40     # bbox width/height below which it is "narrow"
+
+
+def glyph_class(path, ch):
+    """One of "narrow" | "round" | "diagonal" | "straight", read from the ink's
+    outline (make_glyph_ink.outline_stats), in that precedence — so a narrow
+    round glyph is narrow (its frame is the problem before its walls are)."""
+    import make_glyph_ink as GI
+    st = GI.outline_stats(path, ch)
+    if not st or not st["bbox"]:
+        return "unknown"
+    x0, x1, y0, y1 = st["bbox"]
+    total = st["straight"] + st["diagonal"] + st["curve"] or 1.0
+    if (x1 - x0) / max(1.0, (y1 - y0)) < CLASS_NARROW:
+        return "narrow"
+    if st["curve"] / total > CLASS_CURVE:
+        return "round"
+    if st["diagonal"] / total > CLASS_DIAG:
+        return "diagonal"
+    return "straight"
+
+
+def agreement_by_class(path, rows):
+    """{class: (mean jaccard, exact, n, chars)} over validate_projection rows —
+    the ceiling as a NUMBER PER CLASS, which is what decides whether a template
+    change helped the class it was aimed at rather than the mean."""
+    groups = {}
+    for r in rows:
+        groups.setdefault(glyph_class(path, r[0]), []).append(r)
+    out = {}
+    for k, rs in groups.items():
+        m, e, n = agreement_summary(rs)
+        out[k] = (m, e, n, "".join(r[0] for r in rs))
+    return out
+
+
 def agreement_summary(rows):
     """(mean jaccard, exact count, n) over validate_projection rows."""
     if not rows:

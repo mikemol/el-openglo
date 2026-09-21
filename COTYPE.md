@@ -5392,3 +5392,50 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s77]
+
+## Session 78 — ⊕SEG-DOTPRODUCT-TEMPLATES: the ceiling measured PER CLASS before any template moves
+- W27, 2026-09-21. s75 named the classes from the failure list by eye (round,
+  diagonal, the '1'). Now they are READ FROM THE INK: make_glyph_ink.outline_stats
+  splits outline length into straight (axis-aligned lineTo, tol 0.15) /
+  diagonal / curve, and glyph_match.glyph_class ranks narrow (bbox w/h < 0.40)
+  > round (curve > 0.35 of length) > diagonal (> 0.20) > straight.
+  agreement_by_class gives (mean, exact, n, chars) per class;
+  check_projection --classes prints it and REFUSES a set that lands in one
+  class (selftest: O round, H straight, X diagonal, a missing char unknown).
+- MEASURED (LiberationMono, 16-seg, 36): straight 0.77, 4/8 exact (F H I T E
+  L R 1); diagonal 0.67, 5/9 exact (M N X Y Z K A V 4); ROUND 0.60, 0/19 exact
+  (9 P 8 6 G O 5 C Q S U 3 J W 2 0 7 D B). Two surprises the eye-classing
+  missed: '1' is STRAIGHT here (Liberation Mono's 1 has a flag and a base, so
+  it is not narrow — its Jaccard 0 is the b c convention, confirmed as not a
+  frame matter), and 'W' and '7' are ROUND (their joins are drawn with curves).
+  So the ceiling is the round class, 19 of 36 glyphs, and it is exactly the
+  a/d/g horizontals against a bowl wall — the arc-field template is aimed at
+  a number now, 0.60, not at a story.
+- NOT DONE: the template family itself. Next: an arc field for a1/a2/d1/d2
+  (and g1/g2) that follows a bowl — the band bent to a circular arc whose
+  sagitta is a parameter the calibration sweeps — and --classes re-run: the
+  round class must move, the straight class must not.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-DOTPRODUCT-TEMPLATES (s78: ceiling per class measured — round
+  0.60 over 19 glyphs is the target; arc field next), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s78]
