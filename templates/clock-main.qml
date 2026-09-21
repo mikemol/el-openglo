@@ -26,7 +26,11 @@ $tables
     property real weight: (plasmoid.configuration.weight === undefined) ? 1.0
                           : plasmoid.configuration.weight
     property real strokeLit: segThick * (1 + 0.25 * weight)
-    property real strokeGhost: segThick * (1 - 0.19 * weight)
+    // the ghost's weight is its own slider (operator: "I want to be able to
+    // make that still a bit smaller"); 0.81 is what weight=1 used to give
+    property real ghostWeight: (plasmoid.configuration.ghostWeight === undefined) ? 0.81
+                               : plasmoid.configuration.ghostWeight
+    property real strokeGhost: segThick * ghostWeight
     // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never
     // a wider opaque copy. 0 disables the layer (crisp fallback); default 1.5.
     property real bloom: (plasmoid.configuration.bloom === undefined) ? 1.5
@@ -63,7 +67,10 @@ $tables
                 model: root.timeStr.length
                 Digit {
                     ch: root.timeStr.charAt(index)
-                    insertColon: (index === 2)
+                    // the colon follows the SECOND digit (HH:MM) and the fourth
+                    // when seconds show — this said index 2 and drew "232: 0"
+                    // (operator, 2026-09-21; the headless render showed it too)
+                    insertColon: (index === 1) || (index === 3 && root.timeStr.length > 4)
                 }
             }
         }

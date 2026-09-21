@@ -306,7 +306,7 @@ def _stroke_ratio(qml):
     m_gh = re.search(r"property real strokeGhost:\s*([^\n]+)", qml)
     if not (m_lit and m_gh):
         return None
-    env = {"weight": 1.0, "segThick": 1.0}
+    env = {"weight": 1.0, "ghostWeight": 0.81, "segThick": 1.0}
     try:
         return _arith(m_lit.group(1), **env) / _arith(m_gh.group(1), **env)
     except (ValueError, KeyError, ZeroDivisionError):

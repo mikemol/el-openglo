@@ -20,7 +20,9 @@ WallpaperItem {
     property real weight: (wallpaper.configuration.weight === undefined) ? 1.0
                           : wallpaper.configuration.weight
     property real strokeLit: 0.32 * (1 + 0.25 * weight)
-    property real strokeGhost: 0.32 * (1 - 0.19 * weight)
+    property real ghostWeight: (wallpaper.configuration.ghostWeight === undefined) ? 0.81
+                               : wallpaper.configuration.ghostWeight
+    property real strokeGhost: 0.32 * ghostWeight
     // ⊕BLOOM: the halo is a BLUR of a lit-only canvas under the crisp one — not
     // the two wider opaque rectangles this drew before (the stepped halo the
     // operator photographed, 2026-09-21). Ghost is never bloomed. 0 = off.

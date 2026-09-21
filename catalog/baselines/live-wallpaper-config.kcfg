@@ -6,5 +6,6 @@
     <entry name="blinkColon" type="Bool"><default>true</default></entry>
     <entry name="bloom" type="Double"><default>1.5</default></entry>
     <entry name="weight" type="Double"><default>1.0</default></entry>
+    <entry name="ghostWeight" type="Double"><default>0.81</default></entry>
   </group>
 </kcfg>

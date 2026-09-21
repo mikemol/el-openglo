@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 21,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T02:58:34+00:00",
-  "job_id": "cf99cdaf",
+  "heartbeat": "2026-09-21T03:21:46+00:00",
+  "job_id": "fa04048c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -241,11 +241,11 @@
       ],
       "blocked_kind": "human",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
-      "next_bounded_step": "c8f9995 ships EL-Openglo-<v>.profile + el-openglo-apply sets konsolerc DefaultProfile; LnF defaults now one [kdeglobals][KDE] group. OPERATOR (no restart needed): emerge el-openglo (git-r3 picks up c8f9995 after push), then el-openglo-apply EL-Azure and open a new Konsole tab; and re-Apply the Global Theme -> does kdeglobals ColorScheme now flip? Next MACHINE: overlay/dev-python/colorspacious ebuild + check_ebuild BDEPEND-resolves arm. RESIDUE: pre-commit refused @ROLES once then passed on an identical tree (twice-measured flake, 2026-09-21); gate_ledger --report reads scripts/.gate-outcomes.tsv but the hook writes ROOT/.gate-outcomes.tsv — the ledger meant to explain flakes reads empty; fix the path (substrate symlink — change there). Restart-needing ⊕VER HOLD until ~2026-09-24.",
+      "next_bounded_step": "ba7e4c3: overlay carries dev-python/colorspacious (from ::guru, thin manifest); check_ebuild deps_resolve arm + --deps (5 of 5 atoms). Pushed through d14f963; ba7e4c3 UNPUSHED. OPERATOR (no restart): after emerge of d14f963+ and plasmashell --replace — widget settings page draws? clock halo/weight look right? Applying EL-Azure ...\nThe requested theme \"EL-Azure\" is already set as the theme for the current Plasma session.\nThe requested theme \"EL-Azure\" is already set as the theme for the current Plasma session.\nSuccessfully set the wallpaper for all desktops to the image /usr/share/wallpapers/EL-Azure/contents/images/1920x1080.png\n  Wallpaper: set to EL-Azure\n  Konsole: default profile -> EL-Openglo-EL-Azure (new tabs)\n\n  Clock: EL segment clock added to panel (if not already present)\n  Chrome: load /usr/share/el-openglo/chrome/EL-Azure\n          via chrome://extensions -> Developer mode -> Load unpacked\n  Konsole: pick 'EL-Azure' in Settings -> Edit Profile -> Appearance\n  Lock screen: watch-face wallpaper set (auth unchanged)\nDone. Some changes (GTK, Kvantum) may need apps to restart.\nLogin screen (SDDM): sudo el-openglo-sddm EL-Azure  (sets the phosphor login background)\nBoot splash (Plymouth): sudo el-openglo-plymouth EL-Azure  (sets the phosphor boot splash)\nLiving watch face:      el-openglo-live EL-Azure  (animated clock on desktop + lock)\nNotification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) → new Konsole tab recoloured? re-Apply Global Theme → kdeglobals ColorScheme flips? MACHINE remaining: gate_ledger path mismatch (substrate symlink — fix THERE, run both selftests). Nudge ONCE for the probes at tick 6, then leave it.",
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open.",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-21T02:37:15+00:00",
-      "ticks_blocked": 2
+      "last_worked": "2026-09-21T03:21:09+00:00",
+      "ticks_blocked": 5
     },
     {
       "symbol": "W13",

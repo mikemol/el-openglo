@@ -15,6 +15,7 @@ KCM.SimpleKCM {
     // ⚑ THESE TWO SLIDERS EXISTED WITHOUT ALIASES — moving them changed nothing.
     property alias cfg_bloom: bloomSlider.value
     property alias cfg_weight: weightSlider.value
+    property alias cfg_ghostWeight: ghostWeightSlider.value
     Kirigami.FormLayout {
         QQC2.CheckBox { id: showGhost; Kirigami.FormData.label: "Show ghost segments:" }
         QQC2.CheckBox { id: use24h; Kirigami.FormData.label: "24-hour clock:" }
@@ -22,5 +23,6 @@ KCM.SimpleKCM {
         QQC2.CheckBox { id: blinkColon; Kirigami.FormData.label: "Blink colon:" }
         QQC2.Slider { id: bloomSlider; from: 0; to: 4; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
         QQC2.Slider { id: weightSlider; from: 0; to: 1; stepSize: 0.25; Kirigami.FormData.label: "Lit stroke weight:" }
+        QQC2.Slider { id: ghostWeightSlider; from: 0.3; to: 1.0; stepSize: 0.05; Kirigami.FormData.label: "Unlit stroke weight:" }
     }
 }
