@@ -6337,3 +6337,63 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s91]
+
+## Session 92 — ⊕VER-MARQUEE: bodies are markup; the tags were scrolling
+- W39, 2026-09-22. Census from the spec (freedesktop notification spec,
+  markup section): a body may contain exactly <b> <i> <u> <a href> <img src
+  alt>; "servers that do not support these tags should filter them out";
+  images must be local files and hyperlinked images are discouraged. Plasma's
+  model passes its sanitised subset through with <br> and entities, and
+  senders also emit <font color> / <span style="color:…">. The marquee had
+  joined app: summary — body raw, so a `<b>hi</b>` scrolled as seven
+  characters of tag and two of text.
+- templates/marquee-body.js (.pragma library; shipped beside main.qml, which
+  imports it by bare name): parseBody(html) -> {text, runs}. Tags b/strong,
+  i/em, u, a (href), font/span (colour), br (a space), img (its alt in
+  brackets), unknown tags dropped, an unclosed `<` kept as text; entities
+  amp lt gt quot apos nbsp and numeric. Runs are contiguous spans of equal
+  style (bold/italic/underline/link/colour) over the text; rebuild() joins
+  the items' texts with the separator and re-bases the runs; the ring
+  carries tickerRuns/pendingRuns beside the text. NOTHING READS THE RUNS
+  YET. Residue: the runs are offset into the pre-whitespace-collapse text
+  (collapse can shift them by a few characters) — to be fixed when a run is
+  first read.
+- The relation is STATED before any dot is coloured — catalog/relations.md
+  §5a: bold -> the lit glow/fill by the weight ratio; italic/underline
+  carried, unread; a sender colour contributes its HUE ONLY — fg re-hued to
+  hue(c) at fg's solved lightness and chroma through make_palette's hue
+  machinery, judged by the SAME floors (lit-vs-ground, lit-vs-ghost, CVD),
+  falling back to fg when a floor fails; the field is untouched. The re-hue
+  will live in make_palette (a gated rehue), never in the widget.
+- scripts/check_marquee_body.py (@MARQUEE-BODY, worklist 60): the SHIPPED .js
+  written into a tempdir beside a tiny QML harness that calls parseBody on
+  14 synthetic bodies and prints JSON, run under Qt's qml on the offscreen
+  platform (the marquee itself cannot render headless — no notificationmanager
+  mock; the parser can). Every spec tag, br, entities, unknown-tag drop and
+  the unclosed case each a case; a surviving tag, a wrong run span or an
+  encoded entity fails; a synthetic wrong text and a lost bold run are seen;
+  the package ships the parser this ran. SKIP without the runner. Parity:
+  the main baseline re-captured deliberately, a new pair for the .js (10 of
+  10). The ticker's witness pins the import and the parse call.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-92 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab), ⊕VER-MARQUEE (s89 field, s90 settings, s91 the ring, s92 bodies
+  stripped — confirm after re-emerge; the styling half of §5a is unbuilt),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s92]

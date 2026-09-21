@@ -5,6 +5,8 @@ import org.kde.plasma.core as PlasmaCore
 // PUBLIC notification model (libnotificationmanager) — the same feed the stock
 // applet reads. NOT the deprecated org.kde.plasma.private.notifications.
 import org.kde.notificationmanager as NotificationManager
+// the body-markup parser, shipped beside this file (W39)
+import "marquee-body.js" as Body
 
 PlasmoidItem {
     id: root
@@ -53,7 +55,18 @@ PlasmoidItem {
 
     function swapRing() {
         root.tickerText = root.pendingText;
+        root.tickerRuns = root.pendingRuns;
     }
+
+    // ⚑ BODIES ARE MARKUP (W39). The spec allows <b> <i> <u> <a> <img>; Plasma
+    // passes its sanitised subset through with <br> and entities; un-stripped,
+    // the TAGS scrolled across the board as text. Body.parseBody (marquee-body.js,
+    // shipped beside this file and run headless by check_marquee_body) returns
+    // the plain text plus STYLE RUNS (bold / italic / underline / link / colour
+    // spans), kept here as data for the styling half (relations.md §5). Nothing
+    // reads the runs yet; the text is what scrolls.
+    property var tickerRuns: []
+    property var pendingRuns: []
 
     NotificationManager.Notifications {
         id: notifModel
@@ -67,8 +80,9 @@ PlasmoidItem {
     }
 
     function rebuild() {
-        var parts = [];
+        var text = "", runs = [];
         var n = Math.min(notifModel.count, root.cfgMaxItems);
+        var sep = "     •     ";
         for (var i = 0; i < n; i++) {
             var idx = notifModel.index(i, 0);
             var app = notifModel.data(idx, NotificationManager.Notifications.ApplicationNameRole);
@@ -78,11 +92,21 @@ PlasmoidItem {
             if (app) seg += app + ": ";
             if (sum) seg += sum;
             if (body) seg += " — " + body;
-            seg = seg.replace(/\s+/g, " ").trim();
-            if (seg.length) parts.push(seg);
+            var parsed = Body.parseBody(seg);
+            var plain = parsed.text.replace(/\s+/g, " ").trim();
+            if (!plain.length) continue;
+            if (text.length) text += sep;
+            var base = text.length;
+            // the runs keep their offsets into the joined ring text
+            for (var r = 0; r < parsed.runs.length; r++) {
+                var run = parsed.runs[r];
+                runs.push({ start: base + run.start, end: base + run.end, bold: run.bold,
+                            italic: run.italic, underline: run.underline, link: run.link, color: run.color });
+            }
+            text += plain;
         }
-        root.pendingText = parts.length ? parts.join("     •     ")
-                                        : "";   // empty -> the ring drains to idle
+        root.pendingText = text;               // empty -> the ring drains to idle
+        root.pendingRuns = runs;
         // nothing is scrolling: start this rotation now rather than at a boundary
         // that will never come
         if (root.tickerText.length === 0) root.swapRing();

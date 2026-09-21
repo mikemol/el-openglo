@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 39,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T15:51:51+00:00",
-  "job_id": "9efffabd",
+  "heartbeat": "2026-09-21T16:15:19+00:00",
+  "job_id": "31fc8079",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-57",
-    "taken_at": "2026-09-21T16:07:47+00:00"
+    "holder": "tick-58",
+    "taken_at": "2026-09-21T16:19:36+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -659,16 +659,16 @@
     {
       "symbol": "W38",
       "title": "MARQUEE RING BUFFER (operator live 2026-09-22: with watch notify-send hi the scrolling text blips in and out with the popups). Cause, from templates/marquee-main.qml: rebuild() replaces root.tickerText on every notifModel onCountChanged, so the Repeater tears the Row down mid-scroll. Design (operator): double-buffered rings — the SCROLLING ring loops as long as its notifications are active; a PENDING ring collects arrivals; the swap happens at a full rotation (the NumberAnimation's loop boundary), never mid-scroll; a notification that left the model is dropped at the boundary too",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "templates/marquee-main.qml,make_notify_marquee",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "In marquee-main.qml: two string properties (activeText, pendingText); rebuild() writes pendingText only; the animation's loop end (onFinished with loops: 1 + restart, or a Timer at duration) copies pendingText -> activeText and restarts from rep.width; the Repeater models activeText; when pendingText is empty and the model is empty, the active ring drains at the boundary (idle). Keep the snap. qml_sanity; parity re-capture; render_samples unaffected. Also: is there a headless harness for the marquee? render_qml needs a notificationmanager mock (residue) — a unit-ish check is the emitted QML's structure (check the two properties and the boundary handler exist: a witness arm on ⊕NOTIFY-MATRIXRENDER). COTYPE s91.",
-      "evidence": "",
+      "next_bounded_step": "",
+      "evidence": "54fdbe8: tickerText/pendingText + swapRing at the rotation's onFinished (loops: 1, restart), idle swaps immediately; lint clean; parity re-captured; witness pins; COTYPE s91. Live confirmation after re-emerge is the operator's.",
       "issued_at": "2026-09-21T15:50:38+00:00",
-      "last_worked": "2026-09-21T15:50:38+00:00",
+      "last_worked": "2026-09-21T16:14:21+00:00",
       "ticks_blocked": 0
     },
     {

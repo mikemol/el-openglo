@@ -377,6 +377,33 @@ quantisation**, not solver error — measured worst 1.0200 on the shipped palett
 
 Stating this separately is what keeps "solved exactly" from over-claiming.
 
+### 5a. A sender's colour — a hue read, never a literal on the phosphor
+
+A notification body may carry markup (`<b> <i> <u> <a> <img>` per the freedesktop spec;
+Plasma passes its sanitised subset through, and senders also emit `<font color>` /
+`<span style="color:…">`). The marquee parses it to text plus STYLE RUNS
+(`templates/marquee-body.js`, checked by `check_marquee_body`). This states what a run
+may DO to a dot before any code does it:
+
+- **bold** → the lit token's `glow` (or the lit dot's fill) raised by the same ratio
+  the clock's weight slider uses — a relation on an existing channel, no new colour.
+- **italic / underline** → carried, unread (a matrix has no slant; underline would be
+  a lit descent row — a design choice, not a relation, deferred).
+- **a sender colour `c`** → NOT `c`. The lit token is the palette's `fg` at the
+  variant's hue; a run's colour contributes its HUE ONLY: `lit' = fg` re-hued to
+  `hue(c)` at `fg`'s solved lightness and chroma, through the hue machinery
+  `make_palette` already has (⊕SOLVER-BACKLIT-CVD widened hue where value was pinned),
+  and then judged by the SAME floors as `fg` — lit-vs-ground, lit-vs-ghost, the CVD
+  gate. A hue that fails a floor falls back to `fg`. So a red "ERROR" reads red-ish on
+  an amber board and stays legible; it never becomes an sRGB literal the checks cannot
+  see.
+- **the field** is untouched by any run: unlit LEDs are hardware.
+
+Not yet applied: nothing reads the runs. When it is, `check_ghost_surfaces` must still
+find the emitted `fg`/`fg_in`/alpha (a run is a runtime relation, not an emission), and
+the re-hue itself belongs to `make_palette` (a `rehue(fg, hue)` that returns the gated
+result), so that the widget carries no colour arithmetic of its own.
+
 ---
 
 ## 6. Derivations are NOT constraints

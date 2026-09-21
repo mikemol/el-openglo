@@ -524,6 +524,9 @@ CLOSED = {
                 _reads("templates/marquee-main.qml", r"root\.pendingText\s*=") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*loops:\s*1\b") and
                 _reads("templates/marquee-main.qml", r"onFinished:\s*\{[^}]*swapRing\(\)") and
+                # W39: bodies are parsed to text + runs by the shipped .js, never scrolled raw
+                _reads("templates/marquee-main.qml", r'(?m)^import "marquee-body\.js" as Body') and
+                _reads("templates/marquee-main.qml", r"Body\.parseBody\(") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

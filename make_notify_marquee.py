@@ -115,6 +115,12 @@ def matrix_field_component():
 
 
 
+def body_parser():
+    """templates/marquee-body.js — notification body markup -> text + style runs."""
+    import templates.loader as TL
+    return TL.render("marquee-body.js")
+
+
 def config_xml(variant):
     """contents/config/main.xml — the settings' kcfg. The ghostAlpha DEFAULT is the
     palette's solved alpha, filled here: the slider is a per-user override, so an
@@ -156,6 +162,8 @@ def render_all(variants, dir_map):
         # a widget that loads and draws an empty panel.
         open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
         open(os.path.join(ui, "MatrixField.qml"), "w").write(matrix_field_component())
+        # the body-markup parser (W39): main.qml imports it by bare name
+        open(os.path.join(ui, "marquee-body.js"), "w").write(body_parser())
         written[v] = d
     return written
 
