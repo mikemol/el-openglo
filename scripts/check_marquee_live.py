@@ -123,7 +123,8 @@ Window {
             var now = clock.elapsed();
             while (harness.next < timeline.length && timeline[harness.next].t <= now) { apply(timeline[harness.next]); harness.next += 1; }
             var s = subject.item;
-            samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning, count: model().count });
+            samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
+                           paused: s.boardPaused, ring: s.ringOpacity, count: model().count });
             if (now >= %(end)d) {
                 console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width }));
                 Qt.quit();
@@ -196,11 +197,15 @@ def run(hover_pause=False, end_ms=None):
     raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
 
 
-def measure(res):
+def measure(res, hovered=None):
+    """The measurement: the main run, and (W51) the HOVERED run — hover-pause on,
+    the offscreen pointer at (0,0) holding the board — so the pulse rule has a
+    paused trace to range over. Both are the real widget."""
     if res is None:
-        return {"runner": False, "events": [], "samples": [], "width": 0, "log": []}
+        return {"runner": False, "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}}
     return {"runner": True, "events": res["events"], "samples": res["samples"], "width": res["width"],
-            "log": res.get("log", [])}
+            "log": res.get("log", []),
+            "hovered": {"samples": hovered["samples"] if hovered else []}}
 
 
 def main(argv):
@@ -211,24 +216,30 @@ def main(argv):
             return 2
     if "--hovered" in argv:
         # the pointer explanation, shown: with hover-pause ON the run halts at x≈0.
-        # With --json too, the stalled trace is emitted — the policy's refusing
-        # input, produced by the real widget rather than typed.
-        m = measure(run(hover_pause=True, end_ms=2600))
+        # With --json too, the stalled trace is emitted AS THE MAIN RUN — the
+        # policy's refusing input for L6, produced by the real widget rather than typed.
+        h = run(hover_pause=True, end_ms=2600)
+        m = measure(h, h)
         if "--json" in argv:
             print(json.dumps(m, indent=1))
             return 0
         held = [s for s in m["samples"] if s["running"] and abs(s["x"]) < 20]
+        pulsing = len({round(s["ring"], 2) for s in m["samples"] if s["paused"]})
         print(f"check_marquee_live --hovered: {len(held)} of {len(m['samples'])} samples held at x≈0 "
-              f"while running (the offscreen pointer at (0,0) hovers the Row)")
+              f"while running (the offscreen pointer at (0,0) hovers the Row); "
+              f"the ring took {pulsing} distinct opacities while paused")
         return 0
-    m = measure(run())
+    m = measure(run(), run(hover_pause=True, end_ms=2600))
     if "--trace" in argv:
         for l in m["log"]:
             print(f"widget {l}")
         for e in m["events"]:
             print(f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']} shows {e['shows']!r}")
         for s in m["samples"]:
-            print(f"sample t={s['t']:6.0f}  x={s['x']:7.1f} raw={s['raw']:7.1f} w={s['w']:6.1f}  running={s['running']!s:5s}  count={s['count']}  {s['text']!r}")
+            print(f"sample t={s['t']:6.0f}  x={s['x']:7.1f} raw={s['raw']:7.1f} w={s['w']:6.1f}  running={s['running']!s:5s} "
+                  f"paused={s['paused']!s:5s} ring={s['ring']:.2f}  count={s['count']}  {s['text']!r}")
+        for s in m["hovered"]["samples"]:
+            print(f"hovered t={s['t']:6.0f}  x={s['x']:7.1f}  running={s['running']!s:5s} paused={s['paused']!s:5s} ring={s['ring']:.2f}  {s['text']!r}")
         return 0
     print(json.dumps(m, indent=1))
     return 0
@@ -247,15 +258,16 @@ def _selftest():
         print("  SKIP — no qml runner")
         print("check_marquee_live selftest: SKIP")
         return True
-    m = measure(res)
+    m = measure(res, run(hover_pause=True, end_ms=2600))
     # ⚑ THE MEASUREMENT CAN SEE: every timeline step was applied and logged, the
-    # board was sampled across the whole run, and the samples carry the three
-    # observables. Whether the trace SATISFIES the invariant is
-    # policy/marquee_live.rego's ruling.
+    # board was sampled across the whole run, the samples carry the observables,
+    # and the hovered run has paused samples for the pulse rule to range over.
+    # Whether the traces SATISFY the invariant is policy/marquee_live.rego's ruling.
     chk("every timeline step became an event", [e["op"] for e in m["events"]], [s[1] for s in TIMELINE])
     chk("samples span the run", m["samples"][-1]["t"] >= END_MS, True)
-    chk("a sample carries text, x, raw, w, running, count",
-        sorted(m["samples"][0].keys()), ["count", "raw", "running", "t", "text", "w", "x"])
+    chk("a sample carries text, x, raw, w, running, paused, ring, count",
+        sorted(m["samples"][0].keys()), ["count", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
+    chk("the hovered run has paused samples", any(s["paused"] for s in m["hovered"]["samples"]), True)
     chk("the stub reported its rows to the board (some sample saw text)", any(s["text"] for s in m["samples"]), True)
     chk("a runner-less host is withheld", measure(None)["runner"], False)
     print("check_marquee_live selftest:", "PASS" if ok else "FAIL")

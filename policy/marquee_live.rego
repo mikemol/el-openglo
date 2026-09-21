@@ -175,6 +175,37 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L7 — the hover-pause shows itself: the ring pulses while paused and is dark otherwise"
+# description: |
+#   Operator (W51): a parked pointer holds the board with no sign; the outermost
+#   pips must pulse while the pause holds. Over the HOVERED run (hover-pause on,
+#   the offscreen pointer at (0,0)): among the paused samples the ring opacity
+#   takes more than one value and is never zero; over the main run (never
+#   paused) the ring is zero at every sample. Derived from the samples.
+paused_rings := {s.ring | some s in input.hovered.samples; s.paused}
+
+deny contains msg if {
+	input.runner
+	count([s | some s in input.hovered.samples; s.paused]) > 0
+	count(paused_rings) < 2
+	msg := sprintf("L7: the board was paused and the ring did not pulse (opacities seen: %v)", [paused_rings])
+}
+
+deny contains msg if {
+	some s in input.hovered.samples
+	s.paused
+	s.ring == 0
+	msg := sprintf("L7: paused at t=%v with the ring dark", [s.t])
+}
+
+deny contains msg if {
+	some s in input.samples
+	not s.paused
+	s.ring > 0
+	msg := sprintf("L7: not paused at t=%v and the ring is lit (%v)", [s.t, s.ring])
+}
+
+# METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
 	not input.runner

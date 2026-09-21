@@ -46,6 +46,8 @@ PAIRS = (
     ("make_notify_marquee", "config_xml", "EL-Openglo", "marquee-config-EL-Openglo.kcfg"),
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     ("make_notify_marquee", "body_parser", None, "marquee-body.js"),
+    # the fixed field + its ring (W51): a component the plasmoid instantiates by bare name
+    ("make_notify_marquee", "matrix_field_component", None, "MatrixField.qml"),
     # ⚑ THE GEOMETRY MOVED TOO, NOT ONLY THE MARKUP.  This surface's seven-seg map
     # and stroke table were hand-written inside the f-string; they are now
     # segment_topology's projection. So this pair proves TWO things at once — that

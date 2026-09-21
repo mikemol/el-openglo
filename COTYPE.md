@@ -6910,3 +6910,67 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s101]
+
+## Session 102 — the hover-pause shows itself: the outer pips breathe (W51); the live host gets a log
+- Operator, 2026-09-22: "a visual indicator for when hover is active.
+  Perhaps a pulsing outline? the outermost pips of the matrix fading in and
+  out — something clear, active, responsive, and will get someone to move
+  the damn mouse." Built in the W49 order — observable, rule, then widget:
+  root.boardPaused (rotation.onPausedChanged) and root.ringOpacity are
+  sampled by the harness; the measurement gained a second, HOVERED run
+  (hover-pause on, the offscreen pointer holding the board) so the rule has
+  paused samples to range over; L7 — among paused samples the ring takes
+  more than one opacity and is never dark, and over the never-paused main
+  run it is zero throughout — with four tests (34/34 across four policies);
+  THEN MatrixField gained a second Canvas that paints the outermost pips
+  (top and bottom rows, first and last columns) once in the LIT token, and
+  the marquee pulses its OPACITY (ghost alpha ↔ 0.9, 400 ms each way,
+  InOutSine, infinite) while boardPaused — a scene-graph property, no
+  repaint per frame. Lit, not hot: attention, not alarm (urgency owns
+  fg_act, W46). The field's ghost pips are now gated by showGhost rather
+  than the field's visibility, so the ring shows even with the ghost field
+  off. Measured under --hovered: 11 distinct ring opacities while paused;
+  the gate admits both runs.
+- Between ticks, the operator: after a plasmashell replace a single
+  notify-send shows nothing; under watch things eventually appear. Two
+  tools rather than a guess: check_template_parity --installed (the
+  installed marquee is byte-identical to the tree's emission — so the
+  finding is in current code and the headless run, which passes, is
+  missing something the real model or panel does), and a debugLog setting
+  that prints every rebuild / upsert / swap / startRun / finished to
+  plasmashell's stderr — the live twin of the harness sampler; the harness
+  runs with it on and carries the lines. The operator's next trace decides
+  it: paused=true → the pointer (W51's pulse now shows it); an undefined id
+  or empty text on the first upsert → the model's timing; rep=0x0 → panel
+  sizing; no rebuild → the signal never reached the widget.
+- Residue: the L7 refusing arm is a typed fixture — the widget has no
+  switch that disables the pulse, so "the pulse removed is refused" is not
+  shown from the widget itself; the pulse's 0.9 ceiling and 400 ms are
+  authored; MatrixField is now a parity pair (11 of 11); the hovered run
+  adds ~2.6 s wall of qml to every gate run.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-102 corrected live and headless) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-102 —
+  after re-emerge: every notification scrolls once, none vanish, the board
+  never goes dead, a parked pointer pulses the ring; the single-notify-send
+  report awaits the debugLog trace), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s102]

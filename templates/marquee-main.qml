@@ -81,6 +81,9 @@ PlasmoidItem {
     property real boardRawX: 0
     property real boardWidth: 0
     property bool boardRunning: false
+    // W51: the hover-pause is holding the board, and the ring's current opacity
+    property bool boardPaused: false
+    property real ringOpacity: 0
 
     function liveIds() {
         var ids = [];
@@ -226,12 +229,28 @@ PlasmoidItem {
         MatrixField {
             id: field
             anchors.fill: parent
-            visible: root.cfgShowField
+            showGhost: root.cfgShowField
             rows: root.matrix.rows
             u: rep.pitch
             dotFill: root.cfgDotFill
             ghostColor: root.ghostColor
             ghostOpacity: root.cfgGhostAlpha
+            // ⚑ THE HOVER-PAUSE SHOWS ITSELF (W51). While the pause holds the board,
+            // the outermost pips breathe from the ghost's weight up toward lit and
+            // back — the LIT token, not the hot one: this is attention, not alarm
+            // (urgency owns fg_act, W46). The moment the pointer leaves, the run
+            // resumes and the ring goes dark. The field is visible even with the
+            // ghost field off: the ring is drawn regardless of cfgShowField.
+            ringColor: root.litColor
+            onRingOpacityChanged: root.ringOpacity = ringOpacity
+            SequentialAnimation on ringOpacity {
+                id: pulse
+                running: root.boardPaused
+                loops: Animation.Infinite
+                NumberAnimation { from: root.cfgGhostAlpha; to: 0.9; duration: 400; easing.type: Easing.InOutSine }
+                NumberAnimation { from: 0.9; to: root.cfgGhostAlpha; duration: 400; easing.type: Easing.InOutSine }
+                onRunningChanged: if (!running) field.ringOpacity = 0
+            }
         }
 
         // idle text (settings), lit on the field, centred and snapped to the pitch
@@ -355,6 +374,7 @@ PlasmoidItem {
                 duration: Math.max(1500, (rep.width + marquee.width) * 12 / root.cfgSpeed)
                 loops: 1
                 onRunningChanged: root.boardRunning = running
+                onPausedChanged: root.boardPaused = paused
                 onFinished: {
                     root.trace("finished x=" + marquee.x);
                     root.swapRing();

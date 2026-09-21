@@ -7,7 +7,7 @@ import data.el.marquee_live as ml
 import rego.v1
 
 # a clean two-rotation trace: arrive, scroll off, expire mid-run, finish, drain, arrive again, wake
-clean := {"runner": true, "width": 420, "events": [
+clean := {"runner": true, "width": 420, "hovered": {"samples": []}, "events": [
 	{"t": 300, "op": "arrive", "id": 1, "shows": "app: hello"},
 	{"t": 900, "op": "expire", "id": 1, "shows": ""},
 	{"t": 1600, "op": "arrive", "id": 2, "shows": "app: two"},
@@ -114,8 +114,43 @@ test_l6_admits_a_moving_board if {
 	count([m | some m in ml.deny with input as clean; startswith(m, "L6:")]) == 0
 }
 
+# W51: the hovered run — paused, the ring breathing
+hovered_ok := {"samples": [
+	{"t": 1300, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0.57, "count": 1},
+	{"t": 1340, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0.71, "count": 1},
+	{"t": 1380, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0.86, "count": 1},
+]}
+
+test_l7_admits_a_pulsing_ring if {
+	count([m | some m in ml.deny with input as object.union(clean, {"hovered": hovered_ok}); startswith(m, "L7:")]) == 0
+}
+
+test_l7_refuses_a_ring_that_does_not_pulse if {
+	flat := {"samples": [
+		{"t": 1300, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0.57, "count": 1},
+		{"t": 1340, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0.57, "count": 1},
+	]}
+	some msg in ml.deny with input as object.union(clean, {"hovered": flat})
+	contains(msg, "did not pulse")
+}
+
+test_l7_refuses_a_dark_ring_while_paused if {
+	dark := {"samples": [
+		{"t": 1300, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0, "count": 1},
+		{"t": 1340, "text": "app: hello", "x": 7.2, "running": true, "paused": true, "ring": 0.5, "count": 1},
+	]}
+	some msg in ml.deny with input as object.union(clean, {"hovered": dark})
+	contains(msg, "ring dark")
+}
+
+test_l7_refuses_a_lit_ring_while_not_paused if {
+	lit := object.union(clean, {"samples": [{"t": 300, "text": "app: hello", "x": 300, "running": true, "paused": false, "ring": 0.6, "count": 1}]})
+	some msg in ml.deny with input as lit
+	contains(msg, "ring is lit")
+}
+
 test_withheld_without_runner if {
-	inp := {"runner": false, "events": [], "samples": [], "width": 0}
+	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp
 	count(ml.withheld) == 1 with input as inp
 }
