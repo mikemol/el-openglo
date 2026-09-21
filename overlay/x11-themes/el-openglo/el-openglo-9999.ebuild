@@ -30,6 +30,7 @@ BDEPEND="
 		dev-python/colorspacious[${PYTHON_USEDEP}]
 		dev-python/numpy[${PYTHON_USEDEP}]
 		dev-python/pillow[${PYTHON_USEDEP}]
+		dev-python/fonttools[${PYTHON_USEDEP}]
 	')
 	dev-qt/qtdeclarative:6
 "
@@ -43,7 +44,8 @@ python_check_deps() {
 		"media-gfx/cairosvg[${PYTHON_USEDEP}]" \
 		"dev-python/colorspacious[${PYTHON_USEDEP}]" \
 		"dev-python/numpy[${PYTHON_USEDEP}]" \
-		"dev-python/pillow[${PYTHON_USEDEP}]"
+		"dev-python/pillow[${PYTHON_USEDEP}]" \
+		"dev-python/fonttools[${PYTHON_USEDEP}]"
 }
 
 src_compile() {
@@ -58,8 +60,7 @@ src_install() {
 	# ⚑ ONE STAGING, TWO PACKAGERS. make_deb.stage(root) lays the whole install
 	# tree under a DESTDIR — the same function the Kubuntu .deb wraps — so the
 	# set of files this ebuild installs cannot drift from the .deb's.
-	# The one remaining recovery gap (fonts/, W24) is mapped only when present;
-	# a render-gate SKIP under the sandbox is printed and is not an error.
+	# A render-gate SKIP under the sandbox is printed and is not an error.
 	"${EPYTHON}" make_deb.py --stage "${ED}" || die "make_deb --stage failed"
 	# make_deb stages helper scripts into usr/bin; make sure they are executable
 	find "${ED}/usr/bin" -type f -exec chmod 0755 {} + || die

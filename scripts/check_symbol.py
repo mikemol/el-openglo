@@ -420,6 +420,18 @@ CLOSED = {
     "⊕VER-PREVIEW": ("the Global Theme previews render from the scheme (:1918)",
                      lambda: _reads("make_preview.py", r"def\s+preview_svg\b") and
                      _reads("make_deb.py", r"contents/previews")),
+    # rebuilt W24 (2026-09-21), moved here from LOST: the fonts are peer emitters
+    # of the substrate, and check_font holds them to it
+    "⊕SEG-FONT": ("an SVG font whose glyphs are the union of the substrate's lit segments (:1252)",
+                  lambda: _reads("make_font.py", r"def\s+emit_svg_font\b") and _tool("check_font.py")),
+    "⊕SEG-FONT-TTF": ("TTFs built natively from glyph_contours via fontTools, orientation gated on glyf (:1366)",
+                      lambda: _reads("make_font.py", r"def\s+build_ttf\b") and
+                      _reads("make_font.py", r"def\s+gate_ttf_orientation\b")),
+    "⊕DOT-FONT": ("the matrix glyph table drives a font: matrix_contours over MatrixDisplay.glyph (:1068)",
+                  lambda: _reads("make_font.py", r"def\s+matrix_contours\b")),
+    "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
+                      lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
+                      _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
     # rebuilt W25 (2026-09-21), moved here from LOST
     "⊕VER-WIDGET-ICON": ("the plasmoid icon is a lit '12' over its ghost from the substrate (:2058)",
                          lambda: _reads("make_preview.py", r"def\s+icon_svg\b") and
@@ -459,13 +471,13 @@ NO_ARTIFACT = frozenset({
 # selftest asserts each is STILL absent — a rebuilt one must move to CLOSED, or
 # this table has become a stale status of its own.
 LOST = {
-    "⊕SEG-FONT": ("make_font.py is a recorded partial; nothing imports it; fonts/ is absent",
-                  lambda: not _reads("make_font.py", r"def\s+svg_font\b"), "W24"),
-    "⊕SEG-FONT-TTF": ("the TTF emit (fontTools) did not survive; fonts/*.ttf absent",
-                      lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
-    "⊕DOT-FONT": ("the matrix font emit did not survive", lambda: not _reads("make_font.py", r"(?i)matrix|dot"), "W24"),
-    "⊕DOT-FONT-TTF": ("as ⊕SEG-FONT-TTF", lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
-    "⊕DOT-FONT-DESC": ("descender glyphs in the matrix font — the font is absent", lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
+    # ⚑ THE 5x8 TABLE ITSELF IS GONE, not just its emitter: display_types has
+    # FONT5x7 only, and the descender glyphs (g j p q y) were authored, not
+    # derived — re-authoring is the work, and nothing in the tree can witness a
+    # table that does not exist yet.
+    "⊕DOT-FONT-DESC": ("FONT5x8 (the descender matrix table) is absent from display_types; "
+                       "the 5x7 matrix TTF ships without descenders",
+                       lambda: not _reads("display_types.py", r"\bFONT5x8\b"), "W26"),
 }
 
 

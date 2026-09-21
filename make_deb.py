@@ -46,16 +46,13 @@ def system_mapping():
     for v in VARIANTS:
         mid = f"org.el.segclock.{v.lower().replace('-', '')}"
         m.append((f"plasma-clock/{v}", f"usr/share/plasma/plasmoids/{mid}"))
-    # fonts (system font dir; postinst runs fc-cache)
-    # ⚑ `fonts/` DID NOT SURVIVE THE RECOVERY. This listdir crashed the whole
-    # packager at import — the first of three places the .deb build was dead on
-    # this checkout (with qml_sanity and the container output path). An absent
-    # optional payload is recorded, not fatal: the ebuild and the deb both need
-    # to stage what EXISTS and say what does not.
-    fonts = os.path.join(ROOT, "fonts")
-    for fn in (sorted(os.listdir(fonts)) if os.path.isdir(fonts) else ()):
-        if fn.endswith((".ttf", ".svg")):
-            m.append((f"fonts/{fn}", f"usr/share/fonts/truetype/el-openglo/{fn}"))
+    # fonts (system font dir; postinst runs fc-cache). `fonts/` was a recovery
+    # gap mapped only if present (2026-09-20..21); make_font is in the STAGE
+    # roster again (W24), so the mapping names its outputs and staging refuses
+    # a missing one like any other payload — an absent font is a defect now.
+    import make_font as _mf
+    for fn, _make in _mf.OUTPUTS:
+        m.append((f"fonts/{fn}", f"usr/share/fonts/truetype/el-openglo/{fn}"))
     # wallpapers: one VALID KDE wallpaper package per variant (metadata.json +
     # contents/images/<res>.png). A wallpaper package without metadata.json is
     # not selectable; the previous single-dir dump was invalid.

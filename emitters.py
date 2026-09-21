@@ -30,6 +30,7 @@ ORDER = (
     ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),
     ("make_firefox",   "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
     ("make_gtk",       "GTK4/libadwaita :root variables + GTK3 @define-color (⊕GTK, rebuilt W17)"),
+    ("make_font",      "the segment and matrix fonts, TTF + SVG, from the substrate (⊕SEG-FONT family, rebuilt W24)"),
 )
 
 # Emitters that need an input this machine may not have.  Absent -> SKIP, named.
@@ -46,7 +47,7 @@ EXTERNAL = {
 # sandbox died with EACCES on /tmp/EL-Openglo.colorscheme and a cairo write
 # error (emerge, 2026-09-21) — the first thing the sandbox proved that
 # check_ebuild's stated weakness said it could not. Staging runs THIS subset.
-STAGE = ("make_schemes", "make_aurorae", "make_plasma", "make_wallpaper", "make_clock")
+STAGE = ("make_schemes", "make_aurorae", "make_plasma", "make_wallpaper", "make_clock", "make_font")
 
 
 def run_all(root, python=None, quiet=True, only=None):
