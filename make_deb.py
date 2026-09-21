@@ -32,22 +32,20 @@ def system_mapping():
         ks = f"{v}.colorscheme"
         if os.path.exists(os.path.join(ROOT, ks)):
             m.append((ks, f"usr/share/konsole/{ks}"))
+    # ⚑ NO `isdir` GUARDS ON GENERATED PAYLOADS.  These are written by
+    # make_aurorae / make_plasma / make_clock, which stage() runs first; a guard
+    # here turned "the emitter did not run" into a silently smaller package.
+    # An absent source now fails the `missing` check in stage(), by name.
     # aurorae window decorations
     for v in VARIANTS:
-        src = f"aurorae/themes/{v}"
-        if os.path.isdir(os.path.join(ROOT, src)):
-            m.append((src, f"usr/share/aurorae/themes/{v}"))
+        m.append((f"aurorae/themes/{v}", f"usr/share/aurorae/themes/{v}"))
     # plasma desktoptheme (Plasma Style)
     for v in VARIANTS:
-        src = f"plasma/desktoptheme/{v}"
-        if os.path.isdir(os.path.join(ROOT, src)):
-            m.append((src, f"usr/share/plasma/desktoptheme/{v}"))
+        m.append((f"plasma/desktoptheme/{v}", f"usr/share/plasma/desktoptheme/{v}"))
     # clock plasmoid (one package per variant, system-installed)
     for v in VARIANTS:
-        src = f"plasma-clock/{v}"
-        if os.path.isdir(os.path.join(ROOT, src)):
-            mid = f"org.el.segclock.{v.lower().replace('-', '')}"
-            m.append((src, f"usr/share/plasma/plasmoids/{mid}"))
+        mid = f"org.el.segclock.{v.lower().replace('-', '')}"
+        m.append((f"plasma-clock/{v}", f"usr/share/plasma/plasmoids/{mid}"))
     # fonts (system font dir; postinst runs fc-cache)
     # ⚑ `fonts/` DID NOT SURVIVE THE RECOVERY. This listdir crashed the whole
     # packager at import — the first of three places the .deb build was dead on
@@ -66,9 +64,7 @@ def system_mapping():
         base = v[:-4] if v.endswith("-Lit") else v
         lit = "-lit" if v.endswith("-Lit") else ""
         wp = f"{base}{lit}-wallpaper.png"
-        if os.path.exists(os.path.join(ROOT, wp)):
-            m.append((wp,
-                      f"usr/share/wallpapers/{v}/contents/images/1920x1080.png"))
+        m.append((wp, f"usr/share/wallpapers/{v}/contents/images/1920x1080.png"))
     return m
 
 
@@ -335,7 +331,13 @@ def helper_source_mapping():
 # so selecting one flips them together. Built into a staging dir then mapped in.
 import json as _json
 
-LNF_STAGE = os.path.join(BUILD, "_lnf")
+# ⚑ A FRESH TEMP DIR PER RUN, NOT A FIXED /tmp PATH.  This was /tmp/eldeb/_lnf:
+# Portage's sandbox created it as root during the first emerge, and every later
+# run as the user died with EACCES — the third absolute path this packager
+# assumed (after the container output dir and BUILD itself). Seen only once the
+# ebuild witness staged from a clean clone.
+import tempfile as _tempfile
+LNF_STAGE = _tempfile.mkdtemp(prefix="el-openglo-lnf-")
 
 def _decoration_theme(variant):
     # Aurorae decorations are referenced as __aurorae__svg__<ThemeName>
@@ -415,14 +417,26 @@ panel.addWidget("org.kde.plasma.systemtray");
 panel.addWidget("{plasmoid_id}");
 '''
         open(os.path.join(layouts, "org.kde.plasma.desktop-layout.js"), "w").write(layout_js)
-        # preview.png — KDE shows this on the Global Theme page. Rendered from
-        # this variant's own scheme tokens (make_preview), so it can't drift.
+        # preview — KDE shows this on the Global Theme page. Rendered from this
+        # variant's own scheme tokens (make_preview), so it can't drift.
+        # ⚑ THE PATH IS contents/previews/preview.png — PLURAL DIRECTORY.  This
+        # wrote contents/preview.png, which the Plasma 6 LookAndFeel package
+        # structure does not read, so System Settings showed the stock Breeze
+        # picture for every variant (⊕VER on luthen, 2026-09-21, screenshot).
+        # The file was installed and never looked at — a valid image of the
+        # wrong thing, invisible to every gate that checks presence.
         import make_preview as _mp
         cols = _mp.parse_scheme(v)
         import cairosvg as _cs
+        previews = os.path.join(contents, "previews")
+        os.makedirs(previews, exist_ok=True)
         _cs.svg2png(bytestring=_mp.preview_svg(cols).encode(),
-                    write_to=os.path.join(contents, "preview.png"),
+                    write_to=os.path.join(previews, "preview.png"),
                     output_width=_mp.W * 2, output_height=_mp.H * 2)
+        # the fullscreen preview KDE offers on hover, same render at 2x
+        _cs.svg2png(bytestring=_mp.preview_svg(cols).encode(),
+                    write_to=os.path.join(previews, "fullscreenpreview.jpg"),
+                    output_width=_mp.W * 4, output_height=_mp.H * 4)
         # splash (⊕SPLASH): boot-seam phosphor screen that READS PROGRESS —
         # Plasma advances `stage` 1..6 as the session loads; segments light with
         # it. Void ground + phosphor from this variant's tokens (no new palette).
@@ -539,6 +553,19 @@ def stage(root):
     global DEB_ROOT
     DEB_ROOT = root
     os.makedirs(DEB_ROOT, exist_ok=True)
+
+    # ⚑ GENERATE BEFORE MAPPING.  system_mapping() lists outputs of make_aurorae,
+    # make_plasma and make_wallpaper as if they were in the tree — and guards each
+    # with `isdir`, so an absent one was SKIPPED in silence. On this checkout they
+    # existed (gitignored, written by earlier runs); on the ebuild's git-r3 clone
+    # they did not, and x11-themes/el-openglo-9999 installed with no Aurorae, no
+    # Plasma style and no wallpaper (measured 2026-09-21, `qlist`). The roster is
+    # emitters.ORDER, the same list the @EMITTERS gate runs.
+    import emitters
+    failed = [(m, rc, err) for m, rc, err in emitters.run_all(ROOT) if rc != 0]
+    if failed:
+        raise SystemExit("make_deb: emitter(s) failed before staging:\n  " +
+                         "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed))
 
     mapping = system_mapping() + helper_source_mapping()
     missing = [s for s, _ in mapping if not os.path.exists(os.path.join(ROOT, s))]

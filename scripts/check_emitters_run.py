@@ -34,23 +34,12 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# (module, why it sits here) — dependency order, not alphabetical.
-ORDER = (
-    ("make_schemes",   "writes the .colors files every other emitter reads"),
-    ("make_preview",   "owns parse_scheme; renders the previews"),
-    ("make_chrome",    "browser manifests, from the scheme tokens"),
-    ("make_konsole",   "terminal scheme, from the scheme tokens"),
-    ("make_aurorae",   "window decoration, from GRID"),
-    ("make_plasma",    "Plasma theme SVGs, from GRID"),
-    ("make_wallpaper", "wallpaper; sources tokens with a standalone fallback"),
-    ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
-)
-
-# Emitters that need an input this machine may not have.  Absent -> SKIP, named.
-EXTERNAL = {
-    "make_kvantum": ("/tmp/KvFlat.kvconfig",
-                     "recolours the upstream KvFlat theme; stage it to run this"),
-}
+# ⚑ THE ROSTER LIVES IN emitters.py, READ BY THIS GATE AND BY make_deb.stage().
+# It lived here alone, and the packager assumed the emitters' outputs were
+# already on disk — true on a working checkout, false on a git-r3 clone, where
+# the ebuild installed with no Aurorae, no Plasma style and no wallpaper.
+sys.path.insert(0, ROOT)
+from emitters import ORDER, EXTERNAL  # noqa: E402
 
 
 def main(argv):

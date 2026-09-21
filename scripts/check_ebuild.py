@@ -58,22 +58,59 @@ def ebuild_wellformed(path=EBUILD):
     return True, "SKIP pkgcheck (not installed); bash parses, required variables set"
 
 
-def staged_tree():
-    """Stage into a temp DESTDIR with make_deb.stage — the ebuild's src_install — and
-    return (files, missing_dests). Refuses (raises) if the tree is empty."""
-    sys.path.insert(0, ROOT)
-    os.chdir(ROOT)
-    import make_deb
+def staged_tree(clean=True):
+    """Stage into a temp DESTDIR the way the ebuild does, and return (files, missing).
+
+    ⚑ FROM A CLEAN CLONE, NOT THIS CHECKOUT.  git-r3 clones the repo; the ebuild
+    sees only what is COMMITTED. This witness first staged from the working tree,
+    where gitignored outputs of earlier emitter runs sat on disk, and reported
+    301 files while the installed package (qlist, 2026-09-21) had no Aurorae, no
+    Plasma style and no wallpaper. A `git clone --shared` of HEAD into a temp dir
+    is what the ebuild gets; staging runs there, in a subprocess, with that
+    tree's make_deb. `clean=False` keeps the old behaviour for the selftest's
+    speed. Raises if the tree is empty."""
     with tempfile.TemporaryDirectory() as td:
-        mapping = make_deb.stage(td)
+        if clean:
+            # ⚑ THE INDEX, NOT HEAD.  Under the pre-commit hook the tree being
+            # certified is what is STAGED; HEAD is the previous commit, and a
+            # witness cloning HEAD refuses every fix to itself forever (measured:
+            # the first commit of this very check). `git write-tree` is the
+            # index as a tree object; outside a commit it equals HEAD's tree.
+            src = os.path.join(td, "src")
+            os.makedirs(src)
+            tree = subprocess.run(["git", "-C", ROOT, "write-tree"],
+                                  capture_output=True, text=True, check=True).stdout.strip()
+            archive = subprocess.run(["git", "-C", ROOT, "archive", "--format=tar", tree],
+                                     capture_output=True, check=True).stdout
+            subprocess.run(["tar", "-x", "-C", src], input=archive, check=True)
+            # ⚑ THE PALETTE CACHE RIDES ALONG.  It is gitignored, so the archive
+            # has none and staging re-solves cold (~108 s) — over paperkit's
+            # per-check budget, which read as a red @EBUILD under the hook while
+            # the same tool passed from a shell. The cache is keyed by a stamp
+            # over the solver sources, so a stale copy is re-solved, not trusted.
+            cache = os.path.join(ROOT, ".palette-cache.json")
+            if os.path.isfile(cache):
+                shutil.copy2(cache, os.path.join(src, ".palette-cache.json"))
+        else:
+            src = ROOT
+        dest = os.path.join(td, "dest")
+        r = subprocess.run([sys.executable, os.path.join(src, "make_deb.py"), "--stage", dest],
+                           cwd=src, capture_output=True, text=True)
+        if r.returncode != 0:
+            raise RuntimeError("make_deb --stage failed in a clean clone: "
+                               + (r.stderr or r.stdout).strip()[-600:])
         files = []
-        for dp, _dirs, fs in os.walk(td):
+        for dp, _dirs, fs in os.walk(dest):
             for f in fs:
-                files.append(os.path.relpath(os.path.join(dp, f), td))
+                files.append(os.path.relpath(os.path.join(dp, f), dest))
         if not files:
             raise RuntimeError("staging produced an EMPTY tree — the packager is broken, "
                                "not the theme small")
-        missing = [dst for _src, dst in mapping if not os.path.exists(os.path.join(td, dst))]
+        sys.path.insert(0, src)
+        import importlib
+        make_deb = importlib.import_module("make_deb")
+        mapping = make_deb.system_mapping() + make_deb.helper_source_mapping()
+        missing = [dst for _src, dst in mapping if not os.path.exists(os.path.join(dest, dst))]
         return sorted(files), missing
 
 
