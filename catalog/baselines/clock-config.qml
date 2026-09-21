@@ -9,6 +9,9 @@ KCM.SimpleKCM {
     property alias cfg_use24h: use24h.checked
     property alias cfg_showSeconds: showSeconds.checked
     property alias cfg_blinkColon: blinkColon.checked
+    // ⚑ THESE TWO SLIDERS EXISTED WITHOUT ALIASES — moving them changed nothing.
+    property alias cfg_bloom: bloomSlider.value
+    property alias cfg_weight: weightSlider.value
     Kirigami.FormLayout {
         QQC2.CheckBox { id: showGhost; Kirigami.FormData.label: "Show ghost segments:" }
         QQC2.CheckBox { id: use24h; Kirigami.FormData.label: "24-hour clock:" }

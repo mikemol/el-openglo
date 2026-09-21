@@ -577,3 +577,11 @@
   claim    = {the palette is emitted as CSS custom properties — one block per variant, Off/Lit mapped onto prefers-color-scheme, the seen ghost stated as color-mix() — and every property equals its token},
   check    = {tool:check_css.py}
 }
+
+@misc{REGRESSIONS,
+  claim    = {Closed design-log symbols still re-derive from the tree: every CLOSED symbol with a witness (⊕BLOOM, ⊕STROKE-WEIGHT) has its work present in the EMITTED artifacts — a closure is not a ledger line},
+  check    = {tool:check_symbol.py --regressions},
+  note     = {Measured 2026-09-21: both symbols closed in COTYPE.md sessions 40-41, their builds lost in the recovery, nothing red — check_symbol witnessed only the OPEN set, so a closed symbol's done was a hand-written status. The operator saw it on screen first.},
+  section  = {emitters},
+  rests-on = {COTYPE}
+}

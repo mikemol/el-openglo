@@ -17,6 +17,7 @@ kind of object as the repo's own: open exactly when its check exits non-zero.
     scripts/check_symbol.py --list       # every symbol with a witness, and what it is
     scripts/check_symbol.py --status     # all of them, done/open
     scripts/check_symbol.py --unwitnessed  # open symbols with NO witness here
+    scripts/check_symbol.py --regressions  # CLOSED symbols whose work left the tree
 
 ⚑ AN OPERATOR-BLOCKED SYMBOL GETS NO WITNESS, AND THAT IS NOT AN OMISSION.  The
 log's LIVE bucket is work only a human at a real desktop can verify — "does the
@@ -262,6 +263,118 @@ WITNESS = {
 }
 
 
+def _emitted_surfaces():
+    """{name: emitted QML} for every shipping segment surface, through the
+    generators' accessors with a real token dict — the artifact, not the source."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    os.chdir(ROOT)
+    import make_clock
+    import make_schemes
+    import make_wallpaper_live
+    t = next(v[0] for v in make_schemes.GRID.values())
+    return {"clock": make_clock.main_qml(t),
+            "live-wallpaper": make_wallpaper_live.main_qml("EL-Openglo")}
+
+
+def _arith(expr, **env):
+    """Evaluate an arithmetic expression (+ - * / parentheses, names in env)."""
+    import ast
+    node = ast.parse(expr.strip(), mode="eval").body
+    ops = {ast.Add: lambda a, b: a + b, ast.Sub: lambda a, b: a - b,
+           ast.Mult: lambda a, b: a * b, ast.Div: lambda a, b: a / b}
+
+    def ev(n):
+        if isinstance(n, ast.Constant):
+            return float(n.value)
+        if isinstance(n, ast.Name):
+            return float(env[n.id])
+        if isinstance(n, ast.Attribute):          # root.weight -> weight
+            return float(env[n.attr])
+        if isinstance(n, ast.BinOp):
+            return ops[type(n.op)](ev(n.left), ev(n.right))
+        if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub):
+            return -ev(n.operand)
+        raise ValueError(f"not arithmetic: {ast.dump(n)}")
+    return ev(node)
+
+
+def _stroke_ratio(qml):
+    """lit/ghost stroke-thickness ratio at weight=1 from the emitted properties
+    `strokeLit:` and `strokeGhost:`, or None when a surface does not declare them."""
+    m_lit = re.search(r"property real strokeLit:\s*([^\n]+)", qml)
+    m_gh = re.search(r"property real strokeGhost:\s*([^\n]+)", qml)
+    if not (m_lit and m_gh):
+        return None
+    env = {"weight": 1.0, "segThick": 1.0}
+    try:
+        return _arith(m_lit.group(1), **env) / _arith(m_gh.group(1), **env)
+    except (ValueError, KeyError, ZeroDivisionError):
+        return None
+
+
+def _bloom_is_blur(qml):
+    """A MultiEffect blur layer gated by the `bloom` config, on a lit-only layer:
+    the ghost colour must not be drawn inside the layered item."""
+    if not re.search(r"MultiEffect\s*\{[^}]*blurEnabled:\s*true", qml):
+        return False
+    if not re.search(r"layer\.enabled:\s*root\.bloom\s*>\s*0", qml):
+        return False
+    # the ITEM that owns `layer.enabled` (brace-matched) must not draw the ghost
+    for m in re.finditer(r"layer\.enabled:", qml):
+        depth, start = 0, None
+        for i in range(m.start(), -1, -1):          # back to the item's own `{`
+            if qml[i] == "}":
+                depth += 1
+            elif qml[i] == "{":
+                if depth == 0:
+                    start = i
+                    break
+                depth -= 1
+        depth, end = 0, None
+        for i in range(start, len(qml)):            # forward to its `}`
+            if qml[i] == "{":
+                depth += 1
+            elif qml[i] == "}":
+                depth -= 1
+                if depth == 0:
+                    end = i
+                    break
+        if start is None or end is None or "ghostColor" in qml[start:end]:
+            return False
+    return True
+
+
+def _closed_stroke_weight():
+    surfaces = _emitted_surfaces()
+    ratios = {n: _stroke_ratio(q) for n, q in surfaces.items()}
+    return all(r is not None and r > 1.0 for r in ratios.values())
+
+
+def _closed_bloom():
+    return all(_bloom_is_blur(q) for q in _emitted_surfaces().values())
+
+
+# ⚑ CLOSED SYMBOLS HAVE WITNESSES TOO.  Every entry above is for the OPEN set,
+# because `--bucket` filters on what the index calls open. A CLOSED symbol's
+# "done" was therefore the log's ledger — a hand-written status, the exact
+# field CLAUDE.md forbids. Measured 2026-09-21: ⊕BLOOM and ⊕STROKE-WEIGHT closed
+# in sessions 40-41 (deb 1.10/1.11), their builds vanished in the recovery, and
+# nothing went red — the operator saw it on screen ("the ghost is too close to
+# the lit segment"). These predicates re-derive a closure from the emitted
+# artifacts; `--regressions` is red when a closed symbol's work is gone.
+CLOSED = {
+    "⊕STROKE-WEIGHT": (
+        "every segment surface draws the lit stroke thicker than the ghost stroke"
+        " (T_lit/T_ghost > 1 at weight=1, read from the emitted QML) (:2646)",
+        _closed_stroke_weight),
+    "⊕BLOOM": (
+        "every segment surface blooms by BLURRING a lit-only layer (MultiEffect,"
+        " gated by config bloom), never the ghost (:2567)",
+        _closed_bloom),
+}
+
+
 def open_symbols():
     """{symbol: bucket} for the log's currently-open work."""
     import json
@@ -277,13 +390,30 @@ def open_symbols():
 
 
 def main(argv):
-    known = {"--list", "--status", "--unwitnessed", "--bucket"}
+    known = {"--list", "--status", "--unwitnessed", "--bucket", "--regressions"}
     args = [a for a in argv[1:] if a.startswith("--")]
     syms = [a for a in argv[1:] if not a.startswith("--")]
     for a in args:
         if a not in known:
             print(f"check_symbol: unknown flag {a!r}", file=sys.stderr)
             return 2
+
+    if "--regressions" in args:
+        # exit 0 iff every CLOSED symbol's work is still in the tree.
+        if not CLOSED:
+            print("check_symbol: REFUSED — no closed symbol has a witness; the check "
+                  "is vacuous, not the closures intact", file=sys.stderr)
+            return 2
+        gone = [s for s in sorted(CLOSED) if not CLOSED[s][1]()]
+        if gone:
+            print(f"check_symbol: REGRESSED — {len(gone)} of {len(CLOSED)} closed "
+                  f"symbol(s) no longer have their work in the tree:", file=sys.stderr)
+            for s in gone:
+                print(f"    {s}: {CLOSED[s][0]}", file=sys.stderr)
+            return 1
+        print(f"check_symbol: {len(CLOSED)} of {len(CLOSED)} closed symbols still "
+              f"re-derive from the tree")
+        return 0
 
     if "--bucket" in args:
         # exit 0 iff EVERY witnessed symbol in this bucket is present.
@@ -317,6 +447,8 @@ def main(argv):
     if "--list" in args:
         for s, (what, _) in sorted(WITNESS.items()):
             print(f"{s}\t{what}")
+        for s, (what, _) in sorted(CLOSED.items()):
+            print(f"{s}\t(closed) {what}")
         return 0
 
     opn = open_symbols()
@@ -396,8 +528,29 @@ def _selftest():
         # be an unfalsifiable claim wearing a checkmark.
         live = sorted(s for s, b in opn.items() if b == "LIVE" and s in WITNESS)
         check(f"no witness claims LIVE work ({live})", live, [])
+    # ⚑ THE CLOSED WITNESSES MUST BE ABLE TO SEE THE REGRESSION THEY EXIST FOR.
+    # Synthetic QML, not the tree: equal strokes, and a bloom that is a wider
+    # opaque copy rather than a blur (the recovered state of 2026-09-21).
+    equal = ("property real strokeLit: segThick * (1 + 0.25 * weight)\n"
+             "property real strokeGhost: segThick * (1 + 0.25 * weight)\n")
+    weighted = ("property real strokeLit: segThick * (1 + 0.25 * weight)\n"
+                "property real strokeGhost: segThick * (1 - 0.19 * weight)\n")
+    check("equal strokes are not stroke-weight", _stroke_ratio(equal), 1.0)
+    check("weighted strokes measure > 1", round(_stroke_ratio(weighted), 2), 1.54)
+    check("no stroke properties is None", _stroke_ratio("Item {}"), None)
+    fake_bloom = "Rectangle { opacity: 0.18; width: thick * 2.1; color: root.litColor }"
+    real_bloom = ("Item {\n  layer.enabled: root.bloom > 0\n  layer.effect: MultiEffect {"
+                  " blurEnabled: true }\n  Rectangle { color: root.litColor }\n}")
+    ghost_bloom = ("Item {\n  layer.enabled: root.bloom > 0\n  layer.effect: MultiEffect {"
+                   " blurEnabled: true }\n  Rectangle { color: root.ghostColor }\n}")
+    check("a wider opaque copy is not a bloom", _bloom_is_blur(fake_bloom), False)
+    check("a blurred lit-only layer is", _bloom_is_blur(real_bloom), True)
+    check("a blurred layer that draws the ghost is not", _bloom_is_blur(ghost_bloom), False)
+    check("closed witnesses cite a log line",
+          all(re.search(r":\d+\)", w) for w, _ in CLOSED.values()), True)
+    check("closed and open witnesses are disjoint", sorted(set(CLOSED) & set(WITNESS)), [])
     # every predicate must RUN without raising
-    for s, (_w, p) in WITNESS.items():
+    for s, (_w, p) in list(WITNESS.items()) + list(CLOSED.items()):
         try:
             p()
         except Exception as e:                      # noqa: BLE001

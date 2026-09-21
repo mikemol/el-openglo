@@ -11,7 +11,7 @@ All six grid variants ship. Helper defaults to EL-Openglo.
 """
 import os, shutil, subprocess, stat, hashlib, sys
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"   # 1.3: ⊕BLOOM + ⊕STROKE-WEIGHT restored (clock, live wallpaper)
 ARCH = "all"
 PKG = "el-openglo-themes"
 VARIANTS = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",

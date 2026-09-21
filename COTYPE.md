@@ -4942,3 +4942,72 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation). ⊕PLA2 ⊕KVT2 ⊕KNB2.
 - TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG). [s70]
+
+## Session 71 — two CLOSED symbols had no build, and nothing was red (operator-caught)
+- Operator, live 2026-09-21, after emerge #3: "the clock ghost is too close to the
+  lit segment… I think it's the missing blooming effect; if the lit segments
+  appeared bigger it'd be easier to tell them apart" — then a screenshot of the
+  live wallpaper: a STEPPED halo (hard-edged), and its colon not blinking.
+- Measured, not recalled: ⊕BLOOM (s40, deb 1.10.0) and ⊕STROKE-WEIGHT (s41, deb
+  1.11.0) are CLOSED in this ledger. templates/clock-main.qml drew lit and ghost
+  at ONE segThick with no MultiEffect — only `import QtQuick.Effects` survived the
+  recovery. clock-config.kcfg had kept `bloom` and `weight`; clock-config.qml had
+  the two SLIDERS but NO cfg_ aliases, so moving them changed nothing. The live
+  wallpaper had stroke-weight (0.40U/0.26U) but its "bloom" was two wider opaque
+  rectangles (x2.1 @0.18, x1.5 @0.30) — the stepped halo in the photo — and drew
+  the colon unconditionally.
+- [110] WHY nothing went red — the finding under the finding: check_symbol
+  witnesses only the OPEN set (`--bucket` filters on the index's "open"). A CLOSED
+  symbol's done was therefore THIS LEDGER — a hand-written status, the exact
+  field CLAUDE.md forbids, and the RECOVERY-NOTES "main rebuild gap" shape again.
+  The pipeline that certifies "done" had no arm pointing at what "done" produced.
+- Build: (1) check_symbol CLOSED table + `--regressions`: predicates over the
+  EMITTED QML of every segment surface — lit/ghost stroke ratio > 1 at weight=1
+  (arithmetic on the `strokeLit:`/`strokeGhost:` properties, evaluated), and a
+  MultiEffect blur layer gated by `bloom` whose brace-matched item never draws
+  ghostColor. Proven RED at c8f9995 (worktree) and GREEN on the rebuilt tree.
+  @REGRESSIONS in the worklist (47). (2) Clock: strokeLit/strokeGhost per s41,
+  three passes — ghost, a lit-only Item with layer.effect MultiEffect(blur,
+  blurMultiplier=bloom, brightness .15), crisp lit core; sliders aliased.
+  (3) Live wallpaper: ONE paintFace(pass) over TWO canvases — haloCanvas ("lit",
+  blurred by the same MultiEffect) under clockCanvas ("all"); colonOn toggled in
+  tick() under `blinkColon` (kcfg +blinkColon/bloom/weight). Three parity
+  baselines re-captured deliberately (rm + capture). VERSION 1.3.0.
+- Four gates: constructible (templates regen, 6 clock packages rewritten, parity 7
+  of 7, @GHOST-SURFACES 24 of 24, geometry --coverable 3 of 3); reachable (the
+  staged tree carries the new QML; emerge is the operator's); observable
+  (--regressions discriminates: red at HEAD, green now; selftest plants equal
+  strokes, a wide opaque copy, a ghost-drawing blur — each refused); coverable
+  (bloom=0 disables the layer, weight=0 equalises strokes, an off colon is ghost
+  and never bloomed).
+- RESIDUE: the stair-stepped halo EDGES in the photo may also be canvas pixel
+  density (FBO at DIPs, not device pixels) — the blur hides it; measure after
+  ⊕VER rather than guess. SegmentChar.qml (⊕SEGMENTCHAR-ADOPT) does not carry
+  bloom/weight yet — it has no consumer to carry them to. The static wallpaper
+  already blurs (feGaussianBlur); ⊕SUPERSAMPLE-WP unchanged.
+- ⊕VER (operator, no restart): emerge → clock and live wallpaper show a soft halo
+  on lit only, lit visibly fuller than ghost; wallpaper colon blinks; the widget
+  config sliders now DO something.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED by
+  @REGRESSIONS (71) — a closed symbol is now closed exactly while its witness
+  passes, like the rest + (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71: bloom/weight on screen), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-UI-TOKENS, ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT,
+  ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2.
+- TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG). [s71]

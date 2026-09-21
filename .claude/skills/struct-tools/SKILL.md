@@ -49,6 +49,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | **what the theme LOOKS like** | `catalog/library/library.md` (samples) | `python3 catalog/library/render_samples.py --list` | `.svg` |
 | a concept the library owns and grades | `catalog/library/concepts.py` | `python3 catalog/library/concepts.py --list` | — |
 | the design log's symbols, closures and open set | `scripts/cotype_index.py` | `python3 scripts/cotype_index.py` | — |
+| is a symbol's work IN THE TREE — open ones (`--status`) and closed ones (`--regressions`) | `scripts/check_symbol.py` | `python3 scripts/check_symbol.py --list` | — |
 | Plasma / Konsole colour schemes | `scripts/check_selection_contrast.py` | `python3 scripts/check_selection_contrast.py --report` | `.colors` `.colorscheme` |
 | the retired trademark, anywhere in the tree | `scripts/check_mark.py` | `python3 scripts/check_mark.py --files` | — |
 | third-party imports vs the manifest | `scripts/check_deps.py` | `python3 scripts/check_deps.py --imports` | `.toml` |

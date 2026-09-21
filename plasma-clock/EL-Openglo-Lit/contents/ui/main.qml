@@ -20,6 +20,19 @@ PlasmoidItem {
     property real ghostAlpha: 0.503
     property int segLen: Math.max(6, Math.floor(height * 0.42))
     property int segThick: Math.max(2, Math.floor(segLen * 0.18))
+    // ⊕STROKE-WEIGHT: perceived brightness = luminance x AREA, so the lit stroke
+    // is drawn FULLER than the ghost outline (a real EL segment is physically
+    // fuller than its etched ghost). weight=1 -> lit 1.25x, ghost 0.81x, ratio
+    // 1.54; weight=0 -> equal strokes. Lost in the recovery and rebuilt from
+    // COTYPE.md session 41; the kcfg had kept the key all along.
+    property real weight: (plasmoid.configuration.weight === undefined) ? 1.0
+                          : plasmoid.configuration.weight
+    property real strokeLit: segThick * (1 + 0.25 * weight)
+    property real strokeGhost: segThick * (1 - 0.19 * weight)
+    // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never
+    // a wider opaque copy. 0 disables the layer (crisp fallback); default 1.5.
+    property real bloom: (plasmoid.configuration.bloom === undefined) ? 1.5
+                         : plasmoid.configuration.bloom
 
     property string timeStr: "0000"
     property bool colonOn: true
@@ -64,50 +77,90 @@ PlasmoidItem {
         width: segLen + (insertColon ? segLen * 0.7 : 0)
         height: segLen * 2
 
-        // one seven-segment glyph; ghost layer under lit layer
+        function isOn(s) {
+            return root.digSegs[ch] !== undefined && root.digSegs[ch].indexOf(s) !== -1
+        }
+        // one seven-segment glyph, three passes: ghost (un-energised, no halo),
+        // then the lit layer blurred into a halo, then the crisp lit core on top
         Repeater {
             model: ["A","B","C","D","E","F","G"]
             Segment {
                 seg: modelData
-                on: root.digSegs[parent.ch] !== undefined
-                    && root.digSegs[parent.ch].indexOf(modelData) !== -1
+                visible: plasmoid.configuration.showGhost && !parent.isOn(modelData)
+                color: root.ghostColor
+                opacity: root.ghostAlpha
+                thick: root.strokeGhost
             }
         }
-        // colon dots after this digit
-        Rectangle {
-            visible: parent.insertColon
-            width: segThick; height: segThick; radius: segThick/2
-            color: root.colonOn ? root.litColor : root.ghostColor
-            opacity: root.colonOn ? 1.0 : root.ghostAlpha
-            x: segLen + segLen*0.25; y: segLen*0.62
+        Item {
+            id: halo
+            anchors.fill: parent
+            visible: root.bloom > 0
+            layer.enabled: root.bloom > 0
+            layer.effect: MultiEffect {
+                blurEnabled: true
+                blur: 1.0
+                blurMax: 64
+                blurMultiplier: root.bloom
+                brightness: 0.15
+            }
+            Repeater {
+                model: ["A","B","C","D","E","F","G"]
+                Segment {
+                    seg: modelData
+                    visible: parent.parent.isOn(modelData)
+                    color: root.litColor
+                    thick: root.strokeLit
+                }
+            }
+            ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*0.62 }
+            ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*1.38 - segThick }
         }
-        Rectangle {
+        Repeater {
+            model: ["A","B","C","D","E","F","G"]
+            Segment {
+                seg: modelData
+                visible: parent.isOn(modelData)
+                color: root.litColor
+                thick: root.strokeLit
+            }
+        }
+        // colon dots after this digit: lit when on, ghost (never bloomed) when off
+        ColonDot {
             visible: parent.insertColon
-            width: segThick; height: segThick; radius: segThick/2
             color: root.colonOn ? root.litColor : root.ghostColor
             opacity: root.colonOn ? 1.0 : root.ghostAlpha
-            x: segLen + segLen*0.25; y: segLen*1.38 - segThick
+            y: segLen*0.62
+        }
+        ColonDot {
+            visible: parent.insertColon
+            color: root.colonOn ? root.litColor : root.ghostColor
+            opacity: root.colonOn ? 1.0 : root.ghostAlpha
+            y: segLen*1.38 - segThick
         }
     }
 
-    component Segment: Item {
+    component ColonDot: Rectangle {
+        width: segThick; height: segThick; radius: segThick/2
+        color: root.litColor
+        antialiasing: true
+        x: segLen + segLen*0.25
+    }
+
+    // one segment as a scene-graph vector item; the caller says which colour,
+    // opacity and stroke weight — the geometry is the substrate's alone
+    component Segment: Rectangle {
         property string seg: "A"
-        property bool on: false
+        property real thick: root.segThick
         property var g: root.segGeom[seg]         // [kind, ux, uy]
         property bool horiz: g[0] === "h"
         property real gap: segThick * 0.62
-        anchors.fill: parent
-        Rectangle {
-            property bool showGhost: plasmoid.configuration.showGhost
-            visible: parent.on || showGhost
-            color: parent.on ? root.litColor : root.ghostColor
-            opacity: parent.on ? 1.0 : root.ghostAlpha
-            antialiasing: true
-            radius: segThick/2
-            width:  horiz ? segLen - gap*2 : segThick
-            height: horiz ? segThick : segLen - gap*2
-            x: (g[1] * segLen) + (horiz ? gap : 0)
-            y: (g[2] * segLen) + (horiz ? 0 : gap)
-        }
+        antialiasing: true
+        radius: thick/2
+        width:  horiz ? segLen - gap*2 : thick
+        height: horiz ? thick : segLen - gap*2
+        // centred on the segment's axis so a heavier stroke grows both ways
+        x: (g[1] * segLen) + (horiz ? gap : (segThick - thick)/2)
+        y: (g[2] * segLen) + (horiz ? (segThick - thick)/2 : gap)
     }
 }
