@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 19,
+  "counter": 20,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T00:41:44+00:00",
-  "job_id": "6c221ca7",
+  "heartbeat": "2026-09-21T02:08:46+00:00",
+  "job_id": "dc984948",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -13,10 +13,7 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": {
-    "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T00:51:20+00:00"
-  },
+  "lock": null,
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -229,21 +226,23 @@
     {
       "symbol": "W12",
       "title": "Gentoo overlay under overlay/ + a live ebuild (git-r3, this repo) that runs the emitters and installs what make_deb installs, + check_ebuild.py witness",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "packaging",
         "make_deb",
         "overlay"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "mikemol"
+      ],
+      "blocked_kind": "human",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
-      "next_bounded_step": "Step 2c: add `--mode glanced` to check_ghost_composite (composite at ghost_alpha_glanced, report composited |Lc| per variant); derive GHOST_VISIBLE_LC_GLANCED = min over Off variants rounded down (cvd_gate, comment dated); relations.md §3c (per-mode alpha, both floors, the infeasibility and its resolution); flip the infeasible flag to compare against the per-mode ground floor. Then `make_deb.py --stage <scratch>` to completion and list the tree. Then Step 3: overlay/ + el-openglo-9999.ebuild + check_ebuild.py; repos.conf → ask.",
-      "evidence": "STEP 2b (tick 19, commit 13c9b1d): per-mode alpha solved (ghost_solve.alpha_max_vs_lit + solve_ghost_alpha_for_mode; build_grid second pass); tokens + .colors carry GhostAlphaGlanced=0.308 and GhostAlphaGlancedInfeasible=true; surfaces choose by parsing mode (colors_for(parsing=)); check_ghost_surfaces 24 of 24 per-mode; glance_audit ALL OK (EL-Azure: clock 4.71/3.0, wallpaper 8.23/5.5, splash+plymouth 5.51/5.5). FINDING: at 0.308 the glanced ghost is under the Lc-25 ground floor (a_min 0.36-0.51) — the two floors are jointly infeasible on every variant; flagged, not clamped. The Lc-25 floor was derived from LOOKED-AT surfaces; glance_audit says a glanced ghost \"recedes to texture\", so the ground floor is per-mode too — derive GHOST_VISIBLE_LC_GLANCED from what 0.308 achieves (as 25 was), record in relations.md §3c, and re-run. Staging gate (glance) now passes; `make_deb.py --stage` should run to completion.",
+      "next_bounded_step": "OPERATOR: authorise the push of dab3fc4 (git-r3 builds from GitHub), then `sudo emerge -av x11-themes/el-openglo` again, then in System Settings → Global Theme pick EL Openglo (EL-Azure) and Apply (tick all parts in the dialog) — report: do previews show the phosphor render; do colours/Plasma style/decoration change. If not, name what did not. Then: overlay carries its own dev-python/colorspacious ebuild (copy guru's) so the BDEPEND resolves without guru.",
+      "evidence": "EMERGED (2026-09-21): x11-themes/el-openglo-9999 and kde-plasma/union installed — the BDEPEND set is proven. ⊕VER #1 on luthen: \"apply does nothing\" + stock preview images (screenshot). `qlist` MEASURED the install set: NO aurorae, NO plasma desktoptheme, NO wallpapers — system_mapping guarded gitignored generated outputs with isdir/exists; a git-r3 clone has none; check_ebuild staged the dirty working tree and could not see it. FIXED (tick 24, commit dab3fc4): emitters.py roster shared by @EMITTERS and make_deb.stage() (generate BEFORE mapping, guards removed → absent payload refuses by name); make_wallpaper parameterised (it emitted ONE variant; ghost was literal — eighth ghost model) → six wallpapers at the glanced alpha; LNF_STAGE per-run tempdir (was root-owned /tmp/eldeb/_lnf); LnF preview at contents/previews/preview.png (+fullscreenpreview.jpg) — was contents/preview.png, unread by Plasma 6; check_ebuild stages the INDEX tree via git write-tree+archive (+ cache copy). 317 files; 42 mapped paths. Guru-sourced colorspacious still a portability gap (open).",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-21T00:41:09+00:00",
-      "ticks_blocked": 0
+      "last_worked": "2026-09-21T02:08:16+00:00",
+      "ticks_blocked": 1
     },
     {
       "symbol": "W13",
@@ -363,7 +362,7 @@
     {
       "symbol": "W19",
       "title": "Web / IndieWeb theme — the palette as CSS custom properties (one :root block per variant, prefers-color-scheme mapping Off/Lit), the sink every site theme reads; the operator's future IndieWeb site is the first consumer",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "emitters",
@@ -374,10 +373,29 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: CSS custom properties are the lowest-common-denominator of every browser/GNOME/Union sink already queued (Union input IS CSS; Firefox/Chrome themes are colour maps) — emitting the palette as CSS tokens once gives W14, W15 and the site a shared read. Cheap, and it makes the palette linkable from the web (rel=stylesheet, or a theme CSS the IndieWeb templates import)",
-      "next_bounded_step": "Emit catalog/el-openglo.css (or a make_css.py): --el-view/--el-fg/--el-fg-in/--el-ghost-alpha/… per variant, with the role names from palette_graph.NODES (not invented ones), @media (prefers-color-scheme) selecting Off vs Lit, and the ghost composite expressed as color-mix() so the seen ghost is one CSS expression. Witness: the file parses (tinycss2 is already in the venv), every custom property is a token, the 44 keys are all present per variant. Then a sample HTML page in catalog/library rendered with it (@SAMPLES). IndieWeb specifics (microformats, h-card colours) wait for the site to exist.",
-      "evidence": "",
+      "next_bounded_step": "—",
+      "evidence": "DONE (tick 22, commit 93fc427): make_css.py → catalog/el-openglo.css (6 variants; --el-<key> per token; both alphas; :root = EL-Openglo, prefers-color-scheme:light = -Lit; seen ghost as color-mix per mode); check_css.py wired as @CSS, 228 of 228 properties equal the palette; selftest sees stale/dropped/foreign/non-mix/mis-mapped; tinycss2 declared (tooling extra); make_css in the emitter roster; worklist 46 of 46. IndieWeb specifics wait for the site.",
       "issued_at": "2026-09-20T23:39:19+00:00",
-      "last_worked": "2026-09-20T23:39:19+00:00",
+      "last_worked": "2026-09-21T01:29:38+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W20",
+      "title": "The pre-commit hook warms the palette cache before the worklist gate — a cold .palette-cache.json makes ~13 checks time out at once and the hook refuses a green tree",
+      "status": "done",
+      "enables": [],
+      "touches": [
+        "hooks",
+        "make_schemes",
+        "paperkit"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "sweep: three commits this session (aee168a-era, 09177ec, 93fc427) were refused on the first try and passed on the warm retry; the judgement \"retry, it was cold\" lives in the turn, not the hook",
+      "next_bounded_step": "—",
+      "evidence": "DONE (tick 23, commit 596da31): make_schemes.py --warm (a mode); hook step 4a `run \"palette-cache\"` before the gate; step 4 captures the gate output and prints it on refusal. CORRECTION from the gate ledger: the three refusals took ~5 s (fast failures), NOT cold-cache timeouts — the reason was discarded by >/dev/null 2>&1; the cascade I saw was from running the gate by hand after a solver edit. Both fixed. The hook exercised itself on this commit.",
+      "issued_at": "2026-09-21T01:29:50+00:00",
+      "last_worked": "2026-09-21T01:37:44+00:00",
       "ticks_blocked": 0
     }
   ],

@@ -13,11 +13,12 @@ DESTDIR, so "the ebuild installs the theme" is measured rather than asserted.
     scripts/check_ebuild.py --tree     # the staged install tree, one path per line
     scripts/check_ebuild.py --selftest
 
-WEAKNESS, STATED.  This stages with THIS checkout's Python and deps, not inside
-Portage's sandbox with the ebuild's BDEPEND. A dependency the ebuild forgot to
-declare is invisible here (pkgcheck does not see it either); only an actual
-`emerge` proves the BDEPEND set. Staging is ~2 min cold (the palette solve) and
-seconds warm.
+WEAKNESS, STATED.  This stages the INDEX tree under sys-apps/sandbox (writes
+confined to a tempdir — Portage's own enforcement, run as the user) but with
+THIS checkout's Python and deps, not the ebuild's BDEPEND. A dependency the
+ebuild forgot to declare is invisible here (pkgcheck does not see it either);
+only an actual `emerge` proves the BDEPEND set. Staging is ~2 min cold (the
+palette solve; the cache rides along) and seconds warm.
 """
 import os
 import re
@@ -69,7 +70,12 @@ def staged_tree(clean=True):
     is what the ebuild gets; staging runs there, in a subprocess, with that
     tree's make_deb. `clean=False` keeps the old behaviour for the selftest's
     speed. Raises if the tree is empty."""
-    with tempfile.TemporaryDirectory() as td:
+    # ⚑ THE WORK DIR IS UNDER THE REPO, NOT /tmp.  The staging runs with
+    # SANDBOX_DENY=/tmp:/var/tmp (a build must not write shared temp), and DENY
+    # covers reads too — a tempdir under /tmp would deny the clone itself.
+    work = os.path.join(ROOT, ".ebuild-witness")
+    os.makedirs(work, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=work) as td:
         if clean:
             # ⚑ THE INDEX, NOT HEAD.  Under the pre-commit hook the tree being
             # certified is what is STAGED; HEAD is the previous commit, and a
@@ -94,11 +100,36 @@ def staged_tree(clean=True):
         else:
             src = ROOT
         dest = os.path.join(td, "dest")
-        r = subprocess.run([sys.executable, os.path.join(src, "make_deb.py"), "--stage", dest],
-                           cwd=src, capture_output=True, text=True)
+        # ⚑ NOTHING MAY LAND OUTSIDE THE SOURCE TREE AND THE DESTDIR, AND THE
+        # TOOL THAT ENFORCES IT IS PORTAGE'S OWN.  The first emerge of the fixed
+        # tree died on `/tmp/EL-Openglo.colorscheme` — an emitter's __main__ demo
+        # path staging ran needlessly. sys-apps/sandbox's `sandbox` binary is
+        # what wraps every ebuild phase and it runs as any user: with
+        # SANDBOX_WRITE limited to this tempdir, every other write is the same
+        # EACCES the emerge produced. (A /tmp before/after snapshot was tried
+        # first — racy against everything else on the box that touches /tmp.)
+        # Without `sandbox` on PATH this arm is a counted SKIP, not a pass.
+        env = dict(os.environ, TMPDIR=os.path.join(td, "tmp"))
+        os.makedirs(env["TMPDIR"])
+        cmd = [sys.executable, os.path.join(src, "make_deb.py"), "--stage", dest]
+        sandboxed = shutil.which("sandbox") is not None
+        if sandboxed:
+            # ⚑ SANDBOX_WRITE ADDS; SANDBOX_DENY SUBTRACTS.  The default policy
+            # (/etc/sandbox.conf) permits /tmp and /var/tmp, so the emerge's
+            # EACCES on /tmp/EL-Openglo.colorscheme was plain Unix permissions
+            # (a demo run had left it owned by the user; the build ran as
+            # portage), not the sandbox. Either way a build must not write to
+            # shared /tmp, and DENY is how this wrapper makes that a refusal.
+            env.update(SANDBOX_WRITE=td, SANDBOX_DENY="/tmp:/var/tmp",
+                       SANDBOX_PREDICT="", SANDBOX_VERBOSE="1")
+            cmd = ["sandbox", "--"] + cmd
+        r = subprocess.run(cmd, cwd=src, capture_output=True, text=True, env=env)
         if r.returncode != 0:
-            raise RuntimeError("make_deb --stage failed in a clean clone: "
+            raise RuntimeError(("make_deb --stage failed in a clean clone under sandbox: "
+                                if sandboxed else "make_deb --stage failed in a clean clone: ")
                                + (r.stderr or r.stdout).strip()[-600:])
+        globals()["_SANDBOX_NOTE"] = ("sandboxed (sys-apps/sandbox)" if sandboxed
+                                      else "SKIP sandbox (not on PATH) — writes outside the tree unchecked")
         files = []
         for dp, _dirs, fs in os.walk(dest):
             for f in fs:
@@ -137,7 +168,8 @@ def main(argv):
             problems.append(f"{len(missing)} mapped destination(s) absent after staging: "
                             + ", ".join(missing[:5]))
         else:
-            notes.append(f"staging: {len(files)} files; every mapped destination present")
+            notes.append(f"staging: {len(files)} files; every mapped destination present; "
+                         + globals().get("_SANDBOX_NOTE", ""))
     except Exception as e:                                   # noqa: BLE001
         problems.append(f"staging: {type(e).__name__}: {e}")
 
@@ -175,6 +207,24 @@ def _selftest():
         check("an ebuild that does not parse is seen (bash -n / pkgcheck)", w_ok, False)
     e_ok, e_detail = ebuild_wellformed()
     check(f"the real ebuild is well-formed ({e_detail[:60]})", e_ok, True)
+    # ⚑ THE SANDBOX ARM MUST SEE A WRITE OUTSIDE THE TREE — the defect the second
+    # emerge found. Run a planted script under the same wrapper and expect EACCES.
+    if shutil.which("sandbox"):
+        work = os.path.join(ROOT, ".ebuild-witness")
+        os.makedirs(work, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=work) as td:
+            env = dict(os.environ, SANDBOX_WRITE=td, SANDBOX_DENY="/tmp:/var/tmp",
+                       SANDBOX_PREDICT="")
+            r = subprocess.run(["sandbox", "--", sys.executable, "-c",
+                                "open('/tmp/check_ebuild-selftest-leak', 'w').write('x')"],
+                               capture_output=True, text=True, env=env)
+            check("sandbox refuses a write to /tmp", r.returncode != 0, True)
+            r = subprocess.run(["sandbox", "--", sys.executable, "-c",
+                                f"open('{td}/ok', 'w').write('x')"],
+                               capture_output=True, text=True, env=env)
+            check("...and allows a write inside SANDBOX_WRITE", r.returncode, 0)
+    else:
+        print("  SKIP sandbox arms — sys-apps/sandbox not on PATH")
     # ⚑ THE STAGING ARM MUST REFUSE AN EMPTY TREE, and must see a missing dest.
     files, missing = staged_tree()
     check("staging is non-empty", len(files) > 0, True)

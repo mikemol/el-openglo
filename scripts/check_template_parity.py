@@ -80,6 +80,37 @@ def _value(module, accessor, argsrc):
     return obj(_one(argsrc))
 
 
+def shared_inodes():
+    """[(name, nlink)] for every baseline that is a HARD LINK to something else.
+
+    ⚑ A BASELINE THAT SHARES AN INODE IS NOT A BASELINE.  Measured 2026-09-21:
+    catalog/baselines/clock-config.qml had link count 8 — one inode with the
+    TEMPLATE it certifies and six emitted copies — so editing the template
+    silently edited its own baseline and @PARITY could not fail. A dedup pass
+    over ~/github (jdupes -L / hardlink / rdfind) had merged every byte-identical
+    file; capture_baseline writes plain files and never did this. The tool that
+    owns the baselines is the one that must notice, because nothing else looks."""
+    out = []
+    for name in sorted(os.listdir(BASELINES)) if os.path.isdir(BASELINES) else []:
+        p = os.path.join(BASELINES, name)
+        if os.path.isfile(p) and os.stat(p).st_nlink > 1:
+            out.append((name, os.stat(p).st_nlink))
+    return out
+
+
+def unlink_shared():
+    """Give every shared-inode baseline its own inode (same bytes, same mode)."""
+    import shutil
+    done = []
+    for name, n in shared_inodes():
+        p = os.path.join(BASELINES, name)
+        tmp = p + ".unlink"
+        shutil.copy2(p, tmp)
+        os.replace(tmp, p)               # a new inode under the old name
+        done.append((name, n))
+    return done
+
+
 def compare():
     """[(label, verdict)] for every declared pair."""
     out = []
@@ -88,6 +119,10 @@ def compare():
         path = os.path.join(BASELINES, name)
         if not os.path.isfile(path):
             out.append((label, f"NO BASELINE ({name})"))
+            continue
+        if os.stat(path).st_nlink > 1:
+            out.append((label, f"SHARED INODE ({name}: {os.stat(path).st_nlink} links) — "
+                               f"not an independent record; run --unlink"))
             continue
         try:
             got = _value(module, accessor, argsrc)
@@ -136,12 +171,24 @@ def diff(match):
 
 
 def main(argv):
-    known = {"--pairs", "--diff"}
+    known = {"--pairs", "--diff", "--unlink", "--links"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
             print(f"check_template_parity: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--links" in argv:
+        shared = shared_inodes()
+        for name, n in shared:
+            print(f"{n}\t{name}")
+        print(f"links: {len(shared)} baseline(s) share an inode")
+        return 0
+    if "--unlink" in argv:
+        done = unlink_shared()
+        for name, n in done:
+            print(f"unlinked {name} (was {n} links)")
+        print(f"unlink: {len(done)} baseline(s) given their own inode")
+        return 0
     if "--diff" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if not rest:
@@ -192,6 +239,24 @@ def _selftest():
         check("a missing baseline is not 'ok'", "ok" in verdicts, False)
     finally:
         globals()["BASELINES"] = saved
+    # ⚑ A SHARED INODE MUST BE SEEN, AND --unlink MUST END IT.  Plant a baseline
+    # dir where one file is a hard link of another, in a tempdir.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        a = os.path.join(td, "a.txt")
+        open(a, "w").write("same bytes\n")
+        os.link(a, os.path.join(td, "b.txt"))
+        try:
+            globals()["BASELINES"] = td
+            check("a hard-linked baseline is seen", [n for n, _ in shared_inodes()],
+                  ["a.txt", "b.txt"])
+            unlink_shared()
+            check("--unlink leaves every baseline on its own inode", shared_inodes(), [])
+            check("...with the same bytes", open(os.path.join(td, "b.txt")).read(),
+                  "same bytes\n")
+        finally:
+            globals()["BASELINES"] = saved
+    check("the real baselines share no inode", shared_inodes(), [])
     print("check_template_parity selftest:", "PASS" if ok else "FAIL")
     return ok
 

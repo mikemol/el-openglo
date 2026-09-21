@@ -14,6 +14,10 @@ aurorae/
 plasma/
 catalog/cotype/.delta-cache.json
 .palette-cache.json
+# check_ebuild's work dir: the index tree staged under sys-apps/sandbox. Under
+# the repo rather than /tmp because the sandbox DENIES /tmp (a build must not
+# write shared temp), and DENY covers reads.
+.ebuild-witness/
 
 # ⚑ THE SAMPLE LIBRARY IS THE EXCEPTION: build output that EXISTS to be looked
 # at, on GitHub, in a diff, by someone who has run nothing. A gitignored sample

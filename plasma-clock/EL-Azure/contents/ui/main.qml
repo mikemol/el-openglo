@@ -9,11 +9,15 @@ PlasmoidItem {
     id: root
     // --- geometry: the SAME tables as the wallpaper (do not hand-edit) ---
     property var segGeom: ({ "A": ["h", 0, 0], "G": ["h", 0, 1], "D": ["h", 0, 2], "F": ["v", 0, 0], "B": ["v", 1, 0], "E": ["v", 0, 1], "C": ["v", 1, 1] })
-    property var digSegs: ({ "0": "ABCDEF", "1": "BC", "2": "ABGED", "3": "ABGCD", "4": "FGBC", "5": "AFGCD", "6": "AFGEDC", "7": "ABC", "8": "ABCDEFG", "9": "ABCFGD" })
+    property var digSegs: ({ "0": "ABCDEF", "1": "BC", "2": "ABDEG", "3": "ABCDG", "4": "BCFG", "5": "ACDFG", "6": "ACDEFG", "7": "ABC", "8": "ABCDEFG", "9": "ABCDFG" })
 
-    property color litColor: "#4ba2fa"
-    property color ghostColor: "#2a5989"
+    property color litColor: "#99ccff"
+    property color ghostColor: "#99ccff"
     property color hotColor: "#4ba2fa"
+    // ghost opacity — SOLVED by the palette (ghost_alpha on every token). The
+    // ghost segments were drawn OPAQUE here, so the seen ghost was the declared
+    // colour rather than its composite over the ground the palette solved for.
+    property real ghostAlpha: 0.503
     property int segLen: Math.max(6, Math.floor(height * 0.42))
     property int segThick: Math.max(2, Math.floor(segLen * 0.18))
 
@@ -74,12 +78,14 @@ PlasmoidItem {
             visible: parent.insertColon
             width: segThick; height: segThick; radius: segThick/2
             color: root.colonOn ? root.litColor : root.ghostColor
+            opacity: root.colonOn ? 1.0 : root.ghostAlpha
             x: segLen + segLen*0.25; y: segLen*0.62
         }
         Rectangle {
             visible: parent.insertColon
             width: segThick; height: segThick; radius: segThick/2
             color: root.colonOn ? root.litColor : root.ghostColor
+            opacity: root.colonOn ? 1.0 : root.ghostAlpha
             x: segLen + segLen*0.25; y: segLen*1.38 - segThick
         }
     }
@@ -95,6 +101,7 @@ PlasmoidItem {
             property bool showGhost: plasmoid.configuration.showGhost
             visible: parent.on || showGhost
             color: parent.on ? root.litColor : root.ghostColor
+            opacity: parent.on ? 1.0 : root.ghostAlpha
             antialiasing: true
             radius: segThick/2
             width:  horiz ? segLen - gap*2 : segThick

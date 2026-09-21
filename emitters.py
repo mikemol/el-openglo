@@ -24,6 +24,7 @@ ORDER = (
     ("make_aurorae",   "window decoration, from GRID"),
     ("make_plasma",    "Plasma theme SVGs, from GRID"),
     ("make_wallpaper", "wallpaper; sources tokens with a standalone fallback"),
+    ("make_clock",     "the segment-clock plasmoid packages (plasma-clock/), from GRID"),
     ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
 )
 
@@ -34,13 +35,25 @@ EXTERNAL = {
 }
 
 
-def run_all(root, python=None, quiet=True):
-    """Run every emitter in ORDER from `root` (they read siblings by bare name).
+# ⚑ THE EMITTERS WHOSE OUTPUT THE INSTALL MAPPING COPIES FROM THE TREE.  The
+# others (chrome, konsole, plymouth, live wallpaper, marquee) are rendered by
+# make_deb.stage() itself, straight into the DESTDIR via their render_all(); their
+# __main__ blocks are DEMOS that write under /tmp. Running those under Portage's
+# sandbox died with EACCES on /tmp/EL-Openglo.colorscheme and a cairo write
+# error (emerge, 2026-09-21) — the first thing the sandbox proved that
+# check_ebuild's stated weakness said it could not. Staging runs THIS subset.
+STAGE = ("make_schemes", "make_aurorae", "make_plasma", "make_wallpaper", "make_clock")
+
+
+def run_all(root, python=None, quiet=True, only=None):
+    """Run every emitter in ORDER (or the `only` subset) from `root`.
 
     Returns [(module, returncode, stderr_tail)]. A non-zero rc is returned, not
     raised, so a caller can report n of m rather than stop at the first."""
     out = []
     for mod, _why in ORDER:
+        if only is not None and mod not in only:
+            continue
         r = subprocess.run([python or sys.executable, os.path.join(root, mod + ".py")],
                            cwd=root, capture_output=True, text=True)
         out.append((mod, r.returncode, r.stderr.strip()[-400:]))

@@ -562,7 +562,8 @@ def stage(root):
     # Plasma style and no wallpaper (measured 2026-09-21, `qlist`). The roster is
     # emitters.ORDER, the same list the @EMITTERS gate runs.
     import emitters
-    failed = [(m, rc, err) for m, rc, err in emitters.run_all(ROOT) if rc != 0]
+    failed = [(m, rc, err) for m, rc, err in emitters.run_all(ROOT, only=emitters.STAGE)
+              if rc != 0]
     if failed:
         raise SystemExit("make_deb: emitter(s) failed before staging:\n  " +
                          "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed))
