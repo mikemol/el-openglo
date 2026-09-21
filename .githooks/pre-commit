@@ -47,25 +47,42 @@ echo "── pre-commit gates ──"
 # 1. The tools that answer every other question must themselves be sound.
 #    ⚑ THIS RUNS FIRST BY DESIGN: a broken checker makes every gate after it a
 #    lie in whichever direction the breakage leans.
+#    ⚑ BOTH STREAMS ARE CAPTURED AND SHOWN ONLY ON FAILURE. A selftest proves
+#    its check can REFUSE by running the refusal path on synthetic fixtures,
+#    and those paths print to stderr ("SKIP — parent 'breeze' is not installed",
+#    "SELFTEST-DIM: ..."). With stdout alone silenced, every passing commit
+#    printed a page of fixture refusals that read as facts about the host
+#    (operator, 2026-09-22: "AFAICT, I have breeze installed"). A passing
+#    selftest says nothing; a failing one says everything it printed.
+quiet() {  # run a gate with both streams captured; print them only when it fails
+  local name="$1"; shift
+  local out; out="$(mktemp)"
+  local rc=0
+  run "$name" "$@" >"$out" 2>&1 || rc=$?
+  [ "$rc" -ne 0 ] && sed "s/^/    $name: /" "$out" >&2
+  rm -f "$out"
+  return "$rc"
+}
+
 for t in "$ROOT"/scripts/check_*.py "$ROOT"/scripts/worklist_gate.py; do
   [ -e "$t" ] || continue
-  run "selftest:$(basename "$t" .py)" "${RUNNER[@]}" "$t" --selftest >/dev/null
+  quiet "selftest:$(basename "$t" .py)" "${RUNNER[@]}" "$t" --selftest
 done
 
 # 2. The borrowed hooks pass their own selftests FROM HERE (they are symlinks;
 #    passing upstream is not passing here).
 for h in hook_no_chaining hook_structural_query; do
   [ -e "$ROOT/scripts/$h.py" ] || continue
-  run "selftest:$h" python3 "$ROOT/scripts/$h.py" --selftest >/dev/null
+  quiet "selftest:$h" python3 "$ROOT/scripts/$h.py" --selftest
 done
 
 # 2b. THE REQUIREMENTS ARE REGO (W50): every rule's refusing and admitting case,
 #    under opa test. SKIPs (exit 0, printed) when opa is absent.
-run "opa-test" "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" --test >/dev/null
+quiet "opa-test" "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" --test
 
 # 3. The segment lattice's own invariants — including the 22->16 byte-equality
 #    that makes the reconstructed geometry a reconstruction rather than a guess.
-run "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest >/dev/null
+quiet "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest
 
 # 4a. WARM THE PALETTE CACHE, as a timed and ledgered step.  Importing
 #    make_schemes solves the palette (~108 s cold; seconds warm), and every
