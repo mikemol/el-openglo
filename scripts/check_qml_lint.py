@@ -45,7 +45,7 @@ DOCS = (
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     ("make_notify_marquee", "matrix_char_component", None, "MatrixChar.qml"),
     ("make_notify_marquee", "matrix_field_component", None, "MatrixField.qml"),
-    ("make_taskswitch", "main_qml", "EL-Openglo", "taskswitch-main.qml"),
+    ("make_taskswitch", "main_qml", None, "taskswitch-main.qml"),   # one package since W35
 )
 
 ANIMATIONS = ("NumberAnimation", "PropertyAnimation", "ColorAnimation", "RotationAnimation",

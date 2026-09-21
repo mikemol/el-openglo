@@ -123,13 +123,19 @@ WITNESS = {
     # readable live, the ghost alphas are global constants, the hue table is a
     # six-row lookup keyed by the live fg. The witness is the first surface that
     # BINDS the roles instead of baking them: the switcher, one package.
+    # s104 (W35): the switcher is the PoC — bound and one package (policy/
+    # taskswitch.rego T4 holds it). The symbol closes when EVERY live surface
+    # binds (clock, marquee, live wallpaper) and the LnF is one package, so the
+    # open witness asks for those — the marquee and clock still bake holes.
     "⊕ONE-THEME": (
-        "a shipped surface reads the ACTIVE colour scheme (Kirigami.Theme textColor /"
-        " disabledTextColor / backgroundColor under colorSet View) instead of baked"
-        " holes, and ships as ONE package (catalog/one-theme.md) (:6603)",
-        lambda: _reads("templates/taskswitch-main.qml", r"Kirigami\.Theme\.textColor") and
-                _reads("templates/taskswitch-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
-                not _reads("templates/taskswitch-main.qml", r'property color litColor:\s*"\$lit"')),
+        "every shipped QML surface reads the ACTIVE colour scheme (Kirigami.Theme"
+        " textColor / disabledTextColor / backgroundColor under colorSet View) instead"
+        " of baked holes and ships as ONE package: the switcher (done, W35), the"
+        " marquee, the clock, the live wallpaper (catalog/one-theme.md) (:6603)",
+        lambda: _tool("opa_gate.py", "taskswitch") and
+                _reads("templates/marquee-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
+                _reads("templates/clock-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
+                _reads("templates/live-wallpaper-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View")),
     # ⚑ THIS WAS A NOUN WITNESS — `SegmentChar` mentioned in four surfaces — the
     # exact near-miss the docstring above warns of, and it read as DONE while the
     # log's fourth gate had never been run. The log states four gates (:4427-4432);
@@ -437,9 +443,10 @@ CLOSED = {
     # defaults, enumerated by check_ghost_surfaces as a looked-at surface, and
     # checked for shape + lint by check_taskswitch.
     "⊕TASKSWITCH": (
-        "make_taskswitch emits a KWin/WindowSwitcher package per variant (lit selection,"
-        " ghost rest, void ground) selected by [kwinrc][TabBox] LayoutName; check_taskswitch"
-        " holds the structure, the id, the root, the lint and the tokens (:2787)",
+        "make_taskswitch emits ONE KWin/WindowSwitcher package (lit selection, ghost rest,"
+        " void ground — the active scheme's roles since W35) selected by [kwinrc][TabBox]"
+        " LayoutName; policy/taskswitch.rego holds the structure, the id, the root, the"
+        " lint and the bindings (:2787)",
         lambda: _reads("make_taskswitch.py", r"def\s+main_qml\b") and
                 _reads("templates/taskswitch-main.qml", r"KWin\.TabBoxSwitcher\s*\{") and
                 _reads("make_deb.py", r"_ts\.defaults_fragment\(") and

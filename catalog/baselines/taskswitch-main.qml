@@ -31,7 +31,7 @@ KWin.TabBoxSwitcher {
     property color ghostColor: Kirigami.Theme.disabledTextColor
     property color voidColor: Kirigami.Theme.backgroundColor
     // not a role: the solved ghost alpha, global across the variants (W23)
-    property real ghostAlpha: $ghostAlpha
+    property real ghostAlpha: 0.566
 
     function itemCaption(caption, minimized) {
         return minimized ? "(" + caption + ")" : caption

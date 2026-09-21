@@ -7030,3 +7030,58 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s103]
+
+## Session 104 — ⊕ONE-THEME, the switcher PoC: one package, bound to the active scheme
+- W35, 2026-09-22. make_taskswitch emits ONE KWin/WindowSwitcher package
+  (org.el.taskswitch): templates/taskswitch-main.qml binds litColor /
+  ghostColor / voidColor to Kirigami.Theme.textColor / disabledTextColor /
+  backgroundColor under colorSet View with inherit false — the roles
+  make_schemes.emit_colors writes fg / fg_in / view into — so applying
+  EL-Amber.colors IS selecting amber. The one non-role, the ghost alpha, is
+  baked from ghost_alpha(), which measures all six variants agree (0.566)
+  and REFUSES if a future solve makes them differ. Every variant's LnF
+  defaults name the one id; make_deb stages one tabbox package (staged and
+  listed). The gates became binding assertions: check_taskswitch's
+  measurement reports which role each colour is bound to and the colorSet,
+  and policy/taskswitch.rego T4 refuses a baked hex, a wrong role or a
+  missing colorSet (45/45); check_ghost_surfaces resolves a bound colour to
+  the token the scheme writes into that role — a baked hex or the wrong
+  role resolves to None and fails, with four selftest arms; parity gained
+  the switcher pair (12 of 12); check_qml_lint lints the one document.
+- ⊕ONE-THEME stays OPEN: the PoC is one surface. Its witness now asks for
+  the marquee, the clock and the live wallpaper to bind too (they still
+  bake holes), with the switcher held by opa_gate taskswitch; the
+  hue-table lookup keyed by the live fg (the marquee's only per-variant
+  hole) is the next design step. The probe that decides the design — does
+  the bound switcher follow plasma-apply-colorscheme without reinstall —
+  is ⊕VER's, after the operator's next emerge.
+- Residue: check_taskswitch reads the bindings as TEXT; nothing here
+  resolves Kirigami.Theme against a scheme (render_qml has no Theme mock
+  yet, one-theme.md Gates); the switcher's lit bar 0.12 is still authored;
+  the package License field still says GPLv3 (W44).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-103 corrected live and headless) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; s104 the
+  switcher bound and one package; next the marquee, clock, live wallpaper,
+  LnF). RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s104 does the BOUND switcher follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-103 —
+  after re-emerge: a lone notify-send scrolls once; every notification
+  scrolls once, none vanish, the board never goes dead, a parked pointer
+  pulses the ring; ticks read check_marquee_host), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s104]

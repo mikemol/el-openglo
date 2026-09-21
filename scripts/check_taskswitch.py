@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
-"""check_taskswitch.py — the Alt+Tab switcher packages, MEASURED; policy/taskswitch.rego decides.
+"""check_taskswitch.py — the Alt+Tab switcher package, MEASURED; policy/taskswitch.rego decides.
 
-⚑ WHAT IS MEASURED.  make_taskswitch emits a KWin/WindowSwitcher package per
-variant. KWin loads it by KPackageStructure and by the id the LnF defaults
-name in [kwinrc][TabBox] LayoutName; an id mismatch is a stock switcher in
-silence, and QML that does not parse is no switcher at all. So, per variant,
+⚑ WHAT IS MEASURED.  make_taskswitch emits ONE KWin/WindowSwitcher package
+(⊕ONE-THEME, W35). KWin loads it by KPackageStructure and by the id the LnF
+defaults name in [kwinrc][TabBox] LayoutName; an id mismatch is a stock
+switcher in silence, and QML that does not parse is no switcher at all. So
 this reads: the structure and id the metadata declares; the id the defaults
-name; whether the QML root is KWin.TabBoxSwitcher; the three colour holes and
-the ghost alpha as filled; qml_sanity's kept diagnostics. The REQUIREMENT —
-which of those is a defect — is policy/taskswitch.rego (W50), with its
-refuse/admit pairs under opa test.
+name; whether the QML root is KWin.TabBoxSwitcher; which Kirigami.Theme ROLE
+each colour is BOUND to and under which colorSet (the variant is the active
+scheme, so a colour that is a baked hex here is a defect: it would not follow
+the scheme); the ghost alpha as baked; qml_sanity's kept diagnostics. The
+REQUIREMENT is policy/taskswitch.rego (W50), with its refuse/admit pairs
+under opa test.
 
     scripts/check_taskswitch.py --json    # the measurement
-    scripts/check_taskswitch.py --map     # variant -> package id, lit/ghost/ground
+    scripts/check_taskswitch.py --map     # the package id and the bindings
     scripts/check_taskswitch.py --selftest
 
-The weakness, stated: this measures the package's SHAPE and lints the QML; it
-does not run KWin, so a role KWin renamed would pass here and fail on Alt+Tab.
-That is ⊕VER's probe. qmllint absent is a `qmllint: false` fact, not a pass.
+The weakness, stated: this measures the package's SHAPE, the bindings' TEXT
+and lints the QML; it does not run KWin and cannot see Kirigami.Theme resolve
+against a scheme — whether the bound switcher FOLLOWS plasma-apply-colorscheme
+without reinstall is ⊕VER's probe. qmllint absent is a `qmllint: false` fact.
 """
 import json
 import os
@@ -30,30 +33,39 @@ os.chdir(ROOT)                                                   # templates rea
 import make_taskswitch as MT                                     # noqa: E402
 import qml_sanity as QS                                          # noqa: E402
 
+# the hole -> the role it must be bound to (catalog/one-theme.md)
+ROLES = {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}
 
-def row(v, qml=None):
-    """One variant's facts; `qml` overrides the emission (the selftest's synthetic input)."""
-    meta = MT.metadata(v)
-    qml = MT.main_qml(v) if qml is None else qml
-    d = MT.defaults_fragment(v)
-    m = re.search(r"LayoutName=(\S+)", d)
-    cols = {k: re.search(rf'property color {k}Color:\s*"(#[0-9a-f]{{6}})"', qml)
-            for k in ("lit", "ghost", "void")}
+
+def bindings(qml):
+    """{hole: bound role or baked literal or None} + the colorSet, from the emitted text."""
+    out = {}
+    for k in ROLES:
+        m = re.search(rf'(?m)^\s*property color {k}Color:\s*(\S+)', qml)
+        out[k] = m.group(1).strip('"') if m else None
+    cs = re.search(r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.(\w+)", qml)
+    return out, (cs.group(1) if cs else None)
+
+
+def measure(qml=None):
+    """The package's facts; `qml` overrides the emission (the selftest's synthetic input)."""
+    meta = MT.metadata()
+    qml = MT.main_qml() if qml is None else qml
+    m = re.search(r"LayoutName=(\S+)", MT.defaults_fragment())
     alpha = re.search(r"property real ghostAlpha:\s*([0-9.]+)", qml)
+    b, cs = bindings(qml)
     return {
-        "variant": v,
+        "qmllint": bool(QS._qmllint()),
         "structure": meta.get("KPackageStructure"),
         "id": meta["KPlugin"].get("Id"),
         "defaults_id": m.group(1) if m else None,
         "root": "KWin.TabBoxSwitcher {" in qml,
-        "colors": {k: (c.group(1) if c else None) for k, c in cols.items()},
+        "bindings": b,
+        "colorSet": cs,
+        "roles": ROLES,
         "alpha": float(alpha.group(1)) if alpha else None,
         "lint": list(QS.check_qml(qml, "taskswitch-main.qml")) if QS._qmllint() else [],
     }
-
-
-def measure():
-    return {"qmllint": bool(QS._qmllint()), "variants": [row(v) for v in MT.VARIANTS]}
 
 
 def main(argv):
@@ -67,12 +79,11 @@ def main(argv):
         print(json.dumps(m, indent=1))
         return 0
     if "--map" in argv:
-        for r in m["variants"]:
-            c = r["colors"]
-            print(f"{r['variant']:16s}  {r['id']:36s}  lit {c['lit']}  ghost {c['ghost']}  void {c['void']}  alpha {r['alpha']}")
+        print(f"{m['id']}  colorSet {m['colorSet']}  " + "  ".join(f"{k} -> {v}" for k, v in m["bindings"].items())
+              + f"  alpha {m['alpha']}")
         return 0
-    print(f"check_taskswitch: {len(m['variants'])} switcher package(s) measured; the verdict is "
-          f"`opa_gate.py taskswitch` (policy/taskswitch.rego)")
+    print("check_taskswitch: one switcher package measured; the verdict is "
+          "`opa_gate.py taskswitch` (policy/taskswitch.rego)")
     return 0
 
 
@@ -85,14 +96,19 @@ def _selftest():
         ok = ok and got == want
 
     m = measure()
-    chk("six variants measured", len(m["variants"]), 6)
-    # ⚑ THE MEASUREMENT CAN SEE (W50): a synthetic emission with a doubled brace,
-    # no root and an unfilled hole is reported as such — whether that is a
-    # defect is policy/taskswitch.rego's ruling
-    base = MT.main_qml(MT.VARIANTS[0])
-    r = row(MT.VARIANTS[0], base.replace("KWin.TabBoxSwitcher {", "Item {{").replace("property color litColor", "property color xColor"))
+    chk("the bindings are read", m["bindings"], {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor",
+                                                 "void": "Kirigami.Theme.backgroundColor"})
+    chk("the colorSet is read", m["colorSet"], "View")
+    # ⚑ THE MEASUREMENT CAN SEE (W50): a synthetic emission with a doubled brace, no
+    # root, a BAKED hex where a binding belongs and no colorSet is reported as such —
+    # whether that is a defect is policy/taskswitch.rego's ruling
+    base = MT.main_qml()
+    r = measure(base.replace("KWin.TabBoxSwitcher {", "Item {{")
+                .replace("property color litColor: Kirigami.Theme.textColor", 'property color litColor: "#99ffeb"')
+                .replace("Kirigami.Theme.colorSet: Kirigami.Theme.View", ""))
     chk("a missing root is a fact", r["root"], False)
-    chk("an unfilled hole is a fact", r["colors"]["lit"], None)
+    chk("a baked hex is a fact", r["bindings"]["lit"], "#99ffeb")
+    chk("a missing colorSet is a fact", r["colorSet"], None)
     if m["qmllint"]:
         chk("a syntax error is a fact", bool(r["lint"]), True)
     else:

@@ -412,8 +412,9 @@ def build_lnf_packages():
             f"Image=file:///usr/share/wallpapers/{v}/contents/images/1920x1080.png\n\n"
             # the inheriting icon + cursor themes (W31): Global Theme selects them
             + _inh.defaults_fragment(v)
-            # the Alt+Tab switcher (W31, ⊕TASKSWITCH)
-            + _ts.defaults_fragment(v)
+            # the Alt+Tab switcher (W31, ⊕TASKSWITCH): ONE package since W35, coloured
+            # by the scheme this LnF applies — every variant's defaults name it
+            + _ts.defaults_fragment()
         )
         open(os.path.join(contents, "defaults"), "w").write(defaults)
         # layout script — the ONE artifact that both places the EL clock AND sets
@@ -651,10 +652,10 @@ def stage(root):
     # Inheriting icon + cursor themes (W31, ⊕ICONS-INHERIT / ⊕CURSOR-INHERIT):
     # Breeze recoloured by the scheme (FollowsColorScheme) and light/dark
     # cursors by ground — selected by the LnF defaults written above.
-    # Alt+Tab window switchers (W31, ⊕TASKSWITCH): one KWin/WindowSwitcher
-    # package per variant, selected by the LnF defaults [kwinrc][TabBox].
-    _ts.render_all(VARIANTS, {v: os.path.join(DEB_ROOT, "usr/share/kwin/tabbox", _ts.package_id(v))
-                              for v in VARIANTS})
+    # The Alt+Tab window switcher (W31, ⊕TASKSWITCH): ONE KWin/WindowSwitcher
+    # package (⊕ONE-THEME, W35) bound to the active scheme's roles, selected by
+    # every variant's LnF defaults [kwinrc][TabBox].
+    _ts.render_all(os.path.join(DEB_ROOT, "usr/share/kwin/tabbox", _ts.package_id()))
 
     _inh.render_all(VARIANTS, os.path.join(DEB_ROOT, "usr/share/icons"),
                     icon_png=lambda v: os.path.join(
