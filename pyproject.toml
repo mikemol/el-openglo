@@ -23,6 +23,7 @@ dependencies = [
 [project.optional-dependencies]
 # The research pipeline: font ingest and the cohomological glyph matcher.
 research = [
+    "material-color-utilities",   # scripts/check_monet.py — Android's own scheme derivation (W18)
     "matplotlib",       # the phosphor showcase renderer
     "scipy",            # the matcher's strata / congruence machinery
 ]

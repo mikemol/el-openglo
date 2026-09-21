@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T07:04:55+00:00 · job `7549a418` · counter 26 · hash `2ce2d43c9f7b565b`
+heartbeat 2026-09-21T07:31:31+00:00 · job `8c6a623a` · counter 26 · hash `9d64499d3210592a`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -47,7 +47,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 | W23 | done | The palette's solved ghost EQUALS lit on EL-Azure and EL-Amber — check_ghost_surfaces --map (2026-09-21): fg_in == fg for both Off variants ((153,204,255); (255,212,153)); EL-Openglo differs slightly ((141,235,217) vs (153,255,235)). On those variants the ghost/lit distinction is alpha-only, no colour channel — the operator's live 'ghost too close to lit' on Azure at the PALETTE level; every surface is faithful to a degenerate solve and every check passes | — | — |
 | W24 | done | Rebuild the font family — ⊕SEG-FONT, ⊕SEG-FONT-TTF, ⊕DOT-FONT, ⊕DOT-FONT-TTF, ⊕DOT-FONT-DESC are CLOSED in COTYPE.md and KNOWN-LOST (check_symbol.LOST, sweep 2026-09-21): make_font.py is a recorded partial nobody imports, fonts/ is absent, make_deb maps fonts/ only if present | — | — |
 | W25 | done | Rebuild the three small KNOWN-LOST closures: ⊕VER-WIDGET-ICON (make_preview.icon_svg — the clock plasmoid's icon from the scheme; make_deb SKIPs it per variant), ⊕QML-SANITY (qml_sanity.py — the staged QML is unlinted; qmllint at /usr/lib64/qt6/bin exists here), ⊕RENDER-GATE (render_qml.py exists but make_deb does not run it as the fourth gate the closure at :4545 states) | — | — |
-| W26 | ready | Re-author the 5x8 descender matrix table (⊕DOT-FONT-DESC, the last KNOWN-LOST closure): display_types.FONT5x8 with true descenders for g j p q y (and the lowercase set the closure at :1496 lists), MatrixDisplay(5, 8) in DISPLAYS, the marquee/matrix surfaces reading it, EL-Matrix-5x8.ttf from matrix_contours(cols=5, rows=8) | — | Read the ⊕DOT-FONT-DESC closure (:1496-1534) for what it specified (which glyphs descend, by how many rows, whether 5x7 glyphs shift up or the cell grows down). Then author FONT5x8 as column bytes like FONT5x7 with bit 7 the descender row; check_display_registry / collision_classes over it; add the 5x8 TTF to make_font.OUTPUTS; check_font gains a descender arm (descender glyphs' min y below the baseline row); move ⊕DOT-FONT-DESC LOST→CLOSED. |
+| W26 | done | Re-author the 5x8 descender matrix table (⊕DOT-FONT-DESC, the last KNOWN-LOST closure): display_types.FONT5x8 with true descenders for g j p q y (and the lowercase set the closure at :1496 lists), MatrixDisplay(5, 8) in DISPLAYS, the marquee/matrix surfaces reading it, EL-Matrix-5x8.ttf from matrix_contours(cols=5, rows=8) | — | — |
 
 ## evidence
 
@@ -76,7 +76,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W23** — 0511aa9: the defect was the global alpha = max(alpha_min) — reaches every FLOOR, not every CEILING; Azure's seen ghost sat at Lc 25.0 vs 29.8 elsewhere; declared==lit was the side effect. Now max(max(alpha_min, 1 - t_ceiling)) → 0.566; every variant within 1 Lc of the ceiling; check_ghost_composite holds looked-at ghosts to the TARGET (TARGET_SLACK 1 Lc), selftest plants Azure's shape. .colors/css/clock/samples/baselines regenerated; relations §3b. ⊕VER on Azure after emerge: ghost slightly MORE visible than before (ceiling), consistent across variants; fainter = a ceiling change.
 - **W24** — 1ab38ca: glyph_contours/matrix_contours → one build_ttf; EL-Segment-{7,16}.ttf + EL-Matrix-5x7.ttf + SVG fonts under fonts/; source-relative orientation gate; check_font @FONT-EMIT (54); make_font in STAGE, mapping unguarded; fonttools to base deps + ebuild; 4 symbols LOST→CLOSED (28/1). Remaining: ⊕DOT-FONT-DESC — the 5x8 table is gone (W26).
 - **W25** — e570137: icon_svg ('12' over ghost at module pitch), qml_sanity.py on qmllint keyed by diagnostic id (Plasma context props not errors), render gate in make_deb (SKIP under SANDBOX_ON — the offscreen platform opens /dev/nvidiactl, a sandbox violation); BDEPEND +qtdeclarative; check_deps fixture de-pinned; three symbols LOST→CLOSED (24 witnessed / 5 lost).
-- **W26** — check_symbol.LOST; display_types.py FONT5x7 only
+- **W26** — dc4b748: FONT5x8 authored via _cols row strings; baseline as a LINE (make_font baseline=); EL-Matrix-5x8.ttf with negative descent; check_font descender arm + off-by-one fixture; 'g' rendered with its tail below the baseline; check_symbol LOST now EMPTY (29 witnessed / 0 lost / 23 artifact-free).
 
 ## residue
 

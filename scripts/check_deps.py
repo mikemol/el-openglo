@@ -27,7 +27,8 @@ import tomllib
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # import-name -> distribution-name, where they differ.
-DIST = {"PIL": "pillow", "fontTools": "fonttools", "PySide6": "pyside6"}
+DIST = {"PIL": "pillow", "fontTools": "fonttools", "PySide6": "pyside6",
+        "material_color_utilities": "material-color-utilities"}
 
 
 # ⚑ THE SCAN WAS ROOT-ONLY, AND THAT WAS A BLIND SPOT IN THE DEPENDENCY CHECKER

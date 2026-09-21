@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 26,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T07:04:55+00:00",
-  "job_id": "7549a418",
+  "heartbeat": "2026-09-21T07:31:31+00:00",
+  "job_id": "8c6a623a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T07:21:33+00:00"
+    "taken_at": "2026-09-21T07:37:14+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -479,16 +479,16 @@
     {
       "symbol": "W26",
       "title": "Re-author the 5x8 descender matrix table (⊕DOT-FONT-DESC, the last KNOWN-LOST closure): display_types.FONT5x8 with true descenders for g j p q y (and the lowercase set the closure at :1496 lists), MatrixDisplay(5, 8) in DISPLAYS, the marquee/matrix surfaces reading it, EL-Matrix-5x8.ttf from matrix_contours(cols=5, rows=8)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Read the ⊕DOT-FONT-DESC closure (:1496-1534) for what it specified (which glyphs descend, by how many rows, whether 5x7 glyphs shift up or the cell grows down). Then author FONT5x8 as column bytes like FONT5x7 with bit 7 the descender row; check_display_registry / collision_classes over it; add the 5x8 TTF to make_font.OUTPUTS; check_font gains a descender arm (descender glyphs' min y below the baseline row); move ⊕DOT-FONT-DESC LOST→CLOSED.",
-      "evidence": "check_symbol.LOST; display_types.py FONT5x7 only",
+      "next_bounded_step": "—",
+      "evidence": "dc4b748: FONT5x8 authored via _cols row strings; baseline as a LINE (make_font baseline=); EL-Matrix-5x8.ttf with negative descent; check_font descender arm + off-by-one fixture; 'g' rendered with its tail below the baseline; check_symbol LOST now EMPTY (29 witnessed / 0 lost / 23 artifact-free).",
       "issued_at": "2026-09-21T07:04:21+00:00",
-      "last_worked": "2026-09-21T07:04:21+00:00",
+      "last_worked": "2026-09-21T07:30:51+00:00",
       "ticks_blocked": 0
     }
   ],

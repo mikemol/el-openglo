@@ -641,3 +641,11 @@
   section  = {emitters},
   rests-on = {GEOMETRY}
 }
+
+@misc{MONET,
+  claim    = {Android's own scheme derivation (material-color-utilities, TonalSpot at contrast 0), seeded from each variant's lit colour, keeps the seed's HCT hue on every variant, produces WCAG AA text pairs on every variant, and on the Off variants lands its dark surface within 5 dE of the palette's ground — the Lit variants' backlit ground is unreachable by Monet's near-white light surface and is recorded as such in catalog/android.md, not claimed},
+  check    = {tool:check_monet.py},
+  note     = {W18, 2026-09-21. SKIP when the research extra is absent. The first draft's 'seed survives' arm was a 3x-floor dE that let a 31.9 dE drift pass; replaced by an HCT hue delta (<1° measured).},
+  section  = {emitters},
+  rests-on = {TOKENS}
+}
