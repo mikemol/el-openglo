@@ -3,7 +3,7 @@
   <!-- window -->
   <rect x="42" y="40" width="230" height="150" rx="6" fill="#e9caa1"
         stroke="#4c3008" stroke-width="1.5"/>
-  <rect x="42" y="40" width="230" height="22" rx="6" fill="#71470c"/>
+  <rect x="42" y="40" width="230" height="22" rx="6" fill="#6c440b"/>
   <circle cx="56" cy="51" r="4" fill="#291800"/>
   <circle cx="70" cy="51" r="4" fill="#4c3008"/>
   <!-- phosphor text lines -->

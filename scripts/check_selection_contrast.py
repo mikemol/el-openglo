@@ -61,13 +61,15 @@ SEMANTIC_KEYS = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive"
 # relation on this pair (subordinate by design) and Link/Visited have no
 # relation yet — recorded in relations.md §4a, not smuggled under a floor.
 GATED_SEMANTIC = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive")
-# ⚑ A PAIR NO COLOUR CAN SATISFY, NAMED.  Red's luminance ceiling (a pale
-# salmon, ~0.45) over EL-Openglo-Lit's selection field (#0c715e, L 0.13) tops
-# out near 2.9:1 — the compressed-range case the log calls ⊕SOLVER-SEL-BACKLIT.
-# The solver's honest best is pinned here so that a change in EITHER direction
-# is seen: a regression fails the floor arm, an improvement fails this pin and
-# must be moved out of the table.
-KNOWN_INFEASIBLE = {("EL-Openglo-Lit", "ForegroundNegative"): 2.94}
+# ⚑ A PAIR NO COLOUR CAN SATISFY IS NAMED HERE, PINNED AT THE SOLVER'S HONEST
+# BEST, so that a change in EITHER direction is seen: a regression fails the
+# floor arm, an improvement fails the pin and must leave the table. EMPTY since
+# W10's second half (2026-09-21): EL-Openglo-Lit's negative-on-selection sat at
+# 2.94 (red's luminance ceiling over a field at L 0.13 — ⊕SOLVER-SEL-BACKLIT)
+# until the state relation solved the selection field one step darker, which
+# gave the red room: 3.33. The pin refused the commit until it was removed —
+# as designed.
+KNOWN_INFEASIBLE = {}
 
 
 def selection_pairs(keys=FG_KEYS):
@@ -143,8 +145,10 @@ def main(argv):
     gated = [p for p in pairs if (p[0], p[1]) not in KNOWN_INFEASIBLE]
     worst = min(r for *_, r in gated)
     print(f"check_selection_contrast: {len(gated)} of {len(pairs)} selection pairs "
-          f"clear {FLOOR}:1 (worst {worst:.2f}:1); {len(KNOWN_INFEASIBLE)} pinned as "
-          f"infeasible: " + ", ".join(f"{s} {k} {v}" for (s, k), v in KNOWN_INFEASIBLE.items()))
+          f"clear {FLOOR}:1 (worst {worst:.2f}:1)"
+          + (f"; {len(KNOWN_INFEASIBLE)} pinned as infeasible: "
+             + ", ".join(f"{s} {k} {v}" for (s, k), v in KNOWN_INFEASIBLE.items())
+             if KNOWN_INFEASIBLE else ""))
     return 0
 
 
@@ -176,11 +180,13 @@ def _selftest():
         check(f"pinned pair {s} {k} is still at {v}", abs(got.get((s, k), 0) - v) <= 0.05, True)
     saved = dict(KNOWN_INFEASIBLE)
     try:
+        # ⚑ A PIN THAT DOES NOT MATCH THE TREE MUST REFUSE — planted on a real
+        # pair at a ratio it does not have (synthetic: the value, not the pair)
         KNOWN_INFEASIBLE.clear()
         KNOWN_INFEASIBLE[("EL-Openglo-Lit", "ForegroundNegative")] = 9.99
         check("a pinned pair that moved is REFUSED", main(["x"]), 1)
         KNOWN_INFEASIBLE.clear()
-        check("without the pin the infeasible pair fails the floor", main(["x"]), 1)
+        check("with no pins the real tree clears the floor", main(["x"]), 0)
     finally:
         KNOWN_INFEASIBLE.clear()
         KNOWN_INFEASIBLE.update(saved)

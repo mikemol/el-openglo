@@ -326,6 +326,39 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
 
 
 # ---- derived transforms (no search) ---------------------------------------
+def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6):
+    """The decoration states as SOLVED luminance offsets of the accent (⊕SOLVER-UI-TOKENS, W10).
+
+    focus = accent; sel_bg = accent nudged d toward the ground; hover = nudged 2d.
+    Relation (relations.md §4b): every pair of the three clears the gate's own
+    metric (cvd_gate._worst_normalized q >= 1) and every state keeps `floor` on
+    the ground. d is the SMALLEST step that satisfies both — the least the states
+    need to be told apart, so the family reads as one hue. Until 2026-09-21 the
+    steps were authored (0.08 / 0.12) and measured q 0.06-0.75 between hover and
+    the field: the same colour to the gate.
+
+    Returns (d, feasible). When no d in (0, max_d] satisfies both, the step that
+    maximises the worst pair while holding the ground floor is returned with
+    feasible=False — named on the token, never clamped into a number that looks
+    solved."""
+    floors = C.reference_floors()
+    toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0   # toward the ground: darker on dark
+    best_d, best_q = None, -1.0
+    n = int(max_d / step)
+    for i in range(1, n + 1):
+        d = i * step
+        sel, hov = _lum_nudge(accent, toward * d), _lum_nudge(accent, toward * 2 * d)
+        if min(C.wcag_ratio(c, ground) for c in (accent, sel, hov)) < floor:
+            break                        # further steps only lose the ground floor
+        q = min(C._worst_normalized(a, b, floors)[0]
+                for a, b in ((accent, sel), (sel, hov), (accent, hov)))
+        if q >= 1.0:
+            return d, True
+        if q > best_q:
+            best_d, best_q = d, q
+    return (best_d if best_d is not None else step), False
+
+
 def _lum_nudge(rgb, delta):
     h, l, s = colorsys.rgb_to_hls(*[c / 255.0 for c in rgb])
     l = max(0.0, min(1.0, l + delta))
@@ -377,7 +410,12 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
     # the selection field and the semantic set drawn ON it — solved over that
     # field exactly as the window's set is solved over the ground (W10)
     up = 1 if C._wcag_L(ground) < 0.4 else -1
-    sel_bg = _lum_nudge(accent, -0.08 if C._wcag_L(ground) < 0.4 else 0.08)
+    # the decoration states — focus / selection field / hover — as ONE solved
+    # step (relations.md §4b), not two authored nudges
+    _d, _states_ok = solve_state_steps(accent, ground)
+    _toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0
+    sel_bg = _lum_nudge(accent, _toward * _d)
+    hover = _lum_nudge(accent, _toward * 2 * _d)
     sel_fg, sel_act = ground, _lum_nudge(ground, -0.15)
     _sel_sem, _sel_score = solve_semantic_set(
         {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent, _min_c,
@@ -425,7 +463,9 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
         # accent stepped toward the ground, which keeps the hue and separates the
         # state.
         "focus": _s(accent),
-        "hover": _s(_lum_nudge(accent, -0.12 if C._wcag_L(ground) < 0.4 else 0.12)),
+        "hover": _s(hover),                      # solved step (solve_state_steps), not ±0.12
+        "state_step": f"{_d:.2f}",
+        "state_sep_infeasible": "false" if _states_ok else "true",
         # semantic accents — from the JOINT constellation solve (mutually distinct)
         "link": _s(_sem["link"]),
         "visited": _s(_sem["visited"]),

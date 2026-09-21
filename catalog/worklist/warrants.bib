@@ -649,3 +649,11 @@
   section  = {emitters},
   rests-on = {TOKENS}
 }
+
+@misc{STATES,
+  claim    = {The three decoration states — focus ring, selection field, hover ring — are pairwise distinguishable under the gate's own CVD-normalised metric and each clears 3:1 on its ground, on every variant, with the luminance step between them SOLVED as the smallest that satisfies the relation rather than authored},
+  check    = {tool:check_states.py},
+  note     = {W10 second half, 2026-09-21. Measured before: hover/sel_bg at q 0.06-0.75 on every variant — the authored ±0.08/±0.12 nudges never told the states apart. relations.md §4b; make_palette.solve_state_steps; state_step and state_sep_infeasible travel on the token.},
+  section  = {pipeline},
+  rests-on = {SEPARATION}
+}

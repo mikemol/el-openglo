@@ -9,6 +9,6 @@
   <text x="484" y="120" font-family="monospace" font-size="13" fill="#ffffff">phosphor #291800</text>
   <rect x="708" y="34" width="220" height="96" fill="#4c3008"/>
   <text x="716" y="120" font-family="monospace" font-size="13" fill="#ffffff">accent #4c3008</text>
-  <rect x="940" y="34" width="220" height="96" fill="#71470c"/>
-  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #71470c</text>
+  <rect x="940" y="34" width="220" height="96" fill="#6c440b"/>
+  <text x="948" y="120" font-family="monospace" font-size="13" fill="#ffffff">sel #6c440b</text>
 </svg>

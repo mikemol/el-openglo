@@ -336,11 +336,32 @@ was swept for values a relation does not determine:
 | panel ladder 0.03 / 0.02 / 0.025 / 0.06 / 0.015 / 0.01 | fixed luminance steps | **OPEN** — derived steps, not a relation; the ladder is legible and byte-stable, which is why it is left |
 | `_min_c = 4.6 if dark else 4.6` | an either/or with one side | one floor, written once |
 
-**One pair is infeasible and pinned, not smoothed.** EL-Openglo-Lit's negative-on-selection:
-red's luminance ceiling over a field at L 0.13 tops out near 2.9:1. That is the
-compressed-range case the log calls ⊕SOLVER-SEL-BACKLIT — a constraint on `sel_bg`'s
-lightness, not on the red — and `check_selection_contrast.KNOWN_INFEASIBLE` holds it at
-2.94 so that a regression or an improvement is red until the record moves.
+**One pair was infeasible and pinned, not smoothed.** EL-Openglo-Lit's negative-on-selection:
+red's luminance ceiling over a field at L 0.13 topped out near 2.9:1 — the
+compressed-range case the log calls ⊕SOLVER-SEL-BACKLIT, a constraint on `sel_bg`'s
+lightness, not on the red. `check_selection_contrast.KNOWN_INFEASIBLE` held it at 2.94.
+§4b then moved the field one solved step darker and the red gained room (3.33); the pin
+refused the commit until it was removed — the mechanism doing what it is for.
+
+### 4b. The decoration states — one hue, solved apart
+
+    q(focus, sel_bg) ≥ 1,  q(sel_bg, hover) ≥ 1,  q(focus, hover) ≥ 1     (cvd_gate._worst_normalized)
+    WCAG(state, ground) ≥ 3.0                                                 for each of the three
+    sel_bg = accent nudged d toward the ground,  hover = nudged 2d,  d = the SMALLEST step satisfying both
+
+`focus`, `sel_bg` and `hover` are the accent's hue by design ("selecting anything switches
+the backlight on" — one family). What told them apart was two authored nudges, ±0.08 and
+±0.12, justified in prose at `solve_scheme`. Measured 2026-09-21 (`check_states --map`):
+hover/sel_bg sat at q 0.06–0.75 on every variant, focus/sel_bg under 1 on four — the same
+colour to the gate that judges every other pair. `make_palette.solve_state_steps` scans d
+upward and returns the first step at which all three pairs clear q ≥ 1 while every state
+keeps 3:1 on its ground; the step travels on the token (`state_step`) and infeasibility is
+named (`state_sep_infeasible`), never clamped. Solved: d = 0.10–0.20 on the Lit variants,
+larger on the Off ones (a bright accent needs a large luminance step to move q), every
+variant feasible, worst pair q 1.00. `check_states` holds the emission to the relation.
+
+Left OPEN, deliberately: `sel_alt` (−0.05) and `sel_act` (−0.15) are alternates of a
+field/text already solved and have no floor of their own yet.
 
 ---
 

@@ -182,15 +182,6 @@ WITNESS = {
         "the solver memoizes across variants rather than re-solving each (:4182)",
         lambda: _reads("make_schemes.py", r"_palette-cache|_solved_grid") or
                 _reads("make_palette.py", r"(?i)memo|lru_cache")),
-    # ⚑ HALF DONE (W10, 2026-09-21): the three RGB literals (sel_neg/neu/pos) are
-    # now the constellation solve over the selection field; the STATE nudges
-    # (hover ±0.12, sel_bg ±0.08, sel_alt, sel_act) are still authored numbers —
-    # relations.md §4a lists them OPEN. The witness names both halves.
-    "⊕SOLVER-UI-TOKENS": (
-        "no RGB literal in solve_scheme's token dict, AND the hover/selection state"
-        " separations are solved (a state-separation relation), not luminance nudges (:3928)",
-        lambda: not _reads("make_palette.py", r'"sel_\w+":\s*"\d+,\d+,\d+"') and
-                not _reads("make_palette.py", r'"hover":\s*_s\(_lum_nudge\(accent,\s*-?0\.\d+')),
     "⊕ICONS-INHERIT": (
         "an icon theme that INHERITS rather than reimplements a set (:2774)",
         lambda: _any(["make_deb.py", "make_plasma.py"], r"(?i)Inherits=.*icon|icon.*Inherits")),
@@ -445,6 +436,15 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 73 (W10, 2026-09-21): three RGB literals became the
+    # constellation solve over the selection field; the state nudges became
+    # solve_state_steps — the witness names both halves
+    "⊕SOLVER-UI-TOKENS": (
+        "no RGB literal in solve_scheme's token dict, and the hover/selection states"
+        " are solved by solve_state_steps, not authored nudges (:3928)",
+        lambda: not _reads("make_palette.py", r'"sel_\w+":\s*"\d+,\d+,\d+"') and
+                not _reads("make_palette.py", r'"hover":\s*_s\(_lum_nudge\(accent,\s*-?0\.\d+') and
+                _reads("make_palette.py", r"def\s+solve_state_steps\b") and _tool("check_states.py")),
     # closed session 72 (W9, 2026-09-21): the target resolution is known only at
     # boot, so the emitted .script scales oversampled assets by Window.GetHeight
     "⊕PLYMOUTH-VECTOR": (

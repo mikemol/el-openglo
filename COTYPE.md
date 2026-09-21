@@ -5063,3 +5063,66 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s72]
+
+## Session 73 — ⊕SOLVER-UI-TOKENS: the authored tokens, measured, and two relations
+- Swept solve_scheme for values no relation determines (W10, 2026-09-21).
+  FOUND, not tidied: (1) sel_neg / sel_neu / sel_pos were three RGB LITERALS —
+  "45,10,10" / "45,30,8" / "10,40,20" — identical in every variant and never
+  checked; check_selection_contrast --semantic read 1.46:1 to 3.05:1 on every
+  Lit selection field (dark authored tones on a dark field; the Off variants
+  passed by the accident of a bright field). (2) hover ±0.12 and sel_bg ±0.08
+  — luminance nudges "to separate the states" — measured under the gate's own
+  metric at q 0.06-0.75 between hover and the field on every variant: the
+  same colour to the gate. Neither had a gate; both looked designed.
+- [110] Two relations, not two fixes. (a) The selection field is a GROUND, so
+  its semantic set is the §4 constellation solve over sel_bg anchored to the
+  selection's text — 17 of 18 pairs cleared; the 18th (Openglo-Lit negative,
+  2.94) was red's luminance ceiling over a field at L 0.13
+  (⊕SOLVER-SEL-BACKLIT) and was PINNED by name in the gate. (b) relations.md §4b: the three
+  states pairwise q >= 1 and each >= 3:1 on ground, with the step d SOLVED as
+  the smallest satisfying both (make_palette.solve_state_steps); the step and
+  its feasibility travel on the token. Solving (b) moved the selection field
+  one step darker, the pinned red gained room (3.33), and the pin REFUSED the
+  commit until it left the table — the mechanism's first real firing on a
+  colour, after its first on a closed symbol (s71).
+- Also: the solver's contrast-relax fallback guessed polarity from L < 0.4 and
+  handed Azure's mid-blue field a bright green at 1.77:1; it takes the most-
+  contrasting tone now. `_min_c = 4.6 if dark else 4.6` — an either/or with
+  one side — is one floor.
+- Four gates: constructible (palette re-solves, six variants feasible, every
+  downstream emission regenerated, parity 7 of 7); reachable (.colors carry the
+  solved values; every surface reads them); observable (check_selection_contrast
+  gates the three semantic keys — 30 of 30 — and check_states holds the state
+  relation, worst q 1.00; both plant their failures); coverable (an identical
+  pair, a ring invisible on its ground, a moved pin, a missing pin — each seen;
+  state_sep_infeasible names a variant the relation cannot satisfy).
+- OPEN, by name (relations §4a): sel_in (the ghost relation on the selection
+  pair — alpha_min), link/visited on selection, sel_alt/sel_act alternates, the
+  panel ladder. ⊕SOLVER-PERF untouched.
+
+### ⊕SOLVER-UI-TOKENS closure (four gates)
+- Four gates: as above. The witness in check_symbol names both halves (no RGB
+  literal in the token dict; no authored hover nudge) and reads present.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73: two relations) + (research)
+  ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s73]

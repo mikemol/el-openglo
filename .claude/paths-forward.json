@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 26,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T08:01:34+00:00",
-  "job_id": "becb1d93",
+  "heartbeat": "2026-09-21T08:21:03+00:00",
+  "job_id": "358f7e34",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T08:08:43+00:00"
+    "taken_at": "2026-09-21T08:34:52+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -220,10 +220,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "lowest: polish with no downstream; ⊕SOLVER-UI-TOKENS is the only one with structural weight (reuse-search rule) and should go first when this is reached",
-      "next_bounded_step": "⊕SOLVER-UI-TOKENS: list the ~5 authored UI tokens (:3928) and state which relation in catalog/relations.md each would be solved by.",
-      "evidence": "check_symbol.py --bucket TUNE: 4 of 6 open.",
+      "next_bounded_step": "b7f8eaf did the colour half: sel_neg/neu/pos solved over the selection field (17 of 18 pairs; the 18th pinned as ⊕SOLVER-SEL-BACKLIT physics), fallback fixed, semantic keys gated, relations §4a tables the rest OPEN. REMAINING (the symbol stays OPEN by its own witness): a STATE-SEPARATION relation for hover/sel_bg/sel_alt/sel_act — state the floor (focused ring vs hovered ring vs selection field must be pairwise distinguishable under the gate's metric, and each must clear its ground) in relations.md, solve the nudge magnitudes from it; sel_in via alpha_min over the selection pair; link/visited on selection. Then ⊕SOLVER-PERF if cheap.",
+      "evidence": "b7f8eaf; check_selection_contrast --semantic before/after",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": null,
+      "last_worked": "2026-09-21T08:20:21+00:00",
       "ticks_blocked": 0
     },
     {
