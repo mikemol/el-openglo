@@ -147,17 +147,6 @@ WITNESS = {
     # enumerates what remains, the witness is that list — not the name.
 
     # ── TUNE ──
-    "⊕SOLVER-PERF": (
-        "the solver memoizes across variants rather than re-solving each (:4182)",
-        lambda: _reads("make_schemes.py", r"_palette-cache|_solved_grid") or
-                _reads("make_palette.py", r"(?i)memo|lru_cache")),
-    # The BASIC layout.js already ships (it sets wallpaper + adds the clock); the
-    # item is a RICHER template than that (:2785). Witnessing layout.js at all
-    # reports the thing being improved on as the improvement.
-    "⊕PANEL-LAYOUT": (
-        "a richer layout template than the basic wallpaper+clock one that ships —"
-        " panel arrangement, systray, task manager (:2785)",
-        lambda: _reads("make_deb.py", r"(?i)systemtray|taskmanager|panel\.addWidget")),
 
     # ── TIER 3 ──
     # ⚑ THE WITNESS LOOKED IN THE GENERATOR FOR ONE IDIOM.  It read make_clock.py
@@ -390,6 +379,21 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 87b (2026-09-22): both had read done by their witnesses and
+    # were dropped from the ledger at s86 without closures — check_cotype_coherence
+    # caught it. Measured and closed properly there.
+    "⊕SOLVER-PERF": (
+        "make_schemes._solved_grid solves the whole grid once and caches it under a"
+        " content stamp over the solver's sources (.palette-cache.json), bypassed by"
+        " EL_NO_PALETTE_CACHE (:4182)",
+        lambda: _reads("make_schemes.py", r"def\s+_solved_grid\b") and
+                _reads("make_schemes.py", r"\.palette-cache\.json") and
+                _reads("make_schemes.py", r"EL_NO_PALETTE_CACHE")),
+    "⊕PANEL-LAYOUT": (
+        "the LnF layout.js builds a bottom panel with kickoff, pager, icontasks, the"
+        " system tray and the EL clock — richer than wallpaper+clock (:2785)",
+        lambda: _reads("make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.systemtray\"\)") and
+                _reads("make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.icontasks\"\)")),
     # closed session 87 (W32, 2026-09-22). The deferral at :2583 names two halves —
     # "bump render px + add SVG blur filter" — and the residue witness looked for
     # the WORD supersample. Measured: cairosvg rasterises the SVG at 2560x1440 for

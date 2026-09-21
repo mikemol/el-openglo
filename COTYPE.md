@@ -6005,3 +6005,62 @@ residue gated on live operator testing.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (component
   gated, unused; idiom not relation — and now the surface that would carry
   bloom/weight to all). ⊕PLA2 ⊕KVT2 ⊕KNB2. [s87]
+
+## Session 87b — two symbols dropped from the ledger without closures (coherence-caught)
+- check_cotype_coherence refused at the s87 commit: ⊕SOLVER-PERF and
+  ⊕PANEL-LAYOUT "never closed, never ticked, never listed open" — I wrote
+  "TUNE: none" at s86 on the strength of their witnesses reading done, and a
+  witness is not a closure. Measured, then closed properly:
+- ⊕SOLVER-PERF (:4182 "the solver memoizes across variants rather than
+  re-solving each"): make_schemes._solved_grid solves the WHOLE grid once
+  (make_palette.build_grid, every phosphor x mode) and caches it in
+  .palette-cache.json under a content stamp over make_palette / cvd_gate /
+  ghost_solve / glance_audit — a memo across variants AND across runs,
+  invalidated by the solver's own source, bypassed by EL_NO_PALETTE_CACHE=1
+  (the pre-commit hook warms it first, W20, because a cold cache made ~13
+  checks time out at once). Four gates: constructible (the def and the file);
+  reachable (every GRID reader goes through it); observable (the cache file's
+  stamp; the hook's warm step); coverable (a source edit misses the stamp and
+  re-solves; EL_NO_PALETTE_CACHE forces it — the W20 incident is the failure
+  it prevents).
+- ⊕PANEL-LAYOUT (:2785 "a richer layout template than the basic
+  wallpaper+clock one"): make_deb.build_lnf_packages writes contents/layouts/
+  org.kde.plasma.desktop-layout.js, which sets the wallpaper on every desktop
+  containment and builds a bottom panel with kickoff, pager, icontasks, a
+  margins separator, the system tray and the EL clock. That is the richer
+  template the entry asked for. Four gates: constructible (the script per
+  variant); reachable (staged in every LnF package); observable (the emitted
+  layout.js); coverable (the witness reads for systemtray / taskmanager /
+  panel.addWidget and fails if the panel is dropped back to wallpaper+clock).
+
+### ⊕SOLVER-PERF closure (four gates)
+- Four gates: as above. Residue: the solve is still ~2 min CPU cold.
+
+### ⊕PANEL-LAYOUT closure (four gates)
+- Four gates: as above. Residue: the panel arrangement is authored, not
+  measured against a live desktop (⊕VER); no lock-screen layout.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) + ⊕NOTIFY-SEGRENDER ✓
+  ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b: closed on
+  measurement, having been dropped from the ledger without closures at s86)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?;
+  s85 does Global Theme apply the icon + cursor groups?; s86 does Alt+Tab
+  load the EL switcher?), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (component
+  gated, unused; idiom not relation — and now the surface that would carry
+  bloom/weight to all). ⊕PLA2 ⊕KVT2 ⊕KNB2. [s87b]
