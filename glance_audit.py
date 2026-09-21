@@ -86,45 +86,38 @@ def audit_surface(name, mode, lit, ghost, ground, ghost_alpha=1.0,
 def surface_registry(variant="EL-Azure"):
     """The live surfaces and how each renders lit/ghost, read from the emitters.
     (Channel flags reflect what each emitter actually draws.)"""
+    # ⚑ THE REGISTRY READS THE PALETTE, NOT A MODEL OF EACH SURFACE.  It carried
+    # per-surface guesses — the clock at alpha 1.0 (it WAS opaque), the wallpaper's
+    # alpha detected by grepping "0.45" out of its QML, and the splash/plymouth
+    # ghost as `lit` at an adaptive opacity scanned here a THIRD time (the same
+    # scan make_deb ran, which was the sixth ghost model). Since W8 every surface
+    # draws fg_in at ghost_alpha and scripts/check_ghost_surfaces.py refuses one
+    # that does not, so the audit's inputs are one read of the token dict. An
+    # instrument that models the world separately from the world is the
+    # INSTRUMENT-VS-WORLD entry the log has banked nine times.
     import make_wallpaper_live as WL
-    ground, lit, ghost, _alpha = WL.colors_for(variant)   # alpha: the surfaces read it (W8)
+    ground, lit, ghost, alpha = WL.colors_for(variant)
     wq = WL.main_qml(variant)
     reg = []
 
-    # clock plasmoid — LOOKED-AT; color + stroke-weight + bloom
+    # clock plasmoid — LOOKED-AT; color + subordinated ghost + stroke-weight + bloom
     reg.append(dict(name="clock", mode=LOOKED_AT, lit=lit, ghost=ghost, ground=ground,
-                    ghost_alpha=1.0, bloom=True, stroke_weight=True))
+                    ghost_alpha=alpha, bloom=True, stroke_weight=True))
 
-    # live wallpaper — GLANCED-AT; detect channels from the emitted QML
+    # live wallpaper — GLANCED-AT; the bloom and stroke-weight channels are still
+    # detected from the emitted Canvas idiom (a dropped channel is what this audit
+    # was written to catch); the alpha is the palette's.
     reg.append(dict(name="wallpaper-live", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground,
-                    # detect channels in EITHER idiom: Canvas (globalAlpha/T*2.1) or
-                    # vector Shape (opacity 0.45 / U*0.84 bloom underlay / U*0.40).
-                    ghost_alpha=0.45 if ("globalAlpha = 0.45" in wq or "0.45" in wq) else 1.0,
+                    ground=ground, ghost_alpha=alpha,
                     bloom=(("T*2.1" in wq and "T*1.5" in wq) or "U*0.84" in wq),
                     stroke_weight=(("U * 0.40" in wq and "U * 0.26" in wq)
                                    or ("U*0.40" in wq and "U*0.26" in wq))))
 
-    # KDE splash & plymouth — GLANCED-AT. Ghost is phosphor at an ADAPTIVE opacity
-    # (⊕GHOST-CEILING applied to the opacity channel): the max opacity whose
-    # lit/ghost separation still clears the glanced floor. A fixed opacity failed
-    # on backlit variants (dark-lit-on-light-ground compresses separation), so we
-    # solve it per variant — matching the builder.
-    def _adaptive_alpha(lit_c, ground_c, target=MODE_FLOOR[GLANCED_AT] + 0.3):
-        best = 0.05
-        for k in range(5, 36):
-            a = k / 100.0
-            gh_eff = _composite(lit_c, ground_c, a)
-            if C.wcag_ratio(lit_c, gh_eff) >= target:
-                best = a
-            else:
-                break
-        return best
-    _sa = _adaptive_alpha(lit, ground)
-    reg.append(dict(name="kde-splash", mode=GLANCED_AT, lit=lit, ghost=lit,
-                    ground=ground, ghost_alpha=_sa, bloom=False, stroke_weight=False))
-    reg.append(dict(name="plymouth", mode=GLANCED_AT, lit=lit, ghost=lit,
-                    ground=ground, ghost_alpha=_sa, bloom=False, stroke_weight=False))
+    # KDE splash & plymouth — GLANCED-AT; the palette's ghost at the palette's alpha
+    reg.append(dict(name="kde-splash", mode=GLANCED_AT, lit=lit, ghost=ghost,
+                    ground=ground, ghost_alpha=alpha, bloom=False, stroke_weight=False))
+    reg.append(dict(name="plymouth", mode=GLANCED_AT, lit=lit, ghost=ghost,
+                    ground=ground, ghost_alpha=alpha, bloom=False, stroke_weight=False))
 
     # notify marquee — lit text on void, no ghost -> exempt
     reg.append(dict(name="notify-marquee", mode=LOOKED_AT, lit=lit, ghost=ghost,
