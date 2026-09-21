@@ -240,7 +240,46 @@ def measure_matrix(dot_fill=None):
     return rows
 
 
+def format_coverage(fmt):
+    """The fraction of the 2x4 cell an unlit FIELD of format `fmt` covers — the
+    union of its strokes' bands at the module stroke width (MODULE_METRICS,
+    0.105 H), rasterised on glyph_match's cell grid. 22 uses every SEG22 stroke;
+    the others use segment_topology.FORMATS[fmt]['mask'] over GEOM16."""
+    import numpy as np
+    import glyph_match as GM
+    import segment_topology as ST
+    sw = ST.metrics(4.0)["stroke"] / 2.0
+    keys = list(ST.SEG22) if fmt == "22" else [k for k in ST.GEOM16 if k in ST.FORMATS[fmt]["mask"]]
+    if not keys:
+        return None
+    field = np.zeros((GM.RES + 1, GM.RES + 1), bool)
+    for k in keys:
+        field |= GM._seg_field(ST.endpoints(k), (0.0, 2.0, 0.0, 4.0), sw)
+    return float(field.mean()), len(keys)
+
+
+def measure_formats(fmts=("7", "14", "16", "22")):
+    """[(fmt, strokes, coverage, alpha_field_equiv)] — the segment twin of
+    measure_matrix: at the 22-join the same cell carries 22 strokes at the same
+    width, so the unlit FIELD is denser than at 7 by exactly this coverage."""
+    out = []
+    for f in fmts:
+        r = format_coverage(f)
+        if r is None:
+            continue
+        cov, n = r
+        out.append((f, n, cov, _alpha() * cov))
+    return out
+
+
 def _matrix_report():
+    rows = measure_matrix()
+    fmts = measure_formats()
+    if fmts:
+        print("segment formats — the unlit FIELD's cell coverage at the module stroke width:")
+        for f, n, cov, a_eq in fmts:
+            print(f"  {f:>3}-seg  {n:2d} strokes  coverage {cov:.3f}  field alpha {a_eq:.3f}")
+        print()
     rows = measure_matrix()
     if not rows:
         print("check_ghost_composite: REFUSED — no variants, or MatrixChar carries no dotFill",
@@ -443,6 +482,18 @@ def _selftest():
     m_small = measure_matrix(dot_fill=0.5)
     check("a smaller dot thins the field", all(s[3] < b[3] for s, b in zip(m_small, m1)), True)
     check("the emitted MatrixChar carries a dotFill", matrix_dot_fill() is not None, True)
+    # the segment twin: coverage is a fraction, grows with the format, and an
+    # unknown format is None rather than a number
+    fm = {f: cov for f, _n, cov, _a in measure_formats()}
+    check("every format's coverage is in (0, 1]", all(0 < c <= 1 for c in fm.values()), True)
+    check("22-seg covers at least 16-seg covers at least 7-seg",
+          fm.get("22", 0) >= fm.get("16", 0) >= fm.get("7", 1), True)
+    check("7-seg leaves more than half the cell unlit-and-empty", fm.get("7", 1) < 0.5, True)
+    try:
+        format_coverage("99")
+        check("an unknown format refuses", False, True)
+    except KeyError:
+        check("an unknown format refuses", True, True)
     check("the emitted marquee carries the solved alpha",
           matrix_rendered_alpha(variants()[0][0]) == _alpha() if variants() else False, True)
 

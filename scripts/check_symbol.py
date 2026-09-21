@@ -153,11 +153,6 @@ WITNESS = {
     "⊕SEG22-DESCENDERS": (
         "lowercase g/j/p/q/y carry descender segments in a 22-seg glyph table (:4455)",
         lambda: _reads("segment_topology.py", r"LETTERS22|DESCENDER_GLYPHS|glyph22")),
-    "⊕GHOST-DENSITY": (
-        "ghost separation re-verified at 22-seg inter-stroke density, where strokes"
-        " tighten and the same Lc may read mushier (:4459)",
-        lambda: _any(["scripts/check_selection_contrast.py", "cvd_gate.py",
-                      "glance_audit.py"], r"(?i)inter.?stroke|density.*ghost|ghost.*density")),
 
     # ── TUNE ──
     "⊕SOLVER-PERF": (
@@ -418,6 +413,18 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 81 (W29, 2026-09-21). The open witness looked in the CONTRAST
+    # tools for the words "inter-stroke" / "density"; the measurement lives at the
+    # join, in check_ghost_composite: the unlit FIELD's cell coverage per format
+    # (7: 0.40, 16: 0.80, 22: 0.84) and per dot matrix (0.53), each an effective
+    # alpha beside the stroke's — the density the same Lc reads at.
+    "⊕GHOST-DENSITY": (
+        "check_ghost_composite.measure_formats gives the unlit field's cell coverage at"
+        " 7/14/16/22 from the substrate geometry and measure_matrix the dot field's;"
+        " --matrix reports both beside the stroke ghost per variant (:4459)",
+        lambda: _reads("scripts/check_ghost_composite.py", r"def\s+measure_formats\b") and
+                _reads("scripts/check_ghost_composite.py", r"def\s+measure_matrix\b") and
+                _tool("check_ghost_composite.py", "--matrix")),
     # closed session 79 (W27, 2026-09-21). Named in glyph_match's banner since
     # s83 (transcript), placed in the ledger at s75, its ceiling measured per
     # class at s78 (round 0.60 over 19). The witness is the arc field, the solved

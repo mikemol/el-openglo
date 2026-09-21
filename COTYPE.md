@@ -5553,3 +5553,58 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s80]
+
+## Session 81 — ⊕GHOST-DENSITY, the 22-seg half: the field's coverage per format, and the closure
+- W29, 2026-09-21. The log's words at :4459: "strokes tighten and the same Lc
+  may read mushier". Quantified: check_ghost_composite.format_coverage(fmt)
+  rasterises the union of a format's stroke bands at the MODULE stroke width
+  (segment_topology.metrics, 0.105 H — the same number the clock's strokeBase
+  is derived from) on glyph_match's cell grid, and measure_formats reports
+  coverage and the field's effective alpha (alpha x coverage) per format.
+- MEASURED: 7-seg 10 strokes coverage 0.396 (field alpha 0.224); 14-seg 0.801
+  (0.453); 16-seg 0.801 (0.453); 22-seg 0.837 (0.474); the dot matrix 0.528
+  (0.299). So the SAME ghost alpha reads twice as dense at 16/22 as at 7 — a
+  16-seg unlit field is four-fifths of the cell, nearly a slab — and the dot
+  matrix sits between. That is the density the log suspected, as a number per
+  format, and it says the per-stroke Lc is not the field Lc on any surface: on
+  7-seg the field is thin (Lc ~7), on 16/22 it is near the stroke's.
+- Four gates: constructible (format_coverage, measure_formats, measure_matrix,
+  --matrix); reachable (every format in FORMATS plus 22, every variant, both
+  parsed from the emissions); observable (--matrix prints formats and dots
+  beside the stroke ghost with the floor); coverable (selftest: coverage in
+  (0,1], 22 >= 16 >= 7, 7 under half, an unknown format refuses; the dot arms
+  from s80). The open witness had looked in the contrast tools for the WORD
+  "density"; the CLOSED witness is the two measure defs and the mode.
+
+### ⊕GHOST-DENSITY closure (four gates)
+- Four gates: as above. Residue: none of this is GATED — whether a ghost field
+  is judged per stroke or per cell by the eye at each surface's scale is
+  ⊕GLANCE-CALIBRATE's live look (the marquee's field at Lc ~10 is the sharpest
+  case); the format coverage assumes the module stroke, and the clock draws
+  strokeBase = stroke/1.25 x a weight slider, so its coverage is that x weight.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81: field coverage
+  7 0.40 / 16 0.80 / 22 0.84 / dots 0.53 — the same alpha, twice the density) +
+  (research) ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest +
+  validate all 44), ⊕SEG22-DESCENDERS.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?),
+  ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s81]

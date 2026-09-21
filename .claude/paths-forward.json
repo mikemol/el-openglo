@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 30,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T11:09:20+00:00",
-  "job_id": "bd3e3546",
+  "heartbeat": "2026-09-21T11:31:30+00:00",
+  "job_id": "09fad79c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-44",
-    "taken_at": "2026-09-21T11:23:41+00:00"
+    "holder": "tick-45",
+    "taken_at": "2026-09-21T11:33:23+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -530,10 +530,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Add a --matrix arm to check_ghost_composite (or a sibling) that composites the dot field's AREA-WEIGHTED ghost (coverage 0.82^2*pi/4 of the cell at ghost_alpha over ground) and reports its Lc beside the stroke ghost's, per variant; the number decides whether the marquee needs its own alpha.",
-      "evidence": "",
+      "next_bounded_step": "The 22-seg half (:4459 'inter-stroke density'): at the 22-seg join the same cell carries 22 strokes at the same stroke width — measure the unlit AREA fraction of the cell at 7/14/16/22 from segment_topology geometry (sum of band areas / cell) and report the ghost field's effective alpha per format the same way --matrix does for dots (alpha x coverage); add as a --formats arm. Then close ⊕GHOST-DENSITY (four gates) with the witness at measure_matrix + the formats arm; residue: the eye's per-dot vs per-cell judgement is ⊕GLANCE-CALIBRATE's.",
+      "evidence": "1c41601: check_ghost_composite --matrix (measure_matrix, matrix_dot_fill, matrix_rendered_alpha + 6 selftest arms): Lc dot = Lc stroke ~30, Lc FIELD ~10 Off / ~15 Lit vs floor 25 on all six; effective alpha 0.299; COTYPE s80. Symbol open for the 22-seg half.",
       "issued_at": "2026-09-21T10:08:12+00:00",
-      "last_worked": "2026-09-21T10:08:12+00:00",
+      "last_worked": "2026-09-21T11:30:31+00:00",
       "ticks_blocked": 0
     },
     {

@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T11:09:20+00:00 · job `bd3e3546` · counter 30 · hash `4af5d78825fbcfb3`
+heartbeat 2026-09-21T11:31:30+00:00 · job `09fad79c` · counter 30 · hash `8aa962768a13ae4a`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -50,7 +50,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 | W26 | done | Re-author the 5x8 descender matrix table (⊕DOT-FONT-DESC, the last KNOWN-LOST closure): display_types.FONT5x8 with true descenders for g j p q y (and the lowercase set the closure at :1496 lists), MatrixDisplay(5, 8) in DISPLAYS, the marquee/matrix surfaces reading it, EL-Matrix-5x8.ttf from matrix_contours(cols=5, rows=8) | — | — |
 | W27 | done | ⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention) | — |  |
 | W28 | ready | ⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs | — | Read the ⊕SEG-FONT-PROJECT witness (:4644: fontTools ingest + validate all 44) and check_st_api — which 8 of the 44 are missing from validate_projection's 36 (SYMBOLS16?) — and extend the validation to them; then state what a 22-seg descender glyph table needs (segment_topology LETTERS22 / DESCENDER_GLYPHS) before authoring any. |
-| W29 | ready | ⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio | — | Add a --matrix arm to check_ghost_composite (or a sibling) that composites the dot field's AREA-WEIGHTED ghost (coverage 0.82^2*pi/4 of the cell at ghost_alpha over ground) and reports its Lc beside the stroke ghost's, per variant; the number decides whether the marquee needs its own alpha. |
+| W29 | ready | ⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio | — | The 22-seg half (:4459 'inter-stroke density'): at the 22-seg join the same cell carries 22 strokes at the same stroke width — measure the unlit AREA fraction of the cell at 7/14/16/22 from segment_topology geometry (sum of band areas / cell) and report the ghost field's effective alpha per format the same way --matrix does for dots (alpha x coverage); add as a --formats arm. Then close ⊕GHOST-DENSITY (four gates) with the witness at measure_matrix + the formats arm; residue: the eye's per-dot vs per-cell judgement is ⊕GLANCE-CALIBRATE's. |
 | W30 | ready | Font COMPILER (operator, 2026-09-21): arbitrary TTF -> precompiled (segment set @22 per glyph, matrix column bytes per glyph) tables, so a font (Liberation, Unifont, ...) is derived ONCE and the emitters read the derived table — the two halves already exist (display_types.font_extension = the matrix half; glyph_match.match + ST.project = the segment half); the compiler is the one entry point + an on-disk table format + the emitters reading it. Operator: 'later; not an immediate priority unless it unblocks something' | — | Only when it unblocks something. When taken: state the table format (JSON: font path+hash, charset, per-glyph {seg22, matrix5x8, class, jaccard}), one compile_font(path, charset) in a new font_compile.py that calls the two existing halves (no re-derivation), and make display_types.font_extension read a compiled table when given one. Bitmap fonts (Unifont) route through project_font.raster_ink — measure one glyph first. |
 
 ## evidence
@@ -83,7 +83,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W26** — dc4b748: FONT5x8 authored via _cols row strings; baseline as a LINE (make_font baseline=); EL-Matrix-5x8.ttf with negative descent; check_font descender arm + off-by-one fixture; 'g' rendered with its tail below the baseline; check_symbol LOST now EMPTY (29 witnessed / 0 lost / 23 artifact-free).
 - **W27** — 877cb1b: glyph_match._arc_field + SAGITTA=-0.15 solved (--calibrate --arcs); per class round 0.60->0.62, straight 0.77->0.79, diagonal 0.67->0.68; overall 0.653->0.672, 10/36 exact; fields vectorised (_band) after --regressions hit 3m15; ⊕SEG-DOTPRODUCT-TEMPLATES in CLOSED (36 witnessed); COTYPE s79
 - **W28** — 
-- **W29** — 
+- **W29** — 1c41601: check_ghost_composite --matrix (measure_matrix, matrix_dot_fill, matrix_rendered_alpha + 6 selftest arms): Lc dot = Lc stroke ~30, Lc FIELD ~10 Off / ~15 Lit vs floor 25 on all six; effective alpha 0.299; COTYPE s80. Symbol open for the 22-seg half.
 - **W30** — 
 
 ## residue
