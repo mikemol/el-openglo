@@ -6651,3 +6651,81 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s97]
+
+## Session 98 — ⊕VER-MARQUEE: the traversal invariant, the dead rotation, and qmllint over every document
+- W45, 2026-09-22. Operator, live: "a notification should never be removed
+  from the marquee while it's visible; it should always be allowed to scroll
+  from offscreen to onscreen to offscreen at least once. Never 'just appear'
+  and never vanish and never tear." And: `notify-send 'oh <b>hi</b>'` put the
+  markup in the SUMMARY, which the spec reserves for the body, and the stock
+  popup showed it literally while the marquee parsed it. Both are now
+  arithmetic in templates/marquee-body.js, pure and run headless:
+  `joinItem(app, summary, body)` pushes app and summary PLAIN and parses only
+  the body; `queueUpsert` (a replace by id owes a fresh rotation);
+  `ringNext(queue, liveIds, maxItems)` — the next ring is every unshown item
+  (expired or not) then the live items that have had theirs, an item gone from
+  the model drops exactly after its rotation, a cap holds an unshown item back
+  still owed; `ringJoin` re-bases the runs. The widget only UPSERTS into
+  root.queue (onCountChanged and onDataChanged — a replace changes no count)
+  and only calls ringNext at the rotation's onFinished. check_marquee_body
+  gained 5 joinItem cases and 6 stepped ring scenarios (arrive-and-expire
+  still scrolls once; active keeps cycling; expired drops after its rotation;
+  a mid-rotation arrival waits then leads; a replace re-shows with the new
+  text; the cap), each with a refusing arm.
+- Operator, live, mid-tick: "Current git head doesn't appear to respond to
+  notifications at all." Measured on the installed package (byte-equal to the
+  committed baseline; qmllint clean): the NumberAnimation had
+  `running: marquee.visible`, and a FINITE animation assigns running=false
+  when it ends, which DISCARDS the binding — so after the ring first drained
+  to idle the Row became visible again and nothing ever ran; rawX sat parked
+  off the left edge. Now the Row starts the run itself (startRun on
+  visibleChanged / completed) and the animation binds nothing.
+- Operator: "Sounds like we need qmllint in our precommit gate." Measured:
+  qml_sanity.check_qml had ONE caller (check_taskswitch); the clock, marquee,
+  live wallpaper, components and config pages were never linted at commit.
+  scripts/check_qml_lint.py (@QMLLINT, tooling) lints the nine emitted
+  documents at one variant AND carries the rule qmllint cannot: a finite
+  animation must not bind `running:`. Stated weakness: the rule is a
+  brace-matched scan of animation blocks, not the type graph. Discriminated:
+  with the fix stashed the gate REFUSED HEAD's marquee (1 of 9); restored, 9
+  of 9. The witness for ⊕NOTIFY-MATRIXRENDER now pins queue/queueUpsert/
+  ringNext/startRun/joinItem and the ABSENCE of `running: marquee`.
+- Operator: mdstruct now comes from ~/github/mtools (published
+  `mikemol-mdstruct`, PEP 508 git reference in the tooling extra;
+  requires-python raised to >=3.13); substrate's scratch copy is retired. The
+  struct-tools row routes .md to `uv run --no-sync mdstruct`. Its
+  append-section REFUSED this entry — "Symbol ledger (current)" names 90
+  sections and the tool will not pick one — so this was written with the
+  harness Edit tool; the missing mode is a `--last` / `--nth` selector on the
+  write target (mtools work, recorded, not routed around).
+- Residue: the ring's harness steps the queue in the HARNESS QML (glue, not
+  Body); a headless run of the whole widget against a STUBBED
+  org.kde.notificationmanager module (W49) is what would have caught the dead
+  rotation as a measured trace rather than a live report; `maxItems` now caps
+  the ring, not the model read; a notification whose text is empty is never
+  queued (it owes no rotation).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-98 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; the switcher
+  PoC first, then clock / marquee / live wallpaper / LnF). RESEARCH: none.
+  TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab; s95 EL over Oxygen; s97 does a Theme-bound plasmoid follow
+  plasma-apply-colorscheme without reinstall?), ⊕VER-MARQUEE (s89-98 —
+  confirm after re-emerge: every notification scrolls once, none vanish, the
+  board never goes dead), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s98]

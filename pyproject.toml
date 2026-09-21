@@ -2,7 +2,8 @@
 name = "el-openglo"
 version = "0.1.0"
 description = "An electroluminescent-display desktop theme, generated from one palette"
-requires-python = ">=3.11"
+# >=3.13: mikemol-mdstruct (tooling extra) requires it; the venv runs 3.14
+requires-python = ">=3.13"
 
 # ⚑ A DEPENDENCY NAMED ONLY IN A DOCSTRING IS A PERMISSION SLIP.  Every import in
 # the tree is declared here or recorded below as deliberately absent.  The list
@@ -40,7 +41,14 @@ research = [
 # That is the routing table naming a capability the machine does not have. The
 # dependency belongs here even though no local `import` will ever justify it.
 tooling = [
-    "panflute",         # substrate/scratch/mdstruct.py — pandoc AST (pandoc itself is on PATH)
+    # ⚑ mdstruct IS A PUBLISHED DISTRIBUTION NOW, NOT A SCRATCH FILE (operator,
+    # 2026-09-22: "substrate's scratch mdstruct is obsolete and retired; ~/github/mtools
+    # has mdstruct, a github remote, and installs into a .venv properly via PEP
+    # reference"). A PEP 508 git reference: real files, content-addressed, no
+    # symlink deriving the wrong root. `uv sync --extra tooling` puts `mdstruct` on
+    # the venv's PATH; the struct-tools table routes .md to it.
+    "mikemol-mdstruct @ git+https://github.com/mikemol/mtools#subdirectory=mdstruct",
+    "panflute",         # mdstruct's parser (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
     "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG
     "python-magic>=0.4.27",

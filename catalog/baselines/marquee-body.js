@@ -1,41 +1,63 @@
-// marquee-body.js — a notification body's markup, parsed to plain text + style runs.
+// marquee-body.js — a notification body's markup, parsed to plain text + style runs,
+// and the marquee's RING: the pure queue arithmetic behind the traversal invariant.
 // Shipped beside the marquee's main.qml (which imports it by bare name) and run
-// headless by scripts/check_marquee_body.py on synthetic bodies — the same code.
+// headless by scripts/check_marquee_body.py on synthetic inputs — the same code.
 //
 // ⚑ BODIES ARE MARKUP (W39). The freedesktop notification spec allows <b> <i>
-// <u> <a href> <img src alt> in a body and says a server that does not support
+// <u> <a href> <img src alt> in a BODY and says a server that does not support
 // them "should filter them out"; Plasma's model passes its sanitised subset
 // through, with <br> and entities. Un-stripped, the TAGS scrolled across the
 // board as text. parseBody() returns the plain text plus STYLE RUNS — spans of
-// bold / italic / underline / link / colour over the text — so the styling half
-// (bold -> lit weight or glow; a sender colour -> a hue on the lit token, gated
-// by the palette's floors — catalog/relations.md §5) has its data when its
-// relation is applied. Until then only the text is read.
+// bold / italic / underline / link / colour over the text — which the marquee
+// reads as a fuller dot, a gated hue, an underline, a tappable href.
+//
+// ⚑ THE SUMMARY IS PLAIN (W45; operator, live: `notify-send 'oh <b>hi</b>'` put
+// the markup in the SUMMARY and the stock popup showed it literally). The spec's
+// markup is for the body only, so joinItem() pushes the app name and the summary
+// as text and parses only the body.
 .pragma library
 
-function parseBody(html) {
-    var text = "", runs = [];
-    var st = { b: 0, i: 0, u: 0, a: "", color: "" };
-    var i = 0, n = html.length;
-    function push(ch) {
-        // ⚑ WHITESPACE COLLAPSES HERE, so the runs' offsets are exact over the
-        // text the ring scrolls (they were offset into a pre-collapse text and
-        // could drift by a few characters — s92 residue). Leading whitespace is
-        // dropped; a run of spaces/newlines becomes one space.
+// a text+runs accumulator: whitespace collapses at the push so run offsets are
+// exact over the text the ring scrolls (they once drifted — s92 residue)
+function _builder() {
+    var b = { text: "", runs: [], st: { b: 0, i: 0, u: 0, a: "", color: "" } };
+    b.push = function (ch) {
         ch = ch.replace(/\s+/g, " ");
-        if (ch === " " && (text.length === 0 || text.charAt(text.length - 1) === " ")) return;
-        var s = { start: text.length, end: text.length + ch.length,
+        if (ch === " " && (b.text.length === 0 || b.text.charAt(b.text.length - 1) === " ")) return;
+        var st = b.st;
+        var s = { start: b.text.length, end: b.text.length + ch.length,
                   bold: st.b > 0, italic: st.i > 0, underline: st.u > 0,
                   link: st.a, color: st.color };
-        var last = runs.length ? runs[runs.length - 1] : null;
-        if (last && last.bold === s.bold && last.italic === s.italic &&
+        var last = b.runs.length ? b.runs[b.runs.length - 1] : null;
+        if (last && last.end === s.start && last.bold === s.bold && last.italic === s.italic &&
             last.underline === s.underline && last.link === s.link && last.color === s.color) {
             last.end = s.end;
         } else {
-            runs.push(s);
+            b.runs.push(s);
         }
-        text += ch;
-    }
+        b.text += ch;
+    };
+    // plain text: every character pushed as itself, no tag or entity read
+    b.plain = function (s) {
+        for (var k = 0; k < s.length; k++) b.push(s.charAt(k));
+    };
+    b.reset = function () { b.st = { b: 0, i: 0, u: 0, a: "", color: "" }; };
+    b.result = function () {
+        // a trailing space is dropped, and a run clamped to the kept length
+        var text = b.text.replace(/\s+$/, ""), runs = [];
+        for (var k = 0; k < b.runs.length; k++) {
+            var r = b.runs[k], end = Math.min(r.end, text.length);
+            if (end > r.start) runs.push({ start: r.start, end: end, bold: r.bold, italic: r.italic,
+                                           underline: r.underline, link: r.link, color: r.color });
+        }
+        return { text: text, runs: runs };
+    };
+    return b;
+}
+
+function _parseInto(b, html) {
+    var st = b.st, push = b.push;
+    var i = 0, n = html.length;
     while (i < n) {
         var c = html.charAt(i);
         if (c === "<") {
@@ -69,6 +91,96 @@ function parseBody(html) {
                 push(isNaN(code) ? "&" : String.fromCharCode(code)); i = semi + 1;
             } else { push("&"); i += 1; }
         } else { push(c); i += 1; }
+    }
+}
+
+function parseBody(html) {
+    var b = _builder();
+    _parseInto(b, html || "");
+    // parseBody keeps a trailing space (the harness pins 'one<br>two' -> 'one two'
+    // and a body ending in a space is the caller's to trim), so return the raw
+    // accumulator, not result()
+    return { text: b.text, runs: b.runs };
+}
+
+// one notification as the ring shows it: "app: summary — body", the first two
+// PLAIN, the body parsed; runs are exact over the returned text
+function joinItem(app, summary, body) {
+    var b = _builder();
+    if (app) b.plain(app + ": ");
+    if (summary) b.plain(summary);
+    if (body) {
+        if (summary) b.plain(" — ");
+        b.reset();
+        _parseInto(b, body);
+    }
+    return b.result();
+}
+
+// ⚑ THE TRAVERSAL INVARIANT (W45; operator: "a notification should never be
+// removed from the marquee while it's visible; it should always be allowed to
+// scroll from offscreen to onscreen to offscreen at least once. Never 'just
+// appear' and never vanish and never tear"). The QUEUE is every notification
+// the marquee owes a rotation to, keyed by id, each with `shown` — has it had
+// its rotation. The model only ever UPSERTS into the queue (arrivals, replaces);
+// the queue only ever changes the ring at a rotation BOUNDARY, through ringNext.
+
+// a replace (same id) takes the new text and owes a fresh rotation
+function queueUpsert(queue, item) {
+    var out = [], found = false;
+    for (var k = 0; k < queue.length; k++) {
+        if (queue[k].id === item.id) {
+            out.push({ id: item.id, text: item.text, runs: item.runs, shown: false });
+            found = true;
+        } else out.push(queue[k]);
+    }
+    if (!found) out.push({ id: item.id, text: item.text, runs: item.runs, shown: false });
+    return out;
+}
+
+// at a boundary: the next ring is every UNSHOWN item (live or already gone —
+// it was promised a rotation), then the items still live that have had theirs
+// (they keep cycling), capped at maxItems. The new queue is the ring's live
+// members marked shown plus whatever the cap held back, unchanged; an item
+// gone from the model drops exactly after its rotation, never before.
+function ringNext(queue, liveIds, maxItems) {
+    var live = {};
+    for (var k = 0; k < liveIds.length; k++) live[liveIds[k]] = true;
+    var unshown = [], cycling = [];
+    for (k = 0; k < queue.length; k++) {
+        var q = queue[k];
+        if (!q.shown) unshown.push(q);
+        else if (live[q.id]) cycling.push(q);
+        // shown and gone: dropped here
+    }
+    var ring = unshown.concat(cycling), held = [];
+    if (maxItems > 0 && ring.length > maxItems) {
+        held = ring.slice(maxItems);
+        ring = ring.slice(0, maxItems);
+    }
+    var next = [];
+    for (k = 0; k < ring.length; k++)
+        if (live[ring[k].id]) next.push({ id: ring[k].id, text: ring[k].text, runs: ring[k].runs, shown: true });
+    // held items keep their place and their `shown` — an unshown one is still owed
+    for (k = 0; k < held.length; k++)
+        if (!held[k].shown || live[held[k].id]) next.push(held[k]);
+    return { ring: ring, queue: next };
+}
+
+// the ring's items as one scrolling text with the runs re-based
+function ringJoin(items, sep) {
+    var text = "", runs = [];
+    for (var k = 0; k < items.length; k++) {
+        var it = items[k];
+        if (!it.text.length) continue;
+        if (text.length) text += sep;
+        var base = text.length;
+        for (var r = 0; r < it.runs.length; r++) {
+            var run = it.runs[r];
+            runs.push({ start: base + run.start, end: base + run.end, bold: run.bold,
+                        italic: run.italic, underline: run.underline, link: run.link, color: run.color });
+        }
+        text += it.text;
     }
     return { text: text, runs: runs };
 }

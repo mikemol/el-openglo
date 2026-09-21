@@ -52,12 +52,31 @@ PlasmoidItem {
     // notification that expired leaves at the boundary too; an empty pending
     // drains the ring to the idle field at the boundary.
     property string tickerText: ""        // ACTIVE: what is scrolling now
-    property string pendingText: ""       // PENDING: what scrolls after this rotation
     property bool haveModel: false
 
+    // ⚑ THE TRAVERSAL INVARIANT (W45; operator: "never 'just appear' and never
+    // vanish and never tear"). root.queue is every notification the board owes
+    // a rotation to, keyed by the model's notificationId; rebuild() only UPSERTS
+    // into it, and swapRing() — at the rotation boundary, nowhere else — asks
+    // Body.ringNext for the next ring: every unshown item (expired or not)
+    // scrolls once, a live item keeps cycling, an item gone from the model drops
+    // only after its rotation. The arithmetic is pure and run headless by
+    // check_marquee_body's ring scenarios.
+    property var queue: []
+
+    function liveIds() {
+        var ids = [];
+        for (var i = 0; i < notifModel.count; i++)
+            ids.push(notifModel.data(notifModel.index(i, 0), NotificationManager.Notifications.IdRole));
+        return ids;
+    }
+
     function swapRing() {
-        root.tickerText = root.pendingText;
-        root.tickerRuns = root.pendingRuns;
+        var next = Body.ringNext(root.queue, root.liveIds(), root.cfgMaxItems);
+        root.queue = next.queue;
+        var joined = Body.ringJoin(next.ring, "     •     ");
+        root.tickerText = joined.text;         // empty -> the ring drains to idle
+        root.tickerRuns = joined.runs;
     }
 
     // ⚑ BODIES ARE MARKUP (W39). The spec allows <b> <i> <u> <a> <img>; Plasma
@@ -65,10 +84,8 @@ PlasmoidItem {
     // the TAGS scrolled across the board as text. Body.parseBody (marquee-body.js,
     // shipped beside this file and run headless by check_marquee_body) returns
     // the plain text plus STYLE RUNS (bold / italic / underline / link / colour
-    // spans), kept here as data for the styling half (relations.md §5). Nothing
-    // reads the runs yet; the text is what scrolls.
+    // spans), read below as a fuller dot, a gated hue, an underline, a href.
     property var tickerRuns: []
-    property var pendingRuns: []
 
     // ⚑ THE SOLVED HUE TABLE (relations.md §5a; make_palette.hue_table, gated by
     // check_rehue). Twelve buckets, index = hue / 30; a bucket the gate refused
@@ -123,41 +140,30 @@ PlasmoidItem {
         groupMode: NotificationManager.Notifications.GroupDisabled
         Component.onCompleted: root.haveModel = true
         onCountChanged: root.rebuild()
+        // a replace (same id, new text) changes no count; it changes data
+        onDataChanged: root.rebuild()
     }
 
+    // the model changed: upsert every live notification into the queue. A new id
+    // is owed a rotation; a known id with new text (a replace) is owed one again;
+    // an unchanged id is left as it stands. The ring is NOT touched here.
     function rebuild() {
-        var text = "", runs = [];
-        var n = Math.min(notifModel.count, root.cfgMaxItems);
-        var sep = "     •     ";
-        for (var i = 0; i < n; i++) {
+        var q = root.queue;
+        var known = {};
+        for (var k = 0; k < q.length; k++) known[q[k].id] = q[k].text;
+        for (var i = 0; i < notifModel.count; i++) {
             var idx = notifModel.index(i, 0);
+            var id = notifModel.data(idx, NotificationManager.Notifications.IdRole);
             var app = notifModel.data(idx, NotificationManager.Notifications.ApplicationNameRole);
             var sum = notifModel.data(idx, NotificationManager.Notifications.SummaryRole);
             var body = notifModel.data(idx, NotificationManager.Notifications.BodyRole);
-            var seg = "";
-            if (app) seg += app + ": ";
-            if (sum) seg += sum;
-            if (body) seg += " — " + body;
-            // the parser collapses whitespace as it goes, so its run offsets are
-            // exact over parsed.text; only a trailing space is dropped here, and a
-            // run is clamped to the kept length
-            var parsed = Body.parseBody(seg);
-            // (the doubled dollar is the template loader's escape; this file has holes)
-            var plain = parsed.text.replace(/\s+$/, "");
-            if (!plain.length) continue;
-            if (text.length) text += sep;
-            var base = text.length;
-            for (var r = 0; r < parsed.runs.length; r++) {
-                var run = parsed.runs[r];
-                var end = Math.min(run.end, plain.length);
-                if (end <= run.start) continue;
-                runs.push({ start: base + run.start, end: base + end, bold: run.bold,
-                            italic: run.italic, underline: run.underline, link: run.link, color: run.color });
-            }
-            text += plain;
+            // the summary is PLAIN, the body is markup (W45): Body.joinItem
+            var item = Body.joinItem(app, sum, body);
+            if (!item.text.length) continue;
+            if (id in known && known[id] === item.text) continue;
+            q = Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs });
         }
-        root.pendingText = text;               // empty -> the ring drains to idle
-        root.pendingRuns = runs;
+        root.queue = q;
         // nothing is scrolling: start this rotation now rather than at a boundary
         // that will never come
         if (root.tickerText.length === 0) root.swapRing();
@@ -236,6 +242,21 @@ PlasmoidItem {
             y: (parent.height - rep.matrixHeight) / 2
             property real rawX: rep.width
             x: Math.round(rawX / rep.pitch) * rep.pitch
+            // ⚑ THE ROTATION IS STARTED, NEVER BOUND (operator, live 2026-09-22:
+            // "doesn't respond to notifications at all"). `running: marquee.visible`
+            // was a binding that the animation's own completion OVERWROTE with
+            // false — Qt assigns `running` when a finite animation ends, which
+            // discards the binding — so after the ring first drained to idle, a
+            // new notification made the Row visible but nothing ever ran again,
+            // and rawX sat parked off the left edge. Now the Row starts the run
+            // itself each time it becomes visible while nothing is running.
+            function startRun() {
+                if (!marquee.visible || rotation.running) return;
+                marquee.rawX = rep.width;
+                rotation.start();
+            }
+            onVisibleChanged: startRun()
+            Component.onCompleted: startRun()
             Repeater {
                 model: root.tickerText.split("")
                 MatrixChar {
@@ -287,7 +308,6 @@ PlasmoidItem {
                 // settings' speed factor divides the duration
                 duration: Math.max(1500, (rep.width + marquee.width) * 12 / root.cfgSpeed)
                 loops: 1
-                running: marquee.visible
                 onFinished: {
                     root.swapRing();
                     if (root.tickerText.length > 0) {

@@ -39,7 +39,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | artifact | tool | run bare to list its modes | claims |
 |---|---|---|---|
 | Python — structure of any module | `../substrate/scratch/pycodemod.py` | `python3 ../substrate/scratch/pycodemod.py` | `.py` `.pyi` |
-| markdown — headers, tables, cells | `../substrate/scratch/mdstruct.py` | `python3 ../substrate/scratch/mdstruct.py` | `.md` |
+| markdown — headers, tables, cells; `append-section`/`replace-section --apply` WRITE (the published `mikemol-mdstruct`, installed by `uv sync --extra tooling`; substrate's scratch copy is retired) | `mdstruct` | `uv run --no-sync mdstruct` | `.md` |
 | BibTeX — the claim-DAG, not its text | `../substrate/scratch/bibstruct.py` | `python3 ../substrate/scratch/bibstruct.py` | `.bib` |
 | this repo's Python: does it compile / import | `scripts/check_compiles.py` + `scripts/check_consumers.py` | `python3 scripts/check_compiles.py --list` | — |
 | the claim graph's STATUS (are claims discharged) | `scripts/worklist_gate.py` | `python3 scripts/worklist_gate.py --summary` | — |
@@ -80,6 +80,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | a sender's hue on the lit token, gated (the 12-bucket table per variant; which hues fall back) | `scripts/check_rehue.py` | `python3 scripts/check_rehue.py --map` | — |
 | the marquee's body-markup parser, run headless on synthetic bodies (`--cases` shows text + style runs) | `scripts/check_marquee_body.py` | `python3 scripts/check_marquee_body.py --cases` | `.js` |
 | the Alt+Tab switcher packages: structure, the id the LnF defaults name, the root, lint, the filled tokens | `scripts/check_taskswitch.py` | `python3 scripts/check_taskswitch.py --map` | — |
+| EVERY emitted QML document: qmllint's error set + the finite-animation `running:` binding rule (`--list` per document) | `scripts/check_qml_lint.py` | `python3 scripts/check_qml_lint.py --list` | `.qml` |
 | what Android's Monet derives from the palette (surface/primary/on_surface vs ground/lit/fg, per variant) | `scripts/check_monet.py` | `python3 scripts/check_monet.py --map` | — |
 | where each emission is published, and the KDE Store's category taxonomy (OCS) | `scripts/check_publishing.py` | `python3 scripts/check_publishing.py --rows` | `publishing.md` `ocs-categories.xml` |
 

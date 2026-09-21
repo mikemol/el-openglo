@@ -105,6 +105,11 @@ def main_qml(t):
                      lit=lit, ghost=ghost, hot=hot, ghostAlpha=alpha,
                      **_metrics_holes())
 
+def PARITY_TOKENS():
+    """The EL-Openglo token dict — what a check names to render ONE variant's clock
+    (check_qml_lint's population entry; check_template_parity._value calls it)."""
+    return next(t for (t, _dark) in GRID.values() if t.get("id") == "EL-Openglo")
+
 # ------------------------------------------------------------------ gate
 def balanced(s, o, c):
     d = 0

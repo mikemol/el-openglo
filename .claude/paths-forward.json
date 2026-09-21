@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 45,
+  "counter": 48,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T17:58:47+00:00",
-  "job_id": "465a1b27",
+  "heartbeat": "2026-09-21T18:32:36+00:00",
+  "job_id": "875d7366",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-63",
-    "taken_at": "2026-09-21T18:03:30+00:00"
+    "holder": "tick-manual",
+    "taken_at": "2026-09-21T18:36:51+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -618,10 +618,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Measure: a table of every colour hole each surface template fills (lit/ghost/ground/hot/ghostAlpha… via check_ghost_surfaces --map and the  in templates/) against the standard KColorScheme roles the palette writes them into in make_schemes (which token lands in which [Colors:*] role) — the MAPPING decides whether a surface can go live. Then a proof of concept on the switcher (smallest surface): Kirigami.Theme.* in place of the four holes, ONE package, and does it follow plasma-apply-colorscheme EL-Azure -> EL-Amber without reinstall (render_qml cannot see the live scheme; this is a ⊕VER probe). Record in COTYPE as a new symbol with a witness.",
-      "evidence": "",
+      "next_bounded_step": "The switcher PoC, ONE package: templates/taskswitch-main.qml binds Kirigami.Theme.colorSet: Kirigami.Theme.View and litColor: Kirigami.Theme.textColor, ghostColor: disabledTextColor, voidColor: backgroundColor; ghostAlpha stays a baked constant (global); make_taskswitch emits ONE package id (org.el.taskswitch) and make_deb stages one; the LnF defaults name it; check_taskswitch reads the BINDINGS (the three role names present, no baked hole) instead of hex holes; check_ghost_surfaces: the switcher row asserts bindings; parity: one pair; qml_sanity; render_qml: skip the switcher (no harness). Then the ⊕VER probe: plasma-apply-colorscheme EL-Azure -> EL-Amber, Alt+Tab follows without reinstall. Clock/marquee/wallpaper/LnF collapse after the probe confirms.",
+      "evidence": "77d9923: catalog/one-theme.md (hole -> role table; alphas global; hue table keyed by live fg; what collapses / stays / gates); ⊕ONE-THEME opened in BUILD with a witness at the switcher PoC; COTYPE s97",
       "issued_at": "2026-09-21T14:51:57+00:00",
-      "last_worked": "2026-09-21T14:51:57+00:00",
+      "last_worked": "2026-09-21T18:15:06+00:00",
       "ticks_blocked": 0
     },
     {
@@ -772,6 +772,51 @@
       "evidence": "",
       "issued_at": "2026-09-21T18:08:36+00:00",
       "last_worked": "2026-09-21T18:10:46+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W46",
+      "title": "MARQUEE NOTIFICATION CAPABILITIES (operator 2026-09-22, the notify-send man page: which are we not achieving?). Read from the model per item: URGENCY (⊕NOTIFY-URGENCY, LIVE): critical keeps cycling until dismissed in the HOT token fg_act with bloom; normal as now; low at ghost weight or one traversal; EXPIRE: drop at the next boundary only (critical ignores it, as Plasma does); REPLACE-ID: W45's id-keyed queue upserts (same id -> new text at the boundary, position kept); TRANSIENT: exactly one traversal (the queue's shown flag); ACTIONS: rendered as tappable underlined runs after the text ([Reply] [Open]) and a tap calls the model's invokeAction(index, actionId) — the board becomes interactive; HINTS: read value (progress) — jobs already flow in (showJobs) and a job's percentage is a lit BAR across the field; CATEGORY: a style rule per category, later; ICONS: recorded residue (a 5x8 matrix cannot show one honestly; the app name stands in)",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/marquee-main.qml,templates/marquee-body.js,make_notify_marquee,catalog/relations.md",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "After W45 (it needs the id queue): (1) measure the model's roles (NotificationManager.Notifications: UrgencyRole, ExpiredRole, ActionNamesRole/ActionLabelsRole, PercentageRole, JobStateRole, TypeRole, HintsRole? — Read the QML module's roles from /usr/lib64/qt6/qml/org/kde/notificationmanager/ or its .qmltypes) and record them; (2) urgency first: the item carries urgency; critical -> hot token (fg_act; a 'hot' hole the marquee does not have yet — it is a live role in one-theme: activeTextColor) + persistent re-queue; low -> ghost-weight dots; relations.md §5b states the urgency -> token relation; (3) actions as runs with an action id + invokeAction on tap; (4) job percentage as a field bar. One capability per tick; harness cases for each queue rule.",
+      "evidence": "",
+      "issued_at": "2026-09-21T18:18:48+00:00",
+      "last_worked": "2026-09-21T18:18:48+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W47",
+      "title": "THE MATRIX AS A VIEWPORT (operator 2026-09-22): the 5x8 cell is a WINDOW over a taller raster, scrolled vertically — how a single-row board shows anything taller than its LEDs. One mechanism, three payloads: (a) ICONS — the app icon rasterised at runtime in QML (an Image via Qt's icon provider, drawn into a hidden Canvas, getImageData, coverage-threshold or ordered-dither to column bytes — matrix_glyph's rule in JS) as a 16- or 32-row bitmap scrolled vertically through the 8-row window while the text scrolls horizontally; (b) UNICODE / UNIFONT — 8x16 glyphs (CJK, non-Latin) via W30's font compiler emitting a 16-row table, shown by the same vertical scroll or by a 2:1 downsample when legible; (c) any oversized bitmap (a QR code, a logo). This retires the icons-are-residue verdict (s96/W46)",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/MatrixChar.qml,templates/marquee-main.qml,templates/marquee-body.js,display_types",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Design first (after W45/W46 urgency): MatrixChar gains a raster mode — colBytes wider than 8 bits (an array of row-bitmasks per column, arbitrary height) and a viewport (rowOffset, rows visible) with a vertical NumberAnimation; a headless harness case rasterising a synthetic 16x16 image (a Canvas in the qml harness — the same offscreen runner) to column bytes; then the marquee prepends an icon raster per item (Image + Canvas threshold at rebuild); Unifont via W30. Relations: the raster's lit dots are the lit token; no colour from the icon (the hue gate of §5a would apply if wanted, later).",
+      "evidence": "",
+      "issued_at": "2026-09-21T18:28:24+00:00",
+      "last_worked": "2026-09-21T18:28:24+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W48",
+      "title": "SPARKLINES ON THE MATRIX (operator 2026-09-22). A DATA RUN: a series of values -> column heights on the 8 rows (one column per sample, the newest at the right), scrolling like text or pinned at the board's end; the one thing a segment display cannot do and a matrix can. Sources: a job's percentage over time (W46's progress bar is the degenerate one-sample case), Plasma's systemmonitor sensors (CPU, net, temperature — org.kde.ksysguard.sensors / Plasma's SensorDataModel in Plasma 6: measure the QML import), the notification arrival rate itself. Rendering: a run type 'series' in the ring (values[], min/max, lit column height = round(v/max*rows)); optional baseline row; bold = fuller dots; colour via the §5a hue gate (a sensor's colour is a sender colour). Settings: which sensors, samples per column",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/marquee-main.qml,templates/marquee-body.js,templates/MatrixChar.qml",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "After W47's raster mode (a sparkline IS a raster: columns of heights -> column bytes, so it reuses the viewport's colBytes): (1) marquee-body.js: seriesToColumns(values, rows, min, max) pure + harness cases (a ramp, a flat line, a spike, empty); (2) a 'series' run rendered through the raster mode; (3) the first source: job percentage history from the model (already flowing); (4) then a systemmonitor sensor source — measure the Plasma 6 sensor QML API first (import org.kde.ksysguard.sensors? Plasma 6.7: org.kde.plasma.private.systemmonitor?) and record its contract; settings for sensor ids.",
+      "evidence": "",
+      "issued_at": "2026-09-21T18:28:39+00:00",
+      "last_worked": "2026-09-21T18:28:39+00:00",
       "ticks_blocked": 0
     }
   ],

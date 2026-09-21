@@ -689,3 +689,9 @@
   check    = {tool:check_rehue.py},
   section  = {pipeline}
 }
+
+@misc{QMLLINT,
+  claim    = {Every emitted QML document (nine: clock, marquee and its components, live wallpaper, switcher, configs) passes qmllint's error set, and no finite animation binds running: (a finite run assigns running=false when it ends, discarding the binding - the marquee's dead-after-first-drain defect, live 2026-09-22)},
+  check    = {tool:check_qml_lint.py},
+  section  = {tooling}
+}

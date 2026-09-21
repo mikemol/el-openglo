@@ -530,15 +530,24 @@ CLOSED = {
                 _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{") and
                 _reads("templates/marquee-config.kcfg", r'name="ghostAlpha"[^\n]*\$ghostAlpha') and
                 _reads("make_notify_marquee.py", r"configGeneral\.qml") and
-                # W38 (operator, live): a double-buffered ring — the model writes
-                # pendingText, the swap happens in the rotation's onFinished, one loop
-                _reads("templates/marquee-main.qml", r"(?m)^\s*property string pendingText") and
-                _reads("templates/marquee-main.qml", r"root\.pendingText\s*=") and
+                # W38/W45 (operator, live): the traversal invariant — the model UPSERTS
+                # into root.queue, the swap happens in the rotation's onFinished (one
+                # loop) through the pure ringNext, and the rotation is STARTED, never
+                # bound (a finite run overwrites a `running:` binding when it ends)
+                _reads("templates/marquee-main.qml", r"(?m)^\s*property var queue:") and
+                _reads("templates/marquee-main.qml", r"Body\.queueUpsert\(") and
+                _reads("templates/marquee-main.qml", r"Body\.ringNext\(") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*loops:\s*1\b") and
                 _reads("templates/marquee-main.qml", r"onFinished:\s*\{[^}]*swapRing\(\)") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*function startRun\(\)") and
+                not _reads("templates/marquee-main.qml", r"(?m)^\s*running:\s*marquee") and
+                # W45: the summary is PLAIN, the body is markup — one join in the .js
+                _reads("templates/marquee-body.js", r"(?m)^function joinItem\(") and
+                _reads("templates/marquee-body.js", r"(?m)^function ringNext\(") and
+                _reads("templates/marquee-main.qml", r"Body\.joinItem\(") and
                 # W39: bodies are parsed to text + runs by the shipped .js, never scrolled raw
                 _reads("templates/marquee-main.qml", r'(?m)^import "marquee-body\.js" as Body') and
-                _reads("templates/marquee-main.qml", r"Body\.parseBody\(") and
+                _reads("templates/marquee-body.js", r"(?m)^function parseBody\(") and
                 # W39 widget half: the solved hue table is a hole, a run's colour is a
                 # table LOOKUP, bold is a fuller dot — no colour arithmetic in the widget
                 _reads("templates/marquee-main.qml", r"(?m)^\s*property var hueTable:\s*\$hueTable") and

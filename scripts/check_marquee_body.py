@@ -48,13 +48,66 @@ CASES = [
     ('<a href="http://a/">A</a> and <a href="http://b/">B</a>', "A and B", [(0, 1, "link"), (6, 7, "link")]),
 ]
 
+# joinItem: (app, summary, body) -> expected text, expected styled runs. The
+# SUMMARY is plain — its <b> stays literal; the body's becomes a bold run (W45).
+JOIN_CASES = [
+    (("notify-send", "oh <b>hi</b>", ""), "notify-send: oh <b>hi</b>", []),
+    (("notify-send", "oh", "<b>hi</b>"), "notify-send: oh — hi", [(18, 20, "bold")]),
+    (("", "just a summary", ""), "just a summary", []),
+    (("app", "", "<i>only body</i>"), "app: only body", [(5, 14, "italic")]),
+    (("app", "s", "trailing <u>u</u>  "), "app: s — trailing u", [(18, 19, "underline")]),
+]
+
+# ⚑ THE TRAVERSAL INVARIANT, stepped. Each scenario is a list of boundaries;
+# at each: arrivals are upserted, then ringNext runs against the live ids.
+# Expected: the ring's ids at each boundary, and the queue's ids after.
+RING_CASES = [
+    ("arrive-and-expire-before-boundary still scrolls once",
+     [dict(arrive=["n1"], live=[], max=12)], [(["n1"], [])]),
+    ("an active item keeps cycling",
+     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=[], live=["n1"], max=12)],
+     [(["n1"], ["n1"]), (["n1"], ["n1"])]),
+    ("an expired item drops only after its rotation",
+     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=[], live=[], max=12),
+      dict(arrive=[], live=[], max=12)],
+     [(["n1"], ["n1"]), ([], []), ([], [])]),
+    ("a mid-rotation arrival waits for the boundary, then leads",
+     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=["n2"], live=["n1", "n2"], max=12)],
+     [(["n1"], ["n1"]), (["n2", "n1"], ["n2", "n1"])]),
+    ("a replaced id shows the new text once more",
+     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=["n1"], live=["n1"], max=12)],
+     [(["n1"], ["n1"]), (["n1"], ["n1"])]),
+    ("the cap holds an unshown item back, still owed",
+     [dict(arrive=["n1", "n2", "n3"], live=["n1", "n2", "n3"], max=2),
+      dict(arrive=[], live=[], max=2)],
+     [(["n1", "n2"], ["n1", "n2", "n3"]), (["n3"], [])]),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var inputs = %s;
-        var out = [];
-        for (var i = 0; i < inputs.length; i++) out.push(Body.parseBody(inputs[i]));
+        var bodies = %s, joins = %s, rings = %s;
+        var out = { parse: [], join: [], ring: [] };
+        for (var i = 0; i < bodies.length; i++) out.parse.push(Body.parseBody(bodies[i]));
+        for (i = 0; i < joins.length; i++) out.join.push(Body.joinItem(joins[i][0], joins[i][1], joins[i][2]));
+        for (i = 0; i < rings.length; i++) {
+            var queue = [], trace = [], serial = 0;
+            for (var s = 0; s < rings[i].length; s++) {
+                var step = rings[i][s];
+                for (var a = 0; a < step.arrive.length; a++) {
+                    serial += 1;
+                    queue = Body.queueUpsert(queue, { id: step.arrive[a], text: step.arrive[a] + "#" + serial, runs: [] });
+                }
+                var r = Body.ringNext(queue, step.live, step.max);
+                queue = r.queue;
+                var ids = [], qids = [];
+                for (var k = 0; k < r.ring.length; k++) ids.push(r.ring[k].id);
+                for (k = 0; k < queue.length; k++) qids.push(queue[k].id);
+                trace.push({ ring: ids, queue: qids, text: Body.ringJoin(r.ring, " | ").text });
+            }
+            out.ring.push(trace);
+        }
         console.log("RESULT " + JSON.stringify(out));
         Qt.quit();
     }
@@ -63,7 +116,7 @@ QtObject {
 
 
 def run(bodies=None):
-    """[parseBody results] for the bodies, or None when the runner is absent."""
+    """{parse: [...], join: [...], ring: [...]} over the cases, or None when the runner is absent."""
     if not os.path.isfile(QML):
         return None
     bodies = [c[0] for c in CASES] if bodies is None else bodies
@@ -71,13 +124,49 @@ def run(bodies=None):
     with tempfile.TemporaryDirectory() as td:
         open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8").write(src)
         h = os.path.join(td, "harness.qml")
-        open(h, "w", encoding="utf-8").write(HARNESS % json.dumps(bodies))
+        open(h, "w", encoding="utf-8").write(HARNESS % (
+            json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
+            json.dumps([c[1] for c in RING_CASES])))
         env = dict(os.environ, QT_QPA_PLATFORM="offscreen")
         r = subprocess.run([QML, h], capture_output=True, text=True, env=env, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
     raise RuntimeError(f"no RESULT from the qml harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}")
+
+
+def _styled(got):
+    return [(r["start"], r["end"], _flag(r)) for r in got["runs"] if _flag(r)]
+
+
+def join_problems(results):
+    bad = []
+    for (args, text, runs), got in zip(JOIN_CASES, results):
+        if got["text"] != text:
+            bad.append(f"join{args!r}: text {got['text']!r}, expected {text!r}")
+        if _styled(got) != runs:
+            bad.append(f"join{args!r}: styled runs {_styled(got)}, expected {runs}")
+    return bad
+
+
+def ring_problems(results):
+    bad = []
+    for (label, _steps, want), trace in zip(RING_CASES, results):
+        got = [(t["ring"], t["queue"]) for t in trace]
+        if got != want:
+            bad.append(f"ring {label!r}: {got}, expected {want}")
+    # the replaced id must carry the NEW text on its second rotation
+    rep = results[4]
+    if not (rep[0]["text"] == "n1#1" and rep[1]["text"] == "n1#2"):
+        bad.append(f"ring replace: texts {[t['text'] for t in rep]}, expected n1#1 then n1#2")
+    return bad
+
+
+def all_problems(res):
+    return problems(res["parse"]) + join_problems(res["join"]) + ring_problems(res["ring"])
+
+
+N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES)
 
 
 def _flag(run_):
@@ -113,22 +202,27 @@ def main(argv):
         if a not in known:
             print(f"check_marquee_body: unknown flag {a!r}", file=sys.stderr)
             return 2
-    results = run()
-    if results is None:
-        print(f"check_marquee_body: SKIP — {QML} not present; 0 of {len(CASES)} cases run", file=sys.stderr)
+    res = run()
+    if res is None:
+        print(f"check_marquee_body: SKIP — {QML} not present; 0 of {N_CASES} cases run", file=sys.stderr)
         return 0
     if "--cases" in argv:
-        for (body, _t, _r), got in zip(CASES, results):
+        for (body, _t, _r), got in zip(CASES, res["parse"]):
             print(f"{body!r:40s} -> {got['text']!r}  runs {[(r['start'], r['end'], _flag(r)) for r in got['runs']]}")
+        for (args, _t, _r), got in zip(JOIN_CASES, res["join"]):
+            print(f"join{args!r:40} -> {got['text']!r}  runs {_styled(got)}")
+        for (label, _s, _w), trace in zip(RING_CASES, res["ring"]):
+            print(f"ring {label}: {[(t['ring'], t['queue']) for t in trace]}")
         return 0
-    bad = problems(results)
+    bad = all_problems(res)
     if bad:
-        print(f"check_marquee_body: REFUSED — {len(bad)} of {len(CASES)} cases disagree:", file=sys.stderr)
+        print(f"check_marquee_body: REFUSED — {len(bad)} of {N_CASES} cases disagree:", file=sys.stderr)
         for b in bad:
             print(f"    {b}", file=sys.stderr)
         return 1
-    print(f"check_marquee_body: {len(CASES)} of {len(CASES)} body-markup cases parse as stated "
-          f"(spec tags b i u a img, br, entities; unknown tags dropped; an unclosed tag kept)")
+    print(f"check_marquee_body: {N_CASES} of {N_CASES} cases hold — {len(CASES)} body-markup, "
+          f"{len(JOIN_CASES)} joinItem (summary plain, body parsed), {len(RING_CASES)} ring scenarios "
+          f"(every item scrolls once; an expired item drops after its rotation; a replace re-shows)")
     return 0
 
 
@@ -140,13 +234,25 @@ def _selftest():
         print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
         ok = ok and got == want
 
-    results = run()
-    if results is None:
+    res = run()
+    if res is None:
         print("  SKIP — no qml runner")
         print("check_marquee_body selftest: SKIP")
         return True
-    chk("every case returns", len(results), len(CASES))
-    chk("the real cases agree", problems(results), [])
+    results = res["parse"]
+    chk("every case returns", (len(results), len(res["join"]), len(res["ring"])),
+        (len(CASES), len(JOIN_CASES), len(RING_CASES)))
+    chk("the real cases agree", all_problems(res), [])
+    # ⚑ THE INVARIANT CHECKS MUST BE ABLE TO FAIL
+    wrong = json.loads(json.dumps(res["ring"]))
+    wrong[0][0]["ring"] = []                       # the expired-before-boundary item never shown
+    chk("an item that never scrolls is seen", any("arrive-and-expire" in b for b in ring_problems(wrong)), True)
+    wrong = json.loads(json.dumps(res["ring"]))
+    wrong[4][1]["text"] = "n1#1"                    # a replace that kept the old text
+    chk("a replace keeping the old text is seen", any("replace" in b for b in ring_problems(wrong)), True)
+    wrong = json.loads(json.dumps(res["join"]))
+    wrong[0]["runs"] = [{"start": 16, "end": 18, "bold": True, "italic": False, "underline": False, "link": "", "color": ""}]
+    chk("a summary parsed as markup is seen", any("join" in b for b in join_problems(wrong)), True)
     two = results[-1]["runs"]
     links = [r["link"] for r in two if r["link"]]
     chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])
