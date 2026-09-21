@@ -25,6 +25,14 @@ Item {
     // pips must not scroll with the glyphs). Standalone (a sample, a static
     // label) it keeps drawing its own field.
     property bool showGhost: true
+    // ⚑ PER-CHARACTER STYLE (W39, relations.md §5a). A body's style run may LIFT
+    // this character: litColorOverride is a colour from the variant's solved hue
+    // table (transparent = none: draw litColor); bold is a FULLER lit dot —
+    // ⊕STROKE-WEIGHT's rule, perceived brightness = luminance x area, the same
+    // move as the clock's weight slider — via the caller's dotFill. Nothing is
+    // computed here: the table was gated at build time; the field is untouched.
+    property color litColorOverride: "transparent"
+    readonly property color litDrawn: litColorOverride.a > 0 ? litColorOverride : litColor
 
     implicitWidth: cols * u
     implicitHeight: rows * u
@@ -52,7 +60,7 @@ Item {
             radius: width / 2
             x: c * mc.u + (mc.u - width) / 2
             y: r * mc.u + (mc.u - height) / 2
-            color: on ? mc.litColor : mc.ghostColor
+            color: on ? mc.litDrawn : mc.ghostColor
             opacity: on ? mc.glow : mc.ghostOpacity
         }
     }

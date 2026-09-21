@@ -68,6 +68,50 @@ PlasmoidItem {
     property var tickerRuns: []
     property var pendingRuns: []
 
+    // ⚑ THE SOLVED HUE TABLE (relations.md §5a; make_palette.hue_table, gated by
+    // check_rehue). Twelve buckets, index = hue / 30; a bucket the gate refused
+    // already holds the lit token, so a lookup can never produce an unreadable
+    // colour. The widget does no colour arithmetic beyond finding the bucket.
+    property var hueTable: $hueTable
+    // bold is a fuller dot: the clock's weight ratio, on the dot's area
+    readonly property real boldFill: 1.15
+
+    function runAt(i) {
+        var rs = root.tickerRuns;
+        for (var k = 0; k < rs.length; k++)
+            if (i >= rs[k].start && i < rs[k].end) return rs[k];
+        return null;
+    }
+    // a run's colour ("#rrggbb" or a CSS basic name) -> the table's colour, or
+    // transparent (no override) when the colour is not recognised
+    readonly property var cssNames: ({ red: 0, orange: 30, yellow: 60, lime: 90, green: 120,
+                                       teal: 180, cyan: 180, aqua: 180, blue: 240, navy: 240,
+                                       purple: 270, magenta: 300, fuchsia: 300, pink: 330 })
+    function hueOf(c) {
+        if (!c) return -1;
+        var s = ("" + c).toLowerCase();
+        if (s in cssNames) return cssNames[s];
+        var m = /^#([0-9a-f]{6})$$/.exec(s);
+        if (!m) {
+            var m3 = /^#([0-9a-f])([0-9a-f])([0-9a-f])$$/.exec(s);
+            if (!m3) return -1;
+            s = "#" + m3[1] + m3[1] + m3[2] + m3[2] + m3[3] + m3[3];
+            m = /^#([0-9a-f]{6})$$/.exec(s);
+        }
+        var r = parseInt(m[1].substring(0, 2), 16) / 255, g = parseInt(m[1].substring(2, 4), 16) / 255,
+            b = parseInt(m[1].substring(4, 6), 16) / 255;
+        var mx = Math.max(r, g, b), mn = Math.min(r, g, b), d = mx - mn;
+        if (d < 0.08) return -1;                 // grey: no hue to read
+        var h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+        return ((h * 60) + 360) % 360;
+    }
+    function overrideFor(run) {
+        if (!run || !run.color) return "transparent";
+        var h = hueOf(run.color);
+        if (h < 0) return "transparent";
+        return root.hueTable[Math.round(h / 30) % root.hueTable.length];
+    }
+
     NotificationManager.Notifications {
         id: notifModel
         showNotifications: true
@@ -193,11 +237,17 @@ PlasmoidItem {
             Repeater {
                 model: root.tickerText.split("")
                 MatrixChar {
+                    required property int index
+                    required property string modelData
+                    readonly property var run: root.runAt(index)
                     font: root.matrixFont
                     cols: root.matrix.cols; rows: root.matrix.rows
                     ch: modelData
                     u: rep.pitch
-                    dotFill: root.cfgDotFill
+                    // a bold run is a fuller dot (area, not opacity); a coloured run
+                    // is the solved table's bucket, never the sender's literal
+                    dotFill: (run && run.bold) ? Math.min(1.0, root.cfgDotFill * root.boldFill) : root.cfgDotFill
+                    litColorOverride: root.overrideFor(run)
                     litColor: root.litColor
                     ghostColor: root.ghostColor
                     ghostOpacity: root.cfgGhostAlpha

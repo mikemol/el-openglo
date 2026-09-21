@@ -92,8 +92,19 @@ def main_qml(variant, font_path=None):
     import templates.loader as TL
     return TL.render("marquee-main.qml", lit=_hex(lit), ghost=_hex(ghost),
                      ground=_hex(ground), ghostAlpha=alpha,
+                     hueTable=hue_table_js(variant),
                      registry=DT.as_qml_js(MATRIX_DISPLAY,
                                            font_path=font_path or matrix_font()))
+
+
+def hue_table_js(variant):
+    """The variant's 12-bucket sender-hue table as a JS array of hex colours
+    (index = hue / 30), SOLVED by make_palette.hue_table at build time — a
+    fallback bucket already holds fg, so the widget only ever looks up
+    (relations.md §5a; the gate is check_rehue's)."""
+    import make_palette as MP
+    ground, lit, ghost, _alpha = WL.colors_for(variant)
+    return "[" + ", ".join(f'"{_hex(col)}"' for _h, col, _ok in MP.hue_table(lit, ground, ghost)) + "]"
 
 
 def matrix_char_component():

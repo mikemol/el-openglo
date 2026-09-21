@@ -71,3 +71,4 @@
 2026-09-21T15:50:59+00:00  tick  W34 done      unblock   "marquee settings page (kcfg default = solved alpha); coherence caught VER-MARQUEE unlisted — placed. Operator live: the ticker blips with the popups (W38 ring buffer) and HTML bodies (W39 census)"  evidence=7ab3d17
 2026-09-21T16:14:29+00:00  tick  W38 done      unblock   "double-buffered ring: pending written by the model, swapped at the rotation's end; the blip's cause was the Repeater's model changing mid-scroll"  evidence=54fdbe8
 2026-09-21T16:31:35+00:00  tick  W39 advanced  unblock   "bodies were scrolling raw tags: parser shipped + checked headless (14 cases under qml offscreen); styling relation stated in relations.md §5a before any dot is coloured"  evidence=c83278b
+2026-09-21T16:51:41+00:00  tick  W39 advanced  unblock   "gated re-hue solved in the palette (60/72 buckets; the fallbacks are honest — no red on amber for a deutan viewer); run offsets exact. Widget half next"  evidence=a78d873

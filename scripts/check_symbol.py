@@ -527,6 +527,12 @@ CLOSED = {
                 # W39: bodies are parsed to text + runs by the shipped .js, never scrolled raw
                 _reads("templates/marquee-main.qml", r'(?m)^import "marquee-body\.js" as Body') and
                 _reads("templates/marquee-main.qml", r"Body\.parseBody\(") and
+                # W39 widget half: the solved hue table is a hole, a run's colour is a
+                # table LOOKUP, bold is a fuller dot — no colour arithmetic in the widget
+                _reads("templates/marquee-main.qml", r"(?m)^\s*property var hueTable:\s*\$hueTable") and
+                _reads("templates/marquee-main.qml", r"litColorOverride:\s*root\.overrideFor\(") and
+                _reads("templates/MatrixChar.qml", r"(?m)^\s*property color litColorOverride") and
+                _reads("make_notify_marquee.py", r"MP\.hue_table\(") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

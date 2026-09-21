@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 39,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T16:32:23+00:00",
-  "job_id": "f18a9966",
+  "heartbeat": "2026-09-21T16:52:31+00:00",
+  "job_id": "b5a33efd",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-59",
-    "taken_at": "2026-09-21T16:40:10+00:00"
+    "holder": "tick-60",
+    "taken_at": "2026-09-21T17:08:27+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -680,10 +680,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "The styling half, in this order: (1) make_palette.rehue(fg, hue) — a GATED re-hue (fg's lightness+chroma at the sender's hue, judged by the lit-vs-ground / lit-vs-ghost / CVD floors, fallback fg) with a selftest arm that a hue failing a floor returns fg; (2) fix the run offsets (collapse whitespace BEFORE run construction, or map indices); (3) MatrixChar gains a per-char lit colour + glow property, the marquee's Repeater reads the run at each index (bold -> glow up by the weight ratio; colour -> rehue result — but the re-hue must be solved at BUILD time per (variant, hue bucket) since the widget carries no colour arithmetic: emit a small hue->lit table into the registry, 12 hue buckets, and the QML looks up); (4) check_ghost_surfaces still finds fg; a harness case for a coloured run. Take (1)+(2) as one tick.",
-      "evidence": "c83278b: spec census (b i u a img); templates/marquee-body.js parseBody -> text + runs, shipped and imported; rebuild() re-bases runs; relations.md §5a states the styling relation (hue-only, gated, fallback fg); scripts/check_marquee_body.py @MARQUEE-BODY (worklist 60) runs the shipped .js under qml offscreen on 14 cases; parity 10/10; COTYPE s92. Strip half DONE.",
+      "next_bounded_step": "The widget half: (1) make_notify_marquee.main_qml emits a hueTable hole (make_palette.hue_table(lit, ground, ghost) as a JS array of 12 hex colours; fallbacks already equal fg) — the registry stays the display's, the table is the variant's; (2) MatrixChar gains per-character overrides: litColorOverride (color, default transparent = use litColor) and glowBoost (real, default 0); (3) the marquee's Repeater reads root.tickerRuns at each index (a small runAt(i) function) — bold -> glow 1.25 (the clock's weight ratio), colour -> the nearest hue bucket from the table (hue of the parsed colour name/hex: a JS hex->hue is fine, names via a small map or ignore); (4) a harness case: a body with a font colour yields a run with color set; (5) check_ghost_surfaces still reads the emitted litColor/ghostColor holes (it must — the override is per char). qml_sanity; parity re-capture. Then W39 done; COTYPE s94 (⊕VER-MARQUEE).",
+      "evidence": "a78d873: make_palette.rehue + hue_table (60/72 accepted, fallbacks are the gate); scripts/check_rehue.py @REHUE (worklist 61); parser collapses whitespace so run offsets are exact (harness 15 cases); parity 10/10; COTYPE s93",
       "issued_at": "2026-09-21T15:50:52+00:00",
-      "last_worked": "2026-09-21T16:31:29+00:00",
+      "last_worked": "2026-09-21T16:51:32+00:00",
       "ticks_blocked": 0
     }
   ],

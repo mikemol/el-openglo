@@ -6452,3 +6452,49 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s93]
+
+## Session 94 — ⊕VER-MARQUEE: a body's style runs reach the dots; W39 closes
+- The widget half of §5a. make_notify_marquee.hue_table_js emits the
+  variant's 12-bucket table as a JS array of hex colours into a $hueTable
+  hole (a refused bucket already holds fg — measured on Azure: four buckets
+  are #99ccff, its own lit). MatrixChar gains litColorOverride (transparent =
+  none) and draws litDrawn. The marquee's Repeater reads root.runAt(index):
+  a run's colour -> root.overrideFor(run) = the table bucket nearest
+  hueOf(colour) (a hex or a CSS basic name; grey has no hue -> no override)
+  — a LOOKUP, never arithmetic on the sender's literal; a BOLD run is a
+  FULLER dot (dotFill x 1.15, capped at 1) — ⊕STROKE-WEIGHT's own rule,
+  brightness = luminance x area, the same move as the clock's weight slider.
+  A glow boost was the first draft and was dropped: the lit dot already
+  draws at opacity 1, so a boost would have been invisible; area is the
+  channel that is actually free. Italic and underline stay carried, unread.
+  The idle text and the field are untouched.
+- Lint clean (2 files); ghost-surfaces still finds the emitted lit/ghost/alpha
+  (30 of 30 — an override is a runtime relation per character, not an
+  emission); parity re-captured deliberately (10 of 10); the ticker's witness
+  pins the table hole, the override read, the component property and the
+  emitter's hue_table call. Not proven live: a coloured `notify-send
+  '<font color="red">ERROR</font>'` after re-emerge is the measurement — on
+  Azure/Openglo it should read red-ish, on Amber it should stay amber (the
+  gate refused red there).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-94 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab), ⊕VER-MARQUEE (s89 field, s90 settings, s91 the ring, s92 bodies
+  stripped, s93-94 styled runs — confirm after re-emerge, incl. a coloured
+  notify-send), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s94]
