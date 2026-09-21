@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 23,
+  "counter": 25,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T05:44:18+00:00",
-  "job_id": "d1fbddf3",
+  "heartbeat": "2026-09-21T06:02:27+00:00",
+  "job_id": "0fba4b2e",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T05:54:15+00:00"
+    "taken_at": "2026-09-21T06:03:35+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -326,7 +326,7 @@
     {
       "symbol": "W17",
       "title": "GNOME theming — what of the palette can reach GTK3, GTK4/libadwaita and GNOME Shell, and through which mechanism (gtk.css, adw-gtk3-style theme, Shell user-theme, or the libadwaita accent API), given ⊕GTK-ADW says pure-libadwaita apps honour no override",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "emitters",
@@ -337,10 +337,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "measure-first: the design log already records libadwaita as UNREACHABLE by design (⊕GTK-ADW, :704) and make_deb ships breeze-gtk-shaped GTK3 bits; the question is which GNOME surfaces still take a theme in 2026 (GTK3 via a theme dir; GTK4 via ~/.config/gtk-4.0/gtk.css and the libadwaita accent-color portal; Shell via the user-theme extension) and whether a generated theme is more than a recolour of adw-gtk3. Venue: gnome-look.org — the SAME pling/OCS backend as the KDE Store, so W13's category-id witness extends",
-      "next_bounded_step": "Measure first, no build: (1) what GTK output exists in the tree today (check_emitters_run --list, make_deb) and what ⊕GTK-ADW closed as unreachable; (2) the three mechanisms and which honour a colour override in current GNOME (libadwaita 1.6+ accent colours via the settings portal are the one sanctioned channel — a palette accent, not a theme); (3) gnome-look.org OCS categories via api.gnome-look.org/ocs/v1/content/categories. Record which surfaces are reachable, which are residue with a reason, and which single mechanism gives the most for one emitter.",
-      "evidence": "",
+      "next_bounded_step": "—",
+      "evidence": "ef8c504: ⊕GTK found with NO build (third closed symbol this week) — make_gtk.py rebuilt (ADW_VARS 40 → roles; ADW_NAMED from the libadwaita CSS-variables reference read 2026-09-21; GTK3_DEFINES for adw-gtk3), check_gtk @GTK 24 of 24 (name typo red; selection pair at the palette's floor), CLOSED witness in check_symbol (3 of 3), staged where el-openglo-apply already copies from. Reach measured: libadwaita reads gtk.css :root variables in every app — the sanctioned channel. NOT reached: GNOME Shell (user-theme extension) — residue. ⊕VER needs a GTK app after emerge + el-openglo-apply.",
       "issued_at": "2026-09-20T23:38:54+00:00",
-      "last_worked": "2026-09-20T23:38:54+00:00",
+      "last_worked": "2026-09-21T06:01:51+00:00",
       "ticks_blocked": 0
     },
     {
@@ -444,6 +444,36 @@
       "evidence": "0511aa9: the defect was the global alpha = max(alpha_min) — reaches every FLOOR, not every CEILING; Azure's seen ghost sat at Lc 25.0 vs 29.8 elsewhere; declared==lit was the side effect. Now max(max(alpha_min, 1 - t_ceiling)) → 0.566; every variant within 1 Lc of the ceiling; check_ghost_composite holds looked-at ghosts to the TARGET (TARGET_SLACK 1 Lc), selftest plants Azure's shape. .colors/css/clock/samples/baselines regenerated; relations §3b. ⊕VER on Azure after emerge: ghost slightly MORE visible than before (ceiling), consistent across variants; fainter = a ceiling change.",
       "issued_at": "2026-09-21T04:44:54+00:00",
       "last_worked": "2026-09-21T05:07:57+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W24",
+      "title": "Rebuild the font family — ⊕SEG-FONT, ⊕SEG-FONT-TTF, ⊕DOT-FONT, ⊕DOT-FONT-TTF, ⊕DOT-FONT-DESC are CLOSED in COTYPE.md and KNOWN-LOST (check_symbol.LOST, sweep 2026-09-21): make_font.py is a recorded partial nobody imports, fonts/ is absent, make_deb maps fonts/ only if present",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Measure first: read make_font.py to its end (what survives: _seg_path; what the closures at :1252/:1366/:1068/:1425/:1496 specify: SVG font of glyph unions, TTF via fontTools, matrix font with 5x8 descenders). Then: svg_font(fmt) over segment_topology's tables; ttf via fontTools (a declared dep); fonts/ emitted by the roster; check_font.py — fontTools opens the TTF, every glyph the table declares is present, a digit's outline is the union of its lit segments (area check), the matrix font carries descenders below the baseline; make_deb's fonts mapping stops guarding on isdir; move the five from LOST to CLOSED (the selftest forces it).",
+      "evidence": "check_symbol.py LOST; make_font.py:1-40; make_deb.py:49-58",
+      "issued_at": "2026-09-21T06:08:00+00:00",
+      "last_worked": "2026-09-21T06:08:00+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W25",
+      "title": "Rebuild the three small KNOWN-LOST closures: ⊕VER-WIDGET-ICON (make_preview.icon_svg — the clock plasmoid's icon from the scheme; make_deb SKIPs it per variant), ⊕QML-SANITY (qml_sanity.py — the staged QML is unlinted; qmllint at /usr/lib64/qt6/bin exists here), ⊕RENDER-GATE (render_qml.py exists but make_deb does not run it as the fourth gate the closure at :4545 states)",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "(1) icon_svg(cols): a small SVG of a lit '8' on ground from the substrate via seg7_svg_grid, wired where make_deb prints the SKIP; (2) qml_sanity.py: run qmllint over every staged .qml with the KDE import path, SKIP when qmllint is absent, and render_nonempty via render_qml — wired into make_deb.stage as the closure says; (3) move the three from LOST to CLOSED with witnesses. Bounded: one commit.",
+      "evidence": "check_symbol.py LOST; make_deb.py SKIP lines",
+      "issued_at": "2026-09-21T06:08:11+00:00",
+      "last_worked": "2026-09-21T06:08:11+00:00",
       "ticks_blocked": 0
     }
   ],

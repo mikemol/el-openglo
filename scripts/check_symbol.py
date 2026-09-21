@@ -379,6 +379,89 @@ CLOSED = {
         "gtk/<id>/gtk{3,4}.css emit, every name a documented libadwaita one, values"
         " the palette's, bg/fg pairs gated (:683)",
         lambda: os.path.isfile(os.path.join(ROOT, "make_gtk.py")) and _tool("check_gtk.py")),
+    # ── the sweep of 2026-09-21 (W-sweep): every other closed symbol that names an
+    # artifact, witnessed by the tool or definition that IS the artifact ──
+    "⊕KONSOLE": ("the Konsole scheme + profile emit and read back through the one ansi table (:2846)",
+                 lambda: _tool("check_terminals.py")),
+    "⊕CHROME-THEME": ("a valid Chrome manifest per variant from the scheme tokens (:2706)",
+                      lambda: _tool("check_chrome.py")),
+    "⊕PLYMOUTH": ("the boot splash renders the substrate's digits per variant (:3331)",
+                  lambda: _tool("check_plymouth_digits.py")),
+    "⊕WALLPAPER-VECTOR": ("the wallpaper is an SVG from the substrate, not a raster (:4233)",
+                          lambda: _reads("make_wallpaper.py", r"def\s+wallpaper_svg\b")),
+    "⊕WALLPAPER-LIVE": ("a Plasma/Wallpaper package per variant from the live template (:3440)",
+                        lambda: _reads("make_wallpaper_live.py", r"def\s+main_qml\b") and
+                        os.path.isfile(os.path.join(ROOT, "templates", "live-wallpaper-main.qml"))),
+    "⊕NOTIFY-MARQUEE": ("a matrix-rendered notification ticker plasmoid per variant (:3542)",
+                        lambda: _reads("make_notify_marquee.py", r"def\s+main_qml\b") and
+                        os.path.isfile(os.path.join(ROOT, "templates", "MatrixChar.qml"))),
+    "⊕SPLASH": ("the LnF splash reads progress and the palette's ghost (:2910)",
+                lambda: _reads("make_deb.py", r"def\s+_splash_qml\b") and
+                os.path.isfile(os.path.join(ROOT, "templates", "splash.qml"))),
+    "⊕SDDM": ("the SDDM background path ships as el-openglo-sddm (:3074)",
+              lambda: _reads("make_deb.py", r"el-openglo-sddm")),
+    "⊕LOCKSCREEN": ("the lock screen mounts the live wallpaper (:3001)",
+                    lambda: _reads("make_wallpaper_live.py", r"(?i)lock")),
+    "⊕KVT": ("the Kvantum recolour: a KvFlat mapper plus the elprogress family (KvFlat itself is EXTERNAL) (:612)",
+             lambda: _reads("make_kvantum.py", r"def\s+make_mapper\b") and
+             _reads("make_kvantum.py", r"elprogress")),
+    "⊕GLANCE-AUDIT": ("the glance audit runs each variant against its parsing-mode floor (:3652)",
+                      lambda: _reads("glance_audit.py", r"def\s+run\b")),
+    "⊕CONTRAST-STRETCH": ("the lit stretch survives as cvd_gate.stretch_lit (:2487)",
+                          lambda: _reads("cvd_gate.py", r"def\s+stretch_lit\b")),
+    "⊕APCA-CROSSCHECK": ("APCA is implemented and cross-checked (:3743)",
+                         lambda: _reads("cvd_gate.py", r"def\s+apca_Lc\b")),
+    "⊕PARAMETRIC-PALETTE": ("the solver derives the scheme from the relations (:3894)",
+                            lambda: _reads("make_palette.py", r"def\s+solve_scheme\b")),
+    "⊕SEG22": ("the 22-seg geometry is the 16-seg lattice plus six additions (:1576)",
+               lambda: _reads("segment_topology.py", r"def\s+geom22\b")),
+    "⊕DOT": ("the dot-matrix display component exists (:1002)",
+             lambda: os.path.isfile(os.path.join(ROOT, "templates", "MatrixChar.qml"))),
+    "⊕VER-PREVIEW": ("the Global Theme previews render from the scheme (:1918)",
+                     lambda: _reads("make_preview.py", r"def\s+preview_svg\b") and
+                     _reads("make_deb.py", r"contents/previews")),
+    "⊕VER-CLOCK-TIME": ("the clock advances by a Timer (:2184)",
+                        lambda: os.path.isfile(os.path.join(ROOT, "templates", "clock-main.qml")) and
+                        _reads("templates/clock-main.qml", r"Timer\s*\{")),
+}
+
+# Closed symbols that name NO artifact this tree could carry: palette decisions
+# already witnessed by the worklist's own claims, live observations, naming
+# rulings, and symbols subsumed by a later one. Listed so the sweep's coverage
+# arm is a choice per symbol rather than an omission.
+NO_ARTIFACT = frozenset({
+    "⊕AZR", "⊕AMB", "⊕LIT", "⊕GEN", "⊕ITO", "⊕BRT", "⊕KNB", "⊕GIT",   # palette/process decisions, @GRAPH/@SEPARATION witness them
+    "⊕AUR", "⊕PLA",                                                   # aurorae/plasma: @EMITTERS + @EBUILD stage them
+    "⊕SEG", "⊕SEG16", "⊕SEG16-WIRE", "⊕SEG16-DISTINCT", "⊕SEG-FONT-SPEC-FLIP",  # substrate: @ST22 / segment_topology selftest
+    "⊕DOT-WIRE",                                                      # subsumed by ⊕NOTIFY-MARQUEE
+    "⊕VER-LNF", "⊕VER-DESKTOP", "⊕VER-THUMB", "⊕VER-DEB", "⊕VER-SURFACE",  # observations at the desktop; @EBUILD stages the LnF
+    "⊕GHOST-CONTRAST", "⊕GHOST-CONTRAST-2", "⊕GHOST-CEILING", "⊕HDR-BLACK",  # ghost relations: @GHOST/@GHOSTCOMP
+    "⊕SUPERSAMPLE",                                                   # the clock is scene-graph now (⊕CLOCK-VECTOR); FBO moot
+    "⊕WALLPAPER-CONTRAST",                                            # subsumed by ⊕GLANCE-AUDIT
+    "⊕SOLVER-BACKLIT-CVD", "⊕SOLVER-DEFAULT", "⊕SOLVER-SEMANTIC",     # solver: @PALETTE-CHAIN
+    "⊕SEGMENT-SUBSTRATE", "⊕SEGMENT-ROLLOUT", "⊕CLOCK-VECTOR",        # witnessed in WITNESS (open-set table) / @GEOMETRY
+})
+
+# ⚑ CLOSED SYMBOLS WHOSE BUILD IS KNOWN LOST.  Found by the sweep of 2026-09-21:
+# the design log closes these, the tree does not carry them, and RECOVERY-NOTES
+# records the partial. They are neither passed nor silently red: `--regressions`
+# prints them as KNOWN-LOST with the waypoint that rebuilds them, and the
+# selftest asserts each is STILL absent — a rebuilt one must move to CLOSED, or
+# this table has become a stale status of its own.
+LOST = {
+    "⊕SEG-FONT": ("make_font.py is a recorded partial; nothing imports it; fonts/ is absent",
+                  lambda: not _reads("make_font.py", r"def\s+svg_font\b"), "W24"),
+    "⊕SEG-FONT-TTF": ("the TTF emit (fontTools) did not survive; fonts/*.ttf absent",
+                      lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
+    "⊕DOT-FONT": ("the matrix font emit did not survive", lambda: not _reads("make_font.py", r"(?i)matrix|dot"), "W24"),
+    "⊕DOT-FONT-TTF": ("as ⊕SEG-FONT-TTF", lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
+    "⊕DOT-FONT-DESC": ("descender glyphs in the matrix font — the font is absent", lambda: not os.path.isdir(os.path.join(ROOT, "fonts")), "W24"),
+    "⊕VER-WIDGET-ICON": ("make_preview.icon_svg did not survive; make_deb prints a SKIP per variant",
+                         lambda: not _reads("make_preview.py", r"def\s+icon_svg\b"), "W25"),
+    "⊕QML-SANITY": ("qml_sanity.py did not survive; make_deb prints a SKIP; render_qml.py carries the render half",
+                    lambda: not os.path.isfile(os.path.join(ROOT, "qml_sanity.py")), "W25"),
+    "⊕RENDER-GATE": ("its capability is render_qml.py (2026-09-21) but it is not wired into make_deb as the log's fourth gate said",
+                     lambda: not _reads("make_deb.py", r"render_qml"), "W25"),
 }
 
 
@@ -412,14 +495,22 @@ def main(argv):
                   "is vacuous, not the closures intact", file=sys.stderr)
             return 2
         gone = [s for s in sorted(CLOSED) if not CLOSED[s][1]()]
-        if gone:
+        # a LOST entry whose artifact has REAPPEARED is a stale status: refuse it
+        stale = [s for s in sorted(LOST) if not LOST[s][1]()]
+        if gone or stale:
             print(f"check_symbol: REGRESSED — {len(gone)} of {len(CLOSED)} closed "
-                  f"symbol(s) no longer have their work in the tree:", file=sys.stderr)
+                  f"symbol(s) no longer have their work in the tree"
+                  + (f"; {len(stale)} LOST entr(y/ies) whose build is back and must move to CLOSED"
+                     if stale else "") + ":", file=sys.stderr)
             for s in gone:
                 print(f"    {s}: {CLOSED[s][0]}", file=sys.stderr)
+            for s in stale:
+                print(f"    {s}: LOST says '{LOST[s][0]}' but the artifact exists", file=sys.stderr)
             return 1
-        print(f"check_symbol: {len(CLOSED)} of {len(CLOSED)} closed symbols still "
-              f"re-derive from the tree")
+        print(f"check_symbol: {len(CLOSED)} of {len(CLOSED)} witnessed closed symbols still "
+              f"re-derive from the tree; {len(LOST)} closed symbols KNOWN-LOST, named:")
+        for s in sorted(LOST):
+            print(f"    {s}: {LOST[s][0]} → {LOST[s][2]}")
         return 0
 
     if "--bucket" in args:
@@ -556,6 +647,23 @@ def _selftest():
     check("closed witnesses cite a log line",
           all(re.search(r":\d+\)", w) for w, _ in CLOSED.values()), True)
     check("closed and open witnesses are disjoint", sorted(set(CLOSED) & set(WITNESS)), [])
+    check("closed and lost are disjoint", sorted(set(CLOSED) & set(LOST)), [])
+    check("every LOST entry names a rebuild waypoint", all(w.startswith("W") for _r, _p, w in LOST.values()), True)
+    # ⚑ A LOST ENTRY MUST STILL BE LOST — otherwise it is the stale status this
+    # repo forbids, one level up.
+    back = [s for s, (_r, p, _w) in LOST.items() if not p()]
+    check(f"every LOST build is still absent ({back})", back, [])
+    # ⚑ AND THE COVERAGE: every symbol the index calls CLOSED that names an
+    # artifact is either witnessed or known-lost. The design-log-only closures
+    # (palette decisions, ⊕VER-* observations, naming) are listed so the gap is
+    # a choice, not an omission.
+    if opn is not None:
+        import json as _json
+        r = subprocess.run([sys.executable, INDEX, "--json"], capture_output=True, text=True, cwd=ROOT)
+        closed_syms = {s for s, m in _json.loads(r.stdout)["symbols"].items() if m["closed"]}
+        unaccounted = sorted(closed_syms - set(CLOSED) - set(LOST) - NO_ARTIFACT)
+        check(f"every closed symbol is witnessed, known-lost, or listed as artifact-free ({unaccounted})",
+              unaccounted, [])
     # every predicate must RUN without raising
     for s, (_w, p) in list(WITNESS.items()) + list(CLOSED.items()):
         try:
