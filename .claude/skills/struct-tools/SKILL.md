@@ -77,6 +77,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the emitted fonts: tables, cmap, contour count vs the substrate, orientation; `--render CH` draws a glyph from the TTF | `scripts/check_font.py` | `python3 scripts/check_font.py --render 2 --png out.png` | `.ttf` |
 | the GTK sheets: libadwaita variable → role, the documented-name set, bg/fg pairs | `scripts/check_gtk.py` | `python3 scripts/check_gtk.py --map` | `gtk3.css` `gtk4.css` |
 | the inheriting icon + cursor themes: parent chain per variant, directories, the LnF defaults that select them, parents installed here | `scripts/check_inherit.py` | `python3 scripts/check_inherit.py --map` | `index.theme` `cursor.theme` |
+| a sender's hue on the lit token, gated (the 12-bucket table per variant; which hues fall back) | `scripts/check_rehue.py` | `python3 scripts/check_rehue.py --map` | — |
 | the marquee's body-markup parser, run headless on synthetic bodies (`--cases` shows text + style runs) | `scripts/check_marquee_body.py` | `python3 scripts/check_marquee_body.py --cases` | `.js` |
 | the Alt+Tab switcher packages: structure, the id the LnF defaults name, the root, lint, the filled tokens | `scripts/check_taskswitch.py` | `python3 scripts/check_taskswitch.py --map` | — |
 | what Android's Monet derives from the palette (surface/primary/on_surface vs ground/lit/fg, per variant) | `scripts/check_monet.py` | `python3 scripts/check_monet.py --map` | — |

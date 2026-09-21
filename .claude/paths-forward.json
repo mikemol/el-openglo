@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 39,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T16:15:19+00:00",
-  "job_id": "31fc8079",
+  "heartbeat": "2026-09-21T16:32:23+00:00",
+  "job_id": "f18a9966",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-58",
-    "taken_at": "2026-09-21T16:19:36+00:00"
+    "holder": "tick-59",
+    "taken_at": "2026-09-21T16:40:10+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -680,10 +680,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Census, not build: (1) list the markup the freedesktop notification spec + Plasma's libnotificationmanager pass through (WebFetch the spec's body-markup section; the BodyRole is the raw body); (2) a tiny QML/JS parser plan: strip tags to text for the ring (today the raw body scrolls WITH its tags — check: BodyRole may contain literal <b>), carrying per-character style runs (bold, colour) alongside the text; (3) the relation: a sender colour c becomes lit' = the palette's lit at c's HUE at the solved lightness (make_palette has the hue-widening machinery from ⊕SOLVER-BACKLIT-CVD) — state it in catalog/relations.md before any code. Bounded: the strip-tags fix alone is a defect fix if tags are scrolling literally — measure with notify-send '<b>hi</b>' once emerged (operator) or from the model role's documented behaviour.",
-      "evidence": "",
+      "next_bounded_step": "The styling half, in this order: (1) make_palette.rehue(fg, hue) — a GATED re-hue (fg's lightness+chroma at the sender's hue, judged by the lit-vs-ground / lit-vs-ghost / CVD floors, fallback fg) with a selftest arm that a hue failing a floor returns fg; (2) fix the run offsets (collapse whitespace BEFORE run construction, or map indices); (3) MatrixChar gains a per-char lit colour + glow property, the marquee's Repeater reads the run at each index (bold -> glow up by the weight ratio; colour -> rehue result — but the re-hue must be solved at BUILD time per (variant, hue bucket) since the widget carries no colour arithmetic: emit a small hue->lit table into the registry, 12 hue buckets, and the QML looks up); (4) check_ghost_surfaces still finds fg; a harness case for a coloured run. Take (1)+(2) as one tick.",
+      "evidence": "c83278b: spec census (b i u a img); templates/marquee-body.js parseBody -> text + runs, shipped and imported; rebuild() re-bases runs; relations.md §5a states the styling relation (hue-only, gated, fallback fg); scripts/check_marquee_body.py @MARQUEE-BODY (worklist 60) runs the shipped .js under qml offscreen on 14 cases; parity 10/10; COTYPE s92. Strip half DONE.",
       "issued_at": "2026-09-21T15:50:52+00:00",
-      "last_worked": "2026-09-21T15:50:52+00:00",
+      "last_worked": "2026-09-21T16:31:29+00:00",
       "ticks_blocked": 0
     }
   ],

@@ -65,6 +65,39 @@ def solve_void(hue, thr):
     return best or _hsv(hue, 0.6, 0.03)
 
 
+# ── a sender's hue on the lit token (relations.md §5a) ───────────────────────
+#
+# ⚑ A NOTIFICATION'S COLOUR IS A HUE READ, NEVER A LITERAL ON THE PHOSPHOR.
+# rehue keeps fg's own saturation and value and swaps the hue; the candidate
+# is then judged the way fg was — APCA against the ground at the lit floor and
+# the gate's own worst-view separation from the ghost — and FALLS BACK to fg
+# when either floor fails. So a red "ERROR" reads red-ish on an amber board
+# and stays legible, and nothing a sender says can put an unreadable colour on
+# the display. Nothing in a widget does this arithmetic: it is solved here at
+# build time into a hue table the widget looks up.
+LIT_FLOOR_LC = 60.0          # APCA body-text level; fg itself clears it on every variant
+HUE_BUCKETS = 12             # the table's resolution: one entry per 30 degrees
+
+
+def rehue(fg, hue_deg, ground, ghost):
+    """(colour, ok): fg at `hue_deg` if it clears the floors, else (fg, False)."""
+    r, g, b = (c / 255.0 for c in fg)
+    _h, s, v = colorsys.rgb_to_hsv(r, g, b)
+    cand = _hsv(hue_deg, s, v)
+    if abs(C.apca_Lc(cand, ground)) < LIT_FLOOR_LC:
+        return fg, False
+    q, _view, _d = C._worst_normalized(cand, ghost, C.reference_floors())
+    if q < 1.0:
+        return fg, False
+    return cand, True
+
+
+def hue_table(fg, ground, ghost, buckets=HUE_BUCKETS):
+    """[(hue_deg, colour, ok)] over the bucket centres — what the marquee ships."""
+    return [(h, *rehue(fg, h, ground, ghost))
+            for h in (i * 360.0 / buckets for i in range(buckets))]
+
+
 def solve_lit(hue, ground, thr):
     """Max APCA contrast from the ground within the hue, chroma >= floor. For a
     dark ground this drives lit bright; for a light (backlit) ground, dark."""

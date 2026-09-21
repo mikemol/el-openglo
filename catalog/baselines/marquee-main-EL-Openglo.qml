@@ -92,15 +92,20 @@ PlasmoidItem {
             if (app) seg += app + ": ";
             if (sum) seg += sum;
             if (body) seg += " — " + body;
+            // the parser collapses whitespace as it goes, so its run offsets are
+            // exact over parsed.text; only a trailing space is dropped here, and a
+            // run is clamped to the kept length
             var parsed = Body.parseBody(seg);
-            var plain = parsed.text.replace(/\s+/g, " ").trim();
+            // (the doubled dollar is the template loader's escape; this file has holes)
+            var plain = parsed.text.replace(/\s+$/, "");
             if (!plain.length) continue;
             if (text.length) text += sep;
             var base = text.length;
-            // the runs keep their offsets into the joined ring text
             for (var r = 0; r < parsed.runs.length; r++) {
                 var run = parsed.runs[r];
-                runs.push({ start: base + run.start, end: base + run.end, bold: run.bold,
+                var end = Math.min(run.end, plain.length);
+                if (end <= run.start) continue;
+                runs.push({ start: base + run.start, end: base + end, bold: run.bold,
                             italic: run.italic, underline: run.underline, link: run.link, color: run.color });
             }
             text += plain;

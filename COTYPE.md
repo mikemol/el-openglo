@@ -6397,3 +6397,58 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s92]
+
+## Session 93 — the gated re-hue (§5a built in the palette), and exact run offsets
+- W39, 2026-09-22. make_palette.rehue(fg, hue_deg, ground, ghost): fg's own
+  saturation and value at the sender's hue; ACCEPTED only if |Lc| against the
+  ground >= LIT_FLOOR_LC (60, the APCA body-text level — fg clears it on every
+  variant, measured 72-95) and the gate's own worst-view separation from the
+  ghost (cvd_gate._worst_normalized >= 1); else (fg, False). hue_table solves
+  twelve 30-degree buckets per variant at BUILD time — the widget will look
+  up, never compute. MEASURED: 60 of 72 buckets accepted. The fallbacks are
+  the gate discriminating, not noise: on the dark Off variants blue/violet
+  (210-330) fall under Lc 60 against the void; on Amber the hues nearest its
+  own phosphor (0, 30, 240, 270) fall back for ghost-separation under the
+  worst CVD view; on the Lit variants every hue clears (a dark lit token on a
+  light ground keeps its contrast at any hue). So "a red ERROR on an amber
+  board" reads as the amber lit token — the honest answer, since red-on-amber
+  would not separate from the ghost for a deutan viewer.
+- scripts/check_rehue.py (@REHUE, worklist 61): fg clears the floor; every
+  accepted entry clears both floors; every fallback IS fg; a dead
+  (all-fallback) table is refused; selftest: a synthetic ground equal to fg
+  makes a dead table and it is refused; a forged accepted entry under the
+  floor is seen; hue 60 on Azure is accepted and differs, hue 240 falls back.
+- The run offsets (s92 residue): whitespace now collapses INSIDE the parser
+  as characters are pushed (leading dropped, runs of whitespace to one
+  space), so run offsets are exact over the scrolled text; rebuild() strips
+  only a trailing space and clamps runs. A whitespace case joined the
+  harness (15 cases). Parity re-captured (main + the .js), 10 of 10. A `$`
+  in a regex inside the template had to be written `$$` — the loader's
+  escape — found by the loader refusing the hole.
+- Remaining for W39: the widget half — the hue table into the marquee's
+  registry emission, MatrixChar gaining a per-character lit colour and glow,
+  the Repeater reading the run at each index (bold -> glow by the weight
+  ratio; colour -> the table's bucket), a harness case for a coloured run,
+  check_ghost_surfaces still reading fg.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-93 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab), ⊕VER-MARQUEE (s89 field, s90 settings, s91 the ring, s92 bodies
+  stripped, s93 the re-hue solved — the widget half unbuilt; confirm after
+  re-emerge), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s93]

@@ -42,6 +42,8 @@ CASES = [
     ('<span style="color: teal">t</span>', "t", [(0, 1, "color")]),
     ("unclosed <b", "unclosed <b", []),
     ("<unknown>k</unknown>", "k", []),
+    # whitespace collapses INSIDE the parser so run offsets are exact
+    ("  a \n\n <b>b</b>  c", "a b c", [(2, 3, "bold")]),
 ]
 
 HARNESS = """import QtQuick

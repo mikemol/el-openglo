@@ -18,6 +18,12 @@ function parseBody(html) {
     var st = { b: 0, i: 0, u: 0, a: "", color: "" };
     var i = 0, n = html.length;
     function push(ch) {
+        // ⚑ WHITESPACE COLLAPSES HERE, so the runs' offsets are exact over the
+        // text the ring scrolls (they were offset into a pre-collapse text and
+        // could drift by a few characters — s92 residue). Leading whitespace is
+        // dropped; a run of spaces/newlines becomes one space.
+        ch = ch.replace(/\s+/g, " ");
+        if (ch === " " && (text.length === 0 || text.charAt(text.length - 1) === " ")) return;
         var s = { start: text.length, end: text.length + ch.length,
                   bold: st.b > 0, italic: st.i > 0, underline: st.u > 0,
                   link: st.a, color: st.color };
