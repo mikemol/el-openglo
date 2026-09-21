@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "https://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>mikemol@gmail.com</email>
+		<name>Mike Mol</name>
+	</maintainer>
+	<longdescription>
+		One palette, solved once against CVD separation and APCA legibility
+		floors, emitted to every desktop surface: KDE colour schemes, Plasma
+		style, Aurorae decorations, Look-and-Feel, Konsole, Plymouth, a live
+		wallpaper, a seven-segment clock and a dot-matrix notification marquee.
+	</longdescription>
+	<upstream>
+		<remote-id type="github">mikemol/el-openglo</remote-id>
+	</upstream>
+</pkgmetadata>

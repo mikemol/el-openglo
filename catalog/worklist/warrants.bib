@@ -563,3 +563,10 @@
   claim   = {the decision to retire the prior mark everywhere, including descriptive prose, is recorded where a reader meets the rename},
   check   = {tool:check_scope_recorded.py}
 }
+
+@misc{EBUILD,
+  section  = {emitters},
+  rests-on = {EMITTERS},
+  claim    = {the Gentoo overlay under overlay/ is a Portage repository whose live ebuild installs, through the same staging function the .deb wraps, a non-empty tree containing every mapped destination},
+  check    = {tool:check_ebuild.py}
+}
