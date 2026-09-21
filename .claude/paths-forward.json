@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 31,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T12:55:38+00:00",
-  "job_id": "f9ab4f99",
+  "heartbeat": "2026-09-21T13:27:31+00:00",
+  "job_id": "7f4101c8",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-49",
-    "taken_at": "2026-09-21T13:10:25+00:00"
+    "holder": "tick-50",
+    "taken_at": "2026-09-21T13:36:52+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -560,10 +560,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Icons + cursor first (cheap, one emitter): make_inherit.py emitting usr/share/icons/EL-<variant>/index.theme (Inherits=breeze-dark|breeze by Lit/Off, Directories from the parent is NOT needed for a pure inheriting theme — verify against a stock breeze-dark index.theme) and usr/share/icons/EL-<variant>-cursors/index.theme + cursor.theme (Inherits=breeze_cursors); LnF defaults [Icons] Theme= and [kcminputrc][Mouse] cursorTheme=; check_inherit.py --map (@INHERIT in worklist warrants): every variant's theme names a parent that exists on the host (SKIP if breeze absent), witness in check_symbol; then close both (four gates each).",
-      "evidence": "",
+      "next_bounded_step": "⊕TASKSWITCH: read the host's tabbox contract first — /usr/share/kwin/tabbox/<name>/{metadata.json,contents/ui/main.qml} (ls, then Read one stock switcher, e.g. thumbnail_grid) — state what a KWin/WindowSwitcher package needs (KPackageStructure, the PlasmaCore/KWin imports, tabBox.model roles); then a make_taskswitch.py emitting one switcher per variant (phosphor ground, lit for the selected entry, ghost for the rest — colours from colors_for like the marquee), wired into make_deb and LnF defaults [kwinrc][TabBox] LayoutName=; qml_sanity on the emitted QML; check_taskswitch.py; witness in check_symbol (open witness: windowswitcher|tabbox|taskswitch in make_plasma|make_deb).",
+      "evidence": "94da411: make_inherit.py (icon_index/cursor_index/defaults_fragment/render_all), make_deb wiring + LnF defaults groups, scripts/check_inherit.py @INHERIT (worklist 58; 6/6 parents installed here), token-source exemption documented; ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT in CLOSED (41 witnessed; --regressions 57 s CPU); COTYPE s85",
       "issued_at": "2026-09-21T12:54:47+00:00",
-      "last_worked": "2026-09-21T12:54:47+00:00",
+      "last_worked": "2026-09-21T13:26:33+00:00",
       "ticks_blocked": 0
     }
   ],

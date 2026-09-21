@@ -5874,3 +5874,69 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s85]
+
+## Session 86 — ⊕TASKSWITCH: Alt+Tab as a phosphor departure board; the TUNE bucket closes out
+- W31, 2026-09-21. The contract read from the host's own compact switcher
+  (/usr/share/kwin/tabbox/compact, Plasma 6.7): metadata.json with
+  KPackageStructure "KWin/WindowSwitcher" and a KPlugin Id; contents/ui/
+  main.qml whose root is KWin.TabBoxSwitcher exposing currentIndex, a
+  PlasmaCore.Dialog placed from tabBox.screenGeometry, a ListView over
+  tabBox.model with roles caption / icon / minimized, model.activate(i) on
+  tap after a short timer, model.longestCaption() for sizing, key handling on
+  the dialog's main item (focus is lost on re-invocation), and the
+  onSceneGraphError no-op. Selected by [kwinrc][TabBox] LayoutName=<id>.
+- templates/taskswitch-main.qml: that contract with the Breeze pieces
+  replaced — no KSvg viewitem frames; the board is a Rectangle on the VOID
+  with a faint ghost bezel; the selected row is LIT (caption in litColor, a
+  lit bar at 0.12 with a lit border), every other row is the GHOST at the
+  solved ghostAlpha (minimized at 0.75 of that), icons recede the same way.
+  Four holes: lit / ghost / ground / ghostAlpha from make_wallpaper_live.
+  colors_for — the marquee's read. make_taskswitch.py: package_id, metadata,
+  main_qml, defaults_fragment, render_all; make_deb writes usr/share/kwin/
+  tabbox/org.el.taskswitch.<variant>/ and appends the defaults group. The
+  emitted QML lints clean (qml_sanity, 0 errors).
+- scripts/check_taskswitch.py (@TASKSWITCH, worklist 59): per variant the
+  structure, the id the defaults name, the TabBoxSwitcher root, lint, three
+  distinct filled colours, an alpha in (0,1); five synthetic arms each fail.
+  check_ghost_surfaces now enumerates make_taskswitch as a LOOKED-AT surface
+  (30 of 30 surface x variant emissions faithful; its selftest's population
+  arm reads the surface map instead of a literal 24).
+- Four gates: constructible (template, emitter, defaults hook, tool);
+  reachable (six packages staged; the LnF names each); observable (--map;
+  the staged tree; the emitted QML); coverable (the five synthetic arms;
+  the ghost-surfaces enumeration would refuse a switcher drawing its own
+  ghost). Not proven: KWin actually loading it — the tool says so in its
+  docstring; that is ⊕VER's Alt+Tab.
+
+### ⊕TASKSWITCH closure (four gates)
+- Four gates: as above. Residue: no thumbnails (a list, like compact); the
+  lit bar's 0.12 is authored, not solved (it is a hover-class state —
+  relations §4b's focus/hover/selection solve could own it); KWin loading is
+  a live probe. TUNE closes out: ⊕SOLVER-PERF and ⊕PANEL-LAYOUT read done by
+  their witnesses; the bucket is green.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86: a KWin/WindowSwitcher per
+  variant, lit selection on the void, selected by the LnF)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none (⊕SOLVER-PERF,
+  ⊕PANEL-LAYOUT read done by their witnesses).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?;
+  s85 does Global Theme apply the icon + cursor groups?; s86 does Alt+Tab
+  load the EL switcher?), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s86]

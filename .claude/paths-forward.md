@@ -2,7 +2,7 @@
      Edits here vanish; edit .claude/paths-forward.json (or tell the loop). -->
 # paths-forward — el-openglo
 
-heartbeat 2026-09-21T12:55:38+00:00 · job `f9ab4f99` · counter 31 · hash `aacc434df53b8827`
+heartbeat 2026-09-21T13:27:31+00:00 · job `7f4101c8` · counter 31 · hash `aaebc5fecf5b3f91`
 
 | # | status | title | blocked on | next bounded step |
 |---|---|---|---|---|
@@ -52,7 +52,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 | W28 | done | ⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs | — |  |
 | W29 | done | ⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio | — |  |
 | W30 | ready | Font COMPILER (operator, 2026-09-21): arbitrary TTF -> precompiled (segment set @22 per glyph, matrix column bytes per glyph) tables, so a font (Liberation, Unifont, ...) is derived ONCE and the emitters read the derived table — the two halves already exist (display_types.font_extension = the matrix half; glyph_match.match + ST.project = the segment half); the compiler is the one entry point + an on-disk table format + the emitters reading it. Operator: 'later; not an immediate priority unless it unblocks something' | — | Only when it unblocks something. When taken: state the table format (JSON: font path+hash, charset, per-glyph {seg22, matrix5x8, class, jaccard}), one compile_font(path, charset) in a new font_compile.py that calls the two existing halves (no re-derivation), and make display_types.font_extension read a compiled table when given one. Bitmap fonts (Unifont) route through project_font.raster_ink — measure one glyph first. |
-| W31 | ready | TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present | — | Icons + cursor first (cheap, one emitter): make_inherit.py emitting usr/share/icons/EL-<variant>/index.theme (Inherits=breeze-dark|breeze by Lit/Off, Directories from the parent is NOT needed for a pure inheriting theme — verify against a stock breeze-dark index.theme) and usr/share/icons/EL-<variant>-cursors/index.theme + cursor.theme (Inherits=breeze_cursors); LnF defaults [Icons] Theme= and [kcminputrc][Mouse] cursorTheme=; check_inherit.py --map (@INHERIT in worklist warrants): every variant's theme names a parent that exists on the host (SKIP if breeze absent), witness in check_symbol; then close both (four gates each). |
+| W31 | ready | TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present | — | ⊕TASKSWITCH: read the host's tabbox contract first — /usr/share/kwin/tabbox/<name>/{metadata.json,contents/ui/main.qml} (ls, then Read one stock switcher, e.g. thumbnail_grid) — state what a KWin/WindowSwitcher package needs (KPackageStructure, the PlasmaCore/KWin imports, tabBox.model roles); then a make_taskswitch.py emitting one switcher per variant (phosphor ground, lit for the selected entry, ghost for the rest — colours from colors_for like the marquee), wired into make_deb and LnF defaults [kwinrc][TabBox] LayoutName=; qml_sanity on the emitted QML; check_taskswitch.py; witness in check_symbol (open witness: windowswitcher|tabbox|taskswitch in make_plasma|make_deb). |
 
 ## evidence
 
@@ -86,7 +86,7 @@ Notification ticker:    el-openglo-notify EL-Azure  (marquee subsumes popups) �
 - **W28** — d8823f8: segment_topology.LETTERS22/DESCENDER_GLYPHS/glyph22 + substrate arms (caught g==q); ink_field frame=lowercase (+font_xheight); validate at 22: 0.37, every tail bar hit; registry 22 carries lowercase; ⊕SEG22-DESCENDERS in CLOSED (39 witnessed; --regressions 58s CPU); RESEARCH bucket green; COTYPE s84
 - **W29** — 3a59723: format_coverage + measure_formats; coverage 7 0.396 / 14,16 0.801 / 22 0.837 / dots 0.528; ⊕GHOST-DENSITY in CLOSED (37 witnessed; --regressions 55s); COTYPE s81
 - **W30** — 
-- **W31** — 
+- **W31** — 94da411: make_inherit.py (icon_index/cursor_index/defaults_fragment/render_all), make_deb wiring + LnF defaults groups, scripts/check_inherit.py @INHERIT (worklist 58; 6/6 parents installed here), token-source exemption documented; ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT in CLOSED (41 witnessed; --regressions 57 s CPU); COTYPE s85
 
 ## residue
 

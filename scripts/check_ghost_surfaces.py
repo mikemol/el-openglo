@@ -58,6 +58,8 @@ SURFACE_MODE = {
     "make_notify_marquee": "looked_at",
     "make_clock": "looked_at",
     "make_plymouth": "glanced_at",
+    # the Alt+Tab switcher (W31): the eye is ON it while it is up
+    "make_taskswitch": "looked_at",
 }
 
 
@@ -92,6 +94,10 @@ def surfaces(variant_id):
     qml = NM.main_qml(variant_id)
     out.append(("make_notify_marquee", _hole(qml, "litColor") or _hole(qml, "lit"),
                 _hole(qml, "ghostColor") or _hole(qml, "ghost"), _alpha(qml)))
+
+    import make_taskswitch as TS
+    qml = TS.main_qml(variant_id)
+    out.append(("make_taskswitch", _hole(qml, "litColor"), _hole(qml, "ghostColor"), _alpha(qml)))
 
     import make_clock as MC
     qml = MC.main_qml(tok)
@@ -168,7 +174,9 @@ def _selftest():
             print(f"  ok   {label}")
 
     rows = measure()
-    check("population: 6 variants × 4 surfaces", len(rows), 24)
+    check(f"population: 6 variants × {len(SURFACE_MODE)} surfaces", len(rows), 6 * len(SURFACE_MODE))
+    check("every surface enumerated is one that surfaces() emits",
+          sorted({r[1] for r in rows}), sorted(SURFACE_MODE))
     check("the palette solved a ghost for every variant", len(palette()), 6)
     # ⚑ THE CHECK MUST SEE A FAITHFUL SURFACE AND AN UNFAITHFUL ONE.
     saved = globals()["measure"]

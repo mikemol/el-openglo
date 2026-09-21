@@ -158,9 +158,6 @@ WITNESS = {
         "a richer layout template than the basic wallpaper+clock one that ships —"
         " panel arrangement, systray, task manager (:2785)",
         lambda: _reads("make_deb.py", r"(?i)systemtray|taskmanager|panel\.addWidget")),
-    "⊕TASKSWITCH": (
-        "an Alt+Tab task switcher in the Plasma Style (:2787)",
-        lambda: _any(["make_plasma.py", "make_deb.py"], r"(?i)windowswitcher|tabbox|taskswitch")),
 
     # ── TIER 3 ──
     # ⚑ THE WITNESS LOOKED IN THE GENERATOR FOR ONE IDIOM.  It read make_clock.py
@@ -399,6 +396,20 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 86 (W31, 2026-09-21). The open witness looked for the words
+    # windowswitcher|tabbox|taskswitch in make_plasma or make_deb; the emitter is
+    # make_taskswitch over templates/taskswitch-main.qml, selected by the LnF
+    # defaults, enumerated by check_ghost_surfaces as a looked-at surface, and
+    # checked for shape + lint by check_taskswitch.
+    "⊕TASKSWITCH": (
+        "make_taskswitch emits a KWin/WindowSwitcher package per variant (lit selection,"
+        " ghost rest, void ground) selected by [kwinrc][TabBox] LayoutName; check_taskswitch"
+        " holds the structure, the id, the root, the lint and the tokens (:2787)",
+        lambda: _reads("make_taskswitch.py", r"def\s+main_qml\b") and
+                _reads("templates/taskswitch-main.qml", r"KWin\.TabBoxSwitcher\s*\{") and
+                _reads("make_deb.py", r"_ts\.defaults_fragment\(") and
+                _reads("scripts/check_ghost_surfaces.py", r'"make_taskswitch":\s*"looked_at"') and
+                _tool("check_taskswitch.py")),
     # closed session 85 (W31, 2026-09-21). The open witnesses looked for
     # "Inherits=" near "icon"/"cursor" in make_deb or make_plasma; the emitter is
     # make_inherit, selected through the LnF defaults, checked by check_inherit.
