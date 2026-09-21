@@ -43,10 +43,25 @@ AUTHORED_CHARS = "".join(dict.fromkeys(list(ST.DIGITS16) + list(ST.LETTERS16) + 
 KNOWN_CONVENTION = frozenset("1-_='!")
 
 
-def ink_grid(G, res=RES):
-    """Sample a two-valued ink field to a boolean presence grid."""
+CELL_H = 4.0    # the body cell; a 22-seg cell with descenders is 6.0 (BODY + DESCENDER_DEPTH)
+
+
+def _rows(H):
+    """Grid rows for a cell of height H at the body's sampling pitch (RES per 4)."""
+    return int(round(RES * H / CELL_H))
+
+
+def ink_grid(G, res=RES, H=CELL_H):
+    """Sample a two-valued ink field to a boolean presence grid over a 2 x H cell
+    at RES samples per 2 units across and per 4 units down."""
+    rows = int(round(res * H / CELL_H))
     return np.array([[G(i/res*2.0, j/res*4.0) > 0 for i in range(res+1)]
-                     for j in range(res+1)], dtype=bool)
+                     for j in range(rows+1)], dtype=bool)
+
+
+def _cell_height(pres):
+    """The cell height a presence grid was sampled over (inverse of ink_grid)."""
+    return (pres.shape[0] - 1) * CELL_H / RES
 
 
 def region_graph(pres):
@@ -104,26 +119,38 @@ def _ink_bbox_sw(pres, band=SW_BAND):
     return bb, max(0.12, sw*band)
 
 
-_GX, _GY = np.meshgrid(np.arange(RES+1)/RES*2.0, np.arange(RES+1)/RES*4.0)
+_GRIDS = {}
 
 
-def _band(pts, sw):
+def _grid(H):
+    """(GX, GY) sample coordinates for a 2 x H cell, memoised per height."""
+    if H not in _GRIDS:
+        rows = _rows(H)
+        _GRIDS[H] = np.meshgrid(np.arange(RES+1)/RES*2.0, np.arange(rows+1)/RES*4.0)
+    return _GRIDS[H]
+
+
+def _band(pts, sw, H=CELL_H):
     """Grid points within `sw` of the polyline `pts` — vectorised over the grid
     (the per-pixel Python loop it replaces pushed check_symbol --regressions to
     3m15 once the arc field arrived, past the gate's timeout; session 79)."""
-    S = np.zeros((RES+1, RES+1), bool)
+    GX, GY = _grid(H)
+    S = np.zeros(GX.shape, bool)
     for (qx, qy), (rx, ry) in zip(pts, pts[1:]):
         ex, ey = rx-qx, ry-qy; L2 = ex*ex+ey*ey or 1e-9
-        t = np.clip(((_GX-qx)*ex + (_GY-qy)*ey)/L2, 0.0, 1.0)
-        S |= np.hypot(_GX-(qx+t*ex), _GY-(qy+t*ey)) < sw
+        t = np.clip(((GX-qx)*ex + (GY-qy)*ey)/L2, 0.0, 1.0)
+        S |= np.hypot(GX-(qx+t*ex), GY-(qy+t*ey)) < sw
     return S
 
 
-def _seg_field(seg, bb, sw):
+def _seg_field(seg, bb, sw, H=CELL_H):
+    """`bb` maps LATTICE coordinates (x/2, y/4 of the body cell) into the
+    field; `H` is the sampled grid's height — a 22-seg descender bar at
+    lattice y 4..6 lands below a 4-tall grid (empty band) and inside a 6-tall one."""
     x0, x1, y0, y1 = bb; ax, ay, bx, by = seg
     sax, say = x0+(x1-x0)*ax/2, y0+(y1-y0)*ay/4
     sbx, sby = x0+(x1-x0)*bx/2, y0+(y1-y0)*by/4
-    return _band([(sax, say), (sbx, sby)], sw)
+    return _band([(sax, say), (sbx, sby)], sw, H)
 
 
 # ⊕SEG-DOTPRODUCT-TEMPLATES (session 79): which of the 22 may BOW. The outer
@@ -134,14 +161,14 @@ ARC_SEGS = frozenset({"a1", "a2", "d1", "d2", "b", "c", "e", "f"})
 ARC_N = 16
 
 
-def _arc_field(seg, bb, sw, sagitta):
+def _arc_field(seg, bb, sw, sagitta, H=CELL_H):
     """The band of `seg` bent to an arc bowing OUTWARD (away from the cell's
     centre) by `sagitta` x the segment's length; sagitta 0 is exactly the
     straight band. The arc is a quadratic Bezier through the chord's ends whose
     apex sits at the sagitta, sampled to a polyline of ARC_N pieces; a point is
     in the field when it lies within `sw` of any piece."""
     if sagitta == 0:
-        return _seg_field(seg, bb, sw)
+        return _seg_field(seg, bb, sw, H)
     x0, x1, y0, y1 = bb; ax, ay, bx, by = seg
     sax, say = x0+(x1-x0)*ax/2, y0+(y1-y0)*ay/4
     sbx, sby = x0+(x1-x0)*bx/2, y0+(y1-y0)*by/4
@@ -155,7 +182,7 @@ def _arc_field(seg, bb, sw, sagitta):
     px_, py_ = mx + 2*s*nx, my + 2*s*ny     # Bezier control: apex lands at s
     pts = [((1-t)**2*sax + 2*(1-t)*t*px_ + t*t*sbx,
             (1-t)**2*say + 2*(1-t)*t*py_ + t*t*sby) for t in (i/ARC_N for i in range(ARC_N+1))]
-    return _band(pts, sw)
+    return _band(pts, sw, H)
 
 
 def _phi(S, G):
@@ -184,8 +211,9 @@ def match(pres, top=None, tau=None, band=SW_BAND, sagitta=SAGITTA):
     # frame the ink of a narrow glyph does not fill the cell, and stretching the
     # template into its bbox would put the frame defect back.
     _bb, sw = _ink_bbox_sw(pres, band)
-    cell = (0.0, 2.0, 0.0, 4.0)
-    scores = {k: _phi(_arc_field(SEG[k], cell, sw, sagitta if k in ARC_SEGS else 0.0), pres)
+    cell = (0.0, 2.0, 0.0, 4.0)          # the lattice map; the grid may be taller
+    H = _cell_height(pres)
+    scores = {k: _phi(_arc_field(SEG[k], cell, sw, sagitta if k in ARC_SEGS else 0.0, H), pres)
               for k in ST.SEG22}
     if top is not None:
         lit = set(sorted(ST.SEG22, key=lambda k: -scores[k])[:top])
@@ -307,6 +335,26 @@ def agreement_by_class(path, rows):
     for k, rs in groups.items():
         m, e, n = agreement_summary(rs)
         out[k] = (m, e, n, "".join(r[0] for r in rs))
+    return out
+
+
+DESCENDER_SEGS = frozenset({"dl", "dc", "dr"})
+DESCENDER_H = 4.0 + float(ST.DESCENDER_DEPTH)
+
+
+def descender_probe(path, chars="gjpqy", top=8):
+    """⊕SEG22-DESCENDERS, the reachability question BEFORE any table is authored:
+    project lowercase glyphs on the 2 x (4 + DESCENDER_DEPTH) cell under the
+    font's metrics frame and report, per glyph, which of the descender bars
+    dl/dc/dr the matcher lights among its top-N and the phi of each — so the
+    LETTERS22 table can be authored against what the matcher can SEE rather
+    than against a picture. Returns [(ch, lit22, {dl,dc,dr: phi})]."""
+    out = []
+    for ch in chars:
+        G = PF.winding_ink(path, ch, box=(2.0, DESCENDER_H), frame="metrics")
+        pres = ink_grid(G, H=DESCENDER_H)
+        scores, lit = match(pres, top=top)
+        out.append((ch, lit, {k: scores[k] for k in sorted(DESCENDER_SEGS)}))
     return out
 
 

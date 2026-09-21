@@ -5680,3 +5680,56 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s82]
+
+## Session 83 — ⊕SEG22-DESCENDERS: the matcher reaches the descent region, and picks the right column
+- W28, 2026-09-21. Before authoring 26 lowercase glyphs: can the matcher SEE
+  the descender bars at all? The cell had to grow first. glyph_match's grid
+  was a fixed 2x4; it is now a 2xH grid at the body's sampling pitch (_grid(H),
+  memoised; ink_grid(G, H=); _cell_height(pres) recovers H, so match() needs no
+  new argument), the lattice map stays (0,2,0,4) — a descender bar at lattice
+  y 4..6 lands below a 4-tall grid and inside a 6-tall one. ink_field's metrics
+  frame maps cap -> 0, baseline -> BODY_H (4), and the font's MEASURED descent
+  -> H when the box is taller (make_glyph_ink.BODY_H; a body-height box clips).
+  DESCENDER_H = 4 + segment_topology.DESCENDER_DEPTH = 6.
+- glyph_match.descender_probe(path, "gjpqy", top=8); check_projection
+  --descenders REFUSES if no descender glyph lights any of dl/dc/dr. MEASURED
+  (LiberationMono): g -> dr (+0.10), j -> dr (+0.20), p -> dl (+0.32),
+  q -> dr (+0.32), y -> dc (+0.15) — 5 of 5 reach a bar, and each lights the
+  bar on the side its tail actually falls (p left, q right, y centre). The
+  body picks are plausible too (p: b c d1 e f + n1 p1; y: b d1 d2 f m + p2).
+- A subtlety pinned rather than asserted away: on the BODY grid a descender
+  band is a SLIVER, not nothing — the band's half-width reaches up from y=4
+  into the last rows — so a 16-seg validation can see dl/dc/dr faintly (and
+  project() drops them). Selftest: the sliver has fewer rows than the tall
+  band, and the tall cell scores 'p' higher on dl than the body cell does.
+- NOT DONE (the symbol stays OPEN): the LETTERS22 table itself. What this
+  tick settles is that it can be VALIDATED once authored: the matcher reaches
+  the descent, the frame places it from the font's metrics, and the 22->16
+  invariant for uppercase is untouched (full table still 0.62, 13/46).
+  Authoring is a table of 26 sets over SEG22 with p1/p2/n1/dl/dc/dr — a
+  separate tick, against these probes rather than a picture.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82)
+- OPEN — BUILD (touches shipped deb): none.
+- RESEARCH (design, no deb impact): ⊕SEG22-DESCENDERS (s83: the descent is
+  reachable, g j p q y each light the right bar; LETTERS22 authoring next).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?),
+  ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT, ⊕TASKSWITCH,
+  ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s83]

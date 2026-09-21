@@ -13,7 +13,8 @@ itself (selftest) — i.e. the instrument works before anyone tunes with it.
 
     scripts/check_projection.py [--font PATH] [--fmt 16|7] [--frame fit|stretch]   # per-glyph agreement report
     scripts/check_projection.py --classes      # the ceiling per glyph class (round / straight / diagonal / narrow)
-    scripts/check_projection.py --calibrate    # sweep frame x band, print the landscape
+    scripts/check_projection.py --calibrate    # sweep frame x band, print the landscape (--arcs: sagitta)
+    scripts/check_projection.py --descenders   # 22-seg: do g j p q y reach dl/dc/dr on the 2x6 cell?
     scripts/check_projection.py --selftest
 
 SKIP (printed, exit 0) when no TTF is found and none is given.
@@ -106,8 +107,33 @@ def classes(font, fmt, rows):
     return 0
 
 
+def descenders(font):
+    """--descenders: the 22-seg reachability probe on g j p q y over the 2x6 cell.
+    REFUSED if no descender glyph lights any of dl/dc/dr — the matcher cannot
+    see the descent region and no LETTERS22 table could be validated."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import glyph_match as GM
+    rows = GM.descender_probe(font)
+    print(f"font {font}  22-seg over the 2x{GM.DESCENDER_H:.0f} cell, metrics frame, top-8")
+    reached = 0
+    for ch, lit, ph in rows:
+        hit = sorted(GM.DESCENDER_SEGS & lit)
+        reached += bool(hit)
+        print(f"  {ch}  lit {' '.join(sorted(lit)):40}  descender bars lit {''.join(hit) or '-':4} "
+              f" phi dl {ph['dl']:+.2f} dc {ph['dc']:+.2f} dr {ph['dr']:+.2f}")
+    if not reached:
+        print(f"check_projection: REFUSED — 0 of {len(rows)} descender glyphs light any of dl/dc/dr;"
+              f" the descent region is not reached", file=sys.stderr)
+        return 1
+    print(f"check_projection: {reached} of {len(rows)} descender glyphs reach a descender bar "
+          f"(reachability reported; the LETTERS22 table is not authored)")
+    return 0
+
+
 def main(argv):
-    known = {"--font", "--fmt", "--frame", "--calibrate", "--classes", "--arcs", "--sagitta"}
+    known = {"--font", "--fmt", "--frame", "--calibrate", "--classes", "--arcs", "--sagitta",
+             "--descenders"}
     args = [a for a in argv[1:] if a.startswith("--")]
     for a in args:
         if a not in known:
@@ -123,6 +149,8 @@ def main(argv):
     sagitta = float(argv[argv.index("--sagitta") + 1]) if "--sagitta" in argv else None
     if "--calibrate" in argv:
         return calibrate(font, fmt, arcs="--arcs" in argv)
+    if "--descenders" in argv:
+        return descenders(font)
     rows, (mean_j, exact, n) = report(font, fmt, frame=frame, sagitta=sagitta)
     if "--classes" in argv:
         return classes(font, fmt, rows)
@@ -221,6 +249,25 @@ def _selftest():
     by = GM.agreement_by_class(font, rows)
     chk("the digits fall into more than one class", len(by) > 1, True)
     chk("every digit is counted once", sum(v[2] for v in by.values()), len(rows))
+    # ⚑ THE DESCENT REGION IS REACHABLE, AND ONLY FROM A TALL CELL: on the 2x6
+    # cell p lights dl and q lights dr (their tails are on opposite sides), while
+    # on the body cell no descender bar can light because its band is empty.
+    probe = {ch: (lit, ph) for ch, lit, ph in GM.descender_probe(font, "pq")}
+    chk("'p' reaches dl on the 2x6 cell", "dl" in probe["p"][0], True)
+    chk("'q' reaches dr on the 2x6 cell", "dr" in probe["q"][0], True)
+    chk("the tall grid has more rows than the body grid",
+        GM.ink_grid(lambda x, y: -1, H=GM.DESCENDER_H).shape[0] > GM.ink_grid(lambda x, y: -1).shape[0], True)
+    # ⚑ ON THE BODY GRID A DESCENDER BAND IS A SLIVER, NOT NOTHING: the band's
+    # half-width reaches up from y=4 into the last rows, so a 16-seg validation
+    # on the body cell can still see dl/dc/dr faintly (and project() drops them).
+    # The tall grid must give 'p' MORE dl than the body grid does.
+    body = GM.ink_grid(GM.PF.winding_ink(font, "p", frame="metrics"))
+    sliver = GM._seg_field(GM.SEG["dc"], (0.0, 2.0, 0.0, 4.0), 0.2)
+    tall = GM._seg_field(GM.SEG["dc"], (0.0, 2.0, 0.0, 4.0), 0.2, GM.DESCENDER_H)
+    chk("a descender band on the body grid is a sliver (fewer rows than on the tall grid)",
+        0 < sliver.any(axis=1).sum() < tall.any(axis=1).sum(), True)
+    chk("the tall cell scores 'p' higher on dl than the body cell does",
+        probe["p"][1]["dl"] > GM.match(body, top=8)[0]["dl"], True)
     # ⚑ THE FULL TABLE, AND THE PINS.  The default charset is every authored key
     # (the log's "all 44", now 46 non-blank); the convention-gap glyphs score 0
     # under the default frame and an entry that starts scoring must leave the pin.

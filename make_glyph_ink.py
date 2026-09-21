@@ -145,16 +145,31 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
         # ⚑ THE FONT'S FRAME, as matrix_glyph uses (session 76): x from the
         # glyph's own bbox (a segment cell is monospace), y from CAP HEIGHT ->
         # BASELINE so a hyphen stays a bar at mid-height instead of being
-        # stretched into a slab, and a descender goes below the cell (session
-        # 82: - _ = ' ! all scored 0 under "stretch" for exactly this reason).
-        cap, _desc = font_frame(path)
-        sx, sy = W/(x1-x0), H/cap
-        ox, oy = 0.0, 0.0
-        y0 = 0.0                      # font baseline is cell bottom
+        # stretched into a slab (session 82: - _ = ' ! all scored 0 under
+        # "stretch" for exactly this reason). The BODY is always BODY_H cell
+        # units tall (the lattice's 2x4); a box taller than that is a descent
+        # region and the font's measured descender maps to its bottom
+        # (session 83, ⊕SEG22-DESCENDERS: the 2x6 cell). A box of exactly the
+        # body height clips descenders below it.
+        cap, desc = font_frame(path)
+        sx = W/(x1-x0)
+        below = H - BODY_H
+
+        def _gy(py):
+            if py >= 0:
+                return BODY_H - py/cap*BODY_H
+            if below <= 0 or desc >= 0:
+                return BODY_H + 1e-3          # below the cell, clipped
+            return BODY_H + (py/desc) * below  # py, desc both negative
+        tp = [[((px-x0)*sx, _gy(py)) for px, py in pl] for pl in polys]
+        return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
     else:
         raise ValueError(f"ink_field: unknown frame {frame!r} (stretch|fit|metrics)")
     tp = [[(ox+(px-x0)*sx, H-oy-(py-y0)*sy) for px, py in pl] for pl in polys]
     return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
+
+
+BODY_H = 4.0    # the lattice body cell's height in cell units (segment_topology: 2L x 4L)
 
 
 # ── ⊕MATRIX-FONT-INPUT: a font glyph into the dot matrix ─────────────────────

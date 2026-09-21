@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 30,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T11:44:06+00:00",
-  "job_id": "f4cc7b95",
+  "heartbeat": "2026-09-21T12:08:06+00:00",
+  "job_id": "2321a055",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-46",
-    "taken_at": "2026-09-21T11:55:22+00:00"
+    "holder": "tick-47",
+    "taken_at": "2026-09-21T12:19:11+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -515,10 +515,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Read the ⊕SEG-FONT-PROJECT witness (:4644: fontTools ingest + validate all 44) and check_st_api — which 8 of the 44 are missing from validate_projection's 36 (SYMBOLS16?) — and extend the validation to them; then state what a 22-seg descender glyph table needs (segment_topology LETTERS22 / DESCENDER_GLYPHS) before authoring any.",
-      "evidence": "",
+      "next_bounded_step": "⊕SEG22-DESCENDERS, one bounded step: the 2x6 validation cell — ink_field(frame='metrics') mapping the descent row (y 4..4+DESCENDER_DEPTH) from font_frame's measured descent, and validate_projection(fmt='22') over one lowercase glyph ('g') against a HAND-STATED expected set (not a table yet) to prove the descender bars dl/dc/dr can be reached by the matcher. If they can, the LETTERS22 table is authoring work (26 glyphs), a separate tick.",
+      "evidence": "8592908: AUTHORED_CHARS (46 non-blank) default; KNOWN_CONVENTION pins 1 - _ = ' !; ink_field frame=metrics; ⊕SEG-FONT-PROJECT in CLOSED (38 witnessed); ⊕SEG22-DESCENDERS needs stated (COTYPE s82: lowercase sets over SEG22, 22->16 invariant, 2x6 validation cell, --fmt 22)",
       "issued_at": "2026-09-21T10:08:03+00:00",
-      "last_worked": "2026-09-21T10:08:03+00:00",
+      "last_worked": "2026-09-21T12:07:07+00:00",
       "ticks_blocked": 0
     },
     {
