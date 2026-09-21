@@ -33,6 +33,10 @@ PlasmoidItem {
     property real ghostWeight: (plasmoid.configuration.ghostWeight === undefined) ? 0.81
                                : plasmoid.configuration.ghostWeight
     property real strokeGhost: segThick * ghostWeight
+    // gap between digit boxes, in segLen (the strokes overhang the box by half a
+    // stroke each side, so the SEEN gap is this minus one stroke)
+    property real digitGap: (plasmoid.configuration.digitGap === undefined) ? 0.45
+                            : plasmoid.configuration.digitGap
     // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never
     // a wider opaque copy. 0 disables the layer (crisp fallback); default 1.5.
     property real bloom: (plasmoid.configuration.bloom === undefined) ? 1.5
@@ -64,7 +68,12 @@ PlasmoidItem {
         Row {
             id: segRow
             anchors.centerIn: parent
-            spacing: Math.floor(segLen * 0.25)
+            // ⚑ THE KERNING.  A digit's strokes overhang its segLen box by half a
+            // stroke on each side, so a 0.25·segLen gap read as touching while the
+            // colon slot added 0.7·segLen on ONE side (operator, 2026-09-21: "the
+            // crime is in the kerning"). The gap is the digitGap slider, and the
+            // colon is CENTRED in the whole space between its two neighbours.
+            spacing: Math.round(segLen * root.digitGap)
             Repeater {
                 model: root.timeStr.length
                 Digit {
@@ -81,7 +90,10 @@ PlasmoidItem {
     component Digit: Item {
         property string ch: "8"
         property bool insertColon: false
-        width: segLen + (insertColon ? segLen * 0.7 : 0)
+        // the colon slot is one extra gap wide, so digit|colon|digit spaces evenly
+        property real colonSlot: segLen * root.digitGap + segThick
+        property real colonX: segLen + (colonSlot + segRow.spacing) / 2 - segThick / 2
+        width: segLen + (insertColon ? colonSlot : 0)
         height: segLen * 2
 
         function isOn(s) {
@@ -156,7 +168,7 @@ PlasmoidItem {
         width: segThick; height: segThick; radius: segThick/2
         color: root.litColor
         antialiasing: true
-        x: segLen + segLen*0.25
+        x: parent.colonX !== undefined ? parent.colonX : parent.parent.colonX
     }
 
     // one segment as a scene-graph vector item; the caller says which colour,
