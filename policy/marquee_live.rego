@@ -49,7 +49,7 @@ deny contains msg if {
 shown_after(e) if {
 	some s in input.samples
 	s.t >= e.t
-	s.text == e.shows
+	contains(s.text, e.shows) # a ring may carry several items; the board's text contains this one
 }
 
 deny contains msg if {

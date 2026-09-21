@@ -64,12 +64,16 @@ QtObject {
     property var rows: []
     property int count: 0
     signal rowsInserted(var parent, int first, int last)
+    signal rowsAboutToBeRemoved(var parent, int first, int last)
     signal rowsRemoved(var parent, int first, int last)
     signal dataChanged(var topLeft, var bottomRight, var roles)
     function syncCount() { stub.count = stub.rows.length; }
     function get(i) { return stub.rows[i]; }
     function append(obj) { stub.rows.push(obj); stub.rowsInserted(null, stub.rows.length - 1, stub.rows.length - 1); Qt.callLater(syncCount); }
-    function remove(i) { stub.rows.splice(i, 1); stub.rowsRemoved(null, i, i); Qt.callLater(syncCount); }
+    // the host trace's shape (2026-09-22): a row that was never signalled IN — only
+    // its removal is signalled, ~5 s later
+    function appendSilently(obj) { stub.rows.push(obj); }
+    function remove(i) { stub.rowsAboutToBeRemoved(null, i, i); stub.rows.splice(i, 1); stub.rowsRemoved(null, i, i); Qt.callLater(syncCount); }
     function set(i, obj) { stub.rows[i] = obj; stub.dataChanged(stub.index(i, 0), stub.index(i, 0), []); }
     enum Roles { IdRole = 256, SummaryRole, ImageRole, IsGroupRole, GroupChildrenCountRole, ExpandedGroupChildrenCountRole,
                  IsGroupExpandedRole, IsInGroupRole, TypeRole, CreatedRole, UpdatedRole, BodyRole, IconNameRole,
@@ -103,11 +107,14 @@ TIMELINE = [
     # `rebuild count=0`. A flash arrives and vanishes in one step; it is still owed
     # a rotation.
     (3900, "flash", 9, {"summary": "flash", "body": "", "applicationName": "app"}, "app: flash"),
+    # the host trace's lone notification: never signalled in, removed ~5 s later
+    (4300, "silent", 11, {"summary": "silent", "body": "", "applicationName": "app"}, ""),
+    (4700, "expire", 11, {}, "app: silent"),
     (5200, "arrive", 2, {"summary": "second", "body": "<b>bold</b>", "applicationName": "app"}, "app: second — bold"),
     (5600, "replace", 2, {"summary": "second", "body": "changed", "applicationName": "app"}, "app: second — changed"),
     (8200, "expire", 2, {}, ""),
 ]
-END_MS = 11000
+END_MS = 30000            # the CAP; the main run ends when every event has fired and the board drained
 SAMPLE_MS = 40
 
 HARNESS = """import QtQuick
@@ -127,18 +134,21 @@ Window {
     property var samples: []
     // the stub registers itself when the subject instantiates it; look it up late
     function model() { return NM.StubRegistry.models[0]; }
-    function rowOf(id) { var m = model(); for (var i = 0; i < m.count; i++) if (m.get(i).notificationId === id) return i; return -1; }
+    // over the stub's ROWS, not its count: count is deferred like the real model's
+    function rowOf(id) { var m = model(); for (var i = 0; i < m.rows.length; i++) if (m.rows[i].notificationId === id) return i; return -1; }
     function apply(step) {
         var m = model();
         if (step.op === "arrive") m.append(Object.assign({ notificationId: step.id }, step.fields));
         else if (step.op === "expire") { var r = rowOf(step.id); if (r >= 0) m.remove(r); }
         else if (step.op === "replace") { var r2 = rowOf(step.id); if (r2 >= 0) m.set(r2, Object.assign({ notificationId: step.id }, step.fields)); }
         else if (step.op === "flash") { m.append(Object.assign({ notificationId: step.id }, step.fields)); m.remove(rowOf(step.id)); }
+        else if (step.op === "silent") m.appendSilently(Object.assign({ notificationId: step.id }, step.fields));
         events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows });
     }
     property var timeline: %(timeline)s
     property int next: 0
     property int pausedSeen: 0
+    property bool sawText: false
     QtObject { id: clock; property double t0: Date.now(); function elapsed() { return Date.now() - t0; } }
     Timer {
         interval: %(sample)d; running: subject.status === Loader.Ready; repeat: true
@@ -149,9 +159,13 @@ Window {
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count });
             if (s.boardPaused) harness.pausedSeen += 1;
-            // the run ends on its CONDITION where one is set (enough paused samples), else
-            // on the clock: a loaded host stretches the timeline and a fixed cap lied
-            if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || now >= %(end)d) {
+            // the run ends on its CONDITION, else on the clock (a cap, not a plan):
+            // the hovered run once enough paused samples are seen; the main run
+            // once every event has fired and the board has drained (text empty,
+            // not running) — a loaded host stretches the timeline and a fixed cap lied
+            var drained = harness.next >= timeline.length && s.tickerText === "" && !s.boardRunning && harness.sawText;
+            if (s.tickerText !== "") harness.sawText = true;
+            if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || (%(stop_paused)d === 0 && drained) || now >= %(end)d) {
                 console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width }));
                 Qt.quit();
             }
@@ -304,7 +318,9 @@ def _selftest():
     # and the hovered run has paused samples for the pulse rule to range over.
     # Whether the traces SATISFY the invariant is policy/marquee_live.rego's ruling.
     chk("every timeline step became an event", [e["op"] for e in m["events"]], [s[1] for s in TIMELINE])
-    chk("samples span the run", m["samples"][-1]["t"] >= END_MS, True)
+    last = m["samples"][-1]
+    chk("the run ended with every event fired and the board drained",
+        (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
     chk("a sample carries text, x, raw, w, running, paused, ring, count",
         sorted(m["samples"][0].keys()), ["count", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
     chk("the hovered run has paused samples", any(s["paused"] for s in m["hovered"]["samples"]), True)

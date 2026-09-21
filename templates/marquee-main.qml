@@ -186,6 +186,12 @@ PlasmoidItem {
         // readable, before anything can remove them: an arrival is owed its
         // rotation whatever its lifetime, and this is where it is claimed.
         onRowsInserted: (parent, first, last) => root.capture(first, last)
+        // ...and the second net (host trace read on a tick, 2026-09-22: a lone
+        // notification's ONLY signal was a countChanged at its expiry, ~5 s
+        // after notify-send). Removal is always signalled, and this is delivered
+        // with the row still readable — whatever was never inserted in our sight
+        // is claimed on its way out.
+        onRowsAboutToBeRemoved: (parent, first, last) => root.capture(first, last)
         onCountChanged: root.rebuild()
         // a replace (same id, new text) changes no count; it changes data
         onDataChanged: root.rebuild()

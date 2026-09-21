@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 51,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T20:40:21+00:00",
-  "job_id": "a11d75c6",
+  "heartbeat": "2026-09-21T21:16:33+00:00",
+  "job_id": "63629c89",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-a11d75c6",
-    "taken_at": "2026-09-21T20:52:48+00:00"
+    "holder": "tick-63629c89",
+    "taken_at": "2026-09-21T21:21:02+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -843,10 +843,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(3) the SWEEP, smallest checks first, each a green slice: check_taskswitch (structure/id/root/lint/tokens facts -> policy/taskswitch.rego), check_inherit (parents installed = withheld facts), check_rehue, check_token_source; then the palette family. Rules: METADATA title with a colon must be quoted; package el.NAME; the Python selftest keeps only 'the measurement can see'. (5) later: project the rego METADATA prose (opa inspect -a) into the worklist so the requirement is READ where the claim is.",
-      "evidence": "8101ae4 (pilot) + 629ab48: policy/marquee_body.rego M0-M4 + W, 10 tests, 17/17 across both; check_marquee_body --json; opa_gate selftest generalised (empty measurement never admitted); pre-commit runs opa_gate.py --test; @MARQUEE-BODY cites the gate; COTYPE s100",
+      "next_bounded_step": "(b) check_inherit: --json facts (chain, dirs, defaults, parents installed as withheld facts), the print in problems() moves out; policy/inherit.rego; then (c) check_rehue, (d) check_token_source; then the palette family.",
+      "evidence": "8101ae4 (pilot), 629ab48 (marquee_body), 978bddc (taskswitch, slice a; 44/44 across five policies; TASKSWITCH warrant + closed witness cite opa_gate)",
       "issued_at": "2026-09-21T19:04:23+00:00",
-      "last_worked": "2026-09-21T19:27:06+00:00",
+      "last_worked": "2026-09-21T21:15:22+00:00",
       "ticks_blocked": 0
     },
     {
