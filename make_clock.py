@@ -43,14 +43,22 @@ def rgbcss(t, k):
     r, g, b = t[k].split(",")
     return f'"#{int(r):02x}{int(g):02x}{int(b):02x}"'
 
-def metadata(t):
+# ⚑ ONE PACKAGE, THE VARIANT IS THE ACTIVE COLOUR SCHEME (⊕ONE-THEME, W35;
+# catalog/one-theme.md): lit / ghost / hot are Kirigami.Theme's textColor /
+# disabledTextColor / activeTextColor under colorSet View — the roles
+# make_schemes.emit_colors writes fg / fg_in / fg_act into. The ghost alpha is
+# global (make_taskswitch.ghost_alpha refuses otherwise) and baked.
+PACKAGE_ID = "org.el.segclock"
+
+
+def metadata():
     return json.dumps({
         "KPlugin": {
             "Authors": [{"Name": "EL watch themes"}],
             "Category": "Date and Time",
-            "Description": "Seven-segment EL clock matching the watch wallpaper",
-            "Icon": "clock", "Id": f"org.el.segclock.{t['id'].lower().replace('-', '')}",
-            "Name": f"EL Segment Clock ({t['name']})", "Version": "1.0",
+            "Description": "Seven-segment EL clock matching the watch wallpaper, coloured by the active scheme",
+            "Icon": "clock", "Id": PACKAGE_ID,
+            "Name": "EL Segment Clock", "Version": "1.0",
             "License": "GPLv3"},
         "KPackageStructure": "Plasma/Applet",
         "X-Plasma-API-Minimum-Version": "6.0"}, indent=2)
@@ -80,35 +88,24 @@ def _metrics_holes():
 CONFIG_XML = _t("clock-config.kcfg", **_metrics_holes())
 CONFIG_QML = _t("clock-config.qml", **_metrics_holes())
 
-def main_qml(t):
-    # ⚑ THE COLOURS ARE READ FROM THE TOKEN DICT, NOT RE-DERIVED HERE.  This took
-    # `focus` (the ACCENT) as lit, pushed it through cvd_gate.stretch_lit
-    # (⊕CONTRAST-STRETCH, session 39) and then cvd_gate.derive_ghost (the 99-point
-    # balance scan) — "not taken from fg_in (which failed WCAG on every lit-mode
-    # variant)", as the old comment said, and that was true of the AUTHORED
-    # palette. The solver (sessions 57-58) then took over both: solve_lit embodies
-    # the same push-lit-away-from-ground invariant, and fg_in is solved THROUGH the
-    # render alpha against an APCA floor (relations.md §3b). Nobody retired this
-    # copy, so the clock drew a lit and a ghost the palette never saw and drew the
-    # ghost OPAQUE — measured 2026-09-20 by scripts/check_ghost_surfaces.py, 6 of 6
-    # variants. Operator ruling (W8): one colour chain. The residue is the docstring
-    # of cvd_gate.stretch_lit / derive_ghost, which still exist for the checks.
-    lit = rgbcss(t, "fg"); ghost = rgbcss(t, "fg_in"); hot = rgbcss(t, "fg_act")
-    alpha = float(t["ghost_alpha"])
+def main_qml():
+    # ⚑ THE COLOURS WERE READ FROM THE TOKEN DICT, NOT RE-DERIVED HERE (W8's
+    # ruling: one colour chain — this once took `focus` through cvd_gate.stretch_lit
+    # and derive_ghost, a copy of the chain the solver later owned, and drew a lit
+    # and a ghost the palette never saw, opaque; measured 2026-09-20 by
+    # check_ghost_surfaces, 6 of 6). Since W35 they are not read here at all: the
+    # template BINDS them to the active scheme's roles, and the scheme is what
+    # make_schemes.emit_colors wrote the tokens into — the chain is one link shorter.
+    # The one hole that is a colour fact is the ghost alpha, global.
+    import make_taskswitch as TS
     # ⚑ THE QML IS templates/clock-main.qml.  It was 104 lines of markup in an
     # f-string, which cost ~40 DOUBLED BRACE PAIRS — every `{{` and `}}` an
     # artifact of surviving as a Python literal rather than anything QML asked
     # for. As a template it is the document verbatim: qmllint can read it, an
     # editor can open it, and a diff shows which binding moved.
     import templates.loader as TL
-    return TL.render("clock-main.qml", tables=qml_tables(),
-                     lit=lit, ghost=ghost, hot=hot, ghostAlpha=alpha,
+    return TL.render("clock-main.qml", tables=qml_tables(), ghostAlpha=TS.ghost_alpha(),
                      **_metrics_holes())
-
-def PARITY_TOKENS():
-    """The EL-Openglo token dict — what a check names to render ONE variant's clock
-    (check_qml_lint's population entry; check_template_parity._value calls it)."""
-    return next(t for (t, _dark) in GRID.values() if t.get("id") == "EL-Openglo")
 
 # ------------------------------------------------------------------ gate
 def balanced(s, o, c):
@@ -120,7 +117,22 @@ def balanced(s, o, c):
             if d < 0: return False
     return d == 0
 
-def check(path, t):
+def render_all(path):
+    """Write the ONE package into path."""
+    os.makedirs(os.path.join(path, "contents/ui"), exist_ok=True)
+    os.makedirs(os.path.join(path, "contents/config"), exist_ok=True)
+    open(os.path.join(path, "metadata.json"), "w").write(metadata())
+    open(os.path.join(path, "contents/ui/main.qml"), "w").write(main_qml())
+    open(os.path.join(path, "contents/ui/configGeneral.qml"), "w").write(CONFIG_QML)
+    open(os.path.join(path, "contents/config/main.xml"), "w").write(CONFIG_XML)
+    open(os.path.join(path, "contents/config/config.qml"), "w").write(
+        'import org.kde.plasma.configuration\n\nConfigModel {\n'
+        '    ConfigCategory {\n        name: "General"\n        icon: "clock"\n'
+        '        source: "configGeneral.qml"\n    }\n}\n')
+    return path
+
+
+def check(path):
     errs = []
     md = json.load(open(os.path.join(path, "metadata.json")))
     if md.get("KPackageStructure") != "Plasma/Applet":
@@ -146,23 +158,12 @@ def check(path, t):
 
 if __name__ == "__main__":
     shutil.rmtree("plasma-clock", ignore_errors=True)
-    failures = {}
-    for (ph, mode), (t, dark) in GRID.items():
-        path = f"plasma-clock/{t['id']}"
-        os.makedirs(os.path.join(path, "contents/ui"), exist_ok=True)
-        os.makedirs(os.path.join(path, "contents/config"), exist_ok=True)
-        open(os.path.join(path, "metadata.json"), "w").write(metadata(t))
-        open(os.path.join(path, "contents/ui/main.qml"), "w").write(main_qml(t))
-        open(os.path.join(path, "contents/ui/configGeneral.qml"), "w").write(CONFIG_QML)
-        open(os.path.join(path, "contents/config/main.xml"), "w").write(CONFIG_XML)
-        open(os.path.join(path, "contents/config/config.qml"), "w").write(
-            'import org.kde.plasma.configuration\n\nConfigModel {\n'
-            '    ConfigCategory {\n        name: "General"\n        icon: "clock"\n'
-            '        source: "configGeneral.qml"\n    }\n}\n')
-        errs = check(path, t)
-        if errs:
-            failures[t["id"]] = errs; shutil.rmtree(path)
-            print(f"NOT WRITTEN: {t['id']}: {errs[:3]}")
-        else:
-            print("wrote", t["id"])
-    sys.exit(1 if failures else 0)
+    path = f"plasma-clock/{PACKAGE_ID}"
+    render_all(path)
+    errs = check(path)
+    if errs:
+        shutil.rmtree(path)
+        print(f"NOT WRITTEN: {PACKAGE_ID}: {errs[:3]}")
+        sys.exit(1)
+    print("wrote", PACKAGE_ID)
+    sys.exit(0)

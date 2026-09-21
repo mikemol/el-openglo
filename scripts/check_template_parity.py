@@ -29,6 +29,8 @@ BASELINES = os.path.join(ROOT, "catalog", "baselines")
 # exercised without this file knowing what a token dict is.
 PAIRS = (
     ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
+    # the ONE clock package (⊕ONE-THEME, W35): one colour hole, the global ghost alpha
+    ("make_clock", "main_qml", None, "clock-main.qml"),
     ("make_clock", "CONFIG_XML", None, "clock-config.kcfg"),
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
     ("make_wallpaper_live", "config_main_xml", None, "live-wallpaper-config.kcfg"),
@@ -206,6 +208,7 @@ INSTALLED = {
     "marquee-config.kcfg": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/config/main.xml",
     "marquee-config.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui/configGeneral.qml",
     "taskswitch-main.qml": "/usr/share/kwin/tabbox/org.el.taskswitch/contents/ui/main.qml",
+    "clock-main.qml": "/usr/share/plasma/plasmoids/org.el.segclock/contents/ui/main.qml",
     "live-wallpaper-main-EL-Openglo.qml": "/usr/share/plasma/wallpapers/org.el.livewallpaper.elopenglo/contents/ui/main.qml",
 }
 

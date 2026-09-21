@@ -9,11 +9,18 @@ PlasmoidItem {
     id: root
     // --- geometry: the SAME tables as the wallpaper (do not hand-edit) ---
 $tables
-    property color litColor: $lit
-    property color ghostColor: $ghost
-    property color hotColor: $hot
-    // ghost opacity — SOLVED by the palette (ghost_alpha on every token). The
-    // ghost segments were drawn OPAQUE here, so the seen ghost was the declared
+    // ⚑ BOUND, NOT BAKED (⊕ONE-THEME, W35; catalog/one-theme.md): lit = ForegroundNormal
+    // (the fg token), ghost = ForegroundInactive (fg_in), hot = ForegroundActive
+    // (fg_act) — the active scheme's View roles. ONE package: applying
+    // EL-Amber.colors is what makes this clock amber. The panel is the ground.
+    Kirigami.Theme.colorSet: Kirigami.Theme.View
+    Kirigami.Theme.inherit: false
+    property color litColor: Kirigami.Theme.textColor
+    property color ghostColor: Kirigami.Theme.disabledTextColor
+    property color hotColor: Kirigami.Theme.activeTextColor
+    // ghost opacity — SOLVED by the palette (ghost_alpha on every token), GLOBAL
+    // across the variants (W23) and so bakeable in one package. The ghost
+    // segments were drawn OPAQUE here, so the seen ghost was the declared
     // colour rather than its composite over the ground the palette solved for.
     property real ghostAlpha: $ghostAlpha
     property int segLen: Math.max(6, Math.floor(height * 0.42))

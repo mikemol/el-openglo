@@ -183,7 +183,7 @@ def coverable():
     variant = tok["id"]
 
     def emit_all():
-        return {"clock": MC.main_qml(tok),
+        return {"clock": MC.main_qml(),
                 "live-wallpaper": MWL.main_qml(variant),
                 "wallpaper": MW.wallpaper_svg(variant)}
     before = emit_all()

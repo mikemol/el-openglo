@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 51,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T22:21:42+00:00",
-  "job_id": "d0ff9a72",
+  "heartbeat": "2026-09-21T22:58:47+00:00",
+  "job_id": "0245261b",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-d0ff9a72",
-    "taken_at": "2026-09-21T22:39:25+00:00"
+    "holder": "tick-0245261b",
+    "taken_at": "2026-09-21T23:03:09+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -618,10 +618,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(2b) THE MARQUEE BOUND: check_marquee_live runs under theme_probe.env_for(variant) with --apptype widget (the REAL theme per variant, no mock); the six-row hue table keyed by the live fg hex; bind lit/ghost/ground under View, bake the alpha; ONE package org.el.notifymarquee; the harness samples root.litColor and marquee_live gains L8 (the resolved lit equals the variant's fg); make_deb stages one marquee; parity/lint/ghost_surfaces updated; COTYPE s106. Then (3) clock, (4) live wallpaper, (5) LnF one package.",
-      "evidence": "23f2117 (switcher one package) + 82a91da (theme_probe: the real Kirigami.Theme resolves per variant under a private kdeglobals; T5 asserts resolution, 47/47; COTYPE s105)",
+      "next_bounded_step": "(3) THE CLOCK BOUND: templates/clock-main.qml binds lit/ghost/hot/ground to textColor/disabledTextColor/activeTextColor/backgroundColor under View (hot = ForegroundActive = fg_act, one-theme.md); make_clock.main_qml() loses its token dict (alpha from ghost_alpha(), tables from the registry); ONE package org.el.segclock; render_qml clock renders under theme_probe.env_for(variant) with --apptype widget and --pixels censuses the variant's lit; check_ghost_surfaces _bound for make_clock; check_qml_lint DOCS; parity (clock main becomes a pair); make_deb stages one clock + the layout script names it; check_clock/PARITY_TOKENS callers via --calls; COTYPE s107. Then (4) live wallpaper (WallpaperItem: does Kirigami.Theme resolve inside a wallpaper? measure first), (5) LnF one package whose defaults select ColorScheme.",
+      "evidence": "23f2117 (switcher), 82a91da (theme_probe + T5), 6386f7d (marquee one package + L8, 49/49; COTYPE s106)",
       "issued_at": "2026-09-21T14:51:57+00:00",
-      "last_worked": "2026-09-21T22:20:26+00:00",
+      "last_worked": "2026-09-21T22:57:32+00:00",
       "ticks_blocked": 0
     },
     {

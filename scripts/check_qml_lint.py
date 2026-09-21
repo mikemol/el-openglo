@@ -39,7 +39,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 DOCS = (
     ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
-    ("make_clock", "main_qml", "PARITY_TOKENS", "clock-main.qml"),
+    ("make_clock", "main_qml", None, "clock-main.qml"),   # one package since W35
     ("make_wallpaper_live", "main_qml", "EL-Openglo", "live-wallpaper-main.qml"),
     ("make_notify_marquee", "main_qml", ("PARITY_FONT",), "marquee-main.qml"),   # one package since W35
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),

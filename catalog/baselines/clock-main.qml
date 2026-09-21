@@ -11,11 +11,18 @@ PlasmoidItem {
     property var segGeom: ({ "A": ["h", 0, 0], "G": ["h", 0, 1], "D": ["h", 0, 2], "F": ["v", 0, 0], "B": ["v", 1, 0], "E": ["v", 0, 1], "C": ["v", 1, 1] })
     property var digSegs: ({ "0": "ABCDEF", "1": "BC", "2": "ABDEG", "3": "ABCDG", "4": "BCFG", "5": "ACDFG", "6": "ACDEFG", "7": "ABC", "8": "ABCDEFG", "9": "ABCDFG" })
 
-    property color litColor: "#ffd499"
-    property color ghostColor: "#e5bf89"
-    property color hotColor: "#fab14b"
-    // ghost opacity — SOLVED by the palette (ghost_alpha on every token). The
-    // ghost segments were drawn OPAQUE here, so the seen ghost was the declared
+    // ⚑ BOUND, NOT BAKED (⊕ONE-THEME, W35; catalog/one-theme.md): lit = ForegroundNormal
+    // (the fg token), ghost = ForegroundInactive (fg_in), hot = ForegroundActive
+    // (fg_act) — the active scheme's View roles. ONE package: applying
+    // EL-Amber.colors is what makes this clock amber. The panel is the ground.
+    Kirigami.Theme.colorSet: Kirigami.Theme.View
+    Kirigami.Theme.inherit: false
+    property color litColor: Kirigami.Theme.textColor
+    property color ghostColor: Kirigami.Theme.disabledTextColor
+    property color hotColor: Kirigami.Theme.activeTextColor
+    // ghost opacity — SOLVED by the palette (ghost_alpha on every token), GLOBAL
+    // across the variants (W23) and so bakeable in one package. The ghost
+    // segments were drawn OPAQUE here, so the seen ghost was the declared
     // colour rather than its composite over the ground the palette solved for.
     property real ghostAlpha: 0.566
     property int segLen: Math.max(6, Math.floor(height * 0.42))

@@ -7211,3 +7211,63 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s106]
+
+## Session 107 — ⊕ONE-THEME, the clock: one package, bound, and the render gate runs under the real theme
+- W35 (3), 2026-09-22. templates/clock-main.qml binds lit / ghost / hot
+  to Kirigami.Theme.textColor / disabledTextColor / activeTextColor under
+  colorSet View with inherit false (it already imported Kirigami; it has no
+  ground of its own — the panel is the ground). make_clock: PACKAGE_ID
+  org.el.segclock, metadata() and main_qml() without a token dict (the
+  alpha from make_taskswitch.ghost_alpha), render_all(path), check(path);
+  PARITY_TOKENS is gone. The chain W8 shortened by a link is shorter by one
+  more: the clock reads no token at all; the scheme is what the tokens were
+  written into. make_deb: one clock in the system mapping; the widget icon
+  is one PNG (the fallback variant's phosphor) while the six per-variant
+  PNGs live in usr/share/el-openglo/icons/ and feed the inheriting icon
+  themes from there; every LnF layout script and el-openglo-apply name the
+  one id. Staged: two plasmoids, both one package.
+- render_qml now renders every surface under theme_probe.env_for(variant)
+  as a widgets app — the variant is the scheme it is rendered under, not an
+  argument to the emitter — and keeps the org.kde.kirigami import (it was
+  stripped). Measured: the bound clock under EL-Amber, 766 lit px of
+  EL-Amber's fg; make_deb's render gate (qml_sanity.render_nonempty →
+  render_qml) therefore exercises the binding on every stage (722 lit px
+  this stage). check_ghost_surfaces resolves the clock's bindings through
+  _bound (30 of 30); check_geometry_source, check_symbol's clock reads,
+  check_qml_lint's population and parity (clock-main.qml is a pair now, 13
+  of 13) follow; --installed maps org.el.segclock.
+- ⊕ONE-THEME: three of four live surfaces bound; the witness asks the live
+  wallpaper next, then the LnF as one package.
+- Residue: whether Kirigami.Theme resolves INSIDE a Plasma wallpaper
+  (WallpaperItem, no applet context) is unmeasured — the next step measures
+  before binding; the host's panel still holds org.el.segclock.elazure
+  until re-added (el-openglo-apply does it); the clock icon in the
+  Add-Widgets list is one phosphor for every scheme.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD (touches shipped deb): ⊕ONE-THEME (s97 design; s104 the
+  switcher; s105 resolution per variant headless; s106 the marquee; s107
+  the clock; next the live wallpaper, then the LnF). RESEARCH: none. TUNE:
+  none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-107 the
+  one marquee and the one clock follow plasma-apply-colorscheme on the
+  panel), ⊕VER-MARQUEE (s89-103 — after re-emerge: a lone notify-send
+  scrolls once; every notification scrolls once, none vanish, the board
+  never goes dead, a parked pointer pulses the ring; ticks read
+  check_marquee_host), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s107]

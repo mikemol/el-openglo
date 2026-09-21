@@ -88,9 +88,7 @@ def _emitted_clock_is_vector():
         sys.path.insert(0, ROOT)
     os.chdir(ROOT)                       # make_clock reads sibling files by bare name
     import make_clock
-    import make_schemes
-    t = next(v[0] for v in make_schemes.GRID.values())
-    qml = make_clock.main_qml(t)
+    qml = make_clock.main_qml()          # one package since W35: no token dict
     no_canvas = re.search(r"\bCanvas\b|ctx\.fill|getContext", qml) is None
     segment = re.search(r"component Segment:.*?(Rectangle|Shape)\s*\{.*?antialiasing:\s*true",
                         qml, re.S) is not None
@@ -235,10 +233,8 @@ def _emitted_surfaces():
         sys.path.insert(0, ROOT)
     os.chdir(ROOT)
     import make_clock
-    import make_schemes
     import make_wallpaper_live
-    t = next(v[0] for v in make_schemes.GRID.values())
-    return {"clock": make_clock.main_qml(t),
+    return {"clock": make_clock.main_qml(),
             "live-wallpaper": make_wallpaper_live.main_qml("EL-Openglo")}
 
 

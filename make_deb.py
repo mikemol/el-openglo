@@ -44,10 +44,9 @@ def system_mapping():
     # plasma desktoptheme (Plasma Style)
     for v in VARIANTS:
         m.append((f"plasma/desktoptheme/{v}", f"usr/share/plasma/desktoptheme/{v}"))
-    # clock plasmoid (one package per variant, system-installed)
-    for v in VARIANTS:
-        mid = f"org.el.segclock.{v.lower().replace('-', '')}"
-        m.append((f"plasma-clock/{v}", f"usr/share/plasma/plasmoids/{mid}"))
+    # the clock plasmoid: ONE package since W35 (bound to the active scheme)
+    import make_clock as _mc
+    m.append((f"plasma-clock/{_mc.PACKAGE_ID}", f"usr/share/plasma/plasmoids/{_mc.PACKAGE_ID}"))
     # fonts (system font dir; postinst runs fc-cache). `fonts/` was a recovery
     # gap mapped only if present (2026-09-20..21); make_font is in the STAGE
     # roster again (W24), so the mapping names its outputs and staging refuses
@@ -284,8 +283,9 @@ if [ -f "$SHARE/union/css/styles/$USTYLE/style.css" ]; then
 fi
 
 # 7. EL segment clock — add to the panel if not already present (uses Plasma's
-# scripting D-Bus interface; harmless if it fails / already added)
-PLASMOID="org.el.segclock.$(echo "$VARIANT" | tr 'A-Z' 'a-z' | tr -d '-')"
+# scripting D-Bus interface; harmless if it fails / already added). ONE widget
+# since W35: its colours follow the scheme applied in step 1.
+PLASMOID="org.el.segclock"
 if command -v qdbus6 >/dev/null 2>&1; then
   qdbus6 org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript "
     var found = false;
@@ -391,7 +391,8 @@ def build_lnf_packages():
             _json.dumps(meta, indent=2))
         # defaults — INI referencing the ALREADY-INSTALLED components by name
         lit = v.endswith("-Lit")
-        plasmoid_id = f"org.el.segclock.{v.lower().replace('-', '')}"
+        import make_clock as _mc
+        plasmoid_id = _mc.PACKAGE_ID          # ONE clock since W35; the scheme above colours it
         defaults = (
             "[kdeglobals][General]\n"
             f"ColorScheme={v}\n\n"
@@ -612,26 +613,28 @@ def stage(root):
         shutil.copytree(abs_src, d, dirs_exist_ok=True)
     mapping = mapping + lnf_mapping
 
-    # per-variant widget icon: render a phosphor segment-clock from the variant
-    # tokens into the plasmoid's contents/icons/ and point KPlugin.Icon at it, so
-    # the Add-Widgets list shows THIS variant's phosphor, not the generic clock.
+    # the widget icon: a phosphor segment-clock rendered from each variant's
+    # tokens (make_preview.icon_svg — a recovery gap until W25; its absence is a
+    # crash now, which is right: a stock icon shipping in silence was the
+    # degraded case). Since W35 the clock is ONE package, so it carries ONE icon
+    # (the fallback variant's phosphor); the per-variant PNGs still feed the
+    # inheriting icon themes below, from a shared asset dir.
     import make_preview as _mp
+    import make_clock as _mc
+    import cairosvg as _cs
+    icon_assets = os.path.join(DEB_ROOT, "usr/share/el-openglo/icons")
+    os.makedirs(icon_assets, exist_ok=True)
     for v in VARIANTS:
-        mid = f"org.el.segclock.{v.lower().replace('-', '')}"
-        pdir = os.path.join(DEB_ROOT, f"usr/share/plasma/plasmoids/{mid}")
-        meta_p = os.path.join(pdir, "metadata.json")
-        if not os.path.isfile(meta_p):
-            continue
-        # make_preview.icon_svg was a recovery gap (SKIPped per variant until
-        # 2026-09-21, W25); it is rebuilt and its absence would now be a crash,
-        # which is right — a stock icon shipping in silence was the degraded case.
+        _cs.svg2png(bytestring=_mp.icon_svg(_mp.parse_scheme(v)).encode(),
+                    write_to=os.path.join(icon_assets, f"{v}-segclock.png"),
+                    output_width=256, output_height=256)
+    pdir = os.path.join(DEB_ROOT, f"usr/share/plasma/plasmoids/{_mc.PACKAGE_ID}")
+    meta_p = os.path.join(pdir, "metadata.json")
+    if os.path.isfile(meta_p):
         icons_dir = os.path.join(pdir, "contents", "icons")
         os.makedirs(icons_dir, exist_ok=True)
-        cols = _mp.parse_scheme(v)
-        import cairosvg as _cs
-        _cs.svg2png(bytestring=_mp.icon_svg(cols).encode(),
-                    write_to=os.path.join(icons_dir, "el-segclock.png"),
-                    output_width=256, output_height=256)
+        shutil.copyfile(os.path.join(icon_assets, "EL-Openglo-segclock.png"),
+                        os.path.join(icons_dir, "el-segclock.png"))
         meta = _json.loads(open(meta_p).read())
         meta["KPlugin"]["Icon"] = "el-segclock"
         open(meta_p, "w").write(_json.dumps(meta, indent=2))
@@ -659,9 +662,7 @@ def stage(root):
     _ts.render_all(os.path.join(DEB_ROOT, "usr/share/kwin/tabbox", _ts.package_id()))
 
     _inh.render_all(VARIANTS, os.path.join(DEB_ROOT, "usr/share/icons"),
-                    icon_png=lambda v: os.path.join(
-                        DEB_ROOT, f"usr/share/plasma/plasmoids/org.el.segclock.{v.lower().replace('-', '')}",
-                        "contents", "icons", "el-segclock.png"))
+                    icon_png=lambda v: os.path.join(icon_assets, f"{v}-segclock.png"))
 
     # Chrome/Chromium themes (⊕CHROME-THEME): per-variant manifest.json emitted
     # from the same scheme tokens, loadable unpacked via chrome://extensions.

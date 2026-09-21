@@ -89,12 +89,9 @@ def subject(surface, variant):
     cols = make_preview.parse_scheme(variant)
     if surface == "clock":
         import make_clock
-        import make_schemes
-        # GRID is keyed (phosphor, mode); the variant name is the token dict's id
-        t = next((t for (t, _dark) in make_schemes.GRID.values() if t["id"] == variant), None)
-        if t is None:
-            raise ValueError(f"no variant {variant!r} in GRID")
-        qml, kcfg = make_clock.main_qml(t), make_clock.CONFIG_XML
+        # ONE package since W35: the emission has no variant; the variant is the
+        # scheme it is rendered under (theme_probe.env_for, in render())
+        qml, kcfg = make_clock.main_qml(), make_clock.CONFIG_XML
     elif surface == "live-wallpaper":
         import make_wallpaper_live
         qml = make_wallpaper_live.main_qml(variant)
@@ -122,7 +119,15 @@ def render(surface, variant, w, h, out_png, config_override=None):
         # no shaders: MultiEffect silently draws nothing and a bloom check would
         # pass or fail on a picture the desktop never shows (measured: bloom=4 and
         # bloom=0 rendered byte-identical). Ask for the RHI on OpenGL explicitly.
-        env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_LOGGING_RULES="*.debug=false",
+        # ⚑ AND UNDER THE REAL THEME (W35): a bound surface reads Kirigami.Theme,
+        # so the run happens in theme_probe.env_for(variant) — the KDE platform
+        # theme on a private kdeglobals that IS the variant's .colors — as a
+        # widgets app. An unbound surface is unaffected by it.
+        import theme_probe as TP
+        xdg = os.path.join(td, "xdg")
+        os.makedirs(xdg)
+        env = TP.env_for(variant, xdg)
+        env.update(QT_LOGGING_RULES="*.debug=false;kf.kirigami.platform=false",
                    QT_QUICK_BACKEND="rhi", QSG_RHI_BACKEND="opengl", QSG_INFO="1")
         # ⚑ UNDER A BUILD SANDBOX THE GPU IS A VIOLATION, NOT A RESOURCE.  Opening
         # /dev/nvidiactl under sys-apps/sandbox failed the whole staging (measured
@@ -132,7 +137,7 @@ def render(surface, variant, w, h, out_png, config_override=None):
         if os.environ.get("SANDBOX_ON") == "1" or os.environ.get("EL_RENDER_SOFTWARE") == "1":
             env["QT_QUICK_BACKEND"] = "software"
             env.pop("QSG_RHI_BACKEND", None)
-        r = subprocess.run([QML, os.path.join(td, "harness.qml")], env=env,
+        r = subprocess.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env,
                            capture_output=True, text=True, timeout=60)
     backend = "rhi" if "Creating QRhi" in r.stderr else (
         "software" if "backend software" in r.stderr else "unknown")

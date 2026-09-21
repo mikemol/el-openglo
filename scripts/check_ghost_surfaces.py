@@ -117,9 +117,12 @@ def surfaces(variant_id):
     out.append(("make_taskswitch", _bound(qml, "litColor", "textColor", tok["fg"]),
                 _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]), _alpha(qml)))
 
+    # bound since W35 (one package): the clock draws the token the scheme writes
+    # into the role each colour is bound to
     import make_clock as MC
-    qml = MC.main_qml(tok)
-    out.append(("make_clock", _hole(qml, "litColor"), _hole(qml, "ghostColor"),
+    qml = MC.main_qml()
+    out.append(("make_clock", _bound(qml, "litColor", "textColor", tok["fg"]),
+                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]),
                 _alpha(qml) if _alpha(qml) is not None else 1.0))
 
     import make_plymouth as MP
