@@ -514,6 +514,10 @@ CLOSED = {
                 # scrolling characters draw lit dots only — the ghost must not scroll
                 _reads("templates/marquee-main.qml", r"MatrixField\s*\{") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*showGhost:\s*false") and
+                # W34 (c): a settings page, its kcfg carrying the solved alpha as the default
+                _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{") and
+                _reads("templates/marquee-config.kcfg", r'name="ghostAlpha"[^\n]*\$ghostAlpha') and
+                _reads("make_notify_marquee.py", r"configGeneral\.qml") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

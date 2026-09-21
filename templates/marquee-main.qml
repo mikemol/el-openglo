@@ -17,6 +17,24 @@ PlasmoidItem {
     // ⊕GHOST-DENSITY's question, still open; the relation itself is one.
     property real ghostAlpha: $ghostAlpha
 
+    // ⚑ THE SETTINGS (W34 c). Each reads plasmoid.configuration with the solved or
+    // authored value as the fallback, so an unconfigured widget draws exactly
+    // what the palette emitted; a slider is an override, never the source.
+    property real cfgSpeed: (plasmoid.configuration.speed === undefined) ? 1.0
+                            : plasmoid.configuration.speed
+    property real cfgPitchScale: (plasmoid.configuration.pitchScale === undefined) ? 1.0
+                                 : plasmoid.configuration.pitchScale
+    property real cfgDotFill: (plasmoid.configuration.dotFill === undefined) ? 0.82
+                              : plasmoid.configuration.dotFill
+    property real cfgGhostAlpha: (plasmoid.configuration.ghostAlpha === undefined) ? root.ghostAlpha
+                                 : plasmoid.configuration.ghostAlpha
+    property bool cfgShowField: (plasmoid.configuration.showField === undefined) ? true
+                                : plasmoid.configuration.showField
+    property string cfgIdleText: (plasmoid.configuration.idleText === undefined) ? ""
+                                 : plasmoid.configuration.idleText
+    property int cfgMaxItems: (plasmoid.configuration.maxItems === undefined) ? 12
+                              : plasmoid.configuration.maxItems
+
     preferredRepresentation: fullRepresentation
 
     // --- the notification feed (degrades to idle if unavailable) ------------
@@ -36,7 +54,7 @@ PlasmoidItem {
 
     function rebuild() {
         var parts = [];
-        var n = Math.min(notifModel.count, 12);
+        var n = Math.min(notifModel.count, root.cfgMaxItems);
         for (var i = 0; i < n; i++) {
             var idx = notifModel.index(i, 0);
             var app = notifModel.data(idx, NotificationManager.Notifications.ApplicationNameRole);
@@ -73,7 +91,7 @@ PlasmoidItem {
 
         // dot pitch from the panel height: the cell is `rows` dots tall, and we
         // leave a little vertical air so the glyph does not touch the bezel.
-        property real pitch: Math.max(1, (height * 0.72) / root.matrix.rows)
+        property real pitch: Math.max(1, (height * 0.72) / root.matrix.rows * root.cfgPitchScale)
         property real cellW: root.matrix.cols * pitch
         property real advance: cellW + pitch      // one blank column between chars
 
@@ -86,10 +104,34 @@ PlasmoidItem {
         MatrixField {
             id: field
             anchors.fill: parent
+            visible: root.cfgShowField
             rows: root.matrix.rows
             u: rep.pitch
+            dotFill: root.cfgDotFill
             ghostColor: root.ghostColor
-            ghostOpacity: root.ghostAlpha
+            ghostOpacity: root.cfgGhostAlpha
+        }
+
+        // idle text (settings), lit on the field, centred and snapped to the pitch
+        Row {
+            visible: root.tickerText.length === 0 && root.cfgIdleText.length > 0
+            spacing: rep.pitch
+            y: (parent.height - rep.matrixHeight) / 2
+            x: Math.round(((rep.width - width) / 2) / rep.pitch) * rep.pitch
+            Repeater {
+                model: root.cfgIdleText.split("")
+                MatrixChar {
+                    font: root.matrixFont
+                    cols: root.matrix.cols; rows: root.matrix.rows
+                    ch: modelData
+                    u: rep.pitch
+                    dotFill: root.cfgDotFill
+                    litColor: root.litColor
+                    ghostColor: root.ghostColor
+                    ghostOpacity: root.cfgGhostAlpha
+                    showGhost: false
+                }
+            }
         }
 
         // the marquee: the LIT dots scroll right-to-left OVER the field. The
@@ -109,17 +151,19 @@ PlasmoidItem {
                     cols: root.matrix.cols; rows: root.matrix.rows
                     ch: modelData
                     u: rep.pitch
+                    dotFill: root.cfgDotFill
                     litColor: root.litColor
                     ghostColor: root.ghostColor
-                    ghostOpacity: root.ghostAlpha
+                    ghostOpacity: root.cfgGhostAlpha
                     showGhost: false
                 }
             }
             NumberAnimation on rawX {
                 running: marquee.visible
                 from: rep.width; to: -marquee.width
-                // speed scales with length so long feeds don't crawl
-                duration: Math.max(6000, (rep.width + marquee.width) * 12)
+                // speed scales with length so long feeds don't crawl; the
+                // settings' speed factor divides the duration
+                duration: Math.max(1500, (rep.width + marquee.width) * 12 / root.cfgSpeed)
                 loops: Animation.Infinite
             }
         }

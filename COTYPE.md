@@ -6198,3 +6198,56 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s89]
+
+## Session 90 — ⊕VER-MARQUEE (c): the settings page; W34 closes
+- The third finding ("nothing configurable"): the widget shipped no config
+  package, so the dialog showed only Keyboard Shortcuts and About. The
+  clock's pattern, read from make_clock and its templates: three files —
+  contents/config/main.xml (kcfg), contents/config/config.qml (ConfigModel
+  naming configGeneral.qml), contents/ui/configGeneral.qml (KCM.SimpleKCM
+  with cfg_ aliases; org.kde.kcmutils, not the KF5 org.kde.kcm) — and no
+  metadata keys.
+- templates/marquee-config.kcfg: speed (a factor on the length-scaled
+  duration), pitchScale (of the panel-derived pitch), dotFill (authored
+  0.82), ghostAlpha whose DEFAULT is the SOLVED alpha as a hole (the slider
+  is a per-user override; an unconfigured widget draws what the palette
+  emitted — check_ghost_surfaces still reads it, 30 of 30), showField,
+  idleText (lit on the field, centred and snapped; empty = the bare field),
+  maxItems (was a literal 12). templates/marquee-config.qml aliases every
+  control (the clock had shipped two sliders without aliases). marquee-main
+  reads plasmoid.configuration.* with undefined-checked defaults;
+  MatrixField and every MatrixChar take dotFill and the override alpha from
+  it; the pitch takes pitchScale; the animation's duration is divided by
+  speed. make_notify_marquee: config_xml(variant), config_qml, CONFIG_MODEL,
+  all three written by render_all. Lint clean (4 files). Parity: the main
+  baseline re-captured deliberately, two new pairs (the kcfg with its solved
+  default, the page) — 9 of 9. The ticker's witness pins the page and the
+  kcfg's solved-alpha default.
+- Four gates (the ⊕VER correction as a whole, W34): constructible (field,
+  showGhost, the three config files); reachable (every variant's package
+  carries them; the solved alpha reaches the kcfg default); observable (the
+  emitted files; the sample; the settings dialog once emerged); coverable
+  (parity on three pairs; the ghost-surfaces read; the witness pins). Live
+  confirmation of all three findings is the operator's next look.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-90 corrected live: fixed field, lit-only glyphs, a settings page) +
+  ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) + ⊕NOTIFY-SEGRENDER ✓
+  ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 does Global Theme apply the
+  icon + cursor groups?; s86 does Alt+Tab load the EL switcher?; s89-90 the
+  marquee's field, scroll and settings after re-emerge), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s90]

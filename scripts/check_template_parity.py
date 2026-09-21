@@ -42,6 +42,9 @@ PAIRS = (
     # difference as a template difference.
     ("make_notify_marquee", "main_qml", ("EL-Openglo", "PARITY_FONT"),
      "marquee-main-EL-Openglo.qml"),
+    # the settings (W34 c): the kcfg carries the solved ghost alpha as its default
+    ("make_notify_marquee", "config_xml", "EL-Openglo", "marquee-config-EL-Openglo.kcfg"),
+    ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     # ⚑ THE GEOMETRY MOVED TOO, NOT ONLY THE MARKUP.  This surface's seven-seg map
     # and stroke table were hand-written inside the f-string; they are now
     # segment_topology's projection. So this pair proves TWO things at once — that

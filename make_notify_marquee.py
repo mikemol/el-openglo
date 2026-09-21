@@ -115,15 +115,41 @@ def matrix_field_component():
 
 
 
+def config_xml(variant):
+    """contents/config/main.xml — the settings' kcfg. The ghostAlpha DEFAULT is the
+    palette's solved alpha, filled here: the slider is a per-user override, so an
+    unconfigured widget draws exactly what check_ghost_surfaces measured."""
+    _g, _l, _gh, alpha = WL.colors_for(variant)
+    import templates.loader as TL
+    return TL.render("marquee-config.kcfg", ghostAlpha=alpha)
+
+
+def config_qml():
+    """contents/ui/configGeneral.qml — the settings page (clock pattern, W34 c)."""
+    import templates.loader as TL
+    return TL.render("marquee-config.qml")
+
+
+CONFIG_MODEL = ('import org.kde.plasma.configuration\n\nConfigModel {\n'
+                '    ConfigCategory {\n        name: "General"\n        icon: "view-list-text"\n'
+                '        source: "configGeneral.qml"\n    }\n}\n')
+
+
 def render_all(variants, dir_map):
     written = {}
     for v in variants:
         d = dir_map[v]
         ui = os.path.join(d, "contents", "ui")
+        cfg = os.path.join(d, "contents", "config")
         os.makedirs(ui, exist_ok=True)
+        os.makedirs(cfg, exist_ok=True)
         open(os.path.join(d, "metadata.json"), "w").write(
             json.dumps(metadata(v), indent=2))
         open(os.path.join(ui, "main.qml"), "w").write(main_qml(v))
+        # the settings page (W34 c): the same three files the clock ships
+        open(os.path.join(ui, "configGeneral.qml"), "w").write(config_qml())
+        open(os.path.join(cfg, "main.xml"), "w").write(config_xml(v))
+        open(os.path.join(cfg, "config.qml"), "w").write(CONFIG_MODEL)
         # ⚑ THE COMPONENT SHIPS BESIDE THE PLASMOID OR THE IMPORT RESOLVES TO
         # NOTHING.  main.qml instantiates MatrixChar by bare name, which QML
         # resolves from the same directory — emitting one without the other gives

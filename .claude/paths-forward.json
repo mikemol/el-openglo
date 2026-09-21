@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 37,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T14:57:24+00:00",
-  "job_id": "2abf96a3",
+  "heartbeat": "2026-09-21T15:30:24+00:00",
+  "job_id": "851dbfa4",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-55",
-    "taken_at": "2026-09-21T15:05:59+00:00"
+    "holder": "tick-56",
+    "taken_at": "2026-09-21T15:37:00+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -605,10 +605,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(a)+(b) first, one change: split MatrixChar's field from its glyph — a MatrixField item draws the static ghost dots for the WHOLE widget width (cols = floor(width/pitch), rows from the display) and the scrolling Row draws LIT dots only (ghost disabled per char) positioned so lit dots land ON field cells (x snapped to pitch, or the field simply lies under). Keep the idle face on the field. render_samples marquee mirror follows. Then (c): marquee-config.qml + kcfg (speed, pitchScale, dotFill, ghostWeight/alpha slider, blink, idleText), wired like the clock (make_notify_marquee emits contents/config/main.xml + ui/configGeneral.qml, metadata X-Plasma-… as the clock's), qml_sanity, parity baseline re-capture.",
-      "evidence": "operator screenshot 2026-09-22: pips move with text and stop at its end; settings dialog shows only Keyboard Shortcuts/About",
+      "next_bounded_step": "(c) the config page, the clock's pattern exactly: templates/marquee-config.qml (import org.kde.kcmutils as KCM; KCM.SimpleKCM; cfg_ aliases) + templates/marquee-config.kcfg (speed as a duration factor, pitchScale 0.5-1.5 of the panel-derived pitch, dotFill 0.5-1.0, ghostAlpha slider defaulting to the solved alpha — read the clock's kcfg for how defaults carry solved values as holes, blinkIdle, idleText); make_notify_marquee emits contents/config/main.xml + contents/ui/configGeneral.qml and the metadata gains the same X-Plasma keys as the clock's (compare make_clock.metadata); marquee-main.qml reads plasmoid.configuration.* with defaults (the clock's undefined-check idiom); MatrixField/MatrixChar take dotFill/pitch from it; qml_sanity on all; parity: a new pair for the config QML captured; check_ghost_surfaces still reads the ghostAlpha hole (the DEFAULT must stay the solved alpha — the slider is a user override). Then COTYPE s90 and W34 done.",
+      "evidence": "0c8fa21: templates/MatrixField.qml (fixed field, Canvas, bezel to bezel); MatrixChar.showGhost; marquee draws lit-only over the field, x snapped to pitch; emitted beside MatrixChar; sample mirror follows; parity re-captured; witness pins MatrixField + showGhost:false; COTYPE s89. (a)+(b) done; (c) config page next.",
       "issued_at": "2026-09-21T14:43:42+00:00",
-      "last_worked": "2026-09-21T14:43:42+00:00",
+      "last_worked": "2026-09-21T15:29:31+00:00",
       "ticks_blocked": 0
     },
     {
