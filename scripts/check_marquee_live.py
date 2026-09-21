@@ -116,6 +116,7 @@ Window {
     }
     property var timeline: %(timeline)s
     property int next: 0
+    property int pausedSeen: 0
     QtObject { id: clock; property double t0: Date.now(); function elapsed() { return Date.now() - t0; } }
     Timer {
         interval: %(sample)d; running: subject.status === Loader.Ready; repeat: true
@@ -125,7 +126,10 @@ Window {
             var s = subject.item;
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count });
-            if (now >= %(end)d) {
+            if (s.boardPaused) harness.pausedSeen += 1;
+            // the run ends on its CONDITION where one is set (enough paused samples), else
+            // on the clock: a loaded host stretches the timeline and a fixed cap lied
+            if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || now >= %(end)d) {
                 console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width }));
                 Qt.quit();
             }
@@ -160,8 +164,18 @@ def subject(hover_pause=False):
     }
 
 
-def run(hover_pause=False, end_ms=None):
-    """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent."""
+HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples are seen
+HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
+
+
+def run(hover_pause=False, end_ms=None, stop_paused=0):
+    """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
+
+    ⚑ THE HOVERED RUN ENDS ON ITS CONDITION, NOT THE CLOCK (measured 2026-09-22:
+    a 2.6 s cap passed on an idle host and refused under the pre-commit gate's
+    load, where the board had not yet reached the pointer). The timeline is
+    wall-clock inside qml; every rule is over order and presence, and now the
+    run length is too."""
     if not os.path.isfile(QML):
         return None
     os.chdir(ROOT)
@@ -178,7 +192,7 @@ def run(hover_pause=False, end_ms=None):
         timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in TIMELINE]
         open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
-            "sample": SAMPLE_MS, "end": end_ms or END_MS})
+            "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused})
         # (no QT_LOGGING_RULES *.debug=false here: console.log IS a debug message,
         # and the RESULT line rides on it)
         env = dict(os.environ, QT_QPA_PLATFORM="offscreen",
@@ -195,6 +209,10 @@ def run(hover_pause=False, end_ms=None):
             res["log"] = log
             return res
     raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
+
+
+def run_hovered():
+    return run(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES)
 
 
 def measure(res, hovered=None):
@@ -218,7 +236,7 @@ def main(argv):
         # the pointer explanation, shown: with hover-pause ON the run halts at x≈0.
         # With --json too, the stalled trace is emitted AS THE MAIN RUN — the
         # policy's refusing input for L6, produced by the real widget rather than typed.
-        h = run(hover_pause=True, end_ms=2600)
+        h = run_hovered()
         m = measure(h, h)
         if "--json" in argv:
             print(json.dumps(m, indent=1))
@@ -229,7 +247,7 @@ def main(argv):
               f"while running (the offscreen pointer at (0,0) hovers the Row); "
               f"the ring took {pulsing} distinct opacities while paused")
         return 0
-    m = measure(run(), run(hover_pause=True, end_ms=2600))
+    m = measure(run(), run_hovered())
     if "--trace" in argv:
         for l in m["log"]:
             print(f"widget {l}")
@@ -258,7 +276,7 @@ def _selftest():
         print("  SKIP — no qml runner")
         print("check_marquee_live selftest: SKIP")
         return True
-    m = measure(res, run(hover_pause=True, end_ms=2600))
+    m = measure(res, run_hovered())
     # ⚑ THE MEASUREMENT CAN SEE: every timeline step was applied and logged, the
     # board was sampled across the whole run, the samples carry the observables,
     # and the hovered run has paused samples for the pulse rule to range over.

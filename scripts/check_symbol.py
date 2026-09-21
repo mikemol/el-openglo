@@ -444,7 +444,8 @@ CLOSED = {
                 _reads("templates/taskswitch-main.qml", r"KWin\.TabBoxSwitcher\s*\{") and
                 _reads("make_deb.py", r"_ts\.defaults_fragment\(") and
                 _reads("scripts/check_ghost_surfaces.py", r'"make_taskswitch":\s*"looked_at"') and
-                _tool("check_taskswitch.py")),
+                # W50: the verdict is the rego policy over the measurement, not the check's exit
+                _tool("opa_gate.py", "taskswitch")),
     # closed session 85 (W31, 2026-09-21). The open witnesses looked for
     # "Inherits=" near "icon"/"cursor" in make_deb or make_plasma; the emitter is
     # make_inherit, selected through the LnF defaults, checked by check_inherit.
