@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 31,
+  "counter": 33,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T13:27:31+00:00",
-  "job_id": "7f4101c8",
+  "heartbeat": "2026-09-21T13:51:15+00:00",
+  "job_id": "6abdc4b0",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-50",
-    "taken_at": "2026-09-21T13:36:52+00:00"
+    "holder": "tick-51",
+    "taken_at": "2026-09-21T14:06:29+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -554,16 +554,46 @@
     {
       "symbol": "W31",
       "title": "TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "make_deb,make_plasma,templates",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "⊕TASKSWITCH: read the host's tabbox contract first — /usr/share/kwin/tabbox/<name>/{metadata.json,contents/ui/main.qml} (ls, then Read one stock switcher, e.g. thumbnail_grid) — state what a KWin/WindowSwitcher package needs (KPackageStructure, the PlasmaCore/KWin imports, tabBox.model roles); then a make_taskswitch.py emitting one switcher per variant (phosphor ground, lit for the selected entry, ghost for the rest — colours from colors_for like the marquee), wired into make_deb and LnF defaults [kwinrc][TabBox] LayoutName=; qml_sanity on the emitted QML; check_taskswitch.py; witness in check_symbol (open witness: windowswitcher|tabbox|taskswitch in make_plasma|make_deb).",
-      "evidence": "94da411: make_inherit.py (icon_index/cursor_index/defaults_fragment/render_all), make_deb wiring + LnF defaults groups, scripts/check_inherit.py @INHERIT (worklist 58; 6/6 parents installed here), token-source exemption documented; ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT in CLOSED (41 witnessed; --regressions 57 s CPU); COTYPE s85",
+      "next_bounded_step": "",
+      "evidence": "a5f8a75: templates/taskswitch-main.qml + make_taskswitch.py + make_deb wiring + LnF [kwinrc][TabBox]; scripts/check_taskswitch.py @TASKSWITCH (worklist 59); check_ghost_surfaces enumerates the switcher (30/30); ⊕TASKSWITCH in CLOSED (42 witnessed; --regressions 61 s CPU); TUNE bucket green; COTYPE s86",
       "issued_at": "2026-09-21T12:54:47+00:00",
-      "last_worked": "2026-09-21T13:26:33+00:00",
+      "last_worked": "2026-09-21T13:49:42+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W32",
+      "title": "RESIDUE sweep, the cheap two: ⊕NOTIFY-SEGRENDER (its criterion at :3568 is 'the ticker renders in the actual 7-seg/DOT primitive' — the dot matrix ticker of s77 satisfies the DOT half; propose the COLLAPSE into ⊕NOTIFY-MATRIXRENDER: re-aim its witness at MatrixChar dots, COTYPE closure naming the collapse, CLOSED) and ⊕SUPERSAMPLE-WP (:2583 'the wallpaper generator supersamples at generation time' — measure how make_wallpaper rasterises its PNG (cairosvg at 1920x1080 from the SVG?); if the SVG is rasterised at 1x, render at 2x and downscale with a box filter in the PNG step, check with a synthetic edge (aliasing energy falls), close)",
+      "status": "ready",
+      "enables": [],
+      "touches": "make_notify_marquee,make_wallpaper,check_symbol",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "NOTIFY-SEGRENDER first (a witness + a closure, 15 min): read the :3568 entry and the s65 correction; if the dot primitive satisfies it, write the s87 closure as a collapse into MATRIXRENDER (the 7-seg half is the wrong turn, recorded), move to CLOSED with a witness at MatrixChar's dot Rectangle + displays['5x8']. Then SUPERSAMPLE-WP: check_symbol --status shows its witness regex; read make_wallpaper's PNG step.",
+      "evidence": "",
+      "issued_at": "2026-09-21T13:50:09+00:00",
+      "last_worked": "2026-09-21T13:50:09+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W33",
+      "title": "⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
+      "status": "ready",
+      "enables": [],
+      "touches": "templates/SegmentChar.qml,templates/clock-main.qml,make_clock,check_ghost_composite",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Measure: diff the two idioms as a table (property -> SegmentChar has / clock has), from the files, into COTYPE; decide the adoption ORDER (clock first: it is the looked-at surface and has the sliders); state what SegmentChar needs to gain (weight, ghostWeight, bloom, pitch as properties; the render gate + parity baseline for the clock will move). Do not port this tick.",
+      "evidence": "",
+      "issued_at": "2026-09-21T13:50:20+00:00",
+      "last_worked": "2026-09-21T13:50:20+00:00",
       "ticks_blocked": 0
     }
   ],

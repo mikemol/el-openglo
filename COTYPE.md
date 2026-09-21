@@ -5940,3 +5940,68 @@ residue gated on live operator testing.
   (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s86]
+
+## Session 87 — residue sweep: ⊕NOTIFY-SEGRENDER collapses into the matrix ticker; ⊕SUPERSAMPLE-WP was already in the tree
+- W32, 2026-09-22. Two residue symbols measured against their own words.
+- ⊕NOTIFY-SEGRENDER, :3568 verbatim: "render ticker in the actual 7-seg/
+  dot-matrix display lib rather than monospace Text — deeper phosphor
+  fidelity". s65 corrected the topology (the marquee is a matrix, not
+  segments) and named the 7-seg half the wrong turn; the s77 ticker renders
+  every character as MatrixChar dots off the registry's 5x8 display, with no
+  font.family anywhere in the template. That IS the criterion's dot half.
+  COLLAPSE: ⊕NOTIFY-SEGRENDER and ⊕NOTIFY-MATRIXRENDER were one item, named
+  before and after the s65 correction. The residue witness had looked for
+  SegmentChar in the emitter — the half that was the wrong turn; the CLOSED
+  witness aims at MatrixChar's dot (radius: width/2), displays["5x8"] in the
+  marquee, and the ABSENCE of font.family.
+- ⊕SUPERSAMPLE-WP, :2583 verbatim: "DEFERRED … (cairosvg already renders
+  SVG->PNG; bump render px + add SVG blur filter for the watch face)".
+  Measured in make_wallpaper: cairosvg.svg2png at output 2560x1440 for a PNG
+  served as usr/share/wallpapers/<v>/contents/images/1920x1080.png — 1.33x the
+  named resolution, Plasma scales down — and the SVG carries the #glow filter
+  (feGaussianBlur 22 halo + 3 soft, merged). Both halves are in the tree; the
+  residue witness had looked for the word "supersample". Not changed: bumping
+  to 2x (3840x2160) would be a cleaner downscale at ~4x the PNG bytes x 6
+  variants; the 1.33x is the deferral as written. Residue: the file is NAMED
+  1920x1080 and IS 2560x1440 — Plasma's image plugin picks by name and scales,
+  so it works, but the name lies; a rename to the true size (or a real 1920
+  and a real 2560 beside it) is honest packaging work, ⊕VER-scale.
+- Four gates (SEGRENDER): the s77 gates, by collapse. Four gates
+  (SUPERSAMPLE-WP): constructible (the rasterisation and the filter exist);
+  reachable (every variant's PNG goes through the same call); observable
+  (the PNG's pixel size vs its name — measurable with PIL); coverable (the
+  witness fails if output_width drops below 2500 or the blur is removed).
+
+### ⊕NOTIFY-SEGRENDER closure (by collapse into ⊕NOTIFY-MATRIXRENDER)
+- Four gates: s77's. Residue: none beyond the marquee's own (Latin-1 charset,
+  no harness).
+
+### ⊕SUPERSAMPLE-WP closure (four gates)
+- Four gates: as above. Residue: the 1920x1080 name over a 2560x1440 file;
+  no 2x option; the live wallpaper's halo stair-stepping is the QML canvas
+  (separate residue).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) + ⊕GHOST-DENSITY ✓ (81) +
+  ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) + ⊕ICONS-INHERIT ✓
+  ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) + ⊕NOTIFY-SEGRENDER ✓ (87, by
+  collapse into the matrix ticker) + ⊕SUPERSAMPLE-WP ✓ (87, already in the
+  tree: 2560x1440 + the glow filter)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s77 the marquee's lowercase and
+  Latin-1; s80 does the marquee's ghost field read as texture or vanish?;
+  s85 does Global Theme apply the icon + cursor groups?; s86 does Alt+Tab
+  load the EL switcher?), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (now with the per-surface field densities as input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (component
+  gated, unused; idiom not relation — and now the surface that would carry
+  bloom/weight to all). ⊕PLA2 ⊕KVT2 ⊕KNB2. [s87]

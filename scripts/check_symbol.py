@@ -186,12 +186,6 @@ WITNESS = {
         " segments in its own idiom (:4419)",
         lambda: _any(["templates/live-wallpaper-main.qml", "templates/clock-main.qml",
                       "templates/marquee-main.qml"], r"\bSegmentChar\s*\{")),
-    "⊕NOTIFY-SEGRENDER": (
-        "the ticker renders in the actual 7-seg/dot primitive (:3568)",
-        lambda: _reads("make_notify_marquee.py", r"(?i)SegmentChar|segment_topology")),
-    "⊕SUPERSAMPLE-WP": (
-        "the wallpaper generator supersamples at generation time (:2583)",
-        lambda: _reads("make_wallpaper.py", r"(?i)supersampl|scale\s*=\s*[2-9]")),
     "⊕HDR-EMIT": (
         "extended-range colour is emitted, once Qt exposes it to QML (:2411)",
         lambda: _any(["make_schemes.py", "make_clock.py"], r"(?i)\bhdr\b|extended.?range")),
@@ -396,6 +390,31 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 87 (W32, 2026-09-22). The deferral at :2583 names two halves —
+    # "bump render px + add SVG blur filter" — and the residue witness looked for
+    # the WORD supersample. Measured: cairosvg rasterises the SVG at 2560x1440 for
+    # a wallpaper served as 1920x1080 (1.33x), and the SVG carries the #glow
+    # feGaussianBlur. Both halves are in the tree; this aims at them.
+    "⊕SUPERSAMPLE-WP": (
+        "the wallpaper PNG is rasterised above its served resolution (cairosvg at"
+        " 2560x1440 for a 1920x1080 wallpaper) from an SVG carrying a Gaussian glow"
+        " filter — the two halves of the deferral (:2583)",
+        lambda: _reads("make_wallpaper.py", r"output_width=(2[5-9]\d\d|[3-9]\d{3})\b") and
+                _reads("make_wallpaper.py", r"<feGaussianBlur\b") and
+                _reads("make_deb.py", r"1920x1080\.png")),
+    # closed session 87 (W32, 2026-09-22) BY COLLAPSE into ⊕NOTIFY-MATRIXRENDER.
+    # The log's words at :3568 are "render ticker in the actual 7-seg/dot-matrix
+    # display lib rather than monospace Text"; s65 corrected the topology (the
+    # marquee is a MATRIX, not segments) and the s77 dot-matrix ticker is that
+    # render. The residue witness had looked for SegmentChar in the emitter — the
+    # wrong half of the "7-seg/dot" disjunction. This one aims at the dots.
+    "⊕NOTIFY-SEGRENDER": (
+        "the ticker renders in the actual dot-matrix primitive (MatrixChar's dots off the"
+        " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)",
+        lambda: _reads("templates/MatrixChar.qml", r"radius:\s*width\s*/\s*2") and
+                _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
+                # a BINDING, not the comment that records the old idiom
+                not _reads("templates/marquee-main.qml", r"(?m)^\s*font\.family\s*:")),
     # closed session 86 (W31, 2026-09-21). The open witness looked for the words
     # windowswitcher|tabbox|taskswitch in make_plasma or make_deb; the emitter is
     # make_taskswitch over templates/taskswitch-main.qml, selected by the LnF
