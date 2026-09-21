@@ -63,6 +63,14 @@ done
 #    that makes the reconstructed geometry a reconstruction rather than a guess.
 run "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest >/dev/null
 
+# 4a. WARM THE PALETTE CACHE, as a timed and ledgered step.  Importing
+#    make_schemes solves the palette (~108 s cold; seconds warm), and every
+#    palette check does so. Under paperkit's per-check budget a COLD cache made
+#    ~13 checks time out at once and this hook refused a GREEN tree — three
+#    times on 2026-09-20, each passing on the warm retry. "Retry, it was cold"
+#    was a judgement living in the turn; it lives here now.
+run "palette-cache" "${RUNNER[@]}" "$ROOT/make_schemes.py" --warm >/dev/null
+
 # 4. THE WORKLIST.  Every cited claim must be discharged.  This subsumes the
 #    individual checks: it is the projection over all of them.
 #
@@ -76,9 +84,18 @@ run "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest >/de
 #    design") — a gate that is always bypassed gates nothing.  Not-blocking and
 #    not-falsifiable are separable (CLAUDE.md): the cotype stays red and
 #    falsifiable, reported here, and stops pretending to be a promotion gate.
-run "worklist" "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only worklist >/dev/null 2>&1 || {
+#    ⚑ THE REASON IS KEPT, NOT DISCARDED.  This ran with `>/dev/null 2>&1` and
+#    on refusal printed only "run it yourself". Measured in .gate-outcomes.tsv:
+#    on 2026-09-20/21 three refusals took ~5 s each — fast failures, not the
+#    cold-cache timeouts I diagnosed from outside — and each passed on a retry
+#    forty seconds later with nothing changed. Whatever failed was never seen.
+#    A gate that hides its reason turns every refusal into a guess.
+WL_OUT="$(mktemp)"
+run "worklist" "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only worklist >"$WL_OUT" 2>&1 || {
+  sed 's/^/    worklist: /' "$WL_OUT" >&2
   echo "    (run: python3 scripts/worklist_gate.py --only worklist — it names each undischarged claim)" >&2
 }
+rm -f "$WL_OUT"
 "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only cotype --summary 2>/dev/null \
   | sed 's/^/    cotype (queue, non-blocking): /' >&2 || true
 

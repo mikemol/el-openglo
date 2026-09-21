@@ -404,6 +404,17 @@ def audit(t):
 
 # -------------------------------------------------------------------- main
 if __name__ == "__main__":
+    if "--warm" in sys.argv:
+        # ⚑ THE CACHE IS WARMED AS A NAMED STEP, NOT AS A SIDE EFFECT OF WHOEVER
+        # IMPORTS FIRST.  Importing this module solves the palette (~108 s cold)
+        # and every palette check imports it; run in parallel under paperkit's
+        # per-check budget, a cold cache made ~13 checks time out at once and
+        # the pre-commit hook refused a green tree — three times on 2026-09-20,
+        # each passing on the warm retry. The hook now runs THIS first. The
+        # solve happened at import; there is nothing left to do but say so.
+        print(f"make_schemes: palette cache warm ({len(GRID)} variants, "
+              f"ghost alpha {GHOST_ALPHA})")
+        sys.exit(0)
     verify = "--verify" in sys.argv
     for (ph, mode), (t, dark) in GRID.items():
         open(f"{t['id']}.colors", "w").write(emit_colors(t, dark))
