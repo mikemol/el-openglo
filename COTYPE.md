@@ -6251,3 +6251,45 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s90]
+
+## Session 90b — ⊕VER-MARQUEE placed (coherence-caught), and two more live findings
+- check_cotype_coherence refused at the s90 commit: ⊕VER-MARQUEE was named in
+  the s89/s90 headings and listed nowhere. It is a LIVE symbol — the
+  operator's marquee verification thread (s89 field, s90 settings) — and
+  belongs in the LIVE list, where it now is. Two more findings from the same
+  live session (operator, `watch notify-send hi`):
+  · the ticker BLIPS: what scrolls appears and vanishes in step with the
+    notification popups, because rebuild() replaces tickerText on every
+    onCountChanged — the Row is torn down and rebuilt mid-scroll. The
+    operator's design: a double-buffered RING — the scrolling ring loops as
+    long as its notifications are active; a pending ring collects what
+    arrived; the swap happens at a full rotation, never mid-scroll. That is
+    W38 (a Repeater over a stable model, swapped on the animation's loop
+    boundary; a notification leaving the model removes at the boundary too).
+  · some senders emit HTML bodies (Plasma passes markup through): parse the
+    subset (b / i / font color / span style) and let it drive the dots —
+    bold as lit weight/glow, colour as a hue on the lit token where the
+    palette allows (a relation, not a literal: the sender's colour composited
+    onto the phosphor, gated by the same floors). That is W39; the honest
+    first step is a census of what markup actually arrives.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-90 corrected live) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab), ⊕VER-MARQUEE (s89 field, s90 settings — confirm after re-emerge;
+  s90b the blip and the HTML bodies, W38/W39), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s90b]
