@@ -97,6 +97,18 @@ def _emitted_clock_is_vector():
     return no_canvas and segment
 
 
+def _plymouth_scales_at_boot():
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    os.chdir(ROOT)
+    import make_plymouth
+    s = make_plymouth.script("EL-Openglo")
+    return (re.search(r"\.Scale \(", s) is not None
+            and re.search(r"sh = Window\.GetHeight", s) is not None
+            and re.search(r"pitch = ", s) is not None
+            and make_plymouth.ASSET_U >= 4 * 48)
+
+
 def _tool(*args):
     """True iff a repo tool exits 0 — the witness IS the tool that owns the question."""
     r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", args[0]), *args[1:]],
@@ -208,11 +220,6 @@ WITNESS = {
     # "pre-render at target res or SVG support if the theme allows" (:4229). The
     # splash renders PIL polygons from the substrate at a FIXED U=48, so it is
     # neither. The witness asks for either form, not for the word.
-    "⊕PLYMOUTH-VECTOR": (
-        "the boot splash is vector rather than PNG-baked: rendered at the target"
-        " resolution, or emitted as SVG (:4228)",
-        lambda: _reads("make_plymouth.py", r"(?i)target.?res|screen.?(w|width|res)|\.svg\b")),
-
     # ── RESIDUE: kept, deliberately unbuilt ──
     # ⚑ THE COMPONENT WITH NO CONSUMER (session 69-70). The colour relation now
     # holds on every surface in its own idiom; this asks whether any shipped
@@ -432,6 +439,12 @@ CLOSED = {
     "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
                       lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
                       _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    # closed session 72 (W9, 2026-09-21): the target resolution is known only at
+    # boot, so the emitted .script scales oversampled assets by Window.GetHeight
+    "⊕PLYMOUTH-VECTOR": (
+        "the boot splash is drawn at the screen's size: the emitted .script scales the"
+        " oversampled assets by Window.GetHeight and lays them out at the module pitch (:4228)",
+        lambda: _plymouth_scales_at_boot()),
     # rebuilt W26 (2026-09-21): the 5x8 table re-authored, baseline as a LINE
     "⊕DOT-FONT-DESC": ("FONT5x8 with lowercase whose g j p q y descend below a declared baseline line,"
                        " built into a TTF with negative descent (:1496)",
@@ -545,12 +558,19 @@ def main(argv):
         if opn is None:
             print("check_symbol: REFUSED — the index would not run", file=sys.stderr)
             return 2
-        members = sorted(s for s, b in opn.items()
-                         if b.upper() == want and s in WITNESS)
-        if not members:
-            print(f"check_symbol: REFUSED — no witnessed symbol in bucket {want!r}; "
-                  f"the bucket is empty, renamed, or unwitnessed", file=sys.stderr)
+        in_bucket = sorted(s for s, b in opn.items() if b.upper() == want)
+        members = [s for s in in_bucket if s in WITNESS]
+        if in_bucket and not members:
+            print(f"check_symbol: REFUSED — {len(in_bucket)} open symbol(s) in bucket {want!r} "
+                  f"and none witnessed: {in_bucket}", file=sys.stderr)
             return 2
+        if not in_bucket:
+            # ⚑ A BUCKET WITH NO OPEN SYMBOL IS CLOSED OUT, NOT UNMEASURED. TIER 3
+            # emptied when ⊕PLYMOUTH-VECTOR closed (session 72); the claim over it
+            # stays falsifiable — a symbol placed back in the bucket with a failing
+            # witness is red again — but an empty bucket is the work being done.
+            print(f"check_symbol: {want} — 0 open symbols; the bucket is closed out")
+            return 0
         openv = [s for s in members if not WITNESS[s][1]()]
         if openv:
             print(f"check_symbol: {want} — {len(openv)} of {len(members)} open:",

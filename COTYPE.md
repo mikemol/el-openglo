@@ -5011,3 +5011,55 @@ residue gated on live operator testing.
   idiom not relation — and now the surface that would carry bloom/weight to all).
   ⊕PLA2 ⊕KVT2 ⊕KNB2.
 - TIER 3: ⊕PLYMOUTH-VECTOR (pre-render at target resolution, or SVG). [s71]
+
+## Session 72 — ⊕PLYMOUTH-VECTOR: the target resolution exists only at boot
+- The closure at :4228 offered two forms — "pre-render at target res, or SVG if
+  the theme allows". Measured (W9, 2026-09-21): the script plugin has no SVG
+  input, and the target resolution is `Window.GetHeight ()`, known only when the
+  script runs. Neither offered form is constructible at build time. What IS
+  (read from plymouth 24.004's script-lib-image.c via the Debian source mirror;
+  the freedesktop wiki refuses fetches): `Image.Scale (width, height)`.
+- [100] The either/or bottomed out: "vector" here means the pixels the screen
+  gets were not stretched from fewer. So: render ONCE, oversampled (ASSET_U =
+  192, 4x the old 48; 92 K per theme in the initramfs), and let the .script
+  scale DOWN to a digit standing DIGIT_FRACTION (0.20) of the screen — the
+  raster analogue of vector. Layout at the module pitch (segment_topology
+  metrics, W22): four slots at `pitch`, the colon centred in the ordinary gap
+  after slot 0, as the 88:88 module does.
+- Four gates: constructible (ASSET_U assets render; the script emits Scale /
+  GetHeight / pitch; check_plymouth_digits 10 of 10 at the new U); reachable
+  (staged under usr/share/plymouth/themes/el-openglo-<v>/, mapped, 92 K);
+  observable (check_symbol's witness reads the EMITTED script for the
+  mechanism — Scale by sh, pitch from metrics — rather than words in the
+  generator); coverable (a script without Scale, or assets at the old U, fail
+  the witness; DIGIT_FRACTION and ASSET_U are named constants).
+- WEAKNESS, stated: plymouth is not installed on luthen, so the script's
+  runtime (Image.Scale's actual filter, the M:SS layout on a real screen) is
+  ⊕VER at the next boot after the operator installs the theme; the digit gate
+  proves the glyphs, not the boot.
+
+### ⊕PLYMOUTH-VECTOR closure (four gates)
+- Four gates: as above. Residue: stroke still 0.32U·(1±w) in render_digit, not
+  read from segment_topology.metrics (within 5%; W22's note applies here too).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72: oversampled assets scaled at boot) + (research)
+  ⊕SEG-FONT-PROJECT principle proven ✓PoC
+- OPEN — BUILD (touches shipped deb), do first: marquee -> MATRIX
+  ⊕NOTIFY-MATRIXRENDER + ⊕MATRIX-FONT-INPUT.
+- RESEARCH (design, no deb impact): ⊕SEG-FONT-PROJECT (fontTools ingest + anisotropic
+  field), ⊕SEG-PROJECT-CALIBRATE (bandwidth/tau from authored-44 agreement),
+  ⊕SEG-TABLE-VALIDATE (projection vs authored cross-check), ⊕SEG22-DESCENDERS,
+  ⊕GHOST-DENSITY (dot field + 22-seg pitch at the solved alpha).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER,
+  ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE,
+  ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TUNE: ⊕SOLVER-UI-TOKENS, ⊕SOLVER-PERF. TIER 3: ⊕ICONS-INHERIT, ⊕CURSOR-INHERIT,
+  ⊕TASKSWITCH, ⊕PANEL-LAYOUT, named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕SUPERSAMPLE-WP, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕NOTIFY-SEGRENDER
+  (wrong turn: marquee is matrix), ⊕SEGMENTCHAR-ADOPT (component gated, unused;
+  idiom not relation — and now the surface that would carry bloom/weight to all).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s72]

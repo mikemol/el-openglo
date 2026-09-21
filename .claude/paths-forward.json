@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 26,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T07:31:31+00:00",
-  "job_id": "8c6a623a",
+  "heartbeat": "2026-09-21T07:46:30+00:00",
+  "job_id": "87d85579",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T07:37:14+00:00"
+    "taken_at": "2026-09-21T07:52:07+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -346,7 +346,7 @@
     {
       "symbol": "W18",
       "title": "Android — how a solved palette reaches an Android device: Material You derives its OWN tonal palette from the wallpaper (Monet), so the honest emit may be a wallpaper whose seed colour steers Monet toward the palette, plus a check that Monet's derived scheme agrees with ours",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "android",
@@ -356,10 +356,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "measure-first with a relation question inside it: Android does not take a theme, it derives one — the palette solver and Monet are two solvers over one seed, and whether they agree is a relation (catalog/relations.md) before it is an emitter. Venue: none for a theme; a wallpaper is a file, a wallpaper APP is the Play Store",
-      "next_bounded_step": "Measure first: read the Material colour-utilities algorithm (the open-source material-color-utilities: seed → tonal palettes → scheme roles) and run it over each variant's lit/accent as seed; compare Monet's derived surface/primary/on-surface against the palette's view/fg/fg_act with the same separation checks the palette uses. Record the agreement per variant; if it holds, the emit is the wallpaper (make_wallpaper already renders one) + a documented seed; if not, the disagreement is the finding. Also: Android 12+ themed icons and the terminal apps (Termux colours.properties = another ANSI-16 re-emit).",
-      "evidence": "",
+      "next_bounded_step": "—",
+      "evidence": "5b25d5e: check_monet.py @MONET (55) — TonalSpot/0 seeded from lit: hue kept <1° on 6/6, AA pairs 6/6, dark surface 2.5-3.4 dE from ground on the Off variants; Lit grounds unreachable (Monet light surface near-white) — recorded in catalog/android.md. Emit = wallpaper + documented seed (the lit colour); Termux already ships. Not built with reasons: themed icons, launcher themes.",
       "issued_at": "2026-09-20T23:39:05+00:00",
-      "last_worked": "2026-09-20T23:39:05+00:00",
+      "last_worked": "2026-09-21T07:45:45+00:00",
       "ticks_blocked": 0
     },
     {
