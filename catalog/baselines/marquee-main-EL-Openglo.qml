@@ -40,6 +40,14 @@ PlasmoidItem {
                                 : plasmoid.configuration.openLinks
     property bool cfgHoverPause: (plasmoid.configuration.hoverPause === undefined) ? true
                                  : plasmoid.configuration.hoverPause
+    // ⚑ THE LIVE HOST'S TRACE (operator, 2026-09-22: a single notify-send after a
+    // plasmashell replace showed nothing; under `watch` things eventually
+    // appeared — and the headless run passes). What check_marquee_live samples
+    // under the stub, this prints under the real model: every rebuild, swap and
+    // start, on plasmashell's stderr, when the setting is on.
+    property bool cfgDebugLog: (plasmoid.configuration.debugLog === undefined) ? false
+                               : plasmoid.configuration.debugLog
+    function trace(what) { if (root.cfgDebugLog) console.log("el-marquee " + what); }
 
     preferredRepresentation: fullRepresentation
 
@@ -82,9 +90,13 @@ PlasmoidItem {
     }
 
     function swapRing() {
-        var next = Body.ringNext(root.queue, root.liveIds(), root.cfgMaxItems);
+        var live = root.liveIds();
+        var next = Body.ringNext(root.queue, live, root.cfgMaxItems);
         root.queue = next.queue;
         var joined = Body.ringJoin(next.ring, "     •     ");
+        root.trace("swap live=" + JSON.stringify(live) + " ring=" + JSON.stringify(next.ring.map(function (i) { return i.id; }))
+                   + " queue=" + JSON.stringify(next.queue.map(function (i) { return [i.id, i.shown]; }))
+                   + " text=" + JSON.stringify(joined.text));
         root.tickerText = joined.text;         // empty -> the ring drains to idle
         root.tickerRuns = joined.runs;
     }
@@ -172,8 +184,10 @@ PlasmoidItem {
             if (!item.text.length) continue;
             if (id in known && known[id] === item.text) continue;
             q = Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs });
+            root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text));
         }
         root.queue = q;
+        root.trace("rebuild count=" + notifModel.count + " queue=" + q.length + " ticker=" + JSON.stringify(root.tickerText));
         // nothing is scrolling: start this rotation now rather than at a boundary
         // that will never come
         if (root.tickerText.length === 0) root.swapRing();
@@ -270,6 +284,8 @@ PlasmoidItem {
             // from/to as values, and start from a deferred call so the Row has
             // laid out and a finished animation has returned before the next.
             function startRun() {
+                root.trace("startRun visible=" + marquee.visible + " running=" + rotation.running
+                           + " paused=" + rotation.paused + " width=" + marquee.width + " rep=" + rep.width + "x" + rep.height);
                 if (!marquee.visible || rotation.running) return;
                 if (marquee.width <= 0) { Qt.callLater(startRun); return; }
                 rotation.from = rep.width;
@@ -340,6 +356,7 @@ PlasmoidItem {
                 loops: 1
                 onRunningChanged: root.boardRunning = running
                 onFinished: {
+                    root.trace("finished x=" + marquee.x);
                     root.swapRing();
                     // the next run starts after this one has fully returned; if the
                     // ring drained, the Row is now invisible and startRun declines

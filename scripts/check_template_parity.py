@@ -191,13 +191,60 @@ def diff(match):
     return 0 if shown else 2
 
 
+# where the deb / ebuild puts each baselined emission on THIS host, so "which build
+# is installed" is a question the tool answers (operator, 2026-09-22, live: a single
+# notify-send showed nothing after a plasmashell replace — the first question is
+# whether the installed marquee is the tree's)
+INSTALLED = {
+    "marquee-main-EL-Openglo.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/ui/main.qml",
+    "marquee-body.js": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/ui/marquee-body.js",
+    "marquee-config-EL-Openglo.kcfg": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/config/main.xml",
+    "marquee-config.qml": "/usr/share/plasma/plasmoids/org.el.notifymarquee.elopenglo/contents/ui/configGeneral.qml",
+    "live-wallpaper-main-EL-Openglo.qml": "/usr/share/plasma/wallpapers/org.el.livewallpaper.elopenglo/contents/ui/main.qml",
+}
+
+
+def installed():
+    """[(name, verdict, first differing line or commit hint)] — the installed copy vs
+    the TREE's emission (not the baseline: the baseline is what the tree emitted at
+    capture, and here the question is what the host runs)."""
+    import difflib
+    out = []
+    by_name = {name: (m, a, s) for m, a, s, name in PAIRS}
+    for name, path in INSTALLED.items():
+        if not os.path.isfile(path):
+            out.append((name, "NOT INSTALLED", path))
+            continue
+        module, accessor, argsrc = by_name[name]
+        try:
+            tree = _value(module, accessor, argsrc)
+        except _Skip as e:
+            out.append((name, "SKIP", str(e)))
+            continue
+        host = open(path, encoding="utf-8").read()
+        if host == tree:
+            out.append((name, "current", "byte-identical to the tree's emission"))
+            continue
+        first = next((l for l in difflib.unified_diff(host.splitlines(), tree.splitlines(), lineterm="", n=0)
+                      if l.startswith(("+", "-")) and not l.startswith(("+++", "---"))), "?")
+        out.append((name, "STALE", f"{len(host)} vs {len(tree)} bytes; first change: {first[:90]}"))
+    return out
+
+
 def main(argv):
-    known = {"--pairs", "--diff", "--unlink", "--links"}
+    known = {"--pairs", "--diff", "--unlink", "--links", "--installed"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
             print(f"check_template_parity: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--installed" in argv:
+        rows = installed()
+        for name, verdict, detail in rows:
+            print(f"{verdict:14s} {name:36s} {detail}")
+        stale = sum(1 for _n, v, _d in rows if v == "STALE")
+        print(f"installed: {stale} of {len(rows)} installed emission(s) differ from the tree")
+        return 0
     if "--links" in argv:
         shared = shared_inodes()
         for name, n in shared:

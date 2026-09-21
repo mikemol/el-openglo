@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 50,
+  "counter": 51,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T19:28:17+00:00",
-  "job_id": "1cd0b39c",
+  "heartbeat": "2026-09-21T20:03:31+00:00",
+  "job_id": "a5431f7e",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -13,10 +13,7 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": {
-    "holder": "tick-1cd0b39c",
-    "taken_at": "2026-09-21T19:39:39+00:00"
-  },
+  "lock": null,
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -822,16 +819,16 @@
     {
       "symbol": "W49",
       "title": "THE WIDGET UNDER TEST: run the whole marquee headless against a STUBBED org.kde.notificationmanager (operator: a sandbox like headless chrome for integration tests). A stub module dir on QML2_IMPORT_PATH (qmldir + Notifications.qml = ListModel carrying the role enum incl. IdRole/SummaryRole/BodyRole/ApplicationNameRole, count, index(), data()) shadows the real import; render_qml gains a marquee harness that mocks plasmoid, drives the stub (append / remove / replace on timers), samples tickerText, marquee.x, rotation.running per frame and grabToImage snapshots; asserts the traversal trace (every id enters and leaves the viewport once; x never jumps; running stays true while text is non-empty; the board is never dead after a drain). check_marquee_live.py (@MARQUEE-LIVE) with a refusing arm that re-introduces the running binding. Tier 2 later: kwin_wayland --virtual + session bus + plasmoidviewer + notify-send, screenshots via KWin DBus (the VER-MARQUEE probe without a human).",
-      "status": "ready",
+      "status": "done",
       "enables": "W46,W35",
       "touches": "marquee,render_qml,gates",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(1) measure: does qml honour QML2_IMPORT_PATH shadowing of an installed module (write the stub, import it, print typeof); (2) the stub + the harness sampling tickerText/x/running for one arrive-expire cycle; (3) the trace assertions + the refusing arm; (4) warrant + SKILL row.",
-      "evidence": "",
+      "next_bounded_step": "none - Tier 2 (kwin_wayland --virtual + plasmoidviewer + notify-send) is the VER-MARQUEE live probe, held",
+      "evidence": "9774f8a: scripts/check_marquee_live.py (stub module + timeline + 40 ms sampler; --trace/--hovered/--json); policy/marquee_live.rego L0-L6 + 12 tests; @MARQUEE-LIVE green (64 claims); two stalls found and fixed in marquee-main.qml (from/to set at start; hover-pause a setting); COTYPE s101",
       "issued_at": "2026-09-21T19:00:44+00:00",
-      "last_worked": "2026-09-21T19:00:44+00:00",
+      "last_worked": "2026-09-21T20:02:11+00:00",
       "ticks_blocked": 0
     },
     {
@@ -847,6 +844,21 @@
       "evidence": "8101ae4 (pilot) + 629ab48: policy/marquee_body.rego M0-M4 + W, 10 tests, 17/17 across both; check_marquee_body --json; opa_gate selftest generalised (empty measurement never admitted); pre-commit runs opa_gate.py --test; @MARQUEE-BODY cites the gate; COTYPE s100",
       "issued_at": "2026-09-21T19:04:23+00:00",
       "last_worked": "2026-09-21T19:27:06+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W51",
+      "title": "HOVER-PAUSE INDICATOR (operator: 'a visual indicator for when hover is active. Perhaps a pulsing outline? the outermost pips of the matrix fading in and out - something clear, active, responsive, and will get someone to move the damn mouse'). While rotation.paused (hover-pause holding the board): MatrixField draws its outermost ring of pips (top row, bottom row, first and last columns) at a separate opacity that a SequentialAnimation pulses between the ghost alpha and the lit alpha (~0.8 s period, Easing.InOutSine); nothing else on the board changes, the run resumes when the pointer leaves. Colour: the ring pulses toward the lit token (not fg_act - this is attention, not alarm; W46's urgency owns hot). Harness: check_marquee_live --hovered samples a new root property boardPaused plus the field's ringOpacity; policy rule L7: while paused the ring opacity CHANGES across samples (a pulse), and while not paused it equals the ghost alpha. Settings: none new - the pulse belongs to hoverPause.",
+      "status": "ready",
+      "enables": "W46",
+      "touches": "marquee,MatrixField,policy",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "(1) MatrixField gains ringOpacity + a paint path that draws the outer ring separately; (2) marquee-main: root.boardPaused from rotation.onPausedChanged, a SequentialAnimation on field.ringOpacity running: boardPaused; (3) harness samples paused + ringOpacity; L7 + refuse/admit tests; (4) parity re-capture (main, MatrixField pair if one exists); COTYPE s102.",
+      "evidence": "",
+      "issued_at": "2026-09-21T20:02:23+00:00",
+      "last_worked": "2026-09-21T20:02:23+00:00",
       "ticks_blocked": 0
     }
   ],

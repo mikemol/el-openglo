@@ -20,5 +20,8 @@
   <!-- hovering the board pauses the scroll so a link can be aimed at (W40); a pointer
        parked on the panel then holds the board still, so it is a choice (W49) -->
   <entry name="hoverPause" type="Bool"><default>true</default></entry>
+  <!-- print every rebuild / swap / start to plasmashell's stderr (the live host's
+       twin of check_marquee_live's trace) -->
+  <entry name="debugLog" type="Bool"><default>false</default></entry>
  </group>
 </kcfg>

@@ -151,6 +151,7 @@ def subject(hover_pause=False):
     config = RQ._kcfg_defaults(NM.config_xml(VARIANT))
     config["speed"] = 8.0        # a rotation ~1.5 s on the 420 px board
     config["hoverPause"] = hover_pause
+    config["debugLog"] = True         # the widget's own trace lines ride on stderr
     return qml, config, make_preview.parse_scheme(VARIANT)["ground"], {
         "MatrixChar.qml": NM.matrix_char_component(),
         "MatrixField.qml": NM.matrix_field_component(),
@@ -184,19 +185,22 @@ def run(hover_pause=False, end_ms=None):
                    QT_QUICK_BACKEND=os.environ.get("EL_QUICK_BACKEND", "software"))
         r = subprocess.run([QML, os.path.join(td, "harness.qml")], env=env,
                            capture_output=True, text=True, timeout=120)
+    log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             res = json.loads(line.split("RESULT ", 1)[1])
             if "error" in res:
                 raise RuntimeError(f"marquee harness: {res['error']}: {(r.stderr or r.stdout)[-800:]}")
+            res["log"] = log
             return res
     raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
 
 
 def measure(res):
     if res is None:
-        return {"runner": False, "events": [], "samples": [], "width": 0}
-    return {"runner": True, "events": res["events"], "samples": res["samples"], "width": res["width"]}
+        return {"runner": False, "events": [], "samples": [], "width": 0, "log": []}
+    return {"runner": True, "events": res["events"], "samples": res["samples"], "width": res["width"],
+            "log": res.get("log", [])}
 
 
 def main(argv):
@@ -219,6 +223,8 @@ def main(argv):
         return 0
     m = measure(run())
     if "--trace" in argv:
+        for l in m["log"]:
+            print(f"widget {l}")
         for e in m["events"]:
             print(f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']} shows {e['shows']!r}")
         for s in m["samples"]:
