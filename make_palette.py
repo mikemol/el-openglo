@@ -122,8 +122,9 @@ def solve_ghost_alpha(thr=THRESHOLDS):
     """ONE render alpha for the whole grid, solved from every variant's (lit, ground).
 
     ⚑ COMPUTED BEFORE ANY GHOST, BECAUSE EVERY GHOST DEPENDS ON IT.  Alpha is the
-    max over variants of the smallest alpha at which that variant's ghost floor
-    is reachable on screen at all (`ghost_solve.solve_ghost_alpha`); it depends
+    max over variants of the smallest alpha at which that variant's ghost CEILING
+    is reachable on screen (`ghost_solve.solve_ghost_alpha`; until 2026-09-21 the
+    FLOOR, which left EL-Azure's seen ghost on its floor — W23); it depends
     on `fg` and `view` only, so it is solvable from the fields alone and then
     threaded into each variant's ghost solve.  Operator ruling 2026-09-20 (W3):
     one global value, not six, not authored."""

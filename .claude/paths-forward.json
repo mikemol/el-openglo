@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 22,
+  "counter": 23,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T04:18:56+00:00",
-  "job_id": "566e84f4",
+  "heartbeat": "2026-09-21T04:45:26+00:00",
+  "job_id": "faa618c3",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -15,7 +15,7 @@
   },
   "lock": {
     "holder": "session-ef09ca0b",
-    "taken_at": "2026-09-21T04:35:37+00:00"
+    "taken_at": "2026-09-21T04:55:27+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -307,7 +307,7 @@
     {
       "symbol": "W16",
       "title": "Windows theme emitters — a .theme file (desktop colours, accent, wallpaper) and a Windows Terminal colour scheme (JSON), from the same palette",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "emitters",
@@ -317,10 +317,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "sweep-ish: both formats are small, documented, and map cleanly onto tokens already emitted for KDE (.colors) and Konsole (make_konsole is the Terminal scheme sibling). No store: .theme and Terminal schemes ship as files",
-      "next_bounded_step": "Measure first: the .theme INI format ([Control Panel\\\\Colors], [Theme] wallpaper, accent via [Control Panel\\\\Desktop]) and the Windows Terminal scheme JSON (name, background, foreground, cursorColor, selectionBackground, the 16 ANSI keys) — make_konsole already derives the ANSI 16 from the palette, so the Terminal scheme is a re-emit of that table. Table the token→key map; witness: JSON parses, INI sections present, every colour is a token. Route for W13: none official; GitHub release assets.",
-      "evidence": "",
+      "next_bounded_step": "—",
+      "evidence": "a3f9937: make_windows.py (.theme: required sections, colour table, ColorizationColor accent, DesktopBackground wallpaper) + check_windows @WINDOWS 30 of 30; make_konsole.ansi_table + alacritty/foot restored + windows-terminal/termux + check_terminals @TERMINALS 30 of 30 (Konsole scheme byte-identical, cmp). Worklist 50. Operator ⊕VER needs a Windows box: copy usr/share/el-openglo/windows/<v>/ and open the .theme.",
       "issued_at": "2026-09-20T23:38:39+00:00",
-      "last_worked": "2026-09-20T23:38:39+00:00",
+      "last_worked": "2026-09-21T04:44:41+00:00",
       "ticks_blocked": 0
     },
     {
@@ -429,6 +429,21 @@
       "evidence": "9e8e27a: four datasheets (Kingbright SA56-11/DA56-11/CC56-12, Avago HDSP-B0xG) agree — pitch 12.7 for H 14.22, single package = char 8.0 + 2×2.35, colon adds no advance. segment_topology.MODULE_METRICS + metrics(H); all three surfaces read it; check_geometry_source --coverable 4th arm (perturbed pitch reaches 3 of 3); substrate selftest asserts the witnesses agree; STANDARDS.md row. Rendered: clock + wallpaper 23:46 at module pitch. RESIDUE: relations.md §geometry entry not written (pitch is a floor relation in prose here, not in the relations table); marquee sample re-renders differently with no input change; slant 8° not applied anywhere yet.",
       "issued_at": "2026-09-21T03:33:42+00:00",
       "last_worked": "2026-09-21T03:51:58+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W23",
+      "title": "The palette's solved ghost EQUALS lit on EL-Azure and EL-Amber — check_ghost_surfaces --map (2026-09-21): fg_in == fg for both Off variants ((153,204,255); (255,212,153)); EL-Openglo differs slightly ((141,235,217) vs (153,255,235)). On those variants the ghost/lit distinction is alpha-only, no colour channel — the operator's live 'ghost too close to lit' on Azure at the PALETTE level; every surface is faithful to a degenerate solve and every check passes",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Measure first: run the solver's ghost step for EL-Azure by hand (make_palette.solve_ghost / ghost_solve.solve_ceiling_t): does the ceiling solve return t=0 (the lit end) because the Lc ceiling (GHOST_READABLE_LC 30) is unreachable / already exceeded at t=0, or because of the alpha_max_vs_lit bound (relations §3c)? Name which relation collapses the interior node onto lit. Then decide with the relations, not by hand: either the ceiling/floor pair admits an interior point (fix the solve) or it does not for those hues (then the relation set is inconsistent for Azure/Amber and relations.md §3b must say so — a ghost equal to lit at alpha 0.5 is the 'alpha-only ghost', which glance_audit should be flagging). Add an arm to check_ghost_composite: ghost != lit unless the palette records why. Then ⊕VER on Azure.",
+      "evidence": "scripts/check_ghost_surfaces.py --map output 2026-09-21; make_palette.solve_ghost; ghost_solve.solve_ceiling_t returns lerp(lit, ground, 0.5) when t is None",
+      "issued_at": "2026-09-21T04:44:54+00:00",
+      "last_worked": "2026-09-21T04:44:54+00:00",
       "ticks_blocked": 0
     }
   ],

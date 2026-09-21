@@ -6,11 +6,11 @@ import org.kde.plasma.plasmoid
 WallpaperItem {
     id: root
     property color litColor: "#99ffeb"
-    property color ghostColor: "#8debd9"
+    property color ghostColor: "#7ed3c3"
     property color voidColor: "#081411"
     // ghost pass opacity — SOLVED by the palette (ghost_alpha on every token), not
     // the 0.45 this held as a literal no colour check could see.
-    property real ghostAlpha: 0.308
+    property real ghostAlpha: 0.309
     property bool breathe: (wallpaper.configuration.breathe === undefined) ? false
                            : wallpaper.configuration.breathe
     property bool blinkColon: (wallpaper.configuration.blinkColon === undefined) ? true

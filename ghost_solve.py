@@ -226,29 +226,58 @@ def alpha_min(lit, ground, floor=None):
     return None if t_floor is None else 1.0 - t_floor
 
 
-def solve_ghost_alpha(pairs):
-    """ONE global alpha for every variant: the max of their alpha_min values.
+def alpha_ceiling(lit, ground, ceiling_lc=None):
+    """The smallest render alpha at which this variant's CEILING ghost is reachable.
+
+    The seen ghost is t' = 1 - a(1 - t) with t in [0, 1], so the window of seen
+    points is [1 - a, 1]. The relation's target (relations.md §3a/§3b) is the
+    ceiling point t_c — the most visible ghost that still does not read as text.
+    It is reachable iff 1 - a <= t_c, i.e. a >= 1 - t_c. Below this alpha the
+    solve can only land the seen ghost SHORT of its target, on the floor side."""
+    if ceiling_lc is None:
+        ceiling_lc = C.GHOST_READABLE_LC
+    t_c, _lc = solve_ceiling_t(lit, ground, ceiling_lc)
+    return None if t_c is None else 1.0 - t_c
+
+
+def solve_ghost_alpha(pairs, ceiling_lc=None):
+    """ONE global alpha for every variant: the smallest that reaches every variant's
+    CEILING ghost — max over variants of max(alpha_min, alpha_ceiling).
 
     ⚑ ONE KNOB, SOLVED, NOT SIX AND NOT AUTHORED.  Operator ruling 2026-09-20 (W3):
     a single global alpha, owned by the palette authority and EMITTED to the
     renderer — replacing the 0.45 that SegmentChar.qml:73 held as a constant no
-    check could see. The max is the only global value at which every variant's
-    ghost colour still has room to be solved; anything lower makes at least one
-    variant's floor unreachable by colour.
+    check could see.
 
-    `pairs` is [(id, lit, ground)]. Returns (alpha, [(id, alpha_min)]); refuses
-    (raises) on an empty population or an unreachable floor, because a silently
-    returned default IS the defect this replaces."""
+    ⚑ THE FLOOR WAS THE WRONG BOUND, AND THE VARIANT THAT SET IT SHOWED IT.  Until
+    2026-09-21 this returned max(alpha_min): the smallest alpha at which every
+    variant's FLOOR is reachable. On the variant that set that max (EL-Azure) the
+    seen ghost then sat exactly on its floor, Lc 25.0, while every other variant's
+    sat at the ceiling, Lc ~29.7 (check_ghost_composite --compare) — the same
+    relation, satisfied at its weakest on one variant and at its target on the
+    rest, and the declared colour collapsed onto lit as a side effect (W23; the
+    operator's "ghost too close to lit", on Azure). The relation's target is the
+    ceiling, so the alpha must reach every variant's ceiling point; the variant
+    that sets THIS max still declares lit (its window starts exactly at its
+    ceiling), which is now the expected shape rather than a shortfall.
+
+    `pairs` is [(id, lit, ground)]. Returns (alpha, [(id, alpha_min, alpha_ceiling)]);
+    refuses (raises) on an empty population or an unreachable floor/ceiling,
+    because a silently returned default IS the defect this replaces."""
     rows = []
     for vid, lit, ground in pairs:
         a = alpha_min(lit, ground)
         if a is None:
             raise ValueError(f"{vid}: the lit colour itself cannot clear the ghost "
                              f"floor — no alpha helps; the palette is the defect")
-        rows.append((vid, a))
+        a_c = alpha_ceiling(lit, ground, ceiling_lc)
+        if a_c is None:
+            raise ValueError(f"{vid}: no point on lit->ground sits under the ghost "
+                             f"ceiling — the palette is the defect")
+        rows.append((vid, a, a_c))
     if not rows:
         raise ValueError("solve_ghost_alpha: empty population — nothing was solved")
-    return max(a for _v, a in rows), rows
+    return max(max(a, a_c) for _v, a, a_c in rows), rows
 
 
 def alpha_max_vs_lit(lit, ground, ghost, lit_floor):

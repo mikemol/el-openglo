@@ -52,6 +52,12 @@ import palette_graph as PG                                        # noqa: E402
 # glanced-at ones ghost_alpha_glanced, and each mode has its own ground floor.
 MODE = "looked_at"
 
+# How far under the ceiling a looked-at seen ghost may sit and still count as
+# ON TARGET: the 8-bit stepping in derive_ghost_through_alpha lands 0.1-0.4 Lc
+# under; a whole Lc is the widest that stepping can cost. Azure's 5.0 shortfall
+# (W23) is a different kind of number.
+TARGET_SLACK = 1.0
+
 
 def _alpha():
     """The alpha the renderer is filled with — the palette authority's, not a copy."""
@@ -241,6 +247,19 @@ def main(argv):
         return 0
 
     bad = []
+    # ⚑ THE BAND IS NOT THE TARGET.  Until 2026-09-21 the looked-at ghost passed
+    # this check on EL-Azure at Lc 25.0 — inside [25, 30) — while every other
+    # variant sat at ~29.8: the global alpha reached Azure's FLOOR and no further
+    # (W23). The relation's target is the ceiling; a seen ghost more than
+    # TARGET_SLACK under it is the solve landing short, not a different taste.
+    # Glanced mode has its own (lower) alpha and is not held to the ceiling.
+    if MODE == "looked_at":
+        for vid, decl, comp, floor, lc_d, lc_c in rows:
+            if lc_c < C.GHOST_READABLE_LC - TARGET_SLACK:
+                bad.append(f"{vid}: the seen ghost sits at Lc {lc_c:.1f}, more than "
+                           f"{TARGET_SLACK} under the {C.GHOST_READABLE_LC} ceiling it is "
+                           f"solved toward — the alpha reaches this variant's floor, not "
+                           f"its target (W23)")
     for vid, decl, comp, floor, lc_d, lc_c in rows:
         if lc_c < floor:
             bad.append(f"{vid}: the ghost renders at Lc {lc_c:.1f} against a floor "
@@ -252,7 +271,8 @@ def main(argv):
                        f"over the {C.GHOST_READABLE_LC} readability ceiling — it "
                        f"would render as TEXT rather than as texture")
     if bad:
-        print(f"check_ghost_composite: REFUSED — {len(bad)} of {len(rows)} "
+        n_bad = len({b.split(":")[0] for b in bad})
+        print(f"check_ghost_composite: REFUSED — {n_bad} of {len(rows)} "
               f"variant(s) render a ghost their gate did not measure:",
               file=sys.stderr)
         for b in bad:
@@ -330,8 +350,12 @@ def _selftest():
     try:
         # a hypothetical palette whose composited ghost sits between its bounds
         # rows: (id, wcag_decl, wcag_comp, FLOOR_LC, lc_decl, lc_comp)
-        globals()["measure"] = lambda: [("SELFTEST-OK", 9.0, 4.0, 25.0, 60.0, 27.0)]
+        globals()["measure"] = lambda: [("SELFTEST-OK", 9.0, 4.0, 25.0, 60.0, 29.5)]
         check("a clearing palette passes", main(["x"]), 0)
+        # ⚑ INSIDE THE BAND BUT SHORT OF THE TARGET — Azure's shape on 2026-09-21
+        # (Lc 25.0 exactly, in [25, 30)) must be seen, not passed.
+        globals()["measure"] = lambda: [("SELFTEST-SHORT", 9.0, 3.6, 25.0, 72.0, 25.0)]
+        check("a looked-at ghost on its floor, 5 Lc under its target, is seen", main(["x"]), 1)
         # ⚑ ...but NOT if the screen draws a different alpha than was measured.
         globals()["rendered_alpha"] = lambda: 0.45
         check("a clearing palette whose component carries a stale alpha is REFUSED",
@@ -349,6 +373,7 @@ def _selftest():
         # ⚑ THE LIT CASE THAT MOTIVATED THE METRIC CHANGE: WCAG 1.9:1 but Lc 29.7 —
         # under the OLD floor, between the bounds under the one that is stated now.
         globals()["measure"] = lambda: [("SELFTEST-LIT", 4.0, 1.9, 25.0, 57.0, 29.7)]
+        globals()["rendered_alpha"] = saved_r
         check("a light-ground ghost at 1.9:1 / Lc 29.7 PASSES (one metric)", main(["x"]), 0)
         globals()["measure"] = lambda: []
         check("an empty population REFUSES", main(["x"]), 2)

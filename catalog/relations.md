@@ -209,6 +209,18 @@ relation and is not yet solved through it. (The matrix surface's `ghostOpacity` 
 takes the solved alpha — W8; whether a dot FIELD reads the same as strokes at that alpha
 is ⊕GHOST-DENSITY.)
 
+**The global alpha must reach every variant's CEILING, not its floor (W23, 2026-09-21).**
+`solve_ghost_alpha` returned `max(alpha_min)` — the smallest alpha at which every
+variant's *floor* is reachable. On the variant that set that max (EL-Azure) the seen
+ghost then sat at Lc 25.0, exactly on its floor, while the other five sat at ~29.8 —
+one relation, satisfied at its weakest on one variant and at its target on the rest;
+the declared colour collapsed onto lit as a side effect (`check_ghost_surfaces --map`).
+The reachable window of seen points is `[1 − α, 1]`, so the ceiling point `t_c` is
+reachable iff `α ≥ 1 − t_c`; the alpha is now `max(max(alpha_min, 1 − t_c))` over
+variants (0.503 → 0.566) and every seen ghost sits within 1 Lc of the ceiling.
+`check_ghost_composite` holds the looked-at ghost to the *target*, not the band
+(`TARGET_SLACK`), so a variant landing short is red rather than merely inside.
+
 ### 3c. The ghost has TWO floors and a parsing mode, so it has TWO alphas
 
     ground side:  GHOST_VISIBLE_LC[mode]  ≤  |Lc|(seen, ground)  <  GHOST_READABLE_LC

@@ -12,12 +12,12 @@ PlasmoidItem {
     property var digSegs: ({ "0": "ABCDEF", "1": "BC", "2": "ABDEG", "3": "ABCDG", "4": "BCFG", "5": "ACDFG", "6": "ACDEFG", "7": "ABC", "8": "ABCDEFG", "9": "ABCDFG" })
 
     property color litColor: "#99ccff"
-    property color ghostColor: "#99ccff"
+    property color ghostColor: "#99cbfe"
     property color hotColor: "#4ba2fa"
     // ghost opacity — SOLVED by the palette (ghost_alpha on every token). The
     // ghost segments were drawn OPAQUE here, so the seen ghost was the declared
     // colour rather than its composite over the ground the palette solved for.
-    property real ghostAlpha: 0.503
+    property real ghostAlpha: 0.566
     property int segLen: Math.max(6, Math.floor(height * 0.42))
     // stroke base in segLen: the substrate's module stroke (0.105 H) at weight=1
     property int segThick: Math.max(2, Math.floor(segLen * 0.169))
