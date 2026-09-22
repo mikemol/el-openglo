@@ -7626,3 +7626,66 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s113]
+
+## Session 114 — the field as an aperture integral, measured (W54, first step)
+- Operator, 2026-09-22, on reading s113's phase-noise note: "what if pips
+  weren't lit/unlit as a Boolean state, but had a brightness range — a
+  supersampled mask over a higher-resolution backdrop scrolled at a much
+  higher frame rate — pinholes; the brain synthesizes imagined pixels via
+  motion prediction", and "plain Unifont behind the mask, too". The relation:
+  brightness = ghostAlpha + coverage·(1−ghostAlpha), coverage = the backdrop's
+  ink under the pip's aperture at the current offset. It COLLAPSES W47 (the
+  viewport is the vertical offset), W48 (a sparkline is a backdrop), W34(a)
+  (the lit dots ARE the field's, graded not snapped) and W30's matrix half
+  (any font Qt can shape is a backdrop; no column table), and it is the live
+  twin of segment_topology.project / matrix_glyph's offline coverage rule —
+  a reuse-search hit, not a new operator. First measurement, this session:
+  no shader — the software scene graph (the harness, the ebuild sandbox) has
+  none (render_qml, s-measured: MultiEffect drew nothing there), so
+  templates/ApertureField.qml integrates by PREFIX SUMS per backdrop row
+  (coverage = a difference of two sums per row, per pip) with the pips as
+  items whose lit-layer opacity is the PWM. Probed under QT_QUICK_BACKEND=
+  software over a synthetic block whose edge sits half a pip into column 10:
+  coverage 0 / 0.5 / 1 at pips 9 / 10 / 11 and the SEEN pixels (152,126,90)
+  / (203,169,121) / (255,212,153) — the 0.566 ghost composite, 0.783 of the
+  way to lit (= 0.566 + 0.5·0.434), the lit token. One frame's integral over
+  105 columns x 8 rows: 0.53 ms CPU in QML's JS. Emitted through
+  make_notify_marquee.aperture_field_component for the lint (10 documents).
+- Residue: the probe is a scratchpad run, not a check — check_aperture +
+  policy next (the three pips as rules); the Unifont backdrop (16 px em, AA
+  off, one Unifont pixel = one pip) and the marquee's text as a backdrop are
+  the steps after; hinting for outline fonts (PreferFullHinting +
+  NativeRendering) is recorded, unmeasured; two Rectangles per pip (1680
+  items) is the naive scene — a single Canvas repaint per frame may be
+  cheaper under software, unmeasured.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
+  1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s114]

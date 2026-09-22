@@ -145,6 +145,15 @@ def matrix_field_component():
     return TL.render("MatrixField.qml")
 
 
+def aperture_field_component():
+    """The field as an APERTURE INTEGRAL — templates/ApertureField.qml (W54): pips
+    graded by a supersampled backdrop's coverage under each aperture, the scroll a
+    number, no rebuild. Emitted for the lint and the probe; not yet the package's
+    field (MatrixField is, until the marquee's text becomes a backdrop)."""
+    import templates.loader as TL
+    return TL.render("ApertureField.qml")
+
+
 def body_parser():
     """templates/marquee-body.js — notification body markup -> text + style runs."""
     import templates.loader as TL
