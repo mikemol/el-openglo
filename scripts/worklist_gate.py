@@ -501,6 +501,23 @@ def _selftest():
         eng, why = locate()
         check("absent engine returns no path", eng, None)
         check("absent engine gives a reason", bool(why), True)
+        # ⚑ locate() returning None is not the refusal; main() is. Drive it, so
+        # "an absent engine REFUSES with exit 2" is tested rather than read.
+        import contextlib
+        import io
+        saved_uv = os.environ.get("_WORKLIST_IN_UV")
+        os.environ["_WORKLIST_IN_UV"] = "1"
+        err = io.StringIO()
+        try:
+            with contextlib.redirect_stderr(err):
+                rc = main(["worklist_gate.py"])
+        finally:
+            if saved_uv is None:
+                os.environ.pop("_WORKLIST_IN_UV", None)
+            else:
+                os.environ["_WORKLIST_IN_UV"] = saved_uv
+        check("absent engine: main() exits 2", rc, 2)
+        check("absent engine: main() says REFUSED", "REFUSED" in err.getvalue(), True)
         CANDIDATES = keep
     finally:
         if saved is None:
