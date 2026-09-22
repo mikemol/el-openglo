@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 65,
+  "counter": 67,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T16:54:49+00:00",
-  "job_id": "7c7e1dfb",
+  "heartbeat": "2026-09-22T17:16:51+00:00",
+  "job_id": "fb10bd94",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1070,6 +1070,36 @@
       "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both",
       "issued_at": "2026-09-22T15:41:39+00:00",
       "last_worked": "2026-09-22T16:36:15+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W66",
+      "title": "A REAL SDDM THEME: the login screen is the display's FOURTH MOUNT",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Operator, 2026-09-22, seeing only Breeze/Elarun/Maldives/maya in the SDDM picker: 'I would have expected el openglo to reach sddm after I emerged it' — then, on being told the design avoids replacing the greeter for boot-lockout reasons: 'Mm. I have workarounds to that lockout risk.' THE CONSTRAINT THAT JUSTIFIED THE CURRENT DESIGN IS LIFTED. Today el-openglo ships NO SDDM theme: /usr/bin/el-openglo-sddm is a root, opt-in helper that repoints the STOCK breeze theme at an EL wallpaper via theme.conf.user (+ type=image, KDE bug 370521) and /etc/sddm.conf.d. Verified installed on the operator's host 2026-09-22 with its wallpaper and breeze both present — so it works, it is simply never in the picker because it is not a theme. ⚑ FEASIBILITY MEASURED, NOT ASSUMED: templates/SegmentChar.qml imports ONLY QtQuick and QtQuick.Effects (no Kirigami, no Plasma) and takes litColor/ghostColor as PLAIN PROPERTIES, so the display mounts in a greeter with the palette supplied directly. That is the layer cut of catalog/one-display.md paying off from an unplanned direction: a display bound to Kirigami.Theme could never run under SDDM. FIRST BOUNDED STEP: emit /usr/share/sddm/themes/el-openglo/ per variant — metadata.desktop, theme.conf, Main.qml — with the segment clock as a fourth mount. ⚑ THE GREETER IS AN AUTH SURFACE: a Main.qml that renders but does not accept input is a login screen nobody can type into, so the arms must cover the PasswordBox/session selector/user list, not only that pixels are lit. render_qml can draw it headless the way it draws the switcher. This also carries most of ⊕VER-SYSCLOCK. ⚑ AND FIX THE CLOSURE CLAIM EITHER WAY: ⊕SDDM reads '(closed) the SDDM background path ships as el-openglo-sddm', which is literally true and scans as 'SDDM is themed' in a list of closed items — that is what misled the operator. Neither helper (el-openglo-apply, el-openglo-sddm) is discoverable anywhere a user would look, and check_ebuild verifies the install mapping without verifying that what is installed is FINDABLE.",
+      "evidence": "not started; helpers + wallpaper + breeze verified present on the host 2026-09-22",
+      "issued_at": "2026-09-22T17:22:51+00:00",
+      "last_worked": "2026-09-22T17:22:51+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W67",
+      "title": "RUN EVERY DECLARED MODE OF AN EDITED TOOL — a mode nobody runs is a mode nobody typed",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "MEASURED 2026-09-22: ONE type change (key_of returning a Key NamedTuple) broke FOUR call sites and every one was found by a human running a mode by hand — write(), check_selection_contrast's selftest, check_discriminates --list, and finally check_action_key's OWN --list, which a delegated README census hit hours later with ValueError: too many values to unpack. ⚑ AND AFTER THE THIRD I REPORTED HAVING CENSUSED THE CALL SITES. I had censused a DIFFERENT tool's (probe in check_discriminates, not key_of in check_action_key) — so the claim was true of the wrong subject, which is this repo's recurring defect shape wearing my own report. ⚑ THE GATE CANNOT SEE THIS CLASS: @CURRENCY drives opa_gate to --json, so a broken --list stays green forever. Every check here declares its modes in a known={...} set for the unknown-flag refusal, so the population is ALREADY DECLARED and machine-readable. FIRST BOUNDED STEP: a tool that, for each scripts/check_*.py, reads that set by AST and runs each READ-ONLY mode as a subprocess, asserting exit is not 2 and no Traceback appears. ⚑ EXCLUDE BY DECLARATION, NOT BY GUESS: --write ASSERTS A BUILD, --selftest RECURSES, --fix mutates; those must be named in the tool rather than pattern-matched on the flag string. A stopgap arm is already in check_action_key's selftest (modes --list and --json), which is the per-tool version of what this generalises. RELATED: run_selftests.py would be the natural home but cannot run standalone here (ModuleNotFoundError: No module named scripts) — see W62.",
+      "evidence": "check_action_key --list crashed until s145; the arm now covers --list and --json",
+      "issued_at": "2026-09-22T17:27:19+00:00",
+      "last_worked": "2026-09-22T17:27:35+00:00",
       "ticks_blocked": 0
     }
   ],

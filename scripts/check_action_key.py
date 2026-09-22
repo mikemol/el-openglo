@@ -477,6 +477,19 @@ def _selftest():
     # It survived because the selftest called measure() and never write() — so
     # the suite was green while `--write` raised ValueError on its first use.
     chk("write() agrees with the Key type", _write_is_callable(), True)
+    # ⚑ EVERY READ-ONLY MODE IS RUN, BECAUSE CHOOSING WHICH TO RUN IS JUDGEMENT IN
+    # THE TURN. Measured 2026-09-22: the Key NamedTuple broke FOUR call sites and
+    # each was found by someone running a mode by hand — write(), a selftest, one
+    # --list, and then check_action_key's OWN --list, which a delegated census hit
+    # hours later with `ValueError: too many values to unpack`. After the third I
+    # said I had censused the call sites; I had censused a DIFFERENT tool's. The
+    # gate never saw it because @CURRENCY drives --json and --list is a separate
+    # arm. ⚑ --write and --selftest are excluded deliberately: one ASSERTS A BUILD,
+    # the other recurses.
+    for mode in ("--list", "--json"):
+        r = subprocess.run([sys.executable, os.path.abspath(__file__), mode],
+                           capture_output=True, text=True, cwd=ROOT)
+        chk(f"mode {mode} runs", (r.returncode, "Traceback" in r.stderr), (0, False))
     chk("an action that declares its outputs yields a roster",
         isinstance(declared_outputs(ACTIONS[0]), list), True)
     chk("an action that declares none is None, not an empty roster",
@@ -515,11 +528,13 @@ def main(argv):
         return 0
     if "--list" in argv:
         for a in ACTIONS:
-            key, inputs, missing = key_of(a)
+            k = key_of(a)
             print(f"  {a[0]:12s} entry={a[1]}")
-            print(f"               domains={', '.join(a[2])}  ({len(inputs)} file(s))")
-            print(f"               host={', '.join(a[3]) or '(none declared)'}"
-                  + (f"  ⚑ ABSENT: {', '.join(missing)}" if missing else ""))
+            print(f"               domains={', '.join(a[2])}  ({len(k.inputs)} file(s))")
+            print(f"               host={'the whole host' if a[3] else '(none declared)'}"
+                  + (f"  ⚑ UNCOMPUTABLE: {', '.join(k.missing_host)}" if k.missing_host else ""))
+            print(f"               residue={len(k.unresolved)} unresolved, "
+                  f"{len(k.undeclared_domains)} undeclared domain(s)")
             print(f"               outputs={a[4]}/*{'|*'.join(a[5])}  "
                   f"({len(outputs_of(a))} file(s))")
         return 0
