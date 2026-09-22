@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T03:36:45+00:00",
-  "job_id": "8e74ec17",
+  "heartbeat": "2026-09-22T04:04:03+00:00",
+  "job_id": "1bc4f120",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-8e74ec17",
-    "taken_at": "2026-09-22T03:52:18+00:00"
+    "holder": "tick-1bc4f120",
+    "taken_at": "2026-09-22T04:18:56+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -914,10 +914,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "(4) relations.md brightness relation (+ gamma as its transfer curve). Then THE MARQUEE'S TEXT AS THE BACKDROP, measured first: a harness run of ApertureField at 105x8 with the scroll driven by a NumberAnimation on offset — sample the displacement per frame under the software backend vs the current Row of MatrixChar (the same jitter measurement s117 made: alternating 52/104 ms); if the field is smoother or equal, marquee-main.qml's Row → one Text grabbed into ApertureField replacing MatrixField, the ring pulse moved, check_marquee_live observables mapped onto offset, S5/S6 re-run; then W47 (16-row viewport = the 1:1 Unifont reading) and W48 fold.",
-      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574 Unifont+CJK+emoji stills (2:1); 8f8a37f transfer curve gamma (0.5 authored on the text probe); 45757a7 loop fix. Live: the widget's scroll is jumpy (operator) — the field's per-frame cost under plasmashell is the next measurement before it replaces MatrixField.",
+      "next_bounded_step": "(4) relations.md brightness relation (+gamma). Then THE PORT: marquee-main.qml — the Row of MatrixChar becomes one Text (the parsed runs as rich text; bold/underline as Text has them) grabbed into an ApertureField that replaces MatrixField; the scroll is a NumberAnimation on field.offset (from 0 to board+text width, in backdrop px = scale x); the ring pulse moves into ApertureField (its outermost pips); boardX := width - offset/scale so check_marquee_live's observables and L0-L8 hold unchanged; the hover/tap handlers hit-test against the Text's positionAt; S5/S6 re-run; --motion on the new board should read quantum none / cv ~0.02. One tick if the template moves cleanly; MatrixChar stays for the non-marquee consumers until measured.",
+      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+gamma+loop; 1a93b11 --motion: the Row's snapped x cv 0.104 quantum 3.6 px vs raw 0.011; the field cv 0.02 — the port is justified",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T03:36:03+00:00",
+      "last_worked": "2026-09-22T04:03:24+00:00",
       "ticks_blocked": 0
     },
     {

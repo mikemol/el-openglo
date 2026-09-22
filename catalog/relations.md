@@ -404,6 +404,42 @@ find the emitted `fg`/`fg_in`/alpha (a run is a runtime relation, not an emissio
 the re-hue itself belongs to `make_palette` (a `rehue(fg, hue)` that returns the gated
 result), so that the widget carries no colour arithmetic of its own.
 
+### 5b. A pip's brightness — the aperture relation (W54)
+
+A dot on the matrix is not lit-or-unlit. It is a PINHOLE over a backdrop drawn at a
+higher resolution, and what it shows is the backdrop's ink under its aperture at the
+current scroll offset (operator, 2026-09-22: "pips with a brightness range — a
+supersampled mask over a higher-resolution backdrop scrolled at the display rate; the
+brain synthesizes imagined pixels via motion prediction"). Stated as a relation on the
+two tokens the matrix already has:
+
+    coverage    =  ink(backdrop) under the pip's aperture   ∈ [0, 1]
+    brightness  =  ghost_alpha + coverage^γ · (1 − ghost_alpha)
+
+- **coverage 0** is the ghost floor — the pip as §3 solved it (`fg_in` at `ghost_alpha`
+  over the ground). The floor is §3's relation, unchanged; nothing here re-solves it.
+- **coverage 1** is the lit ceiling — the lit token `fg`, full.
+- **between**: a pip half under an edge is halfway. This is a RANGE, not a threshold;
+  a field that snaps a pip to floor-or-lit fails `policy/aperture.rego` A3, which
+  holds the half-covered pip of a synthetic edge to the midpoint on seen pixels.
+- **γ** is a fixed transfer curve, 1 by default (the identity the gate measures at).
+  Below 1 it lifts partial coverage the way an LED driver's gamma does — needed when
+  the backdrop is read at 2:1 (a one-pixel stroke fills at most half an aperture).
+  Fixed, not per-frame: an auto-stretch would breathe as content scrolls. Authored
+  until W56's round trip tunes it.
+- **hue** is untouched: the lit token is `fg` (or 5a's gated re-hue); a colour glyph
+  in the backdrop (an emoji) is ink by ALPHA — its silhouette lights, its colours do
+  not reach the phosphor.
+- **motion**: the scroll is the backdrop's offset, a number; nothing on the board is
+  rebuilt or snapped. Measured (`check_marquee_live --motion`): the snapped Row moves
+  in pitch quanta (3.6 px, velocity cv 0.104) while the field grades (cv 0.02).
+
+The relation is realised by `templates/ApertureField.qml` (prefix sums per backdrop
+row — no shader, so the sandbox sees it) and measured by `check_aperture` on six
+variants under the software scene graph. Its consequences: any font Qt can shape is a
+backdrop (Unifont at its 16 px em, one pixel per pip at 1:1); an icon raster, a
+sparkline, a QR are backdrops; the viewport (W47) is the offset's other axis.
+
 ---
 
 ## 6. Derivations are NOT constraints
