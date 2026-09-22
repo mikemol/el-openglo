@@ -32,11 +32,15 @@
 # archive (snapshot.debian.org) or a lockfile of resolved versions; until then,
 # treat a rebuilt image as a NEW host, and re-baseline.
 
-FROM debian:trixie-slim
-
-# ⚑ THE BASE IS PINNED BY TAG HERE AND MUST BE PINNED BY DIGEST BEFORE THIS IS
-# USED FOR ANYTHING CACHED. `debian:trixie-slim` moves; `debian@sha256:...` does
-# not. Left as a tag only so the first build is runnable without a lookup.
+# ⚑ PINNED BY DIGEST, WITH ITS PROVENANCE. `debian:trixie-slim` moves; this does
+# not. Resolved 2026-09-22 from registry-1.docker.io, the OCI image INDEX for
+# library/debian:trixie-slim (docker-content-digest header, multi-arch). The tag
+# it carried is kept in the comment because a digest alone cannot be re-derived:
+# a reader who needs to know WHICH trixie-slim this was has only this line.
+#
+#   tag at pin time : debian:trixie-slim
+#   resolved        : 2026-09-22 via registry-1.docker.io v2 manifests API
+FROM debian@sha256:a99cfc517144bc59b1978475ec53b46ecabec7e43635402ee5b77cc54cd1b20a
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -73,11 +77,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # OPA: fetched and pinned by sha256 rather than taken from a distro archive —
 # luthen-observability's shape, and the one part of their host story that IS
-# hermetic. ⚑ THE sha256 BELOW IS A PLACEHOLDER AND THE BUILD MUST FAIL ON IT
-# until it is filled from the release. A checksum nobody verified is worse than
-# no checksum, because it looks like one.
+# hermetic.
+#
+# ⚑ THE CHECKSUM WAS VERIFIED TWO WAYS, NOT COMPUTED ONCE. A sha256 taken from a
+# file one downloaded oneself certifies only that the download was internally
+# consistent — a truncated fetch or a substituted artifact hashes perfectly well.
+# So: the binary was fetched and hashed locally, `file` confirmed a statically
+# linked Go ELF rather than an error page (a hashed 404 is still a hash), and the
+# result was compared against upstream's own published
+# opa_linux_amd64_static.sha256. Both agree on the value below.
 ARG OPA_VERSION=0.70.0
-ARG OPA_SHA256=REPLACE_ME_WITH_THE_RELEASE_SHA256
+ARG OPA_SHA256=00d114b94fdb1606a48cccdfc73c9ccdc62c38721150131ae578d5ff3df5c084
 ADD --checksum=sha256:${OPA_SHA256} \
     https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64_static \
     /usr/local/bin/opa
