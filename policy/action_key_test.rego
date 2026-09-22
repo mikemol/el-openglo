@@ -6,9 +6,30 @@ package el.action_key_test
 
 import data.el.action_key
 
-_current := {"action": "screens", "state": "current", "key": "aaaa000011112222", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": [], "n_unresolved": 0, "n_undeclared_domains": 0}
+_current := {"action": "screens", "state": "current", "key": "aaaa000011112222", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": [], "n_unresolved": 0, "n_undeclared_domains": 0, "undeclared_outputs": [], "declared_absent": []}
 
-_stale := {"action": "screens", "state": "stale", "key": "bbbb333344445555", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": [], "n_unresolved": 0, "n_undeclared_domains": 0}
+# ⚑ THE OUTPUT BOUNDARY, BOTH ORIENTATIONS. These DENY rather than withhold: an
+# undeclared output is a defect in the action's own declaration, which its author
+# can close by naming the file — unlike an unresolved edge, which is a limit of
+# the scanner.
+test_undeclared_output_denies if {
+	c := object.union(_current, {"undeclared_outputs": ["strip.png", "README.md"]})
+	r := action_key.deny with input as {"cases": [c]}
+	count(r) == 1
+}
+
+test_declared_but_absent_output_denies if {
+	c := object.union(_current, {"declared_absent": ["clock-EL-Amber.png"]})
+	r := action_key.deny with input as {"cases": [c]}
+	count(r) == 1
+}
+
+test_matching_output_boundary_denies_nothing if {
+	r := action_key.deny with input as {"cases": [_current]}
+	count(r) == 0
+}
+
+_stale := {"action": "screens", "state": "stale", "key": "bbbb333344445555", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": [], "n_unresolved": 0, "n_undeclared_domains": 0, "undeclared_outputs": [], "declared_absent": []}
 
 # ⚑ THE RESIDUE CASES. A key over an under-covered domain WITHHOLDS and never
 # denies: a false positive in the residue costs one file declared uncovered, a

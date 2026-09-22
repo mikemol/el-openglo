@@ -4,18 +4,24 @@
    "key": "3de2db2b5e05bb8e53495f2a25d2a3f6331ea119a2d7489a7cd03ed74c93cff5",
    "n_inputs": 33,
    "n_outputs": 6,
+   "n_undeclared_domains": 1,
+   "n_unresolved": 7,
    "schema": 2
   },
   "screens": {
-   "key": "9c4080e897d0a95e5b63a3c8a65ea3752679a0f19db4f7705ec36dd52430ad40",
+   "key": "498b7a33d00e41fbe041e61448810620418fccab6bd0958c5df6041f9a29b5bc",
    "n_inputs": 63,
    "n_outputs": 55,
+   "n_undeclared_domains": 2,
+   "n_unresolved": 21,
    "schema": 2
   },
   "wallpapers": {
    "key": "dd5c5ed84485d5fd2d4aa438aa25df49e398a3c2183c77c9ecbd02365fb2e913",
    "n_inputs": 23,
    "n_outputs": 12,
+   "n_undeclared_domains": 0,
+   "n_unresolved": 2,
    "schema": 2
   }
  },

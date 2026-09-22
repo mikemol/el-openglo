@@ -47,6 +47,30 @@ deny contains msg if {
 # ⚑ NOT CONFIRMED IS NOT FAILED. No recorded key means nobody asserted a build;
 # an absent host input means the key cannot be computed on this machine. Both are
 # facts about the record and the machine, not about the artifact.
+# ⚑ ∂ AT THE OUTPUT BOUNDARY. An action that writes a file it never declared is
+# an action whose outputs cannot be split into per-artifact cones, so nobody can
+# attribute that file's staleness to anything. Measured 2026-09-22: render_screens
+# declared 36 outputs and wrote 55 — the 12 animations, 7 contact sheets and a
+# README were produced and declared nowhere.
+#
+# ⚑ DENY, NOT WITHHELD, AND THE DIFFERENCE IS WHO CAN FIX IT. An unresolved edge
+# is a limit of the SCANNER; an undeclared output is a defect in the ACTION's own
+# declaration, which the action's author can close by naming the file.
+deny contains msg if {
+	some c in input.cases
+	count(c.undeclared_outputs) > 0
+	msg := sprintf("action %q writes %d file(s) it does not declare (%s): an undeclared output has no cone, so its staleness is unattributable", [c.action, count(c.undeclared_outputs), concat(", ", c.undeclared_outputs)])
+}
+
+# ⚑ AND THE OTHER ORIENTATION IS THE ORIGINAL INCIDENT, SEEN FROM THE FAR SIDE: a
+# declared output that is not on disk is a build that did not finish. The commit
+# that captured a pre-fix rendering was this, one frame earlier.
+deny contains msg if {
+	some c in input.cases
+	count(c.declared_absent) > 0
+	msg := sprintf("action %q declares %d output(s) that are ABSENT (%s): the build did not finish, or the plan names a file it never writes", [c.action, count(c.declared_absent), concat(", ", c.declared_absent)])
+}
+
 # ⚑ A KEY OVER AN UNDER-COVERED DOMAIN IS NOT EVIDENCE OF CURRENCY, and this rule
 # exists because the tool shipped at b98f8cc without it: key_of returned a clean
 # triple while its scanner had silently dropped every computed read. The caller

@@ -56,6 +56,7 @@ import ast
 import hashlib
 import json
 import os
+import subprocess
 import sys
 from typing import NamedTuple
 
@@ -287,6 +288,29 @@ def key_of(action):
     return Key(h.hexdigest(), inputs, missing, sorted(unresolved), sorted(undeclared))
 
 
+def declared_outputs(action):
+    """The outputs the ACTION ITSELF declares, or None when it declares none.
+
+    ⚑ A DIRECTORY LISTING IS NOT A DECLARATION, and conflating them hides exactly
+    the defect this found. Measured 2026-09-22: render_screens' `--list` printed
+    36 files while the action wrote 55 — the 12 animations, the 7 contact sheets
+    and a README were produced and declared nowhere. Keying on the DIRECTORY
+    would have agreed with itself no matter how wrong the plan was, because it
+    measures the disk rather than the claim. ⚑ AND THE DECLARATION IS THE
+    PRECONDITION FOR SPLITTING: one backward cone per output requires the outputs
+    to be enumerable from the plan, so an undeclared output is one whose
+    staleness nobody can attribute."""
+    entry = os.path.join(ROOT, action[1])
+    r = subprocess.run([sys.executable, entry, "--outputs"],
+                       capture_output=True, text=True, cwd=ROOT)
+    if r.returncode != 0:
+        return None                      # the action declares no output roster
+    try:
+        return sorted(o["file"] for o in json.loads(r.stdout)["outputs"])
+    except (ValueError, KeyError):
+        return None
+
+
 def outputs_of(action):
     """The artifact paths this action is declared to produce, sorted."""
     _n, _e, _d, _h, outdir, sfx = action
@@ -308,6 +332,13 @@ def measure():
         k = key_of(a)
         key, missing = k.key, k.missing_host
         outs = outputs_of(a)
+        # the output boundary, both directions — declared vs present
+        declared = declared_outputs(a)
+        present = {os.path.basename(p) for p in outs}
+        undeclared = [] if declared is None else sorted(present - set(declared))
+        absent = [] if declared is None else sorted(
+            f for f in declared if f.endswith(a[5])
+            and not os.path.isfile(os.path.join(ROOT, a[4], f)))
         was = recorded.get(name, {})
         cases.append({
             "action": name,
@@ -322,6 +353,12 @@ def measure():
             "n_undeclared_domains": len(k.undeclared_domains),
             "unresolved": k.unresolved[:5],
             "undeclared_domains": k.undeclared_domains[:5],
+            # ⚑ ∂ AT THE OUTPUT BOUNDARY: what the action SAYS it writes against
+            # what is on disk. Undeclared files are outputs nobody can attribute a
+            # staleness to; declared-but-absent are a build that did not finish —
+            # which is the original incident, seen from the other side.
+            "undeclared_outputs": undeclared,
+            "declared_absent": absent,
             # ⚑ NO RECORD IS `withheld`, NOT `deny`. Nobody has asserted a build,
             # so currency is UNMEASURED here — not confirmed, and not failed. An
             # absent host input is withheld for the same reason, one level out.
@@ -343,19 +380,45 @@ def write():
                    "action's declared input domain at the time its outputs were built",
            "actions": {}}
     for a in ACTIONS:
-        key, inputs, missing = key_of(a)
-        if missing:
+        k = key_of(a)
+        if k.missing_host:
             print(f"action_key: REFUSED to record {a[0]} — declared host input(s) "
-                  f"absent: {', '.join(missing)}", file=sys.stderr)
+                  f"absent: {', '.join(k.missing_host)}", file=sys.stderr)
             raise SystemExit(3)
-        out["actions"][a[0]] = {"key": key, "schema": KEY_SCHEMA,
-                                "n_inputs": len(inputs),
+        # ⚑ THE RESIDUE IS RECORDED WITH THE KEY, not merely reported beside it.
+        # A manifest that stores only the digest cannot tell a later reader how
+        # much of the domain that digest actually covered — so a key recorded
+        # while 21 edges were unresolved would read, a month later, exactly like
+        # one recorded over a fully-resolved domain.
+        out["actions"][a[0]] = {"key": k.key, "schema": KEY_SCHEMA,
+                                "n_inputs": len(k.inputs),
+                                "n_unresolved": len(k.unresolved),
+                                "n_undeclared_domains": len(k.undeclared_domains),
                                 "n_outputs": len(outputs_of(a))}
     os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
     with open(MANIFEST, "w", encoding="utf-8") as fh:
         json.dump(out, fh, indent=1, sort_keys=True)
         fh.write("\n")
     return out
+
+
+def _write_is_callable():
+    """Does write()'s body still agree with key_of's return type?
+
+    ⚑ EXERCISED AGAINST A SCRATCH MANIFEST, never the real one: a selftest that
+    records keys would ASSERT A BUILD, which is the one thing --write means."""
+    import tempfile
+    global MANIFEST
+    real = MANIFEST
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            MANIFEST = os.path.join(d, "actions.json")
+            write()
+        return True
+    except (TypeError, ValueError, AttributeError):
+        return False
+    finally:
+        MANIFEST = real
 
 
 def _selftest():
@@ -402,6 +465,22 @@ def _selftest():
         set(Key._fields), {"key", "inputs", "missing_host", "unresolved", "undeclared_domains"})
     chk("the screens residue is non-empty (its emitter computes paths)",
         len(base.unresolved) + len(base.undeclared_domains) > 0, True)
+    # ⚑ THE OUTPUT BOUNDARY MUST BE MEASURABLE, AND ITS ABSENCE DISTINGUISHABLE
+    # FROM AGREEMENT. An action with no --outputs roster returns None, which is
+    # "not declared"; an action with one returns a list, which can then disagree.
+    # If these two ever render the same, the check reads an undeclared action as
+    # a conforming one — the defect that let render_screens write 19 files nobody
+    # had named.
+    # ⚑ EVERY MODE IS EXERCISED, BECAUSE A MODE NOBODY RUNS IS A MODE NOBODY
+    # TYPED. Measured 2026-09-22: `write()` still unpacked key_of as a 3-tuple
+    # hours after the Key type landed, and every other call site had been fixed.
+    # It survived because the selftest called measure() and never write() — so
+    # the suite was green while `--write` raised ValueError on its first use.
+    chk("write() agrees with the Key type", _write_is_callable(), True)
+    chk("an action that declares its outputs yields a roster",
+        isinstance(declared_outputs(ACTIONS[0]), list), True)
+    chk("an action that declares none is None, not an empty roster",
+        declared_outputs(ACTIONS[1]), None)
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
     print(f"  note  host is {kind} — "

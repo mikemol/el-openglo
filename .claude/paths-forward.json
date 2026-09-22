@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 62,
+  "counter": 63,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T14:21:48+00:00",
-  "job_id": "dcd0ed9d",
+  "heartbeat": "2026-09-22T15:00:16+00:00",
+  "job_id": "e3334f11",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -735,10 +735,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "After W35 and W42's map: (1)+(3) as one tick — make_engine.py emitting per-variant material JSON and per-format .glb (check which of trimesh/pygltflib is installable; the ebuild BDEPEND follows) + check_engine.py (the .glb parses, node names = SEG22 ids, materials carry base+emissive from the palette); fonts mapped into the same output dir. The shader (4) next; Blender add-on after.",
+      "next_bounded_step": "⚑ COLLAPSE CANDIDATE WITH W62 (operator, 2026-09-22): 'so much of this engine is written in python, and having that as a module makes porting to, e.g. gimp plugins and script-fu, unreal, godot and whatnot easier.' The engine as an importable mikemol.* distribution IS the porting path -- GIMP's Python-Fu, Godot and Unreal all consume Python or bind to it, and none can consume a tree of scripts/*.py that derive their root from abspath(__file__). So W43 is not a separate emission target; it is what W62 makes possible. Do W62 first, then measure which engine surfaces need only a palette/geometry API rather than a new generator. AUDIT BEFORE MERGING: the repetition may carry identity -- an engine asset pipeline may want material/shader graphs that a Python module does not supply.",
       "evidence": "",
       "issued_at": "2026-09-21T17:57:42+00:00",
-      "last_worked": "2026-09-21T17:57:42+00:00",
+      "last_worked": "2026-09-22T14:42:35+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1006,10 +1006,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
-      "next_bounded_step": "RESOLVE THE DOMINANT IDIOM, DO NOT APPROXIMATE IT. build_graph --undetermined censuses 205 relations into 11 idioms and 116 of them (61 read + 55 write) are ONE: open(<variable>), a name bound earlier in the same scope. paperkit/tools/closure.py already does this (_content_edges tracks local name -> path; _resolve_path walks ROOT / 'sub' chains; _parents_prefix resolves Path(__file__).parents[N]) -- so INDETERMINATE was a fact about this scanner, not the substrate. Port the binding-resolution rule to this tree's idioms (os.path.join and f-strings, not pathlib). Where a binding is f-string-shaped the edge resolves to a DOMAIN exactly (f'{v}.colors' genuinely ranges over .colors), which is precision, not over-approximation. Next after that: listdir/walk (42) as declared domains, then open(join(..., <expr>)) (25). AWAITING linux-sources-9c on bidirectional cone design before any cone is built.",
-      "evidence": "build_graph --undetermined + its census selftest; 205 relations / 11 idioms measured 2026-09-22",
+      "next_bounded_step": "SPLIT screens INTO ONE ACTION PER DECLARED OUTPUT. The precondition is now met: render_screens declares all 56 of its outputs (--outputs, JSON) where --list printed 36, and check_action_key compares declared-vs-present in BOTH orientations (undeclared output = no cone, unattributable staleness; declared-but-absent = the build did not finish, which is the original incident one frame earlier). Both DENY, because an output-boundary mismatch is a defect in the ACTION's declaration, not a limit of the scanner. NOW: ACTIONS gains one entry per plan_all() row. Per-render input domain: that variant's .colors (a palette edit then invalidates 12, not 48) + the surface's own template closure (NOT yet derivable -- needs the QML import graph, so carry it coarse and let the residue say so). linux-sources-9c: 'a single global backward cone has exactly one residue set, so it cannot tell you WHICH render is uncovered'; after the split screens' 21+2 becomes a pointer per render. THEN the binding resolver (116 of 205 undetermined are open(<variable>)). ⚑ AND A WITHHELD ROW THAT NOTHING CONSUMES IS A DENY NOBODY NOTICES (linux-sources-9c) -- the six withheld rows currently have no consumer; a ratchet on residue counts is the candidate.",
+      "evidence": "render_screens --outputs + the output-boundary comparison; opa test 20/20; declared 56 vs 55 png + README on disk",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-22T14:20:48+00:00",
+      "last_worked": "2026-09-22T14:42:27+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1025,6 +1025,21 @@
       "evidence": "not started; raised while check_action_key needed to import build_graph",
       "issued_at": "2026-09-22T14:28:13+00:00",
       "last_worked": "2026-09-22T14:28:13+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W63",
+      "title": "MARQUEE-LIVE IS FLAKY: a gate that denies and then admits on the same tree has an undeclared input",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "OBSERVED 2026-09-22 (s139): @MARQUEE-LIVE denied inside pre-commit and admitted on an immediate re-run with no tree change. ⚑ NEVER no-cache / never retry-until-green: luthen-observability's ruling is that a flaky cached action IS an undeclared input, every time they measured it. FIRST STEP is not a fix, it is DISCRIMINATION: make check_marquee_live report WHICH of its facts differed between runs (it already emits --json, so diff two runs' measurements rather than their exit codes). Candidates to rule out, in order: (a) a temp-file or socket collision when two qml harnesses overlap -- the pre-commit gate may run checks concurrently while a render sweep holds the compositor; (b) compositor/plasmashell state, which check_marquee_host already reads and which is NOT in any declared input; (c) a timing threshold in the scroll/paint capture that is tight on a loaded box. ⚑ Related: check_marquee_live.py:431 is one of the two listdir() sites in screens' undeclared-domain residue, so its population is already known to be unmeasured. Note the operator's standing rule: time by CPU (user+sys), never wall -- a wall-clock threshold on a shared box is a flake generator by construction.",
+      "evidence": "ledger 2026-09-22T17:45:00Z; opa_gate marquee_live 0 deny on re-run",
+      "issued_at": "2026-09-22T15:06:54+00:00",
+      "last_worked": "2026-09-22T15:06:54+00:00",
       "ticks_blocked": 0
     }
   ],

@@ -70,6 +70,33 @@ def plan_animations():
     return [(f"{name}-{v}.png", v, how) for v in VARIANTS for name, how in ANIMATIONS]
 
 
+def plan_derived():
+    """The outputs render_all writes that are DERIVED from the stills rather than
+    rendered: one contact sheet per variant, the strip of all six, and the index.
+
+    ⚑ THE PLAN UNDER-DECLARED ITS OWN OUTPUTS BY 19 OF 55 (measured 2026-09-22 by
+    scripts/check_action_key.py, which counted 55 .png in the output directory
+    while `--list` printed 36). `--list` says it prints "what would be written"
+    and printed neither the 12 animations nor the 7 sheets, and render_all also
+    writes README.md, which nothing declared at all.
+
+    ⚑ AND THAT IS THE PRECONDITION FAILURE FOR PER-RENDER ACTIONS. Splitting this
+    action into one backward cone per output requires the outputs to be ENUMERABLE
+    from the declaration; a producer that names 36 of the 55 files it writes
+    cannot be split, and every unnamed file is one whose staleness nobody can
+    attribute. A count taken from the output DIRECTORY instead would agree with
+    itself no matter how wrong the plan was — it measures the disk, not the claim."""
+    out = [(f"sheet-{v}.png", v, ("sheet", "variant")) for v in VARIANTS]
+    out.append(("strip.png", None, ("sheet", "strip")))
+    out.append(("README.md", None, ("index", "md")))
+    return out
+
+
+def plan_all():
+    """Every file render_all writes, declared. The population @CURRENCY keys on."""
+    return plan() + plan_animations() + plan_derived()
+
+
 def animate_viewport(variant, out_apng):
     """The text probe rendered once per band of its backdrop (offsetRows 0..8..0),
     assembled as an APNG: the field scrolling down a 16-row Unifont cell and back.
@@ -352,14 +379,25 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
 
 
 def main(argv):
-    known = {"--list", "--json"}
+    known = {"--list", "--json", "--outputs"}
     for a in argv[1:]:
         if a not in known:
             print(f"render_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--list" in argv:
-        for fn, v, how in plan():
+        for fn, _v, how in plan_all():
             print(f"{fn:36s} {how}")
+        print(f"\nrender_screens: {len(plan_all())} declared output(s) — "
+              f"{len(plan())} still(s), {len(plan_animations())} animation(s), "
+              f"{len(plan_derived())} derived")
+        return 0
+    if "--outputs" in argv:
+        # ⚑ THE DECLARATION, AS DATA. A consumer asking "what does this action
+        # produce" must not parse --list's columns: a reader keyed on a column
+        # width reports its own blind spot as a fact about the plan.
+        print(json.dumps({"dir": os.path.relpath(SCREENS, ROOT),
+                          "outputs": [{"file": fn, "variant": v, "how": list(how)}
+                                      for fn, v, how in plan_all()]}, indent=1))
         return 0
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
