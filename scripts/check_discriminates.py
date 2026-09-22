@@ -43,6 +43,29 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# ⚑ THE .py PERTURBATION VOCABULARY IS PAPERKIT'S, NOT THIS FILE'S (W64/W65
+# collapse audit, 2026-09-22). paperkit/paperkit/mutate.py is a PURE function with
+# a CLI — `mutate.py <module.py> <spec>` prints the perturbed module — and its
+# `data-:<qn>#<n>` (drop one element of a module-level literal) IS the
+# member-removing corruption this tool was hand-rolling. Three things it does
+# that the substring path cannot:
+#
+#   * it resolves by AST, so the AMBIGUOUS-ANCHOR defect measured here today
+#     ('"make_css"' matching in ORDER before ROLES) CANNOT OCCUR by construction
+#   * it is LOUD (KeyError) on a spec naming no such element — a real miss is
+#     never a silent no-op, which is this tool's `withheld`, enforced upstream
+#   * it REFUSES a key read only via `.get(k, DEFAULT)`, because the default
+#     swallows the drop and makes the mutation non-monotone — a refinement this
+#     tool had no notion of
+#
+# ⚑ AND THE COLLAPSE IS PARTIAL, WHICH IS WHY THE SUBSTRING PATH STAYS. paperkit's
+# surface is .py-only; its own docstring defers the rest ("bib-edge / file nodes
+# need eval.py to swap a NON-.py artifact — a later rung"). The probe that found
+# the whole n-of-n defect corrupts EL-Amber.colors, a themed artifact no AST
+# reaches. That difference carries identity, so the two paths are kept and NAMED
+# rather than merged into a third vocabulary.
+MUTATE = os.path.expanduser("~/github/paperkit/paperkit/mutate.py")
+
 # (name, check argv, input path, what to corrupt, how). `how` is (old, new) — a
 # literal substring swap, so the perturbation is legible in the report rather
 # than being "some mutation".
@@ -73,9 +96,10 @@ PROBES = (
     # its 16 importers. I had been GUESSING which file a check reads, and so is
     # the Δ grader: with inputs undeclared, a corruption aimed by inference misses,
     # and the miss reports as "the check is blind to all project content".
+    # a def-DROP in the authority: its body becomes an uncatchable raise, so a
+    # consumer flips only if it actually EXERCISES that function
     ("selection-contrast/authority",
-     ["scripts/check_selection_contrast.py"], "make_schemes.py",
-     ("GRID = _solved_grid()", "GRIDWAS = _solved_grid()")),
+     ["scripts/check_selection_contrast.py"], "make_schemes.py", "def:_solved_grid"),
     # ⚑ AIMED AT THE POPULATION, NOT THE PREDICATE. check_token_source asks a
     # STRUCTURAL question ("does this emitter import an authority?") that a
     # def-rename inside the authority cannot disturb — so the make_schemes probe
@@ -83,12 +107,14 @@ PROBES = (
     # POPULATION: remove a declared emitter and "16 of 16" becomes "15 of 15".
     # The perturbation must therefore remove a MEMBER, which for this check means
     # breaking the roster's agreement with the tree.
+    # ⚑ THE MEMBER-REMOVING CORRUPTION, AS PAPERKIT SPELLS IT. `data-:ROLES#5`
+    # drops the sixth element of the ROLES literal by AST — the same perturbation
+    # the hand-rolled anchor was reaching for, minus the ambiguity that made the
+    # first attempt grade the wrong declaration.
     ("token-source/roster",
-     ["scripts/check_token_source.py"], "emitters.py",
-     ('"make_css":             "emitter"', '"make_cssWAS":          "emitter"')),
+     ["scripts/check_token_source.py"], "emitters.py", "data-:ROLES#5"),
     ("css/emitted-sheet",
-     ["scripts/check_css.py"], "make_css.py",
-     ("def _is_rgb", "def _is_rgbWAS")),
+     ["scripts/check_css.py"], "make_css.py", "def:_is_rgb"),
 )
 
 
@@ -124,41 +150,59 @@ def _run(argv):
     return r.returncode, (r.stdout + r.stderr).strip().splitlines()[-1:] or [""]
 
 
+def _perturb(path, how):
+    """(bytes, description) — the perturbed source, or (None, why) if it cannot be
+    made. `how` is either a paperkit SPEC string (.py only) or an (old, new)
+    substring pair for a non-.py artifact."""
+    original = open(path, "rb").read()
+    if isinstance(how, str):
+        if not os.path.isfile(MUTATE):
+            return None, f"paperkit's mutate.py is not at {MUTATE} on this host"
+        r = subprocess.run([sys.executable, MUTATE, path, how],
+                           capture_output=True, text=True, cwd=ROOT)
+        if r.returncode != 0:
+            # ⚑ LOUD UPSTREAM, WITHHELD HERE. mutate.py raises on a spec that
+            # names no such element, which is exactly the miss this tool reports
+            # rather than grading a corruption it never applied.
+            return None, f"mutate.py {how}: {r.stderr.strip().splitlines()[-1:] or ['failed']}"
+        out = r.stdout.encode()
+        if out == original:
+            return None, f"mutate.py {how} produced a byte-identical module — nothing was perturbed"
+        return out, f"mutate.py {how}"
+    old, new = how
+    hits = original.count(old.encode())
+    if hits == 0:
+        return None, f"does not contain {old!r} — nothing was perturbed"
+    if hits > 1:
+        return None, (f"contains {old!r} {hits} times — an ambiguous anchor perturbs "
+                      f"whichever comes first; make it unique")
+    return original.replace(old.encode(), new.encode(), 1), f"{old!r} -> {new!r}"
+
+
 def probe(p):
     """{name, before, after, flipped, …} for one probe. The file is restored on
     every path — a corruption that outlives the probe is a corrupted repo."""
-    name, argv, rel, (old, new) = p
+    name, argv, rel, how = p
     path = os.path.join(ROOT, rel)
     if not os.path.isfile(path):
         return {"name": name, "withheld": f"{rel} is not in the tree"}
     original = open(path, "rb").read()
-    hits = original.count(old.encode())
-    if hits == 0:
-        # ⚑ A PERTURBATION THAT CHANGES NOTHING GRADES NOTHING. If the anchor is
-        # absent the file was never corrupted, and a green check afterwards would
-        # be read as "the check is blind" when it means "the probe did nothing".
-        return {"name": name, "withheld": f"{rel} does not contain {old!r} — nothing was perturbed"}
-    if hits > 1:
-        # ⚑ AN AMBIGUOUS ANCHOR IS NOT A DETERMINATE PERTURBATION, and this cost a
-        # wrong reading before it was caught (2026-09-22): the anchor '"make_css"'
-        # occurs in emitters.ORDER before emitters.ROLES, so replace(…, 1) hit the
-        # WRONG declaration and the probe reported "does NOT flip" about a
-        # corruption it had never applied where it meant to. A silently-first
-        # match is the same defect as a silently-shrinking population: the report
-        # describes something other than what the reader believes was measured.
-        return {"name": name,
-                "withheld": f"{rel} contains {old!r} {hits} times — an ambiguous anchor "
-                            f"perturbs whichever comes first; make it unique"}
+    # ⚑ A PERTURBATION THAT CHANGES NOTHING GRADES NOTHING. Whether the mutation
+    # could be made at all is decided BEFORE the check is run, so an unapplied
+    # corruption reports `withheld` rather than a green that reads as blindness.
+    mutated, how_desc = _perturb(path, how)
+    if mutated is None:
+        return {"name": name, "withheld": f"{rel}: {how_desc}"}
     rc_before, out_before = _run(argv)
     try:
-        open(path, "wb").write(original.replace(old.encode(), new.encode(), 1))
+        open(path, "wb").write(mutated)
         _drop_bytecode(path)
         rc_after, out_after = _run(argv)
     finally:
         open(path, "wb").write(original)
         _drop_bytecode(path)
     return {"name": name, "check": argv[0], "input": rel,
-            "perturbation": f"{old!r} -> {new!r}",
+            "perturbation": how_desc,
             "rc_before": rc_before, "rc_after": rc_after,
             "before": out_before[0], "after": out_after[0],
             "flipped": rc_before == 0 and rc_after != 0}
@@ -200,6 +244,14 @@ def _selftest():
     ambiguous = ("ambiguous-anchor", ["scripts/check_token_source.py"], "emitters.py",
                  ("make_css", "make_cssWAS"))
     chk("an ambiguous anchor is WITHHELD", "withheld" in probe(ambiguous), True)
+    # ⚑ THE SPEC PATH MUST WITHHOLD TOO, and for the upstream reason: mutate.py is
+    # LOUD (KeyError) on a spec naming no such element, so a miss can never become
+    # a silent no-op that reads as "the check is blind".
+    bogus = ("bogus-spec", ["scripts/check_token_source.py"], "emitters.py",
+             "data-:NO_SUCH_LITERAL#0")
+    chk("a spec naming no such element is WITHHELD", "withheld" in probe(bogus), True)
+    chk("and the two paths are distinguishable",
+        (isinstance(PROBES[0][3], tuple), isinstance(PROBES[2][3], str)), (True, True))
     # and the file survives every path
     before = open(os.path.join(ROOT, "EL-Amber.colors"), "rb").read()
     probe(PROBES[0])
@@ -237,8 +289,11 @@ def main(argv):
     if "--selftest" in args:
         return _selftest()
     if "--list" in args:
-        for name, argv_, rel, (old, new) in PROBES:
-            print(f"  {name:28s} {argv_[0]}  <- {rel}  ({old!r} -> {new!r})")
+        for name, argv_, rel, how in PROBES:
+            spelled = how if isinstance(how, str) else f"{how[0]!r} -> {how[1]!r}"
+            kind = "paperkit" if isinstance(how, str) else "substring"
+            print(f"  {name:28s} {argv_[0]}  <- {rel}")
+            print(f"  {'':28s} {kind:9s} {spelled}")
         print(f"\ncheck_discriminates: {len(PROBES)} declared probe(s)")
         return 0
     ps = [p for p in PROBES if only is None or p[0] == only]
