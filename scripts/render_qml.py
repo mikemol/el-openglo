@@ -248,8 +248,48 @@ def pixels(png, variant):
     return n
 
 
+def edges(png, variant):
+    """How SOFT are this surface's stroke edges? (W33; the operator: the live
+    wallpaper looks 'like Minecraft sans RTX' beside the clock.) Project every
+    pixel onto the ground→lit axis and count the TRANSITION pixels — litness
+    strictly between 0.15 and 0.85, i.e. neither on nor off. An antialiased,
+    round-capped stroke carries a rim of them; a hard polygon edge carries almost
+    none. Reported as a fraction of the pixels that are lit at all, so it does not
+    depend on how much of the surface is text. The ground is read from the picture
+    (its modal colour), not assumed: a surface may draw its own void."""
+    from PIL import Image
+    import make_preview
+    lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
+    im = Image.open(png).convert("RGB")
+    colours = im.getcolors(im.width * im.height) or []
+    ground = max(colours)[1] if colours else (0, 0, 0)
+    lg = [l - g for l, g in zip(lit, ground)]
+    norm = sum(v * v for v in lg) or 1
+    px = im.load()
+    L = [[sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
+          for x in range(im.width)] for y in range(im.height)]
+    # ⚑ ONLY A PIXEL TOUCHING A LIT ONE IS AN EDGE (measured s132: counting every
+    # intermediate pixel made the wallpaper read 0.829 "softer" than the clock's
+    # 0.143 — it was counting the GHOST segments, a flat band at the ghost alpha,
+    # as edge. A ghost's own interior touches no lit pixel; its rim does, and that
+    # rim IS an edge.)
+    on = trans = 0
+    for y in range(im.height):
+        for x in range(im.width):
+            v = L[y][x]
+            if v >= 0.85:
+                on += 1
+            elif v > 0.15 and any(L[y + dy][x + dx] >= 0.85
+                                  for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                                  if 0 <= y + dy < im.height and 0 <= x + dx < im.width):
+                trans += 1
+    return {"png": os.path.basename(png), "variant": variant, "ground": "#%02x%02x%02x" % ground,
+            "lit_px": on, "edge_px": trans,
+            "softness": round(trans / on, 3) if on else None}
+
+
 def main(argv):
-    known = {"--variant", "--width", "--height", "--png", "--pixels", "--set"}
+    known = {"--variant", "--width", "--height", "--png", "--pixels", "--edges", "--set"}
     args = argv[1:]
     for a in args:
         if a.startswith("--") and a not in known:
@@ -285,6 +325,12 @@ def main(argv):
         n = pixels(out, variant)
         for k in ("lit", "ghost-ish", "ground", "other", "total", "modal"):
             print(f"  {k:9} {n[k]}")
+    if "--edges" in args:
+        e = edges(out, variant)
+        print(f"  ground    {e['ground']} (the picture's own modal colour)")
+        print(f"  lit       {e['lit_px']} px")
+        print(f"  edge      {e['edge_px']} px (intermediate AND touching a lit pixel)")
+        print(f"  softness  {e['softness']} (edge per lit pixel; a hard polygon edge is near 0)")
     return 0
 
 

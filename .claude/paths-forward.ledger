@@ -118,3 +118,4 @@
 2026-09-22T09:24:08+00:00  tick  W46  advanced  unblock   "actions as runs: tapAt resolves a tap to a run and calls invokeAction; L10 + M6; the board is interactive"  evidence=450eb0d
 2026-09-22T09:57:41+00:00  tick  W46  advanced  unblock   "a job is a gauge: W48's painter on the live percentage history (L11, M7); the paint follows the swap — L11 caught the text-keyed paint"  evidence=1830cdc
 2026-09-22T10:26:05+00:00  tick  W46  done      unblock   "⊕NOTIFY-CAPABILITIES closed: four gates, table rows shipped, CLOSED witness; the harness's tap waits for its text (load flake caught by the pre-commit)"  evidence=dbd46e8
+2026-09-22T10:56:11+00:00  tick  W56  done      unblock   "legibility measured by OCR round trip (G0-G3); the sweep proved γ 0.5 optimal at 2:1 and identity at 1:1; opa_gate admitted set; five D0 fixes"  evidence=62bc652

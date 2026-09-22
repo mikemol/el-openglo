@@ -8762,3 +8762,59 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s131]
+
+## Session 132 — W33 measured, and the hypothesis refuted twice
+- The operator's complaint (s88): the live wallpaper reads "like Minecraft
+  sans RTX" beside the clock. My hypothesis was ANTIALIASING — the clock
+  draws Rectangles with antialiasing, the wallpaper Canvas polygons — so
+  render_qml gained `--edges`: project every pixel onto the ground→lit
+  axis and count the intermediate ones, per lit pixel.
+- REFUTED, twice, and the tool corrected each time. (1) First reading: the
+  wallpaper 0.585, the clock 0.143 — the wallpaper "softer", the opposite
+  of the hypothesis. With bloom off it rose to 0.829, so the halo was not
+  the cause: the measure was counting the GHOST SEGMENTS (a flat band at
+  the ghost alpha, neither on nor off) as edge. An edge pixel must TOUCH a
+  lit one; a ghost's interior touches none, its rim does and that rim is
+  an edge. (2) Corrected: the clock 0.031, the wallpaper 0.343 — but the
+  wallpaper's digits carry 2297 lit pixels to the clock's 4975, and a
+  smaller stroke has more perimeter per area, so the ratio still conflates
+  SCALE. What survives: the clock is the CRISPER of the two and is the one
+  the operator prefers, so edge softness is not what he is seeing.
+- What the pictures show, read side by side at 400x100: the clock's
+  segments are rounded-cap bars (Rectangle radius: thick/2) with open gaps
+  between them; the wallpaper's are square-cap polygons that nearly touch,
+  thinner, on a smaller face. ⚑ AND templates/SegmentChar.qml DRAWS SQUARE
+  CAPS TOO (Shape + ShapePath, four PathLines, no radius) — so adopting
+  SegmentChar as it stands would preserve exactly the look complained of.
+  W33's plan changes: the CAP is the first port step, not the adoption.
+- Residue: `--edges` is scale-dependent (normalise by the stroke perimeter,
+  or render both at one digit height, before comparing surfaces); the cap
+  and the gap are the hypotheses to test next, by rendering the wallpaper
+  with the clock's stroke idiom and asking the operator which is which.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124; γ measured optimal s131) +
+  ⊕NOTIFY-CAPABILITIES ✓ (130; the contract s126, urgency s127, actions s128, the gauge s129)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71-s112 as recorded), ⊕VER-MARQUEE
+  (s89-103 confirmed s112; s117-120 the snap and the field; s127 urgency,
+  s128 actions, s129 the gauge — all after the next emerge),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY (built s127 under the s130
+  closure), ⊕GLANCE-CALIBRATE (s111 the gap factor; s131 legibility is a
+  measured objective now), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  s132 MEASURED: the cap, not the antialiasing — SegmentChar's own caps are
+  square, so the port must fix the cap first).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s132]

@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T10:26:29+00:00",
-  "job_id": "99e1fb6c",
+  "heartbeat": "2026-09-22T10:56:37+00:00",
+  "job_id": "a15ed123",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-99e1fb6c",
-    "taken_at": "2026-09-22T10:37:38+00:00"
+    "holder": "tick-a15ed123",
+    "taken_at": "2026-09-22T11:07:57+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -928,16 +928,16 @@
     {
       "symbol": "W56",
       "title": "OCR ROUND-TRIP LEGIBILITY (operator 2026-09-22: 'OCR models might be useful for helping optimize how we do our supersampling alignment'). The witness s116 left as residue ('legibility is by eye'): render a string through the aperture field → low-pass at the pitch (the eye at distance; raw pips defeat OCR — measured: tesseract read nothing until a Gaussian at ~1.5 pitch reconnected the strokes) → threshold → tesseract → normalised edit distance to the source. Measured today on pinholes-EL-Openglo.png (8 rows, Unifont 2:1): 'Mello A 424 B' for 'Hello 世界 42 ñ 🔔' with eng only. Then it is an OBJECTIVE: phase offset, scale, pixelSize, hinting mode, dotFill and rows (8 vs the 16-row viewport) are searched for the best score per font — alignment optimised by measurement, not by eye",
-      "status": "ready",
+      "status": "done",
       "enables": "W54",
       "touches": "aperture,screens,tesseract",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: turns W54's legibility residue into a number and gives the alignment parameters an objective",
-      "next_bounded_step": "scripts/check_legibility.py --json: for each (font, string, rows) case render via render_qml aperture-text (the probe gains font/text/rows holes through make_notify_marquee), low-pass + threshold + tesseract (SKIP-withheld when tesseract or the language's tessdata is absent — chi_sim/jpn are the operator's to install), report the edit distance; policy/legibility.rego L0 empty, L1 withheld, L2 Latin score above a floor measured on the first run. Then --sweep over offset/scale/pixelSize to print the best alignment per font.",
-      "evidence": "",
+      "next_bounded_step": "none - the sweep's next axes (scale, pixelSize, dotFill) and CJK (tessdata) are residue; the objective exists",
+      "evidence": "62bc652: check_legibility + policy G0-G3 (@LEGIBILITY, 70 claims, 99/99); scores 0.857/0.929/1.000, CJK withheld; --sweep: γ identity at 1:1, γ 0.5 + 1.0-pitch low-pass reads exactly at 2:1 (γ 1 reads nothing); opa_gate admitted set + five D0 absent-population fixes",
       "issued_at": "2026-09-22T03:02:49+00:00",
-      "last_worked": "2026-09-22T03:02:49+00:00",
+      "last_worked": "2026-09-22T10:56:03+00:00",
       "ticks_blocked": 0
     }
   ],
