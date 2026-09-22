@@ -87,6 +87,11 @@ RING_CASES = [
      [dict(arrive=["t1", "n1"], transient=["t1"], live=["t1", "n1"], max=12),
       dict(arrive=[], live=["t1", "n1"], max=12)],
      [(["t1", "n1"], ["n1"]), (["n1"], ["n1"])]),
+    # W46: an item's actions join as " [Label]" runs after its text
+    ("an item's actions are appended as runs",
+     [dict(arrive=["n1"], actions={"n1": [["open", "Open"], ["dismiss", "Dismiss"]]}, live=["n1"], max=12,
+           text="n1#1 [Open] [Dismiss]")],
+     [(["n1"], ["n1"])]),
 ]
 
 # seriesToColumns (W48): (values, rows, min, max) -> expected column heights
@@ -115,7 +120,8 @@ QtObject {
                 for (var a = 0; a < step.arrive.length; a++) {
                     serial += 1;
                     var tr = (step.transient || []).indexOf(step.arrive[a]) >= 0;
-                    queue = Body.queueUpsert(queue, { id: step.arrive[a], text: step.arrive[a] + "#" + serial, runs: [], transient: tr });
+                    var acts = ((step.actions || {})[step.arrive[a]] || []).map(function (p) { return { id: p[0], label: p[1] }; });
+                    queue = Body.queueUpsert(queue, { id: step.arrive[a], text: step.arrive[a] + "#" + serial, runs: [], transient: tr, actions: acts });
                 }
                 var r = Body.ringNext(queue, step.live, step.max);
                 queue = r.queue;
@@ -177,6 +183,11 @@ def ring_problems(results):
     rep = results[4]
     if not (rep[0]["text"] == "n1#1" and rep[1]["text"] == "n1#2"):
         bad.append(f"ring replace: texts {[t['text'] for t in rep]}, expected n1#1 then n1#2")
+    # a step that states its joined text (W46 actions) must produce it
+    for (label, steps, _want), trace in zip(RING_CASES, results):
+        for i, step in enumerate(steps):
+            if "text" in step and trace[i]["text"] != step["text"]:
+                bad.append(f"ring {label!r}: boundary {i} text {trace[i]['text']!r}, expected {step['text']!r}")
     return bad
 
 

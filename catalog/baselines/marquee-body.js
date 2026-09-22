@@ -131,7 +131,9 @@ function joinItem(app, summary, body) {
 function queueItem(item, shown) {
     return { id: item.id, text: item.text, runs: item.runs, shown: shown,
              urgency: (item.urgency === undefined || item.urgency === null) ? 1 : item.urgency,
-             transient: !!item.transient };
+             transient: !!item.transient,
+             // W46 actions: [{id, label}] as the model's ActionNames / ActionLabels roles
+             actions: item.actions || [] };
 }
 
 // a replace (same id) takes the new text and owes a fresh rotation
@@ -178,7 +180,12 @@ function ringNext(queue, liveIds, maxItems) {
 }
 
 // the ring's items as one scrolling text with the runs re-based, and each
-// item's span with its urgency (W46: the painter reads it per character)
+// item's span with its urgency (W46: the painter reads it per character).
+// ⚑ ACTIONS ARE RUNS (W46; catalog/notify-capabilities.md): each of an item's
+// actions is appended after its text as " [Label]", a run carrying the action's
+// id and the item's id — drawn like a link (the descent row lit) and, on a tap,
+// handed to the model's invokeAction. The board becomes interactive with no new
+// primitive: a run is what a tap already resolves to.
 function ringJoin(items, sep) {
     var text = "", runs = [], spans = [];
     for (var k = 0; k < items.length; k++) {
@@ -192,6 +199,13 @@ function ringJoin(items, sep) {
                         italic: run.italic, underline: run.underline, link: run.link, color: run.color });
         }
         text += it.text;
+        var acts = it.actions || [];
+        for (var a = 0; a < acts.length; a++) {
+            var label = " [" + acts[a].label + "]";
+            runs.push({ start: text.length + 1, end: text.length + label.length, bold: false, italic: false,
+                        underline: true, link: "", color: null, action: acts[a].id, item: it.id });
+            text += label;
+        }
         spans.push({ start: base, end: text.length, id: it.id,
                      urgency: (it.urgency === undefined || it.urgency === null) ? 1 : it.urgency });
     }

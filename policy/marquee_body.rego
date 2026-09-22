@@ -113,6 +113,19 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "M6 — a boundary that states its joined text produces it"
+# description: |
+#   W46: an item's actions join as " [Label]" runs after its text — the
+#   scenario states the text it expects at that boundary.
+deny contains msg if {
+	some s in input.ring
+	some i, step in s.steps
+	step.text
+	s.trace[i].text != step.text
+	msg := sprintf("M6: %s: boundary %d joined %q, expected %q", [s.label, i, s.trace[i].text, step.text])
+}
+
+# METADATA
 # title: "M5 — a series becomes the stated column heights"
 # description: |
 #   W48 (folded into W54): seriesToColumns is pure — a ramp fills the rows, a

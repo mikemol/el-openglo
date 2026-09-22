@@ -176,6 +176,33 @@ PlasmoidItem {
             if (i >= rs[k].start && i < rs[k].end) return rs[k];
         return null;
     }
+    // ⚑ A TAP RESOLVES TO A RUN (W40 links; W46 actions). The pointer's board x
+    // against the text's left edge and the character advance gives a character
+    // index; a link run opens externally, an ACTION run calls the model's
+    // invokeAction on the row that still carries the item (found by id — the
+    // ring may lag the model). Exposed as a function so the harness can tap
+    // without synthesising a pointer; returns what it did, for the trace.
+    property real charAdvance: 0        // set by the representation: one cell advance in px
+    property var lastTap: null
+    function tapAt(x) {
+        if (root.charAdvance <= 0) return null;
+        var idx = Math.floor((x - root.boardRawX) / root.charAdvance);
+        var run = root.runAt(idx);
+        var did = { index: idx, kind: "none" };
+        if (run && run.action !== undefined && run.action !== null) {
+            var row = -1;
+            for (var i = 0; i < notifModel.count; i++)
+                if (notifModel.data(notifModel.index(i, 0), NotificationManager.Notifications.IdRole) === run.item) { row = i; break; }
+            did = { index: idx, kind: "action", action: run.action, item: run.item, row: row };
+            if (row >= 0) notifModel.invokeAction(notifModel.index(row, 0), run.action);
+        } else if (run && run.link.length > 0) {
+            did = { index: idx, kind: "link", link: run.link };
+            Qt.openUrlExternally(run.link);
+        }
+        root.trace("tap x=" + x.toFixed(1) + " -> " + JSON.stringify(did));
+        root.lastTap = did;
+        return did;
+    }
     // a run's colour ("#rrggbb" or a CSS basic name) -> the table's colour, or
     // transparent (no override) when the colour is not recognised
     readonly property var cssNames: ({ red: 0, orange: 30, yellow: 60, lime: 90, green: 120,
@@ -253,14 +280,21 @@ PlasmoidItem {
         // declares them (check_notify_roles); undefined reads as normal, not transient
         var urg = notifModel.data(idx, NotificationManager.Notifications.UrgencyRole);
         var trans = notifModel.data(idx, NotificationManager.Notifications.TransientRole);
+        // W46 actions: parallel lists of ids and labels, as the model declares them
+        var names = notifModel.data(idx, NotificationManager.Notifications.ActionNamesRole) || [];
+        var labels = notifModel.data(idx, NotificationManager.Notifications.ActionLabelsRole) || [];
+        var actions = [];
+        for (var a = 0; a < names.length; a++) actions.push({ id: names[a], label: labels[a] !== undefined ? labels[a] : names[a] });
         // the summary is PLAIN, the body is markup (W45): Body.joinItem
         var item = Body.joinItem(app, sum, body);
         if (!item.text.length || id === undefined) return q;
         for (var k = 0; k < q.length; k++)
             if (q[k].id === id && q[k].text === item.text) return q;
         root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text)
-                   + " urgency=" + JSON.stringify(urg) + " transient=" + JSON.stringify(trans));
-        return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs, urgency: urg, transient: trans === true });
+                   + " urgency=" + JSON.stringify(urg) + " transient=" + JSON.stringify(trans)
+                   + " actions=" + JSON.stringify(actions.map(function (x) { return x.id; })));
+        return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs, urgency: urg, transient: trans === true,
+                                     actions: actions });
     }
 
     // the model changed: upsert every live notification into the queue. A new id
@@ -349,6 +383,7 @@ PlasmoidItem {
 
         // one character advance, in backdrop cells: the glyph's columns plus a blank
         readonly property int advanceCells: root.matrix.cols + 1
+        onPitchChanged: root.charAdvance = advanceCells * pitch
         // the scrolling text's width, in cells and in px
         readonly property int textCells: root.tickerText.length * advanceCells
         readonly property real textWidth: textCells * pitch
@@ -438,7 +473,7 @@ PlasmoidItem {
             field.offset = 0;
             rotation.start();
         }
-        Component.onCompleted: Qt.callLater(startRun)
+        Component.onCompleted: { root.charAdvance = advanceCells * pitch; Qt.callLater(startRun); }
 
         // ⚑ HYPERLINKS (W40). Hovering the board PAUSES the rotation so a link can
         // be aimed at — the board resumes when the pointer leaves — and a tap
@@ -452,11 +487,7 @@ PlasmoidItem {
         }
         TapHandler {
             enabled: root.cfgOpenLinks
-            onTapped: (eventPoint, button) => {
-                var idx = Math.floor((eventPoint.position.x - root.boardRawX) / (rep.advanceCells * rep.pitch));
-                var run = root.runAt(idx);
-                if (run && run.link.length > 0) Qt.openUrlExternally(run.link);
-            }
+            onTapped: (eventPoint, button) => root.tapAt(eventPoint.position.x)
         }
         // ⚑ ONE ROTATION PER RUN, and the ring swaps at its END. A finite run that
         // restarts itself is where "a full rotation" is a real event.

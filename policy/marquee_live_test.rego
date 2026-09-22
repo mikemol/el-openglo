@@ -216,6 +216,29 @@ test_l9_refuses_a_hot_token_equal_to_lit if {
 	contains(msg, "invisible")
 }
 
+# W46: a tap on an action run reaches invokeAction
+tapped_ok := object.union(clean, {"events": [
+	{"t": 300, "op": "arrive", "id": 30, "fields": {"actionNames": ["open"]}, "shows": "app: act [Open]"},
+	{"t": 600, "op": "tap", "id": 30, "fields": {"text": "[Open]"}, "shows": "app: act [Open]"},
+], "samples": [
+	{"t": 500, "text": "app: act [Open]", "painted": "app: act [Open]", "x": 300, "running": true, "count": 1, "tap": null, "invoked": []},
+	{"t": 640, "text": "app: act [Open]", "painted": "app: act [Open]", "x": 280, "running": true, "count": 1,
+		"tap": {"index": 9, "kind": "action", "action": "open", "item": 30, "row": 0}, "invoked": [{"row": 0, "action": "open"}]},
+]})
+
+test_l10_admits_a_tap_that_invoked if {
+	count([m | some m in ml.deny with input as tapped_ok; startswith(m, "L10:")]) == 0
+}
+
+test_l10_refuses_a_tap_that_resolved_to_nothing if {
+	off := object.union(tapped_ok, {"samples": [
+		{"t": 640, "text": "app: act [Open]", "painted": "app: act [Open]", "x": 280, "running": true, "count": 1,
+			"tap": {"index": 3, "kind": "none"}, "invoked": []},
+	]})
+	some msg in ml.deny with input as off
+	startswith(msg, "L10:")
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp

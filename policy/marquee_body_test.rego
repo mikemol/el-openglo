@@ -20,6 +20,19 @@ series_ok := {"label": "a ramp fills the rows", "args": [[0, 25, 50, 75, 100], 8
 
 clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok]}
 
+test_m6_refuses_a_boundary_off_its_stated_text if {
+	acted := {"label": "actions", "steps": [{"arrive": ["n1"], "live": ["n1"], "max": 12, "text": "n1#1 [Open]"}],
+		"expected": [{"ring": ["n1"], "queue": ["n1"]}], "trace": [{"ring": ["n1"], "queue": ["n1"], "text": "n1#1"}]}
+	some msg in mb.deny with input as object.union(clean, {"ring": [acted]})
+	startswith(msg, "M6:")
+}
+
+test_m6_admits_a_boundary_on_its_stated_text if {
+	acted := {"label": "actions", "steps": [{"arrive": ["n1"], "live": ["n1"], "max": 12, "text": "n1#1 [Open]"}],
+		"expected": [{"ring": ["n1"], "queue": ["n1"]}], "trace": [{"ring": ["n1"], "queue": ["n1"], "text": "n1#1 [Open]"}]}
+	count([m | some m in mb.deny with input as object.union(clean, {"ring": [acted]}); startswith(m, "M6:")]) == 0
+}
+
 test_m5_refuses_drifted_columns if {
 	some msg in mb.deny with input as object.union(clean, {"series": [object.union(series_ok, {"columns": [0, 2, 4, 6, 7]})]})
 	startswith(msg, "M5:")

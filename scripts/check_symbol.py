@@ -599,7 +599,9 @@ CLOSED = {
                 # W40: links are underlined (the descent row lit in the backdrop) and a
                 # tap opens the run's href
                 _reads("templates/marquee-main.qml", r"underline && r === root\.matrix\.rows - 1") and
-                _reads("templates/marquee-main.qml", r"TapHandler\s*\{[^}]*openUrlExternally\(run\.link\)") and
+                # the tap resolves to a run in root.tapAt (W46 s128: actions share it)
+                _reads("templates/marquee-main.qml", r"TapHandler\s*\{[^}]*root\.tapAt\(") and
+                _reads("templates/marquee-main.qml", r"openUrlExternally\(run\.link\)") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (

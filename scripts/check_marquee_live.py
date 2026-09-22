@@ -131,6 +131,12 @@ TIMELINE = [
     (9400, "arrive", 21, {"summary": "quiet", "body": "", "applicationName": "app", "urgency": 0}, "app: quiet"),
     (13000, "expire", 20, {}, ""),
     (13100, "expire", 21, {}, ""),
+    # W46 actions: an arrival with two actions joins as "app: act [Open] [Later]";
+    # a tap on the Open run reaches the model's invokeAction (L10)
+    (14500, "arrive", 30, {"summary": "act", "body": "", "applicationName": "app",
+                           "actionNames": ["open", "later"], "actionLabels": ["Open", "Later"]}, "app: act [Open] [Later]"),
+    (15600, "tap", 30, {"text": "[Open]"}, "app: act [Open] [Later]"),
+    (17500, "expire", 30, {}, ""),
 ]
 END_MS = 30000            # the CAP; the main run ends when every event has fired and the board drained
 SAMPLE_MS = 40
@@ -168,6 +174,12 @@ Window {
         else if (step.op === "replace") { var r2 = rowOf(step.id); if (r2 >= 0) m.set(r2, Object.assign({ notificationId: step.id }, step.fields)); }
         else if (step.op === "flash") { m.append(Object.assign({ notificationId: step.id }, step.fields)); m.remove(rowOf(step.id)); }
         else if (step.op === "silent") m.appendSilently(Object.assign({ notificationId: step.id }, step.fields));
+        // W46: tap the board where a run of the given text sits (its first character's
+        // board x), through the widget's own tapAt — no pointer synthesised
+        else if (step.op === "tap") {
+            var s0 = subject.item, pos = s0.tickerText.indexOf(step.fields.text);
+            if (pos >= 0) s0.tapAt(s0.boardRawX + (pos + 0.5) * s0.charAdvance);
+        }
         events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows, fields: step.fields });
     }
     property var timeline: %(timeline)s
@@ -189,7 +201,8 @@ Window {
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
-                           hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText });
+                           hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText,
+                           tap: s.lastTap, invoked: model().invoked });
             if (s.boardPaused) harness.pausedSeen += 1;
             // W52: a screenshot at the first sample with the text mid-board (its left
             // edge inside the board, still running), and one while the pulse holds it
@@ -518,9 +531,11 @@ def _selftest():
     last = m["samples"][-1]
     chk("the run ended with every event fired and the board drained",
         (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
-    chk("a sample carries text, x, raw, w, running, paused, ring, count, the bound colours, and the paint's inks + text (W46)",
+    chk("a sample carries text, x, raw, w, running, paused, ring, count, the bound colours, the paint's inks + text, the last tap and the stub's invoked (W46)",
         sorted(m["samples"][0].keys()),
-        ["count", "ghost", "ground", "hot", "ink", "lit", "painted", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
+        ["count", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "t", "tap", "text", "w", "x"])
+    chk("the tap on the action run reached the stub's invokeAction",
+        any(i.get("action") == "open" for s in m["samples"] for i in (s.get("invoked") or [])), True)
     # ⚑ THE THEME CAN SEE (W35): run under another variant, the bound colours change
     amber = measure(run(variant="EL-Amber", end_ms=1500), None, "EL-Amber")
     chk("under EL-Amber the sampled lit is EL-Amber's fg", amber["samples"][-1]["lit"], amber["expected"]["lit"])

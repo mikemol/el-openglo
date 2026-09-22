@@ -8476,3 +8476,64 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s127]
+
+## Session 128 — actions as runs: the board becomes interactive (W46, step 3)
+- An item's actions (ActionNamesRole / ActionLabelsRole, parallel lists)
+  ride the queue item; ringJoin appends each as " [Label]" — a RUN carrying
+  the action's id and the item's id, underlined so the descent row lights
+  like a link. No new primitive: a run is what a tap already resolved to.
+  root.tapAt(x) is the one resolver (the TapHandler calls it; the harness
+  calls it too, no pointer synthesised): board x against the text's left
+  edge and the character advance → an index → a run; a link opens
+  externally, an ACTION calls notifModel.invokeAction on the row that
+  still carries the item (found by id — the ring may lag the model); what
+  it did is traced and kept as root.lastTap. The harness timeline gained an
+  arrival with two actions and a tap on "[Open]"; the stub records
+  invokeAction; L10 holds every tap event to reach invokeAction for its
+  item (89/89); M6 holds a ring boundary that states its joined text
+  ("n1#1 [Open] [Dismiss]"). ⊕NOTIFY-MATRIXRENDER's tap pin moved to tapAt.
+- Residue: the label's characters are the registry's — a label outside
+  Latin-1 draws '?' per glyph (Unifont as a backdrop is the remedy, W54's
+  setting); an action run's colour is the item's (a critical item's
+  actions are hot too); the stock popup's default action (a tap on the
+  body) is not offered — HasDefaultActionRole is read by nothing yet.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124: field, gate, text
+  backdrop, Unifont, γ, the port, the viewport, the series arithmetic, MatrixChar retired)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board; s127 `notify-send -u
+  critical` reads in the hot token and keeps cycling, `-u low` reads dim;
+  s128 `notify-send -A open=Open` shows "[Open]" and a click on it fires
+  the action), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY (s127: built headless — the
+  hot token as ink, L9; the live confirmation is above), ⊕GLANCE-CALIBRATE
+  (s111: the 1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s128]

@@ -291,6 +291,34 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L10 — a tap on an action run reaches the model's invokeAction"
+# description: |
+#   W46 (catalog/notify-capabilities.md): an item's actions join as " [Label]"
+#   runs; a tap on one calls invokeAction(row, id) on the row that carries the
+#   item. The timeline's tap events name the run's text; after each, some sample
+#   must show the stub's invoked list carrying that action for that item — and
+#   the widget's own lastTap must have resolved to an action, not to nothing.
+tap_events contains e if {
+	some e in input.events
+	e.op == "tap"
+}
+
+deny contains msg if {
+	some e in tap_events
+	not invoked_after(e)
+	msg := sprintf("L10: the tap at t=%v on %q never reached invokeAction for item %v", [e.t, e.fields.text, e.id])
+}
+
+invoked_after(e) if {
+	some s in input.samples
+	s.t >= e.t
+	some inv in s.invoked
+	s.tap.kind == "action"
+	s.tap.item == e.id
+	inv.action == s.tap.action
+}
+
+# METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
 	not input.runner

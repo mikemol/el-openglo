@@ -114,3 +114,4 @@
 2026-09-22T07:06:51+00:00  tick  W54  advanced  collapse  "MatrixChar/MatrixField retired: five pins moved, one hidden Python caller found by --calls, templates + baseline deleted; 47/47, gate 68"  evidence=dd50c52
 2026-09-22T07:52:51+00:00  tick  W54  done      collapse  "⊕APERTURE-FIELD closed: the viewport animation (17-frame ping-pong, S5 along y) + four gates; W48 folded; backend-as-argument fix caught by S3"  evidence=462cdf9
 2026-09-22T08:21:29+00:00  tick  W46  advanced  unblock   "the model's contract measured (check_notify_roles + N0-N4, @NOTIFY-ROLES); stub widened; notify-capabilities.md states each capability as a relation"  evidence=9bb647f
+2026-09-22T08:56:54+00:00  tick  W46  advanced  unblock   "urgency + transience: critical in the hot token (L9), low at half ink, transient once; L9 caught vacuous then caught the paint lag"  evidence=e637d0b
