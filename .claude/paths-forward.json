@@ -13,10 +13,7 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": {
-    "holder": "tick-b7d5edce",
-    "taken_at": "2026-09-22T13:08:30+00:00"
-  },
+  "lock": null,
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -1009,10 +1006,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
-      "next_bounded_step": "STEP 1, MEASURE THE IMPLICIT GRAPH — scripts/build_graph.py, derived not authored: nodes are files (templates, emitters, baselines, policies, packages, pictures, catalog documents) and edges are producer/consumer relations read FROM THE TREE (each emitter's render_all writes, each check's reads, the loader's template names, the parity PAIRS, the lint DOCS, the policy<->check pairing, render_screens' plan). It reports four things, each a finding on its own: (a) ORPHANS — a file no node produces and no node consumes; (b) UNBUILT — consumed but never produced, which is exactly the undeclared-input set (opa, qmllint, qml, tesseract+tessdata, the fontconfig faces, the Kirigami modules); (c) DUPLICATES — two producers of the same output kind from overlapping inputs, which is where the operator's recurring defects live; (d) UNREACHED — a node no gate depends on. ⚑ IT MUST FAIL CLOSED on a relation it cannot determine (linux-sources' generator raises rather than emit a target keyed on a guess), because an under-covered graph reports its own blind spot as cleanliness. STEP 2: the tier column (sandbox/local, with reasons) as a property OF each node, since the graph is where it belongs. STEP 3: only then the question of a build system to execute it — the graph is the deliverable either way, and it is what makes the bazel question answerable rather than aspirational.",
-      "evidence": "",
+      "next_bounded_step": "REGO IS THE SOURCE, NOT THE JUDGE (operator, 2026-09-22: 'rego is our specifications language. Our build graph, our tests, everything should be able to be synthesized from it. Just as luthen-observability synthesizes monitoring and alerting rules from rego.'). The ACTIONS table lives in Python and must not: move it to rego data, and reduce the 58 hand-written checks in the struct-tools table to ONE generic measurer over a declared fact base. Each check today carries its own private notion of a dependency -- the same defect check_token_source found in make_wallpaper, one level up.",
+      "evidence": "scripts/check_action_key.py + policy/action_key.rego (opa test 10/10, gate denies on a real perturbation); @CURRENCY in the warrant graph, 73 of 73 cited claims pass",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-22T13:24:55+00:00",
+      "last_worked": "2026-09-22T13:58:38+00:00",
       "ticks_blocked": 0
     }
   ],
