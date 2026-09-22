@@ -7689,3 +7689,51 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s114]
+
+## Session 115 — the aperture relation is a gate (W54, step 2)
+- The s114 probe became templates/aperture-probe.qml (bound to Kirigami.Theme
+  like a shipped surface; the ghost alpha the palette's global one; imports
+  ApertureField from templates/ through a `$templates` hole render_qml fills)
+  and render_qml's fourth surface, `aperture`. scripts/check_aperture.py
+  renders it under each variant's scheme on the SOFTWARE scene graph (on
+  purpose: where the ebuild sandbox sees) and reads three pip centres — clear,
+  half, covered — beside what the scheme says: ghost over the harness ground
+  at alpha, the floor plus half the way to lit, the lit token. Six of six
+  within one unit on every channel (a first run read 5 on the clear pip:
+  the expectation had composited over the View ground where the harness
+  draws the Window one — the check corrected, not the field).
+  policy/aperture.rego A0-A4 (71/71 across eight policies; @APERTURE, 68
+  claims); A3 is the rule a snapping field cannot pass.
+- Residue: one pixel per pip at its centre, the rim unread; the Unifont
+  backdrop and the marquee's text as a backdrop are still ahead.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
+  1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s115]

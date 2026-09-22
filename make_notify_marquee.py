@@ -154,6 +154,16 @@ def aperture_field_component():
     return TL.render("ApertureField.qml")
 
 
+def aperture_probe_qml(templates_url="."):
+    """templates/aperture-probe.qml — the field over a synthetic edge block, the gate's
+    subject (check_aperture, W54). Never shipped; `templates_url` is where the
+    harness finds ApertureField.qml. The ghost alpha is the palette's global one."""
+    import templates.loader as TL
+    import make_wallpaper_live as WL
+    return TL.render("aperture-probe.qml", templates=templates_url,
+                     ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
+
+
 def body_parser():
     """templates/marquee-body.js — notification body markup -> text + style runs."""
     import templates.loader as TL

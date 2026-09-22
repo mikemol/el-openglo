@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 55,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T02:02:50+00:00",
-  "job_id": "30e88dba",
+  "heartbeat": "2026-09-22T02:16:06+00:00",
+  "job_id": "3b8c3d4c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-30e88dba",
-    "taken_at": "2026-09-22T02:04:31+00:00"
+    "holder": "tick-3b8c3d4c",
+    "taken_at": "2026-09-22T02:19:53+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -914,10 +914,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "Measure first: (1) does the software backend (the harness's QT_QUICK_BACKEND) run ShaderEffect + mipmapped ShaderEffectSource, or does the animation witness need the GL backend; (2) a standalone templates/ApertureField.qml (field geometry from MatrixField, backdrop as a source item, offset uniforms, aperture as a fraction of pitch) rendered by render_qml over a synthetic backdrop with --pixels: a pip half-covered reads half-way between ghost and lit; (3) a Text item in Unifont as the backdrop — CJK through the pinholes with no glyph table (W30's matrix half retires); (4) relations.md gains the brightness relation (ghost floor, lit ceiling, coverage between — the hue gate unchanged). Then the marquee's text becomes a backdrop and the S5 witness re-runs; then W47/W48 fold in.",
-      "evidence": "Design notes (operator + s113): HINTING — two grids, the backdrop's pixels and the pip apertures; make them commensurate (pip pitch = integer backdrop pixels) and hint to the backdrop grid so stems land on whole pips when aligned, grade only in motion. Unifont is a bitmap font: render at its 16 px em (or an integer multiple), antialiasing off — one Unifont pixel = one pip, no hinting machinery. Outline fonts: font.hintingPreference: Font.PreferFullHinting + renderType: Text.NativeRendering.",
+      "next_bounded_step": "(2) scripts/check_aperture.py --json + policy/aperture.rego: render_qml gains an 'aperture' probe surface (templates/aperture-probe.qml: the synthetic edge block) and the measurement reads the three pips (A0 empty; A1 ghost pip = ghost composite ±2; A2 half pip within ±3 of ghost + 0.5*(lit-ghost); A3 covered pip = lit ±2) — the s114 numbers become a gate. (3) a Text backdrop in Unifont (16 px em, AA off, one Unifont pixel per pip) drawn into the backdrop canvas via ctx.font/fillText: is CJK legible through the pinholes — a still. (4) relations.md brightness relation. Then the marquee's text as backdrop + S5 re-run.",
+      "evidence": "262bd9c: templates/ApertureField.qml (prefix-sum integral, no shader); probed under software backend: cov 0/0.5/1 at pips 9/10/11, seen (152,126,90)/(203,169,121)/(255,212,153) = ghost composite / 0.783 / lit; 0.53 ms CPU per frame over 105x8. Design notes: hinting — two grids, make them commensurate; Unifont at 16 px em AA off = one pixel per pip; outline fonts PreferFullHinting + NativeRendering.",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T01:57:25+00:00",
+      "last_worked": "2026-09-22T02:15:41+00:00",
       "ticks_blocked": 0
     }
   ],

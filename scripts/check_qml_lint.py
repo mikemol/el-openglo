@@ -46,6 +46,7 @@ DOCS = (
     ("make_notify_marquee", "matrix_char_component", None, "MatrixChar.qml"),
     ("make_notify_marquee", "matrix_field_component", None, "MatrixField.qml"),
     ("make_notify_marquee", "aperture_field_component", None, "ApertureField.qml"),   # W54
+    ("make_notify_marquee", "aperture_probe_qml", None, "aperture-probe.qml"),        # W54's gate subject
     ("make_taskswitch", "main_qml", None, "taskswitch-main.qml"),   # one package since W35
 )
 
