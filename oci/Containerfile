@@ -1,0 +1,99 @@
+# el-openglo render context — THE DECLARATION OF THE HOST.
+#
+# ⚑ YOU DO NOT DECLARE A HOST BINARY, YOU DEFINE YOUR HOST (operator, 2026-09-22).
+# Enumerating host files — the qml binary, one font — declares EDGES where the
+# thing needing declaration is a DOMAIN. A Qt render's real domain is every shared
+# library, fontconfig rule, locale, Qt plugin and codec the process can see. That
+# list is not closeable by hand, and a key built from two of its members agrees
+# with itself across two different machines while looking complete.
+#
+# This file is that domain, written down. Build it, pin the digest in
+# catalog/host.json, and every action that renders becomes hermetic — not because
+# the tooling got cleverer, but because the execution context is now a named,
+# versioned artifact instead of whatever happened to be installed.
+#
+#     podman build -t el-openglo-render:dev -f oci/Containerfile .
+#     podman image inspect el-openglo-render:dev --format '{{.Digest}}'
+#     # record that digest + its source in catalog/host.json
+#
+# ⚑ ADOPTING THIS RE-BASELINES EVERY RENDER. The checked-in screens were produced
+# by the Gentoo host's Qt and fonts; this image's Qt and fonts are different
+# builds, so the PNGs WILL change, and check_legibility's floor and the symmetry
+# oracle's pixel counts move with them. That is a one-time, deliberate re-baseline
+# and it is the price of the artifacts becoming reproducible. Do it as its own
+# commit, with the before/after measured, never folded into another change.
+#
+# ⚑ WHAT IS DELIBERATELY NOT PINNED YET, AND WHY IT MATTERS. `apt-get install`
+# without version constraints resolves against a moving archive, so two builds of
+# this file a month apart are DIFFERENT IMAGES. That is tolerable only because the
+# image DIGEST — not this file — is what enters the action key: the digest is
+# exact even when the recipe is loose. The recipe being loose means you cannot
+# REBUILD a given digest, only identify it. Closing that needs either a snapshot
+# archive (snapshot.debian.org) or a lockfile of resolved versions; until then,
+# treat a rebuilt image as a NEW host, and re-baseline.
+
+FROM debian:trixie-slim
+
+# ⚑ THE BASE IS PINNED BY TAG HERE AND MUST BE PINNED BY DIGEST BEFORE THIS IS
+# USED FOR ANYTHING CACHED. `debian:trixie-slim` moves; `debian@sha256:...` does
+# not. Left as a tag only so the first build is runnable without a lookup.
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# The render context proper:
+#   qml6 + qt6-declarative        the runtime render_qml.py drives
+#   qt6-wayland / libgl / xvfb    offscreen rendering needs a working GL stack
+#   fonts-*                       THE GLYPH SOURCE. Font bytes are render inputs;
+#                                 a different Hack build is a different screenshot.
+#   tesseract + tessdata          check_legibility's readback oracle
+#   fontconfig                    resolution ORDER is an input, not a detail
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        qml6-module-qtqml \
+        qml6-module-qtquick \
+        qml6-module-qtquick-controls \
+        qml6-module-qtquick-layouts \
+        qml6-module-qtquick-shapes \
+        qml6-module-qtquick-window \
+        qt6-declarative-dev-tools \
+        libgl1 \
+        libegl1 \
+        libxkbcommon0 \
+        xvfb \
+        fontconfig \
+        fonts-hack \
+        fonts-dejavu-core \
+        fonts-liberation2 \
+        fonts-unifont \
+        tesseract-ocr \
+        tesseract-ocr-eng \
+        python3 \
+        python3-venv \
+        ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# OPA: fetched and pinned by sha256 rather than taken from a distro archive —
+# luthen-observability's shape, and the one part of their host story that IS
+# hermetic. ⚑ THE sha256 BELOW IS A PLACEHOLDER AND THE BUILD MUST FAIL ON IT
+# until it is filled from the release. A checksum nobody verified is worse than
+# no checksum, because it looks like one.
+ARG OPA_VERSION=0.70.0
+ARG OPA_SHA256=REPLACE_ME_WITH_THE_RELEASE_SHA256
+ADD --checksum=sha256:${OPA_SHA256} \
+    https://github.com/open-policy-agent/opa/releases/download/v${OPA_VERSION}/opa_linux_amd64_static \
+    /usr/local/bin/opa
+RUN chmod 0755 /usr/local/bin/opa
+
+# ⚑ PROVENANCE IS PART OF THE ARTIFACT. The exact resolved version of every
+# package lands in the image, so a render can be traced to the bytes that made it
+# without re-resolving anything. This is what makes a loose recipe auditable.
+RUN dpkg-query -W -f='${Package}\t${Version}\n' | sort > /etc/el-openglo-packages.tsv \
+    && fc-list --format='%{file}\t%{family}\n' | sort > /etc/el-openglo-fonts.tsv
+
+# ⚑ RENDERS MUST NOT DEPEND ON A DISPLAY THAT MAY OR MAY NOT EXIST.
+ENV QT_QPA_PLATFORM=offscreen \
+    QT_QPA_FONTDIR=/usr/share/fonts \
+    LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8 \
+    PYTHONDONTWRITEBYTECODE=1
+
+WORKDIR /src

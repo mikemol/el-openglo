@@ -47,6 +47,15 @@ deny contains msg if {
 # ⚑ NOT CONFIRMED IS NOT FAILED. No recorded key means nobody asserted a build;
 # an absent host input means the key cannot be computed on this machine. Both are
 # facts about the record and the machine, not about the artifact.
+# ⚑ REFORMULATED IS NOT STALE. The key's DEFINITION changed, so the recorded key
+# answers a different question; the artifacts may be perfectly current. Saying
+# "STALE — rebuild" here is a false accusation the reader cannot check.
+withheld contains msg if {
+	some c in input.cases
+	c.state == "reformulated"
+	msg := sprintf("action %q was keyed under an older formula: re-record with scripts/check_action_key.py --write (this is NOT evidence the artifacts are stale)", [c.action])
+}
+
 withheld contains msg if {
 	some c in input.cases
 	c.state == "unrecorded"
@@ -60,6 +69,27 @@ withheld contains msg if {
 		"action %q declares host input(s) absent here (%s): the key is uncomputable on this machine",
 		[c.action, concat(", ", c.missing_host)],
 	)
+}
+
+# ⚑ AN UNPINNED HOST IS A WITHHELD FACT, NOT A FAILURE. It says the verdict holds
+# on the machine that produced it and nowhere else. The operator's ruling —
+# "you don't need a host binary, you need to define your host" — makes the fix a
+# BUILT ARTIFACT (oci/Containerfile, pinned by digest in catalog/host.json), not
+# a longer list of files. Enumerating host files declares edges where the thing
+# needing declaration is a domain.
+withheld contains msg if {
+	object.get(input, ["host", "kind"], "") == "unpinned"
+	some c in input.cases
+	c.sees_host
+	msg := sprintf(
+		"action %q sees the host and the host is UNPINNED: staleness is detectable here, but a cached verdict is not transportable",
+		[c.action],
+	)
+}
+
+deny contains msg if {
+	object.get(input, ["host", "kind"], "") == "unmeasurable"
+	msg := sprintf("the host identity could not be computed: %s", [input.host.detail])
 }
 
 admitted contains msg if {

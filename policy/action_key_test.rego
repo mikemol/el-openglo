@@ -71,6 +71,38 @@ test_absent_host_input_is_withheld_not_denied if {
 }
 
 # a withheld case BESIDE an admitted one is a SKIP, not a verdict on the tree
+# ⚑ THE HOST CASES. An unpinned host withholds for a host-seeing action and says
+# nothing about a pure one; an uncomputable host identity DENIES.
+test_unpinned_host_withholds_for_host_seeing_action if {
+	c := object.union(_current, {"sees_host": true})
+	i := {"cases": [c], "host": {"kind": "unpinned", "detail": "3 of 3 source(s)"}}
+	d := action_key.deny with input as i
+	w := action_key.withheld with input as i
+	count(d) == 0
+	count(w) == 1
+}
+
+test_unpinned_host_is_silent_for_a_pure_action if {
+	c := object.union(_current, {"sees_host": false})
+	i := {"cases": [c], "host": {"kind": "unpinned", "detail": "3 of 3 source(s)"}}
+	w := action_key.withheld with input as i
+	count(w) == 0
+}
+
+test_pinned_host_withholds_nothing if {
+	c := object.union(_current, {"sees_host": true})
+	i := {"cases": [c], "host": {"kind": "pinned", "detail": "oci/Containerfile"}}
+	w := action_key.withheld with input as i
+	count(w) == 0
+}
+
+test_unmeasurable_host_denies if {
+	c := object.union(_current, {"sees_host": true})
+	i := {"cases": [c], "host": {"kind": "unmeasurable", "detail": "no host fingerprint source is readable"}}
+	d := action_key.deny with input as i
+	count(d) == 1
+}
+
 test_withheld_beside_admitted if {
 	c := object.union(_current, {"action": "schemes", "state": "unrecorded", "recorded_key": null})
 	i := {"cases": [_current, c]}

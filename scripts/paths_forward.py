@@ -89,6 +89,11 @@ def render(state: dict) -> str:
     return "\n".join(out) + "\n"
 
 
+class PayloadOverBudget(RuntimeError):
+    """The payload cannot be trimmed to fit, and pretending otherwise would arm
+    the loop with a prompt the scheduler may reject or the tick may not read."""
+
+
 def payload(state: dict) -> str:
     lines = [
         "[paths-forward tick] Invoke the paths-forward-loop skill and run ONE tick (§4).",
@@ -102,25 +107,78 @@ def payload(state: dict) -> str:
         f"THEN CronDelete the predecessor (job_id={state.get('job_id')}).",
         "waypoints:",
     ]
+    live, done = [], []
     for w in state["waypoints"]:
-        b = f" blocked_on={','.join(w['blocked_on'])}({w['blocked_kind']})" if w["blocked_on"] else ""
-        lines.append(
+        if w["status"] == "done":
+            done.append(w["symbol"])
+            continue
+        # ⚑ A STRING IS AN ITERABLE OF CHARACTERS, which is why this printed
+        # `blocked_on=m,i,k,e,m,o,l` for 5 ticks: blocked_on is declared a LIST and
+        # W12 carries a bare str, so join() succeeded and produced nonsense. A
+        # silent success on the wrong type is worse than a TypeError.
+        on = w["blocked_on"]
+        on = [on] if isinstance(on, str) else list(on)
+        b = f" blocked_on={','.join(on)}({w['blocked_kind']})" if on else ""
+        live.append(
             f"  {w['symbol']} [{w['status']}]{b} ticks_blocked={w['ticks_blocked']} :: {w['title']}\n"
             f"      next: {w['next_bounded_step']}\n"
             f"      evidence: {w['evidence'].splitlines()[0] if w['evidence'] else '-'}"
         )
+    # ⚑ A DONE WAYPOINT COSTS A LINE, NOT A STANZA. Measured 2026-09-22: the full
+    # payload was 45.8 KB against a 6 KB budget, because 46 of 61 waypoints were
+    # `done` and each carried its title, its next step and its evidence. Status is
+    # recomputed from the checks every tick anyway (there is no open/closed field),
+    # so a done item's PROSE is the one thing the payload never needs — only its
+    # symbol, so that §8's coverability holds and no symbol vanishes.
+    done_line = (f"done ({len(done)}): {', '.join(done)}" if done else "")
     residue = [f"  {r['symbol']}: {r['reason']}" for r in state["residue"]]
-    text = "\n".join(lines + (["residue:"] + residue if residue else []))
-    truncated = []
-    if len(text) > PAYLOAD_BUDGET and residue:
-        truncated.append("residue")
-        text = "\n".join(lines)
-    if len(text) > PAYLOAD_BUDGET:
-        truncated.append("evidence")
-        text = "\n".join(l for l in text.splitlines() if not l.startswith("      evidence"))
-    if truncated:
-        text += f"\ntruncated=true dropped={','.join(truncated)} — read the file for the rest."
-    return text
+
+    def render(detail_n, with_evidence, with_residue):
+        # ⚑ ONLY THE TOP ITEMS NEED THEIR STEP. A tick advances exactly ONE
+        # waypoint (§4.4), so the prose that must survive the budget is the prose
+        # of the item that will be worked. The rest need identity, status and
+        # blocked-on — enough to re-sort and enough that no symbol vanishes.
+        # ⚑ A COLLAPSED LINE IS CLIPPED, because these titles are PARAGRAPHS: W58's
+        # carries its whole three-branch spec. Measured 2026-09-22 — 17 live
+        # waypoints came to 15.7 KB with only ONE step rendered, all of it title.
+        # The payload's job is to force the queue into the tick's context, not to
+        # be the queue; state_path is on line 2 and the tick is told to read it.
+        def clip(stanza):
+            head = stanza.splitlines()[0]
+            return head if len(head) <= 160 else head[:157] + "..."
+
+        out = list(lines) + live[:detail_n] + [clip(l) for l in live[detail_n:]]
+        if done_line:
+            out.append("  " + done_line)
+        if with_residue and residue:
+            out += ["residue:"] + residue
+        text = "\n".join(out)
+        if not with_evidence:
+            text = "\n".join(l for l in text.splitlines() if not l.startswith("      evidence"))
+        return text
+
+    # ⚑ THE LADDER MUST REPORT WHETHER IT SUCCEEDED. The previous version dropped
+    # residue, then evidence, then RETURNED whatever it had — over budget, with
+    # `truncated=true` attached. A payload that announces it was trimmed and is
+    # still too large is a gate that accepts `--queit` and exits 0.
+    n = len(live)
+    rungs = [((n, True, True), []),
+             ((n, True, False), ["residue"]),
+             ((n, False, False), ["residue", "evidence"]),
+             ((5, False, False), ["residue", "evidence", "steps-below-5"]),
+             ((2, False, False), ["residue", "evidence", "steps-below-2"]),
+             ((1, False, False), ["residue", "evidence", "steps-below-1"])]
+    for (flags, dropped) in rungs:
+        text = render(*flags)
+        if len(text) <= PAYLOAD_BUDGET:
+            if dropped:
+                text += (f"\ntruncated=true dropped={','.join(dropped)}"
+                         f" — read the file for the rest.")
+            return text
+    raise PayloadOverBudget(
+        f"payload is {len(text)} bytes even with ONE waypoint's step; the budget is "
+        f"{PAYLOAD_BUDGET}. {len(live)} live waypoint(s) — the top item's "
+        f"next_bounded_step alone does not fit, so shorten it or split the waypoint.")
 
 
 def queue(state: dict) -> str:

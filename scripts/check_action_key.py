@@ -61,36 +61,95 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MANIFEST = os.path.join(ROOT, "catalog", "actions.json")
 
-# ⚑ THE HOST TOOLCHAIN IS AN INPUT LIKE ANY OTHER. Each entry is an absolute path
-# digested into the key — a binary's bytes, a font's bytes. This is what turns a
-# "local, never cached" action into a hermetic one: the Qt that rendered a PNG is
-# now IN the key, so a Qt bump invalidates the screens exactly as a template edit
-# does. ⚑ THE POPULATION COMES FROM `build_graph.py` UNBUILT, which enumerates
-# every host path the tree reaches; anything there and not here is undeclared.
-QT_QML = "/usr/lib64/qt6/bin/qml"
-HOST_RENDER = (QT_QML, "/usr/share/fonts/hack/Hack-Regular.ttf")
+# ⚑ YOU DO NOT DECLARE A HOST BINARY. YOU DEFINE YOUR HOST (operator, 2026-09-22,
+# correcting this file's second draft). Enumerating host FILES — the qml binary,
+# one font — is declaring EDGES where the thing that needs declaring is a DOMAIN,
+# the same defect build_graph found in a bare `walk()`. A Qt render's real domain
+# is every shared library, fontconfig rule, locale, Qt plugin and codec the
+# process can see; that list is not closeable by hand, and a key built from two of
+# its members AGREES WITH ITSELF ACROSS TWO DIFFERENT MACHINES while looking
+# complete. An image digest is complete by construction; a file list never is.
+#
+# So the host half of the key is ONE identity, and it is honest about which kind
+# it is. PINNED: a container image digest, which licenses cross-host reuse.
+# UNPINNED: a fingerprint of this machine, which is enough to notice that the host
+# MOVED under us but does NOT license transporting a cached verdict anywhere else.
+# ⚑ THE DISTINCTION IS THE POINT — not-transferable is a fact about the
+# declaration, and it must not be silently upgraded by pretending.
+# ⚑ A KEY-FORMULA CHANGE IS NOT AN ARTIFACT CHANGE, and reporting one as the other
+# is a false accusation the reader cannot check. Measured 2026-09-22: replacing the
+# host FILE LIST with a host IDENTITY moved every host-seeing key, and the tool
+# said "screens is STALE — rebuild", though nothing in the screens domain had
+# moved. A digest over a changed formula is a different question, not a worse
+# answer to the same one. Bump this whenever what goes INTO the key changes.
+KEY_SCHEMA = 2
+
+HOST_PIN_FILE = os.path.join(ROOT, "catalog", "host.json")
+
+# a fingerprint of the unpinned host: cheap, and NOT claimed to be complete
+HOST_FINGERPRINT_SOURCES = (
+    "/etc/os-release",
+    "/usr/lib64/qt6/bin/qml",
+    "/usr/share/fonts/hack/Hack-Regular.ttf",
+)
 
 # An action: (name, entry module, data domains, host inputs, output domain, suffixes).
 # ⚑ THE DATA DOMAINS ARE DIRECTORIES, NOT FILES, because build_graph measured 39
 # undeclared domains — a walk/listdir hides the POPULATION, so naming individual
 # files here would re-commit that error one level up.
+# An action: (name, entry module, data domains, sees_host, output domain, suffixes).
+# ⚑ `sees_host` IS A BOOLEAN, NOT A LIST. Either the action's verdict can depend on
+# the machine it ran on — in which case the WHOLE host is in its domain and the
+# host identity goes in its key — or it cannot. There is no partial host.
 ACTIONS = (
     ("screens",
      "catalog/library/render_screens.py",
      ("templates", "catalog/library"),
-     HOST_RENDER,
+     True,                                  # Qt renders it: the host is the domain
      "catalog/library/screens", (".png",)),
     ("schemes",
      "make_schemes.py",
      ("templates",),
-     (),
+     False,                                 # pure Python over the palette
      ".", (".colors",)),
     ("wallpapers",
      "make_wallpaper.py",
      ("templates",),
-     (),
+     False,
      ".", ("-wallpaper.png", "-wallpaper.svg")),
 )
+
+
+def host_identity():
+    """(kind, id, detail) — WHICH host this tree's artifacts were built on.
+
+    kind is "pinned" when catalog/host.json records an image digest (the
+    executor image the render ran in, `repo@sha256:...`, with a `source` naming
+    where it came from — luthen's image-pin shape, which they report as the
+    adoptable half of their RBE setup). Then the id covers the whole filesystem
+    the action sees, and a cache hit is transportable.
+
+    kind is "unpinned" otherwise: a fingerprint over a few host files, which can
+    detect that THIS machine moved and must never be read as hermeticity. ⚑ AN
+    UNPINNED HOST IS NOT A FAILURE — it is the state this repo is in today, and
+    saying so is the difference between a measurement and a pretence."""
+    if os.path.isfile(HOST_PIN_FILE):
+        pin = json.load(open(HOST_PIN_FILE, encoding="utf-8"))
+        digest = pin.get("image")
+        if digest and "@sha256:" in digest:
+            return "pinned", digest, pin.get("source", "(no source recorded)")
+        return "unmeasurable", None, f"{HOST_PIN_FILE} has no `image` with an @sha256: digest"
+    h = hashlib.sha256()
+    seen = []
+    for p in HOST_FINGERPRINT_SOURCES:
+        if os.path.isfile(p):
+            h.update(p.encode() + b"\0" + _digest_file(p).encode() + b"\0")
+            seen.append(p)
+    if not seen:
+        # ⚑ REFUSE AN EMPTY POPULATION. A fingerprint over nothing is a constant,
+        # and every host would agree with every other host forever.
+        return "unmeasurable", None, "no host fingerprint source is readable"
+    return "unpinned", h.hexdigest(), f"{len(seen)} of {len(HOST_FINGERPRINT_SOURCES)} source(s)"
 
 
 def _digest_file(path):
@@ -159,17 +218,18 @@ def key_of(action):
     there" would produce a key that agrees with itself on two different machines
     and silently certifies a cross-host cache hit — the stale green, arrived at by
     the tool built to prevent it."""
-    _name, entry, domains, host, _out, _sfx = action
+    _name, entry, domains, sees_host, _out, _sfx = action
     inputs, missing = {}, []
     for rel in import_closure(entry) + domain_files(domains):
         p = os.path.join(ROOT, rel)
         if os.path.isfile(p):
             inputs[rel] = _digest_file(p)
-    for abs_path in host:
-        if os.path.isfile(abs_path):
-            inputs[f"host:{abs_path}"] = _digest_file(abs_path)
+    if sees_host:
+        kind, hid, detail = host_identity()
+        if kind == "unmeasurable":
+            missing.append(detail)
         else:
-            missing.append(abs_path)
+            inputs[f"host:{kind}"] = hid
     h = hashlib.sha256()
     for rel in sorted(inputs):
         h.update(rel.encode() + b"\0" + inputs[rel].encode() + b"\0")
@@ -207,12 +267,17 @@ def measure():
             # ⚑ NO RECORD IS `withheld`, NOT `deny`. Nobody has asserted a build,
             # so currency is UNMEASURED here — not confirmed, and not failed. An
             # absent host input is withheld for the same reason, one level out.
+            "sees_host": a[3],
             "state": ("unmeasurable" if missing
                       else "unrecorded" if not was.get("key")
+                      # the recorded key answers a DIFFERENT question than this one
+                      else "reformulated" if was.get("schema") != KEY_SCHEMA
                       else "current" if was["key"] == key
                       else "stale"),
         })
-    return {"cases": cases, "manifest": os.path.relpath(MANIFEST, ROOT)}
+    kind, _hid, detail = host_identity()
+    return {"cases": cases, "manifest": os.path.relpath(MANIFEST, ROOT),
+            "host": {"kind": kind, "detail": detail}}
 
 
 def write():
@@ -225,7 +290,8 @@ def write():
             print(f"action_key: REFUSED to record {a[0]} — declared host input(s) "
                   f"absent: {', '.join(missing)}", file=sys.stderr)
             raise SystemExit(3)
-        out["actions"][a[0]] = {"key": key, "n_inputs": len(inputs),
+        out["actions"][a[0]] = {"key": key, "schema": KEY_SCHEMA,
+                                "n_inputs": len(inputs),
                                 "n_outputs": len(outputs_of(a))}
     os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
     with open(MANIFEST, "w", encoding="utf-8") as fh:
@@ -266,12 +332,18 @@ def _selftest():
             fh.write(original)
     chk("the key is restored with the input", key_of(a)[0], before)
     # ⚑ THE HOST HALF MUST BE IN THE KEY TOO, and an absent one must be VISIBLE
-    absent = ("screens-probe", ACTIONS[0][1], ACTIONS[0][2],
-              ("/nonexistent/qt/bin/qml",), ACTIONS[0][4], ACTIONS[0][5])
-    chk("an absent host input is reported, not ignored", key_of(absent)[2],
-        ["/nonexistent/qt/bin/qml"])
-    chk("a declared host input is in the domain",
+    chk("a host-seeing action carries a host identity",
         any(k.startswith("host:") for k in key_of(ACTIONS[0])[1]), True)
+    chk("a pure action carries NO host identity",
+        any(k.startswith("host:") for k in key_of(ACTIONS[1])[1]), False)
+    # ⚑ THE HOST HALF MUST MOVE THE KEY, or declaring it is decoration
+    pure = ("screens-pure", ACTIONS[0][1], ACTIONS[0][2], False, ACTIONS[0][4], ACTIONS[0][5])
+    chk("dropping the host changes the key", key_of(pure)[0] != key_of(ACTIONS[0])[0], True)
+    kind, _hid, _d = host_identity()
+    chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
+    print(f"  note  host is {kind} — "
+          + ("a cache hit is transportable" if kind == "pinned"
+             else "staleness is detectable HERE; cross-host reuse is NOT licensed"))
     # distinct actions must not collide
     keys = {x[0]: key_of(x)[0] for x in ACTIONS}
     chk("distinct actions have distinct keys", len(set(keys.values())), len(ACTIONS))
@@ -309,6 +381,12 @@ def main(argv):
             print(f"               outputs={a[4]}/*{'|*'.join(a[5])}  "
                   f"({len(outputs_of(a))} file(s))")
         return 0
+    host = m["host"]
+    print(f"  host: {host['kind']} — {host['detail']}")
+    if host["kind"] == "unpinned":
+        print("    ⚑ staleness is detectable on THIS machine only; a cached verdict is")
+        print("      not transportable. Build oci/Containerfile and record its digest")
+        print("      in catalog/host.json to license that.")
     cases = m["cases"]
     stale = [c for c in cases if c["state"] == "stale"]
     unrec = [c for c in cases if c["state"] == "unrecorded"]
