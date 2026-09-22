@@ -142,9 +142,9 @@ TIMELINE = [
     (18500, "arrive", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 10, "jobState": 1}, "kio: copying"),
     (19200, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 50, "jobState": 1}, "kio: copying"),
     (19900, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 90, "jobState": 1}, "kio: copying"),
-    (23500, "expire", 40, {}, ""),
+    (26500, "expire", 40, {}, ""),   # air for two rotations under load before the gauge is dropped
 ]
-END_MS = 30000            # the CAP; the main run ends when every event has fired and the board drained
+END_MS = 40000            # the CAP; the main run ends when every event has fired and the board drained
 SAMPLE_MS = 40
 
 HARNESS = """import QtQuick
@@ -181,15 +181,29 @@ Window {
         else if (step.op === "flash") { m.append(Object.assign({ notificationId: step.id }, step.fields)); m.remove(rowOf(step.id)); }
         else if (step.op === "silent") m.appendSilently(Object.assign({ notificationId: step.id }, step.fields));
         // W46: tap the board where a run of the given text sits (its first character's
-        // board x), through the widget's own tapAt — no pointer synthesised
+        // board x), through the widget's own tapAt — no pointer synthesised. The tap
+        // waits for its text: under the pre-commit's load the swap can lag the
+        // timeline's clock, and a tap on a board that has not swapped yet is a tap
+        // on nothing (measured s130: the gate refused under load, admitted alone)
         else if (step.op === "tap") {
             var s0 = subject.item, pos = s0.tickerText.indexOf(step.fields.text);
             if (pos >= 0) s0.tapAt(s0.boardRawX + (pos + 0.5) * s0.charAdvance);
+            else harness.pendingTaps.push(step);
         }
         events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows, fields: step.fields });
     }
     property var timeline: %(timeline)s
     property int next: 0
+    property var pendingTaps: []
+    function retryTaps() {
+        var s0 = subject.item, keep = [];
+        for (var i = 0; i < harness.pendingTaps.length; i++) {
+            var st = harness.pendingTaps[i], pos = s0.tickerText.indexOf(st.fields.text);
+            if (pos >= 0) s0.tapAt(s0.boardRawX + (pos + 0.5) * s0.charAdvance);
+            else keep.push(st);
+        }
+        harness.pendingTaps = keep;
+    }
     property int pausedSeen: 0
     property bool sawText: false
     property bool grabbed: false
@@ -203,6 +217,7 @@ Window {
         onTriggered: {
             var now = clock.elapsed();
             while (harness.next < timeline.length && timeline[harness.next].t <= now) { apply(timeline[harness.next]); harness.next += 1; }
+            if (harness.pendingTaps.length) harness.retryTaps();
             var s = subject.item;
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,

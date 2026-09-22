@@ -452,6 +452,27 @@ CLOSED = {
                 _reads("catalog/relations.md", r"(?m)^### 5b\. A pip's brightness") and
                 _reads("templates/marquee-body.js", r"(?m)^function seriesToColumns\(") and
                 _tool("opa_gate.py", "aperture")),
+    # closed session 130 (W46, 2026-09-22): the notify-send man page's capabilities on
+    # the board — the model's contract measured, urgency as the hot token, transience,
+    # actions as runs reaching invokeAction, job progress as a gauge.
+    "⊕NOTIFY-CAPABILITIES": (
+        "the marquee reads urgency, transient, actions and job progress from the host's"
+        " model (its contract measured by check_notify_roles), paints critical in the hot"
+        " token and a job's history as a gauge, and a tap on an action run reaches"
+        " invokeAction — catalog/notify-capabilities.md row by row (:7640)",
+        lambda: _reads("templates/marquee-main.qml", r"(?m)^\s*property color hotColor:\s*Kirigami\.Theme\.activeTextColor") and
+                _reads("templates/marquee-main.qml", r"Notifications\.UrgencyRole") and
+                _reads("templates/marquee-main.qml", r"Notifications\.TransientRole") and
+                _reads("templates/marquee-main.qml", r"Notifications\.ActionNamesRole") and
+                _reads("templates/marquee-main.qml", r"Notifications\.PercentageRole") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*function tapAt\(x\)") and
+                _reads("templates/marquee-main.qml", r"notifModel\.invokeAction\(") and
+                _reads("templates/marquee-main.qml", r"Body\.seriesToColumns\(") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*signal ringSwapped\(\)") and
+                _reads("templates/marquee-body.js", r"(?m)^function historyAfter\(") and
+                _reads("catalog/notify-capabilities.md", r"(?m)^\| job progress \|") and
+                _tool("opa_gate.py", "notify_roles") and
+                _tool("opa_gate.py", "marquee_body")),
     "⊕NOTIFY-SEGRENDER": (
         "the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
         " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)",

@@ -8606,3 +8606,81 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s129]
+
+## Session 130 — ⊕NOTIFY-CAPABILITIES closes (W46)
+- The operator's question with the notify-send man page open — "which are
+  we not achieving?" — answered row by row in catalog/notify-capabilities.md
+  and built s126-129: the model's contract measured (N0-N4), urgency as
+  the hot token and half ink (L9), transience as one traversal, actions as
+  tappable runs reaching invokeAction (L10, M6), job progress as a gauge
+  (L11, M7). ⊕NOTIFY-URGENCY, LIVE since s89, is subsumed: its build is
+  here, its live confirmation stays the operator's.
+
+### ⊕NOTIFY-CAPABILITIES closure
+- Four gates: constructible — the queue item carries urgency, transient,
+  actions, history and jobState (Body.queueItem), ringJoin emits spans,
+  action runs and series runs, root.tapAt resolves a tap, drawBackdrop
+  paints the hot/half ink and the gauge, emitted by make_notify_marquee
+  and captured (parity 13 of 13); reachable — every role read is declared
+  by this host's libnotificationmanager (check_notify_roles, N2) and
+  modelled by the stub (N3), the package is staged and the ebuild witness
+  installs it; observable — the harness samples the paint's inks, text
+  and series, the last tap and the stub's invoked, and the widget traces
+  every upsert with urgency / transient / actions / job fields to
+  plasmashell's stderr and the appletsrc (check_marquee_host); coverable —
+  L9 (a critical item in the lit token; a hot token equal to lit; the
+  paint lag tolerated), L10 (a tap resolving to nothing), L11 (a gauge
+  that never grew; a falling gauge for rising progress), M6/M7 (a stated
+  text or series not produced), N2/N3 (a role the host or the stub lacks)
+  — 94 + 91 + 80 refuse/admit pairs under opa test; and two of these rules
+  denied honestly on their first live run (L9 vacuous then the lag; L11
+  the text-keyed paint), which is the falsifiability record.
+- What stays outside the closure, by name: category (a style rule per
+  category), hints (read for value / urgency fallbacks), icons (a raster
+  backdrop through the viewport — ⊕APERTURE-FIELD's other backdrop kind),
+  reply (not a matrix's affordance), a stopped job's drop ahead of the
+  model's removal, suspend / resume / kill as action runs, low urgency's
+  0.5 (authored, W56's sweep), the hot-vs-lit rule judged on one variant
+  per gate run; and the live confirmations (⊕VER-MARQUEE s127-129).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124) +
+  ⊕NOTIFY-CAPABILITIES ✓ (130; the contract s126, urgency s127, actions s128, the gauge s129;
+  ⊕NOTIFY-URGENCY's build subsumed)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board; s127 `notify-send -u
+  critical` reads in the hot token and keeps cycling, `-u low` reads dim;
+  s128 `notify-send -A open=Open` shows "[Open]" and a click on it fires
+  the action; s129 a KIO copy shows its gauge growing beside "copying"),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY (built s127 under the s130
+  capabilities closure; the live confirmation is ⊕VER-MARQUEE's s127 line),
+  ⊕GLANCE-CALIBRATE (s111: the 1.5x gap factor is its first
+  authored-not-measured input), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s130]

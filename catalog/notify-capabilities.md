@@ -16,12 +16,12 @@ relation on the board (relations.md §5a hue, §5b brightness) before any code.
 | capability | role(s) | on the board | status |
 |---|---|---|---|
 | identity, text | `IdRole` `SummaryRole` `BodyRole` `ApplicationNameRole` | the queue keyed by id; summary plain, body parsed to runs (W39/W45) | shipped (s89-s103) |
-| urgency | `UrgencyRole` (Low 0 / Normal 1 / Critical 2) | critical: painted in the HOT token (`Kirigami.Theme.activeTextColor`, the ink colour the field reads back) and re-queued while it lives — it keeps cycling until dismissed; normal: as now; low: dimmer ink (the aperture makes weight a number: coverage scaled, γ untouched) | next |
-| expiry | `ExpiredRole` | drops at the next boundary only (W45); critical ignores it, as Plasma does | shipped (boundary); critical rule with urgency |
-| replace | (same id, new data) | the id-keyed queue upserts; the new text scrolls once more (W45) | shipped |
-| transient | `TransientRole` | exactly one traversal — the queue's `shown` flag, never re-queued | with urgency |
-| actions | `ActionNamesRole` `ActionLabelsRole` + `invokeAction(index, id)` | rendered as tappable underlined runs after the text (`[Reply] [Open]`); a tap hit-tests to the run and calls `invokeAction` — the board becomes interactive | after urgency |
-| job progress | `PercentageRole` `JobStateRole` `TypeRole` (Job 2) | a GAUGE: the percentage history as a series (W48's `seriesToColumns`) painted into the backdrop — one column per sample, the newest at the right — beside the job's text; suspended dims, stopped drops at the boundary | after actions |
+| urgency | `UrgencyRole` (Low 0 / Normal 1 / Critical 2) | critical: painted in the HOT token (`Kirigami.Theme.activeTextColor`, the ink colour the field reads back) and cycling while it lives — Plasma keeps it live until dismissed; normal: as now; low: half ink (the aperture makes weight a number: coverage scaled, γ untouched) | shipped s127 (L9) |
+| expiry | `ExpiredRole` | drops at the next boundary only (W45); a critical item stays live in the model until dismissed, so it keeps cycling | shipped (W45; s127) |
+| replace | (same id, new data) | the id-keyed queue upserts; the new text scrolls once more (W45); a job's progress replace keeps its place (s129) | shipped |
+| transient | `TransientRole` | exactly one traversal — dropped after it even while live, never re-queued | shipped s127 (ring case) |
+| actions | `ActionNamesRole` `ActionLabelsRole` + `invokeAction(index, id)` | ` [Label]` runs after the text, underlined; `tapAt(x)` resolves a tap to the run and calls `invokeAction` on the row carrying the item — the board is interactive | shipped s128 (L10, M6) |
+| job progress | `PercentageRole` `JobStateRole` `TypeRole` (Job 2) | a GAUGE: the percentage history as a series (W48's `seriesToColumns`) painted into the backdrop — one column per sample, the newest at the right — after the job's text; a progress replace keeps the item's place; suspended paints at half ink | shipped s129 (L11, M7); a stopped job's early drop and suspend/resume/kill as action runs are residue |
 | category | `CategoryRole` | a style rule per category (e.g. `device.*` → the field's ring flashes once) | later |
 | hints | `HintsRole` | read for `value` (progress) and `urgency` fallbacks; otherwise carried, unread | later |
 | icons | `ImageRole` `IconNameRole` | an icon raster is a BACKDROP through the viewport (⊕APERTURE-FIELD; W47's fold) — the app icon rasterised at runtime into column bytes; the app name stands in until then | later |
