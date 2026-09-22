@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T05:34:53+00:00",
-  "job_id": "4a96b2f6",
+  "heartbeat": "2026-09-22T06:06:27+00:00",
+  "job_id": "dfff302a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-4a96b2f6",
-    "taken_at": "2026-09-22T05:50:19+00:00"
+    "holder": "tick-dfff302a",
+    "taken_at": "2026-09-22T06:24:41+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -809,14 +809,19 @@
       "title": "SPARKLINES ON THE MATRIX (operator 2026-09-22). A DATA RUN: a series of values -> column heights on the 8 rows (one column per sample, the newest at the right), scrolling like text or pinned at the board's end; the one thing a segment display cannot do and a matrix can. Sources: a job's percentage over time (W46's progress bar is the degenerate one-sample case), Plasma's systemmonitor sensors (CPU, net, temperature — org.kde.ksysguard.sensors / Plasma's SensorDataModel in Plasma 6: measure the QML import), the notification arrival rate itself. Rendering: a run type 'series' in the ring (values[], min/max, lit column height = round(v/max*rows)); optional baseline row; bold = fuller dots; colour via the §5a hue gate (a sensor's colour is a sender colour). Settings: which sensors, samples per column",
       "status": "ready",
       "enables": [],
-      "touches": "templates/marquee-main.qml,templates/marquee-body.js,templates/MatrixChar.qml",
+      "touches": [
+        "marquee",
+        "marquee-body.js",
+        "W46",
+        "W54"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "After W47's raster mode (a sparkline IS a raster: columns of heights -> column bytes, so it reuses the viewport's colBytes): (1) marquee-body.js: seriesToColumns(values, rows, min, max) pure + harness cases (a ramp, a flat line, a spike, empty); (2) a 'series' run rendered through the raster mode; (3) the first source: job percentage history from the model (already flowing); (4) then a systemmonitor sensor source — measure the Plasma 6 sensor QML API first (import org.kde.ksysguard.sensors? Plasma 6.7: org.kde.plasma.private.systemmonitor?) and record its contract; settings for sensor ids.",
-      "evidence": "",
+      "next_bounded_step": "With W46 (job progress): drawBackdrop lights rows [rows-h, rows) per column for a ring item carrying a series field; the job's percentage history is the first source; then a systemmonitor sensor (measure the Plasma 6 sensor QML API first).",
+      "evidence": "pure half b98e723: seriesToColumns + 6 cases + M5; the painter and the first source land with W46's job progress",
       "issued_at": "2026-09-21T18:28:39+00:00",
-      "last_worked": "2026-09-21T18:28:39+00:00",
+      "last_worked": "2026-09-22T06:05:38+00:00",
       "ticks_blocked": 0
     },
     {
@@ -914,10 +919,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "Folds remaining, one per tick: (b) W48 — a 'series' run painted into the backdrop as column heights (seriesToColumns in marquee-body.js + harness cases), shown on the same field; (c) the loop's bookend frame taken before the timeline starts; (d) MatrixChar consumers censused (check_consumers) — residue if only the probes; (e) the vertical scroll as an animation (frames over offsetY; S5 in y) once an animation kind beyond the marquee's exists.",
+      "next_bounded_step": "Folds remaining, one per tick: (c) the loop's bookend frame taken before the timeline starts (animate's first frame is the sampler's first turn, past arrival on a slow load); (d) MatrixChar consumers censused (check_consumers) — residue if only the probes; (e) the vertical scroll as an animation (frames over offsetY; S5 in y). W48's painter lands with W46.",
       "evidence": "...916559a THE PORT; f45e52a the viewport (W47 folded): backdropRows + offsetY, Unifont 1:1 — caps need 12 rows, the x-height band shows lowercase whole",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T05:34:15+00:00",
+      "last_worked": "2026-09-22T06:05:48+00:00",
       "ticks_blocked": 0
     },
     {

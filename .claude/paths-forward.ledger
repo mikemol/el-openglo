@@ -109,3 +109,4 @@
 2026-09-22T04:26:14+00:00  tick  W54  advanced  collapse  "relations.md §5b: the aperture relation stated; the port is next"  evidence=d32c412
 2026-09-22T05:14:06+00:00  tick  W54  advanced  collapse  "THE PORT: the marquee scrolls on ApertureField — backdrop from the registry bits, offset the scroll; snap gone (cv 0.023); S5 generalised to fractional pip shifts; canvas-resize rule measured"  evidence=916559a
 2026-09-22T05:34:22+00:00  tick  W47  collapsed collapse  "W47 folded into W54: the viewport is ApertureField.offsetY; Unifont 1:1 through a 16-row backdrop"  evidence=f45e52a
+2026-09-22T06:05:56+00:00  tick  W48  advanced  collapse  "seriesToColumns pure + 6 cases + M5 (74/74); the painter waits for W46's first live source"  evidence=b98e723

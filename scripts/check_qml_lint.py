@@ -130,9 +130,33 @@ def measure(docs):
     return out
 
 
+def uses(name, docs=None):
+    """Which emitted documents INSTANTIATE component `name` (`Name {`), over every
+    document the lint reads: the consumer census a rename or a retirement needs
+    (s123: does anything but the probes still instantiate MatrixChar?)."""
+    docs = documents() if docs is None else docs
+    # bare (`MatrixChar {`) or qualified (`EL.ApertureField {`) — both instantiate
+    pat = re.compile(r"(?<!\w)(?:\w+\.)?" + re.escape(name) + r"\s*\{")
+    return [(label, len(pat.findall(text)) if text is not None else None) for label, text in docs]
+
+
 def main(argv):
-    known = {"--list", "--json", "--selftest"}
-    for a in argv[1:]:
+    known = {"--list", "--json", "--uses", "--selftest"}
+    args = list(argv[1:])
+    if "--uses" in args:
+        i = args.index("--uses")
+        if i + 1 >= len(args):
+            print("check_qml_lint: --uses needs a component name", file=sys.stderr)
+            return 2
+        name = args[i + 1]
+        del args[i:i + 2]
+        rows = uses(name)
+        users = [(l, n) for l, n in rows if n]
+        for l, n in rows:
+            print(f"{l:28s} {'SKIP' if n is None else n}")
+        print(f"check_qml_lint --uses {name}: {len(users)} of {len(rows)} documents instantiate it")
+        return 0
+    for a in args:
         if a not in known:
             print(f"check_qml_lint: unknown flag {a!r}", file=sys.stderr)
             return 2
@@ -198,6 +222,11 @@ def _selftest():
         chk("the measurement reports a syntax error as a fact", bool(broken["documents"][0]["lint"]), True)
     else:
         print("  SKIP qmllint absent — the syntax arm did not run")
+    # --uses sees a bare AND a qualified instantiation, not a mention in a comment
+    # or a property name, and reports an unrenderable document as SKIP (None)
+    chk("--uses counts bare and qualified instantiations",
+        uses("MatrixChar", [("a.qml", "Item { MatrixChar { } EL.MatrixChar { } }"), ("b.qml", "// MatrixChar\nproperty var matrixCharFont"), ("c.qml", None)]),
+        [("a.qml", 2), ("b.qml", 0), ("c.qml", None)])
     print("check_qml_lint selftest:", "PASS" if ok else "FAIL")
     return ok
 

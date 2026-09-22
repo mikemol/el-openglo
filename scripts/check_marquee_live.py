@@ -126,7 +126,14 @@ Window {
     property var plasmoid: QtObject { property var configuration: (%(config)s) }
     Loader {
         id: subject; anchors.fill: parent; source: "subject.qml"
-        onStatusChanged: if (status === Loader.Error) { console.log("RESULT " + JSON.stringify({ error: "subject failed to load" })); Qt.quit(); }
+        // the timeline's clock starts when the subject is READY, not when the harness
+        // loaded: the ported board takes ~400 ms to instantiate under the software
+        // backend, and a clock started earlier put the first sample past the 300 ms
+        // arrival — no empty-board bookend for the loop (s120's residue)
+        onStatusChanged: {
+            if (status === Loader.Error) { console.log("RESULT " + JSON.stringify({ error: "subject failed to load" })); Qt.quit(); }
+            if (status === Loader.Ready) clock.t0 = Date.now();
+        }
     }
     // a watchdog: whatever happens, the run ends and says what it saw
     Timer { interval: %(end)d + 3000; running: true; onTriggered: { console.log("RESULT " + JSON.stringify({ error: "watchdog", status: subject.status, events: events, samples: samples })); Qt.quit(); } }
@@ -248,8 +255,10 @@ FRAME_CAP = 120           # an animation's frames, at most (one per SAMPLE_MS sa
 
 # one item, once: the periodic content a seamless loop needs (empty -> enters -> leaves -> empty)
 LOOP_TIMELINE = [
-    (300, "arrive", 1, {"summary": "hello", "body": "", "applicationName": "app"}, "app: hello"),
-    (900, "expire", 1, {}, ""),
+    # the arrival sits well after the first sample (measured s123: the first sample
+    # of the ported board lands ~260 ms after Ready under the software backend)
+    (700, "arrive", 1, {"summary": "hello", "body": "", "applicationName": "app"}, "app: hello"),
+    (1300, "expire", 1, {}, ""),
 ]
 
 
