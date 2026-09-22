@@ -193,6 +193,14 @@ def render_all(d):
     os.makedirs(cfg, exist_ok=True)
     open(os.path.join(d, "metadata.json"), "w").write(json.dumps(metadata(), indent=2))
     open(os.path.join(ui, "main.qml"), "w").write(main_qml())
+    # ⚑ THE DISPLAY SHIPS BESIDE THE MOUNT OR THE WALLPAPER DOES NOT LOAD.
+    # main.qml instantiates SegmentChar by bare name, which QML resolves from the
+    # same directory. Measured LIVE, s134 (the operator's shell after emerging the
+    # merge): "SegmentChar is not a type" and the wallpaper failed to load — I had
+    # added this line to make_clock and not here, and the emitters' own gates
+    # could not see it because they read the emitted TEXT, never the directory.
+    import make_segment_display as SD
+    open(os.path.join(ui, "SegmentChar.qml"), "w").write(SD.segment_char_component())
     open(os.path.join(cfg, "main.xml"), "w").write(config_main_xml())
     return d
 

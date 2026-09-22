@@ -743,3 +743,9 @@
   check    = {tool:opa_gate.py legibility},
   section  = {emitters}
 }
+
+@misc{PACKAGE-IMPORTS,
+  claim    = {Every emitted package ships every component its QML instantiates by bare name, so a package cannot be committed in a state that fails to load (the live wallpaper failed twice: a renamed plugin id, then a mount emitted without its display)},
+  check    = {tool:check_package_imports.py},
+  section  = {emitters}
+}

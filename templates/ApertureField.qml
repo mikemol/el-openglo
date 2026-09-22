@@ -157,9 +157,17 @@ Item {
             readonly property int col: index % field.cols
             readonly property int row: Math.floor(index / field.cols)
             readonly property real cov: field.coverage[index] || 0
-            x: col * field.u + (field.u - d) / 2
-            y: field.y0 + row * field.u + (field.u - d) / 2
-            readonly property real d: field.u * field.dotFill
+            // ⚑ THE PIPS ARE HARDWARE: THE GRID IS PIXEL-REGULAR AND NEVER MOVES
+            // (operator, 2026-09-22, seeing the scroll: "there's some serious grid
+            // glitching ... are we aligning the pips to the font, rather than the
+            // other way around? The pip grid should be regular"). The pitch is
+            // fractional, so an unrounded position put every pip on a different
+            // subpixel phase and the field shimmered as the backdrop moved —
+            // exactly backwards for a board whose LEDs are fixed. The position is
+            // rounded to the device grid; only the COVERAGE varies.
+            x: Math.round(col * field.u + (field.u - d) / 2)
+            y: Math.round(field.y0 + row * field.u + (field.u - d) / 2)
+            readonly property real d: Math.round(field.u * field.dotFill)
             width: d; height: d
             // the floor: the ghost pip (the LED that is there), if shown
             Rectangle {

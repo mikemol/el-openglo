@@ -8891,3 +8891,56 @@ residue gated on live operator testing.
   two mounts, the wallpaper's Canvas retired. Its closure waits on the
   physics layer the merge was for).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s133]
+
+## Session 134 — the symmetry oracle finds its defect; the wallpaper breaks LIVE
+- W57 built as an INSTRUMENT, not a threshold (operator: "we don't expect it
+  to match exactly. We expect it to fix defects"): check_symmetry compares
+  the display and its mount to their own mirrors and reports each
+  disagreement as a REGION with a box, a magnitude and where it sits. Two
+  scopes: the glyph (8 and 0 in both planes — the display's geometry) and
+  the face (00:00 horizontally — the mount's kerning and colon centring).
+  A mirror difference always appears TWICE, at the defect and at the place
+  it should have matched; that pair is the report.
+- ⚑ IT NAMED ONE ROOT CAUSE FOR ALL SIX REGIONS: strokes were placed with
+  their EDGE at the lattice line, not centred on it — a vertical at unit
+  x=0 occupied [0, thick] while its mirror at x=1 occupied [segLen,
+  segLen+thick], a whole stroke outside the cell, and the middle bar hung
+  below the midline. Centring on the line is the one fix; glyph h-plane
+  1852 px -> 144, the face 9372 -> 1796. What remains is smaller and at
+  the corners (the end-gap against the rounded cap).
+- ⚑ AND THE FIRST NAMING WAS WRONG, CAUGHT BY READING IT: the tool
+  predicted each segment's rectangle and reported a region at the cell's
+  RIGHT edge as "segment A", the top bar, because the crop starts at the
+  lit bounding box (bloom included) and the prediction carried no offset.
+  A region now names where it sits from its OWN coordinates, which cannot
+  be wrong that way.
+- LIVE, DURING THE TICK: the operator's shell — "Error loading the
+  wallpaper ... SegmentChar is not a type". I had added the companion emit
+  to make_clock and not to make_wallpaper_live. Every gate reads the
+  emitted TEXT or a REWRITTEN copy in a temp dir, so the DIRECTORY is what
+  nothing saw. check_package_imports + @PACKAGE-IMPORTS now hold every
+  package to ship what it instantiates, gated (the operator: "no commit
+  without a working wallpaper"); W58 carries the real gate — load each
+  package as Plasma does, plus the plugin-id contract the f521e6f
+  breakage came through.
+- Operator, seeing the scroll: "there's some serious grid glitching ...
+  are we aligning the pips to the font, rather than the other way around?
+  The pip grid should be regular." Right, and backwards in the code:
+  ApertureField placed pips at a FRACTIONAL pitch, so every pip sat on a
+  different subpixel phase and the field shimmered under a moving
+  backdrop. The positions are rounded to the device grid now; the pinholes
+  pictures fell 26 KB -> 16 KB, which is regularity compressing.
+  ⚑ AND IT COST OCR LEGIBILITY, MEASURED: 0.857 -> 0.429 at the old
+  low-pass, 0.643 after re-fitting it (1:1); 1.000 -> 0.812 (2:1). Subpixel
+  positioning was carrying real spatial information. The trade is recorded
+  rather than smoothed: physical regularity beat machine legibility, both
+  numbers are in the policy, and the floor has now moved TWICE — which is a
+  smell the policy says outright, with a ratchet named as the honest
+  successor.
+- Residue: W59 minted — the operator's "a pip IS a segment", which
+  overturns ⊕DOT's contract-not-substrate cut and makes the aperture's
+  coverage the emission model the segment display lacks (W33's physics);
+  the corner asymmetries are unfixed; the legibility floor wants a ratchet;
+  TWO render paths (check_marquee_live's harness and render_qml) remain,
+  which is why the companion defect hit one and not the other.
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s134]

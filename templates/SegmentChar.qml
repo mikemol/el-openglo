@@ -155,8 +155,16 @@ Item {
         radius: thick / 2
         width:  horiz ? sc.segLen - gap * 2 : thick
         height: horiz ? thick : sc.segLen - gap * 2
-        // centred on the segment's axis so a heavier stroke grows both ways
-        x: (g[1] * sc.segLen) + (horiz ? gap : (sc.segThick - thick) / 2)
-        y: (g[2] * sc.segLen) + (horiz ? (sc.segThick - thick) / 2 : gap)
+        // ⚑ CENTRED ON THE LATTICE LINE, NOT RESTING BESIDE IT (W57, s134; the
+        // operator photographed the consequence: a digit whose top-left corner
+        // notches while the bottom-left is clean). This read
+        // `+ (segThick - thick)/2`, which put the stroke in a segThick-wide band
+        // STARTING at the line — so the left vertical sat inside the cell at
+        // [0, thick] while its mirror sat at [segLen, segLen+thick], a whole
+        // stroke outside it, and the middle bar hung below the cell's midline.
+        // check_symmetry located all six regions of it; centring on the line is
+        // the one fix, and it makes the glyph its own mirror by construction.
+        x: (g[1] * sc.segLen) + (horiz ? gap : -thick / 2)
+        y: (g[2] * sc.segLen) + (horiz ? -thick / 2 : gap)
     }
 }

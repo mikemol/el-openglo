@@ -47,8 +47,19 @@ STILLS = (
 # loop closes (S6), the scroll invariant measured along y (S5)
 ANIMATIONS = (("marquee-anim", ("marquee", "animate", "x")),
               ("pinholes-anim", ("aperture-text", "scroll-y", "y")))
-VIEWPORT_STEPS = list(range(0, 9)) + list(range(7, -1, -1))    # 0..8..0: 17 frames
-VIEWPORT_FRAME_MS = 120
+# ⚑ THE GLYPH MOVES, THEN IT IS PIXELATED — NOT THE OTHER WAY (operator,
+# 2026-09-22, seeing pinholes-anim: "it looks like the pixelation of the glyphs is
+# calculated, and then the pixelated glyphs are moved up and down the grid. What we
+# want instead is for the glyphs to move and the pixelation RECALCULATED, so we get
+# subpixel rendering on a temporal axis"). These steps were whole PIPS, so every
+# frame sampled an identically-aligned band and the field just translated a fixed
+# pattern. The backdrop carries `scale` pixels per pip, so a step of 1/scale is a
+# real re-sampling — and it is also the Nyquist bound: the backdrop pixel is the
+# finest feature the aperture can resolve, so a finer step adds nothing.
+VIEWPORT_SUBSTEPS = 4                                          # = ApertureField.scale
+VIEWPORT_STEPS = ([i / VIEWPORT_SUBSTEPS for i in range(0, 8 * VIEWPORT_SUBSTEPS + 1)]
+                  + [i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS - 1, -1, -1)])
+VIEWPORT_FRAME_MS = 40
 
 
 def plan():

@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 57,
+  "counter": 60,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T11:18:24+00:00",
-  "job_id": "583f658b",
+  "heartbeat": "2026-09-22T12:07:03+00:00",
+  "job_id": "4d221609",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-583f658b",
-    "taken_at": "2026-09-22T11:35:40+00:00"
+    "holder": "tick-4d221609",
+    "taken_at": "2026-09-22T12:11:02+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -588,10 +588,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
-      "next_bounded_step": "THE MERGE, one renderer: (1) measure what the clock's inline components expose vs what the wallpaper's paintFace draws (both already read the SAME substrate tables; the difference is the idiom: Rectangle+radius+antialiasing+MultiEffect vs Canvas polygons); (2) templates/SegmentChar.qml BECOMES the clock's idiom (its current square-cap Shape body is replaced, not extended — 0 of 10 instantiate it, check_qml_lint --uses); (3) clock-main.qml instantiates it (parity: the clock's stills must not change — that is the port's proof); (4) live-wallpaper-main.qml instantiates it too, at the wallpaper's fit-to-frame layout (the clock sizes digits from panel HEIGHT and overflows 16:9 — measured s133); (5) witness: the clock's screens stills byte-identical, the wallpaper's pair before/after for the operator, --edges + the texture number on both; parity re-capture; then the physics layer (gradient, boundary depth, diffusion, substrate past the digits) lands ONCE.",
-      "evidence": "d7ffa6b measured --edges; the antialiasing hypothesis refuted. OPERATOR REFRAMED 2026-09-22: 'it looks really pixelated but it's not that it's pixelated precisely — there's no TEXTURE to speak of. It looks like something I could make with rectangles of construction paper.' Flat uniform fill over a large area: the clock survives it because thin strokes + a relatively large bloom read as EMITTING; the wallpaper's slabs have no material. Not the cap, not the antialiasing — the missing thing is surface.",
+      "next_bounded_step": "THE PHYSICS LAYER, which the merge was for — and it lands on both mounts at once. In order of what it buys: (1) a luminance GRADIENT across the lit segment (brighter toward the drive edge, falling along the length) — the strongest 'it is lit' cue and the one the operator's 'no texture' names most directly; (2) BOUNDARY DEPTH — the aperture mask's bevel/shadow where the cover meets the lit area, which is what makes a segment an object rather than a fill; (3) DIFFUSION — the emitting layer scatters, so the edge is not a step even before the bloom; (4) the SUBSTRATE past the digits (the marquee reads as hardware because its field spans bezel to bezel; the wallpaper's ghost stops at the four digits). Each is an EMISSION axis on SegmentChar with a solved amplitude, never authored noise, and each is measured by the texture number (local variance inside lit regions, ~0 for both surfaces today). Do (1) first and show the operator a pair. ⚑ W57's symmetry oracle should land BEFORE or WITH this: a gradient makes the photographed notch harder to see, not gone.",
+      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures.",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-09-22T11:30:15+00:00",
+      "last_worked": "2026-09-22T12:06:30+00:00",
       "ticks_blocked": 0
     },
     {
@@ -953,6 +953,51 @@
       "evidence": "Operator, 2026-09-22, three messages: (1) a photographed clock digit whose top-left corner notches while the bottom-left is clean — 'that should have been symmetrical!'; (2) '00:00 should be symmetric too' — the FACE plane, which catches the mount (kerning, colon centring) not just the glyph; (3) 'symmetry witness plus LINEAR REGRESSION for a snap to grid, so you can DISCOVER the correct symmetric geometries despite the coordinate system of the painting surface'. (3) is the constructive half: the witness only says asymmetric; fit the rendered segment extents (edges from the picture, per segment) against the substrate's unit coordinates by least squares, and the residuals name WHICH segment is off and by how much — in the toolkit's own pixel grid, including its rounding. The corrected table is then the fit's prediction snapped to the grid, not a hand nudge: a geometry DERIVED from the requirement of symmetry rather than tuned until it looks right.",
       "issued_at": "2026-09-22T11:44:18+00:00",
       "last_worked": "2026-09-22T11:59:40+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W58",
+      "title": "GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it.",
+      "status": "ready",
+      "enables": "W33",
+      "touches": "make_deb,make_wallpaper_live,make_clock,make_notify_marquee,check_package_imports",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
+      "next_bounded_step": "Measure what a load needs: (1) does qmllint resolve bare-name types when run INSIDE the emitted package directory (it lints the text today in a temp dir WITHOUT companions, which is why it passed both breakages) — if yes, the gate is one qmllint invocation per emitted package and check_package_imports's name list retires; (2) if not, a load harness: qml --apptype widget over a tiny document that instantiates the package's own contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; (3) the PLUGIN CONTRACT half: metadata.json's Id must match the directory name and the LnF defaults / layout / alias list that reference it (the f521e6f shape) — a cross-emitter check, not a per-package one. Then policy/package_load.rego and a warrant, and RETIRE check_package_imports's heuristic if (1) or (2) subsumes it.",
+      "evidence": "",
+      "issued_at": "2026-09-22T12:16:56+00:00",
+      "last_worked": "2026-09-22T12:18:08+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W59",
+      "title": "A PIP IS A SEGMENT: ONE DISPLAY ENGINE, THE PRIMITIVE'S SHAPE IS A PARAMETER (operator 2026-09-22: 'this is, again, the symmetry oracle needing application. A pip IS a segment. The only true difference between the 7seg / 22seg / whatever and the matrix engines SHOULD be the shape of the segments.'). ⚑ THIS OVERTURNS ⊕DOT's RECORDED JUDGEMENT (:1002, s65): 'a segment is a subset of a topology while a pixel-cell is a raster, so the two share a CONTRACT rather than a substrate' — the operator's cut is better and the tree already argues for it: SegmentChar and ApertureField now differ in (a) the primitive's geometry (a capsule on a 7-seg lattice vs a round pip on a rectangular one) and (b) the emission model (flat fill vs coverage of a backdrop, graded). Neither difference is a different KIND of display. THREE CONSEQUENCES: (1) the aperture's graded coverage is not a matrix feature — it is the emission model the segment display LACKS, which is precisely the physics W33 is chasing (a gradient across a lit segment IS its coverage profile); (2) the symmetry oracle (W57) applies to the matrix too — a regular pip grid is a translation-invariance property, and the grid glitching the operator caught in marquee-anim was exactly that check going unrun; (3) the content axis unifies: a glyph is a lit-primitive set whether the primitives are seven capsules or forty dots, so display_types' matrix tables and segment_topology's segment tables are one table shape.",
+      "status": "ready",
+      "enables": "W33,W57",
+      "touches": "SegmentChar,ApertureField,segment_topology,display_types,DOT",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "collapse: the deepest one available — it folds the segment display and the matrix field into one engine, makes the physics layer (W33) a property of the shared emission model rather than per-surface work, and puts the matrix under the symmetry oracle that just found a defect in it",
+      "next_bounded_step": "MEASURE BEFORE MERGING, as the port did: name what the two engines actually share today and where they differ, as a table in catalog/one-display.md — primitive geometry (capsule on the 7-seg lattice / round pip on a rectangular one), lattice (substrate tables / rows x cols), emission (flat lit-ghost-bloom / coverage^gamma over a backdrop with ink colour), mount (segLen+gap / pitch+scale+offset), content (a char's lit set / a backdrop's ink). Then the FIRST shared axis, not the whole merge: give SegmentChar the aperture's emission — a lit segment's brightness from the coverage of a backdrop drawn along its own axis — which is W33's gradient, arriving as the thing the two engines share rather than as a new feature. The symmetry oracle grades both before and after.",
+      "evidence": "Operator, s134, three observations in one tick: (a) the pip grid glitches — 'are we aligning the pips to the font, rather than the other way around? The pip grid should be regular' (fixed: ApertureField rounded its pip positions to the device grid; the pinholes pictures fell 26KB->16KB, which is regularity compressing); (b) 'a pip IS a segment ... the only true difference should be the shape of the segments' — overturning ⊕DOT; (c) 'I'm surprised those are separate' about the marquee's pictures vs the pinholes' — and they ARE separate: the marquee renders through check_marquee_live's harness, the probes through render_qml, TWO render paths with their own companion lists, which is why the s134 companion defect hit one and not the other. That is the same duplication shape as the three segment renderers, one level up.",
+      "issued_at": "2026-09-22T12:30:00+00:00",
+      "last_worked": "2026-09-22T12:32:06+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W60",
+      "title": "TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames.",
+      "status": "ready",
+      "enables": "W59",
+      "touches": "ApertureField,render_screens,check_marquee_live,check_symmetry",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "unblock: it is the aperture model's whole claim — a pip's brightness is the ink under it NOW, not a translated bitmap — and the operator has now caught two places where the code did the opposite",
+      "next_bounded_step": "MEASURE the claim rather than assert it: for a scroll, compute the per-frame pip-brightness profile (check_screens already extracts it) and ask whether adjacent frames are related by a FRACTIONAL shift (the aperture re-sampling) or by an INTEGER one (a translated bitmap) — the s120 best_pip_shift already returns k and f, so a run whose f is always 0 is pixelate-then-move, and that is the check. Then: does the optimal alignment (every stroke whole on the pips) occur on the path? It is the offset where the coverage histogram is most bimodal — report whether the scroll passes through it, and at what frame.",
+      "evidence": "",
+      "issued_at": "2026-09-22T12:36:50+00:00",
+      "last_worked": "2026-09-22T12:36:50+00:00",
       "ticks_blocked": 0
     }
   ],

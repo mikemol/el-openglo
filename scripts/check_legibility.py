@@ -42,9 +42,10 @@ CASES = (
     ("cjk-unifont-1to1", "Unifont", "世界", "chi_sim", 16, 4),
 )
 PITCH_PX = 4          # the probe's pitch (u: 4)
-# ⚑ MEASURED (s131, --sweep): 1.0 pitch beats 1.5 on every case (1:1 0.786 vs 0.714;
-# 2:1 at γ 0.5 1.000 vs 0.714); at 2.0 the strokes merge and reads collapse.
-LOWPASS_PITCHES = 1.0
+# ⚑ RE-MEASURED (s134, --sweep, after the pip grid was snapped to the device grid):
+# 1.5 pitch now beats 1.0 on both cases (1:1 0.643 vs 0.429; 2:1 at γ 0.5 0.812 vs
+# 0.765) — the opposite of s131's fit, because the rendering changed under it.
+LOWPASS_PITCHES = 1.5
 UPSCALE = 4
 
 
