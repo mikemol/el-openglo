@@ -49,3 +49,37 @@ deny contains msg if {
 	not s.modal in s.grounds
 	msg := sprintf("S3: %s has modal colour %s, not one of %v (variant %s)", [s.file, s.modal, s.grounds, s.variant])
 }
+
+# METADATA
+# title: "S4 — every planned animation exists with enough frames to move"
+# description: |
+#   The marquee animation is the harness's frames while the text is on the move;
+#   fewer than ten is a still with a loop flag, not motion.
+deny contains msg if {
+	some a in input.animations
+	not a.exists
+	msg := sprintf("S4: %s is missing", [a.file])
+}
+
+deny contains msg if {
+	some a in input.animations
+	a.exists
+	a.frames < 10
+	msg := sprintf("S4: %s has %d frame(s) — not an animation", [a.file, a.frames])
+}
+
+# METADATA
+# title: "S5 — an animation never tears"
+# description: |
+#   A scroll is a left shift: each frame is the previous one moved left by at
+#   most a quarter of the board, new content entering at the right. The
+#   measurement finds the best shift per adjacent pair and the lit columns that
+#   still disagree under it; a pair that disagrees beyond tolerance is a tear —
+#   a rebuilt Row mid-scroll, a restart, frames out of order. The ring's wrap is
+#   a left shift and passes.
+deny contains msg if {
+	some a in input.animations
+	a.exists
+	count(a.tears) > 0
+	msg := sprintf("S5: %s tears at frame(s) %v", [a.file, [t.frame | some t in a.tears]])
+}

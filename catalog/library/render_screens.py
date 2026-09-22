@@ -38,8 +38,17 @@ STILLS = (
 )
 
 
+# W52's second half: the marquee SCROLLING, one APNG per variant, frames grabbed
+# by the harness while the text is on the move (check_marquee_live.animate)
+ANIMATIONS = (("marquee-anim", ("marquee", "animate")),)
+
+
 def plan():
     return [(f"{name}-{v}.png", v, how) for v in VARIANTS for name, how in STILLS]
+
+
+def plan_animations():
+    return [(f"{name}-{v}.png", v, how) for v in VARIANTS for name, how in ANIMATIONS]
 
 
 def render_all(out_dir=SCREENS):
@@ -59,6 +68,10 @@ def render_all(out_dir=SCREENS):
                 pass                                   # written by the scroll step
             if os.path.isfile(out):
                 written.append(out)
+        for name, _how in ANIMATIONS:
+            out = os.path.join(out_dir, f"{name}-{v}.png")
+            if ML.animate(v, out):
+                written.append(out)
     sheets = contact_sheets(out_dir)
     open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8").write(index_md())
     return written, sheets
@@ -77,7 +90,10 @@ def index_md():
         lines += [f"## {v}", "", f"![{v}](sheet-{v}.png)", ""]
         for name, _how in STILLS:
             lines.append(f"- `{name}-{v}.png`")
+        for name, _how in ANIMATIONS:
+            lines.append(f"- `{name}-{v}.png` — APNG, the widget scrolling (S5: never tears)")
         lines.append("")
+        lines += [f"![{v} scrolling](marquee-anim-{v}.png)", ""]
     return "\n".join(lines)
 
 
@@ -138,7 +154,80 @@ def measure(out_dir=SCREENS):
             row.update(width=im.width, height=im.height, modal="#%02x%02x%02x" % modal,
                        distinct=len(colours))
         rows.append(row)
-    return {"screens": rows, "dir": out_dir}
+    anims = []
+    for fn, v, _how in plan_animations():
+        p = os.path.join(out_dir, fn)
+        row = {"file": fn, "variant": v, "exists": os.path.isfile(p)}
+        if row["exists"]:
+            row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#%02x%02x%02x" % WL.colors_for(v)[0]))
+        anims.append(row)
+    return {"screens": rows, "animations": anims, "dir": out_dir}
+
+
+def _hex(s):
+    return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def lit_columns(frame, lit, ground):
+    """Per column, how many LIT pixels: nearer the phosphor than the ground by a
+    factor — the ghost field composites at alpha 0.566, near the midpoint, so a
+    plain "nearer lit" counts it; lit is within a quarter (squared) of the ground
+    distance, which the ghost's 0.434 remainder is not. A COUNT, not a flag: the
+    dots scroll at pixel positions over a 4 px pitch, so an edge column's class
+    flips with the phase; weighted by pixels that flip is small against a tear."""
+    px = frame.load()
+    cols = [0] * frame.width
+    for x in range(frame.width):
+        for y in range(frame.height):
+            r, g, b = px[x, y]
+            dl = (r - lit[0]) ** 2 + (g - lit[1]) ** 2 + (b - lit[2]) ** 2
+            dg = (r - ground[0]) ** 2 + (g - ground[1]) ** 2 + (b - ground[2]) ** 2
+            if 4 * dl < dg:
+                cols[x] += 1
+    return cols
+
+
+def best_shift(prev, cur, max_shift):
+    """The left shift k (0..max_shift) under which `cur` best matches `prev`, and
+    the mismatch under it — sum over columns c in [0, w-k) of |prev[c+k] - cur[c]|
+    in lit pixels. The k columns entering at the right are new content and are
+    not compared."""
+    best = (None, None)
+    for k in range(max_shift + 1):
+        mism = sum(abs(prev[c + k] - cur[c]) for c in range(len(cur) - k))
+        if best[1] is None or mism < best[1]:
+            best = (k, mism)
+    return best
+
+
+def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
+    """A scroll is a LEFT SHIFT: every frame is the previous one moved left by some
+    k ≤ a quarter of the board, with new content entering at the right. Per adjacent
+    pair, the best k and the mismatch under it (in lit pixels, over the larger
+    frame's lit pixels); a pair whose best mismatch exceeds `tolerance` is a TEAR —
+    a rebuilt Row, a restart, a frame out of order. The ring's wrap (an item
+    leaving at the left while the next enters at the right) IS a left shift and
+    passes. The tolerance is MEASURED (2026-09-22, 47 pairs x 2 variants): honest
+    pairs mismatch ≤ 0.30 (the dots' phase against the 4 px pitch); the same pairs
+    with no shift allowed mismatch ≥ 0.66 — what a restart or a frozen frame looks
+    like. 0.5 sits in the gap. WEAKNESS: a pair with no lit pixel in either frame
+    (the board empty) has nothing to compare and is skipped, not judged."""
+    from PIL import Image, ImageSequence
+    lit, ground = _hex(lit_hex), _hex(ground_hex)
+    im = Image.open(path)
+    width = im.width
+    masks = [lit_columns(fr.convert("RGB"), lit, ground) for fr in ImageSequence.Iterator(im)]
+    shifts, tears = [], []
+    for i in range(len(masks) - 1):
+        prev, cur = masks[i], masks[i + 1]
+        n_lit = max(sum(prev), sum(cur))
+        if n_lit == 0:
+            continue
+        k, mism = best_shift(prev, cur, width // 4)
+        shifts.append(k)
+        if mism > tolerance * n_lit:
+            tears.append({"frame": i + 1, "shift": k, "mismatch": mism, "lit": n_lit})
+    return {"frames": len(masks), "width": width, "shifts": shifts, "tears": tears}
 
 
 def main(argv):
@@ -159,8 +248,9 @@ def main(argv):
         print(f"render_screens: SKIP — {RQ.QML} is not installed", file=sys.stderr)
         return 0
     written, sheets = render_all()
-    print(f"render_screens: {len(written)} of {len(plan())} stills + {len(sheets)} sheets -> {SCREENS}")
-    return 0 if len(written) == len(plan()) else 1
+    want = len(plan()) + len(plan_animations())
+    print(f"render_screens: {len(written)} of {want} stills + animations, {len(sheets)} sheets -> {SCREENS}")
+    return 0 if len(written) == want else 1
 
 
 if __name__ == "__main__":

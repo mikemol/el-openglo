@@ -7570,3 +7570,59 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s112]
+
+## Session 113 — the marquee scrolling, captured and held to "never tear" (W52's second half)
+- Operator, 2026-09-22: "the potential (and value) of capturing ANIMATION in
+  this same way". check_marquee_live's harness gained a frames dir: one
+  grabToImage per sample while the text is on the move, never two in flight
+  (a grab landing after the next sample is a frame out of order), capped at
+  48; animate(variant, out) assembles the frames into an APNG with each
+  frame's own measured delay. render_screens emits marquee-anim-<v>.png for
+  six variants (36 of 36 with the stills; 1.5 MB checked in); the index and
+  the root README show it. The MEASUREMENT of an animation is the scroll
+  invariant itself: a frame is the previous one shifted LEFT by some k ≤ a
+  quarter of the board with new content entering at the right, so per
+  adjacent pair the best k and the lit-pixel mismatch under it (lit = within
+  a quarter of the ground distance, which excludes the 0.566 ghost field);
+  S4 (exists, ≥10 frames) and S5 (no pair's best mismatch over 0.5) decide.
+  Two wrong quantities before the right one, both caught by the six real
+  files: the lit CENTROID jumped right at the ring's wrap (the leaving tail
+  and the entering head share a frame), and a BOOLEAN column mask flipped at
+  every dot-phase change (3 px dots on a 4 px pitch, drawn at pixel x). The
+  tolerance is measured, not chosen: honest pairs ≤ 0.30, no-shift ≥ 0.66.
+- Residue: the clock's colon blink is not animated (render_qml draws one
+  instant; a blink needs the harness to drive time — a second animation kind);
+  the frame cadence is the sample's, ~40 ms, and a loaded host stretches it —
+  the APNG carries the measured delays, so it plays at the speed it was seen;
+  an empty-board pair is skipped, not judged.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
+  1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s113]

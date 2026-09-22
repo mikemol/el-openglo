@@ -65,6 +65,22 @@ def _selftest():
         chk("a blank still is a fact (1 distinct colour)", r["distinct"], 1)
         chk("a wrong ground is a fact", r["modal"] in r["grounds"], False)
         chk("an absent still is a fact", next(x for x in rows if x["file"] == "switcher-EL-Amber.png")["exists"], False)
+        # an animation the measurement can see TEAR: a lit block that shifts left
+        # by 6, then moves RIGHT (a restart — no left shift explains it), then
+        # shifts left by 6 again
+        frames = []
+        for x in (300, 294, 340, 334):
+            f = Image.new("RGB", (400, 20), (20, 15, 8))
+            for dx in range(10):
+                for y in range(5, 15):
+                    f.putpixel((x + dx, y), (255, 212, 153))
+            frames.append(f)
+        ap = os.path.join(td, "marquee-anim-EL-Amber.png")
+        frames[0].save(ap, format="PNG", save_all=True, append_images=frames[1:], duration=40, loop=0)
+        a = RS.animation_facts(ap, "#ffd499", "#140f08")
+        chk("the frames are counted", a["frames"], 4)
+        chk("a rightward move is a tear, the left shifts are not", [t["frame"] for t in a["tears"]], [2])
+        chk("the left shifts are read", [k for k in a["shifts"] if k == 6], [6, 6])
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok
 

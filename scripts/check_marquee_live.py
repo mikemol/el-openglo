@@ -151,6 +151,9 @@ Window {
     property bool sawText: false
     property bool grabbed: false
     property bool grabbedPaused: false
+    property bool framePending: false
+    property int frameCount: 0
+    property var frameX: []
     QtObject { id: clock; property double t0: Date.now(); function elapsed() { return Date.now() - t0; } }
     Timer {
         interval: %(sample)d; running: subject.status === Loader.Ready; repeat: true
@@ -175,6 +178,20 @@ Window {
                 harness.grabbedPaused = true;
                 harness.contentItem.grabToImage(function (r) { r.saveToFile(grabPaused); });
             }
+            // W52 animation: one frame per sample while the text is on the move, never
+            // two grabs in flight (a grab that lands after the next sample would be a
+            // frame out of order — the tear the policy forbids), capped
+            var frames = %(frames)s;
+            if (frames && !harness.framePending && harness.frameCount < %(frame_cap)d
+                && s.tickerText !== "" && s.boardRunning && !s.boardPaused) {
+                harness.framePending = true;
+                var n = harness.frameCount; harness.frameCount += 1;
+                harness.frameX.push({ t: now, x: s.boardX });
+                harness.contentItem.grabToImage(function (r) {
+                    r.saveToFile(frames + "/frame-" + String(n).padStart(3, "0") + ".png");
+                    harness.framePending = false;
+                });
+            }
             // the run ends on its CONDITION, else on the clock (a cap, not a plan):
             // the hovered run once enough paused samples are seen; the main run
             // once every event has fired and the board has drained (text empty,
@@ -182,7 +199,7 @@ Window {
             var drained = harness.next >= timeline.length && s.tickerText === "" && !s.boardRunning && harness.sawText;
             if (s.tickerText !== "") harness.sawText = true;
             if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || (%(stop_paused)d === 0 && drained) || now >= %(end)d) {
-                console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width }));
+                console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX }));
                 Qt.quit();
             }
         }
@@ -221,7 +238,10 @@ HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples a
 HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
 
 
-def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None):
+FRAME_CAP = 48            # an animation's frames, at most (one per SAMPLE_MS sample)
+
+
+def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None, frames=None):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
     ⚑ THE HOVERED RUN ENDS ON ITS CONDITION, NOT THE CLOCK (measured 2026-09-22:
@@ -257,7 +277,8 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
             "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused,
             "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
-            "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null"})
+            "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null",
+            "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP})
         # theme_probe's environment (the real theme on the variant's scheme) plus the
         # notification stub on the import path. console.log IS a debug message and
         # the RESULT line rides on it, so only kirigami's own category is quieted.
@@ -288,6 +309,28 @@ def screenshot(variant, out_scroll, out_paused):
     run(variant=variant, end_ms=4000, grab=out_scroll)
     run_hovered(variant, grab_paused=out_paused)
     return [p for p in (out_scroll, out_paused) if os.path.isfile(p)]
+
+
+def animate(variant, out_apng):
+    """The real widget scrolling under `variant`'s scheme, as an APNG (W52's second
+    half): one frame per harness sample while the text is on the move, assembled by
+    PIL with each frame's own measured delay. Returns the frame count written.
+    WEAKNESS: the grab is asynchronous and the software backend is slow under load,
+    so a loaded host yields fewer, longer frames — the frame's x is what the board
+    showed, whatever the spacing; policy/screens.rego measures the pictures, not
+    this count."""
+    from PIL import Image
+    with tempfile.TemporaryDirectory() as td:
+        res = run(variant=variant, end_ms=4000, frames=td)
+        names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
+        if not names:
+            return 0
+        ims = [Image.open(os.path.join(td, n)).convert("RGB") for n in names]
+        ts = [f["t"] for f in res.get("frames", [])][:len(ims)]
+        delays = [max(20, int(ts[i + 1] - ts[i])) for i in range(len(ts) - 1)] + [SAMPLE_MS]
+        delays += [SAMPLE_MS] * (len(ims) - len(delays))
+        ims[0].save(out_apng, format="PNG", save_all=True, append_images=ims[1:], duration=delays, loop=0)
+        return len(ims)
 
 
 def expected_colors(variant):

@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 52,
+  "counter": 53,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T01:11:55+00:00",
-  "job_id": "eec916a6",
+  "heartbeat": "2026-09-22T01:31:46+00:00",
+  "job_id": "0ad83349",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-eec916a6",
-    "taken_at": "2026-09-22T01:20:18+00:00"
+    "holder": "tick-0ad83349",
+    "taken_at": "2026-09-22T01:33:25+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -619,9 +619,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - LIVE: the operator's next emerge of f521e6f+ runs the update script; ticks read --containments to confirm the ids moved",
-      "evidence": "23f2117 82a91da 6386f7d 322e734 be318a6 f521e6f 7575c08: four bound one-package surfaces, theme_probe, aliases + one-shot migration (@MIGRATION), one-theme.md LnF record, ONE-THEME closed (47 of 47 witnesses), BUILD bucket green; COTYPE s104-109",
+      "evidence": "7575c08 closure; f521e6f migration CONFIRMED live s112 (check_marquee_host --containments shows org.el.openglo.live / org.el.segclock / org.el.notifymarquee)",
       "issued_at": "2026-09-21T14:51:57+00:00",
-      "last_worked": "2026-09-22T00:26:42+00:00",
+      "last_worked": "2026-09-22T01:31:25+00:00",
       "ticks_blocked": 0
     },
     {
@@ -877,6 +877,21 @@
       "evidence": "stills 6c61f45 (screens + defaults); animation half next",
       "issued_at": "2026-09-21T23:33:07+00:00",
       "last_worked": "2026-09-22T01:11:25+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W53",
+      "title": "RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session",
+      "status": "ready",
+      "enables": "W46",
+      "touches": "policy,config_page,qml_lint",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Write catalog/runtime-warnings.md from the operator's pastes to date (s93-112: the blank kcm page, the missing wallpaper plugin, the cfg_ Default refusals, 'Created graphical object was not placed in the graphics scene' — is that one a consequence of the Default refusals or its own class? measure by opening the fixed page live) and scripts/check_runtime_warnings.py --json + policy/runtime_warnings.rego: R0 empty, R1 a row without a rule and no 'unruled since' date, R2 an unruled row older than N sessions.",
+      "evidence": "",
+      "issued_at": "2026-09-22T01:31:10+00:00",
+      "last_worked": "2026-09-22T01:31:10+00:00",
       "ticks_blocked": 0
     }
   ],

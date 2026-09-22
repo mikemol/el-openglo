@@ -95,6 +95,11 @@ mock-ups. `catalog/library/render_screens.py` regenerates them; the index is
 
 ![the six variants](catalog/library/screens/strip.png)
 
+The notification marquee, scrolling — the same harness, one frame per sample, and
+a gate that holds every frame to be the previous one shifted left (never a tear):
+
+![the marquee scrolling](catalog/library/screens/marquee-anim-EL-Openglo.png)
+
 ## Status
 
 This repo is a **recovery**. The original was lost before it was ever pushed, and

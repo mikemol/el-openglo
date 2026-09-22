@@ -33,3 +33,25 @@ test_s3_refuses_the_wrong_ground if {
 test_s3_admits_the_view_ground if {
 	count(sc.deny) == 0 with input as {"screens": [object.union(good, {"modal": "#140f08"})]}
 }
+
+anim := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 48, "width": 420,
+	"shifts": [6, 6, 7, 6, 12, 6], "tears": []}
+
+test_s4_s5_admit_a_scrolling_animation if {
+	count(sc.deny) == 0 with input as {"screens": [good], "animations": [anim]}
+}
+
+test_s4_refuses_a_missing_animation if {
+	some msg in sc.deny with input as {"screens": [good], "animations": [{"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": false}]}
+	startswith(msg, "S4:")
+}
+
+test_s4_refuses_a_still_with_a_loop_flag if {
+	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"frames": 1})]}
+	startswith(msg, "S4:")
+}
+
+test_s5_refuses_a_tear if {
+	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"tears": [{"frame": 3, "shift": 0, "mismatch": 40, "lit": 90}]})]}
+	startswith(msg, "S5:")
+}

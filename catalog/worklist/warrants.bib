@@ -715,7 +715,7 @@
 }
 
 @misc{SCREENS,
-  claim    = {Every surface x variant (clock, switcher, live wallpaper, marquee mid-scroll, marquee held by the hover-pause; six variants) has a checked-in still under catalog/library/screens rendered through the real theme engine with that variant's scheme (render_screens; the switcher through render_qml's KWin rewrite over a three-caption stub model, the marquee through check_marquee_live's harness), plus a contact sheet per variant and a six-variant strip; policy/screens.rego requires each still to exist, to have drawn something (3+ distinct colours) and to sit on one of its variant's grounds},
+  claim    = {Every surface x variant is rendered through the theme to a checked-in still that exists, is not blank and sits on its variant's ground; and the marquee scrolls in a checked-in APNG per variant whose every frame is the previous one shifted left — never a tear (S0-S5)},
   check    = {tool:opa_gate.py screens},
   section  = {tooling}
 }
