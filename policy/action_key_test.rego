@@ -54,10 +54,37 @@ test_undeclared_domains_withhold_not_deny if {
 
 # ⚑ AND A FULLY-COVERED DOMAIN MUST WITHHOLD NOTHING — otherwise the rule above
 # can never retire and every run looks equally uncovered.
-test_a_clean_domain_withholds_nothing if {
+#
+# ⚑ THE LIVENESS CONJUNCT IS NOT PEDANTRY (linux-sources-9c, 2026-09-22, adding
+# it to their own retirement arm and driving it red twice): an empty residue over
+# a domain that scanned NOTHING proves only that the scanner did nothing. Without
+# asserting the population in the same breath, "the residue retired" and "the
+# reader is dead" render identically — the very collapse this arm repairs,
+# relocated one level up. Their mutation table: clean AND live (1/0/0) green;
+# real residue (2/1/1) red; zero residue over nothing scanned (0/0/0) RED.
+#
+# ⚑ AND IT IS UNTESTED HERE UNTIL IT MATTERS. screens, schemes and wallpapers all
+# carry non-zero residue today, so the liveness half would stay unexercised right
+# up to the day one of them reaches zero — which is the day it has to mean
+# something. That is this repo's "0 of 0 is not agreement", as a policy arm.
+test_a_clean_domain_withholds_nothing_and_was_alive_doing_it if {
 	i := {"cases": [_current]}
 	w := action_key.withheld with input as i
+	d := action_key.deny with input as i
+	a := action_key.admitted with input as i
 	count(w) == 0
+	count(d) == 0
+	_current.n_inputs > 0     # the population, asserted BEFORE the outcome
+	_current.n_outputs > 0
+	count(a) == 1             # and the case was actually judged, not merely silent
+}
+
+# the other half of the conjunction, driven red: a domain with NO inputs must not
+# be able to buy silence by having nothing to say
+test_an_empty_domain_cannot_pass_as_clean if {
+	c := object.union(_current, {"n_inputs": 0})
+	d := action_key.deny with input as {"cases": [c]}
+	count(d) == 1
 }
 
 # THE REFUSING CASE — the incident itself: the pictures in the tree were built

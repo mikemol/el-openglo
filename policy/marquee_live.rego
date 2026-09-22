@@ -97,6 +97,16 @@ deny contains msg if {
 	b := before(e)
 	a := after(e)
 	b.text != a.text
+
+	# ⚑ A CHANGE THAT LANDED ON A ROTATION BOUNDARY IS THE REQUIREMENT BEING MET,
+	# not a tear — and without this clause L3 attributed one event's CORRECT
+	# deferral to the next event whenever the boundary fell in the gap between
+	# them. Measured 2026-09-22: "expire of id 21 changed the board 'app: alarm •
+	# app: quiet' -> 'app: quiet'", where expiring 21 IS quiet, so the change was
+	# id 20's expiry landing on the boundary 100 ms earlier. Any two events closer
+	# together than one rotation were indistinguishable from a tear, which is why
+	# this denied intermittently and under load.
+	not a.boundary
 	msg := sprintf("L3: %s of id %v at t=%v changed the board mid-rotation: %q -> %q", [e.op, e.id, e.t, b.text, a.text])
 }
 

@@ -458,6 +458,43 @@ def expected_colors(variant):
     return {"lit": "#%02x%02x%02x" % lit, "ghost": "#%02x%02x%02x" % ghost, "ground": "#%02x%02x%02x" % ground}
 
 
+def mark_boundaries(samples):
+    """Tag each sample with `boundary`: did the board WRAP between it and the one
+    before — the rotation restarting, which is where a deferred change is allowed
+    to land.
+
+    ⚑ L3 MISATTRIBUTED A CORRECT DEFERRAL TO THE NEXT EVENT, AND THAT IS WHY THE
+    GATE LOOKED FLAKY (measured 2026-09-22, s140). The deny read: expire of id 21
+    changed the board "app: alarm • app: quiet" -> "app: quiet". Expiring 21 IS
+    quiet, and removing quiet cannot leave a board showing quiet — so the change
+    was id 20's expiry (t=13000) landing correctly at the rotation boundary, which
+    fell in the 100 ms gap before id 21's event. L3 compared the samples either
+    side of EVENT 21 and saw a text change it had no way to attribute.
+
+    ⚑ SO THE POLICY WAS ASKING THE WRONG QUESTION. The requirement is "the change
+    waits for the rotation boundary", which is a fact about WHERE the change
+    landed — not about how near it fell to an event. Keying on event proximity
+    makes any two events closer than one rotation indistinguishable from a tear,
+    and the failure appears only when the boundary lands in the gap: intermittent,
+    load-dependent, and a defect in the instrument rather than the widget.
+
+    ⚑ AND IT WAS FILED AS A FLAKE FIRST (W63). "Denied, then admitted on the same
+    tree" was read as an unreliable verdict; it was a reliable verdict on a
+    changing question. A nondeterministic TRIGGER is not a nondeterministic
+    MEASUREMENT, and the second reading is what luthen's "a flaky action is an
+    undeclared input" points at — the undeclared input here is rotation phase."""
+    out = []
+    prev = None
+    for s in samples:
+        t = dict(s)
+        # a wrap: x moves FORWARD (toward the start) between consecutive samples,
+        # which only happens when the run restarts. L4 gates this independently.
+        t["boundary"] = bool(prev is not None and s["x"] > prev["x"] + 1)
+        out.append(t)
+        prev = s
+    return out
+
+
 def measure(res, hovered=None, variant=VARIANT):
     """The measurement: the main run, and (W51) the HOVERED run — hover-pause on,
     the offscreen pointer at (0,0) holding the board — so the pulse rule has a
@@ -467,15 +504,24 @@ def measure(res, hovered=None, variant=VARIANT):
         return {"runner": False, "variant": variant, "expected": expected_colors(variant),
                 "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}}
     return {"runner": True, "variant": variant, "expected": expected_colors(variant),
-            "events": res["events"], "samples": res["samples"], "width": res["width"],
+            "events": res["events"], "samples": mark_boundaries(res["samples"]),
+            "width": res["width"],
             "log": res.get("log", []),
             "hovered": {"samples": hovered["samples"] if hovered else []}}
 
 
 def main(argv):
-    known = {"--json", "--trace", "--hovered", "--motion", "--variant", "--selftest"}
+    known = {"--json", "--trace", "--hovered", "--motion", "--variant", "--selftest", "--event"}
     variant = VARIANT
     args = list(argv[1:])
+    event_id = None
+    if "--event" in args:
+        i = args.index("--event")
+        if i + 1 >= len(args):
+            print("check_marquee_live: --event needs an id", file=sys.stderr)
+            return 2
+        event_id = args[i + 1]
+        del args[i:i + 2]
     if "--variant" in args:
         i = args.index("--variant")
         if i + 1 >= len(args):
@@ -514,6 +560,33 @@ def main(argv):
               f"the ring took {pulsing} distinct opacities while paused")
         return 0
     m = measure(run(variant=variant), run_hovered(variant), variant)
+    if event_id is not None:
+        # ⚑ THE WINDOW AROUND ONE EVENT, because that is the question L3 asks and
+        # --trace could only answer by eye over 101 KB. A reader scrolling a trace
+        # for the sample either side of t is doing in the turn what the policy
+        # does in a program — and doing it differently each time.
+        evs = [e for e in m["events"] if str(e["id"]) == str(event_id)]
+        if not evs:
+            have = sorted({str(e["id"]) for e in m["events"]})
+            print(f"check_marquee_live --event {event_id!r}: no such event; "
+                  f"the run carried ids {', '.join(have)}", file=sys.stderr)
+            return 2
+        for e in evs:
+            before = [s for s in m["samples"] if s["t"] < e["t"]]
+            after = [s for s in m["samples"] if s["t"] >= e["t"]]
+            b, a = (before[-1] if before else None), (after[0] if after else None)
+            print(f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']}  expects {e['shows']!r}")
+            for tag, s in (("before", b), ("after ", a)):
+                if s is None:
+                    print(f"  {tag}  (no sample — the event is outside the sampled window)")
+                    continue
+                print(f"  {tag} t={s['t']:6.0f} x={s['x']:7.1f} running={s['running']!s:5s} "
+                      f"count={s['count']}  {s['text']!r}")
+            if b and a:
+                verdict = ("TORE — the board changed at the event, not at the rotation boundary"
+                           if b["text"] != a["text"] else "held — the change waited for the boundary")
+                print(f"  {verdict}")
+        return 0
     if "--trace" in argv:
         print(f"variant {variant}: expected lit {m['expected']['lit']} ghost {m['expected']['ghost']} ground {m['expected']['ground']}")
         for l in m["log"]:
@@ -552,9 +625,20 @@ def _selftest():
     last = m["samples"][-1]
     chk("the run ended with every event fired and the board drained",
         (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
-    chk("a sample carries text, x, raw, w, running, paused, ring, count, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46)",
+    # ⚑ `boundary` JOINED THE ROSTER (s140) — the rotation WRAP, which L3 needs to
+    # tell a deferral landing correctly from a tear. This assertion caught the new
+    # field the moment it appeared, which is the point of enumerating keys rather
+    # than spot-checking a few: a sample that silently grows a field is a sample
+    # whose consumers were never told.
+    chk("a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46)",
         sorted(m["samples"][0].keys()),
-        ["count", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "series", "t", "tap", "text", "w", "x"])
+        ["boundary", "count", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "series", "t", "tap", "text", "w", "x"])
+    # ⚑ AND THE BOUNDARY FLAG MUST DISCRIMINATE: a run in which NOTHING is a
+    # boundary, or EVERYTHING is, tells L3 nothing and would let the repair pass
+    # by disarming the rule instead of correcting it.
+    bounds = [s["boundary"] for s in m["samples"]]
+    chk("some samples are rotation boundaries and some are not",
+        (any(bounds), not all(bounds)), (True, True))
     chk("the job's gauge grew to three columns", any(len(ser) == 3 for s in m["samples"] for ser in (s.get("series") or [])), True)
     chk("the tap on the action run reached the stub's invokeAction",
         any(i.get("action") == "open" for s in m["samples"] for i in (s.get("invoked") or [])), True)

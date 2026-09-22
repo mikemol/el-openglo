@@ -75,6 +75,38 @@ test_l3_admits_a_change_at_the_boundary if {
 	count([m | some m in ml.deny with input as clean; startswith(m, "L3:")]) == 0
 }
 
+# ⚑ THE MISATTRIBUTION, AS A REGRESSION TEST. Measured 2026-09-22 on the live
+# harness: L3 denied "expire of id 21 changed the board 'app: alarm • app: quiet'
+# -> 'app: quiet'". Expiring 21 IS quiet, so removing it cannot leave a board
+# showing quiet — the change was id 20's expiry landing correctly on the rotation
+# boundary in the 100 ms gap before id 21's event. Keyed on event proximity, any
+# two events closer than one rotation read as a tear; the boundary flag is what
+# separates "changed near an event" from "changed off a boundary".
+test_l3_admits_a_neighbours_deferral_landing_on_the_boundary if {
+	neighbour := object.union(clean, {"events": [
+		{"t": 13000, "op": "expire", "id": 20, "shows": ""},
+		{"t": 13100, "op": "expire", "id": 21, "shows": ""},
+	], "samples": [
+		{"t": 12980, "text": "app: alarm     •     app: quiet", "x": -300, "running": true, "count": 2, "boundary": false},
+		{"t": 13060, "text": "app: alarm     •     app: quiet", "x": 397, "running": true, "count": 1, "boundary": true},
+		{"t": 13140, "text": "app: quiet", "x": 377, "running": true, "count": 1, "boundary": true},
+	]})
+	count([m | some m in ml.deny with input as neighbour; startswith(m, "L3:")]) == 0
+}
+
+# ⚑ AND THE BOUNDARY FLAG MUST NOT SWALLOW A REAL TEAR — otherwise the repair
+# buys its silence by disarming the rule. A change off a boundary still denies
+# even when a boundary exists elsewhere in the run.
+test_l3_still_refuses_a_tear_when_boundaries_exist if {
+	mixed := object.union(clean, {"events": [{"t": 900, "op": "replace", "id": 1, "shows": "app: new"}], "samples": [
+		{"t": 860, "text": "app: hello", "x": 400, "running": true, "count": 1, "boundary": true},
+		{"t": 880, "text": "app: hello", "x": -100, "running": true, "count": 1, "boundary": false},
+		{"t": 900, "text": "app: new", "x": -150, "running": true, "count": 1, "boundary": false},
+	]})
+	some msg in ml.deny with input as mixed
+	startswith(msg, "L3:")
+}
+
 test_l4_refuses_a_forward_jump if {
 	jumpy := object.union(clean, {"samples": [
 		{"t": 300, "text": "app: hello", "x": 300, "running": true, "count": 1},
