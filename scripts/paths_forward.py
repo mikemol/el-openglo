@@ -179,8 +179,20 @@ def set_fields(state: dict, sym: str, kvs: list[str]) -> None:
     save(state)
 
 
+WAYPOINT_FIELDS = ("symbol", "title", "status", "enables", "touches", "blocked_on", "blocked_kind",
+                   "rank_reason", "next_bounded_step", "evidence", "issued_at", "last_worked", "ticks_blocked")
+
+
 def add(state: dict, title: str, kvs: list[str]) -> str:
-    """Mint the next symbol (counter only ever increments) and append a ready waypoint."""
+    """Mint the next symbol (counter only ever increments) and append a ready waypoint.
+
+    ⚑ VALIDATE BEFORE MINTING. This once saved the bare waypoint and THEN applied the
+    key=values, so a refused key (2026-09-22: `mechanism=`) left a half-written W54 on
+    disk and the retry minted W55 as its duplicate — a burned symbol with a partial
+    record, which the coverage check cannot tell from an honest one."""
+    bad = [kv.partition("=")[0] for kv in kvs if kv.partition("=")[0] not in WAYPOINT_FIELDS]
+    if bad:
+        raise SystemExit(f"--add refused, nothing minted: unknown field(s) {bad}; fields: {', '.join(WAYPOINT_FIELDS)}")
     state["counter"] += 1
     sym = f"W{state['counter']}"
     w = {"symbol": sym, "title": title, "status": "ready", "enables": [], "touches": [],
@@ -191,6 +203,20 @@ def add(state: dict, title: str, kvs: list[str]) -> str:
     if kvs:
         set_fields(state, sym, kvs)
     return sym
+
+
+def drop(state: dict, sym: str, reason: str) -> None:
+    """§5 `drop W7 <reason>` — move a waypoint to residue; the reason is required and
+    the symbol stays claimed forever (never reused, never renumbered)."""
+    if not reason.strip():
+        raise SystemExit(f"drop {sym}: a reason is required")
+    w = find(state, sym)
+    if w.get("dropped_at"):
+        raise SystemExit(f"{sym} is already residue")
+    state["waypoints"] = [x for x in state["waypoints"] if x["symbol"] != sym]
+    state.setdefault("residue", []).append({"symbol": sym, "title": w.get("title", ""), "dropped_at": now(),
+                                            "reason": reason, "recoverable": True})
+    save(state)
 
 
 def ledger(line: str) -> None:
@@ -220,6 +246,7 @@ def main(argv: list[str]) -> int:
     g.add_argument("--set", nargs="+", metavar=("SYMBOL", "key=value"), help="update a waypoint's fields")
     g.add_argument("--ledger", metavar="LINE", help="append one line (timestamp is prepended)")
     g.add_argument("--add", nargs="+", metavar=("TITLE", "key=value"), help="mint the next W<n> as a ready waypoint")
+    g.add_argument("--drop", nargs=2, metavar=("SYMBOL", "REASON"), help="§5 move a waypoint to residue (reason required)")
     a = ap.parse_args(argv)
     if a.selftest:
         return selftest()
@@ -236,6 +263,8 @@ def main(argv: list[str]) -> int:
         ledger(a.ledger); print("ledger appended")
     elif a.add:
         sym = add(state, a.add[0], a.add[1:]); print(f"{sym} added; hash={state_hash(load())}")
+    elif a.drop:
+        drop(state, a.drop[0], a.drop[1]); print(f"{a.drop[0]} -> residue; hash={state_hash(load())}")
     elif a.hash:
         print(state_hash(state))
     elif a.render:
