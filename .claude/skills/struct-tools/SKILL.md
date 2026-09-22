@@ -50,7 +50,8 @@ the emitters agree on one palette); they are not general readers and do not repl
 | a concept the library owns and grades | `catalog/library/concepts.py` | `python3 catalog/library/concepts.py --list` | — |
 | the design log's symbols, closures and open set | `scripts/cotype_index.py` | `python3 scripts/cotype_index.py` | — |
 | does a QML document PARSE (Qt's qmllint, gated on error ids; Plasma context properties are not errors) | `qml_sanity.py` | `python3 qml_sanity.py <file.qml>` | — |
-| **what a Plasma surface DRAWS** (headless render of the emitted clock / live wallpaper; lit/ghost/ground census) | `scripts/render_qml.py` | `python3 scripts/render_qml.py clock --png out.png --pixels` | — |
+| **what a Plasma surface DRAWS** (headless render of the emitted clock / live wallpaper / switcher under the REAL theme for `--variant`; lit/ghost/ground census) | `scripts/render_qml.py` | `python3 scripts/render_qml.py clock --variant EL-Amber --png out.png --pixels` | — |
+| the SCREENSHOTS: every surface x variant through the theme, contact sheets, the strip, and their generated index (`--list` the plan; `--json` the measurement policy/screens.rego decides) | `catalog/library/render_screens.py` | `python3 catalog/library/render_screens.py --list` | — |
 | is a symbol's work IN THE TREE — open ones (`--status`) and closed ones (`--regressions`) | `scripts/check_symbol.py` | `python3 scripts/check_symbol.py --list` | — |
 | Plasma / Konsole colour schemes (`--semantic` for the semantic set on the selection field) | `scripts/check_selection_contrast.py` | `python3 scripts/check_selection_contrast.py --report` | `.colors` `.colorscheme` |
 | how the font→segment projection agrees with the authored tables, per glyph (hits/misses/extras/Jaccard) | `scripts/check_projection.py` | `python3 scripts/check_projection.py [--font F] [--fmt 16\|7]` | — |

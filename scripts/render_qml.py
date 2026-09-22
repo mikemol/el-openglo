@@ -50,6 +50,37 @@ SUBSTITUTIONS = (
     (r"^WallpaperItem \{", "Item {"),
 )
 
+# ⚑ THE SWITCHER'S RUNTIME IS KWIN'S, NOT PLASMA'S (W52): KWin.TabBoxSwitcher
+# supplies model / currentIndex / visible / screenGeometry, PlasmaCore.Dialog is
+# a window, PlasmaComponents3.Label is a Text, and i18ndc is KDE's. Each becomes
+# the plain-QML thing it is, and the model becomes a stub of three captions with
+# the middle one current — the smallest task list that shows lit, ghost and the
+# minimized weight at once. Listed here so the whole gap between harness and
+# KWin is legible; nothing else in the emitted document is touched.
+SWITCHER_SUBSTITUTIONS = (
+    (r"^import org\.kde\.kwin as KWin\n", ""),
+    (r"^KWin\.TabBoxSwitcher \{",
+     "Item {\n"
+     "    property var model: stubModel\n"
+     "    property int currentIndex\n"
+     "    property rect screenGeometry: Qt.rect(0, 0, width, height)\n"
+     "    function i18ndc(d, c, s) { return s }\n"
+     "    ListModel {\n"
+     "        id: stubModel\n"
+     "        ListElement { caption: \"Konsole\"; icon: \"utilities-terminal\"; minimized: false }\n"
+     "        ListElement { caption: \"Dolphin — Home\"; icon: \"system-file-manager\"; minimized: false }\n"
+     "        ListElement { caption: \"Firefox\"; icon: \"firefox\"; minimized: true }\n"
+     "        function longestCaption() { return \"Dolphin — Home\" }\n"
+     "        function activate(i) {}\n"
+     "    }\n"
+     "    Component.onCompleted: list.currentIndex = 1"),
+    (r"^    PlasmaCore\.Dialog \{\n        id: dialog\n        location:[^\n]*\n        visible:[^\n]*\n        flags:[^\n]*\n        x:[^\n]*\n        y:[^\n]*\n",
+     "    Item {\n        id: dialog\n        anchors.fill: parent\n"),
+    (r"mainItem: Item \{", "Item {\n            anchors.centerIn: parent"),
+    (r"PlasmaComponents3\.Label", "Text"),
+    (r"\n        onSceneGraphError: \(\) => \{\n[^\n]*\n        \}\n", "\n"),
+)
+
 HARNESS = """import QtQuick
 import QtQuick.Window
 Window {
@@ -96,8 +127,15 @@ def subject(surface, variant):
         import make_wallpaper_live
         qml = make_wallpaper_live.main_qml()      # one package since W35
         kcfg = make_wallpaper_live.config_main_xml()
+    elif surface == "switcher":
+        import make_taskswitch
+        qml, kcfg = make_taskswitch.main_qml(), ""
+        for pat, rep in SWITCHER_SUBSTITUTIONS:
+            qml, n = re.subn(pat, rep, qml, flags=re.M)
+            if n == 0:
+                raise ValueError(f"switcher rewrite: {pat[:40]!r} matched nothing — the template moved under the harness")
     else:
-        raise ValueError(f"unknown surface {surface!r}; clock or live-wallpaper")
+        raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper or switcher")
     for pat, rep in SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.M)
     return qml, _kcfg_defaults(kcfg), cols["ground"]
@@ -198,12 +236,13 @@ def main(argv):
 
     def opt(name, default):
         return args[args.index(name) + 1] if name in args else default
-    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper")), None)
+    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper", "switcher")), None)
     if surface is None:
-        print("render_qml: name a surface: clock | live-wallpaper", file=sys.stderr)
+        print("render_qml: name a surface: clock | live-wallpaper | switcher", file=sys.stderr)
         return 2
     variant = opt("--variant", "EL-Openglo")
-    w, h = int(opt("--width", 400)), int(opt("--height", 48 if surface == "clock" else 400))
+    default_h = {"clock": 48, "switcher": 200}.get(surface, 400)
+    w, h = int(opt("--width", 400)), int(opt("--height", default_h))
     override = {}
     for i, a in enumerate(args):
         if a == "--set":

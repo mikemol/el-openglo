@@ -87,6 +87,14 @@ bars below the baseline), so lowercase letters with descenders resolve. Projecti
 
     uv run python3 segment_topology.py --selftest
 
+## What it looks like
+
+Every surface, every variant, rendered through the theme engine itself — not
+mock-ups. `catalog/library/render_screens.py` regenerates them; the index is
+[catalog/library/screens/README.md](catalog/library/screens/README.md).
+
+![the six variants](catalog/library/screens/strip.png)
+
 ## Status
 
 This repo is a **recovery**. The original was lost before it was ever pushed, and

@@ -149,6 +149,8 @@ Window {
     property int next: 0
     property int pausedSeen: 0
     property bool sawText: false
+    property bool grabbed: false
+    property bool grabbedPaused: false
     QtObject { id: clock; property double t0: Date.now(); function elapsed() { return Date.now() - t0; } }
     Timer {
         interval: %(sample)d; running: subject.status === Loader.Ready; repeat: true
@@ -160,6 +162,19 @@ Window {
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor) });
             if (s.boardPaused) harness.pausedSeen += 1;
+            // W52: a screenshot at the first sample with the text mid-board (its left
+            // edge inside the board, still running), and one while the pulse holds it
+            var grab = %(grab)s;
+            if (grab && !harness.grabbed && s.tickerText !== "" && s.boardRunning && !s.boardPaused
+                && s.boardX < harness.width * 0.5 && s.boardX > 0) {
+                harness.grabbed = true;
+                harness.contentItem.grabToImage(function (r) { r.saveToFile(grab); });
+            }
+            var grabPaused = %(grab_paused)s;
+            if (grabPaused && !harness.grabbedPaused && s.boardPaused && harness.pausedSeen >= 8) {
+                harness.grabbedPaused = true;
+                harness.contentItem.grabToImage(function (r) { r.saveToFile(grabPaused); });
+            }
             // the run ends on its CONDITION, else on the clock (a cap, not a plan):
             // the hovered run once enough paused samples are seen; the main run
             // once every event has fired and the board has drained (text empty,
@@ -206,7 +221,7 @@ HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples a
 HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
 
 
-def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT):
+def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
     ⚑ THE HOVERED RUN ENDS ON ITS CONDITION, NOT THE CLOCK (measured 2026-09-22:
@@ -240,7 +255,9 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT):
         timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in TIMELINE]
         open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
-            "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused})
+            "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused,
+            "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
+            "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null"})
         # theme_probe's environment (the real theme on the variant's scheme) plus the
         # notification stub on the import path. console.log IS a debug message and
         # the RESULT line rides on it, so only kirigami's own category is quieted.
@@ -260,8 +277,17 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT):
     raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
 
 
-def run_hovered(variant=VARIANT):
-    return run(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES, variant=variant)
+def run_hovered(variant=VARIANT, grab_paused=None):
+    return run(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES, variant=variant,
+               grab_paused=grab_paused)
+
+
+def screenshot(variant, out_scroll, out_paused):
+    """Two stills of the real widget under `variant`'s scheme (W52): mid-scroll, and
+    held by the hover-pause with the ring pulsing. Returns the two paths that exist."""
+    run(variant=variant, end_ms=4000, grab=out_scroll)
+    run_hovered(variant, grab_paused=out_paused)
+    return [p for p in (out_scroll, out_paused) if os.path.isfile(p)]
 
 
 def expected_colors(variant):

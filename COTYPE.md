@@ -7406,3 +7406,65 @@ residue gated on live operator testing.
   the operator's "less like Minecraft sans RTX" — the live wallpaper's
   Canvas strokes vs the clock's antialiased Shapes — is its argument now).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s109]
+
+## Session 110 — screenshots through the theme: every surface, every variant, rendered not mocked (W52 stills)
+- Operator, 2026-09-22: "we can render the widgets and capture actual
+  screenshots of them — for a repo README to showcase". The themed render
+  path (theme_probe.env_for + `qml --apptype widget`) already drew the
+  clock and live wallpaper; two surfaces were missing. The SWITCHER:
+  render_qml gained SWITCHER_SUBSTITUTIONS — KWin.TabBoxSwitcher → an Item
+  carrying model / currentIndex / screenGeometry / i18ndc and a three-
+  caption ListModel stub (Konsole, Dolphin — Home, Firefox minimized; the
+  middle one current; longestCaption(), activate()), PlasmaCore.Dialog → an
+  Item, mainItem → a centred child, PlasmaComponents3.Label → Text, the
+  scene-graph handler dropped; each substitution refuses when it matches
+  nothing, so a template move under the harness is loud. First rendered
+  picture of the switcher: the board on the void, the selected row lit
+  with its bar, the minimized entry receded, under EL-Amber. The MARQUEE:
+  the harness grabs at the first sample with the text mid-board and once
+  while the hover-pause holds it with the ring pulsing (screenshot(variant,
+  a, b)). catalog/library/render_screens.py renders the five stills for six
+  variants (30 of 30), a contact sheet per variant, a six-variant strip,
+  and its own generated README; the root README gains "What it looks like"
+  pointing at the strip and that index. check_screens measures each still
+  (exists, distinct colours, modal colour, the variant's two honest
+  grounds — the harness window's and the View background a bound surface
+  draws) and policy/screens.rego S0-S3 decides (55/55 across six policies;
+  @SCREENS, 66 claims). Under a megabyte, checked in.
+- Residue: the root README section is hand-placed (one paragraph and an
+  image), not projected — the projection discipline is the memory's
+  target, not yet this repo's; the stills are ~2 s wall of qml each and a
+  regeneration is a run, not a gate (the gate checks the checked-in files
+  against the plan); animation (frames → APNG/GIF, per-frame diff as
+  "never tear") is W52's second half; the marquee's paused still is held at
+  x≈0 by the offscreen pointer — the pulse is visible, the text half off.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live and the update script
+  migrates the panel on the first start after f521e6f), ⊕VER-MARQUEE
+  (s89-103 — after re-emerge: a lone notify-send scrolls once; every
+  notification scrolls once, none vanish, the board never goes dead, a
+  parked pointer pulses the ring; ticks read check_marquee_host),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s110]
