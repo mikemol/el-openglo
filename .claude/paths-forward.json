@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 52,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-21T23:35:33+00:00",
-  "job_id": "be592563",
+  "heartbeat": "2026-09-21T23:57:22+00:00",
+  "job_id": "521c96ca",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -13,10 +13,7 @@
     "AGENT_LIST": "ListAgents",
     "ESCALATE": "AskUserQuestion"
   },
-  "lock": {
-    "holder": "tick-manual2",
-    "taken_at": "2026-09-21T23:40:30+00:00"
-  },
+  "lock": null,
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
     {
@@ -618,10 +615,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(4) THE LIVE WALLPAPER: Kirigami is live in a WallpaperItem (org.kde.color uses Kirigami.Units); the glanced alpha is 0.309 on all six (global) - bind lit/ghost/ground under View, bake both alphas via a glanced_alpha() beside ghost_alpha(); ONE package org.el.openglo.live; make_deb + el-openglo-live helper + lock-screen key; ghost_surfaces _bound (glanced_at); parity; witness; COTYPE s108. (5) the LnF: one LnF PER VARIANT STAYS (it IS the selector) each naming the one clock/marquee/switcher; PLUS A SHIPPED MIGRATION (operator's log after emerging 322e734: 'package org.el.segclock.elazure does not exist'): a Plasma one-shot update script under plasma/shells/org.kde.plasma.desktop/contents/updates/el-openglo-one-theme.js that rewrites org.el.segclock.<v> / org.el.notifymarquee.<v> to the one ids in every panel and containment (measure the updates mechanism on this host first: /usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/), with the LnF layouts already naming the one ids; then the ONE-THEME closure (four gates) and CLOSED.",
-      "evidence": "23f2117 (switcher), 82a91da (theme_probe + T5), 6386f7d (marquee + L8), 322e734 (clock one package; render_qml under the real theme; COTYPE s107)",
+      "next_bounded_step": "(5) MIGRATION + LnF RECORD: (a) measure the Plasma update mechanism on this host - list /usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates/ and read one script + how plasmashell records applied updates (plasmashellrc [Updates] performed=) - to learn whether a THEME package may ship one or whether the migration must be a postinst/ebuild pkg_postinst step running plasma's scripting over DBus (el-openglo-migrate helper: rewrite org.el.segclock.<v>/org.el.notifymarquee.<v> applet plugin ids in every panel via evaluateScript, or via kwriteconfig on appletsrc when plasmashell is not running); (b) implement the measured route in make_deb (the witness pins contents/updates/ - adjust the pin to the measured route); (c) one-theme.md gains '## The Look-and-Feel' - one LnF per variant stays because the LnF IS the selector (ColorScheme=); (d) the ONE-THEME closure (four gates: constructible = four packages emitted; reachable = make_deb stages them + LnF layouts name them; observable = T5/L8/render under the real theme; coverable = ghost_surfaces _bound over 6x5) and CLOSED.",
+      "evidence": "23f2117 (switcher), 82a91da (theme_probe + T5), 6386f7d (marquee + L8), 322e734 (clock), be318a6 (live wallpaper; all four bound; COTYPE s108)",
       "issued_at": "2026-09-21T14:51:57+00:00",
-      "last_worked": "2026-09-21T23:41:49+00:00",
+      "last_worked": "2026-09-21T23:56:03+00:00",
       "ticks_blocked": 0
     },
     {

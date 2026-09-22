@@ -55,6 +55,30 @@ def instances(path=APPLETSRC):
     return out
 
 
+def containments(path=APPLETSRC):
+    """[{group, plugin, wallpaper, applets: [(id, plugin)]}] — every containment in the
+    appletsrc with its wallpaper plugin: the thing that decides whether the desktop
+    comes up at all (a wallpaper plugin that no longer exists fails the containment —
+    operator, 2026-09-22, after emerging the one-package wallpaper)."""
+    if not os.path.isfile(path):
+        return None
+    cp = configparser.ConfigParser(interpolation=None, strict=False, delimiters=("=",))
+    cp.optionxform = str
+    cp.read(path, encoding="utf-8")
+    out = {}
+    for section in cp.sections():
+        parts = section.split("][")
+        if len(parts) == 2 and parts[0] == "Containments":
+            cid = parts[1]
+            out.setdefault(cid, {"group": section, "plugin": cp[section].get("plugin", ""),
+                                 "wallpaper": cp[section].get("wallpaperplugin", ""), "applets": []})
+        elif len(parts) == 4 and parts[0] == "Containments" and parts[2] == "Applets":
+            cid = parts[1]
+            out.setdefault(cid, {"group": f"Containments][{cid}", "plugin": "", "wallpaper": "", "applets": []})
+            out[cid]["applets"].append((parts[3], cp[section].get("plugin", "")))
+    return [out[k] for k in sorted(out, key=lambda s: int(s) if s.isdigit() else 0)]
+
+
 def journal(since="-2h"):
     """el-marquee lines from the user journal — present only when plasmashell runs
     under its systemd unit (or systemd-cat); this qtbase has no journald USE, so
@@ -82,11 +106,22 @@ def shell_stderr():
 
 
 def main(argv):
-    known = {"--json", "--selftest"}
+    known = {"--json", "--containments", "--selftest"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_marquee_host: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--containments" in argv:
+        cs = containments()
+        if cs is None:
+            print(f"check_marquee_host: SKIP — {APPLETSRC} is not on this host", file=sys.stderr)
+            return 0
+        for c in cs:
+            print(f"[{c['group']}]  plugin={c['plugin'] or '?'}  wallpaper={c['wallpaper'] or '-'}")
+            for aid, plug in c["applets"]:
+                print(f"    applet {aid}: {plug}")
+        print(f"containments: {len(cs)}")
+        return 0
     rows = instances()
     if rows is None:
         print(f"check_marquee_host: SKIP — {APPLETSRC} is not on this host", file=sys.stderr)

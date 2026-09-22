@@ -568,6 +568,48 @@ def copy_into(src_rel, dst_rel, root=None):
         shutil.copy2(src, dst)
 
 
+def legacy_alias_packages(root, specs):
+    """Ship every legacy per-variant id as a thin copy of the one package (W35).
+
+    specs: [(subdir, canonical_id, "legacy.pattern.{v}")]. The copy is byte-identical
+    but for KPlugin.Id / Name, so a containment or applet entry that still names the
+    legacy id loads the SAME bound QML and follows the scheme. The update script
+    migrates the entries; the aliases exist so nothing fails before it has run."""
+    for subdir, canonical, pattern in specs:
+        src = os.path.join(root, subdir, canonical)
+        for v in VARIANTS:
+            legacy = pattern.format(v=v.lower().replace("-", ""))
+            dst = os.path.join(root, subdir, legacy)
+            shutil.copytree(src, dst, dirs_exist_ok=True)
+            mp = os.path.join(dst, "metadata.json")
+            meta = _json.loads(open(mp).read())
+            meta["KPlugin"]["Id"] = legacy
+            meta["KPlugin"]["Name"] = meta["KPlugin"]["Name"] + f" (legacy id, {v})"
+            meta["KPlugin"]["Description"] = (meta["KPlugin"].get("Description", "")
+                                              + " — a legacy per-variant id; the one package is " + canonical)
+            open(mp, "w").write(_json.dumps(meta, indent=2))
+
+
+def one_theme_update_js():
+    """The one-shot Plasma update script — templates/one-theme-update.js, holes from the emitters."""
+    import make_clock as _mc
+    import make_notify_marquee as _nm
+    import make_wallpaper_live as _wpl
+    import templates.loader as TL
+    slug = lambda v: v.lower().replace("-", "")
+    wallpapers = {f"org.el.openglo.live.{slug(v)}": _wpl.PACKAGE_ID for v in VARIANTS}
+    applets = {}
+    for v in VARIANTS:
+        applets[f"org.el.segclock.{slug(v)}"] = _mc.PACKAGE_ID
+        applets[f"org.el.notifymarquee.{slug(v)}"] = _nm.PACKAGE_ID
+    # the settings each widget carries, read from its kcfg — the keys the migration copies
+    import re as _re
+    keys = {_mc.PACKAGE_ID: _re.findall(r'<entry name="(\w+)"', _mc.CONFIG_XML),
+            _nm.PACKAGE_ID: _re.findall(r'<entry name="(\w+)"', _nm.config_xml())}
+    return TL.render("one-theme-update.js", wallpaperIds=_json.dumps(wallpapers),
+                     appletIds=_json.dumps(applets), appletKeys=_json.dumps(keys))
+
+
 def stage(root):
     """Lay the whole install tree under `root` (a DESTDIR), and return the mapping.
 
@@ -738,6 +780,26 @@ def stage(root):
     # (⊕ONE-THEME), bound to the active scheme's roles.
     import make_notify_marquee as _nm
     _nm.render_all(os.path.join(DEB_ROOT, "usr/share/plasma/plasmoids", _nm.PACKAGE_ID))
+
+    # ⚑ LEGACY IDS STAY LOADABLE (operator, 2026-09-22: "My plasma didn't come up
+    # at all!" — the desktop containment named org.el.openglo.live.elazure, which
+    # the one-package build no longer shipped, and a missing WALLPAPER plugin fails
+    # the shell where a missing applet only leaves a placeholder). Every id the
+    # per-variant builds ever wrote into a user's appletsrc is shipped again as a
+    # thin copy of the one package — the same bound QML, so it follows the scheme
+    # like the canonical one — and the update script below moves the config to the
+    # canonical ids on the next plasmashell start. The aliases retire once no
+    # config can still name them.
+    import make_clock as _mc2
+    legacy_alias_packages(DEB_ROOT, [
+        ("usr/share/plasma/wallpapers", _wpl.PACKAGE_ID, "org.el.openglo.live.{v}"),
+        ("usr/share/plasma/plasmoids", _nm.PACKAGE_ID, "org.el.notifymarquee.{v}"),
+        ("usr/share/plasma/plasmoids", _mc2.PACKAGE_ID, "org.el.segclock.{v}"),
+    ])
+    # the one-shot migration, run once by plasmashell from the shell's updates dir
+    upd = os.path.join(DEB_ROOT, "usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates")
+    os.makedirs(upd, exist_ok=True)
+    open(os.path.join(upd, "el-openglo-one-theme.js"), "w").write(one_theme_update_js())
 
     # ⊕GLANCE-AUDIT gate: every ghost-bearing surface must clear its parsing-mode
     # floor (glanced-at needs more separation than looked-at). A surface that drops
