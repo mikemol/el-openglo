@@ -14,6 +14,7 @@ tree that is true when the work exists — so the log's worklist becomes the sam
 kind of object as the repo's own: open exactly when its check exits non-zero.
 
     scripts/check_symbol.py <SYMBOL>     # exit 0 iff that symbol's work is present
+                                         #   (open OR closed — a closed one is a regression check)
     scripts/check_symbol.py --list       # every symbol with a witness, and what it is
     scripts/check_symbol.py --status     # all of them, done/open
     scripts/check_symbol.py --unwitnessed  # open symbols with NO witness here
@@ -359,8 +360,26 @@ CLOSED = {
     "⊕SPLASH": ("the LnF splash reads progress and the palette's ghost (:2910)",
                 lambda: _reads("make_deb.py", r"def\s+_splash_qml\b") and
                 os.path.isfile(os.path.join(ROOT, "templates", "splash.qml"))),
-    "⊕SDDM": ("the SDDM background path ships as el-openglo-sddm (:3074)",
-              lambda: _reads("make_deb.py", r"el-openglo-sddm")),
+    # ⚑ THIS CLAIM MISLED THE OPERATOR, SO IT WAS REWRITTEN RATHER THAN LEFT TRUE.
+    # It read "the SDDM background path ships as el-openglo-sddm", which is
+    # literally accurate and scans, in a list of CLOSED items, as "SDDM is themed".
+    # The operator emerged el-openglo, opened the SDDM picker, found only Breeze,
+    # Elarun, Maldives and maya, and reasonably expected otherwise (2026-09-22).
+    # A closure that requires a manual root step is not closed in the sense the
+    # list implies. W66 then built the real theme; the witness now requires BOTH
+    # halves — the package stages it AND it is an SDDM theme, not a background.
+    "⊕SDDM": ("an SDDM greeter theme per variant (make_sddm -> /usr/share/sddm/themes/"
+              "el-openglo-*, W66); the el-openglo-sddm Breeze-background helper is the "
+              "secondary route (:3074)",
+              # ⚑ ALIAS-AGNOSTIC BY BACKREFERENCE. The first draft matched the
+              # literal text `make_sddm.render_all` and read OPEN on a tree where
+              # the theme IS staged — make_deb imports it `as _sddm` (:777), so
+              # that text never occurs. A witness that cannot pass is not a
+              # stricter witness, it is a broken one. Whatever alias the import
+              # binds, the call must be made through it.
+              lambda: _reads("make_deb.py",
+                             r"import\s+make_sddm\s+as\s+(\w+)[\s\S]*?\b\1\.render_all\(") and
+              _reads("make_sddm.py", r"Type=sddm-theme")),
     "⊕LOCKSCREEN": ("the lock screen mounts the live wallpaper (:3001)",
                     lambda: _reads("make_wallpaper_live.py", r"(?i)lock")),
     "⊕KVT": ("the Kvantum recolour: a KvFlat mapper plus the elprogress family (KvFlat itself is EXTERNAL) (:612)",
@@ -599,7 +618,9 @@ CLOSED = {
                 _reads("templates/marquee-main.qml", r"(?m)^\s*function drawBackdrop\(\)") and
                 # W34 (c): a settings page, its kcfg carrying the solved alpha as the default
                 _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{") and
-                _reads("templates/marquee-config.kcfg", r'name="ghostAlpha"[^\n]*\$ghostAlpha') and
+                # since W59 the display rows are declared once in display_params and
+                # INCLUDED into the kcfg; the solved-alpha default lives there now
+                _reads("display_params.py", r'Exposed\("ghostAlpha",\s*"\$ghostAlpha"') and
                 _reads("make_notify_marquee.py", r"configGeneral\.qml") and
                 # W38/W45 (operator, live): the traversal invariant — the model UPSERTS
                 # into root.queue, the swap happens in the rotation's onFinished (one
@@ -859,13 +880,18 @@ def main(argv):
     rc = 0
     for s in syms:
         key = s if s.startswith("⊕") else "⊕" + s
-        if key not in WITNESS:
+        # ⚑ A CLOSED SYMBOL ANSWERS BY NAME TOO (W69). `--list` printed 49 closed
+        # symbols with witnesses and `<SYMBOL>` refused every one of them, so a
+        # claim about ONE capability (the README's) could only cite the whole
+        # `--regressions` sweep. The witness existed; the mode that named it did not.
+        table = WITNESS if key in WITNESS else CLOSED
+        if key not in table:
             print(f"check_symbol: REFUSED — no witness for {key}. Operator-blocked "
                   f"work has none BY DESIGN; anything else is a gap to fill.",
                   file=sys.stderr)
             rc = max(rc, 2)
             continue
-        what, pred = WITNESS[key]
+        what, pred = table[key]
         if pred():
             print(f"check_symbol: {key} — present ({what})")
         else:

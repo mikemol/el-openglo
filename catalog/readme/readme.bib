@@ -1,0 +1,322 @@
+% readme.bib — README.md as a claim-DAG (W69).
+%
+% ⚑ README.md IS GENERATED FROM THIS FILE. Never hand-edit README.md: the gate
+% refuses drift between it and the projection. Edit here, then
+%     python3 scripts/worklist_gate.py --project
+%
+% ⚑ EVERY SENTENCE IS A CAPABILITY THAT A CHECK ALREADY GATES. A claim cites the
+% check that can make it false — never "X exists". Where the only check is weak
+% (it reports n of n over a measured n, so a deletion shrinks the population and
+% stays green), the claim still cites it: a projection cannot drift from its
+% graph whatever the checks' strength, and a weak claim on the front page makes
+% its weakness visible rather than hiding it in a file nobody opens.
+%
+% ⚑ POPULATIONS ARE NOT TYPED HERE. The roster, the palette, the closed
+% capabilities and the pictures are written by scripts/readme_fragments.py from
+% the tools that declare them (emitters.ROLES, make_preview.parse_scheme,
+% check_symbol.CLOSED, render_screens.plan_all) and placed as `emit:` assets.
+% policy/readme.rego (via opa_gate.py readme) denies a stale fragment AND a
+% declared item the page does not name.
+
+% ── lede ─────────────────────────────────────────────────────────────────────
+@misc{LOOK,
+  section = {lede},
+  claim   = {EL Openglo is the look of a ZnS:Cu electroluminescent backlight — a near-black LCD panel, a blue-green phosphor glow near 505 nm, unlit "ghost" segments that stay faintly visible, and one deliberate inversion: selecting anything switches the backlight on, the way the whole panel lit while you held the button down, and the text on that lit selection clears the legibility floor in every variant},
+  check   = {tool:check_selection_contrast.py}
+}
+
+@misc{ONE-PALETTE,
+  section = {lede},
+  claim   = {Everything is generated: the palette is solved once and every emission target reads its colours from it, so no two surfaces can drift apart},
+  check   = {tool:check_token_source.py}
+}
+
+@misc{RUNS,
+  section = {lede},
+  claim   = {Every generator actually runs and writes its artifact, in dependency order, rather than merely compiling},
+  rests-on = {ONE-PALETTE},
+  check   = {tool:check_emitters_run.py}
+}
+
+% ── variants ─────────────────────────────────────────────────────────────────
+@misc{SIX,
+  section = {variants},
+  claim   = {Six variants ship: EL-Openglo (the blue-green phosphor), EL-Azure and EL-Amber (amber EL panels were real too), and the backlit form of each — EL-Openglo-Lit, EL-Azure-Lit and EL-Amber-Lit — where the panel is the lit backlight and the digits are dark; every separation pair the palette declares enforced clears the colour-vision-deficiency floor in all six},
+  rests-on = {ONE-PALETTE},
+  check   = {tool:check_separation.py}
+}
+
+@misc{STATES,
+  section = {variants},
+  claim   = {In every variant the three decoration states — focus ring, selection field, hover ring — stay pairwise distinguishable},
+  rests-on = {SIX},
+  check   = {tool:check_states.py}
+}
+
+% ── surfaces ─────────────────────────────────────────────────────────────────
+@misc{ROSTER,
+  section = {surfaces},
+  claim   = {The generator roster as `emitters.py` declares it — every module, its role, and for those run in order, what that step writes},
+  emit    = {catalog/readme/roster.tsv},
+  as      = {table},
+  check   = {tool:opa_gate.py readme}
+}
+
+@misc{SCHEMES,
+  section = {surfaces},
+  claim   = {`make_palette` solves the palette and `make_schemes` writes it as the Plasma/Qt `.colors` schemes, so the shipped schemes are solver output rather than a silent fallback's; `make_preview` owns `parse_scheme`, the token reader every other emitter shares, and renders the Global Theme previews},
+  check   = {tool:check_palette_chain.py}
+}
+
+@misc{TERMINAL,
+  section = {surfaces},
+  claim   = {`make_konsole` writes the Konsole scheme and profile, and every terminal format the theme ships — Konsole, Alacritty, foot, Windows Terminal, Termux — is a serialiser of one ANSI table},
+  check   = {tool:check_terminals.py}
+}
+
+@misc{KDE-CHROME,
+  section = {surfaces},
+  claim   = {`make_aurorae` writes the window decoration (the watch-case bezel) and `make_plasma` the Plasma desktop-theme SVGs; both run in the ordered roster and are staged into the install tree},
+  rests-on = {RUNS},
+  check   = {tool:check_emitters_run.py}
+}
+
+@misc{KVANTUM,
+  section = {surfaces},
+  claim   = {`make_kvantum` recolours the upstream KvFlat Kvantum theme through a mapper, plus the segmented `elprogress` progress-bar family},
+  check   = {tool:check_symbol.py KVT}
+}
+
+@misc{GTK,
+  section = {surfaces},
+  claim   = {`make_gtk` emits the palette as GTK4/libadwaita CSS variables and a GTK3 define-color sheet per variant, every name a documented libadwaita one and every background/foreground pair gated},
+  check   = {tool:check_gtk.py}
+}
+
+@misc{CSS,
+  section = {surfaces},
+  claim   = {`make_css` emits the palette as CSS custom properties, one block per variant, the plain and -Lit forms mapped onto prefers-color-scheme},
+  check   = {tool:check_css.py}
+}
+
+@misc{UNION,
+  section = {surfaces},
+  claim   = {`make_union` emits a KDE Union style per variant: Breeze imported, with its composited alphas solved from the scheme},
+  check   = {tool:check_union.py}
+}
+
+@misc{FIREFOX,
+  section = {surfaces},
+  claim   = {`make_firefox` emits a Firefox WebExtension theme per variant in Firefox's own theme.colors vocabulary},
+  check   = {tool:check_firefox.py}
+}
+
+@misc{CHROME,
+  section = {surfaces},
+  claim   = {`make_chrome` emits a valid Chrome theme manifest (v3) for every declared variant, from the scheme tokens},
+  check   = {tool:check_chrome.py}
+}
+
+@misc{WINDOWS,
+  section = {surfaces},
+  claim   = {`make_windows` emits a Windows `.theme` per variant carrying the sections Microsoft's format requires: wallpaper, accent and colour table},
+  check   = {tool:check_windows.py}
+}
+
+@misc{TASKSWITCH,
+  section = {surfaces},
+  claim   = {`make_taskswitch` emits one KWin window-switcher (Alt+Tab) package — lit selection, ghost rest, void ground, bound to the active scheme's roles — selected by the Look-and-Feel defaults},
+  check   = {tool:opa_gate.py taskswitch}
+}
+
+@misc{INHERIT,
+  section = {surfaces},
+  claim   = {`make_inherit` emits icon and cursor themes that draw nothing of their own: per variant they inherit Breeze (icons with FollowsColorScheme, cursors chosen by ground), selected by the Look-and-Feel defaults},
+  check   = {tool:check_inherit.py}
+}
+
+@misc{PLYMOUTH,
+  section = {surfaces},
+  claim   = {`make_plymouth` writes the boot splash, whose digits are the segment substrate's own seven-segment projection rather than a parallel table},
+  check   = {tool:check_plymouth_digits.py}
+}
+
+@misc{WALLPAPER,
+  section = {surfaces},
+  claim   = {`make_wallpaper` draws the static wallpaper as an SVG from the segment substrate, not a raster},
+  check   = {tool:check_symbol.py WALLPAPER-VECTOR}
+}
+
+@misc{LIVE,
+  section = {surfaces},
+  claim   = {`make_wallpaper_live` emits a live Plasma wallpaper package from its template, which the lock screen mounts too},
+  check   = {tool:check_symbol.py WALLPAPER-LIVE}
+}
+
+@misc{MARQUEE,
+  section = {surfaces},
+  claim   = {`make_notify_marquee` emits the notification ticker: one plasmoid whose dot-matrix board scrolls each notification, bound to the active scheme's roles},
+  check   = {tool:opa_gate.py marquee_live}
+}
+
+@misc{SEGMENTS,
+  section = {surfaces},
+  claim   = {`make_clock` emits the segment-clock plasmoid and `make_segment_display` the shared QML display it mounts; every segment surface renders from the one geometry substrate rather than carrying its own stroke table},
+  check   = {tool:check_geometry_source.py}
+}
+
+@misc{FONTS,
+  section = {surfaces},
+  claim   = {`make_font` builds the segment and matrix fonts (TTF and SVG) natively from the substrate, and `make_glyph_ink` reads TTF outlines into ink fields for the glyph-matching research},
+  check   = {tool:check_font.py}
+}
+
+@misc{QML,
+  section = {surfaces},
+  claim   = {Every emitted QML document passes Qt's qmllint},
+  check   = {tool:opa_gate.py qml_lint}
+}
+
+@misc{PACKAGES,
+  section = {surfaces},
+  claim   = {`make_deb` packages what the emitters produce, and every emitted package ships every component its QML instantiates},
+  check   = {tool:check_package_imports.py}
+}
+
+% ── palette ──────────────────────────────────────────────────────────────────
+@misc{PALETTE-TABLE,
+  section = {palette},
+  claim   = {What each variant's scheme solves to, read from the emitted `.colors` files by `make_preview.parse_scheme` — the same reader every emitter uses},
+  emit    = {catalog/readme/palette.tsv},
+  as      = {table},
+  check   = {tool:opa_gate.py readme}
+}
+
+@misc{RELATIONS,
+  section = {palette},
+  claim   = {The palette is solved, not authored: every constraint is a declarative relation with a named quantity and a kind, derived from one edge authority and accepted by the symbolic solver},
+  check   = {tool:check_relations.py}
+}
+
+@misc{GHOST,
+  section = {palette},
+  claim   = {The ghost is the solved balance point of its two sides — visible as shape, never readable as text — rather than the best of a sampled grid},
+  rests-on = {RELATIONS},
+  check   = {tool:check_ghost_balance.py}
+}
+
+% ── generating ───────────────────────────────────────────────────────────────
+@misc{UV,
+  section = {generating},
+  claim   = {The environment is uv-managed and `pyproject.toml` is the manifest: `uv sync` for the core emission path, `uv sync --extra research` for the font-ingest and glyph-matching pipeline, and every third-party import in the tree is accounted for there},
+  check   = {tool:check_deps.py}
+}
+
+@misc{STANDALONE,
+  section = {generating},
+  claim   = {Each generator runs standalone from the repo root — `uv run python3 make_schemes.py` for the schemes, `uv run python3 make_preview.py` for the previews, `uv run python3 make_chrome.py` for the browser manifests — and the whole roster runs in order through `emitters.run_all`},
+  rests-on = {UV},
+  check   = {tool:check_emitters_run.py}
+}
+
+% ── install ──────────────────────────────────────────────────────────────────
+@misc{OVERLAY,
+  section = {install},
+  claim   = {`overlay/` is a Gentoo Portage repository: its live ebuild `x11-themes/el-openglo-9999` installs through `make_deb.py --stage`, the same staging the Kubuntu `.deb` wraps, so the two package the same tree},
+  check   = {tool:check_ebuild.py}
+}
+
+@misc{COMMANDS,
+  section = {install},
+  claim   = {The install puts its commands in `/usr/bin`: `el-openglo-apply EL-Openglo` applies a variant for the current user, `el-openglo-sddm` sets the SDDM login background, `el-openglo-plymouth EL-Openglo` the boot splash (as root), and `el-openglo-live` and `el-openglo-notify` place the live wallpaper and the notification ticker},
+  rests-on = {OVERLAY},
+  check   = {tool:check_ebuild.py}
+}
+
+@misc{SDDM,
+  section = {install},
+  claim   = {The SDDM background path ships as `el-openglo-sddm`},
+  rests-on = {COMMANDS},
+  check   = {tool:check_symbol.py SDDM}
+}
+
+@misc{BY-HAND,
+  section = {install},
+  claim   = {Without a package, the colour scheme installs from System Settings → Colors & Themes → Colors → Install from File… (pick `EL-Openglo.colors`) or by copying it to `~/.local/share/color-schemes/`, and the Konsole scheme by copying `EL-Openglo.colorscheme` to `~/.local/share/konsole/` and choosing EL Openglo under Edit Current Profile → Appearance},
+  check   = {tool:check_terminals.py}
+}
+
+% ── lattice ──────────────────────────────────────────────────────────────────
+@misc{LATTICE,
+  section = {lattice},
+  claim   = {`segment_topology.py` holds one canonical geometry and derives the rest: 7, 9, 14, 16 and 22 segments, where the coarser formats are projections (mask and merge) of the 16-segment cell},
+  check   = {module:segment_topology.py --selftest}
+}
+
+@misc{SEG22,
+  section = {lattice},
+  claim   = {22 is the odd one — not a coarsening but a superset: 16 plus six additions (two dots, one extra diagonal, three descender bars below the baseline), so lowercase letters with descenders resolve, and its consumers import that geometry from the module},
+  rests-on = {LATTICE},
+  check   = {tool:check_st_api.py}
+}
+
+% ── capabilities ─────────────────────────────────────────────────────────────
+@misc{CAPABILITIES,
+  section = {capabilities},
+  claim   = {Every capability the design log (`COTYPE.md`) has closed and that names an artifact, each re-derived from the tree by its own witness on every run — `scripts/check_symbol.py <SYMBOL>` asks one},
+  emit    = {catalog/readme/capabilities.tsv},
+  as      = {table},
+  check   = {tool:check_symbol.py --regressions}
+}
+
+% ── pictures ─────────────────────────────────────────────────────────────────
+@misc{SCREENS,
+  section = {pictures},
+  claim   = {Every surface in every variant, rendered through the theme engine itself — Qt under the KDE platform theme with that variant's scheme applied, not mock-ups — by `catalog/library/render_screens.py`; every still exists, is not blank and sits on its variant's ground, and every animation scrolls without tearing and loops seamlessly},
+  check   = {tool:opa_gate.py screens}
+}
+
+@misc{GALLERY,
+  section = {pictures},
+  claim   = {Every picture the renderer declares, linked from its plan rather than by hand},
+  rests-on = {SCREENS},
+  emit    = {catalog/readme/gallery.md},
+  as      = {raw},
+  check   = {tool:opa_gate.py readme}
+}
+
+% ── status ───────────────────────────────────────────────────────────────────
+@misc{RECOVERY,
+  section = {status},
+  claim   = {This repo is a recovery: the original was lost before it was ever pushed and the tree was replayed from session transcripts; `RECOVERY-NOTES.md` records what is trustworthy, and every file the archive marked partial is still recorded as partial},
+  check   = {tool:check_partial.py}
+}
+
+@misc{WORKLIST,
+  section = {status},
+  claim   = {What is checked rather than asserted lives in `catalog/worklist/` — a claim graph where every sentence carries a machine-checkable witness and an item is open exactly when its check fails; `python3 scripts/worklist_gate.py` runs it and `--project` regenerates its projections},
+  check   = {tool:worklist_gate.py --selftest}
+}
+
+@misc{COTYPE,
+  section = {status},
+  claim   = {`COTYPE.md` is the design log — the reasoning behind every decision above — and it is read structurally, so its open work is computed rather than summarised},
+  check   = {tool:cotype_index.py --selftest}
+}
+
+@misc{PROJECTION,
+  section = {status},
+  claim   = {This page is itself one of those projections: `paper.toml` at the root and the claims in `catalog/readme/readme.bib`, and it names every emitter, variant, picture and closed capability the tree declares},
+  rests-on = {WORKLIST},
+  check   = {tool:opa_gate.py readme}
+}
+
+% ── licence ──────────────────────────────────────────────────────────────────
+% ⚑ WEAK, AND SAID SO. check_ebuild requires the ebuild to CARRY a LICENSE
+% variable; it does not hold the value to GPL-3. The value is quoted from the
+% ebuild; a claim that would fail on a changed licence needs that arm.
+@misc{LICENCE,
+  section = {licence},
+  claim   = {Distributed under the GNU General Public License v3, as the Gentoo ebuild declares},
+  check   = {tool:check_ebuild.py}
+}

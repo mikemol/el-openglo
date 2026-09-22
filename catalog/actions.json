@@ -1,24 +1,24 @@
 {
  "actions": {
   "schemes": {
-   "key": "3de2db2b5e05bb8e53495f2a25d2a3f6331ea119a2d7489a7cd03ed74c93cff5",
-   "n_inputs": 33,
+   "key": "8c53de17f51f37ba78c8d2b8f2f451f0c521bda2161d5fdbb651fa5b999cc58d",
+   "n_inputs": 36,
    "n_outputs": 6,
    "n_undeclared_domains": 1,
    "n_unresolved": 7,
    "schema": 2
   },
   "screens": {
-   "key": "a98b3fbf66d2b2e6e04728af342f8ee79af2c2350958723988eb0885df44b438",
-   "n_inputs": 63,
+   "key": "b0f7611c6d00e75c0774967bf38ece34d1d088c55cda602640ef8a37be3ab1c9",
+   "n_inputs": 67,
    "n_outputs": 55,
    "n_undeclared_domains": 2,
    "n_unresolved": 21,
    "schema": 2
   },
   "wallpapers": {
-   "key": "dd5c5ed84485d5fd2d4aa438aa25df49e398a3c2183c77c9ecbd02365fb2e913",
-   "n_inputs": 23,
+   "key": "83993160ce86335c071cda61f0a478e581cca1c867f5630737559c8c2e48a0db",
+   "n_inputs": 25,
    "n_outputs": 12,
    "n_undeclared_domains": 0,
    "n_unresolved": 2,

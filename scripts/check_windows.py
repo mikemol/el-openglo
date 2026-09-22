@@ -26,6 +26,14 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REQUIRED = ("Control Panel\\Desktop", "VisualStyles", "MasterThemeSelector")
+# The arms check_theme reports for EVERY variant when given its folder — one
+# declared dimension of the expected population (the other is GRID's roster).
+ARMS = ("parses as INI", "required sections present with MTSM=DABJDKT",
+        "colours are the palette roles", "ColorizationColor is the accent",
+        "the referenced wallpaper exists beside the theme")
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
+from check_selection_contrast import schemes, roster_drift   # noqa: E402  (roster authority)
 
 
 def _rgb(hexs):
@@ -74,6 +82,30 @@ def check_theme(variant, text, folder=None):
     return out
 
 
+def measure():
+    """([(variant, arm, ok, detail)], [(variant, why)]) over the DECLARED roster.
+
+    ⚑ W65: the population was make_windows.VARIANTS — the emitter's own typed
+    list — so dropping a variant there took "30 of 30" to "25 of 25", rc 0. It is
+    now make_schemes.GRID; emitter drift, and any arm a theme did not reach (an
+    unparsable INI reports ONE arm), are RETURNED as missing."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import make_windows as MWn
+    results, missing = [], list(roster_drift(MWn.VARIANTS, "make_windows"))
+    roster = schemes()
+    with tempfile.TemporaryDirectory() as td:
+        outs = {v: os.path.join(td, v) for v in roster}
+        MWn.render_all(roster, outs)
+        for v in roster:
+            text = open(os.path.join(outs[v], f"{v}.theme"), encoding="utf-8").read()
+            arms = check_theme(v, text, outs[v])
+            seen = {a for a, _o, _d in arms}
+            missing += [(v, f"arm {a!r} was not measured") for a in ARMS if a not in seen]
+            results += [(v, a, o, d) for a, o, d in arms if a in ARMS]
+    return results, missing
+
+
 def main(argv):
     known = {"--map"}
     for a in argv[1:]:
@@ -87,25 +119,26 @@ def main(argv):
         for key, role in MWn.COLOR_KEYS:
             print(f"{key:20} <- {role}")
         return 0
-    fails, n = [], 0
-    with tempfile.TemporaryDirectory() as td:
-        outs = {v: os.path.join(td, v) for v in MWn.VARIANTS}
-        MWn.render_all(MWn.VARIANTS, outs)
-        for v in MWn.VARIANTS:
-            text = open(os.path.join(outs[v], f"{v}.theme"), encoding="utf-8").read()
-            for arm, ok, detail in check_theme(v, text, outs[v]):
-                n += 1
-                if not ok:
-                    fails.append(f"{v} {arm}: {detail}")
-    if not n:
-        print("check_windows: REFUSED — nothing measured", file=sys.stderr)
+    results, missing = measure()
+    roster = schemes()
+    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME (W65): roster x ARMS.
+    expected = len(roster) * len(ARMS)
+    if missing or len(results) != expected or not results:
+        print(f"check_windows: REFUSED — measured {len(results)} of {expected} declared arm(s) "
+              f"({len(roster)} variant(s) x {len(ARMS)} arm(s)). A SHRINKING POPULATION "
+              f"IS NOT A PASSING ONE: n of n is green for every n.", file=sys.stderr)
+        for v, why in missing:
+            print(f"    {v}: {why}", file=sys.stderr)
         return 2
+    n = len(results)
+    fails = [f"{v} {arm}: {detail}" for v, arm, ok, detail in results if not ok]
     if fails:
         print(f"check_windows: REFUSED — {len(fails)} of {n} arm(s) do not hold:", file=sys.stderr)
         for f in fails:
             print(f"    {f}", file=sys.stderr)
         return 1
-    print(f"check_windows: {n} of {n} arms hold over {len(MWn.VARIANTS)} themes")
+    print(f"check_windows: {n} of {expected} arms hold over {len(roster)} themes "
+          f"(roster: make_schemes.GRID)")
     return 0
 
 
@@ -140,6 +173,17 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         arms = {a: o for a, o, _d in check_theme("EL-Openglo", good, td)}
         check("a wallpaper that is not there is seen", arms["the referenced wallpaper exists beside the theme"], False)
+    # ⚑ THE LIVENESS CONJUNCT: complete AND not vacuously complete
+    results, missing = measure()
+    check("the declared population is complete on a clean tree",
+          (missing, len(results) == len(schemes()) * len(ARMS)), ([], True))
+    check("and it is not vacuously complete", len(results) > 0, True)
+    saved = list(MWn.VARIANTS)
+    try:
+        MWn.VARIANTS[:] = saved[:-1]
+        check("an emitter that drops a GRID variant is REFUSED", main(["x"]), 2)
+    finally:
+        MWn.VARIANTS[:] = saved
     print("check_windows selftest:", "PASS" if ok else "FAIL")
     return ok
 

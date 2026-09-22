@@ -93,8 +93,12 @@ def _metrics_holes():
             "colonAdvance": f"{m['colon_advance']:.3f}"}
 
 
-CONFIG_XML = _t("clock-config.kcfg", **_metrics_holes())
-CONFIG_QML = _t("clock-config.qml", **_metrics_holes())
+# ⚑ THE DISPLAY ROWS ARE INCLUDED, NOT WRITTEN HERE (W59): display_params declares
+# them once for every mount; the templates carry only this clock's mount rows.
+import display_params as _DP
+CONFIG_XML = _t("clock-config.kcfg", displayEntries=_DP.kcfg_entries("clock", _metrics_holes(), "  "))
+CONFIG_QML = _t("clock-config.qml", displayDecls=_DP.qml_decls("clock"),
+                displayControls=_DP.qml_controls("clock", _metrics_holes()))
 
 def main_qml():
     # ⚑ THE COLOURS WERE READ FROM THE TOKEN DICT, NOT RE-DERIVED HERE (W8's

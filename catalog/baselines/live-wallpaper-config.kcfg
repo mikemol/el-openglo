@@ -2,10 +2,13 @@
 <kcfg xmlns="http://www.kde.org/standards/kcfg/1.0">
   <kcfgfile name=""/>
   <group name="General">
-    <entry name="breathe" type="Bool"><default>false</default></entry>
-    <entry name="blinkColon" type="Bool"><default>true</default></entry>
-    <entry name="bloom" type="Double"><default>1.5</default></entry>
+    <!-- DISPLAY layer: display_params.MOUNTS['wallpaper'] (do not hand-edit here) -->
+    <entry name="showGhost" type="Bool"><default>true</default></entry>
     <entry name="weight" type="Double"><default>1.0</default></entry>
     <entry name="ghostWeight" type="Double"><default>0.81</default></entry>
+    <entry name="bloom" type="Double"><default>1.5</default></entry>
+    <!-- MOUNT layer: this wallpaper's own -->
+    <entry name="breathe" type="Bool"><default>false</default></entry>
+    <entry name="blinkColon" type="Bool"><default>true</default></entry>
   </group>
 </kcfg>

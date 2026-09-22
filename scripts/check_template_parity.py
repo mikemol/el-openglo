@@ -34,6 +34,8 @@ PAIRS = (
     ("make_clock", "CONFIG_XML", None, "clock-config.kcfg"),
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
     ("make_wallpaper_live", "config_main_xml", None, "live-wallpaper-config.kcfg"),
+    # the wallpaper's settings page (W59): it had a kcfg and no page
+    ("make_wallpaper_live", "config_qml", None, "live-wallpaper-config.qml"),
     # ⚑ A PER-VARIANT SURFACE IS PINNED AT ONE VARIANT, and that is enough: the
     # holes are filled from the same call either way, so a transcription error in
     # the 88 lines AROUND them shows up here regardless of which variant is used.

@@ -24,6 +24,9 @@ WallpaperItem {
                            : wallpaper.configuration.breathe
     property bool blinkColon: (wallpaper.configuration.blinkColon === undefined) ? true
                               : wallpaper.configuration.blinkColon
+    // the unlit substrate (W59: the display parameter every mount now exposes)
+    property bool showGhost: (wallpaper.configuration.showGhost === undefined) ? true
+                             : wallpaper.configuration.showGhost
     // ⊕STROKE-WEIGHT: lit stroke fuller than ghost (luminance x area); weight=1
     // -> 0.40U vs 0.26U as session 41 built it, weight=0 -> equal 0.32U.
     property real weight: (wallpaper.configuration.weight === undefined) ? 1.0
@@ -118,6 +121,7 @@ $tables
                 litColor: root.litColor
                 ghostColor: root.ghostColor
                 ghostAlpha: root.ghostAlpha
+                showGhost: root.showGhost
                 weight: root.weight
                 ghostWeight: root.ghostWeight
                 bloom: root.bloom

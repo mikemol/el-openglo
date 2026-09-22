@@ -24,9 +24,48 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-VARIANTS = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit", "EL-Amber", "EL-Amber-Lit"]
 HUE_TOL = 12.0      # degrees of HCT hue between the seed and Monet's primary (TonalSpot keeps hue; sRGB rounding moves it a few degrees)
 SURFACE_TOL = 5.0   # worst-view dE between Monet's dark surface and our ground (measured 2.5-3.4 on 2026-09-21)
+
+
+def variants():
+    """The variant ids this tree DECLARES, from the palette authority (make_schemes.GRID).
+
+    ⚑ W65, 2026-09-22: this was a typed list in this file, and dropping one entry
+    took "6 of 6" to "5 of 5", exit 0 (check_discriminates, probe
+    monet/typed-variants). Add a variant and the expectation moves by itself."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import make_schemes
+    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+
+
+def have_library():
+    try:
+        import material_color_utilities  # noqa: F401
+        return True
+    except ImportError:
+        return False
+
+
+def measure():
+    """({variant: result}, [(variant, why)]) over the DECLARED roster.
+
+    ⚑ A VARIANT THAT CANNOT BE MEASURED IS RETURNED WITH A REASON, never dropped.
+    The library being absent is decided ONCE, before this runs (a SKIP about the
+    machine); a per-variant None or failure here is a fact about the tree."""
+    res, missing = {}, []
+    for v in variants():
+        try:
+            r = compare(v)
+        except Exception as e:                           # noqa: BLE001
+            missing.append((v, f"compare() failed: {type(e).__name__}: {e}"))
+            continue
+        if r is None:
+            missing.append((v, "compare() returned no measurement"))
+            continue
+        res[v] = r
+    return res, missing
 
 
 def _rgb(hexs):
@@ -99,11 +138,21 @@ def main(argv):
         if a not in known:
             print(f"check_monet: unknown flag {a!r}", file=sys.stderr)
             return 2
-    res = {v: compare(v) for v in VARIANTS}
-    if any(r is None for r in res.values()):
+    expected = len(variants())
+    if not have_library():
         print("check_monet: SKIP — material-color-utilities not installed "
-              "(uv sync --extra research); 0 of 6 variants measured", file=sys.stderr)
+              f"(uv sync --extra research); 0 of {expected} variants measured", file=sys.stderr)
         return 0
+    res, missing = measure()
+    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME: expected is the palette
+    # authority's roster, never a typed count. n of n is green for every n.
+    if missing or len(res) != expected or not res:
+        print(f"check_monet: REFUSED — measured {len(res)} of {expected} declared variant(s) "
+              f"(make_schemes.GRID). A SHRINKING POPULATION IS NOT A PASSING ONE.",
+              file=sys.stderr)
+        for v, why in missing:
+            print(f"    {v}: {why}", file=sys.stderr)
+        return 2
     if "--map" in argv:
         for v, r in res.items():
             print(f"{v} ({'dark' if r['dark'] else 'light'} scheme, seed = lit)")
@@ -136,12 +185,13 @@ def main(argv):
         for b in bad:
             print(f"    {b}", file=sys.stderr)
         return 1
-    print(f"check_monet: {len(res)} of {len(res)} variants — Monet seeded from lit yields AA text "
+    print(f"check_monet: {len(res)} of {expected} declared variants — Monet seeded from lit yields AA text "
           f"pairs and keeps the seed hue (reference implementation, material-color-utilities)")
     return 0
 
 
 def _selftest():
+    global compare
     ok = True
 
     def chk(label, got, want):
@@ -173,10 +223,24 @@ def _selftest():
     from material_color_utilities import Hct
     dh = abs(Hct("#%02x%02x%02x" % b).hue - Hct("#4bfad7").hue)
     chk("a foreign-hue primary is outside HUE_TOL", min(dh, 360 - dh) > HUE_TOL, True)
+    res, missing = measure()
+    # ⚑ THE LIVENESS CONJUNCT: complete against the authority AND not vacuous.
+    chk("the declared population is complete on a clean tree",
+        (missing, len(res) == len(variants())), ([], True))
+    chk("and it is not vacuously complete", len(res) > 0, True)
     chk("the dark surfaces sit within SURFACE_TOL of ground on every Off variant",
-        all(compare(v)["surface_vs_ground_dE"] <= SURFACE_TOL for v in VARIANTS if not v.endswith("-Lit")), True)
+        all(r["surface_vs_ground_dE"] <= SURFACE_TOL for v, r in res.items() if not v.endswith("-Lit")), True)
     chk("...and the Lit variants' do NOT (Monet's light surface is near-white)",
-        all(compare(v)["surface_vs_ground_dE"] > SURFACE_TOL for v in VARIANTS if v.endswith("-Lit")), True)
+        all(r["surface_vs_ground_dE"] > SURFACE_TOL for v, r in res.items() if v.endswith("-Lit")), True)
+    # ⚑ A VARIANT compare() CANNOT MEASURE IS MISSING, NOT DROPPED (synthetic)
+    real = compare
+    try:
+        compare = lambda v: None if v == "EL-Amber" else real(v)   # noqa: E731
+        chk("an unmeasurable variant is returned as missing",
+            [v for v, _w in measure()[1]], ["EL-Amber"])
+        chk("...and main REFUSES", main(["x"]), 2)
+    finally:
+        compare = real
     print("check_monet selftest:", "PASS" if ok else "FAIL")
     return ok
 

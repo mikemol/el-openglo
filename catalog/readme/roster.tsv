@@ -1,0 +1,26 @@
+module	role	step
+make_palette	authority	
+make_preview	authority	owns parse_scheme; renders the previews
+make_schemes	authority	writes the .colors files every other emitter reads
+make_aurorae	emitter	window decoration, from GRID
+make_chrome	emitter	browser manifests, from the scheme tokens
+make_clock	emitter	the segment-clock plasmoid packages (plasma-clock/), from GRID
+make_css	emitter	the palette as CSS custom properties, from GRID (W19)
+make_firefox	emitter	Firefox theme manifests, Firefox's own key vocabulary (W15)
+make_gtk	emitter	GTK4/libadwaita :root variables + GTK3 &#64;define-color (⊕GTK, rebuilt W17)
+make_konsole	emitter	terminal scheme, from the scheme tokens
+make_kvantum	emitter	
+make_notify_marquee	emitter	
+make_plasma	emitter	Plasma theme SVGs, from GRID
+make_plymouth	emitter	
+make_sddm	emitter	
+make_taskswitch	emitter	
+make_union	emitter	Union styles: Breeze with its alphas solved, from the schemes (W14)
+make_wallpaper	emitter	wallpaper; sources tokens with a standalone fallback
+make_wallpaper_live	emitter	
+make_windows	emitter	Windows .theme per variant: wallpaper + accent + colour table (W16)
+make_font	colourless	the segment and matrix fonts, TTF + SVG, from the substrate (⊕SEG-FONT family, rebuilt W24)
+make_glyph_ink	colourless	
+make_inherit	colourless	
+make_segment_display	colourless	
+make_deb	packager	

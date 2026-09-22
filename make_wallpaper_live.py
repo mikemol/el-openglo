@@ -182,7 +182,18 @@ def config_main_xml():
     scanner caught it), but a reader sees escape sequences instead of XML, and no
     schema validator sees it at all."""
     import templates.loader as TL
-    return TL.render("live-wallpaper-config.kcfg")
+    import display_params as DP     # the DISPLAY rows, declared once (W59)
+    return TL.render("live-wallpaper-config.kcfg",
+                     displayEntries=DP.kcfg_entries("wallpaper", indent="    "))
+
+
+def config_qml():
+    """contents/ui/config.qml — the settings page (W59: the wallpaper had a kcfg and
+    no page, so its display parameters were unreachable)."""
+    import templates.loader as TL
+    import display_params as DP
+    return TL.render("live-wallpaper-config.qml", displayDecls=DP.qml_decls("wallpaper"),
+                     displayControls=DP.qml_controls("wallpaper", indent="    "))
 
 
 def render_all(d):
@@ -202,6 +213,7 @@ def render_all(d):
     import make_segment_display as SD
     open(os.path.join(ui, "SegmentChar.qml"), "w").write(SD.segment_char_component())
     open(os.path.join(cfg, "main.xml"), "w").write(config_main_xml())
+    open(os.path.join(ui, "config.qml"), "w").write(config_qml())
     return d
 
 

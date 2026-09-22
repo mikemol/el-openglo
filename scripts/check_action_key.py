@@ -487,12 +487,36 @@ def _selftest():
     # ⚑ THE HOST HALF MUST MOVE THE KEY, or declaring it is decoration
     pure = ("screens-pure", ACTIONS[0][1], ACTIONS[0][2], False, ACTIONS[0][4], ACTIONS[0][5])
     chk("dropping the host changes the key", key_of(pure).key != key_of(ACTIONS[0]).key, True)
-    # ⚑ THE RESIDUE MUST BE NON-EMPTY AND MUST RIDE WITH THE KEY. If this ever
-    # reads zero, the scanner stopped looking — not the tree got clean.
     chk("the key carries its residue as fields",
         set(Key._fields), {"key", "inputs", "missing_host", "unresolved", "undeclared_domains"})
-    chk("the screens residue is non-empty (its emitter computes paths)",
-        len(base.unresolved) + len(base.undeclared_domains) > 0, True)
+    # ⚑ POPULATION OVER A FIXTURE, RETIREMENT OVER PRODUCTION (linux-sources-99,
+    # 2026-09-22). This arm used to assert that the PRODUCTION screens residue was
+    # non-empty, with the comment "if this ever reads zero, the scanner stopped
+    # looking — not the tree got clean". That conflated two different claims: that
+    # the SCANNER can see residue, and that the TREE has some. The second is not a
+    # property worth defending — W61's binding resolver exists to drive it to zero,
+    # and this arm would have turned the gate RED at the moment of that repair,
+    # punishing exactly the work it should reward. linux-sources found the same
+    # inversion in its own netlist gate ("INDETERMINATE edges exist to be tested")
+    # and named the rule. The retirement arm this repo gave them is only safe if
+    # nothing else here asserts that residue EXISTS — and this line did.
+    #
+    # So the SCANNER is proven on a fixture it cannot resolve by construction, and
+    # production residue is free to reach zero.
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        fixture = os.path.join(d, "fixture_computed.py")
+        with open(fixture, "w", encoding="utf-8") as fh:
+            fh.write("import os\n"
+                     "def f(name, where):\n"
+                     "    open(name).read()\n"          # a computed read
+                     "    return os.listdir(where)\n")   # an undeclared domain
+        seen = build_graph.computed_edges(fixture)
+        kinds = {direction for _line, direction, _why in seen}
+    chk("the scanner SEES a computed read and an undeclared domain in a fixture",
+        {"read", "domain"} <= kinds, True)
+    chk("...and names the line of each (the site survives)",
+        all(isinstance(line, int) and line > 0 for line, _d, _w in seen), True)
     # ⚑ THE OUTPUT BOUNDARY MUST BE MEASURABLE, AND ITS ABSENCE DISTINGUISHABLE
     # FROM AGREEMENT. An action with no --outputs roster returns None, which is
     # "not declared"; an action with one returns a list, which can then disagree.

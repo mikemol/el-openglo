@@ -2,16 +2,18 @@
 <kcfg xmlns="http://www.kde.org/standards/kcfg/1.0">
  <kcfgfile name=""/>
  <group name="General">
+  <!-- DISPLAY layer: display_params.MOUNTS['clock'] (do not hand-edit here) -->
   <entry name="showGhost" type="Bool"><default>true</default></entry>
+  <entry name="weight" type="Double"><default>1.0</default></entry>
+  <!-- ghostWeight: 0.4: the operator's live tuning promoted to the default (2026-09-22) -->
+  <entry name="ghostWeight" type="Double"><default>0.4</default></entry>
+  <!-- pitch: in segLen: the gap between digit boxes; 1.5x the datasheet module gap, and the slider's floor is the module pitch itself -->
+  <entry name="digitGap" type="Double"><default>1.179</default></entry>
+  <!-- bloom: 4.0: the operator's live tuning promoted to the default (2026-09-22) -->
+  <entry name="bloom" type="Double"><default>4.0</default></entry>
+  <!-- MOUNT layer: this clock's own -->
   <entry name="use24h" type="Bool"><default>true</default></entry>
   <entry name="showSeconds" type="Bool"><default>false</default></entry>
   <entry name="blinkColon" type="Bool"><default>true</default></entry>
-  <!-- bloom / ghostWeight / digitGap: the OPERATOR'S live tuning, promoted to the
-       defaults (2026-09-22, "decent defaults" — read from the appletsrc): a fuller
-       halo, a thinner ghost, and a digit gap 1.5x the datasheet pitch gap -->
-  <entry name="bloom" type="Double"><default>4.0</default></entry>
-  <entry name="weight" type="Double"><default>1.0</default></entry>
-  <entry name="ghostWeight" type="Double"><default>0.4</default></entry>
-  <entry name="digitGap" type="Double"><default>1.179</default></entry>
  </group>
 </kcfg>

@@ -34,18 +34,43 @@ def _ini(text):
     return cp
 
 
+def variants():
+    """The variant ids this tree DECLARES, from the palette authority (make_schemes.GRID).
+
+    ⚑ NOT make_inherit.VARIANTS (W65, 2026-09-22). That tuple is the EMITTER's own
+    typed roster, and iterating it made the check measure whatever the emitter
+    chose to emit: dropping one variant took "6 of 6" to "5 of 5", exit 0
+    (check_discriminates, probe inherit/variant-roster). The emitter's roster is
+    now a thing MEASURED against the authority, not the population itself."""
+    import make_schemes
+    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+
+
 def rows():
-    """[(variant, icon_parents, cursor_parent, icon_dirs, defaults_ok)]"""
-    out = []
-    for v in MI.VARIANTS:
-        ic = _ini(MI.icon_index(v))["Icon Theme"]
-        cu = _ini(MI.cursor_index(v))["Icon Theme"]
-        d = _ini(MI.defaults_fragment(v))
-        defaults_ok = (d["kdeglobals][Icons"]["Theme"] == ic["Name"] and
-                       d["kcminputrc][Mouse"]["cursorTheme"] == cu["Name"])
-        out.append((v, ic["Inherits"].split(","), cu["Inherits"],
-                    [s for s in ic.get("Directories", "").split(",") if s], defaults_ok))
-    return out
+    """([(variant, icon_parents, cursor_parent, icon_dirs, defaults_ok)], [(variant, why)]).
+
+    ⚑ EVERY UNMEASURABLE MEMBER IS RETURNED WITH A REASON, never skipped: a
+    declared variant make_inherit does not emit, one it emits that the palette
+    does not declare, or one whose index.theme does not parse."""
+    out, missing = [], []
+    declared, emitted = variants(), set(MI.VARIANTS)
+    missing += [(v, "make_inherit emits it but the palette authority does not declare it")
+                for v in sorted(emitted - set(declared))]
+    for v in declared:
+        if v not in emitted:
+            missing.append((v, "declared by make_schemes.GRID but make_inherit.VARIANTS does not emit it"))
+            continue
+        try:
+            ic = _ini(MI.icon_index(v))["Icon Theme"]
+            cu = _ini(MI.cursor_index(v))["Icon Theme"]
+            d = _ini(MI.defaults_fragment(v))
+            defaults_ok = (d["kdeglobals][Icons"]["Theme"] == ic["Name"] and
+                           d["kcminputrc][Mouse"]["cursorTheme"] == cu["Name"])
+            out.append((v, ic["Inherits"].split(","), cu["Inherits"],
+                        [s for s in ic.get("Directories", "").split(",") if s], defaults_ok))
+        except (KeyError, configparser.Error) as e:
+            missing.append((v, f"an emitted index/fragment does not parse: {type(e).__name__}: {e}"))
+    return out, missing
 
 
 def parent_exists(name, roots=ICON_ROOTS):
@@ -77,21 +102,30 @@ def main(argv):
         if a not in known:
             print(f"check_inherit: unknown flag {a!r}", file=sys.stderr)
             return 2
-    rs = rows()
-    if not rs:
-        print("check_inherit: REFUSED — no variants", file=sys.stderr)
-        return 2
+    rs, missing = rows()
     if "--map" in argv:
         for v, ip, cp, dirs, dflt in rs:
             print(f"{v:16s}  icons -> {','.join(ip):28s}  cursors -> {cp:16s}  dirs {dirs}  defaults {'ok' if dflt else 'MISMATCH'}")
+        for v, why in missing:
+            print(f"{v:16s}  MISSING — {why}")
         return 0
+    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME: expected is the palette
+    # authority's roster, never a typed count. n of n is green for every n.
+    expected = len(variants())
+    if missing or len(rs) != expected or not rs:
+        print(f"check_inherit: REFUSED — measured {len(rs)} of {expected} declared variant(s) "
+              f"(make_schemes.GRID). A SHRINKING POPULATION IS NOT A PASSING ONE.",
+              file=sys.stderr)
+        for v, why in missing:
+            print(f"    {v}: {why}", file=sys.stderr)
+        return 2
     bad, skipped = problems(rs)
     if bad:
         print(f"check_inherit: REFUSED — {len(bad)} problem(s) over {len(rs)} variants:", file=sys.stderr)
         for b in bad:
             print(f"    {b}", file=sys.stderr)
         return 1
-    print(f"check_inherit: {len(rs)} of {len(rs)} variants inherit well-formed parents"
+    print(f"check_inherit: {len(rs)} of {expected} declared variants inherit well-formed parents"
           + (f"; {skipped} parent lookup(s) SKIPPED (not installed here)" if skipped else
              " — every parent is installed on this host"))
     return 0
@@ -105,8 +139,20 @@ def _selftest():
         print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
         ok = ok and got == want
 
-    rs = rows()
-    chk("six variants", len(rs), 6)
+    rs, missing = rows()
+    # ⚑ THE LIVENESS CONJUNCT (replaces a typed "six variants"): complete against
+    # the authority, AND not vacuously complete.
+    chk("the declared population is complete on a clean tree",
+        (missing, len(rs) == len(variants())), ([], True))
+    chk("and it is not vacuously complete", len(rs) > 0, True)
+    saved = MI.VARIANTS
+    try:
+        MI.VARIANTS = saved[:-1]
+        chk("an emitter roster short one variant is a missing member",
+            [v for v, _w in rows()[1]], [saved[-1]])
+        chk("...and main REFUSES", main(["x"]), 2)
+    finally:
+        MI.VARIANTS = saved
     chk("every icon chain ends in hicolor", all(r[1][-1] == "hicolor" for r in rs), True)
     chk("Off variants inherit breeze-dark, Lit inherit breeze",
         all((r[1][0] == "breeze") == r[0].endswith("-Lit") for r in rs), True)

@@ -23,7 +23,31 @@ so a human can see what the widget did.
 | mount | `use24h` · `showSeconds` · `blinkColon` | `speed` · `idleText` · `maxItems` · `openLinks` · `hoverPause` |
 | instrument | — | `debugLog` · `traceLog` |
 
-## ⚑ The display rows are the same settings under different names
+## ⚑ CORRECTION (2026-09-22, measured by the W59 agent against the display components)
+
+**Two of the four equations below were wrong, and the table is kept so the error
+stays legible.** They were read off the two config pages' labels, not off the
+components the settings drive:
+
+- **`ghostWeight` ≠ `ghostAlpha`.** `templates/SegmentChar.qml` carries BOTH — an
+  opacity (`ghostAlpha`) and a stroke thickness (`ghostWeight`). They are two
+  parameters, not one parameter spelled twice.
+- **`weight` ≠ `dotFill`.** `weight` boosts the LIT layer only; `ApertureField`
+  draws lit and unlit pips at one size (`dotFill`) and has no per-layer weight.
+
+So the display layer has **seven** canonical parameters, not five: `ghost`,
+`ghostOpacity`, `litWeight`, `ghostWeight`, `fill`, `pitch`, `bloom`. The
+declaration now lives in `display_params.py`, each mount EXPOSES or WITHHOLDS each
+parameter with a stated reason, and `policy/config_page.rego` rules D0–D4 refuse an
+unexplained absence. The two correct equations (`showGhost` = `showField`,
+`digitGap` = `pitchScale`) survive as legacy per-mount *spellings* of one canonical
+parameter — no user key was renamed.
+
+⚑ **The lesson is the method, not the numbers.** Equating settings by their labels
+is the same error as equating checks by their names: it reads the surface a thing
+presents, not what it drives. The correction came from reading the components.
+
+## The display rows as first drawn (partly wrong — see the correction above)
 
 | the display parameter | clock spells it | marquee spells it |
 |---|---|---|

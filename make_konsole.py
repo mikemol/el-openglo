@@ -202,6 +202,19 @@ def termux_properties(variant):
     return "\n".join(lines) + "\n"
 
 
+# ⚑ THE TERMINAL ROSTER IS DECLARED HERE, BY THE EMITTER (W65, 2026-09-22). The
+# five formats catalog/publishing.md names used to be typed into check_terminals
+# as a tuple of strings, so dropping one made "30 of 30" read "24 of 24" — green.
+# The emitter owns what it emits; the check holds its reader roster against this.
+TERMINAL_FORMATS = {
+    "konsole": colorscheme,
+    "alacritty": alacritty_toml,
+    "foot": foot_ini,
+    "windows-terminal": windows_terminal_json,
+    "termux": termux_properties,
+}
+
+
 def render_all(variants, out_map):
     written = []
     for v in variants:

@@ -50,6 +50,10 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PROJECTS = {
     "worklist": os.path.join(ROOT, "catalog", "worklist"),
     "cotype":   os.path.join(ROOT, "catalog", "cotype"),
+    # ⚑ README.md IS A PROJECTION (W69). paper.toml sits at the repo ROOT so
+    # `out = "README.md"` needs no ../../ and the checks run where the tools
+    # live; the claims are catalog/readme/readme.bib.
+    "readme":   ROOT,
 }
 PROJECT = PROJECTS["worklist"]          # kept: the repo's own graph is the default subject
 
@@ -347,8 +351,21 @@ def _replay(proj, output):
         else:
             real.append(key)
             print(f"  @{key}: REPRODUCED (exit {r.returncode})", file=sys.stderr)
-        for line in tail[-6:]:
+        # ⚑ THE VERDICT LINES FIRST, THEN THE TAIL — because a bare tail CUT THE
+        # FINDING. Measured 2026-09-22, the first run of this replay: @CURRENCY
+        # reproduced and the printed account was six WITHHELD rows, with the DENY
+        # that caused the exit sitting just above the window. An account that
+        # omits the finding is the defect this replay was built to cure, reproduced
+        # inside the cure.
+        verdicts = [l for l in tail if any(w in l for w in ("DENY", "REFUSED", "FAIL",
+                                                            "Traceback", "Error"))]
+        shown = verdicts[:6] or []
+        rest = [l for l in tail[-6:] if l not in shown]
+        for line in shown + rest:
             print(f"      {line}", file=sys.stderr)
+        if len(tail) > len(shown) + len(rest):
+            print(f"      … {len(tail) - len(shown) - len(rest)} more line(s)",
+                  file=sys.stderr)
     print(f"  replay: {len(real)} reproduced, {len(flaky)} flaky of {len(keys)} "
           f"reported failure(s)", file=sys.stderr)
 

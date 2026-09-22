@@ -26,6 +26,16 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
+from check_selection_contrast import schemes, roster_drift   # noqa: E402  (roster authority)
+
+# The arms measured for EVERY variant — one declared dimension of the expected
+# population (the other is make_schemes.GRID's roster). web-ext lint is an arm
+# whose SKIP (tool absent) counts as measured-and-not-failed, printed as such.
+ARMS = ("parses as JSON", "required keys present",
+        "every colour is its role or its solved composite",
+        "color_scheme matches the variant's polarity",
+        "a stable gecko id for AMO signing", "web-ext lint")
 
 
 def check_manifest(variant, text):
@@ -73,6 +83,31 @@ def lint(folder):
         return r.returncode == 0, f"web-ext rc={r.returncode}"
 
 
+def measure():
+    """([(variant, arm, ok, detail)], [(variant, why)]) over the DECLARED roster.
+
+    ⚑ W65: the population was make_firefox.VARIANTS — the emitter's own typed
+    list — so dropping a variant there took "36 of 36" to "30 of 30", rc 0. It is
+    now make_schemes.GRID; emitter drift, and any arm a manifest did not reach
+    (an unparsable manifest reports ONE arm), are RETURNED as missing."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import make_firefox as MF
+    results, missing = [], list(roster_drift(MF.VARIANTS, "make_firefox"))
+    roster = schemes()
+    with tempfile.TemporaryDirectory() as td:
+        outs = {v: os.path.join(td, v) for v in roster}
+        MF.render_all(roster, outs)
+        for v in roster:
+            text = open(os.path.join(outs[v], "manifest.json"), encoding="utf-8").read()
+            arms = check_manifest(v, text)
+            arms.append(("web-ext lint",) + lint(outs[v]))
+            seen = {a for a, _o, _d in arms}
+            missing += [(v, f"arm {a!r} was not measured") for a in ARMS if a not in seen]
+            results += [(v, a, o, d) for a, o, d in arms if a in ARMS]
+    return results, missing
+
+
 def main(argv):
     known = {"--map"}
     for a in argv[1:]:
@@ -86,29 +121,27 @@ def main(argv):
         for k, role in MF.KEYS:
             print(f"{k:30} <- {role}")
         return 0
-    fails, n = [], 0
-    with tempfile.TemporaryDirectory() as td:
-        outs = {v: os.path.join(td, v) for v in MF.VARIANTS}
-        MF.render_all(MF.VARIANTS, outs)
-        for v in MF.VARIANTS:
-            text = open(os.path.join(outs[v], "manifest.json"), encoding="utf-8").read()
-            arms = check_manifest(v, text)
-            ok, detail = lint(outs[v])
-            arms.append(("web-ext lint", ok, detail))
-            for arm, ok, detail in arms:
-                n += 1
-                if not ok:
-                    fails.append(f"{v} {arm}: {detail}")
-    if not n:
-        print("check_firefox: REFUSED — nothing measured", file=sys.stderr)
+    results, missing = measure()
+    roster = schemes()
+    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME (W65): roster x ARMS.
+    expected = len(roster) * len(ARMS)
+    if missing or len(results) != expected or not results:
+        print(f"check_firefox: REFUSED — measured {len(results)} of {expected} declared arm(s) "
+              f"({len(roster)} variant(s) x {len(ARMS)} arm(s)). A SHRINKING POPULATION "
+              f"IS NOT A PASSING ONE: n of n is green for every n.", file=sys.stderr)
+        for v, why in missing:
+            print(f"    {v}: {why}", file=sys.stderr)
         return 2
+    n = len(results)
+    fails = [f"{v} {arm}: {detail}" for v, arm, ok, detail in results if not ok]
     if fails:
         print(f"check_firefox: REFUSED — {len(fails)} of {n} arm(s) do not hold:", file=sys.stderr)
         for f in fails:
             print(f"    {f}", file=sys.stderr)
         return 1
     skip = "" if shutil.which("web-ext") else " (web-ext lint SKIPPED: not installed)"
-    print(f"check_firefox: {n} of {n} arms hold over {len(MF.VARIANTS)} themes{skip}")
+    print(f"check_firefox: {n} of {expected} arms hold over {len(roster)} themes "
+          f"(roster: make_schemes.GRID){skip}")
     return 0
 
 
@@ -149,6 +182,17 @@ def _selftest():
     check("unparsable JSON is seen", arms["parses as JSON"], False)
     check("hover fill is fainter than active fill (glanced < looked alpha)",
           MF.roles("EL-Openglo")["_alphas"]["hover"] < MF.roles("EL-Openglo")["_alphas"]["active"], True)
+    # ⚑ THE LIVENESS CONJUNCT: complete AND not vacuously complete
+    results, missing = measure()
+    check("the declared population is complete on a clean tree",
+          (missing, len(results) == len(schemes()) * len(ARMS)), ([], True))
+    check("and it is not vacuously complete", len(results) > 0, True)
+    saved = list(MF.VARIANTS)
+    try:
+        MF.VARIANTS[:] = saved[:-1]
+        check("an emitter that drops a GRID variant is REFUSED", main(["x"]), 2)
+    finally:
+        MF.VARIANTS[:] = saved
     print("check_firefox selftest:", "PASS" if ok else "FAIL")
     return ok
 

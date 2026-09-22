@@ -115,6 +115,32 @@ PROBES = (
      ["scripts/check_token_source.py"], "emitters.py", "data-:ROLES#5"),
     ("css/emitted-sheet",
      ["scripts/check_css.py"], "make_css.py", "def:_is_rgb"),
+    # ⚑ W65 SWEEP, batch A: each emitter carries its OWN typed VARIANTS list, and each
+    # check iterated THAT — so dropping a variant from the emitter shrank the
+    # check's population with it (36 of 36 -> 30 of 30, rc 0). The probe drops
+    # one member of the emitter's roster; it must flip once the check measures
+    # against make_schemes.GRID.
+    ("gtk/variant-roster",
+     ["scripts/check_gtk.py"], "make_gtk.py", "data-:VARIANTS#5"),
+    ("firefox/variant-roster",
+     ["scripts/check_firefox.py"], "make_firefox.py", "data-:VARIANTS#5"),
+    ("windows/variant-roster",
+     ["scripts/check_windows.py"], "make_windows.py", "data-:VARIANTS#5"),
+    # ⚑ W65 SWEEP, batch B (check_terminals / check_inherit / check_monet). Each probe drops
+    # ONE MEMBER from a roster the check iterates, never touching a predicate.
+    # The typed-in-the-check rosters (check_terminals' FORMATS, check_monet's
+    # VARIANTS) were the defect and are gone; their probes now WITHHOLD ("no such
+    # literal"), which is the measurement that the member-removing path no
+    # longer exists. The rosters that remain are EMITTER declarations the check
+    # holds against an authority, and dropping a member of one must REFUSE.
+    ("terminals/format-roster",
+     ["scripts/check_terminals.py"], "make_konsole.py", "data-:TERMINAL_FORMATS#4"),
+    ("terminals/typed-formats",
+     ["scripts/check_terminals.py"], "scripts/check_terminals.py", "data-:FORMATS#4"),
+    ("inherit/variant-roster",
+     ["scripts/check_inherit.py"], "make_inherit.py", "data-:VARIANTS#5"),
+    ("monet/typed-variants",
+     ["scripts/check_monet.py"], "scripts/check_monet.py", "data-:VARIANTS#5"),
 )
 
 

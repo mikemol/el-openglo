@@ -100,6 +100,103 @@ Window {
 """
 
 
+# ⚑ THE GREETER'S RUNTIME IS SDDM'S (W66), and these are STUBS of it, measured
+# from the stock breeze theme's use (/usr/share/sddm/themes/breeze/Main.qml):
+# `sddm` (login / loginFailed / loginSucceeded / canPowerOff ...), `userModel`
+# (role `name`, lastIndex, lastUser), `sessionModel` (role `name`, lastIndex),
+# `config`. They are the harness Window's properties, so the loaded subject
+# resolves them unqualified exactly as it resolves SDDM's context properties.
+# The stub `sddm.login` RECORDS its call. After the grab the harness DRIVES the
+# form — types a password, clicks the login button, fires loginFailed, presses
+# Enter — and prints one `SDDM-PROBE {json}` line (console.warn: *.debug is
+# silenced by the environment) that scripts/check_sddm.py reads.
+SDDM_HARNESS = """import QtQuick
+import QtQuick.Window
+Window {
+    id: harness
+    width: %(w)d; height: %(h)d; visible: true; color: "%(ground)s"
+    property int loginCalls: 0
+    property string lastUser: ""
+    property string lastPassword: ""
+    property int lastSession: -1
+    property QtObject sddm: QtObject {
+        property bool canPowerOff: true
+        property bool canReboot: true
+        property bool canSuspend: true
+        property bool canHibernate: false
+        signal loginFailed()
+        signal loginSucceeded()
+        function login(user, password, session) {
+            harness.loginCalls += 1
+            harness.lastUser = user; harness.lastPassword = password; harness.lastSession = session
+        }
+        function powerOff() {}
+        function reboot() {}
+        function suspend() {}
+        function hibernate() {}
+    }
+    property ListModel userModel: ListModel {
+        property int lastIndex: 1
+        property string lastUser: "bob"
+        property int disableAvatarsThreshold: 7
+        property bool containsAllUsers: true
+        ListElement { name: "alice"; realName: "Alice"; icon: ""; needsPassword: true }
+        ListElement { name: "bob"; realName: "Bob"; icon: ""; needsPassword: true }
+    }
+    property ListModel sessionModel: ListModel {
+        property int lastIndex: 1
+        ListElement { name: "Plasma (X11)"; file: "plasmax11.desktop" }
+        ListElement { name: "Plasma (Wayland)"; file: "plasma.desktop" }
+    }
+    property var config: (%(config)s)
+    Loader { id: subject; anchors.fill: parent; source: "subject.qml" }
+    function find(item, name) {
+        if (!item) return null
+        if (item.objectName === name) return item
+        for (var i = 0; i < item.children.length; i++) {
+            var r = find(item.children[i], name)
+            if (r) return r
+        }
+        return null
+    }
+    function probe() {
+        var root = subject.item
+        var pw = find(root, "passwordField"), btn = find(root, "loginButton")
+        var us = find(root, "userSelector"), ss = find(root, "sessionSelector")
+        var fm = find(root, "failureMessage")
+        var res = {loaded: root !== null, windowActive: harness.active,
+                   passwordField: pw !== null, loginButton: btn !== null,
+                   userSelector: us !== null, sessionSelector: ss !== null,
+                   failureMessage: fm !== null,
+                   passwordEcho: pw ? pw.echoMode : null,
+                   focusedAtStart: pw ? pw.activeFocus : false,
+                   userAtStart: us ? us.currentText : null,
+                   userCount: us ? us.count : 0,
+                   sessionAtStart: ss ? ss.currentIndex : -1,
+                   sessionCount: ss ? ss.count : 0,
+                   failureVisibleAtStart: fm ? fm.visible : null}
+        if (pw && btn) { pw.text = "hunter2"; btn.clicked() }
+        res.clickCall = {calls: harness.loginCalls, user: harness.lastUser,
+                         password: harness.lastPassword, session: harness.lastSession}
+        sddm.loginFailed()
+        res.failureVisible = fm ? fm.visible : false
+        res.failureText = fm ? fm.text : null
+        res.focusedAfterFailure = pw ? pw.activeFocus : false
+        if (pw) pw.accepted()
+        res.enterCalls = harness.loginCalls
+        console.warn("SDDM-PROBE " + JSON.stringify(res))
+        Qt.quit()
+    }
+    Timer {
+        interval: 1200; running: true
+        onTriggered: harness.contentItem.grabToImage(function (r) {
+            r.saveToFile("%(out)s"); harness.probe()
+        })
+    }
+}
+"""
+
+
 def _kcfg_defaults(xml_text):
     """{name: default} from a kcfg, typed."""
     out = {}
@@ -144,8 +241,13 @@ def subject(surface, variant):
         import make_notify_marquee
         qml = make_notify_marquee.aperture_text_probe_qml("file:" + os.path.join(ROOT, "templates"))
         kcfg = ""
+    elif surface == "sddm":
+        # W66: the greeter is BAKED per variant (no Kirigami in a greeter), and its
+        # runtime objects are SDDM_HARNESS's stubs, not a rewrite of the document
+        import make_sddm
+        qml, kcfg = make_sddm.main_qml(variant), ""
     else:
-        raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture or aperture-text")
+        raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture, aperture-text or sddm")
     for pat, rep in SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.M)
     return qml, _kcfg_defaults(kcfg), cols["ground"]
@@ -159,7 +261,8 @@ def render(surface, variant, w, h, out_png, config_override=None, software=False
     qml, config, ground = subject(surface, variant)
     if config_override:
         config.update(config_override)
-    return render_document(qml, variant, w, h, out_png, config, ground, software, companions(surface))
+    return render_document(qml, variant, w, h, out_png, config, ground, software, companions(surface),
+                           harness=SDDM_HARNESS if surface == "sddm" else HARNESS)
 
 
 def companions(surface):
@@ -167,13 +270,14 @@ def companions(surface):
     from the subject's own directory — emitting the subject alone gives "X is not
     a type" and a blank render (measured s133, the clock on the shared display)."""
     out = {}
-    if surface in ("clock", "live-wallpaper"):
+    if surface in ("clock", "live-wallpaper", "sddm"):
         import make_segment_display as SD
         out["SegmentChar.qml"] = SD.segment_char_component()
     return out
 
 
-def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None):
+def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None,
+                    harness=HARNESS):
     """Render an already-rewritten QML document under `variant`'s scheme (the probe
     with its own holes — check_legibility renders the text probe per case). The
     harness, environment and backend rules are render()'s."""
@@ -188,7 +292,7 @@ def render_document(qml, variant, w, h, out_png, config=None, ground=None, softw
         open(os.path.join(td, "subject.qml"), "w").write(qml)
         for name, text in (companions or {}).items():
             open(os.path.join(td, name), "w").write(text)
-        open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
+        open(os.path.join(td, "harness.qml"), "w").write(harness % {
             "w": w, "h": h, "ground": ground, "config": json.dumps(config),
             "out": os.path.abspath(out_png)})
         # ⚑ THE OFFSCREEN PLATFORM DEFAULTS TO THE SOFTWARE SCENE GRAPH, which has
@@ -314,13 +418,13 @@ def main(argv):
 
     def opt(name, default):
         return args[args.index(name) + 1] if name in args else default
-    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper", "switcher", "aperture", "aperture-text")), None)
+    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper", "switcher", "aperture", "aperture-text", "sddm")), None)
     if surface is None:
-        print("render_qml: name a surface: clock | live-wallpaper | switcher | aperture | aperture-text", file=sys.stderr)
+        print("render_qml: name a surface: clock | live-wallpaper | switcher | aperture | aperture-text | sddm", file=sys.stderr)
         return 2
     variant = opt("--variant", "EL-Openglo")
-    default_h = {"clock": 48, "switcher": 200, "aperture": 40, "aperture-text": 40}.get(surface, 400)
-    w, h = int(opt("--width", 400)), int(opt("--height", default_h))
+    default_h = {"clock": 48, "switcher": 200, "aperture": 40, "aperture-text": 40, "sddm": 450}.get(surface, 400)
+    w, h = int(opt("--width", 800 if surface == "sddm" else 400)), int(opt("--height", default_h))
     override = {}
     for i, a in enumerate(args):
         if a == "--set":

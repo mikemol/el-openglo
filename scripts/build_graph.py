@@ -56,11 +56,21 @@ HOST_TOOLS = re.compile(
     r'"(/usr/[^"]+|opa|qmllint|qml|tesseract|pandoc|fc-match|fc-list|journalctl|pgrep|plasmashell)"')
 
 
+# ⚑ NOT THIS TREE'S FILES, even though they sit under it. `worktrees` is where
+# isolated agents keep FULL COPIES of the repo (.claude/worktrees/agent-*/).
+# Measured 2026-09-22 during the first swarm: this walk descended into six of
+# them, doubling every population, and crashed on a copy whose ../substrate
+# symlinks do not resolve from that depth. That is this tool's own self-flagged
+# undeclared-domain walk (it lists itself first in --undetermined) demonstrating
+# exactly why the flag is there: a population nobody declared grew under it.
+_NOT_THE_TREE = {".git", "__pycache__", ".ebuild-witness", ".venv", "node_modules",
+                 "worktrees"}
+
+
 def py_files():
     out = []
     for base, dirs, names in os.walk(ROOT):
-        dirs[:] = [d for d in dirs
-                   if d not in {".git", "__pycache__", ".ebuild-witness", ".venv", "node_modules"}]
+        dirs[:] = [d for d in dirs if d not in _NOT_THE_TREE]
         for n in names:
             if n.endswith(".py"):
                 out.append(os.path.relpath(os.path.join(base, n), ROOT))
@@ -70,8 +80,7 @@ def py_files():
 def tree_files(exts=(".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".colors", ".png", ".svg")):
     out = []
     for base, dirs, names in os.walk(ROOT):
-        dirs[:] = [d for d in dirs
-                   if d not in {".git", "__pycache__", ".ebuild-witness", ".venv", "node_modules"}]
+        dirs[:] = [d for d in dirs if d not in _NOT_THE_TREE]
         for n in names:
             if n.endswith(exts):
                 out.append(os.path.relpath(os.path.join(base, n), ROOT))
@@ -443,11 +452,37 @@ def _selftest():
     # wearing the population's name.
     census = undetermined_census(g)
     total_sites = sum(len(v) for v in g["undetermined"].values())
+    # PARTITION holds at any population size, including zero, so it stays on
+    # production: a census whose buckets do not sum to the population is broken
+    # whatever the tree looks like.
     chk("the census partitions the undetermined population",
         sum(len(v) for v in census.values()), total_sites)
-    chk("the census is not a single bucket", len(census) > 1, True)
-    chk("every graded site names a file and a line",
-        all(":" in s for v in census.values() for s in v), True)
+    # ⚑ POPULATION OVER A FIXTURE, RETIREMENT OVER PRODUCTION (linux-sources-99,
+    # 2026-09-22). This used to assert, over PRODUCTION, that the census "is not a
+    # single bucket" and that every site names a line — so the day the binding
+    # resolver (W61) pays the residue down to one idiom or to zero, the gate goes
+    # RED at the moment of the repair. `all()` over an empty census was also
+    # vacuously True, so the line check proved nothing once the population
+    # retired. Both are claims about whether the SCANNER can see, and they belong
+    # on a fixture that cannot be resolved by construction.
+    import tempfile
+    with tempfile.TemporaryDirectory() as d:
+        fx = os.path.join(d, "fixture_undetermined.py")
+        with open(fx, "w", encoding="utf-8") as fh:
+            fh.write("import os, shutil\n"
+                     "def f(a, b, c):\n"
+                     "    open(a).read()\n"                 # computed read
+                     "    open(b, 'w').write('x')\n"        # computed write
+                     "    shutil.copy(c, a)\n"              # computed write, another idiom
+                     "    return os.listdir(c)\n")          # undeclared domain
+        edges = computed_edges(fx)
+        fixture_census = {}
+        for line, direction, why in edges:
+            fixture_census.setdefault(f"{direction}: {why}", []).append(f"{fx}:{line}")
+    chk("the census SEES more than one idiom in a fixture", len(fixture_census) > 1, True)
+    chk("...and every fixture site names a file and a line",
+        (len(edges) > 0, all(":" in s for v in fixture_census.values() for s in v)),
+        (True, True))
     # ⚑ THE MEASUREMENT CAN SEE: a template the loader renders has its emitter as a
     # consumer, and a host tool is in the unbuilt set
     tpl = g["nodes"].get("templates/SegmentChar.qml", {})

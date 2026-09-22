@@ -93,6 +93,19 @@ def schemes():
     return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
 
 
+def roster_drift(declared, who):
+    """[(variant, why)] — an emitter's own variant list against schemes(), BOTH ways.
+
+    ⚑ W65 SWEEP (check_gtk, check_firefox, check_windows). Each emitter types its
+    own VARIANTS list and each check used to iterate THAT, so dropping a variant
+    from the emitter dropped it from the check too: 36 of 36 became 30 of 30,
+    rc 0. The palette authority is the roster; an emitter that disagrees with it
+    is a missing member, returned with its reason, never a smaller n."""
+    roster, mine = set(schemes()), set(declared)
+    return ([(v, f"{who}.VARIANTS does not declare it (GRID does)") for v in sorted(roster - mine)]
+            + [(v, f"{who}.VARIANTS declares it but GRID does not") for v in sorted(mine - roster)])
+
+
 def selection_pairs(keys=FG_KEYS):
     """([(scheme, key, fg, bg, ratio)], [missing]) over the DECLARED roster.
 

@@ -93,9 +93,10 @@ echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; pl
 '''
 
 
-# --- root SDDM helper (run with sudo; theming the login seam SAFELY) ---------
-# We do NOT ship a custom SDDM greeter (a broken one can black-screen the whole
-# boot — larger blast radius than the lockscreen). Instead we point the STOCK
+# --- root SDDM helper (run with sudo; the Breeze-background route) ----------
+# ⚑ NO LONGER THE ONLY ROUTE (W66): make_sddm ships a real greeter theme per
+# variant (/usr/share/sddm/themes/el-openglo-<slug>, selectable in System
+# Settings). This helper is kept as the lower-risk alternative: it points the STOCK
 # Breeze SDDM theme at our phosphor watch-face background. The Breeze theme reads
 # theme.conf.user [General] background=<file> AND REQUIRES a `type=image` key
 # (without it the background is silently ignored — KDE bug 370521). Root-only
@@ -328,7 +329,8 @@ if [ -d "$TDIR" ]; then
   echo "  foot:      include $TDIR/$VARIANT.foot.ini"
 fi
 echo "Done. Some changes (GTK, Kvantum) may need apps to restart."
-echo "Login screen (SDDM): sudo el-openglo-sddm $VARIANT  (sets the phosphor login background)"
+echo "Login screen (SDDM): System Settings > Login Screen (SDDM) > 'EL Openglo ($VARIANT)'"
+echo "                     or: sudo el-openglo-sddm $VARIANT  (stock Breeze greeter, phosphor background)"
 echo "Boot splash (Plymouth): sudo el-openglo-plymouth $VARIANT  (sets the phosphor boot splash)"
 echo "Living watch face:      el-openglo-live $VARIANT  (animated clock on desktop + lock)"
 echo "Notification ticker:    el-openglo-notify $VARIANT  (marquee subsumes popups)"
@@ -768,6 +770,12 @@ def stage(root):
     pdirs = {v: os.path.join(DEB_ROOT, f"usr/share/plymouth/themes/el-openglo-{v}")
              for v in VARIANTS}
     _ply.render_all(VARIANTS, pdirs)
+
+    # SDDM greeter themes (W66): the segment display's fourth mount, one REAL
+    # sddm-theme per variant (listed by System Settings' login-screen page). The
+    # el-openglo-sddm helper below stays: it is the other, lower-risk route.
+    import make_sddm as _sddm
+    _sddm.render_all(os.path.join(DEB_ROOT, "usr/share/sddm/themes"), VARIANTS)
 
     # Live wallpaper plugins (⊕WALLPAPER-LIVE): 8th emitter, mounts on desktop +
     # lock. One Plasma/Wallpaper package per variant.

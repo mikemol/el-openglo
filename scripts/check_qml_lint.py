@@ -41,6 +41,7 @@ DOCS = (
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
     ("make_clock", "main_qml", None, "clock-main.qml"),   # one package since W35
     ("make_wallpaper_live", "main_qml", None, "live-wallpaper-main.qml"),   # one package since W35
+    ("make_wallpaper_live", "config_qml", None, "live-wallpaper-config.qml"),   # W59
     ("make_notify_marquee", "main_qml", ("PARITY_FONT",), "marquee-main.qml"),   # one package since W35
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     # MatrixChar.qml / MatrixField.qml retired s124 (--uses: 0 of 12 instantiators)
@@ -48,6 +49,9 @@ DOCS = (
     ("make_notify_marquee", "aperture_probe_qml", None, "aperture-probe.qml"),        # W54's gate subject
     ("make_notify_marquee", "aperture_text_probe_qml", None, "aperture-text-probe.qml"),
     ("make_taskswitch", "main_qml", None, "taskswitch-main.qml"),   # one package since W35
+    # the SDDM greeter (W66): BAKED per variant, so pinned at one — the markup
+    # around the colour holes is the same template for all six
+    ("make_sddm", "main_qml", "EL-Openglo", "sddm-main.qml"),
 )
 
 ANIMATIONS = ("NumberAnimation", "PropertyAnimation", "ColorAnimation", "RotationAnimation",

@@ -1,0 +1,43 @@
+[paper]
+# ⚑ README.md IS A PROJECTION (W69).  The operator: "README.md ought to be a
+# projection. Which is something we have paperkit for." The hand-written one
+# named 10 of 16 emitters, 2 of 56 pictures and no variant, and quoted palette
+# hexes the solver had long since moved off. Edit catalog/readme/readme.bib and
+# run `python3 scripts/worklist_gate.py --project`; the gate refuses a README.md
+# that differs from this projection, the same guarantee WORKLIST.md has.
+#
+# ⚑ WHY THE REPO ROOT.  `out` is joined to the project dir as a plain path
+# (paperkit bib.load_config: `"out": project / p.get("out", ...)`), so a project
+# in catalog/ could write "../../README.md" — but every check would then run from
+# catalog/<dir> and pay ../../ in each template, as the worklist's do. At the root
+# the checks run where the tools live, and paperkit's own _bibpath names this
+# case ("project == repo root, the README-import case"). The claims and rubric
+# still live in catalog/readme/, so the root gains one file, not three.
+adequacy = false
+title = "EL Openglo — a desktop theme for people who reset a lot of watches"
+subtitle = "Generated from one palette, solved once, emitted to every surface. This page is a projection of catalog/readme/readme.bib; do not edit it by hand."
+warrants = ["catalog/readme/readme.bib"]
+rubric = "catalog/readme/rubric.tsv"
+out = "README.md"
+numbered = false
+references = false
+paragraph = "claim"
+# Each sentence's provenance as a document-end footnote naming the check that
+# gates it — GitHub renders footnotes, and a weak check is then visible on the
+# front page beside the sentence it certifies ([@key] would render literally).
+target = "footnote"
+
+# The Δ sandbox root, DECLARED (paperkit layout._sandbox_root refuses to infer
+# it). The project IS the repo, so the bounded tree is ".".
+root = "."
+
+# ── project-declared check types ─────────────────────────────────────────────
+# Checks run with the project dir — the repo root — as cwd.
+
+# tool:<script> [args] — a repo tool that exits 0 iff its question is answered YES.
+[checks.tool]
+cmd = "python3 scripts/{target}"
+
+# module:<file> [args] — a module's own entry point, e.g. its --selftest.
+[checks.module]
+cmd = "python3 {target}"

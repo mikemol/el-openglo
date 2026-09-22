@@ -1,0 +1,11 @@
+role	EL-Openglo	EL-Openglo-Lit	EL-Azure	EL-Azure-Lit	EL-Amber	EL-Amber-Lit
+ground	`#0c1f1a`	`#9de8d8`	`#0c161f`	`#9dc2e8`	`#1f170c`	`#e8c89d`
+panel	`#0b1b17`	`#a1e9da`	`#0b131b`	`#a1c5e9`	`#1b140b`	`#e9caa1`
+phosphor	`#99ffeb`	`#002921`	`#99ccff`	`#001429`	`#ffd499`	`#291800`
+accent	`#4bfad7`	`#084c3f`	`#4ba2fa`	`#082a4c`	`#fab14b`	`#4c3008`
+sel	`#06deb3`	`#0b6856`	`#1988f9`	`#0c3e71`	`#f29007`	`#6c440b`
+window_fg	`#99ffeb`	`#002921`	`#99ccff`	`#001429`	`#ffd499`	`#291800`
+focus	`#4bfad7`	`#084c3f`	`#4ba2fa`	`#082a4c`	`#fab14b`	`#4c3008`
+view_bg	`#081411`	`#a9ebdd`	`#080e14`	`#a9caeb`	`#140f08`	`#ebcfa9`
+sel_fg	`#081411`	`#a9ebdd`	`#080e14`	`#a9caeb`	`#140f08`	`#ebcfa9`
+ghost	`#7ed3c3`	`#4c8176`	`#99cbfe`	`#425c75`	`#e5bf89`	`#7c6648`

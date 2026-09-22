@@ -47,6 +47,69 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "D0 — no display mounts or no display parameters measured nothing"
+# description: |
+#   W59 (catalog/one-display.md): display_params declares the DISPLAY layer once.
+#   An absent population is empty, never admitting.
+deny contains msg if {
+	count(object.get(object.get(input, "display", {}), "mounts", [])) == 0
+	msg := "D0: no display mounts are measured"
+}
+
+deny contains msg if {
+	count(object.get(object.get(input, "display", {}), "params", [])) == 0
+	msg := "D0: no display parameters are declared"
+}
+
+# METADATA
+# title: "D1 — every mount answers for every display parameter"
+# description: |
+#   Exposed or withheld-with-reason. A parameter a mount does not mention is an
+#   omission nobody can see — the defect W59 exists to end.
+deny contains msg if {
+	some d in input.display.mounts
+	some r in d.params
+	r.declared == "absent"
+	msg := sprintf("D1: %s neither exposes nor withholds display parameter %s", [d.mount, r.param])
+}
+
+# METADATA
+# title: "D2 — a withheld parameter says why"
+deny contains msg if {
+	some d in input.display.mounts
+	some r in d.params
+	r.declared == "withheld"
+	trim_space(object.get(r, "reason", "")) == ""
+	msg := sprintf("D2: %s withholds %s with no reason", [d.mount, r.param])
+}
+
+# METADATA
+# title: "D3 — an exposed parameter is in the emitted kcfg and on the emitted page"
+deny contains msg if {
+	some d in input.display.mounts
+	some r in d.params
+	r.declared == "exposed"
+	not r.in_kcfg
+	msg := sprintf("D3: %s exposes %s as %s, which its kcfg does not carry", [d.mount, r.param, r.spelling])
+}
+
+deny contains msg if {
+	some d in input.display.mounts
+	some r in d.params
+	r.declared == "exposed"
+	not r.on_page
+	msg := sprintf("D3: %s exposes %s as %s, which no page declares (unreachable)", [d.mount, r.param, r.spelling])
+}
+
+# METADATA
+# title: "D4 — no display key reaches a kcfg undeclared"
+deny contains msg if {
+	some d in input.display.mounts
+	some k in d.stray
+	msg := sprintf("D4: %s's kcfg carries display key %s that its declaration does not expose", [d.mount, k])
+}
+
+# METADATA
 # title: "C4 — a page with no entries measured nothing"
 deny contains msg if {
 	some p in input.pages

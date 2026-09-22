@@ -197,13 +197,17 @@ def config_xml():
     palette's solved (global) alpha, filled here: the slider is a per-user override,
     so an unconfigured widget draws exactly what check_ghost_surfaces measured."""
     import templates.loader as TL
-    return TL.render("marquee-config.kcfg", ghostAlpha=TS.ghost_alpha())
+    import display_params as DP     # the DISPLAY rows, declared once (W59)
+    return TL.render("marquee-config.kcfg", displayEntries=DP.kcfg_entries(
+        "marquee", {"ghostAlpha": TS.ghost_alpha()}, "  "))
 
 
 def config_qml():
     """contents/ui/configGeneral.qml — the settings page (clock pattern, W34 c)."""
     import templates.loader as TL
-    return TL.render("marquee-config.qml")
+    import display_params as DP
+    return TL.render("marquee-config.qml", displayDecls=DP.qml_decls("marquee"),
+                     displayControls=DP.qml_controls("marquee"))
 
 
 CONFIG_MODEL = ('import org.kde.plasma.configuration\n\nConfigModel {\n'

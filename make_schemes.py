@@ -223,10 +223,43 @@ def _solved_grid():
             pass
 
     grid = _mp.build_grid()
+    # ⚑ THE CACHE IS REPLACED, NEVER TRUNCATED IN PLACE (W68, 2026-09-22). The
+    # previous form was `json.dump(..., open(cache, "w"))`, which TRUNCATES the
+    # file and then writes it — so a concurrent reader sees a partial document.
+    # paperkit grades the claim graph in PARALLEL and nine of its checks read this
+    # palette, so several processes are in here at once by construction.
+    #
+    # ⚑ IT WAS HARMLESS AND IT WAS STILL WRONG. The reader catches OSError,
+    # ValueError and KeyError and falls through to a full solve, so a torn cache
+    # cost TIME, not correctness — which is exactly why it could sit here
+    # unnoticed. A write that is only safe because every reader happens to be
+    # forgiving is a coupling nobody declared, and the next reader need not be.
+    # os.replace is atomic within a filesystem, so a reader sees the old file or
+    # the new one and never a half of either.
+    #
+    # ⚑ THIS IS NOT CLAIMED AS THE CAUSE OF W68. Eleven checks failed once and
+    # passed twice with no account captured; this was found while looking, and
+    # fixing it is correct whether or not it was implicated.
     try:
-        json.dump({"stamp": stamp,
-                   "grid": {"\t".join(k): v for k, v in grid.items()}},
-                  open(cache, "w", encoding="utf-8"))
+        import tempfile
+        fd, tmp = tempfile.mkstemp(dir=_os.path.dirname(cache), prefix=".palette-cache.")
+        try:
+            with _os.fdopen(fd, "w", encoding="utf-8") as fh:
+                json.dump({"stamp": stamp,
+                           "grid": {"\t".join(k): v for k, v in grid.items()}}, fh)
+            # ⚑ mkstemp CREATES 0600 AND open() DOES NOT — measured 2026-09-22, the
+            # first cut of this repair silently turned a -rw-rw-r-- cache into a
+            # -rw------- one. On a shared box that is a different artifact, and
+            # nothing would have reported it: the cache is an optimisation, so a
+            # reader that cannot open it just re-solves and stays green. Restore
+            # the mode open() would have given, from this process's umask.
+            _umask = _os.umask(0)
+            _os.umask(_umask)
+            _os.chmod(tmp, 0o666 & ~_umask)
+            _os.replace(tmp, cache)
+        except BaseException:
+            _os.unlink(tmp)                     # never leave a partial beside the real one
+            raise
     except OSError:
         pass                                    # a cache we cannot write is not an error
     return grid

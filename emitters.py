@@ -70,6 +70,7 @@ ROLES = {
     "make_notify_marquee":  "emitter",
     "make_plasma":          "emitter",
     "make_plymouth":        "emitter",
+    "make_sddm":            "emitter",     # the greeter: baked per variant (W66)
     "make_taskswitch":      "emitter",
     "make_union":           "emitter",
     "make_wallpaper":       "emitter",

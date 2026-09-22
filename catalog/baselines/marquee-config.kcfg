@@ -2,16 +2,17 @@
 <kcfg xmlns="http://www.kde.org/standards/kcfg/1.0">
  <kcfgfile name=""/>
  <group name="General">
+  <!-- DISPLAY layer: display_params.MOUNTS['marquee'] (do not hand-edit here) -->
+  <entry name="showField" type="Bool"><default>true</default></entry>
+  <!-- ghostOpacity: the DEFAULT is the palette's SOLVED ghost alpha, filled at emit time; the slider is a per-user override, never the source -->
+  <entry name="ghostAlpha" type="Double"><default>0.566</default></entry>
+  <!-- fill: dot diameter as a fraction of the pitch -->
+  <entry name="dotFill" type="Double"><default>0.82</default></entry>
+  <!-- pitch: a fraction of the panel-derived pitch -->
+  <entry name="pitchScale" type="Double"><default>1.0</default></entry>
+  <!-- MOUNT layer: this marquee's own -->
   <!-- scroll speed as a factor on the length-scaled duration: 1 = the authored pace -->
   <entry name="speed" type="Double"><default>1.0</default></entry>
-  <!-- dot pitch as a fraction of the panel-derived pitch -->
-  <entry name="pitchScale" type="Double"><default>1.0</default></entry>
-  <!-- dot diameter as a fraction of the pitch (MatrixChar.dotFill's authored 0.82) -->
-  <entry name="dotFill" type="Double"><default>0.82</default></entry>
-  <!-- the unlit field's opacity: the DEFAULT is the palette's SOLVED ghost alpha,
-       filled at emit time; the slider is a per-user override, never the source -->
-  <entry name="ghostAlpha" type="Double"><default>0.566</default></entry>
-  <entry name="showField" type="Bool"><default>true</default></entry>
   <!-- shown lit on the field when there is nothing to scroll; empty = the bare field -->
   <entry name="idleText" type="String"><default></default></entry>
   <entry name="maxItems" type="Int"><default>12</default></entry>
@@ -20,6 +21,7 @@
   <!-- hovering the board pauses the scroll so a link can be aimed at (W40); a pointer
        parked on the panel then holds the board still, so it is a choice (W49) -->
   <entry name="hoverPause" type="Bool"><default>true</default></entry>
+  <!-- INSTRUMENT layer: changes nothing a user sees -->
   <!-- print every rebuild / swap / start to plasmashell's stderr (the live host's
        twin of check_marquee_live's trace) -->
   <!-- ON while VER-MARQUEE is live (operator: "check the logs yourself on
