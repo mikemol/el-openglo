@@ -164,6 +164,19 @@ def aperture_probe_qml(templates_url="."):
                      ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
 
 
+APERTURE_TEXT_FONT = "Liberation Mono"   # ⚑ Unifont is not on this host (fc-match falls back); any shaped font is a backdrop
+APERTURE_TEXT = "Hello, world 42"
+
+
+def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APERTURE_TEXT):
+    """templates/aperture-text-probe.qml — a Qt Text item as the backdrop (W54 step 3):
+    the font Qt shapes, hinted to the backdrop grid, read through the pinholes."""
+    import templates.loader as TL
+    import make_wallpaper_live as WL
+    return TL.render("aperture-text-probe.qml", templates=templates_url, font=font, text=text,
+                     ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
+
+
 def body_parser():
     """templates/marquee-body.js — notification body markup -> text + style runs."""
     import templates.loader as TL

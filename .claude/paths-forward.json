@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 55,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T02:16:06+00:00",
-  "job_id": "3b8c3d4c",
+  "heartbeat": "2026-09-22T02:31:30+00:00",
+  "job_id": "91accefc",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-3b8c3d4c",
-    "taken_at": "2026-09-22T02:19:53+00:00"
+    "holder": "tick-91accefc",
+    "taken_at": "2026-09-22T02:37:24+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -914,10 +914,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "(2) scripts/check_aperture.py --json + policy/aperture.rego: render_qml gains an 'aperture' probe surface (templates/aperture-probe.qml: the synthetic edge block) and the measurement reads the three pips (A0 empty; A1 ghost pip = ghost composite ±2; A2 half pip within ±3 of ghost + 0.5*(lit-ghost); A3 covered pip = lit ±2) — the s114 numbers become a gate. (3) a Text backdrop in Unifont (16 px em, AA off, one Unifont pixel per pip) drawn into the backdrop canvas via ctx.font/fillText: is CJK legible through the pinholes — a still. (4) relations.md brightness relation. Then the marquee's text as backdrop + S5 re-run.",
-      "evidence": "262bd9c: templates/ApertureField.qml (prefix-sum integral, no shader); probed under software backend: cov 0/0.5/1 at pips 9/10/11, seen (152,126,90)/(203,169,121)/(255,212,153) = ghost composite / 0.783 / lit; 0.53 ms CPU per frame over 105x8. Design notes: hinting — two grids, make them commensurate; Unifont at 16 px em AA off = one pixel per pip; outline fonts PreferFullHinting + NativeRendering.",
+      "next_bounded_step": "(3) Unifont through the pinholes: aperture-probe (or a second probe) draws a Text-equivalent backdrop via ctx.font = '16px Unifont' fillText at scale=4 (one Unifont pixel per pip when the field's u maps 1:1 — choose scale so 16 px em = 8 rows x 2? measure: Unifont's 8x16 cell vs the 8-row field: a 16-row glyph needs the viewport (W47) or a 2:1 downsample; try Latin at 8 rows via a half-scale first) — a still under EL-Openglo; is it legible? (4) relations.md: the brightness relation (ghost floor, lit ceiling, coverage between; the hue gate unchanged). Then the marquee's text as the backdrop (MatrixChar retired for the marquee) + S5 re-run.",
+      "evidence": "262bd9c ApertureField.qml (prefix sums, no shader; 0.53 ms/frame); c2043cc check_aperture + policy/aperture.rego A0-A4 (@APERTURE): six of six variants within one unit — floor / halfway / lit on seen pixels under the software backend",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T02:15:41+00:00",
+      "last_worked": "2026-09-22T02:30:52+00:00",
       "ticks_blocked": 0
     }
   ],

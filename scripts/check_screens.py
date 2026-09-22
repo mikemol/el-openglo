@@ -55,7 +55,7 @@ def _selftest():
     import tempfile
     from PIL import Image
     m = measure()
-    chk("the plan is 5 stills x 6 variants", len(m["screens"]), 30)
+    chk("the plan is 6 stills x 6 variants", len(m["screens"]), 36)
     # ⚑ THE MEASUREMENT CAN SEE: a blank picture has one distinct colour; a picture
     # on the wrong ground has a modal colour that is neither of the variant's
     with tempfile.TemporaryDirectory() as td:

@@ -35,6 +35,8 @@ STILLS = (
     ("live-wallpaper", ("render_qml", "live-wallpaper", 480, 300)),
     ("marquee", ("marquee", "scroll")),
     ("marquee-paused", ("marquee", "paused")),
+    # W54: a Qt Text item read through the aperture field — no glyph table
+    ("pinholes", ("render_qml", "aperture-text", 420, 40)),
 )
 
 

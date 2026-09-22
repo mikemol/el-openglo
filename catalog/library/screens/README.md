@@ -17,6 +17,7 @@ variant's ground.
 - `live-wallpaper-EL-Openglo.png`
 - `marquee-EL-Openglo.png`
 - `marquee-paused-EL-Openglo.png`
+- `pinholes-EL-Openglo.png`
 - `marquee-anim-EL-Openglo.png` — APNG, the widget scrolling (S5: never tears)
 
 ![EL-Openglo scrolling](marquee-anim-EL-Openglo.png)
@@ -30,6 +31,7 @@ variant's ground.
 - `live-wallpaper-EL-Openglo-Lit.png`
 - `marquee-EL-Openglo-Lit.png`
 - `marquee-paused-EL-Openglo-Lit.png`
+- `pinholes-EL-Openglo-Lit.png`
 - `marquee-anim-EL-Openglo-Lit.png` — APNG, the widget scrolling (S5: never tears)
 
 ![EL-Openglo-Lit scrolling](marquee-anim-EL-Openglo-Lit.png)
@@ -43,6 +45,7 @@ variant's ground.
 - `live-wallpaper-EL-Azure.png`
 - `marquee-EL-Azure.png`
 - `marquee-paused-EL-Azure.png`
+- `pinholes-EL-Azure.png`
 - `marquee-anim-EL-Azure.png` — APNG, the widget scrolling (S5: never tears)
 
 ![EL-Azure scrolling](marquee-anim-EL-Azure.png)
@@ -56,6 +59,7 @@ variant's ground.
 - `live-wallpaper-EL-Azure-Lit.png`
 - `marquee-EL-Azure-Lit.png`
 - `marquee-paused-EL-Azure-Lit.png`
+- `pinholes-EL-Azure-Lit.png`
 - `marquee-anim-EL-Azure-Lit.png` — APNG, the widget scrolling (S5: never tears)
 
 ![EL-Azure-Lit scrolling](marquee-anim-EL-Azure-Lit.png)
@@ -69,6 +73,7 @@ variant's ground.
 - `live-wallpaper-EL-Amber.png`
 - `marquee-EL-Amber.png`
 - `marquee-paused-EL-Amber.png`
+- `pinholes-EL-Amber.png`
 - `marquee-anim-EL-Amber.png` — APNG, the widget scrolling (S5: never tears)
 
 ![EL-Amber scrolling](marquee-anim-EL-Amber.png)
@@ -82,6 +87,7 @@ variant's ground.
 - `live-wallpaper-EL-Amber-Lit.png`
 - `marquee-EL-Amber-Lit.png`
 - `marquee-paused-EL-Amber-Lit.png`
+- `pinholes-EL-Amber-Lit.png`
 - `marquee-anim-EL-Amber-Lit.png` — APNG, the widget scrolling (S5: never tears)
 
 ![EL-Amber-Lit scrolling](marquee-anim-EL-Amber-Lit.png)

@@ -7737,3 +7737,56 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s115]
+
+## Session 116 — text through the pinholes: a Qt Text item is the backdrop (W54, step 3)
+- Operator: "plain Unifont behind the mask". Unifont is NOT on this host
+  (fc-match falls back to Liberation Sans; no font covers Japanese either —
+  a machine fact, the emerge is the operator's), so the shaped-outline-font
+  half is what was measured: templates/aperture-text-probe.qml puts a Qt Text
+  item (Liberation Mono, pixelSize = the field's height in backdrop pixels,
+  PreferFullHinting + NativeRendering — the knobs Text has and a Canvas
+  fillText does not) off-window, grabs it, hands the grab to an Image (what a
+  Canvas can draw; an item at opacity 0 grabs as TRANSPARENT and a Canvas
+  cannot loadImage an itemgrabber: url — both measured on the way), draws it
+  into the backdrop and integrates. "Hello, world 42" reads through 8 rows
+  at 4 px pitch, the stems a stroke straddles at partial brightness — no
+  glyph table, no column bytes; the aperture quantises live. render_qml's
+  fifth surface (aperture-text); a still per variant (pinholes-<v>.png, 42
+  of 42 with the rest; S1-S3 hold it); the lint reads 12 documents.
+- Residue: Unifont / CJK unmeasured until a font is installed (Unifont at its
+  16 px em with AA off is one pixel per pip — the field is 8 rows, so a
+  16-row glyph needs the viewport (W47's fold) or a 2:1 downsample); the
+  vertical placement is the Text's own (AlignVCenter over rows*scale);
+  legibility is by eye, not a check — a glyph-recognition witness would be
+  its own tool.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
+  1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s116]

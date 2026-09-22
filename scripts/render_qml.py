@@ -140,8 +140,12 @@ def subject(surface, variant):
         import make_notify_marquee
         qml = make_notify_marquee.aperture_probe_qml("file:" + os.path.join(ROOT, "templates"))
         kcfg = ""
+    elif surface == "aperture-text":
+        import make_notify_marquee
+        qml = make_notify_marquee.aperture_text_probe_qml("file:" + os.path.join(ROOT, "templates"))
+        kcfg = ""
     else:
-        raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher or aperture")
+        raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture or aperture-text")
     for pat, rep in SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.M)
     return qml, _kcfg_defaults(kcfg), cols["ground"]
@@ -242,12 +246,12 @@ def main(argv):
 
     def opt(name, default):
         return args[args.index(name) + 1] if name in args else default
-    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper", "switcher", "aperture")), None)
+    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper", "switcher", "aperture", "aperture-text")), None)
     if surface is None:
-        print("render_qml: name a surface: clock | live-wallpaper | switcher | aperture", file=sys.stderr)
+        print("render_qml: name a surface: clock | live-wallpaper | switcher | aperture | aperture-text", file=sys.stderr)
         return 2
     variant = opt("--variant", "EL-Openglo")
-    default_h = {"clock": 48, "switcher": 200, "aperture": 40}.get(surface, 400)
+    default_h = {"clock": 48, "switcher": 200, "aperture": 40, "aperture-text": 40}.get(surface, 400)
     w, h = int(opt("--width", 400)), int(opt("--height", default_h))
     override = {}
     for i, a in enumerate(args):
