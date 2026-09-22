@@ -731,3 +731,9 @@
   check    = {tool:opa_gate.py aperture},
   section  = {emitters}
 }
+
+@misc{NOTIFY-ROLES,
+  claim    = {Every notification role the marquee's capabilities read (identity, urgency, expiry, actions, job progress, type, transient, category, hints) is declared by the host's org.kde.notificationmanager model and modelled by the headless stub, and the model exposes invokeAction — the contract catalog/notify-capabilities.md is written against (N0-N4)},
+  check    = {tool:opa_gate.py notify_roles},
+  section  = {emitters}
+}

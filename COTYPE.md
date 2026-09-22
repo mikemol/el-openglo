@@ -8342,3 +8342,67 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s125]
+
+## Session 126 — the notification model's contract, measured (W46, step 1)
+- Operator (W46, the notify-send man page): "which are we not achieving?"
+  The answer needs the model's roles, and the module's qmltypes is a
+  structured artifact no tool owned. scripts/check_notify_roles.py parses
+  it (Component / Enum / Method blocks) and reports the host's contract:
+  49 roles, Urgency {Low 0, Normal 1, Critical 2}, Type {No, Notification,
+  Job}, JobState {Stopped, Running, Suspended}, invokeAction among 21
+  methods. ⚑ The numbers are declaration ORDINALS — the registrar drops
+  the C++ values (IdRole is 257 live, 0 here); the widget reads roles
+  symbolically, so nothing may compare them to a literal — stated in the
+  tool. policy/notify_roles.rego N0-N4: every role a capability reads is
+  declared by the host (N2) and modelled by the harness stub (N3), and
+  invokeAction exists (N4). The stub gained the host's 11 remaining roles
+  (Reply*, Category, Resident, Transient, Hints, Dismissable), the Urgency
+  / Type / JobState enums, role names for type / jobState / actionNames /
+  actionLabels / category / transient, and a recording invokeAction. 80/80
+  across ten policies; @NOTIFY-ROLES, 69 claims. catalog/
+  notify-capabilities.md is the table: one row per capability, its roles,
+  what it does ON THE BOARD as a relation (urgency = the hot token as the
+  ink colour + persistent re-queue; low = dimmer ink; transient = one
+  traversal; actions = tappable runs + invokeAction; job progress = W48's
+  series painted into the backdrop, the gauge; icons = a backdrop through
+  the viewport; reply = not a matrix's affordance), and its status.
+- Residue: the table is prose beside a check that holds only the roles; a
+  capability's behaviour is held by the harness cases it will add (the
+  stub can now carry urgency, transient, actions and percentage rows).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124: field, gate, text
+  backdrop, Unifont, γ, the port, the viewport, the series arithmetic, MatrixChar retired)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY (s126:
+  its roles measured and its relation stated in catalog/notify-capabilities.md;
+  the build is W46's next step), ⊕GLANCE-CALIBRATE (s111: the 1.5x gap
+  factor is its first authored-not-measured input), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s126]

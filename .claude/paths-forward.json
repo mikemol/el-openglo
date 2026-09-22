@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T07:07:20+00:00",
-  "job_id": "fce63c28",
+  "heartbeat": "2026-09-22T07:53:24+00:00",
+  "job_id": "d2368b51",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-fce63c28",
-    "taken_at": "2026-09-22T07:25:33+00:00"
+    "holder": "tick-d2368b51",
+    "taken_at": "2026-09-22T08:09:18+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -782,11 +782,11 @@
       "touches": "templates/marquee-main.qml,templates/marquee-body.js,make_notify_marquee,catalog/relations.md",
       "blocked_on": [],
       "blocked_kind": null,
-      "rank_reason": "",
-      "next_bounded_step": "After W45 (it needs the id queue): (1) measure the model's roles (NotificationManager.Notifications: UrgencyRole, ExpiredRole, ActionNamesRole/ActionLabelsRole, PercentageRole, JobStateRole, TypeRole, HintsRole? — Read the QML module's roles from /usr/lib64/qt6/qml/org/kde/notificationmanager/ or its .qmltypes) and record them; (2) urgency first: the item carries urgency; critical -> hot token (fg_act; a 'hot' hole the marquee does not have yet — it is a live role in one-theme: activeTextColor) + persistent re-queue; low -> ghost-weight dots; relations.md §5b states the urgency -> token relation; (3) actions as runs with an action id + invokeAction on tap; (4) job percentage as a field bar. One capability per tick; harness cases for each queue rule.",
+      "rank_reason": "unblock: the model's roles are the input to urgency, actions, progress and the series painter; the aperture field made 'weight' and 'colour' numbers the backdrop carries",
+      "next_bounded_step": "(1) measure the model's roles: read /usr/lib64/qt6/qml/org/kde/notificationmanager/ (.qmltypes or plugins.qmltypes) for UrgencyRole, ExpiredRole, ActionNames/ActionLabelsRole, PercentageRole, JobStateRole, TypeRole; record in catalog/notify-capabilities.md; the stub gains the roles it lacks. (2) urgency: critical → the HOT token (Kirigami.Theme.activeTextColor, painted into the backdrop as the ink colour — colourFromInk reads it) + persistent re-queue; low → half coverage (γ or a dimmer ink alpha: the aperture makes 'ghost weight' a number). (3) actions as tappable runs + invokeAction. (4) job progress: the percentage history as W48's series painted into the backdrop (drawBackdrop lights rows [rows-h, rows) per column) — the gauge the operator described.",
       "evidence": "",
       "issued_at": "2026-09-21T18:18:48+00:00",
-      "last_worked": "2026-09-21T18:18:48+00:00",
+      "last_worked": "2026-09-22T07:52:43+00:00",
       "ticks_blocked": 0
     },
     {
@@ -807,7 +807,7 @@
     {
       "symbol": "W48",
       "title": "SPARKLINES ON THE MATRIX (operator 2026-09-22). A DATA RUN: a series of values -> column heights on the 8 rows (one column per sample, the newest at the right), scrolling like text or pinned at the board's end; the one thing a segment display cannot do and a matrix can. Sources: a job's percentage over time (W46's progress bar is the degenerate one-sample case), Plasma's systemmonitor sensors (CPU, net, temperature — org.kde.ksysguard.sensors / Plasma's SensorDataModel in Plasma 6: measure the QML import), the notification arrival rate itself. Rendering: a run type 'series' in the ring (values[], min/max, lit column height = round(v/max*rows)); optional baseline row; bold = fuller dots; colour via the §5a hue gate (a sensor's colour is a sender colour). Settings: which sensors, samples per column",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "marquee",
@@ -818,10 +818,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "With W46 (job progress): drawBackdrop lights rows [rows-h, rows) per column for a ring item carrying a series field; the job's percentage history is the first source; then a systemmonitor sensor (measure the Plasma 6 sensor QML API first).",
-      "evidence": "pure half b98e723: seriesToColumns + 6 cases + M5; the painter and the first source land with W46's job progress",
+      "next_bounded_step": "none - see W46",
+      "evidence": "folded into W54: seriesToColumns + M5 (b98e723); the painter lands with W46's job progress (recorded on W46)",
       "issued_at": "2026-09-21T18:28:39+00:00",
-      "last_worked": "2026-09-22T06:05:38+00:00",
+      "last_worked": "2026-09-22T07:52:31+00:00",
       "ticks_blocked": 0
     },
     {
@@ -902,7 +902,7 @@
     {
       "symbol": "W54",
       "title": "THE FIELD AS AN APERTURE INTEGRAL (operator 2026-09-22: pips with a brightness RANGE, modelled as a supersampled mask over a higher-resolution backdrop scrolled at the display rate — pinholes over a moving scene; the brain synthesizes the motion). Each pip's brightness = ghostAlpha + coverage * (1 - ghostAlpha), coverage = the backdrop's ink under the pip's aperture at the current offset. In QML: the backdrop (text, icon raster, sparkline, QR) drawn once into a ShaderEffectSource with mipmaps; a ShaderEffect over the static field samples per pip at an LOD matched to the aperture (the box integral for one lookup); the scroll offset is a uniform, so no Row rebuild ever happens. This is what a real LED sign's sub-pixel smooth scroll IS (PWM at fractional offsets). COLLAPSE candidate: W47 (viewport = the vertical uniform), W48 (a sparkline is a backdrop), W34(a) (lit dots ARE the field's, graded not snapped), and the live twin of segment_topology.project / matrix_glyph's offline coverage rule (ink under a cell aperture) — reuse-search hit, not a new operator",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W46",
         "W47",
@@ -919,10 +919,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "Last fold (e): the vertical scroll as an animation — a second animation kind in render_screens driven by render_qml over frames (a probe surface with a frame index hole, or a small harness that grabs per offsetY step) through the 16-row Unifont backdrop; S5 generalised to a y shift (or a stated residue if the y witness is a tick of its own). Then the ⊕W54 closure: COTYPE '### closure' + four gates (constructible: ApertureField + the port; reachable: the marquee package instantiates it; observable: check_aperture + --motion + the stills; coverable: A0-A4, S1-S6, L0-L8, M5) and W54 → done; W46 leads.",
-      "evidence": "...916559a port; f45e52a viewport; b98e723 series; 9a0755d bookend + census; dd50c52 MatrixChar/MatrixField retired (pins moved; 47/47; gate 68)",
+      "next_bounded_step": "none - LIVE: the panel's smoothness after the operator's next emerge (⊕VER-MARQUEE); γ tuning is W56's; the series painter is W46's; Unifont in the marquee is a setting to add when a second backdrop kind is wanted",
+      "evidence": "⊕APERTURE-FIELD closed s125 (462cdf9): 262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+γ+loop; 1a93b11 --motion; d32c412 §5b; 916559a THE PORT; f45e52a viewport; b98e723 series; 9a0755d bookend+census; dd50c52 MatrixChar retired; 462cdf9 the viewport animation + closure. check_symbol 48/48; gate 68; 74/74 policy tests",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T07:06:43+00:00",
+      "last_worked": "2026-09-22T07:52:23+00:00",
       "ticks_blocked": 0
     },
     {

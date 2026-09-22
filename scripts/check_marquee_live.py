@@ -81,7 +81,15 @@ QtObject {
                  JobStateRole, PercentageRole, JobErrorRole, SuspendableRole, KillableRole, JobDetailsRole,
                  ActionNamesRole, ActionLabelsRole, HasDefaultActionRole, DefaultActionLabelRole, UrlsRole,
                  UrgencyRole, TimeoutRole, ConfigurableRole, ConfigureActionLabelRole, ClosableRole, ExpiredRole,
-                 DismissedRole, ReadRole, UserActionFeedbackRole }
+                 DismissedRole, ReadRole, UserActionFeedbackRole,
+                 // the host's remaining roles (check_notify_roles, s126): the stub declares
+                 // what the real model declares, in its order
+                 HasReplyActionRole, ReplyActionLabelRole, ReplyPlaceholderTextRole, ReplySubmitButtonTextRole,
+                 ReplySubmitButtonIconNameRole, CategoryRole, ResidentRole, TransientRole,
+                 WasAddedDuringInhibitionRole, HintsRole, DismissableRole }
+    enum Urgency { LowUrgency, NormalUrgency, CriticalUrgency }
+    enum Type { NoType, NotificationType, JobType }
+    enum JobState { JobStateStopped, JobStateRunning, JobStateSuspended }
     enum SortMode { SortByDate, SortByTypeAndUrgency }
     enum GroupMode { GroupDisabled, GroupApplicationsFlat, GroupApplicationsTree }
     property bool showNotifications: false
@@ -89,7 +97,11 @@ QtObject {
     property int sortMode: Notifications.SortByDate
     property int groupMode: Notifications.GroupDisabled
     readonly property var roleNames: ({ 256: "notificationId", 257: "summary", 267: "body", 271: "applicationName",
-                                        285: "urgency", 275: "percentage", 290: "expired" })
+                                        285: "urgency", 275: "percentage", 290: "expired", 264: "type", 274: "jobState",
+                                        280: "actionNames", 281: "actionLabels", 299: "category", 301: "transient" })
+    // what the widget will call for an action run (W46); recorded so a harness case can see it
+    property var invoked: []
+    function invokeAction(idx, actionId) { stub.invoked.push({ row: idx.row, action: actionId }); }
     function data(idx, role) { var r = stub.get(idx.row); if (!r) return undefined; var k = roleNames[role]; return k ? r[k] : undefined; }
     function index(row, col) { return { row: row, column: col }; }
     Component.onCompleted: StubRegistry.models.push(stub)
