@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 65,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T15:00:16+00:00",
-  "job_id": "e3334f11",
+  "heartbeat": "2026-09-22T16:10:20+00:00",
+  "job_id": "781a9baa",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1066,10 +1066,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "⚑ ANSWERED 2026-09-22 (s140), AND IT IS NEITHER H1 NOR H2 BUT THE MECHANISM UNDER BOTH. Decisive probe: corrupt EL-Amber.colors by renaming the section header [Colors:Selection], then run check_selection_contrast. Before: '30 of 30 selection pairs clear 3.0:1'. After: '25 of 25 selection pairs clear 3.0:1', EXIT 0. The check SAW the corruption -- its population fell by five pairs -- and reported success anyway. THE CORRUPTION DOES NOT FALSIFY THE PREDICATE, IT REMOVES MEMBERS FROM THE POPULATION, and n of n is green for every n. Corrupt everything and you reach 0 of 0: green. That is one common cause for all 66 indeterminate verdicts, and it is THIS REPO'S OWN WRITTEN RULE violated at scale -- CLAUDE.md: 'Report n of m, never a bare count. 0 failures over 0 files and 0 failures over 24 files must not print the same thing -- if the population is empty, REFUSE.' The checks report n of m where m is MEASURED; the rule requires m to be EXPECTED. A measured m cannot discriminate a clean tree from a deleted one. FIRST BOUNDED STEP: give check_selection_contrast an EXPECTED population (6 variants x 5 pairs = 30, derived from the variant roster rather than typed) and refuse when the measured population differs. Then sweep: check_discriminates --list is the probe roster, and each check that fails to flip under a member-removing corruption is one more instance. ⚑ DO NOT FIX BY RAISING A COUNT: the assertion must be the PRODUCT of declared dimensions, so adding a variant moves it automatically and deleting one FAILS. Related and not the same: linux-sources-9c's liveness conjunct (assert the population before the outcome) is this rule at the arm level; action_key's empty-domain deny is it at the key level. Three sites, one law.",
+      "next_bounded_step": "FIRST INSTANCE CLOSED 2026-09-22 (s141); the sweep remains. check_selection_contrast now derives its roster from the PALETTE AUTHORITY (make_schemes.GRID emits exactly one .colors per entry) instead of os.listdir(ROOT), asserts expected = schemes x gated keys = 6 x 5 = 30 BEFORE the outcome, and RETURNS every skipped pair as missing rather than dropping it. Measured by check_discriminates: the emitted-colors probe went from 'does NOT flip' (30 of 30 -> 25 of 25, rc 0 both) to FLIPS (rc 2, naming EL-Amber ForegroundPositive: BackgroundNormal is absent). ⚑ AND DECLARING THE INPUT MADE A SECOND AXIS DISCRIMINATING FOR FREE: the make_schemes probe also flipped, because the check now genuinely imports the authority. Declaring inputs is not bookkeeping — it is what gives a mutation something to reach, which is the tie back to W61. Suite: 3 of 4 probes flip, up from 1 of 4. NEXT: check_token_source still does NOT flip under a make_schemes corruption — the next instance. Then extend the PROBES roster in check_discriminates to cover the other 60-odd checks; each non-flip under a member-removing corruption is another n-of-n site. ⚑ THE PATTERN TO APPLY, not a fix to copy: the expected count must be the PRODUCT OF DECLARED DIMENSIONS drawn from an authority, so adding a member moves it and deleting one refuses. Never a typed constant.",
       "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both",
       "issued_at": "2026-09-22T15:41:39+00:00",
-      "last_worked": "2026-09-22T15:44:51+00:00",
+      "last_worked": "2026-09-22T16:09:09+00:00",
       "ticks_blocked": 0
     }
   ],

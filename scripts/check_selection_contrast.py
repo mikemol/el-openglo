@@ -72,14 +72,39 @@ GATED_SEMANTIC = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive
 KNOWN_INFEASIBLE = {}
 
 
+def schemes():
+    """The scheme ids this tree DECLARES, from the palette authority.
+
+    ⚑ THE ROSTER IS DECLARED, NOT DISCOVERED (W65, 2026-09-22). This function
+    used to be `os.listdir(ROOT)` filtered to `.colors` — one of the 42 undeclared
+    domains build_graph measures — and a discovered population cannot tell a clean
+    tree from a deleted one. make_schemes emits exactly one .colors per GRID
+    entry, so GRID is the authority: add a variant and the expected count moves by
+    itself; delete an emitted file and this REFUSES instead of quietly measuring
+    less."""
+    sys.path.insert(0, ROOT) if ROOT not in sys.path else None
+    import make_schemes
+    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+
+
 def selection_pairs(keys=FG_KEYS):
-    """[(scheme, key, fg, bg, ratio)] for every emitted .colors file."""
-    out = []
-    for fn in sorted(os.listdir(ROOT)):
-        if not fn.endswith(".colors"):
+    """([(scheme, key, fg, bg, ratio)], [missing]) over the DECLARED roster.
+
+    ⚑ EVERY `continue` HERE USED TO SHRINK THE POPULATION SILENTLY, and that is
+    the defect W65 names. Measured 2026-09-22 by check_discriminates: renaming the
+    [Colors:Selection] header in one scheme took the report from "30 of 30
+    selection pairs clear 3.0:1" to "25 of 25" — EXIT 0 BOTH TIMES. The corruption
+    did not falsify the predicate, it removed five members from the population,
+    and n of n is green for every n. Corrupt every scheme and you arrive at 0 of
+    0: green. So a skipped pair is now RETURNED as missing, never dropped."""
+    out, missing = [], []
+    for scheme in schemes():
+        path = os.path.join(ROOT, f"{scheme}.colors")
+        if not os.path.isfile(path):
+            missing.extend((scheme, k, "the .colors file is absent") for k in keys)
             continue
         cur, sect = None, {}
-        for line in open(os.path.join(ROOT, fn), encoding="utf-8", errors="replace"):
+        for line in open(path, encoding="utf-8", errors="replace"):
             line = line.strip()
             if line.startswith("[") and line.endswith("]"):
                 cur = line
@@ -88,16 +113,18 @@ def selection_pairs(keys=FG_KEYS):
                 sect[k.strip()] = v.strip()
         bg = sect.get("BackgroundNormal")
         if not bg:
+            missing.extend((scheme, k, "[Colors:Selection] BackgroundNormal is absent")
+                           for k in keys)
             continue
         bg_rgb = tuple(int(x) for x in bg.split(","))
         for key in keys:
             v = sect.get(key)
             if not v:
+                missing.append((scheme, key, f"[Colors:Selection] {key} is absent"))
                 continue
             fg_rgb = tuple(int(x) for x in v.split(","))
-            out.append((fn[:-len(".colors")], key, fg_rgb, bg_rgb,
-                        contrast(fg_rgb, bg_rgb)))
-    return out
+            out.append((scheme, key, fg_rgb, bg_rgb, contrast(fg_rgb, bg_rgb)))
+    return out, missing
 
 
 def main(argv):
@@ -107,16 +134,35 @@ def main(argv):
             print(f"check_selection_contrast: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--semantic" in argv:
-        for scheme, key, fg, bg, r in selection_pairs(SEMANTIC_KEYS):
+        sem, _m = selection_pairs(SEMANTIC_KEYS)
+        for scheme, key, fg, bg, r in sem:
             flag = "  " if r >= FLOOR else "！"
             print(f"{flag}{scheme}\t{key}\t{fg} on {bg}\t{r:.2f}:1")
         return 0
-    pairs = selection_pairs(FG_KEYS + GATED_SEMANTIC)
+    keys = FG_KEYS + GATED_SEMANTIC
+    pairs, missing = selection_pairs(keys)
     if "--report" in argv:
         for scheme, key, fg, bg, r in pairs:
             flag = "  " if r >= FLOOR else "！"
             print(f"{flag}{scheme}\t{key}\t{fg} on {bg}\t{r:.2f}:1")
+        for scheme, key, why in missing:
+            print(f"！{scheme}\t{key}\tMISSING — {why}")
         return 0
+    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME, and it is the PRODUCT of
+    # two declared dimensions — the palette authority's roster and the gated key
+    # list — never a typed constant. Add a variant and this moves by itself;
+    # delete an emitted scheme and it REFUSES. CLAUDE.md states the law and this
+    # check was breaking it: "0 failures over 0 files and 0 failures over 24 files
+    # must not print the same thing — if the population is empty, REFUSE."
+    expected = len(schemes()) * len(keys)
+    if missing or len(pairs) != expected:
+        print(f"check_selection_contrast: REFUSED — measured {len(pairs)} of {expected} "
+              f"declared pair(s) ({len(schemes())} scheme(s) x {len(keys)} gated key(s)). "
+              f"A SHRINKING POPULATION IS NOT A PASSING ONE: n of n is green for every n.",
+              file=sys.stderr)
+        for scheme, key, why in missing:
+            print(f"    {scheme} {key}: {why}", file=sys.stderr)
+        return 2
     if not pairs:
         print("check_selection_contrast: REFUSED — no schemes found; the search is "
               "broken, not the theme legible", file=sys.stderr)
@@ -170,12 +216,22 @@ def _selftest():
     check("the measure is symmetric",
           round(contrast((0, 0, 0), (255, 255, 255)), 4),
           round(contrast((255, 255, 255), (0, 0, 0)), 4))
-    check("found selection pairs", len(selection_pairs()) > 0, True)
+    check("found selection pairs", len(selection_pairs()[0]) > 0, True)
     check("the semantic keys are read too",
-          len(selection_pairs(GATED_SEMANTIC)) == 3 * len(selection_pairs(("ForegroundNormal",))), True)
+          len(selection_pairs(GATED_SEMANTIC)[0]) == 3 * len(selection_pairs(("ForegroundNormal",))[0]), True)
+    # ⚑ THE POPULATION IS COMPLETE ON A CLEAN TREE, AND SAYS SO. Without this the
+    # expected-count assertion in main() could only ever be observed failing; a
+    # rule whose satisfied case is never asserted cannot retire, and "the tree is
+    # whole" and "the reader stopped looking" would render the same. This is
+    # linux-sources-9c's liveness conjunct at the third site today.
+    pairs, missing = selection_pairs(FG_KEYS + GATED_SEMANTIC)
+    check("the declared population is complete on a clean tree",
+          (len(missing), len(pairs) == len(schemes()) * len(FG_KEYS + GATED_SEMANTIC)),
+          (0, True))
+    check("and it is not vacuously complete", len(pairs) > 0, True)
     # ⚑ THE PIN MUST HOLD BOTH WAYS: the recorded pair is at its pinned ratio,
     # and a pin that drifted would be seen by main() (exercised via the table).
-    got = {(s, k): r for s, k, _f, _b, r in selection_pairs(GATED_SEMANTIC)}
+    got = {(s, k): r for s, k, _f, _b, r in selection_pairs(GATED_SEMANTIC)[0]}
     for (s, k), v in KNOWN_INFEASIBLE.items():
         check(f"pinned pair {s} {k} is still at {v}", abs(got.get((s, k), 0) - v) <= 0.05, True)
     saved = dict(KNOWN_INFEASIBLE)
