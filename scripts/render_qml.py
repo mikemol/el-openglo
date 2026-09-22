@@ -151,8 +151,11 @@ def subject(surface, variant):
     return qml, _kcfg_defaults(kcfg), cols["ground"]
 
 
-def render(surface, variant, w, h, out_png, config_override=None):
-    """Render to out_png; returns (rc, stderr)."""
+def render(surface, variant, w, h, out_png, config_override=None, software=False):
+    """Render to out_png; returns (rc, stderr). `software` asks for the software
+    scene graph explicitly (what the ebuild sandbox gets anyway) — an argument, not
+    an environment mutation: render_screens once set EL_RENDER_SOFTWARE in its own
+    process for one animation and every later still rendered under it (s125)."""
     qml, config, ground = subject(surface, variant)
     if config_override:
         config.update(config_override)
@@ -182,7 +185,7 @@ def render(surface, variant, w, h, out_png, config_override=None):
         # 2026-09-21, check_ebuild). Portage's sandbox sets SANDBOX_ON; there the
         # software scene graph draws the lit pixels the render gate asks for, and
         # the halo (MultiEffect) is simply absent — reported as backend=software.
-        if os.environ.get("SANDBOX_ON") == "1" or os.environ.get("EL_RENDER_SOFTWARE") == "1":
+        if software or os.environ.get("SANDBOX_ON") == "1" or os.environ.get("EL_RENDER_SOFTWARE") == "1":
             env["QT_QUICK_BACKEND"] = "software"
             env.pop("QSG_RHI_BACKEND", None)
         r = subprocess.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env,

@@ -111,3 +111,4 @@
 2026-09-22T05:34:22+00:00  tick  W47  collapsed collapse  "W47 folded into W54: the viewport is ApertureField.offsetY; Unifont 1:1 through a 16-row backdrop"  evidence=f45e52a
 2026-09-22T06:05:56+00:00  tick  W48  advanced  collapse  "seriesToColumns pure + 6 cases + M5 (74/74); the painter waits for W46's first live source"  evidence=b98e723
 2026-09-22T06:38:06+00:00  tick  W54  swept     sweep     "two folds: the loop's bookend clock from subject Ready; check_qml_lint --uses census (MatrixChar/MatrixField 0 of 12 instantiators)"  evidence=9a0755d
+2026-09-22T07:06:51+00:00  tick  W54  advanced  collapse  "MatrixChar/MatrixField retired: five pins moved, one hidden Python caller found by --calls, templates + baseline deleted; 47/47, gate 68"  evidence=dd50c52

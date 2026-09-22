@@ -436,6 +436,22 @@ CLOSED = {
                 _reads("catalog/one-theme.md", r"(?m)^## The Look-and-Feel") and
                 _tool("opa_gate.py", "taskswitch") and
                 _tool("check_migration.py")),
+    # closed session 125 (W54, 2026-09-22): the operator's pinholes — every pip a
+    # brightness RANGE, the ink of a supersampled backdrop under its aperture; the
+    # marquee's board since the s120 port; relations.md §5b states the relation.
+    "⊕APERTURE-FIELD": (
+        "the matrix field is an aperture integral: ApertureField.qml grades every pip by"
+        " a backdrop's coverage (prefix sums, no shader), the marquee paints its cells"
+        " into that backdrop and scrolls by offset, the viewport is offsetY, and"
+        " check_aperture holds the floor / halfway / lit relation on seen pixels (:7590)",
+        lambda: _reads("templates/ApertureField.qml", r"(?m)^\s*function integrate\(\)") and
+                _reads("templates/ApertureField.qml", r"(?m)^\s*property real offsetY") and
+                _reads("templates/ApertureField.qml", r"(?m)^\s*property real gamma") and
+                _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
+                _reads("templates/marquee-main.qml", r'target:\s*field;\s*property:\s*"offset"') and
+                _reads("catalog/relations.md", r"(?m)^### 5b\. A pip's brightness") and
+                _reads("templates/marquee-body.js", r"(?m)^function seriesToColumns\(") and
+                _tool("opa_gate.py", "aperture")),
     "⊕NOTIFY-SEGRENDER": (
         "the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
         " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)",

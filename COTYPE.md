@@ -8258,3 +8258,87 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s124]
+
+## Session 125 — the viewport scrolls, and ⊕APERTURE-FIELD closes (W54)
+- The last fold: the vertical scroll as an animation. The text probe's band
+  can be overridden per render (render_qml --set offsetRows=N reaches the
+  probe through the harness's plasmoid.configuration), so
+  render_screens.animate_viewport renders the probe once per band 0..8..0
+  — 17 frames, ping-pong so the loop closes — into pinholes-anim-<v>.png:
+  the 8-row field scrolling down a 16-row Unifont cell and back. The
+  scroll invariant along y: pip ROWS from the first frame's row profile,
+  the floor as the least-lit row (the first frame is not empty on this
+  axis), best_pip_shift admitting negative k for a scroll that reverses
+  (the marquee's stays one-way: a rightward move is a restart). Measured:
+  8 pip rows, shifts +1 ×8 then −1 ×8, no tears, seamless; the selftest
+  plants a lit row stepping down then up (content moving down the field is
+  k = −1). 48 of 48 in the plan; 74/74 policy tests.
+- A wrong tool caught by S3: the first render set EL_RENDER_SOFTWARE in
+  the process environment for the viewport frames and every LATER still
+  rendered under the software backend — five variants' pinholes stills
+  changed their modal colour, the first variant's did not. The backend is
+  now an argument of render_qml.render (software=True), used by
+  check_aperture; the stills and the viewport frames render on the same
+  backend as each other.
+
+### ⊕APERTURE-FIELD closure
+- Four gates: constructible — templates/ApertureField.qml (prefix-sum
+  integral per backdrop row, no shader; coverage^γ; colourFromInk; the ring;
+  backdropRows + offsetY) and the marquee's drawBackdrop painting the
+  registry's cells into it, emitted by make_notify_marquee and captured
+  (parity 13 of 13); reachable — org.el.notifymarquee instantiates it as
+  its board (check_qml_lint --uses ApertureField: the marquee and the two
+  probes), the scroll is a NumberAnimation on its offset, the package is
+  staged and the ebuild witness installs it; observable — check_aperture
+  reads three pips under every variant's scheme on the software backend
+  (six of six within one unit), check_marquee_live --motion reads the
+  board's velocity (cv 0.023, no pitch quantum, against the Row's 0.104 at
+  3.6 px), and the stills and both animation kinds are checked in;
+  coverable — A0-A4 (a snapping field fails A3), S1-S6 over 48 files (a
+  tear, an open loop, a wrong ground), L0-L8 unchanged on the ported
+  board, M5 on the series arithmetic — 74 refuse/admit pairs under opa
+  test, and the selftests plant a field that ignored its backdrop, a
+  rightward restart, a ping-pong.
+- What stays outside the closure, by name: the transfer curve γ = 0.5 on
+  the text probe is authored until W56's OCR objective tunes it; the
+  marquee's field is 8 registry rows — Unifont in the marquee is a Text
+  backdrop and a setting, not yet wired; the series painter waits for
+  W46's first live source; the live panel's smoothness and plasmashell's
+  cost with ~1900 items are ⊕VER-MARQUEE's after the operator's next
+  emerge; the S5 tolerance gap is 0.43/0.63.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124: field, gate, text
+  backdrop, Unifont, γ, the port, the viewport, the series arithmetic, MatrixChar retired)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (s111: the 1.5x gap factor is its first
+  authored-not-measured input), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s125]

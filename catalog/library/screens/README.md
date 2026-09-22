@@ -18,9 +18,12 @@ variant's ground.
 - `marquee-EL-Openglo.png`
 - `marquee-paused-EL-Openglo.png`
 - `pinholes-EL-Openglo.png`
-- `marquee-anim-EL-Openglo.png` — APNG, the widget scrolling (S5: never tears)
+- `marquee-anim-EL-Openglo.png` — APNG, the widget scrolling (S5: never tears; S6: loops)
+- `pinholes-anim-EL-Openglo.png` — APNG, the field scrolling down a 16-row Unifont cell and back (the viewport) (S5: never tears; S6: loops)
 
 ![EL-Openglo scrolling](marquee-anim-EL-Openglo.png)
+
+![EL-Openglo viewport](pinholes-anim-EL-Openglo.png)
 
 ## EL-Openglo-Lit
 
@@ -32,9 +35,12 @@ variant's ground.
 - `marquee-EL-Openglo-Lit.png`
 - `marquee-paused-EL-Openglo-Lit.png`
 - `pinholes-EL-Openglo-Lit.png`
-- `marquee-anim-EL-Openglo-Lit.png` — APNG, the widget scrolling (S5: never tears)
+- `marquee-anim-EL-Openglo-Lit.png` — APNG, the widget scrolling (S5: never tears; S6: loops)
+- `pinholes-anim-EL-Openglo-Lit.png` — APNG, the field scrolling down a 16-row Unifont cell and back (the viewport) (S5: never tears; S6: loops)
 
 ![EL-Openglo-Lit scrolling](marquee-anim-EL-Openglo-Lit.png)
+
+![EL-Openglo-Lit viewport](pinholes-anim-EL-Openglo-Lit.png)
 
 ## EL-Azure
 
@@ -46,9 +52,12 @@ variant's ground.
 - `marquee-EL-Azure.png`
 - `marquee-paused-EL-Azure.png`
 - `pinholes-EL-Azure.png`
-- `marquee-anim-EL-Azure.png` — APNG, the widget scrolling (S5: never tears)
+- `marquee-anim-EL-Azure.png` — APNG, the widget scrolling (S5: never tears; S6: loops)
+- `pinholes-anim-EL-Azure.png` — APNG, the field scrolling down a 16-row Unifont cell and back (the viewport) (S5: never tears; S6: loops)
 
 ![EL-Azure scrolling](marquee-anim-EL-Azure.png)
+
+![EL-Azure viewport](pinholes-anim-EL-Azure.png)
 
 ## EL-Azure-Lit
 
@@ -60,9 +69,12 @@ variant's ground.
 - `marquee-EL-Azure-Lit.png`
 - `marquee-paused-EL-Azure-Lit.png`
 - `pinholes-EL-Azure-Lit.png`
-- `marquee-anim-EL-Azure-Lit.png` — APNG, the widget scrolling (S5: never tears)
+- `marquee-anim-EL-Azure-Lit.png` — APNG, the widget scrolling (S5: never tears; S6: loops)
+- `pinholes-anim-EL-Azure-Lit.png` — APNG, the field scrolling down a 16-row Unifont cell and back (the viewport) (S5: never tears; S6: loops)
 
 ![EL-Azure-Lit scrolling](marquee-anim-EL-Azure-Lit.png)
+
+![EL-Azure-Lit viewport](pinholes-anim-EL-Azure-Lit.png)
 
 ## EL-Amber
 
@@ -74,9 +86,12 @@ variant's ground.
 - `marquee-EL-Amber.png`
 - `marquee-paused-EL-Amber.png`
 - `pinholes-EL-Amber.png`
-- `marquee-anim-EL-Amber.png` — APNG, the widget scrolling (S5: never tears)
+- `marquee-anim-EL-Amber.png` — APNG, the widget scrolling (S5: never tears; S6: loops)
+- `pinholes-anim-EL-Amber.png` — APNG, the field scrolling down a 16-row Unifont cell and back (the viewport) (S5: never tears; S6: loops)
 
 ![EL-Amber scrolling](marquee-anim-EL-Amber.png)
+
+![EL-Amber viewport](pinholes-anim-EL-Amber.png)
 
 ## EL-Amber-Lit
 
@@ -88,6 +103,9 @@ variant's ground.
 - `marquee-EL-Amber-Lit.png`
 - `marquee-paused-EL-Amber-Lit.png`
 - `pinholes-EL-Amber-Lit.png`
-- `marquee-anim-EL-Amber-Lit.png` — APNG, the widget scrolling (S5: never tears)
+- `marquee-anim-EL-Amber-Lit.png` — APNG, the widget scrolling (S5: never tears; S6: loops)
+- `pinholes-anim-EL-Amber-Lit.png` — APNG, the field scrolling down a 16-row Unifont cell and back (the viewport) (S5: never tears; S6: loops)
 
 ![EL-Amber-Lit scrolling](marquee-anim-EL-Amber-Lit.png)
+
+![EL-Amber-Lit viewport](pinholes-anim-EL-Amber-Lit.png)

@@ -41,8 +41,14 @@ STILLS = (
 
 
 # W52's second half: the marquee SCROLLING, one APNG per variant, frames grabbed
-# by the harness while the text is on the move (check_marquee_live.animate)
-ANIMATIONS = (("marquee-anim", ("marquee", "animate")),)
+# by the harness while the text is on the move (check_marquee_live.animate); and
+# W54's viewport: the 8-row field scrolling DOWN a 16-row Unifont backdrop and
+# back — one render per band (render_qml --set offsetRows), ping-pong so the
+# loop closes (S6), the scroll invariant measured along y (S5)
+ANIMATIONS = (("marquee-anim", ("marquee", "animate", "x")),
+              ("pinholes-anim", ("aperture-text", "scroll-y", "y")))
+VIEWPORT_STEPS = list(range(0, 9)) + list(range(7, -1, -1))    # 0..8..0: 17 frames
+VIEWPORT_FRAME_MS = 120
 
 
 def plan():
@@ -51,6 +57,29 @@ def plan():
 
 def plan_animations():
     return [(f"{name}-{v}.png", v, how) for v in VARIANTS for name, how in ANIMATIONS]
+
+
+def animate_viewport(variant, out_apng):
+    """The text probe rendered once per band of its backdrop (offsetRows 0..8..0),
+    assembled as an APNG: the field scrolling down a 16-row Unifont cell and back.
+    Returns the frame count. Each frame is a full themed render (~2 s wall on an
+    idle host), which is why this is a run, not a gate."""
+    import tempfile
+    import render_qml as RQ
+    from PIL import Image
+    ims = []
+    with tempfile.TemporaryDirectory() as td:
+        # the same backend as the stills (rhi where the host has it): the frames
+        # must look like the picture beside them
+        for i, step in enumerate(VIEWPORT_STEPS):
+            out = os.path.join(td, f"frame-{i:03d}.png")
+            rc, _err = RQ.render("aperture-text", variant, 420, 40, out, {"offsetRows": step})
+            if rc == 0 and os.path.isfile(out):
+                ims.append(Image.open(out).convert("RGB"))
+    if not ims:
+        return 0
+    ims[0].save(out_apng, format="PNG", save_all=True, append_images=ims[1:], duration=VIEWPORT_FRAME_MS, loop=0)
+    return len(ims)
 
 
 def render_all(out_dir=SCREENS):
@@ -70,9 +99,10 @@ def render_all(out_dir=SCREENS):
                 pass                                   # written by the scroll step
             if os.path.isfile(out):
                 written.append(out)
-        for name, _how in ANIMATIONS:
+        for name, how in ANIMATIONS:
             out = os.path.join(out_dir, f"{name}-{v}.png")
-            if ML.animate(v, out):
+            n = ML.animate(v, out) if how[1] == "animate" else animate_viewport(v, out)
+            if n:
                 written.append(out)
     sheets = contact_sheets(out_dir)
     open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8").write(index_md())
@@ -92,10 +122,11 @@ def index_md():
         lines += [f"## {v}", "", f"![{v}](sheet-{v}.png)", ""]
         for name, _how in STILLS:
             lines.append(f"- `{name}-{v}.png`")
-        for name, _how in ANIMATIONS:
-            lines.append(f"- `{name}-{v}.png` — APNG, the widget scrolling (S5: never tears)")
+        for name, how in ANIMATIONS:
+            what = "the widget scrolling" if how[1] == "animate" else "the field scrolling down a 16-row Unifont cell and back (the viewport)"
+            lines.append(f"- `{name}-{v}.png` — APNG, {what} (S5: never tears; S6: loops)")
         lines.append("")
-        lines += [f"![{v} scrolling](marquee-anim-{v}.png)", ""]
+        lines += [f"![{v} scrolling](marquee-anim-{v}.png)", "", f"![{v} viewport](pinholes-anim-{v}.png)", ""]
     return "\n".join(lines)
 
 
@@ -157,11 +188,12 @@ def measure(out_dir=SCREENS):
                        distinct=len(colours))
         rows.append(row)
     anims = []
-    for fn, v, _how in plan_animations():
+    for fn, v, how in plan_animations():
         p = os.path.join(out_dir, fn)
         row = {"file": fn, "variant": v, "exists": os.path.isfile(p)}
         if row["exists"]:
-            row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#%02x%02x%02x" % WL.colors_for(v)[0]))
+            row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#%02x%02x%02x" % WL.colors_for(v)[0],
+                                       axis=how[2]))
         anims.append(row)
     return {"screens": rows, "animations": anims, "dir": out_dir}
 
@@ -202,61 +234,64 @@ def best_shift(prev, cur, max_shift):
     return best
 
 
-def pip_centres(frame, lit, ground):
-    """The x of every pip column, from the picture alone: columns whose pixels sit
-    off the ground (the field's ghost pips, lit or not) form periodic bumps; a bump's
-    peak is a pip's centre. Also the ghost floor's lit-ness at those centres."""
+def _litness(frame, lit, ground):
+    """Per pixel, the projection onto ground→lit clamped to [0, 1], as a 2-D list [y][x]."""
     px = frame.load()
     lg = [l - g for l, g in zip(lit, ground)]
     norm = sum(v * v for v in lg) or 1
-    prof = []
-    for x in range(frame.width):
-        s = 0.0
-        for y in range(frame.height):
-            p = px[x, y]
-            s += max(0.0, min(1.0, sum((p[i] - ground[i]) * lg[i] for i in range(3)) / norm))
-        prof.append(s)
-    centres = [x for x in range(1, frame.width - 1)
-               if prof[x] > 0 and prof[x] >= prof[x - 1] and prof[x] > prof[x + 1]]
-    return centres
+    return [[max(0.0, min(1.0, sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm))
+             for x in range(frame.width)] for y in range(frame.height)]
 
 
-def pip_profile(frame, centres, lit, ground, floor):
-    """Per pip column, its brightness ABOVE the ghost floor in [0, 1]: the mean
-    lit-ness (projection onto ground→lit) over the column, the floor removed."""
-    px = frame.load()
-    lg = [l - g for l, g in zip(lit, ground)]
-    norm = sum(v * v for v in lg) or 1
+def pip_centres(frame, lit, ground, axis="x"):
+    """The x of every pip column (axis "x") or the y of every pip row (axis "y"),
+    from the picture alone: lines whose pixels sit off the ground (the field's
+    ghost pips, lit or not) form periodic bumps; a bump's peak is a pip's centre."""
+    L = _litness(frame, lit, ground)
+    if axis == "x":
+        prof = [sum(L[y][x] for y in range(frame.height)) for x in range(frame.width)]
+    else:
+        prof = [sum(L[y]) for y in range(frame.height)]
+    return [i for i in range(1, len(prof) - 1)
+            if prof[i] > 0 and prof[i] >= prof[i - 1] and prof[i] > prof[i + 1]]
+
+
+def pip_profile(frame, centres, lit, ground, floor, axis="x"):
+    """Per pip column (or row), its brightness ABOVE the ghost floor in [0, 1]: the
+    mean lit-ness along the line, the floor removed."""
+    L = _litness(frame, lit, ground)
     out = []
-    for x in centres:
-        s = 0.0
-        for y in range(frame.height):
-            p = px[x, y]
-            s += max(0.0, min(1.0, sum((p[i] - ground[i]) * lg[i] for i in range(3)) / norm))
-        s /= frame.height
+    for c in centres:
+        if axis == "x":
+            s = sum(L[y][c] for y in range(frame.height)) / frame.height
+        else:
+            s = sum(L[c]) / frame.width
         out.append(max(0.0, (s - floor) / (1 - floor)) if floor < 1 else 0.0)
     return out
 
 
-def best_pip_shift(prev, cur, max_shift):
+def best_pip_shift(prev, cur, max_shift, both_ways=False):
     """The shift in PIPS (whole k plus a fraction f) under which `cur` best matches
     `prev` moved left — cur[c] ≈ (1-f)·prev[c+k] + f·prev[c+k+1] — and the
     mismatch under it, in brightness. A graded field never moves its pips; their
     brightness moves, by fractions of a pip per frame. The k entering pips at the
-    right are new content and are not compared."""
+    edge are new content and are not compared. `both_ways` admits negative k (a
+    scroll that reverses, like the viewport's ping-pong); the marquee's is one-way,
+    where a rightward move is a restart."""
     best = (None, None, None)
     n = len(cur)
-    for k in range(max_shift + 1):
+    for k in range(-max_shift if both_ways else 0, max_shift + 1):
         for f in (0.0, 0.25, 0.5, 0.75):
             mism = 0.0
-            for c in range(n - k - 1):
+            lo, hi = max(0, -k), n - max(0, k) - 1
+            for c in range(lo, hi):
                 mism += abs(cur[c] - ((1 - f) * prev[c + k] + f * prev[c + k + 1]))
             if best[2] is None or mism < best[2]:
                 best = (k, f, mism)
     return best
 
 
-def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
+def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
     """A scroll is a LEFT SHIFT OF THE PIPS' BRIGHTNESS: the field never moves (W34a,
     the pips are the hardware); the backdrop behind it does, by a fraction of a pip
     per frame, so each pip's brightness is the previous frame's profile sampled a
@@ -280,10 +315,13 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
         rgb = fr.convert("RGB")
         if rgb_first is None:
             rgb_first = rgb
-            centres = pip_centres(rgb, lit, ground)
-            raw = pip_profile(rgb, centres, lit, ground, 0.0)
-            floor = (sum(raw) / len(raw)) if raw else 0.0
-        profiles.append(pip_profile(rgb, centres, lit, ground, floor))
+            centres = pip_centres(rgb, lit, ground, axis)
+            # the floor: the ghost's lit-ness where nothing is lit. Along x the empty
+            # bookend frame gives it; along y (the viewport, whose first frame is
+            # not empty) the least-lit pip line does
+            raw = pip_profile(rgb, centres, lit, ground, 0.0, axis)
+            floor = ((sum(raw) / len(raw)) if axis == "x" else min(raw)) if raw else 0.0
+        profiles.append(pip_profile(rgb, centres, lit, ground, floor, axis))
         rgb_last = rgb
     shifts, tears = [], []
     for i in range(len(profiles) - 1):
@@ -291,14 +329,14 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
         total = max(sum(prev), sum(cur))
         if total < 0.5:
             continue
-        k, f, mism = best_pip_shift(prev, cur, max(1, len(centres) // 4))
+        k, f, mism = best_pip_shift(prev, cur, max(1, len(centres) // 4), both_ways=(axis == "y"))
         shifts.append(k + f)
         if mism > tolerance * total:
             tears.append({"frame": i + 1, "shift": k + f, "mismatch": round(mism, 2), "total": round(total, 2)})
     # a seamless loop: the run starts and ends on the same picture (the empty board).
     # Compared from the one forward pass — re-seeking an APNG in PIL re-composites.
     seamless = rgb_first is not None and rgb_first.tobytes() == rgb_last.tobytes()
-    return {"frames": len(profiles), "width": width, "pips": len(centres), "floor": round(floor, 3),
+    return {"frames": len(profiles), "width": width, "axis": axis, "pips": len(centres), "floor": round(floor, 3),
             "shifts": shifts, "tears": tears, "seamless": seamless}
 
 

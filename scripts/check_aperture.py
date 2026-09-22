@@ -69,10 +69,9 @@ def measure(variants=VARIANTS):
             row["withheld"] = f"{RQ.QML} is not installed"
             rows.append(row)
             continue
-        os.environ["EL_RENDER_SOFTWARE"] = "1"
         with tempfile.TemporaryDirectory() as td:
             out = os.path.join(td, "ap.png")
-            rc, err = RQ.render("aperture", v, 420, 40, out)
+            rc, err = RQ.render("aperture", v, 420, 40, out, software=True)
             if rc != 0 or not os.path.isfile(out):
                 row["withheld"] = f"render failed (rc={rc}): {err[-300:]}"
             else:

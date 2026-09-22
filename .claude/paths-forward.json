@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T06:38:35+00:00",
-  "job_id": "8d5d0f2d",
+  "heartbeat": "2026-09-22T07:07:20+00:00",
+  "job_id": "fce63c28",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-8d5d0f2d",
-    "taken_at": "2026-09-22T06:52:14+00:00"
+    "holder": "tick-fce63c28",
+    "taken_at": "2026-09-22T07:25:33+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -919,10 +919,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "Folds remaining: (e) the vertical scroll as an animation (frames over offsetY through the 16-row Unifont backdrop; S5 in y) — needs a second animation kind in render_screens (a render_qml surface driven over frames, not the marquee harness); (f) retire MatrixChar/MatrixField: move ⊕MATRIX-FONT-INPUT's '?' pin to drawBackdrop and ⊕NOTIFY-MATRIXRENDER's override pin to colourFromInk, drop them from render_all / the lint roster / the harness files, delete the templates + baselines. Then the W54 closure (four gates) and W46 leads.",
-      "evidence": "...916559a port; f45e52a viewport; b98e723 series; 9a0755d bookend clock + --uses census (MatrixChar/MatrixField 0 of 12)",
+      "next_bounded_step": "Last fold (e): the vertical scroll as an animation — a second animation kind in render_screens driven by render_qml over frames (a probe surface with a frame index hole, or a small harness that grabs per offsetY step) through the 16-row Unifont backdrop; S5 generalised to a y shift (or a stated residue if the y witness is a tick of its own). Then the ⊕W54 closure: COTYPE '### closure' + four gates (constructible: ApertureField + the port; reachable: the marquee package instantiates it; observable: check_aperture + --motion + the stills; coverable: A0-A4, S1-S6, L0-L8, M5) and W54 → done; W46 leads.",
+      "evidence": "...916559a port; f45e52a viewport; b98e723 series; 9a0755d bookend + census; dd50c52 MatrixChar/MatrixField retired (pins moved; 47/47; gate 68)",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T06:37:57+00:00",
+      "last_worked": "2026-09-22T07:06:43+00:00",
       "ticks_blocked": 0
     },
     {

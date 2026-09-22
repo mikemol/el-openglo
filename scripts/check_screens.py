@@ -86,6 +86,25 @@ def _selftest():
         chk("a rightward move is a tear, the one-pip shifts are not", [t["frame"] for t in a["tears"]], [3])
         chk("the one-pip shifts are read", [k for k in a["shifts"] if k == 1.0], [1.0, 1.0])
         chk("an open loop is a fact (first and last frames differ)", a["seamless"], False)
+        # along y (the viewport): a field of pip ROWS with one lit row stepping down
+        # one pip per frame, then up — a ping-pong is admitted on the y axis
+        frames = []
+        for lit_row in (2, 3, 4, 3, 2):
+            f = Image.new("RGB", (60, 40), gnd)
+            for r in range(10):
+                for c in range(15):
+                    for dx in range(4):
+                        for dy in (1, 2):
+                            f.putpixel((4 * c + dx, 4 * r + dy), litc if r == lit_row else ghost)
+            frames.append(f)
+        ap = os.path.join(td, "pinholes-anim-EL-Amber.png")
+        frames[0].save(ap, format="PNG", save_all=True, append_images=frames[1:], duration=40, loop=0)
+        a = RS.animation_facts(ap, "#ffd499", "#140f08", axis="y")
+        chk("the pip rows are found along y", a["pips"], 10)
+        # content moving DOWN the field is a shift of -1 (the viewport's band moving
+        # down the backdrop moves content UP: +1); a ping-pong is admitted on y
+        chk("a ping-pong along y is shifts of -1 then +1, no tear", (a["shifts"], a["tears"]), ([-1.0, -1.0, 1.0, 1.0], []))
+        chk("...and it loops", a["seamless"], True)
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok
 
