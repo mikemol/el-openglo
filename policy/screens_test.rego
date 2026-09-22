@@ -35,7 +35,12 @@ test_s3_admits_the_view_ground if {
 }
 
 anim := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 48, "width": 420,
-	"shifts": [6, 6, 7, 6, 12, 6], "tears": []}
+	"shifts": [6, 6, 7, 6, 12, 6], "tears": [], "seamless": true}
+
+test_s6_refuses_an_open_loop if {
+	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"seamless": false})]}
+	startswith(msg, "S6:")
+}
 
 test_s4_s5_admit_a_scrolling_animation if {
 	count(sc.deny) == 0 with input as {"screens": [good], "animations": [anim]}

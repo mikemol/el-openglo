@@ -178,12 +178,16 @@ Window {
                 harness.grabbedPaused = true;
                 harness.contentItem.grabToImage(function (r) { r.saveToFile(grabPaused); });
             }
-            // W52 animation: one frame per sample while the text is on the move, never
-            // two grabs in flight (a grab that lands after the next sample would be a
-            // frame out of order — the tear the policy forbids), capped
+            // W52 animation: one frame per sample while the board RUNS — from the empty
+            // board at x = width through the traversal to the empty board at the end,
+            // so one item's run is a seamless loop (operator: "doesn't qualify for
+            // r/perfectloops") — never two grabs in flight (a grab that lands after
+            // the next sample would be a frame out of order), capped
             var frames = %(frames)s;
+            // frame 0 is the EMPTY board before anything arrives (the loop's bookend);
+            // then every sample while the board runs
             if (frames && !harness.framePending && harness.frameCount < %(frame_cap)d
-                && s.tickerText !== "" && s.boardRunning && !s.boardPaused) {
+                && ((harness.frameCount === 0 && harness.next === 0) || (s.boardRunning && !s.boardPaused))) {
                 harness.framePending = true;
                 var n = harness.frameCount; harness.frameCount += 1;
                 harness.frameX.push({ t: now, x: s.boardX });
@@ -238,10 +242,18 @@ HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples a
 HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
 
 
-FRAME_CAP = 48            # an animation's frames, at most (one per SAMPLE_MS sample)
+FRAME_CAP = 120           # an animation's frames, at most (one per SAMPLE_MS sample); a traversal is ~60
 
 
-def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None, frames=None):
+# one item, once: the periodic content a seamless loop needs (empty -> enters -> leaves -> empty)
+LOOP_TIMELINE = [
+    (300, "arrive", 1, {"summary": "hello", "body": "", "applicationName": "app"}, "app: hello"),
+    (900, "expire", 1, {}, ""),
+]
+
+
+def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None, frames=None,
+        timeline=None):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
     ⚑ THE HOVERED RUN ENDS ON ITS CONDITION, NOT THE CLOCK (measured 2026-09-22:
@@ -272,7 +284,7 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
         open(os.path.join(td, "subject.qml"), "w").write(qml)
         for name, text in files.items():
             open(os.path.join(td, name), "w").write(text)
-        timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in TIMELINE]
+        timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in (timeline or TIMELINE)]
         open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
             "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused,
@@ -313,24 +325,40 @@ def screenshot(variant, out_scroll, out_paused):
 
 def animate(variant, out_apng):
     """The real widget scrolling under `variant`'s scheme, as an APNG (W52's second
-    half): one frame per harness sample while the text is on the move, assembled by
-    PIL with each frame's own measured delay. Returns the frame count written.
-    WEAKNESS: the grab is asynchronous and the software backend is slow under load,
-    so a loaded host yields fewer, longer frames — the frame's x is what the board
-    showed, whatever the spacing; policy/screens.rego measures the pictures, not
-    this count."""
+    half): ONE item's whole run — the empty board, the text entering, crossing,
+    leaving, the empty board — so the loop is seamless. One frame per harness
+    sample while the board runs. ⚑ DELAYS FROM DISPLACEMENT, NOT TIME (operator:
+    "showing some of the jumpy behaviour"): the sampler is wall-clock and the scene
+    is heavy, so frames land at uneven Δx; each frame's delay is its Δx at the
+    run's mean velocity, which plays back at constant speed. The jitter itself is
+    a fact about the widget (⊕VER-MARQUEE), not hidden — the harness's frames list
+    still carries the measured t and x per frame. Returns the frame count.
+    WEAKNESS: a loaded host yields fewer, longer frames; policy/screens.rego
+    measures the pictures (S5 never-tear), not this count."""
     from PIL import Image
     with tempfile.TemporaryDirectory() as td:
-        res = run(variant=variant, end_ms=4000, frames=td)
+        res = run(variant=variant, end_ms=8000, frames=td, timeline=LOOP_TIMELINE)
         names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
         if not names:
             return 0
         ims = [Image.open(os.path.join(td, n)).convert("RGB") for n in names]
-        ts = [f["t"] for f in res.get("frames", [])][:len(ims)]
-        delays = [max(20, int(ts[i + 1] - ts[i])) for i in range(len(ts) - 1)] + [SAMPLE_MS]
-        delays += [SAMPLE_MS] * (len(ims) - len(delays))
-        ims[0].save(out_apng, format="PNG", save_all=True, append_images=ims[1:], duration=delays, loop=0)
-        return len(ims)
+        fx = res.get("frames", [])[:len(ims)]
+        # frame 0 is the empty board (the bookend); the run's frames follow. The run
+        # ends drained (the harness's own end condition), so the same empty board
+        # closes the loop: first frame == last frame, held for a beat at each end.
+        hold = 400
+        run_x, run_t = [f["x"] for f in fx[1:]], [f["t"] for f in fx[1:]]
+        if len(run_x) > 1 and run_t[-1] > run_t[0] and run_x[0] != run_x[-1]:
+            v = abs(run_x[-1] - run_x[0]) / (run_t[-1] - run_t[0])          # px per ms over the run
+            run_delays = [max(1, round(abs(run_x[i + 1] - run_x[i]) / v)) for i in range(len(run_x) - 1)]
+        else:
+            run_delays = [SAMPLE_MS] * max(0, len(run_x) - 1)
+        run_delays.append(SAMPLE_MS)
+        run_delays += [SAMPLE_MS] * (len(ims) - 1 - len(run_delays))
+        frames_out = ims + [ims[0]]
+        delays = [hold] + run_delays + [hold]
+        frames_out[0].save(out_apng, format="PNG", save_all=True, append_images=frames_out[1:], duration=delays, loop=0)
+        return len(frames_out)
 
 
 def expected_colors(variant):

@@ -81,6 +81,7 @@ def _selftest():
         chk("the frames are counted", a["frames"], 4)
         chk("a rightward move is a tear, the left shifts are not", [t["frame"] for t in a["tears"]], [2])
         chk("the left shifts are read", [k for k in a["shifts"] if k == 6], [6, 6])
+        chk("an open loop is a fact (first and last frames differ)", a["seamless"], False)
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok
 

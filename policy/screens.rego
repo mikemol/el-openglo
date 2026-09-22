@@ -83,3 +83,16 @@ deny contains msg if {
 	count(a.tears) > 0
 	msg := sprintf("S5: %s tears at frame(s) %v", [a.file, [t.frame | some t in a.tears]])
 }
+
+# METADATA
+# title: "S6 — an animation loops seamlessly"
+# description: |
+#   One item's whole run: the first and last frames are the same picture (the
+#   empty board), so the loop closes without a jump (operator: "doesn't qualify
+#   for r/perfectloops").
+deny contains msg if {
+	some a in input.animations
+	a.exists
+	not a.seamless
+	msg := sprintf("S6: %s does not loop — its first and last frames differ", [a.file])
+}

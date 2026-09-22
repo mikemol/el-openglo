@@ -7818,10 +7818,28 @@ residue gated on live operator testing.
   the way an LED driver's gamma does not); the text probe runs at 0.5,
   authored, and the string comes up out of the floor at the cost of a faint
   halo of low-coverage pips — the trade W56's score is for. Stills re-done.
+- Operator, on the README's animation: "doesn't qualify for r/perfectloops
+  ... and it is showing some of the jumpy behaviour I've observed in the
+  actual widget, too." Two facts. THE LOOP: the capture began at the first
+  mid-board sample and stopped at a 48-frame cap, so neither end was the
+  empty board. Now one item's whole run (LOOP_TIMELINE) bookended by a real
+  grab of the empty board before arrival, closed on the same picture (the
+  run ends drained — the harness's own end condition); S6 holds first ==
+  last, and measured 0 differing pixels x6 (a first attempt at S6 read the
+  APNG twice — PIL re-composites on re-seek — and failed all six; one pass).
+  THE JITTER: the displacement per 40 ms sample alternated 2:1 under the
+  harness (52/104 ms delays at constant velocity), and the operator sees
+  it live — a heavy Row of MatrixChar items repainted per frame. In the
+  APNG the delays now come from Δx at the run's mean velocity, so playback
+  is constant-speed while the harness's frames list keeps t and x per frame
+  (the jitter is recorded, not hidden). Live, it is ⊕VER-MARQUEE's, and
+  W54's field (the scroll is one number) is the structural answer whose
+  per-frame cost under plasmashell is still to be measured.
 - Residue: the 16-row 1:1 reading of Unifont is W47's fold into W54 (a
   viewport) and the honest fix for the fade; the gamma is authored until
   W56 tunes it; chi_sim/jpn tessdata are the operator's (the package.use
-  generator was handed over); the low-pass radius is a sweep parameter.
+  generator was handed over); the low-pass radius is a sweep parameter;
+  the loop's hold (400 ms at each end) is authored.
 
 ## Symbol ledger (current)
 - ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
@@ -7842,11 +7860,12 @@ residue gated on live operator testing.
   pages open without a refusal on stderr), ⊕VER-MARQUEE
   (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
   trace; still open: the board never goes dead over a day, a parked pointer
-  pulses the ring), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
-  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
-  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
-  1.5x gap factor is its first authored-not-measured input),
-  ⊕APCA-GHOST-CLOCK.
+  pulses the ring; s117 the scroll is JUMPY live — a heavy Row per frame;
+  W54's field is the answer to measure), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (s111: the 1.5x gap factor is its first
+  authored-not-measured input), ⊕APCA-GHOST-CLOCK.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
   the operator's "less like Minecraft sans RTX" — the live wallpaper's

@@ -218,7 +218,12 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
     lit, ground = _hex(lit_hex), _hex(ground_hex)
     im = Image.open(path)
     width = im.width
-    masks = [lit_columns(fr.convert("RGB"), lit, ground) for fr in ImageSequence.Iterator(im)]
+    masks, rgb_first, rgb_last = [], None, None
+    for fr in ImageSequence.Iterator(im):
+        rgb = fr.convert("RGB")
+        masks.append(lit_columns(rgb, lit, ground))
+        rgb_first = rgb_first or rgb
+        rgb_last = rgb
     shifts, tears = [], []
     for i in range(len(masks) - 1):
         prev, cur = masks[i], masks[i + 1]
@@ -229,7 +234,10 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
         shifts.append(k)
         if mism > tolerance * n_lit:
             tears.append({"frame": i + 1, "shift": k, "mismatch": mism, "lit": n_lit})
-    return {"frames": len(masks), "width": width, "shifts": shifts, "tears": tears}
+    # a seamless loop: the run starts and ends on the same picture (the empty board).
+    # Compared from the one forward pass — re-seeking an APNG in PIL re-composites.
+    seamless = rgb_first is not None and rgb_first.tobytes() == rgb_last.tobytes()
+    return {"frames": len(masks), "width": width, "shifts": shifts, "tears": tears, "seamless": seamless}
 
 
 def main(argv):
