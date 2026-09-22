@@ -57,14 +57,21 @@ def evaluate(name, doc):
     if not res:
         raise RuntimeError(f"data.el.{name} is undefined — no package el.{name} in policy/")
     v = res[0]["expressions"][0]["value"]
-    return {"deny": sorted(v.get("deny", [])), "withheld": sorted(v.get("withheld", []))}
+    # `admitted` is OPTIONAL: a policy that judges a population case by case
+    # declares what it admitted, so a withheld case beside admitted ones is a
+    # SKIP (a fact about the host) rather than "nothing was judged" (s131)
+    return {"deny": sorted(v.get("deny", [])), "withheld": sorted(v.get("withheld", [])),
+            "admitted": sorted(v["admitted"]) if "admitted" in v else None}
 
 
 def verdict(sets):
-    """0 admitted, 1 denied, 3 withheld-only."""
+    """0 admitted, 1 denied, 3 withheld-only. A policy that declares `admitted` and
+    admitted SOMETHING is 0 even with withheld cases — those are counted and
+    printed as SKIPs; a policy without `admitted`, or one that admitted nothing,
+    is 3 when anything is withheld: nothing was judged."""
     if sets["deny"]:
         return 1
-    if sets["withheld"]:
+    if sets["withheld"] and not sets.get("admitted"):
         return 3
     return 0
 
@@ -99,8 +106,9 @@ def main(argv):
     for m in sets["withheld"]:
         print(f"opa_gate: WITHHELD {m}", file=sys.stderr)
     rc = verdict(sets)
+    adm = f", {len(sets['admitted'])} admitted" if sets.get("admitted") is not None else ""
     print(f"opa_gate: {name}: {'admitted' if rc == 0 else 'DENIED' if rc == 1 else 'withheld'} — "
-          f"{len(sets['deny'])} deny, {len(sets['withheld'])} withheld")
+          f"{len(sets['deny'])} deny, {len(sets['withheld'])} withheld{adm}")
     return rc
 
 
@@ -128,6 +136,9 @@ def _selftest():
     chk("verdict maps deny to 1", verdict({"deny": ["x"], "withheld": []}), 1)
     chk("verdict maps withheld-only to 3", verdict({"deny": [], "withheld": ["x"]}), 3)
     chk("verdict maps empty sets to 0", verdict({"deny": [], "withheld": []}), 0)
+    chk("a withheld case beside admitted ones is a SKIP (0)", verdict({"deny": [], "withheld": ["x"], "admitted": ["a"]}), 0)
+    chk("a withheld case with nothing admitted is 3", verdict({"deny": [], "withheld": ["x"], "admitted": []}), 3)
+    chk("a deny outranks admitted", verdict({"deny": ["d"], "withheld": [], "admitted": ["a"]}), 1)
     r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True)
     chk("opa test policy/ passes", r.returncode, 0)
     print("opa_gate selftest:", "PASS" if ok else "FAIL")

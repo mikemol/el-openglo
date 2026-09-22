@@ -8,7 +8,7 @@ package el.screens
 import rego.v1
 
 deny contains msg if {
-	count(input.screens) == 0
+	count(object.get(input, "screens", [])) == 0
 	msg := "S0: no stills are planned"
 }
 

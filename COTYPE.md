@@ -8684,3 +8684,81 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s130]
+
+## Session 131 — legibility is a number, and γ = 0.5 was the optimum (W56)
+- scripts/check_legibility.py: a string rendered through the aperture field
+  (the text probe with font / text / rows / γ / band as holes;
+  render_qml.render_document renders a given document), low-passed at the
+  pitch, thresholded, read by tesseract, scored by normalised Levenshtein
+  similarity. Four cases: Unifont 1:1 (the x-height band), Unifont 2:1,
+  Liberation Mono, and 世界 in Unifont — the last WITHHELD (no chi_sim
+  tessdata; the operator's). Scores under the software backend: 0.857 /
+  0.929 / 1.000. policy/legibility.rego G0-G3 (99/99 across eleven
+  policies; @LEGIBILITY, 70 claims): a Latin case above a 0.7 floor
+  measured under the lowest honest read; an empty read is denied.
+- --sweep, γ × low-pass over the two Unifont cases: at 1:1 γ is the
+  IDENTITY (twelve points, four γ values, identical reads — every pip is 0
+  or 1 coverage there and coverage^γ moves nothing on {0, 1}); at 2:1 γ = 1
+  reads NOTHING (0.0) and γ = 0.5 with a 1.0-pitch low-pass reads "Hello
+  world 42" exactly (1.000). The authored 0.5 of s117 was the measured
+  optimum, and the low-pass wants 1.0 pitch, not 1.5 — the default moved.
+  Two backends read differently (rhi 0.714/0.714/0.857 at 1.5 pitch; the
+  pips' antialiasing) — a fact, recorded.
+- Three tool findings on the way. (1) opa_gate's verdict: a policy that
+  judges cases declares an `admitted` set, and a withheld case beside
+  admitted ones is a SKIP (exit 0) — before, one withheld CJK case made
+  the whole gate unresolvable while three cases had passed. (2) opa_gate's
+  selftest widened to every policy and found FIVE whose first rule did not
+  fire on an ABSENT population: count(input.x) is undefined on {} and an
+  undefined rule body admits — aperture, config_page, legibility,
+  notify_roles, screens now read object.get(input, "x", []). (3) The
+  gate's environment has no GL context: renders ask for the software
+  backend explicitly, like check_aperture; and tesseract is found by its
+  absolute path when PATH lacks /usr/bin.
+- Residue: tesseract reads print, so the score is a floor on legibility;
+  the 1:1 band cuts caps ("Helio") — the vertical scroll or a 16-row field
+  is the reading a still cannot give; the sweep is over γ × blur only —
+  scale, pixelSize and dotFill are the next axes; CJK when tessdata lands.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124; γ measured optimal s131) +
+  ⊕NOTIFY-CAPABILITIES ✓ (130; the contract s126, urgency s127, actions s128, the gauge s129;
+  ⊕NOTIFY-URGENCY's build subsumed)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board; s127 `notify-send -u
+  critical` reads in the hot token and keeps cycling, `-u low` reads dim;
+  s128 `notify-send -A open=Open` shows "[Open]" and a click on it fires
+  the action; s129 a KIO copy shows its gauge growing beside "copying"),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY (built s127 under the s130
+  capabilities closure; the live confirmation is ⊕VER-MARQUEE's s127 line),
+  ⊕GLANCE-CALIBRATE (s111: the 1.5x gap factor is its first
+  authored-not-measured input; s131: legibility is a measured objective now
+  — the glance-mode question could be asked of it), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s131]

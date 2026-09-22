@@ -83,7 +83,12 @@ could-not-measure as a `withheld` fact. The requirement lives in `policy/<name>.
 empty population). Its refusing and admitting cases live in `policy/<name>_test.rego`
 under `opa test` — that pair IS the falsifiability record, so the Python selftest shrinks
 to "the measurement can see". `scripts/opa_gate.py <name>` joins them (exit 0 admitted /
-1 denied / 3 withheld-only) and the warrant cites the gate. Pilot: `check_qml_lint` ↔
+1 denied / 3 withheld-only) and the warrant cites the gate. A policy that judges a
+population case by case also declares an `admitted` set: a withheld case beside admitted
+ones is then a SKIP (exit 0, counted and printed), while withheld with nothing admitted
+stays 3 — nothing was judged. The first rule must treat an ABSENT population as empty
+(`count(object.get(input, "cases", [])) == 0`): `count(input.cases)` is undefined on
+`{}` and an undefined rule body admits. Pilot: `check_qml_lint` ↔
 `policy/qml_lint.rego`. New checks are written this way; old ones migrate by sweep.
 
 ## Borrowed tooling: some scripts are SYMLINKS into ../substrate

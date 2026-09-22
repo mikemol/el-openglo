@@ -9,7 +9,9 @@ package el.aperture
 import rego.v1
 
 deny contains msg if {
-	count(input.variants) == 0
+	# absent counts as empty: count(input.variants) is UNDEFINED on {}, and an
+	# undefined rule body admits (measured s131 by opa_gate's selftest)
+	count(object.get(input, "variants", [])) == 0
 	msg := "A0: no variants were measured"
 }
 

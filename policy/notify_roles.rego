@@ -11,7 +11,7 @@ import rego.v1
 
 deny contains msg if {
 	not input.withheld
-	count(input.roles) == 0
+	count(object.get(input, "roles", {})) == 0
 	msg := "N0: no roles were read from the module"
 }
 

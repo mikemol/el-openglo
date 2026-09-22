@@ -8,7 +8,7 @@ package el.config_page
 import rego.v1
 
 deny contains msg if {
-	count(input.pages) == 0
+	count(object.get(input, "pages", [])) == 0
 	msg := "C0: no config pages are measured"
 }
 

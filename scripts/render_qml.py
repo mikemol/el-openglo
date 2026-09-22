@@ -159,6 +159,18 @@ def render(surface, variant, w, h, out_png, config_override=None, software=False
     qml, config, ground = subject(surface, variant)
     if config_override:
         config.update(config_override)
+    return render_document(qml, variant, w, h, out_png, config, ground, software)
+
+
+def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False):
+    """Render an already-rewritten QML document under `variant`'s scheme (the probe
+    with its own holes — check_legibility renders the text probe per case). The
+    harness, environment and backend rules are render()'s."""
+    if config is None:
+        config = {}
+    if ground is None:
+        import make_preview
+        ground = make_preview.parse_scheme(variant)["ground"]
     with tempfile.TemporaryDirectory(dir=os.path.join(ROOT, ".ebuild-witness")
                                      if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
                                      else None) as td:

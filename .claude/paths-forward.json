@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T09:58:05+00:00",
-  "job_id": "b349d3d7",
+  "heartbeat": "2026-09-22T10:26:29+00:00",
+  "job_id": "99e1fb6c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-b349d3d7",
-    "taken_at": "2026-09-22T10:08:22+00:00"
+    "holder": "tick-99e1fb6c",
+    "taken_at": "2026-09-22T10:37:38+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -777,16 +777,16 @@
     {
       "symbol": "W46",
       "title": "MARQUEE NOTIFICATION CAPABILITIES (operator 2026-09-22, the notify-send man page: which are we not achieving?). Read from the model per item: URGENCY (⊕NOTIFY-URGENCY, LIVE): critical keeps cycling until dismissed in the HOT token fg_act with bloom; normal as now; low at ghost weight or one traversal; EXPIRE: drop at the next boundary only (critical ignores it, as Plasma does); REPLACE-ID: W45's id-keyed queue upserts (same id -> new text at the boundary, position kept); TRANSIENT: exactly one traversal (the queue's shown flag); ACTIONS: rendered as tappable underlined runs after the text ([Reply] [Open]) and a tap calls the model's invokeAction(index, actionId) — the board becomes interactive; HINTS: read value (progress) — jobs already flow in (showJobs) and a job's percentage is a lit BAR across the field; CATEGORY: a style rule per category, later; ICONS: recorded residue (a 5x8 matrix cannot show one honestly; the app name stands in)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "templates/marquee-main.qml,templates/marquee-body.js,make_notify_marquee,catalog/relations.md",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: the model's roles are the input to urgency, actions, progress and the series painter; the aperture field made 'weight' and 'colour' numbers the backdrop carries",
-      "next_bounded_step": "CLOSURE: catalog/notify-capabilities.md rows updated to 'shipped (s127-129)' for urgency/expiry-critical/transient/actions/job progress; a ⊕NOTIFY-CAPABILITIES closure in COTYPE with the four gates (constructible: the queue fields, the runs, tapAt, the painter; reachable: the package instantiates them — the roles are declared by the host per N2; observable: L9/L10/L11 on the harness, the trace lines; coverable: refuse/admit pairs for each) and check_symbol CLOSED witness; named residue: category, hints, icons (a backdrop through the viewport), reply, a stopped job's drop, suspend/resume/kill as action runs. Then W46 → done; W56 leads (OCR).",
-      "evidence": "9bb647f contract; e637d0b urgency + transient (L9); 450eb0d actions (L10, M6); 1830cdc job gauge (L11, M7) — the paint-follows-the-swap finding",
+      "next_bounded_step": "none - residue named in the closure (category, hints, icons via the viewport, reply, a stopped job's drop, suspend/resume/kill runs); LIVE confirmations after the operator's next emerge (VER-MARQUEE s127-129)",
+      "evidence": "⊕NOTIFY-CAPABILITIES closed s130 (dbd46e8): 9bb647f contract; e637d0b urgency+transient; 450eb0d actions; 1830cdc gauge; the harness's tap now waits for its text (the gate refused under pre-commit load, admitted alone). 49/49 closed symbols; gate 69",
       "issued_at": "2026-09-21T18:18:48+00:00",
-      "last_worked": "2026-09-22T09:57:35+00:00",
+      "last_worked": "2026-09-22T10:25:58+00:00",
       "ticks_blocked": 0
     },
     {
