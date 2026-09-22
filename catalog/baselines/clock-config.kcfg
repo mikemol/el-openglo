@@ -6,9 +6,12 @@
   <entry name="use24h" type="Bool"><default>true</default></entry>
   <entry name="showSeconds" type="Bool"><default>false</default></entry>
   <entry name="blinkColon" type="Bool"><default>true</default></entry>
-  <entry name="bloom" type="Double"><default>1.5</default></entry>
+  <!-- bloom / ghostWeight / digitGap: the OPERATOR'S live tuning, promoted to the
+       defaults (2026-09-22, "decent defaults" — read from the appletsrc): a fuller
+       halo, a thinner ghost, and a digit gap 1.5x the datasheet pitch gap -->
+  <entry name="bloom" type="Double"><default>4.0</default></entry>
   <entry name="weight" type="Double"><default>1.0</default></entry>
-  <entry name="ghostWeight" type="Double"><default>0.81</default></entry>
-  <entry name="digitGap" type="Double"><default>0.786</default></entry>
+  <entry name="ghostWeight" type="Double"><default>0.4</default></entry>
+  <entry name="digitGap" type="Double"><default>1.179</default></entry>
  </group>
 </kcfg>

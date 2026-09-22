@@ -39,17 +39,19 @@ PlasmoidItem {
     property real strokeLit: segThick * (1 + 0.25 * weight)
     // the ghost's weight is its own slider (operator: "I want to be able to
     // make that still a bit smaller"); 0.81 is what weight=1 used to give
-    property real ghostWeight: (plasmoid.configuration.ghostWeight === undefined) ? 0.81
+    // 0.4 is the operator's live tuning, promoted to the default (2026-09-22)
+    property real ghostWeight: (plasmoid.configuration.ghostWeight === undefined) ? 0.4
                                : plasmoid.configuration.ghostWeight
     property real strokeGhost: segThick * ghostWeight
     // gap between digit boxes, in segLen: the substrate's module PITCH minus the
     // box (segment_topology.MODULE_METRICS — four datasheets agree on 12.7 mm
     // for a 14.22 mm digit). It is a FLOOR: the slider starts here.
-    property real digitGap: (plasmoid.configuration.digitGap === undefined) ? 0.786
+    property real digitGap: (plasmoid.configuration.digitGap === undefined) ? 1.179
                             : plasmoid.configuration.digitGap
     // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never
-    // a wider opaque copy. 0 disables the layer (crisp fallback); default 1.5.
-    property real bloom: (plasmoid.configuration.bloom === undefined) ? 1.5
+    // a wider opaque copy. 0 disables the layer (crisp fallback); default 4.0 —
+    // the operator's live tuning (2026-09-22), up from the authored 1.5.
+    property real bloom: (plasmoid.configuration.bloom === undefined) ? 4.0
                          : plasmoid.configuration.bloom
 
     property string timeStr: "0000"

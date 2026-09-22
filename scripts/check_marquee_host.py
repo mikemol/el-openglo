@@ -106,11 +106,29 @@ def shell_stderr():
 
 
 def main(argv):
-    known = {"--json", "--containments", "--selftest"}
+    known = {"--json", "--containments", "--config", "--selftest"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_marquee_host: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--config" in argv:
+        # every EL applet's settings as the user has them (operator, 2026-09-22:
+        # "take a look at my widget config; decent defaults")
+        cp = configparser.ConfigParser(interpolation=None, strict=False, delimiters=("=",))
+        cp.optionxform = str
+        cp.read(APPLETSRC, encoding="utf-8")
+        shown = 0
+        for section in cp.sections():
+            parts = section.split("][")
+            if len(parts) == 4 and parts[2] == "Applets" and cp[section].get("plugin", "").startswith("org.el."):
+                general = f"{section}][Configuration][General"
+                print(f"{cp[section]['plugin']} [{section}]")
+                for k, v in (cp[general].items() if cp.has_section(general) else []):
+                    if k != "traceLog":
+                        print(f"    {k} = {v}")
+                shown += 1
+        print(f"config: {shown} EL applet(s)")
+        return 0
     if "--containments" in argv:
         cs = containments()
         if cs is None:

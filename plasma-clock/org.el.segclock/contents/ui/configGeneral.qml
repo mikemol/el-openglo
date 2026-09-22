@@ -22,7 +22,9 @@ KCM.SimpleKCM {
         QQC2.CheckBox { id: use24h; Kirigami.FormData.label: "24-hour clock:" }
         QQC2.CheckBox { id: showSeconds; Kirigami.FormData.label: "Show seconds:" }
         QQC2.CheckBox { id: blinkColon; Kirigami.FormData.label: "Blink colon:" }
-        QQC2.Slider { id: bloomSlider; from: 0; to: 4; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
+        // to 6: the default is 4 now (the operator's tuning) and a slider whose
+        // default sits at its end has no room above it
+        QQC2.Slider { id: bloomSlider; from: 0; to: 6; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
         QQC2.Slider { id: weightSlider; from: 0; to: 1; stepSize: 0.25; Kirigami.FormData.label: "Lit stroke weight:" }
         QQC2.Slider { id: ghostWeightSlider; from: 0.3; to: 1.0; stepSize: 0.05; Kirigami.FormData.label: "Unlit stroke weight:" }
         // the minimum is the module pitch (segment_topology.MODULE_METRICS): two

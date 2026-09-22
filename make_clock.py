@@ -77,9 +77,17 @@ def _t(name, **holes):
 # centreline box is segLen wide, so the Row gap is pitch - segLen. The lit
 # stroke at weight=1 is 1.25x the base, so the base is stroke/1.25. The colon
 # adds no advance (the 88:88 module keeps 12.7 across it).
+# ⚑ THE OPERATOR'S GAP (2026-09-22, read from the live appletsrc: digitGap 1.186
+# against the datasheet's 0.786 = 1.509x). The datasheet pitch is a module's, packed
+# for a 4-digit LCD; on a panel the digits read better with air between them. The
+# factor is authored, the base is still the substrate's.
+DIGIT_GAP_SCALE = 1.5
+
+
 def _metrics_holes():
     m = _ST.metrics(2.0)                      # H = 2 segLen -> lengths in segLen
-    return {"digitGap": f"{m['pitch'] - 1.0:.3f}",
+    return {"digitGap": f"{(m['pitch'] - 1.0) * DIGIT_GAP_SCALE:.3f}",
+            "digitGapMin": f"{m['pitch'] - 1.0:.3f}",     # the slider's floor: the module pitch itself
             "strokeBase": f"{m['stroke'] / 1.25:.3f}",
             "dot": f"{m['dot']:.3f}",
             "colonAdvance": f"{m['colon_advance']:.3f}"}

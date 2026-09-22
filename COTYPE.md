@@ -7468,3 +7468,54 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s110]
+
+## Session 111 — the operator's clock tuning promoted to the defaults
+- Operator, 2026-09-22: "take a look at my widget config; it's got what I
+  think are decent defaults". check_marquee_host gained `--config` (every
+  EL applet's settings as the appletsrc holds them, traceLog elided): the
+  clock ran bloom=4 (authored 1.5), ghostWeight=0.4 (0.81), digitGap=1.186
+  against the substrate's 0.786 — 1.509x; the marquee sat at its defaults.
+  Promoted: clock-config.kcfg and clock-main.qml's fallbacks say 4.0 and
+  0.4; make_clock.DIGIT_GAP_SCALE = 1.5 multiplies the substrate's pitch
+  gap for the default while a new `digitGapMin` hole keeps the slider's
+  floor at the unscaled pitch (two packaged digits cannot sit closer); the
+  bloom slider runs to 6 because a default at a slider's end has no room
+  above it. Baselines re-captured (13 of 13 parity), screens re-rendered
+  (30 of 30; the clock's halo now reads as the operator sees it), gate 66.
+- Residue: the factor 1.5 is authored from one appletsrc reading, not
+  measured against a viewing distance — ⊕GLANCE-CALIBRATE is where that
+  measurement would live; the marquee's defaults are unconfirmed as
+  "decent" (the operator had not touched them).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none
+  (s111 promoted the operator's clock tuning; the marquee's is untouched).
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live and the update script
+  migrates the panel on the first start after f521e6f; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179), ⊕VER-MARQUEE
+  (s89-103 — after re-emerge: a lone notify-send scrolls once; every
+  notification scrolls once, none vanish, the board never goes dead, a
+  parked pointer pulses the ring; ticks read check_marquee_host),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
+  1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s111]
