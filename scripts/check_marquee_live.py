@@ -323,6 +323,35 @@ def screenshot(variant, out_scroll, out_paused):
     return [p for p in (out_scroll, out_paused) if os.path.isfile(p)]
 
 
+def motion(samples):
+    """How the board MOVES, from a run's samples (W54, s118): per-sample velocity of
+    the snapped x and of the raw x, and the pitch the snapped x is quantised to.
+    ⚑ THE JUMP THE OPERATOR SEES IS QUANTISATION, NOT LOAD (measured 2026-09-22):
+    boardX steps by the pitch (W34a's snap — a lit dot lands on a field cell) while
+    boardRawX is smooth; the aperture field grades instead of snapping. The
+    alternating Δx between 40 ms samples is the sampler aliasing 16.7 ms animation
+    ticks — an artifact of the measurement, present in every subject."""
+    import statistics
+    s = [x for x in samples if x.get("running") and x.get("text")]
+    out = {"samples": len(s)}
+    for key in ("x", "raw"):
+        v = [abs(s[i + 1][key] - s[i][key]) / (s[i + 1]["t"] - s[i]["t"])
+             for i in range(len(s) - 1) if s[i + 1]["t"] > s[i]["t"]]
+        v = [a for a in v if a > 0]
+        if v:
+            med = statistics.median(v)
+            run_v = [a for a in v if 0.2 * med <= a <= 5 * med]      # the run proper: startRun's set-from-zero is not motion
+            out[key] = {"median": round(med, 3), "cv": round(statistics.pstdev(run_v) / statistics.mean(run_v), 3),
+                        "outliers": len(v) - len(run_v)}
+        else:
+            out[key] = None
+    xs = [abs(x["x"]) for x in s if x["x"]]
+    # the quantum: the smallest positive step between distinct snapped positions
+    steps = sorted({round(abs(a - b), 3) for a in xs[:40] for b in xs[:40] if abs(a - b) > 0.01})
+    out["quantum"] = steps[0] if steps else None
+    return out
+
+
 def animate(variant, out_apng):
     """The real widget scrolling under `variant`'s scheme, as an APNG (W52's second
     half): ONE item's whole run — the empty board, the text entering, crossing,
@@ -383,7 +412,7 @@ def measure(res, hovered=None, variant=VARIANT):
 
 
 def main(argv):
-    known = {"--json", "--trace", "--hovered", "--variant", "--selftest"}
+    known = {"--json", "--trace", "--hovered", "--motion", "--variant", "--selftest"}
     variant = VARIANT
     args = list(argv[1:])
     if "--variant" in args:
@@ -397,6 +426,17 @@ def main(argv):
         if a not in known:
             print(f"check_marquee_live: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--motion" in args:
+        # how the board moves: one item's run, the snapped x against the raw x
+        r = run(variant=variant, end_ms=8000, timeline=LOOP_TIMELINE)
+        mo = motion(r["samples"])
+        if "--json" in argv:
+            print(json.dumps(mo, indent=1))
+            return 0
+        print(f"check_marquee_live --motion ({variant}): {mo['samples']} running samples; "
+              f"snapped x velocity median {mo['x']['median']} px/ms cv {mo['x']['cv']}, "
+              f"raw x median {mo['raw']['median']} cv {mo['raw']['cv']}; snapped x quantum {mo['quantum']} px")
+        return 0
     if "--hovered" in args:
         # the pointer explanation, shown: with hover-pause ON the run halts at x≈0.
         # With --json too, the stalled trace is emitted AS THE MAIN RUN — the
@@ -461,6 +501,12 @@ def _selftest():
     chk("the hovered run has paused samples", any(s["paused"] for s in m["hovered"]["samples"]), True)
     chk("the stub reported its rows to the board (some sample saw text)", any(s["text"] for s in m["samples"]), True)
     chk("a runner-less host is withheld", measure(None)["runner"], False)
+    # ⚑ motion() CAN SEE a snap: synthetic samples whose x is quantised to 4 px over a
+    # smooth raw x report the quantum and a larger velocity cv than the raw
+    synth = [{"t": 40 * i, "x": 4 * round((400 - 17.3 * i) / 4), "raw": 400 - 17.3 * i, "running": True, "text": "t"} for i in range(30)]
+    mo = motion(synth)
+    chk("a pitch-snapped x reports its quantum", mo["quantum"], 4.0)
+    chk("...and more velocity jitter than the raw x", mo["x"]["cv"] > mo["raw"]["cv"], True)
     print("check_marquee_live selftest:", "PASS" if ok else "FAIL")
     return ok
 
