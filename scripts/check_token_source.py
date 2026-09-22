@@ -26,9 +26,12 @@ import re
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# the repo's prevailing convention for reaching the tree's modules; W62 retires
+# every instance at once by making them a package, not one at a time by hand
+sys.path.insert(0, ROOT)
 
-# An emitter is a generator that WRITES a themed artifact.  Discovered by name;
-# the roster is checked against the tree so a new make_*.py cannot be ignored.
+# An emitter is a generator that WRITES a themed artifact.  The roster is
+# DECLARED in emitters.ROLES and the tree is checked against it (W65).
 AUTHORITIES = ("make_preview", "make_schemes")
 
 # Generators that legitimately do NOT read the palette, with the reason.
@@ -47,14 +50,30 @@ NON_EMITTER = {
 
 
 def emitters():
-    """[(filename, [authorities it reads])] for each make_*.py that should read tokens."""
+    """[(filename, [authorities it reads])] for each DECLARED colour emitter.
+
+    ⚑ THE ROSTER IS DECLARED, NOT DISCOVERED (W65, 2026-09-22). This walked
+    os.listdir(ROOT) for make_*.py and subtracted a local exemption dict — a
+    DISCOVERED population, which cannot tell a clean tree from a deleted one.
+    Remove make_css.py and this reported "15 of 15 emitters source from the
+    palette" and exited 0: n of n is green for every n.
+
+    ⚑ AND emitters.py ALREADY CLAIMED TO BE THE ROSTER. Its docstring says "ONE
+    ROSTER, TWO READERS" and names the incident that cost an install its Aurorae
+    decorations when two readers disagreed. This file was the THIRD reader,
+    keeping its own list — so the fix is a collapse, not a new mechanism:
+    emitters.ROLES now carries a role per module and this reads `emitter` from
+    it. The local NON_EMITTER dict kept its REASONS, which the roles do not
+    carry, so it stays as prose beside them rather than as a second population."""
+    import emitters as ROSTER
     out = []
-    for fn in sorted(os.listdir(ROOT)):
-        if not (fn.startswith("make_") and fn.endswith(".py")):
+    for mod in ROSTER.declared("emitter"):
+        fn = mod + ".py"
+        path = os.path.join(ROOT, fn)
+        if not os.path.isfile(path):
+            out.append((fn, None))          # declared and absent — main() refuses
             continue
-        if fn in NON_EMITTER:
-            continue
-        text = open(os.path.join(ROOT, fn), encoding="utf-8", errors="replace").read()
+        text = open(path, encoding="utf-8", errors="replace").read()
         reads = []
         for a in AUTHORITIES:
             # a direct import, or a transitive one via another emitter
@@ -79,11 +98,30 @@ def main(argv):
         if a not in known:
             print(f"check_token_source: unknown flag {a!r}", file=sys.stderr)
             return 2
+    import emitters as ROSTER
     em = emitters()
     if "--map" in argv:
         for fn, reads in em:
-            print(f"{fn}\t{', '.join(reads) if reads else '(NONE)'}")
+            print(f"{fn}\t{'ABSENT' if reads is None else (', '.join(reads) or '(NONE)')}")
         return 0
+    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME, and against the ROSTER
+    # rather than against itself. A tree that grew an undeclared make_*.py has a
+    # generator no gate ranges over — which is exactly the defect this check
+    # exists to catch, one level up: make_wallpaper computed its own colours for
+    # months and was found on this check's first run.
+    undeclared, absent = ROSTER.drift(ROOT)
+    missing = [fn for fn, reads in em if reads is None]
+    if undeclared or absent or missing:
+        print(f"check_token_source: REFUSED — the tree and emitters.ROLES disagree "
+              f"({len(undeclared)} undeclared, {len(absent)} absent of "
+              f"{len(ROSTER.ROLES)} declared). A SHRINKING POPULATION IS NOT A "
+              f"PASSING ONE.", file=sys.stderr)
+        for m in undeclared:
+            print(f"    undeclared  {m}.py — give it a role in emitters.ROLES",
+                  file=sys.stderr)
+        for m in absent:
+            print(f"    absent      {m}.py — declared and not in the tree", file=sys.stderr)
+        return 2
     if not em:
         print("check_token_source: REFUSED — no emitters found; the search is broken, "
               "not the tree clean", file=sys.stderr)

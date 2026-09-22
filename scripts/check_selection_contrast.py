@@ -26,6 +26,13 @@ import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# ⚑ THE REPO'S PREVAILING CONVENTION, NOT A NEW MECHANISM — and it is on W62's
+# list to retire. check_css, check_monet, check_windows and ~25 others carry this
+# exact line. A first draft here put it inside schemes() behind a conditional,
+# which would have left W62 two patterns to migrate instead of one; conforming to
+# the existing shape is what makes the sweep mechanical. The operator's ruling
+# ("build a package out of it") is that sweep, not a per-file workaround.
+sys.path.insert(0, ROOT)
 
 # WCAG AA for large text. See the note above before changing this number.
 FLOOR = 3.0
@@ -82,7 +89,6 @@ def schemes():
     entry, so GRID is the authority: add a variant and the expected count moves by
     itself; delete an emitted file and this REFUSES instead of quietly measuring
     less."""
-    sys.path.insert(0, ROOT) if ROOT not in sys.path else None
     import make_schemes
     return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
 

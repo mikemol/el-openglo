@@ -75,14 +75,47 @@ PROBES = (
     # and the miss reports as "the check is blind to all project content".
     ("selection-contrast/authority",
      ["scripts/check_selection_contrast.py"], "make_schemes.py",
-     ("def ", "def _renamed_")),
-    ("token-source/authority",
-     ["scripts/check_token_source.py"], "make_schemes.py",
-     ("def ", "def _renamed_")),
+     ("GRID = _solved_grid()", "GRIDWAS = _solved_grid()")),
+    # ⚑ AIMED AT THE POPULATION, NOT THE PREDICATE. check_token_source asks a
+    # STRUCTURAL question ("does this emitter import an authority?") that a
+    # def-rename inside the authority cannot disturb — so the make_schemes probe
+    # was testing nothing here and read as a non-flip. The defect is its
+    # POPULATION: remove a declared emitter and "16 of 16" becomes "15 of 15".
+    # The perturbation must therefore remove a MEMBER, which for this check means
+    # breaking the roster's agreement with the tree.
+    ("token-source/roster",
+     ["scripts/check_token_source.py"], "emitters.py",
+     ('"make_css":             "emitter"', '"make_cssWAS":          "emitter"')),
     ("css/emitted-sheet",
      ["scripts/check_css.py"], "make_css.py",
-     ("def ", "def _renamed_")),
+     ("def _is_rgb", "def _is_rgbWAS")),
 )
+
+
+def _drop_bytecode(path):
+    """Remove any cached .pyc for `path`, both writing and restoring.
+
+    ⚑ A RESTORED FILE IS NOT A RESTORED MODULE (measured 2026-09-22). Python
+    validates a .pyc on (mtime, size). This tool's perturbations are substring
+    swaps that are often the SAME LENGTH — the roster probe pads the replacement
+    to keep the dict aligned — and a write plus a restore inside one second give
+    the same mtime. So the corrupted bytecode outlived the corrupted source, and
+    the very next run of an unrelated tool read `make_cssWAS` out of a file that
+    said `make_css`. ⚑ THAT IS A CONTAMINATION PATH BETWEEN PROBES: a later probe
+    would have graded a check against a tree nobody could see was wrong."""
+    if not path.endswith(".py"):
+        return
+    d, base = os.path.split(path)
+    cache = os.path.join(d, "__pycache__")
+    if not os.path.isdir(cache):
+        return
+    stem = base[:-len(".py")]
+    for f in os.listdir(cache):
+        if f.startswith(stem + ".") and f.endswith(".pyc"):
+            try:
+                os.remove(os.path.join(cache, f))
+            except OSError:
+                pass
 
 
 def _run(argv):
@@ -99,17 +132,31 @@ def probe(p):
     if not os.path.isfile(path):
         return {"name": name, "withheld": f"{rel} is not in the tree"}
     original = open(path, "rb").read()
-    if old.encode() not in original:
+    hits = original.count(old.encode())
+    if hits == 0:
         # ⚑ A PERTURBATION THAT CHANGES NOTHING GRADES NOTHING. If the anchor is
         # absent the file was never corrupted, and a green check afterwards would
         # be read as "the check is blind" when it means "the probe did nothing".
         return {"name": name, "withheld": f"{rel} does not contain {old!r} — nothing was perturbed"}
+    if hits > 1:
+        # ⚑ AN AMBIGUOUS ANCHOR IS NOT A DETERMINATE PERTURBATION, and this cost a
+        # wrong reading before it was caught (2026-09-22): the anchor '"make_css"'
+        # occurs in emitters.ORDER before emitters.ROLES, so replace(…, 1) hit the
+        # WRONG declaration and the probe reported "does NOT flip" about a
+        # corruption it had never applied where it meant to. A silently-first
+        # match is the same defect as a silently-shrinking population: the report
+        # describes something other than what the reader believes was measured.
+        return {"name": name,
+                "withheld": f"{rel} contains {old!r} {hits} times — an ambiguous anchor "
+                            f"perturbs whichever comes first; make it unique"}
     rc_before, out_before = _run(argv)
     try:
         open(path, "wb").write(original.replace(old.encode(), new.encode(), 1))
+        _drop_bytecode(path)
         rc_after, out_after = _run(argv)
     finally:
         open(path, "wb").write(original)
+        _drop_bytecode(path)
     return {"name": name, "check": argv[0], "input": rel,
             "perturbation": f"{old!r} -> {new!r}",
             "rc_before": rc_before, "rc_after": rc_after,
@@ -146,11 +193,28 @@ def _selftest():
     missing = ("absent-file", ["scripts/check_selection_contrast.py"], "no-such-file.colors",
                ("a", "b"))
     chk("a missing input is WITHHELD", "withheld" in probe(missing), True)
+    # ⚑ AN AMBIGUOUS ANCHOR MUST BE WITHHELD, NOT SILENTLY FIRST-MATCHED. Measured
+    # 2026-09-22: '"make_css"' occurs in emitters.ORDER before emitters.ROLES, so
+    # the probe corrupted a declaration it did not mean to and reported "does NOT
+    # flip" about a perturbation it had never applied where it intended.
+    ambiguous = ("ambiguous-anchor", ["scripts/check_token_source.py"], "emitters.py",
+                 ("make_css", "make_cssWAS"))
+    chk("an ambiguous anchor is WITHHELD", "withheld" in probe(ambiguous), True)
     # and the file survives every path
     before = open(os.path.join(ROOT, "EL-Amber.colors"), "rb").read()
     probe(PROBES[0])
     chk("the input is restored after a probe",
         open(os.path.join(ROOT, "EL-Amber.colors"), "rb").read(), before)
+    # ⚑ AND THE MODULE IS RESTORED, NOT ONLY THE FILE. A same-length swap inside
+    # one second leaves a .pyc that (mtime, size) validation accepts, so the
+    # corrupted bytecode outlives the corrupted source — a contamination path
+    # between probes that no per-probe assertion about the FILE can see.
+    roster = os.path.join(ROOT, "emitters.py")
+    probe(PROBES[2])
+    import subprocess as _sp
+    after = _sp.run([sys.executable, os.path.join(ROOT, "emitters.py"), "--drift"],
+                    capture_output=True, text=True, cwd=ROOT)
+    chk("the module is restored too, not just the file", after.returncode, 0)
     print("check_discriminates selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
