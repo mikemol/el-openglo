@@ -184,3 +184,24 @@ function ringJoin(items, sep) {
     }
     return { text: text, runs: runs };
 }
+
+// ⚑ A SPARKLINE (W48, folded into W54's field): a series of values becomes
+// COLUMN HEIGHTS on the matrix — one column per sample, oldest first, the newest
+// at the right — the one thing a segment display cannot do and a matrix can. The
+// height is round((v - min) / (max - min) * rows), clamped to [0, rows]; an empty
+// series is no columns; a flat series (max == min) is a baseline of height 1 (a
+// present signal with no range reads as a line, not as nothing); a value out of
+// range clamps. Pure, so the board's painter lights rows [rows - h, rows) of each
+// column and nothing else decides a height. Returned as an array of heights.
+function seriesToColumns(values, rows, min, max) {
+    var out = [];
+    if (!values || !values.length || rows <= 0) return out;
+    var flat = !(max > min);
+    for (var i = 0; i < values.length; i++) {
+        var v = values[i];
+        if (typeof v !== "number" || isNaN(v)) { out.push(0); continue; }
+        var h = flat ? 1 : Math.round((v - min) / (max - min) * rows);
+        out.push(Math.max(0, Math.min(rows, h)));
+    }
+    return out;
+}

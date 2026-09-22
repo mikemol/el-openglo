@@ -8100,3 +8100,52 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s121]
+
+## Session 122 — a sparkline's arithmetic (W48, the pure half, folded into W54)
+- marquee-body.js gained seriesToColumns(values, rows, min, max): one column
+  height per sample, round((v−min)/(max−min)·rows) clamped; a flat series is
+  a baseline of one (a signal with no range reads as a line, not as
+  nothing); an empty series is no columns; a non-number is a zero column.
+  Six cases in check_marquee_body (a ramp, flat, a spike, empty, below the
+  floor, a non-number) and policy/marquee_body.rego M5 (74/74; 33 of 33
+  cases; the summary line now counts and CHECKS the series cases — it had
+  counted them unchecked for one run). On the aperture field a sparkline
+  is a backdrop: columns lit from the bottom row up.
+- Residue: the painter (drawBackdrop lighting rows [rows−h, rows) per
+  column) is deliberately not written until its first source is — W46's
+  job-percentage history — so it lands with a live series, not a synthetic
+  one; W48's systemmonitor source is after that.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (s111: the 1.5x gap factor is its first
+  authored-not-measured input), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s122]

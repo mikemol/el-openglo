@@ -108,3 +108,4 @@
 2026-09-22T04:03:32+00:00  tick  W54  advanced  collapse  "--motion: the live jump is the pitch snap (snapped cv 0.104, quantum 3.6 px; raw 0.011); the aperture field cv 0.02 — port justified"  evidence=1a93b11
 2026-09-22T04:26:14+00:00  tick  W54  advanced  collapse  "relations.md §5b: the aperture relation stated; the port is next"  evidence=d32c412
 2026-09-22T05:14:06+00:00  tick  W54  advanced  collapse  "THE PORT: the marquee scrolls on ApertureField — backdrop from the registry bits, offset the scroll; snap gone (cv 0.023); S5 generalised to fractional pip shifts; canvas-resize rule measured"  evidence=916559a
+2026-09-22T05:34:22+00:00  tick  W47  collapsed collapse  "W47 folded into W54: the viewport is ApertureField.offsetY; Unifont 1:1 through a 16-row backdrop"  evidence=f45e52a

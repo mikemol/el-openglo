@@ -83,14 +83,25 @@ RING_CASES = [
      [(["n1", "n2"], ["n1", "n2", "n3"]), (["n3"], [])]),
 ]
 
+# seriesToColumns (W48): (values, rows, min, max) -> expected column heights
+SERIES_CASES = [
+    ("a ramp fills the rows", ([0, 25, 50, 75, 100], 8, 0, 100), [0, 2, 4, 6, 8]),
+    ("a flat series is a baseline, not nothing", ([5, 5, 5], 8, 5, 5), [1, 1, 1]),
+    ("a spike clamps at the top", ([10, 500, 10], 8, 0, 100), [1, 8, 1]),
+    ("an empty series is no columns", ([], 8, 0, 100), []),
+    ("a value below the floor clamps at zero", ([-10, 50], 8, 0, 100), [0, 4]),
+    ("a non-number is a zero column", (["x", 100], 8, 0, 100), [0, 8]),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s;
-        var out = { parse: [], join: [], ring: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s;
+        var out = { parse: [], join: [], ring: [], series: [] };
         for (var i = 0; i < bodies.length; i++) out.parse.push(Body.parseBody(bodies[i]));
         for (i = 0; i < joins.length; i++) out.join.push(Body.joinItem(joins[i][0], joins[i][1], joins[i][2]));
+        for (i = 0; i < series.length; i++) out.series.push(Body.seriesToColumns(series[i][0], series[i][1], series[i][2], series[i][3]));
         for (i = 0; i < rings.length; i++) {
             var queue = [], trace = [], serial = 0;
             for (var s = 0; s < rings[i].length; s++) {
@@ -126,7 +137,7 @@ def run(bodies=None):
         h = os.path.join(td, "harness.qml")
         open(h, "w", encoding="utf-8").write(HARNESS % (
             json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
-            json.dumps([c[1] for c in RING_CASES])))
+            json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES])))
         env = dict(os.environ, QT_QPA_PLATFORM="offscreen")
         r = subprocess.run([QML, h], capture_output=True, text=True, env=env, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
@@ -162,11 +173,22 @@ def ring_problems(results):
     return bad
 
 
+def series_problems(results):
+    bad = []
+    for (label, args, want), got in zip(SERIES_CASES, results):
+        if got != want:
+            bad.append(f"series {label!r}: {got}, expected {want}")
+    if len(results) != len(SERIES_CASES):
+        bad.append(f"series: {len(results)} of {len(SERIES_CASES)} cases returned")
+    return bad
+
+
 def all_problems(res):
-    return problems(res["parse"]) + join_problems(res["join"]) + ring_problems(res["ring"])
+    return (problems(res["parse"]) + join_problems(res["join"]) + ring_problems(res["ring"])
+            + series_problems(res.get("series", [])))
 
 
-N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES)
+N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES) + len(SERIES_CASES)
 
 
 def measure(res):
@@ -175,8 +197,10 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": []}
+        return {"runner": False, "parse": [], "join": [], "ring": [], "series": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": []}
+    for (label, args, want), got in zip(SERIES_CASES, res.get("series", [])):
+        out["series"].append({"label": label, "args": list(args), "expected": want, "columns": got})
     for (body, text, runs), got in zip(CASES, res["parse"]):
         out["parse"].append({"body": body, "expected_text": text, "text": got["text"],
                              "expected_runs": [list(r) for r in runs], "runs": [list(r) for r in _styled(got)]})
@@ -246,7 +270,8 @@ def main(argv):
         return 1
     print(f"check_marquee_body: {N_CASES} of {N_CASES} cases hold — {len(CASES)} body-markup, "
           f"{len(JOIN_CASES)} joinItem (summary plain, body parsed), {len(RING_CASES)} ring scenarios "
-          f"(every item scrolls once; an expired item drops after its rotation; a replace re-shows)")
+          f"(every item scrolls once; an expired item drops after its rotation; a replace re-shows), "
+          f"{len(SERIES_CASES)} series (a sparkline's column heights, W48)")
     return 0
 
 

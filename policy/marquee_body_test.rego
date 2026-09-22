@@ -16,7 +16,19 @@ ring_ok := {
 	"trace": [{"ring": ["n1"], "queue": [], "text": "n1#1"}],
 }
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok]}
+series_ok := {"label": "a ramp fills the rows", "args": [[0, 25, 50, 75, 100], 8, 0, 100], "expected": [0, 2, 4, 6, 8], "columns": [0, 2, 4, 6, 8]}
+
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok]}
+
+test_m5_refuses_drifted_columns if {
+	some msg in mb.deny with input as object.union(clean, {"series": [object.union(series_ok, {"columns": [0, 2, 4, 6, 7]})]})
+	startswith(msg, "M5:")
+}
+
+test_m5_refuses_no_series_cases if {
+	some msg in mb.deny with input as object.union(clean, {"series": []})
+	startswith(msg, "M5:")
+}
 
 test_admits_clean if {
 	count(mb.deny) == 0 with input as clean

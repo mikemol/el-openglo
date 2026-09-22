@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T05:14:39+00:00",
-  "job_id": "80efdd21",
+  "heartbeat": "2026-09-22T05:34:53+00:00",
+  "job_id": "4a96b2f6",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-80efdd21",
-    "taken_at": "2026-09-22T05:21:55+00:00"
+    "holder": "tick-4a96b2f6",
+    "taken_at": "2026-09-22T05:50:19+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -792,16 +792,16 @@
     {
       "symbol": "W47",
       "title": "THE MATRIX AS A VIEWPORT (operator 2026-09-22): the 5x8 cell is a WINDOW over a taller raster, scrolled vertically — how a single-row board shows anything taller than its LEDs. One mechanism, three payloads: (a) ICONS — the app icon rasterised at runtime in QML (an Image via Qt's icon provider, drawn into a hidden Canvas, getImageData, coverage-threshold or ordered-dither to column bytes — matrix_glyph's rule in JS) as a 16- or 32-row bitmap scrolled vertically through the 8-row window while the text scrolls horizontally; (b) UNICODE / UNIFONT — 8x16 glyphs (CJK, non-Latin) via W30's font compiler emitting a 16-row table, shown by the same vertical scroll or by a 2:1 downsample when legible; (c) any oversized bitmap (a QR code, a logo). This retires the icons-are-residue verdict (s96/W46)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "templates/MatrixChar.qml,templates/marquee-main.qml,templates/marquee-body.js,display_types",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Design first (after W45/W46 urgency): MatrixChar gains a raster mode — colBytes wider than 8 bits (an array of row-bitmasks per column, arbitrary height) and a viewport (rowOffset, rows visible) with a vertical NumberAnimation; a headless harness case rasterising a synthetic 16x16 image (a Canvas in the qml harness — the same offscreen runner) to column bytes; then the marquee prepends an icon raster per item (Image + Canvas threshold at rebuild); Unifont via W30. Relations: the raster's lit dots are the lit token; no colour from the icon (the hue gate of §5a would apply if wanted, later).",
-      "evidence": "",
+      "next_bounded_step": "none - the vertical scroll animation and icon/QR backdrops are W54's remaining folds",
+      "evidence": "folded into W54: ApertureField.backdropRows + offsetY (f45e52a) — the viewport is the offset's other axis; Unifont read 1:1 through a 16-row backdrop",
       "issued_at": "2026-09-21T18:28:24+00:00",
-      "last_worked": "2026-09-21T18:28:24+00:00",
+      "last_worked": "2026-09-22T05:34:05+00:00",
       "ticks_blocked": 0
     },
     {
@@ -914,10 +914,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "The folds: (a) W47 — the viewport: ApertureField gains offsetY (the backdrop taller than rows·scale; integrate reads rows at row·scale + offsetY) and the text probe renders Unifont at its 16 px em 1:1 through a 16-row backdrop scrolled vertically through the 8-row field — a still + the OCR witness when W56 lands; (b) W48 — a 'series' run painted into the backdrop as column heights (seriesToColumns in marquee-body.js, harness case) shown on the same field; (c) the bookend frame taken before the timeline starts (animate's first frame is the sampler's first turn, past arrival on a slow load); (d) MatrixChar's remaining consumers censused (check_consumers) — if none but the probes, it is residue. One fold per tick.",
-      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7; 1a93b11 --motion; d32c412 §5b; 916559a THE PORT: the marquee scrolls on ApertureField (cv 0.023, no quantum; L0-L8, S1-S6 admit; gate 68). LIVE: after the next emerge the operator judges the panel scroll.",
+      "next_bounded_step": "Folds remaining, one per tick: (b) W48 — a 'series' run painted into the backdrop as column heights (seriesToColumns in marquee-body.js + harness cases), shown on the same field; (c) the loop's bookend frame taken before the timeline starts; (d) MatrixChar consumers censused (check_consumers) — residue if only the probes; (e) the vertical scroll as an animation (frames over offsetY; S5 in y) once an animation kind beyond the marquee's exists.",
+      "evidence": "...916559a THE PORT; f45e52a the viewport (W47 folded): backdropRows + offsetY, Unifont 1:1 — caps need 12 rows, the x-height band shows lowercase whole",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T05:13:58+00:00",
+      "last_worked": "2026-09-22T05:34:15+00:00",
       "ticks_blocked": 0
     },
     {

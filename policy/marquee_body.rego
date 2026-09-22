@@ -113,6 +113,26 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "M5 — a series becomes the stated column heights"
+# description: |
+#   W48 (folded into W54): seriesToColumns is pure — a ramp fills the rows, a
+#   flat series is a baseline of one (a signal with no range reads as a line,
+#   not as nothing), an out-of-range value clamps, an empty series is no
+#   columns, a non-number is a zero column. Every case's columns must equal
+#   what the case states; a pure function that drifts fails here.
+deny contains msg if {
+	some c in input.series
+	c.columns != c.expected
+	msg := sprintf("M5: %s: columns %v, expected %v", [c.label, c.columns, c.expected])
+}
+
+deny contains msg if {
+	input.runner
+	count(input.series) == 0
+	msg := "M5: no series cases were measured"
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 withheld contains msg if {
 	not input.runner
