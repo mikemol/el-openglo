@@ -7329,3 +7329,80 @@ residue gated on live operator testing.
 - TIER 3: named-GTK.
 - RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s108]
+
+## Session 109 — ⊕ONE-THEME closes: one theme, the variant is the scheme; the migration ships; the LnF is the selector
+- Between ticks (operator, 2026-09-22, after emerging be318a6): "My plasma
+  didn't come up at all!" — `Error loading the wallpaper, no valid package
+  loaded`. check_marquee_host --containments (a new mode) found the
+  desktop containment naming org.el.openglo.live.elazure, which the
+  one-package build no longer shipped; a missing WALLPAPER plugin fails
+  the whole shell where a missing applet leaves a placeholder. The panel's
+  config was intact. f521e6f: every legacy id ships as a thin alias of the
+  one package (make_deb.legacy_alias_packages: same bound QML, metadata
+  id changed), and templates/one-theme-update.js goes into the desktop
+  shell's contents/updates/ — measured: plasmashell runs each such script
+  once and records its path in plasmashellrc [Updates] performed= (16 stock
+  ones on this host) — moving each desktop's wallpaper plugin and each
+  legacy applet to the one ids, the kcfg's keys copied, geometry kept.
+  check_migration runs the generated script headless against a fake
+  scripting API shaped like the operator's appletsrc (@MIGRATION). Pushed
+  without a fresh ask because the live ebuild fetches origin and the
+  operator had asked for a fix while away; recorded, not a precedent.
+  Ordering lesson: a package rename ships WITH its migration, and a
+  wallpaper rename is fatal, not cosmetic.
+- one-theme.md gains "The Look-and-Feel" (one LnF per variant stays: the
+  LnF IS the selector — its defaults write ColorScheme=, and six LnFs now
+  select one set of packages) and "What ships for a user who installed
+  before W35".
+
+### ⊕ONE-THEME closure
+- Four gates: constructible — four bound one-package emissions exist
+  (make_taskswitch, make_notify_marquee, make_clock, make_wallpaper_live,
+  each main_qml() without a variant; parity pairs 13 of 13; the alphas
+  baked from make_wallpaper_live.global_alpha, which refuses a per-variant
+  solve); reachable — make_deb stages the four, the legacy aliases and the
+  update script, every LnF's defaults and layout name the one ids, the
+  helpers name them, and el-openglo-9999 installs the staged tree (the
+  operator's emerge of 322e734 / be318a6 loaded the one packages);
+  observable — theme_probe resolves the switcher's bindings per variant
+  under the real Kirigami.Theme (T5, six exact), the marquee samples its
+  live colours under each variant's scheme (L8), render_qml draws the
+  clock and wallpaper under every variant with lit pixels of that
+  variant's fg, and check_migration shows the update landing; coverable —
+  check_ghost_surfaces._bound over 6 variants x 5 surfaces (30 of 30)
+  fails on a baked hex, a wrong role or a missing colorSet, with the
+  selftest arms that show it; theme_probe's T5 and the harness's L8 fail
+  on a resolution to any colour but the token.
+- What stays outside the closure, by name: the switcher's lit bar 0.12 is
+  authored; KWin loading the one switcher is ⊕VER's; the hue tables are
+  keyed by exact fg hex; the aliases retire on a later decision; the
+  clock's Add-Widgets icon is one phosphor; W37's Oxygen LnF.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live and the update script
+  migrates the panel on the first start after f521e6f), ⊕VER-MARQUEE
+  (s89-103 — after re-emerge: a lone notify-send scrolls once; every
+  notification scrolls once, none vanish, the board never goes dead, a
+  parked pointer pulses the ring; ticks read check_marquee_host),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s109]

@@ -116,30 +116,7 @@ def _tool(*args):
 
 WITNESS = {
     # ── BUILD: touches the shipped package ──
-    # ⚑ ONE THEME (session 97, the operator's "one configurable theme"). The design
-    # is catalog/one-theme.md: every colour hole is a standard KColorScheme role
-    # readable live, the ghost alphas are global constants, the hue table is a
-    # six-row lookup keyed by the live fg. The witness is the first surface that
-    # BINDS the roles instead of baking them: the switcher, one package.
-    # s104 (W35): the switcher is the PoC — bound and one package (policy/
-    # taskswitch.rego T4 holds it). The symbol closes when EVERY live surface
-    # binds (clock, marquee, live wallpaper) and the LnF is one package, so the
-    # open witness asks for those — the marquee and clock still bake holes.
-    "⊕ONE-THEME": (
-        "every shipped QML surface reads the ACTIVE colour scheme (Kirigami.Theme"
-        " textColor / disabledTextColor / backgroundColor under colorSet View) instead"
-        " of baked holes and ships as ONE package: the switcher (done, W35), the"
-        " marquee, the clock, the live wallpaper (catalog/one-theme.md) (:6603)",
-        lambda: _tool("opa_gate.py", "taskswitch") and
-                _reads("templates/marquee-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
-                _reads("templates/clock-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
-                _reads("templates/live-wallpaper-main.qml", r"Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View") and
-                # s108: all four surfaces bind; what remains is the shipped MIGRATION
-                # (a Plasma one-shot update script rewriting the per-variant applet
-                # ids on the panel — the operator's log after emerging 322e734) and
-                # the LnF record in one-theme.md
-                _reads("make_deb.py", r"contents/updates/") and
-                _reads("catalog/one-theme.md", r"(?m)^## The Look-and-Feel")),
+    # (⊕ONE-THEME closed session 109 — its witness is in CLOSED below.)
     # ⚑ THIS WAS A NOUN WITNESS — `SegmentChar` mentioned in four surfaces — the
     # exact near-miss the docstring above warns of, and it read as DONE while the
     # log's fourth gate had never been run. The log states four gates (:4427-4432);
@@ -432,6 +409,31 @@ CLOSED = {
     # marquee is a MATRIX, not segments) and the s77 dot-matrix ticker is that
     # render. The residue witness had looked for SegmentChar in the emitter — the
     # wrong half of the "7-seg/dot" disjunction. This one aims at the dots.
+    # closed session 109 (W35, 2026-09-22). ⚑ ONE THEME: every live surface binds
+    # the ACTIVE scheme's roles and ships as ONE package; the variant is the
+    # applied .colors (catalog/one-theme.md). The witness aims at the four
+    # templates' colorSet bindings (a baked hole would not carry it), the four
+    # emitters' one-package ids, the global-alpha guard, the migration route
+    # (aliases + the update script) and the gates that resolve the bindings.
+    "⊕ONE-THEME": (
+        "every shipped QML surface (switcher, marquee, clock, live wallpaper) binds"
+        " Kirigami.Theme's View roles instead of baked holes and ships as ONE package;"
+        " legacy ids alias it and a one-shot update migrates a user's containments;"
+        " the LnF stays the selector (catalog/one-theme.md) (:6603)",
+        lambda: all(_reads(t, r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View")
+                    for t in ("templates/taskswitch-main.qml", "templates/marquee-main.qml",
+                              "templates/clock-main.qml", "templates/live-wallpaper-main.qml")) and
+                not _any(["templates/taskswitch-main.qml", "templates/marquee-main.qml",
+                          "templates/clock-main.qml", "templates/live-wallpaper-main.qml"],
+                         r'property color \w+Color:\s*"?\$(lit|ghost|ground|hot)\b') and
+                _reads("make_wallpaper_live.py", r"def\s+global_alpha\b") and
+                all(_reads(m, r'(?m)^PACKAGE_ID\s*=\s*"org\.el\.') for m in
+                    ("make_taskswitch.py", "make_notify_marquee.py", "make_clock.py", "make_wallpaper_live.py")) and
+                _reads("make_deb.py", r"def\s+legacy_alias_packages\b") and
+                _reads("make_deb.py", r"contents/updates\b") and
+                _reads("catalog/one-theme.md", r"(?m)^## The Look-and-Feel") and
+                _tool("opa_gate.py", "taskswitch") and
+                _tool("check_migration.py")),
     "⊕NOTIFY-SEGRENDER": (
         "the ticker renders in the actual dot-matrix primitive (MatrixChar's dots off the"
         " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)",

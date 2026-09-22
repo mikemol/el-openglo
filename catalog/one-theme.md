@@ -56,6 +56,34 @@ Does a `Kirigami.Theme`-bound plasmoid follow `plasma-apply-colorscheme EL-Azure
 a live ⊕VER probe: render_qml cannot see the live scheme. The switcher is the
 smallest surface and the first PoC.
 
+## The Look-and-Feel
+
+One LnF per variant STAYS. The Look-and-Feel is not a surface: it is the
+SELECTOR — its `defaults` group writes `[kdeglobals][General] ColorScheme=<v>`,
+and that write is what makes every bound surface amber or azure. Collapsing it
+would leave nothing to choose a variant with. What changed (s104-s108): each
+variant's defaults and layout script name the ONE clock (`org.el.segclock`),
+marquee (`org.el.notifymarquee`), switcher (`org.el.taskswitch`) and live
+wallpaper (`org.el.openglo.live`), so six LnFs select one set of packages.
+W37's Oxygen flavour is another LnF of the same shape: the same scheme, a
+different engine choice in `defaults`.
+
+## What ships for a user who installed before W35
+
+Every legacy per-variant id (`org.el.openglo.live.<v>`, `org.el.segclock.<v>`,
+`org.el.notifymarquee.<v>`) still ships, as a thin copy of the one package with
+only its metadata id changed — the same bound QML, so it follows the scheme like
+the canonical one. Measured 2026-09-22 (the operator's shell failed to start):
+a containment whose WALLPAPER plugin does not exist fails the whole shell,
+where a missing applet only leaves a placeholder; the aliases make the old
+config loadable, and the one-shot update script
+`plasma/shells/org.kde.plasma.desktop/contents/updates/el-openglo-one-theme.js`
+(plasmashell runs each once and records it in `plasmashellrc [Updates]`) moves
+the wallpaper plugin and each legacy applet to the one ids with settings and
+geometry kept. `scripts/check_migration.py` runs that script against a fake
+shell shaped like the operator's appletsrc (@MIGRATION). The aliases retire
+when no supported install can still name them.
+
 ## Residue
 
 - The switcher's lit bar (0.12) is authored; live it would be `highlightColor`
