@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 67,
+  "counter": 68,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-22T17:16:51+00:00",
   "job_id": "fb10bd94",
@@ -1100,6 +1100,21 @@
       "evidence": "check_action_key --list crashed until s145; the arm now covers --list and --json",
       "issued_at": "2026-09-22T17:27:19+00:00",
       "last_worked": "2026-09-22T17:27:35+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W68",
+      "title": "ELEVEN PALETTE CHECKS FAILED ONCE AND PASSED TWICE — no account was captured, and that is the fixable half",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "OBSERVED 2026-09-22 (s146): worklist_gate --only worklist reported check FAILED for @CHROME, @FIREFOX, @GRID-REGULAR, @GTK, @MONET, @REGRESSIONS, @ROLES, @SELECTION, @TERMINALS, @UNION, @WINDOWS — eleven at once, nine of them palette readers. Re-run twice on an unchanged tree: PASS, 73 of 73 both times. git status clean. check_selection_contrast passes standalone AND from the gate's cwd. ⚑ NOT DIAGNOSED, AND I WILL NOT INVENT A CAUSE. Three hypotheses were formed and none discriminated: (a) a corrupt .palette-cache.json — REFUTED by reading, since the reader catches OSError/ValueError/KeyError and falls through to a full solve, so corruption costs time not correctness; (b) a cold-cache thundering herd under parallel grading — WEAKENED, the cache is warm and stamped from 2026-09-21 19:47; (c) resource contention on a loaded box (psi io avg10 was 8.79 earlier). ⚑ SUSPICION WORTH RECORDING, NOT ASSERTING: s141 made check_selection_contrast IMPORT make_schemes, adding one more concurrent solver to a parallel gate. Declaring the input was right; it may have changed the concurrency shape. ⚑ WHAT WAS FIXED INSTEAD: the gate now REPLAYS every failing check and prints its account, and labels a check that passes on replay a FLAKE rather than letting a green re-run bury it. The next occurrence is diagnosable; this one is not. ⚑ TWO SEPARATE REAL DEFECTS FOUND WHILE LOOKING: the palette cache write is NOT ATOMIC (open(cache,'w') truncates, then json.dump writes — a concurrent reader sees a partial file; harmless today only because the reader tolerates it, and the fix is write-temp-then-os.replace); and there is no serialisation around the solve, so N parallel checks on a cold cache each build the whole grid.",
+      "evidence": "worklist_gate --only worklist: 11 FAILED once, PASS twice after; worklist_gate --selftest now drives the FLAKE, REPRODUCED and WITHHELD replay arms",
+      "issued_at": "2026-09-22T17:46:33+00:00",
+      "last_worked": "2026-09-22T17:46:33+00:00",
       "ticks_blocked": 0
     }
   ],

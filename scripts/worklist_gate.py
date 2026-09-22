@@ -291,10 +291,74 @@ def _reexec_under_uv():
                           cwd=ROOT, env=env).returncode
 
 
+_FAILED = re.compile(r"check FAILED for \[@([^\]]+)\]:\s*(\S+):(.+?)\s*$", re.M)
+
+
+def _replay(proj, output):
+    """Re-run each check the gate reported FAILED, and print its account.
+
+    ⚑ A VERDICT THAT IS AN EXIT CODE WITH NO ACCOUNT IS A DIAGNOSIS NOBODY CAN
+    MAKE. luthen-observability measured the cost directly: a failing slice's
+    entire report went to /dev/null and ONE failure bought four wrong diagnoses,
+    because the only datum was a number. This repo paid it twice on 2026-09-22 —
+    @MARQUEE-LIVE denied then admitted on an unchanged tree, and eleven palette
+    checks failed then passed — and both re-runs were done BY HAND, which is the
+    judgement-in-the-turn this tree exists to stop.
+
+    ⚑ AND THE REPLAY'S OTHER VERDICT IS THE USEFUL ONE. A check that PASSES on
+    replay is not a check that was fine: it is a FLAKE, and saying so names a
+    defect that "re-run it and it went green" otherwise buries. A reproducible
+    failure prints its output; a non-reproducible one is reported as such,
+    against the same tree, in the same run.
+
+    ⚑ THE COMMAND TEMPLATE IS READ FROM paper.toml, NOT RESTATED. The project
+    declares `[checks.<type>] cmd` with {target}; copying those templates here
+    would make this a second reader of a declaration that already has one — the
+    defect s142 collapsed one level down."""
+    keys = _FAILED.findall(output)
+    if not keys:
+        return
+    toml_path = os.path.join(proj, "paper.toml")
+    try:
+        import tomllib
+        decl = tomllib.load(open(toml_path, "rb")).get("checks", {})
+    except (OSError, ValueError, ImportError) as e:
+        print(f"\n  replay: WITHHELD — cannot read {toml_path}'s check templates ({e})",
+              file=sys.stderr)
+        return
+    print(f"\n── replay: {len(keys)} failing check(s), re-run for their account ──",
+          file=sys.stderr)
+    flaky, real = [], []
+    for key, kind, target in keys:
+        tmpl = decl.get(kind, {}).get("cmd")
+        if not tmpl:
+            print(f"  @{key}: WITHHELD — paper.toml declares no `{kind}` check type",
+                  file=sys.stderr)
+            continue
+        cmd = tmpl.replace("{target}", target.strip())
+        r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True)
+        tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
+        if r.returncode == 0:
+            flaky.append(key)
+            print(f"  @{key}: ⚑ PASSED ON REPLAY (exit 0) — the gate's failure was "
+                  f"NOT reproducible on an unchanged tree. That is a FLAKE, which is "
+                  f"a defect in the check or its inputs, not an absence of one.",
+                  file=sys.stderr)
+        else:
+            real.append(key)
+            print(f"  @{key}: REPRODUCED (exit {r.returncode})", file=sys.stderr)
+        for line in tail[-6:]:
+            print(f"      {line}", file=sys.stderr)
+    print(f"  replay: {len(real)} reproduced, {len(flaky)} flaky of {len(keys)} "
+          f"reported failure(s)", file=sys.stderr)
+
+
 def main(argv):
     mode = None
     only = None
     args = argv[1:]
+    if "--selftest" in args:
+        return _selftest()
     summary = "--summary" in args
     want_next = "--next" in args
     args = [a for a in args if a not in ("--summary", "--next")]
@@ -322,7 +386,8 @@ def main(argv):
             mode = a
         else:
             print(f"worklist_gate: unknown flag {a!r} (known: --project, "
-                  f"--discriminate, --summary, --next, --where, --only <name>)",
+                  f"--discriminate, --summary, --next, --where, --selftest, "
+                  f"--only <name>)",
                   file=sys.stderr)
             return 2
 
@@ -352,9 +417,20 @@ def main(argv):
         if len(targets) > 1 and not summary:
             print(f"── {name} ──")
         # The engine imports its own siblings by bare name, so it runs from its dir.
+        # ⚑ ALWAYS CAPTURED, so a FAILURE CAN BE REPLAYED (see _replay). Before
+        # this, a red gate printed "check FAILED for [@X]: tool:check_x.py" and
+        # nothing else — a verdict that is an exit code with no account. Measured
+        # twice on 2026-09-22: @MARQUEE-LIVE denied then admitted, and eleven
+        # palette checks failed then passed, both on an unchanged tree, and both
+        # times the re-run was done BY HAND because the tool could not do it.
         run = subprocess.run([sys.executable, path, proj],
                              cwd=os.path.join(engine, "paperkit"),
-                             capture_output=summary, text=True)
+                             capture_output=True, text=True)
+        if not summary:
+            sys.stdout.write(run.stdout or "")
+            sys.stderr.write(run.stderr or "")
+        if run.returncode != 0 and not summary:
+            _replay(proj, (run.stdout or "") + (run.stderr or ""))
         if summary:
             lines = (run.stdout or "").splitlines() + (run.stderr or "").splitlines()
             verdict = [l.strip() for l in lines
@@ -446,6 +522,39 @@ def _selftest():
         check("unknown cost is not free", [k for k, *_ in r], ["base", "leaf"])
     finally:
         globals()["_edges"] = real
+
+    # ⚑ BOTH REPLAY VERDICTS ARE DRIVEN, because the FLAKE arm is the one that
+    # matters and the one that never fires on a healthy tree. A replay that can
+    # only ever print REPRODUCED has never been shown to differ from its
+    # found-something, which is not a measurement.
+    proj = PROJECTS["worklist"]
+    check("the project declares check templates",
+          os.path.isfile(os.path.join(proj, "paper.toml")), True)
+    line = "paperkit-gate: check FAILED for [@RESIDUE]: tool:check_symbol.py --bucket RESIDUE"
+    check("a failure line parses to (key, kind, target)", _FAILED.findall(line),
+          [("RESIDUE", "tool", "check_symbol.py --bucket RESIDUE")])
+    check("a passing run parses to nothing", _FAILED.findall("paperkit-gate: PASS"), [])
+
+    import contextlib
+    import io
+
+    def replay_of(text):
+        buf = io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            _replay(proj, text)
+        return buf.getvalue()
+
+    # the gate is TOLD a passing check failed; the replay must NAME the
+    # disagreement rather than swallow it as "fine now"
+    out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
+    check("a check that passes on replay is called a FLAKE", "FLAKE" in out, True)
+    check("...and is counted as flaky", "1 flaky" in out, True)
+    out = replay_of("check FAILED for [@X]: tool:check_symbol.py --bucket RESIDUE")
+    check("a check that fails on replay is REPRODUCED", "REPRODUCED" in out, True)
+    check("...and is counted as reproduced", "1 reproduced" in out, True)
+    out = replay_of("check FAILED for [@X]: nosuchtype:whatever")
+    check("an undeclared check type is WITHHELD", "WITHHELD" in out, True)
+
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 
