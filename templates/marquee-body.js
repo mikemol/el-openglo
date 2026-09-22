@@ -125,16 +125,25 @@ function joinItem(app, summary, body) {
 // its rotation. The model only ever UPSERTS into the queue (arrivals, replaces);
 // the queue only ever changes the ring at a rotation BOUNDARY, through ringNext.
 
+// a queue entry: id, text, runs, shown — and, since W46, urgency (the model's
+// 0 low / 1 normal / 2 critical; the board paints critical in the HOT token and
+// low at half ink) and transient (exactly one traversal, never re-queued)
+function queueItem(item, shown) {
+    return { id: item.id, text: item.text, runs: item.runs, shown: shown,
+             urgency: (item.urgency === undefined || item.urgency === null) ? 1 : item.urgency,
+             transient: !!item.transient };
+}
+
 // a replace (same id) takes the new text and owes a fresh rotation
 function queueUpsert(queue, item) {
     var out = [], found = false;
     for (var k = 0; k < queue.length; k++) {
         if (queue[k].id === item.id) {
-            out.push({ id: item.id, text: item.text, runs: item.runs, shown: false });
+            out.push(queueItem(item, false));
             found = true;
         } else out.push(queue[k]);
     }
-    if (!found) out.push({ id: item.id, text: item.text, runs: item.runs, shown: false });
+    if (!found) out.push(queueItem(item, false));
     return out;
 }
 
@@ -150,8 +159,9 @@ function ringNext(queue, liveIds, maxItems) {
     for (k = 0; k < queue.length; k++) {
         var q = queue[k];
         if (!q.shown) unshown.push(q);
-        else if (live[q.id]) cycling.push(q);
-        // shown and gone: dropped here
+        else if (live[q.id] && !q.transient) cycling.push(q);
+        // shown and gone: dropped here; shown and TRANSIENT: one traversal was
+        // the promise (W46), dropped even while live
     }
     var ring = unshown.concat(cycling), held = [];
     if (maxItems > 0 && ring.length > maxItems) {
@@ -160,16 +170,17 @@ function ringNext(queue, liveIds, maxItems) {
     }
     var next = [];
     for (k = 0; k < ring.length; k++)
-        if (live[ring[k].id]) next.push({ id: ring[k].id, text: ring[k].text, runs: ring[k].runs, shown: true });
+        if (live[ring[k].id] && !ring[k].transient) next.push(queueItem(ring[k], true));
     // held items keep their place and their `shown` — an unshown one is still owed
     for (k = 0; k < held.length; k++)
         if (!held[k].shown || live[held[k].id]) next.push(held[k]);
     return { ring: ring, queue: next };
 }
 
-// the ring's items as one scrolling text with the runs re-based
+// the ring's items as one scrolling text with the runs re-based, and each
+// item's span with its urgency (W46: the painter reads it per character)
 function ringJoin(items, sep) {
-    var text = "", runs = [];
+    var text = "", runs = [], spans = [];
     for (var k = 0; k < items.length; k++) {
         var it = items[k];
         if (!it.text.length) continue;
@@ -181,8 +192,10 @@ function ringJoin(items, sep) {
                         italic: run.italic, underline: run.underline, link: run.link, color: run.color });
         }
         text += it.text;
+        spans.push({ start: base, end: text.length, id: it.id,
+                     urgency: (it.urgency === undefined || it.urgency === null) ? 1 : it.urgency });
     }
-    return { text: text, runs: runs };
+    return { text: text, runs: runs, spans: spans };
 }
 
 // ⚑ A SPARKLINE (W48, folded into W54's field): a series of values becomes

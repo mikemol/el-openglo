@@ -125,6 +125,12 @@ TIMELINE = [
     (5200, "arrive", 2, {"summary": "second", "body": "<b>bold</b>", "applicationName": "app"}, "app: second — bold"),
     (5600, "replace", 2, {"summary": "second", "body": "changed", "applicationName": "app"}, "app: second — changed"),
     (8200, "expire", 2, {}, ""),
+    # W46: a CRITICAL arrival (painted in the hot token; L9) and a LOW one (half ink);
+    # both expire together, after their rotation
+    (9000, "arrive", 20, {"summary": "alarm", "body": "", "applicationName": "app", "urgency": 2}, "app: alarm"),
+    (9400, "arrive", 21, {"summary": "quiet", "body": "", "applicationName": "app", "urgency": 0}, "app: quiet"),
+    (13000, "expire", 20, {}, ""),
+    (13100, "expire", 21, {}, ""),
 ]
 END_MS = 30000            # the CAP; the main run ends when every event has fired and the board drained
 SAMPLE_MS = 40
@@ -162,7 +168,7 @@ Window {
         else if (step.op === "replace") { var r2 = rowOf(step.id); if (r2 >= 0) m.set(r2, Object.assign({ notificationId: step.id }, step.fields)); }
         else if (step.op === "flash") { m.append(Object.assign({ notificationId: step.id }, step.fields)); m.remove(rowOf(step.id)); }
         else if (step.op === "silent") m.appendSilently(Object.assign({ notificationId: step.id }, step.fields));
-        events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows });
+        events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows, fields: step.fields });
     }
     property var timeline: %(timeline)s
     property int next: 0
@@ -182,7 +188,8 @@ Window {
             var s = subject.item;
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
-                           lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor) });
+                           lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
+                           hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText });
             if (s.boardPaused) harness.pausedSeen += 1;
             // W52: a screenshot at the first sample with the text mid-board (its left
             // edge inside the board, still running), and one while the pulse holds it
@@ -511,9 +518,9 @@ def _selftest():
     last = m["samples"][-1]
     chk("the run ended with every event fired and the board drained",
         (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
-    chk("a sample carries text, x, raw, w, running, paused, ring, count and the bound colours",
+    chk("a sample carries text, x, raw, w, running, paused, ring, count, the bound colours, and the paint's inks + text (W46)",
         sorted(m["samples"][0].keys()),
-        ["count", "ghost", "ground", "lit", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
+        ["count", "ghost", "ground", "hot", "ink", "lit", "painted", "paused", "raw", "ring", "running", "t", "text", "w", "x"])
     # ⚑ THE THEME CAN SEE (W35): run under another variant, the bound colours change
     amber = measure(run(variant="EL-Amber", end_ms=1500), None, "EL-Amber")
     chk("under EL-Amber the sampled lit is EL-Amber's fg", amber["samples"][-1]["lit"], amber["expected"]["lit"])

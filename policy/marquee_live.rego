@@ -230,6 +230,67 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L9 — a critical notification is painted in the HOT token"
+# description: |
+#   W46 (catalog/notify-capabilities.md): urgency 2 is painted in the hot token
+#   (Kirigami.Theme.activeTextColor, fg_act) — alarm's colour, distinct from the
+#   lit token that attention (the hover ring) uses. The timeline's critical
+#   arrival must appear in the board's text, and every sample whose PAINTED
+#   text carries it (the paint follows the swap by a turn) must list the hot
+#   token among the inks that paint used; and the hot token must differ from
+#   the lit token, or the alarm is invisible.
+critical_shows contains s.shows if {
+	some s in input.events
+	s.op == "arrive"
+	s.fields.urgency == 2
+}
+
+deny contains msg if {
+	some shows in critical_shows
+	not shows_somewhere(shows)
+	msg := sprintf("L9: the critical item %q never reached the board", [shows])
+}
+
+shows_somewhere(shows) if {
+	some s in input.samples
+	contains(s.text, shows)
+}
+
+deny contains msg if {
+	some shows in critical_shows
+	some i, s in input.samples
+	contains(s.painted, shows)
+	s.t >= 400
+	not s.hot in s.ink
+	not_hot_before(i, shows)
+	msg := sprintf("L9: at t=%v the board painted %q but its inks %v lack the hot token %v", [s.t, shows, s.ink, s.hot])
+}
+
+# the onset, once
+not_hot_before(i, shows) if {
+	i == 0
+}
+
+not_hot_before(i, shows) if {
+	i > 0
+	p := input.samples[i - 1]
+	not contains(p.painted, shows)
+}
+
+not_hot_before(i, shows) if {
+	i > 0
+	p := input.samples[i - 1]
+	p.hot in p.ink
+}
+
+deny contains msg if {
+	some s in input.samples
+	s.t >= 400
+	s.hot == s.lit
+	msg := sprintf("L9: the hot token equals the lit token (%v) — an alarm would be invisible", [s.hot])
+}
+
+# METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
 	not input.runner

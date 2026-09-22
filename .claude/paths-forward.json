@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T07:53:24+00:00",
-  "job_id": "d2368b51",
+  "heartbeat": "2026-09-22T08:22:02+00:00",
+  "job_id": "27159ea7",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-d2368b51",
-    "taken_at": "2026-09-22T08:09:18+00:00"
+    "holder": "tick-27159ea7",
+    "taken_at": "2026-09-22T08:34:17+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -783,10 +783,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: the model's roles are the input to urgency, actions, progress and the series painter; the aperture field made 'weight' and 'colour' numbers the backdrop carries",
-      "next_bounded_step": "(1) measure the model's roles: read /usr/lib64/qt6/qml/org/kde/notificationmanager/ (.qmltypes or plugins.qmltypes) for UrgencyRole, ExpiredRole, ActionNames/ActionLabelsRole, PercentageRole, JobStateRole, TypeRole; record in catalog/notify-capabilities.md; the stub gains the roles it lacks. (2) urgency: critical → the HOT token (Kirigami.Theme.activeTextColor, painted into the backdrop as the ink colour — colourFromInk reads it) + persistent re-queue; low → half coverage (γ or a dimmer ink alpha: the aperture makes 'ghost weight' a number). (3) actions as tappable runs + invokeAction. (4) job progress: the percentage history as W48's series painted into the backdrop (drawBackdrop lights rows [rows-h, rows) per column) — the gauge the operator described.",
-      "evidence": "",
+      "next_bounded_step": "(2) URGENCY: the queue item carries urgency + transient (upsertRow reads UrgencyRole / TransientRole); drawBackdrop paints a critical item's cells in Kirigami.Theme.activeTextColor (the hot token — a new root.hotColor binding; colourFromInk reads it back) and a low item's at half coverage (an ink alpha of 0.5 — a number the aperture grades); ringNext keeps a critical item cycling while it is live regardless of shown (transient: never re-queued); harness timeline gains a critical arrival and a low one; L9: a critical item's sampled ink is the hot token; body ring case for the persistence rule; check_ghost_surfaces._bound sees the new role binding.",
+      "evidence": "9bb647f: check_notify_roles (49 roles, enums, invokeAction; ordinals not values) + policy N0-N4 (@NOTIFY-ROLES) + the stub widened + catalog/notify-capabilities.md",
       "issued_at": "2026-09-21T18:18:48+00:00",
-      "last_worked": "2026-09-22T07:52:43+00:00",
+      "last_worked": "2026-09-22T08:21:21+00:00",
       "ticks_blocked": 0
     },
     {

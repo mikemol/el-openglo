@@ -21,6 +21,10 @@ PlasmoidItem {
     property color litColor: Kirigami.Theme.textColor
     property color ghostColor: Kirigami.Theme.disabledTextColor
     property color voidColor: Kirigami.Theme.backgroundColor
+    // the HOT token (fg_act, ForegroundActive under View): a CRITICAL notification's
+    // ink (W46; catalog/notify-capabilities.md) — attention's colour is the lit
+    // token (the hover ring), alarm's is this one
+    property color hotColor: Kirigami.Theme.activeTextColor
     // the unlit dot field's opacity — the palette's solved ghost_alpha, GLOBAL
     // across the variants (W23) and so bakeable in one package; passed to every
     // MatrixChar below in place of the component's authored 0.28. Whether a DOT
@@ -107,6 +111,13 @@ PlasmoidItem {
     // W51: the hover-pause is holding the board, and the ring's current opacity
     property bool boardPaused: false
     property real ringOpacity: 0
+    // W46: the distinct ink colours the last backdrop paint used (a critical item
+    // puts the hot token here) and the text that paint drew — what
+    // check_marquee_live's L9 reads. The paint follows the swap by a turn (the
+    // backdrop's resize commits on a paint cycle), so ink is judged against
+    // paintedText, never against tickerText.
+    property var paintedInk: []
+    property string paintedText: ""
 
     function liveIds() {
         var ids = [];
@@ -125,6 +136,15 @@ PlasmoidItem {
                    + " text=" + JSON.stringify(joined.text));
         root.tickerText = joined.text;         // empty -> the ring drains to idle
         root.tickerRuns = joined.runs;
+        root.tickerSpans = joined.spans;       // each item's span with its urgency (W46)
+    }
+    property var tickerSpans: []
+    // the urgency of the item character i belongs to: 0 low, 1 normal, 2 critical
+    function urgencyAt(i) {
+        var ss = root.tickerSpans;
+        for (var k = 0; k < ss.length; k++)
+            if (i >= ss[k].start && i < ss[k].end) return ss[k].urgency;
+        return 1;
     }
 
     // ⚑ BODIES ARE MARKUP (W39). The spec allows <b> <i> <u> <a> <img>; Plasma
@@ -229,13 +249,18 @@ PlasmoidItem {
         var app = notifModel.data(idx, NotificationManager.Notifications.ApplicationNameRole);
         var sum = notifModel.data(idx, NotificationManager.Notifications.SummaryRole);
         var body = notifModel.data(idx, NotificationManager.Notifications.BodyRole);
+        // W46: urgency (0 low / 1 normal / 2 critical) and transient, as the model
+        // declares them (check_notify_roles); undefined reads as normal, not transient
+        var urg = notifModel.data(idx, NotificationManager.Notifications.UrgencyRole);
+        var trans = notifModel.data(idx, NotificationManager.Notifications.TransientRole);
         // the summary is PLAIN, the body is markup (W45): Body.joinItem
         var item = Body.joinItem(app, sum, body);
         if (!item.text.length || id === undefined) return q;
         for (var k = 0; k < q.length; k++)
             if (q[k].id === id && q[k].text === item.text) return q;
-        root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text));
-        return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs });
+        root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text)
+                   + " urgency=" + JSON.stringify(urg) + " transient=" + JSON.stringify(trans));
+        return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs, urgency: urg, transient: trans === true });
     }
 
     // the model changed: upsert every live notification into the queue. A new id
@@ -350,13 +375,20 @@ PlasmoidItem {
             var ctx = field.backdrop.getContext("2d");
             ctx.clearRect(0, 0, field.backdrop.width, field.backdrop.height);
             var x0 = idle ? Math.round((cols - cells) / 2) : cols;
-            var onCells = 0;
+            var onCells = 0, inks = {};
             for (var i = 0; i < text.length; i++) {
                 var ch = text.charAt(i);
                 var bytes = root.matrixFont[ch] || root.matrixFont[ch.toUpperCase()] || root.matrixFont["?"] || [];
                 var run = idle ? null : root.runAt(i);
                 var colour = root.overrideFor(run);
-                ctx.fillStyle = (colour !== "transparent") ? colour : String(root.litColor);
+                // W46 urgency: CRITICAL is painted in the hot token (over any run
+                // colour — alarm outranks a sender's hue); LOW at half ink, which
+                // the aperture reads as half coverage — weight is a number here
+                var urgency = idle ? 1 : root.urgencyAt(i);
+                ctx.fillStyle = urgency === 2 ? String(root.hotColor)
+                              : (colour !== "transparent") ? colour : String(root.litColor);
+                ctx.globalAlpha = urgency === 0 ? 0.5 : 1.0;
+                inks[ctx.fillStyle] = true;
                 var grow = (run && run.bold) ? s / 2 : 0;
                 var underline = run !== null && (run.link.length > 0 || run.underline);
                 for (var c = 0; c < root.matrix.cols; c++) {
@@ -370,6 +402,9 @@ PlasmoidItem {
                     }
                 }
             }
+            ctx.globalAlpha = 1.0;
+            root.paintedInk = Object.keys(inks);
+            root.paintedText = idle ? "" : text;
             if (idle) field.offset = 0;              // the idle face sits still, centred
             field.sample();
             var ink = 0;                              // the backdrop's ink, in backdrop pixels

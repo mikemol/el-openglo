@@ -81,6 +81,12 @@ RING_CASES = [
      [dict(arrive=["n1", "n2", "n3"], live=["n1", "n2", "n3"], max=2),
       dict(arrive=[], live=[], max=2)],
      [(["n1", "n2"], ["n1", "n2", "n3"]), (["n3"], [])]),
+    # W46: a TRANSIENT item gets exactly one traversal — dropped after it even
+    # while the model still holds it; a live non-transient beside it keeps cycling
+    ("a transient item scrolls once and is not re-queued while live",
+     [dict(arrive=["t1", "n1"], transient=["t1"], live=["t1", "n1"], max=12),
+      dict(arrive=[], live=["t1", "n1"], max=12)],
+     [(["t1", "n1"], ["n1"]), (["n1"], ["n1"])]),
 ]
 
 # seriesToColumns (W48): (values, rows, min, max) -> expected column heights
@@ -108,7 +114,8 @@ QtObject {
                 var step = rings[i][s];
                 for (var a = 0; a < step.arrive.length; a++) {
                     serial += 1;
-                    queue = Body.queueUpsert(queue, { id: step.arrive[a], text: step.arrive[a] + "#" + serial, runs: [] });
+                    var tr = (step.transient || []).indexOf(step.arrive[a]) >= 0;
+                    queue = Body.queueUpsert(queue, { id: step.arrive[a], text: step.arrive[a] + "#" + serial, runs: [], transient: tr });
                 }
                 var r = Body.ringNext(queue, step.live, step.max);
                 queue = r.queue;

@@ -171,6 +171,51 @@ test_l8_refuses_a_colour_off_the_variant if {
 	contains(msgs[0], "lit is #99ffeb")
 }
 
+# W46: a critical arrival is painted in the hot token
+hot_ok := object.union(clean, {"events": [
+	{"t": 300, "op": "arrive", "id": 20, "fields": {"urgency": 2}, "shows": "app: alarm"},
+], "samples": [
+	{"t": 500, "text": "app: alarm", "painted": "app: alarm", "x": 300, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffb000", "ink": ["#ffb000"]},
+	{"t": 540, "text": "app: alarm", "painted": "app: alarm", "x": 280, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffb000", "ink": ["#ffb000"]},
+]})
+
+test_l9_admits_a_critical_in_the_hot_token if {
+	count([m | some m in ml.deny with input as hot_ok; startswith(m, "L9:")]) == 0
+}
+
+test_l9_refuses_a_critical_in_the_lit_token if {
+	off := object.union(hot_ok, {"samples": [
+		{"t": 500, "text": "app: alarm", "painted": "app: alarm", "x": 300, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffb000", "ink": ["#ffd499"]},
+	]})
+	some msg in ml.deny with input as off
+	startswith(msg, "L9:")
+}
+
+test_l9_tolerates_the_paint_lag if {
+	# the swap's first sample: the new text, the previous paint's inks — not judged
+	lag := object.union(hot_ok, {"samples": [
+		{"t": 500, "text": "app: alarm", "painted": "app: hello", "x": 300, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffb000", "ink": ["#ffd499"]},
+		{"t": 540, "text": "app: alarm", "painted": "app: alarm", "x": 280, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffb000", "ink": ["#ffb000"]},
+	]})
+	count([m | some m in ml.deny with input as lag; startswith(m, "L9:")]) == 0
+}
+
+test_l9_refuses_a_critical_that_never_shows if {
+	off := object.union(hot_ok, {"samples": [
+		{"t": 500, "text": "app: other", "painted": "app: other", "x": 300, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffb000", "ink": ["#ffd499"]},
+	]})
+	some msg in ml.deny with input as off
+	contains(msg, "never reached the board")
+}
+
+test_l9_refuses_a_hot_token_equal_to_lit if {
+	off := object.union(hot_ok, {"samples": [
+		{"t": 500, "text": "app: alarm", "painted": "app: alarm", "x": 300, "running": true, "count": 1, "lit": "#ffd499", "hot": "#ffd499", "ink": ["#ffd499"]},
+	]})
+	some msg in ml.deny with input as off
+	contains(msg, "invisible")
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp
