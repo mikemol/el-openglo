@@ -232,6 +232,9 @@ def render_all(d):
     # a widget that loads and draws an empty panel.
     open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
     open(os.path.join(ui, "MatrixField.qml"), "w").write(matrix_field_component())
+    # W54: the field main.qml instantiates now; MatrixField/MatrixChar still ship
+    # for their other consumers
+    open(os.path.join(ui, "ApertureField.qml"), "w").write(aperture_field_component())
     # the body-markup parser (W39): main.qml imports it by bare name
     open(os.path.join(ui, "marquee-body.js"), "w").write(body_parser())
     return d

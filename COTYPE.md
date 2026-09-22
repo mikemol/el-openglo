@@ -7969,3 +7969,82 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s119]
+
+## Session 120 — the marquee ported onto the aperture field: the scroll is a number
+- templates/marquee-main.qml: the Row of MatrixChar and the MatrixField are
+  gone from the marquee; one ApertureField is the board. The ticker (or,
+  idle, the settings' idle text centred) is painted into the field's
+  backdrop as CELLS from the registry's column bytes — the same
+  matrixFont[ch] bits MatrixChar read, one cell per dot, so 1:1 with the
+  pips by construction — a bold run widens its dots by half a cell into the
+  neighbours (a heavier weight the aperture grades), a coloured run is
+  painted in the solved table's colour and read back per pip
+  (ApertureField.colourFromInk: ink-weighted r/g/b prefix sums), a link or
+  <u> run lights its descent row. The scroll is a NumberAnimation on
+  field.offset from 0 to (board + text) in backdrop pixels; boardX and
+  boardRawX are one number, width − offset/scale·pitch; the ring pulse
+  moved into the field (its outermost pips, a third rectangle); hover and
+  tap hit-test against the text's left edge. L0-L8 admit unchanged; S1-S6
+  admit; --motion on the new board: velocity cv 0.023, quantum 0.15 px —
+  the 3.6 px pitch snap of s118 is gone.
+- Two measurements on the way. (1) A RESIZED CANVAS IS DRAWABLE ONLY WITHIN
+  THE WINDOW'S EXTENT UNTIL ONE PAINT CYCLE COMMITS ITS BUFFER: 111 cells
+  drawn at x ≥ 464 on a 704 px backdrop in a 420 px window read back as
+  zero ink; a fixed-size canvas lands everywhere; after requestPaint, from
+  inside onPaint and ever after, every x lands. ApertureField.sizeBackdrop
+  + backdropSized own the recipe; the probes (resized within the window)
+  had never seen it. (2) S5 measured a PIXEL left shift — the f = 0
+  special case a snapping field satisfies, which a graded field cannot:
+  its pips never move, their brightness does. animation_facts now reads
+  the pip columns and the ghost floor from the empty first frame, samples
+  each frame's brightness above the floor at the pip centres, and finds
+  the best shift in whole pips plus a quarter-pip fraction (a linear
+  interpolation between neighbours); re-measured: honest pairs ≤ 0.43,
+  no-shift ≥ 0.63, tolerance 0.5 kept (a narrower gap than the pixel
+  model's 0.30/0.66 — recorded). The selftest fixture is now a field.
+- ⊕NOTIFY-MATRIXRENDER's witness moved to where its facts now live (the
+  registry bits painted, the field fixed, the gated colour painted and
+  read back); 47 of 47 closed symbols re-derive; gate 68.
+- Residue: the marquee no longer instantiates MatrixChar (idle text
+  included) — MatrixChar/MatrixField ship for other consumers and the
+  probes; the field's per-frame cost under plasmashell is measured only by
+  the harness (1680+230 items; ~400 ms to load under the software backend
+  — the bookend frame is the first sample, which on a slow load is already
+  past arrival: S6 held here, but the bookend should be taken before the
+  timeline starts, not by the sampler's first turn); the S5 tolerance gap
+  is 0.43/0.63; the empty-board bookend's x is the board width, so
+  animate's velocity is computed over the run's frames only.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE (s111: the 1.5x gap factor is its first
+  authored-not-measured input), ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s120]

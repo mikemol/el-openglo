@@ -65,22 +65,26 @@ def _selftest():
         chk("a blank still is a fact (1 distinct colour)", r["distinct"], 1)
         chk("a wrong ground is a fact", r["modal"] in r["grounds"], False)
         chk("an absent still is a fact", next(x for x in rows if x["file"] == "switcher-EL-Amber.png")["exists"], False)
-        # an animation the measurement can see TEAR: a lit block that shifts left
-        # by 6, then moves RIGHT (a restart — no left shift explains it), then
-        # shifts left by 6 again
+        # an animation the measurement can see TEAR: a FIELD of ghost pips (one
+        # column every 4 px) with three lit pips that shift left by one pip, then
+        # move RIGHT by twelve (a restart — no left shift explains it), then shift
+        # left by one again; the first frame is the empty field, the last is not
+        ghost, litc, gnd = (152, 126, 90), (255, 212, 153), (20, 15, 8)
         frames = []
-        for x in (300, 294, 340, 334):
-            f = Image.new("RGB", (400, 20), (20, 15, 8))
-            for dx in range(10):
-                for y in range(5, 15):
-                    f.putpixel((x + dx, y), (255, 212, 153))
+        for lit_at in (None, 75, 74, 86, 85):
+            f = Image.new("RGB", (400, 20), gnd)
+            for c in range(100):
+                on = lit_at is not None and lit_at <= c < lit_at + 3
+                for y in range(4, 16):
+                    f.putpixel((4 * c + 2, y), litc if on else ghost)
             frames.append(f)
         ap = os.path.join(td, "marquee-anim-EL-Amber.png")
         frames[0].save(ap, format="PNG", save_all=True, append_images=frames[1:], duration=40, loop=0)
         a = RS.animation_facts(ap, "#ffd499", "#140f08")
-        chk("the frames are counted", a["frames"], 4)
-        chk("a rightward move is a tear, the left shifts are not", [t["frame"] for t in a["tears"]], [2])
-        chk("the left shifts are read", [k for k in a["shifts"] if k == 6], [6, 6])
+        chk("the frames are counted", a["frames"], 5)
+        chk("the pips are found from the empty board", a["pips"], 100)
+        chk("a rightward move is a tear, the one-pip shifts are not", [t["frame"] for t in a["tears"]], [3])
+        chk("the one-pip shifts are read", [k for k in a["shifts"] if k == 1.0], [1.0, 1.0])
         chk("an open loop is a fact (first and last frames differ)", a["seamless"], False)
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok

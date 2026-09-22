@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T04:04:03+00:00",
-  "job_id": "1bc4f120",
+  "heartbeat": "2026-09-22T04:26:45+00:00",
+  "job_id": "d2f3da15",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-1bc4f120",
-    "taken_at": "2026-09-22T04:18:56+00:00"
+    "holder": "tick-d2f3da15",
+    "taken_at": "2026-09-22T04:39:16+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -914,10 +914,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "(4) relations.md brightness relation (+gamma). Then THE PORT: marquee-main.qml — the Row of MatrixChar becomes one Text (the parsed runs as rich text; bold/underline as Text has them) grabbed into an ApertureField that replaces MatrixField; the scroll is a NumberAnimation on field.offset (from 0 to board+text width, in backdrop px = scale x); the ring pulse moves into ApertureField (its outermost pips); boardX := width - offset/scale so check_marquee_live's observables and L0-L8 hold unchanged; the hover/tap handlers hit-test against the Text's positionAt; S5/S6 re-run; --motion on the new board should read quantum none / cv ~0.02. One tick if the template moves cleanly; MatrixChar stays for the non-marquee consumers until measured.",
-      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+gamma+loop; 1a93b11 --motion: the Row's snapped x cv 0.104 quantum 3.6 px vs raw 0.011; the field cv 0.02 — the port is justified",
+      "next_bounded_step": "THE PORT (one tick if the template moves cleanly): marquee-main.qml — the Row of MatrixChar becomes one Text (the parsed runs as rich text; bold as Text has it, links underlined) grabbed into an ApertureField that replaces MatrixField; the scroll is a NumberAnimation on field.offset (0 → (board + text width) in backdrop px); the ring pulse moves into ApertureField's outermost pips; boardX := width - offset/scale so check_marquee_live's observables and L0-L8 hold; hover/tap hit-test via the Text's positionAt; S5/S6 re-run; --motion on the new board reads no quantum. MatrixChar stays for the other consumers; measure the port's per-frame cost with --motion's dt before shipping.",
+      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+gamma+loop; 1a93b11 --motion (snap cv 0.104 vs field 0.02); d32c412 relations.md §5b",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T04:03:24+00:00",
+      "last_worked": "2026-09-22T04:26:07+00:00",
       "ticks_blocked": 0
     },
     {

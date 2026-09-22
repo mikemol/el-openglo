@@ -530,14 +530,18 @@ CLOSED = {
     # the emitter's recorded font decision, the '?' fallback in the component,
     # and the two tools that measure the table and the ingest.
     "⊕NOTIFY-MATRIXRENDER": (
-        "the marquee draws MatrixChar cells off the emitted registry's 5x8 display, and"
-        " check_display_registry round-trips that emission against the substrate (:4524)",
-        lambda: _reads("templates/marquee-main.qml", r"MatrixChar\s*\{") and
+        "the marquee draws its cells off the emitted registry's 5x8 display — since W54 as"
+        " a backdrop behind an ApertureField — and check_display_registry round-trips that"
+        " emission against the substrate (:4524)",
+        # W54 (s120): the Row of MatrixChar became a backdrop painted from the SAME
+        # registry bytes (matrixFont[ch] → column bits → cells) behind ApertureField;
+        # the field is still fixed and the glyphs still draw no ghost — the ghost is
+        # the field's floor (relations §5b) — so W34's facts hold in their new form
+        lambda: _reads("templates/marquee-main.qml", r"root\.matrixFont\[ch\]") and
+                _reads("templates/marquee-main.qml", r"\(byte & \(1 << r\)\)") and
                 _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
-                # W34 (operator, live): the unlit field is a FIXED MatrixField and the
-                # scrolling characters draw lit dots only — the ghost must not scroll
-                _reads("templates/marquee-main.qml", r"MatrixField\s*\{") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*showGhost:\s*false") and
+                _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*function drawBackdrop\(\)") and
                 # W34 (c): a settings page, its kcfg carrying the solved alpha as the default
                 _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{") and
                 _reads("templates/marquee-config.kcfg", r'name="ghostAlpha"[^\n]*\$ghostAlpha') and
@@ -568,7 +572,11 @@ CLOSED = {
                 # W35: every variant's table, keyed by fg; the row is picked from the LIVE lit
                 _reads("templates/marquee-main.qml", r"(?m)^\s*readonly property var hueTables:\s*\$hueTables") and
                 _reads("templates/marquee-main.qml", r"hueTables\[String\(root\.litColor\)\]") and
-                _reads("templates/marquee-main.qml", r"litColorOverride:\s*root\.overrideFor\(") and
+                # the run's colour is painted INTO the backdrop (the table's colour) and
+                # read back per pip (ApertureField.colourFromInk); MatrixChar keeps its
+                # override for the other consumers
+                _reads("templates/marquee-main.qml", r"var colour = root\.overrideFor\(run\)") and
+                _reads("templates/marquee-main.qml", r"(?m)^\s*colourFromInk:\s*true") and
                 _reads("templates/MatrixChar.qml", r"(?m)^\s*property color litColorOverride") and
                 _reads("make_notify_marquee.py", r"MP\.hue_table\(") and
                 # W40: links are underlined (the descent row) and a tap opens the run's href

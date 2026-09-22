@@ -106,3 +106,4 @@
 2026-09-22T02:51:16+00:00  tick  W54  advanced  collapse  "text through the pinholes: a Qt Text item as backdrop, pinholes-<v>.png x6 gated by S1-S3; Unifont absent on host (operator's emerge)"  evidence=6b6c1e7
 2026-09-22T03:36:12+00:00  tick  W54  advanced  collapse  "Unifont/CJK/emoji through the pinholes (operator installed unifont); gamma transfer curve for the faded 2:1 still; the README loop made seamless (S6) at constant velocity; W56 minted (OCR round-trip legibility); live jitter recorded on VER-MARQUEE"  evidence=a95f574,8f8a37f,45757a7
 2026-09-22T04:03:32+00:00  tick  W54  advanced  collapse  "--motion: the live jump is the pitch snap (snapped cv 0.104, quantum 3.6 px; raw 0.011); the aperture field cv 0.02 — port justified"  evidence=1a93b11
+2026-09-22T04:26:14+00:00  tick  W54  advanced  collapse  "relations.md §5b: the aperture relation stated; the port is next"  evidence=d32c412

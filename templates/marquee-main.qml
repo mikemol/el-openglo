@@ -277,25 +277,34 @@ PlasmoidItem {
 
         Rectangle { anchors.fill: parent; color: root.voidColor; radius: height*0.1 }
 
-        // ⚑ THE FIELD IS THE HARDWARE.  Every unlit LED, bezel to bezel, drawn
-        // once and never moved; the idle face IS this field. (Operator, live
-        // 2026-09-22: the pips scrolled with the glyphs and stopped at the
-        // message's end — the ghost had been drawn per character.)
-        MatrixField {
+        // ⚑ THE FIELD IS THE HARDWARE, AND IT IS AN APERTURE (W54; relations.md
+        // §5b). Every LED, bezel to bezel, drawn once and never moved; each is a
+        // pinhole over a BACKDROP drawn at `scale` backdrop pixels per pitch, and
+        // its brightness is the ink under its aperture at the current offset —
+        // graded, never snapped. The text is painted into the backdrop from the
+        // registry's column bytes (one cell per dot, so 1:1 with the pips by
+        // construction) and the scroll is the field's `offset`: a number, no Row
+        // rebuilt, no x quantised to the pitch. Measured (s118, check_marquee_live
+        // --motion): the snapped Row moved in 3.6 px quanta at velocity cv 0.104
+        // — the jump the operator saw live; the field grades at cv 0.02.
+        ApertureField {
             id: field
             anchors.fill: parent
             showGhost: root.cfgShowField
             rows: root.matrix.rows
             u: rep.pitch
+            scale: 4
             dotFill: root.cfgDotFill
             ghostColor: root.ghostColor
             ghostOpacity: root.cfgGhostAlpha
+            litColor: root.litColor
+            colourFromInk: true
             // ⚑ THE HOVER-PAUSE SHOWS ITSELF (W51). While the pause holds the board,
             // the outermost pips breathe from the ghost's weight up toward lit and
             // back — the LIT token, not the hot one: this is attention, not alarm
             // (urgency owns fg_act, W46). The moment the pointer leaves, the run
-            // resumes and the ring goes dark. The field is visible even with the
-            // ghost field off: the ring is drawn regardless of cfgShowField.
+            // resumes and the ring goes dark. The ring is drawn regardless of
+            // cfgShowField.
             ringColor: root.litColor
             onRingOpacityChanged: root.ringOpacity = ringOpacity
             SequentialAnimation on ringOpacity {
@@ -306,137 +315,132 @@ PlasmoidItem {
                 NumberAnimation { from: 0.9; to: root.cfgGhostAlpha; duration: 400; easing.type: Easing.InOutSine }
                 onRunningChanged: if (!running) field.ringOpacity = 0
             }
+            onBackdropReady: rep.paintBackdrop()
+            onBackdropSized: rep.drawBackdrop()
+            onColsChanged: if (backdrop.available) rep.paintBackdrop()
+            // the text's left edge on screen, in px: the observables the harness reads
+            onOffsetChanged: { root.boardRawX = rep.width - (offset / scale) * rep.pitch; root.boardX = root.boardRawX; }
         }
 
-        // idle text (settings), lit on the field, centred and snapped to the pitch
-        Row {
-            visible: root.tickerText.length === 0 && root.cfgIdleText.length > 0
-            spacing: rep.pitch
-            y: (parent.height - rep.matrixHeight) / 2
-            x: Math.round(((rep.width - width) / 2) / rep.pitch) * rep.pitch
-            Repeater {
-                model: root.cfgIdleText.split("")
-                MatrixChar {
-                    font: root.matrixFont
-                    cols: root.matrix.cols; rows: root.matrix.rows
-                    ch: modelData
-                    u: rep.pitch
-                    dotFill: root.cfgDotFill
-                    litColor: root.litColor
-                    ghostColor: root.ghostColor
-                    ghostOpacity: root.cfgGhostAlpha
-                    showGhost: false
+        // one character advance, in backdrop cells: the glyph's columns plus a blank
+        readonly property int advanceCells: root.matrix.cols + 1
+        // the scrolling text's width, in cells and in px
+        readonly property int textCells: root.tickerText.length * advanceCells
+        readonly property real textWidth: textCells * pitch
+
+        // ⚑ THE BACKDROP: the ticker (or, idle, the settings' idle text centred on
+        // the board) painted as CELLS from the registry's column bytes. A bold run
+        // widens each dot by half a cell into its neighbours — a heavier weight the
+        // aperture grades; a coloured run is painted in the solved table's colour
+        // (never the sender's literal) and the field reads it back per pip; a link
+        // or <u> run lights its descent row (W40).
+        // paint = size the backdrop for the text, then draw once the field says the
+        // buffer is real (ApertureField.sizeBackdrop / backdropSized)
+        function paintBackdrop() {
+            var idle = root.tickerText.length === 0;
+            var text = idle ? root.cfgIdleText : root.tickerText;
+            var cells = text.length * rep.advanceCells;
+            field.sizeBackdrop((idle ? field.cols : field.cols + cells) * field.scale);
+        }
+        function drawBackdrop() {
+            var s = field.scale, cols = field.cols;
+            var idle = root.tickerText.length === 0;
+            var text = idle ? root.cfgIdleText : root.tickerText;
+            var cells = text.length * rep.advanceCells;
+            var ctx = field.backdrop.getContext("2d");
+            ctx.clearRect(0, 0, field.backdrop.width, field.backdrop.height);
+            var x0 = idle ? Math.round((cols - cells) / 2) : cols;
+            var onCells = 0;
+            for (var i = 0; i < text.length; i++) {
+                var ch = text.charAt(i);
+                var bytes = root.matrixFont[ch] || root.matrixFont[ch.toUpperCase()] || root.matrixFont["?"] || [];
+                var run = idle ? null : root.runAt(i);
+                var colour = root.overrideFor(run);
+                ctx.fillStyle = (colour !== "transparent") ? colour : String(root.litColor);
+                var grow = (run && run.bold) ? s / 2 : 0;
+                var underline = run !== null && (run.link.length > 0 || run.underline);
+                for (var c = 0; c < root.matrix.cols; c++) {
+                    var byte = bytes.length > c ? bytes[c] : 0;
+                    for (var r = 0; r < root.matrix.rows; r++) {
+                        var on = ((byte & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1);
+                        if (!on) continue;
+                        onCells += 1;
+                        var cx = (x0 + i * rep.advanceCells + c) * s, cy = r * s;
+                        ctx.fillRect(cx - grow, cy - grow, s + 2 * grow, s + 2 * grow);
+                    }
                 }
             }
+            if (idle) field.offset = 0;              // the idle face sits still, centred
+            field.sample();
+            var ink = 0;                              // the backdrop's ink, in backdrop pixels
+            for (var k = 0; k < field.prefix.length; k++) ink += field.prefix[k][field.backdropWidth];
+            // onCells x scale^2 = ink when every cell landed: the resize rule above
+            root.trace("paint idle=" + idle + " cells=" + cells + " backdrop=" + field.backdrop.width + "x" + field.backdrop.height
+                       + " cols=" + cols + " onCells=" + onCells + " ink=" + ink.toFixed(0));
+            root.boardWidth = idle ? 0 : cells * rep.pitch;
         }
 
-        // the marquee: the LIT dots scroll right-to-left OVER the field. The
-        // characters draw no ghost of their own, and x is snapped to the field's
-        // pitch so every lit dot lands on a field cell rather than between two.
-        Row {
-            id: marquee
-            visible: root.tickerText.length > 0
-            spacing: rep.pitch
-            y: (parent.height - rep.matrixHeight) / 2
-            property real rawX: rep.width
-            x: Math.round(rawX / rep.pitch) * rep.pitch
-            // ⚑ THE ROTATION IS STARTED, NEVER BOUND (operator, live 2026-09-22:
-            // "doesn't respond to notifications at all"). `running: marquee.visible`
-            // was a binding that the animation's own completion OVERWROTE with
-            // false — Qt assigns `running` when a finite animation ends, which
-            // discards the binding — so after the ring first drained to idle, a
-            // new notification made the Row visible but nothing ever ran again,
-            // and rawX sat parked off the left edge. Now the Row starts the run
-            // itself each time it becomes visible while nothing is running.
-            // ⚑ THE RUN'S ENDPOINTS ARE SET WHEN IT STARTS, NEVER BOUND (measured
-            // by check_marquee_live, 2026-09-22: the board scrolled in once,
-            // parked at x=7 with running stuck true, and never moved again). The
-            // Row's width is 0 on the frame it becomes visible and 212 one frame
-            // later; a run started on the 0 frame had `to: -marquee.width` read
-            // as 0, reached it, and then stalled when the binding moved its
-            // target underneath. So: decline until the Row has a width, set
-            // from/to as values, and start from a deferred call so the Row has
-            // laid out and a finished animation has returned before the next.
-            function startRun() {
-                root.trace("startRun visible=" + marquee.visible + " running=" + rotation.running
-                           + " paused=" + rotation.paused + " width=" + marquee.width + " rep=" + rep.width + "x" + rep.height);
-                if (!marquee.visible || rotation.running) return;
-                if (marquee.width <= 0) { Qt.callLater(startRun); return; }
-                rotation.from = rep.width;
-                rotation.to = -marquee.width;
-                marquee.rawX = rep.width;
-                rotation.start();
+        // the ticker changed: repaint the backdrop and start its run
+        Connections {
+            target: root
+            function onTickerTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); Qt.callLater(rep.startRun); }
+            function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
+        }
+
+        // ⚑ THE ROTATION IS STARTED, NEVER BOUND (operator, live 2026-09-22:
+        // "doesn't respond to notifications at all"): a `running:` binding is
+        // overwritten by a finite animation's own completion. The endpoints are
+        // SET when the run starts: from 0 (the text just off the right edge of the
+        // backdrop's board-width margin) to the board plus the text, in backdrop
+        // pixels; a deferred start so a finished animation has returned.
+        function startRun() {
+            root.trace("startRun text=" + JSON.stringify(root.tickerText.length) + " running=" + rotation.running
+                       + " paused=" + rotation.paused + " cells=" + rep.textCells + " rep=" + rep.width + "x" + rep.height);
+            if (root.tickerText.length === 0 || rotation.running) return;
+            if (field.cols <= 0) { Qt.callLater(startRun); return; }
+            rotation.from = 0;
+            rotation.to = (field.cols + rep.textCells) * field.scale;
+            field.offset = 0;
+            rotation.start();
+        }
+        Component.onCompleted: Qt.callLater(startRun)
+
+        // ⚑ HYPERLINKS (W40). Hovering the board PAUSES the rotation so a link can
+        // be aimed at — the board resumes when the pointer leaves — and a tap
+        // hit-tests the pointer's x against the text's left edge and the character
+        // advance; a link run opens externally. A CHOICE, NOT A GIVEN (the offscreen
+        // pointer rests at (0,0); a pointer parked on the panel does the same).
+        HoverHandler {
+            id: boardHover
+            enabled: root.cfgHoverPause && root.tickerText.length > 0
+            onHoveredChanged: rotation.paused = hovered && rotation.running
+        }
+        TapHandler {
+            enabled: root.cfgOpenLinks
+            onTapped: (eventPoint, button) => {
+                var idx = Math.floor((eventPoint.position.x - root.boardRawX) / (rep.advanceCells * rep.pitch));
+                var run = root.runAt(idx);
+                if (run && run.link.length > 0) Qt.openUrlExternally(run.link);
             }
-            onVisibleChanged: Qt.callLater(startRun)
-            Component.onCompleted: Qt.callLater(startRun)
-            onXChanged: root.boardX = x
-            onRawXChanged: root.boardRawX = rawX
-            onWidthChanged: root.boardWidth = width
-            Repeater {
-                model: root.tickerText.split("")
-                MatrixChar {
-                    required property int index
-                    required property string modelData
-                    readonly property var run: root.runAt(index)
-                    font: root.matrixFont
-                    cols: root.matrix.cols; rows: root.matrix.rows
-                    ch: modelData
-                    u: rep.pitch
-                    // a bold run is a fuller dot (area, not opacity); a coloured run
-                    // is the solved table's bucket, never the sender's literal
-                    dotFill: (run && run.bold) ? Math.min(1.0, root.cfgDotFill * root.boldFill) : root.cfgDotFill
-                    litColorOverride: root.overrideFor(run)
-                    // a link (or a <u> run) is underlined: its descent row lit (W40)
-                    underline: run !== null && (run.link.length > 0 || run.underline)
-                    litColor: root.litColor
-                    ghostColor: root.ghostColor
-                    ghostOpacity: root.cfgGhostAlpha
-                    showGhost: false
-                }
-            }
-            // ⚑ HYPERLINKS (W40; operator: "that would be awesome"). Hovering the
-            // board PAUSES the rotation so a link can be aimed at — a reader's
-            // affordance, the board resumes when the pointer leaves — and a tap
-            // hit-tests the pointer's x against the character advance to the run
-            // under it; a link run opens externally. The parser already carries
-            // the href (marquee-body.js); this is the only place it is read.
-            // ⚑ A CHOICE, NOT A GIVEN (check_marquee_live, 2026-09-22: the
-            // offscreen pointer rests at (0,0), and the run froze the instant
-            // the Row's left edge reached it — a paused animation still reports
-            // running). A pointer parked on the panel does the same on a desktop.
-            HoverHandler {
-                id: boardHover
-                enabled: root.cfgHoverPause
-                onHoveredChanged: rotation.paused = hovered && rotation.running
-            }
-            TapHandler {
-                enabled: root.cfgOpenLinks
-                onTapped: (eventPoint, button) => {
-                    var idx = Math.floor(eventPoint.position.x / (rep.cellW + rep.pitch));
-                    var run = root.runAt(idx);
-                    if (run && run.link.length > 0) Qt.openUrlExternally(run.link);
-                }
-            }
-            // ⚑ ONE ROTATION PER RUN, and the ring swaps at its END. Infinite loops
-            // would re-read `to` and the model mid-flight; a finite run that
-            // restarts itself is where "a full rotation" is a real event.
-            NumberAnimation {
-                id: rotation
-                target: marquee; property: "rawX"
-                // from / to are SET by startRun (see above); nothing binds them
-                // speed scales with length so long feeds don't crawl; the
-                // settings' speed factor divides the duration
-                duration: Math.max(1500, (rep.width + marquee.width) * 12 / root.cfgSpeed)
-                loops: 1
-                onRunningChanged: root.boardRunning = running
-                onPausedChanged: root.boardPaused = paused
-                onFinished: {
-                    root.trace("finished x=" + marquee.x);
-                    root.swapRing();
-                    // the next run starts after this one has fully returned; if the
-                    // ring drained, the Row is now invisible and startRun declines
-                    Qt.callLater(marquee.startRun);
-                }
+        }
+        // ⚑ ONE ROTATION PER RUN, and the ring swaps at its END. A finite run that
+        // restarts itself is where "a full rotation" is a real event.
+        NumberAnimation {
+            id: rotation
+            target: field; property: "offset"
+            // from / to are SET by startRun (see above); nothing binds them.
+            // speed scales with length so long feeds don't crawl; the settings'
+            // speed factor divides the duration
+            duration: Math.max(1500, (rep.width + rep.textWidth) * 12 / root.cfgSpeed)
+            loops: 1
+            onRunningChanged: root.boardRunning = running
+            onPausedChanged: root.boardPaused = paused
+            onFinished: {
+                root.trace("finished x=" + root.boardRawX);
+                root.swapRing();
+                // the next run starts after this one has fully returned; if the
+                // ring drained, the ticker is empty and startRun declines
+                Qt.callLater(rep.startRun);
             }
         }
 

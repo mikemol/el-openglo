@@ -202,42 +202,104 @@ def best_shift(prev, cur, max_shift):
     return best
 
 
+def pip_centres(frame, lit, ground):
+    """The x of every pip column, from the picture alone: columns whose pixels sit
+    off the ground (the field's ghost pips, lit or not) form periodic bumps; a bump's
+    peak is a pip's centre. Also the ghost floor's lit-ness at those centres."""
+    px = frame.load()
+    lg = [l - g for l, g in zip(lit, ground)]
+    norm = sum(v * v for v in lg) or 1
+    prof = []
+    for x in range(frame.width):
+        s = 0.0
+        for y in range(frame.height):
+            p = px[x, y]
+            s += max(0.0, min(1.0, sum((p[i] - ground[i]) * lg[i] for i in range(3)) / norm))
+        prof.append(s)
+    centres = [x for x in range(1, frame.width - 1)
+               if prof[x] > 0 and prof[x] >= prof[x - 1] and prof[x] > prof[x + 1]]
+    return centres
+
+
+def pip_profile(frame, centres, lit, ground, floor):
+    """Per pip column, its brightness ABOVE the ghost floor in [0, 1]: the mean
+    lit-ness (projection onto ground→lit) over the column, the floor removed."""
+    px = frame.load()
+    lg = [l - g for l, g in zip(lit, ground)]
+    norm = sum(v * v for v in lg) or 1
+    out = []
+    for x in centres:
+        s = 0.0
+        for y in range(frame.height):
+            p = px[x, y]
+            s += max(0.0, min(1.0, sum((p[i] - ground[i]) * lg[i] for i in range(3)) / norm))
+        s /= frame.height
+        out.append(max(0.0, (s - floor) / (1 - floor)) if floor < 1 else 0.0)
+    return out
+
+
+def best_pip_shift(prev, cur, max_shift):
+    """The shift in PIPS (whole k plus a fraction f) under which `cur` best matches
+    `prev` moved left — cur[c] ≈ (1-f)·prev[c+k] + f·prev[c+k+1] — and the
+    mismatch under it, in brightness. A graded field never moves its pips; their
+    brightness moves, by fractions of a pip per frame. The k entering pips at the
+    right are new content and are not compared."""
+    best = (None, None, None)
+    n = len(cur)
+    for k in range(max_shift + 1):
+        for f in (0.0, 0.25, 0.5, 0.75):
+            mism = 0.0
+            for c in range(n - k - 1):
+                mism += abs(cur[c] - ((1 - f) * prev[c + k] + f * prev[c + k + 1]))
+            if best[2] is None or mism < best[2]:
+                best = (k, f, mism)
+    return best
+
+
 def animation_facts(path, lit_hex, ground_hex, tolerance=0.5):
-    """A scroll is a LEFT SHIFT: every frame is the previous one moved left by some
-    k ≤ a quarter of the board, with new content entering at the right. Per adjacent
-    pair, the best k and the mismatch under it (in lit pixels, over the larger
-    frame's lit pixels); a pair whose best mismatch exceeds `tolerance` is a TEAR —
-    a rebuilt Row, a restart, a frame out of order. The ring's wrap (an item
-    leaving at the left while the next enters at the right) IS a left shift and
-    passes. The tolerance is MEASURED (2026-09-22, 47 pairs x 2 variants): honest
-    pairs mismatch ≤ 0.30 (the dots' phase against the 4 px pitch); the same pairs
-    with no shift allowed mismatch ≥ 0.66 — what a restart or a frozen frame looks
-    like. 0.5 sits in the gap. WEAKNESS: a pair with no lit pixel in either frame
-    (the board empty) has nothing to compare and is skipped, not judged."""
+    """A scroll is a LEFT SHIFT OF THE PIPS' BRIGHTNESS: the field never moves (W34a,
+    the pips are the hardware); the backdrop behind it does, by a fraction of a pip
+    per frame, so each pip's brightness is the previous frame's profile sampled a
+    fraction further along (W54's aperture relation). Per adjacent pair, the best
+    shift (whole pips + a quarter-pip fraction, ≤ a quarter of the board) and the
+    brightness mismatch under it over the larger frame's total brightness; a pair
+    over `tolerance` is a TEAR — a rebuilt board, a restart, a frame out of order.
+    The ring's wrap IS a left shift and passes. The pip columns and the ghost floor
+    are read from the FIRST frame (the empty board) — the measurement needs no
+    pitch from the emitter. WEAKNESS: a pair with no brightness above the floor in
+    either frame (the board empty) has nothing to compare and is skipped, not
+    judged; the tolerance is re-measured on the graded field (see COTYPE s120).
+    Before W54 this compared pixel columns under a whole-pixel shift, which is the
+    f = 0 special case a snapping field satisfies."""
     from PIL import Image, ImageSequence
     lit, ground = _hex(lit_hex), _hex(ground_hex)
     im = Image.open(path)
     width = im.width
-    masks, rgb_first, rgb_last = [], None, None
+    profiles, rgb_first, rgb_last, centres, floor = [], None, None, None, 0.0
     for fr in ImageSequence.Iterator(im):
         rgb = fr.convert("RGB")
-        masks.append(lit_columns(rgb, lit, ground))
-        rgb_first = rgb_first or rgb
+        if rgb_first is None:
+            rgb_first = rgb
+            centres = pip_centres(rgb, lit, ground)
+            raw = pip_profile(rgb, centres, lit, ground, 0.0)
+            floor = (sum(raw) / len(raw)) if raw else 0.0
+        profiles.append(pip_profile(rgb, centres, lit, ground, floor))
         rgb_last = rgb
     shifts, tears = [], []
-    for i in range(len(masks) - 1):
-        prev, cur = masks[i], masks[i + 1]
-        n_lit = max(sum(prev), sum(cur))
-        if n_lit == 0:
+    for i in range(len(profiles) - 1):
+        prev, cur = profiles[i], profiles[i + 1]
+        total = max(sum(prev), sum(cur))
+        if total < 0.5:
             continue
-        k, mism = best_shift(prev, cur, width // 4)
-        shifts.append(k)
-        if mism > tolerance * n_lit:
-            tears.append({"frame": i + 1, "shift": k, "mismatch": mism, "lit": n_lit})
+        k, f, mism = best_pip_shift(prev, cur, max(1, len(centres) // 4))
+        shifts.append(k + f)
+        if mism > tolerance * total:
+            tears.append({"frame": i + 1, "shift": k + f, "mismatch": round(mism, 2), "total": round(total, 2)})
     # a seamless loop: the run starts and ends on the same picture (the empty board).
     # Compared from the one forward pass — re-seeking an APNG in PIL re-composites.
     seamless = rgb_first is not None and rgb_first.tobytes() == rgb_last.tobytes()
-    return {"frames": len(masks), "width": width, "shifts": shifts, "tears": tears, "seamless": seamless}
+    return {"frames": len(profiles), "width": width, "pips": len(centres), "floor": round(floor, 3),
+            "shifts": shifts, "tears": tears, "seamless": seamless}
 
 
 def main(argv):
