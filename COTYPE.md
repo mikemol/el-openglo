@@ -7809,9 +7809,19 @@ residue gated on live operator testing.
   tessdata; an emoji has no text). W56 minted: the round trip as a check
   (edit distance), then as the OBJECTIVE over offset / scale / pixelSize /
   hinting / dotFill / rows.
+- Operator, on the contact sheet: "that bottom entry is really, really
+  faded — tonemapping? auto-stretching?" The cause is the 2:1: a one-pixel
+  stroke fills at most half an aperture, so the whole string sits at
+  0.25-0.5 coverage. ApertureField gained a TRANSFER CURVE, brightness =
+  coverage^gamma (1 = identity, the aperture gate's expectation untouched;
+  fixed, not per-frame — an auto-stretch would breathe as content scrolls,
+  the way an LED driver's gamma does not); the text probe runs at 0.5,
+  authored, and the string comes up out of the floor at the cost of a faint
+  halo of low-coverage pips — the trade W56's score is for. Stills re-done.
 - Residue: the 16-row 1:1 reading of Unifont is W47's fold into W54 (a
-  viewport); chi_sim/jpn tessdata are the operator's; the low-pass radius is
-  itself a parameter the sweep should own.
+  viewport) and the honest fix for the fade; the gamma is authored until
+  W56 tunes it; chi_sim/jpn tessdata are the operator's (the package.use
+  generator was handed over); the low-pass radius is a sweep parameter.
 
 ## Symbol ledger (current)
 - ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +

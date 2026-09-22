@@ -173,13 +173,20 @@ APERTURE_TEXT_FONT = "Unifont"
 APERTURE_TEXT = "Hello 世界 42 ñ 🔔"   # + emoji (operator): colour glyphs are ink by ALPHA — the silhouette lights
 
 
-def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APERTURE_TEXT):
+# the transfer curve for text read at 2:1 (operator: the pinholes sheet entry was
+# "really, really faded"); 1.0 is the identity — an authored value until W56's
+# OCR objective tunes it
+APERTURE_TEXT_GAMMA = 0.5
+
+
+def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APERTURE_TEXT,
+                            gamma=APERTURE_TEXT_GAMMA):
     """templates/aperture-text-probe.qml — a Qt Text item as the backdrop (W54 step 3):
     the font Qt shapes, hinted to the backdrop grid, read through the pinholes."""
     import templates.loader as TL
     import make_wallpaper_live as WL
     return TL.render("aperture-text-probe.qml", templates=templates_url, font=font, text=text,
-                     ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
+                     gamma=f"{gamma:.3f}", ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
 
 
 def body_parser():

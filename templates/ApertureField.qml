@@ -29,6 +29,14 @@ Item {
     property bool showGhost: true
     property int scale: 4              // backdrop pixels per pitch (supersampling)
     property real offset: 0            // scroll, in backdrop pixels; grows as the scene moves left
+    // ⚑ THE TRANSFER CURVE (operator, 2026-09-22, the sheet: "that bottom entry is
+    // really faded — tonemapping? auto-stretching?"). A one-pixel stroke read at
+    // 2:1 fills at most half an aperture, so the whole string sits at 0.25-0.5
+    // coverage. brightness = coverage^gamma: 1 is the identity (the aperture gate
+    // measures at 1); below 1 lifts partial coverage the way an LED driver's gamma
+    // does. FIXED, not per-frame: an auto-stretch breathes as content scrolls.
+    // W56's OCR score is the objective this is tuned against.
+    property real gamma: 1.0
     readonly property int cols: Math.max(0, Math.floor(width / u))
     readonly property real y0: (height - rows * u) / 2
 
@@ -78,13 +86,14 @@ Item {
             for (var r = 0; r < rows; r++) {
                 var sum = 0;
                 if (b > a) for (var yy = r * s; yy < (r + 1) * s; yy++) sum += prefix[yy][b] - prefix[yy][a];
-                cov[r * cols + c] = sum / area;
+                cov[r * cols + c] = gamma === 1.0 ? sum / area : Math.pow(sum / area, gamma);
             }
         }
         coverage = cov;
     }
     onOffsetChanged: integrate()
     onColsChanged: integrate()
+    onGammaChanged: integrate()
 
     Repeater {
         model: field.rows * field.cols

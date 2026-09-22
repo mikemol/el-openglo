@@ -19,6 +19,7 @@ Item {
         litColor: Kirigami.Theme.textColor
         ghostColor: Kirigami.Theme.disabledTextColor
         ghostOpacity: $ghostAlpha
+        gamma: $gamma
         // grab the source, hand the grab to an Image (what a Canvas can draw),
         // draw it into the backdrop, integrate. The grab result is held so its
         // url stays valid until the Image has it.
