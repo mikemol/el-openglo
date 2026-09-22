@@ -127,6 +127,35 @@ CASES = (
     ("glyph-0", "glyph", "0000", ("h", "v")),
     ("face-0000", "face", "0000", ("h",)),
 )
+# the matrix board is checked for the OTHER symmetry a display owes: its pips are
+# hardware, so the grid is invariant under translation by one pitch (W59: a pip is
+# a segment). Measured through the marquee harness, which is its only renderer.
+GRIDS = (("marquee-field", "EL-Amber"),)
+
+
+def grid_regularity(im, ground=None):
+    """The pip grid's own regularity, read from a picture (W57 on the matrix; the
+    operator caught this twice by eye). A board's LEDs sit on ONE pitch, so the
+    gaps between the columns that carry any pip must all be equal — and so must
+    the pips' widths. Returns the distinct column-run widths and the distinct gaps
+    between them; one of each is a regular grid."""
+    px = im.load()
+    if ground is None:
+        ground = max(im.getcolors(im.width * im.height))[1]
+    on = [any(px[x, y] != ground for y in range(im.height)) for x in range(im.width)]
+    runs, gaps, start, last_end = [], [], None, None
+    for x, v in enumerate(on + [False]):
+        if v and start is None:
+            start = x
+            if last_end is not None:
+                gaps.append(x - last_end)
+        elif not v and start is not None:
+            runs.append(x - start)
+            last_end, start = x, None
+    # the first and last runs may be clipped by the picture's edge
+    body = runs[1:-1] if len(runs) > 2 else runs
+    return {"pip_widths": sorted(set(body)), "gaps": sorted(set(gaps)),
+            "columns": len(runs), "regular": len(set(body)) <= 1 and len(set(gaps)) <= 1}
 
 
 def _cell_box(im):
@@ -178,7 +207,28 @@ def measure(cases=CASES, variant=VARIANT):
                     r["where"] = place_of(r["box"], im.width, im.height)
                 row["planes"][p] = {"regions": regs, "pixels": len(pts)}
         rows.append(row)
-    return {"cases": rows, "noise": NOISE}
+    return {"cases": rows, "grids": grid_cases(), "noise": NOISE}
+
+
+def grid_cases(grids=GRIDS):
+    """The matrix board's grid regularity, per variant, through its own renderer."""
+    from PIL import Image
+    import check_marquee_live as ML
+    out = []
+    for label, variant in grids:
+        row = {"label": label, "variant": variant}
+        if not os.path.isfile(ML.QML):
+            row["withheld"] = f"{ML.QML} is not installed"
+        else:
+            with tempfile.TemporaryDirectory() as td:
+                png = os.path.join(td, "board.png")
+                ML.screenshot(variant, png, os.path.join(td, "paused.png"))
+                if os.path.isfile(png):
+                    row.update(grid_regularity(Image.open(png).convert("RGB")))
+                else:
+                    row["withheld"] = "the marquee harness produced no picture"
+        out.append(row)
+    return out
 
 
 def main(argv):
@@ -204,8 +254,26 @@ def main(argv):
             for reg in d["regions"][:6]:
                 found += 1
                 print(f"        {reg['where']:13s} box {reg['box']}  {reg['pixels']} px  worst {reg['worst']}")
-    print(f"check_symmetry: {found} located asymmetr{'y' if found == 1 else 'ies'} to fix; "
-          f"the display and its mount are compared to their own mirrors")
+    # ⚑ TWO KINDS OF FINDING, AND ONLY ONE IS A VERDICT. The mirror regions are
+    # DIAGNOSTIC — the operator: "we don't expect it to match exactly, we expect
+    # it to fix defects" — so they are reported and never fail the run. The GRID
+    # is a claim that can be false: a board's pips sit on one pitch or they do
+    # not, and @GRID-REGULAR cites this exit status.
+    irregular = [g for g in m["grids"] if not g.get("withheld") and not g["regular"]]
+    for g in m["grids"]:
+        if g.get("withheld"):
+            print(f"  {g['label']:12s} WITHHELD {g['withheld']}")
+            continue
+        state = "regular" if g["regular"] else "IRREGULAR"
+        print(f"  {g['label']:12s} grid: {state} — {g['columns']} columns, "
+              f"pip widths {g['pip_widths']}, gaps {g['gaps']}")
+    print(f"check_symmetry: {found} located asymmetr{'y' if found == 1 else 'ies'} to fix (diagnostic); "
+          f"{len(m['grids']) - len(irregular)} of {len(m['grids'])} matrix grid(s) sit on one pitch")
+    if irregular:
+        for g in irregular:
+            print(f"check_symmetry: REFUSED — {g['label']} pip widths {g['pip_widths']}, "
+                  f"gaps {g['gaps']}: the grid is not one pitch", file=sys.stderr)
+        return 1
     return 0
 
 
@@ -242,6 +310,22 @@ def _selftest():
     chk("a region names where it sits, from its own coordinates",
         (place_of([0, 0, 10, 10], 90, 90), place_of([80, 80, 90, 90], 90, 90)),
         ("upper-left", "lower-right"))
+    # ⚑ THE GRID CHECK CAN SEE WHAT THE OPERATOR SAW: an integer pitch is regular,
+    # a fractional one rounded per-pip alternates its gaps
+    even = Image.new("RGB", (40, 8), (0, 0, 0))
+    for c in range(8):
+        for dx in range(3):
+            even.putpixel((c * 4 + dx, 4), (255, 255, 255))
+    chk("an integer pitch is regular", grid_regularity(even)["regular"], True)
+    odd = Image.new("RGB", (40, 8), (0, 0, 0))
+    for c in range(8):
+        x = round(c * 4.5)
+        for dx in range(3):
+            if x + dx < 40:
+                odd.putpixel((x + dx, 4), (255, 255, 255))
+    g = grid_regularity(odd)
+    chk("a fractional pitch is not", g["regular"], False)
+    chk("...and the gaps it reports are the uneven ones", len(g["gaps"]) > 1, True)
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 

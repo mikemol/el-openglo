@@ -8944,3 +8944,48 @@ residue gated on live operator testing.
   TWO render paths (check_marquee_live's harness and render_qml) remain,
   which is why the companion defect hit one and not the other.
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s134]
+
+## Session 135 — the pitch, not the phase; and qmllint is the load gate's first half
+- W58 step 1, MEASURED rather than assumed: qmllint run with the emitted
+  package's own ui directory on the import path DOES see an unresolvable
+  bare-name type — "SegmentChar was not found. Did you add all imports and
+  dependencies? [import]" with the file removed, silence with it present.
+  ⚑ ITS EXIT CODE IS 0 EITHER WAY, so a gate reading the status would pass a
+  package that cannot load — this defect's own shape one level up. The
+  check reads the [import] category. check_package_imports' hand-written
+  list of "types the modules supply" is GONE: qmllint knows the registry,
+  and a list would have called a real module type missing.
+- Operator, on marquee-EL-Amber: "those little boxes should all have the
+  same shape and the same width borders between them. Maybe it's a tiling
+  alignment problem?" It was, and s134's fix was only half: rounding each
+  pip's POSITION off a fractional pitch leaves gaps of 4, 4, 5, 4, 5 — the
+  boxes alternate by construction. MEASURED on the checked-in picture: pip
+  widths [3, 6], some literally twice the width of others. The PITCH is an
+  integer number of device pixels now (uPx), and the same picture measures
+  [3] with one gap. A board's LEDs sit on one pitch.
+- check_symmetry gained the matrix's own symmetry — translation by one
+  pitch — read from the picture as the distinct pip widths and gaps.
+  ⚑ TWO KINDS OF FINDING, AND ONLY ONE IS A VERDICT: the mirror regions are
+  DIAGNOSTIC (the operator: "we don't expect it to match exactly, we expect
+  it to fix defects") and never fail the run; the GRID is a claim that can
+  be false, so it carries the exit status and @GRID-REGULAR cites it.
+  @PACKAGE-IMPORTS and @GRID-REGULAR are both in the gate, which is what
+  "no commit without a working wallpaper" means mechanically.
+- Residue: type resolution is not a LOAD (a binding loop, a missing config
+  key, and the plugin-id mismatch that broke the desktop the FIRST time are
+  all still unseen — W58's remaining halves); the grid is measured on one
+  variant through one renderer; the glyph corner asymmetries are unfixed.
+
+## Symbol ledger (current)
+- ...prior... + ⊕ONE-THEME ✓ (109) + ⊕APERTURE-FIELD ✓ (125; the grid made
+  regular s135) + ⊕NOTIFY-CAPABILITIES ✓ (130)
+- OPEN — BUILD: none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER, ⊕VER-MARQUEE (s135: is the board's grid even
+  on the panel now, and does the wallpaper load after the companion fix),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE,
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT.
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s135]

@@ -21,7 +21,16 @@ import QtQuick
 Item {
     id: field
     property int rows: 8
-    property real u: 4                 // pitch in px
+    property real u: 4                 // pitch in px, as the mount asks for it
+    // ⚑ THE PITCH IS AN INTEGER NUMBER OF DEVICE PIXELS (operator, 2026-09-22,
+    // twice: first "the pip grid should be regular", then — after the positions
+    // alone were rounded — "those little boxes should all have the same shape and
+    // the same width borders between them. Maybe it's a tiling alignment
+    // problem?"). It is: rounding each pip's POSITION off a fractional pitch
+    // leaves gaps of 4, 4, 5, 4, 5 …, so the boxes alternate width by
+    // construction. A board's LEDs sit on one pitch; rounding the PITCH makes
+    // every gap identical, and the field simply spans fewer or more pips.
+    readonly property int uPx: Math.max(2, Math.round(u))
     property real dotFill: 0.82
     property color ghostColor: "gray"
     property real ghostOpacity: 0.28
@@ -52,8 +61,8 @@ Item {
     // the hover-pause's pulse; 0 = no ring
     property color ringColor: "white"
     property real ringOpacity: 0
-    readonly property int cols: Math.max(0, Math.floor(width / u))
-    readonly property real y0: (height - rows * u) / 2
+    readonly property int cols: Math.max(0, Math.floor(width / uPx))
+    readonly property int y0: Math.round((height - rows * uPx) / 2)
 
     // the backdrop: whatever the owner drew into this canvas at backdrop resolution
     // (rows*scale tall; as wide as the scene). Ink = alpha. `sample()` after drawing.
@@ -165,9 +174,9 @@ Item {
             // subpixel phase and the field shimmered as the backdrop moved —
             // exactly backwards for a board whose LEDs are fixed. The position is
             // rounded to the device grid; only the COVERAGE varies.
-            x: Math.round(col * field.u + (field.u - d) / 2)
-            y: Math.round(field.y0 + row * field.u + (field.u - d) / 2)
-            readonly property real d: Math.round(field.u * field.dotFill)
+            x: col * field.uPx + Math.round((field.uPx - d) / 2)
+            y: field.y0 + row * field.uPx + Math.round((field.uPx - d) / 2)
+            readonly property int d: Math.max(1, Math.round(field.uPx * field.dotFill))
             width: d; height: d
             // the floor: the ghost pip (the LED that is there), if shown
             Rectangle {

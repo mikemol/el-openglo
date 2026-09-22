@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 60,
+  "counter": 61,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T12:07:03+00:00",
-  "job_id": "4d221609",
+  "heartbeat": "2026-09-22T12:56:46+00:00",
+  "job_id": "b7d5edce",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-4d221609",
-    "taken_at": "2026-09-22T12:11:02+00:00"
+    "holder": "tick-b7d5edce",
+    "taken_at": "2026-09-22T13:08:30+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -949,10 +949,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: a witness that needs no reference — it would have caught the photographed defect before the operator did, and it grades every future emission change",
-      "next_bounded_step": "scripts/check_symmetry.py --json, TWO planes at TWO scopes: (a) the GLYPH — the display's 8 and 0 rendered alone must equal their own horizontal and vertical mirrors (catches segment geometry: the photographed top-left notch); (b) the FACE — the whole surface showing 00:00 must equal its own horizontal mirror (operator: '00:00 should be symmetric too'), which catches the MOUNT: kerning, an off-centre colon (its x is computed in the cell that carries it, not in the face), unequal end gaps. Report differing pixels and the difference's bounding box per plane per scope; policy/symmetry.rego Y0 empty, Y1 withheld, Y2 a difference above a floor MEASURED first (antialiasing gives a small nonzero floor). Run it on both mounts — the clock and the live wallpaper — since s133 shares the display but not the mount. Then fix what it names.",
-      "evidence": "Operator, 2026-09-22, three messages: (1) a photographed clock digit whose top-left corner notches while the bottom-left is clean — 'that should have been symmetrical!'; (2) '00:00 should be symmetric too' — the FACE plane, which catches the mount (kerning, colon centring) not just the glyph; (3) 'symmetry witness plus LINEAR REGRESSION for a snap to grid, so you can DISCOVER the correct symmetric geometries despite the coordinate system of the painting surface'. (3) is the constructive half: the witness only says asymmetric; fit the rendered segment extents (edges from the picture, per segment) against the substrate's unit coordinates by least squares, and the residuals name WHICH segment is off and by how much — in the toolkit's own pixel grid, including its rounding. The corrected table is then the fit's prediction snapped to the grid, not a hand nudge: a geometry DERIVED from the requirement of symmetry rather than tuned until it looks right.",
+      "next_bounded_step": "The CORNER asymmetries that remain (24 px regions where segments meet — the end-gap against the rounded cap: a horizontal is shortened by gap at each end while a vertical's cap protrudes, so the two do not close the corner identically). Then the constructive half the operator named: least-squares fit of the rendered segment extents against the substrate's unit coordinates, residuals naming the offender, the corrected table snapped to the device grid. And run the oracle on the MATRIX too (W59: a pip is a segment; the grid glitching was this check going unrun).",
+      "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that.",
       "issued_at": "2026-09-22T11:44:18+00:00",
-      "last_worked": "2026-09-22T11:59:40+00:00",
+      "last_worked": "2026-09-22T12:56:10+00:00",
       "ticks_blocked": 0
     },
     {
@@ -998,6 +998,21 @@
       "evidence": "",
       "issued_at": "2026-09-22T12:36:50+00:00",
       "last_worked": "2026-09-22T12:36:50+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W61",
+      "title": "THE BUILD GRAPH, ITERATIVE AND FINE-GRAINED (operator ruling 2026-09-22)",
+      "status": "ready",
+      "enables": [],
+      "touches": "warrants.bib,scripts,render_qml,check_legibility,check_symmetry",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
+      "next_bounded_step": "STEP 1, MEASURE THE IMPLICIT GRAPH — scripts/build_graph.py, derived not authored: nodes are files (templates, emitters, baselines, policies, packages, pictures, catalog documents) and edges are producer/consumer relations read FROM THE TREE (each emitter's render_all writes, each check's reads, the loader's template names, the parity PAIRS, the lint DOCS, the policy<->check pairing, render_screens' plan). It reports four things, each a finding on its own: (a) ORPHANS — a file no node produces and no node consumes; (b) UNBUILT — consumed but never produced, which is exactly the undeclared-input set (opa, qmllint, qml, tesseract+tessdata, the fontconfig faces, the Kirigami modules); (c) DUPLICATES — two producers of the same output kind from overlapping inputs, which is where the operator's recurring defects live; (d) UNREACHED — a node no gate depends on. ⚑ IT MUST FAIL CLOSED on a relation it cannot determine (linux-sources' generator raises rather than emit a target keyed on a guess), because an under-covered graph reports its own blind spot as cleanliness. STEP 2: the tier column (sandbox/local, with reasons) as a property OF each node, since the graph is where it belongs. STEP 3: only then the question of a build system to execute it — the graph is the deliverable either way, and it is what makes the bazel question answerable rather than aspirational.",
+      "evidence": "",
+      "issued_at": "2026-09-22T13:21:32+00:00",
+      "last_worked": "2026-09-22T13:24:55+00:00",
       "ticks_blocked": 0
     }
   ],

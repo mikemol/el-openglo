@@ -13,19 +13,29 @@ symbol witnesses), and the text was perfect — the defect was in the DIRECTORY.
 A rendered picture would not have caught it either; render_qml gained its own
 companion list the same day, which is the same bug in the harness.
 
-So this renders each package to a temp tree the way its emitter does, and asks:
-for every `Name {` the emitted QML instantiates, is `Name.qml` in that tree (or a
-type the imported modules supply)?
+So this renders each package to a temp tree the way its emitter does and asks
+QMLLINT, run with that tree's own ui directory on the import path, which types it
+cannot resolve — the same resolution Plasma does, by the tool that owns it.
 
-    scripts/check_package_imports.py             # per package, n of m resolved
+    scripts/check_package_imports.py             # per package, the unresolved types
     scripts/check_package_imports.py --json      # the measurement
     scripts/check_package_imports.py --selftest  # a missing companion is seen
 
-WEAKNESS: the "type the modules supply" set is a NAMED LIST (QtQuick, Plasma,
-Kirigami and friends), not a read of the QML type registry — a package that
-instantiates a real module type this list does not know is reported as missing,
-which is a false alarm, not a false all-clear. The direction of the error is the
-safe one and it is stated.
+⚑ THE EXIT CODE IS NOT THE ANSWER (measured s135): qmllint returns 0 whether or
+not a type resolves — an unresolved type is a WARNING in the `[import]` category
+("X was not found. Did you add all imports and dependencies?"). A gate reading
+the status would pass a package that cannot load, which is this defect's own
+shape one level up.
+
+⚑ AND THIS REPLACED A HEURISTIC. The first version (s134) matched `Name {` and
+compared against a hand-written list of types the QtQuick/Plasma modules supply —
+an approximation that would have called a real module type "missing". qmllint
+knows the type registry; the list is gone.
+
+WEAKNESS: type RESOLUTION is not a load. A package whose types all resolve can
+still fail at runtime (a binding loop, a missing config key, the plugin-id
+mismatch that broke the desktop the FIRST time — W58 carries that half). This
+says only that every type the QML names can be found where the package puts it.
 """
 import json
 import os
@@ -43,49 +53,39 @@ PACKAGES = (
     ("org.el.notifymarquee", "make_notify_marquee", "render_all"),
 )
 
-# types the imported QML modules supply — QtQuick and the KDE/Plasma set this
-# repo imports. A name here is NOT expected as a file beside the document.
-PROVIDED = {
-    # QtQuick & friends
-    "Item", "Rectangle", "Text", "TextInput", "Image", "Canvas", "Repeater", "Row", "Column",
-    "Grid", "Flow", "ListView", "ListModel", "ListElement", "Loader", "Timer", "MouseArea",
-    "QtObject", "Component", "Connections", "Binding", "Window", "Shape", "ShapePath",
-    "PathLine", "PathArc", "MultiEffect", "Behavior", "State", "Transition",
-    "NumberAnimation", "ColorAnimation", "PropertyAnimation", "SequentialAnimation",
-    "ParallelAnimation", "PauseAnimation", "RotationAnimation", "SpringAnimation",
-    "HoverHandler", "TapHandler", "DragHandler", "PointHandler", "WheelHandler",
-    "Gradient", "GradientStop", "LinearGradient", "Scale", "Rotation", "Translate",
-    # Plasma / KDE
-    "PlasmoidItem", "WallpaperItem", "ConfigModel", "ConfigCategory", "Dialog",
-    "PlasmaCore", "SimpleKCM", "FormLayout", "CheckBox", "Slider", "SpinBox", "TextField",
-    "Label", "Button", "ComboBox", "ScrollView", "Notifications", "StubRegistry",
-}
-INSTANTIATION = re.compile(r"(?<![\w.])([A-Z]\w*)\s*\{", re.M)
+QMLLINT = "/usr/lib64/qt6/bin/qmllint"
+# "X was not found. Did you add all imports and dependencies?" — the [import]
+# category, which is what an unresolvable bare-name type reports as
+UNRESOLVED = re.compile(r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[import\]", re.M)
+
+
+def lint_tree(ui_dir, docs):
+    """[{type, file, line}] for every type qmllint cannot resolve, with the tree's
+    own ui directory on the import path — the resolution Plasma does."""
+    import subprocess
+    out = []
+    for name in sorted(docs):
+        r = subprocess.run([QMLLINT, "-I", ui_dir, os.path.join(ui_dir, name)],
+                           capture_output=True, text=True, cwd=ui_dir, timeout=120)
+        for m in UNRESOLVED.finditer(r.stdout + r.stderr):
+            out.append({"type": m.group(4), "file": os.path.basename(m.group(1)),
+                        "line": int(m.group(2))})
+    return out
 
 
 def package_facts(label, module_name, attr):
-    """{label, files, instantiated, missing} — rendered the way the emitter does."""
+    """{label, files, missing} — rendered the way the emitter does, then linted."""
     import importlib
     mod = importlib.import_module(module_name)
+    if not os.path.isfile(QMLLINT):
+        return {"package": label, "withheld": f"{QMLLINT} is not on this host"}
     with tempfile.TemporaryDirectory() as td:
         getattr(mod, attr)(td)
-        docs, files = {}, set()
-        for base, _dirs, names in os.walk(td):
-            for n in names:
-                files.add(n)
-                if n.endswith(".qml"):
-                    docs[n] = open(os.path.join(base, n), encoding="utf-8").read()
-        want = set()
-        for text in docs.values():
-            want |= set(INSTANTIATION.findall(text))
-        # a document's OWN component blocks (`component Foo:`) are local types
-        local = set()
-        for text in docs.values():
-            local |= set(re.findall(r"(?m)^\s*component\s+(\w+)\s*:", text))
-        want -= PROVIDED | local
-        missing = sorted(n for n in want if f"{n}.qml" not in files)
-    return {"package": label, "files": sorted(files), "instantiated": sorted(want),
-            "missing": missing}
+        ui = os.path.join(td, "contents", "ui")
+        files = sorted(n for base, _d, ns in os.walk(td) for n in ns)
+        docs = [n for n in os.listdir(ui) if n.endswith(".qml")] if os.path.isdir(ui) else []
+        missing = lint_tree(ui, docs) if docs else []
+    return {"package": label, "files": files, "documents": sorted(docs), "missing": missing}
 
 
 def measure(packages=PACKAGES):
@@ -102,16 +102,25 @@ def main(argv):
     if "--json" in argv:
         print(json.dumps(m, indent=1))
         return 0
-    bad = [p for p in m["packages"] if p["missing"]]
+    held = [p for p in m["packages"] if p.get("withheld")]
+    bad = [p for p in m["packages"] if p.get("missing")]
     for p in m["packages"]:
-        n = len(p["instantiated"])
-        print(f"  {p['package']:24s} {n - len(p['missing'])} of {n} instantiated types ship in the package"
-              + (f" — MISSING {p['missing']}" if p["missing"] else ""))
+        if p.get("withheld"):
+            print(f"  {p['package']:24s} SKIP — {p['withheld']}")
+            continue
+        print(f"  {p['package']:24s} {len(p['documents'])} document(s), "
+              + ("every type resolves" if not p["missing"] else "UNRESOLVED:"))
+        for u in p["missing"]:
+            print(f"        {u['type']} at {u['file']}:{u['line']} — not in the package")
     if bad:
         print(f"check_package_imports: REFUSED — {len(bad)} of {len(m['packages'])} packages would fail to load",
               file=sys.stderr)
         return 1
-    print(f"check_package_imports: {len(m['packages'])} of {len(m['packages'])} packages ship every component they instantiate")
+    if held:
+        print(f"check_package_imports: SKIP — {len(held)} of {len(m['packages'])} packages unmeasured (no qmllint)",
+              file=sys.stderr)
+        return 0
+    print(f"check_package_imports: {len(m['packages'])} of {len(m['packages'])} packages resolve every type they name")
     return 0
 
 
@@ -138,12 +147,19 @@ def _selftest():
     fake = types.ModuleType("_fake_pkg")
     fake.render_broken, fake.render_whole = render_broken, render_whole
     sys.modules["_fake_pkg"] = fake
-    chk("a mount without its display is seen",
-        package_facts("broken", "_fake_pkg", "render_broken")["missing"], ["SegmentChar"])
-    chk("...and a whole package is clean",
-        package_facts("whole", "_fake_pkg", "render_whole")["missing"], [])
-    chk("a module-provided type is not expected as a file",
-        "Rectangle" in package_facts("whole", "_fake_pkg", "render_whole")["instantiated"], False)
+    broken = package_facts("broken", "_fake_pkg", "render_broken")
+    whole = package_facts("whole", "_fake_pkg", "render_whole")
+    if broken.get("withheld"):
+        print(f"  SKIP — {broken['withheld']}; the resolution arms did not run")
+    else:
+        chk("a mount without its display is seen",
+            [u["type"] for u in broken["missing"]], ["SegmentChar"])
+        chk("...and it names where", (broken["missing"][0]["file"], broken["missing"][0]["line"]),
+            ("main.qml", 2))
+        chk("...and a whole package is clean", whole["missing"], [])
+        # ⚑ a module type is resolved BY QMLLINT, not by a list this file keeps
+        chk("a module-provided type needs no file beside the document",
+            any(u["type"] == "Rectangle" for u in whole["missing"]), False)
     print("check_package_imports selftest:", "PASS" if ok else "FAIL")
     return ok
 
