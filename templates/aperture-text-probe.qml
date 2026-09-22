@@ -48,7 +48,9 @@ Item {
         text: "$text"
         color: "black"
         font.family: "$font"
-        font.pixelSize: field.rows * field.scale * 0.95
+        // the em IS the field's height in backdrop pixels: an integer multiple of a
+        // bitmap font's cell, so its pixels land on whole backdrop pixels
+        font.pixelSize: field.rows * field.scale
         font.hintingPreference: Font.PreferFullHinting
         renderType: Text.NativeRendering
         verticalAlignment: Text.AlignVCenter

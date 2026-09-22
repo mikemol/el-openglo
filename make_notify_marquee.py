@@ -164,8 +164,13 @@ def aperture_probe_qml(templates_url="."):
                      ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
 
 
-APERTURE_TEXT_FONT = "Liberation Mono"   # ⚑ Unifont is not on this host (fc-match falls back); any shaped font is a backdrop
-APERTURE_TEXT = "Hello, world 42"
+# ⚑ Unifont (operator: "plain Unifont behind the mask") — installed 2026-09-22; before
+# that fc-match fell back to Liberation Sans and the still was Liberation Mono. Its
+# 8x16 cell against the 8-row field: at pixelSize = the field's height the em is
+# two backdrop pixels per Unifont pixel, i.e. HALF a pip — a 2:1 downsample through
+# the aperture; the 16-row viewport (W47's fold) is the 1:1 reading.
+APERTURE_TEXT_FONT = "Unifont"
+APERTURE_TEXT = "Hello 世界 42 ñ 🔔"   # + emoji (operator): colour glyphs are ink by ALPHA — the silhouette lights
 
 
 def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APERTURE_TEXT):

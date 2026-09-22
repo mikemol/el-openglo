@@ -7790,3 +7790,56 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s116]
+
+## Session 117 — Unifont, CJK and an emoji through the pinholes; OCR as the legibility witness
+- The operator installed media-fonts/unifont between ticks (fc-match now
+  resolves unifont.otf). The text probe's font hole became Unifont and the
+  string "Hello 世界 42 ñ 🔔" (operator: "and don't forget emoji"); the em is
+  the field's height in backdrop pixels (32 = 2x Unifont's 16), so one
+  Unifont pixel is HALF a pip — a 2:1 downsample through the aperture. 世界
+  survives it and reads as 世界 (the dense strokes grade rather than clog);
+  ñ reads; the bell (Noto Color Emoji by fallback) comes through as its
+  silhouette, fully lit — a colour glyph is ink by alpha, the hue gate
+  untouched. Six pinholes stills re-rendered (42 of 42, S1-S3).
+- Operator: "OCR models might be useful for optimising the supersampling
+  alignment". Measured at once: tesseract (eng/enm only here) reads NOTHING
+  from the raw pips; a Gaussian low-pass at ~1.5 pitch (the eye at distance)
+  then a threshold reconnects the strokes and it reads "Mello A 424 B" for
+  the string above — Latin nearly recovered, 世界/🔔 as noise (no CJK
+  tessdata; an emoji has no text). W56 minted: the round trip as a check
+  (edit distance), then as the OBJECTIVE over offset / scale / pixelSize /
+  hinting / dotFill / rows.
+- Residue: the 16-row 1:1 reading of Unifont is W47's fold into W54 (a
+  viewport); chi_sim/jpn tessdata are the operator's; the low-pass radius is
+  itself a parameter the sweep should own.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring), ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR,
+  ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY, ⊕GLANCE-CALIBRATE (s111: the
+  1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s117]
