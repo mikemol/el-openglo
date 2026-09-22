@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 61,
+  "counter": 62,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T14:01:40+00:00",
-  "job_id": "f39b604d",
+  "heartbeat": "2026-09-22T14:21:48+00:00",
+  "job_id": "dcd0ed9d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1006,10 +1006,25 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
-      "next_bounded_step": "REGO IS THE SOURCE, NOT THE JUDGE (operator, 2026-09-22: 'rego is our specifications language. Our build graph, our tests, everything should be able to be synthesized from it. Just as luthen-observability synthesizes monitoring and alerting rules from rego.'). The ACTIONS table lives in Python and must not: move it to rego data, and reduce the 58 hand-written checks in the struct-tools table to ONE generic measurer over a declared fact base. Each check today carries its own private notion of a dependency -- the same defect check_token_source found in make_wallpaper, one level up.",
-      "evidence": "scripts/check_action_key.py + policy/action_key.rego (opa test 10/10, gate denies on a real perturbation); @CURRENCY in the warrant graph, 73 of 73 cited claims pass",
+      "next_bounded_step": "RESOLVE THE DOMINANT IDIOM, DO NOT APPROXIMATE IT. build_graph --undetermined censuses 205 relations into 11 idioms and 116 of them (61 read + 55 write) are ONE: open(<variable>), a name bound earlier in the same scope. paperkit/tools/closure.py already does this (_content_edges tracks local name -> path; _resolve_path walks ROOT / 'sub' chains; _parents_prefix resolves Path(__file__).parents[N]) -- so INDETERMINATE was a fact about this scanner, not the substrate. Port the binding-resolution rule to this tree's idioms (os.path.join and f-strings, not pathlib). Where a binding is f-string-shaped the edge resolves to a DOMAIN exactly (f'{v}.colors' genuinely ranges over .colors), which is precision, not over-approximation. Next after that: listdir/walk (42) as declared domains, then open(join(..., <expr>)) (25). AWAITING linux-sources-9c on bidirectional cone design before any cone is built.",
+      "evidence": "build_graph --undetermined + its census selftest; 205 relations / 11 idioms measured 2026-09-22",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-22T13:58:38+00:00",
+      "last_worked": "2026-09-22T14:20:48+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W62",
+      "title": "PACKAGE THE TOOLING: scripts/ and the ../substrate symlinks become mikemol-* distributions",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Operator, 2026-09-22, on seeing a sys.path.insert: 'Do not do the sys.path.insert thing. Instead, take everything you WOULD import and build a package out of it. See mtools and how other repos use, e.g. its mdstruct. (And should be using its other tools)'. Model is ~/github/mtools/mdstruct: one distribution per concern named mikemol-<name>; src/mikemol/<name>/ with NO src/mikemol/__init__.py (PEP 420 implicit namespace, so siblings share the prefix without one owning it); [project.scripts] console script as the adoption path; deps published or git-pinned and NEVER editable/path (an editable install is a finder on an absolute host path, so staged into a sandbox it resolves back OUT to the live tree); pytest rather than the --selftest roster for anything a consumer imports. FIRST BOUNDED STEP: census what el-openglo already borrows and what it would export -- scripts/check_hooks.py --list names the five substrate symlinks, and mtools' OTHER tools should be adopted rather than re-derived. mdstruct's own manifest records the defect this closes: symlinked adoption broke silently when a tool derived its root with abspath(__file__), which does not resolve symlinks.",
+      "evidence": "not started; raised while check_action_key needed to import build_graph",
+      "issued_at": "2026-09-22T14:28:13+00:00",
+      "last_worked": "2026-09-22T14:28:13+00:00",
       "ticks_blocked": 0
     }
   ],

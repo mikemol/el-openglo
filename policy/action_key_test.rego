@@ -6,9 +6,38 @@ package el.action_key_test
 
 import data.el.action_key
 
-_current := {"action": "screens", "state": "current", "key": "aaaa000011112222", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": []}
+_current := {"action": "screens", "state": "current", "key": "aaaa000011112222", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": [], "n_unresolved": 0, "n_undeclared_domains": 0}
 
-_stale := {"action": "screens", "state": "stale", "key": "bbbb333344445555", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": []}
+_stale := {"action": "screens", "state": "stale", "key": "bbbb333344445555", "recorded_key": "aaaa000011112222", "n_inputs": 64, "n_outputs": 55, "missing_host": [], "n_unresolved": 0, "n_undeclared_domains": 0}
+
+# ⚑ THE RESIDUE CASES. A key over an under-covered domain WITHHOLDS and never
+# denies: a false positive in the residue costs one file declared uncovered, a
+# false negative costs a wrong verdict.
+test_unresolved_edges_withhold_not_deny if {
+	c := object.union(_current, {"n_unresolved": 21})
+	i := {"cases": [c]}
+	d := action_key.deny with input as i
+	w := action_key.withheld with input as i
+	count(d) == 0
+	count(w) == 1
+}
+
+test_undeclared_domains_withhold_not_deny if {
+	c := object.union(_current, {"n_undeclared_domains": 2})
+	i := {"cases": [c]}
+	d := action_key.deny with input as i
+	w := action_key.withheld with input as i
+	count(d) == 0
+	count(w) == 1
+}
+
+# ⚑ AND A FULLY-COVERED DOMAIN MUST WITHHOLD NOTHING — otherwise the rule above
+# can never retire and every run looks equally uncovered.
+test_a_clean_domain_withholds_nothing if {
+	i := {"cases": [_current]}
+	w := action_key.withheld with input as i
+	count(w) == 0
+}
 
 # THE REFUSING CASE — the incident itself: the pictures in the tree were built
 # before the grid fix, so the recorded key no longer matches the declared domain.

@@ -330,8 +330,28 @@ def findings(g):
                    for k in sorted({n["kind"] for n in nodes.values()})}}
 
 
+def undetermined_census(g):
+    """{idiom: [site]} — the undetermined edges grouped by the SHAPE that defeated
+    the scan, so the next resolver is chosen by what would pay rather than by what
+    is easy.
+
+    ⚑ MEASURE THE BLIND SPOT BEFORE WIDENING THE APERTURE. paperkit's
+    tools/closure.py resolves `Path(__file__).parents[N]`, `ROOT / "sub"` chains
+    and names bound to `X.read_text()` — the exact class this tool calls
+    INDETERMINATE. That proves the category is a fact about THIS scanner, not
+    about the substrate. But paperkit's idioms are pathlib and this tree's are
+    os.path.join and f-strings, so porting its rules blind would resolve edges
+    that do not exist here and leave the ones that do."""
+    out = {}
+    for direction, sites in g["undetermined"].items():
+        for s in sites:
+            idiom = s.split(": ", 1)[1] if ": " in s else s
+            out.setdefault(f"{direction}: {idiom}", []).append(s.split(": ", 1)[0])
+    return out
+
+
 def main(argv):
-    known = {"--nodes", "--json", "--selftest"}
+    known = {"--nodes", "--json", "--selftest", "--undetermined"}
     for a in argv[1:]:
         if a not in known:
             print(f"build_graph: unknown flag {a!r}", file=sys.stderr)
@@ -340,6 +360,22 @@ def main(argv):
     f = findings(g)
     if "--json" in argv:
         print(json.dumps({"graph": g, "findings": f}, indent=1))
+        return 0
+    if "--undetermined" in argv:
+        census = undetermined_census(g)
+        total = sum(len(v) for v in census.values())
+        if not total:
+            print("build_graph: REFUSED — the undetermined population is EMPTY, which "
+                  "means the scan found nothing to grade, not that the graph is closed",
+                  file=sys.stderr)
+            return 1
+        for idiom, sites in sorted(census.items(), key=lambda kv: -len(kv[1])):
+            files = sorted(set(sites))
+            print(f"  {len(sites):4d}  {idiom}")
+            print(f"        across {len(files)} file(s): {', '.join(files[:4])}"
+                  + (f", +{len(files) - 4} more" if len(files) > 4 else ""))
+        print(f"\nbuild_graph: {total} undetermined relation(s) in "
+              f"{len(census)} idiom(s)")
         return 0
     if "--nodes" in argv:
         for p, n in sorted(g["nodes"].items()):
@@ -400,6 +436,18 @@ def _selftest():
 
     g = graph()
     chk("the tree has nodes", len(g["nodes"]) > 50, True)
+    # ⚑ THE CENSUS MUST PARTITION, not merely count. Measured 2026-09-22: 205
+    # undetermined relations fall into 11 idioms, and 116 of them are ONE idiom
+    # (`open(<variable>)`), which is what makes a resolver worth writing. A census
+    # whose buckets do not sum to the population is a different measurement
+    # wearing the population's name.
+    census = undetermined_census(g)
+    total_sites = sum(len(v) for v in g["undetermined"].values())
+    chk("the census partitions the undetermined population",
+        sum(len(v) for v in census.values()), total_sites)
+    chk("the census is not a single bucket", len(census) > 1, True)
+    chk("every graded site names a file and a line",
+        all(":" in s for v in census.values() for s in v), True)
     # ⚑ THE MEASUREMENT CAN SEE: a template the loader renders has its emitter as a
     # consumer, and a host tool is in the unbuilt set
     tpl = g["nodes"].get("templates/SegmentChar.qml", {})

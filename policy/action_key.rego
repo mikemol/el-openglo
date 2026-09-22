@@ -47,6 +47,29 @@ deny contains msg if {
 # ⚑ NOT CONFIRMED IS NOT FAILED. No recorded key means nobody asserted a build;
 # an absent host input means the key cannot be computed on this machine. Both are
 # facts about the record and the machine, not about the artifact.
+# ⚑ A KEY OVER AN UNDER-COVERED DOMAIN IS NOT EVIDENCE OF CURRENCY, and this rule
+# exists because the tool shipped at b98f8cc without it: key_of returned a clean
+# triple while its scanner had silently dropped every computed read. The caller
+# read absence-of-error as coverage — "the trap for a closure tool is not 'the
+# closure is wrong'; it is 'the closure dropped an unresolvable import and
+# returned success'" (linux-sources-9c, 2026-09-22).
+#
+# ⚑ WITHHELD, NOT DENY, AND THE ASYMMETRY IS DELIBERATE. Over-approximating the
+# DEPENDENCY set has no terminating condition; over-approximating the RESIDUE set
+# does — a false positive costs one file declared uncovered, a false negative
+# costs a wrong verdict. So this fires generously and never blocks.
+withheld contains msg if {
+	some c in input.cases
+	c.n_unresolved > 0
+	msg := sprintf("action %q keyed over a domain with %d UNRESOLVED edge(s): the key is evidence about what the scan COULD see", [c.action, c.n_unresolved])
+}
+
+withheld contains msg if {
+	some c in input.cases
+	c.n_undeclared_domains > 0
+	msg := sprintf("action %q keyed over %d UNDECLARED domain(s) (glob/walk/listdir): the population itself is unknown, so neither boundary is computable over it", [c.action, c.n_undeclared_domains])
+}
+
 # ⚑ REFORMULATED IS NOT STALE. The key's DEFINITION changed, so the recorded key
 # answers a different question; the artifacts may be perfectly current. Saying
 # "STALE — rebuild" here is a false accusation the reader cannot check.

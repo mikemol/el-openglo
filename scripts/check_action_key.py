@@ -57,8 +57,21 @@ import hashlib
 import json
 import os
 import sys
+from typing import NamedTuple
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# ⚑ NO sys.path SURGERY (operator, 2026-09-22: "Do not do the sys.path.insert
+# thing. Instead, take everything you WOULD import and build a package out of
+# it"). A sys.path.insert is an import that works only because of how the process
+# was launched — the same class as a symlinked tool deriving its root from
+# abspath(__file__), which mtools records breaking silently for exactly that
+# reason. This plain import resolves because both modules sit in scripts/; it is
+# correct by LAYOUT rather than by patching the interpreter, and it is a stopgap:
+# ⚑ THE REAL ANSWER IS A DISTRIBUTION (W62), on mtools' shape — src/mikemol/<n>/,
+# PEP 420 implicit namespace, console scripts as the adoption path that replaces
+# a symlink, dependencies published or git-pinned and NEVER editable/path.
+import build_graph  # noqa: E402
 MANIFEST = os.path.join(ROOT, "catalog", "actions.json")
 
 # ⚑ YOU DO NOT DECLARE A HOST BINARY. YOU DEFINE YOUR HOST (operator, 2026-09-22,
@@ -210,20 +223,58 @@ def domain_files(domains):
     return sorted(set(out))
 
 
+class Key(NamedTuple):
+    """A key AND the two ways its domain scan under-covered — never one without
+    the others.
+
+    ⚑ THE CALLER MUST NOT BE ABLE TO RECEIVE SUCCESS WITHOUT THE GAP SETS
+    (linux-sources-9c, 2026-09-22, handing over the decision this repo asked to
+    inherit): "the trap for a closure tool is not 'the closure is wrong'; it is
+    'the closure dropped an unresolvable import and returned success', so the
+    caller reads absence-of-error as coverage."
+
+    ⚑ AND THIS TOOL WAS ALREADY IN THAT TRAP, COMMITTED AT b98f8cc THIS MORNING.
+    key_of digested an exact import closure plus a directory walk and returned a
+    clean `(key, inputs, missing)` — where `missing` covered ONLY an absent host
+    file. The entry module's computed reads (61 across this tree) and undeclared
+    domains (42) were never mentioned, so the key looked complete and every
+    caller read it as currency. The residue rides in the return type now.
+
+    ⚑ OVER-FIRING HERE IS SAFE, AND THAT IS THE ASYMMETRY TO BIAS ON. Over-
+    approximating the DEPENDENCY set has no terminating condition; over-
+    approximating the RESIDUE set does. A false positive costs one file declared
+    uncovered; a false negative costs a wrong verdict."""
+    key: str
+    inputs: dict
+    missing_host: list
+    unresolved: list          # edges the scan could not resolve, `file:line: why`
+    undeclared_domains: list  # glob/walk/listdir sites: the population is unknown
+
+
 def key_of(action):
-    """(key, inputs, missing) — the digest over the action's whole declared domain.
+    """A Key over the action's whole declared domain, carrying its own residue.
 
     ⚑ A DECLARED HOST INPUT THAT IS ABSENT MAKES THE KEY UNCOMPUTABLE, and the
     caller must treat that as `withheld`. Digesting "the files that happened to be
     there" would produce a key that agrees with itself on two different machines
     and silently certifies a cross-host cache hit — the stale green, arrived at by
-    the tool built to prevent it."""
+    the tool built to prevent it.
+
+    ⚑ THE RESIDUE IS UNIONED ALONG THE CLOSURE, not taken at the entry module. An
+    edge unresolvable at ANY depth is named, because a computed read three imports
+    down reaches the artifact exactly as one in the entry does."""
     _name, entry, domains, sees_host, _out, _sfx = action
     inputs, missing = {}, []
-    for rel in import_closure(entry) + domain_files(domains):
+    closure = import_closure(entry)
+    for rel in closure + domain_files(domains):
         p = os.path.join(ROOT, rel)
         if os.path.isfile(p):
             inputs[rel] = _digest_file(p)
+    unresolved, undeclared = [], []
+    for rel in closure:
+        for line, direction, why in build_graph.computed_edges(rel):
+            site = f"{rel}:{line}: {why}"
+            (undeclared if direction == "domain" else unresolved).append(site)
     if sees_host:
         kind, hid, detail = host_identity()
         if kind == "unmeasurable":
@@ -233,7 +284,7 @@ def key_of(action):
     h = hashlib.sha256()
     for rel in sorted(inputs):
         h.update(rel.encode() + b"\0" + inputs[rel].encode() + b"\0")
-    return h.hexdigest(), inputs, missing
+    return Key(h.hexdigest(), inputs, missing, sorted(unresolved), sorted(undeclared))
 
 
 def outputs_of(action):
@@ -254,16 +305,23 @@ def measure():
     cases = []
     for a in ACTIONS:
         name = a[0]
-        key, inputs, missing = key_of(a)
+        k = key_of(a)
+        key, missing = k.key, k.missing_host
         outs = outputs_of(a)
         was = recorded.get(name, {})
         cases.append({
             "action": name,
             "key": key,
             "recorded_key": was.get("key"),
-            "n_inputs": len(inputs),
+            "n_inputs": len(k.inputs),
             "n_outputs": len(outs),
             "missing_host": missing,
+            # ⚑ THE RESIDUE TRAVELS WITH THE MEASUREMENT, so the policy can
+            # WITHHOLD rather than admit a key whose domain scan under-covered.
+            "n_unresolved": len(k.unresolved),
+            "n_undeclared_domains": len(k.undeclared_domains),
+            "unresolved": k.unresolved[:5],
+            "undeclared_domains": k.undeclared_domains[:5],
             # ⚑ NO RECORD IS `withheld`, NOT `deny`. Nobody has asserted a build,
             # so currency is UNMEASURED here — not confirmed, and not failed. An
             # absent host input is withheld for the same reason, one level out.
@@ -313,39 +371,44 @@ def _selftest():
     # ⚑ THE POPULATION IS NOT EMPTY — a key over nothing is a constant, and three
     # actions all keyed on an empty domain would agree with each other forever.
     for a in ACTIONS:
-        key, inputs, _m = key_of(a)
-        chk(f"{a[0]}: domain is non-empty", len(inputs) > 0, True)
+        k = key_of(a)
+        chk(f"{a[0]}: domain is non-empty", len(k.inputs) > 0, True)
     # ⚑ THE MEASUREMENT CAN SEE: perturbing one declared input MUST move the key.
     # A currency check whose key never moves is the stale-green this tool exists
     # to stop, wearing the tool's own badge.
     a = ACTIONS[0]
-    before, inputs, _m = key_of(a)
-    victim = os.path.join(ROOT, sorted(x for x in inputs if not x.startswith("host:"))[0])
+    base = key_of(a)
+    victim = os.path.join(ROOT, sorted(x for x in base.inputs if not x.startswith("host:"))[0])
     original = open(victim, "rb").read()
     try:
         with open(victim, "ab") as fh:
             fh.write(b"\n# action_key selftest perturbation\n")
-        after, _i, _m = key_of(a)
-        chk("a changed input moves the key", after != before, True)
+        chk("a changed input moves the key", key_of(a).key != base.key, True)
     finally:
         with open(victim, "wb") as fh:
             fh.write(original)
-    chk("the key is restored with the input", key_of(a)[0], before)
+    chk("the key is restored with the input", key_of(a).key, base.key)
     # ⚑ THE HOST HALF MUST BE IN THE KEY TOO, and an absent one must be VISIBLE
     chk("a host-seeing action carries a host identity",
-        any(k.startswith("host:") for k in key_of(ACTIONS[0])[1]), True)
+        any(k.startswith("host:") for k in key_of(ACTIONS[0]).inputs), True)
     chk("a pure action carries NO host identity",
-        any(k.startswith("host:") for k in key_of(ACTIONS[1])[1]), False)
+        any(k.startswith("host:") for k in key_of(ACTIONS[1]).inputs), False)
     # ⚑ THE HOST HALF MUST MOVE THE KEY, or declaring it is decoration
     pure = ("screens-pure", ACTIONS[0][1], ACTIONS[0][2], False, ACTIONS[0][4], ACTIONS[0][5])
-    chk("dropping the host changes the key", key_of(pure)[0] != key_of(ACTIONS[0])[0], True)
+    chk("dropping the host changes the key", key_of(pure).key != key_of(ACTIONS[0]).key, True)
+    # ⚑ THE RESIDUE MUST BE NON-EMPTY AND MUST RIDE WITH THE KEY. If this ever
+    # reads zero, the scanner stopped looking — not the tree got clean.
+    chk("the key carries its residue as fields",
+        set(Key._fields), {"key", "inputs", "missing_host", "unresolved", "undeclared_domains"})
+    chk("the screens residue is non-empty (its emitter computes paths)",
+        len(base.unresolved) + len(base.undeclared_domains) > 0, True)
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
     print(f"  note  host is {kind} — "
           + ("a cache hit is transportable" if kind == "pinned"
              else "staleness is detectable HERE; cross-host reuse is NOT licensed"))
     # distinct actions must not collide
-    keys = {x[0]: key_of(x)[0] for x in ACTIONS}
+    keys = {x[0]: key_of(x).key for x in ACTIONS}
     chk("distinct actions have distinct keys", len(set(keys.values())), len(ACTIONS))
     print("action_key selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
@@ -399,8 +462,13 @@ def main(argv):
         if len(unmeas) == len(cases):
             return 3
     for c in cases:
+        gap = c["n_unresolved"] + c["n_undeclared_domains"]
         print(f"  {c['state']:11s} {c['action']:12s} "
-              f"{c['n_inputs']} input(s), {c['n_outputs']} output(s)")
+              f"{c['n_inputs']} input(s), {c['n_outputs']} output(s)"
+              + (f"  ⚑ residue: {c['n_unresolved']} unresolved edge(s), "
+                 f"{c['n_undeclared_domains']} undeclared domain(s)" if gap else ""))
+        for s in c["unresolved"] + c["undeclared_domains"]:
+            print(f"                  {s}")
     if stale:
         print(f"\naction_key: REFUSED — {len(stale)} of {len(cases)} action(s) STALE: "
               f"the outputs in the tree were built from inputs that have since changed.",
