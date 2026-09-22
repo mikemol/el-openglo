@@ -43,8 +43,7 @@ DOCS = (
     ("make_wallpaper_live", "main_qml", None, "live-wallpaper-main.qml"),   # one package since W35
     ("make_notify_marquee", "main_qml", ("PARITY_FONT",), "marquee-main.qml"),   # one package since W35
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
-    ("make_notify_marquee", "matrix_char_component", None, "MatrixChar.qml"),
-    ("make_notify_marquee", "matrix_field_component", None, "MatrixField.qml"),
+    # MatrixChar.qml / MatrixField.qml retired s124 (--uses: 0 of 12 instantiators)
     ("make_notify_marquee", "aperture_field_component", None, "ApertureField.qml"),   # W54
     ("make_notify_marquee", "aperture_probe_qml", None, "aperture-probe.qml"),        # W54's gate subject
     ("make_notify_marquee", "aperture_text_probe_qml", None, "aperture-text-probe.qml"),

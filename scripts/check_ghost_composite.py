@@ -187,8 +187,9 @@ def solve_through_alpha(lit, ground, alpha=None, floor=None, ceiling=None):
 
 # ── ⊕GHOST-DENSITY: the dot field beside the stroke ─────────────────────────
 #
-# ⚑ A DOT IS THE STROKE'S COMPOSITE; A DOT FIELD IS NOT.  MatrixChar draws every
-# unlit dot at the same ghostAlpha SegmentChar draws its core, so per DOT the
+# ⚑ A DOT IS THE STROKE'S COMPOSITE; A DOT FIELD IS NOT.  The field (ApertureField
+# since s120; MatrixChar before, retired s124) draws every unlit pip at the same
+# ghostAlpha SegmentChar draws its core, so per DOT the
 # seen ghost is identical to the stroke ghost. But a dot covers only
 # dotFill^2 * pi/4 of its cell, and at a glance the eye averages the cell: the
 # FIELD's mean colour is the dot composite lerped toward ground by the coverage
@@ -197,10 +198,10 @@ def solve_through_alpha(lit, ground, alpha=None, floor=None, ceiling=None):
 # texture on the matrix than on a stroke, by exactly this factor.
 
 def matrix_dot_fill():
-    """MatrixChar's dotFill, parsed from the EMITTED component (not the template
-    hole): None if the property is absent."""
+    """The field's dotFill, parsed from the EMITTED component (ApertureField; not
+    the template hole): None if the property is absent."""
     import make_notify_marquee
-    for line in make_notify_marquee.matrix_char_component().splitlines():
+    for line in make_notify_marquee.aperture_field_component().splitlines():
         s = line.strip()
         if s.startswith("property real dotFill:"):
             return float(s.split(":", 1)[1].split("//")[0].strip())
@@ -208,7 +209,7 @@ def matrix_dot_fill():
 
 
 def matrix_rendered_alpha(variant_id):
-    """The ghostAlpha the EMITTED marquee passes to MatrixChar — ONE package since
+    """The ghostAlpha the EMITTED marquee passes to its field — ONE package since
     W35, so the same baked (measured-global) alpha for every `variant_id`."""
     import make_notify_marquee
     for line in make_notify_marquee.main_qml().splitlines():

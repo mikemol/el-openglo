@@ -127,29 +127,17 @@ def hue_tables_js():
     return "({" + ", ".join(rows) + "})"
 
 
-def matrix_char_component():
-    """The reusable dot-matrix character component — templates/MatrixChar.qml.
-
-    The twin of make_segment_display.segment_char_component, and deliberately a
-    SEPARATE component rather than a mode of it (⊕DOT: no shared substrate, one
-    shared contract)."""
-    import templates.loader as TL
-    return TL.render("MatrixChar.qml")
-
-
-def matrix_field_component():
-    """The FIXED dot field — templates/MatrixField.qml: every unlit LED bezel to
-    bezel, drawn once; the characters scroll lit dots over it (W34, the
-    operator's live report that the ghost pips scrolled with the glyphs)."""
-    import templates.loader as TL
-    return TL.render("MatrixField.qml")
-
-
+# ⚑ MatrixChar.qml AND MatrixField.qml WERE RETIRED (s124). MatrixChar was the
+# per-character dot cell (⊕DOT, s65) and MatrixField the fixed ghost field (W34);
+# since the s120 port the marquee paints its cells from the same registry bytes
+# into ApertureField's backdrop and the field's pips are the LEDs — measured by
+# check_qml_lint --uses: 0 of 12 documents instantiated either. The twin-of-
+# SegmentChar contract (⊕DOT: a cell, a set of lit primitives; no shared
+# substrate) now lives in ApertureField, whose pips are the primitives.
 def aperture_field_component():
     """The field as an APERTURE INTEGRAL — templates/ApertureField.qml (W54): pips
     graded by a supersampled backdrop's coverage under each aperture, the scroll a
-    number, no rebuild. Emitted for the lint and the probe; not yet the package's
-    field (MatrixField is, until the marquee's text becomes a backdrop)."""
+    number, no rebuild. The marquee's board since s120 (the port)."""
     import templates.loader as TL
     return TL.render("ApertureField.qml")
 
@@ -236,13 +224,9 @@ def render_all(d):
     open(os.path.join(cfg, "main.xml"), "w").write(config_xml())
     open(os.path.join(cfg, "config.qml"), "w").write(CONFIG_MODEL)
     # ⚑ THE COMPONENT SHIPS BESIDE THE PLASMOID OR THE IMPORT RESOLVES TO
-    # NOTHING.  main.qml instantiates MatrixChar by bare name, which QML
+    # NOTHING.  main.qml instantiates ApertureField by bare name, which QML
     # resolves from the same directory — emitting one without the other gives
     # a widget that loads and draws an empty panel.
-    open(os.path.join(ui, "MatrixChar.qml"), "w").write(matrix_char_component())
-    open(os.path.join(ui, "MatrixField.qml"), "w").write(matrix_field_component())
-    # W54: the field main.qml instantiates now; MatrixField/MatrixChar still ship
-    # for their other consumers
     open(os.path.join(ui, "ApertureField.qml"), "w").write(aperture_field_component())
     # the body-markup parser (W39): main.qml imports it by bare name
     open(os.path.join(ui, "marquee-body.js"), "w").write(body_parser())

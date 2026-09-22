@@ -166,7 +166,8 @@ def _marquee(variant, path):
     caught it was a rendered sample. This is that exposure, on a new surface.
 
     ⚑ IT IS A MIRROR, AND THE MIRROR CAN LIE.  This draws the dots in SVG the way
-    MatrixChar.qml draws them in QML; it does not run the QML. So it witnesses
+    marquee-main.qml's drawBackdrop paints them (since s120; MatrixChar.qml before
+    that, retired s124); it does not run the QML. So it witnesses
     that THE FONT AND THE REGISTRY are right — a mangled glyph, a bad bit order, a
     dropped column all show up here — and NOT that the QML consuming them renders.
     Two ways to disagree remain: this mirror could drift from the component, and
@@ -222,7 +223,7 @@ def _marquee(variant, path):
                 f'  <circle cx="{c * u + u / 2:.1f}" cy="{pad + r * u + u / 2:.1f}"'
                 f' r="{u * fill / 2:.2f}" fill="{_h(ghost)}" opacity="{_alpha:.3f}"/>')
     for i, ch in enumerate(text):
-        # the same fallback chain MatrixChar.qml walks: char, uppercase, '?'
+        # the same fallback chain drawBackdrop walks: char, uppercase, '?'
         colbytes = font.get(ch) or font.get(ch.upper()) or font.get("?") or []
         ox = pad + i * adv
         for c in range(cols):

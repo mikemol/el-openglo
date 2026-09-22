@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T06:06:27+00:00",
-  "job_id": "dfff302a",
+  "heartbeat": "2026-09-22T06:38:35+00:00",
+  "job_id": "8d5d0f2d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-dfff302a",
-    "taken_at": "2026-09-22T06:24:41+00:00"
+    "holder": "tick-8d5d0f2d",
+    "taken_at": "2026-09-22T06:52:14+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -919,10 +919,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "Folds remaining, one per tick: (c) the loop's bookend frame taken before the timeline starts (animate's first frame is the sampler's first turn, past arrival on a slow load); (d) MatrixChar consumers censused (check_consumers) — residue if only the probes; (e) the vertical scroll as an animation (frames over offsetY; S5 in y). W48's painter lands with W46.",
-      "evidence": "...916559a THE PORT; f45e52a the viewport (W47 folded): backdropRows + offsetY, Unifont 1:1 — caps need 12 rows, the x-height band shows lowercase whole",
+      "next_bounded_step": "Folds remaining: (e) the vertical scroll as an animation (frames over offsetY through the 16-row Unifont backdrop; S5 in y) — needs a second animation kind in render_screens (a render_qml surface driven over frames, not the marquee harness); (f) retire MatrixChar/MatrixField: move ⊕MATRIX-FONT-INPUT's '?' pin to drawBackdrop and ⊕NOTIFY-MATRIXRENDER's override pin to colourFromInk, drop them from render_all / the lint roster / the harness files, delete the templates + baselines. Then the W54 closure (four gates) and W46 leads.",
+      "evidence": "...916559a port; f45e52a viewport; b98e723 series; 9a0755d bookend clock + --uses census (MatrixChar/MatrixField 0 of 12)",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T06:05:48+00:00",
+      "last_worked": "2026-09-22T06:37:57+00:00",
       "ticks_blocked": 0
     },
     {

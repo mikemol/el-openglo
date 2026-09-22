@@ -239,8 +239,6 @@ def subject(hover_pause=False, variant=VARIANT):
     config["hoverPause"] = hover_pause
     config["debugLog"] = True         # the widget's own trace lines ride on stderr
     return qml, config, make_preview.parse_scheme(variant)["ground"], {
-        "MatrixChar.qml": NM.matrix_char_component(),
-        "MatrixField.qml": NM.matrix_field_component(),
         "ApertureField.qml": NM.aperture_field_component(),
         "marquee-body.js": NM.body_parser(),
     }

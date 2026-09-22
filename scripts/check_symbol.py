@@ -337,8 +337,9 @@ CLOSED = {
                         lambda: _reads("make_wallpaper_live.py", r"def\s+main_qml\b") and
                         os.path.isfile(os.path.join(ROOT, "templates", "live-wallpaper-main.qml"))),
     "⊕NOTIFY-MARQUEE": ("a matrix-rendered notification ticker plasmoid per variant (:3542)",
+                        # the matrix primitive is ApertureField since s120 (MatrixChar retired s124)
                         lambda: _reads("make_notify_marquee.py", r"def\s+main_qml\b") and
-                        os.path.isfile(os.path.join(ROOT, "templates", "MatrixChar.qml"))),
+                        os.path.isfile(os.path.join(ROOT, "templates", "ApertureField.qml"))),
     "⊕SPLASH": ("the LnF splash reads progress and the palette's ghost (:2910)",
                 lambda: _reads("make_deb.py", r"def\s+_splash_qml\b") and
                 os.path.isfile(os.path.join(ROOT, "templates", "splash.qml"))),
@@ -360,7 +361,8 @@ CLOSED = {
     "⊕SEG22": ("the 22-seg geometry is the 16-seg lattice plus six additions (:1576)",
                lambda: _reads("segment_topology.py", r"def\s+geom22\b")),
     "⊕DOT": ("the dot-matrix display component exists (:1002)",
-             lambda: os.path.isfile(os.path.join(ROOT, "templates", "MatrixChar.qml"))),
+             # ApertureField since s120: the pips ARE the component; MatrixChar retired s124
+             lambda: os.path.isfile(os.path.join(ROOT, "templates", "ApertureField.qml"))),
     "⊕VER-PREVIEW": ("the Global Theme previews render from the scheme (:1918)",
                      lambda: _reads("make_preview.py", r"def\s+preview_svg\b") and
                      _reads("make_deb.py", r"contents/previews")),
@@ -435,9 +437,9 @@ CLOSED = {
                 _tool("opa_gate.py", "taskswitch") and
                 _tool("check_migration.py")),
     "⊕NOTIFY-SEGRENDER": (
-        "the ticker renders in the actual dot-matrix primitive (MatrixChar's dots off the"
+        "the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
         " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)",
-        lambda: _reads("templates/MatrixChar.qml", r"radius:\s*width\s*/\s*2") and
+        lambda: _reads("templates/ApertureField.qml", r"radius:\s*width\s*/\s*2") and
                 _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
                 # a BINDING, not the comment that records the old idiom
                 not _reads("templates/marquee-main.qml", r"(?m)^\s*font\.family\s*:")),
@@ -573,25 +575,26 @@ CLOSED = {
                 _reads("templates/marquee-main.qml", r"(?m)^\s*readonly property var hueTables:\s*\$hueTables") and
                 _reads("templates/marquee-main.qml", r"hueTables\[String\(root\.litColor\)\]") and
                 # the run's colour is painted INTO the backdrop (the table's colour) and
-                # read back per pip (ApertureField.colourFromInk); MatrixChar keeps its
-                # override for the other consumers
+                # read back per pip (ApertureField.colourFromInk); MatrixChar retired s124
                 _reads("templates/marquee-main.qml", r"var colour = root\.overrideFor\(run\)") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*colourFromInk:\s*true") and
-                _reads("templates/MatrixChar.qml", r"(?m)^\s*property color litColorOverride") and
+                _reads("templates/ApertureField.qml", r"(?m)^\s*property bool colourFromInk") and
                 _reads("make_notify_marquee.py", r"MP\.hue_table\(") and
-                # W40: links are underlined (the descent row) and a tap opens the run's href
-                _reads("templates/MatrixChar.qml", r"(?m)^\s*property bool underline") and
+                # W40: links are underlined (the descent row lit in the backdrop) and a
+                # tap opens the run's href
+                _reads("templates/marquee-main.qml", r"underline && r === root\.matrix\.rows - 1") and
                 _reads("templates/marquee-main.qml", r"TapHandler\s*\{[^}]*openUrlExternally\(run\.link\)") and
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (
         "display_types.font_extension rasterises a build-time font (make_notify_marquee."
         "matrix_font, the decision recorded) into the 5x8 table for Latin-1 beyond the"
-        " authored glyphs; MatrixChar falls back to '?'; check_matrix_input measures (:4534)",
+        " authored glyphs; the board falls back to '?'; check_matrix_input measures (:4534)",
         lambda: _reads("display_types.py", r"def\s+font_extension\b") and
                 _reads("make_notify_marquee.py", r"def\s+matrix_font\b") and
                 _reads("make_notify_marquee.py", r"font_path=") and
-                _reads("templates/MatrixChar.qml", r'font\["\?"\]') and
+                # the '?' fallback moved with the painter (drawBackdrop, s120); MatrixChar retired s124
+                _reads("templates/marquee-main.qml", r'root\.matrixFont\["\?"\]') and
                 _tool("check_matrix_input.py")),
     # closed session 75 (W7, 2026-09-21). ⚑ ITS OPEN-SET WITNESS MATCHED "calibrat"
     # and read validate_projection's docstring — which NAMED this symbol as the
