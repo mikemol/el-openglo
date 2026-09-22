@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 68,
+  "counter": 69,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T17:16:51+00:00",
-  "job_id": "fb10bd94",
+  "heartbeat": "2026-09-22T17:48:02+00:00",
+  "job_id": "9bdc153a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1006,10 +1006,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
-      "next_bounded_step": "SPLIT screens INTO ONE ACTION PER DECLARED OUTPUT. The precondition is now met: render_screens declares all 56 of its outputs (--outputs, JSON) where --list printed 36, and check_action_key compares declared-vs-present in BOTH orientations (undeclared output = no cone, unattributable staleness; declared-but-absent = the build did not finish, which is the original incident one frame earlier). Both DENY, because an output-boundary mismatch is a defect in the ACTION's declaration, not a limit of the scanner. NOW: ACTIONS gains one entry per plan_all() row. Per-render input domain: that variant's .colors (a palette edit then invalidates 12, not 48) + the surface's own template closure (NOT yet derivable -- needs the QML import graph, so carry it coarse and let the residue say so). linux-sources-9c: 'a single global backward cone has exactly one residue set, so it cannot tell you WHICH render is uncovered'; after the split screens' 21+2 becomes a pointer per render. THEN the binding resolver (116 of 205 undetermined are open(<variable>)). ⚑ AND A WITHHELD ROW THAT NOTHING CONSUMES IS A DENY NOBODY NOTICES (linux-sources-9c) -- the six withheld rows currently have no consumer; a ratchet on residue counts is the candidate.",
+      "next_bounded_step": "⚑ THE RENDER IMAGE IS BUILT (s147). buildctl against the HOST buildkitd (unix:///run/buildkit/buildkitd.sock, dockerfile.v0) produced localhost/el-openglo-render:built at sha256:d1f7920a1fc02e6fafeee89e33204a94037e256ed0022274a9b03aac321e03b2, recorded in catalog/host.json on luthen-observability's images.json shape (ref and digest SEPARATE — a runtime cites the ref with NO digest, because containerd's CRI drops the tag from a repo:tag@digest reference and can never resolve it; the digest is the identity and lives beside it). ADD --checksum worked with the BUILT-IN frontend, so no syntax= line and no unpinned fetched dependency. ⚑ AND I HAD CALLED THIS HUMAN-BLOCKED TWICE OVER: group buildkit was already effective (id shows 999), and before that the OPA checksum was fetchable. Both were absences inferred as blockers without testing. ⚑ DECLARED IS NOT ADOPTED, and the pin carries adopted=false: NOTHING has been rendered in that image, so reading it as the host would make every recorded key assert a build that never happened. check_action_key falls through to the unpinned fingerprint while adopted is false and NAMES the candidate digest. NEXT BOUNDED STEP: run render_screens INSIDE the image, flip adopted=true and re-baseline the 55 PNGs in ONE commit with before/after measured — oci/Containerfile requires that, since Debian trixie's Qt and fonts are not the Gentoo host's and the legibility floor and symmetry counts move with them. ⚑ AND PIN THE IMAGE AGAINST CONTAINERD's GC FIRST: an unpinned image with no live container is evictable (the kubelet measures imagefs usage, which a build cache inflates; luthen measured both of theirs unpinned since first build). Because the recipe is loose, an eviction is NOT recoverable by rebuilding — the identity survives as a digest, the ability to RUN that host does not. This uid is in group k3s, so crictl can pin without root.",
       "evidence": "render_screens --outputs + the output-boundary comparison; opa test 20/20; declared 56 vs 55 png + README on disk",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-22T14:42:27+00:00",
+      "last_worked": "2026-09-22T18:03:17+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1115,6 +1115,21 @@
       "evidence": "worklist_gate --only worklist: 11 FAILED once, PASS twice after; worklist_gate --selftest now drives the FLAKE, REPRODUCED and WITHHELD replay arms",
       "issued_at": "2026-09-22T17:46:33+00:00",
       "last_worked": "2026-09-22T17:46:33+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W69",
+      "title": "README.md IS A PROJECTION — a third paperkit project, not a hand-written page",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Operator, 2026-09-22: 'README.md ought to be a projection. Which is something we have paperkit for.' A STANDING TARGET SINCE 2026-08-10 that was not applied. MECHANISM VERIFIED LIVE: a paperkit project is (paper.toml, warrants.bib, rubric.tsv) -> out, and out is just a field; catalog/worklist emits WORKLIST.md and catalog/cotype emits COTYPE-WORKLIST.md from identical machinery. A README is a THIRD project. SHAPE: paper.toml at the REPO ROOT so out = README.md needs no indirection and root needs no correction. Claims are CAPABILITIES, each citing the check that ALREADY gates it, so README states what the theme DEMONSTRABLY does and a capability with no gate cannot appear. ⚑ NOT BLOCKED ON W65 — I recorded that dependency and it was WRONG. Operator: 'Something correct by construction remains correct.' The projection's correctness is STRUCTURAL: it says exactly what the claim graph says and cannot drift from it, and that property holds on day one however strong or weak the checks are. Weak checks make the GRAPH weak; the projection inherits that faithfully rather than adding a defect, which is the whole point of a projection. ⚑ AND THE INVERSION IS THE ARGUMENT FOR DOING IT FIRST: projecting now puts any capability resting on a vacuous check ON THE FRONT PAGE, where it is visible — the projection makes check adequacy LEGIBLE instead of leaving it in a Delta report nobody reads. W65 and W69 are orthogonal; sweeping the checks improves what README asserts, it is not a precondition for asserting it. ⚑ UNKNOWN TO SETTLE FIRST: whether paperkit accepts an out path outside the project directory, since both existing projects write into their own. Root placement sidesteps it; measure before designing around it. ⚑ THE WITNESS MUST ASSERT, NEVER LIST: a claim that merely says make_gtk exists is the vacuous class the grader marks indeterminate.",
+      "evidence": "mechanism re-verified against catalog/cotype/paper.toml and catalog/worklist/paper.toml on 2026-09-22; census delegated the same day",
+      "issued_at": "2026-09-22T17:55:48+00:00",
+      "last_worked": "2026-09-22T17:57:59+00:00",
       "ticks_blocked": 0
     }
   ],

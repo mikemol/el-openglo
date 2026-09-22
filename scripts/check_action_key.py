@@ -149,10 +149,38 @@ def host_identity():
     saying so is the difference between a measurement and a pretence."""
     if os.path.isfile(HOST_PIN_FILE):
         pin = json.load(open(HOST_PIN_FILE, encoding="utf-8"))
-        digest = pin.get("image")
-        if digest and "@sha256:" in digest:
-            return "pinned", digest, pin.get("source", "(no source recorded)")
-        return "unmeasurable", None, f"{HOST_PIN_FILE} has no `image` with an @sha256: digest"
+        # ⚑ ref AND digest ARE SEPARATE FIELDS, on luthen-observability's
+        # images.json shape rather than a spelling invented here. The reference a
+        # RUNTIME cites is `localhost/<name>:built` with NO digest — containerd's
+        # CRI resolves by an exact lookup on ParseDockerRef, which drops the tag
+        # from a `repo:tag@digest` reference, so that form can never be a hit (they
+        # measured it failing 48 times). The DIGEST is the identity and lives
+        # beside the reference, which is exactly what a cache key wants.
+        digest, ref = pin.get("digest"), pin.get("ref")
+        # ⚑ DECLARED IS NOT ADOPTED. An image can exist, be digest-witnessed and
+        # be recorded here while NOTHING has yet been built in it. Reading such a
+        # pin as the host would make every recorded key assert a build that never
+        # happened — the stale-status defect, reached from the other side. So an
+        # unadopted pin falls through to the UNPINNED fingerprint and names the
+        # candidate, and adoption is flipped in the same change that moves the
+        # emitters into the image and re-baselines their outputs.
+        if not pin.get("adopted"):
+            kind, hid, detail = _fingerprint()
+            return kind, hid, (f"{detail}; a pinned host is DECLARED but NOT ADOPTED "
+                               f"({digest[:23] if isinstance(digest, str) else '?'}…) — "
+                               f"nothing has been built in it yet")
+        if isinstance(digest, str) and digest.startswith("sha256:"):
+            return "pinned", digest, f"{ref or '(no ref)'} — {pin.get('source', 'no source recorded')}"
+        return ("unmeasurable", None,
+                f"{os.path.relpath(HOST_PIN_FILE, ROOT)} has no `digest` starting sha256:")
+    return _fingerprint()
+
+
+def _fingerprint():
+    """The UNPINNED host identity: a digest over a few host files.
+
+    ⚑ IT DETECTS THAT THIS MACHINE MOVED AND LICENSES NOTHING ELSE. It is not a
+    weak version of an image digest; it is a different claim, about one host."""
     h = hashlib.sha256()
     seen = []
     for p in HOST_FINGERPRINT_SOURCES:
