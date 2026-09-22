@@ -19,6 +19,24 @@ KCM.SimpleKCM {
     property alias cfg_openLinks: openLinks.checked
     property alias cfg_hoverPause: hoverPause.checked
     property alias cfg_debugLog: debugLog.checked
+    // ⚑ PLASMA SETS TWO PROPERTIES PER KCFG ENTRY: cfg_<key> and cfg_<key>Default
+    // (the schema default, for the Defaults button) — for EVERY entry, controls or
+    // not. Undeclared, each is `Setting initial properties failed` on the live
+    // shell's stderr (operator, 2026-09-22: thirteen lines on opening this page).
+    // traceLog is the widget's own log, never a control: declared, not drawn.
+    // scripts/check_config_page.py measures; policy/config_page.rego holds it.
+    property string cfg_traceLog
+    property real cfg_speedDefault
+    property real cfg_pitchScaleDefault
+    property real cfg_dotFillDefault
+    property real cfg_ghostAlphaDefault
+    property bool cfg_showFieldDefault
+    property string cfg_idleTextDefault
+    property int cfg_maxItemsDefault
+    property bool cfg_openLinksDefault
+    property bool cfg_hoverPauseDefault
+    property bool cfg_debugLogDefault
+    property string cfg_traceLogDefault
     Kirigami.FormLayout {
         QQC2.Slider { id: speedSlider; from: 0.25; to: 4.0; stepSize: 0.25; Kirigami.FormData.label: "Scroll speed:" }
         QQC2.Slider { id: pitchSlider; from: 0.5; to: 1.5; stepSize: 0.05; Kirigami.FormData.label: "Dot pitch:" }

@@ -719,3 +719,9 @@
   check    = {tool:opa_gate.py screens},
   section  = {tooling}
 }
+
+@misc{CONFIG-PAGE,
+  claim    = {Every config page declares cfg_<key> and cfg_<key>Default for every entry of its kcfg — what Plasma's configuration loader sets on it (live, 2026-09-22: thirteen 'Setting initial properties failed' on the marquee page, eight unseen on the clock's)},
+  check    = {tool:opa_gate.py config_page},
+  section  = {emitters}
+}

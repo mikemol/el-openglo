@@ -17,6 +17,17 @@ KCM.SimpleKCM {
     property alias cfg_weight: weightSlider.value
     property alias cfg_ghostWeight: ghostWeightSlider.value
     property alias cfg_digitGap: digitGapSlider.value
+    // Plasma also sets cfg_<key>Default per entry (the marquee page showed the
+    // refusals live, 2026-09-22; this page had the same eight, unseen) —
+    // scripts/check_config_page.py measures; policy/config_page.rego holds it
+    property bool cfg_showGhostDefault
+    property bool cfg_use24hDefault
+    property bool cfg_showSecondsDefault
+    property bool cfg_blinkColonDefault
+    property real cfg_bloomDefault
+    property real cfg_weightDefault
+    property real cfg_ghostWeightDefault
+    property real cfg_digitGapDefault
     Kirigami.FormLayout {
         QQC2.CheckBox { id: showGhost; Kirigami.FormData.label: "Show ghost segments:" }
         QQC2.CheckBox { id: use24h; Kirigami.FormData.label: "24-hour clock:" }
