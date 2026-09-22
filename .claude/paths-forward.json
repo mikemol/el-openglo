@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T04:26:45+00:00",
-  "job_id": "d2f3da15",
+  "heartbeat": "2026-09-22T05:14:39+00:00",
+  "job_id": "80efdd21",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-d2f3da15",
-    "taken_at": "2026-09-22T04:39:16+00:00"
+    "holder": "tick-80efdd21",
+    "taken_at": "2026-09-22T05:21:55+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -914,10 +914,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
-      "next_bounded_step": "THE PORT (one tick if the template moves cleanly): marquee-main.qml — the Row of MatrixChar becomes one Text (the parsed runs as rich text; bold as Text has it, links underlined) grabbed into an ApertureField that replaces MatrixField; the scroll is a NumberAnimation on field.offset (0 → (board + text width) in backdrop px); the ring pulse moves into ApertureField's outermost pips; boardX := width - offset/scale so check_marquee_live's observables and L0-L8 hold; hover/tap hit-test via the Text's positionAt; S5/S6 re-run; --motion on the new board reads no quantum. MatrixChar stays for the other consumers; measure the port's per-frame cost with --motion's dt before shipping.",
-      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+gamma+loop; 1a93b11 --motion (snap cv 0.104 vs field 0.02); d32c412 relations.md §5b",
+      "next_bounded_step": "The folds: (a) W47 — the viewport: ApertureField gains offsetY (the backdrop taller than rows·scale; integrate reads rows at row·scale + offsetY) and the text probe renders Unifont at its 16 px em 1:1 through a 16-row backdrop scrolled vertically through the 8-row field — a still + the OCR witness when W56 lands; (b) W48 — a 'series' run painted into the backdrop as column heights (seriesToColumns in marquee-body.js, harness case) shown on the same field; (c) the bookend frame taken before the timeline starts (animate's first frame is the sampler's first turn, past arrival on a slow load); (d) MatrixChar's remaining consumers censused (check_consumers) — if none but the probes, it is residue. One fold per tick.",
+      "evidence": "262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7; 1a93b11 --motion; d32c412 §5b; 916559a THE PORT: the marquee scrolls on ApertureField (cv 0.023, no quantum; L0-L8, S1-S6 admit; gate 68). LIVE: after the next emerge the operator judges the panel scroll.",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T04:26:07+00:00",
+      "last_worked": "2026-09-22T05:13:58+00:00",
       "ticks_blocked": 0
     },
     {

@@ -177,16 +177,25 @@ APERTURE_TEXT = "Hello 世界 42 ñ 🔔"   # + emoji (operator): colour glyphs 
 # "really, really faded"); 1.0 is the identity — an authored value until W56's
 # OCR objective tunes it
 APERTURE_TEXT_GAMMA = 0.5
+# the viewport (W47 folded into W54): Unifont's cell is 8x16, so the backdrop is 16
+# rows and ONE Unifont pixel is one pip; the 8-row field looks through ONE band of it.
+# Measured (s121): caps span rows 2-13 (12 rows) — no 8-row band holds them, which is
+# what the vertical scroll is for; the x-height band, rows 6-13, is exactly 8 and
+# shows lowercase whole. The still shows that band; the scroll is the animation.
+APERTURE_BACKDROP_ROWS = 16
+APERTURE_OFFSET_ROWS = 6
 
 
 def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APERTURE_TEXT,
-                            gamma=APERTURE_TEXT_GAMMA):
+                            gamma=APERTURE_TEXT_GAMMA, backdrop_rows=APERTURE_BACKDROP_ROWS,
+                            offset_rows=APERTURE_OFFSET_ROWS):
     """templates/aperture-text-probe.qml — a Qt Text item as the backdrop (W54 step 3):
-    the font Qt shapes, hinted to the backdrop grid, read through the pinholes."""
+    the font Qt shapes, read 1:1 through the pinholes via the viewport (W47)."""
     import templates.loader as TL
     import make_wallpaper_live as WL
     return TL.render("aperture-text-probe.qml", templates=templates_url, font=font, text=text,
-                     gamma=f"{gamma:.3f}", ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
+                     gamma=f"{gamma:.3f}", backdropRows=str(backdrop_rows), offsetRows=str(offset_rows),
+                     ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
 
 
 def body_parser():

@@ -20,6 +20,11 @@ Item {
         ghostColor: Kirigami.Theme.disabledTextColor
         ghostOpacity: $ghostAlpha
         gamma: $gamma
+        // the viewport (W47): the backdrop is $backdropRows rows tall — a 16-row
+        // Unifont cell read 1:1, one Unifont pixel per pip — and the 8-row field
+        // looks through the band starting $offsetRows rows down
+        backdropRows: $backdropRows
+        offsetY: $offsetRows * scale
         // grab the source, hand the grab to an Image (what a Canvas can draw),
         // draw it into the backdrop, integrate. The grab result is held so its
         // url stays valid until the Image has it.
@@ -45,13 +50,14 @@ Item {
         id: source
         // parked outside the window: an item at opacity 0 grabs as transparent
         x: -width - 1000; y: 0
-        height: field.rows * field.scale
+        height: field.backdropRows * field.scale
         text: "$text"
         color: "black"
         font.family: "$font"
-        // the em IS the field's height in backdrop pixels: an integer multiple of a
-        // bitmap font's cell, so its pixels land on whole backdrop pixels
-        font.pixelSize: field.rows * field.scale
+        // the em IS the backdrop's height in backdrop pixels: with backdropRows =
+        // the bitmap font's cell (16 for Unifont) one font pixel is one pip; the
+        // two grids commensurate, no hinting machinery needed
+        font.pixelSize: field.backdropRows * field.scale
         font.hintingPreference: Font.PreferFullHinting
         renderType: Text.NativeRendering
         verticalAlignment: Text.AlignVCenter

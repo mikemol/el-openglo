@@ -29,6 +29,12 @@ Item {
     property bool showGhost: true
     property int scale: 4              // backdrop pixels per pitch (supersampling)
     property real offset: 0            // scroll, in backdrop pixels; grows as the scene moves left
+    // ⚑ THE VIEWPORT (W47, folded into W54): the backdrop may be TALLER than the
+    // field — backdropRows of it — and offsetY (backdrop px) is which band the
+    // pips look through. A 16-row Unifont glyph, an icon raster, a QR: taller than
+    // 8 LEDs, scrolled vertically through them. The same integral, other axis.
+    property int backdropRows: rows
+    property real offsetY: 0
     // ⚑ THE TRANSFER CURVE (operator, 2026-09-22, the sheet: "that bottom entry is
     // really faded — tonemapping? auto-stretching?"). A one-pixel stroke read at
     // 2:1 fills at most half an aperture, so the whole string sits at 0.25-0.5
@@ -70,7 +76,7 @@ Item {
     Canvas {
         id: backdrop
         opacity: 0                     // present in the scene (so it initialises), unseen
-        width: 1; height: field.rows * field.scale
+        width: 1; height: field.backdropRows * field.scale
         renderStrategy: Canvas.Immediate
         renderTarget: Canvas.Image
         property bool sizing: false
@@ -118,13 +124,14 @@ Item {
         if (!prefix) return;
         var s = scale, cov = new Array(rows * cols), area = s * s;
         var col = colourFromInk ? new Array(rows * cols) : null;
-        var w = backdropWidth;
+        var w = backdropWidth, h = prefix.length, oy = Math.round(offsetY);
         for (var c = 0; c < cols; c++) {
             var x0 = Math.round(c * s + offset), x1 = x0 + s;
             var a = Math.max(0, Math.min(w, x0)), b = Math.max(0, Math.min(w, x1));
             for (var r = 0; r < rows; r++) {
                 var sum = 0, sr = 0, sg = 0, sb = 0;
-                if (b > a) for (var yy = r * s; yy < (r + 1) * s; yy++) {
+                var y0 = Math.max(0, r * s + oy), y1 = Math.min(h, (r + 1) * s + oy);
+                if (b > a) for (var yy = y0; yy < y1; yy++) {
                     sum += prefix[yy][b] - prefix[yy][a];
                     if (colourFromInk) {
                         sr += prefixRGB[yy][0][b] - prefixRGB[yy][0][a];
@@ -140,6 +147,7 @@ Item {
         if (colourFromInk) inkColour = col;
     }
     onOffsetChanged: integrate()
+    onOffsetYChanged: integrate()
     onColsChanged: integrate()
     onGammaChanged: integrate()
 
