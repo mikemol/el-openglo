@@ -217,8 +217,14 @@ def _emitted_surfaces():
     os.chdir(ROOT)
     import make_clock
     import make_wallpaper_live
+    import make_segment_display
+    # ⚑ THE DISPLAY IS A SURFACE'S WORK TOO (W33, s133): the clock and the live
+    # wallpaper MOUNT templates/SegmentChar.qml, so the stroke weight, the ghost
+    # and the lit-only bloom live THERE now — reading only the two mounts would
+    # report a shared fact as lost from both.
     return {"clock": make_clock.main_qml(),
-            "live-wallpaper": make_wallpaper_live.main_qml()}
+            "live-wallpaper": make_wallpaper_live.main_qml(),
+            "segment-display": make_segment_display.segment_char_component()}
 
 
 def _arith(expr, **env):
@@ -262,7 +268,9 @@ def _bloom_is_blur(qml):
     the ghost colour must not be drawn inside the layered item."""
     if not re.search(r"MultiEffect\s*\{[^}]*blurEnabled:\s*true", qml):
         return False
-    if not re.search(r"layer\.enabled:\s*root\.bloom\s*>\s*0", qml):
+    # the layer's owner names its own root (`root.bloom` in a surface that owned
+    # the layer; `sc.bloom` in the shared display since W33/s133)
+    if not re.search(r"layer\.enabled:\s*\w+\.bloom\s*>\s*0", qml):
         return False
     # the ITEM that owns `layer.enabled` (brace-matched) must not draw the ghost
     for m in re.finditer(r"layer\.enabled:", qml):
@@ -296,7 +304,15 @@ def _closed_stroke_weight():
 
 
 def _closed_bloom():
-    return all(_bloom_is_blur(q) for q in _emitted_surfaces().values())
+    """⚑ THE RULE HOLDS IN ONE PLACE NOW (W33, s133), so the witness says so: the
+    shared DISPLAY owns the lit-only blur layer, and every MOUNT hands it the
+    bloom setting. Before the merge each surface carried its own layer; requiring
+    one in a mount that no longer draws would report the collapse as a loss."""
+    surfaces = _emitted_surfaces()
+    if not _bloom_is_blur(surfaces["segment-display"]):
+        return False
+    return all(re.search(r"(?m)^\s*bloom:\s*\w+\.bloom\b", surfaces[m])
+               for m in ("clock", "live-wallpaper"))
 
 
 # ⚑ CLOSED SYMBOLS HAVE WITNESSES TOO.  Every entry above is for the OPEN set,

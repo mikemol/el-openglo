@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 56,
+  "counter": 57,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T10:56:37+00:00",
-  "job_id": "a15ed123",
+  "heartbeat": "2026-09-22T11:18:24+00:00",
+  "job_id": "583f658b",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-a15ed123",
-    "taken_at": "2026-09-22T11:07:57+00:00"
+    "holder": "tick-583f658b",
+    "taken_at": "2026-09-22T11:35:40+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -587,11 +587,11 @@
       "touches": "templates/SegmentChar.qml,templates/clock-main.qml,make_clock,check_ghost_composite",
       "blocked_on": [],
       "blocked_kind": null,
-      "rank_reason": "",
-      "next_bounded_step": "(operator, 2026-09-22: the live wallpaper should look 'more like the clock widget and less like Minecraft sans RTX') - the wallpaper's Canvas strokes vs the clock's antialiased Shapes + bloom layer. Port step (1)+(2): SegmentChar.qml gains the clock's stroke idiom (Shape/Rectangle segments, antialiasing, the lit-only blur layer), then templates/live-wallpaper-main.qml instantiates SegmentChar for the digits instead of its Canvas; render_qml live-wallpaper --pixels before/after + a screenshot pair (W52's path) as the witness; glance_audit's bloom/stroke-weight channel detection updated; parity re-capture; the SEGMENTCHAR-ADOPT closure.",
-      "evidence": "3755cc7: COTYPE s88 property table (geometry, cell, lit/ghost stroke, end gap, alpha, bloom, pitch/colon, slant) + what SegmentChar must gain + what moves + adoption order",
+      "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
+      "next_bounded_step": "THE MERGE, one renderer: (1) measure what the clock's inline components expose vs what the wallpaper's paintFace draws (both already read the SAME substrate tables; the difference is the idiom: Rectangle+radius+antialiasing+MultiEffect vs Canvas polygons); (2) templates/SegmentChar.qml BECOMES the clock's idiom (its current square-cap Shape body is replaced, not extended — 0 of 10 instantiate it, check_qml_lint --uses); (3) clock-main.qml instantiates it (parity: the clock's stills must not change — that is the port's proof); (4) live-wallpaper-main.qml instantiates it too, at the wallpaper's fit-to-frame layout (the clock sizes digits from panel HEIGHT and overflows 16:9 — measured s133); (5) witness: the clock's screens stills byte-identical, the wallpaper's pair before/after for the operator, --edges + the texture number on both; parity re-capture; then the physics layer (gradient, boundary depth, diffusion, substrate past the digits) lands ONCE.",
+      "evidence": "d7ffa6b measured --edges; the antialiasing hypothesis refuted. OPERATOR REFRAMED 2026-09-22: 'it looks really pixelated but it's not that it's pixelated precisely — there's no TEXTURE to speak of. It looks like something I could make with rectangles of construction paper.' Flat uniform fill over a large area: the clock survives it because thin strokes + a relatively large bloom read as EMITTING; the wallpaper's slabs have no material. Not the cap, not the antialiasing — the missing thing is surface.",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-09-22T00:26:51+00:00",
+      "last_worked": "2026-09-22T11:30:15+00:00",
       "ticks_blocked": 0
     },
     {
@@ -938,6 +938,21 @@
       "evidence": "62bc652: check_legibility + policy G0-G3 (@LEGIBILITY, 70 claims, 99/99); scores 0.857/0.929/1.000, CJK withheld; --sweep: γ identity at 1:1, γ 0.5 + 1.0-pitch low-pass reads exactly at 2:1 (γ 1 reads nothing); opa_gate admitted set + five D0 absent-population fixes",
       "issued_at": "2026-09-22T03:02:49+00:00",
       "last_worked": "2026-09-22T10:56:03+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W57",
+      "title": "PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two.",
+      "status": "ready",
+      "enables": "W33",
+      "touches": "SegmentChar,segment_topology,clock,live-wallpaper",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "unblock: a witness that needs no reference — it would have caught the photographed defect before the operator did, and it grades every future emission change",
+      "next_bounded_step": "scripts/check_symmetry.py --json, TWO planes at TWO scopes: (a) the GLYPH — the display's 8 and 0 rendered alone must equal their own horizontal and vertical mirrors (catches segment geometry: the photographed top-left notch); (b) the FACE — the whole surface showing 00:00 must equal its own horizontal mirror (operator: '00:00 should be symmetric too'), which catches the MOUNT: kerning, an off-centre colon (its x is computed in the cell that carries it, not in the face), unequal end gaps. Report differing pixels and the difference's bounding box per plane per scope; policy/symmetry.rego Y0 empty, Y1 withheld, Y2 a difference above a floor MEASURED first (antialiasing gives a small nonzero floor). Run it on both mounts — the clock and the live wallpaper — since s133 shares the display but not the mount. Then fix what it names.",
+      "evidence": "Operator, 2026-09-22, three messages: (1) a photographed clock digit whose top-left corner notches while the bottom-left is clean — 'that should have been symmetrical!'; (2) '00:00 should be symmetric too' — the FACE plane, which catches the mount (kerning, colon centring) not just the glyph; (3) 'symmetry witness plus LINEAR REGRESSION for a snap to grid, so you can DISCOVER the correct symmetric geometries despite the coordinate system of the painting surface'. (3) is the constructive half: the witness only says asymmetric; fit the rendered segment extents (edges from the picture, per segment) against the substrate's unit coordinates by least squares, and the residuals name WHICH segment is off and by how much — in the toolkit's own pixel grid, including its rounding. The corrected table is then the fit's prediction snapped to the grid, not a hand nudge: a geometry DERIVED from the requirement of symmetry rather than tuned until it looks right.",
+      "issued_at": "2026-09-22T11:44:18+00:00",
+      "last_worked": "2026-09-22T11:59:40+00:00",
       "ticks_blocked": 0
     }
   ],

@@ -131,6 +131,12 @@ def render_all(path):
     os.makedirs(os.path.join(path, "contents/config"), exist_ok=True)
     open(os.path.join(path, "metadata.json"), "w").write(metadata())
     open(os.path.join(path, "contents/ui/main.qml"), "w").write(main_qml())
+    # ⚑ THE DISPLAY SHIPS BESIDE THE MOUNT OR THE IMPORT RESOLVES TO NOTHING
+    # (W33, s133): main.qml instantiates SegmentChar by bare name, which QML
+    # resolves from the same directory. The live wallpaper emits the SAME
+    # component from the same accessor — one display, two mounts.
+    import make_segment_display as SD
+    open(os.path.join(path, "contents/ui/SegmentChar.qml"), "w").write(SD.segment_char_component())
     open(os.path.join(path, "contents/ui/configGeneral.qml"), "w").write(CONFIG_QML)
     open(os.path.join(path, "contents/config/main.xml"), "w").write(CONFIG_XML)
     open(os.path.join(path, "contents/config/config.qml"), "w").write(

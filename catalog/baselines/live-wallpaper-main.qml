@@ -46,13 +46,15 @@ WallpaperItem {
 
     Rectangle { anchors.fill: parent; color: root.voidColor }
 
-    // ⚑ GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOUR, and these two tables are the
+    // ⚑ GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOUR, and these tables are the
     // substrate's projection rather than this surface's opinion. They were hand-
     // written here — a seven-seg map and a stroke table, inside an f-string, where
     // no gate could see them: check_geometry_source scans module-level assignments
-    // and a table living in a QML string literal is invisible to it.
-    property var seg: ({"0": "abcdef", "1": "bc", "2": "abdeg", "3": "abcdg", "4": "bcfg", "5": "acdfg", "6": "acdefg", "7": "abc", "8": "abcdefg", "9": "abcdfg"})
-    property var stroke: ({"a": ["h", 0, 2, 0], "b": ["v", 2, 0, 2], "c": ["v", 2, 2, 4], "d": ["h", 0, 2, 4], "e": ["v", 0, 2, 4], "f": ["v", 0, 0, 2], "g": ["h", 0, 2, 2]})
+    // and a table living in a QML string literal is invisible to it. Since s133
+    // they are the DISPLAY's tables, emitted by the same call the clock uses.
+    property var segGeom: ({ "A": ["h", 0, 0], "G": ["h", 0, 1], "D": ["h", 0, 2], "F": ["v", 0, 0], "B": ["v", 1, 0], "E": ["v", 0, 1], "C": ["v", 1, 1] })
+    property var digSegs: ({ "0": "ABCDEF", "1": "BC", "2": "ABDEG", "3": "ABCDG", "4": "BCFG", "5": "ACDFG", "6": "ACDEFG", "7": "ABC", "8": "ABCDEFG", "9": "ABCDFG" })
+
 
     property string timeStr: "00:00"
     property bool colonOn: true
@@ -62,8 +64,6 @@ WallpaperItem {
         root.timeStr = (h<10?"0":"")+h + ":" + (m<10?"0":"")+m;
         // the colon blinks at 1 Hz like the clock's; steady when blink is off
         root.colonOn = root.blinkColon ? !root.colonOn : true;
-        haloCanvas.requestPaint();
-        clockCanvas.requestPaint();
     }
     Timer { interval: 1000; running: true; repeat: true; triggeredOnStart: true; onTriggered: root.tick() }
 
@@ -74,96 +74,57 @@ WallpaperItem {
         NumberAnimation { from: 0.85; to: 1.0; duration: 2200; easing.type: Easing.InOutSine }
         NumberAnimation { from: 1.0; to: 0.85; duration: 2200; easing.type: Easing.InOutSine }
     }
-    onGlowChanged: { haloCanvas.requestPaint(); clockCanvas.requestPaint() }
+    // the glow reaches the cells as a bound property now; no canvas to repaint
 
-    // One paint routine, two canvases. pass "lit" draws only energised strokes
-    // and the lit colon (what the halo blurs); pass "all" draws ghost then lit.
-    function paintFace(ctx, width, height, pass) {
-        ctx.reset();
-        var s = root.timeStr;               // "HH:MM"
-        var U = height / 5.0;                // unit; digit is 2U x 4U
-        var T = U * root.strokeLit;
-        var Tg = U * root.strokeGhost;
-        var stroke = root.stroke;
-        function drawStroke(spec, U, T, ox, oy, style) {
-            ctx.fillStyle = style; var gg = T*0.6;
-            ctx.beginPath();
-            if (spec[0]==="h") { var a=spec[1]*U,b=spec[2]*U,y=spec[3]*U;
-                ctx.moveTo(ox+a+gg,oy+y-T/2);ctx.lineTo(ox+b-gg,oy+y-T/2);
-                ctx.lineTo(ox+b-gg,oy+y+T/2);ctx.lineTo(ox+a+gg,oy+y+T/2); }
-            else { var x=spec[1]*U,y0=spec[2]*U,y1=spec[3]*U;
-                ctx.moveTo(ox+x-T/2,oy+y0+gg);ctx.lineTo(ox+x+T/2,oy+y0+gg);
-                ctx.lineTo(ox+x+T/2,oy+y1-gg);ctx.lineTo(ox+x-T/2,oy+y1-gg); }
-            ctx.closePath(); ctx.fill();
-        }
-        // ⊕WALLPAPER-CONTRAST: a GLANCED-AT ambient surface — the ghost recedes
-        // to texture at the solved alpha; the lit time is what is parsed.
-        function drawDigit(ch, ox, oy) {
-            var on = root.seg[ch] || "";
-            if (pass === "all") {
-                ctx.globalAlpha = root.ghostAlpha * root.glow;
-                for (var k in stroke) {
-                    if (on.indexOf(k) < 0) drawStroke(stroke[k], U, Tg, ox, oy, root.ghostColor);
-                }
-            }
-            ctx.globalAlpha = root.glow;
-            for (var k4 in stroke) {
-                if (on.indexOf(k4) >= 0) drawStroke(stroke[k4], U, T, ox, oy, root.litColor);
-            }
-        }
-        var digitW = U * root.pitch;          // box 2U + the module gap
-        var colonW = U * root.colonAdvance;   // zero: the colon lives in the gap
-        var chars = [s.charAt(0), s.charAt(1), ":", s.charAt(3), s.charAt(4)];
-        var totalW = digitW*3 + U*2 + colonW; // four boxes, three gaps, the colon slot
-        var x = (width - totalW)/2;
-        var y = (height - U*4)/2;
-        for (var i=0;i<chars.length;i++) {
-            if (chars[i]===":") {
-                var r = U * root.dotR;
-                // centre of the space between the previous box and the next
-                var cxDot = x - (digitW - U*2)/2 + colonW/2;
-                if (root.colonOn) {
-                    ctx.fillStyle = root.litColor; ctx.globalAlpha = root.glow;
-                } else if (pass === "all") {
-                    ctx.fillStyle = root.ghostColor; ctx.globalAlpha = root.ghostAlpha * root.glow;
-                } else {
-                    x += colonW; continue;      // an off colon is ghost: never bloomed
-                }
-                ctx.beginPath(); ctx.arc(cxDot, y+U*1.3, r,0,2*Math.PI); ctx.fill();
-                ctx.beginPath(); ctx.arc(cxDot, y+U*2.7, r,0,2*Math.PI); ctx.fill();
-                x += colonW;
-            } else { drawDigit(chars[i], x, y); x += digitW; }
-        }
-        ctx.globalAlpha = 1.0;
-    }
-
-    // the halo: lit-only, blurred, under the crisp face
-    Canvas {
-        id: haloCanvas
+    // ⚑ THE MOUNT (W33, s133; the operator: "one rendering engine for the clock
+    // and the live wallpaper, then fixes to one are fixes to both"). This surface
+    // owns WHERE and HOW BIG — the face is centred and sized to the frame, which
+    // is the wallpaper's own problem (the clock sizes its digits off the panel's
+    // HEIGHT and would overflow 16:9, measured s132) — and SegmentChar owns what a
+    // digit looks like. The two Canvases and paintFace's polygon strokes are gone:
+    // they were the third copy of the display, and the copy the operator saw as
+    // "rectangles of construction paper".
+    Row {
+        id: face
         anchors.centerIn: parent
-        width: parent.width * 0.6
-        height: width * 0.32
-        renderTarget: Canvas.FramebufferObject
-        visible: root.bloom > 0
-        layer.enabled: root.bloom > 0
-        // halo radius scaled by the stroke (U*strokeLit) and the slider, never a
-        // fixed pixel count; no brightness lift on the transparent surround
-        layer.effect: MultiEffect {
-            blurEnabled: true
-            blur: 1.0
-            blurMax: Math.max(2, Math.round((height / 5.0) * root.strokeLit * 2 * root.bloom))
-            blurMultiplier: 1.0
+        // ⚑ THE MOUNT FITS THE FRAME, IN THE DISPLAY'S UNIT (measured s133: the
+        // first attempt overflowed because this surface's metrics are in U with
+        // H = 4U while SegmentChar's segLen is H/2 — a digit is 2 segLen tall).
+        // The face takes 60% of the width: four cells plus three gaps plus the
+        // colon slot, and never taller than 60% of the frame.
+        // this surface's metrics are in U (H = 4U); the display's cell is segLen
+        // (H = 2 segLen), so a length in U halves into the display's unit
+        readonly property real gapRatio: root.pitch / 2 - 1.0
+        readonly property real colonRatio: root.colonAdvance / 2
+        property real cellLen: Math.max(6, Math.floor(Math.min(
+            parent.width * 0.6 / (4 + 3 * gapRatio + colonRatio),
+            parent.height * 0.6 / 2)))
+        spacing: Math.round(cellLen * gapRatio)
+        Repeater {
+            model: 4
+            SegmentChar {
+                required property int index
+                segGeom: root.segGeom
+                digSegs: root.digSegs
+                // "HHMM": the colon rides the second cell, as on the module
+                ch: root.timeStr.charAt(index < 2 ? index : index + 1)
+                insertColon: index === 1
+                colonOn: root.colonOn
+                segLen: face.cellLen
+                // 1 U = 0.5 segLen; 0.211 is a RADIUS in U, so its doubling into a
+                // diameter and its halving into segLen cancel
+                segThick: Math.max(2, Math.floor(face.cellLen * 0.338 * 0.5))
+                dotSize: Math.max(2, face.cellLen * 0.211)
+                colonAdvance: face.colonRatio
+                cellGap: face.spacing
+                litColor: root.litColor
+                ghostColor: root.ghostColor
+                ghostAlpha: root.ghostAlpha
+                weight: root.weight
+                ghostWeight: root.ghostWeight
+                bloom: root.bloom
+                glow: root.glow
+            }
         }
-        opacity: 0.75
-        onPaint: root.paintFace(getContext("2d"), width, height, "lit")
-    }
-
-    Canvas {
-        id: clockCanvas
-        anchors.centerIn: parent
-        width: parent.width * 0.6
-        height: width * 0.32
-        renderTarget: Canvas.FramebufferObject
-        onPaint: root.paintFace(getContext("2d"), width, height, "all")
     }
 }

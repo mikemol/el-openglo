@@ -160,9 +160,15 @@ def main_qml():
     # the lit stroke at weight=1 is 1.25x the base
     import segment_topology as _ST
     m = _ST.metrics(4.0)
+    # ⚑ THE TABLES ARE THE DISPLAY'S NOW (W33, s133). This surface used to carry
+    # `seg` (a glyph map) and `stroke` (a geometry table) in ITS OWN spelling,
+    # for its own Canvas painter. Since it mounts SegmentChar it passes the
+    # display's tables — the SAME ones make_clock emits, from the same substrate
+    # call — so the two mounts cannot drift in geometry even by accident.
+    import make_clock as _MC
     return TL.render("live-wallpaper-main.qml",
                      ghostAlpha=global_alpha("glanced_at"),     # ambient: glanced
-                     seg=_qml_obj(DIGIT), stroke=_qml_obj(SEGS),
+                     tables=_MC.qml_tables(),
                      pitch=f"{m['pitch']:.3f}", strokeBase=f"{m['stroke'] / 1.25:.3f}",
                      dotR=f"{m['dot'] / 2:.3f}", colonAdvance=f"{m['colon_advance']:.3f}")
 

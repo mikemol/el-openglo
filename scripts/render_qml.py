@@ -159,10 +159,21 @@ def render(surface, variant, w, h, out_png, config_override=None, software=False
     qml, config, ground = subject(surface, variant)
     if config_override:
         config.update(config_override)
-    return render_document(qml, variant, w, h, out_png, config, ground, software)
+    return render_document(qml, variant, w, h, out_png, config, ground, software, companions(surface))
 
 
-def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False):
+def companions(surface):
+    """{filename: text} a surface instantiates BY BARE NAME, which QML resolves
+    from the subject's own directory — emitting the subject alone gives "X is not
+    a type" and a blank render (measured s133, the clock on the shared display)."""
+    out = {}
+    if surface in ("clock", "live-wallpaper"):
+        import make_segment_display as SD
+        out["SegmentChar.qml"] = SD.segment_char_component()
+    return out
+
+
+def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None):
     """Render an already-rewritten QML document under `variant`'s scheme (the probe
     with its own holes — check_legibility renders the text probe per case). The
     harness, environment and backend rules are render()'s."""
@@ -175,6 +186,8 @@ def render_document(qml, variant, w, h, out_png, config=None, ground=None, softw
                                      if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
                                      else None) as td:
         open(os.path.join(td, "subject.qml"), "w").write(qml)
+        for name, text in (companions or {}).items():
+            open(os.path.join(td, name), "w").write(text)
         open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
             "w": w, "h": h, "ground": ground, "config": json.dumps(config),
             "out": os.path.abspath(out_png)})

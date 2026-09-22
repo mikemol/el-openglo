@@ -1,89 +1,162 @@
-// SegmentChar — one character as vector segments off the shared substrate.
-// Generated from segment_topology (⊕SEGMENT-SUBSTRATE); do not hand-edit geometry.
+// SegmentChar — ONE seven-segment character, the display every segment surface
+// mounts. Generated from segment_topology (⊕SEGMENT-SUBSTRATE); do not hand-edit
+// the geometry.
+//
+// ⚑ THIS IS AN EXTRACTION, NOT A DESIGN (W33, s133; the operator: "lift the
+// clock's implementation so it's not just one theme, it's one abstraction").
+// Its body IS the clock's `component Digit` / `component Segment` — the idiom
+// that works: rounded caps (a Rectangle whose radius is half its thickness),
+// antialiasing, the lit layer blurred into a halo and the ghost never bloomed.
+// The previous body here drew square-capped Shapes and NOTHING INSTANTIATED IT
+// (check_qml_lint --uses SegmentChar: 0 of 10), so there was no behaviour to
+// keep; the wallpaper's own Canvas polygons were the third copy, and the
+// operator's "rectangles of construction paper" was that copy being seen.
+//
+// THE AXES, so a mount parameterises rather than re-implements:
+//   geometry  — segGeom / digSegs, the substrate's tables (shared already)
+//   emission  — litColor / ghostColor / ghostAlpha / weight / ghostWeight / bloom
+//   idiom     — rounded, antialiased, lit-only halo: NOT a parameter, the point
+//   mount     — segLen and where the cell sits: the surface's, passed in
+//   content   — `ch`, and whether a colon follows it
 import QtQuick
-import QtQuick.Shapes
+import QtQuick.Effects
 
 Item {
     id: sc
-    property var geom: ({})          // {seg: [ax,ay,bx,by]} unit-grid
-    property var glyphs: ({})        // {char: [lit segs]}
-    property string ch: " "
-    property real u: 20              // unit; digit box is 2u x 4u (x 5u with descender)
+    // --- geometry: the substrate's tables, passed in by the emitter ---------
+    property var segGeom: ({})        // {seg: [kind, ux, uy]}
+    property var digSegs: ({})        // {char: "lit segment ids"}
+    property string ch: "8"
+    property bool insertColon: false
+
+    // --- mount: the cell's size, the surface's choice ----------------------
+    property int segLen: 20           // the digit is 2 segLen tall, segLen wide
+    property real colonAdvance: 0     // extra advance when a colon follows
+    // the gap the MOUNT puts between cells, in px: the colon is centred in the
+    // whole space between its two neighbours, so the display cannot assume it
+    property real cellGap: segLen * 0.5
+    property real dotSize: Math.max(2, segLen * 0.12)
+
+    // --- emission ----------------------------------------------------------
     property color litColor: "white"
     property color ghostColor: "gray"
-    property real glow: 1.0
-    property real bloomStrength: 0.30
-    // ghost core opacity — SOLVED by the palette (make_schemes.GHOST_ALPHA) and
-    // filled here at emit time; it was a literal 0.45 no colour check could see.
+    // ⚑ SOLVED, NOT AUTHORED: the default is make_schemes.GHOST_ALPHA filled at
+    // emit time (it was a literal 0.45 no colour check could see). A mount may
+    // bind its own — the live wallpaper is GLANCED-AT and passes the glanced
+    // alpha — but the default is the palette's.
     property real ghostAlpha: $ghostAlpha
-    property real litHalf: u*0.20    // lit stroke half-width
-    property real ghostHalf: u*0.13  // ghost thinner (stroke-weight channel)
-    property real endGap: u*0.10     // pull ends in so segments don't overlap
-    // explicit size = the digit cell (2u wide x 5u tall incl. descender band), so
-    // the per-segment Items (anchors.fill: parent) have real bounds — without this
-    // they fill a 0-size box and strokes clip to nothing.
-    implicitWidth: u*2.4
-    implicitHeight: u*5
+    property bool showGhost: true
+    property bool colonOn: true
+    // ⊕STROKE-WEIGHT: perceived brightness = luminance x AREA, so the lit stroke
+    // is drawn FULLER than the ghost outline (a real segment is physically fuller
+    // than its etched ghost). weight=1 -> lit 1.25x; weight=0 -> equal strokes.
+    property int segThick: Math.max(2, Math.floor(segLen * 0.084))
+    property real weight: 1.0
+    property real ghostWeight: 0.81
+    readonly property real strokeLit: segThick * (1 + 0.25 * weight)
+    readonly property real strokeGhost: segThick * ghostWeight
+    // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never a
+    // wider opaque copy. 0 disables the layer (crisp fallback).
+    property real bloom: 1.5
+    property real glow: 1.0           // a mount may breathe the whole cell
+
+    readonly property real colonSlot: segLen * colonAdvance
+    readonly property real colonX: segLen + (colonSlot + cellGap) / 2 - dotSize / 2
+    implicitWidth: segLen + (insertColon ? colonSlot : 0)
+    implicitHeight: segLen * 2
     width: implicitWidth
     height: implicitHeight
 
-    property var litSet: glyphs[ch] || []
+    function isOn(s) {
+        return sc.digSegs[ch] !== undefined && sc.digSegs[ch].indexOf(s) !== -1
+    }
 
+    // one glyph, three passes: ghost (un-energised, no halo), the lit layer
+    // blurred into a halo, then the crisp lit core on top
     Repeater {
-        model: Object.keys(sc.geom)
-        Item {
-            anchors.fill: parent
-            property string segId: modelData
-            property var e: sc.geom[segId]          // [ax,ay,bx,by]
-            property bool on: sc.litSet.indexOf(segId) >= 0
-            property real half: on ? sc.litHalf : sc.ghostHalf
-            // endpoints in px
-            property real ax: e[0]*sc.u
-            property real ay: e[1]*sc.u
-            property real bx: e[2]*sc.u
-            property real by: e[3]*sc.u
-            property real dx: bx-ax
-            property real dy: by-ay
-            property real len: Math.max(0.0001, Math.sqrt(dx*dx+dy*dy))
-            // unit direction + perpendicular
-            property real ux: dx/len
-            property real uy: dy/len
-            property real px: -uy
-            property real py: ux
-            // shortened endpoints (gap) then perpendicular-offset corners
-            property real sax: ax+ux*endGapEff
-            property real say: ay+uy*endGapEff
-            property real sbx: bx-ux*endGapEff
-            property real sby: by-uy*endGapEff
-            property real endGapEff: Math.min(sc.endGap, len*0.4)
-
-            // bloom underlay (lit only): a wider, fainter copy behind the core
-            Shape {
-                anchors.fill: parent; antialiasing: true
-                visible: parent.on; opacity: sc.bloomStrength * sc.glow
-                ShapePath {
-                    fillColor: sc.litColor; strokeWidth: -1
-                    startX: parent.sax + parent.px*(parent.half*2.1); startY: parent.say + parent.py*(parent.half*2.1)
-                    PathLine { x: parent.parent.sbx + parent.parent.px*(parent.parent.half*2.1); y: parent.parent.sby + parent.parent.py*(parent.parent.half*2.1) }
-                    PathLine { x: parent.parent.sbx - parent.parent.px*(parent.parent.half*2.1); y: parent.parent.sby - parent.parent.py*(parent.parent.half*2.1) }
-                    PathLine { x: parent.parent.sax - parent.parent.px*(parent.parent.half*2.1); y: parent.parent.say - parent.parent.py*(parent.parent.half*2.1) }
-                    PathLine { x: parent.parent.sax + parent.parent.px*(parent.parent.half*2.1); y: parent.parent.say + parent.parent.py*(parent.parent.half*2.1) }
-                }
-            }
-            // crisp core (lit or ghost), thickened perpendicular
-            Shape {
-                anchors.fill: parent; antialiasing: true
-                opacity: parent.on ? sc.glow : sc.ghostAlpha
-                ShapePath {
-                    fillColor: parent.on ? sc.litColor : sc.ghostColor
-                    strokeWidth: -1
-                    startX: parent.sax + parent.px*parent.half; startY: parent.say + parent.py*parent.half
-                    PathLine { x: parent.parent.sbx + parent.parent.px*parent.parent.half; y: parent.parent.sby + parent.parent.py*parent.parent.half }
-                    PathLine { x: parent.parent.sbx - parent.parent.px*parent.parent.half; y: parent.parent.sby - parent.parent.py*parent.parent.half }
-                    PathLine { x: parent.parent.sax - parent.parent.px*parent.parent.half; y: parent.parent.say - parent.parent.py*parent.parent.half }
-                    PathLine { x: parent.parent.sax + parent.parent.px*parent.parent.half; y: parent.parent.say + parent.parent.py*parent.parent.half }
-                }
+        model: ["A", "B", "C", "D", "E", "F", "G"]
+        Segment {
+            seg: modelData
+            visible: sc.showGhost && !sc.isOn(modelData)
+            color: sc.ghostColor
+            opacity: sc.ghostAlpha * sc.glow
+            thick: sc.strokeGhost
+        }
+    }
+    Item {
+        id: halo
+        anchors.fill: parent
+        visible: sc.bloom > 0
+        layer.enabled: sc.bloom > 0
+        // ⚑ THE HALO IS SIZED BY THE STROKE, NOT IN PIXELS. A fixed blurMax on a
+        // 3 px panel stroke smeared the whole digit into one haze (⊕VER 2026-09-21);
+        // the radius is a few stroke widths, scaled by the slider.
+        layer.effect: MultiEffect {
+            blurEnabled: true
+            blur: 1.0
+            blurMax: Math.max(2, Math.round(sc.strokeLit * 2 * sc.bloom))
+            blurMultiplier: 1.0
+        }
+        opacity: 0.75 * sc.glow
+        Repeater {
+            model: ["A", "B", "C", "D", "E", "F", "G"]
+            Segment {
+                seg: modelData
+                visible: sc.isOn(modelData)
+                color: sc.litColor
+                thick: sc.strokeLit
             }
         }
+        ColonDot { visible: sc.insertColon && sc.colonOn; y: sc.segLen * 0.62 }
+        ColonDot { visible: sc.insertColon && sc.colonOn; y: sc.segLen * 1.38 - sc.dotSize }
+    }
+    Repeater {
+        model: ["A", "B", "C", "D", "E", "F", "G"]
+        Segment {
+            seg: modelData
+            visible: sc.isOn(modelData)
+            color: sc.litColor
+            opacity: sc.glow
+            thick: sc.strokeLit
+        }
+    }
+    // the colon after this cell: lit when on, ghost (never bloomed) when off
+    ColonDot {
+        visible: sc.insertColon
+        color: sc.colonOn ? sc.litColor : sc.ghostColor
+        opacity: (sc.colonOn ? 1.0 : sc.ghostAlpha) * sc.glow
+        y: sc.segLen * 0.62
+    }
+    ColonDot {
+        visible: sc.insertColon
+        color: sc.colonOn ? sc.litColor : sc.ghostColor
+        opacity: (sc.colonOn ? 1.0 : sc.ghostAlpha) * sc.glow
+        y: sc.segLen * 1.38 - sc.dotSize
+    }
+
+    component ColonDot: Rectangle {
+        width: sc.dotSize; height: sc.dotSize; radius: sc.dotSize / 2
+        color: sc.litColor
+        antialiasing: true
+        x: sc.colonX
+    }
+
+    // ⚑ THE IDIOM: one segment as a scene-graph rectangle with ROUNDED CAPS
+    // (radius = half the thickness) and antialiasing — what makes a segment read
+    // as a lit bar rather than a cut rectangle (W33, measured s132). The caller
+    // says colour, opacity and weight; the geometry is the substrate's alone.
+    component Segment: Rectangle {
+        property string seg: "A"
+        property real thick: sc.segThick
+        property var g: sc.segGeom[seg]          // [kind, ux, uy]
+        property bool horiz: g[0] === "h"
+        property real gap: sc.segThick * 0.62
+        antialiasing: true
+        radius: thick / 2
+        width:  horiz ? sc.segLen - gap * 2 : thick
+        height: horiz ? thick : sc.segLen - gap * 2
+        // centred on the segment's axis so a heavier stroke grows both ways
+        x: (g[1] * sc.segLen) + (horiz ? gap : (sc.segThick - thick) / 2)
+        y: (g[2] * sc.segLen) + (horiz ? (sc.segThick - thick) / 2 : gap)
     }
 }

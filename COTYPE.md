@@ -8818,3 +8818,76 @@ residue gated on live operator testing.
   s132 MEASURED: the cap, not the antialiasing — SegmentChar's own caps are
   square, so the port must fix the cap first).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s132]
+
+## Session 133 — one display, two mounts (W33; the operator: "one abstraction")
+- The operator redirected between ticks: "lift the clock's implementation so
+  it's not just one theme, it's one abstraction", and "use the same rendering
+  engine for the clock and the live wallpaper — then we can iterate on the
+  wallpaper and have those fixes to the clock as well, should the clock ever
+  be rendered high DPI." The census said the same: THREE segment renderers
+  (the clock's inline `component Digit`/`Segment`, the wallpaper's Canvas
+  paintFace, and templates/SegmentChar.qml which 0 of 10 documents
+  instantiated). templates/SegmentChar.qml IS the clock's idiom now — rounded
+  caps, antialiasing, the lit-only MultiEffect halo — with the axes named:
+  geometry (the substrate's tables), emission (lit/ghost/alpha/weight/bloom),
+  idiom (not a parameter, the point), mount (segLen, cellGap, colonAdvance —
+  passed IN), content (ch, insertColon, colonOn).
+- THE PORT'S PROOF: the clock's render through the shared display against the
+  clock's render before it, back to back — 0 of 40000 differing pixels. It
+  took three attempts to get an honest comparison, and each failure was the
+  measurement's: (a) the clock draws the CURRENT TIME, so renders in
+  different minutes differ by a digit (1194 px, all in one digit's x-band);
+  (b) `git show --output=` printed the old template instead of writing it, so
+  the "old" render was the new template minus its companion — blank; (c) the
+  harness writes only subject.qml, so a surface that instantiates a component
+  BY BARE NAME renders nothing ("SegmentChar is not a type") — render_qml
+  gained companions(surface).
+- The wallpaper then mounts the same display: its two Canvases and paintFace
+  are gone, and with them the third copy — the one the operator saw as
+  "rectangles of construction paper". Its mount converts units (this surface
+  is in U with H = 4U; the display's cell is segLen = H/2, so a length in U
+  HALVES — I doubled it first and the face exploded across the frame) and
+  fits the frame rather than the panel height.
+- Three witnesses moved to where their facts now live: ⊕BLOOM's (the layer is
+  the display's; each mount passes `bloom:` — requiring a layer in a mount
+  that no longer draws would report the collapse as a loss), the surfaces
+  population (the display is a surface's work too), and SegmentChar's solved
+  ghost-alpha hole, which my rewrite had dropped to a literal 0.45 —
+  check_ghost_composite caught it in one run.
+- ⚑ AND THE COLLAPSE PAID BEFORE IT FINISHED: the operator photographed a
+  clock digit whose top-left corner notches while the bottom-left is clean.
+  That defect is now ONE defect, in one display, fixed once for both mounts.
+  It also named the tool: PLANES OF SYMMETRY (W57) — an 8 is its own mirror
+  in both axes, 00:00 is its own mirror as a FACE (catching the mount's
+  kerning and colon centring, not just the glyph) — plus linear regression
+  against the substrate's unit coordinates to DISCOVER the corrected geometry
+  in the toolkit's own pixel grid rather than nudging it by eye.
+- Residue: the wallpaper's face is smaller than the old Canvas's and its
+  proportions are unconfirmed on a real desktop (⊕VER); the physics layer
+  (gradient, boundary depth, diffusion, the substrate past the digits) is
+  what the merge was FOR and has not started; W57's oracle is minted, not
+  built, and the photographed notch is unfixed.
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71; one display s133) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109) + ⊕APERTURE-FIELD ✓ (125) + ⊕NOTIFY-CAPABILITIES ✓ (130)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71-s112 as recorded; s133 the live wallpaper
+  draws through the clock's display — is the face the right size on the
+  desktop?), ⊕VER-MARQUEE (s89-129 as recorded), ⊕WALLPAPER-VECTOR-VER,
+  ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER, ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT,
+  ⊕PLYMOUTH-KEYSTROKE-SEG, ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY,
+  ⊕GLANCE-CALIBRATE, ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  s132 measured — not the antialiasing; s133 DONE in substance: one display,
+  two mounts, the wallpaper's Canvas retired. Its closure waits on the
+  physics layer the merge was for).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s133]

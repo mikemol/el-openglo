@@ -86,116 +86,43 @@ $tables
             spacing: Math.round(segLen * root.digitGap)
             Repeater {
                 model: root.timeStr.length
-                Digit {
+                // ⚑ THE DISPLAY IS SHARED, THE MOUNT IS OURS (W33, s133): this
+                // cell's body used to live here as `component Digit` and is now
+                // SegmentChar.qml — the one segment display every surface mounts
+                // (the live wallpaper drew its own Canvas copy; the operator saw
+                // that copy as "rectangles of construction paper"). What stays
+                // here is the mount: the digit height off the panel, the gap, and
+                // which cell carries the colon.
+                SegmentChar {
+                    segGeom: root.segGeom
+                    digSegs: root.digSegs
                     ch: root.timeStr.charAt(index)
                     // the colon follows the SECOND digit (HH:MM) and the fourth
                     // when seconds show — this said index 2 and drew "232: 0"
                     // (operator, 2026-09-21; the headless render showed it too)
                     insertColon: (index === 1) || (index === 3 && root.timeStr.length > 4)
+                    colonOn: root.colonOn
+                    segLen: root.segLen
+                    segThick: root.segThick
+                    dotSize: root.dotSize
+                    colonAdvance: $colonAdvance
+                    cellGap: segRow.spacing
+                    litColor: root.litColor
+                    ghostColor: root.ghostColor
+                    ghostAlpha: root.ghostAlpha
+                    showGhost: plasmoid.configuration.showGhost
+                    weight: root.weight
+                    ghostWeight: root.ghostWeight
+                    bloom: root.bloom
                 }
             }
         }
     }
 
-    component Digit: Item {
-        property string ch: "8"
-        property bool insertColon: false
-        // the colon adds the substrate's colon_advance (ZERO on the 88:88 module —
-        // the dots sit in the ordinary gap, centred between the two digits)
-        property real colonSlot: segLen * $colonAdvance
-        property real colonX: segLen + (colonSlot + segRow.spacing) / 2 - root.dotSize / 2
-        width: segLen + (insertColon ? colonSlot : 0)
-        height: segLen * 2
-
-        function isOn(s) {
-            return root.digSegs[ch] !== undefined && root.digSegs[ch].indexOf(s) !== -1
-        }
-        // one seven-segment glyph, three passes: ghost (un-energised, no halo),
-        // then the lit layer blurred into a halo, then the crisp lit core on top
-        Repeater {
-            model: ["A","B","C","D","E","F","G"]
-            Segment {
-                seg: modelData
-                visible: plasmoid.configuration.showGhost && !parent.isOn(modelData)
-                color: root.ghostColor
-                opacity: root.ghostAlpha
-                thick: root.strokeGhost
-            }
-        }
-        Item {
-            id: halo
-            anchors.fill: parent
-            visible: root.bloom > 0
-            layer.enabled: root.bloom > 0
-            // ⚑ THE HALO IS SIZED BY THE STROKE, NOT IN PIXELS.  A fixed 64px
-            // blurMax on a 3px panel stroke smeared the whole digit into one haze
-            // (⊕VER 2026-09-21); `brightness` lifted the transparent surround
-            // too. The radius is a few stroke widths, scaled by the slider, and
-            // the halo is the lit colour itself at reduced opacity.
-            layer.effect: MultiEffect {
-                blurEnabled: true
-                blur: 1.0
-                blurMax: Math.max(2, Math.round(root.strokeLit * 2 * root.bloom))
-                blurMultiplier: 1.0
-            }
-            opacity: 0.75
-            Repeater {
-                model: ["A","B","C","D","E","F","G"]
-                Segment {
-                    seg: modelData
-                    visible: parent.parent.isOn(modelData)
-                    color: root.litColor
-                    thick: root.strokeLit
-                }
-            }
-            ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*0.62 }
-            ColonDot { visible: parent.parent.insertColon && root.colonOn; y: segLen*1.38 - root.dotSize }
-        }
-        Repeater {
-            model: ["A","B","C","D","E","F","G"]
-            Segment {
-                seg: modelData
-                visible: parent.isOn(modelData)
-                color: root.litColor
-                thick: root.strokeLit
-            }
-        }
-        // colon dots after this digit: lit when on, ghost (never bloomed) when off
-        ColonDot {
-            visible: parent.insertColon
-            color: root.colonOn ? root.litColor : root.ghostColor
-            opacity: root.colonOn ? 1.0 : root.ghostAlpha
-            y: segLen*0.62
-        }
-        ColonDot {
-            visible: parent.insertColon
-            color: root.colonOn ? root.litColor : root.ghostColor
-            opacity: root.colonOn ? 1.0 : root.ghostAlpha
-            y: segLen*1.38 - root.dotSize
-        }
-    }
-
-    component ColonDot: Rectangle {
-        width: root.dotSize; height: root.dotSize; radius: root.dotSize/2
-        color: root.litColor
-        antialiasing: true
-        x: parent.colonX !== undefined ? parent.colonX : parent.parent.colonX
-    }
-
-    // one segment as a scene-graph vector item; the caller says which colour,
-    // opacity and stroke weight — the geometry is the substrate's alone
-    component Segment: Rectangle {
-        property string seg: "A"
-        property real thick: root.segThick
-        property var g: root.segGeom[seg]         // [kind, ux, uy]
-        property bool horiz: g[0] === "h"
-        property real gap: segThick * 0.62
-        antialiasing: true
-        radius: thick/2
-        width:  horiz ? segLen - gap*2 : thick
-        height: horiz ? thick : segLen - gap*2
-        // centred on the segment's axis so a heavier stroke grows both ways
-        x: (g[1] * segLen) + (horiz ? gap : (segThick - thick)/2)
-        y: (g[2] * segLen) + (horiz ? (segThick - thick)/2 : gap)
-    }
+    // ⚑ THE DIGIT AND ITS SEGMENT LIVED HERE (W33, s133). They are
+    // templates/SegmentChar.qml now — the ONE segment display, mounted by this
+    // clock and by the live wallpaper, so an emission fix (a gradient, a
+    // boundary, diffusion) lands on both at once and the clock inherits it at
+    // any DPI. The colon's advance and the cell gap are passed IN: they are the
+    // mount's, not the display's.
 }
