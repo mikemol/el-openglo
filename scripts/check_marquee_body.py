@@ -92,6 +92,14 @@ RING_CASES = [
      [dict(arrive=["n1"], actions={"n1": [["open", "Open"], ["dismiss", "Dismiss"]]}, live=["n1"], max=12,
            text="n1#1 [Open] [Dismiss]")],
      [(["n1"], ["n1"])]),
+    # W46 jobs: three progress replaces (same text, new percentage) keep the item's
+    # place and `shown` — the ring is unchanged, the history grows to three samples,
+    # and the join carries a series run: text + " " + one placeholder (3 samples ≤ 6 cells)
+    ("a job's progress replaces grow its history without re-owing a rotation",
+     [dict(arrive=["j1"], progress={"j1": 10}, live=["j1"], max=12, text="j1#1 ░", series={"j1": [10]}),
+      dict(arrive=["j1"], progress={"j1": 50}, live=["j1"], max=12, text="j1#1 ░", series={"j1": [10, 50]}),
+      dict(arrive=["j1"], progress={"j1": 90}, live=["j1"], max=12, text="j1#1 ░", series={"j1": [10, 50, 90]})],
+     [(["j1"], ["j1"]), (["j1"], ["j1"]), (["j1"], ["j1"])]),
 ]
 
 # seriesToColumns (W48): (values, rows, min, max) -> expected column heights
@@ -118,17 +126,23 @@ QtObject {
             for (var s = 0; s < rings[i].length; s++) {
                 var step = rings[i][s];
                 for (var a = 0; a < step.arrive.length; a++) {
-                    serial += 1;
-                    var tr = (step.transient || []).indexOf(step.arrive[a]) >= 0;
-                    var acts = ((step.actions || {})[step.arrive[a]] || []).map(function (p) { return { id: p[0], label: p[1] }; });
-                    queue = Body.queueUpsert(queue, { id: step.arrive[a], text: step.arrive[a] + "#" + serial, runs: [], transient: tr, actions: acts });
+                    var id = step.arrive[a];
+                    var tr = (step.transient || []).indexOf(id) >= 0;
+                    var acts = ((step.actions || {})[id] || []).map(function (p) { return { id: p[0], label: p[1] }; });
+                    var prog = (step.progress || {})[id];
+                    // a job's progress replace keeps its TEXT (serial 1) and brings a percentage
+                    var txt = prog !== undefined ? id + "#1" : id + "#" + (++serial);
+                    queue = Body.queueUpsert(queue, { id: id, text: txt, runs: [], transient: tr, actions: acts,
+                                                      percentage: prog === undefined ? null : prog, jobState: prog === undefined ? null : 1 });
                 }
                 var r = Body.ringNext(queue, step.live, step.max);
                 queue = r.queue;
-                var ids = [], qids = [];
+                var ids = [], qids = [], series = {};
                 for (var k = 0; k < r.ring.length; k++) ids.push(r.ring[k].id);
                 for (k = 0; k < queue.length; k++) qids.push(queue[k].id);
-                trace.push({ ring: ids, queue: qids, text: Body.ringJoin(r.ring, " | ").text });
+                var joined = Body.ringJoin(r.ring, " | ");
+                for (k = 0; k < joined.runs.length; k++) if (joined.runs[k].series) series[joined.runs[k].item] = joined.runs[k].series;
+                trace.push({ ring: ids, queue: qids, text: joined.text, series: series });
             }
             out.ring.push(trace);
         }
@@ -183,11 +197,13 @@ def ring_problems(results):
     rep = results[4]
     if not (rep[0]["text"] == "n1#1" and rep[1]["text"] == "n1#2"):
         bad.append(f"ring replace: texts {[t['text'] for t in rep]}, expected n1#1 then n1#2")
-    # a step that states its joined text (W46 actions) must produce it
+    # a step that states its joined text (W46 actions) or its series (W46 jobs) must produce it
     for (label, steps, _want), trace in zip(RING_CASES, results):
         for i, step in enumerate(steps):
             if "text" in step and trace[i]["text"] != step["text"]:
                 bad.append(f"ring {label!r}: boundary {i} text {trace[i]['text']!r}, expected {step['text']!r}")
+            if "series" in step and trace[i].get("series") != step["series"]:
+                bad.append(f"ring {label!r}: boundary {i} series {trace[i].get('series')!r}, expected {step['series']!r}")
     return bad
 
 

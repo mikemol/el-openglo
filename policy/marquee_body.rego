@@ -126,6 +126,20 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "M7 — a boundary that states a job's series produces it"
+# description: |
+#   W46 jobs: a progress replace grows the item's history without re-owing a
+#   rotation, and the join carries the history as a series run; the scenario
+#   states the series per item at that boundary.
+deny contains msg if {
+	some s in input.ring
+	some i, step in s.steps
+	step.series
+	s.trace[i].series != step.series
+	msg := sprintf("M7: %s: boundary %d series %v, expected %v", [s.label, i, s.trace[i].series, step.series])
+}
+
+# METADATA
 # title: "M5 — a series becomes the stated column heights"
 # description: |
 #   W48 (folded into W54): seriesToColumns is pure — a ramp fills the rows, a

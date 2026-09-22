@@ -33,6 +33,19 @@ test_m6_admits_a_boundary_on_its_stated_text if {
 	count([m | some m in mb.deny with input as object.union(clean, {"ring": [acted]}); startswith(m, "M6:")]) == 0
 }
 
+test_m7_refuses_a_boundary_off_its_stated_series if {
+	job := {"label": "job", "steps": [{"arrive": ["j1"], "live": ["j1"], "max": 12, "series": {"j1": [10, 50]}}],
+		"expected": [{"ring": ["j1"], "queue": ["j1"]}], "trace": [{"ring": ["j1"], "queue": ["j1"], "text": "j1#1", "series": {"j1": [10]}}]}
+	some msg in mb.deny with input as object.union(clean, {"ring": [job]})
+	startswith(msg, "M7:")
+}
+
+test_m7_admits_a_boundary_on_its_stated_series if {
+	job := {"label": "job", "steps": [{"arrive": ["j1"], "live": ["j1"], "max": 12, "series": {"j1": [10, 50]}}],
+		"expected": [{"ring": ["j1"], "queue": ["j1"]}], "trace": [{"ring": ["j1"], "queue": ["j1"], "text": "j1#1", "series": {"j1": [10, 50]}}]}
+	count([m | some m in mb.deny with input as object.union(clean, {"ring": [job]}); startswith(m, "M7:")]) == 0
+}
+
 test_m5_refuses_drifted_columns if {
 	some msg in mb.deny with input as object.union(clean, {"series": [object.union(series_ok, {"columns": [0, 2, 4, 6, 7]})]})
 	startswith(msg, "M5:")

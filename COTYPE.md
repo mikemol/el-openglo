@@ -8537,3 +8537,72 @@ residue gated on live operator testing.
   Canvas strokes vs the clock's antialiased Shapes — is its argument now;
   the s110 stills show the pair side by side).
   ⊕PLA2 ⊕KVT2 ⊕KNB2. [s128]
+
+## Session 129 — a job is a gauge: W48's painter lands on its first live source (W46, step 4)
+- The operator's gauge (2026-09-22: a tach is a gauge; job progress as an
+  ordering with a level). A Job-type row (TypeRole = JobType) brings its
+  percentage and state; the queue keeps the item's percentage HISTORY —
+  every distinct percentage seen — and a PROGRESS replace (same text, new
+  percentage) keeps the item's place and its `shown`: a gauge ticking is
+  the same message moving, not a new one (no rotation re-owed, W38/W45
+  intact). ringJoin appends a SERIES run after the text: the history, min
+  0, max 100, over ceil(n/6) placeholder characters (U+2591, never a glyph)
+  so taps and spans keep their indices. drawBackdrop paints it by
+  seriesToColumns — one matrix column per sample, rows [rows−h, rows) lit,
+  the newest at the right, in the item's ink, half ink while suspended or
+  low. The harness timeline gained a job at 10 % with replaces to 50 and
+  90; L11 holds a job's last progress to be followed by a painted gauge of
+  exactly its distinct-percentage count, rising as the percentages rise
+  (94/94); M7 holds a ring boundary's stated series (91/91).
+- Measured: L11 denied on first run, and honestly — the three swaps after
+  the replaces each re-rang the job with its grown history, and the gauge
+  never repainted, because the joined TEXT was identical each time and the
+  paint was keyed on tickerTextChanged. The paint now follows the swap
+  (root.ringSwapped), whatever changed. Stills and loops re-rendered on the
+  new paint path, S1-S6 admit.
+- Residue: a stopped job (JobState 0) is not yet dropped at the boundary
+  ahead of the model's own removal; the gauge's rows are the field's 8, so
+  100 % is 8 columns tall — a taller gauge is the viewport's; the series
+  run's characters cannot be tapped to anything (suspend/resume/kill are
+  invokable — a later action run).
+
+## Symbol ledger (current)
+- ...prior... + ⊕SEGMENT-SUBSTRATE ✓ (67) + ⊕CLOCK-VECTOR ✓ (68) +
+  ⊕SEGMENT-ROLLOUT ✓ (70) + ⊕BLOOM ✓ ⊕STROKE-WEIGHT ✓ RE-DERIVED (71) +
+  ⊕PLYMOUTH-VECTOR ✓ (72) + ⊕SOLVER-UI-TOKENS ✓ (73) + ⊕SEG-TABLE-VALIDATE ✓
+  (74) + ⊕SEG-PROJECT-CALIBRATE ✓ (75) + ⊕MATRIX-FONT-INPUT ✓ ⊕NOTIFY-MATRIXRENDER ✓
+  (77; s89-106 corrected live and headless; one package s106; onto the aperture field s120; MatrixChar retired s124) + ⊕SEG-DOTPRODUCT-TEMPLATES ✓ (79) +
+  ⊕GHOST-DENSITY ✓ (81) + ⊕SEG-FONT-PROJECT ✓ (82) + ⊕SEG22-DESCENDERS ✓ (84) +
+  ⊕ICONS-INHERIT ✓ ⊕CURSOR-INHERIT ✓ (85) + ⊕TASKSWITCH ✓ (86; one package s104; rendered s110) +
+  ⊕NOTIFY-SEGRENDER ✓ ⊕SUPERSAMPLE-WP ✓ (87) + ⊕SOLVER-PERF ✓ ⊕PANEL-LAYOUT ✓ (87b) +
+  ⊕ONE-THEME ✓ (109; designed s97, built s104-108, migration f521e6f, confirmed live s112) +
+  ⊕APERTURE-FIELD ✓ (125; the operator's pinholes, s114; built s114-124: field, gate, text
+  backdrop, Unifont, γ, the port, the viewport, the series arithmetic, MatrixChar retired)
+- OPEN — BUILD (touches shipped deb): none. RESEARCH: none. TUNE: none.
+- LIVE (operator=other): ⊕VER (s71 bloom/weight; s72 plymouth at boot; s73 the
+  darker hover ring on the Off variants; s85 icon + cursor groups; s86
+  Alt+Tab — KWin loads the one package; s95 EL over Oxygen; s106-109 the
+  one packages follow plasma-apply-colorscheme live; s111 a fresh clock
+  instance comes up at bloom 4 / ghost 0.4 / gap 1.179; s112 both settings
+  pages open without a refusal on stderr), ⊕VER-MARQUEE
+  (s89-103 — a lone notify-send scrolls once: CONFIRMED s112 from the host
+  trace; still open: the board never goes dead over a day, a parked pointer
+  pulses the ring; s117-118 the scroll was JUMPY live — the pitch snap, cv
+  0.104; s120 the aperture field ships, cv 0.023 headless — after the next
+  emerge: is the scroll smooth on the panel, and what does plasmashell's
+  frame cost look like with 1900 items on the board; s127 `notify-send -u
+  critical` reads in the hot token and keeps cycling, `-u low` reads dim;
+  s128 `notify-send -A open=Open` shows "[Open]" and a click on it fires
+  the action; s129 a KIO copy shows its gauge growing beside "copying"),
+  ⊕WALLPAPER-VECTOR-VER, ⊕WALLPAPER-BLOOM-VECTOR, ⊕LOCK-GREETER,
+  ⊕SDDM-GREETER, ⊕PLYMOUTH-BACKLIT, ⊕PLYMOUTH-KEYSTROKE-SEG,
+  ⊕WALLPAPER-OCCLUDE-PAUSE, ⊕NOTIFY-URGENCY (s127: built headless — the
+  hot token as ink, L9; the live confirmation is above), ⊕GLANCE-CALIBRATE
+  (s111: the 1.5x gap factor is its first authored-not-measured input),
+  ⊕APCA-GHOST-CLOCK.
+- TIER 3: named-GTK.
+- RESIDUE: ⊕HDR-EMIT, ⊕VER-SYSCLOCK, ⊕GTK-ADW, ⊕SEGMENTCHAR-ADOPT (s88;
+  the operator's "less like Minecraft sans RTX" — the live wallpaper's
+  Canvas strokes vs the clock's antialiased Shapes — is its argument now;
+  the s110 stills show the pair side by side).
+  ⊕PLA2 ⊕KVT2 ⊕KNB2. [s129]

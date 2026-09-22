@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 56,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T08:57:27+00:00",
-  "job_id": "af811ea5",
+  "heartbeat": "2026-09-22T09:24:30+00:00",
+  "job_id": "449748d4",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -14,8 +14,8 @@
     "ESCALATE": "AskUserQuestion"
   },
   "lock": {
-    "holder": "tick-af811ea5",
-    "taken_at": "2026-09-22T09:08:18+00:00"
+    "holder": "tick-449748d4",
+    "taken_at": "2026-09-22T09:35:07+00:00"
   },
   "ground_truth": "python3 scripts/worklist_gate.py — a waypoint pointing at a claim is done exactly when that claim's check exits 0; this file never records status the gate can compute.",
   "waypoints": [
@@ -783,10 +783,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: the model's roles are the input to urgency, actions, progress and the series painter; the aperture field made 'weight' and 'colour' numbers the backdrop carries",
-      "next_bounded_step": "(3) ACTIONS: upsertRow reads ActionNamesRole / ActionLabelsRole (the stub's roleNames carry them); ringJoin appends each item's actions as runs of kind 'action' (text '[Label]', with actionId + the item id) after its text; drawBackdrop lights their descent row like a link; the TapHandler resolves a tap to a run — an action run calls notifModel.invokeAction(notifModel.index(row, 0), actionId) where row is found by id (liveIds); the stub records invoked; harness timeline: an arrival with actions + a synthetic tap (the harness can call the root's tap function directly rather than synthesize a pointer event — expose root.tapAt(x)); L10: after tapAt on an action run the stub's invoked carries the id; body cases for the action runs.",
-      "evidence": "9bb647f contract (@NOTIFY-ROLES); e637d0b urgency + transient: hot token as ink (L9, non-vacuous — it denied on the paint lag first), low at half ink, transient once (ring case); 85/85",
+      "next_bounded_step": "(4) JOB PROGRESS AS THE GAUGE: upsertRow reads TypeRole (Job 2), PercentageRole, JobStateRole; a job item keeps a percentage HISTORY (upsert appends when the percentage changes; a replace-by-data keeps the item and its history); ringJoin emits a 'series' run for a job item (values = its history, min 0, max 100) placed after its text; drawBackdrop paints a series run via seriesToColumns — one column per sample, rows [rows-h, rows) lit, the newest at the right; suspended paints at half ink, stopped drops at the boundary; the stub's roleNames carry type/jobState/percentage (they do); timeline: a job arrival with three percentage replaces; L11: the painted text/cells include the series (paintedInk unchanged; expose paintedSeries = the column heights drawn); body cases for the series run. Then W46's closure or the remaining rows (category, hints, icons) as residue.",
+      "evidence": "9bb647f contract; e637d0b urgency + transient (L9); 450eb0d actions as runs + tapAt + invokeAction (L10, M6)",
       "issued_at": "2026-09-21T18:18:48+00:00",
-      "last_worked": "2026-09-22T08:56:45+00:00",
+      "last_worked": "2026-09-22T09:23:57+00:00",
       "ticks_blocked": 0
     },
     {

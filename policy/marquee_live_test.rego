@@ -239,6 +239,36 @@ test_l10_refuses_a_tap_that_resolved_to_nothing if {
 	startswith(msg, "L10:")
 }
 
+# W46 jobs: a gauge with one column per distinct percentage
+job_ok := object.union(clean, {"events": [
+	{"t": 300, "op": "arrive", "id": 40, "fields": {"type": 2, "percentage": 10}, "shows": "kio: copying"},
+	{"t": 500, "op": "replace", "id": 40, "fields": {"type": 2, "percentage": 50}, "shows": "kio: copying"},
+	{"t": 700, "op": "replace", "id": 40, "fields": {"type": 2, "percentage": 90}, "shows": "kio: copying"},
+], "samples": [
+	{"t": 400, "text": "kio: copying ░", "painted": "kio: copying ░", "x": 300, "running": true, "count": 1, "series": [[1]]},
+	{"t": 900, "text": "kio: copying ░", "painted": "kio: copying ░", "x": 200, "running": true, "count": 1, "series": [[1, 4, 7]]},
+]})
+
+test_l11_admits_a_three_column_gauge if {
+	count([m | some m in ml.deny with input as job_ok; startswith(m, "L11:")]) == 0
+}
+
+test_l11_refuses_a_gauge_that_never_grew if {
+	off := object.union(job_ok, {"samples": [
+		{"t": 900, "text": "kio: copying ░", "painted": "kio: copying ░", "x": 200, "running": true, "count": 1, "series": [[1]]},
+	]})
+	some msg in ml.deny with input as off
+	startswith(msg, "L11:")
+}
+
+test_l11_refuses_a_falling_gauge_for_rising_progress if {
+	off := object.union(job_ok, {"samples": [
+		{"t": 900, "text": "kio: copying ░", "painted": "kio: copying ░", "x": 200, "running": true, "count": 1, "series": [[7, 4, 1]]},
+	]})
+	some msg in ml.deny with input as off
+	startswith(msg, "L11:")
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp

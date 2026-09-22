@@ -137,6 +137,12 @@ TIMELINE = [
                            "actionNames": ["open", "later"], "actionLabels": ["Open", "Later"]}, "app: act [Open] [Later]"),
     (15600, "tap", 30, {"text": "[Open]"}, "app: act [Open] [Later]"),
     (17500, "expire", 30, {}, ""),
+    # W46 jobs: a Job-type arrival at 10 %, then two progress replaces (same text,
+    # new percentage) — the gauge grows to three samples on the board (L11)
+    (18500, "arrive", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 10, "jobState": 1}, "kio: copying"),
+    (19200, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 50, "jobState": 1}, "kio: copying"),
+    (19900, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 90, "jobState": 1}, "kio: copying"),
+    (23500, "expire", 40, {}, ""),
 ]
 END_MS = 30000            # the CAP; the main run ends when every event has fired and the board drained
 SAMPLE_MS = 40
@@ -202,7 +208,7 @@ Window {
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
                            hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText,
-                           tap: s.lastTap, invoked: model().invoked });
+                           tap: s.lastTap, invoked: model().invoked, series: s.paintedSeries });
             if (s.boardPaused) harness.pausedSeen += 1;
             // W52: a screenshot at the first sample with the text mid-board (its left
             // edge inside the board, still running), and one while the pulse holds it
@@ -531,9 +537,10 @@ def _selftest():
     last = m["samples"][-1]
     chk("the run ended with every event fired and the board drained",
         (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
-    chk("a sample carries text, x, raw, w, running, paused, ring, count, the bound colours, the paint's inks + text, the last tap and the stub's invoked (W46)",
+    chk("a sample carries text, x, raw, w, running, paused, ring, count, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46)",
         sorted(m["samples"][0].keys()),
-        ["count", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "t", "tap", "text", "w", "x"])
+        ["count", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "series", "t", "tap", "text", "w", "x"])
+    chk("the job's gauge grew to three columns", any(len(ser) == 3 for s in m["samples"] for ser in (s.get("series") or [])), True)
     chk("the tap on the action run reached the stub's invokeAction",
         any(i.get("action") == "open" for s in m["samples"] for i in (s.get("invoked") or [])), True)
     # ⚑ THE THEME CAN SEE (W35): run under another variant, the bound colours change

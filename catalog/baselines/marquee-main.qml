@@ -118,6 +118,8 @@ PlasmoidItem {
     // paintedText, never against tickerText.
     property var paintedInk: []
     property string paintedText: ""
+    // ...and the column heights of every series (gauge) that paint drew (L11)
+    property var paintedSeries: []
 
     function liveIds() {
         var ids = [];
@@ -137,7 +139,13 @@ PlasmoidItem {
         root.tickerText = joined.text;         // empty -> the ring drains to idle
         root.tickerRuns = joined.runs;
         root.tickerSpans = joined.spans;       // each item's span with its urgency (W46)
+        // ⚑ THE PAINT FOLLOWS THE SWAP, NOT THE TEXT (measured s129: a job's three
+        // progress replaces grew its history, every swap re-rang it, and the
+        // gauge never repainted — the joined text was identical each time, so a
+        // paint keyed on tickerTextChanged had nothing to fire on).
+        root.ringSwapped();
     }
+    signal ringSwapped()
     property var tickerSpans: []
     // the urgency of the item character i belongs to: 0 low, 1 normal, 2 critical
     function urgencyAt(i) {
@@ -285,16 +293,27 @@ PlasmoidItem {
         var labels = notifModel.data(idx, NotificationManager.Notifications.ActionLabelsRole) || [];
         var actions = [];
         for (var a = 0; a < names.length; a++) actions.push({ id: names[a], label: labels[a] !== undefined ? labels[a] : names[a] });
+        // W46 jobs (the gauge): a Job-type row brings its percentage and state; the
+        // queue keeps the percentage history (Body.queueUpsert)
+        var type = notifModel.data(idx, NotificationManager.Notifications.TypeRole);
+        var isJob = type === NotificationManager.Notifications.JobType;
+        var pct = isJob ? notifModel.data(idx, NotificationManager.Notifications.PercentageRole) : null;
+        var jobState = isJob ? notifModel.data(idx, NotificationManager.Notifications.JobStateRole) : null;
         // the summary is PLAIN, the body is markup (W45): Body.joinItem
         var item = Body.joinItem(app, sum, body);
         if (!item.text.length || id === undefined) return q;
         for (var k = 0; k < q.length; k++)
-            if (q[k].id === id && q[k].text === item.text) return q;
+            if (q[k].id === id && q[k].text === item.text) {
+                // an unchanged item is left alone — unless it is a job whose percentage moved
+                var hist = q[k].history || [];
+                if (!isJob || pct === null || pct === undefined || (hist.length && hist[hist.length - 1] === pct)) return q;
+            }
         root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text)
                    + " urgency=" + JSON.stringify(urg) + " transient=" + JSON.stringify(trans)
-                   + " actions=" + JSON.stringify(actions.map(function (x) { return x.id; })));
+                   + " actions=" + JSON.stringify(actions.map(function (x) { return x.id; }))
+                   + (isJob ? " job pct=" + JSON.stringify(pct) + " state=" + JSON.stringify(jobState) : ""));
         return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs, urgency: urg, transient: trans === true,
-                                     actions: actions });
+                                     actions: actions, percentage: isJob ? pct : null, jobState: jobState });
     }
 
     // the model changed: upsert every live notification into the queue. A new id
@@ -411,10 +430,32 @@ PlasmoidItem {
             ctx.clearRect(0, 0, field.backdrop.width, field.backdrop.height);
             var x0 = idle ? Math.round((cols - cells) / 2) : cols;
             var onCells = 0, inks = {};
+            var seriesDrawn = [];
             for (var i = 0; i < text.length; i++) {
                 var ch = text.charAt(i);
-                var bytes = root.matrixFont[ch] || root.matrixFont[ch.toUpperCase()] || root.matrixFont["?"] || [];
                 var run = idle ? null : root.runAt(i);
+                // ⚑ THE GAUGE (W46; W48's painter, folded): a series run's characters are
+                // placeholders; at its first one the run's history is painted as COLUMNS —
+                // one matrix column per sample, rows [rows-h, rows) lit, the newest at the
+                // right (seriesToColumns) — in the item's ink, half ink while suspended
+                if (run && run.series) {
+                    if (i === run.start) {
+                        var heights = Body.seriesToColumns(run.series, root.matrix.rows, run.min, run.max);
+                        var u0 = idle ? 1 : root.urgencyAt(i);
+                        ctx.fillStyle = u0 === 2 ? String(root.hotColor) : String(root.litColor);
+                        ctx.globalAlpha = (run.jobState === 2 || u0 === 0) ? 0.5 : 1.0;
+                        inks[ctx.fillStyle] = true;
+                        for (var sc = 0; sc < heights.length; sc++) {
+                            for (var rr = root.matrix.rows - heights[sc]; rr < root.matrix.rows; rr++) {
+                                ctx.fillRect((x0 + run.start * rep.advanceCells + sc) * s, rr * s, s, s);
+                                onCells += 1;
+                            }
+                        }
+                        seriesDrawn.push(heights);
+                    }
+                    continue;
+                }
+                var bytes = root.matrixFont[ch] || root.matrixFont[ch.toUpperCase()] || root.matrixFont["?"] || [];
                 var colour = root.overrideFor(run);
                 // W46 urgency: CRITICAL is painted in the hot token (over any run
                 // colour — alarm outranks a sender's hue); LOW at half ink, which
@@ -440,6 +481,7 @@ PlasmoidItem {
             ctx.globalAlpha = 1.0;
             root.paintedInk = Object.keys(inks);
             root.paintedText = idle ? "" : text;
+            root.paintedSeries = seriesDrawn;
             if (idle) field.offset = 0;              // the idle face sits still, centred
             field.sample();
             var ink = 0;                              // the backdrop's ink, in backdrop pixels
@@ -450,10 +492,11 @@ PlasmoidItem {
             root.boardWidth = idle ? 0 : cells * rep.pitch;
         }
 
-        // the ticker changed: repaint the backdrop and start its run
+        // the ring swapped (text, runs, spans or a gauge's history): repaint the
+        // backdrop and start its run
         Connections {
             target: root
-            function onTickerTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); Qt.callLater(rep.startRun); }
+            function onRingSwapped() { if (field.backdrop.available) rep.paintBackdrop(); Qt.callLater(rep.startRun); }
             function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
         }
 

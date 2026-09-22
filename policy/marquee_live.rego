@@ -319,6 +319,52 @@ invoked_after(e) if {
 }
 
 # METADATA
+# title: "L11 — a job's progress is painted as a gauge with one column per sample"
+# description: |
+#   W46 (W48 folded): a Job-type item keeps its percentage history and the
+#   board paints it as columns — one per distinct percentage seen, the newest at
+#   the right. After the job's last progress event, some sample's painted series
+#   must hold a series with exactly that many columns, each a height within the
+#   matrix's rows, rising with the percentages when they rise.
+job_ids contains e.id if {
+	some e in input.events
+	e.fields.type == 2
+}
+
+job_pcts(id) := {p | some e in input.events; e.id == id; e.fields.type == 2; p := e.fields.percentage}
+
+last_job_t(id) := max({e.t | some e in input.events; e.id == id; e.fields.type == 2})
+
+deny contains msg if {
+	some id in job_ids
+	n := count(job_pcts(id))
+	not gauge_after(id, n)
+	msg := sprintf("L11: job %v sent %d distinct percentages but no sample painted a %d-column gauge after t=%v", [id, n, n, last_job_t(id)])
+}
+
+gauge_after(id, n) if {
+	some s in input.samples
+	s.t >= last_job_t(id)
+	some ser in s.series
+	count(ser) == n
+	every h in ser {
+		h >= 0
+		h <= 16
+	}
+	rising(ser)
+}
+
+rising(ser) if {
+	not falls(ser)
+}
+
+falls(ser) if {
+	some i, h in ser
+	i > 0
+	h < ser[i - 1]
+}
+
+# METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
 	not input.runner

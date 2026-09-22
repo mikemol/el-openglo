@@ -128,24 +128,44 @@ function joinItem(app, summary, body) {
 // a queue entry: id, text, runs, shown — and, since W46, urgency (the model's
 // 0 low / 1 normal / 2 critical; the board paints critical in the HOT token and
 // low at half ink) and transient (exactly one traversal, never re-queued)
-function queueItem(item, shown) {
+// the placeholder a series run occupies in the joined text (U+2591, light shade —
+// never a glyph in the registry; the painter skips it and draws columns instead)
+var SERIES_CHAR = "░";
+
+function queueItem(item, shown, history) {
     return { id: item.id, text: item.text, runs: item.runs, shown: shown,
              urgency: (item.urgency === undefined || item.urgency === null) ? 1 : item.urgency,
              transient: !!item.transient,
              // W46 actions: [{id, label}] as the model's ActionNames / ActionLabels roles
-             actions: item.actions || [] };
+             actions: item.actions || [],
+             // W46 jobs (the GAUGE, W48 folded): a job item's percentage HISTORY —
+             // every distinct percentage seen, oldest first — and its state
+             // (0 stopped / 1 running / 2 suspended); null percentage = not a job
+             history: history || [], jobState: item.jobState === undefined ? null : item.jobState };
 }
 
-// a replace (same id) takes the new text and owes a fresh rotation
+// a job's history grows by its new percentage when it differs from the last
+function historyAfter(prev, item) {
+    var h = prev ? prev.slice() : [];
+    if (item.percentage === undefined || item.percentage === null) return h;
+    if (!h.length || h[h.length - 1] !== item.percentage) h.push(item.percentage);
+    return h;
+}
+
+// a replace (same id) takes the new text and owes a fresh rotation; a job's
+// PROGRESS replace (same text, new percentage) keeps the item's place and its
+// `shown` — a gauge ticking is not a new message, it is the same one moving
 function queueUpsert(queue, item) {
     var out = [], found = false;
     for (var k = 0; k < queue.length; k++) {
         if (queue[k].id === item.id) {
-            out.push(queueItem(item, false));
+            var h = historyAfter(queue[k].history, item);
+            var progressOnly = queue[k].text === item.text && item.percentage !== undefined && item.percentage !== null;
+            out.push(queueItem(item, progressOnly ? queue[k].shown : false, h));
             found = true;
         } else out.push(queue[k]);
     }
-    if (!found) out.push(queueItem(item, false));
+    if (!found) out.push(queueItem(item, false, historyAfter(null, item)));
     return out;
 }
 
@@ -172,7 +192,7 @@ function ringNext(queue, liveIds, maxItems) {
     }
     var next = [];
     for (k = 0; k < ring.length; k++)
-        if (live[ring[k].id] && !ring[k].transient) next.push(queueItem(ring[k], true));
+        if (live[ring[k].id] && !ring[k].transient) next.push(queueItem(ring[k], true, ring[k].history));
     // held items keep their place and their `shown` — an unshown one is still owed
     for (k = 0; k < held.length; k++)
         if (!held[k].shown || live[held[k].id]) next.push(held[k]);
@@ -205,6 +225,20 @@ function ringJoin(items, sep) {
             runs.push({ start: text.length + 1, end: text.length + label.length, bold: false, italic: false,
                         underline: true, link: "", color: null, action: acts[a].id, item: it.id });
             text += label;
+        }
+        // ⚑ A JOB IS A GAUGE (W46; W48 folded): its percentage history becomes a
+        // SERIES run after its text — one matrix COLUMN per sample, the newest at
+        // the right, painted by seriesToColumns. The run reserves placeholder
+        // characters (SERIES_CHAR, never a glyph) so indices stay consistent for
+        // taps and spans: ceil(samples / cellsPerChar) of them.
+        if (it.history && it.history.length) {
+            var cpc = 6, n = it.history.length, chars = Math.ceil(n / cpc);
+            var pad = " ";
+            text += pad;
+            runs.push({ start: text.length, end: text.length + chars, bold: false, italic: false, underline: false,
+                        link: "", color: null, series: it.history.slice(), min: 0, max: 100, cellsPerChar: cpc,
+                        item: it.id, jobState: it.jobState });
+            for (var c = 0; c < chars; c++) text += SERIES_CHAR;
         }
         spans.push({ start: base, end: text.length, id: it.id,
                      urgency: (it.urgency === undefined || it.urgency === null) ? 1 : it.urgency });
