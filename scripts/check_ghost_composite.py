@@ -15,7 +15,9 @@ Measured on the shipped palette:
     EL-Amber            4.20:1       1.79:1
     ...and the three Lit variants are already under the floor BEFORE compositing.
 
-    scripts/check_ghost_composite.py            # exit 0 iff the rendered ghost clears its floor
+    scripts/check_ghost_composite.py            # the verdict, as opa_gate ghost_composite decides it
+    scripts/check_ghost_composite.py --json     # the measurement policy/ghost_composite.rego decides
+    scripts/check_ghost_composite.py --mode glanced   # the verdict for the glanced-at alpha
     scripts/check_ghost_composite.py --compare  # declared vs composited, per variant
     scripts/check_ghost_composite.py --selftest
 
@@ -56,11 +58,8 @@ import palette_graph as PG                                        # noqa: E402
 # glanced-at ones ghost_alpha_glanced, and each mode has its own ground floor.
 MODE = "looked_at"
 
-# How far under the ceiling a looked-at seen ghost may sit and still count as
-# ON TARGET: the 8-bit stepping in derive_ghost_through_alpha lands 0.1-0.4 Lc
-# under; a whole Lc is the widest that stepping can cost. Azure's 5.0 shortfall
-# (W23) is a different kind of number.
-TARGET_SLACK = 1.0
+# How far under the ceiling a looked-at seen ghost may sit and still count as ON
+# TARGET is policy/ghost_composite.rego's `target_slack` since W50.
 
 
 def _alpha():
@@ -334,7 +333,7 @@ def _solve_report():
 
 def main(argv):
     global MODE
-    known = {"--compare", "--selftest", "--solve", "--mode", "looked", "glanced", "--matrix"}
+    known = {"--compare", "--selftest", "--solve", "--mode", "looked", "glanced", "--matrix", "--json"}
     if "--matrix" in argv:
         return _matrix_report()
     if "--mode" in argv:
@@ -352,14 +351,16 @@ def main(argv):
         if a not in known:
             print(f"check_ghost_composite: unknown flag {a!r}", file=sys.stderr)
             return 2
-
-    rows = measure()
-    if not rows:
-        print("check_ghost_composite: REFUSED — no variants; the grid is not built, "
-              "not the ghost visible", file=sys.stderr)
-        return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps(measurement(), indent=1))
+        return 0
 
     if "--compare" in argv:
+        rows = measure()
+        if not rows:
+            print("check_ghost_composite: REFUSED — no variants", file=sys.stderr)
+            return 2
         print(f"alpha = {_alpha()} (make_schemes.GHOST_ALPHA, filled into "
               f"SegmentChar.qml's $ghostAlpha), applied at render\n")
         print(f"{'variant':18s} {'wcag decl':>9s} {'wcag comp':>11s} "
@@ -373,54 +374,24 @@ def main(argv):
               f"{C.GHOST_READABLE_LC}, judged on the COMPOSITED ghost.")
         return 0
 
-    bad = []
-    # ⚑ THE BAND IS NOT THE TARGET.  Until 2026-09-21 the looked-at ghost passed
-    # this check on EL-Azure at Lc 25.0 — inside [25, 30) — while every other
-    # variant sat at ~29.8: the global alpha reached Azure's FLOOR and no further
-    # (W23). The relation's target is the ceiling; a seen ghost more than
-    # TARGET_SLACK under it is the solve landing short, not a different taste.
-    # Glanced mode has its own (lower) alpha and is not held to the ceiling.
-    if MODE == "looked_at":
-        for vid, decl, comp, floor, lc_d, lc_c in rows:
-            if lc_c < C.GHOST_READABLE_LC - TARGET_SLACK:
-                bad.append(f"{vid}: the seen ghost sits at Lc {lc_c:.1f}, more than "
-                           f"{TARGET_SLACK} under the {C.GHOST_READABLE_LC} ceiling it is "
-                           f"solved toward — the alpha reaches this variant's floor, not "
-                           f"its target (W23)")
-    for vid, decl, comp, floor, lc_d, lc_c in rows:
-        if lc_c < floor:
-            bad.append(f"{vid}: the ghost renders at Lc {lc_c:.1f} against a floor "
-                       f"of Lc {floor:.1f} — it is declared at Lc {lc_d:.1f} and "
-                       f"drawn at alpha {_alpha()}, so {lc_d - lc_c:.1f} Lc lives "
-                       f"between the check and the screen (WCAG {decl:.2f} → {comp:.2f})")
-        if lc_c >= C.GHOST_READABLE_LC:
-            bad.append(f"{vid}: the composited ghost reads at Lc {lc_c:.1f}, at or "
-                       f"over the {C.GHOST_READABLE_LC} readability ceiling — it "
-                       f"would render as TEXT rather than as texture")
-    if bad:
-        n_bad = len({b.split(":")[0] for b in bad})
-        print(f"check_ghost_composite: REFUSED — {n_bad} of {len(rows)} "
-              f"variant(s) render a ghost their gate did not measure:",
-              file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    # ⚑ THE MEASUREMENT ABOVE USED THE SOLVED ALPHA; THE SCREEN MUST USE IT TOO.
-    # If the emitted component carries a different number, everything above was
-    # measured against an alpha nobody renders — the original defect, one level up.
-    # In glanced mode the component question is check_ghost_surfaces' (which
-    # surface draws which mode's alpha); SegmentChar carries the looked-at one.
-    rendered = rendered_alpha() if MODE == "looked_at" else _alpha()
-    if rendered is None or abs(rendered - _alpha()) > 1e-9:
-        print(f"check_ghost_composite: REFUSED — the emitted SegmentChar.qml carries "
-              f"ghostAlpha={rendered}, not the solved {_alpha()}; the gate measured "
-              f"an alpha the screen does not draw", file=sys.stderr)
-        return 1
-    worst = min(lc for _v, _d, _c, _f, _a, lc in rows)
-    print(f"check_ghost_composite: {len(rows)} of {len(rows)} variants render a "
-          f"ghost that clears its floor and stays under its ceiling (worst Lc "
-          f"{worst:.1f}, alpha {_alpha()}, carried by the emitted component)")
-    return 0
+    import opa_gate
+    return opa_gate.gate("ghost_composite", ["--mode", "looked" if MODE == "looked_at" else "glanced"])
+
+
+def measurement():
+    """The MEASUREMENT policy/ghost_composite.rego decides (W50): the parsing mode,
+    the solved alpha, the readability ceiling (cvd_gate's, the palette
+    authority's constant — an input, not a copy), the alpha the EMITTED
+    SegmentChar.qml carries (looked-at mode only: in glanced mode which surface
+    draws which alpha is check_ghost_surfaces' question, so it is null), and per
+    variant the declared and composited WCAG and |Lc| and its APCA floor. The
+    band, the W23 target slack and "the screen draws the solved alpha" are the
+    policy's ruling, not here."""
+    return {"mode": MODE, "alpha": _alpha(), "ceiling": C.GHOST_READABLE_LC,
+            "rendered_alpha": rendered_alpha() if MODE == "looked_at" else None,
+            "cases": [{"id": vid, "wcag_declared": decl, "wcag_composited": comp,
+                       "floor_lc": floor, "lc_declared": lc_d, "lc_composited": lc_c}
+                      for vid, decl, comp, floor, lc_d, lc_c in measure()]}
 
 
 def _selftest():
@@ -499,41 +470,13 @@ def _selftest():
     check("the emitted marquee carries the solved alpha",
           matrix_rendered_alpha(variants()[0][0]) == _alpha() if variants() else False, True)
 
-    saved = globals()["measure"]
-    saved_r = globals()["rendered_alpha"]
-    try:
-        # a hypothetical palette whose composited ghost sits between its bounds
-        # rows: (id, wcag_decl, wcag_comp, FLOOR_LC, lc_decl, lc_comp)
-        globals()["measure"] = lambda: [("SELFTEST-OK", 9.0, 4.0, 25.0, 60.0, 29.5)]
-        check("a clearing palette passes", main(["x"]), 0)
-        # ⚑ INSIDE THE BAND BUT SHORT OF THE TARGET — Azure's shape on 2026-09-21
-        # (Lc 25.0 exactly, in [25, 30)) must be seen, not passed.
-        globals()["measure"] = lambda: [("SELFTEST-SHORT", 9.0, 3.6, 25.0, 72.0, 25.0)]
-        check("a looked-at ghost on its floor, 5 Lc under its target, is seen", main(["x"]), 1)
-        # ⚑ ...but NOT if the screen draws a different alpha than was measured.
-        globals()["rendered_alpha"] = lambda: 0.45
-        check("a clearing palette whose component carries a stale alpha is REFUSED",
-              main(["x"]), 1)
-        globals()["rendered_alpha"] = lambda: None
-        check("...and so is a component with no ghostAlpha property at all",
-              main(["x"]), 1)
-        globals()["rendered_alpha"] = saved_r
-        # and one whose composited ghost reads as TEXT — the other bound
-        globals()["measure"] = lambda: [("SELFTEST-LOUD", 9.0, 8.0, 25.0, 60.0, 35.0)]
-        check("a ghost over the readability ceiling is seen", main(["x"]), 1)
-        # and one under its floor — the original defect, still seeable
-        globals()["measure"] = lambda: [("SELFTEST-DIM", 4.0, 1.8, 25.0, 60.0, 8.0)]
-        check("a ghost under its floor is seen", main(["x"]), 1)
-        # ⚑ THE LIT CASE THAT MOTIVATED THE METRIC CHANGE: WCAG 1.9:1 but Lc 29.7 —
-        # under the OLD floor, between the bounds under the one that is stated now.
-        globals()["measure"] = lambda: [("SELFTEST-LIT", 4.0, 1.9, 25.0, 57.0, 29.7)]
-        globals()["rendered_alpha"] = saved_r
-        check("a light-ground ghost at 1.9:1 / Lc 29.7 PASSES (one metric)", main(["x"]), 0)
-        globals()["measure"] = lambda: []
-        check("an empty population REFUSES", main(["x"]), 2)
-    finally:
-        globals()["measure"] = saved
-        globals()["rendered_alpha"] = saved_r
+    # ⚑ THE MEASUREMENT CARRIES WHAT THE POLICY JUDGES (W50): the band, the W23
+    # target, a stale or absent emitted alpha and an empty population are
+    # policy/ghost_composite_test.rego's refusing cases, not arms here.
+    m = measurement()
+    check("the measurement carries the emitted alpha in looked-at mode",
+          m["rendered_alpha"] is not None and abs(m["rendered_alpha"] - m["alpha"]) < 1e-9, True)
+    check("...one case per variant", len(m["cases"]), len(variants()))
 
     print("check_ghost_composite selftest:", "PASS" if ok else "FAIL")
     return ok

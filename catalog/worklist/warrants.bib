@@ -102,7 +102,7 @@
 @misc{GRAPH,
   section = {pipeline},
   claim   = {the palette's constraint edges are named in one authority that the gate, the solver and the checks all read, so no two of them can disagree about which pairs are constrained},
-  check   = {tool:check_palette_graph.py}
+  check   = {tool:opa_gate.py palette_graph}
 }
 
 % ⚑ WHAT A PER-EDGE CHECK CANNOT SEE.  On a cycle, pairwise-satisfied constraints
@@ -216,7 +216,7 @@
   section = {emitters},
   claim   = {the ghost is the solved balance point of its two sides rather than the best of a sampled grid, and its solve is never worse than the scan it replaces},
   rests-on = {PALETTE-CHAIN},
-  check   = {tool:check_ghost_balance.py}
+  check   = {tool:opa_gate.py ghost_balance}
 }
 
 % ⚑ THE ALGEBRA IS CHECKED AGAINST ITS OWN DEFINITION, NOT AGAINST THE SCAN.
@@ -330,7 +330,7 @@
   section = {emitters},
   claim   = {the ghost that renders clears the same floor the ghost that is gated does, so no contrast lives between the check and the screen},
   rests-on = {GHOST, RELATIONS},
-  check   = {tool:check_ghost_composite.py}
+  check   = {tool:opa_gate.py ghost_composite}
 }
 
 @misc{GHOSTCOMP-SEES,
@@ -412,7 +412,7 @@
   section = {emitters},
   claim   = {text on the lit selection background clears the legibility floor in every variant},
   rests-on = {EMITTERS},
-  check   = {tool:check_selection_contrast.py}
+  check   = {tool:opa_gate.py selection_contrast}
 }
 
 % ⚑ THE BREAK THAT NOTHING CAUGHT.  8 of the 10 cvd_gate attributes consumers call
@@ -668,7 +668,7 @@
 
 @misc{INHERIT,
   claim    = {The icon and cursor themes draw nothing of their own: per variant, make_inherit emits an icon theme inheriting Breeze (FollowsColorScheme, so the scheme recolours every icon) and a cursor theme inheriting Breeze cursors by ground, selected by the Look-and-Feel defaults; check_inherit reads the emissions back as INI and requires a well-formed chain, a declared directory, matching defaults, and installed parents (SKIP when absent)},
-  check    = {tool:check_inherit.py},
+  check    = {tool:opa_gate.py inherit},
   section  = {emitters}
 }
 

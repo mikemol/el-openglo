@@ -12,7 +12,8 @@ directory (KIconTheme rejects one that does not), (c) does the LnF defaults
 fragment select exactly these names, and (d) does every parent EXIST under
 /usr/share/icons on this host — a SKIP, counted, when Breeze is not installed.
 
-    scripts/check_inherit.py            # exit 0 iff every parent resolves (or SKIP)
+    scripts/check_inherit.py            # the verdict, as opa_gate inherit decides it
+    scripts/check_inherit.py --json     # the measurement policy/inherit.rego decides
     scripts/check_inherit.py --map      # variant -> icon parents / cursor parent
     scripts/check_inherit.py --selftest
 """
@@ -78,58 +79,42 @@ def parent_exists(name, roots=ICON_ROOTS):
     return any(os.path.isfile(os.path.join(r, name, "index.theme")) for r in roots)
 
 
-def problems(rs, roots=ICON_ROOTS):
-    bad, skipped = [], 0
-    for v, ip, cp, dirs, dflt in rs:
-        if not ip or ip[-1] != "hicolor":
-            bad.append(f"{v}: icon Inherits does not end in hicolor ({ip})")
-        if not dirs:
-            bad.append(f"{v}: the icon theme declares no Directories (KIconTheme rejects it)")
-        if not cp:
-            bad.append(f"{v}: the cursor theme names no parent")
-        if not dflt:
-            bad.append(f"{v}: the LnF defaults do not select the emitted theme names")
-        for p in ip[:-1] + [cp]:
-            if not parent_exists(p, roots):
-                skipped += 1
-                print(f"check_inherit: SKIP — {v}: parent {p!r} is not installed here "
-                      f"(a fact about this host)", file=sys.stderr)
-    return bad, skipped
+def measure(roots=ICON_ROOTS):
+    """The MEASUREMENT policy/inherit.rego decides (W50): the declared roster and
+    one case per member — its icon parent chain, cursor parent, icon Directories,
+    whether the LnF defaults select the emitted names, and which parents are
+    installed under `roots` — or `missing` with the reason it could not be read.
+    A parent not installed here is a fact about the HOST (the policy withholds);
+    a chain without hicolor, no Directories, no cursor parent or mismatched
+    defaults are defects by the policy's ruling, not here."""
+    rs, missing = rows()
+    cases = [{"id": v, "icon_parents": ip, "cursor_parent": cp, "icon_dirs": dirs,
+              "defaults_ok": dflt, "missing": None,
+              "installed": {p: parent_exists(p, roots) for p in ip[:-1] + [cp] if p}}
+             for v, ip, cp, dirs, dflt in rs]
+    cases += [{"id": v, "missing": why} for v, why in missing]
+    return {"roster": list(variants()), "cases": cases}
 
 
 def main(argv):
-    known = {"--map", "--selftest"}
+    known = {"--map", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_inherit: unknown flag {a!r}", file=sys.stderr)
             return 2
-    rs, missing = rows()
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--map" in argv:
+        rs, missing = rows()
         for v, ip, cp, dirs, dflt in rs:
             print(f"{v:16s}  icons -> {','.join(ip):28s}  cursors -> {cp:16s}  dirs {dirs}  defaults {'ok' if dflt else 'MISMATCH'}")
         for v, why in missing:
             print(f"{v:16s}  MISSING — {why}")
         return 0
-    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME: expected is the palette
-    # authority's roster, never a typed count. n of n is green for every n.
-    expected = len(variants())
-    if missing or len(rs) != expected or not rs:
-        print(f"check_inherit: REFUSED — measured {len(rs)} of {expected} declared variant(s) "
-              f"(make_schemes.GRID). A SHRINKING POPULATION IS NOT A PASSING ONE.",
-              file=sys.stderr)
-        for v, why in missing:
-            print(f"    {v}: {why}", file=sys.stderr)
-        return 2
-    bad, skipped = problems(rs)
-    if bad:
-        print(f"check_inherit: REFUSED — {len(bad)} problem(s) over {len(rs)} variants:", file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    print(f"check_inherit: {len(rs)} of {expected} declared variants inherit well-formed parents"
-          + (f"; {skipped} parent lookup(s) SKIPPED (not installed here)" if skipped else
-             " — every parent is installed on this host"))
-    return 0
+    import opa_gate
+    return opa_gate.gate("inherit")
 
 
 def _selftest():
@@ -150,30 +135,21 @@ def _selftest():
     try:
         MI.VARIANTS = saved[:-1]
         chk("an emitter roster short one variant is a missing member",
-            [v for v, _w in rows()[1]], [saved[-1]])
-        chk("...and main REFUSES", main(["x"]), 2)
+            [c["id"] for c in measure()["cases"] if c["missing"]], [saved[-1]])
     finally:
         MI.VARIANTS = saved
-    chk("every icon chain ends in hicolor", all(r[1][-1] == "hicolor" for r in rs), True)
-    chk("Off variants inherit breeze-dark, Lit inherit breeze",
-        all((r[1][0] == "breeze") == r[0].endswith("-Lit") for r in rs), True)
-    chk("cursors: dark ground gets light arrows, light ground gets dark arrows",
-        all((r[2] == "breeze_cursors") == r[0].endswith("-Lit") for r in rs), True)
-    chk("every icon theme declares a directory", all(r[3] for r in rs), True)
-    chk("the defaults select the emitted names", all(r[4] for r in rs), True)
     chk("the emitted icon index parses as INI with FollowsColorScheme",
         _ini(MI.icon_index("EL-Azure"))["Icon Theme"]["FollowsColorScheme"], "true")
-    # ⚑ THE CHECK MUST SEE A MISSING PARENT AND A BROKEN CHAIN (synthetic)
+    # ⚑ THE MEASUREMENT MUST SEE AN UNINSTALLED PARENT (synthetic: an empty root).
+    # That it is WITHHELD, and that a broken chain / no Directories / mismatched
+    # defaults are DENIED, is policy/inherit_test.rego's ruling (W50).
     import tempfile
     with tempfile.TemporaryDirectory() as td:
-        bad, skipped = problems(rs, roots=(td,))
-        chk("an empty icon root SKIPs every parent lookup, counted", skipped, len(rs) * 3 - sum(1 for r in rs if len(r[1]) == 2))
-        chk("...and is not a refusal", bad, [])
-    broken = [("SYN", ["breeze"], "breeze_cursors", [], False)]
-    bad, _s = problems(broken, roots=("/nonexistent",))
-    chk("a chain without hicolor is seen", any("hicolor" in b for b in bad), True)
-    chk("a theme without directories is seen", any("Directories" in b for b in bad), True)
-    chk("defaults that do not select the theme are seen", any("defaults" in b for b in bad), True)
+        m = measure(roots=(td,))
+        chk("an empty icon root measures every parent as not installed",
+            [p for c in m["cases"] for p, ok in c["installed"].items() if ok], [])
+    chk("the real host's parents are measured (the lookup is not vacuous)",
+        sum(len(c["installed"]) for c in measure()["cases"]) > 0, True)
     print("check_inherit selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -12,7 +12,9 @@ That claim is worth exactly what proves it, and there are two things to prove:
   2. THE DECLARED EDGES ARE THE LIVE ONES.  `cvd_gate.ENFORCED`/`SURFACED` are literals;
      if they and the authority disagree, one of them is wrong and nothing else would say so.
 
-    scripts/check_palette_graph.py            # exit 0 iff the authority is total and agrees
+    scripts/check_palette_graph.py            # the verdict, as opa_gate palette_graph decides it
+    scripts/check_palette_graph.py --json     # the measurement policy/palette_graph.rego decides
+    scripts/check_palette_graph.py --roster   # what GRID actually holds, and the keys the walk finds
     scripts/check_palette_graph.py --b1       # the cycle rank, and WHICH cycles
     scripts/check_palette_graph.py --edges    # the edge inventory, by family
     scripts/check_palette_graph.py --selftest # prove this check can SEE a break
@@ -85,58 +87,11 @@ def _emitted_keys(grid, _depth=0):
     return set()
 
 
-def namespace_report():
-    """[(node, problem)] — every declared name that does not resolve.
-
-    THE EMITTED KEY is checked against the token dict `solve_scheme` actually returns, which
-    means running the solver would be the only fully honest check.  It is far too slow for a
-    gate, so this reads the AUTHORED fallback tables in make_schemes, which carry the same
-    roster — and `check_palette_chain.py` separately gates that the two agree."""
-    import make_schemes
-    import cvd_gate
-
-    # ⚑ GRID IS A DICT KEYED (phosphor, mode), NOT A LIST OF VARIANTS.  Iterating it
-    # yields the tuple KEYS, so an `isinstance(variant, dict)` filter matched nothing and
-    # this check reported "0 emitted keys" while passing — a vacuous all-clear over an
-    # empty population, which is precisely what the house rule refuses. Caught by printing
-    # `n of m` and reading the m.
-    emitted = _emitted_keys(getattr(make_schemes, "GRID", None))
-
-    gate_names = set()
-    for _, a, b in tuple(cvd_gate.ENFORCED) + tuple(cvd_gate.SURFACED):
-        gate_names |= {a, b}
-
-    # ⚑ GEOMETRY NODES ANSWER TO NO EMITTED KEY, AND THAT IS NOT A GAP.  A stroke
-    # half-width is not a token in a `.colors` file, so requiring one would refuse
-    # a node for lacking a name it cannot have — the check reporting its own
-    # coverage as the tree's fault, which is exactly what check_geometry_source did
-    # before `display_types` was added to its AUTHORITIES. They are still required
-    # to be REAL NODES that edges may name; only the emitted-key arm is skipped.
-    bad = []
-    for n in PG.NODES:
-        if emitted and n.key not in emitted:
-            bad.append((n.key, f"emitted key {n.key!r} appears in no variant"))
-        if n.gate is not None and n.gate not in gate_names:
-            bad.append((n.key, f"gate name {n.gate!r} is in no ENFORCED/SURFACED pair"))
-    # the OTHER direction: a gate name nothing in the authority claims
-    claimed = {n.gate for n in PG.NODES if n.gate}
-    for g in sorted(gate_names - claimed):
-        bad.append((g, f"gate name {g!r} is used by cvd_gate but claimed by no node"))
-    return bad, len(PG.NODES), len(emitted), len(gate_names)
-
-
-def declared_agreement():
-    """[(problem)] — where the authority and cvd_gate's literals disagree."""
-    import cvd_gate
-    out = []
-    for cls, live in (("enforced", cvd_gate.ENFORCED), ("surfaced", cvd_gate.SURFACED)):
-        mine = {(a, b) if a <= b else (b, a) for _, a, b in PG.gate_pairs(cls)}
-        theirs = {(a, b) if a <= b else (b, a) for _, a, b in live}
-        for p in sorted(theirs - mine):
-            out.append(f"{cls}: cvd_gate declares {p} and the authority does not")
-        for p in sorted(mine - theirs):
-            out.append(f"{cls}: the authority declares {p} and cvd_gate does not")
-    return out
+# ⚑ THE NAMESPACE AND AGREEMENT JUDGEMENTS ARE policy/palette_graph.rego's (W50):
+# every node's emitted key and gate name resolve, every gate name is claimed, and
+# the authority's pairs are cvd_gate's. THE EMITTED KEY is read from the AUTHORED
+# fallback tables in make_schemes (running the solver is too slow for a gate) —
+# check_palette_chain.py separately gates that the two agree.
 
 
 def components(ns, raw):
@@ -195,11 +150,15 @@ def cycles():
 
 
 def main(argv):
-    known = {"--b1", "--edges", "--roster", "--selftest"}
+    known = {"--b1", "--edges", "--roster", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_palette_graph: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
 
     if "--roster" in argv:
         # ⚑ THIS MODE EXISTS BECAUSE I GUESSED GRID'S SHAPE TWICE AND WAS WRONG TWICE.
@@ -247,32 +206,30 @@ def main(argv):
             print(f"  cycle {i + 1}: " + " ".join(f"{u}~{v}" for (u, v) in sorted(c)))
         return 0
 
-    bad, n_nodes, n_emitted, n_gate = namespace_report()
-    dis = declared_agreement()
-    total = len(PG.EDGES)
-    # ⚑ AN EMPTY POPULATION IS A BROKEN SEARCH, NOT A CLEAN TREE — and that is not
-    # hypothetical here: this check first shipped reading GRID as a sequence when it is a
-    # dict, so `n_emitted` was 0 and every emitted-key comparison was skipped while the
-    # check printed a pass. Refusing on an empty population is what turns that from a
-    # silent hole into a failure.
-    if not total or not n_nodes or not n_emitted or not n_gate:
-        print(f"check_palette_graph: REFUSED — an empty population "
-              f"({n_nodes} nodes, {total} edges, {n_emitted} emitted keys, "
-              f"{n_gate} gate names); the search is broken, not the graph clean",
-              file=sys.stderr)
-        return 2
-    if bad or dis:
-        print(f"check_palette_graph: REFUSED — {len(bad) + len(dis)} problem(s) over "
-              f"{n_nodes} nodes and {total} edges:", file=sys.stderr)
-        for k, why in bad:
-            print(f"    namespace  {k}: {why}", file=sys.stderr)
-        for why in dis:
-            print(f"    agreement  {why}", file=sys.stderr)
-        return 1
-    print(f"check_palette_graph: {n_nodes} of {n_nodes} nodes resolve in every namespace "
-          f"({n_emitted} emitted keys, {n_gate} gate names); "
-          f"{total} edges, cvd_gate agrees")
-    return 0
+    import opa_gate
+    return opa_gate.gate("palette_graph")
+
+
+def measure():
+    """The MEASUREMENT policy/palette_graph.rego decides (W50): the authority's
+    nodes (`cases`: key + gate name), the emitted keys found by WALKING GRID, the
+    gate names cvd_gate's ENFORCED/SURFACED pairs use, the edge count, and per
+    class the pairs the authority declares beside the ones cvd_gate declares
+    (each pair sorted). That every name resolves both ways and the two pair sets
+    agree — and that an empty population is a broken search — is the policy's
+    ruling, not here."""
+    import cvd_gate
+    import make_schemes
+    gate_names = set()
+    for _, a, b in tuple(cvd_gate.ENFORCED) + tuple(cvd_gate.SURFACED):
+        gate_names |= {a, b}
+    pairs = {}
+    for cls, live in (("enforced", cvd_gate.ENFORCED), ("surfaced", cvd_gate.SURFACED)):
+        pairs[cls] = {"authority": sorted(sorted([a, b]) for _, a, b in PG.gate_pairs(cls)),
+                      "declared": sorted(sorted([a, b]) for _, a, b in live)}
+    return {"cases": [{"id": n.key, "gate": n.gate} for n in PG.NODES],
+            "emitted": sorted(_emitted_keys(getattr(make_schemes, "GRID", None))),
+            "gate_names": sorted(gate_names), "edges": len(PG.EDGES), "pairs": pairs}
 
 
 def _selftest():
@@ -292,22 +249,30 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("the clean tree passes", main(["x"]), 0)
+    # ⚑ THE MEASUREMENT MUST SEE each break (W50: that each is a DENY is
+    # policy/palette_graph_test.rego's ruling). The walk finds a non-empty key set:
+    m = measure()
+    check("the GRID walk finds emitted keys (the vacuous-population defect)",
+          len(m["emitted"]) > 0, True)
 
     # 1. an emitted key nothing emits
     saved = PG.NODES
     try:
         PG.NODES = saved + (PG.Node("no_such_token", None, None),)
-        bad, _, _, _ = namespace_report()
-        check("sees a bogus emitted key", any("no_such_token" in k for k, _ in bad), True)
+        m = measure()
+        check("sees a bogus emitted key",
+              ("no_such_token" in [c["id"] for c in m["cases"]], "no_such_token" in m["emitted"]),
+              (True, False))
     finally:
         PG.NODES = saved
 
     # 2. a gate name cvd_gate does not use
     try:
         PG.NODES = saved + (PG.Node("view", None, "no_such_gate_name"),)
-        bad, _, _, _ = namespace_report()
-        check("sees a bogus gate name", any("no_such_gate_name" in w for _, w in bad), True)
+        m = measure()
+        check("sees a bogus gate name",
+              ("no_such_gate_name" in [c["gate"] for c in m["cases"]], "no_such_gate_name" in m["gate_names"]),
+              (True, False))
     finally:
         PG.NODES = saved
 
@@ -316,7 +281,9 @@ def _selftest():
     saved_e = cvd_gate.ENFORCED
     try:
         cvd_gate.ENFORCED = tuple(saved_e) + (("bogus~pair", "neg", "visited"),)
-        check("sees a gate/authority disagreement", len(declared_agreement()) > 0, True)
+        p = measure()["pairs"]["enforced"]
+        check("sees a gate/authority disagreement",
+              (["neg", "visited"] in p["declared"], ["neg", "visited"] in p["authority"]), (True, False))
     finally:
         cvd_gate.ENFORCED = saved_e
 

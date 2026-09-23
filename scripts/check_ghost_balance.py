@@ -5,7 +5,8 @@
 `ghost_solve.derive_ghost` solves the balance condition y = sqrt(ab) in closed
 form. This measures the difference on the REAL palettes rather than asserting it.
 
-    scripts/check_ghost_balance.py           # exit 0 iff the solve is >= the scan everywhere
+    scripts/check_ghost_balance.py           # the verdict, as opa_gate ghost_balance decides it
+    scripts/check_ghost_balance.py --json    # the measurement policy/ghost_balance.rego decides
     scripts/check_ghost_balance.py --compare # per-variant: scan vs solve, side by side
     scripts/check_ghost_balance.py --selftest
 
@@ -38,6 +39,8 @@ import ghost_solve as G                                            # noqa: E402
 
 # The residual the 8-bit segment can leave after an exact luminance solve. A
 # ghost whose two sides differ by more than this is not a quantisation artifact.
+# ⚑ THE GATE'S BOUND IS policy/ghost_balance.rego's `max_skew` (W50); this copy
+# serves the selftest's off-balance fixture, and --selftest refuses a disagreement.
 MAX_SKEW = 1.06
 
 
@@ -68,46 +71,32 @@ def compare():
     return rows
 
 
+def measure():
+    """The MEASUREMENT policy/ghost_balance.rego decides (W50): per shipped
+    variant, the scan's and the solve's worse side, the ideal, and the solve's
+    skew. That the solve must not lose to the scan and must balance within the
+    8-bit bound (MAX_SKEW) is the policy's ruling, not here."""
+    return {"cases": [{"id": vid, "scan": scan, "solve": solve, "ideal": ideal, "skew": skew}
+                      for vid, scan, solve, ideal, skew in compare()]}
+
+
 def main(argv):
-    known = {"--compare", "--selftest"}
+    known = {"--compare", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_ghost_balance: unknown flag {a!r}", file=sys.stderr)
             return 2
-
-    rows = compare()
-    if not rows:
-        print("check_ghost_balance: REFUSED — no variants; the grid is not built, "
-              "not the ghost balanced", file=sys.stderr)
-        return 2
-
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--compare" in argv:
         print(f"{'variant':18s} {'scan':>7s} {'solve':>7s} {'ideal':>7s} {'skew':>7s}")
-        for vid, scan, solve, ideal, skew in rows:
+        for vid, scan, solve, ideal, skew in compare():
             print(f"{vid:18s} {scan:7.3f} {solve:7.3f} {ideal:7.3f} {skew:7.4f}")
         return 0
-
-    bad = []
-    for vid, scan, solve, ideal, skew in rows:
-        # the solve must not be WORSE than the scan on the shared objective
-        if solve < scan - 1e-9:
-            bad.append(f"{vid}: solved worst side {solve:.4f} < scanned {scan:.4f}")
-        # and it must actually balance, to within what 8-bit quantisation allows
-        if skew > MAX_SKEW:
-            bad.append(f"{vid}: sides differ by {skew:.4f}x (> {MAX_SKEW}), so the "
-                       f"ghost is not at the balance point")
-    if bad:
-        print(f"check_ghost_balance: REFUSED — {len(bad)} of {len(rows)} variant(s) "
-              f"fail the balance condition:", file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    worst = max(r[4] for r in rows)
-    gained = sum(1 for r in rows if r[2] > r[1] + 1e-9)
-    print(f"check_ghost_balance: {len(rows)} of {len(rows)} variants balanced "
-          f"(worst skew {worst:.4f} <= {MAX_SKEW}; the solve improves the worst "
-          f"side on {gained})")
-    return 0
+    import opa_gate
+    return opa_gate.gate("ghost_balance")
 
 
 def _selftest():
@@ -127,7 +116,10 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("the real palettes balance", main(["x"]), 0)
+    import opa_gate
+    if opa_gate.OPA:
+        check("MAX_SKEW (the fixtures' bound) is the policy's max_skew",
+              opa_gate.value("ghost_balance", measure())["max_skew"], MAX_SKEW)
 
     # 1. the balance point equalises the two sides, in LUMINANCE (exactly)
     lit, ground = (200, 240, 230), (12, 21, 23)

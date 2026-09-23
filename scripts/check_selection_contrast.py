@@ -6,8 +6,10 @@ a bright teal background with DARK text, everywhere else being dark with glowing
 text. That inversion is the one place a body-text token is the wrong choice, so
 it is the one place worth measuring.
 
-    scripts/check_selection_contrast.py           # exit 0 iff every scheme clears
+    scripts/check_selection_contrast.py           # the verdict, as opa_gate selection_contrast decides it
+    scripts/check_selection_contrast.py --json    # the measurement policy/selection_contrast.rego decides
     scripts/check_selection_contrast.py --report  # per-scheme contrast ratios
+    scripts/check_selection_contrast.py --semantic  # the semantic set on the selection field
 
 ⚑ THIS MEASURES, IT DOES NOT PREFER.  It asserts a legibility FLOOR (WCAG 2.x
 contrast, the same ratio a UI toolkit is judged by), not a particular colour. A
@@ -35,6 +37,9 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 # WCAG AA for large text. See the note above before changing this number.
+# ⚑ THE GATE'S FLOOR IS policy/selection_contrast.rego's `floor` (W50). This copy
+# exists because check_gtk imports it and the report modes flag by it; --selftest
+# REFUSES if the two disagree, so it cannot drift silently.
 FLOOR = 3.0
 
 # The keys that render TEXT on the selection background.
@@ -68,15 +73,8 @@ SEMANTIC_KEYS = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive"
 # relation on this pair (subordinate by design) and Link/Visited have no
 # relation yet — recorded in relations.md §4a, not smuggled under a floor.
 GATED_SEMANTIC = ("ForegroundNegative", "ForegroundNeutral", "ForegroundPositive")
-# ⚑ A PAIR NO COLOUR CAN SATISFY IS NAMED HERE, PINNED AT THE SOLVER'S HONEST
-# BEST, so that a change in EITHER direction is seen: a regression fails the
-# floor arm, an improvement fails the pin and must leave the table. EMPTY since
-# W10's second half (2026-09-21): EL-Openglo-Lit's negative-on-selection sat at
-# 2.94 (red's luminance ceiling over a field at L 0.13 — ⊕SOLVER-SEL-BACKLIT)
-# until the state relation solved the selection field one step darker, which
-# gave the red room: 3.33. The pin refused the commit until it was removed —
-# as designed.
-KNOWN_INFEASIBLE = {}
+# A pair no colour can satisfy is PINNED at the solver's honest best — that table
+# is policy/selection_contrast.rego's `pinned` since W50 (empty since W10).
 
 
 def schemes():
@@ -148,75 +146,45 @@ def selection_pairs(keys=FG_KEYS):
     return out, missing
 
 
+def measure(keys=FG_KEYS + GATED_SEMANTIC):
+    """The MEASUREMENT policy/selection_contrast.rego decides (W50): the declared
+    roster, the gated keys, and one case per (scheme, key) — its WCAG ratio, or
+    `ratio: null` with the reason it could not be read. The floor, the pins and
+    "a shrinking population is not a passing one" are the policy's, not here."""
+    pairs, missing = selection_pairs(keys)
+    cases = [{"id": f"{s}/{k}", "scheme": s, "key": k, "fg": list(f), "bg": list(b),
+              "ratio": r, "why": None} for s, k, f, b, r in pairs]
+    cases += [{"id": f"{s}/{k}", "scheme": s, "key": k, "fg": None, "bg": None,
+               "ratio": None, "why": why} for s, k, why in missing]
+    return {"roster": list(schemes()), "keys": list(keys), "cases": cases}
+
+
+def _report(keys):
+    for c in measure(keys)["cases"]:
+        if c["ratio"] is None:
+            print(f"！{c['scheme']}\t{c['key']}\tMISSING — {c['why']}")
+            continue
+        flag = "  " if c["ratio"] >= FLOOR else "！"
+        print(f"{flag}{c['scheme']}\t{c['key']}\t{tuple(c['fg'])} on {tuple(c['bg'])}\t{c['ratio']:.2f}:1")
+    return 0
+
+
 def main(argv):
-    known = {"--report", "--semantic"}
+    known = {"--report", "--semantic", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_selection_contrast: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--semantic" in argv:
-        sem, _m = selection_pairs(SEMANTIC_KEYS)
-        for scheme, key, fg, bg, r in sem:
-            flag = "  " if r >= FLOOR else "！"
-            print(f"{flag}{scheme}\t{key}\t{fg} on {bg}\t{r:.2f}:1")
-        return 0
-    keys = FG_KEYS + GATED_SEMANTIC
-    pairs, missing = selection_pairs(keys)
+        return _report(SEMANTIC_KEYS)
     if "--report" in argv:
-        for scheme, key, fg, bg, r in pairs:
-            flag = "  " if r >= FLOOR else "！"
-            print(f"{flag}{scheme}\t{key}\t{fg} on {bg}\t{r:.2f}:1")
-        for scheme, key, why in missing:
-            print(f"！{scheme}\t{key}\tMISSING — {why}")
-        return 0
-    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME, and it is the PRODUCT of
-    # two declared dimensions — the palette authority's roster and the gated key
-    # list — never a typed constant. Add a variant and this moves by itself;
-    # delete an emitted scheme and it REFUSES. CLAUDE.md states the law and this
-    # check was breaking it: "0 failures over 0 files and 0 failures over 24 files
-    # must not print the same thing — if the population is empty, REFUSE."
-    expected = len(schemes()) * len(keys)
-    if missing or len(pairs) != expected:
-        print(f"check_selection_contrast: REFUSED — measured {len(pairs)} of {expected} "
-              f"declared pair(s) ({len(schemes())} scheme(s) x {len(keys)} gated key(s)). "
-              f"A SHRINKING POPULATION IS NOT A PASSING ONE: n of n is green for every n.",
-              file=sys.stderr)
-        for scheme, key, why in missing:
-            print(f"    {scheme} {key}: {why}", file=sys.stderr)
-        return 2
-    if not pairs:
-        print("check_selection_contrast: REFUSED — no schemes found; the search is "
-              "broken, not the theme legible", file=sys.stderr)
-        return 2
-    bad, pinned = [], []
-    for s, k, f, b, r in pairs:
-        if (s, k) in KNOWN_INFEASIBLE:
-            if abs(r - KNOWN_INFEASIBLE[(s, k)]) > 0.05:
-                pinned.append((s, k, f, b, r))
-            continue
-        if r < FLOOR:
-            bad.append((s, k, f, b, r))
-    if pinned:
-        print(f"check_selection_contrast: REFUSED — {len(pinned)} KNOWN_INFEASIBLE pair(s) "
-              f"moved from their pinned ratio (an improvement must leave the table; a "
-              f"regression is a defect):", file=sys.stderr)
-        for s, k, f, b, r in pinned:
-            print(f"    {s} {k}: {r:.2f}:1 (pinned {KNOWN_INFEASIBLE[(s, k)]})", file=sys.stderr)
-        return 1
-    if bad:
-        print(f"check_selection_contrast: REFUSED — {len(bad)} of {len(pairs)} "
-              f"selection pair(s) fall below {FLOOR}:1:", file=sys.stderr)
-        for s, k, f, b, r in bad:
-            print(f"    {s} {k}: {f} on {b} = {r:.2f}:1", file=sys.stderr)
-        return 1
-    gated = [p for p in pairs if (p[0], p[1]) not in KNOWN_INFEASIBLE]
-    worst = min(r for *_, r in gated)
-    print(f"check_selection_contrast: {len(gated)} of {len(pairs)} selection pairs "
-          f"clear {FLOOR}:1 (worst {worst:.2f}:1)"
-          + (f"; {len(KNOWN_INFEASIBLE)} pinned as infeasible: "
-             + ", ".join(f"{s} {k} {v}" for (s, k), v in KNOWN_INFEASIBLE.items())
-             if KNOWN_INFEASIBLE else ""))
-    return 0
+        return _report(FG_KEYS + GATED_SEMANTIC)
+    import opa_gate
+    return opa_gate.gate("selection_contrast")
 
 
 def _selftest():
@@ -250,23 +218,25 @@ def _selftest():
           (len(missing), len(pairs) == len(schemes()) * len(FG_KEYS + GATED_SEMANTIC)),
           (0, True))
     check("and it is not vacuously complete", len(pairs) > 0, True)
-    # ⚑ THE PIN MUST HOLD BOTH WAYS: the recorded pair is at its pinned ratio,
-    # and a pin that drifted would be seen by main() (exercised via the table).
-    got = {(s, k): r for s, k, _f, _b, r in selection_pairs(GATED_SEMANTIC)[0]}
-    for (s, k), v in KNOWN_INFEASIBLE.items():
-        check(f"pinned pair {s} {k} is still at {v}", abs(got.get((s, k), 0) - v) <= 0.05, True)
-    saved = dict(KNOWN_INFEASIBLE)
+    # ⚑ THE MEASUREMENT MUST SEE A MISSING MEMBER as a case with a reason, never
+    # a smaller population (W65) — that it is a DENY is policy/selection_contrast
+    # _test.rego's ruling, as are the floor and a pin that moved.
+    saved = globals()["schemes"]
     try:
-        # ⚑ A PIN THAT DOES NOT MATCH THE TREE MUST REFUSE — planted on a real
-        # pair at a ratio it does not have (synthetic: the value, not the pair)
-        KNOWN_INFEASIBLE.clear()
-        KNOWN_INFEASIBLE[("EL-Openglo-Lit", "ForegroundNegative")] = 9.99
-        check("a pinned pair that moved is REFUSED", main(["x"]), 1)
-        KNOWN_INFEASIBLE.clear()
-        check("with no pins the real tree clears the floor", main(["x"]), 0)
+        globals()["schemes"] = lambda: list(saved()) + ["EL-NoSuch"]
+        m = measure()
+        gone = [c for c in m["cases"] if c["scheme"] == "EL-NoSuch"]
+        check("an absent scheme is measured as missing cases, one per key",
+              (len(gone), all(c["ratio"] is None and c["why"] for c in gone)),
+              (len(m["keys"]), True))
     finally:
-        KNOWN_INFEASIBLE.clear()
-        KNOWN_INFEASIBLE.update(saved)
+        globals()["schemes"] = saved
+    import opa_gate
+    if opa_gate.OPA:
+        check("FLOOR (imported by check_gtk) is the policy's floor",
+              opa_gate.value("selection_contrast", measure())["floor"], FLOOR)
+    else:
+        print("  SKIP FLOOR vs policy — opa absent")
     print("check_selection_contrast selftest:", "PASS" if ok else "FAIL")
     return ok
 
