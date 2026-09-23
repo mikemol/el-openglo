@@ -291,7 +291,7 @@
   section = {pipeline},
   claim   = {every palette constraint is stated as a declarative relation with a named quantity and a kind, derived from the edge authority and accepted by the symbolic solver, rather than existing only as the search that looks for it},
   rests-on = {GRAPH},
-  check   = {tool:check_relations.py}
+  check   = {tool:opa_gate.py relations}
 }
 
 % ⚑ A RELATION SET THAT HID ITS GAPS WOULD READ AS FINISHED.  Three are recorded
@@ -356,7 +356,7 @@
   section = {tooling},
   claim   = {the constraint netlist is emitted as a graph that renders, with every node present and every family distinguishable, and as an elimination sequence whose fill-in is drawn},
   rests-on = {RELATIONS},
-  check   = {tool:check_netlist_render.py}
+  check   = {tool:opa_gate.py netlist_render}
 }
 
 % ⚑ A PICTURE THAT RENDERS IS NOT A PICTURE THAT IS LEGIBLE, and no check can
@@ -531,7 +531,7 @@
 @misc{HOOKS,
   section = {tooling},
   claim   = {the borrowed structural hooks pass their own selftests when run from this repo rather than the one they were written in},
-  check   = {tool:check_hooks.py}
+  check   = {tool:opa_gate.py hooks}
 }
 
 @misc{ROUTES,
@@ -575,7 +575,7 @@
   section  = {emitters},
   rests-on = {TOKENS},
   claim    = {the palette is emitted as CSS custom properties — one block per variant, Off/Lit mapped onto prefers-color-scheme, the seen ghost stated as color-mix() — and every property equals its token},
-  check    = {tool:check_css.py}
+  check    = {tool:opa_gate.py css}
 }
 
 @misc{REGRESSIONS,
@@ -652,7 +652,7 @@
 
 @misc{STATES,
   claim    = {The three decoration states — focus ring, selection field, hover ring — are pairwise distinguishable under the gate's own CVD-normalised metric and each clears 3:1 on its ground, on every variant, with the luminance step between them SOLVED as the smallest that satisfies the relation rather than authored},
-  check    = {tool:check_states.py},
+  check    = {tool:opa_gate.py states},
   note     = {W10 second half, 2026-09-21. Measured before: hover/sel_bg at q 0.06-0.75 on every variant — the authored ±0.08/±0.12 nudges never told the states apart. relations.md §4b; make_palette.solve_state_steps; state_step and state_sep_infeasible travel on the token.},
   section  = {pipeline},
   rests-on = {SEPARATION}

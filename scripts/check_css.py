@@ -7,7 +7,8 @@ variant's token with the same value, every variant carries every colour and
 alpha key the token dict does, the Off/Lit polarity is mapped onto
 prefers-color-scheme, and the seen-ghost identity is stated as color-mix().
 
-    scripts/check_css.py            # exit 0 iff the stylesheet equals the palette
+    scripts/check_css.py            # the verdict, as opa_gate css decides it
+    scripts/check_css.py --json     # the measurement policy/css.rego decides
     scripts/check_css.py --map      # variant -> property count, vs the token dict
     scripts/check_css.py --selftest
 
@@ -73,78 +74,51 @@ def expected():
     return out
 
 
-def problems(text=None):
-    """Every way the stylesheet fails to be the palette."""
+def measure(text=None):
+    """The MEASUREMENT policy/css.rego decides (W50): whether the sheet exists;
+    per variant, the properties the token dict implies (`expected`) and the ones
+    its [data-el-variant] block carries once parsed (`got`, None if no block);
+    the parsed :root and prefers-color-scheme: light blocks. tinycss2 absent is
+    `parsed: false` — the sheet is unparsed, not wrong. A stale value, a missing
+    key, a foreign property, a non-color-mix seen ghost and a polarity that is
+    not EL-Openglo/-Lit are defects by the policy's ruling, not here."""
+    present = text is not None or os.path.isfile(CSS)
+    exp = expected()
+    out = {"file_present": present, "parsed": False, "root": None, "light": None,
+           "cases": [{"id": vid, "expected": props, "got": None} for vid, props in exp.items()]}
+    if not present:
+        return out
     text = open(CSS, encoding="utf-8").read() if text is None else text
     try:
         parsed = _parse(text)
     except ImportError:
-        return ["SKIP: tinycss2 not importable — the stylesheet is unparsed, not wrong"]
-    exp = expected()
-    out = []
-    for vid, props in exp.items():
-        sel = f'[data-el-variant="{vid}"]'
-        got = parsed.get(sel)
-        if got is None:
-            out.append(f"{vid}: no {sel} block")
-            continue
-        for p, v in props.items():
-            if p not in got:
-                out.append(f"{vid}: {p} missing")
-            elif got[p] != v:
-                out.append(f"{vid}: {p} = {got[p]!r}, token says {v!r}")
-        for p in got:
-            if p.startswith("--el-") and p not in props and p not in (
-                    "--el-fg-in-seen", "--el-fg-in-seen-glanced",
-                    "--el-ghost-alpha-glanced-infeasible", "--el-tt-is-sel"):
-                out.append(f"{vid}: {p} is not a token")
-        for p in ("--el-fg-in-seen", "--el-fg-in-seen-glanced"):
-            v = got.get(p, "")
-            if not (v.startswith("color-mix(") and "--el-fg-in" in v and "--el-view" in v):
-                out.append(f"{vid}: {p} is not color-mix(fg_in over view)")
-    root = parsed.get(":root")
-    light = next((v for k, v in parsed.items() if k.startswith(":root@") and "light" in k), None)
-    if root is None or root != parsed.get('[data-el-variant="EL-Openglo"]'):
-        out.append(":root is not EL-Openglo")
-    if light is None or light != parsed.get('[data-el-variant="EL-Openglo-Lit"]'):
-        out.append("prefers-color-scheme: light is not EL-Openglo-Lit")
+        return out
+    out["parsed"] = True
+    for c in out["cases"]:
+        c["got"] = parsed.get(f'[data-el-variant="{c["id"]}"]')
+    out["root"] = parsed.get(":root")
+    out["light"] = next((v for k, v in parsed.items() if k.startswith(":root@") and "light" in k), None)
     return out
 
 
 def main(argv):
-    known = {"--map", "--selftest"}
+    known = {"--map", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_css: unknown flag {a!r}", file=sys.stderr)
             return 2
-    if not os.path.isfile(CSS):
-        print("check_css: REFUSED — catalog/el-openglo.css absent; run make_css.py",
-              file=sys.stderr)
-        return 1
-    exp = expected()
-    if not exp:
-        print("check_css: REFUSED — the token grid is empty", file=sys.stderr)
-        return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--map" in argv:
-        parsed = _parse(open(CSS, encoding="utf-8").read())
-        for vid, props in sorted(exp.items()):
-            got = parsed.get(f'[data-el-variant="{vid}"]', {})
-            print(f"{vid:16s} css={len(got):3d} tokens={len(props):3d}")
+        m = measure()
+        for c in sorted(m["cases"], key=lambda c: c["id"]):
+            got = "ABSENT" if c["got"] is None else f"{len(c['got']):3d}"
+            print(f"{c['id']:16s} css={got} tokens={len(c['expected']):3d}")
         return 0
-    p = problems()
-    if p and p[0].startswith("SKIP"):
-        print(f"check_css: {p[0]}")
-        return 0
-    if p:
-        print(f"check_css: REFUSED — {len(p)} problem(s) over {len(exp)} variant(s):",
-              file=sys.stderr)
-        for x in p[:20]:
-            print(f"    {x}", file=sys.stderr)
-        return 1
-    n = sum(len(v) for v in exp.values())
-    print(f"check_css: {n} of {n} custom properties over {len(exp)} variants equal "
-          f"the palette; :root/light map to EL-Openglo/-Lit; seen ghost stated as color-mix()")
-    return 0
+    import opa_gate
+    return opa_gate.gate("css")
 
 
 def _selftest():
@@ -158,12 +132,24 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
+    try:
+        import tinycss2  # noqa: F401
+    except ImportError:
+        print("  SKIP tinycss2 not importable — the measurement cannot parse here")
+        print("check_css selftest: SKIP")
+        return True
     import make_css
     css = make_css.stylesheet()
-    check("the emitted stylesheet has no problems", problems(css), [])
-    # ⚑ THE CHECK MUST SEE A STALE VALUE, A MISSING KEY, AND A FOREIGN PROPERTY —
-    # in a VARIANT block, which is where values are compared (:root is compared
-    # to its variant as a whole). Mutate after the EL-Azure selector.
+
+    def azure(text):
+        return next(c["got"] for c in measure(text)["cases"] if c["id"] == "EL-Azure")
+
+    m = measure(css)
+    check("the emitted stylesheet parses into every variant block",
+          (m["parsed"], all(c["got"] is not None for c in m["cases"])), (True, True))
+    # ⚑ THE MEASUREMENT MUST SEE A STALE VALUE, A MISSING KEY, A FOREIGN PROPERTY,
+    # A NON-color-mix GHOST (W50: that each is a defect is policy/css_test.rego's
+    # ruling) — in a VARIANT block. Mutate after the EL-Azure selector.
     head, sep, tail = css.partition('[data-el-variant="EL-Azure"] {\n')
     assert sep, "the EL-Azure block must exist for the fixtures"
 
@@ -171,20 +157,18 @@ def _selftest():
         return head + sep + fn(tail)
 
     stale = mutate(lambda t: re.sub(r"--el-fg: rgb\([^)]*\);", "--el-fg: rgb(0 0 0);", t, count=1))
-    check("a stale value is seen", any("--el-fg = " in x for x in problems(stale)), True)
+    check("a stale value is measured", azure(stale)["--el-fg"], "rgb(0 0 0)")
     dropped = mutate(lambda t: re.sub(r"  --el-view: [^\n]*\n", "", t, count=1))
-    check("a missing key is seen", any("--el-view missing" in x for x in problems(dropped)), True)
+    check("a missing key is measured as absent", "--el-view" in azure(dropped), False)
     foreign = mutate(lambda t: "  --el-made-up: red;\n" + t)
-    check("a property that is not a token is seen",
-          any("not a token" in x for x in problems(foreign)), True)
+    check("a foreign property is measured", azure(foreign).get("--el-made-up"), "red")
     nomix = mutate(lambda t: t.replace("color-mix(in srgb, var(--el-fg-in)", "var(--el-fg-in", 1))
-    check("a seen ghost that is not color-mix() is seen",
-          any("not color-mix" in x for x in problems(nomix)), True)
-    # ⚑ AND THE POLARITY MAP: a light block that is not the Lit variant is seen.
+    check("a seen ghost without color-mix() is measured as such",
+          azure(nomix)["--el-fg-in-seen"].startswith("color-mix("), False)
+    # ⚑ AND THE POLARITY MAP: the light block is measured as what it carries.
     lh, lsep, lt = css.partition("@media (prefers-color-scheme: light) {\n")
     swapped = lh + lsep + re.sub(r"--el-fg: rgb\([^)]*\);", "--el-fg: rgb(1 2 3);", lt, count=1)
-    check("a light scheme that is not EL-Openglo-Lit is seen",
-          any("light is not" in x for x in problems(swapped)), True)
+    check("a changed light scheme is measured", measure(swapped)["light"]["--el-fg"], "rgb(1 2 3)")
     print("check_css selftest:", "PASS" if ok else "FAIL")
     return ok
 

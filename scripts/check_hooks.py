@@ -6,7 +6,8 @@ resolves its own root from `__file__`, so it reads THIS repo's files while its
 code lives elsewhere — which is the whole reason it must be re-verified from
 here rather than trusted because it passes upstream.
 
-    scripts/check_hooks.py           # exit 0 iff every hook's selftest passes
+    scripts/check_hooks.py           # the verdict, as opa_gate hooks decides it
+    scripts/check_hooks.py --json    # the measurement policy/hooks.rego decides
     scripts/check_hooks.py --list    # the hooks checked, and where each resolves
 
 ⚑ A MISSING HOOK IS A FAILURE, NOT A SKIP.  If the symlink is dangling or the
@@ -21,8 +22,27 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 HOOKS = ("hook_no_chaining.py", "hook_structural_query.py")
 
 
+def measure(hooks=HOOKS):
+    """The MEASUREMENT policy/hooks.rego decides (W50): per borrowed hook, whether
+    it resolves here, where, and its --selftest exit code and last output line
+    run FROM THIS REPO. An absent hook and a failing selftest are defects by the
+    policy's ruling (H1, H2), not here."""
+    cases = []
+    for h in hooks:
+        p = os.path.join(ROOT, "scripts", h)
+        if not os.path.exists(p):
+            cases.append({"hook": h, "present": False, "resolves": None, "rc": None, "tail": ""})
+            continue
+        r = subprocess.run([sys.executable, p, "--selftest"],
+                           capture_output=True, text=True, cwd=ROOT)
+        tail = (r.stdout + r.stderr).strip().splitlines()
+        cases.append({"hook": h, "present": True, "resolves": os.path.realpath(p),
+                      "rc": r.returncode, "tail": tail[-1] if tail else ""})
+    return {"cases": cases}
+
+
 def main(argv):
-    known = {"--list"}
+    known = {"--list", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_hooks: unknown flag {a!r}", file=sys.stderr)
@@ -33,30 +53,22 @@ def main(argv):
             where = os.path.realpath(p) if os.path.exists(p) else "(ABSENT)"
             print(f"{h}\t{where}")
         return 0
-    bad = []
-    for h in HOOKS:
-        p = os.path.join(ROOT, "scripts", h)
-        if not os.path.exists(p):
-            bad.append((h, "absent (dangling symlink, or not installed yet)"))
-            continue
-        r = subprocess.run([sys.executable, p, "--selftest"],
-                           capture_output=True, text=True, cwd=ROOT)
-        if r.returncode != 0:
-            tail = (r.stdout + r.stderr).strip().splitlines()
-            bad.append((h, tail[-1] if tail else f"exit {r.returncode}"))
-    if bad:
-        print(f"check_hooks: REFUSED — {len(bad)} of {len(HOOKS)} hook selftest(s) "
-              f"did not pass:", file=sys.stderr)
-        for h, why in bad:
-            print(f"    {h}: {why}", file=sys.stderr)
-        return 1
-    print(f"check_hooks: {len(HOOKS)} of {len(HOOKS)} hook selftests pass from this repo")
-    return 0
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("hooks")
 
 
 def _selftest():
+    """The measurement can SEE an absent hook (the dangling-symlink case the
+    docstring names); policy/hooks_test.rego holds that it is a defect (W50)."""
     ok = len(HOOKS) > 0
     print(f"  {'ok  ' if ok else 'FAIL'} roster is non-empty")
+    seen = measure(("hook_that_does_not_exist.py",))["cases"][0]["present"] is False
+    print(f"  {'ok  ' if seen else 'FAIL'} an absent hook is measured as absent")
+    ok = ok and seen
     print("check_hooks selftest:", "PASS" if ok else "FAIL")
     return ok
 

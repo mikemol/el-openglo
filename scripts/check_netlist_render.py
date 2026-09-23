@@ -5,7 +5,8 @@ The constraint netlist is 21 nodes and 41 edges across four families, and readin
 it as a table is how a cycle stays invisible. This emits it as graphviz — the whole
 graph, and the elimination sequence frame by frame — so the structure can be SEEN.
 
-    scripts/check_netlist_render.py            # exit 0 iff the emitted dot renders
+    scripts/check_netlist_render.py            # the verdict, as opa_gate netlist_render decides it
+    scripts/check_netlist_render.py --json     # the measurement policy/netlist_render.rego decides
     scripts/check_netlist_render.py --write    # write the static view + every frame
     scripts/check_netlist_render.py --steps    # the elimination sequence, as text
     scripts/check_netlist_render.py --selftest
@@ -60,58 +61,38 @@ def renders(dot_text):
     return True, out.stdout
 
 
-def problems():
-    """[problem] — every way the render fails to be the graph."""
-    bad = []
+def measure():
+    """The MEASUREMENT policy/netlist_render.rego decides (W50): per graph node,
+    whether it appears in the emitted dot (a subset pretending to be the graph is
+    the `--edges` hardcoded-family defect); per edge family, its style colour and
+    whether that colour reaches the dot and the SVG; whether `dot -Tsvg` rendered
+    (None = graphviz absent, a host fact); the frame count; the interior nodes
+    still carrying edges after the last frame (a node with no live edge is not
+    eliminable and legitimately remains, so it is not listed)."""
     fr = NR.frames()
-    if not fr:
-        return ["no elimination frames; the solve did not run"], fr
-
-    # 1. the sequence must actually eliminate everything eliminable
-    last_nodes = set(fr[-1][2])
-    import palette_relations as PR
-    terms = set(PR.terminals())
-    leftover = {n for n in last_nodes if n not in terms}
-    # a node with no live edge is not eliminable and legitimately remains
-    live_last = {n for k in fr[-1][3] for n in k}
-    stuck = leftover & live_last
-    if stuck:
-        bad.append(f"{len(stuck)} interior node(s) still carry edges after the "
-                   f"sequence ends: {sorted(stuck)[:5]}")
-
-    # 2. ⚑ EVERY NODE MUST APPEAR IN THE PICTURE, or the render is a subset
-    #    pretending to be the graph — the `--edges` hardcoded-family defect again.
+    stuck = []
+    if fr:
+        import palette_relations as PR
+        terms = set(PR.terminals())
+        live_last = {n for k in fr[-1][3] for n in k}
+        stuck = sorted(n for n in fr[-1][2] if n not in terms and n in live_last)
     dot = NR.as_dot()
-    for n in PG.nodes():
-        if f'"{n}"' not in dot:
-            bad.append(f"node {n!r} is in the graph and not in the render")
-
-    # 3. every family must be distinguishable, or the picture loses the
-    #    constraint/arrow distinction that makes it worth drawing
-    fams = {e.family for e in PG.edges()}
-    for f in fams:
-        colour, _style = NR.FAMILY_STYLE.get(f, (None, None))
-        if colour is None:
-            bad.append(f"family {f!r} has no style, so it draws as every other")
-        elif colour.lower() not in dot.lower():
-            bad.append(f"family {f!r} styles as {colour} which is absent from "
-                       f"the render")
-
-    # 4. ⚑ IT MUST RENDER, NOT MERELY PARSE
     ok, detail = renders(dot)
-    if ok is False:
-        bad.append(f"the static view does not render: {detail}")
-    elif ok:
-        for f in fams:
-            colour = NR.FAMILY_STYLE[f][0]
-            if colour.lower() not in detail.lower():
-                bad.append(f"family {f!r}'s colour {colour} does not survive into "
-                           f"the SVG — the file loads and the colour is not in it")
-    return bad, fr
+    fams = []
+    for f in sorted({e.family for e in PG.edges()}):
+        colour = NR.FAMILY_STYLE.get(f, (None, None))[0]
+        fams.append({"family": f, "colour": colour,
+                     "in_dot": colour is not None and colour.lower() in dot.lower(),
+                     "in_svg": (colour.lower() in detail.lower()) if (ok and colour) else None})
+    return {"frames": len(fr), "q": fr[-1][5] if fr else None, "stuck": stuck,
+            "edges": len(PG.edges()),
+            "render": {"ok": ok, "detail": "" if ok else detail},
+            "families": fams,
+            "cases": [{"node": n, "in_dot": f'"{n}"' in dot} for n in PG.nodes()]}
 
 
 def main(argv):
-    known = {"--write", "--steps", "--selftest"}
+    known = {"--write", "--steps", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_netlist_render: unknown flag {a!r}", file=sys.stderr)
@@ -150,22 +131,19 @@ def main(argv):
               f"dot -Tsvg \"$f\" -o \"${{f%.dot}}.svg\"; done")
         return 0
 
-    bad, fr = problems()
-    if bad:
-        print(f"check_netlist_render: REFUSED — {len(bad)} problem(s) over "
-              f"{len(PG.nodes())} nodes and {len(fr)} frames:", file=sys.stderr)
-        for b in bad[:15]:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    ok, _ = renders(NR.as_dot())
-    skip = "" if ok else "  (SKIP: graphviz absent, render unverified)"
-    print(f"check_netlist_render: {len(PG.nodes())} nodes and {len(PG.edges())} "
-          f"edges render across {len(fr)} frames ({fr[-1][5]} Q){skip}")
-    return 0
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+
+    import opa_gate
+    return opa_gate.gate("netlist_render")
 
 
 def _selftest():
-    """Prove the render is the graph, and that the check can see it not be."""
+    """Prove the MEASUREMENT sees the render; policy/netlist_render_test.rego holds
+    what is a defect (W50). The frame-sequence arms stay: they are facts about
+    netlist_render's solve, not requirements on the render."""
     ok = True
 
     def check(label, got, want):
@@ -176,8 +154,9 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("the real graph renders", main(["x"]), 0)
-    check("problems() is empty on the real graph", problems()[0], [])
+    m = measure()
+    check("every real node is measured in the dot",
+          (len(m["cases"]), all(c["in_dot"] for c in m["cases"])), (len(PG.nodes()), True))
 
     fr = NR.frames()
     check("the sequence starts with the whole graph",
@@ -214,9 +193,7 @@ def _selftest():
     saved_fr = NR.frames
     try:
         NR.frames = lambda keep=None: []
-        probs, _ = problems()
-        check("an empty sequence is seen",
-              any("did not run" in p for p in probs), True)
+        check("an empty sequence is measured as 0 frames", measure()["frames"], 0)
     finally:
         NR.frames = saved_fr
 

@@ -14,7 +14,8 @@ prose in make_palette. The relation is:
 and the nudge magnitudes are SOLVED as the smallest luminance steps that satisfy
 it (make_palette.solve_state_steps), not chosen.
 
-    scripts/check_states.py            # exit 0 iff the relation holds on every variant
+    scripts/check_states.py            # the verdict, as opa_gate states decides it
+    scripts/check_states.py --json     # the measurement policy/states.rego decides
     scripts/check_states.py --map      # per variant: the three states, pairwise q, each vs ground
     scripts/check_states.py --selftest
 
@@ -26,7 +27,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATES = ("focus", "hover", "sel_bg")
-GROUND_FLOOR = 3.0     # AA-large: a ring or field must be findable on its ground
+GROUND_FLOOR = 3.0     # the selftest's reference only; policy/states.rego owns the floor (S2)
 
 
 def _rgb(s):
@@ -49,14 +50,15 @@ def measure(t):
     return {"pairs": pairs, "grounds": grounds, "cols": cols}
 
 
-def verdict(m):
-    bad = [f"{a}/{b} q={q:.2f}" for (a, b), q in m["pairs"].items() if q < 1.0]
-    bad += [f"{s} on ground {r:.2f} < {GROUND_FLOOR}" for s, r in m["grounds"].items() if r < GROUND_FLOOR]
-    return bad
+def as_case(vid, m):
+    """One variant's measurement as policy/states.rego reads it."""
+    return {"id": vid,
+            "pairs": [{"a": a, "b": b, "q": q} for (a, b), q in m["pairs"].items()],
+            "grounds": [{"state": s, "ratio": r} for s, r in m["grounds"].items()]}
 
 
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_states: unknown flag {a!r}", file=sys.stderr)
@@ -65,9 +67,10 @@ def main(argv):
         sys.path.insert(0, ROOT)
     import make_schemes as MS
     rows = [(t["id"], measure(t)) for (t, _d) in MS.GRID.values()]
-    if not rows:
-        print("check_states: REFUSED — no variants", file=sys.stderr)
-        return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps({"cases": [as_case(v, m) for v, m in rows]}, indent=1))
+        return 0
     if "--map" in argv:
         for vid, m in rows:
             print(vid)
@@ -76,17 +79,8 @@ def main(argv):
             for (a, b), q in m["pairs"].items():
                 print(f"  {a}/{b}: q={q:.2f}")
         return 0
-    bad = [f"{vid}: {'; '.join(b)}" for vid, m in rows if (b := verdict(m))]
-    if bad:
-        print(f"check_states: REFUSED — {len(bad)} of {len(rows)} variant(s) break the state relation:",
-              file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    worst = min(q for _v, m in rows for q in m["pairs"].values())
-    print(f"check_states: {len(rows)} of {len(rows)} variants — focus/hover/selection pairwise "
-          f"distinct (worst q {worst:.2f}) and each >= {GROUND_FLOOR}:1 on its ground")
-    return 0
+    import opa_gate
+    return opa_gate.gate("states")
 
 
 def _selftest():
@@ -100,11 +94,15 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    # ⚑ THE RELATION MUST BE ABLE TO FAIL: identical states are q = 0
+    # ⚑ THE MEASUREMENT CAN SEE (W50) the two fixtures policy/states_test.rego
+    # refuses: identical states measure q = 0; a dim ring measures ~1.07:1 on its
+    # ground. That they are defects is the policy's ruling (S1, S2).
     same = {"view": "8,20,17", "focus": "75,250,215", "hover": "75,250,215", "sel_bg": "35,249,206"}
-    chk("identical focus and hover are seen", "focus/hover" in "; ".join(verdict(measure(same))), True)
+    chk("identical focus and hover measure q = 0", measure(same)["pairs"][("focus", "hover")], 0.0)
     dim = {"view": "8,20,17", "focus": "12,28,24", "hover": "75,250,215", "sel_bg": "35,249,206"}
-    chk("a ring invisible on its ground is seen", "focus on ground" in "; ".join(verdict(measure(dim))), True)
+    r = measure(dim)["grounds"]["focus"]
+    print(f"       (dim ring measures {r:.2f}:1 on its ground)")
+    chk("a ring invisible on its ground measures below 3:1", r < GROUND_FLOOR, True)
     print("check_states selftest:", "PASS" if ok else "FAIL")
     return ok
 
