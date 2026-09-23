@@ -77,6 +77,16 @@ test_t4_refuses_a_missing_colorset if {
 	contains(msg, "colorSet")
 }
 
+test_t6_refuses_roster_drift if {
+	inp := object.union(clean, {"roster_drift": [{"variant": "EL-Amber", "who": "make_taskswitch", "why": "make_taskswitch.VARIANTS does not declare it (GRID does)"}]})
+	some msg in ts.deny with input as inp
+	startswith(msg, "T6: EL-Amber")
+}
+
+test_t6_admits_no_drift if {
+	count(ts.deny) == 0 with input as object.union(clean, {"roster_drift": []})
+}
+
 test_withheld_without_qmllint if {
 	inp := object.union(clean, {"qmllint": false})
 	count(ts.deny) == 0 with input as inp

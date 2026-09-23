@@ -10,7 +10,8 @@ variant named). So this measures, per declared population item, whether the
 front page names it:
 
     emitter   every module emitters.ROLES declares           token: the module name
-    variant   every variant render_screens.VARIANTS declares  token: the variant name
+    variant   every variant the ROSTER declares (variant_roster, GRID) token: the variant name
+              — render_screens.VARIANTS is compared TO it (`roster_drift`), never used as it
     picture   every output render_screens.plan_all() declares token: its root-relative path
     symbol    every closed symbol check_symbol.CLOSED holds   token: the symbol
     fragment  every readme_fragments population file          fact: committed == generated
@@ -42,9 +43,10 @@ def populations():
     import emitters as E
     import render_screens as RS
     import check_symbol as CS
+    import variant_roster as VR
     d = os.path.relpath(RS.SCREENS, ROOT)
     out = [("emitter", m, m) for m in sorted(E.ROLES)]
-    out += [("variant", v, v) for v in RS.VARIANTS]
+    out += [("variant", v, v) for v in VR.ordered()]
     out += [("picture", fn, f"{d}/{fn}") for fn, _v, _h in RS.plan_all()]
     out += [("symbol", s, s) for s in sorted(CS.CLOSED)]
     return out
@@ -59,7 +61,10 @@ def measure(readme_text=None, fragments=None):
     gen = RF.generate()
     frags = [{"name": n, "current": (fragments or {}).get(n, RF.committed(n)) == gen[n]}
              for n in sorted(RF.FRAGMENTS)]
-    return {"readme": readme_text is not None, "items": items, "fragments": frags}
+    import render_screens as RS
+    import variant_roster as VR
+    return {"readme": readme_text is not None, "items": items, "fragments": frags,
+            "roster_drift": VR.drift_facts({"render_screens": RS.VARIANTS})}
 
 
 def main(argv):
@@ -98,6 +103,16 @@ def _selftest():
     stale = measure(readme_text="", fragments={"gallery.md": "stale"})
     chk("a differing fragment is not current",
         [f["current"] for f in stale["fragments"] if f["name"] == "gallery.md"], [False])
+    import render_screens as RS
+    chk("the live render_screens.VARIANTS is the roster", full["roster_drift"], [])
+    kept = RS.VARIANTS
+    try:
+        RS.VARIANTS = [x for x in kept if x != "EL-Amber"]      # a planted drop
+        dropped = measure(readme_text="")["roster_drift"]
+    finally:
+        RS.VARIANTS = kept
+    chk("a screen renderer that drops a variant is a fact", [(d["who"], d["variant"]) for d in dropped],
+        [("render_screens", "EL-Amber")])
     print("check_readme selftest:", "PASS" if ok else "FAIL")
     return ok
 

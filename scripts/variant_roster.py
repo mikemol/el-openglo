@@ -44,6 +44,25 @@ def ids():
     return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
 
 
+def ordered():
+    """The same roster in GRID's DECLARED order (hue, then off before lit) — for a
+    reader that DISPLAYS the variants (a README column, a gallery section). ⚑ The
+    order is declared by GRID's insertion order, not by any emitter's VARIANTS
+    (which are compared to the roster as a set): measured 2026-09-23, every
+    emitter's VARIANTS happened to equal this order, so moving a display onto it
+    changes no output — but if an emitter reorders, the display does not follow."""
+    import make_schemes
+    return [t["id"] for (t, _dark) in make_schemes.GRID.values()]
+
+
+def drift_facts(declared_by, roster=None):
+    """[{variant, who, why}] — drift() over {who: declared VARIANTS}, as JSON facts a
+    policy can deny on (each check's `roster_drift`)."""
+    return [{"variant": v, "who": who, "why": why}
+            for who, declared in declared_by.items()
+            for v, why in drift(declared, who, roster)]
+
+
 def drift(declared, who, roster=None):
     """[(variant, why)] — a typed roster `declared` (named `who`) against the roster, BOTH ways."""
     want, mine = set(ids() if roster is None else roster), set(declared)
@@ -85,8 +104,12 @@ def _selftest():
     see(f"a MISSING file is seen ({got})", ("B", "declared by GRID but absent from x") in got)
     see("a STRAY file is seen", ("Z", "present in x but GRID does not declare it") in got)
     see("an emitter roster that drops one is seen", [v for v, _ in drift(["A", "B"], "m", roster)] == ["C"])
+    facts = drift_facts({"m": ["A", "B"], "n": ["A", "B", "C"]}, roster)
+    see(f"drift_facts names the emitter that dropped one ({facts})",
+        [(f["who"], f["variant"]) for f in facts] == [("m", "C")])
     live = ids()
     see(f"the live roster is non-empty ({len(live)})", len(live) > 0)
+    see("ordered() is the same set as ids()", sorted(ordered()) == live)
     print("variant_roster selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 

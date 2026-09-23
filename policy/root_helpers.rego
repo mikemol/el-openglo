@@ -17,6 +17,16 @@ deny contains msg if {
 	msg := "H0: no case was measured"
 }
 
+# METADATA
+# title: "H1 — make_deb's own VARIANTS is the roster (make_schemes.GRID)"
+# description: |
+#   The layouts are measured over the ROSTER; a package whose VARIANTS drops a
+#   variant would ship no theme for it — a deny, not a shorter layout list (W61 R1).
+deny contains msg if {
+	some d in object.get(input, "roster_drift", [])
+	msg := sprintf("H1: %s %s", [d.variant, d.why])
+}
+
 withheld contains msg if {
 	some c in object.get(input, "cases", [])
 	c.withheld

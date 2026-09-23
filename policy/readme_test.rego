@@ -43,6 +43,16 @@ test_r3_refuses_a_stale_fragment if {
 	startswith(msg, "R3:")
 }
 
+test_r4_refuses_roster_drift if {
+	inp := object.union(good, {"roster_drift": [{"variant": "EL-Amber", "who": "render_screens", "why": "render_screens.VARIANTS does not declare it (GRID does)"}]})
+	some msg in rd.deny with input as inp
+	startswith(msg, "R4: EL-Amber render_screens")
+}
+
+test_r4_admits_no_drift if {
+	count(rd.deny) == 0 with input as object.union(good, {"roster_drift": []})
+}
+
 test_r3_refuses_no_fragments if {
 	some msg in rd.deny with input as object.union(good, {"fragments": []})
 	msg == "R3: no fragment was measured"

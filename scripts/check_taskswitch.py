@@ -54,9 +54,10 @@ def resolution(qml):
     import theme_probe as TP
     import make_wallpaper_live as WL
     names = [f"{k}Color" for k in ROLES]
+    import variant_roster as VR
     block = TP.binding_block(qml, names)
     out = {}
-    for v in MT.VARIANTS:
+    for v in VR.ids():                  # the ROSTER, never MT.VARIANTS (W61 R1)
         got = TP.resolve(v, block, names)
         if got is None:
             return None
@@ -74,7 +75,9 @@ def measure(qml=None, resolve=True):
     alpha = re.search(r"property real ghostAlpha:\s*([0-9.]+)", qml)
     b, cs = bindings(qml)
     res = resolution(qml) if resolve else None
+    import variant_roster as VR
     return {
+        "roster_drift": VR.drift_facts({"make_taskswitch": MT.VARIANTS}),
         "resolution": res,                 # None = the qml runner is absent (withheld)
         "qmllint": bool(QS._qmllint()),
         "structure": meta.get("KPackageStructure"),
@@ -142,6 +145,15 @@ def _selftest():
         chk("the right role resolves to the token", m["resolution"]["EL-Amber"]["resolved"], m["resolution"]["EL-Amber"]["expected"])
     else:
         print("  SKIP the qml runner is absent — the resolution arm did not run")
+    chk("the live emitter agrees with the roster", m["roster_drift"], [])
+    kept = MT.VARIANTS
+    try:
+        MT.VARIANTS = [x for x in kept if x != "EL-Amber"]      # a planted drop
+        dropped = measure(resolve=False)["roster_drift"]
+    finally:
+        MT.VARIANTS = kept
+    chk("an emitter that drops a variant is a fact", [(d["who"], d["variant"]) for d in dropped],
+        [("make_taskswitch", "EL-Amber")])
     if m["qmllint"]:
         chk("a syntax error is a fact", bool(r["lint"]), True)
     else:

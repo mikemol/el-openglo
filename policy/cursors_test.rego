@@ -75,6 +75,17 @@ test_c5_refuses_no_index if {
 	startswith(msg, "C5:")
 }
 
+test_c6_refuses_roster_drift if {
+	inp := object.union(clean, {"roster_drift": [{"variant": "EL-Amber", "who": "make_inherit", "why": "make_inherit.VARIANTS does not declare it (GRID does)"}]})
+	some msg in c.deny with input as inp
+	startswith(msg, "C6: EL-Amber make_inherit")
+}
+
+test_c6_admits_no_drift if {
+	inp := object.union(clean, {"roster_drift": []})
+	count(c.deny) == 0 with input as inp
+}
+
 test_withheld_only if {
 	inp := {"cases": [{"id": "EL-Openglo", "withheld": "cannot rasterise"}]}
 	count(c.deny) == 0 with input as inp

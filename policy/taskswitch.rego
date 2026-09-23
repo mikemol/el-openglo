@@ -93,6 +93,16 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "T6 — make_taskswitch's own VARIANTS is the roster (make_schemes.GRID)"
+# description: |
+#   T5 resolves over the ROSTER, never the emitter's list; an emitter that drops
+#   or invents a variant is a deny, not a quietly narrower T5 (W61 R1).
+deny contains msg if {
+	some d in object.get(input, "roster_drift", [])
+	msg := sprintf("T6: %s %s", [d.variant, d.why])
+}
+
+# METADATA
 # title: "W — qmllint is absent, so T2's lint arm measured nothing"
 withheld contains msg if {
 	not input.qmllint

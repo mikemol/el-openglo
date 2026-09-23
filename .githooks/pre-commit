@@ -117,6 +117,19 @@ run "worklist" "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only worklist >
   echo "    (run: python3 scripts/worklist_gate.py --only worklist — it names each undischarged claim)" >&2
 }
 rm -f "$WL_OUT"
+# 4b. THE README IS A PROJECTION (W69), AND IT BLOCKS TOO.  Its claims are about
+#    THIS tree — what ships, what the palette is, which emitters exist — so, like
+#    the worklist and unlike the cotype queue, a red one is a defect a commit must
+#    not land.  ⚑ IT WAS NEVER WIRED HERE (found 2026-09-23): W69 made README.md a
+#    paperkit projection and this hook ran only `--only worklist`, so the cursors
+#    commit landed with README.md not naming make_cursors and roster.tsv stale,
+#    and nothing refused it. `opa_gate.py readme` saw it; no commit ever asked.
+RM_OUT="$(mktemp)"
+run "readme" "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only readme >"$RM_OUT" 2>&1 || {
+  sed 's/^/    readme: /' "$RM_OUT" >&2
+  echo "    (run: python3 scripts/worklist_gate.py --only readme; stale fragments: scripts/readme_fragments.py --list)" >&2
+}
+rm -f "$RM_OUT"
 "${RUNNER[@]}" "$ROOT/scripts/worklist_gate.py" --only cotype --summary 2>/dev/null \
   | sed 's/^/    cotype (queue, non-blocking): /' >&2 || true
 

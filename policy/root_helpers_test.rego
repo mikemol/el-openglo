@@ -37,6 +37,16 @@ test_admits_a_good_tree if {
 	count(rh.deny) == 0 with input as {"cases": good}
 }
 
+test_h1_refuses_roster_drift if {
+	inp := {"cases": good, "roster_drift": [{"variant": "EL-Amber", "who": "make_deb", "why": "make_deb.VARIANTS does not declare it (GRID does)"}]}
+	some msg in rh.deny with input as inp
+	startswith(msg, "H1: EL-Amber make_deb")
+}
+
+test_h1_admits_no_drift if {
+	count(rh.deny) == 0 with input as {"cases": good, "roster_drift": []}
+}
+
 test_h0_refuses_an_absent_population if {
 	"H0: no case was measured" in rh.deny with input as {}
 }

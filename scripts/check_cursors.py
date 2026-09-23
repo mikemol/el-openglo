@@ -74,13 +74,27 @@ def measure_theme(tdir, variant):
             "tokens": MC.tokens(variant), "entries": entries}
 
 
+def roster_drift():
+    """The emitters' own VARIANTS compared TO the roster (W61 R1): make_cursors renders
+    its list, make_inherit names the theme per variant — either dropping one is a fact."""
+    import make_cursors as MC
+    import make_inherit as INH
+    import variant_roster as VR
+    return VR.drift_facts({"make_cursors": MC.VARIANTS, "make_inherit": INH.VARIANTS})
+
+
 def measure(root=None):
+    """The population is variant_roster.ids() — GRID's declaration, never an emitter's
+    VARIANTS — so an emitter that drops a variant leaves a theme dir unmeasured-as-empty
+    and a `roster_drift` fact, not a quietly shorter "n of n"."""
+    import variant_roster as VR
+    roster = VR.ids()
     try:
         import cairosvg  # noqa: F401
         import PIL  # noqa: F401
     except ImportError as e:
-        import make_inherit as INH
-        return {"cases": [{"id": v, "withheld": f"cannot rasterise: {e}"} for v in INH.VARIANTS]}
+        return {"cases": [{"id": v, "withheld": f"cannot rasterise: {e}"} for v in roster],
+                "roster_drift": roster_drift()}
     import make_cursors as MC
     import make_inherit as INH
     if root is None:
@@ -88,10 +102,11 @@ def measure(root=None):
         MC.render_all(MC.VARIANTS, tmp)
         root = tmp
     cases = []
-    for v in INH.VARIANTS:
+    for v in roster:
         tdir = os.path.join(root, INH.cursor_theme_name(v))
         cases.append(measure_theme(tdir, v))
-    return {"probe_size": PROBE_SIZE, "dominant_share": DOMINANT_SHARE, "cases": cases}
+    return {"probe_size": PROBE_SIZE, "dominant_share": DOMINANT_SHARE, "cases": cases,
+            "roster_drift": roster_drift()}
 
 
 def _selftest():
@@ -122,6 +137,16 @@ def _selftest():
         see(f"a wrong-colour fixture is SEEN: #ff0000 among {b['dominant']}", "#ff0000" in b["dominant"])
         see(f"every size is read back ({g['sizes']})", g["sizes"] == list(MC.SIZES))
         see("a non-XCursor file is unreadable, not silently empty", j["readable"] is False)
+    import make_inherit as INH
+    see(f"the live emitters agree with the roster ({roster_drift()})", roster_drift() == [])
+    kept = INH.VARIANTS
+    try:
+        INH.VARIANTS = [x for x in kept if x != "EL-Amber"]     # a planted drop
+        dropped = roster_drift()
+    finally:
+        INH.VARIANTS = kept
+    see(f"an emitter that drops a variant is SEEN ({dropped})",
+        [(d["who"], d["variant"]) for d in dropped] == [("make_inherit", "EL-Amber")])
     print("check_cursors selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -159,6 +184,8 @@ def main(argv):
                if e["link"] is None and set(e["dominant"]) - tok}
         print(f"  {c['theme']:24s} {files} glyphs + {links} aliases; "
               f"off-token glyphs: {off or 'none'}")
+    for d in doc.get("roster_drift", []):
+        print(f"  DRIFT {d['variant']}: {d['why']}")
     print(f"check_cursors: {len(measured)} of {len(cases)} variant(s) measured "
           f"(the verdict is policy/cursors.rego: scripts/opa_gate.py cursors)")
     return 0 if measured else 3

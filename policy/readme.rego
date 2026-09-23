@@ -57,6 +57,18 @@ deny contains msg if {
 	msg := sprintf("R3: catalog/readme/%s is stale — run scripts/readme_fragments.py --write", [f.name])
 }
 
+# METADATA
+# title: "R4 — render_screens.VARIANTS is the roster (make_schemes.GRID)"
+# description: |
+#   The variant population, the palette columns and the gallery sections are read
+#   from the ROSTER; the screen renderer's own list is compared to it, so a
+#   renderer that drops a variant is a deny, not a gallery that quietly lacks a
+#   section (W61 R1).
+deny contains msg if {
+	some d in object.get(input, "roster_drift", [])
+	msg := sprintf("R4: %s %s", [d.variant, d.why])
+}
+
 deny contains msg if {
 	count(object.get(input, "items", [])) > 0
 	count(object.get(input, "fragments", [])) == 0

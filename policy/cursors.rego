@@ -96,6 +96,13 @@ deny contains msg if {
 	msg := sprintf("C5: %s has no index.theme", [c.id])
 }
 
+# C6 — an emitter's own VARIANTS drifted from the roster (make_schemes.GRID): the
+# population is the roster, so a dropped variant must DENY, not narrow "n of n"
+deny contains msg if {
+	some d in object.get(input, "roster_drift", [])
+	msg := sprintf("C6: %s %s", [d.variant, d.why])
+}
+
 admitted contains c.id if {
 	some c in measured
 	not denied_id(c.id)

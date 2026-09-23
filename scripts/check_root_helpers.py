@@ -71,8 +71,16 @@ SCENARIOS = [
 
 
 def _variants():
+    """The ROSTER (make_schemes.GRID), never make_deb.VARIANTS (W61 R1): the package's
+    own list is compared to it in roster_drift(), so a dropped variant DENIES."""
+    import variant_roster as VR
+    return VR.ids()
+
+
+def roster_drift():
     import make_deb
-    return list(make_deb.VARIANTS)
+    import variant_roster as VR
+    return VR.drift_facts({"make_deb": make_deb.VARIANTS})
 
 
 def plymouth_name(v):
@@ -194,7 +202,7 @@ def measure():
             cases.append(run_case(*sc, scripts, work))
     finally:
         shutil.rmtree(work, ignore_errors=True)
-    return {"cases": cases}
+    return {"cases": cases, "roster_drift": roster_drift()}
 
 
 def main(argv):
@@ -247,6 +255,16 @@ def _selftest():
         chk("a stub's argv reaches the log", c.get("tool_log"), ["update-initramfs -u"])
         s = run_case("el-openglo-sddm", "theme", ["EL-Azure-Lit"], [], {}, bad, work)
         chk("a helper with no seam is withheld, never run", "withheld" in s and "exit" not in s, True)
+        import make_deb
+        chk("the live make_deb.VARIANTS is the roster", roster_drift(), [])
+        kept = make_deb.VARIANTS
+        try:
+            make_deb.VARIANTS = [x for x in kept if x != "EL-Amber"]   # a planted drop
+            dropped = roster_drift()
+        finally:
+            make_deb.VARIANTS = kept
+        chk("a package that drops a variant is a fact", [(d["who"], d["variant"]) for d in dropped],
+            [("make_deb", "EL-Amber")])
     finally:
         shutil.rmtree(work, ignore_errors=True)
     print("check_root_helpers selftest:", "PASS" if ok else "FAIL")

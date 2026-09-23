@@ -29,6 +29,7 @@ The generator roster as `emitters.py` declares it — every module, its role, an
 | make_chrome | emitter | browser manifests, from the scheme tokens |
 | make_clock | emitter | the segment-clock plasmoid packages (plasma-clock/), from GRID |
 | make_css | emitter | the palette as CSS custom properties, from GRID (W19) |
+| make_cursors | emitter |  |
 | make_firefox | emitter | Firefox theme manifests, Firefox's own key vocabulary (W15) |
 | make_gtk | emitter | GTK4/libadwaita :root variables + GTK3 &#64;define-color (⊕GTK, rebuilt W17) |
 | make_konsole | emitter | terminal scheme, from the scheme tokens |

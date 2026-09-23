@@ -11,7 +11,8 @@ emitters and 2 of 56 pictures. paperkit places a data file as an `emit:` asset
 from its declaring authority and placed by the projection:
 
     roster.tsv        emitters.ROLES + emitters.ORDER          (every declared module, its role)
-    palette.tsv       make_preview.parse_scheme per variant     (the roles each scheme solves to)
+    palette.tsv       make_preview.parse_scheme per variant     (the roles each scheme solves to;
+                      columns = variant_roster.ordered(), GRID's declared order)
     capabilities.tsv  check_symbol.CLOSED                       (every closed symbol with a witness)
     gallery.md        render_screens.plan_all()                 (every declared picture, root-relative)
 
@@ -54,13 +55,16 @@ def roster_tsv():
 
 
 def palette_tsv():
+    """Columns are the ROSTER in GRID's declared order (variant_roster.ordered()), never
+    render_screens.VARIANTS — check_readme compares that list to the roster (R4)."""
     import make_preview as MP
-    import render_screens as RS
-    schemes = {v: MP.parse_scheme(v) for v in RS.VARIANTS}
-    roles = [k for k, val in schemes[RS.VARIANTS[0]].items() if isinstance(val, str)]
-    rows = ["role\t" + "\t".join(RS.VARIANTS)]
+    import variant_roster as VR
+    vs = VR.ordered()
+    schemes = {v: MP.parse_scheme(v) for v in vs}
+    roles = [k for k, val in schemes[vs[0]].items() if isinstance(val, str)]
+    rows = ["role\t" + "\t".join(vs)]
     for r in roles:
-        rows.append(r + "\t" + "\t".join(f"`{schemes[v][r]}`" for v in RS.VARIANTS))
+        rows.append(r + "\t" + "\t".join(f"`{schemes[v][r]}`" for v in vs))
     return "\n".join(rows) + "\n"
 
 
@@ -74,10 +78,11 @@ def capabilities_tsv():
 
 def gallery_md():
     import render_screens as RS
+    import variant_roster as VR
     d = os.path.relpath(RS.SCREENS, ROOT)
     outs = RS.plan_all()
     lines = [f"![all six variants, every still surface]({d}/strip.png)", ""]
-    for v in RS.VARIANTS:
+    for v in VR.ordered():              # one section per DECLARED variant, in GRID's order
         mine = [fn for fn, var, _how in outs if var == v]
         sheet = [fn for fn in mine if fn.startswith("sheet-")]
         anims = [fn for fn, var, how in outs if var == v and how[0] in ("marquee", "aperture-text") and fn in
@@ -155,7 +160,11 @@ def _selftest():
     import check_symbol as CS
     gen = generate()
     chk("every roster module is a row", all(f"\n{m}\t" in gen["roster.tsv"] for m in E.ROLES), True)
-    chk("every variant is a palette column", all(v in gen["palette.tsv"].splitlines()[0] for v in RS.VARIANTS), True)
+    import variant_roster as VR
+    chk("the palette columns are the roster, in GRID's order",
+        gen["palette.tsv"].splitlines()[0].split("\t")[1:], VR.ordered())
+    chk("every declared variant is a gallery section",
+        all(f"### {v}\n" in gen["gallery.md"] for v in VR.ordered()), True)
     chk("every closed symbol is a capability row", all(f"\n{s}\t" in gen["capabilities.tsv"] for s in CS.CLOSED), True)
     chk("every declared picture is linked", all(f"/{fn})" in gen["gallery.md"] for fn, _v, _h in RS.plan_all()), True)
     print("readme_fragments selftest:", "PASS" if ok else "FAIL")

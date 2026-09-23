@@ -100,15 +100,20 @@ def main(argv):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_union as MU
+    import variant_roster as VR
+    roster = VR.ids()               # the population is the ROSTER, never MU.VARIANTS (W61 R1)
     if "--map" in argv:
-        for v in MU.VARIANTS:
+        for v in roster:
             print(v)
             for var, (a, fg, gnd, floor, breeze) in MU.alphas(v).items():
                 print(f"  {var:26} {a!s:>6}  Breeze {breeze}  ({fg} over {gnd}, Lc>={floor})")
         return 0
     breeze = breeze_variables()
+    # the emitter's own list is compared TO the roster, so a dropped variant is a
+    # refusal rather than a style that is quietly not emitted (W61 R1)
+    drift = VR.drift(MU.VARIANTS, "make_union", roster)
     fails, total = [], 0
-    for v in MU.VARIANTS:
+    for v in roster:
         for arm, ok, detail in check_variant(v, MU.overrides_css(v), breeze):
             total += 1
             if not ok:
@@ -116,12 +121,19 @@ def main(argv):
     if not total:
         print("check_union: REFUSED — no variants; nothing measured", file=sys.stderr)
         return 2
+    if drift:
+        print(f"check_union: REFUSED — {len(drift)} roster drift(s) between make_union.VARIANTS "
+              f"and the {len(roster)} declared variant(s):", file=sys.stderr)
+        for v, why in drift:
+            print(f"    {v}: {why}", file=sys.stderr)
     if fails:
         print(f"check_union: REFUSED — {len(fails)} of {total} arm(s) do not hold:", file=sys.stderr)
         for f in fails:
             print(f"    {f}", file=sys.stderr)
         return 1
-    print(f"check_union: {total} of {total} arms hold over {len(MU.VARIANTS)} styles"
+    if drift:
+        return 1
+    print(f"check_union: {total} of {total} arms hold over {len(roster)} of {len(roster)} declared styles"
           + ("" if breeze else " (Breeze absent: override-existence unmeasured)"))
     return 0
 
@@ -140,6 +152,7 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_union as MU
+    import variant_roster as VR
     breeze = {"--indicator-color", "--focus-outline-alpha", "--focus-color",
               "--highlight-hover-color", "--card-hover-color"}
     good = MU.overrides_css("EL-Openglo")
@@ -161,7 +174,15 @@ def _selftest():
     except ImportError:
         print("  SKIP parse arm — tinycss2 not installed")
     check("every solved alpha is at or above 0 and at most 1",
-          all(0 <= a <= 1 for v in MU.VARIANTS for a, *_ in MU.alphas(v).values() if a is not None), True)
+          all(0 <= a <= 1 for v in VR.ids() for a, *_ in MU.alphas(v).values() if a is not None), True)
+    check("the live make_union.VARIANTS is the roster", VR.drift(MU.VARIANTS, "make_union"), [])
+    kept = MU.VARIANTS
+    try:
+        MU.VARIANTS = [x for x in kept if x != "EL-Amber"]     # a planted drop
+        rc = main(["check_union.py"])
+    finally:
+        MU.VARIANTS = kept
+    check("an emitter that drops a variant is REFUSED (exit 1)", rc, 1)
     print("check_union selftest:", "PASS" if ok else "FAIL")
     return ok
 
