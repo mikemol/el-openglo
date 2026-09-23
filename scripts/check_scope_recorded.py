@@ -12,12 +12,21 @@ The decision: the prior mark was retired EVERYWHERE — not just as a project na
 but in descriptive prose and in palette-token names — because the concern is a
 trademark, and a scrub that keeps the word for "the effect" keeps the exposure.
 
-    scripts/check_scope_recorded.py           # exit 0 iff the decision is recorded
+The requirement is policy/scope_recorded.rego (decided by scripts/opa_gate.py
+scope_recorded); this file MEASURES: is the record present, and which paragraph
+windows in it carry every needle plus a word of the decision (retired / scrub /
+concern).
+
+    scripts/check_scope_recorded.py           # the verdict, as opa_gate decides it
+    scripts/check_scope_recorded.py --json    # the measurement the policy decides
     scripts/check_scope_recorded.py --where   # the file and line that records it
+    scripts/check_scope_recorded.py --selftest
 
 ⚑ THIS CAN FAIL, AND THAT IS THE DESIGN.  Delete the rationale from the notes and
-it goes red — which is what makes it a claim rather than a comment.
+it goes red — which is what makes it a claim rather than a comment.  Weakness: the
+test is words co-occurring in a 7-line window, not that the paragraph says why.
 """
+import json
 import os
 import sys
 
@@ -28,70 +37,73 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # sentinel string tests that someone pasted the sentinel.
 RECORD = "RECOVERY-NOTES.md"
 NEEDLES = ("trademark", "rename")
+DECISION = ("retired", "scrub", "concern")
 
 
-def found():
-    """[(lineno, text)] evidence in the record that the decision is explained.
+def found(root=ROOT):
+    """[(lineno, text)] evidence in the record that the decision is explained;
+    None when the record is absent.
 
     ⚑ THE UNIT IS A PARAGRAPH, NOT A LINE.  This first required every needle on
     ONE line and reported a rationale that was plainly present as absent — the
     check's world-model was too strict, not the document deficient.  Prose wraps;
     a witness that assumes it does not is measuring the line breaks."""
-    p = os.path.join(ROOT, RECORD)
+    p = os.path.join(root, RECORD)
     if not os.path.exists(p):
         return None
-    lines = open(p, encoding="utf-8", errors="replace").read().splitlines()
-    hits = []
+    with open(p, encoding="utf-8", errors="replace") as fh:
+        lines = fh.read().splitlines()
     for i, line in enumerate(lines, 1):
         # a window around this line, so a rationale spanning a wrapped
         # paragraph counts as the single statement it reads as
         window = " ".join(lines[max(0, i - 4):i + 3]).lower()
-        if all(n in window for n in NEEDLES) and (
-                "retired" in window or "scrub" in window or "concern" in window):
-            hits.append((i, line.rstrip()))
-            break                                   # one witness is enough
-    return hits
+        if all(n in window for n in NEEDLES) and any(d in window for d in DECISION):
+            return [(i, line.rstrip())]                 # one witness is enough
+    return []
+
+
+def measure(root=ROOT):
+    ev = found(root)
+    return {"cases": [{"record": RECORD, "present": ev is not None,
+                       "evidence": [{"line": i, "text": t} for i, t in (ev or [])]}]}
 
 
 def main(argv):
-    known = {"--where"}
+    known = {"--where", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_scope_recorded: unknown flag {a!r}", file=sys.stderr)
             return 2
-    hits = found()
-    if hits is None:
-        print(f"check_scope_recorded: REFUSED — {RECORD} is absent; the decision has "
-              f"nowhere legible to live", file=sys.stderr)
-        return 1
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--where" in argv:
-        for i, text in hits:
+        for i, text in found() or []:
             print(f"{RECORD}:{i}: {text}")
         return 0
-    if not hits:
-        print(f"check_scope_recorded: REFUSED — {RECORD} does not record WHY the "
-              f"prior mark was retired", file=sys.stderr)
-        print(f"    A reader meeting the rename would find the change but not its "
-              f"reason.", file=sys.stderr)
-        return 1
-    print(f"check_scope_recorded: the rename decision is recorded in {RECORD} "
-          f"({len(hits)} line(s))")
-    return 0
+    import opa_gate
+    return opa_gate.gate("scope_recorded")
 
 
 def _selftest():
+    """The measurement can SEE a recorded rationale, a missing one, and a missing record."""
+    import tempfile
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        if got != want:
-            print(f"  FAIL {label}: got {got!r} want {want!r}")
-            ok = False
-        else:
-            print(f"  ok   {label}")
+        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        ok = ok and got == want
 
     check("needles are non-empty", all(NEEDLES), True)
-    check("record is named", bool(RECORD), True)
+    with tempfile.TemporaryDirectory() as td:
+        check("an absent record is SEEN", measure(td)["cases"][0]["present"], False)
+        p = os.path.join(td, RECORD)
+        open(p, "w").write("# notes\nnothing about it\n")
+        check("a record without the rationale has no evidence", measure(td)["cases"][0]["evidence"], [])
+        # the wrapped paragraph that the one-line version reported absent
+        open(p, "w").write("The rename was about a\ntrademark; the prior mark was\nretired everywhere.\n")
+        check("a WRAPPED rationale is seen", len(measure(td)["cases"][0]["evidence"]), 1)
     print("check_scope_recorded selftest:", "PASS" if ok else "FAIL")
     return ok
 

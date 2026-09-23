@@ -4,26 +4,38 @@
 The project was first built under a name derived from a registered trademark.
 Every occurrence was removed; this asks whether it has come back.
 
-    scripts/check_mark.py            # exit 0 iff the mark is absent; else list the hits
-    scripts/check_mark.py --count    # print the occurrence count (the figure for a claim)
-    scripts/check_mark.py --files    # the files carrying it, one per line
+The requirement is policy/mark.rego (decided by scripts/opa_gate.py mark): which
+paths are excluded and why, and that an ATTRIBUTION line is allowed while every
+other occurrence is a finding. This file only MEASURES: every file in the tree
+(the population, from scripts/git_tracked.py) and, per file, each line carrying
+the mark — its count, and whether it reads as attribution.
+
+    scripts/check_mark.py            # the verdict, as opa_gate mark decides it
+    scripts/check_mark.py --json     # the measurement policy/mark.rego decides
+    scripts/check_mark.py --count    # the occurrence count the POLICY finds (the figure for a claim)
+    scripts/check_mark.py --files    # the files the POLICY finds carrying it, one per line
+    scripts/check_mark.py --selftest # the measurement can SEE the mark
 
 ⚑ THE SCRUB IS ONE QUESTION WITH ONE OWNER.  This is the only place that knows
 the retired mark, so a second spelling of the check cannot drift from it.  The
-worklist cites this script; the pre-commit gate runs the same script.
+worklist cites the gate over this script; the pre-commit gate runs the same one.
 
 ⚑ THIS FILE IS NECESSARILY THE ONE EXCEPTION.  A checker for a string must name
 the string it looks for, so this file always "contains the mark" — and a naive
-scan of the tree would therefore never go green.  SELF is excluded by PATH, not
-by a clever spelling: obfuscating the needle (`"ind" + "iglo"`) would hide it
-from the very grep a human runs to audit this, which is worse than an honest
-exclusion recorded here.
+scan of the tree would therefore never go green.  SELF is excluded by PATH (in
+policy/mark.rego), not by a clever spelling: obfuscating the needle
+(`"ind" + "iglo"`) would hide it from the very grep a human runs to audit this,
+which is worse than an honest exclusion recorded there.
 
 ⚑ AND THE WORKLIST'S OWN PROSE IS NOT EXCLUDED.  A claim that says "the mark is
 gone" must itself not carry it, or the document certifying the absence would be
 a counterexample to it.  The claims are phrased as "the prior mark" precisely so
 this scan can cover them.
+
+Weakness: binary files are not read (git grep -I; the walk reads them as text
+with replacement); a mark split across a line break is not seen.
 """
+import json
 import os
 import subprocess
 import sys
@@ -31,13 +43,7 @@ import sys
 # The retired mark, case-insensitive.  One definition, one owner.
 MARK = "indiglo"
 
-# Paths excluded from the scan, each for a stated reason.
-EXCLUDE = {
-    "scripts/check_mark.py":   "this file must name the mark to look for it",
-    "RECOVERY-NOTES.md":       "verbatim provenance record of the pre-rename recovery",
-}
-
-# ⚑ ATTRIBUTION IS NOT SELF-NAMING, AND THE CHECK MUST TELL THEM APART.
+# ⚑ ATTRIBUTION IS NOT SELF-NAMING, AND THE MEASUREMENT MUST TELL THEM APART.
 #
 # Two different acts share the same word.  Calling the project by the mark is
 # what the rename ended.  Naming the product that INSPIRED the look — "the Timex
@@ -45,17 +51,14 @@ EXCLUDE = {
 # theme imitates, which is a fact about the visual target and is exactly how you
 # are permitted to refer to someone else's mark.
 #
-# So the scan is not a blanket ban on a string.  A line is ALLOWED when it reads
-# as attribution; every other occurrence is a finding.  This is deliberately
-# narrow: it matches the ATTRIBUTION PHRASE, not the bare word, so a future line
-# that merely mentions the mark in passing still shows up.
+# So each line is measured for the ATTRIBUTION PHRASE, not the bare word, so a
+# future line that merely mentions the mark in passing still shows up; the policy
+# decides that an attribution line is allowed.
 ATTRIBUTION = (
     "timex indiglo era",        # the design log's statement of the visual target
 )
 
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Directories never worth scanning (and ruinous to walk).
 _SKIP_DIRS = {".git", ".venv", "__pycache__", "node_modules", ".mypy_cache"}
@@ -67,35 +70,56 @@ def _is_attribution(line):
     return any(phrase in low for phrase in ATTRIBUTION)
 
 
-def _hits_git():
-    """Fast path: ask git, which already knows what is tracked.  None if unavailable.
+def _line(lineno, text):
+    return {"line": lineno, "count": text.lower().count(MARK), "attribution": _is_attribution(text)}
+
+
+def _lines_git(root):
+    """{path: [line facts]} from git grep, which knows what is tracked. None if git
+    cannot answer.
 
     ⚑ PER LINE, NOT PER FILE.  `git grep -c` counts matches per file, which cannot
     tell an allowed attribution from a disallowed self-naming in the same file —
     and one allowed line would then excuse every other occurrence around it."""
-    r = subprocess.run(["git", "-C", ROOT, "grep", "-Iin", "-e", MARK, "--", "."],
+    r = subprocess.run(["git", "-C", root, "grep", "-Iin", "-e", MARK, "--", "."],
                        capture_output=True, text=True)
-    # rc 1 = no match (clean); rc >1 = git could not answer (e.g. not a repo).
+    # rc 1 = no match; rc >1 = git could not answer (e.g. not a repo).
     if r.returncode > 1:
         return None
-    counts = {}
+    out = {}
     for entry in r.stdout.splitlines():
         path, _, rest = entry.partition(":")
-        _lineno, _, text = rest.partition(":")
-        if not path or _is_attribution(text):
-            continue
-        counts[path] = counts.get(path, 0) + text.lower().count(MARK)
-    return sorted(counts.items())
+        lineno, _, text = rest.partition(":")
+        if path:
+            out.setdefault(path, []).append(_line(int(lineno), text))
+    return out
 
 
-def _hits_walk():
-    """Fallback: walk the tree.
+def _lines_walk(root, paths):
+    """{path: [line facts]} by reading each file.
 
     ⚑ WHY THIS EXISTS.  The git path cannot run where there is no git repo — which
     is precisely the Δ mutation sandbox, a plain copy of the tree.  With only the
     git path this check REFUSED there, so paperkit could not grade it and it stood
     `broken`: an ungradeable check is one nobody has shown can fail.  The scan must
-    be able to answer wherever the files are, not only where the VCS is.
+    be able to answer wherever the files are, not only where the VCS is."""
+    out = {}
+    for rel in paths:
+        try:
+            with open(os.path.join(root, rel), encoding="utf-8", errors="replace") as fh:
+                text = fh.read()
+        except OSError:
+            continue
+        hits = [_line(i, ln) for i, ln in enumerate(text.splitlines(), 1) if MARK in ln.lower()]
+        if hits:
+            out[rel] = hits
+    return out
+
+
+def measure(root=ROOT):
+    """{'mark', 'source', 'cases': [{path, lines: [{line, count, attribution}]}]} over
+    EVERY file in the tree — the population is the tree, not the hits, so an empty
+    scan and a clean one differ.
 
     ⚑ AND THE SANDBOX HOLDS MORE THAN THE TREE (2026-09-23). paperkit copies the
     root whole, so .claude/worktrees/ (agents' full checkouts) came with it and a
@@ -104,113 +128,80 @@ def _hits_walk():
     tree, .gitignore'd dirs) — one authority, not a skip-list here."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import git_tracked
-    out = []
-    for rel in git_tracked.files(root=ROOT):
-        if rel.split("/", 1)[0] in _SKIP_DIRS:
-            continue
-        try:
-            with open(os.path.join(ROOT, rel), encoding="utf-8", errors="replace") as fh:
-                text = fh.read()
-        except OSError:
-            continue
-        # per LINE, so an allowed attribution cannot excuse its neighbours
-        n = sum(line.lower().count(MARK) for line in text.splitlines()
-                if not _is_attribution(line))
-        if n:
-            out.append((rel, n))
-    return sorted(out)
-
-
-def hits():
-    """[(path, n_occurrences)] for files carrying the mark, excluding EXCLUDE."""
-    got = _hits_git()
+    paths = [p for p in git_tracked.files(root=root) if p.split("/", 1)[0] not in _SKIP_DIRS]
+    got = _lines_git(root)
+    source = "git"
     if got is None:
-        got = _hits_walk()
-    return [(p, n) for p, n in got if p not in EXCLUDE]
+        got, source = _lines_walk(root, paths), "walk"
+    return {"mark": MARK, "source": source,
+            "cases": [{"path": p, "lines": got.get(p, [])} for p in paths]}
 
 
 def main(argv):
-    known = {"--count", "--files"}
+    known = {"--count", "--files", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_mark: unknown flag {a!r} (known: {', '.join(sorted(known))})",
                   file=sys.stderr)
             return 2
-    h = hits()
-    total = sum(n for _, n in h)
-    if "--count" in argv:
-        print(total)
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
         return 0
-    if "--files" in argv:
-        for p, _ in h:
-            print(p)
+    import opa_gate
+    if "--count" in argv or "--files" in argv:
+        if not opa_gate.OPA:
+            print("check_mark: SKIP — opa is not installed on this host", file=sys.stderr)
+            return 0
+        offending = opa_gate.value("mark", measure()).get("offending", {})
+        if "--count" in argv:
+            print(sum(offending.values()))
+        else:
+            for p in sorted(offending):
+                print(p)
         return 0
-    if h:
-        print(f"check_mark: REFUSED — the retired mark appears {total}× in {len(h)} file(s):",
-              file=sys.stderr)
-        for p, n in h:
-            print(f"    {p}  ({n})", file=sys.stderr)
-        return 1
-    print(f"check_mark: clean — 0 occurrences ({len(EXCLUDE)} path(s) excluded by policy)")
-    return 0
+    return opa_gate.gate("mark")
 
 
 def _selftest():
     """The scan must SEE the mark where it exists, or its all-clear means nothing."""
+    import shutil
+    import tempfile
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        if got != want:
-            print(f"  FAIL {label}: got {got!r} want {want!r}")
-            ok = False
-        else:
-            print(f"  ok   {label}")
+        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        ok = ok and got == want
 
-    # The exclusion list must not be able to swallow the whole tree.
-    check("SELF is excluded", "scripts/check_mark.py" in EXCLUDE, True)
-    check("exclusions are documented", all(EXCLUDE.values()), True)
-    # hits() must return a list of (path, positive-count) pairs.
-    h = hits()
-    check("hits() shape", all(isinstance(p, str) and n > 0 for p, n in h), True)
-    check("hits() excludes EXCLUDE", not any(p in EXCLUDE for p, _ in h), True)
+    def hits(m):
+        return {c["path"]: c["lines"] for c in m["cases"] if c["lines"]}
 
-    # ⚑ THE SCAN MUST SEE THE MARK, or its all-clear means nothing.  Both paths
-    # are exercised: the walk is the one the Δ sandbox uses (no git there), so
-    # testing only the git path would leave the load-bearing branch unproven.
-    import shutil
-    import tempfile
-    global ROOT
-    keep = ROOT
-    try:
-        with tempfile.TemporaryDirectory() as td:
-            open(os.path.join(td, "planted.txt"), "w").write(f"a {MARK} here\n")
-            ROOT = td
-            walked = _hits_walk()
-            check("the walk SEES a planted mark", walked, [("planted.txt", 1)])
-            check("the walk is used when git cannot answer", _hits_git(), None)
-            # a worktree copy inside the sandbox is not the tree (2026-09-23)
-            wt = os.path.join(td, ".claude", "worktrees", "a")
-            os.makedirs(os.path.join(wt, "scripts"))
-            open(os.path.join(wt, "scripts", "git_tracked.py"), "w").write("")
-            open(os.path.join(wt, "planted.txt"), "w").write(f"a {MARK} here\n")
-            check("the walk does NOT descend a nested copy of the tree", _hits_walk(),
-                  [("planted.txt", 1)])
-            shutil.rmtree(os.path.join(td, ".claude"))
-            os.remove(os.path.join(td, "planted.txt"))
-            check("the walk reports clean when absent", _hits_walk(), [])
+    live = measure()
+    check("the live population is non-empty", len(live["cases"]) > 0, True)
+    check("the live scan SEES this file's own needle", "scripts/check_mark.py" in hits(live), True)
 
-            # ⚑ ATTRIBUTION PASSES, SELF-NAMING DOES NOT — and both must be
-            # proven, or the allowance is a hole nobody has measured.
-            open(os.path.join(td, "attrib.md"), "w").write(
-                "looks like the Timex Indiglo era: ZnS:Cu phosphor\n")
-            check("an attribution line is allowed", _hits_walk(), [])
-            open(os.path.join(td, "selfname.md"), "w").write(
-                "welcome to EL-Indiglo, our theme\n")
-            check("self-naming is still caught",
-                  [p for p, _ in _hits_walk()], ["selfname.md"])
-    finally:
-        ROOT = keep
+    # ⚑ BOTH PATHS ARE EXERCISED: the walk is the one the Δ sandbox uses (no git
+    # there), so testing only the git path would leave the load-bearing branch unproven.
+    with tempfile.TemporaryDirectory() as td:
+        open(os.path.join(td, "planted.txt"), "w").write(f"a {MARK} here\n")
+        m = measure(td)
+        check("the walk is used when git cannot answer", m["source"], "walk")
+        check("the walk SEES a planted mark", hits(m),
+              {"planted.txt": [{"line": 1, "count": 1, "attribution": False}]})
+        # a worktree copy inside the sandbox is not the tree (2026-09-23)
+        wt = os.path.join(td, ".claude", "worktrees", "a")
+        os.makedirs(os.path.join(wt, "scripts"))
+        open(os.path.join(wt, "scripts", "git_tracked.py"), "w").write("")
+        open(os.path.join(wt, "planted.txt"), "w").write(f"a {MARK} here\n")
+        check("the walk does NOT descend a nested copy of the tree", list(hits(measure(td))), ["planted.txt"])
+        shutil.rmtree(os.path.join(td, ".claude"))
+        os.remove(os.path.join(td, "planted.txt"))
+        open(os.path.join(td, "attrib.md"), "w").write(
+            "looks like the Timex Indiglo era: ZnS:Cu phosphor\n")
+        open(os.path.join(td, "selfname.md"), "w").write("welcome to EL-Indiglo, our theme\n")
+        h = hits(measure(td))
+        check("an attribution line is SEEN as attribution", h.get("attrib.md", [{}])[0].get("attribution"), True)
+        check("self-naming is SEEN as not attribution", h.get("selfname.md", [{}])[0].get("attribution"), False)
     print("check_mark selftest:", "PASS" if ok else "FAIL")
     return ok
 

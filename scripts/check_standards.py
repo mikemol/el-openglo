@@ -10,17 +10,24 @@ washed-out palette.
 
 So the mapping is checked: every module STANDARDS.md names must exist, and every
 attribute it credits with applying a standard must be present in that module.
+The requirement is policy/standards.rego (decided by scripts/opa_gate.py
+standards); this file MEASURES each cited (module, attr): does the module
+import, and does it carry the attribute.
 
-    scripts/check_standards.py           # exit 0 iff every cited applier resolves
+    scripts/check_standards.py           # the verdict, as opa_gate standards decides it
+    scripts/check_standards.py --json    # the measurement policy/standards.rego decides
     scripts/check_standards.py --cited   # the (module, attribute) pairs it found
+    scripts/check_standards.py --selftest
 
 ⚑ THIS CHECKS THE MAPPING, NOT THE MATHS.  Whether `apca_Lc` correctly implements
 APCA is `cvd_gate --selftest`'s job, and it answers it against published reference
 vectors. This answers the different question: does the thing the document credits
 still exist? Both are needed — a correct implementation nobody can find is as
-lost as an absent one.
+lost as an absent one.  Weakness: a citation is a backticked `module.attr` whose
+module is a .py at the root; a citation in another form is not seen.
 """
 import importlib
+import json
 import os
 import re
 import sys
@@ -39,12 +46,14 @@ NOT_OURS = {"theme", "pyproject", "apca", "wcag"}
 NOT_ATTRS = {"py", "md", "toml", "json", "colors", "colorscheme"}
 
 
-def cited():
+def cited(doc=DOC):
     """[(module, attr)] pairs the document credits with applying a standard."""
-    if not os.path.exists(DOC):
+    if not os.path.exists(doc):
         return None
     out = []
-    for m in CITE.finditer(open(DOC, encoding="utf-8").read()):
+    with open(doc, encoding="utf-8") as fh:
+        text = fh.read()
+    for m in CITE.finditer(text):
         mod, attr = m.group(1), m.group(2)
         if mod in NOT_OURS or attr in NOT_ATTRS:
             continue
@@ -54,56 +63,49 @@ def cited():
     return sorted(set(out))
 
 
+def measure(doc=DOC):
+    """{'doc', 'doc_present', 'cases': [{module, attr, imports, error, present}]}."""
+    pairs = cited(doc)
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    cases = []
+    for mod, attr in pairs or []:
+        try:
+            m = importlib.import_module(mod)
+        except Exception as e:            # noqa: BLE001
+            cases.append({"module": mod, "attr": attr, "imports": False, "error": str(e), "present": False})
+            continue
+        cases.append({"module": mod, "attr": attr, "imports": True, "error": None,
+                      "present": hasattr(m, attr)})
+    return {"doc": os.path.relpath(doc, ROOT), "doc_present": pairs is not None, "cases": cases}
+
+
 def main(argv):
-    known = {"--cited"}
+    known = {"--cited", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_standards: unknown flag {a!r}", file=sys.stderr)
             return 2
-    pairs = cited()
-    if pairs is None:
-        print(f"check_standards: REFUSED — STANDARDS.md is absent; the standards "
-              f"this project applies are recorded nowhere", file=sys.stderr)
-        return 1
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--cited" in argv:
-        for mod, attr in pairs:
+        for mod, attr in cited() or []:
             print(f"{mod}.{attr}")
         return 0
-    if not pairs:
-        print("check_standards: REFUSED — the document credits no applier at all; "
-              "the citation format changed, or the scan is broken", file=sys.stderr)
-        return 2
-
-    sys.path.insert(0, ROOT)
-    missing = []
-    for mod, attr in pairs:
-        try:
-            m = importlib.import_module(mod)
-        except Exception as e:            # noqa: BLE001
-            missing.append((f"{mod}.{attr}", f"module will not import: {e}"))
-            continue
-        if not hasattr(m, attr):
-            missing.append((f"{mod}.{attr}", "named in STANDARDS.md, absent from the module"))
-    if missing:
-        print(f"check_standards: REFUSED — {len(missing)} of {len(pairs)} cited "
-              f"applier(s) do not resolve:", file=sys.stderr)
-        for what, why in missing:
-            print(f"    {what}: {why}", file=sys.stderr)
-        return 1
-    print(f"check_standards: {len(pairs)} of {len(pairs)} cited appliers resolve")
-    return 0
+    import opa_gate
+    return opa_gate.gate("standards")
 
 
 def _selftest():
+    """The measurement can SEE the appliers this repo lost, and an absent one."""
+    import tempfile
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        if got != want:
-            print(f"  FAIL {label}: got {got!r} want {want!r}")
-            ok = False
-        else:
-            print(f"  ok   {label}")
+        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        ok = ok and got == want
 
     pairs = cited()
     check("the document exists and cites appliers", bool(pairs), True)
@@ -112,6 +114,13 @@ def _selftest():
     flat = {f"{m}.{a}" for m, a in (pairs or [])}
     for needed in ("cvd_gate.apca_Lc", "cvd_gate.wcag_ratio", "cvd_gate.SECTORS"):
         check(f"cites {needed}", needed in flat, True)
+    with tempfile.TemporaryDirectory() as td:
+        d = os.path.join(td, "STANDARDS.md")
+        check("an absent document is SEEN", measure(d)["doc_present"], False)
+        open(d, "w").write("APCA is `cvd_gate.apca_Lc`; gone is `cvd_gate.no_such_applier`.\n")
+        got = {(c["attr"], c["present"]) for c in measure(d)["cases"]}
+        check("a present and an ABSENT applier are both seen", got,
+              {("apca_Lc", True), ("no_such_applier", False)})
     print("check_standards selftest:", "PASS" if ok else "FAIL")
     return ok
 

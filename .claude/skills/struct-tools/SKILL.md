@@ -70,12 +70,12 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the decoration states (focus / hover / selection) — pairwise q under the gate's metric, each vs ground | `scripts/check_states.py` | `python3 scripts/check_states.py --map` | — |
 | **every place the project DECLARES its licence** (emitters.LICENSE_SPDX, each generator's metadata `License` site by AST, LICENSE / pyproject / ebuild; third-party licences listed and excluded; `--json` is what policy/license.rego decides) | `scripts/check_license.py` | `python3 scripts/check_license.py --list` | `opa_gate.py license` |
 | **what the ROOT HELPERS do** (`el-openglo-plymouth`, `el-openglo-sddm` run against a scratch root with a stubbed PATH: which alternative / drop-in they write, whether a missing tool fails loudly; the plymouth `<name>/<name>.plymouth` layout; `--json` is what policy/root_helpers.rego decides) | `scripts/check_root_helpers.py` | `python3 scripts/check_root_helpers.py --list` | `opa_gate.py root_helpers` |
-| the retired trademark, anywhere in the tree | `scripts/check_mark.py` | `python3 scripts/check_mark.py --files` | — |
+| the retired trademark, anywhere in the tree (`--json` is what policy/mark.rego decides) | `scripts/check_mark.py` | `python3 scripts/check_mark.py --files` | `opa_gate.py mark` |
 | third-party imports vs the manifest | `scripts/check_deps.py` | `python3 scripts/check_deps.py --imports` | `.toml` |
 | which emitter reads which palette authority | `scripts/check_token_source.py` | `python3 scripts/check_token_source.py --map` | — |
 | `segment_topology.py`'s exported API vs its consumers | `scripts/check_st_api.py` | `python3 scripts/check_st_api.py --used` | — |
 | the browser theme's emitted manifests | `scripts/check_chrome.py` | `python3 scripts/check_chrome.py --dump` | `.json` |
-| the partial-recovery record | `scripts/check_partial.py` | `python3 scripts/check_partial.py --list` | — |
+| the partial-recovery record (`--json` is what policy/partial.rego decides) | `scripts/check_partial.py` | `python3 scripts/check_partial.py --list` | `opa_gate.py partial` |
 | the segment lattice's own invariants | `segment_topology.py` | `python3 segment_topology.py --selftest` | — |
 | Agda source (`ELProjection.agda`) | `../substrate/scratch/agda_defs.py` + `agda_lex.py` | `python3 ../substrate/scratch/agda_defs.py <name>` | `.agda` `.agdai` `.lagda` |
 | the git hooks: which are installed, where each resolves | `scripts/check_hooks.py` | `python3 scripts/check_hooks.py --list` | `pre-commit` `post-commit` `pre-push` |
@@ -98,7 +98,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the ONE Alt+Tab switcher package: structure, the id the LnF defaults name, the root, lint, which Kirigami.Theme role each colour is BOUND to, and what those bindings RESOLVE to per variant under the real theme engine (`--json` is the measurement policy/taskswitch.rego decides) | `scripts/check_taskswitch.py` | `python3 scripts/check_taskswitch.py --map` | — |
 | what Kirigami.Theme bindings resolve to under a VARIANT — the real engine on a private kdeglobals (the headless plasma-apply-colorscheme probe) | `theme_probe.py` | `python3 theme_probe.py EL-Amber` | — |
 | EVERY emitted QML document: qmllint's error set + the finite-animation `running:` binding rule (`--list` per document; `--json` is the MEASUREMENT policy/qml_lint.rego decides) | `scripts/check_qml_lint.py` | `python3 scripts/check_qml_lint.py --list` | `.qml` |
-| the REQUIREMENTS as rego: which policies exist, whether each check measures (`--list`), every rule's refuse/admit pair (`--test`), one check's verdict (`<name>`: deny / withheld sets → exit 0/1/3) | `scripts/opa_gate.py` | `python3 scripts/opa_gate.py --list` | `.rego` |
+| the REQUIREMENTS as rego: which policies exist, whether each check measures (`--list`), every rule's refuse/admit pair (`--test`), one check's verdict (`<name>`: deny / withheld sets → exit 0/1/3), the W50 migration census (`--census [--cpu]`: which warrants still cite a check that decides in Python) | `scripts/opa_gate.py` | `python3 scripts/opa_gate.py --list` | `.rego` |
 | what Android's Monet derives from the palette (surface/primary/on_surface vs ground/lit/fg, per variant) | `scripts/check_monet.py` | `python3 scripts/check_monet.py --map` | — |
 | where each emission is published, and the KDE Store's category taxonomy (OCS) | `scripts/check_publishing.py` | `python3 scripts/check_publishing.py --rows` | `publishing.md` `ocs-categories.xml` |
 

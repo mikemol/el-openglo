@@ -10,11 +10,18 @@ degrades to a contentless "don't" instead of failing loudly.  Verified by
 experiment before the hook was adopted here.
 
 So: a non-empty table is a claim in its own right, separate from the hook's
-selftest passing.
+selftest passing.  The requirement is policy/routes.rego (decided by
+scripts/opa_gate.py routes); this file MEASURES: is the hook installed, is the
+local skill present, and which rows does the hook itself report.
 
-    scripts/check_routes.py            # exit 0 iff the local table has rows
+    scripts/check_routes.py            # the verdict, as opa_gate routes decides it
+    scripts/check_routes.py --json     # the measurement policy/routes.rego decides
     scripts/check_routes.py --routes   # the rows, as the hook sees them
+    scripts/check_routes.py --selftest
+
+Weakness: it counts rows; it does not check a row names a tool that exists.
 """
+import json
 import os
 import subprocess
 import sys
@@ -24,61 +31,55 @@ HOOK = os.path.join(ROOT, "scripts", "hook_structural_query.py")
 SKILL = os.path.join(ROOT, ".claude", "skills", "struct-tools", "SKILL.md")
 
 
-def routes():
+def routes(hook=HOOK):
     """The hook's own view of its table (ask the tool, never re-parse the skill)."""
-    if not os.path.exists(HOOK):
+    if not os.path.exists(hook):
         return None
-    r = subprocess.run([sys.executable, HOOK, "--routes"],
+    r = subprocess.run([sys.executable, hook, "--routes"],
                        capture_output=True, text=True, cwd=ROOT)
     if r.returncode != 0:
         return None
     return [ln for ln in r.stdout.splitlines() if ln.strip()]
 
 
+def measure(hook=HOOK, skill=SKILL):
+    return {"hook": os.path.relpath(hook, ROOT), "hook_present": os.path.exists(hook),
+            "skill": os.path.relpath(skill, ROOT), "skill_present": os.path.exists(skill),
+            "cases": [{"row": r} for r in (routes(hook) or [])]}
+
+
 def main(argv):
-    known = {"--routes"}
+    known = {"--routes", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_routes: unknown flag {a!r}", file=sys.stderr)
             return 2
-    if not os.path.exists(HOOK):
-        print("check_routes: REFUSED — the structural-query hook is not installed",
-              file=sys.stderr)
-        return 1
-    if not os.path.exists(SKILL):
-        print(f"check_routes: REFUSED — no local routing table at "
-              f"{os.path.relpath(SKILL, ROOT)}", file=sys.stderr)
-        print("    The hook would parse an ABSENT file and fire with no tool named.",
-              file=sys.stderr)
-        return 1
-    rs = routes()
-    if "--routes" in argv:
-        print("\n".join(rs or []))
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
         return 0
-    if not rs:
-        print("check_routes: REFUSED — the hook reports an EMPTY routing table",
-              file=sys.stderr)
-        print("    It would refuse textual queries without naming the owning tool.",
-              file=sys.stderr)
-        return 1
-    print(f"check_routes: the local routing table has {len(rs)} row(s)")
-    return 0
+    if "--routes" in argv:
+        print("\n".join(routes() or []))
+        return 0
+    import opa_gate
+    return opa_gate.gate("routes")
 
 
 def _selftest():
+    """The measurement can SEE the table, and can SEE a hook that is not there."""
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        if got != want:
-            print(f"  FAIL {label}: got {got!r} want {want!r}")
-            ok = False
-        else:
-            print(f"  ok   {label}")
+        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        ok = ok and got == want
 
-    # The paths this reasons about must be the ones the hook actually uses.
     check("SKILL path is repo-local", SKILL.startswith(ROOT), True)
     check("HOOK path is repo-local", HOOK.startswith(ROOT), True)
+    gone = measure(hook=os.path.join(ROOT, "scripts", "no_such_hook.py"),
+                   skill=os.path.join(ROOT, "no_such_skill.md"))
+    check("an absent hook is SEEN, with no rows", (gone["hook_present"], gone["skill_present"], gone["cases"]),
+          (False, False, []))
+    check("the live hook reports rows", len(measure()["cases"]) > 0, True)
     print("check_routes selftest:", "PASS" if ok else "FAIL")
     return ok
 

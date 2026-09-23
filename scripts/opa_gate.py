@@ -17,6 +17,8 @@ is kept apart from measured-defect.
                                          # (MEASURERS maps a name to a non-check_ reader)
     scripts/opa_gate.py --list           # every policy and whether its check has --json
     scripts/opa_gate.py --test           # opa test policy/ (every rule's refuse/admit pair)
+    scripts/opa_gate.py --census [--cpu] # W50: which warrants cite opa_gate vs a bare check_*.py
+                                         # (n of m decided in rego); --cpu times each Python one
     scripts/opa_gate.py --selftest
 
 SKIP (exit 0, printed) when opa is absent — a fact about the host. Weakness: the
@@ -60,8 +62,10 @@ def measure(name, operands=()):
     return json.loads(r.stdout)
 
 
-def evaluate(name, doc):
-    """{'deny': [...], 'withheld': [...]} from opa over the measurement."""
+def value(name, doc):
+    """The whole of data.el.<name> over the measurement — every rule the policy
+    defines, for a check whose listing mode shows what the POLICY derived (e.g.
+    check_mark --files reads `offending`) rather than re-deriving it in Python."""
     r = subprocess.run([OPA, "eval", "-f", "json", "-I", "-d", POLICY, f"data.el.{name}"],
                        input=json.dumps(doc), capture_output=True, text=True, timeout=120)
     if r.returncode != 0:
@@ -69,7 +73,12 @@ def evaluate(name, doc):
     res = json.loads(r.stdout)["result"]
     if not res:
         raise RuntimeError(f"data.el.{name} is undefined — no package el.{name} in policy/")
-    v = res[0]["expressions"][0]["value"]
+    return res[0]["expressions"][0]["value"]
+
+
+def evaluate(name, doc):
+    """{'deny': [...], 'withheld': [...]} from opa over the measurement."""
+    v = value(name, doc)
     # `admitted` is OPTIONAL: a policy that judges a population case by case
     # declares what it admitted, so a withheld case beside admitted ones is a
     # SKIP (a fact about the host) rather than "nothing was judged" (s131)
@@ -89,14 +98,65 @@ def verdict(sets):
     return 0
 
 
+def census():
+    """The W50 migration population, from warrants.bib's `check` fields (read by
+    check_tree_writes.claims — bibstruct, one reader). {'gate': [(key, name)],
+    'direct': [(key, script, args)]}: a claim citing `tool:opa_gate.py <name>` is
+    migrated; one citing `tool:check_*.py` bare (no flags) decides in Python and is
+    the population still to migrate. A `--selftest` citation is a SEES claim — the
+    measurement's own can-it-see test, which stays Python by the rule — and is not
+    counted in either. Weakness: a claim citing some other tool is outside both."""
+    import check_tree_writes
+    out = {"gate": [], "direct": []}
+    for key, check in check_tree_writes.claims(ROOT):
+        kind, _, rest = check.partition(":")
+        argv_ = rest.split()
+        if kind != "tool" or not argv_:
+            continue
+        if argv_[0] == "opa_gate.py" and len(argv_) > 1 and not argv_[1].startswith("--"):
+            out["gate"].append((key, argv_[1]))
+        elif argv_[0].startswith("check_") and len(argv_) == 1:
+            out["direct"].append((key, argv_[0], argv_[1:]))
+    return out
+
+
+def cpu_of(script):
+    """(rc, user+sys CPU seconds) of one run of scripts/<script> — its own CPU, never
+    wall (the box is shared and loaded)."""
+    import resource
+    before = resource.getrusage(resource.RUSAGE_CHILDREN)
+    r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", script)],
+                       capture_output=True, cwd=ROOT, timeout=900)
+    after = resource.getrusage(resource.RUSAGE_CHILDREN)
+    return r.returncode, (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
+
+
 def main(argv):
-    known = {"--list", "--test", "--selftest"}
+    known = {"--list", "--test", "--selftest", "--census", "--cpu"}
     args = [a for a in argv[1:] if a.startswith("--")]
     names = [a for a in argv[1:] if not a.startswith("--")]
     for a in args:
         if a not in known:
             print(f"opa_gate: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--census" in args:
+        c = census()
+        for key, name in c["gate"]:
+            print(f"  rego    @{key:20s} opa_gate.py {name}")
+        scripts = sorted({s for _, s, _ in c["direct"]})
+        for key, script, _ in c["direct"]:
+            if "--cpu" in args:
+                rc, cpu = cpu_of(script)
+                print(f"  python  @{key:20s} {script:32s} rc={rc} cpu={cpu:.2f}s")
+            else:
+                print(f"  python  @{key:20s} {script}")
+        n, m = len(c["gate"]), len(c["gate"]) + len(c["direct"])
+        print(f"opa_gate census: {n} of {m} gate claims decided in rego; "
+              f"{len(c['direct'])} claims ({len(scripts)} scripts) still decide in Python")
+        return 0 if m else 2
+    if "--cpu" in args:
+        print("opa_gate: --cpu only qualifies --census", file=sys.stderr)
+        return 2
     if not OPA:
         print("opa_gate: SKIP — opa is not installed on this host", file=sys.stderr)
         return 0
@@ -112,7 +172,15 @@ def main(argv):
     if not names:
         print("usage: opa_gate.py <name> [OPERAND...] | --list | --test | --selftest", file=sys.stderr)
         return 2
-    name, operands = names[0], names[1:]
+    return gate(names[0], names[1:])
+
+
+def gate(name, operands=()):
+    """Measure, decide, print the verdict; the exit code. A migrated check's bare mode
+    is exactly this call — it prints what the policy decided and decides nothing."""
+    if not OPA:
+        print(f"opa_gate: {name}: SKIP — opa is not installed on this host", file=sys.stderr)
+        return 0
     sets = evaluate(name, measure(name, operands))
     for m in sets["deny"]:
         print(f"opa_gate: DENY {m}", file=sys.stderr)

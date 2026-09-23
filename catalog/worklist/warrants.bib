@@ -31,7 +31,7 @@
 @misc{MARK,
   section = {rename},
   claim   = {no file in the tree carries the prior mark, outside the historical records that must quote it},
-  check   = {tool:check_mark.py}
+  check   = {tool:opa_gate.py mark}
 }
 
 @misc{MARK-SEES,
@@ -57,7 +57,7 @@
   section = {recovery},
   claim   = {every file the archive marked partial is still recorded as partial, so a syntactically-clean file is never mistaken for a verified one},
   rests-on = {COMPILES},
-  check   = {tool:check_partial.py}
+  check   = {tool:opa_gate.py partial}
 }
 
 @misc{DEPS,
@@ -524,7 +524,7 @@
   section = {emitters},
   claim   = {every external standard this project applies is recorded with the module that applies it, and every cited applier still exists},
   rests-on = {PALETTE-CHAIN},
-  check   = {tool:check_standards.py}
+  check   = {tool:opa_gate.py standards}
 }
 
 % ── tooling ──────────────────────────────────────────────────────────────────
@@ -538,7 +538,7 @@
   section = {tooling},
   claim   = {the structural-query hook reads a non-empty routing table of this repo's own, rather than degrading silently to a contentless refusal},
   rests-on = {HOOKS},
-  check   = {tool:check_routes.py}
+  check   = {tool:opa_gate.py routes}
 }
 
 % ⚑ THE DESIGN LOG IS READ BY A TOOL, NOT BY EYE.  COTYPE.md is 4,600 lines
@@ -561,7 +561,7 @@
 @misc{SCOPE,
   section = {decide},
   claim   = {the decision to retire the prior mark everywhere, including descriptive prose, is recorded where a reader meets the rename},
-  check   = {tool:check_scope_recorded.py}
+  check   = {tool:opa_gate.py scope_recorded}
 }
 
 @misc{EBUILD,
