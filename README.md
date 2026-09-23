@@ -119,7 +119,7 @@ Each generator runs standalone from the repo root — `uv run python3 make_schem
 
 `overlay/` is a Gentoo Portage repository: its live ebuild `x11-themes/el-openglo-9999` installs through `make_deb.py --stage`, the same staging the Kubuntu `.deb` wraps, so the two package the same tree[^OVERLAY].
 
-The install puts its commands in `/usr/bin`: `el-openglo-apply EL-Openglo` applies a variant for the current user, `el-openglo-sddm` sets the SDDM login background, `el-openglo-plymouth EL-Openglo` the boot splash (as root), and `el-openglo-live` and `el-openglo-notify` place the live wallpaper and the notification ticker[^COMMANDS].
+The install puts its commands in `/usr/bin`: `el-openglo-apply EL-Openglo` applies a variant for the current user, `el-openglo-sddm` selects the EL Openglo SDDM greeter theme by writing an `/etc/sddm.conf.d` drop-in (`Current=el-openglo-<slug>`; `--breeze` goes back, `--background` keeps the old background-only route), `el-openglo-plymouth EL-Openglo` the boot splash (as root), and `el-openglo-live` and `el-openglo-notify` place the live wallpaper and the notification ticker[^COMMANDS].
 
 The SDDM background path ships as `el-openglo-sddm`[^SDDM].
 

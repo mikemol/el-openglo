@@ -761,3 +761,21 @@
   check    = {tool:opa_gate.py action_key},
   section  = {tooling}
 }
+
+@misc{QT-SANDBOX,
+  section  = {tooling},
+  claim    = {Every Qt-tool spawn in the tree (qml, qmllint and kin, resolved from its argv rather than matched by spelling) goes through qt_sandbox, so no render or lint reaches the live session, its GPU driver or KCrash (W73)},
+  check    = {tool:opa_gate.py qt_sandbox}
+}
+
+@misc{LICENSE,
+  section  = {emitters},
+  claim    = {The theme is Apache-2.0, declared once: every generator names emitters.LICENSE_SPDX, the metadata they EMITTED carries no other id, the ebuild and LICENSE agree, and the DEP-5 copyright names which third-party parts keep their own licence (W44)},
+  check    = {tool:opa_gate.py license}
+}
+
+@misc{ROOT-HELPERS,
+  section  = {emitters},
+  claim    = {The root helpers do what their names say, run as shipped against a scratch root: el-openglo-sddm selects the greeter theme by an /etc/sddm.conf.d drop-in, the plymouth splash is named one way end to end, and a helper whose tool is missing fails loudly rather than exiting 0 (G1-G3)},
+  check    = {tool:opa_gate.py root_helpers}
+}
