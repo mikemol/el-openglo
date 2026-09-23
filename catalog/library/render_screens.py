@@ -162,26 +162,36 @@ def output_keys():
     WEAKNESS: an input the process reads that the job does NOT name — a host font
     by family, a Qt plugin, an env var outside JOB_ENV — is not in the key, so a
     change there reads CURRENT when it is stale. The host fingerprint and the
-    residue (computed reads in the runner code) are the declared bound on that."""
+    residue (computed reads in the runner code) are the declared bound on that.
+    WEAKNESS (per-kind runner code): the code term is per job KIND at MODULE
+    grain — a helper both stager modules import (qt_sandbox, theme_probe) keys
+    every output that reaches it, which is correct but coarse; and this file is
+    keyed whole, so a comment in it still moves every output."""
     import check_action_key as AK
     sentinel = "/@OUT@"
     here = os.path.relpath(os.path.abspath(__file__), ROOT)
-    code_self = AK.runner_code([here])
     host, missing = AK.host_inputs()
-    keys, code_files = {}, set(code_self)
+    keys, code_files = {}, {here}
     for fn, v, how in plan() + plan_animations():
         inputs = {}
         for i, stage in enumerate(stagers(v, how, os.path.join(sentinel, fn))):
             for k, d in AK.job_inputs(stage).items():
                 inputs[f"job{i}:{k}"] = d
+            # ⚑ THE RUNNER CODE IS PER JOB KIND (W61 follow-up): the closure of the
+            # module that OWNS this job's stager (render_qml or check_marquee_live),
+            # plus this file as a FILE — the dispatch and post-processing (APNG
+            # assembly) it runs. NOT this file's import closure: that reaches both
+            # harnesses, so a comment in check_marquee_live re-keyed the clock
+            # (measured on main: 55 of 56 outputs, for one comment).
             seed = os.path.relpath(stage.__code__.co_filename, ROOT)
-            code = AK.runner_code([here, seed])
+            code = sorted(set(AK.runner_code([seed])) | {here})
             code_files.update(code)
             for rel in code:
                 inputs[f"code:{rel}"] = AK.digest_rel(rel)
         inputs.update(host)
         keys[fn] = {"key": AK.key_over(inputs), "inputs": inputs}
-    code_inputs = {f"code:{rel}": AK.digest_rel(rel) for rel in code_self}
+    # a derived output runs only this file's sheet code over tiles already keyed
+    code_inputs = {f"code:{here}": AK.digest_rel(here)}
     for fn, v, how in plan_derived():
         src = derived_inputs(fn, v, how)
         if src is None:

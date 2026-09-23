@@ -312,8 +312,8 @@ def subject(hover_pause=False, variant=VARIANT):
     one package; the variant is the theme it is run in)."""
     import make_preview
     qml, kcfg, files = _emitted()
-    import render_qml as RQ
-    config = RQ._kcfg_defaults(kcfg)
+    import plasma_rewrite as PR
+    config = PR._kcfg_defaults(kcfg)
     config["speed"] = 8.0        # a rotation ~1.5 s on the 420 px board
     config["hoverPause"] = hover_pause
     config["debugLog"] = True         # the widget's own trace lines ride on stderr
@@ -331,10 +331,10 @@ def _emitted():
     the screens per output (W61) would call it 18 more. WEAKNESS: a template
     edited during one process is not re-read."""
     if not _EMITTED:
-        import render_qml as RQ
+        import plasma_rewrite as PR
         import make_notify_marquee as NM
         qml = NM.main_qml()
-        for pat, rep in RQ.SUBSTITUTIONS:
+        for pat, rep in PR.SUBSTITUTIONS:
             qml = re.sub(pat, rep, qml, flags=re.M)
         _EMITTED.append((qml, NM.config_xml(), {
             "ApertureField.qml": NM.aperture_field_component(),

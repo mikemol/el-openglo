@@ -21,7 +21,7 @@ harness rewrites the ROOT TYPE to a plain Item carrying the two representation
 properties, drops the org.kde.plasma imports, and supplies a `plasmoid` and
 `wallpaper` object whose `configuration` is the kcfg's defaults. Nothing else is
 touched: the rewrite is three anchored substitutions on the emitted text, listed
-in SUBSTITUTIONS so a reader can see the whole gap between harness and Plasma.
+in plasma_rewrite.SUBSTITUTIONS so a reader can see the whole gap between harness and Plasma.
 
 ⚑ WEAKNESS: layer effects (MultiEffect) need an RHI. The offscreen platform gets
 one on this host; where it does not, the halo is absent from the render and
@@ -40,18 +40,11 @@ import qt_sandbox as QT  # noqa: E402
 
 QML = QT.QML
 
-# root-type rewrite: the Plasma container becomes a sized Item that instantiates
-# its own fullRepresentation, exactly as the applet loader would
-SUBSTITUTIONS = (
-    (r"^import org\.kde\.plasma\.[^\n]*\n", ""),
-    # org.kde.kirigami is KEPT (W35): the real module loads headless, and a bound
-    # surface reads Kirigami.Theme — theme_probe.env_for makes it resolve a variant
-    (r"^PlasmoidItem \{",
-     "Item {\n    property var preferredRepresentation\n"
-     "    property Component fullRepresentation\n"
-     "    Loader { anchors.fill: parent; sourceComponent: parent.fullRepresentation }"),
-    (r"^WallpaperItem \{", "Item {"),
-)
+# The Plasma-root rewrite (SUBSTITUTIONS, _kcfg_defaults) is shared with
+# check_marquee_live and lives in plasma_rewrite (W61 follow-up), so neither
+# harness's key reaches the other's code. RE-EXPORTED here: check_symmetry reads
+# RQ.SUBSTITUTIONS and RQ._kcfg_defaults.
+from plasma_rewrite import SUBSTITUTIONS, _kcfg_defaults  # noqa: E402,F401
 
 # ⚑ THE SWITCHER'S RUNTIME IS KWIN'S, NOT PLASMA'S (W52): KWin.TabBoxSwitcher
 # supplies model / currentIndex / visible / screenGeometry, PlasmaCore.Dialog is
@@ -198,17 +191,6 @@ Window {
     }
 }
 """
-
-
-def _kcfg_defaults(xml_text):
-    """{name: default} from a kcfg, typed."""
-    out = {}
-    for m in re.finditer(r'<entry name="(\w+)" type="(\w+)"><default>([^<]*)</default>',
-                         xml_text):
-        name, typ, val = m.groups()
-        out[name] = ({"Bool": lambda v: v == "true", "Double": float, "Int": int}
-                     .get(typ, str))(val)
-    return out
 
 
 # ⚑ ONE EMISSION PER SURFACE PER PROCESS (render speed #3, catalog/render-speed.md).

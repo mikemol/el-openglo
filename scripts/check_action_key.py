@@ -124,7 +124,9 @@ KEY_SCHEMA = 2
 # ⚑ THE PER-OUTPUT FORMULA IS A DIFFERENT QUESTION (W61), so an action keyed per
 # output carries its own schema: its old whole-action record reads `reformulated`,
 # never `stale`, and schemes/wallpapers — whose formula did not change — keep 2.
-PER_OUTPUT_SCHEMA = 3
+# 4: the runner-code term became per job kind (the stager's own closure + the
+# producer file), no longer the producer's whole closure.
+PER_OUTPUT_SCHEMA = 4
 
 HOST_PIN_FILE = os.path.join(ROOT, "catalog", "host.json")
 
@@ -876,6 +878,13 @@ def _selftest():
     want = sorted(f for f in per if f.endswith("-EL-Amber.png")) + ["strip.png"]
     chk(f"a byte in EL-Amber.colors moves exactly EL-Amber's outputs + sheet + strip ({len(moved)} of {n})",
         sorted(moved), sorted(want))
+    # ⚑ THE RUNNER CODE IS PER JOB KIND: the marquee harness's source keys the
+    # marquee outputs (and the sheets/strip that stack them) and nothing else —
+    # measured on main before this arm, one comment there moved 55 of 56
+    moved, n = impact("scripts/check_marquee_live.py")["screens"]
+    want = sorted(f for f in per if f.startswith(("marquee-", "sheet-")) or f == "strip.png")
+    chk(f"a comment in check_marquee_live moves only marquee outputs + sheets + strip ({len(moved)} of {n})",
+        sorted(moved), want)
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
     print(f"  note  host is {kind} — "
