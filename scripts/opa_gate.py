@@ -15,6 +15,11 @@ is kept apart from measured-defect.
                                          # exit 0 admitted / 1 denied / 3 withheld only
     scripts/opa_gate.py serial LOG       # OPERANDs after the name go to the measurement's --json
                                          # (MEASURERS maps a name to a non-check_ reader)
+    scripts/opa_gate.py serial LOG --expect denied:S0
+                                         # W75: the NEGATIVE claim — 0 only when the policy
+                                         # decided and denied with exactly those rule ids;
+                                         # admitted / other rule / crashed reader -> 1;
+                                         # opa or the fixture absent -> 3 (see expect_gate)
     scripts/opa_gate.py --list           # every policy and whether its check has --json
     scripts/opa_gate.py --test           # opa test policy/ (every rule's refuse/admit pair)
     scripts/opa_gate.py --census [--cpu] # W50: which warrants cite opa_gate vs a bare check_*.py
@@ -28,6 +33,7 @@ policy whose package does not match its file name evaluates to nothing, which
 """
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -52,13 +58,15 @@ def measurer(name):
     return os.path.join(ROOT, "scripts", MEASURERS.get(name, f"check_{name}.py"))
 
 
-def measure(name, operands=()):
+def measure(name, operands=(), script=None):
     """The check's --json document (a dict), run under this interpreter. `operands`
-    (paths, resolved against the repo root) are passed after --json."""
-    r = subprocess.run([sys.executable, measurer(name), "--json", *operands],
+    (paths, resolved against the repo root) are passed after --json. `script`
+    overrides the measurer (the --expect selftest's raising/garbage fixtures)."""
+    script = script or measurer(name)
+    r = subprocess.run([sys.executable, script, "--json", *operands],
                        capture_output=True, text=True, cwd=ROOT, timeout=600)
     if r.returncode != 0:
-        raise RuntimeError(f"{os.path.basename(measurer(name))} --json exited {r.returncode}: {r.stderr[-300:]}")
+        raise RuntimeError(f"{os.path.basename(script)} --json exited {r.returncode}: {r.stderr[-300:]}")
     return json.loads(r.stdout)
 
 
@@ -133,8 +141,25 @@ def cpu_of(script):
 
 def main(argv):
     known = {"--list", "--test", "--selftest", "--census", "--cpu"}
-    args = [a for a in argv[1:] if a.startswith("--")]
-    names = [a for a in argv[1:] if not a.startswith("--")]
+    rest, expect = list(argv[1:]), None
+    # --expect takes a VALUE (`--expect denied:S0` or `--expect=denied:S0`); it is
+    # lifted out before the flag/operand split so the value is not read as an operand
+    for i, a in enumerate(rest):
+        if a == "--expect" or a.startswith("--expect="):
+            val = a.partition("=")[2] if "=" in a else (rest[i + 1] if i + 1 < len(rest) else "")
+            del rest[i:i + (1 if "=" in a else 2)]
+            expect = parse_expect(val)
+            if expect is None:
+                print(f"opa_gate: --expect wants denied:<RULE>[,<RULE>...], got {val!r}", file=sys.stderr)
+                return 2
+            break
+    args = [a for a in rest if a.startswith("--")]
+    names = [a for a in rest if not a.startswith("--")]
+    if expect is not None and (args or not names):
+        print("opa_gate: --expect qualifies `<name> [OPERAND...]` and nothing else", file=sys.stderr)
+        return 2
+    if expect is not None:
+        return expect_gate(names[0], names[1:], expect)
     for a in args:
         if a not in known:
             print(f"opa_gate: unknown flag {a!r}", file=sys.stderr)
@@ -193,6 +218,77 @@ def gate(name, operands=()):
     return rc
 
 
+RULE_ID = re.compile(r"[A-Z][A-Za-z0-9]*")
+
+
+def parse_expect(val):
+    """`denied:S0[,S1...]` -> frozenset of rule ids; None when malformed. Only
+    `denied` is a kind: an expected ADMISSION is the bare gate's exit 0 already."""
+    kind, _, ids = val.partition(":")
+    rules = frozenset(x for x in ids.split(",") if x)
+    if kind != "denied" or not rules or not all(RULE_ID.fullmatch(x) for x in rules):
+        return None
+    return rules
+
+
+def rule_of(msg):
+    """The rule id a deny message carries — its `S0:` prefix — or None."""
+    head = msg.partition(":")[0]
+    return head if ":" in msg and RULE_ID.fullmatch(head) else None
+
+
+def expect_gate(name, operands, rules, script=None, opa=None):
+    """W75 — the claim that a gate DENIES a negative fixture, with the TYPED denial.
+    paperkit keeps one exit meaning (0 pass / 3 could-not-run / else fail), so the
+    inversion lives here, and it must not pass on anything but the denial asked for:
+
+      0  the measurement ran, the policy DECIDED, it denied, and the set of rule ids
+         carried by its deny messages is EXACTLY `rules`. ⚑ Decided: exactly, not
+         superset — an extra rule firing means the reader measured something other
+         than the fixture it was pointed at, which is the mutation to catch. A deny
+         message with no rule-id prefix counts as an unexpected rule.
+      1  admitted; withheld-only (it did not decide); a different rule; the
+         measurement crashed, failed to import, or printed unparseable JSON; opa
+         eval failed or the package is undefined. A broken reader is a FAILED claim —
+         were it 3 or 0, every mutation that breaks the reader would grade vacuous.
+      3  could not run: opa is absent, or an operand (the fixture) does not exist.
+
+    Weakness: operands are taken to be paths (true of every current measurer that
+    takes one); a non-path operand would read as an absent fixture and exit 3.
+    `script` / `opa` are the selftest's injection points."""
+    want = ",".join(sorted(rules))
+    opa = OPA if opa is None else opa
+    if not opa:
+        print(f"opa_gate: {name}: COULD NOT RUN — opa is not installed on this host", file=sys.stderr)
+        return 3
+    missing = [op for op in operands if not os.path.exists(op)]
+    if missing:
+        print(f"opa_gate: {name}: COULD NOT RUN — operand(s) absent: {', '.join(missing)}", file=sys.stderr)
+        return 3
+    try:
+        sets = evaluate(name, measure(name, operands, script))
+    except Exception as e:  # noqa: BLE001 — every crash class is the SAME verdict: fail
+        print(f"opa_gate: {name}: FAIL — expected a {want} denial, the gate did not decide: "
+              f"{type(e).__name__}: {e}", file=sys.stderr)
+        return 1
+    for m in sets["deny"]:
+        print(f"opa_gate: DENY {m}", file=sys.stderr)
+    for m in sets["withheld"]:
+        print(f"opa_gate: WITHHELD {m}", file=sys.stderr)
+    if not sets["deny"]:
+        got = "withheld" if verdict(sets) == 3 else "admitted"
+        print(f"opa_gate: {name}: FAIL — expected a {want} denial, got {got}")
+        return 1
+    fired = {rule_of(m) or "<no rule id>" for m in sets["deny"]}
+    if fired != set(rules):
+        print(f"opa_gate: {name}: FAIL — expected a {want} denial, got {','.join(sorted(fired))} "
+              f"({len(sets['deny'])} deny)")
+        return 1
+    print(f"opa_gate: {name}: expected denial — {want} fired ({len(sets['deny'])} deny, "
+          f"{len(sets['withheld'])} withheld)")
+    return 0
+
+
 def _selftest():
     ok = True
 
@@ -222,6 +318,30 @@ def _selftest():
     chk("a deny outranks admitted", verdict({"deny": ["d"], "withheld": [], "admitted": ["a"]}), 1)
     r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True)
     chk("opa test policy/ passes", r.returncode, 0)
+    # W75 --expect: one arm per outcome, over the real serial reader and fixtures
+    import tempfile
+    fx = os.path.join("catalog", "fixtures", "serial")
+    noise, clean = os.path.join(fx, "noise-only.log"), os.path.join(fx, "clean.log")
+    s0 = parse_expect("denied:S0")
+    chk("--expect parses denied:S0", s0, frozenset({"S0"}))
+    chk("--expect refuses admitted:S0 / denied: / denied:s0",
+        [parse_expect(v) for v in ("admitted:S0", "denied:", "denied:s0")], [None, None, None])
+    chk("--expect: the expected denial passes (0)", expect_gate("serial", [noise], s0), 0)
+    chk("--expect: admitted fails (1)", expect_gate("serial", [clean], s0), 1)
+    chk("--expect: a different rule fails (1)", expect_gate("serial", [noise], parse_expect("denied:S1")), 1)
+    chk("--expect: a superset expectation fails (1)", expect_gate("serial", [noise], parse_expect("denied:S0,S1")), 1)
+    with tempfile.TemporaryDirectory() as td:
+        raising = os.path.join(td, "raising.py")
+        garbage = os.path.join(td, "garbage.py")
+        with open(raising, "w") as f:
+            f.write("raise ImportError('fixture: the reader does not import')\n")
+        with open(garbage, "w") as f:
+            f.write("print('this is not json')\n")
+        chk("--expect: a raising measurer FAILS (1), never 0", expect_gate("serial", [noise], s0, script=raising), 1)
+        chk("--expect: unparseable JSON FAILS (1)", expect_gate("serial", [noise], s0, script=garbage), 1)
+    chk("--expect: an absent fixture could not run (3)", expect_gate("serial", [os.path.join(fx, "absent.log")], s0), 3)
+    chk("--expect: opa absent could not run (3)", expect_gate("serial", [noise], s0, opa=""), 3)
+    chk("--expect: an undefined package FAILS (1)", expect_gate("no_such_policy", [noise], s0, script=measurer("serial")), 1)
     print("opa_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 

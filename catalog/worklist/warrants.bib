@@ -812,3 +812,10 @@
   claim    = {the serial reader is proven able to SEE a bad log, so its admission of the clean one is a measurement: the gap, corrupt and noise-only fixtures are withheld or read as an empty population (which policy/serial.rego denies, S0), alongside split records, sha256 mismatches, duplicate SEQs and frames after el.done},
   check    = {tool:read_serial.py --selftest}
 }
+
+@misc{SERIAL-DENIES,
+  section  = {tooling},
+  rests-on = {SERIAL},
+  claim    = {The serial gate DENIES a log of console noise with the typed S0 denial (no boot with an el.ident: the population is empty, not the probe clean). The negative twin of SERIAL, so the reader-plus-policy pair is graded in both directions: an admission, a different rule, or a reader that crashes or prints unparseable JSON fails this claim rather than passing it (opa_gate.py --expect, W75).},
+  check    = {tool:opa_gate.py serial catalog/fixtures/serial/noise-only.log --expect denied:S0}
+}
