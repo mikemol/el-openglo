@@ -793,3 +793,22 @@
   claim    = {Per variant, the phosphor cursor theme make_cursors emits carries every core shape and every alias KDE, GTK and X11 look them up by, at 24, 32 and 48 px, with an index.theme, and every glyph is drawn only in its variant's solved lit and ground tokens},
   check    = {tool:opa_gate.py cursors}
 }
+
+@misc{POPULATIONS,
+  section  = {tooling},
+  claim    = {Every repo-root walk that builds a population goes through scripts/git_tracked.py, so a population is what git tracks rather than what the directory happens to hold (an untracked render, a stale build dir) — or it is marked with a stated reason; an unmarked disk walk is denied},
+  check    = {tool:opa_gate.py populations}
+}
+
+@misc{SERIAL,
+  section  = {tooling},
+  claim    = {A guest VM reporting over its serial console in el-serial/1 is read by a reader that never returns partial data: a clean boot's log (catalog/fixtures/serial/clean.log) is admitted as one judged case with its blobs verified, under policy/serial.rego},
+  check    = {tool:opa_gate.py serial catalog/fixtures/serial/clean.log}
+}
+
+@misc{SERIAL-SEES,
+  section  = {tooling},
+  rests-on = {SERIAL},
+  claim    = {the serial reader is proven able to SEE a bad log, so its admission of the clean one is a measurement: the gap, corrupt and noise-only fixtures are withheld or read as an empty population (which policy/serial.rego denies, S0), alongside split records, sha256 mismatches, duplicate SEQs and frames after el.done},
+  check    = {tool:read_serial.py --selftest}
+}

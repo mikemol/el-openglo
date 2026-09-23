@@ -63,10 +63,22 @@ from emitters import ORDER, EXTERNAL  # noqa: E402
 CACHE = ".palette-cache.json"          # untracked, but the solve it saves is ~108 s CPU
 
 
+# ⚑ SESSION STATE IS NOT TREE CONTENT (measured 2026-09-23). E3 flaked twice: each
+# time the paths-forward loop rewrote its TRACKED ledger (.claude/paths-forward.*)
+# during the gate — the operator's live session record, written concurrently BY
+# DESIGN, and nothing an emitter can produce. E2 had the same exposure (the copy is
+# taken at the start, compared at the end). What E2/E3 judge is what an EMITTER can
+# write, so the session's own directory is outside both populations, by
+# declaration. An emitter that wrote into .claude/ would be a defect this cannot
+# see — stated, not hidden; check_atomic_writes' census of emitter writes can.
+SESSION_STATE = (".claude/",)
+
+
 def tracked(root):
-    """Every tracked path under `root`, relative (git ls-files -z)."""
+    """Every tracked path under `root`, relative (git ls-files -z), minus session state."""
     r = subprocess.run(["git", "-C", root, "ls-files", "-z"], capture_output=True, check=True)
-    return [p for p in r.stdout.decode("utf-8").split("\0") if p]
+    return [p for p in r.stdout.decode("utf-8").split("\0")
+            if p and not p.startswith(SESSION_STATE)]
 
 
 def fingerprint(root, paths):
