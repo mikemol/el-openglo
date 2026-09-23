@@ -43,6 +43,29 @@ test_u1_opacity_is_not_a_cue if {
 	contains(msg, "C7")
 }
 
+# W72.h: behind an aperture, a fill-SIZE change is measured as opacity (the dots are
+# fixed; only their coverage moves), so a low urgency shown by a shrink is refused
+low_shrink_behind_aperture := {"id": "C7", "file": "templates/marquee-main.qml", "line": 445,
+	"meaning": "low urgency", "sampled_by": {"instance": "field", "component": "ApertureField", "line": 429},
+	"colour": [{"kind": "opacity", "line": 472, "via": "ctx.fillRect"}], "cues": []}
+
+critical_underlined_behind_aperture := {"id": "C6", "file": "templates/marquee-main.qml", "line": 445,
+	"meaning": "critical urgency", "sampled_by": {"instance": "field", "component": "ApertureField", "line": 429},
+	"colour": [{"kind": "hue", "line": 468}, {"kind": "opacity", "line": 481, "via": "ctx.fillRect"}],
+	"cues": [{"kind": "shape", "line": 477, "via": "on"}]}
+
+test_u1_refuses_a_fill_size_only_cue_behind_an_aperture if {
+	some msg in uc.deny with input as {"cases": [low_shrink_behind_aperture]}
+	contains(msg, "C7")
+	contains(msg, "(opacity)")
+}
+
+test_admits_a_lit_row_behind_an_aperture if {
+	inp := {"cases": [critical_underlined_behind_aperture, low_shrink_behind_aperture]}
+	count(uc.deny) == 1 with input as inp
+	uc.admitted == {"C6"} with input as inp
+}
+
 test_admits_a_weight_cue if {
 	inp := {"cases": [critical_weighted, low_light]}
 	count(uc.deny) == 0 with input as inp

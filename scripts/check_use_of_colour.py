@@ -20,6 +20,23 @@ reaches. Each sink is a channel:
 An alias of the predicate's subject is found structurally too: a variable assigned from
 `root.urgencyAt(...)` IS an urgency, whatever it is named (the gauge calls it `u0`).
 
+⚑ THE SINK DEPENDS ON WHO READS THE CANVAS (W72.h, measured from pixels: low~normal
+footprint 1.007-1.045 on all six variants — the "light dot" was not lighter in SIZE).
+A painter that draws into an APERTURE's backdrop is not what the eye sees; the aperture
+samples it. templates/ApertureField.qml:179-180 fixes every dot's size from the pitch
+and dotFill alone (`d = round(uPx * dotFill)`), and :190 sets its only varying output,
+`opacity: parent.cov`, where :151 makes cov the fraction of the cell's s x s aperture
+the backdrop ink covers. So behind an aperture a fillRect SIZE change renders as the
+same dots at another OPACITY: ctx.fillRect is an opacity sink there, i.e. colour.
+Whether a painter is aperture-fed is DERIVED, not listed: the painter's
+`<id>.backdrop.getContext` names an instance `<id>` of a component that declares
+`property alias backdrop` (found by scanning templates/ for it: an aperture component).
+
+The lit-cell predicate `on` STAYS shape through the aperture: `if (!on) continue` skips
+the fillRect, so an unlit cell puts NO ink in its aperture and its pip sits at the
+ghost floor, while a lit one is covered — a row lit that is otherwise dark (the
+critical underline) survives sampling as a different SET of lit pips, not a level.
+
     scripts/check_use_of_colour.py --json      # the measurement (policy/use_of_colour.rego decides)
     scripts/check_use_of_colour.py --list      # every condition's channels, then n of m with a non-colour cue
     scripts/check_use_of_colour.py --selftest  # the measurement can SEE a colour-only fixture
@@ -27,8 +44,12 @@ An alias of the predicate's subject is found structurally too: a variable assign
 The requirement is policy/use_of_colour.rego, run through `scripts/opa_gate.py use_of_colour`.
 
 WEAKNESS, STATED. It proves a cue EXISTS and shares the predicate; it does not prove the
-cue is PERCEPTIBLE (a quarter-cell shrink could be too small to read at panel size — that
-needs a render against catalog/library/screens/). The lexer is a JS-token lexer, not a JS
+cue is PERCEPTIBLE at panel size — a lit row may still be too faint or too small to
+read. That is a PIXEL measurement's job (the urgency-cue render check drafted as
+scripts/check_urgency_cues.py in another worktree; not on main), not a lexer's. The
+aperture rule is also coarse in the other direction: a fillRect that GROWS past its
+cell (bold's +s/2) spills ink into neighbouring apertures, which is partly spatial,
+but this counts every size change behind an aperture as opacity. The lexer is a JS-token lexer, not a JS
 parser: a painter written in a shape it does not split (a sink behind a helper function,
 a predicate built at run time) is invisible until this learns it. The population is the
 painters in PAINTERS; census rows the source cannot decide (delegated to a consumer, or
@@ -180,11 +201,47 @@ def _mentions(rhs, subjects, test, tainted):
     return False
 
 
-def measure_painter(src, fn, surface, file):
-    """[case] for one painter: per CONDITION, its channels, split into colour and cues."""
-    body = function_body(lex(src), fn)
+def aperture_components(sources):
+    """{component name} — the QML files (name -> source) whose tokens declare
+    `property alias backdrop`: a component that samples a canvas its owner draws into."""
+    out = set()
+    for name, src in sources.items():
+        w = [t[1] for t in lex(src)]
+        if any(w[i:i + 3] == ["property", "alias", "backdrop"] for i in range(len(w) - 2)):
+            out.add(name)
+    return out
+
+
+def aperture_feed(toks, body, components):
+    """{instance, component, line} when the painter draws into `<id>.backdrop` of an
+    instance of an aperture component declared in the same file; else None."""
+    ids = {}
+    for i in range(len(toks) - 1):
+        if toks[i][1] in components and toks[i + 1][1] == "{":
+            depth = 0
+            for k in range(i + 1, len(toks) - 2):
+                depth += {"{": 1, "}": -1}.get(toks[k][1], 0)
+                if depth == 0:
+                    break
+                if depth == 1 and toks[k][1] == "id" and toks[k + 1][1] == ":":
+                    ids[toks[k + 2][1]] = toks[i][1]
+                    break
+    for t in body:
+        head = t[1].split(".")
+        if t[0] == "id" and len(head) >= 3 and head[1:3] == ["backdrop", "getContext"] and head[0] in ids:
+            return {"instance": head[0], "component": ids[head[0]], "line": t[2]}
+    return None
+
+
+def measure_painter(src, fn, surface, file, components=frozenset()):
+    """[case] for one painter: per CONDITION, its channels, split into colour and cues.
+    Behind an aperture (see the module docstring) ctx.fillRect is an opacity sink."""
+    toks = lex(src)
+    body = function_body(toks, fn)
     if body is None:
         return None
+    feed = aperture_feed(toks, body, components)
+    sinks = dict(SINKS, **({"ctx.fillRect": "opacity"} if feed else {}))
     stmts = statements(body)
     aliases = {"urgency": {"urgency"}}
     for target, rhs, _ in stmts:
@@ -208,22 +265,30 @@ def measure_painter(src, fn, surface, file):
                     changed = True
         channels = []
         for target, rhs, line in stmts:
-            if target in SINKS and _mentions(rhs, subjects, test, tainted):
-                channels.append({"kind": SINKS[target], "line": line, "via": target})
+            if target in sinks and _mentions(rhs, subjects, test, tainted):
+                channels.append({"kind": sinks[target], "line": line, "via": target})
         lines = [ln for _, rhs, ln in stmts if any(t[1] in subjects for t in rhs)]
         cases.append({"id": cid, "surface": surface, "file": file, "line": min(lines),
                       "meaning": meaning, "predicate": sorted(subjects), "tainted": sorted(tainted),
+                      "sampled_by": feed,
                       "colour": [c for c in channels if c["kind"] in COLOUR_CHANNELS],
                       "cues": [c for c in channels if c["kind"] not in COLOUR_CHANNELS]})
     return cases
 
 
+def template_sources():
+    d = os.path.join(ROOT, "templates")
+    return {f[:-4]: open(os.path.join(d, f), encoding="utf-8").read()
+            for f in sorted(os.listdir(d)) if f.endswith(".qml")}
+
+
 def measure():
     cases, withheld = [], []
+    components = aperture_components(template_sources())
     for p in PAINTERS:
         path = os.path.join(ROOT, p["file"])
-        got = measure_painter(open(path, encoding="utf-8").read(), p["function"], p["surface"], p["file"]) \
-            if os.path.isfile(path) else None
+        got = measure_painter(open(path, encoding="utf-8").read(), p["function"], p["surface"], p["file"],
+                              components) if os.path.isfile(path) else None
         if got is None:
             withheld.append({"id": p["surface"], "file": p["file"], "line": 0,
                              "reason": f"painter function {p['function']} not found"})
@@ -231,7 +296,7 @@ def measure():
             cases += got
     withheld += [dict(w, line=0) for w in WITHHELD]
     return {"cases": cases, "withheld": withheld, "painters": len(PAINTERS),
-            "conditions": len(CONDITIONS)}
+            "conditions": len(CONDITIONS), "aperture_components": sorted(components)}
 
 
 def main(argv):
@@ -250,7 +315,9 @@ def main(argv):
         for c in m["cases"]:
             col = ",".join(sorted({x["kind"] for x in c["colour"]})) or "-"
             cue = ",".join(sorted({x["kind"] for x in c["cues"]})) or "NONE"
-            print(f"  {c['id']:4s} {c['file']}:{c['line']:<4d} colour={col:12s} cues={cue:14s} {c['meaning']}")
+            via = f"  [sampled by {c['sampled_by']['instance']} ({c['sampled_by']['component']})]" \
+                if c.get("sampled_by") else ""
+            print(f"  {c['id']:4s} {c['file']}:{c['line']:<4d} colour={col:12s} cues={cue:14s} {c['meaning']}{via}")
         for w in m["withheld"]:
             print(f"  {w['id']:4s} {w['file']}  withheld: {w['reason']}")
         good = sum(bool(c["cues"]) for c in m["cases"])
@@ -285,6 +352,14 @@ function paint() {
     }
 }
 """
+# the SAME painter, drawing into an aperture's backdrop: its size changes become opacity
+APERTURE_COMPONENT = "Item { property alias backdrop: bd\n Canvas { id: bd } }"
+APERTURE_FED = """
+Item {
+    Pinholes { id: fld; rows: 8 }
+    function paint() {
+        var ctx = fld.backdrop.getContext("2d");
+""" + WITH_CUES.split("function paint() {", 1)[1] + "}\n"
 
 
 def _selftest():
@@ -309,8 +384,21 @@ def _selftest():
     chk("with cues: critical is weight + shape", kinds(good, "C6", "cues"), ["shape", "weight"])
     chk("with cues: low is weight, no opacity", (kinds(good, "C7", "colour"), kinds(good, "C7", "cues")), ([], ["weight"]))
     chk("an absent painter is None", measure_painter(COLOUR_ONLY, "nope", "f", "f"), None)
+    comps = aperture_components({"Pinholes": APERTURE_COMPONENT, "Plain": "Item { Canvas { id: c } }"})
+    chk("an aperture component is found by its backdrop alias", comps, {"Pinholes"})
+    fed = measure_painter(APERTURE_FED, "paint", "fixture", "fixture.qml", comps)
+    chk("behind an aperture: the feed is derived", fed[0]["sampled_by"]["instance"], "fld")
+    chk("behind an aperture: low's shrink is opacity, no cue",
+        (kinds(fed, "C7", "colour"), kinds(fed, "C7", "cues")), (["opacity"], []))
+    chk("behind an aperture: critical keeps the lit row (shape), weight gone",
+        kinds(fed, "C6", "cues"), ["shape"])
+    chk("without the component known, the same painter is not aperture-fed",
+        kinds(measure_painter(APERTURE_FED, "paint", "f", "f"), "C7", "cues"), ["weight"])
     m = measure()
     chk("the real tree measures every condition", len(m["cases"]), len(CONDITIONS))
+    chk("the real tree finds ApertureField as an aperture", "ApertureField" in m["aperture_components"], True)
+    chk("the real marquee painter is derived as aperture-fed",
+        {(c["sampled_by"] or {}).get("component") for c in m["cases"]}, {"ApertureField"})
     print("check_use_of_colour selftest:", "PASS" if ok else "FAIL")
     return ok
 
