@@ -27,9 +27,14 @@ def variants():
     ⚑ NOT A HARDCODED ROSTER.  The emitter's __main__ names six variants but only
     some ship a `.colors` file; a fixed list would report a missing FILE as a
     broken THEME, and would silently go stale across a rename.  The scheme files
-    on disk are the authority for what exists to emit."""
-    return sorted(f[:-len(".colors")] for f in os.listdir(ROOT)
-                  if f.endswith(".colors"))
+    on disk are the authority for what exists to emit.
+
+    ⚑ THE POPULATION COMES FROM THE SAME SNAPSHOT AS THE COLOURS (W75): listing the
+    working tree while parse_scheme reads the artifact would judge one version's
+    colours over another version's roster."""
+    sys.path.insert(0, ROOT)
+    import schemes_artifact
+    return sorted(schemes_artifact.variants())
 
 
 def _emit():

@@ -113,9 +113,17 @@ def copy_tree(src, dst, paths):
 
 
 def run_in(copy, mod, timeout=600):
-    """(rc, last stderr line) of `mod` run as __main__ inside `copy`."""
+    """(rc, last stderr line) of `mod` run as __main__ inside `copy`.
+
+    ⚑ THE GATE'S `schemes` ARTIFACT IS UN-DECLARED HERE (W75). This copy is a private
+    BUILD: its make_schemes emits the copy's own .colors and every later emitter must
+    read THOSE. Inheriting the gate's snapshot would feed the tracked palette to the
+    emitters downstream of a re-solve, and a drift in make_schemes would be judged
+    against outputs that never saw it."""
+    import schemes_artifact
     r = subprocess.run([sys.executable, os.path.join(copy, mod + ".py")], cwd=copy,
-                       capture_output=True, text=True, timeout=timeout)
+                       capture_output=True, text=True, timeout=timeout,
+                       env=schemes_artifact.with_declared(os.environ, None))
     tail = (r.stderr or r.stdout).strip().splitlines()
     return r.returncode, (tail[-1] if tail else f"exit {r.returncode}")
 

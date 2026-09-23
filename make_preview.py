@@ -14,8 +14,14 @@ W, H = 384, 256  # KDE thumbnail aspect
 
 
 def parse_scheme(variant):
-    """Pull the identity colors from EL-<variant>.colors."""
-    path = os.path.join(ROOT, f"{variant}.colors")
+    """Pull the identity colors from EL-<variant>.colors.
+
+    ⚑ FROM THE `schemes` ARTIFACT, NOT THE WORKING TREE (W75). The file is read out of
+    one content-addressed snapshot (schemes_artifact.path) — the one the gate declared,
+    or one this process froze on first use — so every read in a run sees ONE palette
+    even while something rewrites the tracked EL-*.colors."""
+    import schemes_artifact
+    path = schemes_artifact.path(variant)
     text = open(path).read()
     section = {}
     cur = None

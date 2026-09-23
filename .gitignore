@@ -28,6 +28,9 @@ catalog/cotype/.delta-cache.json
 # check_tree_writes' scratch worktrees — under the repo for the same reason:
 # @EBUILD run inside one stages under that sandbox.
 .tree-writes/
+# W75: content-addressed build artifacts (.build/schemes/<digest>/), materialised by
+# the gate and read by every palette reader; regenerable, never source.
+.build/
 
 # ⚑ THE SAMPLE LIBRARY IS THE EXCEPTION: build output that EXISTS to be looked
 # at, on GitHub, in a diff, by someone who has run nothing. A gitignored sample

@@ -295,6 +295,28 @@ def _reexec_under_uv():
                           cwd=ROOT, env=env).returncode
 
 
+SCHEMES_ACTION = os.path.join(ROOT, "schemes_artifact.py")
+
+
+def _materialise_schemes():
+    """{PAPERKIT_BUILT_ARTIFACTS: ...} declaring `schemes=<snapshot>`, or None (REFUSED,
+    reason printed). A snapshot this run cannot take is a refusal, never a silent
+    fall-back to per-check reads of the mutable tree."""
+    r = subprocess.run([sys.executable, SCHEMES_ACTION, "--materialise"],
+                       cwd=ROOT, capture_output=True, text=True)
+    fields = (r.stdout or "").split()
+    if r.returncode != 0 or len(fields) != 2:
+        print(f"worklist_gate: REFUSED — the schemes artifact could not be materialised: "
+              f"{(r.stderr or r.stdout).strip()}", file=sys.stderr)
+        return None
+    digest, path = fields
+    pairs = [p for p in os.environ.get("PAPERKIT_BUILT_ARTIFACTS", "").split()
+             if p.partition("=")[0] != "schemes"] + [f"schemes={path}"]
+    print(f"worklist_gate: schemes artifact {digest[:16]}… declared to every check",
+          file=sys.stderr)
+    return {"PAPERKIT_BUILT_ARTIFACTS": " ".join(pairs)}
+
+
 _FAILED = re.compile(r"check FAILED for \[@([^\]]+)\]:\s*(\S+):(.+?)\s*$", re.M)
 
 
@@ -423,6 +445,16 @@ def main(argv):
         print(f"worklist_gate: REFUSED — the engine has no {script} "
               f"(looked in {os.path.dirname(path)})", file=sys.stderr)
         return 2
+
+    # ⚑ THE `schemes` ARTIFACT IS MATERIALISED ONCE, BEFORE ANY CHECK RUNS (W75), and
+    # handed to every check as a DECLARED INPUT through paperkit's own `builds`
+    # variable. ~20 checks read the palette; reading the tracked EL-*.colors by path
+    # let two checks in one run judge two palettes if the tree moved between them.
+    # Materialised as its own PROCESS (the action boundary), not an import.
+    snap = _materialise_schemes()
+    if snap is None:
+        return 2
+    os.environ.update(snap)
 
     targets = {only: PROJECTS[only]} if only else PROJECTS
     worst = 0
@@ -588,6 +620,17 @@ def _selftest():
     check("...and is counted as reproduced", "1 reproduced" in out, True)
     out = replay_of("check FAILED for [@X]: nosuchtype:whatever")
     check("an undeclared check type is WITHHELD", "WITHHELD" in out, True)
+
+    # ⚑ THE SCHEMES ARTIFACT (W75) IS DRIVEN, not read: the gate's materialise arm
+    # yields a declaration whose `schemes=` directory is named by its own content.
+    decl = _materialise_schemes()
+    check("the gate declares a schemes snapshot", bool(decl), True)
+    if decl:
+        # a CHECK handed that declaration verifies it (digest == name) and reads IT
+        r = subprocess.run([sys.executable, SCHEMES_ACTION, "--where"],
+                           env=dict(os.environ, **decl), capture_output=True, text=True)
+        check("...which a check reads as DECLARED, digest verified",
+              (r.returncode, "declared" in r.stdout), (0, True))
 
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")
     return ok

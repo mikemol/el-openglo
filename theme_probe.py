@@ -43,8 +43,12 @@ SCHEMES = "/usr/share/color-schemes"
 
 
 def scheme_path(variant):
-    """The variant's .colors: the tree's emission if present, else the installed one."""
-    for p in (os.path.join(ROOT, f"{variant}.colors"), os.path.join(SCHEMES, f"{variant}.colors")):
+    """The variant's .colors: the tree's emission if present, else the installed one.
+
+    ⚑ "The tree's emission" is the `schemes` ARTIFACT (W75), not the working-tree file:
+    the kdeglobals a probe hands Qt is the same snapshot parse_scheme reads."""
+    import schemes_artifact
+    for p in (schemes_artifact.path(variant), os.path.join(SCHEMES, f"{variant}.colors")):
         if os.path.isfile(p):
             return p
     return None
