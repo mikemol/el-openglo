@@ -10,6 +10,7 @@
 #   not, so a residual skew is bounded, not forbidden.
 package el.ghost_balance
 
+import data.el.fmt
 import rego.v1
 
 # the residual an 8-bit segment can leave after an exact luminance solve;
@@ -26,7 +27,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in input.cases
 	c.solve < c.scan - 1e-9
-	msg := sprintf("B1: %s: solved worst side %.4f < scanned %.4f", [c.id, c.solve, c.scan])
+	msg := sprintf("B1: %s: solved worst side %s < scanned %s", [c.id, fmt.fixed(c.solve, 4), fmt.fixed(c.scan, 4)])
 }
 
 # METADATA
@@ -34,7 +35,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in input.cases
 	c.skew > max_skew
-	msg := sprintf("B2: %s: sides differ by %.4fx (> %v); the ghost is not at the balance point", [c.id, c.skew, max_skew])
+	msg := sprintf("B2: %s: sides differ by %sx (> %v); the ghost is not at the balance point", [c.id, fmt.fixed(c.skew, 4), max_skew])
 }
 
 admitted contains c.id if {

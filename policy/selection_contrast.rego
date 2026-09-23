@@ -10,6 +10,7 @@
 #   "25 of 25", exit 0 (W65). Weakness: a legibility FLOOR, not a preferred colour.
 package el.selection_contrast
 
+import data.el.fmt
 import rego.v1
 
 # WCAG AA large text. Raise to 4.5 (AA body) when the Selection/ForegroundActive
@@ -50,7 +51,7 @@ deny contains msg if {
 	c.ratio != null
 	not pinned[c.id]
 	c.ratio < floor
-	msg := sprintf("S1: %s: %v on %v = %.2f:1, below %.1f:1", [c.id, c.fg, c.bg, c.ratio, floor])
+	msg := sprintf("S1: %s: %v on %v = %s:1, below %s:1", [c.id, c.fg, c.bg, fmt.fixed(c.ratio, 2), fmt.fixed(floor, 1)])
 }
 
 # METADATA
@@ -60,7 +61,7 @@ deny contains msg if {
 	c.ratio != null
 	pin := pinned[c.id]
 	abs(c.ratio - pin) > 0.05
-	msg := sprintf("S2: %s: %.2f:1, pinned at %v — an improvement must leave the table", [c.id, c.ratio, pin])
+	msg := sprintf("S2: %s: %s:1, pinned at %v — an improvement must leave the table", [c.id, fmt.fixed(c.ratio, 2), pin])
 }
 
 admitted contains c.id if {

@@ -6,6 +6,7 @@
 #   with the normalised similarity to the source.
 package el.legibility
 
+import data.el.fmt
 import rego.v1
 
 deny contains msg if {
@@ -44,7 +45,7 @@ deny contains msg if {
 	not c.withheld
 	c.lang == "eng"
 	c.score < 0.55
-	msg := sprintf("G2: %s reads %q for %q — score %.3f, below the 0.55 floor", [c.label, c.read, c.text, c.score])
+	msg := sprintf("G2: %s reads %q for %q — score %s, below the 0.55 floor", [c.label, c.read, c.text, fmt.fixed(c.score, 3)])
 }
 
 # the cases judged and passed — beside these, a withheld case is a SKIP, not

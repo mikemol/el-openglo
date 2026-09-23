@@ -12,6 +12,7 @@
 #   (--matrix) are not modelled here.
 package el.ghost_composite
 
+import data.el.fmt
 import rego.v1
 
 # how far under the ceiling a looked-at seen ghost may sit and still be ON
@@ -49,9 +50,10 @@ deny contains msg if {
 	msg := sprintf("C3: %s: the seen ghost sits at Lc %v, more than %v under the %v ceiling it is solved toward (W23)", [c.id, d1(c.lc_composited), target_slack, input.ceiling])
 }
 
-# one decimal, printed by %v: sprintf's %.1f renders an integral JSON number
-# (25.0 arrives as 25) as "%!f(int=25)"
-d1(x) := round(x * 10) / 10
+# one decimal: sprintf's %.1f renders an integral JSON number (25.0 arrives as
+# 25) as "%!f(int=25)"; data.el.fmt (policy/lib/fmt.rego) is the one fix for
+# every policy, and prints 25 as "25.0"
+d1(x) := fmt.fixed(x, 1)
 
 # METADATA
 # title: "C4 — looked-at: the emitted SegmentChar.qml draws the solved alpha"

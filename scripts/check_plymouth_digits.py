@@ -8,20 +8,25 @@ the coarse strokes. Importing an authority and then not using it is the harder
 version of the silo, because every scan that asks "does this read the substrate?"
 says yes.
 
-    scripts/check_plymouth_digits.py           # exit 0 iff its glyphs match
+    scripts/check_plymouth_digits.py           # the verdict, as opa_gate plymouth_digits decides it
+    scripts/check_plymouth_digits.py --json    # the measurement policy/plymouth_digits.rego decides
     scripts/check_plymouth_digits.py --table   # digit -> substrate vs plymouth
+    scripts/check_plymouth_digits.py --selftest
 
 ⚑ THIS COMPARES GLYPHS, NOT PIXELS.  The renderer's job is to turn a segment set
 into a polygon; the SUBSTRATE's job is to say which segments a digit lights.
 Comparing rendered PNGs would conflate the two and fail on an antialiasing
 change. What must agree is the segment set, in the substrate's own lowercase
-7-seg naming.
+7-seg naming. Which digits must be compared, and that the two sets must be
+equal, is the policy's ruling (W50); this file only reads both tables.
 """
 import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
+
+DIGITS = "0123456789"
 
 
 def rows():
@@ -30,42 +35,46 @@ def rows():
     import segment_topology as ST
     import make_plymouth as MP
     out = []
-    for d in "0123456789":
+    for d in DIGITS:
         want = set(ST.project(ST.glyph16(d), "7"))
         got = set(MP.SEVENSEG.get(d, ()))
         out.append((d, sorted(want), sorted(got)))
     return out
 
 
+def measure():
+    """The MEASUREMENT policy/plymouth_digits.rego decides: one case per digit —
+    the substrate's 7-seg projection and plymouth's SEVENSEG entry — or, when
+    either table cannot be read at all, no cases and the `error` that stopped it."""
+    try:
+        data = rows()
+    except Exception as e:                       # noqa: BLE001
+        return {"cases": [], "error": f"{type(e).__name__}: {e}"}
+    return {"error": None,
+            "cases": [{"id": d, "substrate": w, "plymouth": g} for d, w, g in data]}
+
+
 def main(argv):
-    known = {"--table"}
+    known = {"--table", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_plymouth_digits: unknown flag {a!r}", file=sys.stderr)
             return 2
-    try:
-        data = rows()
-    except Exception as e:                       # noqa: BLE001
-        print(f"check_plymouth_digits: REFUSED — {type(e).__name__}: {e}",
-              file=sys.stderr)
-        return 2
-    if "--table" in argv:
-        for d, want, got in data:
-            mark = "  " if want == got else "！"
-            print(f"{mark}{d}\tsubstrate={''.join(want)}\tplymouth={''.join(got)}")
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
         return 0
-    bad = [(d, w, g) for d, w, g in data if w != g]
-    if bad:
-        print(f"check_plymouth_digits: REFUSED — {len(bad)} of {len(data)} digit(s) "
-              f"differ from the substrate:", file=sys.stderr)
-        for d, w, g in bad:
-            print(f"    '{d}': substrate {''.join(w)} vs plymouth {''.join(g)}",
-                  file=sys.stderr)
-        print(f"  fixes: {len(bad)}", file=sys.stderr)
-        return 1
-    print(f"check_plymouth_digits: {len(data)} of {len(data)} digits match the "
-          f"substrate's 7-seg projection")
-    return 0
+    if "--table" in argv:
+        m = measure()
+        if m["error"]:
+            print(f"check_plymouth_digits: cannot read the tables — {m['error']}", file=sys.stderr)
+            return 2
+        for c in m["cases"]:
+            mark = "  " if c["substrate"] == c["plymouth"] else "！"
+            print(f"{mark}{c['id']}\tsubstrate={''.join(c['substrate'])}\tplymouth={''.join(c['plymouth'])}")
+        return 0
+    import opa_gate
+    return opa_gate.gate("plymouth_digits")
 
 
 def _selftest():
@@ -79,15 +88,23 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    data = rows()
-    check("all ten digits are compared", len(data), 10)
+    m = measure()
+    check("the tables are read", m["error"], None)
+    check("all ten digits are measured", [c["id"] for c in m["cases"]], list(DIGITS))
     check("the substrate side is non-empty",
-          all(w for _d, w, _g in data), True)
-    # ⚑ THE COMPARISON MUST BE ABLE TO FAIL: a digit whose sets differ must be
-    # reported, so the check is not merely observing two views of one table.
-    fake = [("X", ["a", "b"], ["a"])]
-    check("a differing digit would be caught",
-          [d for d, w, g in fake if w != g], ["X"])
+          all(c["substrate"] for c in m["cases"]), True)
+    # ⚑ THE MEASUREMENT MUST SEE PLYMOUTH'S OWN TABLE, not a second view of the
+    # substrate: drop a segment from plymouth's copy and the case must carry it.
+    # That a differing digit is DENIED is policy/plymouth_digits_test.rego's ruling.
+    import make_plymouth as MP
+    saved = MP.SEVENSEG
+    try:
+        MP.SEVENSEG = dict(saved, **{"8": tuple(saved["8"])[1:]})
+        c8 = next(c for c in measure()["cases"] if c["id"] == "8")
+        check("a segment dropped from plymouth's table is measured",
+              len(c8["plymouth"]), len(c8["substrate"]) - 1)
+    finally:
+        MP.SEVENSEG = saved
     print("check_plymouth_digits selftest:", "PASS" if ok else "FAIL")
     return ok
 

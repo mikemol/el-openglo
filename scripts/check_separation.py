@@ -7,9 +7,16 @@ not a script, not a __main__ block, not another module.  Eight separation pairs 
 DECLARED and never checked, which is worse than not declaring them: a reader sees a pair
 list and concludes the pairs are gated.
 
-    scripts/check_separation.py            # exit 0 iff every ENFORCED pair clears its floor
+    scripts/check_separation.py            # the verdict, as opa_gate separation decides it
+    scripts/check_separation.py --json     # the measurement policy/separation.rego decides
     scripts/check_separation.py --surfaced # also report the SURFACED pairs (never gating)
     scripts/check_separation.py --selftest # prove the walk can SEE a violation
+
+⚑ THE FLOOR IS THE POLICY'S (W50).  This file measures, per variant and ENFORCED
+pair, the worst-view CAM02-UCS distance (cvd_gate.worst_view_dE — the metric
+audit_variant walks) and the reference floor; the 0.8 factor that turns the
+floor into a requirement, and the verdict, live in policy/separation.rego.
+audit_variant is still called — by --surfaced and by the selftest's fixtures.
 
 ⚑ WHY ENFORCED GATES AND SURFACED DOES NOT.  The class is a real distinction: where colour
 is the SOLE carrier of a meaning, a CVD viewer who cannot separate two colours loses the
@@ -47,61 +54,50 @@ def variants():
     return out
 
 
-def audit(quiet=True):
-    """[(variant_id, violation)] over every variant, via cvd_gate's own walker.
+def measure(vs=None, enforced=None):
+    """The MEASUREMENT policy/separation.rego decides: the variants, the ENFORCED
+    pair names, the reference floor (dE), and one case per (variant, pair) — its
+    worst-view dE and the view that collapses it, or `dE: null` with the reason
+    it could not be read (a token the variant does not carry).
 
-    Calls `audit_variant` — the point of this file is that this call exists."""
-    floor = C.reference_floor()[0]
-    out = []
-    for vid, t in variants():
-        if quiet:
-            import io
-            import contextlib
-            buf = io.StringIO()
-            with contextlib.redirect_stdout(buf):
-                viol = C.audit_variant(t, floor)
-        else:
-            viol = C.audit_variant(t, floor)
-        for v in viol:
-            out.append((vid, v))
-    return out
+    ⚑ AN EMPTY POPULATION IS A BROKEN SEARCH.  Zero variants or zero declared pairs
+    make every case list vacuous; that is the failure mode the house rule names,
+    and it is not hypothetical — check_palette_graph shipped with it. The policy's
+    D0 denies it; this file only reports the lists it walked."""
+    vs = variants() if vs is None else vs
+    enforced = tuple(C.ENFORCED) if enforced is None else tuple(enforced)
+    cases = []
+    for vid, t in vs:
+        for name, a, b in enforced:
+            case = {"id": f"{vid}/{name}", "variant": vid, "pair": name, "a": a, "b": b}
+            try:
+                d, view = C.worst_view_dE(C.rgb(t[a]), C.rgb(t[b]))
+                case.update(dE=round(d, 4), view=view, why=None)
+            except KeyError as e:
+                case.update(dE=None, view=None, why=f"the variant carries no token {e}")
+            cases.append(case)
+    return {"variants": [v for v, _t in vs], "enforced": [n for n, _a, _b in enforced],
+            "surfaced": [n for n, _a, _b in C.SURFACED],
+            "floor": round(C.reference_floor()[0], 4), "cases": cases}
 
 
 def main(argv):
-    known = {"--surfaced", "--selftest"}
+    known = {"--surfaced", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_separation: unknown flag {a!r}", file=sys.stderr)
             return 2
-
-    vs = variants()
-    n_enf = len(C.ENFORCED)
-    # ⚑ AN EMPTY POPULATION IS A BROKEN SEARCH.  Zero variants or zero declared pairs
-    # would make every loop below vacuous and print a pass; that is the failure mode the
-    # house rule names, and it is not hypothetical — check_palette_graph shipped with it.
-    if not vs or not n_enf:
-        print(f"check_separation: REFUSED — an empty population ({len(vs)} variants, "
-              f"{n_enf} enforced pairs); the search is broken, not the palette clean",
-              file=sys.stderr)
-        return 2
-
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--surfaced" in argv:
         floor = C.reference_floor()[0]
-        for _vid, t in vs:
+        for _vid, t in variants():
             C.audit_variant(t, floor)
         return 0
-
-    bad = audit()
-    total = len(vs) * n_enf
-    if bad:
-        print(f"check_separation: REFUSED — {len(bad)} of {total} enforced pair(s) "
-              f"fall below the CVD separation floor:", file=sys.stderr)
-        for vid, v in bad:
-            print(f"    {vid}: {v}", file=sys.stderr)
-        return 1
-    print(f"check_separation: {total} of {total} enforced pairs clear the CVD floor "
-          f"({len(vs)} variants x {n_enf} pairs, {len(C.SURFACED)} surfaced pairs reported)")
-    return 0
+    import opa_gate
+    return opa_gate.gate("separation")
 
 
 def _selftest():
@@ -122,7 +118,10 @@ def _selftest():
             print(f"  ok   {label}")
 
     floor = C.reference_floor()[0]
-    check("the real palette passes", main(["x"]), 0)
+    m = measure()
+    check("the real palette is measured, every pair read",
+          (len(m["cases"]) == len(m["variants"]) * len(m["enforced"]) > 0,
+           [c["id"] for c in m["cases"] if c["dE"] is None]), (True, []))
     check("the authority declares enforced pairs", len(C.ENFORCED) > 0, True)
     check("the authority declares surfaced pairs", len(C.SURFACED) > 0, True)
 
@@ -147,6 +146,13 @@ def _selftest():
     with contextlib.redirect_stdout(buf):
         viol = C.audit_variant(broken, floor)
     check("sees identical colours as violations", len(viol), len(C.ENFORCED))
+    # ...and the MEASUREMENT sees them too: every pair at dE 0. That dE 0 is
+    # DENIED is policy/separation_test.rego's ruling.
+    check("the measurement reads identical colours as dE 0",
+          {c["dE"] for c in measure(vs=[("SELFTEST-BAD", broken)])["cases"]}, {0.0})
+    check("a variant missing a token is measured as unreadable, not skipped",
+          [c["why"] is not None for c in measure(vs=[("SELFTEST-EMPTY", {"id": "x"})])["cases"]],
+          [True] * len(C.ENFORCED))
 
     # and a variant built from the Okabe-Ito reference itself: must NOT violate
     names = list(C.OKABE_ITO)

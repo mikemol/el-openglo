@@ -35,6 +35,17 @@ test_b2_refuses_an_off_balance_ghost if {
 	startswith(msg, "B2: EL-Openglo-Lit: sides differ by 11.4000x")
 }
 
+# whole-number sides and skew (JSON 4 / 2 arrive as ints) must not print %!f(int=…)
+test_b_messages_format_whole_numbers if {
+	bad := {"cases": [object.union(good.cases[0], {"scan": 4, "solve": 3, "skew": 2})]}
+	msgs := p.deny with input as bad
+	count(msgs) == 2
+	every msg in msgs {
+		not contains(msg, "%!")
+	}
+	"B1: EL-Openglo: solved worst side 3.0000 < scanned 4.0000" in msgs
+}
+
 test_b2_the_bound_is_inclusive if {
 	count(p.deny) == 0 with input as {"cases": [object.union(good.cases[0], {"skew": 1.06})]}
 }

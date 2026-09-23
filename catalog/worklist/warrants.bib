@@ -50,7 +50,7 @@
 @misc{COMPILES,
   section = {recovery},
   claim   = {every recovered generator byte-compiles},
-  check   = {tool:check_compiles.py}
+  check   = {tool:opa_gate.py compiles}
 }
 
 @misc{PARTIAL,
@@ -133,7 +133,7 @@
   section = {pipeline},
   claim   = {every separation pair the authority declares enforced is evaluated against the CVD floor on every variant, rather than merely being listed},
   rests-on = {GRAPH},
-  check   = {tool:check_separation.py}
+  check   = {tool:opa_gate.py separation}
 }
 
 % ⚑ AN ALL-CLEAR AND A NEVER-RUN ARE THE SAME SILENCE.  That equivalence is exactly
@@ -259,7 +259,7 @@
   section = {emitters},
   claim   = {the emitted role theme assigns palette members to a consumer's declared roles so that no other assignment over the same pool separates better, rather than merely clearing the floor},
   rests-on = {SEPARATION},
-  check   = {tool:check_role_theme.py}
+  check   = {tool:opa_gate.py role_theme}
 }
 
 % ⚑ AND THE .dot MUST RENDER, NOT MERELY PARSE. The first emitter wrote
@@ -499,7 +499,7 @@
   section = {emitters},
   claim   = {the boot splash's digits are the substrate's own seven-segment projection, not a parallel table that happens to agree},
   rests-on = {GEOMETRY},
-  check   = {tool:check_plymouth_digits.py}
+  check   = {tool:opa_gate.py plymouth_digits}
 }
 
 % ⚑ THE WITNESS I DID NOT HAVE WHEN I NEEDED IT.  I read an offset ghost layer
@@ -636,7 +636,7 @@
 
 @misc{FONT-EMIT,
   claim    = {The segment and matrix fonts are peer emitters of the substrate: TTFs built natively from a contour source (one build_ttf, glyph_contours and matrix_contours as its two instances) plus SVG fonts, every declared glyph in the cmap, each glyph's contour count equal to its lit primitives, the built glyf's orientation agreeing with the source's, and the SVG fonts carrying one glyph per charset member},
-  check    = {tool:check_font.py},
+  check    = {tool:opa_gate.py font},
   note     = {W24, 2026-09-21: ⊕SEG-FONT, ⊕SEG-FONT-TTF, ⊕DOT-FONT, ⊕DOT-FONT-TTF were CLOSED in the log and KNOWN-LOST in the tree; rebuilt to the closures' own specs (sessions 22-25). ⊕DOT-FONT-DESC stays lost: the 5x8 table itself is gone (W26). fonttools moved from the research extra to the base set.},
   section  = {emitters},
   rests-on = {GEOMETRY}

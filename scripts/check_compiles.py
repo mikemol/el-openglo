@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """check_compiles.py — every generator in the tree byte-compiles.
 
-    scripts/check_compiles.py           # exit 0 iff all compile; else list failures
+    scripts/check_compiles.py           # the verdict, as opa_gate compiles decides it
+    scripts/check_compiles.py --json    # the measurement policy/compiles.rego decides
     scripts/check_compiles.py --list    # the files checked, one per line
+    scripts/check_compiles.py --selftest
 
 ⚑ THIS IS A WEAK WITNESS AND SAYS SO.  Eight recovered files are at an
 INTERMEDIATE state (a later edit's anchor was not found during replay) and all
@@ -11,7 +13,8 @@ nothing about behaviour.  The partial-file record is a SEPARATE claim for
 exactly that reason — see check_partial.py.
 
 ⚑ n OF m, NEVER A BARE COUNT.  An empty corpus and a fully-passing one must not
-print the same thing, or a glob that silently matches nothing reads as success.
+print the same thing, or a glob that silently matches nothing reads as success —
+policy/compiles.rego's K0 denies the empty population (W50).
 """
 import os
 import py_compile
@@ -42,49 +45,71 @@ def sources():
     return sorted(out)
 
 
+def compile_error(path):
+    """None when `path` byte-compiles, else the compiler's last line.
+
+    ⚑ quiet=1, NEVER 2 (found by this file's first selftest arm that fed it a
+    syntax error, W50 batch 5, 2026-09-23). py_compile raises under doraise ONLY
+    when quiet < 2 — at quiet=2 it swallows the error and returns. The check
+    shipped with `doraise=True, quiet=2`, so every source "compiled": its
+    all-clear had never been shown to differ from its found-something."""
+    try:
+        py_compile.compile(path, doraise=True, quiet=1)
+    except py_compile.PyCompileError as e:
+        return str(e).strip().splitlines()[-1]
+    return None
+
+
+def measure(src=None):
+    """The MEASUREMENT policy/compiles.rego decides: one case per tracked source,
+    with the compiler's error or null. Whether an error is a defect is the
+    policy's ruling, not this file's."""
+    src = sources() if src is None else src
+    return {"cases": [{"id": rel.replace(os.sep, "/"), "error": compile_error(os.path.join(ROOT, rel))}
+                      for rel in src]}
+
+
 def main(argv):
-    known = {"--list"}
+    known = {"--list", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_compiles: unknown flag {a!r}", file=sys.stderr)
             return 2
-    src = sources()
     if "--list" in argv:
-        print("\n".join(src))
+        print("\n".join(sources()))
         return 0
-    if not src:
-        print("check_compiles: REFUSED — no sources found; the search is broken, "
-              "not the tree clean", file=sys.stderr)
-        return 2
-    bad = []
-    for rel in src:
-        try:
-            py_compile.compile(os.path.join(ROOT, rel), doraise=True, quiet=2)
-        except py_compile.PyCompileError as e:
-            bad.append((rel, str(e).strip().splitlines()[-1]))
-    if bad:
-        print(f"check_compiles: REFUSED — {len(bad)} of {len(src)} failed to compile:",
-              file=sys.stderr)
-        for rel, msg in bad:
-            print(f"    {rel}: {msg}", file=sys.stderr)
-        return 1
-    print(f"check_compiles: {len(src)} of {len(src)} compile")
-    return 0
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("compiles")
 
 
 def _selftest():
     ok = True
+
+    def chk(label, got, want):
+        nonlocal ok
+        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        ok = ok and got == want
+
     src = sources()
-    if not src:
-        print("  FAIL sources() found nothing")
-        ok = False
-    else:
-        print(f"  ok   sources() found {len(src)} file(s)")
-    if any(s.startswith("scripts" + os.sep) for s in src):
-        print("  FAIL sources() includes the checkers themselves")
-        ok = False
-    else:
-        print("  ok   sources() excludes scripts/")
+    chk("sources() finds files", len(src) > 0, True)
+    chk("sources() excludes the checkers themselves",
+        [s for s in src if s.startswith("scripts" + os.sep)], [])
+    # ⚑ THE MEASUREMENT MUST SEE A SYNTAX ERROR (synthetic: a scratch file). That
+    # a case carrying one is DENIED is policy/compiles_test.rego's ruling.
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        bad = os.path.join(td, "bad.py")
+        with open(bad, "w", encoding="utf-8") as fh:
+            fh.write("def f(:\n")
+        chk("a syntax error is measured", compile_error(bad) is not None, True)
+        good = os.path.join(td, "good.py")
+        with open(good, "w", encoding="utf-8") as fh:
+            fh.write("x = 1\n")
+        chk("a clean file measures no error", compile_error(good), None)
     print("check_compiles selftest:", "PASS" if ok else "FAIL")
     return ok
 

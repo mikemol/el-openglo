@@ -6,7 +6,8 @@ artifact a consumer can bind to WITHOUT importing `cvd_gate` — which imports
 `colorspacious` and `numpy`, so a consumer lacking those cannot reach the measured
 palette at all.
 
-    scripts/check_role_theme.py            # exit 0 iff the emitted theme is optimal and loads
+    scripts/check_role_theme.py            # the verdict, as opa_gate role_theme decides it
+    scripts/check_role_theme.py --json     # the measurement policy/role_theme.rego decides
     scripts/check_role_theme.py --emit     # print the artifacts
     scripts/check_role_theme.py --compare  # the solved assignment vs a consumer's live one
     scripts/check_role_theme.py --selftest
@@ -130,84 +131,73 @@ def renders(dot_text):
     return True, out.stdout
 
 
-def problems():
-    """[problem] — every way the emitted theme fails its own claims."""
-    bad = []
-    s = solved()
-
-    # 1. every declared role is assigned, pinned ones included
-    for r in ROLES:
-        if r not in s["assignment"]:
-            bad.append(f"role {r!r} is declared but unassigned")
-    for role, target in PINNED.items():
-        if s["colours"].get(role) != s["colours"].get(target):
-            bad.append(f"{role!r} is pinned to {target!r} but carries a different colour")
-
-    # 2. ⚑ OPTIMALITY, which is the falsifiable property here
+def best_q(roles=ROLES, pinned=PINNED):
+    """(q, assignment) — the best worst-pair score over EVERY assignment of the
+    free roles to the pool, exhaustively. The emitted theme's own score is
+    compared to this by policy/role_theme.rego (optimality is the falsifiable
+    property; admissibility is not — see the module docstring)."""
     import itertools
     p = RT.pool()
     floors = C.reference_floors()
-    free = [r for r in ROLES if r not in PINNED]
+    free = [r for r in roles if r not in pinned]
+    best = (-1.0, None)
     for combo in itertools.permutations(sorted(p), len(free)):
         q, _ = RT.worst_pair({r: p[n] for r, n in zip(free, combo)}, floors)
-        if q > s["worst_q"] + 1e-12:
-            bad.append(f"a better assignment exists (q={q:.4f} > {s['worst_q']:.4f}): "
-                       f"{dict(zip(free, combo))} — the emitted theme is not optimal")
-            break
+        if q > best[0]:
+            best = (q, dict(zip(free, combo)))
+    return best
 
-    # 3. the artifact must be parseable WITHOUT importing cvd_gate — the ask's point
+
+def measure():
+    """The MEASUREMENT policy/role_theme.rego decides (W50). Every fact the old
+    problems() judged, now reported rather than judged:
+
+      roles / pinned / assignment / pin_colours — what was declared and solved,
+        and per pin whether the two roles carry one colour
+      worst_q / best_q — the emitted score beside the exhaustive best
+      json — the emitted JSON's parse error, which fields it carries, and each
+        declared role's value there (the consumer's artifact, read without cvd_gate)
+      ground — the grounded solve's refusal, recorded ground, per-role contrast
+        on it, and whether each declared pin holds
+      render — graphviz absent is `withheld` (a fact about the host); else the
+        render's error, or which roles' colours survive into the SVG"""
+    s = solved()
+    doc, json_error = {}, None
     try:
         doc = json.loads(RT.as_json(s))
     except ValueError as e:
-        bad.append(f"the emitted JSON does not parse: {e}")
-        doc = {}
-    for field in ("assignment", "roles", "worst_q", "metric", "solved_exhaustively"):
-        if field not in doc:
-            bad.append(f"the emitted JSON omits {field!r}, so a consumer cannot tell "
-                       f"what was solved or how")
-    for r in ROLES:
-        v = doc.get("assignment", {}).get(r)
-        if not (isinstance(v, str) and v.startswith("#") and len(v) == 7):
-            bad.append(f"assignment[{r!r}] = {v!r} is not a #rrggbb hex")
-
-    # 4. ⚑ THE GROUNDED VARIANT MUST ACTUALLY CLEAR ITS GROUND, or it is the same
-    # silently-wrong artifact wearing a reassuring filename.
+        json_error = str(e)
+    q, best = best_q()
+    m = {"roles": list(ROLES), "pinned": dict(PINNED),
+         "assignment": dict(s["assignment"]),
+         "pins_hold": {r: s["colours"].get(r) == s["colours"].get(t) for r, t in PINNED.items()},
+         "worst_q": s["worst_q"], "best_q": q, "best_assignment": best,
+         "json": {"error": json_error, "fields": sorted(doc),
+                  "assignment": {r: doc.get("assignment", {}).get(r) for r in ROLES}}}
     try:
         g = solved_on_ground()
+        m["ground"] = {"refused": None, "ground": g.get("ground"),
+                       "contrast": dict(g.get("ground_contrast") or {}),
+                       "pins_hold": {r: g["colours"].get(r) == g["colours"].get(t)
+                                     for r, t in GROUND_PINNED.items()}}
     except ValueError as e:
-        bad.append(f"the grounded solve refuses: {e}")
-        g = None
-    if g is not None:
-        if g.get("ground") != "#ffffff":
-            bad.append(f"the grounded artifact records ground={g.get('ground')!r}, "
-                       f"so a consumer cannot tell which objective it answers")
-        for r, ratio in (g.get("ground_contrast") or {}).items():
-            if ratio < 3.0:
-                bad.append(f"grounded: {r} is {ratio}:1 against white, below the "
-                           f"3:1 non-text minimum it claims to satisfy")
-        # and the pin must hold — a reused hue is legitimate only as a DECLARED
-        # constraint, never as a solve that quietly ran out of colours
-        for role, target in GROUND_PINNED.items():
-            if g["colours"].get(role) != g["colours"].get(target):
-                bad.append(f"grounded: {role!r} is pinned to {target!r} and differs")
-
-    # 5. ⚑ THE .dot MUST RENDER, NOT MERELY PARSE
+        m["ground"] = {"refused": str(e), "ground": None, "contrast": {}, "pins_hold": {}}
     ok, detail = renders(RT.as_dot(s))
     if ok is None:
-        pass                                     # SKIP — reported by the caller
+        m["render"] = {"withheld": detail, "error": None, "survives": {}}
     elif not ok:
-        bad.append(f"the emitted .dot does not render: {detail}")
+        m["render"] = {"withheld": None, "error": detail, "survives": {}}
     else:
-        for r in ROLES:
-            hexv = RT._hex(s["colours"][r]).lower()
-            if hexv not in detail.lower():
-                bad.append(f"{r}'s colour {hexv} does not survive into the render — "
-                           f"the file loads and the colour is not in it")
-    return bad, s
+        m["render"] = {"withheld": None, "error": None,
+                       "survives": {r: RT._hex(s["colours"][r]).lower() in detail.lower()
+                                    for r in ROLES}}
+    # one case per declared role: the population the policy's R0 counts
+    m["cases"] = [{"id": r} for r in ROLES]
+    return m
 
 
 def main(argv):
-    known = {"--emit", "--write", "--compare", "--selftest"}
+    known = {"--emit", "--write", "--compare", "--selftest", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_role_theme: unknown flag {a!r}", file=sys.stderr)
@@ -257,24 +247,11 @@ def main(argv):
               "the consumer's call.")
         return 0
 
-    if not ROLES:
-        print("check_role_theme: REFUSED — no roles declared; the search is broken, "
-              "not the theme optimal", file=sys.stderr)
-        return 2
-
-    bad, s = problems()
-    ok, detail = renders(RT.as_dot(s))
-    if bad:
-        print(f"check_role_theme: REFUSED — {len(bad)} problem(s) over "
-              f"{len(ROLES)} role(s):", file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    skip = "" if ok else "  (SKIP: graphviz absent, render unverified)"
-    print(f"check_role_theme: {len(ROLES)} of {len(ROLES)} roles assigned optimally "
-          f"(q={s['worst_q']:.3f}, floor {s['floor_dE']:.1f}, exhaustive over "
-          f"{len(RT.pool())} members){skip}")
-    return 0
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("role_theme")
 
 
 def _selftest():
@@ -289,8 +266,13 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("the emitted theme passes", main(["x"]), 0)
-    check("problems() is empty on the real theme", problems()[0], [])
+    # ⚑ THE SELFTEST ASKS WHETHER THE MEASUREMENT SEES; that a sub-optimal
+    # score, a grounded role under 3:1, or a colour lost in the render is DENIED
+    # is policy/role_theme_test.rego's ruling (W50).
+    m = measure()
+    check("the real theme is measured: every role assigned, score at the exhaustive best",
+          (sorted(m["assignment"]) == sorted(ROLES), abs(m["best_q"] - m["worst_q"]) <= 1e-12),
+          (True, True))
 
     # ⚑ THE CONSUMER'S ASSIGNED COLOURS WERE ALREADY OPTIMAL, and the selftest says
     # so rather than asserting the flattering thing. An earlier version asserted the
@@ -342,9 +324,9 @@ def _selftest():
             s["worst_q"] -= 0.5          # claim a score the assignment cannot support
             return s
         RT.solve_roles = _worse
-        probs, _ = problems()
-        check("sees a sub-optimal assignment",
-              any("not optimal" in b for b in probs), True)
+        mw = measure()
+        check("sees a sub-optimal assignment (best_q above the emitted score)",
+              mw["best_q"] > mw["worst_q"] + 1e-12, True)
     finally:
         RT.solve_roles = saved
 
@@ -369,9 +351,8 @@ def _selftest():
     try:
         globals()["solved_on_ground"] = lambda: dict(
             g, ground_contrast=dict(g["ground_contrast"], read=1.32))
-        probs, _ = problems()
-        check("sees a grounded role below its own floor",
-              any("below the" in b and "3:1" in b for b in probs), True)
+        check("sees a grounded role's contrast as solved (1.32 reaches the measurement)",
+              measure()["ground"]["contrast"]["read"], 1.32)
     finally:
         globals()["solved_on_ground"] = saved_g
 

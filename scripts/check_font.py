@@ -12,7 +12,8 @@ the installed font, source-relative (session 25); (5) space and .notdef are
 empty. The SVG fonts must parse as XML with one <glyph> per charset member.
 `--render CH` rasterises a glyph from the TTF's own glyf to a PNG for eyes.
 
-    scripts/check_font.py            # exit 0 iff every arm holds for every font
+    scripts/check_font.py            # the verdict, as opa_gate font decides it
+    scripts/check_font.py --json     # the measurement (per-font facts) policy/font.rego decides
     scripts/check_font.py --render 2 --png out.png
     scripts/check_font.py --selftest
 
@@ -38,30 +39,34 @@ def _spec(name):
 
 
 def check_ttf(name, font):
-    """[(arm, ok, detail)] for one built TTFont."""
+    """The FACTS for one built TTFont — what was measured, never whether it is
+    acceptable (policy/font.rego decides that, W50): the required tables it
+    lacks, the charset code points its cmap lacks, the glyphs whose contour
+    count differs from the substrate's lit primitives, the glyphs the
+    orientation gate reports flipped, the blank glyphs that carry ink, the
+    glyphs reaching below the baseline beside the declared descenders, and (5x8)
+    the descent metrics."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_font as MF
-    out = []
-    missing = [t for t in REQUIRED_TABLES if t not in font]
-    out.append(("tables", not missing, f"missing {missing}" if missing else f"{len(font.keys())} tables"))
     src, charset, cell_h = _spec(name)
     cmap = font.getBestCmap()
-    gone = [c for c in charset + " " if ord(c) not in cmap]
-    out.append(("cmap round-trips the charset", not gone, f"missing {gone}" if gone else f"{len(charset) + 1} code points"))
     glyf = font["glyf"]
     wrong = []
     for ch in charset:
+        if ord(ch) not in cmap:
+            continue
         g = glyf[cmap[ord(ch)]]
         want = len(src(ch))
         got = max(g.numberOfContours, 0)
         if got != want:
-            wrong.append(f"{ch}:{got}!={want}")
-    out.append(("contour count == lit primitives", not wrong, "; ".join(wrong[:5]) if wrong else f"{len(charset)} glyphs"))
-    flips = MF.gate_ttf_orientation(font, src, cell_h, charset)
-    out.append(("orientation agrees with the source", not flips, f"flipped {flips[:3]}" if flips else "source-relative ok"))
-    empty = all(glyf[n].numberOfContours <= 0 for n in (".notdef", "space"))
-    out.append(("space and .notdef are empty", empty, "ok" if empty else "a blank glyph has ink"))
+            wrong.append({"glyph": ch, "contours": got, "primitives": want})
+    facts = {"kind": "ttf", "font": name, "charset": charset,
+             "tables_missing": [t for t in REQUIRED_TABLES if t not in font],
+             "cmap_missing": [c for c in charset + " " if ord(c) not in cmap],
+             "contour_mismatch": wrong,
+             "flipped": [str(f) for f in MF.gate_ttf_orientation(font, src, cell_h, charset)],
+             "blank_inked": [n for n in (".notdef", "space") if glyf[n].numberOfContours > 0]}
     # ⚑ DESCENT IS BELOW y=0, AND ONLY FOR DESCENDERS.  In a baseline font
     # (5x8) g j p q y must reach negative y and nothing else may; in a
     # top-aligned font nothing may. This is the arm that caught the closure's
@@ -72,42 +77,42 @@ def check_ttf(name, font):
     # puts the bottom bar's axis ON the edge), so for segment fonts "below" means
     # below that overhang; for matrix fonts a pixel is wholly inside its row
     tol = -(MF.THICK / 2) * (MF.EM / MF.CELL_H) - 1 if "Segment" in name else -1
-    below, above = [], []
+    below = []
     for ch in charset:
+        if ord(ch) not in cmap:
+            continue
         g = glyf[cmap[ord(ch)]]
         if g.numberOfContours <= 0:
             continue
         ymin = min(p[1] for p in g.getCoordinates(glyf)[0])
-        (below if ymin < tol else above).append(ch)
-    bad_below = sorted(set(below) - want_desc)
-    bad_above = sorted(want_desc - set(below))
-    out.append(("only descenders reach below the baseline", not bad_below and not bad_above,
-                f"non-descenders below: {bad_below}" if bad_below else
-                (f"descenders not below: {bad_above}" if bad_above else
-                 f"{len(want_desc)} descender(s), {len(above)} on/above")))
-    if "5x8" in name:
-        hhea = font["hhea"]
-        out.append(("descent metrics are negative", hhea.descent < 0 and font["OS/2"].sTypoDescender < 0,
-                    f"hhea {hhea.descent}, OS/2 {font['OS/2'].sTypoDescender}"))
-    return out
+        if ymin < tol:
+            below.append(ch)
+    facts["below_baseline"] = sorted(below)
+    facts["descenders"] = sorted(want_desc)
+    # the baseline font (5x8) declares a descent; the top-aligned ones do not
+    facts["descent"] = ({"hhea": font["hhea"].descent, "os2": font["OS/2"].sTypoDescender}
+                        if "5x8" in name else None)
+    return facts
 
 
 def check_svg(name, text):
+    """The FACTS for one SVG font: its parse error, or the charset members it
+    lacks and the glyphs it carries beyond them."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_font as MF
     fmt = name.split("-")[2].split(".")[0]
+    facts = {"kind": "svg", "font": name, "parse_error": None, "missing": [], "extra": []}
     try:
         root = ET.fromstring(text)
     except ET.ParseError as e:
-        return [("svg parses", False, str(e))]
+        facts["parse_error"] = str(e)
+        return facts
     ns = {"s": "http://www.w3.org/2000/svg"}
-    glyphs = root.findall(".//s:glyph", ns)
-    have = {g.get("unicode") for g in glyphs}
+    have = {g.get("unicode") for g in root.findall(".//s:glyph", ns)}
     want = set(MF.SEG_CHARSET[fmt]) | {" "}
-    return [("svg parses", True, "ok"),
-            ("one glyph per charset member", have == want,
-             f"missing {sorted(want - have)} extra {sorted(have - want)}" if have != want else f"{len(want)}")]
+    facts["missing"], facts["extra"] = sorted(want - have), sorted(h or "" for h in have - want)
+    return facts
 
 
 def build_all():
@@ -146,14 +151,36 @@ def render_glyph(font, ch, png, size=200):
     return png
 
 
+def measure():
+    """The MEASUREMENT policy/font.rego decides: one case per make_font.OUTPUTS
+    entry, carrying check_ttf / check_svg's facts. fontTools absent is a fact
+    about the HOST: no cases, and `withheld` says why (the policy withholds)."""
+    try:
+        import fontTools  # noqa: F401
+    except ImportError:
+        return {"cases": [], "withheld": "fontTools not installed (declared in pyproject; uv sync)"}
+    cases = []
+    for name, obj in build_all():
+        facts = check_svg(name, obj) if isinstance(obj, str) else check_ttf(name, obj)
+        cases.append(dict(facts, id=name))
+    return {"cases": cases, "withheld": None}
+
+
 def main(argv):
-    known = {"--render", "--png", "--font"}
+    known = {"--render", "--png", "--font", "--json"}
     args = [a for a in argv[1:] if a.startswith("--")]
     rest = [a for a in argv[1:] if not a.startswith("--")]
     for a in args:
         if a not in known:
             print(f"check_font: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--json" in args:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+    if "--render" not in args:
+        import opa_gate
+        return opa_gate.gate("font")
     try:
         import fontTools  # noqa: F401
     except ImportError:
@@ -166,23 +193,6 @@ def main(argv):
         which = argv[argv.index("--font") + 1] if "--font" in argv else "EL-Segment-7.ttf"
         font = next(f for n, f in built if n == which)
         print(f"check_font: rendered {ch!r} from {which} glyf -> {render_glyph(font, ch, png)}")
-        return 0
-    fails, n = [], 0
-    for name, obj in built:
-        arms = check_svg(name, obj) if isinstance(obj, str) else check_ttf(name, obj)
-        for arm, ok, detail in arms:
-            n += 1
-            if not ok:
-                fails.append(f"{name} {arm}: {detail}")
-    if not n:
-        print("check_font: REFUSED — nothing measured", file=sys.stderr)
-        return 2
-    if fails:
-        print(f"check_font: REFUSED — {len(fails)} of {n} arm(s) do not hold:", file=sys.stderr)
-        for f in fails:
-            print(f"    {f}", file=sys.stderr)
-        return 1
-    print(f"check_font: {n} of {n} arms hold over {len(built)} fonts")
     return 0
 
 
@@ -206,9 +216,17 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_font as MF
+    # ⚑ THE SELFTEST ASKS WHETHER THE MEASUREMENT SEES; which facts are defects
+    # is policy/font_test.rego's ruling (W50). `clean` is the empty-facts shape a
+    # sound font measures to — the policy's admit case, read back here only to
+    # show the synthetic breakages MOVE a fact off it.
+    def clean(f):
+        return (not f["tables_missing"] and not f["cmap_missing"] and not f["contour_mismatch"]
+                and not f["flipped"] and not f["blank_inked"]
+                and set(f["below_baseline"]) == set(f["descenders"]))
+
     seg7 = MF.build_segment_ttf("7")
-    arms = {a: o for a, o, _d in check_ttf("EL-Segment-7.ttf", seg7)}
-    chk("the real 7-seg TTF holds every arm", all(arms.values()), True)
+    chk("the real 7-seg TTF measures clean", clean(check_ttf("EL-Segment-7.ttf", seg7)), True)
     # ⚑ A SPEC-FLIP MUST BE CAUGHT ON THE BUILT FONT: mirror the source in x
     flipped = MF.build_ttf(lambda ch: [[(MF.CELL_W - x, y) for x, y in c] for c in MF.glyph_contours(ch, "7")],
                            MF.SEG_CHARSET["7"], MF.CELL_W, MF.CELL_H, "flip")
@@ -217,29 +235,31 @@ def _selftest():
     # a dropped contour is seen by the count arm
     dropped = MF.build_ttf(lambda ch: MF.glyph_contours(ch, "7")[1:], MF.SEG_CHARSET["7"],
                            MF.CELL_W, MF.CELL_H, "drop")
-    arms = {a: o for a, o, _d in check_ttf("EL-Segment-7.ttf", dropped)}
-    chk("a dropped segment is seen", arms["contour count == lit primitives"], False)
+    chk("a dropped segment is seen", bool(check_ttf("EL-Segment-7.ttf", dropped)["contour_mismatch"]), True)
     mtx = MF.build_matrix_ttf()
-    arms = {a: o for a, o, _d in check_ttf("EL-Matrix-5x7.ttf", mtx)}
-    chk("the matrix TTF holds every arm", all(arms.values()), True)
+    chk("the matrix TTF measures clean", clean(check_ttf("EL-Matrix-5x7.ttf", mtx)), True)
     m58 = MF.build_matrix_ttf(5, 8)
-    arms = {a: o for a, o, _d in check_ttf("EL-Matrix-5x8.ttf", m58)}
-    chk("the 5x8 descender TTF holds every arm", all(arms.values()), True)
+    f58 = check_ttf("EL-Matrix-5x8.ttf", m58)
+    chk("the 5x8 descender TTF measures clean, with a descent",
+        (clean(f58), f58["descent"]["hhea"] < 0), (True, True))
     # ⚑ THE OFF-BY-ONE THE CLOSURE RECORDS: baseline as a ROW index (6, not the
     # line 7) puts every body row below the line — must be seen
     import display_types as DT
     wrong = MF.build_ttf(lambda ch: MF.matrix_contours(ch, 5, 8), MF.MATRIX_CHARSET + MF.LOWER_CHARSET,
                          5.0, 8.0, "wrong", baseline=DT.FONT5x8_BASELINE)
-    arms = {a: o for a, o, _d in check_ttf("EL-Matrix-5x8.ttf", wrong)}
-    chk("a baseline given as the row index (off by one) is seen", arms["only descenders reach below the baseline"], False)
+    fw = check_ttf("EL-Matrix-5x8.ttf", wrong)
+    chk("a baseline given as the row index (off by one) is seen",
+        set(fw["below_baseline"]) != set(fw["descenders"]), True)
     chk("5x7 stays byte-neutral under the baseline map (baseline=None)",
         MF.build_matrix_ttf(5, 7)["glyf"]["u0041"].getCoordinates(MF.build_matrix_ttf(5, 7)["glyf"])[0]
         == mtx["glyf"]["u0041"].getCoordinates(mtx["glyf"])[0], True)
     svg = MF.emit_svg_font("7")
-    arms = {a: o for a, o, _d in check_svg("EL-Segment-7.svg", svg)}
-    chk("the SVG font holds every arm", all(arms.values()), True)
-    arms = {a: o for a, o, _d in check_svg("EL-Segment-7.svg", svg.replace('unicode="7"', 'unicode="x"'))}
-    chk("a missing SVG glyph is seen", arms["one glyph per charset member"], False)
+    fs = check_svg("EL-Segment-7.svg", svg)
+    chk("the SVG font measures clean", (fs["parse_error"], fs["missing"], fs["extra"]), (None, [], []))
+    fs = check_svg("EL-Segment-7.svg", svg.replace('unicode="7"', 'unicode="x"'))
+    chk("a missing SVG glyph is seen", (fs["missing"], fs["extra"]), (["7"], ["x"]))
+    chk("the real tree measures every OUTPUTS entry",
+        len(measure()["cases"]) == len(MF.OUTPUTS) > 0, True)
     print("check_font selftest:", "PASS" if ok else "FAIL")
     return ok
 

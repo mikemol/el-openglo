@@ -21,7 +21,15 @@ test_c0_refuses_an_absent_population if {
 test_c1_refuses_a_ghost_under_its_floor if {
 	bad := object.union(good, {"cases": [row("EL-Openglo", 8.0)]})
 	some msg in p.deny with input as bad
-	msg == "C1: EL-Openglo: the ghost renders at Lc 8 against a floor of Lc 25 (declared Lc 60, drawn at alpha 0.566)"
+	msg == "C1: EL-Openglo: the ghost renders at Lc 8.0 against a floor of Lc 25.0 (declared Lc 60.0, drawn at alpha 0.566)"
+}
+
+# a WHOLE-NUMBER Lc (JSON 25 arrives as an int) must not print as %!f(int=25)
+test_c1_message_formats_a_whole_number if {
+	bad := object.union(good, {"cases": [row("EL-Openglo", 8)]})
+	some msg in p.deny with input as bad
+	startswith(msg, "C1:")
+	not contains(msg, "%!")
 }
 
 test_c2_refuses_a_ghost_that_reads_as_text if {
@@ -34,7 +42,7 @@ test_c2_refuses_a_ghost_that_reads_as_text if {
 test_c3_refuses_azure_on_its_floor_not_its_target if {
 	bad := object.union(good, {"cases": [row("EL-Openglo", 29.7), row("EL-Azure", 25.0)]})
 	some msg in p.deny with input as bad
-	msg == "C3: EL-Azure: the seen ghost sits at Lc 25, more than 1 under the 30 ceiling it is solved toward (W23)"
+	msg == "C3: EL-Azure: the seen ghost sits at Lc 25.0, more than 1 under the 30 ceiling it is solved toward (W23)"
 	p.admitted == {"EL-Openglo"} with input as bad
 }
 

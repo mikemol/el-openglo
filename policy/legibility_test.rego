@@ -27,6 +27,14 @@ test_g2_refuses_a_read_below_the_floor if {
 	startswith(msg, "G2:")
 }
 
+# a whole-number score (JSON 0 arrives as an int) must not print %!f(int=0)
+test_g2_message_formats_a_whole_number if {
+	some msg in lg.deny with input as {"cases": [object.union(good, {"read": "x", "score": 0})]}
+	startswith(msg, "G2:")
+	contains(msg, "score 0.000,")
+	not contains(msg, "%!")
+}
+
 test_g3_refuses_an_empty_read if {
 	some msg in lg.deny with input as {"cases": [object.union(good, {"read": "", "score": 0.0})]}
 	startswith(msg, "G3:")

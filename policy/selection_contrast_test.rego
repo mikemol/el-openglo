@@ -50,6 +50,16 @@ test_s1_refuses_a_pair_below_the_floor if {
 }
 
 # ...which was PINNED at 2.94 while infeasible: admitted at the pin, refused once it moved
+# a whole-number ratio (JSON 2 arrives as an int) — and the floor itself, 3.0,
+# which rego holds as an int — must not print %!f(int=…)
+test_s1_message_formats_whole_numbers if {
+	bad := object.union(good, {"cases": array.concat(array.slice(good.cases, 0, 3), [case("EL-Openglo-Lit/ForegroundNegative", 2)])})
+	some msg in p.deny with input as bad
+	startswith(msg, "S1:")
+	endswith(msg, "= 2.00:1, below 3.0:1")
+	not contains(msg, "%!")
+}
+
 test_s2_a_pin_holds_at_its_ratio if {
 	at_pin := object.union(good, {"cases": array.concat(array.slice(good.cases, 0, 3), [case("EL-Openglo-Lit/ForegroundNegative", 2.94)])})
 	count(p.deny) == 0 with input as at_pin with p.pinned as {"EL-Openglo-Lit/ForegroundNegative": 2.94}
