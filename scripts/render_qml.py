@@ -211,6 +211,16 @@ def _kcfg_defaults(xml_text):
     return out
 
 
+# ⚑ ONE EMISSION PER SURFACE PER PROCESS (render speed #3, catalog/render-speed.md).
+# The emission has no variant input except the greeter's, so every call for one
+# surface produced identical text (18 identical make_notify_marquee runs, ~8 s CPU
+# each, per screens run). Memoised on (surface, variant-if-baked). It is also the
+# precondition for per-output keying (W61): computing 55 keys runs the Python half
+# of every job, and must not pay the emitters 55 times. WEAKNESS: a template edited
+# DURING one process is not re-read — a process is one build.
+_EMITTED = {}
+
+
 def subject(surface, variant):
     """(emitted QML rewritten for the harness, config defaults, ground colour)."""
     if ROOT not in sys.path:
@@ -218,6 +228,15 @@ def subject(surface, variant):
     os.chdir(ROOT)
     import make_preview
     cols = make_preview.parse_scheme(variant)
+    memo = (surface, variant if surface == "sddm" else None)
+    if memo not in _EMITTED:
+        _EMITTED[memo] = _emit(surface, variant)
+    qml, kcfg = _EMITTED[memo]
+    return qml, _kcfg_defaults(kcfg), cols["ground"]
+
+
+def _emit(surface, variant):
+    """(harness-rewritten QML, kcfg text) for `surface` — the emitters' half of a job."""
     if surface == "clock":
         import make_clock
         # ONE package since W35: the emission has no variant; the variant is the
@@ -253,7 +272,22 @@ def subject(surface, variant):
         raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture, aperture-text or sddm")
     for pat, rep in SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.M)
-    return qml, _kcfg_defaults(kcfg), cols["ground"]
+    return qml, kcfg
+
+
+def render_stager(surface, variant, w, h, out_png, config_override=None, software=False):
+    """The JOB render() runs, as a stager: `stage(td) -> (argv, env, gpu)` writes
+    every file the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS:
+    render() runs it, and catalog/library/render_screens.output_keys digests it
+    (W61) — so the key is over what the process is HANDED, never a list of what
+    someone believed it reads."""
+    qml, config, ground = subject(surface, variant)
+    if config_override:
+        config.update(config_override)
+    comp = companions(surface)
+    harness = SDDM_HARNESS if surface == "sddm" else HARNESS
+    return lambda td: stage_document(td, qml, variant, w, h, out_png, config, ground, software, comp,
+                                     harness=harness)
 
 
 def render(surface, variant, w, h, out_png, config_override=None, software=False):
@@ -261,11 +295,7 @@ def render(surface, variant, w, h, out_png, config_override=None, software=False
     scene graph explicitly (what the ebuild sandbox gets anyway) — an argument, not
     an environment mutation: render_screens once set EL_RENDER_SOFTWARE in its own
     process for one animation and every later still rendered under it (s125)."""
-    qml, config, ground = subject(surface, variant)
-    if config_override:
-        config.update(config_override)
-    return render_document(qml, variant, w, h, out_png, config, ground, software, companions(surface),
-                           harness=SDDM_HARNESS if surface == "sddm" else HARNESS)
+    return run_stager(render_stager(surface, variant, w, h, out_png, config_override, software))
 
 
 def companions(surface):
@@ -334,6 +364,17 @@ Window {
 """
 
 
+def frames_stager(surface, variant, w, h, out_dir, key, steps, probe, software=False):
+    """render_frames' JOB as a stager (see render_stager): one qml process, one
+    grab per step of config `key`."""
+    qml, config, ground = subject(surface, variant)
+    comp = companions(surface)
+    extra = {"steps": json.dumps(list(steps)), "key": json.dumps(key),
+             "probe": json.dumps(probe), "out": json.dumps(os.path.abspath(out_dir))}
+    return lambda td: stage_document(td, qml, variant, w, h, out_dir, config, ground, software, comp,
+                                     harness=FRAMES_HARNESS, extra=extra)
+
+
 def render_frames(surface, variant, w, h, out_dir, key, steps, probe, software=False):
     """Render `surface` once per value of config `key` in `steps`, all in ONE qml
     process, as out_dir/frame-NNN.png. Returns (rc, stderr, seen): `seen` is the
@@ -342,11 +383,7 @@ def render_frames(surface, variant, w, h, out_dir, key, steps, probe, software=F
     where the harness never reached that frame. WEAKNESS: the probe lookup is by
     property name; a subject with no such item yields seen full of None, which the
     caller must refuse rather than trust the frames."""
-    qml, config, ground = subject(surface, variant)
-    rc, err = render_document(qml, variant, w, h, out_dir, config, ground, software, companions(surface),
-                              harness=FRAMES_HARNESS,
-                              extra={"steps": json.dumps(list(steps)), "key": json.dumps(key),
-                                     "probe": json.dumps(probe), "out": json.dumps(os.path.abspath(out_dir))})
+    rc, err = run_stager(frames_stager(surface, variant, w, h, out_dir, key, steps, probe, software), timeout=120)
     seen = None
     for line in err.splitlines():
         if "FRAMES " in line:
@@ -360,53 +397,69 @@ def render_document(qml, variant, w, h, out_png, config=None, ground=None, softw
     with its own holes — check_legibility renders the text probe per case). The
     harness, environment and backend rules are render()'s. `extra` adds to (or
     overrides) the harness's format keys — FRAMES_HARNESS's steps and key."""
+    return run_stager(lambda td: stage_document(td, qml, variant, w, h, out_png, config, ground, software,
+                                                companions, harness, extra),
+                      timeout=120 if extra else 60)
+
+
+def run_stager(stage, timeout=60):
+    """Stage a job into a fresh directory and run it under qt_sandbox; (rc, detail)."""
+    with tempfile.TemporaryDirectory(dir=os.path.join(ROOT, ".ebuild-witness")
+                                     if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
+                                     else None) as td:
+        argv, env, gpu = stage(td)
+        r = QT.run(argv, env=env, gpu=gpu, capture_output=True, text=True, timeout=timeout)
+    backend = "rhi" if "Creating QRhi" in r.stderr else (
+        "software" if "backend software" in r.stderr else "unknown")
+    err = "\n".join(l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph"))
+    return r.returncode, f"backend={backend}" + (f"\n{err}" if err.strip() else "")
+
+
+def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None,
+                   harness=HARNESS, extra=None):
+    """Write everything the qml process reads into `td`; return (argv, env, gpu).
+
+    ⚑ THIS IS THE JOB, AND IT IS THE ONLY PLACE ONE IS BUILT (W61). Running it
+    and keying it both go through here, so a new file the harness hands the
+    process is in the key the moment it is in the run."""
     if config is None:
         config = {}
     if ground is None:
         import make_preview
         ground = make_preview.parse_scheme(variant)["ground"]
-    with tempfile.TemporaryDirectory(dir=os.path.join(ROOT, ".ebuild-witness")
-                                     if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
-                                     else None) as td:
-        open(os.path.join(td, "subject.qml"), "w").write(qml)
-        for name, text in (companions or {}).items():
-            open(os.path.join(td, name), "w").write(text)
-        open(os.path.join(td, "harness.qml"), "w").write(harness % dict({
-            "w": w, "h": h, "ground": ground, "config": json.dumps(config),
-            "out": os.path.abspath(out_png)}, **(extra or {})))
-        # ⚑ THE OFFSCREEN PLATFORM DEFAULTS TO THE SOFTWARE SCENE GRAPH, which has
-        # no shaders: MultiEffect silently draws nothing and a bloom check would
-        # pass or fail on a picture the desktop never shows (measured: bloom=4 and
-        # bloom=0 rendered byte-identical). Ask for the RHI on OpenGL explicitly.
-        # ⚑ AND UNDER THE REAL THEME (W35): a bound surface reads Kirigami.Theme,
-        # so the run happens in theme_probe.env_for(variant) — the KDE platform
-        # theme on a private kdeglobals that IS the variant's .colors — as a
-        # widgets app. An unbound surface is unaffected by it.
-        import theme_probe as TP
-        xdg = os.path.join(td, "xdg")
-        os.makedirs(xdg)
-        env = TP.env_for(variant, xdg)
-        env.update(QT_LOGGING_RULES="*.debug=false;kf.kirigami.platform=false",
-                   QT_QUICK_BACKEND="rhi", QSG_RHI_BACKEND="opengl", QSG_INFO="1")
-        # ⚑ UNDER A BUILD SANDBOX THE GPU IS A VIOLATION, NOT A RESOURCE.  Opening
-        # /dev/nvidiactl under sys-apps/sandbox failed the whole staging (measured
-        # 2026-09-21, check_ebuild). Portage's sandbox sets SANDBOX_ON; there the
-        # software scene graph draws the lit pixels the render gate asks for, and
-        # the halo (MultiEffect) is simply absent — reported as backend=software.
-        # ⚑ W73: AND OUTSIDE ONE THE GPU IS THE OPERATOR'S.  The RHI harness on
-        # the real display SIGSEGV'd in libnvidia-glcore (2026-09-22 20:28) and
-        # raised a crash notification on the desktop. qt_sandbox honours gpu=True
-        # only under EL_QT_GPU=1; otherwise this is the software scene graph and
-        # the halo is absent — `backend=software` in the returned detail says so.
-        gpu = not (software or os.environ.get("SANDBOX_ON") == "1"
-                   or os.environ.get("EL_RENDER_SOFTWARE") == "1")
-        # a frames run (`extra`, render_frames) grabs 65 steps in one process
-        r = QT.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env, gpu=gpu,
-                   capture_output=True, text=True, timeout=120 if extra else 60)
-    backend = "rhi" if "Creating QRhi" in r.stderr else (
-        "software" if "backend software" in r.stderr else "unknown")
-    err = "\n".join(l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph"))
-    return r.returncode, f"backend={backend}" + (f"\n{err}" if err.strip() else "")
+    open(os.path.join(td, "subject.qml"), "w").write(qml)
+    for name, text in (companions or {}).items():
+        open(os.path.join(td, name), "w").write(text)
+    open(os.path.join(td, "harness.qml"), "w").write(harness % dict({
+        "w": w, "h": h, "ground": ground, "config": json.dumps(config),
+        "out": os.path.abspath(out_png)}, **(extra or {})))
+    # ⚑ THE OFFSCREEN PLATFORM DEFAULTS TO THE SOFTWARE SCENE GRAPH, which has
+    # no shaders: MultiEffect silently draws nothing and a bloom check would
+    # pass or fail on a picture the desktop never shows (measured: bloom=4 and
+    # bloom=0 rendered byte-identical). Ask for the RHI on OpenGL explicitly.
+    # ⚑ AND UNDER THE REAL THEME (W35): a bound surface reads Kirigami.Theme,
+    # so the run happens in theme_probe.env_for(variant) — the KDE platform
+    # theme on a private kdeglobals that IS the variant's .colors — as a
+    # widgets app. An unbound surface is unaffected by it.
+    import theme_probe as TP
+    xdg = os.path.join(td, "xdg")
+    os.makedirs(xdg)
+    env = TP.env_for(variant, xdg)
+    env.update(QT_LOGGING_RULES="*.debug=false;kf.kirigami.platform=false",
+               QT_QUICK_BACKEND="rhi", QSG_RHI_BACKEND="opengl", QSG_INFO="1")
+    # ⚑ UNDER A BUILD SANDBOX THE GPU IS A VIOLATION, NOT A RESOURCE.  Opening
+    # /dev/nvidiactl under sys-apps/sandbox failed the whole staging (measured
+    # 2026-09-21, check_ebuild). Portage's sandbox sets SANDBOX_ON; there the
+    # software scene graph draws the lit pixels the render gate asks for, and
+    # the halo (MultiEffect) is simply absent — reported as backend=software.
+    # ⚑ W73: AND OUTSIDE ONE THE GPU IS THE OPERATOR'S.  The RHI harness on
+    # the real display SIGSEGV'd in libnvidia-glcore (2026-09-22 20:28) and
+    # raised a crash notification on the desktop. qt_sandbox honours gpu=True
+    # only under EL_QT_GPU=1; otherwise this is the software scene graph and
+    # the halo is absent — `backend=software` in the returned detail says so.
+    gpu = not (software or os.environ.get("SANDBOX_ON") == "1"
+               or os.environ.get("EL_RENDER_SOFTWARE") == "1")
+    return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, gpu
 
 
 def _near(a, b, tol=28):

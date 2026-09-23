@@ -310,20 +310,37 @@ def subject(hover_pause=False, variant=VARIANT):
     The `--hovered` mode runs WITH it on, to show that this is the pointer and not
     the widget. `variant` selects the scheme the run resolves under (the emission is
     one package; the variant is the theme it is run in)."""
-    import render_qml as RQ
-    import make_notify_marquee as NM
     import make_preview
-    qml = NM.main_qml()
-    for pat, rep in RQ.SUBSTITUTIONS:
-        qml = re.sub(pat, rep, qml, flags=re.M)
-    config = RQ._kcfg_defaults(NM.config_xml())
+    qml, kcfg, files = _emitted()
+    import render_qml as RQ
+    config = RQ._kcfg_defaults(kcfg)
     config["speed"] = 8.0        # a rotation ~1.5 s on the 420 px board
     config["hoverPause"] = hover_pause
     config["debugLog"] = True         # the widget's own trace lines ride on stderr
-    return qml, config, make_preview.parse_scheme(variant)["ground"], {
-        "ApertureField.qml": NM.aperture_field_component(),
-        "marquee-body.js": NM.body_parser(),
-    }
+    return qml, config, make_preview.parse_scheme(variant)["ground"], dict(files)
+
+
+_EMITTED = []
+
+
+def _emitted():
+    """(rewritten main.qml, kcfg, companions) — emitted ONCE per process.
+
+    ⚑ make_notify_marquee.main_qml() costs ~8 s CPU and has no variant input
+    (render speed #3): a screens run called it 18 times for one text, and keying
+    the screens per output (W61) would call it 18 more. WEAKNESS: a template
+    edited during one process is not re-read."""
+    if not _EMITTED:
+        import render_qml as RQ
+        import make_notify_marquee as NM
+        qml = NM.main_qml()
+        for pat, rep in RQ.SUBSTITUTIONS:
+            qml = re.sub(pat, rep, qml, flags=re.M)
+        _EMITTED.append((qml, NM.config_xml(), {
+            "ApertureField.qml": NM.aperture_field_component(),
+            "marquee-body.js": NM.body_parser(),
+        }))
+    return _EMITTED[0]
 
 
 HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples are seen
@@ -373,6 +390,49 @@ def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, gpu=False):
     return subprocess.CompletedProcess(cmd, proc.returncode, "".join(lines), "")
 
 
+def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None,
+           frames=None, timeline=None):
+    """run()'s JOB as a stager: `stage(td) -> (argv, env, gpu)` writes every file
+    the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS (W61): run()
+    executes it and render_screens.output_keys digests it, so the screens key is
+    over what the process is handed rather than a list of what it was believed to
+    read."""
+    import theme_probe as TP
+    qml, config, ground, files = subject(hover_pause, variant)
+    timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in (timeline or TIMELINE)]
+
+    def stage(td):
+        stub = os.path.join(td, "stub", "org", "kde", "notificationmanager")
+        os.makedirs(stub)
+        xdg = os.path.join(td, "xdg")
+        os.makedirs(xdg)
+        open(os.path.join(stub, "qmldir"), "w").write(STUB_QMLDIR)
+        open(os.path.join(stub, "StubRegistry.qml"), "w").write(STUB_REGISTRY)
+        open(os.path.join(stub, "Notifications.qml"), "w").write(STUB_MODEL)
+        open(os.path.join(td, "subject.qml"), "w").write(qml)
+        for name, text in files.items():
+            open(os.path.join(td, name), "w").write(text)
+        open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
+            "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
+            "sample": SAMPLE_MS, "end": end_ms or END_MS, "watchdog": WATCHDOG_MS, "stop_paused": stop_paused,
+            "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
+            "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null",
+            "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP})
+        # theme_probe's environment (the real theme on the variant's scheme) plus the
+        # notification stub on the import path. console.log IS a debug message and
+        # the RESULT line rides on it, so only kirigami's own category is quieted.
+        env = TP.env_for(variant, xdg)
+        # W63: virtual time — the animation driver steps one fixed frame per render
+        # (never re-synced to the wall), on the threaded loop that owns it.
+        # W73: EL_QUICK_BACKEND=rhi asks for the GPU scene graph; qt_sandbox grants
+        # it only under EL_QT_GPU=1, and software is the default either way.
+        backend = os.environ.get("EL_QUICK_BACKEND", "software")
+        env.update(QSG_FIXED_ANIMATION_STEP="1", QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"))
+        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND=backend)
+        return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, backend != "software"
+    return stage
+
+
 def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None, frames=None,
         timeline=None):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
@@ -393,38 +453,10 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
     import theme_probe as TP
     if TP.scheme_path(variant) is None:
         return None
-    qml, config, ground, files = subject(hover_pause, variant)
+    stage = stager(hover_pause, end_ms, stop_paused, variant, grab, grab_paused, frames, timeline)
     with tempfile.TemporaryDirectory() as td:
-        stub = os.path.join(td, "stub", "org", "kde", "notificationmanager")
-        os.makedirs(stub)
-        xdg = os.path.join(td, "xdg")
-        os.makedirs(xdg)
-        open(os.path.join(stub, "qmldir"), "w").write(STUB_QMLDIR)
-        open(os.path.join(stub, "StubRegistry.qml"), "w").write(STUB_REGISTRY)
-        open(os.path.join(stub, "Notifications.qml"), "w").write(STUB_MODEL)
-        open(os.path.join(td, "subject.qml"), "w").write(qml)
-        for name, text in files.items():
-            open(os.path.join(td, name), "w").write(text)
-        timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in (timeline or TIMELINE)]
-        open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
-            "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
-            "sample": SAMPLE_MS, "end": end_ms or END_MS, "watchdog": WATCHDOG_MS, "stop_paused": stop_paused,
-            "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
-            "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null",
-            "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP})
-        # theme_probe's environment (the real theme on the variant's scheme) plus the
-        # notification stub on the import path. console.log IS a debug message and
-        # the RESULT line rides on it, so only kirigami's own category is quieted.
-        env = TP.env_for(variant, xdg)
-        # W63: virtual time — the animation driver steps one fixed frame per render
-        # (never re-synced to the wall), on the threaded loop that owns it.
-        # W73: EL_QUICK_BACKEND=rhi asks for the GPU scene graph; qt_sandbox grants
-        # it only under EL_QT_GPU=1, and software is the default either way.
-        backend = os.environ.get("EL_QUICK_BACKEND", "software")
-        env.update(QSG_FIXED_ANIMATION_STEP="1", QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"))
-        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND=backend)
-        r = _run_until_result([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env,
-                              gpu=backend != "software")
+        argv, env, gpu = stage(td)
+        r = _run_until_result(argv, env, gpu=gpu)
     log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -436,15 +468,30 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
     raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
 
 
+def hovered_args(variant=VARIANT, grab_paused=None):
+    """run()'s arguments for the hovered run — one spelling for run and key (W61)."""
+    return dict(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES, variant=variant,
+                grab_paused=grab_paused)
+
+
 def run_hovered(variant=VARIANT, grab_paused=None):
-    return run(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES, variant=variant,
-               grab_paused=grab_paused)
+    return run(**hovered_args(variant, grab_paused))
+
+
+def scroll_still_args(variant, out_scroll):
+    """run()'s arguments for the mid-scroll still (W52) — one spelling for run and key."""
+    return dict(variant=variant, end_ms=4000, grab=out_scroll)
+
+
+def animate_args(variant, frames_dir):
+    """run()'s arguments for the one-item loop animate() grabs — one spelling for run and key."""
+    return dict(variant=variant, end_ms=8000, frames=frames_dir, timeline=LOOP_TIMELINE)
 
 
 def screenshot(variant, out_scroll, out_paused):
     """Two stills of the real widget under `variant`'s scheme (W52): mid-scroll, and
     held by the hover-pause with the ring pulsing. Returns the two paths that exist."""
-    run(variant=variant, end_ms=4000, grab=out_scroll)
+    run(**scroll_still_args(variant, out_scroll))
     run_hovered(variant, grab_paused=out_paused)
     return [p for p in (out_scroll, out_paused) if os.path.isfile(p)]
 
@@ -492,7 +539,7 @@ def animate(variant, out_apng):
     measures the pictures (S5 never-tear), not this count."""
     from PIL import Image
     with tempfile.TemporaryDirectory() as td:
-        res = run(variant=variant, end_ms=8000, frames=td, timeline=LOOP_TIMELINE)
+        res = run(**animate_args(variant, td))
         names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
         if not names:
             return 0

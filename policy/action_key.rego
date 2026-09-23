@@ -20,9 +20,23 @@ deny contains msg if {
 	msg := "no actions measured: the population is empty, so nothing was judged"
 }
 
+# ⚑ PER OUTPUT, THE FACT IS JUDGED — NOT THE SUMMARY (W61). An action keyed one
+# output at a time names each output whose key moved; each is a denial of its own,
+# so the message says WHICH picture is stale, and a measurement whose summary
+# `state` disagrees with its own stale list is still refused.
+deny contains msg if {
+	some c in input.cases
+	some f in object.get(c, "stale_outputs", [])
+	msg := sprintf(
+		"action %q output %q is STALE: its inputs moved since it was built — rebuild it (render_screens renders only the stale)",
+		[c.action, f],
+	)
+}
+
 deny contains msg if {
 	some c in input.cases
 	c.state == "stale"
+	count(object.get(c, "stale_outputs", [])) == 0
 	msg := sprintf(
 		"action %q is STALE: outputs were built at key %s but its declared inputs now key %s — rebuild, then scripts/check_action_key.py --write",
 		[c.action, substring(c.recorded_key, 0, 16), substring(c.key, 0, 16)],
@@ -106,7 +120,16 @@ withheld contains msg if {
 withheld contains msg if {
 	some c in input.cases
 	c.state == "unrecorded"
+	count(object.get(c, "unrecorded_outputs", [])) == 0
 	msg := sprintf("action %q has no recorded key: currency is UNMEASURED, not confirmed", [c.action])
+}
+
+# an output never recorded is unmeasured, not stale — named, so the hole is visible
+withheld contains msg if {
+	some c in input.cases
+	n := count(object.get(c, "unrecorded_outputs", []))
+	n > 0
+	msg := sprintf("action %q: %d of %d output(s) have no recorded key (%s): their currency is UNMEASURED", [c.action, n, object.get(c, "n_keyed_outputs", 0), concat(", ", c.unrecorded_outputs)])
 }
 
 withheld contains msg if {
@@ -142,5 +165,6 @@ deny contains msg if {
 admitted contains msg if {
 	some c in input.cases
 	c.state == "current"
+	count(object.get(c, "stale_outputs", [])) == 0
 	msg := sprintf("action %q current: %d declared input(s) -> %d artifact(s)", [c.action, c.n_inputs, c.n_outputs])
 }

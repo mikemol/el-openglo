@@ -180,6 +180,56 @@ test_unmeasurable_host_denies if {
 	count(d) == 1
 }
 
+# ⚑ PER-OUTPUT CURRENCY (W61). The screens action is keyed one output at a time;
+# the requirement judges the stale LIST, one denial per stale picture.
+_per := object.union(_current, {"per_output": true, "n_keyed_outputs": 56, "stale_outputs": [], "unrecorded_outputs": []})
+
+# REFUSING: one picture's inputs moved — exactly that picture is denied, by name
+test_one_stale_output_denies_by_name if {
+	c := object.union(_per, {"state": "stale", "stale_outputs": ["clock-EL-Amber.png"]})
+	r := action_key.deny with input as {"cases": [c]}
+	count(r) == 1
+	some m in r
+	contains(m, "clock-EL-Amber.png")
+}
+
+# REFUSING: each stale output is its own denial (n of m, not one blanket verdict)
+test_each_stale_output_denies if {
+	c := object.union(_per, {"state": "stale", "stale_outputs": ["clock-EL-Amber.png", "sheet-EL-Amber.png", "strip.png"]})
+	r := action_key.deny with input as {"cases": [c]}
+	count(r) == 3
+}
+
+# REFUSING: the FACT beats the summary — a measurement that calls itself current
+# while listing a stale output is still denied, and is not admitted
+test_stale_output_denies_even_if_summary_says_current if {
+	c := object.union(_per, {"stale_outputs": ["pinholes-EL-Azure.png"]})
+	i := {"cases": [c]}
+	d := action_key.deny with input as i
+	a := action_key.admitted with input as i
+	count(d) == 1
+	count(a) == 0
+}
+
+# ADMITTING: every output keyed and current — no denial, judged and admitted
+test_all_outputs_current_admits if {
+	i := {"cases": [_per]}
+	d := action_key.deny with input as i
+	a := action_key.admitted with input as i
+	count(d) == 0
+	count(a) == 1
+}
+
+# WITHHELD, NOT DENIED: an output never recorded is unmeasured, not stale
+test_unrecorded_output_withholds_not_denies if {
+	c := object.union(_per, {"state": "unrecorded", "unrecorded_outputs": ["README.md"]})
+	i := {"cases": [c]}
+	d := action_key.deny with input as i
+	w := action_key.withheld with input as i
+	count(d) == 0
+	count(w) == 1
+}
+
 test_withheld_beside_admitted if {
 	c := object.union(_current, {"action": "schemes", "state": "unrecorded", "recorded_key": null})
 	i := {"cases": [_current, c]}

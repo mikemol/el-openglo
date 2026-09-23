@@ -26,6 +26,30 @@ commit. Same obligation, affordable witness.
     scripts/action_key.py --check            # is each recorded key still current?
     scripts/action_key.py --json             # the measurement, for policy/action_key.rego
     scripts/action_key.py --selftest         # the measurement can SEE a stale key
+    scripts/check_action_key.py --impact F   # which per-output keys a comment in F moves, n of m
+
+⚑ PER OUTPUT, WHERE THE PRODUCER DECLARES IT (W61, the operator's ruling: a
+fine-grained, iterative build graph). The screens action was ONE key over its
+entry's whole import closure plus templates/ and catalog/library/, so any byte —
+a lock in make_schemes.py, a licence constant — re-rendered all 55 pictures while
+altering none. A producer that answers `--keys` (render_screens does) is now keyed
+one output at a time, over what that output's process is HANDED: the staged job
+(subject bytes, companions, harness and its fill, kdeglobals = the variant's
+.colors), the repo files the job names and QML resolves from there, the Qt env,
+argv, the runner code, the host. A derived output keys on its inputs' keys. The
+emitters' SOURCE is not in it — early cutoff: a consumer keys on its producer's
+emitted content, and `schemes` keys make_schemes' source.
+
+WEAKNESS OF THE PER-OUTPUT KEY, STATED: AN UNDER-DECLARED INPUT MAKES A KEY READ
+FRESH WHEN IT IS STALE. The input list is DERIVED, not typed: job_inputs digests
+what the producer's own stager writes (the same function its render runs), and
+_repo_reads follows the repo paths that staged text names through QML's directory
+import (by the types instantiated) and relative imports. What it cannot see: a
+file the process opens by a path the job never spells (a font by FAMILY, a Qt
+plugin, an image a type loads at runtime by a computed URL), environment outside
+JOB_ENV (the one hand list here), and runner code a generator module contributes
+without emitting it into the job (runner_code's prune). The host fingerprint and
+the residue (computed reads in the runner code) are the declared bound on that gap.
 
 ⚑ THE DOMAIN IS DECLARED BY OVER-APPROXIMATION, DELIBERATELY. An action names its
 entry module (whose repo-local import closure is computed exactly) and its DATA
@@ -97,6 +121,10 @@ MANIFEST = os.path.join(ROOT, "catalog", "actions.json")
 # moved. A digest over a changed formula is a different question, not a worse
 # answer to the same one. Bump this whenever what goes INTO the key changes.
 KEY_SCHEMA = 2
+# ⚑ THE PER-OUTPUT FORMULA IS A DIFFERENT QUESTION (W61), so an action keyed per
+# output carries its own schema: its old whole-action record reads `reformulated`,
+# never `stale`, and schemes/wallpapers — whose formula did not change — keep 2.
+PER_OUTPUT_SCHEMA = 3
 
 HOST_PIN_FILE = os.path.join(ROOT, "catalog", "host.json")
 
@@ -202,16 +230,21 @@ def _digest_file(path):
     return h.hexdigest()
 
 
-def import_closure(entry):
+def import_closure(entry, prune=()):
     """Every repo-local .py the entry module transitively imports, sorted.
 
     ⚑ EXACT, UNLIKE THE DATA DOMAIN. An import is a literal in the source, so the
     code half of the domain needs no over-approximation — which matters, because
-    the code half is what actually changed in the incident above."""
-    seen, stack = set(), [entry]
+    the code half is what actually changed in the incident above.
+
+    `prune` names modules (by basename, no .py) the walk neither includes nor
+    descends into — runner_code's early cutoff at the generators."""
+    seen, stack = set(), [entry] if isinstance(entry, str) else list(entry)
     while stack:
         rel = stack.pop()
         if rel in seen or not os.path.isfile(os.path.join(ROOT, rel)):
+            continue
+        if os.path.basename(rel)[:-3] in prune:
             continue
         seen.add(rel)
         try:
@@ -232,6 +265,212 @@ def import_closure(entry):
                     stack.append(os.path.normpath(cand))
                     break
     return sorted(seen)
+
+
+# ─── per-output keys (W61: the operator's ruling is a fine-grained, iterative
+# build graph). A producer that declares `--keys` is keyed ONE OUTPUT AT A TIME,
+# over what that output's process is handed; these are the pieces it builds from.
+
+# the environment a job's key carries: what the tooling sets for Qt, plus the
+# locale and font configuration text shaping reads. ⚑ A HAND LIST, AND THE ONE IN
+# THIS FILE: the inherited remainder (PATH, HOME, the session) is the HOST's, and
+# is covered — incompletely, and said so — by host_identity().
+JOB_ENV = ("QT_", "QSG_", "QML", "KDE_DEBUG", "EL_", "XDG_CONFIG_HOME", "XDG_CURRENT_DESKTOP",
+           "LANG", "LC_", "FONTCONFIG_")
+# ...less the desktop SESSION's own variables, which reach the child only because
+# qt_sandbox passes the environment through, and which the offscreen platform
+# never consults: keying them would make a hook's key differ from a terminal's.
+JOB_ENV_SESSION = ("QT_WAYLAND_",)
+
+
+def digest_rel(rel):
+    """sha256 of a repo-relative file."""
+    return _digest_file(os.path.join(ROOT, rel))
+
+
+def digest_text(text):
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def key_over(inputs):
+    """The key over a {name: digest} map — order-free, name-bound."""
+    h = hashlib.sha256()
+    for k in sorted(inputs):
+        h.update(k.encode() + b"\0" + str(inputs[k]).encode() + b"\0")
+    return h.hexdigest()
+
+
+def runner_code(seeds):
+    """The repo .py a job's RUNNER executes: the import closure of `seeds`, pruned
+    at every generator emitters.ROLES declares.
+
+    ⚑ EARLY CUTOFF, DERIVED. A generator (make_*) contributes to a render only
+    through the BYTES it emits into the job, and those bytes are keyed directly;
+    keying its source too is what made a lock in make_schemes.py and a licence
+    constant re-render all 55 screens (catalog/render-speed.md). The prune set is
+    the roster's own declaration, not a list typed here. WEAKNESS: a generator
+    module the runner calls for something it does NOT emit into the job (a
+    computed parameter that never reaches a staged byte) is cut off too.
+
+    ⚑ THE KEYING CODE IS NOT RUNNER CODE: the producer imports this module to key
+    itself, so without the cut a change to how keys are COMPUTED would read as
+    every render being stale — a formula change, which is PER_OUTPUT_SCHEMA's job."""
+    import emitters
+    me = os.path.basename(__file__)[:-3]
+    return import_closure(list(seeds), prune=set(emitters.ROLES) | {me})
+
+
+def host_inputs():
+    """({"host:<kind>": id}, [missing]) — the host half of every rendered key."""
+    kind, hid, detail = host_identity()
+    if kind == "unmeasurable":
+        return {}, [detail]
+    return {f"host:{kind}": hid}, []
+
+
+# a QML type USED in a document: `Name {` or `Qualifier.Name {`
+_QML_TYPE_USE = r"\b(?:[A-Za-z_]\w*\.)?([A-Z]\w*)\s*\{"
+_QML_REL_IMPORT = r'^\s*import\s+"([^"]+)"'
+
+
+def _repo_reads(texts):
+    """{repo-relative path} a staged job NAMES and the QML engine would read from
+    there: a file named by absolute path, and — for a named DIRECTORY (an
+    `import "file:<dir>"`) — the qmldir and the `<Type>.qml` of every type the
+    documents instantiate, transitively, with each read file's own relative
+    imports. ⚑ NOT THE WHOLE DIRECTORY: a directory import resolves a type by
+    name, lazily, so digesting every file in templates/ would make the pinholes
+    stale when SegmentChar.qml moves, which it never reads."""
+    import re
+    root = re.escape(ROOT)
+    named = set()
+    for _p, t in texts:
+        for m in re.finditer(root + r"(/[^\"'\s)`]*)?", t):
+            named.add(os.path.normpath(ROOT + (m.group(1) or "")))
+    out, dirs = set(), []
+    for p in named:
+        if os.path.isfile(p):
+            out.add(p)
+        elif os.path.isdir(p):
+            dirs.append(p)
+    pending = [t for _p, t in texts]
+    seen_text = set()
+    while pending:
+        t = pending.pop()
+        if t in seen_text:
+            continue
+        seen_text.add(t)
+        types = set(re.findall(_QML_TYPE_USE, t))
+        for d in dirs:
+            cands = [os.path.join(d, "qmldir")] + [os.path.join(d, f"{n}.qml") for n in types]
+            for c in cands:
+                if os.path.isfile(c) and c not in out:
+                    out.add(c)
+                    body = open(c, encoding="utf-8", errors="replace").read()
+                    pending.append(body)
+                    for rel in re.findall(_QML_REL_IMPORT, body, flags=re.M):
+                        q = os.path.normpath(os.path.join(os.path.dirname(c), rel))
+                        if os.path.isfile(q) and q not in out:
+                            out.add(q)
+                            pending.append(open(q, encoding="utf-8", errors="replace").read())
+    return sorted(os.path.relpath(p, ROOT) for p in out)
+
+
+def job_inputs(stage):
+    """{name: digest} over EVERYTHING a staged job hands its qml process.
+
+    `stage(td) -> (argv, env, gpu)` is the producer's own job constructor — the one
+    its render runs — called on a scratch directory. Digested:
+      job:<rel>   every file staged (the subject, companions, harness with its fill
+                  values, kdeglobals = the variant's .colors, stubs), with the scratch
+                  path and the repo root normalised out so the key is the CONTENT;
+      repo:<rel>  every repo file the staged text names and QML would read from it;
+      env:<k>     the child's final environment (qt_sandbox.env) under JOB_ENV;
+      argv, gpu   the command and whether the GPU scene graph is granted.
+    ⚑ DERIVED, NOT LISTED: a file the harness starts handing the process is in the
+    key the moment it is in the run, because both read the same staging."""
+    import tempfile
+    import qt_sandbox as QT
+    inputs, texts = {}, []
+    with tempfile.TemporaryDirectory() as td:
+        argv, env, gpu = stage(td)
+
+        def norm(s):
+            return s.replace(td, "@JOB@").replace(ROOT, "@ROOT@")
+        for b, dirs, names in os.walk(td):
+            dirs.sort()
+            for n in sorted(names):
+                p = os.path.join(b, n)
+                data = open(p, "rb").read()
+                try:
+                    text = data.decode("utf-8")
+                except UnicodeDecodeError:
+                    inputs[f"job:{os.path.relpath(p, td)}"] = hashlib.sha256(data).hexdigest()
+                    continue
+                inputs[f"job:{os.path.relpath(p, td)}"] = digest_text(norm(text))
+                texts.append((p, text))
+        final = QT.env(env, gpu)
+        for k in sorted(final):
+            if k.startswith(JOB_ENV) and not k.startswith(JOB_ENV_SESSION):
+                inputs[f"env:{k}"] = digest_text(norm(final[k]))
+        inputs["argv"] = digest_text(norm("\0".join(argv)))
+        inputs["gpu"] = str(bool(gpu and QT.gpu_allowed()))
+    for rel in _repo_reads(texts):
+        inputs[f"repo:{rel}"] = digest_rel(rel)
+    return inputs
+
+
+def output_keys(action):
+    """The producer's per-output keys (`<entry> --keys`), or None when it declares
+    none — then the action is keyed as ONE, over its domain (key_of)."""
+    r = subprocess.run([sys.executable, os.path.join(ROOT, action[1]), "--keys"],
+                       capture_output=True, text=True, cwd=ROOT)
+    if r.returncode != 0:
+        return None
+    try:
+        return json.loads(r.stdout)
+    except ValueError:
+        return None
+
+
+def _manifest():
+    if os.path.isfile(MANIFEST):
+        return json.load(open(MANIFEST, encoding="utf-8"))
+    return {"actions": {}}
+
+
+def _save_manifest(m):
+    m["note"] = ("generated by scripts/check_action_key.py (--write, or a producer recording "
+                 "the outputs it built); the key of each action's — or each output's — "
+                 "declared inputs at the time it was built")
+    os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
+    with open(MANIFEST, "w", encoding="utf-8") as fh:
+        json.dump(m, fh, indent=1, sort_keys=True)
+        fh.write("\n")
+
+
+def recorded_outputs(action):
+    """{file: key} recorded for `action` under the CURRENT per-output formula; an
+    older formula's record answers a different question and is not returned."""
+    rec = _manifest().get("actions", {}).get(action, {})
+    if rec.get("schema") != PER_OUTPUT_SCHEMA:
+        return {}
+    return dict(rec.get("outputs", {}))
+
+
+def record_outputs(action, keys):
+    """Record {file: key} for outputs a producer has just BUILT from those keys.
+    ⚑ THE PRODUCER RECORDS, AFTER THE WRITE, THE KEY IT COMPUTED BEFORE IT — so the
+    record is evidence of a build, not an assertion by whoever ran --write."""
+    m = _manifest()
+    rec = m.setdefault("actions", {}).get(action, {})
+    if rec.get("schema") != PER_OUTPUT_SCHEMA:
+        rec = {"schema": PER_OUTPUT_SCHEMA, "outputs": {}}
+    rec.setdefault("outputs", {}).update(keys)
+    rec["key"] = key_over(rec["outputs"])
+    rec["n_outputs"] = len(rec["outputs"])
+    m["actions"][action] = rec
+    _save_manifest(m)
 
 
 def domain_files(domains):
@@ -349,15 +588,33 @@ def outputs_of(action):
                   for n in os.listdir(base) if n.endswith(sfx))
 
 
+def per_output_key(action):
+    """(Key, {file: key}) for an action whose producer declares `--keys`, else
+    (key_of(action), None). The action's Key is the key OVER its outputs' keys; its
+    inputs are the union of theirs; its residue is scanned over the runner code
+    they cite — the code that actually runs, not the entry's whole closure."""
+    po = output_keys(action)
+    if po is None:
+        return key_of(action), None
+    per = {fn: o["key"] for fn, o in po["outputs"].items()}
+    # one entry per (output, input) EDGE: a union by name would fold 56 different
+    # subject.qml digests into one and under-report the domain
+    inputs = {f"{fn}|{name}": d for fn, o in po["outputs"].items() for name, d in o["inputs"].items()}
+    unresolved, undeclared = [], []
+    for rel in po["code"]:
+        for line, direction, why in build_graph.computed_edges(rel):
+            site = f"{rel}:{line}: {why}"
+            (undeclared if direction == "domain" else unresolved).append(site)
+    return Key(key_over(per), inputs, po["missing_host"], sorted(unresolved), sorted(undeclared)), per
+
+
 def measure():
     """{action: {key, recorded, outputs, current}} — what IS, not what should be."""
-    recorded = {}
-    if os.path.isfile(MANIFEST):
-        recorded = json.load(open(MANIFEST, encoding="utf-8")).get("actions", {})
+    recorded = _manifest().get("actions", {})
     cases = []
     for a in ACTIONS:
         name = a[0]
-        k = key_of(a)
+        k, per = per_output_key(a)
         key, missing = k.key, k.missing_host
         outs = outputs_of(a)
         # the output boundary, both directions — declared vs present
@@ -368,7 +625,33 @@ def measure():
             f for f in declared if f.endswith(a[5])
             and not os.path.isfile(os.path.join(ROOT, a[4], f)))
         was = recorded.get(name, {})
+        schema = KEY_SCHEMA if per is None else PER_OUTPUT_SCHEMA
+        # ⚑ PER OUTPUT, n OF m (W61): which declared outputs moved, which were never
+        # recorded. The policy judges these FACTS, not the summary state below.
+        rec_out = was.get("outputs", {}) if was.get("schema") == schema else {}
+        stale_out = [] if per is None else sorted(f for f in per if f in rec_out and rec_out[f] != per[f])
+        # (under an older formula every output is "unrecorded"; `reformulated` says it once)
+        unrec_out = [] if per is None or was.get("schema") != schema else sorted(
+            f for f in per if f not in rec_out)
+        if per is None:
+            state = ("unmeasurable" if missing
+                     else "unrecorded" if not was.get("key")
+                     # the recorded key answers a DIFFERENT question than this one
+                     else "reformulated" if was.get("schema") != schema
+                     else "current" if was["key"] == key
+                     else "stale")
+        else:
+            state = ("unmeasurable" if missing
+                     else "unrecorded" if not was.get("key")
+                     else "reformulated" if was.get("schema") != schema
+                     else "stale" if stale_out
+                     else "unrecorded" if unrec_out
+                     else "current")
         cases.append({
+            "per_output": per is not None,
+            "n_keyed_outputs": 0 if per is None else len(per),
+            "stale_outputs": stale_out,
+            "unrecorded_outputs": unrec_out,
             "action": name,
             "key": key,
             "recorded_key": was.get("key"),
@@ -391,12 +674,7 @@ def measure():
             # so currency is UNMEASURED here — not confirmed, and not failed. An
             # absent host input is withheld for the same reason, one level out.
             "sees_host": a[3],
-            "state": ("unmeasurable" if missing
-                      else "unrecorded" if not was.get("key")
-                      # the recorded key answers a DIFFERENT question than this one
-                      else "reformulated" if was.get("schema") != KEY_SCHEMA
-                      else "current" if was["key"] == key
-                      else "stale"),
+            "state": state,
         })
     kind, _hid, detail = host_identity()
     return {"cases": cases, "manifest": os.path.relpath(MANIFEST, ROOT),
@@ -404,11 +682,9 @@ def measure():
 
 
 def write():
-    out = {"note": "generated by scripts/action_key.py --write; the key of each "
-                   "action's declared input domain at the time its outputs were built",
-           "actions": {}}
+    out = {"actions": {}}
     for a in ACTIONS:
-        k = key_of(a)
+        k, per = per_output_key(a)
         if k.missing_host:
             print(f"action_key: REFUSED to record {a[0]} — declared host input(s) "
                   f"absent: {', '.join(k.missing_host)}", file=sys.stderr)
@@ -418,16 +694,44 @@ def write():
         # much of the domain that digest actually covered — so a key recorded
         # while 21 edges were unresolved would read, a month later, exactly like
         # one recorded over a fully-resolved domain.
-        out["actions"][a[0]] = {"key": k.key, "schema": KEY_SCHEMA,
+        out["actions"][a[0]] = {"key": k.key,
+                                "schema": KEY_SCHEMA if per is None else PER_OUTPUT_SCHEMA,
                                 "n_inputs": len(k.inputs),
                                 "n_unresolved": len(k.unresolved),
                                 "n_undeclared_domains": len(k.undeclared_domains),
                                 "n_outputs": len(outputs_of(a))}
-    os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
-    with open(MANIFEST, "w", encoding="utf-8") as fh:
-        json.dump(out, fh, indent=1, sort_keys=True)
-        fh.write("\n")
+        if per is not None:
+            out["actions"][a[0]]["outputs"] = per
+    _save_manifest(out)
     return out
+
+
+_COMMENT = {".py": b"\n# check_action_key --impact probe\n",
+            ".qml": b"\n// check_action_key --impact probe\n",
+            ".js": b"\n// check_action_key --impact probe\n"}
+
+
+def impact(rel):
+    """{action: (moved, keyed)} — which per-output keys move when `rel` gains a
+    COMMENT (its behaviour unchanged), measured by perturbing it, re-keying, and
+    restoring it byte for byte.
+
+    ⚑ THIS IS THE EARLY-CUTOFF WITNESS (W61). A comment in a generator changes its
+    source and none of its output; a key over emitted content must not move, a key
+    over the source must. Unlike a hand-reasoned "that file isn't read by the
+    clock", this is a measurement, and it answers in n of m."""
+    p = os.path.join(ROOT, rel)
+    original = open(p, "rb").read()
+    base = {a[0]: per_output_key(a)[1] for a in ACTIONS}
+    try:
+        with open(p, "ab") as fh:
+            fh.write(_COMMENT.get(os.path.splitext(rel)[1], b"\n# check_action_key --impact probe\n"))
+        after = {a[0]: per_output_key(a)[1] for a in ACTIONS if base[a[0]] is not None}
+    finally:
+        with open(p, "wb") as fh:
+            fh.write(original)
+    return {n: (sorted(f for f in base[n] if after[n].get(f) != base[n][f]), len(base[n]))
+            for n in after}
 
 
 def _write_is_callable():
@@ -546,6 +850,32 @@ def _selftest():
         isinstance(declared_outputs(ACTIONS[0]), list), True)
     chk("an action that declares none is None, not an empty roster",
         declared_outputs(ACTIONS[1]), None)
+    # ⚑ PER-OUTPUT KEYS (W61) — the measurement can SEE a staged byte, a repo file a
+    # job names through a directory import, and ONLY the types it instantiates.
+    with tempfile.TemporaryDirectory() as d:
+        def fixture_stage(body):
+            def stage(td):
+                open(os.path.join(td, "subject.qml"), "w").write(body)
+                return ["qml", os.path.join(td, "subject.qml")], {}, False
+            return stage
+        doc = f'import "file:{os.path.join(ROOT, "templates")}" as EL\nItem {{ EL.ApertureField {{ }} }}\n'
+        a1 = job_inputs(fixture_stage(doc))
+        a2 = job_inputs(fixture_stage(doc + "// one more byte\n"))
+        chk("a staged byte moves the job's inputs", key_over(a1) != key_over(a2), True)
+        chk("a directory import reads the type it instantiates",
+            "repo:templates/ApertureField.qml" in a1, True)
+        chk("...and NOT a type it never names (SegmentChar.qml)",
+            "repo:templates/SegmentChar.qml" in a1, False)
+    screens = next(x for x in ACTIONS if x[0] == "screens")
+    _k, per = per_output_key(screens)
+    chk("screens is keyed per output, one key per declared output",
+        sorted(per or {}), declared_outputs(screens))
+    # the locality witness: one variant's scheme moves exactly its outputs, its
+    # sheet and the strip — nothing of any other variant
+    moved, n = impact("EL-Amber.colors")["screens"]
+    want = sorted(f for f in per if f.endswith("-EL-Amber.png")) + ["strip.png"]
+    chk(f"a byte in EL-Amber.colors moves exactly EL-Amber's outputs + sheet + strip ({len(moved)} of {n})",
+        sorted(moved), sorted(want))
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
     print(f"  note  host is {kind} — "
@@ -559,11 +889,30 @@ def _selftest():
 
 
 def main(argv):
-    known = {"--list", "--write", "--check", "--json", "--selftest"}
-    for a in argv[1:]:
+    known = {"--list", "--write", "--check", "--json", "--selftest", "--impact"}
+    args = list(argv[1:])
+    target = None
+    if "--impact" in args:
+        i = args.index("--impact")
+        if i + 1 >= len(args) or not os.path.isfile(os.path.join(ROOT, args[i + 1])):
+            print("action_key: --impact needs a repo-relative file", file=sys.stderr)
+            return 2
+        target = args.pop(i + 1)
+    for a in args:
         if a not in known:
             print(f"action_key: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if target is not None:
+        res = impact(target)
+        if not res:
+            print("action_key: REFUSED — no action is keyed per output; nothing to measure",
+                  file=sys.stderr)
+            return 3
+        for name, (moved, n) in sorted(res.items()):
+            print(f"  {name}: a comment in {target} moves {len(moved)} of {n} output key(s)")
+            for f in moved:
+                print(f"    stale  {f}")
+        return 0
     if "--selftest" in argv:
         return _selftest()
     if "--write" in argv:
@@ -580,9 +929,13 @@ def main(argv):
         return 0
     if "--list" in argv:
         for a in ACTIONS:
-            k = key_of(a)
+            k, per = per_output_key(a)
             print(f"  {a[0]:12s} entry={a[1]}")
-            print(f"               domains={', '.join(a[2])}  ({len(k.inputs)} file(s))")
+            if per is None:
+                print(f"               domains={', '.join(a[2])}  ({len(k.inputs)} file(s))")
+            else:
+                print(f"               keyed PER OUTPUT: {len(per)} output key(s) over "
+                      f"{len(k.inputs)} (output, input) edge(s) (job bytes, repo reads, env, code, host)")
             print(f"               host={'the whole host' if a[3] else '(none declared)'}"
                   + (f"  ⚑ UNCOMPUTABLE: {', '.join(k.missing_host)}" if k.missing_host else ""))
             print(f"               residue={len(k.unresolved)} unresolved, "
@@ -613,6 +966,11 @@ def main(argv):
               f"{c['n_inputs']} input(s), {c['n_outputs']} output(s)"
               + (f"  ⚑ residue: {c['n_unresolved']} unresolved edge(s), "
                  f"{c['n_undeclared_domains']} undeclared domain(s)" if gap else ""))
+        if c["per_output"]:
+            print(f"                  per output: {len(c['stale_outputs'])} of {c['n_keyed_outputs']} "
+                  f"stale, {len(c['unrecorded_outputs'])} unrecorded")
+            for f in c["stale_outputs"]:
+                print(f"                  stale  {f}")
         for s in c["unresolved"] + c["undeclared_domains"]:
             print(f"                  {s}")
     if stale:
@@ -624,12 +982,16 @@ def main(argv):
                   f"but the domain now keys {c['key'][:16]}", file=sys.stderr)
         print("  rebuild, then: scripts/action_key.py --write", file=sys.stderr)
         return 1
+    # ⚑ REFORMULATED WAS COUNTED AS CURRENT HERE (measured 2026-09-23: "3 of 3
+    # action(s) current" printed under a `reformulated screens` line). An unrecorded
+    # or reformulated action is UNMEASURED; the tally counts only what is current.
+    unrec = [c for c in cases if c["state"] in ("unrecorded", "reformulated")]
     if unrec and len(unrec) == len(cases):
         print(f"\naction_key: WITHHELD — {len(unrec)} of {len(cases)} action(s) have no "
               f"recorded key; currency is UNMEASURED, not confirmed.", file=sys.stderr)
         return 3
     if unrec:
-        print(f"\naction_key: SKIP for {len(unrec)} of {len(cases)} unrecorded action(s); "
+        print(f"\naction_key: SKIP for {len(unrec)} of {len(cases)} unrecorded or reformulated action(s); "
               f"{len(cases) - len(unrec)} current")
         return 0
     print(f"\naction_key: {len(cases)} of {len(cases)} action(s) current — "

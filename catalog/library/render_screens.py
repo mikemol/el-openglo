@@ -9,7 +9,10 @@ widget mid-scroll; the widget held by the hover-pause, ring pulsing); the
 switcher from render_qml's KWin rewrite over a three-caption stub model;
 the clock and live wallpaper from render_qml as the render gate draws them.
 
-    catalog/library/render_screens.py            # write catalog/library/screens/*.png + sheets
+    catalog/library/render_screens.py            # render ONLY the outputs whose key moved (W61)
+    catalog/library/render_screens.py --all      # render every output
+    catalog/library/render_screens.py --stale    # which outputs would render, n of m
+    catalog/library/render_screens.py --keys     # the per-output keys and their inputs, as data
     catalog/library/render_screens.py --list     # what would be written
     catalog/library/render_screens.py --json     # the measurement: per file, exists / size / modal colour
 
@@ -97,6 +100,113 @@ def plan_all():
     return plan() + plan_animations() + plan_derived()
 
 
+# the viewport's one-process job: (surface, w, h, config key, steps, read-back probe)
+VIEWPORT_JOB = ("aperture-text", 420, 40, "offsetRows", VIEWPORT_STEPS, "offsetY")
+
+
+def stagers(v, how, out):
+    """[stage] — the qml process(es) that produce one planned output, BUILT EXACTLY AS
+    render_one BUILDS THEM (the same *_args / *_stager constructors). ⚑ This is where
+    a key's input list comes from (W61): not a list of files someone believes the
+    render reads, but the job itself, staged and digested. `out` is where the
+    output would go; the key passes a sentinel so no output is read as an input."""
+    import render_qml as RQ
+    import check_marquee_live as ML
+    if how[0] == "render_qml":
+        _k, surface, w, h = how
+        return [RQ.render_stager(surface, v, w, h, out)]
+    if how == ("marquee", "scroll"):
+        return [ML.stager(**ML.scroll_still_args(v, out))]
+    if how == ("marquee", "paused"):
+        return [ML.stager(**ML.hovered_args(v, out))]
+    if how[:2] == ("marquee", "animate"):
+        return [ML.stager(**ML.animate_args(v, out))]
+    if how[:2] == ("aperture-text", "scroll-y"):
+        s, w, h, key, steps, probe = VIEWPORT_JOB
+        return [RQ.frames_stager(s, v, w, h, out, key, steps, probe)]
+    raise ValueError(f"no job for {how!r}")
+
+
+def sheet_tiles(v):
+    """The stills a variant's contact sheet stacks, in order — the sheet's inputs."""
+    return [f"{name}-{v}.png" for name, _h in STILLS]
+
+
+def derived_inputs(fn, v, how):
+    """The planned outputs a DERIVED output reads (a sheet its tiles; the strip the
+    sheets), or None for the index, whose key is its own emitted text."""
+    if how == ("sheet", "variant"):
+        return sheet_tiles(v)
+    if how == ("sheet", "strip"):
+        return [f"sheet-{x}.png" for x in VARIANTS]
+    return None
+
+
+def output_keys():
+    """{file: {"key", "inputs"}} for every declared output, plus the code files and
+    host facts they were keyed over (W61, the operator's fine-grained build graph).
+
+    ⚑ EARLY CUTOFF. A rendered output is keyed on what its qml process is HANDED —
+    the staged job directory (subject.qml, companions, harness with its fill values,
+    kdeglobals = that variant's .colors bytes, the notification stub), the repo
+    files the job names by path and QML resolves from there (a directory import's
+    types), the Qt environment, argv — plus the RUNNER's code and the host. An
+    emitter's SOURCE is never in it: a rebuilt emitter whose bytes did not move
+    stops there. The runner code is the import closure of the modules the job and
+    its post-processing run in, PRUNED at every generator emitters.ROLES declares,
+    because a generator's contribution is already in the key as bytes.
+
+    ⚑ A DERIVED OUTPUT IS KEYED ON ITS INPUTS' KEYS plus this module's code (a sheet
+    on its tiles, the strip on the sheets); the index on its own emitted text.
+
+    WEAKNESS: an input the process reads that the job does NOT name — a host font
+    by family, a Qt plugin, an env var outside JOB_ENV — is not in the key, so a
+    change there reads CURRENT when it is stale. The host fingerprint and the
+    residue (computed reads in the runner code) are the declared bound on that."""
+    import check_action_key as AK
+    sentinel = "/@OUT@"
+    here = os.path.relpath(os.path.abspath(__file__), ROOT)
+    code_self = AK.runner_code([here])
+    host, missing = AK.host_inputs()
+    keys, code_files = {}, set(code_self)
+    for fn, v, how in plan() + plan_animations():
+        inputs = {}
+        for i, stage in enumerate(stagers(v, how, os.path.join(sentinel, fn))):
+            for k, d in AK.job_inputs(stage).items():
+                inputs[f"job{i}:{k}"] = d
+            seed = os.path.relpath(stage.__code__.co_filename, ROOT)
+            code = AK.runner_code([here, seed])
+            code_files.update(code)
+            for rel in code:
+                inputs[f"code:{rel}"] = AK.digest_rel(rel)
+        inputs.update(host)
+        keys[fn] = {"key": AK.key_over(inputs), "inputs": inputs}
+    code_inputs = {f"code:{rel}": AK.digest_rel(rel) for rel in code_self}
+    for fn, v, how in plan_derived():
+        src = derived_inputs(fn, v, how)
+        if src is None:
+            inputs = {"content": AK.digest_text(index_md())}
+        else:
+            inputs = dict(code_inputs, **{f"input:{s}": keys[s]["key"] for s in src})
+        keys[fn] = {"key": AK.key_over(inputs), "inputs": inputs}
+    return {"outputs": keys, "code": sorted(code_files), "missing_host": missing}
+
+
+def recorded_keys():
+    """{file: key} as recorded at the last build of each output (catalog/actions.json)."""
+    import check_action_key as AK
+    return AK.recorded_outputs("screens")
+
+
+def stale(keys=None):
+    """[file] whose current key differs from the recorded one, or was never recorded,
+    or is declared and absent from disk — the outputs a build must (re)produce."""
+    keys = keys or output_keys()["outputs"]
+    rec = recorded_keys()
+    return [fn for fn in (f for f, _v, _h in plan_all())
+            if rec.get(fn) != keys[fn]["key"] or not os.path.isfile(os.path.join(SCREENS, fn))]
+
+
 def animate_viewport(variant, out_apng):
     """The text probe rendered once per band of its backdrop (offsetRows 0..8..0),
     assembled as an APNG: the field scrolling down a 16-row Unifont cell and back.
@@ -118,8 +228,8 @@ def animate_viewport(variant, out_apng):
     with tempfile.TemporaryDirectory() as td:
         # the same backend as the stills (rhi where the host has it): the frames
         # must look like the picture beside them
-        rc, err, seen = RQ.render_frames("aperture-text", variant, 420, 40, td, "offsetRows",
-                                         VIEWPORT_STEPS, "offsetY")
+        s, w, h, key, steps, probe = VIEWPORT_JOB
+        rc, err, seen = RQ.render_frames(s, variant, w, h, td, key, steps, probe)
         names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
         if rc != 0 or seen != want or len(names) != len(VIEWPORT_STEPS):
             print(f"render_screens: pinholes-anim {variant} REFUSED — rc={rc}, {len(names)} of "
@@ -130,39 +240,64 @@ def animate_viewport(variant, out_apng):
     return len(ims)
 
 
-def render_all(out_dir=SCREENS):
+def render_one(v, how, out):
+    """Produce one planned still or animation at `out`; its jobs are stagers()'s."""
     import render_qml as RQ
     import check_marquee_live as ML
+    try:
+        if how[0] == "render_qml":
+            _k, surface, w, h = how
+            RQ.render(surface, v, w, h, out)
+        elif how == ("marquee", "scroll"):
+            ML.run(**ML.scroll_still_args(v, out))
+        elif how == ("marquee", "paused"):
+            ML.run(**ML.hovered_args(v, out))
+        elif how[:2] == ("marquee", "animate"):
+            ML.animate(v, out)
+        elif how[:2] == ("aperture-text", "scroll-y"):
+            animate_viewport(v, out)
+    except RuntimeError as e:          # a harness that reported no RESULT: a hole, named
+        print(f"render_screens: {os.path.basename(out)} REFUSED — {e}", file=sys.stderr)
+    return os.path.isfile(out)
+
+
+def render_all(out_dir=SCREENS, only=None, keys=None):
+    """Render the planned outputs — all of them, or `only` those named — and return
+    (written, sheets). With `keys` ({file: key}), each output this run PRODUCED has
+    the key it was built from recorded (check_action_key.record_outputs): the key is
+    computed BEFORE the render, over the inputs the render then reads, so the record
+    is not an assertion by whoever ran --write."""
     os.makedirs(out_dir, exist_ok=True)
+    want = set(only) if only is not None else {fn for fn, _v, _h in plan_all()}
     written = []
     # ⚑ A STALE FILE MUST NOT COUNT AS A RENDER (measured 2026-09-23: under W73's
     # sandbox every render_qml call failed — X authority stripped — and this loop
     # still reported "42 of 48", because `os.path.isfile(out)` found LAST NIGHT'S
-    # pictures). Every planned output is removed first, so only a render this run
-    # produced can be counted — and a failure leaves a hole @SCREENS will refuse.
+    # pictures). Every output about to be rendered is removed first, so only a
+    # render this run produced can be counted — and a failure leaves a hole
+    # @SCREENS will refuse.
     for fn, _v, _how in plan() + plan_animations():
         p = os.path.join(out_dir, fn)
-        if os.path.isfile(p):
+        if fn in want and os.path.isfile(p):
             os.remove(p)
-    for v in VARIANTS:
-        for name, how in STILLS:
-            out = os.path.join(out_dir, f"{name}-{v}.png")
-            if how[0] == "render_qml":
-                _k, surface, w, h = how
-                rc, _err = RQ.render(surface, v, w, h, out)
-            elif how == ("marquee", "scroll"):
-                ML.screenshot(v, out, os.path.join(out_dir, f"marquee-paused-{v}.png"))
-            elif how == ("marquee", "paused"):
-                pass                                   # written by the scroll step
-            if os.path.isfile(out):
-                written.append(out)
-        for name, how in ANIMATIONS:
-            out = os.path.join(out_dir, f"{name}-{v}.png")
-            n = ML.animate(v, out) if how[1] == "animate" else animate_viewport(v, out)
-            if n:
-                written.append(out)
-    sheets = contact_sheets(out_dir)
-    open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8").write(index_md())
+    for fn, v, how in plan() + plan_animations():
+        if fn in want and render_one(v, how, os.path.join(out_dir, fn)):
+            written.append(os.path.join(out_dir, fn))
+    sheets = contact_sheets(out_dir, only=want)
+    if "README.md" in want:
+        open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8").write(index_md())
+    if keys is not None:
+        import check_action_key as AK
+        done = {os.path.basename(p) for p in written}
+        # ⚑ A DERIVED OUTPUT IS RECORDED ONLY WHEN EVERY INPUT IT STACKS EXISTS: a
+        # sheet built around a failed tile would otherwise carry a key that says the
+        # tile was in it, and read current after the tile is repaired.
+        for fn, v, how in plan_derived():
+            src = derived_inputs(fn, v, how) or []
+            if fn in want and os.path.isfile(os.path.join(out_dir, fn)) and all(
+                    os.path.isfile(os.path.join(out_dir, s)) for s in src):
+                done.add(fn)
+        AK.record_outputs("screens", {fn: keys[fn]["key"] for fn in done})
     return written, sheets
 
 
@@ -187,14 +322,19 @@ def index_md():
     return "\n".join(lines)
 
 
-def contact_sheets(out_dir=SCREENS):
-    """One sheet per variant (its surfaces stacked) and one strip of the six sheets."""
+def contact_sheets(out_dir=SCREENS, only=None):
+    """One sheet per variant (its surfaces stacked) and one strip of the six sheets;
+    with `only`, just the sheets (and strip) named in it."""
     from PIL import Image, ImageDraw
     sheets = []
     per_variant = []
     for v in VARIANTS:
-        tiles = [Image.open(os.path.join(out_dir, f"{name}-{v}.png")).convert("RGB")
-                 for name, _h in STILLS if os.path.isfile(os.path.join(out_dir, f"{name}-{v}.png"))]
+        if only is not None and f"sheet-{v}.png" not in only:
+            if "strip.png" in only and os.path.isfile(os.path.join(out_dir, f"sheet-{v}.png")):
+                per_variant.append(Image.open(os.path.join(out_dir, f"sheet-{v}.png")).convert("RGB"))
+            continue
+        tiles = [Image.open(os.path.join(out_dir, t)).convert("RGB")
+                 for t in sheet_tiles(v) if os.path.isfile(os.path.join(out_dir, t))]
         if not tiles:
             continue
         w = max(t.width for t in tiles) + 16
@@ -210,7 +350,7 @@ def contact_sheets(out_dir=SCREENS):
         sheet.save(p)
         sheets.append(p)
         per_variant.append(sheet)
-    if per_variant:
+    if per_variant and (only is None or "strip.png" in only):
         strip = Image.new("RGB", (sum(s.width for s in per_variant) + 8 * (len(per_variant) + 1),
                                   max(s.height for s in per_variant) + 16), (0, 0, 0))
         x = 8
@@ -398,11 +538,33 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
 
 
 def main(argv):
-    known = {"--list", "--json", "--outputs"}
+    known = {"--list", "--json", "--outputs", "--keys", "--stale", "--all"}
     for a in argv[1:]:
         if a not in known:
             print(f"render_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
+    # ⚑ THE GPU OPT-IN IS DECLARED HERE, NOT REMEMBERED (operator ruling 2026-09-22,
+    # W73): every Qt spawn runs headless on the software scene graph by default, and
+    # MultiEffect's bloom halo draws NOTHING there. The screenshots are the one place
+    # the halo must show, so this process — and only this one — opts into the RHI.
+    # It still gets no core and no DrKonqi from qt_sandbox, but it DOES reach the GPU
+    # driver: the vector W73 closed for every test. Set BEFORE --keys, because the
+    # opt-in is part of every job's environment and so of every key.
+    os.environ.setdefault("EL_QT_GPU", "1")
+    if "--keys" in argv:
+        # ⚑ THE PER-OUTPUT KEYS, AS DATA (W61) — check_action_key's reader
+        print(json.dumps(output_keys(), indent=1, sort_keys=True))
+        return 0
+    if "--stale" in argv:
+        k = output_keys()
+        if k["missing_host"]:
+            print(f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}", file=sys.stderr)
+            return 3
+        st = stale(k["outputs"])
+        for fn in st:
+            print(f"  stale  {fn}")
+        print(f"render_screens: {len(st)} of {len(plan_all())} declared output(s) stale")
+        return 0
     if "--list" in argv:
         for fn, _v, how in plan_all():
             print(f"{fn:36s} {how}")
@@ -421,21 +583,23 @@ def main(argv):
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
-    # ⚑ THE GPU OPT-IN IS DECLARED HERE, NOT REMEMBERED (operator ruling 2026-09-22,
-    # W73): every Qt spawn runs headless on the software scene graph by default, and
-    # MultiEffect's bloom halo draws NOTHING there. The screenshots are the one place
-    # the halo must show, so this process — and only this one — opts into the RHI.
-    # It still gets no core and no DrKonqi from qt_sandbox, but it DOES reach the GPU
-    # driver: the vector W73 closed for every test.
-    os.environ.setdefault("EL_QT_GPU", "1")
     import render_qml as RQ
     if not os.path.exists(RQ.QML):
         print(f"render_screens: SKIP — {RQ.QML} is not installed", file=sys.stderr)
         return 0
-    written, sheets = render_all()
-    want = len(plan()) + len(plan_animations())
-    print(f"render_screens: {len(written)} of {want} stills + animations, {len(sheets)} sheets -> {SCREENS}")
-    return 0 if len(written) == want else 1
+    # ⚑ INCREMENTAL BY DEFAULT (W61): only the outputs whose key moved (or that are
+    # absent, or were never recorded) are rendered. --all renders every one.
+    k = output_keys()
+    if k["missing_host"]:
+        print(f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}", file=sys.stderr)
+        return 3
+    only = None if "--all" in argv else stale(k["outputs"])
+    written, sheets = render_all(only=only, keys=k["outputs"])
+    rendered = [fn for fn, _v, _h in plan() + plan_animations() if only is None or fn in only]
+    print(f"render_screens: {len(written)} of {len(rendered)} stale stills + animations rendered "
+          f"({len(plan()) + len(plan_animations()) - len(rendered)} current, skipped), "
+          f"{len(sheets)} sheets -> {SCREENS}")
+    return 0 if len(written) == len(rendered) else 1
 
 
 if __name__ == "__main__":
