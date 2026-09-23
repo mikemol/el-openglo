@@ -24,8 +24,9 @@ Item {
         // Unifont cell read 1:1, one Unifont pixel per pip — and the 8-row field
         // looks through the band starting $offsetRows rows down
         backdropRows: $backdropRows
-        // the harness may override the band per frame (render_qml --set offsetRows=N):
-        // that is how the vertical scroll is captured, one render per step
+        // the harness may override the band (render_qml --set offsetRows=N for one
+        // still; render_frames reassigns the configuration per step in ONE process,
+        // so this must stay a BINDING on plasmoid.configuration)
         offsetY: ((typeof plasmoid !== "undefined" && plasmoid.configuration.offsetRows !== undefined)
                   ? plasmoid.configuration.offsetRows : $offsetRows) * scale
         // grab the source, hand the grab to an Image (what a Canvas can draw),

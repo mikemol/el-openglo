@@ -23,6 +23,7 @@ widget shows an idle phosphor face rather than crashing.
 """
 import os
 import json
+import functools
 import make_wallpaper_live as WL   # colors_for: the token-derived lit/ghost/void per variant
 import make_taskswitch as TS       # ghost_alpha(): the measured-global constant; VARIANTS
 # ⚑ THIS SURFACE IS A DOT-MATRIX DISPLAY, NOT A SEGMENT ONE, AND NOT STYLED TEXT.
@@ -100,12 +101,26 @@ def main_qml(font_path=None):
     The registry carries the 5x8 font — the authored table plus the Latin-1
     extension rasterised from `font_path` (matrix_font() when None) — so arbitrary
     notification text renders as a dot-matrix display, and a char outside the
-    charset renders as '?' rather than as a blank cell."""
+    charset renders as '?' rather than as a blank cell.
+
+    ⚑ MEMOISED PER PROCESS (render-speed #3): the document takes no variant, and
+    check_marquee_live.subject() asked for it 3x per variant (18x per screens
+    run, ~8 s CPU each) with identical output. The cache key is the RESOLVED
+    font path — the only argument, and matrix_font() reads EL_MATRIX_FONT, so
+    it is resolved before the lookup. Everything else it reads (the template
+    file, the palette cache via WL/TS, the registry tables) is a module or
+    build-input file that does not change within one process; a caller that
+    rewrites those mid-process must call _main_qml.cache_clear()."""
+    return _main_qml(font_path or matrix_font())
+
+
+@functools.cache
+def _main_qml(font_path):
     import templates.loader as TL
     return TL.render("marquee-main.qml", ghostAlpha=TS.ghost_alpha(),
                      hueTables=hue_tables_js(), fallbackFg=_hex(WL.colors_for(FALLBACK_VARIANT)[1]),
                      registry=DT.as_qml_js(MATRIX_DISPLAY,
-                                           font_path=font_path or matrix_font()))
+                                           font_path=font_path))
 
 
 def hue_table(variant):

@@ -10,12 +10,27 @@ the Okabe-Ito color-universal-design palette itself. A pair of ours is
 admissible if it is at least as separated (x a class factor) as the reference
 shape's own tightest pair.
 """
+import functools
 import numpy as np
 from colorspacious import cspace_convert
 
 VIEWS = [None, "protanomaly", "deuteranomaly", "tritanomaly"]
 
 def _ucs(rgb255, cvd):
+    c = np.asarray(rgb255, dtype=float)
+    if c.shape == (3,):
+        # ⚑ RENDER-SPEED #3b: a pure conversion, memoised on the exact float
+        # triple (the same bits colorspacious would have seen). The palette
+        # re-asks the same few colours thousands of times — 11,616 conversions
+        # per make_notify_marquee.main_qml. A COPY is returned so a caller that
+        # mutates the result cannot poison the cache.
+        return _ucs_one(tuple(float(x) for x in c), cvd).copy()
+    src = "sRGB1" if cvd is None else {"name": "sRGB1+CVD", "cvd_type": cvd, "severity": 100}
+    return cspace_convert(c / 255.0, src, "CAM02-UCS")
+
+
+@functools.cache
+def _ucs_one(rgb255, cvd):
     c = np.asarray(rgb255, dtype=float) / 255.0
     src = "sRGB1" if cvd is None else {"name": "sRGB1+CVD", "cvd_type": cvd, "severity": 100}
     return cspace_convert(c, src, "CAM02-UCS")
@@ -36,7 +51,10 @@ OKABE_ITO = {
     "purple": (204, 121, 167),
 }
 
+@functools.cache
 def reference_floor():
+    # Cached: a constant of the module-level OKABE_ITO table (an immutable tuple),
+    # recomputed per rehue call before — 168 conversions each (render-speed #3b).
     names = list(OKABE_ITO)
     floor = (1e9, None, None, None)
     for i in range(len(names)):

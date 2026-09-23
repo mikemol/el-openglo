@@ -279,11 +279,87 @@ def companions(surface):
     return out
 
 
+# ⚑ MANY FRAMES, ONE PROCESS (render speed #2, catalog/render-speed.md): the
+# pinholes viewport was 65 `qml` processes per variant, each paying the ~0.33 s
+# CPU startup floor for one grab. This harness steps ONE config key through a list
+# inside one run — check_marquee_live's pattern (grabToImage per step, frame-NNN.png,
+# never two grabs in flight). The step is written by REASSIGNING
+# plasmoid.configuration, so the subject's `plasmoid.configuration.<key>` BINDING
+# re-evaluates (mutating a field of a var would notify nothing); per frame the
+# harness reads back the named `probe` property of the first item carrying it —
+# what the binding actually delivered — and prints it on one FRAMES line.
+FRAMES_HARNESS = """import QtQuick
+import QtQuick.Window
+Window {
+    id: harness
+    width: %(w)d; height: %(h)d; visible: true; color: "%(ground)s"
+    property var base: (%(config)s)
+    property var steps: %(steps)s
+    property var plasmoid: QtObject { property var configuration: harness.base }
+    property var wallpaper: QtObject { property var configuration: harness.base }
+    Rectangle { anchors.fill: parent; color: "%(ground)s" }
+    Loader { id: subject; anchors.fill: parent; source: "subject.qml" }
+    property int i: 0
+    property var seen: []
+    function find(item) {
+        if (!item) return null
+        if (item[%(probe)s] !== undefined && item.prefix !== undefined) return item
+        for (var k = 0; k < item.children.length; k++) {
+            var r = find(item.children[k])
+            if (r) return r
+        }
+        return null
+    }
+    function shoot() {
+        if (harness.i >= harness.steps.length) {
+            console.warn("FRAMES " + JSON.stringify(harness.seen)); Qt.quit(); return
+        }
+        var c = Object.assign({}, harness.base); c[%(key)s] = harness.steps[harness.i]
+        plasmoid.configuration = c
+        var f = find(subject.item)
+        harness.seen.push(f ? f[%(probe)s] : null)
+        harness.contentItem.grabToImage(function (r) {
+            r.saveToFile(%(out)s + "/frame-" + String(harness.i).padStart(3, "0") + ".png")
+            harness.i += 1; harness.shoot()
+        })
+    }
+    // the first grab waits as the single-still harness does, AND for the subject to
+    // have sampled its backdrop (the probe grabs its own Text first)
+    Timer {
+        id: settle; interval: 1200; running: true
+        onTriggered: { var f = harness.find(subject.item); if (f && f.prefix) harness.shoot(); else settle.restart() }
+    }
+    Timer { interval: 60000; running: true; onTriggered: { console.warn("FRAMES " + JSON.stringify(harness.seen)); Qt.quit() } }
+}
+"""
+
+
+def render_frames(surface, variant, w, h, out_dir, key, steps, probe, software=False):
+    """Render `surface` once per value of config `key` in `steps`, all in ONE qml
+    process, as out_dir/frame-NNN.png. Returns (rc, stderr, seen): `seen` is the
+    `probe` property of the first item that has it (and a `prefix`: an
+    ApertureField), read back per frame — the binding's delivered value, or None
+    where the harness never reached that frame. WEAKNESS: the probe lookup is by
+    property name; a subject with no such item yields seen full of None, which the
+    caller must refuse rather than trust the frames."""
+    qml, config, ground = subject(surface, variant)
+    rc, err = render_document(qml, variant, w, h, out_dir, config, ground, software, companions(surface),
+                              harness=FRAMES_HARNESS,
+                              extra={"steps": json.dumps(list(steps)), "key": json.dumps(key),
+                                     "probe": json.dumps(probe), "out": json.dumps(os.path.abspath(out_dir))})
+    seen = None
+    for line in err.splitlines():
+        if "FRAMES " in line:
+            seen = json.loads(line.split("FRAMES ", 1)[1])
+    return rc, err, seen
+
+
 def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None,
-                    harness=HARNESS):
+                    harness=HARNESS, extra=None):
     """Render an already-rewritten QML document under `variant`'s scheme (the probe
     with its own holes — check_legibility renders the text probe per case). The
-    harness, environment and backend rules are render()'s."""
+    harness, environment and backend rules are render()'s. `extra` adds to (or
+    overrides) the harness's format keys — FRAMES_HARNESS's steps and key."""
     if config is None:
         config = {}
     if ground is None:
@@ -295,9 +371,9 @@ def render_document(qml, variant, w, h, out_png, config=None, ground=None, softw
         open(os.path.join(td, "subject.qml"), "w").write(qml)
         for name, text in (companions or {}).items():
             open(os.path.join(td, name), "w").write(text)
-        open(os.path.join(td, "harness.qml"), "w").write(harness % {
+        open(os.path.join(td, "harness.qml"), "w").write(harness % dict({
             "w": w, "h": h, "ground": ground, "config": json.dumps(config),
-            "out": os.path.abspath(out_png)})
+            "out": os.path.abspath(out_png)}, **(extra or {})))
         # ⚑ THE OFFSCREEN PLATFORM DEFAULTS TO THE SOFTWARE SCENE GRAPH, which has
         # no shaders: MultiEffect silently draws nothing and a bloom check would
         # pass or fail on a picture the desktop never shows (measured: bloom=4 and
@@ -324,8 +400,9 @@ def render_document(qml, variant, w, h, out_png, config=None, ground=None, softw
         # the halo is absent — `backend=software` in the returned detail says so.
         gpu = not (software or os.environ.get("SANDBOX_ON") == "1"
                    or os.environ.get("EL_RENDER_SOFTWARE") == "1")
+        # a frames run (`extra`, render_frames) grabs 65 steps in one process
         r = QT.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env, gpu=gpu,
-                   capture_output=True, text=True, timeout=60)
+                   capture_output=True, text=True, timeout=120 if extra else 60)
     backend = "rhi" if "Creating QRhi" in r.stderr else (
         "software" if "backend software" in r.stderr else "unknown")
     err = "\n".join(l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph"))

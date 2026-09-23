@@ -13,6 +13,20 @@ error. Curves are flattened to fine polylines (orientation preserved; NOT the sa
 rasterizing to a pixel grid — no boundary detail is quantized away)."""
 from fontTools.ttLib import TTFont
 from fontTools.pens.recordingPen import DecomposingRecordingPen
+import functools
+
+
+@functools.cache
+def _font(path):
+    """(TTFont, glyph set, best cmap) for `path`, opened ONCE per process.
+
+    ⚑ RENDER-SPEED #3b: font_extension rasterises ~190 chars and each one
+    re-opened the font and rebuilt its glyph set (twice, via font_frame) —
+    measured ~9.9 s of an ~8 s-CPU main_qml under cProfile. Keyed on the path:
+    a font file is a build INPUT that does not change inside one process, and
+    every reader here only draws from it (no mutation of the shared objects)."""
+    f = TTFont(path)
+    return f, f.getGlyphSet(), f.getBestCmap()
 
 
 def _flatten_q(p0, c, p1, n=12):
@@ -29,7 +43,7 @@ def contours(path, ch):
     ingested as EMPTY ink — measured 2026-09-21 (⊕MATRIX-FONT-INPUT, session
     76): 'e' 2 contours, 'é' 0. The decomposing pen draws the components
     through the glyph set with their offsets applied."""
-    f = TTFont(path); gs = f.getGlyphSet(); cmap = f.getBestCmap()
+    _f, gs, cmap = _font(path)
     pen = DecomposingRecordingPen(gs); gs[cmap[ord(ch)]].draw(pen)
     polys = []; cur = []; last = (0, 0)
     for op, a in pen.value:
@@ -210,14 +224,16 @@ BODY_H = 4.0    # the lattice body cell's height in cell units (segment_topology
 DESCENDER_PROBES = "gjpqy"
 
 
+@functools.cache
 def font_frame(path):
     """(cap_height, descender) in font units. Cap height: OS/2 sCapHeight when
     declared, else the 'H' bbox top. Descender: the LOWEST point the font's
     descender glyphs (g j p q y) actually reach, not hhea.descent — measured
     2026-09-21 on LiberationMono: hhea says -615, 'g' reaches -400, and a single
     descent row spanning -615 left 'g' under the coverage threshold with row 7
-    dark. Falls back to hhea when none of the probes exist."""
-    f = TTFont(path); gs = f.getGlyphSet(); cmap = f.getBestCmap()
+    dark. Falls back to hhea when none of the probes exist. Cached per path: an
+    immutable (float, float) read from a build-input file (see _font)."""
+    f, gs, cmap = _font(path)
     from fontTools.pens.boundsPen import BoundsPen
     cap = getattr(f["OS/2"], "sCapHeight", 0) if "OS/2" in f else 0
     if not cap and ord("H") in cmap:
@@ -258,7 +274,7 @@ def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
     A cell is lit when at least `threshold` of its sub x sub sample points are
     inside the winding (a COVERAGE threshold, not a centre sample — a thin
     stroke that misses every cell centre would otherwise vanish)."""
-    f = TTFont(path); cmap = f.getBestCmap()
+    _f, _gs, cmap = _font(path)
     if ord(ch) not in cmap:
         return None
     polys = contours(path, ch)

@@ -43,7 +43,7 @@ STILLS = (
 # W52's second half: the marquee SCROLLING, one APNG per variant, frames grabbed
 # by the harness while the text is on the move (check_marquee_live.animate); and
 # W54's viewport: the 8-row field scrolling DOWN a 16-row Unifont backdrop and
-# back — one render per band (render_qml --set offsetRows), ping-pong so the
+# back — one grab per band, all in one qml process (render_qml.render_frames), ping-pong so the
 # loop closes (S6), the scroll invariant measured along y (S5)
 ANIMATIONS = (("marquee-anim", ("marquee", "animate", "x")),
               ("pinholes-anim", ("aperture-text", "scroll-y", "y")))
@@ -100,22 +100,32 @@ def plan_all():
 def animate_viewport(variant, out_apng):
     """The text probe rendered once per band of its backdrop (offsetRows 0..8..0),
     assembled as an APNG: the field scrolling down a 16-row Unifont cell and back.
-    Returns the frame count. Each frame is a full themed render (~2 s wall on an
-    idle host), which is why this is a run, not a gate."""
+    Returns the frame count.
+
+    ⚑ ONE qml PROCESS FOR ALL 65 FRAMES (render speed #2): render_qml.render_frames
+    steps offsetRows through the probe's plasmoid.configuration BINDING and grabs
+    each step. It was 65 processes, each paying the startup floor for one grab
+    (measured on EL-Openglo: 37.7 s CPU old, see catalog/render-speed.md). The
+    field's offsetY is read back per frame and must equal step x scale — a frame
+    whose binding did not deliver its step is refused, not assembled. A frame
+    count short of the plan is also refused (0): the old loop silently dropped a
+    failed step (64 of 65 once, measured) and the ping-pong was then no longer
+    symmetric."""
     import tempfile
     import render_qml as RQ
     from PIL import Image
-    ims = []
+    want = [s * VIEWPORT_SUBSTEPS for s in VIEWPORT_STEPS]
     with tempfile.TemporaryDirectory() as td:
         # the same backend as the stills (rhi where the host has it): the frames
         # must look like the picture beside them
-        for i, step in enumerate(VIEWPORT_STEPS):
-            out = os.path.join(td, f"frame-{i:03d}.png")
-            rc, _err = RQ.render("aperture-text", variant, 420, 40, out, {"offsetRows": step})
-            if rc == 0 and os.path.isfile(out):
-                ims.append(Image.open(out).convert("RGB"))
-    if not ims:
-        return 0
+        rc, err, seen = RQ.render_frames("aperture-text", variant, 420, 40, td, "offsetRows",
+                                         VIEWPORT_STEPS, "offsetY")
+        names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
+        if rc != 0 or seen != want or len(names) != len(VIEWPORT_STEPS):
+            print(f"render_screens: pinholes-anim {variant} REFUSED — rc={rc}, {len(names)} of "
+                  f"{len(VIEWPORT_STEPS)} frames, offsetY read back {seen!r}\n{err[-400:]}", file=sys.stderr)
+            return 0
+        ims = [Image.open(os.path.join(td, n)).convert("RGB") for n in names]
     ims[0].save(out_apng, format="PNG", save_all=True, append_images=ims[1:], duration=VIEWPORT_FRAME_MS, loop=0)
     return len(ims)
 
