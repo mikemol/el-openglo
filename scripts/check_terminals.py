@@ -122,9 +122,9 @@ def read_back(fmt, text):
 
 
 def variants():
-    """The variant ids this tree DECLARES, from the palette authority (make_schemes.GRID)."""
-    import make_schemes
-    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+    """The variant ids this tree DECLARES — scripts/variant_roster.py (W61 B2)."""
+    import variant_roster
+    return variant_roster.ids()
 
 
 def formats():

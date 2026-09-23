@@ -128,7 +128,7 @@ def palette_roles_are_distinct():
     import make_preview as MP
     sys.path.insert(0, HERE)
     import render_samples as RS
-    variants = RS.variants()          # one roster, read from git (see its docstring)
+    variants = RS.variants()          # THE roster: declared (scripts/variant_roster.py), not listed
     assert variants, "no scheme files"
     collisions = []
     for v in variants:

@@ -41,9 +41,10 @@ def variants():
     typed roster, and iterating it made the check measure whatever the emitter
     chose to emit: dropping one variant took "6 of 6" to "5 of 5", exit 0
     (check_discriminates, probe inherit/variant-roster). The emitter's roster is
-    now a thing MEASURED against the authority, not the population itself."""
-    import make_schemes
-    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+    now a thing MEASURED against the authority, not the population itself.
+    Read through scripts/variant_roster.py (W61 B2): one roster, one reader."""
+    import variant_roster
+    return variant_roster.ids()
 
 
 def rows():

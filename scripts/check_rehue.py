@@ -25,12 +25,13 @@ import cvd_gate as C                                              # noqa: E402
 import make_palette as MP                                         # noqa: E402
 import make_wallpaper_live as WL                                  # noqa: E402
 
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit", "EL-Amber", "EL-Amber-Lit")
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import variant_roster                                              # noqa: E402
 
 
 def tables():
     out = {}
-    for v in VARIANTS:
+    for v in variant_roster.ids():         # the declared roster (W61 B2), not a typed tuple
         ground, fg, ghost, _a = WL.colors_for(v)
         out[v] = (ground, fg, ghost, MP.hue_table(fg, ground, ghost))
     return out

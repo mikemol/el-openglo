@@ -75,10 +75,13 @@ SESSION_STATE = (".claude/",)
 
 
 def tracked(root):
-    """Every tracked path under `root`, relative (git ls-files -z), minus session state."""
-    r = subprocess.run(["git", "-C", root, "ls-files", "-z"], capture_output=True, check=True)
-    return [p for p in r.stdout.decode("utf-8").split("\0")
-            if p and not p.startswith(SESSION_STATE)]
+    """Every tracked path under `root`, relative, minus session state —
+    scripts/git_tracked.py, the ONE population authority (W61 N4; this was a second
+    `git ls-files -z` copy). It scrubs GIT_DIR/GIT_INDEX_FILE for a root that is not
+    this repo, and walks where there is no git (the Δ sandbox), where the copy here
+    raised. SESSION_STATE (above) is then removed, by declaration."""
+    import git_tracked
+    return [p for p in git_tracked.files(root=root) if not p.startswith(SESSION_STATE)]
 
 
 def fingerprint(root, paths):

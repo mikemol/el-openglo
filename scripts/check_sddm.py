@@ -55,8 +55,8 @@ def measure_variant(variant, w=800, h=450):
 
 
 def measure(variants=None):
-    import make_sddm
-    vs = list(variants or make_sddm.VARIANTS)
+    import variant_roster                   # the declared roster (W61 B2), not make_sddm's own
+    vs = list(variants or variant_roster.ids())
     return {"cases": [measure_variant(v) for v in vs],
             "expected": {"user": "bob", "session": 1, "password": "hunter2"}}
 

@@ -22,21 +22,26 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 def variants():
-    """The variants that actually have a scheme file, DISCOVERED from the tree.
+    """The variants the palette DECLARES (scripts/variant_roster.py, make_schemes.GRID).
 
-    ⚑ NOT A HARDCODED ROSTER.  The emitter's __main__ names six variants but only
-    some ship a `.colors` file; a fixed list would report a missing FILE as a
-    broken THEME, and would silently go stale across a rename.  The scheme files
-    on disk are the authority for what exists to emit.
+    ⚑ THE ROSTER IS THE DECLARATION, NOT A LISTING (W61 B2, 2026-09-23). This was
+    schemes_artifact.variants() — a listdir of the colours snapshot — and before
+    that a listdir of the tree. A listing cannot tell a clean tree from a deleted
+    file: drop EL-Amber.colors and "6 of 6" became "5 of 5", exit 0. Now a
+    declared variant whose file is absent fails its manifest (parse_scheme raises)
+    and is COUNTED as invalid; the snapshot's listing is compared TO the roster in
+    snapshot_drift(), so a stray file is seen too. The colours still come from the
+    W75 snapshot, through parse_scheme."""
+    import variant_roster
+    return variant_roster.ids()
 
-    ⚑ THE POPULATION COMES FROM THE SAME SNAPSHOT AS THE COLOURS (W75): listing the
-    working tree while parse_scheme reads the artifact would judge one version's
-    colours over another version's roster — and a listdir of the tree also saw
-    atomic_path's in-flight `.<name>.colors.<rand>.colors` temp while @EMITTERS
-    ran beside it. The snapshot holds only the settled files."""
+
+def snapshot_drift():
+    """[(variant, why)] — the colours snapshot's members compared to the roster."""
     sys.path.insert(0, ROOT)
     import schemes_artifact
-    return sorted(schemes_artifact.variants())
+    import variant_roster
+    return variant_roster.listing_drift(schemes_artifact.variants(), "the schemes snapshot")
 
 
 def _emit():
@@ -101,7 +106,7 @@ def main(argv):
                 c = m["theme"]["colors"]
                 print(f"{v}\tframe={c.get('frame')}\tntp_text={c.get('ntp_text')}")
         return 0
-    bad = []
+    bad = list(snapshot_drift())
     for v, m in got.items():
         if isinstance(m, Exception):
             bad.append((v, f"{type(m).__name__}: {m}"))

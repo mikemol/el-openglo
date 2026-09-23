@@ -33,15 +33,18 @@ sys.path.insert(0, ROOT)
 
 
 def variants():
-    """The variants that have a TRACKED scheme file — discovered, never hardcoded.
+    """The variants the palette DECLARES — scripts/variant_roster.py, never a listing.
 
-    ⚑ FROM git, NOT os.listdir(ROOT) (2026-09-23). emitters.atomic_path writes
-    `.<name>.colors.<rand>.colors` beside the real file while @EMITTERS runs in the
-    parallel gate; a listdir filtered on the suffix would read that temp as a
-    variant. The tree is what git tracks (scripts/git_tracked.py)."""
+    ⚑ W61 B2 (2026-09-23): this was `git ls-files *.colors` (and before that a
+    listdir, which read atomic_path's in-flight temp as a variant). A tracked-file
+    listing still cannot tell a clean tree from a deleted scheme: drop one and the
+    samples index shrinks by two with every check green. The roster is declared;
+    a declared variant with no scheme now fails to RENDER, named in library.md's
+    "Did not render", and `variant_roster.py --compare` names the missing file.
+    concepts.palette_roles_are_distinct reads its roster through here."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
-    import git_tracked
-    return sorted(f[:-len(".colors")] for f in git_tracked.files(":(glob)*.colors", root=ROOT))
+    import variant_roster
+    return variant_roster.ids()
 
 
 # surface -> (filename template, renderer). Each renderer takes (variant, path)

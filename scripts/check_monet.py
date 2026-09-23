@@ -33,11 +33,10 @@ def variants():
 
     ⚑ W65, 2026-09-22: this was a typed list in this file, and dropping one entry
     took "6 of 6" to "5 of 5", exit 0 (check_discriminates, probe
-    monet/typed-variants). Add a variant and the expectation moves by itself."""
-    if ROOT not in sys.path:
-        sys.path.insert(0, ROOT)
-    import make_schemes
-    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+    monet/typed-variants). Add a variant and the expectation moves by itself.
+    Read through scripts/variant_roster.py (W61 B2): one roster, one reader."""
+    import variant_roster
+    return variant_roster.ids()
 
 
 def have_library():

@@ -53,8 +53,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # fixture repo's git was handed main's index. And a check run in the scratch copy
 # would inherit them too, reading MAIN's index while certifying the copy. So the
 # pins are scrubbed once, for this process and every child.
-for _pin in ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE", "GIT_PREFIX", "GIT_COMMON_DIR",
-             "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
+import git_tracked  # noqa: E402  (the pin list is declared once, there)
+for _pin in git_tracked.PINS:
     os.environ.pop(_pin, None)
 WORKLIST = os.path.join("catalog", "worklist")
 BIBSTRUCT = os.path.expanduser("~/github/substrate/scratch/bibstruct.py")
@@ -91,8 +91,11 @@ def resolve(check, root=ROOT):
 
 
 def tracked(root):
-    r = subprocess.run(["git", "-C", root, "ls-files", "-z"], capture_output=True, check=True)
-    return [p for p in r.stdout.decode("utf-8").split("\0") if p]
+    """Every tracked path of the scratch copy — scripts/git_tracked.py (W61 N4; this
+    was a second `git ls-files -z` copy). `root` is never this repo here, so
+    git_tracked runs git with the GIT_* pins scrubbed, whatever this process holds."""
+    import git_tracked
+    return git_tracked.files(root=root)
 
 
 def fingerprint(root, paths):

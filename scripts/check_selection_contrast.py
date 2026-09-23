@@ -88,9 +88,11 @@ def schemes():
     tree from a deleted one. make_schemes emits exactly one .colors per GRID
     entry, so GRID is the authority: add a variant and the expected count moves by
     itself; delete an emitted file and this REFUSES instead of quietly measuring
-    less."""
-    import make_schemes
-    return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
+    less.
+
+    ⚑ DELEGATES TO scripts/variant_roster.py (W61 B2): one roster, one reader."""
+    import variant_roster
+    return variant_roster.ids()
 
 
 def roster_drift(declared, who):
@@ -100,10 +102,10 @@ def roster_drift(declared, who):
     own VARIANTS list and each check used to iterate THAT, so dropping a variant
     from the emitter dropped it from the check too: 36 of 36 became 30 of 30,
     rc 0. The palette authority is the roster; an emitter that disagrees with it
-    is a missing member, returned with its reason, never a smaller n."""
-    roster, mine = set(schemes()), set(declared)
-    return ([(v, f"{who}.VARIANTS does not declare it (GRID does)") for v in sorted(roster - mine)]
-            + [(v, f"{who}.VARIANTS declares it but GRID does not") for v in sorted(mine - roster)])
+    is a missing member, returned with its reason, never a smaller n.
+    Delegates to variant_roster.drift (W61 B2)."""
+    import variant_roster
+    return variant_roster.drift(declared, who)
 
 
 def selection_pairs(keys=FG_KEYS):

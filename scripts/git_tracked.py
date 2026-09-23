@@ -169,6 +169,26 @@ def _selftest():
             not any(p.startswith((".claude/", ".build/", "junk/")) for p in got))
         see("`:(glob)*.py` does not recurse", files(":(glob)*.py", root=d) == ["a.py"])
         see("a directory pathspec takes what is under it", files("sub", root=d) == ["sub/b.py"])
+        # ⚑ A HOOK-LIKE ENV: GIT_DIR / GIT_INDEX_FILE name THIS repo (as pre-commit
+        # exports them) while a FOREIGN root is asked about — check_tree_writes'
+        # scratch copy, check_emitters_run's fixture. The pins must not leak.
+        def gp(*a):
+            return os.path.abspath(os.path.join(ROOT, subprocess.run(
+                ["git", "-C", ROOT, "rev-parse", *a], capture_output=True, text=True,
+                check=True).stdout.strip()))
+        saved = {k: os.environ.get(k) for k in PINS}
+        try:
+            os.environ["GIT_DIR"] = gp("--git-dir")
+            os.environ["GIT_INDEX_FILE"] = gp("--git-path", "index")
+            pinned = files("*.py", root=d)
+            see(f"under GIT_DIR/GIT_INDEX_FILE pinned to this repo, a foreign root still "
+                f"answers ITS tree ({pinned})", pinned == ["a.py", "sub/b.py"])
+        finally:
+            for k, v in saved.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
     with tempfile.TemporaryDirectory() as d:
         # the Δ sandbox: no .git; a worktree copy whose .git file was dropped; an ignored dir
         _plant(d, ["a.py", "sub/b.py", "wt/scripts/git_tracked.py", "wt/a.py",

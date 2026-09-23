@@ -92,8 +92,10 @@ END_MS = 4000
 
 
 def variants():
-    import render_screens as RS
-    return list(RS.VARIANTS)
+    """The declared roster (scripts/variant_roster.py, W61 B2) — not render_screens'
+    own typed VARIANTS, which is a producer's list and would shrink the check with it."""
+    import variant_roster
+    return variant_roster.ids()
 
 
 def timeline(u):

@@ -97,6 +97,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # PEP 420 implicit namespace, console scripts as the adoption path that replaces
 # a symlink, dependencies published or git-pinned and NEVER editable/path.
 import build_graph  # noqa: E402
+# ⚑ THE `.colors` ROSTER IS DECLARED ONCE (W61 B1): schemes_artifact.SUFFIX, which
+# materialise() and every snapshot reader use. It was typed twice, here and there;
+# ACTIONS now reads it. (Resolves because build_graph put ROOT on sys.path.)
+# The authority sits in schemes_artifact rather than here because its bytes are in
+# the schemes and screens keys: editing it to read ACTIONS would re-key 55 screens.
+import schemes_artifact  # noqa: E402
 MANIFEST = os.path.join(ROOT, "catalog", "actions.json")
 
 # ⚑ YOU DO NOT DECLARE A HOST BINARY. YOU DEFINE YOUR HOST (operator, 2026-09-22,
@@ -155,7 +161,7 @@ ACTIONS = (
      "make_schemes.py",
      ("templates",),
      False,                                 # pure Python over the palette
-     ".", (".colors",)),
+     ".", (schemes_artifact.SUFFIX,)),
     ("wallpapers",
      "make_wallpaper.py",
      ("templates",),

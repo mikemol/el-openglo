@@ -26,7 +26,6 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit", "EL-Amber", "EL-Amber-Lit")
 U, ROWS, EDGE_COL = 4, 8, 10          # the probe's pitch, rows and edge column
 
 
@@ -60,9 +59,11 @@ def read_pips(png, height=40):
             for name, col in (("clear", EDGE_COL - 1), ("half", EDGE_COL), ("covered", EDGE_COL + 1))}
 
 
-def measure(variants=VARIANTS):
+def measure(variants=None):
     import render_qml as RQ
+    import variant_roster                   # the declared roster (W61 B2), not a typed tuple
     rows = []
+    variants = variant_roster.ids() if variants is None else variants
     for v in variants:
         row = {"variant": v, "expected": {k: list(p) for k, p in expected(v)["pips"].items()}}
         if not os.path.exists(RQ.QML):
