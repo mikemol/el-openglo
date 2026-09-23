@@ -13,6 +13,7 @@ Spec: https://develop.kde.org/docs/plasma/aurorae/
 import os, sys, shutil, configparser
 import xml.etree.ElementTree as ET
 from make_schemes import GRID
+from emitters import LICENSE_SPDX
 
 def rgb2hex(s):
     r, g, b = s.split(",")
@@ -101,7 +102,7 @@ def metadata_text(t):
             "Comment=Flat EL phosphor decoration: unlit frame, glow seam on the active titlebar\n"
             f"X-KDE-PluginInfo-Name={t['id']}\n"
             "X-KDE-PluginInfo-Author=EL watch themes\n"
-            "X-KDE-PluginInfo-Version=1.0\nX-KDE-PluginInfo-License=GPLv3\n")
+            f"X-KDE-PluginInfo-Version=1.0\nX-KDE-PluginInfo-License={LICENSE_SPDX}\n")
 
 # ------------------------------------------------------------------ gate
 def check_theme(path, tid):

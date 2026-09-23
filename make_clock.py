@@ -18,6 +18,7 @@ make_wallpaper, sabotage. Live render (plasmoidviewer) = ⊕VER."""
 import os, re, sys, json, shutil
 import xml.etree.ElementTree as ET
 from make_schemes import GRID
+from emitters import LICENSE_SPDX
 
 # --- single source of truth: the segment substrate (⊕SEGMENT-SUBSTRATE) ------
 # ⚑ THIS READ THE WALLPAPER'S SOURCE TEXT AND eval'd IT.  Three lines of regex
@@ -59,7 +60,7 @@ def metadata():
             "Description": "Seven-segment EL clock matching the watch wallpaper, coloured by the active scheme",
             "Icon": "clock", "Id": PACKAGE_ID,
             "Name": "EL Segment Clock", "Version": "1.0",
-            "License": "GPLv3"},
+            "License": LICENSE_SPDX},
         "KPackageStructure": "Plasma/Applet",
         "X-Plasma-API-Minimum-Version": "6.0"}, indent=2)
 

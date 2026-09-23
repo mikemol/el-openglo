@@ -24,6 +24,7 @@ widget shows an idle phosphor face rather than crashing.
 import os
 import json
 import functools
+from emitters import LICENSE_SPDX   # the one licence id (W44)
 import make_wallpaper_live as WL   # colors_for: the token-derived lit/ghost/void per variant
 import make_taskswitch as TS       # ghost_alpha(): the measured-global constant; VARIANTS
 # ⚑ THIS SURFACE IS A DOT-MATRIX DISPLAY, NOT A SEGMENT ONE, AND NOT STYLED TEXT.
@@ -55,7 +56,7 @@ def metadata():
             "Name": "EL Notification Marquee",
             "Description": "Phosphor scrolling ticker that subsumes notification popups, coloured by the active scheme",
             "Category": "System Information",
-            "License": "GPLv3",
+            "License": LICENSE_SPDX,
             "Authors": [{"Name": "EL Openglo"}],
         },
         "X-Plasma-API-Minimum-Version": "6.0",

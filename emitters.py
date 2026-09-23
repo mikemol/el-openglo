@@ -15,6 +15,17 @@ import os
 import subprocess
 import sys
 
+# ⚑ THE ONE LICENCE DECLARATION (W44, operator 2026-09-22: Apache-2.0, not GPL-3).
+# Every generator that writes a licence into emitted metadata — KPackage
+# metadata.json "License", .desktop `License=` / `X-KDE-PluginInfo-License=` —
+# imports THIS, never a literal, so a relicence is one edit. An SPDX id: KPackage,
+# Gentoo and PEP 639 all accept it verbatim. scripts/check_license.py measures
+# every declaration site and policy/license.rego refuses any other id, and any
+# generator site that spells the id as a literal instead of naming this constant.
+# ⚑ NOT FOR DERIVED THIRD-PARTY WORK: make_kvantum recolours KvFlat (GPL-family,
+# upstream's licence preserved) and must never declare this.
+LICENSE_SPDX = "Apache-2.0"
+
 # (module, why it sits here) — dependency order, not alphabetical.
 ORDER = (
     ("make_schemes",   "writes the .colors files every other emitter reads"),

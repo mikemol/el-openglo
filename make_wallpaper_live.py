@@ -17,6 +17,7 @@ animation (rich on the lock mount, off/cheap on the desktop mount).
 """
 import os
 import json
+from emitters import LICENSE_SPDX   # the one licence id (W44)
 import make_clock as MC
 import make_preview as MP
 import cvd_gate as C
@@ -129,7 +130,7 @@ def metadata():
             "Id": PACKAGE_ID,
             "Name": "EL Openglo Live",
             "Description": "Living electroluminescent watch face, coloured by the active scheme",
-            "License": "GPLv3",
+            "License": LICENSE_SPDX,
             "Authors": [{"Name": "EL Openglo"}],
         },
         "X-Plasma-API-Minimum-Version": "6.0",

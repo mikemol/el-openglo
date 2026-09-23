@@ -1,18 +1,18 @@
 {
  "actions": {
   "schemes": {
-   "key": "c2d7deb8aa70050c5d92c616952c3d0ceb8ccac8ddf97cd161963016d7e85f14",
-   "n_inputs": 36,
+   "key": "49c990944b8aba38f0b65e6522fb3b1ab5aa5a06ab19228d6071d7787ddfeedf",
+   "n_inputs": 37,
    "n_outputs": 6,
-   "n_undeclared_domains": 1,
+   "n_undeclared_domains": 2,
    "n_unresolved": 10,
    "schema": 2
   },
   "screens": {
-   "key": "aa6302a13c319c3aa3f3aecea8b99e030c836f36113a0ae19e7baf595212723f",
-   "n_inputs": 68,
+   "key": "d2141a94083f882b9eb6e3902628a771c8654a9689930fe33c2bf51e68e861c0",
+   "n_inputs": 69,
    "n_outputs": 55,
-   "n_undeclared_domains": 3,
+   "n_undeclared_domains": 4,
    "n_unresolved": 24,
    "schema": 2
   },

@@ -68,6 +68,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | a real font's glyph in the 5x8 matrix (`--render CH` beside the authored bitmap; `--compare` over the authored table) | `scripts/check_matrix_input.py` | `python3 scripts/check_matrix_input.py --render g` | — |
 | the ghost as SEEN: composited through alpha per variant (`--compare`), solved through alpha (`--solve`), and the marquee's dot field beside the stroke (`--matrix`) | `scripts/check_ghost_composite.py` | `python3 scripts/check_ghost_composite.py --compare` | — |
 | the decoration states (focus / hover / selection) — pairwise q under the gate's metric, each vs ground | `scripts/check_states.py` | `python3 scripts/check_states.py --map` | — |
+| **every place the project DECLARES its licence** (emitters.LICENSE_SPDX, each generator's metadata `License` site by AST, LICENSE / pyproject / ebuild; third-party licences listed and excluded; `--json` is what policy/license.rego decides) | `scripts/check_license.py` | `python3 scripts/check_license.py --list` | `opa_gate.py license` |
 | the retired trademark, anywhere in the tree | `scripts/check_mark.py` | `python3 scripts/check_mark.py --files` | — |
 | third-party imports vs the manifest | `scripts/check_deps.py` | `python3 scripts/check_deps.py --imports` | `.toml` |
 | which emitter reads which palette authority | `scripts/check_token_source.py` | `python3 scripts/check_token_source.py --map` | — |

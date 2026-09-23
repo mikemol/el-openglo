@@ -12,6 +12,7 @@ All six grid variants ship. Helper defaults to EL-Openglo.
 import os, shutil, subprocess, stat, hashlib, sys
 import make_inherit as _inh   # icon + cursor themes that INHERIT Breeze (W31)
 import make_taskswitch as _ts  # the Alt+Tab switcher packages (W31)
+from emitters import LICENSE_SPDX  # the one licence id (W44)
 
 VERSION = "1.3.0"   # 1.3: ⊕BLOOM + ⊕STROKE-WEIGHT restored (clock, live wallpaper)
 ARCH = "all"
@@ -384,7 +385,7 @@ def build_lnf_packages():
                 "Description": f"Electroluminescent watch display — {v}",
                 "EnabledByDefault": True,
                 "Id": pid,
-                "License": "GPLv3",
+                "License": LICENSE_SPDX,
                 "Name": f"EL Openglo ({v})",
                 "ServiceTypes": ["Plasma/LookAndFeel"],
                 "Version": VERSION,
@@ -690,7 +691,7 @@ def stage(root):
                 "KPlugin": {
                     "Id": v,
                     "Name": f"EL Openglo ({v})",
-                    "License": "GPLv3",
+                    "License": LICENSE_SPDX,
                     "Authors": [{"Name": "EL Openglo"}],
                 },
                 "KPackageStructure": "Plasma/Wallpaper",

@@ -4,6 +4,10 @@ version = "0.1.0"
 description = "An electroluminescent-display desktop theme, generated from one palette"
 # >=3.13: mikemol-mdstruct (tooling extra) requires it; the venv runs 3.14
 requires-python = ">=3.13"
+# PEP 639 SPDX expression (W44); emitters.LICENSE_SPDX is the generators' copy,
+# and scripts/check_license.py refuses if the two disagree with Apache-2.0.
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 
 # ⚑ A DEPENDENCY NAMED ONLY IN A DOCSTRING IS A PERMISSION SLIP.  Every import in
 # the tree is declared here or recorded below as deliberately absent.  The list

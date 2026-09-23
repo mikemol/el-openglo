@@ -1,5 +1,5 @@
 # Copyright 2026 Mike Mol
-# Distributed under the terms of the GNU General Public License v3
+# Distributed under the terms of the Apache License, Version 2.0
 
 EAPI=8
 
@@ -13,7 +13,7 @@ DESCRIPTION="EL Openglo — an electroluminescent-display desktop theme, generat
 HOMEPAGE="https://github.com/mikemol/el-openglo"
 EGIT_REPO_URI="https://github.com/mikemol/el-openglo.git"
 
-LICENSE="GPL-3"
+LICENSE="Apache-2.0"
 SLOT="0"
 # 9999 has no KEYWORDS by convention (live ebuild): unmask it explicitly in
 # package.accept_keywords with `x11-themes/el-openglo **`.

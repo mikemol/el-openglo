@@ -10,6 +10,7 @@ Violating themes are deleted, not shipped."""
 import os, sys, json, shutil, re
 import xml.etree.ElementTree as ET
 from make_schemes import GRID, emit_colors
+from emitters import LICENSE_SPDX
 
 def hexc(s):
     r, g, b = s.split(",")
@@ -71,7 +72,7 @@ def metadata(t):
     return json.dumps({"KPlugin": {
         "Authors": [{"Name": "EL watch themes"}],
         "Name": f"{t['name']}", "Description": "Flat EL phosphor Plasma Style",
-        "Id": t["id"], "Version": "1.0", "License": "GPLv3",
+        "Id": t["id"], "Version": "1.0", "License": LICENSE_SPDX,
         "EnabledByDefault": True}, "X-Plasma-API": "5.0"}, indent=1)
 
 def colors_file(t, dark):

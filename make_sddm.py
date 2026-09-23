@@ -31,6 +31,7 @@ import os
 import sys
 
 from make_schemes import GRID
+from emitters import LICENSE_SPDX   # the one licence id (W44)
 import make_wallpaper_live as _WPL
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -79,7 +80,7 @@ def metadata_desktop(variant):
             f"Name=EL Openglo ({variant})\n"
             f"Description=Electroluminescent segment-clock login screen — {variant}\n"
             "Author=EL Openglo\n"
-            "License=GPLv3\n"
+            f"License={LICENSE_SPDX}\n"
             "Type=sddm-theme\n"
             "Version=0.1\n"
             "MainScript=Main.qml\n"
