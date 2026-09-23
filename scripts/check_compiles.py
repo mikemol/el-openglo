@@ -29,16 +29,14 @@ def sources():
     compiled a dangling symlink an agent's worktree had under .build/, failing
     the gate on a file that is not in this tree at all. Whatever else lives in
     the directory (worktrees, .build, .tree-writes, .ebuild-witness scratch) is
-    not the tree; `git ls-files` is. A new file is checked once it is staged,
-    which is exactly when a commit is about to certify it."""
-    import subprocess
-    r = subprocess.run(["git", "-C", ROOT, "ls-files", "-z", "--", "*.py"],
-                       capture_output=True, check=True)
+    not the tree; scripts/git_tracked.py is (and its bounded walk where there is
+    no git — the Δ sandbox). A new file is checked once it is staged, which is
+    exactly when a commit is about to certify it."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import git_tracked
     out = []
-    for rel in r.stdout.decode("utf-8").split("\0"):
-        if not rel or rel.startswith("scripts/"):
-            continue
-        if rel.split("/", 1)[0] in SKIP_DIRS:
+    for rel in git_tracked.files("*.py", root=ROOT):
+        if rel.startswith("scripts/") or rel.split("/", 1)[0] in SKIP_DIRS:
             continue
         out.append(rel.replace("/", os.sep))
     return sorted(out)

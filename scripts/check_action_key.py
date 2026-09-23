@@ -399,6 +399,7 @@ def job_inputs(stage):
 
         def norm(s):
             return s.replace(td, "@JOB@").replace(ROOT, "@ROOT@")
+        # population: the job's own staging tempdir — every file in it IS handed to the process
         for b, dirs, names in os.walk(td):
             dirs.sort()
             for n in sorted(names):
@@ -476,20 +477,20 @@ def record_outputs(action, keys):
 
 
 def domain_files(domains):
-    """Every file under each declared data domain, sorted. The over-approximation."""
+    """Every TRACKED file under each declared data domain, sorted. The
+    over-approximation.
+
+    ⚑ FROM git, NOT os.walk (2026-09-23): the walk carried a skip-list (.git,
+    __pycache__, .venv, node_modules) — the scratch we knew of — and a domain of
+    "." would have descended .claude/worktrees/. scripts/git_tracked.py is the one
+    authority for what the tree holds. `screens` (rendered output) and .json stay
+    excluded as before: those are PRODUCTS, not inputs."""
+    import git_tracked
     out = []
-    for d in domains:
-        base = os.path.join(ROOT, d)
-        if os.path.isfile(base):
-            out.append(d)
+    for rel in git_tracked.files(*domains, root=ROOT):
+        if rel.endswith((".pyc", ".json")) or "screens" in rel.split("/")[:-1]:
             continue
-        for b, dirs, names in os.walk(base):
-            dirs[:] = [x for x in dirs
-                       if x not in {".git", "__pycache__", "screens", ".venv", "node_modules"}]
-            for n in sorted(names):
-                if n.endswith((".pyc", ".json")):
-                    continue
-                out.append(os.path.relpath(os.path.join(b, n), ROOT))
+        out.append(rel)
     return sorted(set(out))
 
 
@@ -586,8 +587,12 @@ def outputs_of(action):
     base = os.path.join(ROOT, outdir)
     if not os.path.isdir(base):
         return []
+    # ⚑ OUTPUTS ARE ON DISK, NOT IN git (the wallpapers are gitignored), so this
+    # stays a listdir of the declared out dir. But a DOTFILE is never a declared
+    # output, while emitters.atomic_path's in-flight temp `.<name>.<rand><sfx>` is
+    # one — a listdir racing @EMITTERS would count it (2026-09-23).
     return sorted(os.path.relpath(os.path.join(base, n), ROOT)
-                  for n in os.listdir(base) if n.endswith(sfx))
+                  for n in os.listdir(base) if n.endswith(sfx) and not n.startswith("."))
 
 
 def per_output_key(action):

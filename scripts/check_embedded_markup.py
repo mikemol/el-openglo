@@ -59,14 +59,22 @@ ARTIFACT_MIMES = (
 WAIVERS = {}
 
 
+def sources(root=None):
+    """The TRACKED top-level .py files of `root` (scripts/git_tracked.py).
+
+    ⚑ FROM git, NOT os.listdir (2026-09-23): the n this check printed was every
+    ENTRY in the repo root — directories, scratch (.claude/, .build/,
+    .tree-writes/) and untracked files included — not the modules it scanned."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import git_tracked
+    return git_tracked.files(":(glob)*.py", root=root or ROOT)
+
+
 def embeddings(root=None, min_lines=DOCUMENT_LINES):
     """[(relpath, lineno, marker, n_lines)] — markup documents held in source."""
-    root = root or ROOT
     out = []
-    for fn in sorted(os.listdir(root)):
-        if not fn.endswith(".py"):
-            continue
-        path = os.path.join(root, fn)
+    for fn in sources(root):
+        path = os.path.join(root or ROOT, fn)
         try:
             tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
         except SyntaxError:
@@ -153,8 +161,13 @@ def main(argv):
               file=sys.stderr)
         print(f"  fixes: {len(unwaived)}", file=sys.stderr)
         return 1
-    print(f"check_embedded_markup: 0 embedded documents over {len(os.listdir(ROOT))} "
-          f"path(s) ({len(WAIVERS)} waived)")
+    n = len(sources())
+    if not n:
+        print("check_embedded_markup: REFUSED — no module scanned; the search is broken",
+              file=sys.stderr)
+        return 1
+    print(f"check_embedded_markup: 0 embedded documents in {n} of {n} tracked "
+          f"top-level module(s) ({len(WAIVERS)} waived)")
     return 0
 
 

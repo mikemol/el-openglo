@@ -31,7 +31,9 @@ def variants():
 
     ⚑ THE POPULATION COMES FROM THE SAME SNAPSHOT AS THE COLOURS (W75): listing the
     working tree while parse_scheme reads the artifact would judge one version's
-    colours over another version's roster."""
+    colours over another version's roster — and a listdir of the tree also saw
+    atomic_path's in-flight `.<name>.colors.<rand>.colors` temp while @EMITTERS
+    ran beside it. The snapshot holds only the settled files."""
     sys.path.insert(0, ROOT)
     import schemes_artifact
     return sorted(schemes_artifact.variants())

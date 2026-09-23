@@ -24,9 +24,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def referenced():
     """{symbol: [files]} for every ST.<sym> in the tree (the module aliased as ST)."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import git_tracked                 # the tree is what git tracks, not the disk
     used = {}
-    for fn in sorted(os.listdir(ROOT)):
-        if not fn.endswith(".py") or fn == "segment_topology.py":
+    for fn in git_tracked.files(":(glob)*.py", root=ROOT):
+        if fn == "segment_topology.py":
             continue
         p = os.path.join(ROOT, fn)
         text = open(p, encoding="utf-8", errors="replace").read()

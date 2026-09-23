@@ -82,6 +82,7 @@ def package_facts(label, module_name, attr):
     with tempfile.TemporaryDirectory() as td:
         getattr(mod, attr)(td)
         ui = os.path.join(td, "contents", "ui")
+        # population: the package the emitter just rendered into this private tempdir
         files = sorted(n for base, _d, ns in os.walk(td) for n in ns)
         docs = [n for n in os.listdir(ui) if n.endswith(".qml")] if os.path.isdir(ui) else []
         missing = lint_tree(ui, docs) if docs else []

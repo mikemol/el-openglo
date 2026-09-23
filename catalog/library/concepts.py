@@ -126,8 +126,9 @@ def palette_roles_are_distinct():
     A palette needs as many distinct colours as it has roles, and that is a
     different question from whether each one is readable."""
     import make_preview as MP
-    variants = sorted(f[:-len(".colors")] for f in os.listdir(ROOT)
-                      if f.endswith(".colors"))
+    sys.path.insert(0, HERE)
+    import render_samples as RS
+    variants = RS.variants()          # one roster, read from git (see its docstring)
     assert variants, "no scheme files"
     collisions = []
     for v in variants:

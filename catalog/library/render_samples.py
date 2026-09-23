@@ -33,9 +33,15 @@ sys.path.insert(0, ROOT)
 
 
 def variants():
-    """The variants that have a scheme file — discovered, never hardcoded."""
-    return sorted(f[:-len(".colors")] for f in os.listdir(ROOT)
-                  if f.endswith(".colors"))
+    """The variants that have a TRACKED scheme file — discovered, never hardcoded.
+
+    ⚑ FROM git, NOT os.listdir(ROOT) (2026-09-23). emitters.atomic_path writes
+    `.<name>.colors.<rand>.colors` beside the real file while @EMITTERS runs in the
+    parallel gate; a listdir filtered on the suffix would read that temp as a
+    variant. The tree is what git tracks (scripts/git_tracked.py)."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import git_tracked
+    return sorted(f[:-len(".colors")] for f in git_tracked.files(":(glob)*.colors", root=ROOT))
 
 
 # surface -> (filename template, renderer). Each renderer takes (variant, path)

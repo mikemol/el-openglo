@@ -95,21 +95,29 @@ def _hits_walk():
     is precisely the Δ mutation sandbox, a plain copy of the tree.  With only the
     git path this check REFUSED there, so paperkit could not grade it and it stood
     `broken`: an ungradeable check is one nobody has shown can fail.  The scan must
-    be able to answer wherever the files are, not only where the VCS is."""
+    be able to answer wherever the files are, not only where the VCS is.
+
+    ⚑ AND THE SANDBOX HOLDS MORE THAN THE TREE (2026-09-23). paperkit copies the
+    root whole, so .claude/worktrees/ (agents' full checkouts) came with it and a
+    bare walk scanned every one. The population is scripts/git_tracked.py's, whose
+    no-git path is a walk bounded structurally (nested checkouts and copies of this
+    tree, .gitignore'd dirs) — one authority, not a skip-list here."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import git_tracked
     out = []
-    for dp, dns, fns in os.walk(ROOT):
-        dns[:] = [d for d in dns if d not in _SKIP_DIRS]
-        for fn in sorted(fns):
-            p = os.path.join(dp, fn)
-            try:
-                text = open(p, encoding="utf-8", errors="replace").read()
-            except OSError:
-                continue
-            # per LINE, so an allowed attribution cannot excuse its neighbours
-            n = sum(line.lower().count(MARK) for line in text.splitlines()
-                    if not _is_attribution(line))
-            if n:
-                out.append((os.path.relpath(p, ROOT), n))
+    for rel in git_tracked.files(root=ROOT):
+        if rel.split("/", 1)[0] in _SKIP_DIRS:
+            continue
+        try:
+            with open(os.path.join(ROOT, rel), encoding="utf-8", errors="replace") as fh:
+                text = fh.read()
+        except OSError:
+            continue
+        # per LINE, so an allowed attribution cannot excuse its neighbours
+        n = sum(line.lower().count(MARK) for line in text.splitlines()
+                if not _is_attribution(line))
+        if n:
+            out.append((rel, n))
     return sorted(out)
 
 
@@ -170,6 +178,7 @@ def _selftest():
     # ⚑ THE SCAN MUST SEE THE MARK, or its all-clear means nothing.  Both paths
     # are exercised: the walk is the one the Δ sandbox uses (no git there), so
     # testing only the git path would leave the load-bearing branch unproven.
+    import shutil
     import tempfile
     global ROOT
     keep = ROOT
@@ -180,6 +189,14 @@ def _selftest():
             walked = _hits_walk()
             check("the walk SEES a planted mark", walked, [("planted.txt", 1)])
             check("the walk is used when git cannot answer", _hits_git(), None)
+            # a worktree copy inside the sandbox is not the tree (2026-09-23)
+            wt = os.path.join(td, ".claude", "worktrees", "a")
+            os.makedirs(os.path.join(wt, "scripts"))
+            open(os.path.join(wt, "scripts", "git_tracked.py"), "w").write("")
+            open(os.path.join(wt, "planted.txt"), "w").write(f"a {MARK} here\n")
+            check("the walk does NOT descend a nested copy of the tree", _hits_walk(),
+                  [("planted.txt", 1)])
+            shutil.rmtree(os.path.join(td, ".claude"))
             os.remove(os.path.join(td, "planted.txt"))
             check("the walk reports clean when absent", _hits_walk(), [])
 

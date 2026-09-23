@@ -176,6 +176,7 @@ def staged_tree(clean=True):
         globals()["_SANDBOX_NOTE"] = ("sandboxed (sys-apps/sandbox)" if sandboxed
                                       else "SKIP sandbox (not on PATH) — writes outside the tree unchecked")
         files = []
+        # population: the staged DESTDIR inside this run's private workdir — build output, untracked by design
         for dp, _dirs, fs in os.walk(dest):
             for f in fs:
                 files.append(os.path.relpath(os.path.join(dp, f), dest))

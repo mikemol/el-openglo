@@ -25,6 +25,8 @@ import sys
 import tomllib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(ROOT, "scripts"))
+import git_tracked  # noqa: E402
 
 # import-name -> distribution-name, where they differ.
 DIST = {"PIL": "pillow", "fontTools": "fonttools", "PySide6": "pyside6",
@@ -41,17 +43,21 @@ SCAN_DIRS = (".", "scripts", "templates", "catalog/library")
 
 
 def _python_files():
-    """[(relpath, abspath)] for every .py in the scanned directories."""
-    out = []
-    for d in SCAN_DIRS:
-        base = os.path.join(ROOT, d) if d != "." else ROOT
-        if not os.path.isdir(base):
-            continue
-        for fn in sorted(os.listdir(base)):
-            if fn.endswith(".py"):
-                rel = fn if d == "." else f"{d}/{fn}"
-                out.append((rel, os.path.join(base, fn)))
-    return out
+    """[(relpath, abspath)] for every TRACKED .py directly in the scanned directories
+    (scripts/git_tracked.py — the tree is what git tracks, not what the disk holds)."""
+    specs = [":(glob)*.py" if d == "." else f":(glob){d}/*.py" for d in SCAN_DIRS]
+    return [(rel, os.path.join(ROOT, rel)) for rel in git_tracked.files(*specs, root=ROOT)]
+
+
+def _tracked_top():
+    """(top-level module names, top-level directory names) in the tracked tree."""
+    rels = git_tracked.files(root=ROOT)
+    mods = {r[:-3] for r in rels if "/" not in r and r.endswith(".py")}
+    dirs = {r.split("/", 1)[0]: set() for r in rels if "/" in r}
+    for r in rels:
+        if r.count("/") == 1:
+            dirs[r.split("/", 1)[0]].add(r.split("/", 1)[1])
+    return mods, dirs
 
 
 def _symlink_siblings():
@@ -82,17 +88,15 @@ def imports(files=None):
 
     `files` — [(label, path)] — overrides the tree walk, for a planted fixture."""
     std = set(sys.stdlib_module_names)
-    local = {f[:-3] for f in os.listdir(ROOT) if f.endswith(".py")}
+    local, top_dirs = _tracked_top()
     # ⚑ A DIRECTORY IS NOT A PACKAGE, AND TREATING IT AS ONE HID A REAL
     # DEPENDENCY.  This counted every top-level DIRECTORY as an importable local
     # module, so creating `magic/` — which holds libmagic SIGNATURES, not Python
     # — made `import magic` look local and vanish from the census. The
     # discriminator is an __init__.py or a like-named module, not a name that
     # happens to match.
-    local |= {d for d in os.listdir(ROOT)
-              if os.path.isdir(os.path.join(ROOT, d))
-              and (os.path.exists(os.path.join(ROOT, d, "__init__.py"))
-                   or os.path.exists(os.path.join(ROOT, d + ".py")))}
+    local |= {d for d, members in top_dirs.items()
+              if "__init__.py" in members or d in local}
     # a module in a scanned subdir is local to a sibling importing it
     local |= {os.path.basename(rel)[:-3] for rel, _ in _python_files()}
     # ⚑ A SYMLINKED TOOL'S SIBLINGS ARE ITS OWN REPO'S, NOT OURS.  Several

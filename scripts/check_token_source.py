@@ -81,10 +81,12 @@ def emitters():
                 reads.append(a)
         # a target may reach tokens through a sibling emitter (e.g. the marquee
         # reuses the live wallpaper's colors_for) — that is still sourcing.
+        # the siblings are the DECLARED roster too, not os.listdir(ROOT) — which
+        # also held untracked files, and whose order made the `via` pick arbitrary
         if not reads:
-            for other in os.listdir(ROOT):
-                if other.startswith("make_") and other.endswith(".py") and other != fn:
-                    mod = other[:-3]
+            for other in ROSTER.declared():
+                if other.startswith("make_") and other + ".py" != fn:
+                    mod = other
                     if re.search(r"\b(?:import\s+%s\b|from\s+%s\s+import)" % (mod, mod), text):
                         reads.append(f"via {mod}")
                         break

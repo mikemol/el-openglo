@@ -155,6 +155,7 @@ def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None):
                 drift.append({"path": p, "summary": diff_summary(a, b, p) if b is not None
                               else "deleted by the run"})
         seen = set(paths)
+        # population: the private tempdir copy — counting what the emitters wrote there that is NOT tracked is the point
         for dp, _dn, fs in os.walk(copy):
             for f in fs:
                 if os.path.relpath(os.path.join(dp, f), copy) not in seen:

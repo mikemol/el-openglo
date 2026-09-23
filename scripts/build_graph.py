@@ -67,24 +67,19 @@ _NOT_THE_TREE = {".git", "__pycache__", ".ebuild-witness", ".venv", "node_module
                  "worktrees"}
 
 
+# ⚑ AND THE SKIP-LIST ABOVE WAS THE WRONG FIX (2026-09-23): it is the scratch dirs
+# we happened to know about that day, and .build/ / .tree-writes/ were not on it.
+# The population is what git tracks — scripts/git_tracked.py, the one authority —
+# and _NOT_THE_TREE is kept only as the record of what the walk once reached.
+import git_tracked  # noqa: E402
+
+
 def py_files():
-    out = []
-    for base, dirs, names in os.walk(ROOT):
-        dirs[:] = [d for d in dirs if d not in _NOT_THE_TREE]
-        for n in names:
-            if n.endswith(".py"):
-                out.append(os.path.relpath(os.path.join(base, n), ROOT))
-    return sorted(out)
+    return [p.replace("/", os.sep) for p in git_tracked.files("*.py", root=ROOT)]
 
 
 def tree_files(exts=(".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".colors", ".png", ".svg")):
-    out = []
-    for base, dirs, names in os.walk(ROOT):
-        dirs[:] = [d for d in dirs if d not in _NOT_THE_TREE]
-        for n in names:
-            if n.endswith(exts):
-                out.append(os.path.relpath(os.path.join(base, n), ROOT))
-    return sorted(out)
+    return [p.replace("/", os.sep) for p in git_tracked.files(*("*" + e for e in exts), root=ROOT)]
 
 
 def written_paths(path):

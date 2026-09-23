@@ -32,9 +32,11 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 def referenced():
     """{attr: {files}} — every `C.<attr>` on the cvd_gate module, from the AST."""
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import git_tracked                 # the tree is what git tracks, not the disk
     out = {}
-    for fn in sorted(os.listdir(ROOT)):
-        if not fn.endswith(".py") or fn == "cvd_gate.py":
+    for fn in git_tracked.files(":(glob)*.py", root=ROOT):
+        if fn == "cvd_gate.py":
             continue
         try:
             tree = ast.parse(open(os.path.join(ROOT, fn), encoding="utf-8",
