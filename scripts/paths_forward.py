@@ -11,7 +11,12 @@ program rather than re-derived per turn:
     paths_forward.py --payload    the cron prompt: queue digest + state_hash, budgeted
     paths_forward.py --queue      human one-screen view of the order
     paths_forward.py --check      every symbol ever issued resolves (charter: coverable)
-    paths_forward.py --selftest   prove --check can SEE a vanished symbol
+    paths_forward.py --selftest   prove --check can SEE a vanished symbol, and --payload
+                                  carries the preamble (and only when one is set)
+    paths_forward.py --preamble-set FILE | --preamble-show | --preamble-clear
+                                  the standing rules --payload emits verbatim after
+                                  its header (swarm discipline, per-tick opening cmd)
+    --state PATH                  operate on a copy (mirror + ledger follow it)
 
 WEAKNESS: this tool proves the FILE is coherent.  It does not prove any waypoint's
 `evidence` still holds — that is the tick's job, against the worklist gate, which is
@@ -34,8 +39,8 @@ PAYLOAD_BUDGET = 6000  # chars; over it, residue reasons go first, then evidence
 ORDER = {"working": 0, "ready": 1, "blocked": 2, "done": 3, "dropped": 4}
 
 
-def load(path: str = STATE) -> dict:
-    with open(path, encoding="utf-8") as fh:
+def load(path: str | None = None) -> dict:
+    with open(path or STATE, encoding="utf-8") as fh:
         return json.load(fh)
 
 
@@ -105,8 +110,16 @@ def payload(state: dict) -> str:
         "Ground truth is `python3 scripts/worklist_gate.py` — a waypoint is done when its check goes green.",
         f"Re-arm when the hash changes: CronCreate a fresh job from `--payload`, verify with CronList, "
         f"THEN CronDelete the predecessor (job_id={state.get('job_id')}).",
-        "waypoints:",
     ]
+    # ⚑ THE PREAMBLE IS DECLARED STATE, emitted verbatim after the header. Before
+    # this field existed the standing rules (swarm discipline, the per-tick opening
+    # command, "SWARM HELD because…") lived only in a hand-pasted prompt, so a
+    # re-arm from --payload silently DROPPED them. Set it with --preamble-set.
+    pre = state.get("preamble") or []
+    if isinstance(pre, str):
+        pre = pre.splitlines()
+    pre_lines = ["preamble:"] + [f"  {l}" for l in pre] if pre else []
+    lines.append("waypoints:")
     live, done = [], []
     for w in state["waypoints"]:
         if w["status"] == "done":
@@ -133,7 +146,7 @@ def payload(state: dict) -> str:
     done_line = (f"done ({len(done)}): {', '.join(done)}" if done else "")
     residue = [f"  {r['symbol']}: {r['reason']}" for r in state["residue"]]
 
-    def render(detail_n, with_evidence, with_residue):
+    def render(detail_n, with_evidence, with_residue, with_preamble=True):
         # ⚑ ONLY THE TOP ITEMS NEED THEIR STEP. A tick advances exactly ONE
         # waypoint (§4.4), so the prose that must survive the budget is the prose
         # of the item that will be worked. The rest need identity, status and
@@ -147,7 +160,8 @@ def payload(state: dict) -> str:
             head = stanza.splitlines()[0]
             return head if len(head) <= 160 else head[:157] + "..."
 
-        out = list(lines) + live[:detail_n] + [clip(l) for l in live[detail_n:]]
+        head = lines[:-1] + (pre_lines if with_preamble else []) + lines[-1:]
+        out = head + live[:detail_n] + [clip(l) for l in live[detail_n:]]
         if done_line:
             out.append("  " + done_line)
         if with_residue and residue:
@@ -168,6 +182,11 @@ def payload(state: dict) -> str:
              ((5, False, False), ["residue", "evidence", "steps-below-5"]),
              ((2, False, False), ["residue", "evidence", "steps-below-2"]),
              ((1, False, False), ["residue", "evidence", "steps-below-1"])]
+    # The preamble is the LAST thing sacrificed, and its loss is named with its
+    # line count so the tick knows standing rules are missing, not absent.
+    if pre:
+        rungs.append(((1, False, False, False),
+                      ["residue", "evidence", "steps-below-1", f"preamble({len(pre)}-lines)"]))
     for (flags, dropped) in rungs:
         text = render(*flags)
         if len(text) <= PAYLOAD_BUDGET:
@@ -188,8 +207,10 @@ def queue(state: dict) -> str:
     return "\n".join(rows)
 
 
-def save(state: dict, path: str = STATE) -> None:
-    with open(path, "w", encoding="utf-8") as fh:
+def save(state: dict, path: str | None = None) -> None:
+    # ⚑ resolved at CALL time: a `path=STATE` default binds at def time, so
+    # --state would load the temp copy and write the live file.
+    with open(path or STATE, "w", encoding="utf-8") as fh:
         json.dump(state, fh, indent=2, ensure_ascii=False)
         fh.write("\n")
 
@@ -278,7 +299,7 @@ def drop(state: dict, sym: str, reason: str) -> None:
 
 
 def ledger(line: str) -> None:
-    with open(os.path.join(ROOT, ".claude", "paths-forward.ledger"), "a", encoding="utf-8") as fh:
+    with open(os.path.splitext(STATE)[0] + ".ledger", "a", encoding="utf-8") as fh:
         fh.write(f"{now()}  {line}\n")
 
 
@@ -290,7 +311,38 @@ def selftest() -> int:
     p = check(bad)
     if not any("W3" in x for x in p) or not any("without a reason" in x for x in p):
         print("selftest: FAIL — could not see a vanished symbol / reasonless drop", p); return 1
-    print("selftest: OK — --check sees a vanished symbol and a reasonless drop"); return 0
+    # --payload carries the preamble (a), omits it when absent (b), names the job (d).
+    wp = {"symbol": "W1", "title": "t", "status": "ready", "blocked_on": [], "blocked_kind": None,
+          "ticks_blocked": 0, "next_bounded_step": "s", "evidence": "e"}
+    base = {"counter": 1, "project_root": "/x", "job_id": "job-SELFTEST", "waypoints": [wp], "residue": []}
+    pre = ["swarm discipline: RULE-ONE", "open with `python3 scripts/check_marquee_host.py`",
+           "SWARM HELD because RULE-THREE"]
+    with_pre = payload(dict(base, preamble=pre))
+    missing = [l for l in pre if l not in with_pre]
+    if missing:
+        print("selftest: FAIL — payload dropped preamble line(s)", missing); return 1
+    without = payload(base)
+    if "preamble:" in without or any(l in without for l in pre):
+        print("selftest: FAIL — payload without a preamble emitted one"); return 1
+    if "job_id=job-SELFTEST" not in with_pre:
+        print("selftest: FAIL — payload does not name the current job_id"); return 1
+    # A preamble too large to keep must be NAMED as dropped, never silently lost.
+    huge = [f"rule {i} " + "x" * 80 for i in range(100)]
+    t = payload(dict(base, preamble=huge))
+    if f"preamble({len(huge)}-lines)" not in t or "rule 0 " in t:
+        print("selftest: FAIL — an over-budget preamble was not reported in truncated="); return 1
+    # (c) an unknown flag is refused, not run.
+    try:
+        # beside a VALID mode, so the refusal is for the unknown flag and not
+        # for a missing required one (which is what a bare `--queit` measured).
+        main(["--selftest", "--queit"])
+        print("selftest: FAIL — unknown flag --queit was accepted"); return 1
+    except SystemExit as e:
+        if e.code != 2:
+            print(f"selftest: FAIL — unknown flag exited {e.code}, not 2"); return 1
+    print("selftest: OK — --check sees a vanished symbol and a reasonless drop; --payload carries "
+          f"{len(pre)} of {len(pre)} preamble lines, none when unset, names job_id, reports a "
+          "truncated preamble; unknown flags refused"); return 0
 
 
 def main(argv: list[str]) -> int:
@@ -305,10 +357,37 @@ def main(argv: list[str]) -> int:
     g.add_argument("--ledger", metavar="LINE", help="append one line (timestamp is prepended)")
     g.add_argument("--add", nargs="+", metavar=("TITLE", "key=value"), help="mint the next W<n> as a ready waypoint")
     g.add_argument("--drop", nargs=2, metavar=("SYMBOL", "REASON"), help="§5 move a waypoint to residue (reason required)")
+    g.add_argument("--preamble-set", metavar="FILE", help="store FILE's lines as the payload preamble")
+    g.add_argument("--preamble-show", action="store_true", help="print the stored preamble")
+    g.add_argument("--preamble-clear", action="store_true", help="remove the stored preamble")
+    ap.add_argument("--state", metavar="PATH", help="operate on PATH instead of .claude/paths-forward.json")
     a = ap.parse_args(argv)
     if a.selftest:
         return selftest()
-    state = load()
+    if a.state:
+        global STATE, MIRROR  # siblings (.md mirror, .ledger) follow the state file
+        STATE = os.path.abspath(a.state)
+        MIRROR = os.path.splitext(STATE)[0] + ".md"
+    state = load(STATE)
+    if a.preamble_set:
+        with open(a.preamble_set, encoding="utf-8") as fh:
+            pre = fh.read().splitlines()
+        if not any(l.strip() for l in pre):
+            print(f"--preamble-set REFUSED: {a.preamble_set} has 0 non-blank lines (use --preamble-clear)")
+            return 1
+        state["preamble"] = pre; save(state, STATE)
+        print(f"preamble set: {len(pre)} line(s); hash={state_hash(state)}")
+        return 0
+    if a.preamble_show:
+        pre = state.get("preamble") or []
+        print(f"preamble: {len(pre)} line(s)")
+        for l in pre:
+            print(f"  {l}")
+        return 0
+    if a.preamble_clear:
+        n = len(state.pop("preamble", None) or []); save(state, STATE)
+        print(f"preamble cleared ({n} line(s) removed)")
+        return 0
     if a.lock:
         return lock(state, a.lock)
     if a.unlock:

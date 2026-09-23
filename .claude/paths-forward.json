@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 69,
+  "counter": 73,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-22T17:48:02+00:00",
-  "job_id": "9bdc153a",
+  "heartbeat": "2026-09-23T00:45:03+00:00",
+  "job_id": "ad606f01",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -970,16 +970,16 @@
     {
       "symbol": "W59",
       "title": "A PIP IS A SEGMENT: ONE DISPLAY ENGINE, THE PRIMITIVE'S SHAPE IS A PARAMETER (operator 2026-09-22: 'this is, again, the symmetry oracle needing application. A pip IS a segment. The only true difference between the 7seg / 22seg / whatever and the matrix engines SHOULD be the shape of the segments.'). ⚑ THIS OVERTURNS ⊕DOT's RECORDED JUDGEMENT (:1002, s65): 'a segment is a subset of a topology while a pixel-cell is a raster, so the two share a CONTRACT rather than a substrate' — the operator's cut is better and the tree already argues for it: SegmentChar and ApertureField now differ in (a) the primitive's geometry (a capsule on a 7-seg lattice vs a round pip on a rectangular one) and (b) the emission model (flat fill vs coverage of a backdrop, graded). Neither difference is a different KIND of display. THREE CONSEQUENCES: (1) the aperture's graded coverage is not a matrix feature — it is the emission model the segment display LACKS, which is precisely the physics W33 is chasing (a gradient across a lit segment IS its coverage profile); (2) the symmetry oracle (W57) applies to the matrix too — a regular pip grid is a translation-invariance property, and the grid glitching the operator caught in marquee-anim was exactly that check going unrun; (3) the content axis unifies: a glyph is a lit-primitive set whether the primitives are seven capsules or forty dots, so display_types' matrix tables and segment_topology's segment tables are one table shape.",
-      "status": "ready",
+      "status": "done",
       "enables": "W33,W57",
       "touches": "SegmentChar,ApertureField,segment_topology,display_types,DOT",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: the deepest one available — it folds the segment display and the matrix field into one engine, makes the physics layer (W33) a property of the shared emission model rather than per-surface work, and puts the matrix under the symmetry oracle that just found a defect in it",
       "next_bounded_step": "MEASURED 2026-09-22 (s144), operator: 'we should divide these settings by layer; which are display-specific? which are mount-specific?' catalog/one-display.md now holds the answer, from check_config_page --json: 8 keys on the clock, 11 on the marquee, 0 on the live wallpaper. THREE layers, not two -- DISPLAY (how a primitive is drawn; means the same on every mount), MOUNT (what string exists and how it behaves; never reaches the display), INSTRUMENT (changes neither; exists so a human can see what the widget did -- debugLog/traceLog, which would have been smuggled into one of the other two if the layer were not named). ⚑ THE FINDING: the display rows are THE SAME FOUR PARAMETERS UNDER TWO VOCABULARIES. showGhost=showField (is the unlit substrate visible), ghostWeight=ghostAlpha (how subordinate), weight=dotFill (the primitive's fill fraction of its cell), digitGap=pitchScale (the lattice pitch). The LABELS diverge as far as the keys: 'Show ghost segments' vs 'Show unlit field' for one quantity. And bloom has NO marquee counterpart although the same engine draws both -- one mount can reach the emission model, the other cannot, and nothing recorded that choice. The live wallpaper declares NO config page, so its display parameters are not differently named but UNREACHABLE: three mounts, three different answers to 'can the user set the pitch'. NEXT BOUNDED STEP: make the display layer ONE declaration that each mount includes, so a new display parameter appears on every mount or is WITHHELD DELIBERATELY as a recorded act. The kcfg templates are the site (templates/clock-config.kcfg, marquee-config.kcfg, live-wallpaper-config.kcfg) and check_config_page is the gate that can already see both. ⚑ DO NOT COLLAPSE THE MOUNT ROWS: use24h is meaningless to a marquee and hoverPause to a clock -- that repetition CARRIES IDENTITY.",
-      "evidence": "catalog/one-display.md; check_config_page --json 2026-09-22",
+      "evidence": "e0ea1ff: display_params.py, config_page.rego D0-D4, worklist 73/73",
       "issued_at": "2026-09-22T12:30:00+00:00",
-      "last_worked": "2026-09-22T17:15:29+00:00",
+      "last_worked": "2026-09-22T21:02:35+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1006,10 +1006,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
-      "next_bounded_step": "The render image is BUILT (sha256:d1f7920a..., catalog/host.json, adopted=false); a rebuild reproduced the SAME digest, so eviction is recoverable and the checksum makes recovery verifiable. NEXT: render inside the image, flip adopted, re-baseline the 55 PNGs in ONE commit. ⚑ OBSTACLE: renders are NOT byte-deterministic (the clock draws the current time), so a byte-equality freshness gate cannot apply to them as-is. ⚑ THE STALENESS GUARD, WHEN BUILT, MUST USE linux-sources-99's CORRECTED ∂² JOIN (2026-09-22): grading only the edges immediately into an intersection node is UNSOUND — measured by their concurrency oracle as wrong on 7 of 22 nodes, erring toward SAFE, because another actor's influence crosses in UPSTREAM and the last hop carries nothing about it. Grading only cross-context edges is also unsound. SOUND FORM: per intersection node, per OTHER actor, enumerate paths from that actor's entries to the node; grade each path by the WORST grade over EVERY edge on it; FINDING if any path is racy; SAFE only if the path set is NON-EMPTY and every path is safe (all([]) is True — the same trap as n of n); otherwise INDETERMINATE; REPORT THE OFFENDING EDGE, not the node. ⚑ RESIDUE SHAPE TARGET: each residue entry should carry site + the constraint established so far + the witness that would narrow it + a retirement arm (their Indet record). key_of keeps the SITE (verified: formatted before the union) but not holds/narrows.",
-      "evidence": "the render image is BUILT and digest-witnessed (sha256:d1f7920a...), recorded in catalog/host.json with adopted=false; a rebuild under a different tag reproduced the SAME digest, so an eviction is recoverable and the checksum makes the recovery verifiable. COST NOW MEASURED FOUR TIMES: four full 48-render sweeps in one day, each forced by an edit that provably could not move a pixel, because ONE coarse cone covers all 55 artifacts.",
+      "next_bounded_step": "After #2 (batch pinholes) and #3 (memoise main_qml) land: split the screens action into per-(surface,variant) keys over subject.qml + companions + harness + .colors bytes + env + runner + host; first confirm via check_action_key --importers why make_schemes.py is in the screens closure.",
+      "evidence": "catalog/render-speed.md (2026-09-22 study): full screens = ~460 s CPU; 432 qml processes/run (390 pinholes frames), 18 identical main_qml() calls at 8 s. Principled key: per (surface,variant) over what each qml process reads, with early cutoff on emitted bytes — the lock change in make_schemes.py moved no emitted byte yet re-rendered all 55.",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-22T18:59:01+00:00",
+      "last_worked": "2026-09-23T00:49:27+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1036,10 +1036,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "DIAGNOSED AND REPAIRED 2026-09-22 (s140) — AND THE FIRST LABEL WAS WRONG. Filed as 'the gate is flaky'; it was a reliable verdict on a WRONG QUESTION. L3 compared the samples either side of each EVENT, so a neighbouring event's correctly-deferred change landing on the rotation boundary was attributed to the next event. The deny proved it from its own text: expire of id 21 changed the board 'app: alarm • app: quiet' -> 'app: quiet' — expiring 21 IS quiet, and removing quiet cannot leave a board showing quiet, so the change was id 20's expiry (t=13000) landing on the boundary inside the 100 ms gap. Any two events closer together than one rotation read as a tear, which is why it fired only under load. REPAIR: samples carry a rotation-wrap flag, L3 excludes a change that landed on one, and check_marquee_live gained --event ID so the before/after window is a MODE rather than 101 KB of --trace read by eye. Regression arms: a neighbour's deferral on the boundary admits; a tear off a boundary still denies even when boundaries exist elsewhere; the selftest asserts some samples ARE boundaries and some are NOT, so the repair cannot pass by disarming the rule. opa test 31/31. REMAINING, and it is the original suspicion unresolved: the timeline is WALL-CLOCK on a shared box, which the operator's standing rule names as a flake generator by construction — the events are deterministic, the rotation PHASE at those times is not. Next: express the timeline in rotations rather than milliseconds, or drive events off the widget's own finished signal. THEN grade these arms by MUTATION (operator, 2026-09-22: see paperkit's mutation-testing-on-bazel; it ties directly to rego-temporal UI unit testing) — hand-written regression arms are exactly what a mutation grader exists to audit.",
-      "evidence": "opa_gate marquee_live 0 deny; opa test 31/31; --event 21 window",
+      "next_bounded_step": "Make the marquee harness's timeline virtual (drive the animation clock by frame count / a stepped clock, not wall time), so L2 and S5 cannot depend on load; until then the replay should re-run a timing-class check with the gate's load gone.",
+      "evidence": "worktree a181dd07: virtual time — harness clock is a NumberAnimation on the widget's own animation driver, QSG_FIXED_ANIMATION_STEP=1 + threaded loop (basic loop installs no driver: measured). LOADED (32 busy loops, 24 CPUs): new 6 of 6 admitted (~42 s CPU each); intermediate (shared clock, no fixed step) 1 of 6, the 5 denials the flake's own L2 message; original not re-run (gate refused it twice this session). Found a real widget defect: startRun on first rotation left boardX=0 one frame (offset already 0, onOffsetChanged never fired) — fixed in templates/marquee-main.qml. Probe marquee-live/dead-rotation FLIPS (rc 0 -> 1, L9). opa test marquee_live 31/31. Applied to main 2026-09-23; landing with W68 after one full re-render.",
       "issued_at": "2026-09-22T15:06:54+00:00",
-      "last_worked": "2026-09-22T15:30:44+00:00",
+      "last_worked": "2026-09-23T02:45:36+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1075,31 +1075,31 @@
     {
       "symbol": "W66",
       "title": "A REAL SDDM THEME: the login screen is the display's FOURTH MOUNT",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Operator, 2026-09-22, seeing only Breeze/Elarun/Maldives/maya in the SDDM picker: 'I would have expected el openglo to reach sddm after I emerged it' — then, on being told the design avoids replacing the greeter for boot-lockout reasons: 'Mm. I have workarounds to that lockout risk.' THE CONSTRAINT THAT JUSTIFIED THE CURRENT DESIGN IS LIFTED. Today el-openglo ships NO SDDM theme: /usr/bin/el-openglo-sddm is a root, opt-in helper that repoints the STOCK breeze theme at an EL wallpaper via theme.conf.user (+ type=image, KDE bug 370521) and /etc/sddm.conf.d. Verified installed on the operator's host 2026-09-22 with its wallpaper and breeze both present — so it works, it is simply never in the picker because it is not a theme. ⚑ FEASIBILITY MEASURED, NOT ASSUMED: templates/SegmentChar.qml imports ONLY QtQuick and QtQuick.Effects (no Kirigami, no Plasma) and takes litColor/ghostColor as PLAIN PROPERTIES, so the display mounts in a greeter with the palette supplied directly. That is the layer cut of catalog/one-display.md paying off from an unplanned direction: a display bound to Kirigami.Theme could never run under SDDM. FIRST BOUNDED STEP: emit /usr/share/sddm/themes/el-openglo/ per variant — metadata.desktop, theme.conf, Main.qml — with the segment clock as a fourth mount. ⚑ THE GREETER IS AN AUTH SURFACE: a Main.qml that renders but does not accept input is a login screen nobody can type into, so the arms must cover the PasswordBox/session selector/user list, not only that pixels are lit. render_qml can draw it headless the way it draws the switcher. This also carries most of ⊕VER-SYSCLOCK. ⚑ AND FIX THE CLOSURE CLAIM EITHER WAY: ⊕SDDM reads '(closed) the SDDM background path ships as el-openglo-sddm', which is literally true and scans as 'SDDM is themed' in a list of closed items — that is what misled the operator. Neither helper (el-openglo-apply, el-openglo-sddm) is discoverable anywhere a user would look, and check_ebuild verifies the install mapping without verifying that what is installed is FINDABLE.",
-      "evidence": "not started; helpers + wallpaper + breeze verified present on the host 2026-09-22",
+      "evidence": "e0ea1ff: make_sddm.py, opa_gate sddm 6 of 6 admitted",
       "issued_at": "2026-09-22T17:22:51+00:00",
-      "last_worked": "2026-09-22T17:22:51+00:00",
+      "last_worked": "2026-09-22T21:02:36+00:00",
       "ticks_blocked": 0
     },
     {
       "symbol": "W67",
       "title": "RUN EVERY DECLARED MODE OF AN EDITED TOOL — a mode nobody runs is a mode nobody typed",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "MEASURED 2026-09-22: ONE type change (key_of returning a Key NamedTuple) broke FOUR call sites and every one was found by a human running a mode by hand — write(), check_selection_contrast's selftest, check_discriminates --list, and finally check_action_key's OWN --list, which a delegated README census hit hours later with ValueError: too many values to unpack. ⚑ AND AFTER THE THIRD I REPORTED HAVING CENSUSED THE CALL SITES. I had censused a DIFFERENT tool's (probe in check_discriminates, not key_of in check_action_key) — so the claim was true of the wrong subject, which is this repo's recurring defect shape wearing my own report. ⚑ THE GATE CANNOT SEE THIS CLASS: @CURRENCY drives opa_gate to --json, so a broken --list stays green forever. Every check here declares its modes in a known={...} set for the unknown-flag refusal, so the population is ALREADY DECLARED and machine-readable. FIRST BOUNDED STEP: a tool that, for each scripts/check_*.py, reads that set by AST and runs each READ-ONLY mode as a subprocess, asserting exit is not 2 and no Traceback appears. ⚑ EXCLUDE BY DECLARATION, NOT BY GUESS: --write ASSERTS A BUILD, --selftest RECURSES, --fix mutates; those must be named in the tool rather than pattern-matched on the flag string. A stopgap arm is already in check_action_key's selftest (modes --list and --json), which is the per-tool version of what this generalises. RELATED: run_selftests.py would be the natural home but cannot run standalone here (ModuleNotFoundError: No module named scripts) — see W62.",
-      "evidence": "check_action_key --list crashed until s145; the arm now covers --list and --json",
+      "evidence": "e0ea1ff: scripts/check_modes.py 97 of 97 modes clean",
       "issued_at": "2026-09-22T17:27:19+00:00",
-      "last_worked": "2026-09-22T17:27:35+00:00",
+      "last_worked": "2026-09-22T21:02:38+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1120,16 +1120,76 @@
     {
       "symbol": "W69",
       "title": "README.md IS A PROJECTION — a third paperkit project, not a hand-written page",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Operator, 2026-09-22: 'README.md ought to be a projection. Which is something we have paperkit for.' A STANDING TARGET SINCE 2026-08-10 that was not applied. MECHANISM VERIFIED LIVE: a paperkit project is (paper.toml, warrants.bib, rubric.tsv) -> out, and out is just a field; catalog/worklist emits WORKLIST.md and catalog/cotype emits COTYPE-WORKLIST.md from identical machinery. A README is a THIRD project. SHAPE: paper.toml at the REPO ROOT so out = README.md needs no indirection and root needs no correction. Claims are CAPABILITIES, each citing the check that ALREADY gates it, so README states what the theme DEMONSTRABLY does and a capability with no gate cannot appear. ⚑ NOT BLOCKED ON W65 — I recorded that dependency and it was WRONG. Operator: 'Something correct by construction remains correct.' The projection's correctness is STRUCTURAL: it says exactly what the claim graph says and cannot drift from it, and that property holds on day one however strong or weak the checks are. Weak checks make the GRAPH weak; the projection inherits that faithfully rather than adding a defect, which is the whole point of a projection. ⚑ AND THE INVERSION IS THE ARGUMENT FOR DOING IT FIRST: projecting now puts any capability resting on a vacuous check ON THE FRONT PAGE, where it is visible — the projection makes check adequacy LEGIBLE instead of leaving it in a Delta report nobody reads. W65 and W69 are orthogonal; sweeping the checks improves what README asserts, it is not a precondition for asserting it. ⚑ UNKNOWN TO SETTLE FIRST: whether paperkit accepts an out path outside the project directory, since both existing projects write into their own. Root placement sidesteps it; measure before designing around it. ⚑ THE WITNESS MUST ASSERT, NEVER LIST: a claim that merely says make_gtk exists is the vacuous class the grader marks indeterminate.",
-      "evidence": "mechanism re-verified against catalog/cotype/paper.toml and catalog/worklist/paper.toml on 2026-09-22; census delegated the same day",
+      "evidence": "e0ea1ff: paper.toml at root, readme PASS 45/45, README.md = projection",
       "issued_at": "2026-09-22T17:55:48+00:00",
-      "last_worked": "2026-09-22T17:57:59+00:00",
+      "last_worked": "2026-09-22T21:02:40+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W70",
+      "title": "BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
+      "status": "blocked",
+      "enables": [],
+      "touches": [],
+      "blocked_on": "luthen-observability-4c",
+      "blocked_kind": "agent",
+      "rank_reason": "",
+      "next_bounded_step": "Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted themes get in (make_deb? overlay ebuild W12?).",
+      "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7).",
+      "issued_at": "2026-09-22T22:20:36+00:00",
+      "last_worked": "2026-09-22T22:21:16+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W71",
+      "title": "GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases.",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "W71a: fix G3 (plymouth helper must fail loudly) and G2 (<name>/<name>.plymouth) — host-testable. ALSO amend catalog/guest-image.md for luthen's operator-set limits (2026-09-22): TTL 30 min, 1 GiB memory INCLUDING KubeVirt launcher overhead (refused, not clamped), one namespace per peer; NO QMP — screenshots via the vnc/screenshot subresource, keys over VNC, journal/timings/session marker out through the serial console. Design ref: luthen docs/w45-surface-design.md. RISK: a full Plasma 6 session (P2, P4) may not fit under 1 GiB minus overhead; greeter (P1) and plymouth (P3) more likely do. Measure at F0; a refusal is data for the operator, not a failure to hide.",
+      "evidence": "catalog/guest-image.md (swarm-2): Debian trixie at oci/Containerfile's pinned digest + snapshot.debian.org; .deb ingress; mmdebstrap->qcow2->containerDisk via buildctl --metadata-file; login mode per probe by kernel cmdline. Gaps G1 (nothing selects the W66 greeter: el-openglo-sddm writes no Current=), G2 (plymouth name mismatch off-Debian), G3 (plymouth helper || true hides failure), G4 no recipe, G5 no guest identity check.",
+      "issued_at": "2026-09-22T22:21:36+00:00",
+      "last_worked": "2026-09-23T00:06:11+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W72",
+      "title": "ADOPT mat230's use-of-colour-check (operator TAKE, 2026-09-22; answered in summit inbox 2026-09-22-el-openglo-mat230-estate-one-taken-two-declined.bib). WCAG 2.2 SC 1.4.1: no meaning carried by colour alone. Source: ~/github/mat230 bin/check-a11y _check_use_of_colour, copied as-is (mat230 makes no more commits). Re-aim from table rows to our surfaces (lit vs ghost segments, the SDDM greeter's neg-colour Login Failed, marquee alert states). Rego shape: --json measurement + policy/use_of_colour.rego + _test.rego, cited from a warrant.",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "W72.b: give critical marquee runs a non-colour cue (the bold run's fuller dot or a lit underline row), and C7/C8 likewise; then W72.c the check + rego pair.",
+      "evidence": "catalog/use-of-colour.md (swarm-2, in worktree a378b2f4, not yet in main): 17 surfaces — 8 cued, 1 COLOUR-ONLY DEFECT (C6: marquee critical notification = hotColor only, templates/marquee-main.qml:444-446,463-465), 2 opacity-only (C7 low urgency, C8 suspended), 4 app-owned roles, 2 render-only. C1 lit/ghost passes only at default settings (weight/ghostWeight/bloom can erase both cues). DECIDED W72.a: opacity-only is a COLOUR difference (WCAG Understanding 1.4.1 counts lightness), so C7/C8 are denied alongside C6 — reversible by the operator.",
+      "issued_at": "2026-09-22T22:57:58+00:00",
+      "last_worked": "2026-09-23T00:02:16+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W73",
+      "title": "WITNESS HARNESSES MUST NOT TOUCH THE OPERATOR'S GPU (luthen crash report 2026-09-22 20:28 EDT): check_ebuild.py's .ebuild-witness/harness.qml ran /usr/lib64/qt6/bin/qml on the real display; SIGSEGV in libnvidia-glcore under QRhi::endFrame on QSGRenderThread (driver crash at present/teardown, after load), core 6.5M + a KDE crash notification on the desktop. Fix: every qml-spawning check (census them with the tool, don't assume check_ebuild is the only one) runs with QT_QPA_PLATFORM=offscreen + QT_QUICK_BACKEND=software and RLIMIT_CORE=0, and a check asserts that environment for each spawn site.",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Integrate after W68: the opt-in must be DECLARED where renders run (render_screens / the screens action sets EL_QT_GPU=1), not remembered; then N2 warrant citing opa_gate.py qt_sandbox, N3 struct-tools row, N4 render_qml docstring. Watch for overlap with the pinholes-batch agent (render_qml / render_screens).",
+      "evidence": "worktree agent-a7b88ab0 (uncommitted): qt_sandbox.py helper (offscreen+software, DISPLAY/WAYLAND stripped, KDE_DEBUG=1, RLIMIT_CORE=1 — 1 not 0 because core_pattern pipes to systemd-coredump and only 1 skips the pipe, per fs/coredump.c, UNTESTED); 7 of 7 spawn sites routed; check_qt_sandbox + policy/qt_sandbox.rego: 7/7 admitted on the fix, 7/7 REFUSED on main. Real chain: make_deb --stage -> RENDER-GATE -> qml_sanity.render_nonempty -> render_qml.render with RHI/opengl; offscreen still used GLX on DISPLAY. OPERATOR DECISION 2026-09-22: screenshot renders opt in with EL_QT_GPU=1 (GPU halo kept; no core, no DrKonqi); everything else software.",
+      "issued_at": "2026-09-23T00:41:17+00:00",
+      "last_worked": "2026-09-23T00:54:58+00:00",
       "ticks_blocked": 0
     }
   ],
@@ -1142,5 +1202,10 @@
       "recoverable": true
     }
   ],
-  "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner."
+  "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner.",
+  "preamble": [
+    "Open with `python3 scripts/check_marquee_host.py`. Re-arm on hash change (§4.3); hold the lock until your background work lands.",
+    "SWARM (to ~2026-09-23 12:00): land worktree branches one at a time, re-verified on main; never stage during a commit or main-tree render; then dispatch.",
+    "Agents: reset worktree to main, copy .palette-cache.json, OPENBLAS=1, no full gate/render, no commits, structural tools only; no test may touch the display/GPU (W73)."
+  ]
 }
