@@ -130,7 +130,7 @@ TIMELINE = [
     (5200, "arrive", 2, {"summary": "second", "body": "<b>bold</b>", "applicationName": "app"}, "app: second — bold"),
     (5600, "replace", 2, {"summary": "second", "body": "changed", "applicationName": "app"}, "app: second — changed"),
     (8200, "expire", 2, {}, ""),
-    # W46: a CRITICAL arrival (painted in the hot token; L9) and a LOW one (half ink);
+    # W46: a CRITICAL arrival (painted in the hot token; L9) and a LOW one (light dots, W72);
     # both expire together, after their rotation
     (9000, "arrive", 20, {"summary": "alarm", "body": "", "applicationName": "app", "urgency": 2}, "app: alarm"),
     (9400, "arrive", 21, {"summary": "quiet", "body": "", "applicationName": "app", "urgency": 0}, "app: quiet"),

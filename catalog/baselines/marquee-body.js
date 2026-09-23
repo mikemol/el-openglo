@@ -126,8 +126,8 @@ function joinItem(app, summary, body) {
 // the queue only ever changes the ring at a rotation BOUNDARY, through ringNext.
 
 // a queue entry: id, text, runs, shown — and, since W46, urgency (the model's
-// 0 low / 1 normal / 2 critical; the board paints critical in the HOT token and
-// low at half ink) and transient (exactly one traversal, never re-queued)
+// 0 low / 1 normal / 2 critical; the board paints critical in the HOT token with
+// heavy underlined dots and low with light dots — W72: never by colour alone) and transient (exactly one traversal, never re-queued)
 // the placeholder a series run occupies in the joined text (U+2591, light shade —
 // never a glyph in the registry; the painter skips it and draws columns instead)
 var SERIES_CHAR = "░";

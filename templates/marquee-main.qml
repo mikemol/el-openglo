@@ -437,17 +437,19 @@ PlasmoidItem {
                 // ⚑ THE GAUGE (W46; W48's painter, folded): a series run's characters are
                 // placeholders; at its first one the run's history is painted as COLUMNS —
                 // one matrix column per sample, rows [rows-h, rows) lit, the newest at the
-                // right (seriesToColumns) — in the item's ink, half ink while suspended
+                // right (seriesToColumns) — in the item's ink, light dots while suspended
                 if (run && run.series) {
                     if (i === run.start) {
                         var heights = Body.seriesToColumns(run.series, root.matrix.rows, run.min, run.max);
                         var u0 = idle ? 1 : root.urgencyAt(i);
                         ctx.fillStyle = u0 === 2 ? String(root.hotColor) : String(root.litColor);
-                        ctx.globalAlpha = (run.jobState === 2 || u0 === 0) ? 0.5 : 1.0;
                         inks[ctx.fillStyle] = true;
+                        // ⚑ W72: suspended (jobState 2) or LOW is a light (shrunk) dot at
+                        // full ink, CRITICAL a heavy one — weight, not opacity, is the cue
+                        var g0 = (run.jobState === 2 || u0 === 0) ? -s / 4 : u0 === 2 ? s / 2 : 0;
                         for (var sc = 0; sc < heights.length; sc++) {
                             for (var rr = root.matrix.rows - heights[sc]; rr < root.matrix.rows; rr++) {
-                                ctx.fillRect((x0 + run.start * rep.advanceCells + sc) * s, rr * s, s, s);
+                                ctx.fillRect((x0 + run.start * rep.advanceCells + sc) * s - g0, rr * s - g0, s + 2 * g0, s + 2 * g0);
                                 onCells += 1;
                             }
                         }
@@ -458,15 +460,17 @@ PlasmoidItem {
                 var bytes = root.matrixFont[ch] || root.matrixFont[ch.toUpperCase()] || root.matrixFont["?"] || [];
                 var colour = root.overrideFor(run);
                 // W46 urgency: CRITICAL is painted in the hot token (over any run
-                // colour — alarm outranks a sender's hue); LOW at half ink, which
-                // the aperture reads as half coverage — weight is a number here
+                // colour — alarm outranks a sender's hue). ⚑ W72 (WCAG 1.4.1): hue and
+                // opacity are both colour, so neither may be the only cue. Urgency
+                // is carried by DOT WEIGHT, the bold mechanism: CRITICAL is heavy and
+                // underlined (descent row lit), LOW is a light (shrunk) dot at full ink
                 var urgency = idle ? 1 : root.urgencyAt(i);
                 ctx.fillStyle = urgency === 2 ? String(root.hotColor)
                               : (colour !== "transparent") ? colour : String(root.litColor);
-                ctx.globalAlpha = urgency === 0 ? 0.5 : 1.0;
                 inks[ctx.fillStyle] = true;
-                var grow = (run && run.bold) ? s / 2 : 0;
-                var underline = run !== null && (run.link.length > 0 || run.underline);
+                var grow = ((run && run.bold) ? s / 2 : 0)
+                         + (urgency === 2 ? s / 2 : urgency === 0 ? -s / 4 : 0);
+                var underline = urgency === 2 || (run !== null && (run.link.length > 0 || run.underline));
                 for (var c = 0; c < root.matrix.cols; c++) {
                     var byte = bytes.length > c ? bytes[c] : 0;
                     for (var r = 0; r < root.matrix.rows; r++) {
