@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 73,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-23T00:45:03+00:00",
-  "job_id": "ad606f01",
+  "heartbeat": "2026-09-23T05:30:13+00:00",
+  "job_id": "0e3d99d5",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -744,16 +744,16 @@
     {
       "symbol": "W44",
       "title": "RELICENSE TO APACHE-2.0 (operator 2026-09-22: 'I would prefer Apache2 over GPL-3'). A sweep with a check: (1) LICENSE at the root = Apache-2.0 text + NOTICE; (2) every emitted metadata License string (make_deb LnF + plasmoid + wallpaper metadata, make_notify_marquee, make_taskswitch, make_wallpaper_live, make_plymouth .plymouth, make_inherit comments, chrome/firefox manifests if they carry one, the Windows .theme, the Union styles) -> 'Apache-2.0'; (3) the ebuild LICENSE='Apache-2.0'; (4) catalog/publishing.md rows' licence column (the KDE Store accepts Apache; note it); (5) pyproject license field; (6) scripts/check_licence.py: the ONE licence, read from LICENSE, must be what every emitted License field and the ebuild say — a census over the staged tree's metadata.json / .desktop / .plymouth / .ebuild (parse, do not grep), refusing any GPL string; selftest plants a stray GPL. The overlay's copied colorspacious ebuild keeps ITS upstream licence (not ours). Assets (tokens, fonts, engine files) inherit Apache-2.0 unless the operator later splits them to CC0",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": "LICENSE,make_deb,make_notify_marquee,make_taskswitch,make_wallpaper_live,make_plymouth,overlay,catalog/publishing.md,pyproject.toml",
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write LICENSE (Apache-2.0 verbatim) + NOTICE; scripts/check_licence.py --map over a staging (make_deb --stage) listing every License field it finds and the ebuild's; then the sweep of emitters until the check is green; @LICENCE warrant. One tick if the census is small; measure first.",
-      "evidence": "",
+      "evidence": "landed 2026-09-23: LICENSE + emitters.LICENSE_SPDX; check_license 13 of 13 Apache-2.0; opa_gate license admitted. Residue: no debian/copyright declares the KvFlat GPL split.",
       "issued_at": "2026-09-21T18:04:24+00:00",
-      "last_worked": "2026-09-21T18:04:24+00:00",
+      "last_worked": "2026-09-23T05:29:27+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1030,16 +1030,16 @@
     {
       "symbol": "W63",
       "title": "MARQUEE-LIVE IS FLAKY: a gate that denies and then admits on the same tree has an undeclared input",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Make the marquee harness's timeline virtual (drive the animation clock by frame count / a stepped clock, not wall time), so L2 and S5 cannot depend on load; until then the replay should re-run a timing-class check with the gate's load gone.",
-      "evidence": "worktree a181dd07: virtual time — harness clock is a NumberAnimation on the widget's own animation driver, QSG_FIXED_ANIMATION_STEP=1 + threaded loop (basic loop installs no driver: measured). LOADED (32 busy loops, 24 CPUs): new 6 of 6 admitted (~42 s CPU each); intermediate (shared clock, no fixed step) 1 of 6, the 5 denials the flake's own L2 message; original not re-run (gate refused it twice this session). Found a real widget defect: startRun on first rotation left boardX=0 one frame (offset already 0, onOffsetChanged never fired) — fixed in templates/marquee-main.qml. Probe marquee-live/dead-rotation FLIPS (rc 0 -> 1, L9). opa test marquee_live 31/31. Applied to main 2026-09-23; landing with W68 after one full re-render.",
+      "evidence": "ea73f62: virtual-time marquee harness; 6 of 6 admitted under 32 busy loops; dead-rotation probe FLIPS; merged with W73's sandbox (qt_sandbox.popen) and admitted on main.",
       "issued_at": "2026-09-22T15:06:54+00:00",
-      "last_worked": "2026-09-23T02:45:36+00:00",
+      "last_worked": "2026-09-23T05:29:29+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1111,10 +1111,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "⚑ CAUSE OF THE SWARM'S SIGXCPU STORM, MEASURED 2026-09-22 (s149). luthen-observability reported 33 SIGXCPU kills of make_plasma.py from el-openglo worktrees in 2h, each writing a 3-6 MB core and spawning a drkonqi (16 alive at once) on the operator's SHARED desktop. paperkit caps every gated check at 60 s CPU (resolver.py:553-561 _cpu_rlimit; tools/eval.py:65 _cap_cpu) and sets NO RLIMIT_CORE. luthen read a core: 23 of 24 threads were OpenBLAS workers (sized to nproc=24), and RLIMIT_CPU is charged across ALL threads. MEASURED, cold make_plasma (EL_NO_PALETTE_CACHE=1): default threads CPU 142.9 s / wall 183 s; OPENBLAS_NUM_THREADS=1 CPU 116.9 s / wall 123 s. BOTH MECHANISMS, UNEQUAL: (1) the COLD SOLVE dominates — ~117 s single-threaded, nearly 2x the cap, so a cold make_plasma CANNOT pass on any fresh checkout (worktree, clean clone, emerge); (2) BLAS fan-out is secondary (~26 s) — but one thread was also FASTER IN WALL TIME, because on a host at load ~90 the extra workers were pure contention. .palette-cache.json is git-ignored, so every worktree starts cold: the swarm turned a sometimes-cold cache into a permanently cold one, six times over. FIXES, in order: (a) THIS REPO — serialise the solve and warm it once per checkout (a lock around _solved_grid, or a pre-gate solve step), which is W68's original open half; (b) THIS REPO — set OPENBLAS_NUM_THREADS=1 / OMP_NUM_THREADS=1 for emitter runs; (c) PAPERKIT, the operator's call since it is shared by several repos — RLIMIT_CORE=0 beside each RLIMIT_CPU, and the thread caps in the same child env. ⚑ AND I ASSERTED A WRONG MECHANISM FIRST ('CPU is not wall, so load alone cannot trip it'); luthen's core read refuted it. The eleven-check failure from earlier may be this same cap under load — unconfirmed.",
-      "evidence": "cold make_plasma timed twice with /usr/bin/time; luthen coredumpctl debug 346558",
+      "next_bounded_step": "Wait for paperkit W32 (queued 2026-09-23): check FAILED will carry rc/signal, cpu (rusage delta), and the output tail. CORRECTION to my own framing: RLIMIT_CPU caps CPU seconds, not wall, so contention alone should NOT push a check over the 60 s cap (paperkit-e2's point; a hypothesis until measured). Read the next flake's line: SIGXCPU with cpu~60 = the cap; a kill with low cpu = a wall-clock limit somewhere (ours or paperkit's); plain rc!=0 = a real transient deny — find which wall-clock limits exist in our checks meanwhile. Cores: operator already ruled RLIMIT_CORE=0 beside both caps (paperkit W25).",
+      "evidence": "ea73f62: palette solve serialised (flock, double-checked). STILL OPEN, the flake half: 2026-09-23 docs-only commit — @EMITTERS, @SCREENS, @TASKSWITCH failed in the gate and PASSED on the gate's replay (0 of 3 reproduced), host CPU PSI ~42%. That brings it to 14 fail-once-pass-on-replay checks across two nights, all under load. The first run's account is unrecoverable: paperkit prints only 'check FAILED'. Asked paperkit-e2 to carry rc/signal + CPU on the FAILED line.",
       "issued_at": "2026-09-22T17:46:33+00:00",
-      "last_worked": "2026-09-22T19:26:55+00:00",
+      "last_worked": "2026-09-23T04:15:37+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1186,10 +1186,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Integrate after W68: the opt-in must be DECLARED where renders run (render_screens / the screens action sets EL_QT_GPU=1), not remembered; then N2 warrant citing opa_gate.py qt_sandbox, N3 struct-tools row, N4 render_qml docstring. Watch for overlap with the pinholes-batch agent (render_qml / render_screens).",
-      "evidence": "worktree agent-a7b88ab0 (uncommitted): qt_sandbox.py helper (offscreen+software, DISPLAY/WAYLAND stripped, KDE_DEBUG=1, RLIMIT_CORE=1 — 1 not 0 because core_pattern pipes to systemd-coredump and only 1 skips the pipe, per fs/coredump.c, UNTESTED); 7 of 7 spawn sites routed; check_qt_sandbox + policy/qt_sandbox.rego: 7/7 admitted on the fix, 7/7 REFUSED on main. Real chain: make_deb --stage -> RENDER-GATE -> qml_sanity.render_nonempty -> render_qml.render with RHI/opengl; offscreen still used GLX on DISPLAY. OPERATOR DECISION 2026-09-22: screenshot renders opt in with EL_QT_GPU=1 (GPU halo kept; no core, no DrKonqi); everything else software.",
+      "next_bounded_step": "N2: cite scripts/opa_gate.py qt_sandbox (and opa_gate license for W44) from warrants.bib, then --project, so the worklist gate carries them.",
+      "evidence": "landed 2026-09-23: qt_sandbox (RLIMIT_CORE=0, operator ruling), 7 of 7 Qt spawns routed, opa_gate qt_sandbox admitted; renders opt into GPU in render_screens (EL_QT_GPU=1, keeps DISPLAY+XAUTHORITY).",
       "issued_at": "2026-09-23T00:41:17+00:00",
-      "last_worked": "2026-09-23T00:54:58+00:00",
+      "last_worked": "2026-09-23T05:29:32+00:00",
       "ticks_blocked": 0
     }
   ],

@@ -11,7 +11,7 @@
     "Id": "org.el.segclock",
     "Name": "EL Segment Clock",
     "Version": "1.0",
-    "License": "GPLv3"
+    "License": "Apache-2.0"
   },
   "KPackageStructure": "Plasma/Applet",
   "X-Plasma-API-Minimum-Version": "6.0"
