@@ -3,7 +3,8 @@
 # description: |
 #   The measurement is `scripts/check_license.py --json`: every place the project
 #   declares its licence (the emitters.LICENSE_SPDX authority, each generator's
-#   metadata site, LICENSE / pyproject.toml / the ebuild). An empty population is
+#   metadata site, LICENSE / pyproject.toml / the ebuild, and every TRACKED emitted
+#   file that declares one). An empty population is
 #   a broken search, not a clean tree. Third-party licences are outside it.
 package el.license
 
@@ -19,10 +20,13 @@ deny contains msg if {
 # description: |
 #   A kind with no case means its reader stopped answering (the constant was
 #   renamed, the generators' sites moved to a shape the walker cannot see, the
-#   LICENSE file vanished); the other kinds passing must not hide that.
+#   LICENSE file vanished, git ls-files found no tracked emitted declaration);
+#   the other kinds passing must not hide that. `emitted` is the tracked output
+#   (metadata.json / .desktop) — the kind that would have caught W44's stale
+#   plasma-clock metadata.json still saying GPLv3.
 deny contains msg if {
 	count(object.get(input, "cases", [])) > 0
-	some kind in {"authority", "generator", "file"}
+	some kind in {"authority", "generator", "file", "emitted"}
 	count([c | some c in input.cases; c.kind == kind]) == 0
 	msg := sprintf("L0: no %s declaration was measured", [kind])
 }

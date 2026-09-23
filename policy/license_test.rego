@@ -7,7 +7,32 @@ cases := [
 	{"kind": "authority", "where": "emitters.LICENSE_SPDX", "id": "Apache-2.0", "via": "constant"},
 	{"kind": "generator", "where": "make_clock.py:63", "id": "Apache-2.0", "via": "LICENSE_SPDX"},
 	{"kind": "file", "where": "LICENSE", "id": "Apache-2.0", "via": "text"},
+	{"kind": "emitted", "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License", "id": "Apache-2.0", "via": "json"},
 ]
+
+test_l0_refuses_a_missing_emitted_kind if {
+	some msg in lc.deny with input as {"cases": [c | some c in cases; c.kind != "emitted"]}
+	msg == "L0: no emitted declaration was measured"
+}
+
+test_l1_refuses_a_stale_emitted_metadata_json if {
+	bad := {"kind": "emitted", "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License", "id": "GPLv3", "via": "json"}
+	some msg in lc.deny with input as {"cases": array.concat([c | some c in cases; c.kind != "emitted"], [bad])}
+	msg == "L1: plasma-clock/org.el.segclock/metadata.json KPlugin.License declares GPLv3, not Apache-2.0"
+}
+
+test_l1_refuses_a_gpl_emitted_desktop_entry if {
+	bad := {"kind": "emitted", "where": "sddm/x/metadata.desktop [SddmGreeterTheme] License=", "id": "GPL-3", "via": "desktop"}
+	some msg in lc.deny with input as {"cases": array.concat(cases, [bad])}
+	startswith(msg, "L1: sddm/x/metadata.desktop")
+}
+
+test_l2_does_not_apply_to_emitted if {
+	count(lc.deny) == 0 with input as good
+	some c in cases
+	c.kind == "emitted"
+	c.via == "json"
+}
 
 good := {"cases": cases}
 
