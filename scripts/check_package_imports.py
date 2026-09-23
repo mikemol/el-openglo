@@ -53,7 +53,7 @@ PACKAGES = (
     ("org.el.notifymarquee", "make_notify_marquee", "render_all"),
 )
 
-QMLLINT = "/usr/lib64/qt6/bin/qmllint"
+QMLLINT = "/usr/lib64/qt6/bin/qmllint"    # = qt_sandbox.QMLLINT; spawned only through it
 # "X was not found. Did you add all imports and dependencies?" — the [import]
 # category, which is what an unresolvable bare-name type reports as
 UNRESOLVED = re.compile(r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[import\]", re.M)
@@ -62,10 +62,10 @@ UNRESOLVED = re.compile(r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[
 def lint_tree(ui_dir, docs):
     """[{type, file, line}] for every type qmllint cannot resolve, with the tree's
     own ui directory on the import path — the resolution Plasma does."""
-    import subprocess
+    import qt_sandbox as QT
     out = []
     for name in sorted(docs):
-        r = subprocess.run([QMLLINT, "-I", ui_dir, os.path.join(ui_dir, name)],
+        r = QT.run([QMLLINT, "-I", ui_dir, os.path.join(ui_dir, name)],
                            capture_output=True, text=True, cwd=ui_dir, timeout=120)
         for m in UNRESOLVED.finditer(r.stdout + r.stderr):
             out.append({"type": m.group(4), "file": os.path.basename(m.group(1)),

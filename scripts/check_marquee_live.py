@@ -31,9 +31,12 @@ as the refusing fixture.
 not libnotificationmanager — it honours count/index/data and the enums the
 widget reads, nothing more; a widget reading a role the stub does not carry
 gets undefined, which the trace shows as missing text rather than a crash.
-The timeline is wall-clock inside qml (Timers), so a loaded host stretches
-the samples' t; the rules are stated over ORDER and presence, never over
-durations.
+The timeline runs on VIRTUAL time (W63): the harness clock is a
+NumberAnimation on the widget's own animation driver, stepped at a fixed
+frame (QSG_FIXED_ANIMATION_STEP), so a loaded host stretches how long a run
+takes in wall seconds but never what it samples. Before this it was
+wall-clock Timers, and the pre-commit gate's load refused commits with
+arrivals that "never reached the board".
 """
 import json
 import os
@@ -45,7 +48,9 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-QML = "/usr/lib64/qt6/bin/qml"
+import qt_sandbox as QT  # noqa: E402
+
+QML = QT.QML
 VARIANT = "EL-Openglo"
 
 # the role ints the widget reads, from notificationmanager.qmltypes (Qt::UserRole + 0…)
@@ -337,7 +342,7 @@ LOOP_TIMELINE = [
 ]
 
 
-def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
+def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, gpu=False):
     """Run the harness; the measurement is COMPLETE at its RESULT line.
 
     ⚑ THE THREADED LOOP CAN HANG AT TEARDOWN (measured W63: 4 of 10 hovered runs
@@ -348,7 +353,8 @@ def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
     seconds) bounds a wedge BEFORE RESULT; hitting it yields no RESULT, which
     run() reports as a failure to measure."""
     import threading
-    proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    # W73: streamed, so it cannot be QT.run — QT.popen is the same sandbox
+    proc = QT.popen(cmd, env=env, gpu=gpu, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     cap = threading.Timer(wall_cap, proc.kill)
     cap.start()
     lines = []
@@ -411,11 +417,14 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
         # the RESULT line rides on it, so only kirigami's own category is quieted.
         env = TP.env_for(variant, xdg)
         # W63: virtual time — the animation driver steps one fixed frame per render
-        # (never re-synced to the wall), on the single-threaded loop that owns it
+        # (never re-synced to the wall), on the threaded loop that owns it.
+        # W73: EL_QUICK_BACKEND=rhi asks for the GPU scene graph; qt_sandbox grants
+        # it only under EL_QT_GPU=1, and software is the default either way.
+        backend = os.environ.get("EL_QUICK_BACKEND", "software")
         env.update(QSG_FIXED_ANIMATION_STEP="1", QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"))
-        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"),
-                   QT_QUICK_BACKEND=os.environ.get("EL_QUICK_BACKEND", "software"))
-        r = _run_until_result([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env)
+        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND=backend)
+        r = _run_until_result([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env,
+                              gpu=backend != "software")
     log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:

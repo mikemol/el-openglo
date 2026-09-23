@@ -30,12 +30,15 @@ one on this host; where it does not, the halo is absent from the render and
 import json
 import os
 import re
-import subprocess
 import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-QML = "/usr/lib64/qt6/bin/qml"
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+import qt_sandbox as QT  # noqa: E402
+
+QML = QT.QML
 
 # root-type rewrite: the Plasma container becomes a sized Item that instantiates
 # its own fullRepresentation, exactly as the applet loader would
@@ -314,11 +317,15 @@ def render_document(qml, variant, w, h, out_png, config=None, ground=None, softw
         # 2026-09-21, check_ebuild). Portage's sandbox sets SANDBOX_ON; there the
         # software scene graph draws the lit pixels the render gate asks for, and
         # the halo (MultiEffect) is simply absent — reported as backend=software.
-        if software or os.environ.get("SANDBOX_ON") == "1" or os.environ.get("EL_RENDER_SOFTWARE") == "1":
-            env["QT_QUICK_BACKEND"] = "software"
-            env.pop("QSG_RHI_BACKEND", None)
-        r = subprocess.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env,
-                           capture_output=True, text=True, timeout=60)
+        # ⚑ W73: AND OUTSIDE ONE THE GPU IS THE OPERATOR'S.  The RHI harness on
+        # the real display SIGSEGV'd in libnvidia-glcore (2026-09-22 20:28) and
+        # raised a crash notification on the desktop. qt_sandbox honours gpu=True
+        # only under EL_QT_GPU=1; otherwise this is the software scene graph and
+        # the halo is absent — `backend=software` in the returned detail says so.
+        gpu = not (software or os.environ.get("SANDBOX_ON") == "1"
+                   or os.environ.get("EL_RENDER_SOFTWARE") == "1")
+        r = QT.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env, gpu=gpu,
+                   capture_output=True, text=True, timeout=60)
     backend = "rhi" if "Creating QRhi" in r.stderr else (
         "software" if "backend software" in r.stderr else "unknown")
     err = "\n".join(l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph"))

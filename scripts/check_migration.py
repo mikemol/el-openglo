@@ -19,13 +19,14 @@ invisible here — that is the live ⊕VER after the emerge.
 """
 import json
 import os
-import subprocess
 import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-QML = "/usr/lib64/qt6/bin/qml"
+import qt_sandbox as QT  # noqa: E402
+
+QML = QT.QML
 
 
 def run():
@@ -41,8 +42,8 @@ def run():
         open(h, "w").write(harness)
         # the harness reads update.js through XMLHttpRequest, which Qt 6 refuses on
         # file:// unless told otherwise
-        env = dict(os.environ, QT_QPA_PLATFORM="offscreen", QML_XHR_ALLOW_FILE_READ="1")
-        r = subprocess.run([QML, h], capture_output=True, text=True, env=env, timeout=60)
+        env = dict(os.environ, QML_XHR_ALLOW_FILE_READ="1")
+        r = QT.run([QML, h], capture_output=True, text=True, env=env, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])

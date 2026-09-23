@@ -125,6 +125,15 @@ def render_all(out_dir=SCREENS):
     import check_marquee_live as ML
     os.makedirs(out_dir, exist_ok=True)
     written = []
+    # ⚑ A STALE FILE MUST NOT COUNT AS A RENDER (measured 2026-09-23: under W73's
+    # sandbox every render_qml call failed — X authority stripped — and this loop
+    # still reported "42 of 48", because `os.path.isfile(out)` found LAST NIGHT'S
+    # pictures). Every planned output is removed first, so only a render this run
+    # produced can be counted — and a failure leaves a hole @SCREENS will refuse.
+    for fn, _v, _how in plan() + plan_animations():
+        p = os.path.join(out_dir, fn)
+        if os.path.isfile(p):
+            os.remove(p)
     for v in VARIANTS:
         for name, how in STILLS:
             out = os.path.join(out_dir, f"{name}-{v}.png")
@@ -402,6 +411,13 @@ def main(argv):
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
+    # ⚑ THE GPU OPT-IN IS DECLARED HERE, NOT REMEMBERED (operator ruling 2026-09-22,
+    # W73): every Qt spawn runs headless on the software scene graph by default, and
+    # MultiEffect's bloom halo draws NOTHING there. The screenshots are the one place
+    # the halo must show, so this process — and only this one — opts into the RHI.
+    # It still gets no core and no DrKonqi from qt_sandbox, but it DOES reach the GPU
+    # driver: the vector W73 closed for every test.
+    os.environ.setdefault("EL_QT_GPU", "1")
     import render_qml as RQ
     if not os.path.exists(RQ.QML):
         print(f"render_screens: SKIP — {RQ.QML} is not installed", file=sys.stderr)

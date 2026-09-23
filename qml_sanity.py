@@ -24,12 +24,13 @@ here delegates to it for the two surfaces it can render, so make_deb runs both
 """
 import os
 import shutil
-import subprocess
 import sys
 import tempfile
 
+import qt_sandbox as QT
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
-QMLLINT = "/usr/lib64/qt6/bin/qmllint"
+QMLLINT = QT.QMLLINT
 IMPORTS = ("/usr/lib64/qt6/qml",)
 # diagnostic ids that are ERRORS for a shipped document (qmllint's own ids);
 # `unqualified`, `unused-imports`, `import` and `missing-property` are context
@@ -55,7 +56,7 @@ def check_qml(text, label="<qml>"):
         for imp in IMPORTS:
             cmd += ["-I", imp]
         cmd.append(p)
-        r = subprocess.run(cmd, capture_output=True, text=True)
+        r = QT.run(cmd, capture_output=True, text=True)
     errs = []
     try:
         import json

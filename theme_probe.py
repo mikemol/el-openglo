@@ -30,12 +30,13 @@ it would at the root. ~0.6 s wall of qml per variant.
 import json
 import os
 import re
-import subprocess
 import sys
 import tempfile
 
+import qt_sandbox as QT
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
-QML = "/usr/lib64/qt6/bin/qml"
+QML = QT.QML
 SCHEMES = "/usr/share/color-schemes"
 
 # the probe document is templates/theme-probe.qml (two holes: the binding lines, the reads)
@@ -71,8 +72,8 @@ def resolve(variant, bindings, names):
         os.makedirs(xdg)
         p = os.path.join(td, "probe.qml")
         open(p, "w", encoding="utf-8").write(doc)
-        r = subprocess.run([QML, "--apptype", "widget", p], env=env_for(variant, xdg),
-                           capture_output=True, text=True, timeout=60)
+        r = QT.run([QML, "--apptype", "widget", p], env=env_for(variant, xdg),
+                   capture_output=True, text=True, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])

@@ -18,12 +18,15 @@ SKIP (printed, exit 0) when the qml runner is absent (a fact about the host).
 """
 import json
 import os
-import subprocess
 import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-QML = "/usr/lib64/qt6/bin/qml"
+if ROOT not in sys.path:
+    sys.path.insert(0, ROOT)
+import qt_sandbox as QT  # noqa: E402
+
+QML = QT.QML
 
 # (body, expected text, expected runs as (start, end, flag) with flag in {bold, italic,
 #  underline, link, color} or None for plain)
@@ -165,8 +168,7 @@ def run(bodies=None):
         open(h, "w", encoding="utf-8").write(HARNESS % (
             json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
             json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES])))
-        env = dict(os.environ, QT_QPA_PLATFORM="offscreen")
-        r = subprocess.run([QML, h], capture_output=True, text=True, env=env, timeout=60)
+        r = QT.run([QML, h], capture_output=True, text=True, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
