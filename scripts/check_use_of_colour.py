@@ -16,6 +16,11 @@ reaches. Each sink is a channel:
     ctx.globalAlpha opacity   (colour, by the ruling)
     ctx.fillRect    weight    (the predicate changes the dot's size)
     on              shape     (the predicate lights a dot the glyph does not: a row)
+    Alias.helper()  text      (W74: the subject handed to a case-changing helper in an
+                               imported JS, at an argument the helper tests against the
+                               condition's literal — see case_helpers)
+    root.<p>        animation (W74: the predicate gates a read of a property an
+                               Animation in the file writes — the critical flash)
 
 An alias of the predicate's subject is found structurally too: a variable assigned from
 `root.urgencyAt(...)` IS an urgency, whatever it is named (the gauge calls it `u0`).
@@ -50,8 +55,11 @@ scripts/check_urgency_cues.py in another worktree; not on main), not a lexer's. 
 aperture rule is also coarse in the other direction: a fillRect that GROWS past its
 cell (bold's +s/2) spills ink into neighbouring apertures, which is partly spatial,
 but this counts every size change behind an aperture as opacity. The lexer is a JS-token lexer, not a JS
-parser: a painter written in a shape it does not split (a sink behind a helper function,
-a predicate built at run time) is invisible until this learns it. The population is the
+parser: a painter written in a shape it does not split (a sink behind a helper the file
+does not import as `import "x.js" as X`, a predicate built at run time) is invisible
+until this learns it. The helper rule credits a CASE CHANGE reachable under the tested
+literal; it does not prove that the literals map to DIFFERENT cases (normal and
+critical are both upper case — critical's distinction is its flash and underline). The population is the
 painters in PAINTERS; census rows the source cannot decide (delegated to a consumer, or
 drawn by a style) are listed in WITHHELD by hand from catalog/use-of-colour.md, not
 measured — they are reported so the exclusion is visible, never admitted.
@@ -71,6 +79,8 @@ ALIAS_SOURCES = {"root.urgencyAt": "urgency"}
 CONDITIONS = [
     ("C6", "critical urgency (urgency == 2)", "urgency", ("==", "2")),
     ("C7", "low urgency (urgency == 0)", "urgency", ("==", "0")),
+    # W74: normal is a state too — upper case is ITS letterform, as lowercase is low's
+    ("C18", "normal urgency (urgency == 1)", "urgency", ("==", "1")),
     ("C8", "suspended job (jobState == 2)", "run.jobState", ("==", "2")),
     ("C10", "bold run", "run.bold", ("truthy",)),
     ("C11", "link / underline run", "run.underline", ("truthy",)),
@@ -233,9 +243,117 @@ def aperture_feed(toks, body, components):
     return None
 
 
-def measure_painter(src, fn, surface, file, components=frozenset()):
+CASE_METHODS = ("toLowerCase", "toUpperCase", "toLocaleLowerCase", "toLocaleUpperCase")
+ANIMATIONS = {"PropertyAction", "NumberAnimation", "PropertyAnimation", "SmoothedAnimation",
+              "SpringAnimation", "ColorAnimation"}
+
+
+def _functions(toks):
+    """{name: (params, body tokens)} for every `function name(params) { ... }`."""
+    out = {}
+    for i in range(len(toks) - 2):
+        if toks[i][1] == "function" and toks[i + 1][0] == "id" and toks[i + 2][1] == "(":
+            j = i + 3
+            params = []
+            while j < len(toks) and toks[j][1] != ")":
+                if toks[j][0] == "id":
+                    params.append(toks[j][1])
+                j += 1
+            body = function_body(toks, toks[i + 1][1])
+            if body is not None:
+                out[toks[i + 1][1]] = (params, body)
+    return out
+
+
+def _call_args(toks, k):
+    """The top-level argument token lists of the call whose name is toks[k]."""
+    if k + 1 >= len(toks) or toks[k + 1][1] != "(":
+        return None
+    d = 0
+    for m in range(k + 1, len(toks)):
+        d += {"(": 1, ")": -1}.get(toks[m][1], 0)
+        if d == 0:
+            return _split_top(toks[k + 2:m], ",")
+    return None
+
+
+def case_helpers(js_src):
+    """⚑ A SINK BEHIND A HELPER (W74; the weakness this lexer stated). The marquee's
+    case transform lives in marquee-body.js, not in the painter: the painter calls
+    `Body.glyphFor(font, ch, urgency)`, which calls glyphKey, which calls displayChar,
+    which compares `urgency === 0 / 1 / 2` and lowercases or uppercases. This reads a
+    companion JS STRUCTURALLY: per function, for each parameter, the literals it is
+    compared to (`p === N`), and whether the function (or one it passes that parameter
+    on to, transitively) changes CASE. Returns {fn: {param index: set(literals)}} for
+    the case-changing functions only."""
+    toks = lex(js_src)
+    fns = _functions(toks)
+    direct, calls, cases = {}, {}, {}
+    for name, (params, body) in fns.items():
+        words = [t[1] for t in body]
+        cases[name] = any(w.split(".")[-1] in CASE_METHODS for w in words)
+        direct[name] = {p: {words[i + 2] for i, w in enumerate(words[:-2])
+                            if w == p and words[i + 1] in ("===", "==") and re.fullmatch(r"\d+", words[i + 2])}
+                        for p in params}
+        calls[name] = []                      # (callee, callee param index, our param)
+        for k, t in enumerate(body):
+            if t[0] == "id" and t[1] in fns and t[1] != name:
+                for ai, arg in enumerate(_call_args(body, k) or []):
+                    if len(arg) == 1 and arg[0][1] in params:
+                        calls[name].append((t[1], ai, arg[0][1]))
+    tests = {n: {params.index(p): set(v) for p, v in direct[n].items()} for n, (params, _) in fns.items()}
+    changed = True
+    while changed:                            # fixed point: tests and case flow up the calls
+        changed = False
+        for name, (params, _) in fns.items():
+            for callee, ai, p in calls[name]:
+                if cases[callee] and not cases[name]:
+                    cases[name] = changed = True
+                got = tests[callee].get(ai, set())
+                mine = tests[name].setdefault(params.index(p), set())
+                if not got <= mine:
+                    mine |= got
+                    changed = True
+    return {n: {i: s for i, s in tests[n].items() if s} for n in fns if cases[n]}
+
+
+def js_imports(toks):
+    """{alias: file} for every `import "file.js" as Alias` in a QML token stream."""
+    out = {}
+    for i in range(len(toks) - 3):
+        if toks[i][1] == "import" and toks[i + 1][0] == "str" and toks[i + 2][1] == "as":
+            f = toks[i + 1][1][1:-1]
+            if f.endswith(".js"):
+                out[toks[i + 3][1]] = f
+    return out
+
+
+def animated_properties(toks):
+    """{property} written by an ANIMATION in the file: `PropertyAction { property: "p" }`
+    (and the other Animation types), or `<Animation> on p`. A predicate that reads
+    `root.p` in the painter then varies with time: an animation channel."""
+    out = set()
+    for i in range(len(toks) - 2):
+        if toks[i][1] in ANIMATIONS or toks[i][1] == "SequentialAnimation":
+            if toks[i + 1][1] == "on" and toks[i + 2][0] == "id":
+                out.add(toks[i + 2][1])
+            if toks[i][1] in ANIMATIONS and toks[i + 1][1] == "{":
+                d = 0
+                for k in range(i + 1, len(toks) - 2):
+                    d += {"{": 1, "}": -1}.get(toks[k][1], 0)
+                    if d == 0:
+                        break
+                    if toks[k][1] == "property" and toks[k + 1][1] == ":" and toks[k + 2][0] == "str":
+                        out.add(toks[k + 2][1][1:-1])
+    return out
+
+
+def measure_painter(src, fn, surface, file, components=frozenset(), companions=None):
     """[case] for one painter: per CONDITION, its channels, split into colour and cues.
-    Behind an aperture (see the module docstring) ctx.fillRect is an opacity sink."""
+    Behind an aperture (see the module docstring) ctx.fillRect is an opacity sink.
+    `companions` ({file: source}) are the JS files the QML imports: a call into one of
+    their case-changing helpers that passes the predicate's subject is a TEXT channel
+    for every literal the helper tests that argument against (W74)."""
     toks = lex(src)
     body = function_body(toks, fn)
     if body is None:
@@ -243,6 +361,12 @@ def measure_painter(src, fn, surface, file, components=frozenset()):
     feed = aperture_feed(toks, body, components)
     sinks = dict(SINKS, **({"ctx.fillRect": "opacity"} if feed else {}))
     stmts = statements(body)
+    helpers = {}
+    for alias, f in js_imports(toks).items():
+        if companions and f in companions:
+            for name, tests in case_helpers(companions[f]).items():
+                helpers[f"{alias}.{name}"] = tests
+    animated = animated_properties(toks)
     aliases = {"urgency": {"urgency"}}
     for target, rhs, _ in stmts:
         for w in (t[1] for t in rhs):
@@ -267,6 +391,19 @@ def measure_painter(src, fn, surface, file, components=frozenset()):
         for target, rhs, line in stmts:
             if target in sinks and _mentions(rhs, subjects, test, tainted):
                 channels.append({"kind": sinks[target], "line": line, "via": target})
+            # a case-changing helper handed the subject at an argument it tests
+            # against this condition's literal: the letterform is the channel
+            for k, t in enumerate(rhs):
+                if t[1] in helpers and test[0] == "==":
+                    for ai, arg in enumerate(_call_args(rhs, k) or []):
+                        if len(arg) == 1 and arg[0][1] in subjects and test[1] in helpers[t[1]].get(ai, set()):
+                            channels.append({"kind": "text", "line": line, "via": t[1]})
+            # the predicate gating a read of an ANIMATED property: it varies in time
+            if _mentions(rhs, subjects, test, set()) and any(
+                    t[0] == "id" and t[1].startswith("root.") and t[1].split(".", 1)[1] in animated for t in rhs):
+                channels.append({"kind": "animation", "line": line,
+                                 "via": next(t[1] for t in rhs if t[0] == "id" and t[1].startswith("root.")
+                                             and t[1].split(".", 1)[1] in animated)})
         lines = [ln for _, rhs, ln in stmts if any(t[1] in subjects for t in rhs)]
         cases.append({"id": cid, "surface": surface, "file": file, "line": min(lines),
                       "meaning": meaning, "predicate": sorted(subjects), "tainted": sorted(tainted),
@@ -282,13 +419,20 @@ def template_sources():
             for f in sorted(os.listdir(d)) if f.endswith(".qml")}
 
 
+def companion_sources():
+    """{file name: source} for the JS a template may import beside it (templates/*.js)."""
+    d = os.path.join(ROOT, "templates")
+    return {f: open(os.path.join(d, f), encoding="utf-8").read() for f in sorted(os.listdir(d)) if f.endswith(".js")}
+
+
 def measure():
     cases, withheld = [], []
     components = aperture_components(template_sources())
+    companions = companion_sources()
     for p in PAINTERS:
         path = os.path.join(ROOT, p["file"])
         got = measure_painter(open(path, encoding="utf-8").read(), p["function"], p["surface"], p["file"],
-                              components) if os.path.isfile(path) else None
+                              components, companions) if os.path.isfile(path) else None
         if got is None:
             withheld.append({"id": p["surface"], "file": p["file"], "line": 0,
                              "reason": f"painter function {p['function']} not found"})
@@ -362,6 +506,36 @@ Item {
 """ + WITH_CUES.split("function paint() {", 1)[1] + "}\n"
 
 
+LETTERFORM_JS = """
+function shown(ch, u) {
+    var t = ch;
+    if (u === 0) t = ch.toLowerCase();
+    else if (u === 1 || u === 2) t = ch.toUpperCase();
+    return t;
+}
+function outer(font, ch, u) { return font[shown(ch, u)]; }
+"""
+LETTERFORM = """
+import "lf.js" as Lf
+Item {
+    SequentialAnimation { PropertyAction { target: root; property: "flashLit"; value: false } }
+    Pinholes { id: fld; rows: 8 }
+    function paint() {
+        var ctx = fld.backdrop.getContext("2d");
+        var u = root.urgencyAt(i);
+        ctx.fillStyle = u === 2 ? hot : lit;
+        var bytes = Lf.outer(font, ch, u);
+        var dark = u === 2 && !root.flashLit;
+        for (var r = 0; r < rows; r++) {
+            var on = !dark && bit(bytes, r);
+            if (!on) continue;
+            ctx.fillRect(x, y, s, s);
+        }
+    }
+}
+"""
+
+
 def _selftest():
     """The measurement can SEE: a colour-only fixture yields no cue for critical (hue)
     and low (opacity); the same painter with a weight and a row yields them; and the real
@@ -394,6 +568,20 @@ def _selftest():
         kinds(fed, "C6", "cues"), ["shape"])
     chk("without the component known, the same painter is not aperture-fed",
         kinds(measure_painter(APERTURE_FED, "paint", "f", "f"), "C7", "cues"), ["weight"])
+    # W74: a case transform behind a helper in an imported JS, and a flash
+    lf = measure_painter(LETTERFORM, "paint", "fixture", "fixture.qml", comps, {"lf.js": LETTERFORM_JS})
+    chk("a case helper handed the urgency is TEXT for low, normal and critical",
+        [kinds(lf, cid, "cues") for cid in ("C7", "C18", "C6")], [["text"], ["text"], ["animation", "shape", "text"]])   # the dark phase gates `on`: shape too
+    flat = measure_painter(LETTERFORM, "paint", "fixture", "fixture.qml", comps,
+                           {"lf.js": LETTERFORM_JS.replace("ch.toLowerCase()", "ch").replace("ch.toUpperCase()", "ch")})
+    chk("...the same helper WITHOUT a case change is no cue (low and normal)",
+        (kinds(flat, "C7", "cues"), kinds(flat, "C18", "cues")), ([], []))
+    chk("...and the helper is found only through the import (no companions: no cue)",
+        kinds(measure_painter(LETTERFORM, "paint", "f", "f", comps), "C7", "cues"), [])
+    chk("the flash is found from the PropertyAction that writes the property",
+        animated_properties(lex(LETTERFORM)), {"flashLit"})
+    chk("helper tests flow up the call chain (outer(font, ch, u) -> shown(ch, u))",
+        case_helpers(LETTERFORM_JS)["outer"], {2: {"0", "1", "2"}})
     m = measure()
     chk("the real tree measures every condition", len(m["cases"]), len(CONDITIONS))
     chk("the real tree finds ApertureField as an aperture", "ApertureField" in m["aperture_components"], True)

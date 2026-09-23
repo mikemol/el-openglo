@@ -115,12 +115,30 @@ SERIES_CASES = [
     ("a non-number is a zero column", (["x", 100], 8, 0, 100), [0, 8]),
 ]
 
+# displayChar (W74, urgency is a letterform): (char, urgency) -> the character the
+# board RASTERISES. low lowercase, normal and critical upper case; a mapping that is
+# not one char to one char is refused (ß -> "SS" would shift every later index);
+# anything else (no urgency, a digit, punctuation) is shown as sent.
+DISPLAY_CASES = [
+    ("low lowercases", ("A", 0), "a"),
+    ("low keeps a lowercase", ("a", 0), "a"),
+    ("normal uppercases", ("a", 1), "A"),
+    ("critical uppercases", ("a", 2), "A"),
+    ("Latin-1 uppercases", ("é", 1), "É"),
+    ("Latin-1 lowercases", ("É", 0), "é"),
+    ("ß has no one-char upper case: shown as sent", ("ß", 2), "ß"),
+    ("a digit has no case", ("7", 0), "7"),
+    ("punctuation has no case", ("[", 2), "["),
+    ("no urgency: shown as sent", ("a", None), "a"),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s, series = %s;
-        var out = { parse: [], join: [], ring: [], series: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s;
+        var out = { parse: [], join: [], ring: [], series: [], display: [] };
+        for (var d = 0; d < display.length; d++) out.display.push(Body.displayChar(display[d][0], display[d][1]));
         for (var i = 0; i < bodies.length; i++) out.parse.push(Body.parseBody(bodies[i]));
         for (i = 0; i < joins.length; i++) out.join.push(Body.joinItem(joins[i][0], joins[i][1], joins[i][2]));
         for (i = 0; i < series.length; i++) out.series.push(Body.seriesToColumns(series[i][0], series[i][1], series[i][2], series[i][3]));
@@ -167,12 +185,50 @@ def run(bodies=None):
         h = os.path.join(td, "harness.qml")
         open(h, "w", encoding="utf-8").write(HARNESS % (
             json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
-            json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES])))
+            json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
+            json.dumps([list(c[1]) for c in DISPLAY_CASES])))
         r = QT.run([QML, h], capture_output=True, text=True, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
     raise RuntimeError(f"no RESULT from the qml harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}")
+
+
+GLYPH_HARNESS = """import QtQuick
+import "marquee-body.js" as Body
+QtObject {
+    Component.onCompleted: {
+        var font = %s, chars = %s, out = { flash_hz: Body.FLASH_HZ, flash_ms: Body.FLASH_MS, chars: [] };
+        for (var i = 0; i < chars.length; i++) {
+            var row = { ch: chars[i], forms: [] };
+            for (var u = 0; u < 3; u++)
+                row.forms.push({ urgency: u, shown: Body.displayChar(chars[i], u), key: Body.glyphKey(font, chars[i], u) });
+            out.chars.push(row);
+        }
+        console.log("RESULT " + JSON.stringify(out));
+        Qt.quit();
+    }
+}
+"""
+
+
+def glyph_census(font, chars):
+    """W74: per character, per urgency, what the SHIPPED marquee-body.js rasterises —
+    the displayed form (displayChar) and the registry key the lookup lands on
+    (glyphKey: the displayed form, else the character as sent, else '?') — plus the
+    declared flash rate. Run under Qt's qml like run(); None when the runner is absent."""
+    if not os.path.isfile(QML):
+        return None
+    src = open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8").read()
+    with tempfile.TemporaryDirectory() as td:
+        open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8").write(src)
+        h = os.path.join(td, "harness.qml")
+        open(h, "w", encoding="utf-8").write(GLYPH_HARNESS % (json.dumps(font), json.dumps(list(chars))))
+        r = QT.run([QML, h], capture_output=True, text=True, timeout=60)
+    for line in (r.stdout + r.stderr).splitlines():
+        if "RESULT " in line:
+            return json.loads(line.split("RESULT ", 1)[1])
+    raise RuntimeError(f"no RESULT from the glyph harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}")
 
 
 def _styled(got):
@@ -219,12 +275,20 @@ def series_problems(results):
     return bad
 
 
+def display_problems(results):
+    bad = [f"display {label!r}: {args!r} -> {got!r}, expected {want!r}"
+           for (label, args, want), got in zip(DISPLAY_CASES, results) if got != want]
+    if len(results) != len(DISPLAY_CASES):
+        bad.append(f"display: {len(results)} of {len(DISPLAY_CASES)} cases returned")
+    return bad
+
+
 def all_problems(res):
     return (problems(res["parse"]) + join_problems(res["join"]) + ring_problems(res["ring"])
-            + series_problems(res.get("series", [])))
+            + series_problems(res.get("series", [])) + display_problems(res.get("display", [])))
 
 
-N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES) + len(SERIES_CASES)
+N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES) + len(SERIES_CASES) + len(DISPLAY_CASES)
 
 
 def measure(res):
@@ -233,10 +297,12 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": [], "series": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": []}
+        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": []}
     for (label, args, want), got in zip(SERIES_CASES, res.get("series", [])):
         out["series"].append({"label": label, "args": list(args), "expected": want, "columns": got})
+    for (label, args, want), got in zip(DISPLAY_CASES, res.get("display", [])):
+        out["display"].append({"label": label, "args": list(args), "expected": want, "shown": got})
     for (body, text, runs), got in zip(CASES, res["parse"]):
         out["parse"].append({"body": body, "expected_text": text, "text": got["text"],
                              "expected_runs": [list(r) for r in runs], "runs": [list(r) for r in _styled(got)]})
@@ -297,6 +363,8 @@ def main(argv):
             print(f"join{args!r:40} -> {got['text']!r}  runs {_styled(got)}")
         for (label, _s, _w), trace in zip(RING_CASES, res["ring"]):
             print(f"ring {label}: {[(t['ring'], t['queue']) for t in trace]}")
+        for (label, args, _w), got in zip(DISPLAY_CASES, res.get("display", [])):
+            print(f"display {label}: displayChar{args!r} -> {got!r}")
         return 0
     bad = all_problems(res)
     if bad:
@@ -307,7 +375,8 @@ def main(argv):
     print(f"check_marquee_body: {N_CASES} of {N_CASES} cases hold — {len(CASES)} body-markup, "
           f"{len(JOIN_CASES)} joinItem (summary plain, body parsed), {len(RING_CASES)} ring scenarios "
           f"(every item scrolls once; an expired item drops after its rotation; a replace re-shows), "
-          f"{len(SERIES_CASES)} series (a sparkline's column heights, W48)")
+          f"{len(SERIES_CASES)} series (a sparkline's column heights, W48), "
+          f"{len(DISPLAY_CASES)} display (urgency's letterform, W74)")
     return 0
 
 
@@ -337,6 +406,11 @@ def _selftest():
     chk("every ring scenario carries steps, expected and trace",
         all(len(s["trace"]) == len(s["expected"]) and s["steps"] for s in m["ring"]), True)
     chk("a runner-less host is withheld", measure(None)["runner"], False)
+    chk("every display (letterform) case carries expected and shown",
+        len([c for c in m["display"] if "expected" in c and "shown" in c]), len(DISPLAY_CASES))
+    g = glyph_census({"a": [1], "A": [2], "?": [3]}, ["a", "b"])
+    chk("the glyph census sees a lowercase glyph used, and a missing one land on '?'",
+        [[f["key"] for f in row["forms"]] for row in g["chars"]], [["a", "A", "A"], ["?", "?", "?"]])
     two = results[-1]["runs"]
     links = [r["link"] for r in two if r["link"]]
     chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])

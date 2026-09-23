@@ -18,7 +18,32 @@ ring_ok := {
 
 series_ok := {"label": "a ramp fills the rows", "args": [[0, 25, 50, 75, 100], 8, 0, 100], "expected": [0, 2, 4, 6, 8], "columns": [0, 2, 4, 6, 8]}
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok]}
+display_ok := {"label": "low lowercases", "args": ["A", 0], "expected": "a", "shown": "a"}
+
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok]}
+
+# M8 refusing: the old lookup's shape — a low char shown in the sender's case
+test_m8_refuses_a_low_char_left_upper if {
+	some msg in mb.deny with input as object.union(clean, {"display": [object.union(display_ok, {"shown": "A"})]})
+	startswith(msg, "M8: low lowercases")
+}
+
+# M8 refusing: a one-to-two mapping let through (ß -> SS shifts every later index)
+test_m8_refuses_a_length_changing_case if {
+	c := {"label": "ß", "args": ["ß", 2], "expected": "ß", "shown": "SS"}
+	some msg in mb.deny with input as object.union(clean, {"display": [c]})
+	startswith(msg, "M8:")
+}
+
+test_m8_refuses_no_display_cases if {
+	some msg in mb.deny with input as object.union(clean, {"display": []})
+	msg == "M8: no display (letterform) cases were measured"
+}
+
+test_m8_refuses_absent_display_cases if {
+	inp := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok]}
+	"M8: no display (letterform) cases were measured" in mb.deny with input as inp
+}
 
 test_m6_refuses_a_boundary_off_its_stated_text if {
 	acted := {"label": "actions", "steps": [{"arrive": ["n1"], "live": ["n1"], "max": 12, "text": "n1#1 [Open]"}],
@@ -62,7 +87,10 @@ test_admits_clean if {
 }
 
 test_m0_refuses_empty if {
-	count(mb.deny) == 1 with input as {"runner": true, "parse": [], "join": [], "ring": []}
+	# M0, and M8's own empty-population denial (display is absent here) — nothing else
+	d := mb.deny with input as {"runner": true, "parse": [], "join": [], "ring": []}
+	d == {"M0: no cases were measured; the population is empty, not the parser right",
+		"M8: no display (letterform) cases were measured"}
 }
 
 test_m1_refuses_wrong_text if {
@@ -135,13 +163,15 @@ test_all_null_case_withheld_only if {
 	j := object.union(join_ok, {"text": null, "runs": null})
 	r := object.union(ring_ok, {"trace": null})
 	s := object.union(series_ok, {"columns": null})
-	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s]}
+	d := object.union(display_ok, {"shown": null})
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d]}
 	w := mb.withheld with input as inp
 	"W: parse <b>hi</b>: text was not measured" in w
 	"W: parse <b>hi</b>: runs was not measured" in w
 	sprintf("W: join%v: text was not measured", [join_ok.args]) in w
 	sprintf("W: ring %v: trace was not measured", [ring_ok.label]) in w
 	"W: series a ramp fills the rows: columns was not measured" in w
+	"W: display low lowercases: shown was not measured" in w
 	count(mb.deny) == 0 with input as inp
 }
 

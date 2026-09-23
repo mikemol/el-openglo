@@ -155,6 +155,36 @@ PlasmoidItem {
         return 1;
     }
 
+    // ⚑ CRITICAL FLASHES (W74; operator ruling 2026-09-23: FLASHING UPPER CASE). The
+    // rate is Body.FLASH_HZ (2 Hz: under WCAG 2.3.1's three flashes a second, inside
+    // IEC 60073's 1.4-2.8 Hz flashing band — marquee-body.js says why). An ANIMATION,
+    // not a Timer: the widget moves only on the animation driver, so the flash and
+    // the scroll share one clock (and check_marquee_live's virtual time sees both).
+    // ⚑ PAUSABLE (WCAG 2.2.2): the flash stops, LIT, whenever the hover-pause holds
+    // the board, and whenever the desktop asks for no motion. ⚑ REDUCED MOTION, AS
+    // FOUND: Qt 6.11's QStyleHints/QAccessibilityHints expose no reduce-motion hint
+    // (accessibility carries contrastPreference only); Plasma's control is the global
+    // animation speed (kdeglobals AnimationDurationFactor), which Kirigami.Units
+    // applies to its durations — "Instant" makes longDuration 0. That is the switch
+    // read here.
+    readonly property bool motionAllowed: Kirigami.Units.longDuration > 0
+    readonly property bool hasCritical: {
+        var ss = root.tickerSpans;
+        for (var k = 0; k < ss.length; k++) if (ss[k].urgency === 2) return true;
+        return false;
+    }
+    property bool flashLit: true
+    SequentialAnimation {
+        id: flash
+        running: root.hasCritical && root.motionAllowed && !root.boardPaused
+        loops: Animation.Infinite
+        PauseAnimation { duration: Body.FLASH_MS / 2 }
+        PropertyAction { target: root; property: "flashLit"; value: false }
+        PauseAnimation { duration: Body.FLASH_MS / 2 }
+        PropertyAction { target: root; property: "flashLit"; value: true }
+        onRunningChanged: if (!running) root.flashLit = true
+    }
+
     // ⚑ BODIES ARE MARKUP (W39). The spec allows <b> <i> <u> <a> <img>; Plasma
     // passes its sanitised subset through with <br> and entities; un-stripped,
     // the TAGS scrolled across the board as text. Body.parseBody (marquee-body.js,
@@ -437,19 +467,26 @@ PlasmoidItem {
                 // ⚑ THE GAUGE (W46; W48's painter, folded): a series run's characters are
                 // placeholders; at its first one the run's history is painted as COLUMNS —
                 // one matrix column per sample, rows [rows-h, rows) lit, the newest at the
-                // right (seriesToColumns) — in the item's ink, light dots while suspended
+                // right (seriesToColumns) — in the item's ink, STIPPLED while suspended
                 if (run && run.series) {
                     if (i === run.start) {
                         var heights = Body.seriesToColumns(run.series, root.matrix.rows, run.min, run.max);
                         var u0 = idle ? 1 : root.urgencyAt(i);
                         ctx.fillStyle = u0 === 2 ? String(root.hotColor) : String(root.litColor);
                         inks[ctx.fillStyle] = true;
-                        // ⚑ W72: suspended (jobState 2) or LOW is a light (shrunk) dot at
-                        // full ink, CRITICAL a heavy one — weight, not opacity, is the cue
-                        var g0 = (run.jobState === 2 || u0 === 0) ? -s / 4 : u0 === 2 ? s / 2 : 0;
+                        // ⚑ W74: a gauge is COLUMNS, not letters, so case cannot carry its
+                        // state. SUSPENDED (jobState 2) is a STIPPLED column: the top pip —
+                        // the value — always lit, every other pip below it dark. A different
+                        // SET of pips, not a dimmer one (the -s/4 light dot this replaces
+                        // rendered as opacity through the aperture, W72.h); the height reads
+                        // the same, so the value is not lost to the cue.
+                        var stipple = run.jobState === 2;
                         for (var sc = 0; sc < heights.length; sc++) {
-                            for (var rr = root.matrix.rows - heights[sc]; rr < root.matrix.rows; rr++) {
-                                ctx.fillRect((x0 + run.start * rep.advanceCells + sc) * s - g0, rr * s - g0, s + 2 * g0, s + 2 * g0);
+                            var top = root.matrix.rows - heights[sc];
+                            for (var rr = top; rr < root.matrix.rows; rr++) {
+                                var on = !(stipple && (rr - top) % 2 === 1);
+                                if (!on) continue;
+                                ctx.fillRect((x0 + run.start * rep.advanceCells + sc) * s, rr * s, s, s);
                                 onCells += 1;
                             }
                         }
@@ -457,24 +494,28 @@ PlasmoidItem {
                     }
                     continue;
                 }
-                var bytes = root.matrixFont[ch] || root.matrixFont[ch.toUpperCase()] || root.matrixFont["?"] || [];
-                var colour = root.overrideFor(run);
                 // W46 urgency: CRITICAL is painted in the hot token (over any run
-                // colour — alarm outranks a sender's hue). ⚑ W72 (WCAG 1.4.1): hue and
-                // opacity are both colour, so neither may be the only cue. Urgency
-                // is carried by DOT WEIGHT, the bold mechanism: CRITICAL is heavy and
-                // underlined (descent row lit), LOW is a light (shrunk) dot at full ink
+                // colour — alarm outranks a sender's hue). ⚑ W74 (WCAG 1.4.1; operator
+                // ruling 2026-09-23): hue and opacity are both colour, so urgency is
+                // carried by LETTERFORM — low lowercase, normal UPPER CASE, critical
+                // FLASHING UPPER CASE with its descent row lit. ⚑ THE CASE TRANSFORM
+                // IS HERE AND ONLY HERE: Body.glyphFor is the registry lookup, so the
+                // text, runs, links and action labels keep the sender's case.
                 var urgency = idle ? 1 : root.urgencyAt(i);
+                var bytes = Body.glyphFor(root.matrixFont, ch, urgency);
+                var colour = root.overrideFor(run);
                 ctx.fillStyle = urgency === 2 ? String(root.hotColor)
                               : (colour !== "transparent") ? colour : String(root.litColor);
                 inks[ctx.fillStyle] = true;
-                var grow = ((run && run.bold) ? s / 2 : 0)
-                         + (urgency === 2 ? s / 2 : urgency === 0 ? -s / 4 : 0);
+                var grow = (run && run.bold) ? s / 2 : 0;
                 var underline = urgency === 2 || (run !== null && (run.link.length > 0 || run.underline));
+                // the flash's dark phase: a critical glyph lights NO pip (root.flashLit
+                // is driven by root's `flash` animation, and holds true when paused)
+                var dark = urgency === 2 && !root.flashLit;
                 for (var c = 0; c < root.matrix.cols; c++) {
                     var byte = bytes.length > c ? bytes[c] : 0;
                     for (var r = 0; r < root.matrix.rows; r++) {
-                        var on = ((byte & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1);
+                        var on = !dark && (((byte & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1));
                         if (!on) continue;
                         onCells += 1;
                         var cx = (x0 + i * rep.advanceCells + c) * s, cy = r * s;
@@ -502,6 +543,8 @@ PlasmoidItem {
             target: root
             function onRingSwapped() { if (field.backdrop.available) rep.paintBackdrop(); Qt.callLater(rep.startRun); }
             function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
+            // the flash toggled: the backdrop is already sized for this text, so redraw only
+            function onFlashLitChanged() { if (field.backdrop.available) rep.drawBackdrop(); }
         }
 
         // ⚑ THE ROTATION IS STARTED, NEVER BOUND (operator, live 2026-09-22:

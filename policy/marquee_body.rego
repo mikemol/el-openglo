@@ -168,6 +168,32 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "M8 — urgency's letterform is a display transform with the stated result"
+# description: |
+#   W74 (operator ruling 2026-09-23): low is lowercase, normal and critical are
+#   upper case. displayChar is what the painter's registry lookup rasterises;
+#   a mapping that is not one char to one char is refused (it would shift every
+#   later index), and a char with no case is shown as sent.
+deny contains msg if {
+	some c in object.get(input, "display", [])
+	is_string(object.get(c, "shown", null))
+	c.shown != c.expected
+	msg := sprintf("M8: %s: %v shown as %v, expected %v", [c.label, c.args, c.shown, c.expected])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "display", [])
+	not is_string(object.get(c, "shown", null))
+	msg := sprintf("W: display %v: shown was not measured", [object.get(c, "label", null)])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "display", [])) == 0
+	msg := "M8: no display (letterform) cases were measured"
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 # description: |
 #   The measurement always emits `runner` as a bool. `false` is the host fact;

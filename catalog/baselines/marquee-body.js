@@ -126,8 +126,9 @@ function joinItem(app, summary, body) {
 // the queue only ever changes the ring at a rotation BOUNDARY, through ringNext.
 
 // a queue entry: id, text, runs, shown — and, since W46, urgency (the model's
-// 0 low / 1 normal / 2 critical; the board paints critical in the HOT token with
-// heavy underlined dots and low with light dots — W72: never by colour alone) and transient (exactly one traversal, never re-queued)
+// 0 low / 1 normal / 2 critical; the board shows it by LETTERFORM — low lowercase,
+// normal upper case, critical flashing upper case, underlined, in the HOT token —
+// W74: never by colour alone) and transient (exactly one traversal, never re-queued)
 // the placeholder a series run occupies in the joined text (U+2591, light shade —
 // never a glyph in the registry; the painter skips it and draws columns instead)
 var SERIES_CHAR = "░";
@@ -245,6 +246,50 @@ function ringJoin(items, sep) {
     }
     return { text: text, runs: runs, spans: spans };
 }
+
+// ⚑ URGENCY IS A LETTERFORM (W74; operator ruling 2026-09-23, WCAG 2.2 SC 1.4.1).
+// low = lowercase, normal = UPPERCASE, critical = FLASHING UPPER CASE. The previous
+// cue (a shrunk "light dot" for low) was measured INVISIBLE: the aperture's pips are
+// fixed-size, so a smaller dot is only a DIMMER dot, i.e. colour (check_urgency_cues,
+// low~normal footprint 1.01-1.05x). A letter's case is a different SET of lit pips.
+//
+// ⚑ A DISPLAY TRANSFORM ONLY. displayChar is called at exactly one place — the
+// painter's registry lookup (glyphFor, below) — and nowhere upstream: the joined
+// text, the runs, the link hrefs, the action labels and ids, and everything a tap
+// invokes keep the sender's case. Only what is rasterised onto the board changes.
+// A case mapping that is not one character to one character (ß -> "SS", İ -> "i̇")
+// would shift every later glyph off its index (taps and spans are per character),
+// so it is refused and the character is shown as sent.
+function displayChar(ch, urgency) {
+    var t = ch;
+    if (urgency === 0) t = ch.toLowerCase();
+    else if (urgency === 1 || urgency === 2) t = ch.toUpperCase();
+    return t.length === 1 ? t : ch;
+}
+
+// the registry lookup, with the transform: the displayed form's glyph; failing
+// that (a case partner the charset does not carry, e.g. ÿ -> Ÿ is outside
+// Latin-1) the character as sent; failing that its upper case (a registry built
+// with no outline font carries the authored upper-case table only — the lookup
+// this replaces fell back the same way); failing that '?' — never a blank cell.
+// Every fallback loses the case cue for that character: check_urgency_cues
+// censuses which key each letter of the charset lands on, per urgency.
+function glyphKey(font, ch, urgency) {
+    var d = displayChar(ch, urgency), up = ch.toUpperCase();
+    return font[d] ? d : font[ch] ? ch : (up.length === 1 && font[up]) ? up : "?";
+}
+function glyphFor(font, ch, urgency) {
+    return font[glyphKey(font, ch, urgency)] || [];
+}
+
+// ⚑ CRITICAL FLASHES (W74). WCAG 2.2 SC 2.3.1 allows no more than THREE flashes in
+// any one second; IEC 60073's "normal flashing" indicator band is 1.4-2.8 Hz. The
+// rate sits inside both, at the operator's ceiling: 2 full lit/dark cycles per
+// second, each phase FLASH_MS / 2 long. SC 2.2.2 (blinking longer than 5 s must be
+// pausable): the flash holds LIT while the hover-pause holds the board, and under
+// the desktop's reduced-motion setting (see marquee-main.qml's motionAllowed).
+var FLASH_HZ = 2;
+var FLASH_MS = 1000 / FLASH_HZ;
 
 // ⚑ A SPARKLINE (W48, folded into W54's field): a series of values becomes
 // COLUMN HEIGHTS on the matrix — one column per sample, oldest first, the newest

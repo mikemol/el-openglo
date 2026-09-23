@@ -251,12 +251,15 @@ Window {
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
                            hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText,
-                           tap: s.lastTap, invoked: model().invoked, series: s.paintedSeries });
+                           tap: s.lastTap, invoked: model().invoked, series: s.paintedSeries,
+                           flash: s.flashLit });
             if (s.boardPaused) harness.pausedSeen += 1;
             // W52: a screenshot at the first sample with the text mid-board (its left
-            // edge inside the board, still running), and one while the pulse holds it
+            // edge inside the board, still running), and one while the pulse holds it.
+            // W74: never in a critical flash's DARK phase (flashLit false) — a still of
+            // the board is a still of its letters; the flash is the frame series' to see
             var grab = %(grab)s;
-            if (grab && !harness.grabbed && s.tickerText !== "" && s.boardRunning && !s.boardPaused
+            if (grab && !harness.grabbed && s.tickerText !== "" && s.boardRunning && !s.boardPaused && s.flashLit !== false
                 && s.boardX < harness.width * 0.5 && s.boardX > 0) {
                 harness.grabbed = true;
                 harness.contentItem.grabToImage(function (r) { r.saveToFile(grab); });
@@ -742,9 +745,9 @@ def _selftest():
     # field the moment it appeared, which is the point of enumerating keys rather
     # than spot-checking a few: a sample that silently grows a field is a sample
     # whose consumers were never told.
-    chk("a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46)",
+    chk("a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74)",
         sorted(m["samples"][0].keys()),
-        ["boundary", "count", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "series", "t", "tap", "text", "w", "x"])
+        ["boundary", "count", "flash", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "series", "t", "tap", "text", "w", "x"])
     # ⚑ AND THE BOUNDARY FLAG MUST DISCRIMINATE: a run in which NOTHING is a
     # boundary, or EVERYTHING is, tells L3 nothing and would let the repair pass
     # by disarming the rule instead of correcting it.

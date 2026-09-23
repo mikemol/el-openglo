@@ -611,7 +611,10 @@ CLOSED = {
         # registry bytes (matrixFont[ch] → column bits → cells) behind ApertureField;
         # the field is still fixed and the glyphs still draw no ghost — the ghost is
         # the field's floor (relations §5b) — so W34's facts hold in their new form
-        lambda: _reads("templates/marquee-main.qml", r"root\.matrixFont\[ch\]") and
+        # W74: the painter's registry lookup goes through Body.glyphFor, which
+        # applies urgency's letterform (a display transform) before indexing
+        lambda: _reads("templates/marquee-main.qml", r"Body\.glyphFor\(root\.matrixFont,\s*ch\b") and
+                _reads("templates/marquee-body.js", r"(?m)^function glyphFor\(font, ch, urgency\)") and
                 _reads("templates/marquee-main.qml", r"\(byte & \(1 << r\)\)") and
                 _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
                 _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
@@ -670,7 +673,9 @@ CLOSED = {
                 _reads("make_notify_marquee.py", r"def\s+matrix_font\b") and
                 _reads("make_notify_marquee.py", r"font_path=") and
                 # the '?' fallback moved with the painter (drawBackdrop, s120); MatrixChar retired s124
-                _reads("templates/marquee-main.qml", r'root\.matrixFont\["\?"\]') and
+                # and moved again into Body.glyphKey (W74), the last arm of its fallback
+                _reads("templates/marquee-body.js", r'\(up\.length === 1 && font\[up\]\) \? up : "\?"') and
+                _reads("templates/marquee-main.qml", r"Body\.glyphFor\(root\.matrixFont,") and
                 _tool("check_matrix_input.py")),
     # closed session 75 (W7, 2026-09-21). ⚑ ITS OPEN-SET WITNESS MATCHED "calibrat"
     # and read validate_projection's docstring — which NAMED this symbol as the
