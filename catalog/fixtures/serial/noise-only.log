@@ -1,0 +1,18 @@
+[    0.000000] Linux version 6.12.48+deb13-amd64 (debian-kernel@lists.debian.org)
+[    1.204411] systemd[1]: Detected virtualization kvm.
+[  OK  ] Started systemd-journald.service - Journal Service.
+Debian GNU/Linux 13 el-probe ttyS0
+[   14.880102] zram0: detected capacity change from 0 to 1409024
+el-probe login: 
+[    0.000000] Linux version 6.12.48+deb13-amd64 (debian-kernel@lists.debian.org)
+[    1.204411] systemd[1]: Detected virtualization kvm.
+[  OK  ] Started systemd-journald.service - Journal Service.
+Debian GNU/Linux 13 el-probe ttyS0
+[   14.880102] zram0: detected capacity change from 0 to 1409024
+el-probe login: 
+[    0.000000] Linux version 6.12.48+deb13-amd64 (debian-kernel@lists.debian.org)
+[    1.204411] systemd[1]: Detected virtualization kvm.
+[  OK  ] Started systemd-journald.service - Journal Service.
+Debian GNU/Linux 13 el-probe ttyS0
+[   14.880102] zram0: detected capacity change from 0 to 1409024
+el-probe login: 

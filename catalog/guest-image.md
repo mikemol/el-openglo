@@ -117,9 +117,10 @@ them is withheld, not passed. host.json applies the same rule to renders, and
 ## (d) Login and plymouth selection, per probe
 
 We build one image and choose the variant at boot with a kernel cmdline, not at
-build time. There are two sddm.conf.d fragments, and a cmdline flag
-(`el.probe=greeter|autologin`) picks one of them, so the digest stays the same
-across probes. The flag reaches the guest as `kernelArgs` only under direct-kernel boot.
+build time. There are two sddm.conf.d fragments, and a cmdline flag names the probe,
+`el.probe=P1|P2|P3|P4|P4g`. The probe picks the fragment (P1 and P4g get the greeter,
+the rest get autologin), and the same value goes into `el.ident`, so the serial log
+names the probe it serves (f). The digest stays the same across probes. The flag reaches the guest as `kernelArgs` only under direct-kernel boot.
 With a containerDisk that boots through grub, a systemd credential in the manifest
 (SMBIOS `io.systemd.credential`) carries it instead. The first boot settles which of the
 two the surface lets through (⟐W71e).
@@ -224,54 +225,125 @@ The only way out of the guest is ttyS0, captured by `guest-console-log` from t=0
 with `kubectl logs … -c guest-console-log`. The kernel, systemd, plymouth and getty all
 write to that same stream, so our records have to be recoverable from the noise.
 
-**Framing.** A record is exactly one line:
+**The table is a file.** Every kind, payload key and type below lives in
+`guest/el-serial-spec.json`. The guest writer (`guest/el-serial-emit.sh`), the reference
+writer (`scripts/el_serial_emit.py`) and the reader (`scripts/read_serial.py`) all load
+it, and none of them names a key itself. If this prose and that file disagree, the file
+wins. What each probe *requires* is a requirement, not wire format, so it lives in
+`policy/serial.rego`.
+
+**Framing.** A frame is exactly one line:
 
 ```text
-@@EL1 SEQ KIND JSON\r\n
+@@EL1 SEQ KIND JSON\n
 ```
 
-- `@@EL1` starts the line. `SEQ` is a decimal counter starting at 0 for each boot, so
-  the reader can detect a lost or interleaved record as a gap.
-- `KIND` is `[a-z.]+`. `JSON` is a single-line JSON object (no raw newline; UTF-8;
-  keys sorted). Every object carries `"t"` (CLOCK_MONOTONIC in seconds, float, from
-  `/proc/uptime`) and `"boot"` (`/proc/sys/kernel/random/boot_id`).
-- **Lines longer than 1024 bytes are chunked**, because consoles can interleave with kernel
-  printk inside a long line. A large payload (a journal, appletsrc) is emitted as
-  `blob.part` records `{"id","n","of","b64"}`, 768 bytes of base64 each, closed by
-  `blob.end {"id","sha256","bytes","kind"}`. The reader reassembles, checks the sha256,
-  and treats a gap or a mismatch as **withheld**, never as partial data.
-- The emitter writes to `/dev/ttyS0` directly (not through the journal's console
-  forwarding), taking an `flock` on `/run/el-serial.lock` so its records never
-  interleave with each other.
+The rules are numbered so a reader's `withheld` reason can point at one. Where the
+earlier draft was ambiguous, the stricter reading was chosen.
 
-**Kinds** (the guest emits these; the reader knows exactly these):
+- **F1 Line end.** The writer writes `\n` only. The tty's ONLCR turns it into `\r\n` on
+  the wire, so the reader strips **any number of trailing `\r`** and nothing else. `\r`
+  is never required, and it can never be part of a frame, because canonical JSON
+  escapes it.
+- **F2 Grammar.** The line must match `^@@EL1 (0|[1-9][0-9]*) ([a-z]+(\.[a-z]+)*) (\{.*\})$`:
+  the marker at column 0, single spaces, SEQ without leading zeros. Any line that
+  *contains* `@@EL1` but fails the grammar is a **malformed frame**. A line without
+  `@@EL1` is noise and is only counted.
+- **F3 Length.** A whole frame, without its line end, is at most **1024 bytes**. The
+  writers refuse to write a longer frame; anything longer must go as a blob.
+- **F4 Canonical JSON.** The JSON text must equal the canonical serialisation of the
+  object it parses to: keys sorted **at every nesting level**, no whitespace, ASCII only
+  (non-ASCII as `\uXXXX`), and no duplicate keys. That is `jq -cSa` or Python
+  `json.dumps(sort_keys=True, separators=(",",":"), ensure_ascii=True)`. Anything else
+  is malformed, which also makes a byte flipped inside a frame visible.
+- **F5 No floats.** Numbers are non-negative integers. `t` is **centiseconds** since boot
+  (`/proc/uptime` has two decimals). This avoids float formatting, which jq and Python
+  do differently.
+- **F6 Envelope.** **Every** frame, blob frames included, carries `boot` (the
+  `/proc/sys/kernel/random/boot_id` UUID) and `t`. Payload keys sit beside them at the
+  top level (there is no `payload` wrapper), and a payload may not use `boot` or `t`.
+- **F7 Exact keys.** A frame's key set is exactly the envelope plus its kind's keys in the
+  spec file. A missing key, an extra key, a wrong type or an unknown kind is malformed.
+- **F8 SEQ.** SEQ counts **every frame of a boot**, blob frames included. It starts at
+  0, rises by 1, and must increase in log order. A missing SEQ is a **gap**; a SEQ that
+  appears twice, or out of order, is withheld.
+- **F9 `el.ident`.** A boot is a case only if it has exactly one well-formed `el.ident`,
+  and it is at **SEQ 0**. Frames of a boot that has no `el.ident` are not a case: they
+  are withheld at log level. A log with no `el.ident` at all is an **empty population**.
+- **F10 `el.done`.** `records` equals el.done's own SEQ, which is the number of frames
+  before it, **blob frames included**. It is the last frame of the boot, and any frame
+  after it is withheld. A boot without it is **denied** (S1): el.done is what covers the
+  tail, because a frame lost after the last one received cannot show as a gap.
+- **F11 Blobs.** A payload too big for F3 (a journal, appletsrc) is sent as **one** base64
+  stream of the whole byte string (standard alphabet, with padding), cut into `blob.part`
+  frames `{id, n, of, b64}`:
+  - `n` counts from **0** to `of-1`.
+  - Every non-final part is **exactly 768** characters. The final part has 1–768, or 0
+    only for an empty blob, which is one part (`of: 1`, `b64: ""`).
+  - `id` is `b` + the SEQ of part 0, so it is unique per boot by construction.
+  - The parts, then `blob.end {id, sha256, bytes, of, label}`, are **consecutive
+    SEQs**, written under one lock hold. Any other frame between them is withheld.
+  - The reader joins the parts, decodes, and checks `sha256` (lowercase hex of the raw
+    bytes) and `bytes`. Any gap, mismatch or break is **withheld**. A case with any
+    withheld fact reports **no** blobs: never partial data.
+- **F12 References.** A record field of type `blob` holds a blob id, and that blob must
+  be verified at a **lower SEQ** in the same boot. Otherwise the field is withheld.
+- The writer writes to `/dev/ttyS0` directly (not through the journal's console
+  forwarding), taking an `flock` on `/run/el-serial.lock` for each invocation, so its
+  frames never interleave with each other. SEQ is kept in `/run/el-serial.seq`; `/run`
+  is tmpfs, so SEQ restarts at 0 on each boot.
 
-| kind | when | payload |
-|------|------|---------|
-| `el.ident` | reporter start (`sysinit.target`) | contents of `/etc/el-openglo-guest.json`, `/proc/cmdline`, `el.probe` |
-| `el.mem` | every 5 s until `el.done` | `MemTotal`, `MemAvailable`, `SwapTotal`, `SwapFree`, zram `orig_data_size`/`compr_data_size` |
-| `el.oom` | a kernel OOM kill (`journalctl -k -f` match) | victim comm, pid, `MemAvailable` at the time |
-| `el.greeter` | `sddm.service` active, and the greeter process present | greeter pid, the `Current` theme from the resolved sddm config |
-| `el.session` | `graphical-session.target` reached for user `probe` (a `--user` unit) | uid, `XDG_SESSION_TYPE` |
-| `el.settled` | plasmashell has a stable window list for 5 s after `el.session`, or a 90 s cap (recorded as `"capped":true`) | `capped` |
-| `el.analyze` | after `el.session` (P4), or after `el.greeter` in the P1 fallback | blob ids of `systemd-analyze time`, `blame`, `critical-chain` output |
-| `el.journal` | at `el.settled` / `el.greeter` | blob ids of `journalctl -b -o json -u sddm`, `--user -u plasma-plasmashell`, `-u plymouth-*` |
-| `el.file` | at `el.settled` (P2) | blob id of `~probe/.config/plasma-org.kde.plasma.desktop-appletsrc` |
-| `el.done` | the probe has emitted everything | `{"probe", "records": <count>}`, which the reader checks against what it received |
+**Kinds** (payload keys exactly as in the spec file; `blob` means a blob id, F12):
+
+| kind | when | payload keys |
+|------|------|--------------|
+| `el.ident` | reporter start (`sysinit.target`), SEQ 0 | `guest` (the object in `/etc/el-openglo-guest.json`), `cmdline` (`/proc/cmdline`), `probe` (the `el.probe=` value) |
+| `el.mem` | every 5 s until `el.done` | `mem_total_kb`, `mem_available_kb`, `swap_total_kb`, `swap_free_kb`, `zram_orig_bytes`, `zram_compr_bytes` |
+| `el.oom` | a kernel OOM kill (`journalctl -k -f` match) | `comm`, `pid`, `mem_available_kb` |
+| `el.greeter` | `sddm.service` active, and the greeter process present | `pid`, `theme` (the `Current` theme from the resolved sddm config) |
+| `el.session` | `graphical-session.target` reached for user `probe` (a `--user` unit) | `uid`, `session_type` (`XDG_SESSION_TYPE`) |
+| `el.settled` | plasmashell has a stable window list for 5 s after `el.session`, or a 90 s cap | `capped` (bool) |
+| `el.analyze` | after `el.session` (P4), or after `el.greeter` (P4g) | `time`, `blame`, `critical_chain` (blobs of the `systemd-analyze` outputs) |
+| `el.journal` | at `el.settled` (P2), `el.greeter` (P1), or before `el.done` (P3) | `sddm`, `plasmashell`, `plymouth` (blobs of `journalctl -b -o json` for each; an empty journal is an empty blob) |
+| `el.file` | at `el.settled` (P2) | `appletsrc` (blob of `~probe/.config/plasma-org.kde.plasma.desktop-appletsrc`) |
+| `el.done` | the probe has emitted everything | `probe`, `records` (F10) |
+| `blob.part` / `blob.end` | inside a blob (F11) | `id`, `n`, `of`, `b64` / `id`, `sha256`, `bytes`, `of`, `label` |
+
+**Required kinds per probe** (`policy/serial.rego`, rule S3; an unknown probe is denied
+by S2):
+
+| probe | requires |
+|-------|----------|
+| P1 greeter | `el.ident`, `el.greeter`, `el.journal`, `el.done` |
+| P2 wallpaper | `el.ident`, `el.session`, `el.settled`, `el.journal`, `el.file`, `el.done` |
+| P3 splash | `el.ident`, `el.journal`, `el.done` |
+| P4 timing | `el.ident`, `el.session`, `el.analyze`, `el.done` |
+| P4g timing to the greeter | `el.ident`, `el.greeter`, `el.analyze`, `el.done` |
+
+`el.done`'s `probe` must equal `el.ident`'s (S4).
 
 **Guest side:** `el-serial.service` (system, `DefaultDependencies=no`, after
-`systemd-journald.service`) runs `/usr/libexec/el-openglo/el-serial`, a small POSIX-sh
-and `jq` emitter (no Python in the guest) that owns the framing, plus a user unit
+`systemd-journald.service`) runs the reporter, which calls `guest/el-serial-emit.sh`
+(installed as `/usr/libexec/el-openglo/el-serial-emit`, with the spec at
+`/usr/share/el-openglo/el-serial-spec.json`), a POSIX-sh and `jq` writer (no Python in
+the guest) that owns the framing. There is also a user unit
 `el-serial-session.service` `WantedBy=graphical-session.target` that asks it, over a
 FIFO in `/run`, to emit the session-side records. Both ship in the image, not in the `.deb`:
 they are probe machinery, not theme.
 
-**Reader side:** a `scripts/read_serial.py` (to write, with `--selftest` over a captured
-log containing interleaved printk, a split record, and a bad sha) emits `--json` facts:
-records by kind, sequence gaps, reassembled blobs, withheld reasons. A policy
-(`policy/serial.rego`) decides what each probe requires: for example P2 needs `el.ident`,
-`el.session`, `el.settled`, `el.file` and `el.done` with no gap. A log with no
-`el.ident` is an empty population and is refused.
+**Reader side:** `scripts/read_serial.py --json LOG` emits the facts: frames by kind,
+gaps, verified blobs, and withheld reasons. `policy/serial.rego` decides. The join is
+`scripts/opa_gate.py serial LOG`, which exits 0 when a boot is admitted, 1 when denied
+(an empty population, no `el.done`, a missing required kind) and 3 when only withheld (a
+gap, a mismatch, a malformed frame). `scripts/el_serial_emit.py` is the reference writer
+on the host. It proves the round trip, and it generates `catalog/fixtures/serial/`:
+`clean.log`, `gap.log`, `corrupt.log` and `noise-only.log`, which give admitted,
+withheld, withheld and denied.
+
+Residue: jq and Python differ on U+007F (jq escapes it, Python's `ensure_ascii` does
+not) and could differ on key order for non-BMP keys. The spec's own keys are ASCII, but
+the `guest` object is free-form. The first guest boot (⟐W71e) is where the sh writer's
+bytes first meet the reader.
 
 ## What el-openglo does not yet emit
 
@@ -297,8 +369,11 @@ and `make_sddm.py` before being written down as gaps:
 - **G5: no probe-side reader of the guest digest.** `check_action_key.py` reads
   `host.json` only. It needs to read the guest identity for probe results in the
   same way. The `el.ident` record (f) is where a probe result gets it.
-- **G6: no serial reporter or reader.** The guest units and `scripts/read_serial.py` +
-  `policy/serial.rego` from (f) do not exist.
+- **G6: the serial units do not exist yet.** The writer (`guest/el-serial-emit.sh`), the
+  reader and the policy from (f) do. `el-serial.service`, `el-serial-session.service` and
+  the reporter that calls the writer are still to be written. Whether the reader and
+  policy hold is `scripts/opa_gate.py serial catalog/fixtures/serial/clean.log`, not
+  this line.
 - **G7: no RFB client in the harness.** P1 needs VNC key events. We have no QMP, so
   vncdo, or a websocket RFB client on the `vnc` subresource, has to be chosen and pinned.
 
@@ -310,8 +385,8 @@ and `make_sddm.py` before being written down as gaps:
   `catalog/guest-image.json` with `adopted:false` until a probe has run.
 - ⟐W71d: extend `check_action_key` (G5) so a probe result without
   `guest_digest` and `deb_sha256` is withheld.
-- ⟐W71f: the `el-serial/1` emitter and units, plus `read_serial.py` / `policy/serial.rego` (G6).
-  They are testable on the host now, against a synthetic log.
+- ⟐W71f: the spec (F1–F12), both writers, the reader, the policy and the fixtures are in
+  place. What remains is the systemd units and the reporter (G6).
 - ⟐W71g: pick and pin the RFB client (G7).
 - ⟐W71e: on luthen's first VMI (F0): measure the real launcher overhead and the QoS
   class (Burstable ~305 Mi vs Guaranteed ~405 Mi); confirm the containerDisk choice, the

@@ -13,6 +13,8 @@ is kept apart from measured-defect.
 
     scripts/opa_gate.py <name>           # run scripts/check_<name>.py --json | opa eval data.el.<name>
                                          # exit 0 admitted / 1 denied / 3 withheld only
+    scripts/opa_gate.py serial LOG       # OPERANDs after the name go to the measurement's --json
+                                         # (MEASURERS maps a name to a non-check_ reader)
     scripts/opa_gate.py --list           # every policy and whether its check has --json
     scripts/opa_gate.py --test           # opa test policy/ (every rule's refuse/admit pair)
     scripts/opa_gate.py --selftest
@@ -38,12 +40,23 @@ def policies():
     return sorted(f[:-5] for f in os.listdir(POLICY) if f.endswith(".rego") and not f.endswith("_test.rego"))
 
 
-def measure(name):
-    """The check's --json document (a dict), run under this interpreter."""
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", f"check_{name}.py"), "--json"],
+# A policy whose measurement is not check_<name>.py. read_serial.py is a READER of
+# an artifact the tree does not hold (a guest's serial log), so it takes the log as
+# an operand: `opa_gate.py serial LOG` runs `read_serial.py --json LOG`.
+MEASURERS = {"serial": "read_serial.py"}
+
+
+def measurer(name):
+    return os.path.join(ROOT, "scripts", MEASURERS.get(name, f"check_{name}.py"))
+
+
+def measure(name, operands=()):
+    """The check's --json document (a dict), run under this interpreter. `operands`
+    (paths, resolved against the repo root) are passed after --json."""
+    r = subprocess.run([sys.executable, measurer(name), "--json", *operands],
                        capture_output=True, text=True, cwd=ROOT, timeout=600)
     if r.returncode != 0:
-        raise RuntimeError(f"check_{name}.py --json exited {r.returncode}: {r.stderr[-300:]}")
+        raise RuntimeError(f"{os.path.basename(measurer(name))} --json exited {r.returncode}: {r.stderr[-300:]}")
     return json.loads(r.stdout)
 
 
@@ -89,18 +102,18 @@ def main(argv):
         return 0
     if "--list" in args:
         for n in policies():
-            has = os.path.isfile(os.path.join(ROOT, "scripts", f"check_{n}.py"))
-            print(f"{n:24s} policy/{n}.rego  check_{n}.py {'--json' if has else 'ABSENT'}")
+            m = measurer(n)
+            print(f"{n:24s} policy/{n}.rego  {os.path.basename(m)} {'--json' if os.path.isfile(m) else 'ABSENT'}")
         return 0
     if "--test" in args:
         r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True)
         print(r.stdout.strip() or r.stderr.strip())
         return r.returncode
-    if len(names) != 1:
-        print("usage: opa_gate.py <name> | --list | --test | --selftest", file=sys.stderr)
+    if not names:
+        print("usage: opa_gate.py <name> [OPERAND...] | --list | --test | --selftest", file=sys.stderr)
         return 2
-    name = names[0]
-    sets = evaluate(name, measure(name))
+    name, operands = names[0], names[1:]
+    sets = evaluate(name, measure(name, operands))
     for m in sets["deny"]:
         print(f"opa_gate: DENY {m}", file=sys.stderr)
     for m in sets["withheld"]:
@@ -132,7 +145,7 @@ def _selftest():
         # admitted (verdict 0)
         sets = evaluate(n, {})
         chk(f"{n}: an empty measurement is not admitted", verdict(sets) != 0, True)
-        chk(f"{n}: a check with --json exists", os.path.isfile(os.path.join(ROOT, "scripts", f"check_{n}.py")), True)
+        chk(f"{n}: a check with --json exists", os.path.isfile(measurer(n)), True)
     chk("verdict maps deny to 1", verdict({"deny": ["x"], "withheld": []}), 1)
     chk("verdict maps withheld-only to 3", verdict({"deny": [], "withheld": ["x"]}), 3)
     chk("verdict maps empty sets to 0", verdict({"deny": [], "withheld": []}), 0)

@@ -1,0 +1,36 @@
+{
+  "protocol": "el-serial/1",
+  "doc": "catalog/guest-image.md (f). The ONE table of kinds: guest/el-serial-emit.sh, scripts/el_serial_emit.py and scripts/read_serial.py all load this file; none of them names a kind or a payload key itself. Per-probe REQUIRED kinds are a requirement, so they live in policy/serial.rego, not here.",
+  "marker": "@@EL1",
+  "max_line_bytes": 1024,
+  "part_b64_chars": 768,
+  "envelope": {
+    "boot": "boot_id",
+    "t": "int"
+  },
+  "kinds": {
+    "el.ident": {"guest": "object", "cmdline": "str", "probe": "str"},
+    "el.mem": {"mem_total_kb": "int", "mem_available_kb": "int", "swap_total_kb": "int", "swap_free_kb": "int", "zram_orig_bytes": "int", "zram_compr_bytes": "int"},
+    "el.oom": {"comm": "str", "pid": "int", "mem_available_kb": "int"},
+    "el.greeter": {"pid": "int", "theme": "str"},
+    "el.session": {"uid": "int", "session_type": "str"},
+    "el.settled": {"capped": "bool"},
+    "el.analyze": {"time": "blob", "blame": "blob", "critical_chain": "blob"},
+    "el.journal": {"sddm": "blob", "plasmashell": "blob", "plymouth": "blob"},
+    "el.file": {"appletsrc": "blob"},
+    "el.done": {"probe": "str", "records": "int"},
+    "blob.part": {"id": "blob_id", "n": "int", "of": "int", "b64": "b64"},
+    "blob.end": {"id": "blob_id", "sha256": "sha256", "bytes": "int", "of": "int", "label": "str"}
+  },
+  "types": {
+    "str": "a JSON string",
+    "int": "a JSON integer >= 0 (no fraction, no exponent, not a boolean)",
+    "bool": "true or false",
+    "object": "a JSON object",
+    "blob": "a blob id (see blob_id) naming a blob VERIFIED earlier in the same boot",
+    "blob_id": "b<SEQ of the blob's first blob.part>, ^b(0|[1-9][0-9]*)$",
+    "b64": "^[A-Za-z0-9+/=]*$, at most part_b64_chars characters",
+    "sha256": "^[0-9a-f]{64}$",
+    "boot_id": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+  }
+}
