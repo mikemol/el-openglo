@@ -1,0 +1,43 @@
+package el.token_source_test
+
+import data.el.token_source as p
+import rego.v1
+
+good := {"authorities": ["make_preview", "make_schemes"], "declared": 3, "undeclared": [], "absent": [], "cases": [
+	{"file": "make_css.py", "present": true, "reads": ["make_preview"]},
+	{"file": "make_wallpaper.py", "present": true, "reads": ["make_schemes"]},
+	{"file": "make_notify_marquee.py", "present": true, "reads": ["via make_wallpaper_live"]},
+]}
+
+test_admits_a_sourced_roster if {
+	count(p.deny) == 0 with input as good
+	count(p.admitted) == 3 with input as good
+}
+
+test_c0_refuses_an_absent_population if {
+	some msg in p.deny with input as {}
+	startswith(msg, "C0:")
+}
+
+# the failure this check found on its first run: make_wallpaper, the oldest
+# generator, computing its own colours
+test_c2_refuses_make_wallpaper_reading_nothing if {
+	bad := object.union(good, {"cases": [good.cases[0], {"file": "make_wallpaper.py", "present": true, "reads": []}]})
+	some msg in p.deny with input as bad
+	startswith(msg, "C2: make_wallpaper.py reads no palette authority (make_preview, make_schemes)")
+	count(p.admitted) == 1 with input as bad
+}
+
+# W65: make_css.py removed — a discovered roster said "15 of 15" and exited 0
+test_c1_refuses_a_deleted_declared_emitter if {
+	bad := object.union(good, {"absent": ["make_css.py"], "cases": [{"file": "make_css.py", "present": false, "reads": []}, good.cases[1]]})
+	some m1 in p.deny with input as bad
+	m1 == "C1: make_css.py is declared in emitters.ROLES and not in the tree"
+	some m2 in p.deny with input as bad
+	m2 == "C1: make_css.py is a declared emitter whose file is absent"
+}
+
+test_c1_refuses_an_undeclared_generator if {
+	some msg in p.deny with input as object.union(good, {"undeclared": ["make_new.py"]})
+	msg == "C1: make_new.py is in the tree without a role in emitters.ROLES (3 declared)"
+}

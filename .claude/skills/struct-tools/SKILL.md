@@ -72,8 +72,10 @@ the emitters agree on one palette); they are not general readers and do not repl
 | **what the ROOT HELPERS do** (`el-openglo-plymouth`, `el-openglo-sddm` run against a scratch root with a stubbed PATH: which alternative / drop-in they write, whether a missing tool fails loudly; the plymouth `<name>/<name>.plymouth` layout; `--json` is what policy/root_helpers.rego decides) | `scripts/check_root_helpers.py` | `python3 scripts/check_root_helpers.py --list` | `opa_gate.py root_helpers` |
 | the retired trademark, anywhere in the tree (`--json` is what policy/mark.rego decides) | `scripts/check_mark.py` | `python3 scripts/check_mark.py --files` | `opa_gate.py mark` |
 | third-party imports vs the manifest | `scripts/check_deps.py` | `python3 scripts/check_deps.py --imports` | `.toml` |
-| which emitter reads which palette authority | `scripts/check_token_source.py` | `python3 scripts/check_token_source.py --map` | — |
-| `segment_topology.py`'s exported API vs its consumers | `scripts/check_st_api.py` | `python3 scripts/check_st_api.py --used` | — |
+| which emitter reads which palette authority (`--json` is what policy/token_source.rego decides) | `scripts/check_token_source.py` | `python3 scripts/check_token_source.py --map` | `opa_gate.py token_source` |
+| which segment surface reads which geometry authority, or owns a stroke table (`--json` is what policy/geometry_source.rego decides; `--coverable` perturbs the lattice) | `scripts/check_geometry_source.py` | `python3 scripts/check_geometry_source.py --map` | `opa_gate.py geometry_source` |
+| the display registry: its shape, a matrix glyph's bitmap (`--glyph A`), and the round trip / substrate / font-structure facts (`--json` is what policy/display_registry.rego decides) | `scripts/check_display_registry.py` | `python3 scripts/check_display_registry.py --show` | `opa_gate.py display_registry` |
+| `segment_topology.py`'s exported API vs its consumers (`--json` is what policy/st_api.rego decides) | `scripts/check_st_api.py` | `python3 scripts/check_st_api.py --used` | `opa_gate.py st_api` |
 | the browser theme's emitted manifests | `scripts/check_chrome.py` | `python3 scripts/check_chrome.py --dump` | `.json` |
 | the partial-recovery record (`--json` is what policy/partial.rego decides) | `scripts/check_partial.py` | `python3 scripts/check_partial.py --list` | `opa_gate.py partial` |
 | the segment lattice's own invariants | `segment_topology.py` | `python3 segment_topology.py --selftest` | — |
@@ -100,7 +102,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | EVERY emitted QML document: qmllint's error set + the finite-animation `running:` binding rule (`--list` per document; `--json` is the MEASUREMENT policy/qml_lint.rego decides) | `scripts/check_qml_lint.py` | `python3 scripts/check_qml_lint.py --list` | `.qml` |
 | the REQUIREMENTS as rego: which policies exist, whether each check measures (`--list`), every rule's refuse/admit pair (`--test`), one check's verdict (`<name>`: deny / withheld sets → exit 0/1/3), the W50 migration census (`--census [--cpu]`: which warrants still cite a check that decides in Python) | `scripts/opa_gate.py` | `python3 scripts/opa_gate.py --list` | `.rego` |
 | what Android's Monet derives from the palette (surface/primary/on_surface vs ground/lit/fg, per variant) | `scripts/check_monet.py` | `python3 scripts/check_monet.py --map` | — |
-| where each emission is published, and the KDE Store's category taxonomy (OCS) | `scripts/check_publishing.py` | `python3 scripts/check_publishing.py --rows` | `publishing.md` `ocs-categories.xml` |
+| where each emission is published, and the KDE Store's category taxonomy (OCS; `--json` is what policy/publishing.rego decides) | `scripts/check_publishing.py` | `python3 scripts/check_publishing.py --rows` | `publishing.md` `ocs-categories.xml` |
 
 ⚑ **THE LAST TWO ROWS CLAIM FILENAMES, NOT SUFFIXES.** A hook script has no suffix, so a
 suffix-only table could never route it; the borrowed hook's selftest asserts that the

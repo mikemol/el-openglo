@@ -10,7 +10,7 @@ package el.qml_lint
 import rego.v1
 
 deny contains msg if {
-	count(input.documents) == 0
+	count(object.get(input, "documents", [])) == 0
 	msg := "Q0: no QML documents were measured; the population is empty, not the tree clean"
 }
 
@@ -50,7 +50,22 @@ withheld contains msg if {
 	msg := sprintf("%s: %s", [doc.id, doc.withheld])
 }
 
+# METADATA
+# title: A — the documents this policy judged and found clean
+# description: |
+#   A document is admitted when it was rendered (not withheld) and carries no
+#   Q1 or Q2 fact. Declaring the set makes a withheld document beside admitted
+#   ones a counted SKIP (opa_gate exit 0) — the pilot's Python bare mode said
+#   the same ("n of m ... (k SKIP)") before it was reduced to opa_gate.gate.
+admitted contains doc.id if {
+	some doc in input.documents
+	not doc.withheld
+	count(object.get(doc, "lint", [])) == 0
+	count(object.get(doc, "bound_running", [])) == 0
+}
+
 withheld contains msg if {
+	count(object.get(input, "documents", [])) > 0
 	not input.qmllint
 	msg := "qmllint is not installed on this host; Q1 measured nothing"
 }

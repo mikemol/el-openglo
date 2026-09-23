@@ -12,7 +12,8 @@ catalog/ocs-categories.xml, so a number does not outlive the store's
 taxonomy unnoticed. `--refresh` re-fetches the listing (SKIP offline: the
 cached file is the measurement, dated).
 
-    scripts/check_publishing.py                  # exit 0 iff (1) and (2) hold
+    scripts/check_publishing.py                  # the verdict, as opa_gate publishing decides it
+    scripts/check_publishing.py --json           # the measurement policy/publishing.rego decides
     scripts/check_publishing.py --rows           # emitter -> venue, as the table says
     scripts/check_publishing.py --categories [substr]   # the OCS categories (filtered)
     scripts/check_publishing.py --refresh        # re-fetch the OCS listing into the cache
@@ -22,6 +23,7 @@ WEAKNESS. A cited id that EXISTS is not a cited id that is RIGHT for the
 artifact; the display name is printed beside each so a reader can judge, and
 the choice between 114 and 717 is [MEM] until someone uploads.
 """
+import json
 import os
 import re
 import sys
@@ -75,34 +77,26 @@ def cited_ids(route):
     return re.findall(r"\bid (\d+)", route)
 
 
-def check(table_rows, cats, emitter_names):
-    """[(arm, ok, detail)]."""
-    out = []
-    covered = {r[0].split(" ")[0] for r in table_rows}
-    missing = [e for e in emitter_names if e not in covered]
-    out.append(("every emitter has a row", not missing,
-                f"missing {missing}" if missing else f"{len(emitter_names)} of {len(emitter_names)} emitters"))
-    if cats is None:
-        out.append(("every cited KDE Store id exists", False,
-                    "SKIP-AS-FAIL: no cached OCS listing; run --refresh once online"))
-        return out
-    unknown, n = [], 0
-    for emitter, venue, route in table_rows:
-        if "KDE Store" not in venue:
-            continue
-        for cid in cited_ids(route):
-            n += 1
-            if cid not in cats:
-                unknown.append(f"{emitter}: id {cid}")
-    guesses = [f"{e}: {r}" for e, v, r in table_rows if "?" in r and "KDE Store" in v]
-    out.append(("every cited KDE Store id exists", not unknown and not guesses,
-                f"unknown {unknown}" if unknown else (f"guessed ids {guesses}" if guesses
-                                                     else f"{n} of {n} ids in the listing")))
-    return out
+def measure(table_rows, cats, emitter_names):
+    """The MEASUREMENT policy/publishing.rego decides (W50). Facts only: the
+    emitter population (`cases`, each with how many table rows name it), every
+    table row (its emitter key, venue, the ids its route cites and whether each
+    is in the cached listing, and whether the route carries a '?'), and whether
+    the listing was present at all. Which venue must cite real ids, and that an
+    uncovered emitter or a guessed id is a defect, is the policy's ruling."""
+    keys = [r[0].split(" ")[0] for r in table_rows]
+    return {
+        "listing": cats is not None,
+        "cases": [{"emitter": e, "rows": keys.count(e)} for e in emitter_names],
+        "rows": [{"emitter": e, "venue": v, "route": r, "guessed": "?" in r,
+                  "ids": [{"id": cid, "listed": cats is not None and cid in cats}
+                          for cid in cited_ids(r)]}
+                 for e, v, r in table_rows],
+    }
 
 
 def main(argv):
-    known = {"--rows", "--categories", "--refresh"}
+    known = {"--rows", "--categories", "--refresh", "--json"}
     args = [a for a in argv[1:] if a.startswith("--")]
     rest = [a for a in argv[1:] if not a.startswith("--")]
     for a in args:
@@ -138,18 +132,11 @@ def main(argv):
         for e, v, r in table_rows:
             print(f"{e:22} {v:28} {r}")
         return 0
-    if not table_rows:
-        print("check_publishing: REFUSED — the table has no rows", file=sys.stderr)
-        return 2
-    arms = check(table_rows, categories(), emitters())
-    bad = [(a, d) for a, ok, d in arms if not ok]
-    if bad:
-        print(f"check_publishing: REFUSED — {len(bad)} of {len(arms)} arm(s) do not hold:", file=sys.stderr)
-        for a, d in bad:
-            print(f"    {a}: {d}", file=sys.stderr)
-        return 1
-    print(f"check_publishing: {len(arms)} of {len(arms)} arms hold — " + "; ".join(d for _a, _o, d in arms))
-    return 0
+    if "--json" in args:
+        print(json.dumps(measure(table_rows, categories(), emitters()), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("publishing")
 
 
 def _selftest():
@@ -163,19 +150,19 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
+    # ⚑ THE MEASUREMENT CAN SEE (W50). Whether what it sees is a defect is
+    # policy/publishing.rego's ruling, refused and admitted in publishing_test.rego.
     cats = {"112": ("x", "Plasma Color Schemes", "plasma_color_schemes"), "722": ("y", "Global Themes", "")}
     good = [("make_schemes", "KDE Store", "id 112 [OCS]"), ("make_deb", "KDE Store", "id 722"),
             ("make_css", "the operator's site", "direct")]
-    arms = {a: o for a, o, _d in check(good, cats, ["make_schemes", "make_deb", "make_css"])}
-    chk("a covered table with known ids holds", all(arms.values()), True)
-    arms = {a: o for a, o, _d in check(good, cats, ["make_schemes", "make_deb", "make_css", "make_new"])}
-    chk("an emitter without a row is seen", arms["every emitter has a row"], False)
-    arms = {a: o for a, o, _d in check(good + [("make_x", "KDE Store", "id 999")], cats, ["make_x"])}
-    chk("an id not in the listing is seen", arms["every cited KDE Store id exists"], False)
-    arms = {a: o for a, o, _d in check(good + [("make_x", "KDE Store", "id 723?")], cats, ["make_x"])}
-    chk("a guessed id (?) is seen", arms["every cited KDE Store id exists"], False)
-    arms = {a: o for a, o, _d in check(good, None, ["make_schemes"])}
-    chk("no cached listing is not a pass", arms["every cited KDE Store id exists"], False)
+    m = measure(good, cats, ["make_schemes", "make_deb", "make_css", "make_new"])
+    chk("an emitter without a row is seen (0 rows)", m["cases"][-1], {"emitter": "make_new", "rows": 0})
+    chk("a covered emitter is seen", m["cases"][0], {"emitter": "make_schemes", "rows": 1})
+    m = measure(good + [("make_x", "KDE Store", "id 999"), ("make_y", "KDE Store", "id 723?")], cats, ["make_x"])
+    chk("an id not in the listing is seen", m["rows"][3]["ids"], [{"id": "999", "listed": False}])
+    chk("a listed id is seen", m["rows"][0]["ids"], [{"id": "112", "listed": True}])
+    chk("a guessed id (?) is seen", m["rows"][4]["guessed"], True)
+    chk("no cached listing is seen", measure(good, None, ["make_schemes"])["listing"], False)
     chk("cited_ids reads several", cited_ids("id 114 or id 717"), ["114", "717"])
     real = categories()
     chk("the cached listing parses to many categories", real is not None and len(real) > 100, True)

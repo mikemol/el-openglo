@@ -75,7 +75,7 @@
 @misc{ST22,
   section = {pipeline},
   claim   = {segment_topology exports the 22-segment geometry its consumers import},
-  check   = {tool:check_st_api.py}
+  check   = {tool:opa_gate.py st_api}
 }
 
 @misc{ST-ADD,
@@ -161,7 +161,7 @@
 @misc{REGISTRY,
   section = {pipeline},
   claim   = {the display registry a surface receives is the emission of the Python one, restricted to the displays it instantiates, rather than a table retyped into QML},
-  check   = {tool:check_display_registry.py}
+  check   = {tool:opa_gate.py display_registry}
 }
 
 @misc{REGISTRY-SEES,
@@ -184,7 +184,7 @@
   section = {emitters},
   claim   = {every glyph in the matrix font agrees with the font it belongs to about where that font's shared features sit, so a malformed letter is caught by a check rather than only by a picture},
   rests-on = {REGISTRY},
-  check   = {tool:check_display_registry.py}
+  check   = {tool:opa_gate.py display_registry}
 }
 
 % ⚑ THE SAMPLE MUST BE ABLE TO SHOW THE DEFECT.  After fixing 'A' the picture
@@ -379,7 +379,7 @@
 @misc{TOKENS,
   section = {emitters},
   claim   = {every emission target reads its colours from the one palette, so no target can drift from the scheme},
-  check   = {tool:check_token_source.py}
+  check   = {tool:opa_gate.py token_source}
 }
 
 % ⚑ THE WITNESS COMPILING WAS TOO WEAK TO BE.  Three defects hid behind
@@ -488,7 +488,7 @@
   section = {emitters},
   claim   = {every segment surface renders from the one geometry substrate rather than carrying its own stroke table},
   rests-on = {TOKENS},
-  check   = {tool:check_geometry_source.py}
+  check   = {tool:opa_gate.py geometry_source}
 }
 
 % ⚑ PLYMOUTH LOOKED DE-SILOED AND WAS NOT — it IMPORTED the substrate while
@@ -620,7 +620,7 @@
 
 @misc{PUBLISHING,
   claim    = {Every emitter has a stated publishing route in catalog/publishing.md, and every KDE Store category id the table cites exists in the store's OCS listing cached in-tree — so no target ships without a venue and no number outlives the store's taxonomy unnoticed},
-  check    = {tool:check_publishing.py},
+  check    = {tool:opa_gate.py publishing},
   note     = {W13, 2026-09-21. Evidence: the linux-sources letter (inbox/, OCS-tagged ids) and catalog/ocs-categories.xml fetched from api.kde-look.org. The upload form itself is [MEM] until the operator opens store.kde.org/product/add once; the check claims only what it can reach.},
   section  = {emitters},
   rests-on = {EMITTERS}

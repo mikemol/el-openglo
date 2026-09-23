@@ -11,9 +11,14 @@ consumer actually imports, does the module export it?  The required set is
 DISCOVERED from the consumers, never hand-listed, so a new consumer reference
 cannot be missed by a roster nobody updated.
 
-    scripts/check_st_api.py            # exit 0 iff every referenced symbol exists
+    scripts/check_st_api.py            # the verdict, as opa_gate st_api decides it
+    scripts/check_st_api.py --json     # the measurement policy/st_api.rego decides
     scripts/check_st_api.py --used     # symbol -> the files referencing it
     scripts/check_st_api.py --missing  # just the absent ones
+
+WEAKNESS. Both sides are read TEXTUALLY: a reference is `ST.<name>` in a file
+that imports segment_topology as ST, and an export is a column-0 assignment,
+def or class. A name re-exported by `from x import *` is invisible.
 """
 import os
 import re
@@ -51,39 +56,44 @@ def exported():
     return names
 
 
+_READ = object()      # "read the tree" — distinct from None, which means module absent
+
+
+def measure(used=_READ, have=_READ):
+    """The MEASUREMENT policy/st_api.rego decides (W50): whether the module is
+    present, and per referenced symbol the files naming it and whether the module
+    exports it. An empty population and an absent module are the policy's to refuse."""
+    used = referenced() if used is _READ else used
+    have = exported() if have is _READ else have
+    return {"module_present": have is not None,
+            "cases": [{"symbol": s, "files": sorted(set(f)), "exported": have is not None and s in have}
+                      for s, f in sorted(used.items())]}
+
+
 def main(argv):
-    known = {"--used", "--missing"}
+    known = {"--used", "--missing", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_st_api: unknown flag {a!r}", file=sys.stderr)
             return 2
-    used = referenced()
-    have = exported()
-    if have is None:
-        print("check_st_api: REFUSED — segment_topology.py is absent", file=sys.stderr)
-        return 2
-    if not used:
-        print("check_st_api: REFUSED — no consumer references found; the search is "
-              "broken, not the API complete", file=sys.stderr)
-        return 2
-    missing = {s: f for s, f in sorted(used.items()) if s not in have}
-    if "--used" in argv:
-        for s, files in sorted(used.items()):
-            mark = " " if s in have else "!"
-            print(f"{mark} {s}\t{', '.join(sorted(set(files)))}")
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
         return 0
-    if "--missing" in argv:
-        print("\n".join(sorted(missing)))
+    if "--used" in argv or "--missing" in argv:
+        # listings of the measured facts; `!` / --missing is `exported: false`
+        m = measure()
+        if not m["module_present"]:
+            print("check_st_api: segment_topology.py is absent — nothing is exported", file=sys.stderr)
+            return 2
+        for c in m["cases"]:
+            if "--used" in argv:
+                print(f"{' ' if c['exported'] else '!'} {c['symbol']}\t{', '.join(c['files'])}")
+            elif not c["exported"]:
+                print(c["symbol"])
         return 0
-    if missing:
-        print(f"check_st_api: REFUSED — {len(missing)} of {len(used)} referenced "
-              f"symbol(s) are not exported:", file=sys.stderr)
-        for s, files in missing.items():
-            print(f"    ST.{s}  (imported by {', '.join(sorted(set(files)))})",
-                  file=sys.stderr)
-        return 1
-    print(f"check_st_api: {len(used)} of {len(used)} referenced symbols exported")
-    return 0
+    import opa_gate
+    return opa_gate.gate("st_api")
 
 
 def _selftest():
@@ -103,6 +113,13 @@ def _selftest():
     check("exported() parsed the module", have is not None and len(have) > 0, True)
     # A symbol the module plainly defines must be seen as exported.
     check("exported() sees GEOM16", "GEOM16" in (have or set()), True)
+    # ⚑ THE MEASUREMENT CAN SEE a symbol the module lacks and an absent module
+    # (the recovery's gap: 22-segment geometry referenced, not defined). The
+    # verdict is policy/st_api.rego's, refused and admitted in st_api_test.rego.
+    m = measure({"GEOM22": ["make_x.py"], "GEOM16": ["make_x.py"]}, {"GEOM16"})
+    check("a referenced, unexported symbol is seen", m["cases"][1],
+          {"symbol": "GEOM22", "files": ["make_x.py"], "exported": False})
+    check("an absent module is seen", measure({"GEOM16": ["a.py"]}, None)["module_present"], False)
     print("check_st_api selftest:", "PASS" if ok else "FAIL")
     return ok
 

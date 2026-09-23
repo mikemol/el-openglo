@@ -12,8 +12,13 @@ assumed:
   · make_preview.parse_scheme — parses a scheme file into tokens
   · make_schemes.GRID         — the solved palette grid
 
-    scripts/check_token_source.py          # exit 0 iff every emitter sources tokens
+    scripts/check_token_source.py          # the verdict, as opa_gate token_source decides it
+    scripts/check_token_source.py --json   # the measurement policy/token_source.rego decides
     scripts/check_token_source.py --map    # emitter -> the authority it reads
+
+WEAKNESS. "Reads an authority" is an import found by regex in the source text:
+an import that is never USED still counts, and the `via` sibling is not itself
+checked to read the palette on the path the emitter takes.
 
 ⚑ THE WITNESS IS "SOURCES FROM", NOT "CONTAINS NO HEX".  A generator legitimately
 mentions hexes — a fallback, a mask, a test vector, pure black.  Banning the
@@ -94,52 +99,40 @@ def emitters():
     return out
 
 
+def measure(em=None, drift=None, declared=None):
+    """The MEASUREMENT policy/token_source.rego decides (W50): per declared
+    emitter, whether its file is present and which authorities it reads (direct
+    or `via` a sibling emitter); the roster drift (emitters.drift: modules in the
+    tree without a role, roles without a module) beside the number declared.
+    That drift, an absent file, an empty roster and an emitter reading nothing
+    are defects by the policy's ruling, not here."""
+    import emitters as ROSTER
+    em = emitters() if em is None else em
+    undeclared, absent = ROSTER.drift(ROOT) if drift is None else drift
+    return {"authorities": list(AUTHORITIES),
+            "declared": len(ROSTER.ROLES) if declared is None else declared,
+            "undeclared": [f"{m}.py" for m in undeclared],
+            "absent": [f"{m}.py" for m in absent],
+            "cases": [{"file": fn, "present": reads is not None, "reads": reads or []}
+                      for fn, reads in em]}
+
+
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_token_source: unknown flag {a!r}", file=sys.stderr)
             return 2
-    import emitters as ROSTER
-    em = emitters()
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--map" in argv:
-        for fn, reads in em:
+        for fn, reads in emitters():
             print(f"{fn}\t{'ABSENT' if reads is None else (', '.join(reads) or '(NONE)')}")
         return 0
-    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME, and against the ROSTER
-    # rather than against itself. A tree that grew an undeclared make_*.py has a
-    # generator no gate ranges over — which is exactly the defect this check
-    # exists to catch, one level up: make_wallpaper computed its own colours for
-    # months and was found on this check's first run.
-    undeclared, absent = ROSTER.drift(ROOT)
-    missing = [fn for fn, reads in em if reads is None]
-    if undeclared or absent or missing:
-        print(f"check_token_source: REFUSED — the tree and emitters.ROLES disagree "
-              f"({len(undeclared)} undeclared, {len(absent)} absent of "
-              f"{len(ROSTER.ROLES)} declared). A SHRINKING POPULATION IS NOT A "
-              f"PASSING ONE.", file=sys.stderr)
-        for m in undeclared:
-            print(f"    undeclared  {m}.py — give it a role in emitters.ROLES",
-                  file=sys.stderr)
-        for m in absent:
-            print(f"    absent      {m}.py — declared and not in the tree", file=sys.stderr)
-        return 2
-    if not em:
-        print("check_token_source: REFUSED — no emitters found; the search is broken, "
-              "not the tree clean", file=sys.stderr)
-        return 2
-    orphan = [fn for fn, reads in em if not reads]
-    if orphan:
-        print(f"check_token_source: REFUSED — {len(orphan)} of {len(em)} emitter(s) "
-              f"read no palette authority:", file=sys.stderr)
-        for fn in orphan:
-            print(f"    {fn}", file=sys.stderr)
-        print(f"    (authorities: {', '.join(AUTHORITIES)}; a target that computes its",
-              file=sys.stderr)
-        print("     own colours can drift from every other target)", file=sys.stderr)
-        return 1
-    print(f"check_token_source: {len(em)} of {len(em)} emitters source from the palette")
-    return 0
+    import opa_gate
+    return opa_gate.gate("token_source")
 
 
 def _selftest():
@@ -159,6 +152,14 @@ def _selftest():
     # the exemptions must name files that actually exist, or they are stale
     missing = [f for f in NON_EMITTER if not os.path.exists(os.path.join(ROOT, f))]
     check(f"no stale exemption ({missing})", missing, [])
+    # ⚑ THE MEASUREMENT CAN SEE (W50) the three shapes the policy refuses —
+    # make_wallpaper computing its own colours (reads nothing), a declared file
+    # deleted (the W65 shrink), an undeclared generator — as facts.
+    m = measure([("make_wallpaper.py", []), ("make_css.py", None)], (["make_new"], ["make_css"]), 2)
+    check("an emitter reading no authority is seen", m["cases"][0],
+          {"file": "make_wallpaper.py", "present": True, "reads": []})
+    check("a declared, absent emitter is seen", m["cases"][1]["present"], False)
+    check("roster drift is seen", (m["undeclared"], m["absent"]), (["make_new.py"], ["make_css.py"]))
     print("check_token_source selftest:", "PASS" if ok else "FAIL")
     return ok
 

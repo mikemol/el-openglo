@@ -11,8 +11,14 @@ supply them, fed none of them.
 check_token_source.py asks this about colour. Nothing asked it about shape, so
 the four-silo state was invisible to every gate while being named in the log.
 
-    scripts/check_geometry_source.py          # exit 0 iff no surface owns geometry
+    scripts/check_geometry_source.py          # the verdict, as opa_gate geometry_source decides it
+    scripts/check_geometry_source.py --json   # the measurement policy/geometry_source.rego decides
     scripts/check_geometry_source.py --map    # surface -> what it reads, or its own
+    scripts/check_geometry_source.py --coverable  # the fourth gate, by perturbation (still Python)
+
+WEAKNESS. "Owns" is a module-level NAME from OWN_GEOMETRY bound to a literal; a
+stroke table under another name, or built inside a function, is invisible here
+(--coverable's perturbation is what catches a surface that does not move).
 
 ⚑ A SURFACE MAY LEGITIMATELY CHOOSE A FORMAT; IT MAY NOT CHOOSE A SHAPE.  The
 per-surface decision is "7" for digits or "22" for alphanumerics — a projection
@@ -95,16 +101,29 @@ def _imports(path):
 
 
 def survey():
-    """[(surface, reads, owns)] — what each renders from."""
+    """[(surface, reads, owns)] — what each renders from; a roster file that is
+    absent is (surface, None, None), a fact the policy refuses (it was once
+    silently skipped, so a deleted surface shrank the population unnoticed)."""
     out = []
     for fn in SURFACES:
         path = os.path.join(ROOT, fn)
         if not os.path.isfile(path):
+            out.append((fn, None, None))
             continue
         reads = sorted(_imports(path) & set(AUTHORITIES))
         owns = sorted(_module_assigns(path) & set(OWN_GEOMETRY))
         out.append((fn, reads, owns))
     return out
+
+
+def measure(rows=None):
+    """The MEASUREMENT policy/geometry_source.rego decides (W50): per declared
+    surface, whether it is present, which geometry authorities it imports, and
+    which OWN_GEOMETRY names it binds to a LITERAL at module level."""
+    rows = survey() if rows is None else rows
+    return {"authorities": list(AUTHORITIES),
+            "cases": [{"file": fn, "present": reads is not None, "reads": reads or [],
+                       "owns": owns or []} for fn, reads, owns in rows]}
 
 
 def coverable():
@@ -223,7 +242,7 @@ def coverable():
 
 
 def main(argv):
-    known = {"--map", "--coverable"}
+    known = {"--map", "--coverable", "--json"}
     if "--coverable" in argv:
         rows = coverable()
         bad = [r for r in rows if not r[1]]
@@ -240,37 +259,21 @@ def main(argv):
         if a not in known:
             print(f"check_geometry_source: unknown flag {a!r}", file=sys.stderr)
             return 2
-    rows = survey()
-    if not rows:
-        print("check_geometry_source: REFUSED — no surfaces found; the roster is "
-              "stale, not the tree de-siloed", file=sys.stderr)
-        return 2
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--map" in argv:
-        for fn, reads, owns in rows:
+        for fn, reads, owns in survey():
+            if reads is None:
+                print(f"{fn}\tABSENT")
+                continue
             r = ", ".join(reads) if reads else "(NONE)"
             o = f"  owns: {', '.join(owns)}" if owns else ""
             print(f"{fn}\t{r}{o}")
         return 0
-
-    bad = [(fn, reads, owns) for fn, reads, owns in rows if owns or not reads]
-    if bad:
-        print(f"check_geometry_source: REFUSED — {len(bad)} of {len(rows)} "
-              f"surface(s) do not render from the shared geometry:", file=sys.stderr)
-        for fn, reads, owns in bad:
-            why = []
-            if not reads:
-                why.append("reads no geometry authority")
-            if owns:
-                why.append(f"carries its own table ({', '.join(owns)})")
-            print(f"    {fn}: {'; '.join(why)}", file=sys.stderr)
-        print(f"    A surface chooses a FORMAT (\"7\" digits / \"22\" alphanumeric);",
-              file=sys.stderr)
-        print(f"    carrying a stroke table is a re-implementation.", file=sys.stderr)
-        print(f"  fixes: {len(bad)}", file=sys.stderr)
-        return 1
-    print(f"check_geometry_source: {len(rows)} of {len(rows)} surfaces render "
-          f"from the shared geometry")
-    return 0
+    import opa_gate
+    return opa_gate.gate("geometry_source")
 
 
 def _selftest():
@@ -288,6 +291,12 @@ def _selftest():
     check("the roster resolves to real files", len(rows) > 0, True)
     stale = [f for f in SURFACES if not os.path.isfile(os.path.join(ROOT, f))]
     check(f"no surface in the roster is missing ({stale})", stale, [])
+    # ⚑ THE MEASUREMENT CAN SEE (W50) an owned table, an unread authority and an
+    # absent surface as facts; policy/geometry_source.rego rules on them.
+    m = measure([("make_clock.py", [], ["SEGS"]), ("make_gone.py", None, None)])
+    check("an owned table and no authority are seen", m["cases"][0],
+          {"file": "make_clock.py", "present": True, "reads": [], "owns": ["SEGS"]})
+    check("an absent surface is seen", m["cases"][1]["present"], False)
     # ⚑ THE SCAN MUST SEE AN OWNED TABLE, or its all-clear means nothing.
     import tempfile
     with tempfile.TemporaryDirectory() as td:

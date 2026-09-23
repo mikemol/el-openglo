@@ -20,8 +20,10 @@ the emitted document's animation blocks, not the QML type graph, so it is a
 brace-matched scan of `NumberAnimation { … }` and its siblings; a `running:`
 inside a NESTED block of the animation is out of its reach (none exist today).
 
-    scripts/check_qml_lint.py            # exit 0 iff every document lints and obeys the rule
-    scripts/check_qml_lint.py --list     # the population and each verdict
+    scripts/check_qml_lint.py            # the verdict, as opa_gate qml_lint decides it (policy/qml_lint.rego)
+    scripts/check_qml_lint.py --json     # the measurement the policy decides
+    scripts/check_qml_lint.py --list     # the population and each document's measured facts
+    scripts/check_qml_lint.py --uses NAME  # which documents instantiate component NAME
     scripts/check_qml_lint.py --selftest
 
 SKIP (printed, counted) when qmllint is absent — qml_sanity says so per document;
@@ -98,22 +100,6 @@ def documents():
     return out
 
 
-def problems(docs):
-    """[(label, [messages])] — lint errors plus the running rule; SKIP for absent docs."""
-    import qml_sanity as QS
-    out = []
-    for label, text in docs:
-        if text is None:
-            out.append((label, ["SKIP"]))
-            continue
-        msgs = list(QS.check_qml(text, label))
-        for name, loops in bound_running(text):
-            msgs.append(f"{label}: {name} with loops {loops} BINDS running: — a finite run "
-                        f"overwrites the binding when it ends; start() it instead")
-        out.append((label, msgs))
-    return out
-
-
 def measure(docs):
     """The MEASUREMENT, as policy/qml_lint.rego reads it (W50): per document, the
     lint diagnostics qml_sanity kept and the finite animations that bind running;
@@ -167,27 +153,23 @@ def main(argv):
         import json
         print(json.dumps(measure(documents()), indent=1))
         return 0
-    res = problems(documents())
-    skipped = [l for l, m in res if m == ["SKIP"]]
-    bad = [(l, m) for l, m in res if m and m != ["SKIP"]]
     if "--list" in argv:
-        for l, m in res:
-            print(f"{l:28s} {'SKIP' if m == ['SKIP'] else ('ok' if not m else 'REFUSED')}")
-            for x in (m if m != ["SKIP"] else []):
+        # the MEASURED facts per document; which of them is a defect is the policy's
+        m = measure(documents())
+        for d in m["documents"]:
+            if "withheld" in d:
+                print(f"{d['id']:28s} WITHHELD {d['withheld']}")
+                continue
+            print(f"{d['id']:28s} {len(d['lint'])} lint, {len(d['bound_running'])} bound running")
+            for x in d["lint"]:
                 print(f"    {x}")
+            for b in d["bound_running"]:
+                print(f"    {b['animation']} loops {b['loops']} binds running:")
+        print(f"check_qml_lint --list: {len(m['documents'])} documents measured "
+              f"(qmllint {'present' if m['qmllint'] else 'ABSENT'})")
         return 0
-    if not res:
-        print("check_qml_lint: REFUSED — empty population", file=sys.stderr)
-        return 1
-    if bad:
-        print(f"check_qml_lint: REFUSED — {len(bad)} of {len(res)} documents:", file=sys.stderr)
-        for l, m in bad:
-            for x in m:
-                print(f"    {x}", file=sys.stderr)
-        return 1
-    print(f"check_qml_lint: {len(res) - len(skipped)} of {len(res)} emitted QML documents lint "
-          f"and bind no finite animation's `running` ({len(skipped)} SKIP)")
-    return 0
+    import opa_gate
+    return opa_gate.gate("qml_lint")
 
 
 def _selftest():
