@@ -171,8 +171,10 @@ def render_all(variants, out_map):
         svg = preview_svg(c)
         out = out_map[v]
         os.makedirs(os.path.dirname(out), exist_ok=True)
-        cairosvg.svg2png(bytestring=svg.encode(), write_to=out, output_width=W*2,
-                         output_height=H*2)
+        from emitters import atomic_path
+        with atomic_path(out) as tmp:
+            cairosvg.svg2png(bytestring=svg.encode(), write_to=tmp, output_width=W*2,
+                             output_height=H*2)
     return list(out_map.values())
 
 

@@ -70,6 +70,7 @@ def output_name(variant):
 # live here, which is what makes this replacement provably behaviour-preserving
 # rather than a re-derivation that happens to look right.
 import segment_topology as _ST
+from emitters import atomic_path, atomic_write
 
 SEGS = _ST.seg7_svg_grid()
 DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
@@ -183,6 +184,13 @@ if __name__ == "__main__":
     # files and prints when merely imported cannot be sampled, tested, or
     # composed — every consumer inherits its filenames and its stdout.
     # Every variant, named as make_deb.system_mapping expects them.
+    # ⚑ AN UNKNOWN FLAG IS REFUSED (W68): check_action_key's `--keys` / `--outputs`
+    # probes ran this emission in the real tree because every flag was ignored.
+    import sys
+    if sys.argv[1:]:
+        print(f"make_wallpaper: unknown flag(s) {sys.argv[1:]} (no modes; run bare to emit)",
+              file=sys.stderr)
+        sys.exit(2)
     try:
         import cairosvg
     except ImportError:                             # the SVGs still land
@@ -191,11 +199,13 @@ if __name__ == "__main__":
     for v in VARIANTS:
         name = output_name(v)
         svg = wallpaper_svg(v)
-        open(f"{name}.svg", "w").write(svg)
+        atomic_write(f"{name}.svg", svg)
         if cairosvg is not None:
-            cairosvg.svg2png(url=f"{name}.svg", write_to=f"{name}.png",
-                             output_width=2560, output_height=1440)
+            with atomic_path(f"{name}.png") as tmp:
+                cairosvg.svg2png(url=f"{name}.svg", write_to=tmp,
+                                 output_width=2560, output_height=1440)
         print("wrote", name)
     if cairosvg is not None:                        # the legacy preview, EL-Openglo
-        cairosvg.svg2png(url="EL-Openglo-wallpaper.svg", write_to="preview.png",
-                         output_width=1280, output_height=720)
+        with atomic_path("preview.png") as tmp:
+            cairosvg.svg2png(url="EL-Openglo-wallpaper.svg", write_to=tmp,
+                             output_width=1280, output_height=720)

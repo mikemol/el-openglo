@@ -23,6 +23,7 @@ user-theme extension question, recorded, not claimed.
 """
 import os
 import sys
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
@@ -124,7 +125,7 @@ def render_all(variants, out_map):
         os.makedirs(d, exist_ok=True)
         for name, body in (("gtk3.css", gtk3_css(v)), ("gtk4.css", gtk4_css(v))):
             p = os.path.join(d, name)
-            open(p, "w", encoding="utf-8").write(body)
+            atomic_write(p, body)
             written.append(p)
     return written
 

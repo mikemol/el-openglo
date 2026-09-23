@@ -13,6 +13,7 @@ import os, shutil, subprocess, stat, hashlib, sys
 import make_inherit as _inh   # icon + cursor themes that INHERIT Breeze (W31)
 import make_taskswitch as _ts  # the Alt+Tab switcher packages (W31)
 from emitters import LICENSE_SPDX  # the one licence id (W44)
+from emitters import atomic_write
 
 VERSION = "1.3.0"   # 1.3: ⊕BLOOM + ⊕STROKE-WEIGHT restored (clock, live wallpaper)
 ARCH = "all"
@@ -466,8 +467,7 @@ def build_lnf_packages():
                 "Version": VERSION,
             },
         }
-        open(os.path.join(pkg_dir, "metadata.json"), "w").write(
-            _json.dumps(meta, indent=2))
+        atomic_write(os.path.join(pkg_dir, "metadata.json"), _json.dumps(meta, indent=2))
         # defaults — INI referencing the ALREADY-INSTALLED components by name
         lit = v.endswith("-Lit")
         import make_clock as _mc
@@ -497,7 +497,7 @@ def build_lnf_packages():
             # by the scheme this LnF applies — every variant's defaults name it
             + _ts.defaults_fragment()
         )
-        open(os.path.join(contents, "defaults"), "w").write(defaults)
+        atomic_write(os.path.join(contents, "defaults"), defaults)
         # layout script — the ONE artifact that both places the EL clock AND sets
         # the desktop wallpaper. Runs when the theme's layout is applied.
         layouts = os.path.join(contents, "layouts")
@@ -525,7 +525,7 @@ panel.addWidget("org.kde.plasma.marginsseparator");
 panel.addWidget("org.kde.plasma.systemtray");
 panel.addWidget("{plasmoid_id}");
 '''
-        open(os.path.join(layouts, "org.kde.plasma.desktop-layout.js"), "w").write(layout_js)
+        atomic_write(os.path.join(layouts, "org.kde.plasma.desktop-layout.js"), layout_js)
         # preview — KDE shows this on the Global Theme page. Rendered from this
         # variant's own scheme tokens (make_preview), so it can't drift.
         # ⚑ THE PATH IS contents/previews/preview.png — PLURAL DIRECTORY.  This
@@ -539,10 +539,12 @@ panel.addWidget("{plasmoid_id}");
         import cairosvg as _cs
         previews = os.path.join(contents, "previews")
         os.makedirs(previews, exist_ok=True)
+        # atomic-write: exempt — into LNF_STAGE, this process's private mkdtemp
         _cs.svg2png(bytestring=_mp.preview_svg(cols).encode(),
                     write_to=os.path.join(previews, "preview.png"),
                     output_width=_mp.W * 2, output_height=_mp.H * 2)
         # the fullscreen preview KDE offers on hover, same render at 2x
+        # atomic-write: exempt — into LNF_STAGE, this process's private mkdtemp
         _cs.svg2png(bytestring=_mp.preview_svg(cols).encode(),
                     write_to=os.path.join(previews, "fullscreenpreview.jpg"),
                     output_width=_mp.W * 4, output_height=_mp.H * 4)
@@ -558,8 +560,7 @@ panel.addWidget("{plasmoid_id}");
         # The scheme carries the palette's ghost and the alpha it was solved
         # through ([EL] GhostAlpha, W8); the splash reads them like every other
         # surface, so check_ghost_surfaces can see it.
-        open(os.path.join(splash_dir, "Splash.qml"), "w").write(
-            _splash_qml(gnd_hex, lit_hex, '"' + cols["ghost"] + '"',
+        atomic_write(os.path.join(splash_dir, "Splash.qml"), _splash_qml(gnd_hex, lit_hex, '"' + cols["ghost"] + '"',
                         cols["ghost_alpha_glanced"]))          # session splash: glanced-at
         mapping.append((pkg_dir, f"usr/share/plasma/look-and-feel/{pid}"))
     return mapping
@@ -685,8 +686,10 @@ def copy_into(src_rel, dst_rel, root=None):
     dst = os.path.join(root or DEB_ROOT, dst_rel)
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     if os.path.isdir(src):
+        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
         shutil.copytree(src, dst, dirs_exist_ok=True)
     else:
+        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
         shutil.copy2(src, dst)
 
 
@@ -702,6 +705,7 @@ def legacy_alias_packages(root, specs):
         for v in VARIANTS:
             legacy = pattern.format(v=v.lower().replace("-", ""))
             dst = os.path.join(root, subdir, legacy)
+            # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
             shutil.copytree(src, dst, dirs_exist_ok=True)
             mp = os.path.join(dst, "metadata.json")
             meta = _json.loads(open(mp).read())
@@ -709,7 +713,7 @@ def legacy_alias_packages(root, specs):
             meta["KPlugin"]["Name"] = meta["KPlugin"]["Name"] + f" (legacy id, {v})"
             meta["KPlugin"]["Description"] = (meta["KPlugin"].get("Description", "")
                                               + " — a legacy per-variant id; the one package is " + canonical)
-            open(mp, "w").write(_json.dumps(meta, indent=2))
+            atomic_write(mp, _json.dumps(meta, indent=2))
 
 
 def one_theme_update_js():
@@ -775,6 +779,7 @@ def stage(root):
     for abs_src, dst in lnf_mapping:
         d = os.path.join(DEB_ROOT, dst)
         os.makedirs(os.path.dirname(d), exist_ok=True)
+        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
         shutil.copytree(abs_src, d, dirs_exist_ok=True)
     mapping = mapping + lnf_mapping
 
@@ -790,6 +795,7 @@ def stage(root):
     icon_assets = os.path.join(DEB_ROOT, "usr/share/el-openglo/icons")
     os.makedirs(icon_assets, exist_ok=True)
     for v in VARIANTS:
+        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
         _cs.svg2png(bytestring=_mp.icon_svg(_mp.parse_scheme(v)).encode(),
                     write_to=os.path.join(icon_assets, f"{v}-segclock.png"),
                     output_width=256, output_height=256)
@@ -798,11 +804,12 @@ def stage(root):
     if os.path.isfile(meta_p):
         icons_dir = os.path.join(pdir, "contents", "icons")
         os.makedirs(icons_dir, exist_ok=True)
+        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
         shutil.copyfile(os.path.join(icon_assets, "EL-Openglo-segclock.png"),
                         os.path.join(icons_dir, "el-segclock.png"))
         meta = _json.loads(open(meta_p).read())
         meta["KPlugin"]["Icon"] = "el-segclock"
-        open(meta_p, "w").write(_json.dumps(meta, indent=2))
+        atomic_write(meta_p, _json.dumps(meta, indent=2))
     for v in VARIANTS:
         wdir = os.path.join(DEB_ROOT, f"usr/share/wallpapers/{v}")
         if os.path.isdir(wdir):
@@ -815,8 +822,7 @@ def stage(root):
                 },
                 "KPackageStructure": "Plasma/Wallpaper",
             }
-            open(os.path.join(wdir, "metadata.json"), "w").write(
-                _json.dumps(wmeta, indent=2))
+            atomic_write(os.path.join(wdir, "metadata.json"), _json.dumps(wmeta, indent=2))
 
     # Inheriting icon + cursor themes (W31, ⊕ICONS-INHERIT / ⊕CURSOR-INHERIT):
     # Breeze recoloured by the scheme (FollowsColorScheme) and light/dark
@@ -874,9 +880,9 @@ def stage(root):
     kdir = os.path.join(DEB_ROOT, "usr/share/konsole")
     os.makedirs(kdir, exist_ok=True)
     for v in VARIANTS:
-        open(os.path.join(kdir, f"{v}.colorscheme"), "w").write(_kon.colorscheme(v))
+        atomic_write(os.path.join(kdir, f"{v}.colorscheme"), _kon.colorscheme(v))
         # the profile that NAMES the scheme — without it nothing uses it
-        open(os.path.join(kdir, f"EL-Openglo-{v}.profile"), "w").write(_kon.profile(v))
+        atomic_write(os.path.join(kdir, f"EL-Openglo-{v}.profile"), _kon.profile(v))
     # ⚑ THE ANSI-16 TABLE IN EVERY FORMAT A TERMINAL ASKS FOR.  alacritty_toml /
     # foot_ini did not survive the recovery (this printed a SKIP for them until
     # 2026-09-21); they came back with W16/W18 as serialisers over
@@ -886,10 +892,10 @@ def stage(root):
     tdir = os.path.join(DEB_ROOT, "usr/share/el-openglo/terminals")
     os.makedirs(tdir, exist_ok=True)
     for v in VARIANTS:
-        open(os.path.join(tdir, f"{v}.alacritty.toml"), "w").write(_kon.alacritty_toml(v))
-        open(os.path.join(tdir, f"{v}.foot.ini"), "w").write(_kon.foot_ini(v))
-        open(os.path.join(tdir, f"{v}.windows-terminal.json"), "w").write(_kon.windows_terminal_json(v))
-        open(os.path.join(tdir, f"{v}.termux.properties"), "w").write(_kon.termux_properties(v))
+        atomic_write(os.path.join(tdir, f"{v}.alacritty.toml"), _kon.alacritty_toml(v))
+        atomic_write(os.path.join(tdir, f"{v}.foot.ini"), _kon.foot_ini(v))
+        atomic_write(os.path.join(tdir, f"{v}.windows-terminal.json"), _kon.windows_terminal_json(v))
+        atomic_write(os.path.join(tdir, f"{v}.termux.properties"), _kon.termux_properties(v))
 
     # Plymouth boot-splash themes (⊕PLYMOUTH): 7th emitter, the earliest seam.
     import make_plymouth as _ply
@@ -932,7 +938,7 @@ def stage(root):
     # the one-shot migration, run once by plasmashell from the shell's updates dir
     upd = os.path.join(DEB_ROOT, "usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates")
     os.makedirs(upd, exist_ok=True)
-    open(os.path.join(upd, "el-openglo-one-theme.js"), "w").write(one_theme_update_js())
+    atomic_write(os.path.join(upd, "el-openglo-one-theme.js"), one_theme_update_js())
 
     # ⊕GLANCE-AUDIT gate: every ghost-bearing surface must clear its parsing-mode
     # floor (glanced-at needs more separation than looked-at). A surface that drops
@@ -949,27 +955,27 @@ def stage(root):
     # helper binary
     hp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-apply")
     os.makedirs(os.path.dirname(hp), exist_ok=True)
-    open(hp, "w").write(APPLY_HELPER)
+    atomic_write(hp, APPLY_HELPER)
     os.chmod(hp, 0o755)
 
     # root SDDM helper (run with sudo)
     sp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-sddm")
-    open(sp, "w").write(sddm_helper())
+    atomic_write(sp, sddm_helper())
     os.chmod(sp, 0o755)
 
     # root Plymouth helper (run with sudo)
     pp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-plymouth")
-    open(pp, "w").write(PLYMOUTH_HELPER)
+    atomic_write(pp, PLYMOUTH_HELPER)
     os.chmod(pp, 0o755)
 
     # live-wallpaper helper (per-user, opt-in)
     lp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-live")
-    open(lp, "w").write(LIVE_HELPER)
+    atomic_write(lp, LIVE_HELPER)
     os.chmod(lp, 0o755)
 
     # notification-marquee helper (per-user, opt-in)
     np = os.path.join(DEB_ROOT, "usr/bin/el-openglo-notify")
-    open(np, "w").write(NOTIFY_HELPER)
+    atomic_write(np, NOTIFY_HELPER)
     os.chmod(np, 0o755)
 
     # ⊕QML-SANITY: parse-check EVERY staged .qml with the real Qt qmllint (PySide6)
@@ -1007,7 +1013,7 @@ def build(out_dir=None):
     # the Debian copyright file (DEP-5) — Debian-specific, so here and not in stage()
     doc = os.path.join(DEB_ROOT, "usr/share/doc", PKG)
     os.makedirs(doc, exist_ok=True)
-    open(os.path.join(doc, "copyright"), "w").write(copyright_text())
+    atomic_write(os.path.join(doc, "copyright"), copyright_text())
 
     # control dir
     ctrl = os.path.join(DEB_ROOT, "DEBIAN")
@@ -1019,10 +1025,10 @@ def build(out_dir=None):
             continue
         for f in fs:
             size += os.path.getsize(os.path.join(dp, f))
-    open(os.path.join(ctrl, "control"), "w").write(CONTROL.format(size=size // 1024 + 1))
+    atomic_write(os.path.join(ctrl, "control"), CONTROL.format(size=size // 1024 + 1))
     for name, body in [("postinst", POSTINST), ("postrm", POSTRM)]:
         p = os.path.join(ctrl, name)
-        open(p, "w").write(body)
+        atomic_write(p, body)
         os.chmod(p, 0o755)
 
     tmp_out = f"/tmp/{PKG}_{VERSION}_{ARCH}.deb"
@@ -1032,6 +1038,7 @@ def build(out_dir=None):
     # FROM, not a path on any machine that builds this. The output lands beside
     # the build unless told otherwise.
     out = os.path.join(out_dir or BUILD, f"{PKG}_{VERSION}_{ARCH}.deb")
+    # atomic-write: exempt — the built .deb into BUILD or the caller's out_dir; no check reads it
     shutil.copy2(tmp_out, out)
     return out, mapping
 

@@ -36,6 +36,7 @@ import make_taskswitch as TS       # ghost_alpha(): the measured-global constant
 # raster — no shared substrate. The abstraction was lifted one level instead, so
 # this consumes THE REGISTRY and dispatches on `kind`.
 import display_types as DT
+from emitters import atomic_write
 
 PACKAGE_ID = "org.el.notifymarquee"
 VARIANTS = TS.VARIANTS
@@ -237,19 +238,19 @@ def render_all(d):
     cfg = os.path.join(d, "contents", "config")
     os.makedirs(ui, exist_ok=True)
     os.makedirs(cfg, exist_ok=True)
-    open(os.path.join(d, "metadata.json"), "w").write(json.dumps(metadata(), indent=2))
-    open(os.path.join(ui, "main.qml"), "w").write(main_qml())
+    atomic_write(os.path.join(d, "metadata.json"), json.dumps(metadata(), indent=2))
+    atomic_write(os.path.join(ui, "main.qml"), main_qml())
     # the settings page (W34 c): the same three files the clock ships
-    open(os.path.join(ui, "configGeneral.qml"), "w").write(config_qml())
-    open(os.path.join(cfg, "main.xml"), "w").write(config_xml())
-    open(os.path.join(cfg, "config.qml"), "w").write(CONFIG_MODEL)
+    atomic_write(os.path.join(ui, "configGeneral.qml"), config_qml())
+    atomic_write(os.path.join(cfg, "main.xml"), config_xml())
+    atomic_write(os.path.join(cfg, "config.qml"), CONFIG_MODEL)
     # ⚑ THE COMPONENT SHIPS BESIDE THE PLASMOID OR THE IMPORT RESOLVES TO
     # NOTHING.  main.qml instantiates ApertureField by bare name, which QML
     # resolves from the same directory — emitting one without the other gives
     # a widget that loads and draws an empty panel.
-    open(os.path.join(ui, "ApertureField.qml"), "w").write(aperture_field_component())
+    atomic_write(os.path.join(ui, "ApertureField.qml"), aperture_field_component())
     # the body-markup parser (W39): main.qml imports it by bare name
-    open(os.path.join(ui, "marquee-body.js"), "w").write(body_parser())
+    atomic_write(os.path.join(ui, "marquee-body.js"), body_parser())
     return d
 
 

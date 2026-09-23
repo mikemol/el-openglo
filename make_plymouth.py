@@ -25,6 +25,7 @@ import os
 from PIL import Image, ImageDraw
 import make_preview as MP
 import segment_topology as ST
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -142,17 +143,18 @@ def render_assets(variant, out_dir, U=ASSET_U):
     # scheme, not re-derived (ghost_from is residue)
     gh, ga = _rgb(c["ghost"]), c["ghost_alpha_glanced"]     # boot splash: glanced-at
     os.makedirs(out_dir, exist_ok=True)
+    from emitters import atomic_path
+    images = [(f"d{d}.png", render_digit(d, phosphor, gh, U=U, ghost_alpha=ga))
+              for d in "0123456789"]
+    images += [("dblank.png", render_digit(" ", phosphor, gh, U=U, ghost_alpha=ga)),
+               ("colon_on.png", render_colon(phosphor, U=U, on=True)),
+               ("colon_off.png", render_colon(phosphor, U=U, on=False))]
     written = []
-    # normal (dark display): phosphor-lit segments, ghost dim, transparent bg
-    for d in list("0123456789"):
-        p = os.path.join(out_dir, f"d{d}.png")
-        render_digit(d, phosphor, gh, U=U, ghost_alpha=ga).save(p)
+    for name, im in images:
+        p = os.path.join(out_dir, name)
+        with atomic_path(p) as tmp:
+            im.save(tmp)
         written.append(p)
-    render_digit(" ", phosphor, gh, U=U, ghost_alpha=ga).save(os.path.join(out_dir, "dblank.png"))
-    written.append(os.path.join(out_dir, "dblank.png"))
-    render_colon(phosphor, U=U, on=True).save(os.path.join(out_dir, "colon_on.png"))
-    render_colon(phosphor, U=U, on=False).save(os.path.join(out_dir, "colon_off.png"))
-    written += [os.path.join(out_dir, "colon_on.png"), os.path.join(out_dir, "colon_off.png")]
     return written
 
 
@@ -355,8 +357,8 @@ def render_all(variants, dir_map):
         files = render_assets(v, d)
         n = theme_name(v)
         conf, scr = os.path.join(d, f"{n}.plymouth"), os.path.join(d, f"{n}.script")
-        open(conf, "w").write(dot_theme(v))
-        open(scr, "w").write(script(v))
+        atomic_write(conf, dot_theme(v))
+        atomic_write(scr, script(v))
         written[v] = files + [conf, scr]
     return written
 

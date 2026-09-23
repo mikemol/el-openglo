@@ -10,6 +10,7 @@ them toward the variant's phosphor family on its void ground. Not monochrome
 import os
 import make_preview as MP
 import cvd_gate as C
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -220,7 +221,7 @@ def render_all(variants, out_map):
     for v in variants:
         p = out_map[v]
         os.makedirs(os.path.dirname(p), exist_ok=True)
-        open(p, "w").write(colorscheme(v))
+        atomic_write(p, colorscheme(v))
         written.append(p)
     return written
 

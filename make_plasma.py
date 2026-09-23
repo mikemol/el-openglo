@@ -11,6 +11,7 @@ import os, sys, json, shutil, re
 import xml.etree.ElementTree as ET
 from make_schemes import GRID, emit_colors
 from emitters import LICENSE_SPDX
+from emitters import atomic_write
 
 def hexc(s):
     r, g, b = s.split(",")
@@ -112,9 +113,9 @@ if __name__ == "__main__":
         path = f"plasma/desktoptheme/{t['id']}"
         for rel, builder in FILES.items():
             os.makedirs(os.path.dirname(os.path.join(path, rel)), exist_ok=True)
-            open(os.path.join(path, rel), "w").write(builder(t))
-        open(os.path.join(path, "metadata.json"), "w").write(metadata(t))
-        open(os.path.join(path, "colors"), "w").write(colors_file(t, dark))
+            atomic_write(os.path.join(path, rel), builder(t))
+        atomic_write(os.path.join(path, "metadata.json"), metadata(t))
+        atomic_write(os.path.join(path, "colors"), colors_file(t, dark))
         errs = check(path, t, dark)
         if errs:
             failures[t["id"]] = errs; shutil.rmtree(path)

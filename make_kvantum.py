@@ -13,6 +13,7 @@ substrate accent hex survives recoloring. Violating themes deleted."""
 import os, re, sys, shutil, colorsys, configparser
 import xml.etree.ElementTree as ET
 from make_schemes import GRID
+from emitters import atomic_write
 
 SUB_CFG = open("/tmp/KvFlat.kvconfig").read()
 SUB_SVG = open("/tmp/KvFlat.svg").read()
@@ -114,7 +115,7 @@ if __name__ == "__main__":
             print(f"NOT WRITTEN: {t['id']}: {errs[:3]}")
             continue
         os.makedirs(path, exist_ok=True)
-        open(f"{path}/{t['id']}.kvconfig", "w").write(cfg)
-        open(f"{path}/{t['id']}.svg", "w").write(svg)
+        atomic_write(f"{path}/{t['id']}.kvconfig", cfg)
+        atomic_write(f"{path}/{t['id']}.svg", svg)
         print("wrote", t["id"])
     sys.exit(1 if failures else 0)

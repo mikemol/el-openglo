@@ -31,6 +31,7 @@ from emitters import LICENSE_SPDX
 # taken by scraping. The substrate is the source; both surfaces read it, and the
 # format ("7" for digits) is the only per-surface choice.
 import segment_topology as _ST
+from emitters import atomic_write
 
 SEGS = _ST.seg7_svg_grid()
 DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
@@ -134,18 +135,17 @@ def render_all(path):
     """Write the ONE package into path."""
     os.makedirs(os.path.join(path, "contents/ui"), exist_ok=True)
     os.makedirs(os.path.join(path, "contents/config"), exist_ok=True)
-    open(os.path.join(path, "metadata.json"), "w").write(metadata())
-    open(os.path.join(path, "contents/ui/main.qml"), "w").write(main_qml())
+    atomic_write(os.path.join(path, "metadata.json"), metadata())
+    atomic_write(os.path.join(path, "contents/ui/main.qml"), main_qml())
     # ⚑ THE DISPLAY SHIPS BESIDE THE MOUNT OR THE IMPORT RESOLVES TO NOTHING
     # (W33, s133): main.qml instantiates SegmentChar by bare name, which QML
     # resolves from the same directory. The live wallpaper emits the SAME
     # component from the same accessor — one display, two mounts.
     import make_segment_display as SD
-    open(os.path.join(path, "contents/ui/SegmentChar.qml"), "w").write(SD.segment_char_component())
-    open(os.path.join(path, "contents/ui/configGeneral.qml"), "w").write(CONFIG_QML)
-    open(os.path.join(path, "contents/config/main.xml"), "w").write(CONFIG_XML)
-    open(os.path.join(path, "contents/config/config.qml"), "w").write(
-        'import org.kde.plasma.configuration\n\nConfigModel {\n'
+    atomic_write(os.path.join(path, "contents/ui/SegmentChar.qml"), SD.segment_char_component())
+    atomic_write(os.path.join(path, "contents/ui/configGeneral.qml"), CONFIG_QML)
+    atomic_write(os.path.join(path, "contents/config/main.xml"), CONFIG_XML)
+    atomic_write(os.path.join(path, "contents/config/config.qml"), 'import org.kde.plasma.configuration\n\nConfigModel {\n'
         '    ConfigCategory {\n        name: "General"\n        icon: "clock"\n'
         '        source: "configGeneral.qml"\n    }\n}\n')
     return path

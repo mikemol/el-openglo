@@ -33,6 +33,7 @@ import sys
 from make_schemes import GRID
 from emitters import LICENSE_SPDX   # the one licence id (W44)
 import make_wallpaper_live as _WPL
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 VARIANTS = _WPL.ALL_VARIANTS
@@ -102,11 +103,11 @@ def render_all(themes_dir, variants=VARIANTS):
     for v in variants:
         d = os.path.join(themes_dir, theme_id(v))
         os.makedirs(d, exist_ok=True)
-        open(os.path.join(d, "metadata.desktop"), "w").write(metadata_desktop(v))
-        open(os.path.join(d, "theme.conf"), "w").write(theme_conf(v))
-        open(os.path.join(d, "Main.qml"), "w").write(main_qml(v))
+        atomic_write(os.path.join(d, "metadata.desktop"), metadata_desktop(v))
+        atomic_write(os.path.join(d, "theme.conf"), theme_conf(v))
+        atomic_write(os.path.join(d, "Main.qml"), main_qml(v))
         # the display ships beside the mount: Main.qml names SegmentChar bare
-        open(os.path.join(d, "SegmentChar.qml"), "w").write(SD.segment_char_component())
+        atomic_write(os.path.join(d, "SegmentChar.qml"), SD.segment_char_component())
         out.append(d)
     return out
 

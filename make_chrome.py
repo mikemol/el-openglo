@@ -9,6 +9,7 @@ loadable unpacked via chrome://extensions, independent of GTK.
 """
 import os, json
 import make_preview as MP
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 VERSION = "1.0"
@@ -64,7 +65,7 @@ def render_all(variants, out_dir_map):
         d = out_dir_map[v]
         os.makedirs(d, exist_ok=True)
         p = os.path.join(d, "manifest.json")
-        open(p, "w").write(json.dumps(m, indent=2))
+        atomic_write(p, json.dumps(m, indent=2))
         written.append(p)
     return written
 

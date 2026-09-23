@@ -24,6 +24,7 @@ plain roles are the ghost relation on three pairs (relations.md §3b/§3d):
 import json
 import os
 import sys
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
@@ -102,7 +103,7 @@ def render_all(variants, out_map):
         d = out_map[v]
         os.makedirs(d, exist_ok=True)
         p = os.path.join(d, "manifest.json")
-        open(p, "w", encoding="utf-8").write(json.dumps(manifest(v), indent=2) + "\n")
+        atomic_write(p, json.dumps(manifest(v), indent=2) + "\n")
         written.append(p)
     return written
 

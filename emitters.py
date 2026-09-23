@@ -121,6 +121,89 @@ ROLES = {
 }
 
 
+def atomic_write(path, data, fsync=False):
+    """Write `data` (str -> UTF-8 text, bytes -> as is) to `path` ATOMICALLY.
+
+    ⚑ WHY (W68, measured 2026-09-23). The gate runs checks in parallel; @EMITTERS
+    runs make_schemes as __main__, which rewrote the tracked EL-*.colors with
+    `open(f, "w").write(...)` — TRUNCATE, then write — while ~20 importers of
+    make_preview.parse_scheme read them. A read in the gap saw an empty or half
+    file and raised; on replay nothing was writing, so it passed: a flake. A race
+    harness: truncate-then-write tore 40114 of 200988 reads; this form tore 0.
+
+    Same-directory mkstemp (so os.replace never crosses a filesystem and is
+    atomic), write, restore the mode open() would have given from the umask, then
+    os.replace: a reader sees the old file or the new one, never half of either.
+
+    ⚑ THE MODE IS RESTORED. mkstemp creates 0600 and open() does not; the first
+    atomic cache write (make_schemes._write_cache) silently narrowed a -rw-rw-r--
+    file to -rw------- (2026-09-22). NOTE this also means a file that was
+    deliberately 0755 comes back 0666&~umask — no generator writes an executable.
+
+    ⚑ fsync IS OFF BY DEFAULT, and that is a choice: the defect is CONCURRENT
+    READERS, which rename alone fixes — the page cache serves the new inode to
+    every reader at once. fsync buys durability across a power loss, which a
+    regenerable output does not need, and it costs a disk flush per file on a
+    shared, loaded box. Pass fsync=True for a file that is NOT regenerable.
+
+    ⚑ os.replace REPLACES A SYMLINK rather than writing through it, and a file's
+    previous mode is not kept (see above). No generator output is either.
+
+    Stdlib only, and it lives here because every generator already may import
+    this module without a cycle (it imports nothing of ours)."""
+    with atomic_path(path, fsync=fsync) as tmp:
+        with open(tmp, "wb") as fh:  # atomic-write: exempt — the helper's own temp file
+            fh.write(data.encode("utf-8") if isinstance(data, str) else data)
+
+
+class atomic_path:
+    """`with atomic_path(dst) as tmp:` — for a writer that takes a PATH, not bytes
+    (PIL .save, fontTools .save, cairosvg write_to=, shutil.copyfile). The writer
+    writes `tmp`, a fresh file in dst's directory; on a clean exit it gets the
+    umask mode and is os.replace'd onto dst; on an exception it is removed and dst
+    is untouched. The same guarantee as atomic_write, which is built on this.
+    A class, not @contextmanager, so emitters.py stays free of contextlib — and a
+    writer that keeps the suffix (PIL infers the format from it) sees dst's."""
+
+    def __init__(self, path, fsync=False):
+        self.path, self.fsync = path, fsync
+
+    def __enter__(self):
+        import tempfile
+        d = os.path.dirname(os.path.abspath(self.path))
+        base = os.path.basename(self.path)
+        fd, self.tmp = tempfile.mkstemp(dir=d, prefix="." + base + ".",
+                                        suffix=os.path.splitext(base)[1])
+        os.close(fd)
+        return self.tmp
+
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            if exc_type is None:
+                if self.fsync:
+                    fd = os.open(self.tmp, os.O_RDONLY)
+                    try:
+                        os.fsync(fd)
+                    finally:
+                        os.close(fd)
+                um = os.umask(0)
+                os.umask(um)
+                os.chmod(self.tmp, 0o666 & ~um)
+                os.replace(self.tmp, self.path)
+                return False
+        except BaseException:
+            self._discard()
+            raise
+        self._discard()                      # never leave a partial beside the real one
+        return False
+
+    def _discard(self):
+        try:
+            os.unlink(self.tmp)
+        except OSError:
+            pass
+
+
 def declared(role=None):
     """The declared module names, optionally of one role."""
     return sorted(m for m, r in ROLES.items() if role is None or r == role)

@@ -29,6 +29,7 @@ dark desktop); the Lit variants inherit breeze icons and breeze_cursors.
 """
 import os
 import sys
+from emitters import atomic_write
 
 VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
             "EL-Amber", "EL-Amber-Lit")
@@ -110,16 +111,18 @@ def render_all(variants, icons_root, icon_png=None):
     for v in variants:
         idir = os.path.join(icons_root, icon_theme_name(v))
         os.makedirs(os.path.join(idir, ICON_DIR), exist_ok=True)
-        open(os.path.join(idir, "index.theme"), "w").write(icon_index(v))
+        atomic_write(os.path.join(idir, "index.theme"), icon_index(v))
         if icon_png is not None:
             src = icon_png(v)
             if src and os.path.isfile(src):
                 import shutil
-                shutil.copyfile(src, os.path.join(idir, ICON_DIR, "el-segclock.png"))
+                from emitters import atomic_path
+                with atomic_path(os.path.join(idir, ICON_DIR, "el-segclock.png")) as tmp:
+                    shutil.copyfile(src, tmp)
         cdir = os.path.join(icons_root, cursor_theme_name(v))
         os.makedirs(cdir, exist_ok=True)
-        open(os.path.join(cdir, "index.theme"), "w").write(cursor_index(v))
-        open(os.path.join(cdir, "cursor.theme"), "w").write(cursor_theme_file(v))
+        atomic_write(os.path.join(cdir, "index.theme"), cursor_index(v))
+        atomic_write(os.path.join(cdir, "cursor.theme"), cursor_theme_file(v))
         written[v] = (idir, cdir)
     return written
 

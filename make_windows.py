@@ -107,14 +107,17 @@ def render_all(variants, out_map):
         png_name = f"{v}.png"
         src = os.path.join(ROOT, MW.output_name(v) + ".png")   # the emitted wallpaper PNG
         dst = os.path.join(bg, png_name)
-        if os.path.isfile(src):
-            shutil.copyfile(src, dst)
-        else:
-            # render it: make_wallpaper is the authority for the picture
-            import cairosvg
-            cairosvg.svg2png(bytestring=MW.wallpaper_svg(v).encode(), write_to=dst)
+        from emitters import atomic_path, atomic_write
+        with atomic_path(dst) as tmp:
+            if os.path.isfile(src):
+                shutil.copyfile(src, tmp)
+            else:
+                # render it: make_wallpaper is the authority for the picture
+                import cairosvg
+                cairosvg.svg2png(bytestring=MW.wallpaper_svg(v).encode(), write_to=tmp)
         p = os.path.join(d, f"{v}.theme")
-        open(p, "w", encoding="utf-8", newline="\r\n").write(theme_ini(v, f"DesktopBackground\\{png_name}"))
+        # newline="\r\n" as the open() this replaced did: Windows reads CRLF
+        atomic_write(p, theme_ini(v, f"DesktopBackground\\{png_name}").replace("\n", "\r\n"))
         written += [p, dst]
     return written
 

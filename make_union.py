@@ -41,6 +41,7 @@ USE=tools. The look waits for a session restart.
 """
 import os
 import sys
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
@@ -133,7 +134,7 @@ def render_all(variants, out_map):
         os.makedirs(d, exist_ok=True)
         for name, body in (("style.css", style_css(v)), ("overrides.css", overrides_css(v))):
             p = os.path.join(d, name)
-            open(p, "w", encoding="utf-8").write(body)
+            atomic_write(p, body)
             written.append(p)
     return written
 

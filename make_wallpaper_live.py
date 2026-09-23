@@ -33,6 +33,7 @@ import cvd_gate as C
 # stroke. The tables were right; nothing could prove they would stay right.
 import segment_topology as _ST
 import ghost_solve as _GS
+from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -203,8 +204,8 @@ def render_all(d):
     cfg = os.path.join(d, "contents", "config")
     os.makedirs(ui, exist_ok=True)
     os.makedirs(cfg, exist_ok=True)
-    open(os.path.join(d, "metadata.json"), "w").write(json.dumps(metadata(), indent=2))
-    open(os.path.join(ui, "main.qml"), "w").write(main_qml())
+    atomic_write(os.path.join(d, "metadata.json"), json.dumps(metadata(), indent=2))
+    atomic_write(os.path.join(ui, "main.qml"), main_qml())
     # ⚑ THE DISPLAY SHIPS BESIDE THE MOUNT OR THE WALLPAPER DOES NOT LOAD.
     # main.qml instantiates SegmentChar by bare name, which QML resolves from the
     # same directory. Measured LIVE, s134 (the operator's shell after emerging the
@@ -212,9 +213,9 @@ def render_all(d):
     # added this line to make_clock and not here, and the emitters' own gates
     # could not see it because they read the emitted TEXT, never the directory.
     import make_segment_display as SD
-    open(os.path.join(ui, "SegmentChar.qml"), "w").write(SD.segment_char_component())
-    open(os.path.join(cfg, "main.xml"), "w").write(config_main_xml())
-    open(os.path.join(ui, "config.qml"), "w").write(config_qml())
+    atomic_write(os.path.join(ui, "SegmentChar.qml"), SD.segment_char_component())
+    atomic_write(os.path.join(cfg, "main.xml"), config_main_xml())
+    atomic_write(os.path.join(ui, "config.qml"), config_qml())
     return d
 
 

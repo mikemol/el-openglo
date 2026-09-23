@@ -14,6 +14,7 @@ import os, sys, shutil, configparser
 import xml.etree.ElementTree as ET
 from make_schemes import GRID
 from emitters import LICENSE_SPDX
+from emitters import atomic_write
 
 def rgb2hex(s):
     r, g, b = s.split(",")
@@ -138,11 +139,11 @@ if __name__ == "__main__":
     failures = {}
     for (ph, mode), (t, dark) in GRID.items():
         path = os.path.join(out, t["id"]); os.makedirs(path, exist_ok=True)
-        open(os.path.join(path, "decoration.svg"), "w").write(decoration_svg(t))
+        atomic_write(os.path.join(path, "decoration.svg"), decoration_svg(t))
         for b in GLYPHS:
-            open(os.path.join(path, f"{b}.svg"), "w").write(button_svg(b, t))
-        open(os.path.join(path, f"{t['id']}rc"), "w").write(rc_text(t))
-        open(os.path.join(path, "metadata.desktop"), "w").write(metadata_text(t))
+            atomic_write(os.path.join(path, f"{b}.svg"), button_svg(b, t))
+        atomic_write(os.path.join(path, f"{t['id']}rc"), rc_text(t))
+        atomic_write(os.path.join(path, "metadata.desktop"), metadata_text(t))
         errs = check_theme(path, t["id"])
         if errs:
             failures[t["id"]] = errs

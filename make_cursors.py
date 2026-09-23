@@ -33,6 +33,7 @@ import sys
 
 import make_inherit as _inh
 import make_preview as _mp
+from emitters import atomic_write
 
 VARIANTS = _inh.VARIANTS
 SIZES = (24, 32, 48)
@@ -172,7 +173,9 @@ def sheet(path, size=48):
             g = Image.new("RGBA", (w, h))
             g.putdata([((p >> 16) & 255, (p >> 8) & 255, p & 255, p >> 24) for p in _unpremultiply(px)])
             im.alpha_composite(g, (8 + col * (size + 8), 8 + row * (size + 8)))
-    im.save(path)
+    from emitters import atomic_path
+    with atomic_path(path) as tmp:
+        im.save(tmp)
     return path
 
 
@@ -246,9 +249,9 @@ def render_all(variants, icons_root):
                          ("cursor.theme", _inh.cursor_theme_file(v))):
             p = os.path.join(tdir, fn)
             if not os.path.exists(p):
-                open(p, "w").write(body)
+                atomic_write(p, body)
         for shape, (_d, _hot, aliases) in SHAPES.items():
-            open(os.path.join(cdir, shape), "wb").write(cursor_file(shape, v))
+            atomic_write(os.path.join(cdir, shape), cursor_file(shape, v))
             for a in aliases:
                 ap = os.path.join(cdir, a)
                 if os.path.lexists(ap):

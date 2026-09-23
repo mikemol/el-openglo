@@ -113,8 +113,8 @@ def main(argv):
         sys.stdout.write(css)
         return 0
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    with open(OUT, "w", encoding="utf-8") as fh:
-        fh.write(css)
+    from emitters import atomic_write
+    atomic_write(OUT, css)
     print(f"make_css: wrote {os.path.relpath(OUT, ROOT)} ({len(tokens())} variants)")
     return 0
 

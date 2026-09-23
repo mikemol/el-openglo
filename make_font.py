@@ -15,6 +15,7 @@ SVG-font coords are y-UP with baseline at 0; GEOM16 is y-DOWN in a 2x4 cell —
 the emitter flips y and scales to the font em square.
 """
 import segment_topology as _seg
+from emitters import atomic_write
 
 EM = 1000            # units per em
 CELL_W, CELL_H = 2.0, 4.0
@@ -292,9 +293,11 @@ def render_all(out_dir):
         p = os.path.join(out_dir, name)
         obj = make()
         if isinstance(obj, str):
-            open(p, "w", encoding="utf-8").write(obj)
+            atomic_write(p, obj)
         else:
-            obj.save(p)
+            from emitters import atomic_path
+            with atomic_path(p) as tmp:
+                obj.save(tmp)
         written.append(p)
     return written
 
@@ -322,7 +325,7 @@ if __name__ == "__main__":
     import sys
     here = os.path.dirname(os.path.abspath(__file__))
     out = render_all(os.path.join(here, "fonts"))
-    open(os.path.join(here, "fonts", "README-DSEG.txt"), "w").write(DSEG_NOTE)
+    atomic_write(os.path.join(here, "fonts", "README-DSEG.txt"), DSEG_NOTE)
     print(f"make_font: wrote {len(out)} fonts under fonts/")
     for name, make in OUTPUTS:
         if name.endswith(".ttf"):

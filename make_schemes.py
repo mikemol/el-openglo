@@ -11,6 +11,7 @@ Run: python3 make_schemes.py [--verify]
 .colors files (must be byte-identical) and runs a WCAG contrast audit.
 """
 import sys, os
+from emitters import atomic_write
 
 # ---------------------------------------------------------------- token tables
 # Each variant: ~30 base tokens; the emitter expands them to every INI slot.
@@ -270,6 +271,7 @@ def _cached_solve(cache, stamp, solve, use_cache=True):
     lock_fh = None
     try:
         import fcntl
+        # atomic-write: exempt — an empty flock sidecar, opened for its fd, never written
         lock_fh = open(cache + ".lock", "a")
         fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX)   # blocks; sleeping, not CPU
     except (OSError, ImportError):
@@ -308,26 +310,14 @@ def _write_cache(cache, stamp, grid):
     # ⚑ THIS IS NOT CLAIMED AS THE CAUSE OF W68. Eleven checks failed once and
     # passed twice with no account captured; this was found while looking, and
     # fixing it is correct whether or not it was implicated.
+    #
+    # ⚑ mkstemp CREATES 0600 AND open() DOES NOT — measured 2026-09-22, the first
+    # cut of this repair silently turned a -rw-rw-r-- cache into a -rw------- one.
+    # That fix (mode from the umask) now lives in emitters.atomic_write, which this
+    # write and every generator's output share (W68, 2026-09-23).
     try:
-        import tempfile
-        fd, tmp = tempfile.mkstemp(dir=_os.path.dirname(cache), prefix=".palette-cache.")
-        try:
-            with _os.fdopen(fd, "w", encoding="utf-8") as fh:
-                json.dump({"stamp": stamp,
-                           "grid": {"\t".join(k): v for k, v in grid.items()}}, fh)
-            # ⚑ mkstemp CREATES 0600 AND open() DOES NOT — measured 2026-09-22, the
-            # first cut of this repair silently turned a -rw-rw-r-- cache into a
-            # -rw------- one. On a shared box that is a different artifact, and
-            # nothing would have reported it: the cache is an optimisation, so a
-            # reader that cannot open it just re-solves and stays green. Restore
-            # the mode open() would have given, from this process's umask.
-            _umask = _os.umask(0)
-            _os.umask(_umask)
-            _os.chmod(tmp, 0o666 & ~_umask)
-            _os.replace(tmp, cache)
-        except BaseException:
-            _os.unlink(tmp)                     # never leave a partial beside the real one
-            raise
+        atomic_write(cache, json.dumps({"stamp": stamp,
+                                        "grid": {"\t".join(k): v for k, v in grid.items()}}))
     except OSError:
         pass                                    # a cache we cannot write is not an error
 
@@ -336,7 +326,7 @@ def _selftest_worker(cache, stamp, counter, delay):
     """One contender: a stub solve that records it ran and sleeps `delay` s."""
     import time
     def stub():
-        with open(counter, "a") as fh:
+        with open(counter, "a") as fh:  # atomic-write: exempt — selftest counter in a private tempdir
             fh.write(f"{_os.getpid()}\n")
         time.sleep(delay)
         return {("stub", "off"): [{"view": "0,0,0"}, {"view": "0,0,0"}]}
@@ -356,7 +346,7 @@ def _selftest():
         with tempfile.TemporaryDirectory() as d:
             cache = _os.path.join(d, "cache.json")
             counter = _os.path.join(d, "solves")
-            open(counter, "w").close()
+            open(counter, "w").close()  # atomic-write: exempt — selftest fixture in a private tempdir
             if arm == "unlocked":
                 _os.mkdir(cache + ".lock")     # open(..., "a") on a dir -> OSError
             procs = [ctx.Process(target=_selftest_worker,
@@ -546,6 +536,16 @@ def audit(t):
 
 # -------------------------------------------------------------------- main
 if __name__ == "__main__":
+    # ⚑ AN UNKNOWN FLAG IS REFUSED, NOT IGNORED (W68). check_action_key probes
+    # every producer with `--keys` / `--outputs` from the real tree; this block
+    # ignored both and EMITTED — so @CURRENCY rewrote the tracked EL-*.colors
+    # twice per gate run, under every check reading them. check_tree_writes
+    # found it on its first full run.
+    _unknown = [a for a in sys.argv[1:] if a not in ("--selftest", "--warm", "--verify")]
+    if _unknown:
+        print(f"make_schemes: unknown flag(s) {_unknown} (modes: --selftest, --warm, "
+              f"--verify, or none to emit)", file=sys.stderr)
+        sys.exit(2)
     if "--selftest" in sys.argv:
         sys.exit(_selftest())
     if "--warm" in sys.argv:
@@ -561,8 +561,8 @@ if __name__ == "__main__":
         sys.exit(0)
     verify = "--verify" in sys.argv
     for (ph, mode), (t, dark) in GRID.items():
-        open(f"{t['id']}.colors", "w").write(emit_colors(t, dark))
-        open(f"{t['id']}.colorscheme", "w").write(emit_konsole(t))
+        atomic_write(f"{t['id']}.colors", emit_colors(t, dark))
+        atomic_write(f"{t['id']}.colorscheme", emit_konsole(t))
         print("wrote", t["id"])
     if verify:
         print("\n-- byte-exact check vs hand-made .colors --")
