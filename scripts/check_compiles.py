@@ -22,16 +22,25 @@ SKIP_DIRS = {".git", "__pycache__", ".venv", "catalog"}
 
 
 def sources():
-    """Every .py in the tree except tooling's own and generated dirs."""
+    """Every TRACKED .py except tooling's own (scripts/) and the catalog.
+
+    ⚑ THE POPULATION COMES FROM git, NOT FROM THE DISK (2026-09-23). An os.walk
+    of ROOT descended into .claude/worktrees/ — agents' private checkouts — and
+    compiled a dangling symlink an agent's worktree had under .build/, failing
+    the gate on a file that is not in this tree at all. Whatever else lives in
+    the directory (worktrees, .build, .tree-writes, .ebuild-witness scratch) is
+    not the tree; `git ls-files` is. A new file is checked once it is staged,
+    which is exactly when a commit is about to certify it."""
+    import subprocess
+    r = subprocess.run(["git", "-C", ROOT, "ls-files", "-z", "--", "*.py"],
+                       capture_output=True, check=True)
     out = []
-    for dp, dns, fns in os.walk(ROOT):
-        dns[:] = [d for d in dns if d not in SKIP_DIRS]
-        for fn in sorted(fns):
-            if fn.endswith(".py"):
-                p = os.path.join(dp, fn)
-                rel = os.path.relpath(p, ROOT)
-                if not rel.startswith("scripts" + os.sep):
-                    out.append(rel)
+    for rel in r.stdout.decode("utf-8").split("\0"):
+        if not rel or rel.startswith("scripts/"):
+            continue
+        if rel.split("/", 1)[0] in SKIP_DIRS:
+            continue
+        out.append(rel.replace("/", os.sep))
     return sorted(out)
 
 

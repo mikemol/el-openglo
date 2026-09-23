@@ -388,9 +388,9 @@
 % mismatch.  A generator's job is to WRITE something, so the check runs it.
 @misc{EMITTERS,
   section = {emitters},
-  claim   = {every generator actually runs and writes its artifact, in dependency order, rather than merely compiling},
+  claim   = {every generator actually runs and writes its artifact, in dependency order, into a private copy of the tracked tree; what it writes IS what is tracked (regenerate and compare), and the real tree is fingerprinted untouched across the run, so no gated check writes the files the others read (W68)},
   rests-on = {COMPILES, TOKENS},
-  check   = {tool:check_emitters_run.py}
+  check   = {tool:opa_gate.py emitters_run}
 }
 
 @misc{CHROME,
@@ -778,4 +778,18 @@
   section  = {emitters},
   claim    = {The root helpers do what their names say, run as shipped against a scratch root: el-openglo-sddm selects the greeter theme by an /etc/sddm.conf.d drop-in, the plymouth splash is named one way end to end, and a helper whose tool is missing fails loudly rather than exiting 0 (G1-G3)},
   check    = {tool:opa_gate.py root_helpers}
+}
+
+@misc{ATOMIC,
+  section  = {emitters},
+  rests-on = {EMITTERS},
+  claim    = {Every write an emitter makes into the tree is atomic, routed through emitters.atomic_write or atomic_path, or carries an atomic-write exemption with a stated reason at the site, so a concurrent reader never sees a torn tracked output (W68)},
+  check    = {tool:opa_gate.py atomic_writes}
+}
+
+@misc{CURSORS,
+  section  = {emitters},
+  rests-on = {TOKENS},
+  claim    = {Per variant, the phosphor cursor theme make_cursors emits carries every core shape and every alias KDE, GTK and X11 look them up by, at 24, 32 and 48 px, with an index.theme, and every glyph is drawn only in its variant's solved lit and ground tokens},
+  check    = {tool:opa_gate.py cursors}
 }
