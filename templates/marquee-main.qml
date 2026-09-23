@@ -514,6 +514,11 @@ PlasmoidItem {
             rotation.from = 0;
             rotation.to = (field.cols + rep.textCells) * field.scale;
             field.offset = 0;
+            // ⚑ THE OBSERVABLE IS SET, NOT LEFT TO onOffsetChanged (W63): on the FIRST
+            // run offset is already 0, nothing changes, and boardX read its default 0
+            // — a running board "at x=0" for one frame, then 358 (L4's forward jump,
+            // surfaced once the harness sampled on the animation clock)
+            root.boardRawX = rep.width; root.boardX = root.boardRawX;
             rotation.start();
         }
         Component.onCompleted: { root.charAdvance = advanceCells * pitch; Qt.callLater(startRun); }

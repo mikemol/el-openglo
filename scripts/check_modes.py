@@ -55,6 +55,8 @@ EXCLUDE = {
     # per-check rows, read from each main() before admitting the mode:
     ("check_template_parity.py", "--unlink"):
         "mutates: rewrites catalog/baselines/* to give each its own inode",
+    ("check_template_parity.py", "--record"):
+        "mutates: re-records ONE baseline from the tree's emission",
     ("check_publishing.py", "--refresh"):
         "mutates + network: fetches the OCS listing and overwrites the cache",
     ("check_font.py", "--render"):

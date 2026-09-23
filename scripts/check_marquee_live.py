@@ -145,7 +145,13 @@ TIMELINE = [
     (26500, "expire", 40, {}, ""),   # air for two rotations under load before the gauge is dropped
 ]
 END_MS = 40000            # the CAP; the main run ends when every event has fired and the board drained
-SAMPLE_MS = 40
+SAMPLE_MS = 40            # VIRTUAL ms: the animation driver's clock, not the wall's (W63)
+# WALL bounds, for a WEDGED process only. Virtual time costs wall in proportion to
+# load (the main run: ~50 s wall idle, measured >120 s under 32 busy loops, which
+# the old 120 s cap killed), so these sit far past any honest run and under
+# opa_gate's 600 s budget for the main + hovered pair.
+WALL_CAP_S = 400
+WATCHDOG_MS = (WALL_CAP_S - 10) * 1000
 
 HARNESS = """import QtQuick
 import QtQuick.Window
@@ -162,11 +168,12 @@ Window {
         // arrival — no empty-board bookend for the loop (s120's residue)
         onStatusChanged: {
             if (status === Loader.Error) { console.log("RESULT " + JSON.stringify({ error: "subject failed to load" })); Qt.quit(); }
-            if (status === Loader.Ready) clock.t0 = Date.now();
+            if (status === Loader.Ready) vclock.start();
         }
     }
-    // a watchdog: whatever happens, the run ends and says what it saw
-    Timer { interval: %(end)d + 3000; running: true; onTriggered: { console.log("RESULT " + JSON.stringify({ error: "watchdog", status: subject.status, events: events, samples: samples })); Qt.quit(); } }
+    // a watchdog: whatever happens, the run ends and says what it saw. WALL time, and
+    // deliberately far past any honest run: it bounds a wedged process, never a slow one
+    Timer { interval: %(watchdog)d; running: true; onTriggered: { console.log("RESULT " + JSON.stringify({ error: "watchdog", status: subject.status, events: events, samples: samples })); Qt.quit(); } }
     property var events: []
     property var samples: []
     // the stub registers itself when the subject instantiates it; look it up late
@@ -211,10 +218,26 @@ Window {
     property bool framePending: false
     property int frameCount: 0
     property var frameX: []
-    QtObject { id: clock; property double t0: Date.now(); function elapsed() { return Date.now() - t0; } }
-    Timer {
-        interval: %(sample)d; running: subject.status === Loader.Ready; repeat: true
-        onTriggered: {
+    // ⚑ THE CLOCK IS THE ANIMATION CLOCK (W63). The widget moves ONLY by animations
+    // (the rotation NumberAnimation, the pulse; no Timer), and those advance on the
+    // scene graph's animation driver. The harness's clock is an animation on that
+    // SAME driver, so an event at t and the board's position at t are one clock —
+    // a loaded host slows both together instead of the widget falling behind a
+    // wall-clock schedule (the L2 flake: "arrive of id 2 never reached the board"
+    // under the gate's load, admitted alone). With QSG_FIXED_ANIMATION_STEP the
+    // driver steps a fixed frame per render, so the trace is load-independent.
+    property real vt: 0
+    property int nextSample: 0
+    property bool done: false
+    NumberAnimation on vt { id: vclock; running: false; from: 0; to: %(end)d + 1000000; duration: %(end)d + 1000000 }
+    QtObject { id: clock; function elapsed() { return harness.vt; } }
+    onVtChanged: {
+        if (harness.done || vt < harness.nextSample) return;
+        harness.nextSample = Math.floor(vt / %(sample)d) * %(sample)d + %(sample)d;
+        harness.tick();
+    }
+    function tick() {
+        {
             var now = clock.elapsed();
             while (harness.next < timeline.length && timeline[harness.next].t <= now) { apply(timeline[harness.next]); harness.next += 1; }
             if (harness.pendingTaps.length) harness.retryTaps();
@@ -263,6 +286,7 @@ Window {
             var drained = harness.next >= timeline.length && s.tickerText === "" && !s.boardRunning && harness.sawText;
             if (s.tickerText !== "") harness.sawText = true;
             if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || (%(stop_paused)d === 0 && drained) || now >= %(end)d) {
+                harness.done = true;
                 console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX }));
                 Qt.quit();
             }
@@ -313,6 +337,36 @@ LOOP_TIMELINE = [
 ]
 
 
+def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
+    """Run the harness; the measurement is COMPLETE at its RESULT line.
+
+    ⚑ THE THREADED LOOP CAN HANG AT TEARDOWN (measured W63: 4 of 10 hovered runs
+    printed RESULT and then never exited, under QSG_RENDER_LOOP=threaded, which the
+    fixed animation step needs — the software backend's basic loop installs no
+    animation driver). Process exit is not part of the measurement, so the run
+    ends at RESULT and the process is killed after a short grace. `wall_cap` (wall
+    seconds) bounds a wedge BEFORE RESULT; hitting it yields no RESULT, which
+    run() reports as a failure to measure."""
+    import threading
+    proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    cap = threading.Timer(wall_cap, proc.kill)
+    cap.start()
+    lines = []
+    try:
+        for line in proc.stdout:
+            lines.append(line)
+            if "RESULT " in line:
+                break
+        try:
+            proc.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.wait()
+    finally:
+        cap.cancel()
+    return subprocess.CompletedProcess(cmd, proc.returncode, "".join(lines), "")
+
+
 def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None, frames=None,
         timeline=None):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
@@ -348,7 +402,7 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
         timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in (timeline or TIMELINE)]
         open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
-            "sample": SAMPLE_MS, "end": end_ms or END_MS, "stop_paused": stop_paused,
+            "sample": SAMPLE_MS, "end": end_ms or END_MS, "watchdog": WATCHDOG_MS, "stop_paused": stop_paused,
             "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
             "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null",
             "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP})
@@ -356,10 +410,12 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
         # notification stub on the import path. console.log IS a debug message and
         # the RESULT line rides on it, so only kirigami's own category is quieted.
         env = TP.env_for(variant, xdg)
+        # W63: virtual time — the animation driver steps one fixed frame per render
+        # (never re-synced to the wall), on the single-threaded loop that owns it
+        env.update(QSG_FIXED_ANIMATION_STEP="1", QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"))
         env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"),
                    QT_QUICK_BACKEND=os.environ.get("EL_QUICK_BACKEND", "software"))
-        r = subprocess.run([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env=env,
-                           capture_output=True, text=True, timeout=120)
+        r = _run_until_result([QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env)
     log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:

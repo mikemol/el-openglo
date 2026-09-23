@@ -212,17 +212,85 @@ def _solved_grid():
         except OSError:
             key.update(b"<absent>")
     stamp = key.hexdigest()
+    return _cached_solve(cache, stamp, _mp.build_grid,
+                         use_cache=_os.environ.get("EL_NO_PALETTE_CACHE") != "1")
 
-    if _os.environ.get("EL_NO_PALETTE_CACHE") != "1":
-        try:
-            blob = json.load(open(cache, encoding="utf-8"))
-            if blob.get("stamp") == stamp:
-                # JSON has no tuple keys; the grid is keyed (phosphor, mode).
-                return {tuple(k.split("\t")): v for k, v in blob["grid"].items()}
-        except (OSError, ValueError, KeyError):
-            pass
 
-    grid = _mp.build_grid()
+def _read_cache(cache, stamp):
+    """The cached grid if `cache` holds one stamped `stamp`, else None."""
+    import json
+    try:
+        with open(cache, encoding="utf-8") as fh:
+            blob = json.load(fh)
+        if blob.get("stamp") == stamp:
+            # JSON has no tuple keys; the grid is keyed (phosphor, mode).
+            return {tuple(k.split("\t")): v for k, v in blob["grid"].items()}
+    except (OSError, ValueError, KeyError, AttributeError):
+        pass
+    return None
+
+
+def _cached_solve(cache, stamp, solve, use_cache=True):
+    """Return the grid for `stamp`: from `cache` if it holds it, else `solve()`.
+
+    ⚑ THE SOLVE IS SERIALISED ACROSS PROCESSES (W68, 2026-09-22). The atomic write
+    below stops a reader seeing a torn file, but nothing stopped N parallel checks
+    on a cold cache from each running the full solve — N x ~108 s CPU, each under
+    paperkit's per-check RLIMIT_CPU cap. An exclusive fcntl.flock on a sidecar
+    `<cache>.lock` makes one process solve while the rest block, and the lock is
+    DOUBLE-CHECKED: a waiter re-reads the cache after acquiring it, finds the
+    winner's result, and returns without solving.
+
+    ⚑ A DEAD HOLDER CANNOT DEADLOCK THIS. flock locks belong to the open file
+    description, which the kernel closes when the process exits for ANY reason —
+    SIGKILL, SIGXCPU from the RLIMIT_CPU cap, a core dump. The next waiter then
+    acquires, re-reads (finds no fresh cache), and solves itself.
+
+    ⚑ WAITING IS NOT CPU. A process blocked in flock() is asleep in the kernel and
+    accrues no user or sys time, so it spends none of its RLIMIT_CPU budget while
+    the winner solves. It DOES accrue wall time: a per-check WALL timeout (if a
+    runner imposes one) still sees a waiter take as long as the solve. The winner's
+    own solve is charged to the winner alone, exactly as before.
+
+    WEAKNESSES, stated: (1) flock is advisory — a process that writes the cache
+    without taking the lock (an older checkout of this file) is not excluded; the
+    atomic replace still keeps its write whole. (2) flock over NFS is emulated or
+    absent on some kernels/mounts; on such a filesystem the lock may not exclude
+    across hosts. (3) If the lock file cannot be opened (read-only dir), this
+    degrades to the old unserialised behaviour rather than failing — the cache is
+    an optimisation. (4) With use_cache False (EL_NO_PALETTE_CACHE=1) every caller
+    solves; the lock still serialises them, one after another, by design: that
+    flag asks for a re-solve and gets one.
+    """
+    if use_cache:
+        grid = _read_cache(cache, stamp)
+        if grid is not None:
+            return grid                        # fast path: no lock taken
+
+    lock_fh = None
+    try:
+        import fcntl
+        lock_fh = open(cache + ".lock", "a")
+        fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX)   # blocks; sleeping, not CPU
+    except (OSError, ImportError):
+        if lock_fh is not None:
+            lock_fh.close()
+        lock_fh = None                         # weakness (3): proceed unlocked
+    try:
+        if use_cache:
+            grid = _read_cache(cache, stamp)   # double-check: a winner may have solved
+            if grid is not None:
+                return grid
+        grid = solve()
+        _write_cache(cache, stamp, grid)
+        return grid
+    finally:
+        if lock_fh is not None:
+            lock_fh.close()                    # closing the fd releases the flock
+
+
+def _write_cache(cache, stamp, grid):
+    import json
     # ⚑ THE CACHE IS REPLACED, NEVER TRUNCATED IN PLACE (W68, 2026-09-22). The
     # previous form was `json.dump(..., open(cache, "w"))`, which TRUNCATES the
     # file and then writes it — so a concurrent reader sees a partial document.
@@ -262,7 +330,48 @@ def _solved_grid():
             raise
     except OSError:
         pass                                    # a cache we cannot write is not an error
-    return grid
+
+
+def _selftest_worker(cache, stamp, counter, delay):
+    """One contender: a stub solve that records it ran and sleeps `delay` s."""
+    import time
+    def stub():
+        with open(counter, "a") as fh:
+            fh.write(f"{_os.getpid()}\n")
+        time.sleep(delay)
+        return {("stub", "off"): [{"view": "0,0,0"}, {"view": "0,0,0"}]}
+    grid = _cached_solve(cache, stamp, stub)
+    assert ("stub", "off") in grid
+
+
+def _selftest():
+    """Prove the lock SERIALISES: N forked contenders on a cold temp cache, one
+    stubbed solve. The no-lock arm (lock path made unopenable) must show >1 solve,
+    so the locked arm's 1 is a measurement and not the only possible output."""
+    import multiprocessing, tempfile
+    ctx = multiprocessing.get_context("fork")
+    n = 4
+    results = []
+    for arm in ("locked", "unlocked"):
+        with tempfile.TemporaryDirectory() as d:
+            cache = _os.path.join(d, "cache.json")
+            counter = _os.path.join(d, "solves")
+            open(counter, "w").close()
+            if arm == "unlocked":
+                _os.mkdir(cache + ".lock")     # open(..., "a") on a dir -> OSError
+            procs = [ctx.Process(target=_selftest_worker,
+                                 args=(cache, "S", counter, 0.5)) for _ in range(n)]
+            for p in procs: p.start()
+            for p in procs: p.join()
+            solves = len(open(counter).read().split())
+            ok_exit = sum(p.exitcode == 0 for p in procs)
+            results.append((arm, solves, ok_exit))
+            print(f"  {arm:8s}: {solves} solve(s) over {n} contenders, "
+                  f"{ok_exit} of {n} exited 0")
+    (_, s_l, e_l), (_, s_u, e_u) = results
+    good = s_l == 1 and e_l == n and s_u > 1 and e_u == n
+    print("make_schemes selftest:", "PASS" if good else "FAIL")
+    return 0 if good else 1
 
 
 if _os.environ.get("EL_AUTHORED_PALETTE") == "1":
@@ -437,6 +546,8 @@ def audit(t):
 
 # -------------------------------------------------------------------- main
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        sys.exit(_selftest())
     if "--warm" in sys.argv:
         # ⚑ THE CACHE IS WARMED AS A NAMED STEP, NOT AS A SIDE EFFECT OF WHOEVER
         # IMPORTS FIRST.  Importing this module solves the palette (~108 s cold)

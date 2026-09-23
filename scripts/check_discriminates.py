@@ -141,6 +141,13 @@ PROBES = (
      ["scripts/check_inherit.py"], "make_inherit.py", "data-:VARIANTS#5"),
     ("monet/typed-variants",
      ["scripts/check_monet.py"], "scripts/check_monet.py", "data-:VARIANTS#5"),
+    # ⚑ W63: the marquee harness moved onto the ANIMATION clock so load cannot make
+    # it deny; this proves it still CAN deny. The rotation is never started — the
+    # dead-rotation shape (COTYPE s98) on the real widget, not a typed trace — and
+    # the board shows text that never scrolls (L1).
+    ("marquee-live/dead-rotation",
+     ["scripts/opa_gate.py", "marquee_live"], "templates/marquee-main.qml",
+     ("rotation.start();", "/* rotation.start() */;")),
 )
 
 

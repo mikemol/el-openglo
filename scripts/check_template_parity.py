@@ -199,6 +199,43 @@ def diff(match):
     return 0 if shown else 2
 
 
+def record(match):
+    """Re-record the ONE baseline whose pair matches `match` from the tree's current
+    emission. Returns an exit code.
+
+    ⚑ A BASELINE MOVES ONLY BY NAME, ONE AT A TIME. The check exists to refuse a
+    template that silently stops emitting what was reviewed; a "record everything"
+    mode would turn every refusal into a rubber stamp. So this refuses a match that
+    names zero or several pairs, prints the diff it is about to accept, and writes
+    nothing when the emission already matches. Read the diff (--diff) BEFORE
+    recording: this mode asserts the change was intended, it does not check it.
+
+    WEAKNESS: it cannot know the change was intended; the commit that carries the
+    new baseline is where that claim is made and reviewed."""
+    hits = [p for p in PAIRS if match in f"{p[0]}.{p[1]}" or match in p[3]]
+    if len(hits) != 1:
+        print(f"check_template_parity: --record needs exactly ONE pair; {match!r} "
+              f"matched {len(hits)} (see --pairs)", file=sys.stderr)
+        return 2
+    module, accessor, argsrc, name = hits[0]
+    label = f"{module}.{accessor}"
+    path = os.path.join(BASELINES, name)
+    try:
+        got = _value(module, accessor, argsrc)
+    except Exception as e:                       # noqa: BLE001
+        print(f"check_template_parity: {label}: RAISED {type(e).__name__}: {e} — "
+              f"nothing recorded", file=sys.stderr)
+        return 1
+    if os.path.isfile(path) and open(path, encoding="utf-8").read() == got:
+        print(f"record: {label} already matches catalog/baselines/{name}; nothing written")
+        return 0
+    diff(match)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(got)
+    print(f"record: {label} -> catalog/baselines/{name} ({len(got)} bytes)")
+    return 0
+
+
 # where the deb / ebuild puts each baselined emission on THIS host, so "which build
 # is installed" is a question the tool answers (operator, 2026-09-22, live: a single
 # notify-send showed nothing after a plasmashell replace — the first question is
@@ -243,7 +280,7 @@ def installed():
 
 
 def main(argv):
-    known = {"--pairs", "--diff", "--unlink", "--links", "--installed"}
+    known = {"--pairs", "--diff", "--unlink", "--links", "--installed", "--record"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
@@ -268,6 +305,13 @@ def main(argv):
             print(f"unlinked {name} (was {n} links)")
         print(f"unlink: {len(done)} baseline(s) given their own inode")
         return 0
+    if "--record" in argv:
+        rest = [a for a in argv[1:] if not a.startswith("--")]
+        if not rest:
+            print("check_template_parity: --record needs ONE pair to match "
+                  "(read --diff first)", file=sys.stderr)
+            return 2
+        return record(rest[0])
     if "--diff" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if not rest:
