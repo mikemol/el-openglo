@@ -44,6 +44,70 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L3 — the .deb ships a DEP-5 copyright file"
+# description: |
+#   A .deb carries /usr/share/doc/<pkg>/copyright. It is machine-readable DEP-5:
+#   the Format header, `Files: *` under the authority's id (read from the
+#   authority case, never restated), one stanza per third-party part that ships
+#   (same globs, its own licence), and every licence id used has text — inline, or
+#   a standalone License paragraph (which may point at /usr/share/common-licenses).
+authority_id := [c.id | some c in object.get(input, "cases", []); c.kind == "authority"][0]
+
+dep5 := object.get(input, "debian_copyright", {"absent": "no debian_copyright was measured"})
+
+deny contains msg if {
+	count(object.get(input, "cases", [])) > 0
+	dep5.absent
+	msg := sprintf("L3: %s", [dep5.absent])
+}
+
+deny contains msg if {
+	not dep5.absent
+	dep5.format != input.dep5_format
+	msg := sprintf("L3: the copyright file's Format is %v, not %s", [dep5.format, input.dep5_format])
+}
+
+deny contains msg if {
+	not dep5.absent
+	not star_is_authority
+	msg := sprintf("L3: no `Files: *` stanza under %v", [authority_id])
+}
+
+star_is_authority if {
+	some f in dep5.files
+	f.files == ["*"]
+	f.license == authority_id
+}
+
+deny contains msg if {
+	not dep5.absent
+	some t in input.third_party
+	count(t.files) > 0
+	not has_stanza(t)
+	msg := sprintf("L3: %s ships (%v) with no %s stanza", [t.what, t.files, t.spdx])
+}
+
+has_stanza(t) if {
+	some f in dep5.files
+	f.files == t.files
+	f.license == t.spdx
+}
+
+deny contains msg if {
+	not dep5.absent
+	some f in dep5.files
+	not f.copyright
+	msg := sprintf("L3: stanza %v has no Copyright", [f.files])
+}
+
+deny contains msg if {
+	not dep5.absent
+	some f in dep5.files
+	not object.get(dep5.licenses, f.license, false)
+	msg := sprintf("L3: licence %s is used but carries no text", [f.license])
+}
+
+# METADATA
 # title: "L2 — a generator names the constant, never a literal"
 # description: |
 #   One declared id, imported by every emitter: a literal Apache-2.0 is correct

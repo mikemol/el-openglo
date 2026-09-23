@@ -156,16 +156,34 @@ def render_assets(variant, out_dir, U=ASSET_U):
     return written
 
 
+THEMES_DIR = "/usr/share/plymouth/themes"
+
+
+def theme_name(variant):
+    """The theme's NAME: its directory, its .plymouth and its .script all carry it.
+
+    ⚑ <name>/<name>.plymouth IS THE LAYOUT plymouth-set-default-theme READS (Fedora,
+    Arch, Gentoo — guest-image.md G2). This wrote el-openglo-<V>/el-openglo.plymouth,
+    selectable only through Debian's default.plymouth alternative, which takes any
+    path. One name satisfies both routes."""
+    return f"el-openglo-{variant}"
+
+
+def theme_dir(variant):
+    return f"{THEMES_DIR}/{theme_name(variant)}"
+
+
 def dot_theme(variant):
-    """The .plymouth config (INI). ModuleName=script points at <variant>.script."""
+    """The .plymouth config (INI). ModuleName=script points at <name>.script."""
+    n = theme_name(variant)
     return (
         "[Plymouth Theme]\n"
         f"Name=EL Openglo ({variant})\n"
         f"Description=Electroluminescent watch boot splash — {variant}\n"
         "ModuleName=script\n\n"
         "[script]\n"
-        f"ImageDir=/usr/share/plymouth/themes/el-openglo-{variant}\n"
-        f"ScriptFile=/usr/share/plymouth/themes/el-openglo-{variant}/el-openglo.script\n"
+        f"ImageDir={theme_dir(variant)}\n"
+        f"ScriptFile={theme_dir(variant)}/{n}.script\n"
     )
 
 
@@ -335,17 +353,18 @@ def render_all(variants, dir_map):
     for v in variants:
         d = dir_map[v]
         files = render_assets(v, d)
-        open(os.path.join(d, "el-openglo.plymouth"), "w").write(dot_theme(v))
-        open(os.path.join(d, "el-openglo.script"), "w").write(script(v))
-        written[v] = files + [os.path.join(d, "el-openglo.plymouth"),
-                              os.path.join(d, "el-openglo.script")]
+        n = theme_name(v)
+        conf, scr = os.path.join(d, f"{n}.plymouth"), os.path.join(d, f"{n}.script")
+        open(conf, "w").write(dot_theme(v))
+        open(scr, "w").write(script(v))
+        written[v] = files + [conf, scr]
     return written
 
 
 if __name__ == "__main__":
     variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
                 "EL-Amber", "EL-Amber-Lit"]
-    outs = {v: f"/tmp/ply-{v}" for v in variants}
+    outs = {v: f"/tmp/ply/{theme_name(v)}" for v in variants}   # <name>/<name>.plymouth
     w = render_all(variants, outs)
     print("rendered", len(w), "Plymouth themes")
     for v in variants:

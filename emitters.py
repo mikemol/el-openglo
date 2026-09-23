@@ -26,6 +26,27 @@ import sys
 # upstream's licence preserved) and must never declare this.
 LICENSE_SPDX = "Apache-2.0"
 
+# ⚑ THE THIRD-PARTY PARTS, DECLARED ONCE: scripts/check_license.py lists them as
+# excluded from the Apache population, and make_deb.copyright_text() gives each
+# one that SHIPS (`files` non-empty: DEP-5 globs under the .deb root) its own
+# stanza in /usr/share/doc/<pkg>/copyright. `files: ()` = not in the package.
+# KvFlat: Kvantum's source headers read "GPL ... version 3 of the License, or (at
+# your option) any later version" (tsujan/Kvantum, read 2026-09-23).
+THIRD_PARTY = (
+    {"what": "overlay/dev-python/colorspacious", "spdx": "MIT", "files": (),
+     "copyright": "Nathaniel J. Smith", "note": "upstream's ebuild; overlay only, not in the package"},
+    {"what": "KvFlat, recoloured by make_kvantum", "spdx": "GPL-3.0-or-later",
+     "files": ("usr/share/el-openglo/kvantum/*",),
+     "copyright": "Pedram Pourang (tsujan), the Kvantum authors",
+     "note": "a recolour of KvFlat from https://github.com/tsujan/Kvantum is a derived work and keeps upstream's licence"},
+    {"what": "DSEG fonts, named in make_font.DSEG_NOTE", "spdx": "OFL-1.1", "files": (),
+     "copyright": "keshikan", "note": "named only; not shipped"},
+    {"what": "Liberation Mono, rasterised by make_notify_marquee", "spdx": "OFL-1.1",
+     "files": ("usr/share/plasma/plasmoids/org.el.notifymarquee*",),
+     "copyright": "Red Hat, Inc. (Liberation fonts)",
+     "note": "the marquee's dot-matrix glyphs are rasterised from Liberation Mono at build time"},
+)
+
 # (module, why it sits here) — dependency order, not alphabetical.
 ORDER = (
     ("make_schemes",   "writes the .colors files every other emitter reads"),

@@ -141,6 +141,13 @@ and `make_sddm.py` before being written down as gaps:
   the wrong theme. The helper should exit non-zero on a failed selection, and the
   build should assert `plymouth-set-default-theme` or
   `readlink /etc/alternatives/default.plymouth`.
+- G1-G3 are measured by `scripts/opa_gate.py root_helpers`
+  (`check_root_helpers.py` runs both helpers against a scratch root and
+  `policy/root_helpers.rego` decides), so whether each gap is open is that gate's
+  exit code. It is not recorded here. The selection routes it checks are
+  `el-openglo-sddm VARIANT` (a drop-in with `Current=el-openglo-<slug>`, undone
+  by `--breeze`) and `el-openglo-plymouth [--no-initramfs] VARIANT` (the
+  alternatives route, else `plymouth-set-default-theme -R`).
 - **G4: no guest-image recipe or record.** `oci/guest/` (the mmdebstrap script plus
   the containerDisk Containerfile) and `catalog/guest-image.json` do not exist.
   Both are W71's build step.

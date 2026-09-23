@@ -72,22 +72,51 @@ def system_mapping():
 # hook, which reads the default.plymouth ALTERNATIVE. So we register + select the
 # alternative, then rebuild the initramfs ONCE; kernel updates re-bundle it
 # automatically (no DKMS, no per-kernel logic). Root-only.
+#
+# ⚑ IT FAILS LOUDLY (guest-image.md G3). Every update-alternatives call ended in
+# `|| true` and a missing update-initramfs was skipped in silence, so a failed
+# selection booted the stock splash and reported success. Now: a failing tool, a
+# missing initramfs rebuilder, or no selection route at all is exit 1 naming the
+# tool; the one optional step (the rebuild) is skipped only on --no-initramfs,
+# and says SKIP. Two routes: Debian's alternative, else plymouth-set-default-theme
+# (Fedora/Arch/Gentoo), which the <name>/<name>.plymouth layout makes possible.
+# EL_OPENGLO_ROOT prefixes every path it reads (scripts/check_root_helpers.py).
 PLYMOUTH_HELPER = r'''#!/bin/sh
 # el-openglo-plymouth — select an EL Openglo boot splash. Run with sudo.
+#   el-openglo-plymouth [--no-initramfs] [VARIANT]
+# Route: update-alternatives (default.plymouth) + update-initramfs -u, or else
+# plymouth-set-default-theme -R. Exits non-zero, naming the tool, if either fails.
 set -eu
+R="${EL_OPENGLO_ROOT:-}"
+die() { echo "el-openglo-plymouth: $*" >&2; exit 1; }
+REBUILD=1
+if [ "${1:-}" = "--no-initramfs" ]; then REBUILD=0; shift; fi
 VARIANT="${1:-EL-Openglo}"
-THEME="/usr/share/plymouth/themes/el-openglo-$VARIANT/el-openglo.plymouth"
-if [ "$(id -u)" -ne 0 ]; then
-  echo "Run with sudo: sudo el-openglo-plymouth $VARIANT" >&2; exit 1
-fi
-if [ ! -f "$THEME" ]; then echo "no plymouth theme for $VARIANT" >&2; exit 1; fi
-# register + select the default.plymouth alternative
-update-alternatives --install /usr/share/plymouth/themes/default.plymouth \
-  default.plymouth "$THEME" 200 >/dev/null 2>&1 || true
-update-alternatives --set default.plymouth "$THEME" >/dev/null 2>&1 || true
-# rebuild the initramfs so the theme is bundled for early boot
-if command -v update-initramfs >/dev/null 2>&1; then
-  update-initramfs -u
+NAME="el-openglo-$VARIANT"
+THEME="/usr/share/plymouth/themes/$NAME/$NAME.plymouth"
+if [ "$(id -u)" -ne 0 ]; then die "run with sudo: sudo el-openglo-plymouth $VARIANT"; fi
+[ -f "$R$THEME" ] || die "no plymouth theme for $VARIANT ($THEME)"
+if command -v update-alternatives >/dev/null 2>&1; then
+  update-alternatives --install /usr/share/plymouth/themes/default.plymouth \
+    default.plymouth "$THEME" 200 || die "update-alternatives --install failed for $THEME"
+  update-alternatives --set default.plymouth "$THEME" || die "update-alternatives --set failed for $THEME"
+  GOT="$(readlink "$R/etc/alternatives/default.plymouth" || :)"
+  [ "$GOT" = "$THEME" ] || die "default.plymouth points at '${GOT:-nothing}', not $THEME"
+  if [ "$REBUILD" -eq 0 ]; then
+    echo "SKIP: initramfs rebuild (--no-initramfs); run update-initramfs -u before rebooting"
+  else
+    command -v update-initramfs >/dev/null 2>&1 || die "update-initramfs not found: $NAME is selected but not in the initramfs (install initramfs-tools, or rerun with --no-initramfs and rebuild it yourself)"
+    update-initramfs -u || die "update-initramfs -u failed"
+  fi
+elif command -v plymouth-set-default-theme >/dev/null 2>&1; then
+  if [ "$REBUILD" -eq 0 ]; then
+    plymouth-set-default-theme "$NAME" || die "plymouth-set-default-theme $NAME failed"
+    echo "SKIP: initramfs rebuild (--no-initramfs); rebuild it (dracut -f) before rebooting"
+  else
+    plymouth-set-default-theme -R "$NAME" || die "plymouth-set-default-theme -R $NAME failed"
+  fi
+else
+  die "neither update-alternatives nor plymouth-set-default-theme found: no route to select $NAME"
 fi
 echo "Boot splash set to EL Openglo ($VARIANT)."
 echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; plymouth --quit"
@@ -102,35 +131,81 @@ echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; pl
 # theme.conf.user [General] background=<file> AND REQUIRES a `type=image` key
 # (without it the background is silently ignored — KDE bug 370521). Root-only
 # because it writes under /usr/share and /etc.
+#
+# ⚑ THE DEFAULT IS NOW THE W66 GREETER (guest-image.md G1). The themes shipped and
+# nothing selected them. `el-openglo-sddm VARIANT` writes ONE drop-in,
+# /etc/sddm.conf.d/el-openglo.conf, [Theme] Current=el-openglo-<slug>; sddm.conf
+# is never edited. `--background` is the old Breeze-background route; `--breeze`
+# is the way back (Current=breeze, our Breeze overrides removed), and deleting
+# the drop-in hands the choice back to sddm.conf / the distro.
+# The variant -> theme id table is generated from make_sddm.theme_id (sddm_helper()).
 SDDM_HELPER = r'''#!/bin/sh
-# el-openglo-sddm — point the stock Breeze SDDM login theme at an EL Openglo
-# phosphor watch-face background. Run with sudo. Does NOT replace the greeter,
-# so login/unlock behavior is unchanged (no boot-lockout risk).
+# el-openglo-sddm — choose the SDDM login screen. Run with sudo.
+#   el-openglo-sddm [VARIANT]               the EL Openglo greeter theme for VARIANT
+#   el-openglo-sddm --background [VARIANT]  stock Breeze greeter, EL watch-face background
+#   el-openglo-sddm --breeze                back to stock Breeze (undoes both)
+# All selection is ONE drop-in, /etc/sddm.conf.d/el-openglo.conf; sddm.conf is
+# never edited. `sudo rm /etc/sddm.conf.d/el-openglo.conf` returns SDDM to
+# whatever sddm.conf or the distribution selects.
 set -eu
+R="${EL_OPENGLO_ROOT:-}"
+die() { echo "el-openglo-sddm: $*" >&2; exit 1; }
+MODE=theme
+case "${1:-}" in
+  --background) MODE=background; shift ;;
+  --breeze) MODE=breeze; shift ;;
+  --*) die "unknown option $1 (modes: [VARIANT], --background [VARIANT], --breeze)" ;;
+esac
 VARIANT="${1:-EL-Openglo}"
-WP="/usr/share/wallpapers/$VARIANT/contents/images/1920x1080.png"
-BREEZE=/usr/share/sddm/themes/breeze
-if [ "$(id -u)" -ne 0 ]; then
-  echo "Run with sudo: sudo el-openglo-sddm $VARIANT" >&2; exit 1
-fi
-if [ ! -f "$WP" ]; then echo "no wallpaper for $VARIANT" >&2; exit 1; fi
-if [ ! -d "$BREEZE" ]; then echo "stock breeze SDDM theme not found" >&2; exit 1; fi
-# copy the bg into the theme dir and register it WITH the required type=image key
-cp "$WP" "$BREEZE/el-openglo-bg.png"
-cat > "$BREEZE/theme.conf.user" <<EOF
-[General]
-background=el-openglo-bg.png
-type=image
-EOF
-# ensure SDDM uses the breeze theme
-mkdir -p /etc/sddm.conf.d
-cat > /etc/sddm.conf.d/el-openglo.conf <<EOF
-[Theme]
-Current=breeze
-EOF
-echo "SDDM login background set to EL Openglo ($VARIANT)."
-echo "Preview without rebooting:  sddm-greeter-qt6 --test-mode --theme $BREEZE"
+TID=
+case "$VARIANT" in
+@CASES@
+  *) [ "$MODE" = breeze ] || die "unknown variant: $VARIANT" ;;
+esac
+THEMES=/usr/share/sddm/themes
+BREEZE="$R$THEMES/breeze"
+DROPIN=/etc/sddm.conf.d/el-openglo.conf
+if [ "$(id -u)" -ne 0 ]; then die "run with sudo: sudo el-openglo-sddm $*"; fi
+select_theme() {
+  mkdir -p "$R/etc/sddm.conf.d"
+  printf '[Theme]\nCurrent=%s\n' "$1" > "$R$DROPIN"
+}
+case "$MODE" in
+  theme)
+    [ -f "$R$THEMES/$TID/metadata.desktop" ] || die "greeter theme $TID is not installed under $THEMES"
+    select_theme "$TID"
+    echo "SDDM login screen set to $TID (EL Openglo $VARIANT) via $DROPIN."
+    echo "Back to Breeze:  sudo el-openglo-sddm --breeze"
+    echo "Preview without rebooting:  sddm-greeter-qt6 --test-mode --theme $THEMES/$TID" ;;
+  background)
+    WP="$R/usr/share/wallpapers/$VARIANT/contents/images/1920x1080.png"
+    [ -f "$WP" ] || die "no wallpaper for $VARIANT"
+    [ -d "$BREEZE" ] || die "stock breeze SDDM theme not found"
+    # Breeze ignores background= without type=image (KDE bug 370521)
+    cp "$WP" "$BREEZE/el-openglo-bg.png"
+    printf '[General]\nbackground=el-openglo-bg.png\ntype=image\n' > "$BREEZE/theme.conf.user"
+    select_theme breeze
+    echo "SDDM login background set to EL Openglo ($VARIANT) on stock Breeze."
+    echo "Back to plain Breeze:  sudo el-openglo-sddm --breeze" ;;
+  breeze)
+    rm -f "$BREEZE/el-openglo-bg.png"
+    # remove theme.conf.user only if it is exactly what --background wrote
+    if [ -f "$BREEZE/theme.conf.user" ] && \
+       [ "$(cat "$BREEZE/theme.conf.user")" = "$(printf '[General]\nbackground=el-openglo-bg.png\ntype=image')" ]; then
+      rm -f "$BREEZE/theme.conf.user"
+    fi
+    select_theme breeze
+    echo "SDDM login screen set back to stock Breeze via $DROPIN."
+    echo "To let sddm.conf decide instead:  sudo rm $DROPIN" ;;
+esac
 '''
+
+
+def sddm_helper():
+    """SDDM_HELPER with its variant -> greeter-theme table, from make_sddm.theme_id."""
+    import make_sddm as _sddm
+    cases = "\n".join(f"  {v}) TID={_sddm.theme_id(v)} ;;" for v in VARIANTS)
+    return SDDM_HELPER.replace("@CASES@", cases)
 
 
 # --- notification-marquee helper (opt-in; subsume popups into the ticker) -----
@@ -331,7 +406,7 @@ if [ -d "$TDIR" ]; then
 fi
 echo "Done. Some changes (GTK, Kvantum) may need apps to restart."
 echo "Login screen (SDDM): System Settings > Login Screen (SDDM) > 'EL Openglo ($VARIANT)'"
-echo "                     or: sudo el-openglo-sddm $VARIANT  (stock Breeze greeter, phosphor background)"
+echo "                     or: sudo el-openglo-sddm $VARIANT  (selects it; --background: stock Breeze with the phosphor background; --breeze: undo)"
 echo "Boot splash (Plymouth): sudo el-openglo-plymouth $VARIANT  (sets the phosphor boot splash)"
 echo "Living watch face:      el-openglo-live $VARIANT  (animated clock on desktop + lock)"
 echo "Notification ticker:    el-openglo-notify $VARIANT  (marquee subsumes popups)"
@@ -561,6 +636,50 @@ exit 0
 '''
 
 
+DEP5_FORMAT = "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/"
+# licence id -> where its text lives on a Debian system (common-licenses), or a
+# file in this tree whose text is inlined (not in common-licenses)
+LICENCE_TEXT = {"Apache-2.0": "/usr/share/common-licenses/Apache-2.0",
+                "GPL-3.0-or-later": "/usr/share/common-licenses/GPL-3",
+                "MIT": None, "OFL-1.1": "licenses/OFL-1.1.txt"}
+
+
+def _dep5_text(text):
+    """A body as DEP-5 continuation lines: one leading space, blank lines as ` .`."""
+    return "\n".join(" " + ln if ln.strip() else " ." for ln in text.strip("\n").split("\n"))
+
+
+def copyright_text():
+    """/usr/share/doc/<pkg>/copyright in machine-readable DEP-5 (W44).
+
+    `Files: *` is the project, under emitters.LICENSE_SPDX; each part of
+    emitters.THIRD_PARTY that ships (non-empty `files`) gets its own stanza under
+    its own licence — a recolour or rasterisation keeps upstream's terms. Every
+    licence used gets a standalone License paragraph: a pointer into
+    /usr/share/common-licenses where Debian ships the text, the full text otherwise.
+    scripts/check_license.py parses this; policy/license.rego L3 decides."""
+    import emitters as _E
+    out = [f"Format: {DEP5_FORMAT}\nUpstream-Name: {PKG}\n"
+           "Source: https://github.com/mikemol/el-openglo\n",
+           f"Files: *\nCopyright: 2026 Mike Mol\nLicense: {LICENSE_SPDX}\n"]
+    used = [LICENSE_SPDX]
+    for t in _E.THIRD_PARTY:
+        if not t["files"]:
+            continue
+        out.append(f"Files: {' '.join(t['files'])}\nCopyright: {t['copyright']}\n"
+                   f"License: {t['spdx']}\nComment:\n{_dep5_text(t['what'] + ': ' + t['note'])}\n")
+        if t["spdx"] not in used:
+            used.append(t["spdx"])
+    for lid in used:
+        src = LICENCE_TEXT[lid]
+        if src.startswith("/usr/share/common-licenses/"):
+            body = f"On Debian systems the full text is in {src}."
+        else:
+            body = open(os.path.join(ROOT, src), encoding="utf-8").read()
+        out.append(f"License: {lid}\n{_dep5_text(body)}\n")
+    return "\n".join(out)
+
+
 def copy_into(src_rel, dst_rel, root=None):
     src = os.path.join(ROOT, src_rel)
     dst = os.path.join(root or DEB_ROOT, dst_rel)
@@ -768,8 +887,7 @@ def stage(root):
 
     # Plymouth boot-splash themes (⊕PLYMOUTH): 7th emitter, the earliest seam.
     import make_plymouth as _ply
-    pdirs = {v: os.path.join(DEB_ROOT, f"usr/share/plymouth/themes/el-openglo-{v}")
-             for v in VARIANTS}
+    pdirs = {v: os.path.join(DEB_ROOT, _ply.theme_dir(v).lstrip("/")) for v in VARIANTS}
     _ply.render_all(VARIANTS, pdirs)
 
     # SDDM greeter themes (W66): the segment display's fourth mount, one REAL
@@ -830,7 +948,7 @@ def stage(root):
 
     # root SDDM helper (run with sudo)
     sp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-sddm")
-    open(sp, "w").write(SDDM_HELPER)
+    open(sp, "w").write(sddm_helper())
     os.chmod(sp, 0o755)
 
     # root Plymouth helper (run with sudo)
@@ -879,6 +997,11 @@ def build(out_dir=None):
     """Stage into /tmp/eldeb and wrap it as a .deb. Debian-specific from here on."""
     shutil.rmtree(BUILD, ignore_errors=True)
     mapping = stage(os.path.join(BUILD, PKG))
+
+    # the Debian copyright file (DEP-5) — Debian-specific, so here and not in stage()
+    doc = os.path.join(DEB_ROOT, "usr/share/doc", PKG)
+    os.makedirs(doc, exist_ok=True)
+    open(os.path.join(doc, "copyright"), "w").write(copyright_text())
 
     # control dir
     ctrl = os.path.join(DEB_ROOT, "DEBIAN")

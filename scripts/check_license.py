@@ -38,7 +38,14 @@ under `third_party` in --json so the exclusion is visible rather than silent:
 overlay/dev-python/colorspacious (upstream's ebuild), make_kvantum's KvFlat
 (GPL-family; a recolour is a derived work and keeps upstream's licence), DSEG
 (OFL; only named in make_font's note, never shipped) and Liberation Mono (OFL;
-the marquee's glyphs are rasterised from it at build time).
+the marquee's glyphs are rasterised from it at build time). They are read from
+emitters.THIRD_PARTY, the declaration make_deb's copyright file also reads.
+
+THE DEBIAN COPYRIGHT FILE (DEP-5). `debian_copyright` in --json is
+make_deb.copyright_text() parsed by dep5_parse: its Format header, each Files
+stanza's globs and licence id, and which licence ids carry text. policy/license.rego
+L3 decides: Files: * is the authority's id, and every third-party part that ships
+has its own stanza with its own licence.
 
 WEAKNESS, STATED. `emitted` sees TRACKED output only: an untracked emitted file
 (the main tree regenerates many) is outside it, and only *.json / *.desktop are
@@ -66,14 +73,59 @@ if ROOT not in sys.path:
 CONSTANT = "LICENSE_SPDX"
 EBUILD_DIR = os.path.join("overlay", "x11-themes", "el-openglo")
 LINE = re.compile(r"(?:^|\n)(?:X-KDE-PluginInfo-)?License=([^\n]*)")
-THIRD_PARTY = [
-    {"what": "overlay/dev-python/colorspacious", "licence": "MIT (upstream's ebuild)"},
-    {"what": "KvFlat, recoloured by make_kvantum", "licence": "GPL-family (upstream's, preserved)"},
-    {"what": "DSEG fonts, named in make_font.DSEG_NOTE", "licence": "OFL-1.1 (not shipped)"},
-    {"what": "Liberation Mono, rasterised by make_notify_marquee", "licence": "OFL-1.1 (build input)"},
-]
-# The tracked paths of THIRD_PARTY above, excluded from the `emitted` population.
+# The tracked paths of emitters.THIRD_PARTY, excluded from the `emitted` population.
 THIRD_PARTY_PATHS = ["overlay/dev-python/colorspacious"]
+DEP5_FORMAT = "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/"
+
+
+def third_party():
+    """emitters.THIRD_PARTY — the one declaration make_deb's copyright file also reads."""
+    import emitters as E
+    return [{"what": t["what"], "spdx": t["spdx"], "files": list(t["files"])}
+            for t in getattr(E, "THIRD_PARTY", ())]
+
+
+def dep5_parse(text):
+    """A DEP-5 copyright file -> {header, files: [...], licenses: {id: has_text}}.
+
+    Paragraphs are split on blank lines; a field is `Name: value` with
+    continuation lines starting with a space. The first paragraph is the header.
+    WEAKNESS: this is the structure, not lintian — it does not validate SPDX
+    grammar in License expressions beyond taking the first word as the id."""
+    paras = []
+    for block in re.split(r"\n\s*\n", text.strip("\n")):
+        fields, key = {}, None
+        for ln in block.split("\n"):
+            if ln[:1] in (" ", "\t") and key:
+                fields[key] += "\n" + ln.strip()
+            elif ":" in ln:
+                key, _, val = ln.partition(":")
+                key = key.strip()
+                fields[key] = val.strip()
+        paras.append(fields)
+    header = paras[0] if paras else {}
+    files, licences = [], {}
+    for p in paras[1:]:
+        lic = p.get("License", "")
+        lid, _, body = lic.partition("\n")
+        lid = lid.split()[0] if lid.split() else ""
+        if "Files" in p:
+            files.append({"files": p["Files"].split(), "license": lid,
+                          "copyright": bool(p.get("Copyright", "").strip())})
+            if body.strip():
+                licences[lid] = True
+        elif lid:
+            licences[lid] = licences.get(lid, False) or bool(body.strip())
+    return {"format": header.get("Format"), "files": files, "licenses": licences}
+
+
+def debian_copyright():
+    """make_deb.copyright_text(), parsed; `absent` when make_deb emits none."""
+    import make_deb
+    fn = getattr(make_deb, "copyright_text", None)
+    if fn is None:
+        return {"absent": "make_deb has no copyright_text(): the .deb ships no /usr/share/doc copyright"}
+    return dep5_parse(fn())
 
 
 def _names_constant(node):
@@ -221,7 +273,8 @@ def measure(root=None):
     cases += emitted
     return {"root": root, "cases": cases, "roster": len(roster), "roster_declaring": declaring,
             "emitted_scanned": scanned, "emitted_unparsed": unparsed,
-            "third_party": THIRD_PARTY}
+            "third_party": third_party(), "debian_copyright": debian_copyright(),
+            "dep5_format": DEP5_FORMAT}
 
 
 def main(argv):
@@ -265,6 +318,13 @@ def main(argv):
               f"{m['emitted_scanned']} tracked *.json/*.desktop scanned, "
               f"{len(m['emitted_unparsed'])} unparsed; "
               f"{len(m['third_party'])} third-party licence(s) excluded (--json lists them)")
+        d = m["debian_copyright"]
+        if "absent" in d:
+            print(f"debian copyright: ABSENT — {d['absent']}")
+        else:
+            print(f"debian copyright: {len(d['files'])} Files stanza(s) "
+                  + ", ".join(f"{' '.join(f['files'])} -> {f['license']}" for f in d["files"])
+                  + f"; {sum(d['licenses'].values())} of {len(d['licenses'])} licence id(s) carry text")
         return 0
     print("usage: check_license.py [--root DIR] --json | --list | --selftest  "
           "(the verdict: scripts/opa_gate.py license)", file=sys.stderr)
@@ -332,6 +392,13 @@ def _selftest():
             [("plasma-clock/org.x/metadata.desktop [Desktop Entry] X-KDE-PluginInfo-License=", "GPL-3"),
              ("plasma-clock/org.x/metadata.json KPlugin.License", "GPLv3")])
         chk("2 of 2 tracked emitted candidates scanned, none unparsed", (scanned, unparsed), (2, []))
+    d = dep5_parse(f"Format: {DEP5_FORMAT}\n\nFiles: *\nCopyright: me\nLicense: Apache-2.0\n\n"
+                   "Files: a/*\nCopyright: them\nLicense: OFL-1.1\n\nLicense: OFL-1.1\n text\n .\n more\n")
+    chk("a DEP-5 file: header, two Files stanzas, licence text seen",
+        (d["format"], [(f["files"], f["license"]) for f in d["files"]], d["licenses"]),
+        (DEP5_FORMAT, [(["*"], "Apache-2.0"), (["a/*"], "OFL-1.1")], {"OFL-1.1": True}))
+    chk("a DEP-5 file with no header Format is seen as such",
+        dep5_parse("Files: *\nLicense: X\n")["format"], None)
     m = measure()
     chk("every population kind is non-empty",
         sorted({c["kind"] for c in m["cases"]}), ["authority", "emitted", "file", "generator"])
