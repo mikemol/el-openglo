@@ -76,6 +76,33 @@ test_null_parsed_does_not_fire if {
 	count(p.admitted) == 0 with input as bad
 }
 
+# a null parsed was SILENT — no rule fired, nothing withheld: the whole sheet
+# landed nowhere. It is withheld.
+test_null_parsed_is_withheld if {
+	i := object.union(good, {"parsed": null})
+	"K5: parsed was not measured" in p.withheld with input as i
+}
+
+test_null_file_present_is_withheld if {
+	i := object.union(good, {"file_present": null})
+	"K5: file_present was not measured" in p.withheld with input as i
+}
+
+test_all_null_case_withheld_only if {
+	i := object.union(good, {"cases": [good.cases[0], good.cases[1], {"id": "EL-Amber", "expected": null}]})
+	"K5: EL-Amber: [\"expected\", \"got\"] was not measured" in p.withheld with input as i
+	not "EL-Amber" in p.admitted with input as i
+	d := p.deny with input as i
+	every m in d { not contains(m, "EL-Amber") }
+}
+
+# a K2-denied case used to be admitted too (admitted checked only K1)
+test_k2_denied_case_is_not_admitted if {
+	foreign := object.union(block, {"--el-made-up": "red"})
+	bad := object.union(good, {"root": foreign, "cases": [{"id": "EL-Openglo", "expected": exp, "got": foreign}, good.cases[1]]})
+	p.admitted == {"EL-Openglo-Lit"} with input as bad
+}
+
 test_tinycss2_absent_is_withheld if {
 	skip := object.union(good, {"parsed": false})
 	count(p.deny) == 0 with input as skip

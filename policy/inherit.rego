@@ -13,8 +13,6 @@ package el.inherit
 
 import rego.v1
 
-import data.el.truth
-
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "I0: no variants were measured; the roster is empty, not the themes well-formed"
@@ -75,20 +73,65 @@ deny contains msg if {
 # title: "I4 — the LnF defaults select the emitted theme names"
 deny contains msg if {
 	some c in measured
-	not c.defaults_ok
+	c.defaults_ok == false
 	msg := sprintf("I4: %s: the LnF defaults do not select the emitted theme names", [c.id])
 }
 
 withheld contains msg if {
 	some c in measured
 	some p, ok in c.installed
-	not ok
+	ok == false
 	msg := sprintf("I5: %s: parent %q is not installed on this host", [c.id, p])
 }
 
-measured contains c if {
+withheld contains msg if {
+	some c in measured
+	some p, ok in c.installed
+	not is_boolean(ok)
+	msg := sprintf("I6: %s: whether parent %q is installed was not measured", [c.id, p])
+}
+
+# METADATA
+# title: "I6 — a variant the measurement could not describe is withheld, not judged"
+# description: |
+#   The measurement always emits `missing` (null or a reason) and, for a read
+#   variant, `icon_parents` / `icon_dirs` (lists), `cursor_parent` (string),
+#   `defaults_ok` (bool) and `installed` (object). A null in any of them is
+#   "could not say": before this, a null `icon_parents` was DENIED by I1 and a
+#   null `defaults_ok` was neither denied nor admitted.
+withheld contains msg if {
 	some c in input.cases
+	not "missing" in object.keys(c)
+	msg := sprintf("I6: %v: missing was not measured", [object.get(c, "id", null)])
+}
+
+withheld contains msg if {
+	some c in read
+	some f in unmeasured(c)
+	msg := sprintf("I6: %v: %s was not measured", [object.get(c, "id", null), f])
+}
+
+# read: the measurement reached the variant; measured: and described it fully
+read contains c if {
+	some c in input.cases
+	"missing" in object.keys(c)
 	c.missing == null
+}
+
+unmeasured(c) := {f |
+	some f, ok in {
+		"icon_parents": is_array(object.get(c, "icon_parents", null)),
+		"icon_dirs": is_array(object.get(c, "icon_dirs", null)),
+		"cursor_parent": is_string(object.get(c, "cursor_parent", null)),
+		"defaults_ok": is_boolean(object.get(c, "defaults_ok", null)),
+		"installed": is_object(object.get(c, "installed", null)),
+	}
+	ok == false
+}
+
+measured contains c if {
+	some c in read
+	count(unmeasured(c)) == 0
 }
 
 last_is_hicolor(ps) if {
@@ -101,5 +144,5 @@ admitted contains c.id if {
 	last_is_hicolor(c.icon_parents)
 	count(c.icon_dirs) > 0
 	c.cursor_parent != ""
-	truth.py(c.defaults_ok)
+	c.defaults_ok == true
 }

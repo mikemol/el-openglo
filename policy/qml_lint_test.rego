@@ -76,6 +76,30 @@ test_null_withheld_does_not_fire if {
 	count(qml_lint.withheld) == 0 with input as inp
 }
 
+test_all_null_case_withheld_only if {
+	inp := {"qmllint": true, "documents": [
+		{"id": "clock-main.qml", "lint": [], "bound_running": []},
+		{"id": "marquee-main.qml", "withheld": null, "lint": null, "bound_running": null},
+	]}
+	w := qml_lint.withheld with input as inp
+	w == {"marquee-main.qml: lint was not measured", "marquee-main.qml: bound_running was not measured"}
+	qml_lint.admitted == {"clock-main.qml"} with input as inp
+	count(qml_lint.deny) == 0 with input as inp
+}
+
+# N1 fix (line 71): HEAD's `not input.qmllint` read a null qmllint as installed
+test_null_qmllint_is_withheld if {
+	inp := object.union(clean, {"qmllint": null})
+	"qmllint was not measured; Q1 cannot say whether it ran" in qml_lint.withheld with input as inp
+}
+
+# N1 fix (line 64): HEAD's `not doc.withheld` read a null reason as a withholding,
+# so a clean rendered document was never admitted — and not withheld either
+test_null_withheld_document_is_admitted if {
+	inp := {"qmllint": true, "documents": [{"id": "clock-main.qml", "lint": [], "bound_running": [], "withheld": null}]}
+	qml_lint.admitted == {"clock-main.qml"} with input as inp
+}
+
 test_withheld_without_qmllint if {
 	inp := {"qmllint": false, "documents": [{"id": "clock-main.qml", "lint": [], "bound_running": []}]}
 	count(qml_lint.deny) == 0 with input as inp

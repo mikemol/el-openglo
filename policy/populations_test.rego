@@ -59,13 +59,48 @@ test_null_recursive_marked_does_not_fire if {
 	count(populations.deny) == 0 with input as inp
 }
 
-# a null borrowed/recursive must not produce a SUBSTRATE withheld finding
+# a null borrowed/recursive must not produce a SUBSTRATE withheld finding — it is
+# withheld as NOT MEASURED instead (was: count(withheld) == 0, which is the
+# silently-nothing the exactly-once rule forbids)
 test_null_borrowed_recursive_does_not_withhold if {
 	inp := {"files": ["scripts/ratchet.py"], "cases": [
 		object.union(borrowed, {"recursive": null}),
 		object.union(bare, {"borrowed": null, "recursive": false, "line": 10}),
 	]}
-	count(populations.withheld) == 0 with input as inp
+	w := populations.withheld with input as inp
+	every m in w { not contains(m, "SUBSTRATE") }
+	w == {"P1: scripts/ratchet.py:3: recursive was not measured", "P1: scripts/x.py:10: borrowed was not measured"}
+}
+
+test_all_null_case_withheld_only if {
+	c := {"module": "scripts/x.py", "line": 4, "kind": "walk", "recursive": null, "reach": null, "root": "ROOT", "marked": null, "reason": null, "borrowed": null}
+	inp := {"files": ["scripts/x.py"], "cases": [c]}
+	count(populations.deny) == 0 with input as inp
+	w := populations.withheld with input as inp
+	w == {
+		"P1: scripts/x.py:4: borrowed was not measured",
+		"P1: scripts/x.py:4: recursive was not measured",
+		"P1: scripts/x.py:4: marked was not measured",
+		"P1: scripts/x.py:4: reach was not measured",
+	}
+}
+
+# N1 fix (lines 32/41): HEAD's `not c.borrowed` read a null borrowed as borrowed:
+# the unmarked root walk was neither denied nor withheld
+test_null_borrowed_is_withheld if {
+	inp := {"files": ["scripts/x.py"], "cases": [object.union(bare, {"borrowed": null})]}
+	"P1: scripts/x.py:4: borrowed was not measured" in populations.withheld with input as inp
+}
+
+# N1 fix (lines 35/54): a null marked read as marked
+test_null_marked_is_withheld if {
+	inp := {"files": ["scripts/x.py"], "cases": [object.union(bare, {"marked": null})]}
+	"P1: scripts/x.py:4: marked was not measured" in populations.withheld with input as inp
+}
+
+test_null_marked_borrowed_is_withheld_not_substrate if {
+	inp := {"files": ["scripts/ratchet.py"], "cases": [object.union(borrowed, {"marked": null})]}
+	populations.withheld == {"P1: scripts/ratchet.py:3: marked was not measured"} with input as inp
 }
 
 test_no_sites_over_a_population_admitted if {

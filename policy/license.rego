@@ -10,6 +10,8 @@ package el.license
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "L0: no licence declaration was measured"
@@ -55,20 +57,30 @@ authority_id := [c.id | some c in object.get(input, "cases", []); c.kind == "aut
 
 dep5 := object.get(input, "debian_copyright", {"absent": "no debian_copyright was measured"})
 
+# `absent` is a REASON field: null, "" or missing means "not absent" (the
+# convention of `withheld`), so it is read through truth.py — `not dep5.absent`
+# took an `"absent": null` as a reason and silenced every L3 rule.
+dep5_absent := truth.py(object.get(dep5, "absent", null))
+
+dep5_read if {
+	is_object(dep5)
+	not dep5_absent
+}
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) > 0
-	dep5.absent
+	dep5_absent
 	msg := sprintf("L3: %s", [dep5.absent])
 }
 
 deny contains msg if {
-	not dep5.absent
+	dep5_read
 	dep5.format != input.dep5_format
 	msg := sprintf("L3: the copyright file's Format is %v, not %s", [dep5.format, input.dep5_format])
 }
 
 deny contains msg if {
-	not dep5.absent
+	dep5_read
 	not star_is_authority
 	msg := sprintf("L3: no `Files: *` stanza under %v", [authority_id])
 }
@@ -80,7 +92,7 @@ star_is_authority if {
 }
 
 deny contains msg if {
-	not dep5.absent
+	dep5_read
 	some t in input.third_party
 	count(t.files) > 0
 	not has_stanza(t)
@@ -94,15 +106,46 @@ has_stanza(t) if {
 }
 
 deny contains msg if {
-	not dep5.absent
+	dep5_read
 	some f in dep5.files
-	not f.copyright
+	f.copyright == false
 	msg := sprintf("L3: stanza %v has no Copyright", [f.files])
 }
 
-deny contains msg if {
-	not dep5.absent
+# METADATA
+# title: "L4 — what the measurement could not read is withheld, not judged"
+# description: |
+#   The measurement always emits `debian_copyright` as an object (a DEP-5 parse,
+#   or `{"absent": reason}`) and, per stanza, `files` (list), `license` (string)
+#   and `copyright` (bool). A null in any of them is "could not say": a null
+#   `copyright` is neither "has no Copyright" (L3) nor fine, and a null
+#   `license` is not a licence "used without text".
+withheld contains msg if {
+	count(object.get(input, "cases", [])) > 0
+	not is_object(dep5)
+	msg := "L4: debian_copyright was not measured"
+}
+
+withheld contains msg if {
+	dep5_read
 	some f in dep5.files
+	some k in unmeasured_stanza(f)
+	msg := sprintf("L4: stanza %v: %s was not measured", [object.get(f, "files", null), k])
+}
+
+unmeasured_stanza(f) := {k |
+	some k, ok in {
+		"files": is_array(object.get(f, "files", null)),
+		"license": is_string(object.get(f, "license", null)),
+		"copyright": is_boolean(object.get(f, "copyright", null)),
+	}
+	ok == false
+}
+
+deny contains msg if {
+	dep5_read
+	some f in dep5.files
+	is_string(f.license)
 	not object.get(dep5.licenses, f.license, false)
 	msg := sprintf("L3: licence %s is used but carries no text", [f.license])
 }

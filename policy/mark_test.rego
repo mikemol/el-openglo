@@ -46,6 +46,26 @@ test_k2_an_attribution_line_does_not_excuse_its_neighbour if {
 	msg == "K2: the retired mark appears 2× in notes.md"
 }
 
+# exactly-once: a case whose judged fields are all null is withheld, never judged
+test_all_null_case_withheld_only if {
+	inp := with_case({"path": "notes.md", "lines": null})
+	w := k.withheld with input as inp
+	"K3: notes.md: lines was not measured" in w
+	d := k.deny with input as inp
+	count([m | some m in d; contains(m, "notes.md")]) == 0
+	not "notes.md" in k.admitted with input as inp
+}
+
+# N1 (K2 `not l.attribution`): a null attribution is neither attribution nor an
+# offence — withheld
+test_null_attribution_is_withheld if {
+	inp := with_case({"path": "notes.md", "lines": [{"line": 2, "count": 2, "attribution": null}]})
+	w := k.withheld with input as inp
+	"K3: notes.md: lines[0].attribution was not measured" in w
+	not "notes.md" in k.admitted with input as inp
+	count(k.deny) == 0 with input as inp
+}
+
 test_k1_the_exclusion_is_by_path_only if {
 	moved := {"path": "scripts/check_mark_copy.py", "lines": [self_line]}
 	some msg in k.deny with input as with_case(moved)

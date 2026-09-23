@@ -64,6 +64,39 @@ test_null_listing_guessed_does_not_fire if {
 	not "B2: make_x: guessed id in \"id 999\"" in p.deny with input as bad
 }
 
+test_all_null_case_withheld_only if {
+	inp := object.union(good, {
+		"cases": array.concat(good.cases, [{"emitter": "make_new", "rows": null}]),
+		"rows": array.concat(good.rows, [{"emitter": "make_x", "venue": "KDE Store", "route": "id 999", "guessed": null, "ids": [{"id": "999", "listed": null}]}]),
+	})
+	w := p.withheld with input as inp
+	"B1: make_new: rows was not measured" in w
+	"B2: make_x: guessed was not measured" in w
+	"B2: make_x: id 999: listed was not measured" in w
+	not "make_new" in p.admitted with input as inp
+	d := p.deny with input as inp
+	every m in d { not contains(m, "make_new"); not contains(m, "make_x") }
+}
+
+test_null_venue_is_withheld if {
+	inp := object.union(good, {"rows": array.concat(good.rows, [{"emitter": "make_x", "venue": null, "route": "id 999", "guessed": false, "ids": []}])})
+	"B2: make_x: venue was not measured" in p.withheld with input as inp
+}
+
+# N1 fix (line 52): HEAD's `not input.listing` read a null listing as present
+test_null_listing_is_withheld if {
+	inp := object.union(good, {"listing": null})
+	"B2: listing was not measured" in p.withheld with input as inp
+	count(p.deny) == 0 with input as inp
+}
+
+# N1 fix (line 60): HEAD's `not i.listed` read a null listed as listed
+test_null_listed_is_withheld if {
+	inp := object.union(good, {"rows": array.concat(good.rows, [{"emitter": "make_x", "venue": "KDE Store", "route": "id 999", "guessed": false, "ids": [{"id": "999", "listed": null}]}])})
+	"B2: make_x: id 999: listed was not measured" in p.withheld with input as inp
+	count(p.deny) == 0 with input as inp
+}
+
 test_b2_refuses_a_missing_listing if {
 	some msg in p.deny with input as object.union(good, {"listing": false})
 	startswith(msg, "B2: no cached OCS listing")

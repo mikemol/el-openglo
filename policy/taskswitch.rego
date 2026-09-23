@@ -8,8 +8,12 @@ package el.taskswitch
 
 import rego.v1
 
+import data.el.truth
+
+# `id` is a string (or None when the metadata carries no Id): null, absent and
+# "" all mean no package id, and this is the empty-population denial.
 deny contains msg if {
-	not input.id
+	not truth.py(object.get(input, "id", null))
 	msg := "T0: no switcher package was measured (no id)"
 }
 
@@ -31,8 +35,23 @@ deny contains msg if {
 # METADATA
 # title: "T2 — the QML root is KWin.TabBoxSwitcher and the document lints"
 deny contains msg if {
-	not input.root
+	input.root == false
 	msg := "T2: the QML root is not KWin.TabBoxSwitcher"
+}
+
+# METADATA
+# title: "W — a fact the measurement always emits, null or absent, judges nothing"
+# description: |
+#   check_taskswitch always emits root (bool), qmllint (bool), lint (list),
+#   bindings (object) and roster_drift (list). Null or absent means it could
+#   not say, so the rule that reads it is withheld, not silently passed.
+#   structure / defaults_id / colorSet / alpha are NOT here: the measurement
+#   emits None for them when the line is missing from the emitted package, a
+#   measured absence the T1 / T3 / T4 rules deny.
+withheld contains msg if {
+	some f, want in {"root": "boolean", "qmllint": "boolean", "lint": "array", "bindings": "object", "roster_drift": "array"}
+	type_name(object.get(input, f, null)) != want
+	msg := sprintf("%s was not measured", [f])
 }
 
 deny contains msg if {
@@ -105,11 +124,11 @@ deny contains msg if {
 # METADATA
 # title: "W — qmllint is absent, so T2's lint arm measured nothing"
 withheld contains msg if {
-	not input.qmllint
+	input.qmllint == false
 	msg := "qmllint is not installed on this host; the switcher QML was not linted"
 }
 
 withheld contains msg if {
-	input.resolution == null
+	object.get(input, "resolution", null) == null
 	msg := "the qml runner or the .colors files are absent; the bindings were not resolved (T5)"
 }

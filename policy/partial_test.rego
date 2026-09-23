@@ -44,6 +44,36 @@ test_p2_refuses_an_unnamed_partial_file if {
 	msg == "P2: RECOVERY-NOTES.md does not mention make_deb.py"
 }
 
+test_all_null_case_withheld_only if {
+	inp := object.union(good, {"cases": [good.cases[0], {"file": "make_deb.py", "exists": null, "named": null}]})
+	w := p.withheld with input as inp
+	"P1: make_deb.py: exists was not measured" in w
+	"P1: make_deb.py: named was not measured" in w
+	not "make_deb.py" in p.admitted with input as inp
+	d := p.deny with input as inp
+	every m in d { not contains(m, "make_deb.py") }
+}
+
+test_null_notes_present_is_withheld if {
+	inp := object.union(good, {"notes_present": null})
+	"P2: notes_present was not measured" in p.withheld with input as inp
+	count(p.admitted) == 0 with input as inp
+	count(p.deny) == 0 with input as inp
+}
+
+# N1 fix (line 26): HEAD's `not c.exists` read null as "exists" — neither denied,
+# admitted nor withheld
+test_null_exists_is_withheld if {
+	inp := object.union(good, {"cases": [{"file": "make_deb.py", "exists": null, "named": true}]})
+	"P1: make_deb.py: exists was not measured" in p.withheld with input as inp
+}
+
+# N1 fix (line 44): a null named with the notes present
+test_null_named_is_withheld if {
+	inp := object.union(good, {"cases": [{"file": "make_deb.py", "exists": true, "named": null}]})
+	"P1: make_deb.py: named was not measured" in p.withheld with input as inp
+}
+
 # null is truthy to a bare Rego reference: a null notes_present must not count as
 # "the notes are present" and fire the does-not-mention arm
 test_null_notes_present_does_not_fire if {

@@ -239,6 +239,34 @@ test_null_sees_host_does_not_fire if {
 	count(w) == 0
 }
 
+# ⚑ ALL NULL: every rule used to fall silent on it (null == 0 is false, count(null)
+# is a type error), so the action landed nowhere. It is withheld, and only that.
+test_all_null_case_withheld_only if {
+	c := {"action": "screens", "state": null, "key": null, "recorded_key": null, "n_inputs": null, "n_outputs": null, "missing_host": null, "n_unresolved": null, "n_undeclared_domains": null, "undeclared_outputs": null, "declared_absent": null, "stale_outputs": null, "unrecorded_outputs": null, "sees_host": null}
+	i := {"cases": [c], "host": {"kind": "unpinned", "detail": "x"}}
+	w := action_key.withheld with input as i
+	count(w) == 1
+	some m in w
+	startswith(m, "K0: action screens:")
+	count(action_key.admitted) == 0 with input as i
+	count(action_key.deny) == 0 with input as i
+}
+
+# a current-state action with a null count was ADMITTED on the rest of its record
+test_null_count_is_withheld_not_admitted if {
+	c := object.union(_current, {"n_inputs": null})
+	i := {"cases": [c]}
+	"K0: action screens: [\"n_inputs\"] was not measured" in action_key.withheld with input as i
+	count(action_key.admitted) == 0 with input as i
+	count(action_key.deny) == 0 with input as i
+}
+
+# a current action with no outputs found was DENIED and ADMITTED at once
+test_zero_outputs_is_not_also_admitted if {
+	c := object.union(_current, {"n_outputs": 0})
+	count(action_key.admitted) == 0 with input as {"cases": [c]}
+}
+
 test_withheld_beside_admitted if {
 	c := object.union(_current, {"action": "schemes", "state": "unrecorded", "recorded_key": null})
 	i := {"cases": [_current, c]}

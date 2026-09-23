@@ -13,8 +13,6 @@ package el.css
 
 import rego.v1
 
-import data.el.truth
-
 # stated beside the tokens: derived identities and flags, not tokens themselves
 derived := {"--el-fg-in-seen", "--el-fg-in-seen-glanced", "--el-ghost-alpha-glanced-infeasible", "--el-tt-is-sel"}
 
@@ -33,18 +31,48 @@ withheld contains msg if {
 	msg := "K0: tinycss2 not importable — the stylesheet is unparsed, not wrong"
 }
 
+# ⚑ EVERY VARIANT LANDS IN EXACTLY ONE OF withheld / deny / admitted.
+# check_css.py ALWAYS emits `file_present` and `parsed` (booleans) and, per
+# variant, `expected` (an object) and `got` (an object, or null when the block is
+# ABSENT — a legitimate null that K1 judges). A null / absent flag or field is
+# "could not say" (K5): withheld, never judged. A null `parsed` used to make
+# every rule silent, so the whole population landed nowhere.
+parsed if input.parsed == true
+
+withheld contains msg if {
+	some f in ["file_present", "parsed"]
+	not is_boolean(object.get(input, f, null))
+	msg := sprintf("K5: %s was not measured", [f])
+}
+
+unmeasured(c) := ({"expected" | not is_object(object.get(c, "expected", null))} | {"got" | not "got" in object.keys(c)}) | {"got" |
+	g := object.get(c, "got", null)
+	g != null
+	not is_object(g)
+}
+
+judged contains c if {
+	parsed
+	some c in object.get(input, "cases", [])
+	count(unmeasured(c)) == 0
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	count(unmeasured(c)) > 0
+	msg := sprintf("K5: %v: %v was not measured", [object.get(c, "id", "?"), sort(unmeasured(c))])
+}
+
 # METADATA
 # title: "K1 — every variant block carries every token at the token's value"
 deny contains msg if {
-	truth.py(input.parsed)
-	some c in input.cases
+	some c in judged
 	c.got == null
 	msg := sprintf("K1: %s: no [data-el-variant=%q] block", [c.id, c.id])
 }
 
 deny contains msg if {
-	truth.py(input.parsed)
-	some c in input.cases
+	some c in judged
 	c.got != null
 	some prop, want in c.expected
 	not prop in object.keys(c.got)
@@ -52,8 +80,7 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	truth.py(input.parsed)
-	some c in input.cases
+	some c in judged
 	c.got != null
 	some prop, want in c.expected
 	have := c.got[prop]
@@ -64,8 +91,7 @@ deny contains msg if {
 # METADATA
 # title: "K2 — no --el- property that is not a token"
 deny contains msg if {
-	truth.py(input.parsed)
-	some c in input.cases
+	some c in judged
 	c.got != null
 	some prop, _ in c.got
 	startswith(prop, "--el-")
@@ -77,8 +103,7 @@ deny contains msg if {
 # METADATA
 # title: "K3 — the seen ghost is stated as color-mix(fg_in over view)"
 deny contains msg if {
-	truth.py(input.parsed)
-	some c in input.cases
+	some c in judged
 	c.got != null
 	some prop in ["--el-fg-in-seen", "--el-fg-in-seen-glanced"]
 	not is_mix(object.get(c.got, prop, ""))
@@ -94,13 +119,13 @@ is_mix(v) if {
 # METADATA
 # title: "K4 — the Off/Lit polarity maps onto prefers-color-scheme"
 deny contains msg if {
-	truth.py(input.parsed)
+	parsed
 	not polarity(input.root, "EL-Openglo")
 	msg := "K4: :root is not EL-Openglo"
 }
 
 deny contains msg if {
-	truth.py(input.parsed)
+	parsed
 	not polarity(input.light, "EL-Openglo-Lit")
 	msg := "K4: prefers-color-scheme: light is not EL-Openglo-Lit"
 }
@@ -113,8 +138,22 @@ polarity(block, vid) if {
 }
 
 admitted contains c.id if {
-	truth.py(input.parsed)
-	some c in input.cases
+	some c in judged
 	c.got != null
 	every prop, want in c.expected { c.got[prop] == want }
+	not foreign(c)
+	not unmixed(c)
+}
+
+# K2 / K3 per case, so a case they deny is not ALSO admitted
+foreign(c) if {
+	some prop, _ in c.got
+	startswith(prop, "--el-")
+	not prop in object.keys(c.expected)
+	not prop in derived
+}
+
+unmixed(c) if {
+	some prop in ["--el-fg-in-seen", "--el-fg-in-seen-glanced"]
+	not is_mix(object.get(c.got, prop, ""))
 }

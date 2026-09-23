@@ -129,6 +129,35 @@ test_null_step_text_series_does_not_fire if {
 	count([m | some m in mb.deny with input as inp; startswith(m, "M7:")]) == 0
 }
 
+# exactly-once: cases whose returned fields are all null are withheld, never judged
+test_all_null_case_withheld_only if {
+	p := object.union(parse_ok, {"text": null, "runs": null})
+	j := object.union(join_ok, {"text": null, "runs": null})
+	r := object.union(ring_ok, {"trace": null})
+	s := object.union(series_ok, {"columns": null})
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s]}
+	w := mb.withheld with input as inp
+	"W: parse <b>hi</b>: text was not measured" in w
+	"W: parse <b>hi</b>: runs was not measured" in w
+	sprintf("W: join%v: text was not measured", [join_ok.args]) in w
+	sprintf("W: ring %v: trace was not measured", [ring_ok.label]) in w
+	"W: series a ramp fills the rows: columns was not measured" in w
+	count(mb.deny) == 0 with input as inp
+}
+
+# N1 (`not input.runner`): a null runner is withheld, not silently nothing
+test_null_runner_is_withheld if {
+	inp := {"runner": null, "parse": [], "join": [], "ring": [], "series": []}
+	w := mb.withheld with input as inp
+	"W: runner was not measured" in w
+	count(mb.deny) == 0 with input as inp
+}
+
+test_absent_runner_is_withheld if {
+	w := mb.withheld with input as object.remove(clean, ["runner"])
+	"W: runner was not measured" in w
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "parse": [], "join": [], "ring": []}
 	count(mb.deny) == 0 with input as inp

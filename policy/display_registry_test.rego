@@ -77,7 +77,72 @@ test_d3_refuses_a_misplaced_e_bar if {
 
 # '0' is deliberately asymmetric (its slash) and is admitted
 test_d3_admits_the_slashed_zero if {
-	p.admitted["matrix:0"] with input as good
+	"matrix:0" in p.admitted with input as good
+}
+
+# N1 (D0 `not input.roundtrip`): a null round trip was DENIED; it is withheld
+test_null_roundtrip_is_withheld_not_denied if {
+	i := object.union(good, {"roundtrip": null})
+	"D5: the round trip was not measured" in p.withheld with input as i
+	count(p.deny) == 0 with input as i
+}
+
+# N1 (D1 `not k.emitted`): a null emitted was DENIED as missing
+test_null_emitted_is_withheld_not_denied if {
+	i := object.union(good, {"roundtrip": {"parsed": true, "error": null, "keys": [{"key": "font5x7", "emitted": null, "registry": true, "equal": true}]}})
+	"D5: roundtrip font5x7: [\"emitted\"] was not measured" in p.withheld with input as i
+	count(p.deny) == 0 with input as i
+}
+
+# N1 (D1 `not k.registry`): a null registry was DENIED as invented
+test_null_registry_is_withheld_not_denied if {
+	i := object.union(good, {"roundtrip": {"parsed": true, "error": null, "keys": [{"key": "zz", "emitted": true, "registry": null, "equal": false}]}})
+	"D5: roundtrip zz: [\"registry\"] was not measured" in p.withheld with input as i
+	count(p.deny) == 0 with input as i
+}
+
+# N1 (D1 `not k.equal`): a null equal was DENIED as differing
+test_null_equal_is_withheld_not_denied if {
+	i := object.union(good, {"roundtrip": {"parsed": true, "error": null, "keys": [{"key": "segGeom", "emitted": true, "registry": true, "equal": null}]}})
+	"D5: roundtrip segGeom: [\"equal\"] was not measured" in p.withheld with input as i
+	count(p.deny) == 0 with input as i
+}
+
+# N1 (D2 `not c.in_substrate`): a null in_substrate was DENIED as undefined
+test_null_in_substrate_is_withheld_not_denied if {
+	i := with_case(0, {"kind": "stroke", "id": "a1", "in_substrate": null})
+	"D5: stroke:a1: [\"in_substrate\"] was not measured" in p.withheld with input as i
+	count(p.deny) == 0 with input as i
+	not "stroke:a1" in p.admitted with input as i
+}
+
+# a null matrix `cols` fell through every D3 rule and was ADMITTED
+test_null_cols_is_withheld_not_admitted if {
+	i := with_case(2, {"kind": "matrix", "id": "A", "cols": null})
+	"D5: matrix:A: [\"cols\"] was not measured" in p.withheld with input as i
+	not "matrix:A" in p.admitted with input as i
+	count(p.deny) == 0 with input as i
+}
+
+test_all_null_case_withheld_only if {
+	i := {"roundtrip": rt, "cases": array.concat(good.cases, [
+		{"kind": "stroke", "id": "zn", "in_substrate": null},
+		{"kind": "format", "id": "zn", "glyphs": null},
+		{"kind": "matrix", "id": "zn", "cols": null},
+		{"kind": null, "id": "zn"},
+	])}
+	w := p.withheld with input as i
+	count(w) == 4
+	a := p.admitted with input as i
+	every k in a { not endswith(k, ":zn") }
+	count(p.deny) == 0 with input as i
+}
+
+test_all_null_roundtrip_withheld_only if {
+	i := object.union(good, {"roundtrip": {"parsed": null, "error": null, "keys": null}})
+	w := p.withheld with input as i
+	w == {"D5: roundtrip.parsed was not measured", "D5: roundtrip.keys was not measured"}
+	count(p.deny) == 0 with input as i
 }
 
 # the selftest's dropped and mangled serialisations

@@ -9,10 +9,8 @@ package el.marquee_body
 
 import rego.v1
 
-import data.el.truth
-
 deny contains msg if {
-	truth.py(input.runner)
+	input.runner == true
 	count(input.parse) + count(input.join) + count(input.ring) == 0
 	msg := "M0: no cases were measured; the population is empty, not the parser right"
 }
@@ -25,12 +23,14 @@ deny contains msg if {
 #   A tag surviving INTO the text is what scrolled across the board live (W39).
 deny contains msg if {
 	some c in input.parse
+	is_string(c.text)
 	c.text != c.expected_text
 	msg := sprintf("M1: %q parsed to %q, expected %q", [c.body, c.text, c.expected_text])
 }
 
 deny contains msg if {
 	some c in input.parse
+	is_array(c.runs)
 	c.runs != c.expected_runs
 	msg := sprintf("M1: %q styled runs %v, expected %v", [c.body, c.runs, c.expected_runs])
 }
@@ -50,12 +50,14 @@ deny contains msg if {
 #   joinItem pushes app and summary as text and parses only the body.
 deny contains msg if {
 	some c in input.join
+	is_string(c.text)
 	c.text != c.expected_text
 	msg := sprintf("M2: join%v gave %q, expected %q", [c.args, c.text, c.expected_text])
 }
 
 deny contains msg if {
 	some c in input.join
+	is_array(c.runs)
 	c.runs != c.expected_runs
 	msg := sprintf("M2: join%v styled runs %v, expected %v", [c.args, c.runs, c.expected_runs])
 }
@@ -110,6 +112,7 @@ deny contains msg if {
 	some a in arrivals
 	some s in input.ring
 	s.label == a.label
+	is_array(s.trace)
 	not shown_after(s, a.id, a.step)
 	msg := sprintf("M4: %s: %q arrived at boundary %d and was never rung", [a.label, a.id, a.step])
 }
@@ -153,19 +156,67 @@ deny contains msg if {
 #   what the case states; a pure function that drifts fails here.
 deny contains msg if {
 	some c in input.series
+	is_array(c.columns)
 	c.columns != c.expected
 	msg := sprintf("M5: %s: columns %v, expected %v", [c.label, c.columns, c.expected])
 }
 
 deny contains msg if {
-	truth.py(input.runner)
+	input.runner == true
 	count(input.series) == 0
 	msg := "M5: no series cases were measured"
 }
 
 # METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
+# description: |
+#   The measurement always emits `runner` as a bool. `false` is the host fact;
+#   null or absent is a measurement that could not say — also withheld, never
+#   read as "ran" (`not input.runner` was FALSE on null, so a null runner fell
+#   into neither the withheld rule nor, via truth.py, M0/M5: silently nothing).
 withheld contains msg if {
-	not input.runner
+	input.runner == false
 	msg := "the qml runner is not on this host; 0 cases ran"
+}
+
+withheld contains msg if {
+	not is_boolean(object.get(input, "runner", null))
+	msg := "W: runner was not measured"
+}
+
+# METADATA
+# title: "W — a case whose RETURNED value is null is withheld, not judged"
+# description: |
+#   The measurement always emits `text` (string) and `runs` (list) per parse and
+#   join case, `trace` (list) per ring scenario, and `columns` (list) per series
+#   case. A null there means the harness returned nothing for it: a case that is
+#   neither right nor wrong. Before this, a null `text` beside a null expectation
+#   compared EQUAL and the case vanished from every rule.
+unmeasured_pj(c) := {k |
+	some k, ok in {"text": is_string(object.get(c, "text", null)), "runs": is_array(object.get(c, "runs", null))}
+	ok == false
+}
+
+withheld contains msg if {
+	some c in object.get(input, "parse", [])
+	some k in unmeasured_pj(c)
+	msg := sprintf("W: parse %v: %s was not measured", [object.get(c, "body", null), k])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "join", [])
+	some k in unmeasured_pj(c)
+	msg := sprintf("W: join%v: %s was not measured", [object.get(c, "args", null), k])
+}
+
+withheld contains msg if {
+	some s in object.get(input, "ring", [])
+	not is_array(object.get(s, "trace", null))
+	msg := sprintf("W: ring %v: trace was not measured", [object.get(s, "label", null)])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "series", [])
+	not is_array(object.get(c, "columns", null))
+	msg := sprintf("W: series %v: columns was not measured", [object.get(c, "label", null)])
 }

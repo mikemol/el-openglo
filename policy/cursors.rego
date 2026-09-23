@@ -18,9 +18,54 @@ deny contains msg if {
 	msg := "C0: no cursor theme was measured"
 }
 
+# ⚑ EVERY VARIANT LANDS IN EXACTLY ONE OF withheld / deny / admitted.
+# check_cursors.py ALWAYS emits, for a variant it did not withhold, `index_theme`
+# (boolean), `tokens.lit` / `tokens.ground` (strings) and `entries` (an object);
+# per entry `readable` (boolean), and for a readable one `sizes` and `dominant`
+# (arrays). A null or absent one is "could not say": the variant is withheld
+# (C7), never judged. `not c.index_theme` read null as "no index.theme" and
+# DENIED it; `not c.withheld` read a null withheld as a reason and dropped the
+# variant from every rule — silently neither denied nor admitted.
+
+# rendered: no withholding reason (null / "" is not one)
+rendered(c) if not truth.py(object.get(c, "withheld", null))
+
+tokens(c) := t if {
+	t := object.get(c, "tokens", null)
+	is_object(t)
+} else := {}
+
+entries(c) := e if {
+	e := object.get(c, "entries", null)
+	is_object(e)
+} else := {}
+
+unmeasured(c) := (((({"index_theme" | not is_boolean(object.get(c, "index_theme", null))} | {"entries" | not is_object(object.get(c, "entries", null))}) | {sprintf("tokens.%s", [t]) |
+	some t in ["lit", "ground"]
+	not is_string(object.get(tokens(c), t, null))
+}) | {sprintf("%s.readable", [n]) |
+	some n, e in entries(c)
+	not is_boolean(object.get(e, "readable", null))
+}) | {sprintf("%s.%s", [n, f]) |
+	some n, e in entries(c)
+	object.get(e, "readable", null) == true
+	some f in ["sizes", "dominant"]
+	not is_array(object.get(e, f, null))
+})
+
 measured contains c if {
 	some c in cases
-	not c.withheld
+	rendered(c)
+	count(unmeasured(c)) == 0
+}
+
+# METADATA
+# title: "C7 — a variant with an unmeasured field is withheld, not judged"
+withheld contains msg if {
+	some c in cases
+	rendered(c)
+	count(unmeasured(c)) > 0
+	msg := sprintf("C7: %v: %v was not measured", [object.get(c, "id", "?"), sort(unmeasured(c))])
 }
 
 # the core shapes — the names a desktop asks for most, drawn (not inherited)
@@ -42,9 +87,7 @@ core_aliases := {
 
 required_sizes := {24, 32, 48}
 
-usable(c, name) if {
-	truth.py(c.entries[name].readable)
-}
+usable(c, name) if c.entries[name].readable == true
 
 # C1 — a core shape is missing or unreadable
 deny contains msg if {
@@ -94,7 +137,7 @@ deny contains msg if {
 # C5 — the theme has its index.theme (the name and the Inherits= fallback)
 deny contains msg if {
 	some c in measured
-	not c.index_theme
+	c.index_theme == false
 	msg := sprintf("C5: %s has no index.theme", [c.id])
 }
 
@@ -117,6 +160,6 @@ denied_id(id) if {
 
 withheld contains msg if {
 	some c in cases
-	truth.py(c.withheld)
+	not rendered(c)
 	msg := sprintf("%s: %s", [c.id, c.withheld])
 }

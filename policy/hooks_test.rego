@@ -39,3 +39,28 @@ test_null_present_does_not_fire if {
 	passing := {"cases": [object.union(good.cases[0], {"present": null})]}
 	count(p.admitted) == 0 with input as passing
 }
+
+# exactly-once: a case whose judged fields are all null is withheld, never judged
+test_all_null_case_withheld_only if {
+	inp := {"cases": [{"hook": "hook_no_chaining.py", "present": null, "resolves": null, "rc": null, "tail": null}, good.cases[1]]}
+	w := p.withheld with input as inp
+	"H3: hook_no_chaining.py: present was not measured" in w
+	d := p.deny with input as inp
+	count([x | some x in d; contains(x, "hook_no_chaining.py")]) == 0
+	not "hook_no_chaining.py" in p.admitted with input as inp
+}
+
+# N1 (H1 `not c.present`): a null present is withheld, not silently nothing
+test_null_present_is_withheld if {
+	inp := {"cases": [{"hook": "hook_no_chaining.py", "present": null, "resolves": "/x", "rc": 0, "tail": "PASS"}]}
+	w := p.withheld with input as inp
+	"H3: hook_no_chaining.py: present was not measured" in w
+}
+
+# a present hook whose rc is null could not say whether its selftest passed
+test_present_null_rc_withheld if {
+	inp := {"cases": [{"hook": "hook_no_chaining.py", "present": true, "resolves": "/x", "rc": null, "tail": ""}]}
+	w := p.withheld with input as inp
+	"H3: hook_no_chaining.py: rc was not measured" in w
+	count(p.deny) == 0 with input as inp
+}

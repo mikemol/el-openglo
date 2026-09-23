@@ -23,6 +23,7 @@ deny contains msg if {
 #   not errors). Any kept diagnostic is a measured defect.
 deny contains msg if {
 	some doc in input.documents
+	rendered(doc)
 	some d in doc.lint
 	msg := sprintf("Q1: %s: %s", [doc.id, d])
 }
@@ -36,6 +37,7 @@ deny contains msg if {
 #   blocks and reports each finite one whose `running:` is an expression.
 deny contains msg if {
 	some doc in input.documents
+	rendered(doc)
 	some b in doc.bound_running
 	msg := sprintf("Q2: %s: %s with loops %s binds running: — a finite run overwrites the binding when it ends; start() it instead", [doc.id, b.animation, b.loops])
 }
@@ -61,13 +63,35 @@ withheld contains msg if {
 #   the same ("n of m ... (k SKIP)") before it was reduced to opa_gate.gate.
 admitted contains doc.id if {
 	some doc in input.documents
-	not doc.withheld
-	count(object.get(doc, "lint", [])) == 0
-	count(object.get(doc, "bound_running", [])) == 0
+	rendered(doc)
+	is_array(object.get(doc, "lint", null))
+	is_array(object.get(doc, "bound_running", null))
+	count(doc.lint) == 0
+	count(doc.bound_running) == 0
+}
+
+# rendered: the host produced the document. A null / "" withheld is NOT a
+# reason (`not doc.withheld` read null as one and dropped the doc everywhere).
+rendered(doc) if not truth.py(object.get(doc, "withheld", null))
+
+# ⚑ EXACTLY ONCE: a rendered document always carries `lint` and `bound_running`
+# (lists); one null or absent is a could-not-say, withheld by name, not admitted.
+withheld contains msg if {
+	some doc in input.documents
+	rendered(doc)
+	some f in ["lint", "bound_running"]
+	not is_array(object.get(doc, f, null))
+	msg := sprintf("%v: %s was not measured", [object.get(doc, "id", null), f])
 }
 
 withheld contains msg if {
 	count(object.get(input, "documents", [])) > 0
-	not input.qmllint
+	input.qmllint == false
 	msg := "qmllint is not installed on this host; Q1 measured nothing"
+}
+
+withheld contains msg if {
+	count(object.get(input, "documents", [])) > 0
+	not is_boolean(object.get(input, "qmllint", null))
+	msg := "qmllint was not measured; Q1 cannot say whether it ran"
 }

@@ -10,16 +10,14 @@ package el.marquee_live
 
 import rego.v1
 
-import data.el.truth
-
 deny contains msg if {
-	truth.py(input.runner)
+	input.runner == true
 	count(input.samples) == 0
 	msg := "L0: no samples; the widget did not run"
 }
 
 deny contains msg if {
-	truth.py(input.runner)
+	input.runner == true
 	count(input.events) == 0
 	msg := "L0: no events; nothing drove the board"
 }
@@ -35,10 +33,10 @@ deny contains msg if {
 	some i
 	s := input.samples[i]
 	s.text != ""
-	not s.running
+	s.running == false
 	later := input.samples[i + 2]
 	later.text != ""
-	not later.running
+	later.running == false
 	msg := sprintf("L1: at t=%v the board shows %q and is not scrolling (still not at t=%v)", [s.t, s.text, later.t])
 }
 
@@ -108,7 +106,9 @@ deny contains msg if {
 	# id 20's expiry landing on the boundary 100 ms earlier. Any two events closer
 	# together than one rotation were indistinguishable from a tear, which is why
 	# this denied intermittently and under load.
-	not a.boundary
+	# absent = not a boundary (fixtures predating the flag omit it); a NON-bool
+	# boundary is withheld below (W), never read as either
+	object.get(a, "boundary", false) == false
 	msg := sprintf("L3: %s of id %v at t=%v changed the board mid-rotation: %q -> %q", [e.op, e.id, e.t, b.text, a.text])
 }
 
@@ -122,8 +122,8 @@ deny contains msg if {
 	some i
 	a := input.samples[i]
 	b := input.samples[i + 1]
-	truth.py(a.running)
-	truth.py(b.running)
+	a.running == true
+	b.running == true
 	a.text != ""
 	b.text == a.text
 	b.x > a.x + 1
@@ -141,13 +141,21 @@ idle_before(e) if {
 	some s in input.samples
 	s.t < e.t
 	s.text == ""
-	not s.running
+	s.running == false
 }
 
 runs_after(e) if {
 	some s in input.samples
 	s.t >= e.t
-	truth.py(s.running)
+	s.running == true
+}
+
+# a sample after the arrival whose `running` could not be read: the board may
+# have woken there, so "did not wake" cannot be concluded
+wake_unmeasured(e) if {
+	some s in input.samples
+	s.t >= e.t
+	not is_boolean(object.get(s, "running", null))
 }
 
 deny contains msg if {
@@ -155,7 +163,17 @@ deny contains msg if {
 	e.op == "arrive"
 	idle_before(e)
 	not runs_after(e)
+	not wake_unmeasured(e)
 	msg := sprintf("L5: the board was idle and did not wake for the arrival of id %v at t=%v", [e.id, e.t])
+}
+
+withheld contains msg if {
+	some e in input.events
+	e.op == "arrive"
+	idle_before(e)
+	not runs_after(e)
+	wake_unmeasured(e)
+	msg := sprintf("L5: arrival of id %v at t=%v: whether the board woke was not measured", [e.id, e.t])
 }
 
 # METADATA
@@ -168,11 +186,11 @@ deny contains msg if {
 #   at least one pitch in that span).
 stalled(i) if {
 	a := input.samples[i]
-	truth.py(a.running)
+	a.running == true
 	a.text != ""
 	every k in numbers.range(1, 10) {
 		b := input.samples[i + k]
-		truth.py(b.running)
+		b.running == true
 		b.text == a.text
 		b.x == a.x
 	}
@@ -194,25 +212,26 @@ deny contains msg if {
 #   the offscreen pointer at (0,0)): among the paused samples the ring opacity
 #   takes more than one value and is never zero; over the main run (never
 #   paused) the ring is zero at every sample. Derived from the samples.
-paused_rings := {s.ring | some s in input.hovered.samples; truth.py(s.paused)}
+paused_rings := {s.ring | some s in input.hovered.samples; s.paused == true}
 
 deny contains msg if {
-	truth.py(input.runner)
-	count([s | some s in input.hovered.samples; truth.py(s.paused)]) > 0
+	input.runner == true
+	count([s | some s in input.hovered.samples; s.paused == true]) > 0
 	count(paused_rings) < 2
 	msg := sprintf("L7: the board was paused and the ring did not pulse (opacities seen: %v)", [paused_rings])
 }
 
 deny contains msg if {
 	some s in input.hovered.samples
-	truth.py(s.paused)
+	s.paused == true
 	s.ring == 0
 	msg := sprintf("L7: paused at t=%v with the ring dark", [s.t])
 }
 
 deny contains msg if {
 	some s in input.samples
-	not s.paused
+	# absent = not paused (the main run's fixtures omit it); non-bool is withheld (W)
+	object.get(s, "paused", false) == false
 	s.ring > 0
 	msg := sprintf("L7: not paused at t=%v and the ring is lit (%v)", [s.t, s.ring])
 }
@@ -379,6 +398,38 @@ falls(ser) if {
 # METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
-	not input.runner
+	input.runner == false
 	msg := "the qml runner is not on this host; the widget did not run"
+}
+
+# METADATA
+# title: "W — what the measurement could not read is withheld, not judged"
+# description: |
+#   The measurement always emits `runner` (bool) and, per sample, `running` and
+#   `paused` (the widget's bools) and, on the main run, `boundary`
+#   (mark_boundaries). null or absent `runner`, null or absent `running`, and a
+#   PRESENT non-bool `paused` / `boundary` are "could not say". (An ABSENT
+#   paused/boundary reads as false: the fixtures predate those fields, and HEAD
+#   read them that way.) Before this, `not s.running` read null as running, so a
+#   null sample silenced L1 and L5.
+withheld contains msg if {
+	not is_boolean(object.get(input, "runner", null))
+	msg := "W: runner was not measured"
+}
+
+withheld contains msg if {
+	some [run, s] in sample_runs
+	some k in unmeasured_sample(s)
+	msg := sprintf("W: %s sample t=%v: %s was not measured", [run, object.get(s, "t", null), k])
+}
+
+sample_runs := {["main", s] | some s in object.get(input, "samples", [])} | {["hovered", s] | some s in object.get(object.get(input, "hovered", {}), "samples", [])}
+
+unmeasured_sample(s) := {k |
+	some k, ok in {
+		"running": is_boolean(object.get(s, "running", null)),
+		"paused": is_boolean(object.get(s, "paused", false)),
+		"boundary": is_boolean(object.get(s, "boundary", false)),
+	}
+	ok == false
 }

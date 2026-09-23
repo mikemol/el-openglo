@@ -7,11 +7,62 @@
 #   (INTERIOR, DISCRETE) and the DERIVED ones, the netlist handoff's edges, and the number of
 #   open questions. This gates that the relations are WELL-FORMED and CONSUMABLE,
 #   not that they are TRUE of the palette (@SEPARATION, @GHOST, @MARGIN do that).
+#
+#   ⚑ EVERY CASE LANDS IN EXACTLY ONE OF withheld / deny / admitted. A field the
+#   measurement ALWAYS emits (a case's u / v / kind / quantity, a netlist edge's
+#   pair / generator, the population's known / terminals / free / netlist /
+#   open_questions) that is null or absent could not be said: R7 withholds it,
+#   and no rule judges it. `bound` is legitimately null (a balance or arrow has
+#   none), so it is not in that list.
 package el.relations
 
 import rego.v1
 
 kinds := {"floor", "ceiling", "balance", "arrow"}
+
+case_fields := ["u", "v", "kind", "quantity"]
+
+edge_fields := ["pair", "generator"]
+
+population_fields := ["known", "terminals", "free", "netlist", "open_questions"]
+
+# a case whose always-emitted facts are all present
+measured(r) if {
+	every f in case_fields {
+		object.get(r, f, null) != null
+	}
+}
+
+edge_measured(e) if {
+	every f in edge_fields {
+		object.get(e, f, null) != null
+	}
+}
+
+# the edge authority's node list was measured (R1, R3, R4 judge against it)
+known_measured if object.get(input, "known", null) != null
+
+# METADATA
+# title: "R7 — a fact the measurement did not state is withheld, not judged"
+withheld contains msg if {
+	some i, r in object.get(input, "cases", [])
+	some f in case_fields
+	object.get(r, f, null) == null
+	msg := sprintf("R7: relation %d (%v~%v): %s was not measured", [i, object.get(r, "u", null), object.get(r, "v", null), f])
+}
+
+withheld contains msg if {
+	some i, e in object.get(input, "netlist", [])
+	some f in edge_fields
+	object.get(e, f, null) == null
+	msg := sprintf("R7: netlist edge %d (%v): %s was not measured", [i, object.get(e, "key", null), f])
+}
+
+withheld contains msg if {
+	some f in population_fields
+	object.get(input, f, null) == null
+	msg := sprintf("R7: %s was not measured", [f])
+}
 
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
@@ -24,7 +75,9 @@ deny contains msg if {
 #   A relation naming a role the authority does not declare would make the
 #   relations a FOURTH namespace.
 deny contains msg if {
+	known_measured
 	some r in input.cases
+	measured(r)
 	some side in [r.u, r.v]
 	not side in {n | some n in input.known}
 	msg := sprintf("R1: %s~%s (%s): names %q, which the edge authority does not", [r.u, r.v, r.kind, side])
@@ -34,12 +87,14 @@ deny contains msg if {
 # title: "R2 — every relation is declarative: a known kind, a quantity, a bound where it bounds"
 deny contains msg if {
 	some r in input.cases
+	measured(r)
 	not r.kind in kinds
 	msg := sprintf("R2: %s~%s: kind %q is not one of floor/ceiling/balance/arrow", [r.u, r.v, r.kind])
 }
 
 deny contains msg if {
 	some r in input.cases
+	measured(r)
 	r.kind in {"floor", "ceiling"}
 	object.get(r, "bound", null) in {null, "", false}
 	msg := sprintf("R2: %s~%s: a %s relation with no bound cannot be checked", [r.u, r.v, r.kind])
@@ -47,6 +102,7 @@ deny contains msg if {
 
 deny contains msg if {
 	some r in input.cases
+	measured(r)
 	r.quantity == ""
 	msg := sprintf("R2: %s~%s: names no quantity, so nothing says WHAT must hold", [r.u, r.v])
 }
@@ -54,6 +110,7 @@ deny contains msg if {
 # METADATA
 # title: "R3 — terminals are declared, and pinned is not free"
 deny contains msg if {
+	known_measured
 	some t in input.terminals
 	not t in {n | some n in input.known}
 	msg := sprintf("R3: terminal %q is not a declared node", [t])
@@ -70,7 +127,11 @@ deny contains msg if {
 # description: |
 #   A role added to the palette and never constrained is undetermined, and
 #   nothing else says so.
+# an unmeasured relation might be the one that reaches n: R4 judges only a fully measured set
 deny contains msg if {
+	every r in input.cases {
+		measured(r)
+	}
 	some n in array.concat(input.free, object.get(input, "derived", []))
 	not n in {s | some r in input.cases; some s in [r.u, r.v]}
 	msg := sprintf("R4: %q is free but no relation reaches it — undetermined", [n])
@@ -85,7 +146,7 @@ deny contains msg if {
 
 deny contains msg if {
 	some e in input.netlist
-	not e.pair
+	e.pair == false
 	msg := sprintf("R5: netlist key %s is not a (u, v) pair", [e.key])
 }
 
@@ -106,7 +167,9 @@ deny contains msg if {
 }
 
 admitted contains sprintf("%s~%s:%s", [r.u, r.v, r.kind]) if {
+	known_measured
 	some r in input.cases
+	measured(r)
 	r.u in {n | some n in input.known}
 	r.v in {n | some n in input.known}
 	r.kind in kinds

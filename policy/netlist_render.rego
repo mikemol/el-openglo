@@ -12,8 +12,6 @@ package el.netlist_render
 
 import rego.v1
 
-import data.el.truth
-
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "N0: no graph nodes were measured; the search is broken, not the render clean"
@@ -22,6 +20,45 @@ deny contains msg if {
 deny contains msg if {
 	object.get(input, "frames", 0) == 0
 	msg := "N0: no elimination frames; the solve did not run"
+}
+
+# ⚑ EXACTLY ONCE: a fact the measurement always emits that arrives null (or, for a
+# per-item fact, absent) is a could-not-say — WITHHELD, never judged and never
+# silently nothing. `not c.in_dot` read null as "present"; `== false` does not.
+withheld contains msg if {
+	object.get(input, "frames", 0) == null
+	msg := "N0: frames was not measured"
+}
+
+withheld contains msg if {
+	object.get(input, "stuck", []) == null
+	msg := "N1: stuck was not measured"
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	not is_boolean(object.get(c, "in_dot", null))
+	msg := sprintf("N2: %v: in_dot was not measured", [object.get(c, "node", null)])
+}
+
+withheld contains msg if {
+	some f in object.get(input, "families", [])
+	not is_boolean(object.get(f, "in_dot", null))
+	msg := sprintf("N3: family %v: in_dot was not measured", [object.get(f, "family", null)])
+}
+
+withheld contains msg if {
+	some f in object.get(input, "families", [])
+	not "colour" in object.keys(f)
+	msg := sprintf("N3: family %v: colour was not measured", [object.get(f, "family", null)])
+}
+
+withheld contains msg if {
+	input.render.ok == true
+	some f in object.get(input, "families", [])
+	is_string(object.get(f, "colour", null))
+	not is_boolean(object.get(f, "in_svg", null))
+	msg := sprintf("N3: family %v: in_svg was not measured", [object.get(f, "family", null)])
 }
 
 # METADATA
@@ -38,7 +75,7 @@ deny contains msg if {
 #   `--edges` hardcoded-family defect.
 deny contains msg if {
 	some c in input.cases
-	not c.in_dot
+	c.in_dot == false
 	msg := sprintf("N2: node %q is in the graph and not in the render", [c.node])
 }
 
@@ -56,7 +93,7 @@ deny contains msg if {
 deny contains msg if {
 	some f in input.families
 	f.colour != null
-	not f.in_dot
+	f.in_dot == false
 	msg := sprintf("N3: family %q styles as %s which is absent from the render", [f.family, f.colour])
 }
 
@@ -74,11 +111,11 @@ deny contains msg if {
 }
 
 withheld contains msg if {
-	input.render.ok == null
-	msg := sprintf("N3: render unverified — %s", [input.render.detail])
+	not is_boolean(object.get(object.get(input, "render", {}), "ok", null))
+	msg := sprintf("N3: render unverified — %v", [object.get(object.get(input, "render", {}), "detail", "render.ok was not measured")])
 }
 
 admitted contains c.node if {
 	some c in input.cases
-	truth.py(c.in_dot)
+	c.in_dot == true
 }

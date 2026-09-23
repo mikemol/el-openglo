@@ -40,7 +40,31 @@ test_unrouted_is_not_admitted if {
 test_null_routed_withheld_does_not_fire if {
 	inp := {"cases": [routed, object.union(bare, {"routed": null, "withheld": null})]}
 	not "scripts/check_ebuild.py:9" in q.admitted with input as inp
-	count(q.withheld) == 0 with input as inp
+	# was count(withheld) == 0 — the silently-nothing exactly-once forbids; a null
+	# withheld is still no REASON, but the null routed is now withheld by name
+	q.withheld == {"scripts/check_ebuild.py:9: routed was not measured"} with input as inp
+}
+
+test_all_null_case_withheld_only if {
+	inp := {"cases": [routed, {"id": "scripts/x.py:3", "file": null, "line": null, "tool": null, "via": null, "routed": null, "gpu": null, "withheld": null}]}
+	q.withheld == {"scripts/x.py:3: routed was not measured"} with input as inp
+	not "scripts/x.py:3" in q.admitted with input as inp
+	d := q.deny with input as inp
+	every m in d { not contains(m, "scripts/x.py:3") }
+}
+
+# N1 fix (line 23): HEAD's `not c.withheld` read a null reason as a withholding,
+# so an unrouted site with withheld: null was never denied
+test_null_withheld_unrouted_is_denied if {
+	inp := {"cases": [object.union(bare, {"withheld": null})]}
+	some m in q.deny with input as inp
+	startswith(m, "Q1: scripts/check_ebuild.py:9")
+}
+
+# N1 fix (line 29): HEAD's `not c.routed` read a null routed as routed
+test_null_routed_is_withheld if {
+	inp := {"cases": [object.union(bare, {"routed": null})]}
+	"scripts/check_ebuild.py:9: routed was not measured" in q.withheld with input as inp
 }
 
 test_withheld_only if {

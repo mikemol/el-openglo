@@ -33,6 +33,16 @@ test_r5_withholds_the_render_without_graphviz if {
 	count(p.admitted) == 3 with input as w
 }
 
+# exactly-once (rego_lint N1): a role present with a null value was NOT MEASURED —
+# withheld, never "unassigned" (the old `not input.assignment[r]` denied it) and
+# never admitted
+test_null_assignment_is_withheld_not_unassigned if {
+	w := object.union(good, {"assignment": {"read": "blue", "write": "bluegreen", "flow": null}})
+	"R1: assignment[\"flow\"] was not measured" in p.withheld with input as w
+	not "R1: role \"flow\" is declared but unassigned" in p.deny with input as w
+	not "flow" in p.admitted with input as w
+}
+
 test_r0_refuses_an_absent_population if {
 	some msg in p.deny with input as {}
 	startswith(msg, "R0:")

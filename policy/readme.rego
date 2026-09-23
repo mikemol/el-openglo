@@ -30,8 +30,45 @@ deny contains msg if {
 # title: "R1 — README.md exists"
 deny contains msg if {
 	count(object.get(input, "items", [])) > 0
-	not input.readme
+	input.readme == false
 	msg := "R1: README.md is absent"
+}
+
+# ⚑ EXACTLY ONCE: the measurement always emits `readme` (bool), per item `named`
+# (bool) and per fragment `current` (bool). One null or absent is a could-not-say:
+# withheld by name, never judged (`not i.named` read null as named).
+withheld contains msg if {
+	count(object.get(input, "items", [])) > 0
+	not is_boolean(object.get(input, "readme", null))
+	msg := "R1: readme was not measured"
+}
+
+withheld contains msg if {
+	some i in object.get(input, "items", [])
+	not is_boolean(object.get(i, "named", null))
+	msg := sprintf("R2: %v %v: named was not measured", [object.get(i, "kind", null), object.get(i, "name", null)])
+}
+
+withheld contains msg if {
+	some f in object.get(input, "fragments", [])
+	not is_boolean(object.get(f, "current", null))
+	msg := sprintf("R3: %v: current was not measured", [object.get(f, "name", null)])
+}
+
+withheld contains msg if {
+	object.get(input, "roster_drift", []) == null
+	msg := "R4: roster_drift was not measured"
+}
+
+# METADATA
+# title: "A — the declared items the front page was judged to name"
+# description: |
+#   Declared so a withheld item beside admitted ones is a counted SKIP, and so
+#   every item lands in exactly one of deny / withheld / admitted.
+admitted contains sprintf("%s %s", [i.kind, i.name]) if {
+	input.readme == true
+	some i in input.items
+	i.named == true
 }
 
 # METADATA
@@ -42,7 +79,7 @@ deny contains msg if {
 #   graph to the tree.
 deny contains msg if {
 	some i in input.items
-	not i.named
+	i.named == false
 	msg := sprintf("R2: README.md does not name %s %s", [i.kind, i.name])
 }
 
@@ -53,7 +90,7 @@ deny contains msg if {
 #   fragment that lags its authority would put a stale table on the front page.
 deny contains msg if {
 	some f in object.get(input, "fragments", [])
-	not f.current
+	f.current == false
 	msg := sprintf("R3: catalog/readme/%s is stale — run scripts/readme_fragments.py --write", [f.name])
 }
 

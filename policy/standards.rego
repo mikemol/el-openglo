@@ -30,15 +30,34 @@ deny contains msg if {
 #   file still compiled; a document crediting an absent applier is how that hides.
 deny contains msg if {
 	some c in input.cases
-	not c.imports
+	c.imports == false
 	msg := sprintf("T2: %s.%s: module will not import: %s", [c.module, c.attr, c.error])
 }
 
 deny contains msg if {
 	some c in input.cases
 	truth.py(c.imports)
-	not c.present
+	c.present == false
 	msg := sprintf("T2: %s.%s: named in STANDARDS.md, absent from the module", [c.module, c.attr])
+}
+
+# METADATA
+# title: "W — an applier whose import or presence was not reported is withheld"
+# description: |
+#   check_standards always emits `imports` and `present` as bools (present is
+#   False on an import failure, where T2 judges `imports` instead). Null or
+#   absent means the measurement could not say, so the case is not judged.
+withheld contains msg if {
+	some c in input.cases
+	not is_boolean(object.get(c, "imports", null))
+	msg := sprintf("%s.%s: imports was not measured", [c.module, c.attr])
+}
+
+withheld contains msg if {
+	some c in input.cases
+	truth.py(c.imports)
+	not is_boolean(object.get(c, "present", null))
+	msg := sprintf("%s.%s: present was not measured", [c.module, c.attr])
 }
 
 admitted contains sprintf("%s.%s", [c.module, c.attr]) if {

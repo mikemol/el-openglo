@@ -53,3 +53,28 @@ test_null_imports_present_do_not_fire if {
 	}
 	count(t.admitted) == 0 with input as inp
 }
+
+# exactly once: an applier with its judged fields null is withheld, never judged
+test_all_null_case_withheld_only if {
+	inp := object.union(good, {"cases": [object.union(ok_case("apca_Lc"), {"imports": null, "present": null})]})
+	w := t.withheld with input as inp
+	"cvd_gate.apca_Lc: imports was not measured" in w
+	not "cvd_gate.apca_Lc" in t.admitted with input as inp
+	d := t.deny with input as inp
+	every msg in d {
+		not contains(msg, "apca_Lc")
+	}
+}
+
+# N1 T2 (import): a null imports is not "module will not import"
+test_null_imports_not_t2 if {
+	inp := object.union(good, {"cases": [object.union(ok_case("apca_Lc"), {"imports": null})]})
+	count(t.deny) == 0 with input as inp
+}
+
+# N1 T2 (present): a null present under a clean import is withheld, not "absent from the module"
+test_null_present_withheld_not_t2 if {
+	inp := object.union(good, {"cases": [object.union(ok_case("apca_Lc"), {"present": null})]})
+	count(t.deny) == 0 with input as inp
+	"cvd_gate.apca_Lc: present was not measured" in t.withheld with input as inp
+}

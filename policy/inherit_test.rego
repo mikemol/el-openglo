@@ -75,3 +75,30 @@ test_null_defaults_ok_does_not_fire if {
 	inp := object.union(good, {"cases": [object.union(off, {"defaults_ok": null}), lit]})
 	p.admitted == {"EL-Openglo-Lit"} with input as inp
 }
+
+# exactly-once: a case whose judged fields are all null is withheld, never judged
+test_all_null_case_withheld_only if {
+	blank := {"id": "EL-Openglo", "icon_parents": null, "cursor_parent": null, "icon_dirs": null, "defaults_ok": null, "missing": null, "installed": null}
+	inp := object.union(good, {"cases": [blank, lit]})
+	w := p.withheld with input as inp
+	"I6: EL-Openglo: icon_parents was not measured" in w
+	"I6: EL-Openglo: defaults_ok was not measured" in w
+	d := p.deny with input as inp
+	count([x | some x in d; contains(x, "EL-Openglo:")]) == 0
+	not "EL-Openglo" in p.admitted with input as inp
+}
+
+# N1 (I4 `not c.defaults_ok`): a null defaults_ok is withheld, not silently nothing
+test_null_defaults_ok_is_withheld if {
+	inp := object.union(good, {"cases": [object.union(off, {"defaults_ok": null}), lit]})
+	w := p.withheld with input as inp
+	"I6: EL-Openglo: defaults_ok was not measured" in w
+	count(p.deny) == 0 with input as inp
+}
+
+# an absent `missing` (always emitted) is withheld, not silently dropped
+test_absent_missing_is_withheld if {
+	inp := object.union(good, {"cases": [object.remove(off, ["missing"]), lit]})
+	w := p.withheld with input as inp
+	"I6: EL-Openglo: missing was not measured" in w
+}

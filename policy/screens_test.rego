@@ -61,6 +61,55 @@ test_s5_refuses_a_tear if {
 	startswith(msg, "S5:")
 }
 
+# N1 fix (S1 `not s.exists`): a null existence was not measured — withheld, never "missing"
+test_null_screen_exists_withheld_not_s1 if {
+	inp := {"screens": [object.union(good, {"exists": null})], "animations": []}
+	count(sc.deny) == 0 with input as inp
+	sc.withheld == {"S7: clock-EL-Amber.png: exists was not measured"} with input as inp
+	count(sc.admitted) == 0 with input as inp
+}
+
+# N1 fix (S4 `not a.exists`)
+test_null_animation_exists_withheld_not_s4 if {
+	inp := {"screens": [good], "animations": [object.union(anim, {"exists": null})]}
+	count(sc.deny) == 0 with input as inp
+	sc.withheld == {"S7: marquee-anim-EL-Amber.png: exists was not measured"} with input as inp
+	sc.admitted == {"clock-EL-Amber.png"} with input as inp
+}
+
+# N1 fix (S6 `not a.seamless`)
+test_null_seamless_withheld_not_s6 if {
+	inp := {"screens": [good], "animations": [object.union(anim, {"seamless": null})]}
+	count(sc.deny) == 0 with input as inp
+	sc.withheld == {"S7: marquee-anim-EL-Amber.png: seamless was not measured"} with input as inp
+}
+
+test_all_null_case_withheld_only if {
+	s := {"file": "clock-EL-Amber.png", "variant": "EL-Amber", "exists": true, "modal": null, "distinct": null, "grounds": null}
+	a := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": null, "tears": null, "seamless": null}
+	inp := {"screens": [s], "animations": [a]}
+	count(sc.deny) == 0 with input as inp
+	count(sc.admitted) == 0 with input as inp
+	w := sc.withheld with input as inp
+	count(w) == 6
+	"S7: clock-EL-Amber.png: distinct was not measured" in w
+	"S7: marquee-anim-EL-Amber.png: seamless was not measured" in w
+}
+
+test_null_animations_population_withheld if {
+	inp := {"screens": [good], "animations": null}
+	sc.withheld == {"S7: animations was not measured"} with input as inp
+	count(sc.deny) == 0 with input as inp
+}
+
+test_admits_a_clean_still_and_animation if {
+	sc.admitted == {"clock-EL-Amber.png", "marquee-anim-EL-Amber.png"} with input as {"screens": [good], "animations": [anim]}
+}
+
+test_a_denied_still_is_not_admitted if {
+	count(sc.admitted) == 0 with input as {"screens": [object.union(good, {"distinct": 1})], "animations": []}
+}
+
 # null exists is not held: the drawn-content rules S2/S3 judge only an existing still
 test_null_screen_exists_does_not_fire if {
 	inp := {"screens": [object.union(good, {"exists": null, "distinct": 1, "modal": "#081411"})]}

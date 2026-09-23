@@ -105,13 +105,83 @@ test_g1_refuses_an_sddm_conf_write if {
 	contains(msg, "wrote sddm.conf")
 }
 
-# null is truthy to a bare Rego reference: a null sddm_conf_written is not a write,
-# and a null withheld is not a withholding
+# null is truthy to a bare Rego reference: a null sddm_conf_written is not a write —
+# it was not MEASURED, so the case is withheld (H2), not judged. A null withheld
+# REASON is not a withholding.
 test_null_sddm_conf_written_withheld_does_not_fire if {
 	c := object.union(sddm("theme", 0, "el-openglo-azure-lit"), {"sddm_conf_written": null, "withheld": null})
 	inp := {"cases": swap("theme", c)}
-	count(rh.withheld) == 0 with input as inp
+	rh.withheld == {"H2: el-openglo-sddm/theme: sddm_conf_written was not measured"} with input as inp
 	not any_g1_write with input as inp
+	not "el-openglo-sddm/theme" in rh.admitted with input as inp
+}
+
+test_null_withheld_reason_is_not_a_withholding if {
+	c := object.union(sddm("theme", 0, "el-openglo-azure-lit"), {"withheld": null})
+	inp := {"cases": swap("theme", c)}
+	count(rh.withheld) == 0 with input as inp
+	"el-openglo-sddm/theme" in rh.admitted with input as inp
+}
+
+# N1 fix (G2 `not r.script_exists` / `not r.image_dir_exists`): null is not measured
+test_null_ref_existence_withheld_not_denied if {
+	bad := object.union(layout, {"refs": {"el-openglo-EL-Openglo.plymouth": {"script_file": "/x.script", "script_exists": null, "image_dir": "/x", "image_dir_exists": null}}})
+	inp := {"cases": array.concat([x | some x in good; x.kind != "layout"], [bad])}
+	d := rh.deny with input as inp
+	every msg in d {
+		not contains(msg, "does not resolve")
+	}
+	w := rh.withheld with input as inp
+	"H2: layout el-openglo-EL-Openglo: el-openglo-EL-Openglo.plymouth.script_exists was not measured" in w
+	"H2: layout el-openglo-EL-Openglo: el-openglo-EL-Openglo.plymouth.image_dir_exists was not measured" in w
+	not "el-openglo-EL-Openglo" in rh.admitted with input as inp
+}
+
+# N1 fix (G1 `not c.want_theme_dir_exists`): null is not measured
+test_null_want_theme_dir_exists_withheld_not_denied if {
+	c := object.union(sddm("theme", 0, "el-openglo-azure-lit"), {"want_theme_dir_exists": null})
+	inp := {"cases": swap("theme", c)}
+	d := rh.deny with input as inp
+	every msg in d {
+		not contains(msg, "is not an installed greeter theme")
+	}
+	"H2: el-openglo-sddm/theme: want_theme_dir_exists was not measured" in rh.withheld with input as inp
+}
+
+test_g1_refuses_an_uninstalled_theme if {
+	c := object.union(sddm("theme", 0, "el-openglo-azure-lit"), {"want_theme_dir_exists": false})
+	some msg in rh.deny with input as {"cases": swap("theme", c)}
+	contains(msg, "is not an installed greeter theme")
+}
+
+# N1 fix (runs `not c.withheld`): a null withheld reason must not drop a run from judgement
+test_null_withheld_run_is_judged if {
+	c := object.union(ply("alternatives_fail", 0, {}), {"withheld": null})
+	some msg in rh.deny with input as {"cases": swap("alternatives_fail", c)}
+	startswith(msg, "G3: el-openglo-plymouth/alternatives_fail exited 0")
+}
+
+test_all_null_case_withheld_only if {
+	runc := {"kind": "run", "helper": "el-openglo-plymouth", "scenario": "happy", "exit": null, "stdout": null,
+		"stderr": null, "tool_log": null, "alternative": null, "dropin": null, "sddm_conf_written": null,
+		"want_theme": null, "want_name": null, "withheld": null}
+	lay := {"kind": "layout", "variant": "EL-Openglo", "dir": "el-openglo-EL-Openglo", "plymouth_files": null, "refs": null}
+	inp := {"cases": array.concat([x | some x in good; object.get(x, "scenario", "") != "happy"; x.kind != "layout"], [runc, lay])}
+	w := rh.withheld with input as inp
+	"H2: el-openglo-plymouth/happy: exit was not measured" in w
+	"H2: layout el-openglo-EL-Openglo: plymouth_files was not measured" in w
+	a := rh.admitted with input as inp
+	not "el-openglo-plymouth/happy" in a
+	not "el-openglo-EL-Openglo" in a
+	d := rh.deny with input as inp
+	every msg in d {
+		not contains(msg, "el-openglo-plymouth/happy")
+		not contains(msg, "el-openglo-EL-Openglo")
+	}
+}
+
+test_null_kind_withheld if {
+	"H2: case 0: kind was not measured" in rh.withheld with input as {"cases": [{"kind": null}]}
 }
 
 any_g1_write if {

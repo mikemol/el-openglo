@@ -34,6 +34,38 @@ test_null_hook_skill_present_does_not_admit if {
 	count(r.admitted) == 0 with input as object.union(good, {"skill_present": null})
 }
 
+# N1 fixes (R1 `not input.hook_present`, R2 `not input.skill_present`): null is
+# not measured — withheld, never "not installed"
+test_null_hook_present_withheld_not_denied if {
+	inp := object.union(good, {"hook_present": null})
+	d := r.deny with input as inp
+	every msg in d {
+		not startswith(msg, "R1:")
+	}
+	r.withheld == {"R3: hook_present was not measured"} with input as inp
+}
+
+test_null_skill_present_withheld_not_denied if {
+	inp := object.union(good, {"skill_present": null})
+	d := r.deny with input as inp
+	every msg in d {
+		not startswith(msg, "R2:")
+	}
+	r.withheld == {"R3: skill_present was not measured"} with input as inp
+}
+
+test_all_null_case_withheld_only if {
+	inp := object.union(good, {"cases": [{"row": null}]})
+	r.withheld == {"R3: row 0: row was not measured"} with input as inp
+	count(r.admitted) == 0 with input as inp
+	count(r.deny) == 0 with input as inp
+}
+
+test_r2_refuses_an_absent_skill if {
+	some msg in r.deny with input as object.union(good, {"skill_present": false})
+	startswith(msg, "R2:")
+}
+
 test_r1_refuses_an_absent_hook if {
 	some msg in r.deny with input as object.union(good, {"hook_present": false})
 	msg == "R1: the structural-query hook is not installed at scripts/hook_structural_query.py"

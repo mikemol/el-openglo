@@ -10,9 +10,69 @@ import rego.v1
 
 import data.el.truth
 
-runs := [c | some c in object.get(input, "cases", []); c.kind == "run"; not c.withheld]
+#   ⚑ EVERY CASE LANDS IN EXACTLY ONE OF withheld / deny / admitted. A fact
+#   check_root_helpers.py ALWAYS emits that is null or absent could not be said:
+#   H2 withholds it and no rule judges that case. `alternative`, `dropin` and
+#   `want_current` are legitimately null (no file written; --breeze / an unknown
+#   variant), so they are not in the lists.
 
-layouts := [c | some c in object.get(input, "cases", []); c.kind == "layout"]
+# a withholding REASON: null / "" / absent is "not withheld"
+held(c) if truth.py(object.get(c, "withheld", null))
+
+missing(obj, fields) := {f | some f in fields; object.get(obj, f, null) == null}
+
+run_fields := ["exit", "stdout", "stderr", "tool_log", "sddm_conf_written"]
+
+helper_fields := {
+	"el-openglo-plymouth": ["want_theme", "want_name"],
+	"el-openglo-sddm": ["want_theme_dir_exists"],
+}
+
+run_missing(c) := missing(c, array.concat(run_fields, object.get(helper_fields, c.helper, [])))
+
+ref_fields := ["script_file", "script_exists", "image_dir", "image_dir_exists"]
+
+layout_missing(c) := m if {
+	top := missing(c, ["dir", "plymouth_files", "refs"])
+	refs := {sprintf("%s.%s", [f, x]) | some f, r in object.get(c, "refs", {}); some x in missing(r, ref_fields)}
+	m := top | refs
+}
+
+runs := [c |
+	some c in object.get(input, "cases", [])
+	c.kind == "run"
+	not held(c)
+	count(run_missing(c)) == 0
+]
+
+layouts := [c |
+	some c in object.get(input, "cases", [])
+	c.kind == "layout"
+	count(layout_missing(c)) == 0
+]
+
+# METADATA
+# title: "H2 — a fact the measurement did not state is withheld, not judged"
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	c.kind == "run"
+	not held(c)
+	some f in run_missing(c)
+	msg := sprintf("H2: %s/%s: %s was not measured", [c.helper, c.scenario, f])
+}
+
+withheld contains msg if {
+	some i, c in object.get(input, "cases", [])
+	object.get(c, "kind", null) == null
+	msg := sprintf("H2: case %d: kind was not measured", [i])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	c.kind == "layout"
+	some f in layout_missing(c)
+	msg := sprintf("H2: layout %v: %s was not measured", [object.get(c, "dir", object.get(c, "variant", null)), f])
+}
 
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
@@ -64,17 +124,18 @@ layout_bad(c) := true if {
 
 layout_bad(c) := true if {
 	some f, r in c.refs
-	not r.script_exists
+	r.script_exists == false
 }
 
 layout_bad(c) := true if {
 	some f, r in c.refs
-	not r.image_dir_exists
+	r.image_dir_exists == false
 }
 
 deny contains msg if {
 	count(object.get(input, "cases", [])) > 0
-	count(layouts) == 0
+	# the RAW layout population: an unmeasured layout is withheld (H2), not absent
+	count([c | some c in input.cases; c.kind == "layout"]) == 0
 	msg := "G2: no plymouth layout was measured"
 }
 
@@ -87,14 +148,14 @@ deny contains msg if {
 deny contains msg if {
 	some c in layouts
 	some f, r in c.refs
-	not r.script_exists
+	r.script_exists == false
 	msg := sprintf("G2: %s/%s ScriptFile %s does not resolve", [c.dir, f, r.script_file])
 }
 
 deny contains msg if {
 	some c in layouts
 	some f, r in c.refs
-	not r.image_dir_exists
+	r.image_dir_exists == false
 	msg := sprintf("G2: %s/%s ImageDir %s does not resolve", [c.dir, f, r.image_dir])
 }
 
@@ -193,7 +254,7 @@ deny contains msg if {
 
 deny contains msg if {
 	c := run("el-openglo-sddm", "theme")
-	not c.want_theme_dir_exists
+	c.want_theme_dir_exists == false
 	msg := sprintf("G1: el-openglo-sddm/theme: %v is not an installed greeter theme", [c.want_current])
 }
 

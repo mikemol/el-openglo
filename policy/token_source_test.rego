@@ -54,3 +54,30 @@ test_null_present_does_not_fire if {
 	}
 	count(p.admitted) == 0 with input as inp
 }
+
+# exactly once: an emitter with its judged fields null is withheld, never judged
+test_all_null_case_withheld_only if {
+	inp := object.union(good, {"cases": [{"file": "make_css.py", "present": null, "reads": null}]})
+	w := p.withheld with input as inp
+	"make_css.py: present was not measured" in w
+	not "make_css.py" in p.admitted with input as inp
+	d := p.deny with input as inp
+	every msg in d {
+		not contains(msg, "make_css.py")
+	}
+}
+
+# N1 C1: a null present is withheld, not "a declared emitter whose file is absent"
+test_null_present_withheld_not_c1 if {
+	inp := object.union(good, {"cases": [object.union(good.cases[0], {"present": null})]})
+	count(p.deny) == 0 with input as inp
+	"make_css.py: present was not measured" in p.withheld with input as inp
+}
+
+# a present emitter whose reads is null is withheld, not admitted or C2
+test_null_reads_withheld if {
+	inp := object.union(good, {"cases": [object.union(good.cases[0], {"reads": null})]})
+	count(p.deny) == 0 with input as inp
+	count(p.admitted) == 0 with input as inp
+	"make_css.py: reads was not measured" in p.withheld with input as inp
+}

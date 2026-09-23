@@ -21,8 +21,27 @@ deny contains msg if {
 # title: "A1 — the module is in the tree"
 deny contains msg if {
 	count(object.get(input, "cases", [])) > 0
-	not input.module_present
+	input.module_present == false
 	msg := "A1: segment_topology.py is absent"
+}
+
+# METADATA
+# title: "W — a module_present the measurement did not report judges nothing"
+# description: |
+#   check_st_api always emits module_present as a bool; null or absent means
+#   the module was not read, so no case can be judged against it.
+withheld contains msg if {
+	count(object.get(input, "cases", [])) > 0
+	not is_boolean(object.get(input, "module_present", null))
+	msg := "module_present was not measured; no referenced symbol was judged"
+}
+
+# a symbol whose exported fact is null / absent was not measured
+withheld contains msg if {
+	truth.py(input.module_present)
+	some c in input.cases
+	not is_boolean(object.get(c, "exported", null))
+	msg := sprintf("%s: exported was not measured", [c.symbol])
 }
 
 # METADATA
@@ -34,7 +53,7 @@ deny contains msg if {
 deny contains msg if {
 	truth.py(input.module_present)
 	some c in input.cases
-	not c.exported
+	c.exported == false
 	msg := sprintf("A2: ST.%s is not exported (referenced by %s)", [c.symbol, concat(", ", c.files)])
 }
 

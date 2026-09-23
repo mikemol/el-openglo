@@ -11,8 +11,6 @@ package el.display_registry
 
 import rego.v1
 
-import data.el.truth
-
 kinds := {"stroke", "format", "matrix", "display"}
 
 deny contains msg if {
@@ -27,10 +25,98 @@ deny contains msg if {
 	msg := sprintf("D0: the registry has no %s entries — an empty population, not an agreeing registry", [k])
 }
 
-deny contains msg if {
+# ⚑ EVERY CASE LANDS IN EXACTLY ONE OF withheld / deny / admitted.
+# check_display_registry.py ALWAYS emits `roundtrip` (an object with a boolean
+# `parsed` and a `keys` array whose entries carry boolean emitted / registry /
+# equal); per case a `kind`, and per kind: stroke `in_substrate` (boolean),
+# format `glyphs` (array; each glyph's `emitted` an array — its `substrate` is
+# LEGITIMATELY null, meaning "in no table", which D2 judges), matrix `cols`
+# (array). A null or absent one is "could not say" and is withheld (D5), never
+# judged: `not input.roundtrip` DENIED a null round trip, `not k.emitted` DENIED
+# a null emitted, and `not c.in_substrate` DENIED a null in_substrate; a null
+# `cols` fell through every D3 rule and was silently ADMITTED.
+
+rt_obj := r if {
+	r := object.get(input, "roundtrip", null)
+	is_object(r)
+}
+
+rt_keys := ks if {
+	ks := object.get(rt_obj, "keys", null)
+	is_array(ks)
+} else := []
+
+# METADATA
+# title: "D5 — a round trip that was not measured is withheld, not denied"
+withheld contains msg if {
 	count(object.get(input, "cases", [])) > 0
-	not input.roundtrip
-	msg := "D0: the round trip was not measured"
+	not rt_obj
+	msg := "D5: the round trip was not measured"
+}
+
+withheld contains msg if {
+	not is_boolean(object.get(rt_obj, "parsed", null))
+	msg := "D5: roundtrip.parsed was not measured"
+}
+
+withheld contains msg if {
+	not is_array(object.get(rt_obj, "keys", null))
+	msg := "D5: roundtrip.keys was not measured"
+}
+
+# the round-trip fields each key's verdict actually consults
+rt_unmeasured(k) := ({"emitted" | not is_boolean(object.get(k, "emitted", null))} | {"registry" |
+	k.emitted == true
+	not is_boolean(object.get(k, "registry", null))
+}) | {"equal" |
+	k.emitted == true
+	k.registry == true
+	not is_boolean(object.get(k, "equal", null))
+}
+
+withheld contains msg if {
+	some k in rt_keys
+	count(rt_unmeasured(k)) > 0
+	msg := sprintf("D5: roundtrip %v: %v was not measured", [object.get(k, "key", "?"), sort(rt_unmeasured(k))])
+}
+
+case_key(c) := sprintf("%v:%v", [object.get(c, "kind", null), object.get(c, "id", null)])
+
+field_type := {"stroke": {"in_substrate": "boolean"}, "format": {"glyphs": "array"}, "matrix": {"cols": "array"}, "display": {}}
+
+unmeasured(c) := {"kind"} if {
+	not object.get(c, "kind", null) in kinds
+} else := ({f |
+	some f, t in field_type[c.kind]
+	type_name(object.get(c, f, null)) != t
+} | {sprintf("glyphs[%d].emitted", [i]) |
+	c.kind == "format"
+	gs := object.get(c, "glyphs", null)
+	is_array(gs)
+	some i, g in gs
+	not is_array(object.get(g, "emitted", null))
+}) | {sprintf("glyphs[%d].substrate", [i]) |
+	# substrate is legitimately null ("in no table"), but it is always emitted
+	c.kind == "format"
+	gs := object.get(c, "glyphs", null)
+	is_array(gs)
+	some i, g in gs
+	not "substrate" in object.keys(g)
+}
+
+measured_case(c) if count(unmeasured(c)) == 0
+
+measured_cases contains c if {
+	some c in object.get(input, "cases", [])
+	measured_case(c)
+}
+
+# METADATA
+# title: "D5 — a case with an unmeasured field is withheld, not judged"
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	count(unmeasured(c)) > 0
+	msg := sprintf("D5: %s: %v was not measured", [case_key(c), sort(unmeasured(c))])
 }
 
 # METADATA
@@ -45,23 +131,23 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	some k in input.roundtrip.keys
-	not k.emitted
+	some k in rt_keys
+	k.emitted == false
 	msg := sprintf("D1: %s: emitted registry is missing it", [k.key])
 }
 
 deny contains msg if {
-	some k in input.roundtrip.keys
-	truth.py(k.emitted)
-	not k.registry
+	some k in rt_keys
+	k.emitted == true
+	k.registry == false
 	msg := sprintf("D1: %s: emitted registry invents it", [k.key])
 }
 
 deny contains msg if {
-	some k in input.roundtrip.keys
-	truth.py(k.emitted)
-	truth.py(k.registry)
-	not k.equal
+	some k in rt_keys
+	k.emitted == true
+	k.registry == true
+	k.equal == false
 	msg := sprintf("D1: %s: emitted value differs from registry()", [k.key])
 }
 
@@ -73,7 +159,7 @@ deny contains msg if {
 #   equal the substrate's projection at its format; each stroke must be one
 #   GEOM22 defines.
 defect contains {"case": sprintf("format:%s", [c.id]), "msg": msg} if {
-	some c in input.cases
+	some c in measured_cases
 	c.kind == "format"
 	some g in c.glyphs
 	g.substrate == null
@@ -81,7 +167,7 @@ defect contains {"case": sprintf("format:%s", [c.id]), "msg": msg} if {
 }
 
 defect contains {"case": sprintf("format:%s", [c.id]), "msg": msg} if {
-	some c in input.cases
+	some c in measured_cases
 	c.kind == "format"
 	some g in c.glyphs
 	g.substrate != null
@@ -90,9 +176,9 @@ defect contains {"case": sprintf("format:%s", [c.id]), "msg": msg} if {
 }
 
 defect contains {"case": sprintf("stroke:%s", [c.id]), "msg": msg} if {
-	some c in input.cases
+	some c in measured_cases
 	c.kind == "stroke"
-	not c.in_substrate
+	c.in_substrate == false
 	msg := sprintf("D2: segGeom names %q, which GEOM22 does not define", [c.id])
 }
 
@@ -111,9 +197,16 @@ defect contains {"case": sprintf("stroke:%s", [c.id]), "msg": msg} if {
 symmetric := {"A", "H", "O", "T", "U", "V", "W", "X", "M"}
 
 matrix[ch] := c.cols if {
-	some c in input.cases
+	some c in measured_cases
 	c.kind == "matrix"
 	ch := c.id
+}
+
+# every matrix id the registry carries, measured or not: an unmeasured 'A' is
+# withheld (D5), not "absent from the font"
+matrix_ids contains c.id if {
+	some c in object.get(input, "cases", [])
+	c.kind == "matrix"
 }
 
 lit(cols, row) := count([i | some i, b in cols; bits.and(b, bits.lsh(1, row)) != 0])
@@ -139,7 +232,7 @@ defect contains {"case": sprintf("matrix:%s", [ch]), "msg": msg} if {
 defect contains {"case": sprintf("matrix:%s", [ch]), "msg": msg} if {
 	count(object.get(input, "cases", [])) > 0
 	some ch in {"A", "H"}
-	not matrix[ch]
+	not ch in matrix_ids
 	msg := sprintf("D3: %q: absent from the font", [ch])
 }
 
@@ -176,7 +269,7 @@ defect contains {"case": sprintf("matrix:%s", [ch]), "msg": msg} if {
 deny contains d.msg if some d in defect
 
 admitted contains key if {
-	some c in input.cases
+	some c in measured_cases
 	key := sprintf("%s:%s", [c.kind, c.id])
 	not denied_case[key]
 }

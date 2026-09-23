@@ -6,9 +6,36 @@
 #   of console noise only, or one whose el.ident was lost, has no case: the
 #   population is empty, not the probe clean. `object.get` so that an ABSENT
 #   population is empty too (count(input.cases) is undefined on {}).
+#
+#   ⚑ EVERY BOOT LANDS IN EXACTLY ONE OF withheld / deny / admitted. A case
+#   always carries `probe` (from its el.ident) and `kinds` (kind -> count, each
+#   >= 1); null or absent there is "could not say", withheld by W and judged by
+#   no rule. `done` is legitimately null (S1 denies it). A null / absent
+#   `withheld` list is "nothing withheld", not a withholding.
 package el.serial
 
 import rego.v1
+
+import data.el.truth
+
+fields := ["probe", "kinds"]
+
+measured(c) if {
+	every f in fields {
+		object.get(c, f, null) != null
+	}
+}
+
+held(c) if truth.py(object.get(c, "withheld", null))
+
+# the boots a rule may judge: fully measured, nothing withheld on them. A boot
+# with a gap or a bad frame is WITHHELD only — its facts are not partial data
+# to be denied on (a missing el.done beside a gap is the gap's consequence).
+judged contains c if {
+	some c in object.get(input, "cases", [])
+	measured(c)
+	not held(c)
+}
 
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
@@ -32,29 +59,30 @@ required := {
 #   el.done is what covers the tail: a frame lost after the last one received
 #   is invisible to the reader's gap detection unless el.done is missing.
 case_deny contains {"boot": c.boot, "msg": sprintf("S1: boot %s (probe %v) has no el.done; its tail is unaccounted for", [c.boot, c.probe])} if {
-	some c in input.cases
+	some c in judged
 	object.get(c, "done", null) == null
 }
 
 # METADATA
 # title: S2 — the probe is one this policy knows
 case_deny contains {"boot": c.boot, "msg": sprintf("S2: boot %s names probe %v, which has no requirement here", [c.boot, c.probe])} if {
-	some c in input.cases
-	not required[c.probe]
+	some c in judged
+	not c.probe in object.keys(required)
 }
 
 # METADATA
 # title: S3 — every kind the probe requires was received
 case_deny contains {"boot": c.boot, "msg": sprintf("S3: boot %s (probe %s) sent no %s", [c.boot, c.probe, k])} if {
-	some c in input.cases
+	some c in judged
 	some k in required[c.probe]
-	not c.kinds[k]
+	# kinds maps kind -> count (>= 1); an absent key is a kind not received
+	object.get(c.kinds, k, 0) == 0
 }
 
 # METADATA
 # title: S4 — el.done names the probe el.ident named
 case_deny contains {"boot": c.boot, "msg": sprintf("S4: boot %s: el.ident says %v, el.done says %v", [c.boot, c.probe, c.done.probe])} if {
-	some c in input.cases
+	some c in judged
 	c.done.probe != c.probe
 }
 
@@ -66,9 +94,17 @@ deny contains x.msg if some x in case_deny
 #   The reader reports each as a string on the case (or at log level for a frame
 #   it could not assign to a boot). Could-not-measure is kept apart from defect.
 withheld contains msg if {
-	some c in input.cases
+	some c in object.get(input, "cases", [])
+	held(c)
 	some r in c.withheld
 	msg := sprintf("boot %s: %s", [c.boot, r])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	some f in fields
+	object.get(c, f, null) == null
+	msg := sprintf("boot %v: %s was not measured", [object.get(c, "boot", null), f])
 }
 
 withheld contains msg if {
@@ -78,8 +114,7 @@ withheld contains msg if {
 
 # A boot is judged and admitted when nothing denied it and nothing was withheld on it.
 admitted contains c.boot if {
-	some c in input.cases
-	count(c.withheld) == 0
+	some c in judged
 	not denied_boot(c.boot)
 }
 

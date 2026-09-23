@@ -32,6 +32,23 @@ test_s2_refuses_a_record_without_the_rationale if {
 	msg == "S2: RECOVERY-NOTES.md does not record WHY the prior mark was retired"
 }
 
+# N1 fix (S1 `not c.present`): a null presence was not measured — withheld, never "absent"
+test_null_present_withheld_not_s1 if {
+	inp := {"cases": [object.union(good.cases[0], {"present": null})]}
+	d := s.deny with input as inp
+	every msg in d {
+		not startswith(msg, "S1:")
+	}
+	s.withheld == {"S3: RECOVERY-NOTES.md: present was not measured"} with input as inp
+}
+
+test_all_null_case_withheld_only if {
+	inp := {"cases": [{"record": "RECOVERY-NOTES.md", "present": null, "evidence": null}]}
+	s.withheld == {"S3: RECOVERY-NOTES.md: present was not measured", "S3: RECOVERY-NOTES.md: evidence was not measured"} with input as inp
+	count(s.deny) == 0 with input as inp
+	count(s.admitted) == 0 with input as inp
+}
+
 # null present is not held: no S2 (a record never read cannot lack its rationale)
 test_null_present_does_not_fire if {
 	inp := {"cases": [object.union(good.cases[0], {"present": null, "evidence": []})]}

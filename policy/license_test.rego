@@ -85,6 +85,44 @@ test_l3_refuses_a_licence_without_text if {
 	msg == "L3: licence GPL-3.0-or-later is used but carries no text"
 }
 
+# exactly-once: a stanza whose judged fields are all null is withheld, never judged
+# (a declaration CASE with id null stays DENIED — L1 rules an unresolved licence
+# is not a correct one; see the report)
+test_all_null_case_withheld_only if {
+	d := object.union(dep5, {"files": array.concat(dep5.files, [{"files": null, "license": null, "copyright": null}])})
+	inp := with_dep5(d)
+	w := lc.withheld with input as inp
+	"L4: stanza null: copyright was not measured" in w
+	"L4: stanza null: license was not measured" in w
+	count(lc.deny) == 0 with input as inp
+}
+
+# N1 (L3 `not f.copyright`): a null copyright is withheld, not "has no Copyright"
+# and not silently fine
+test_null_copyright_is_withheld if {
+	d := object.union(dep5, {"files": [dep5.files[0], object.union(dep5.files[1], {"copyright": null})]})
+	inp := with_dep5(d)
+	w := lc.withheld with input as inp
+	"L4: stanza [\"usr/share/el-openglo/kvantum/*\"]: copyright was not measured" in w
+	count(lc.deny) == 0 with input as inp
+}
+
+# `absent` is a reason field: null means "not absent", so the L3 rules still judge
+# (HEAD read `"absent": null` as a reason and silenced them — and denied "L3: null")
+test_null_absent_is_not_a_reason if {
+	d := object.union(dep5, {"absent": null, "format": "wrong"})
+	some msg in lc.deny with input as with_dep5(d)
+	startswith(msg, "L3: the copyright file's Format is wrong")
+	not "L3: null" in lc.deny with input as with_dep5(d)
+}
+
+# population-level: a null debian_copyright is withheld
+test_null_debian_copyright_withheld if {
+	w := lc.withheld with input as with_dep5(null)
+	"L4: debian_copyright was not measured" in w
+	count([m | some m in lc.deny with input as with_dep5(null); startswith(m, "L3:")]) == 0
+}
+
 test_admits_an_apache_tree if {
 	count(lc.deny) == 0 with input as good
 }

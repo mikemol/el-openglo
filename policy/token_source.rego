@@ -37,8 +37,26 @@ deny contains msg if {
 
 deny contains msg if {
 	some c in input.cases
-	not c.present
+	c.present == false
 	msg := sprintf("C1: %s is a declared emitter whose file is absent", [c.file])
+}
+
+# METADATA
+# title: "W — an emitter whose presence or reads were not reported is withheld"
+# description: |
+#   check_token_source always emits `present` (bool) and `reads` (list) per
+#   case. Null or absent means the measurement could not say: not judged.
+withheld contains msg if {
+	some c in input.cases
+	not is_boolean(object.get(c, "present", null))
+	msg := sprintf("%s: present was not measured", [c.file])
+}
+
+withheld contains msg if {
+	some c in input.cases
+	truth.py(c.present)
+	not is_array(object.get(c, "reads", null))
+	msg := sprintf("%s: reads was not measured", [c.file])
 }
 
 # METADATA

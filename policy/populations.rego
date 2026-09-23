@@ -11,11 +11,33 @@ package el.populations
 
 import rego.v1
 
-import data.el.truth
-
 deny contains msg if {
 	count(object.get(input, "files", [])) == 0
 	msg := "P0: no file was in the census scope"
+}
+
+# ⚑ EXACTLY ONCE: every site carries borrowed / recursive / marked (booleans) and
+# reach (a string). One of those null or absent is a could-not-say: the site is
+# WITHHELD by name and judged by no rule (`not c.borrowed` read null as borrowed).
+# `reason` is legitimately null on an unmarked site and is not required.
+site_fields := ["borrowed", "recursive", "marked"]
+
+measured(c) if {
+	every f in site_fields { is_boolean(object.get(c, f, null)) }
+	is_string(object.get(c, "reach", null))
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	some f in site_fields
+	not is_boolean(object.get(c, f, null))
+	msg := sprintf("P1: %v:%v: %s was not measured", [object.get(c, "module", null), object.get(c, "line", null), f])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	not is_string(object.get(c, "reach", null))
+	msg := sprintf("P1: %v:%v: reach was not measured", [object.get(c, "module", null), object.get(c, "line", null)])
 }
 
 # METADATA
@@ -29,17 +51,19 @@ deny contains msg if {
 #   must carry `# population: <reason>` stating its bound.
 deny contains msg if {
 	some c in object.get(input, "cases", [])
-	not c.borrowed
-	truth.py(c.recursive)
+	measured(c)
+	c.borrowed == false
+	c.recursive == true
 	c.reach in {"root", "unknown"}
-	not c.marked
+	c.marked == false
 	msg := sprintf("P1: %s:%d %s(%s) walks from %s reach with no `# population:` reason; read the population from scripts/git_tracked.py", [c.module, c.line, c.kind, c.root, c.reach])
 }
 
 deny contains msg if {
 	some c in object.get(input, "cases", [])
-	not c.borrowed
-	truth.py(c.marked)
+	measured(c)
+	c.borrowed == false
+	c.marked == true
 	trim_space(object.get(c, "reason", "")) == ""
 	msg := sprintf("P2: %s:%d is marked `# population:` with no reason", [c.module, c.line])
 }
@@ -48,10 +72,11 @@ deny contains msg if {
 # reported, never denied here.
 withheld contains msg if {
 	some c in object.get(input, "cases", [])
-	truth.py(c.borrowed)
-	truth.py(c.recursive)
+	measured(c)
+	c.borrowed == true
+	c.recursive == true
 	c.reach in {"root", "unknown"}
-	not c.marked
+	c.marked == false
 	msg := sprintf("P1: %s:%d %s(%s) — a SUBSTRATE finding (borrowed file)", [c.module, c.line, c.kind, c.root])
 }
 

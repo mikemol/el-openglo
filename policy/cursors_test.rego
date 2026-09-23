@@ -99,6 +99,37 @@ test_null_withheld_does_not_fire if {
 	count(c.withheld) == 0 with input as inp
 }
 
+# N1 (C5 `not c.index_theme`): a null index_theme was DENIED as absent
+test_null_index_theme_is_withheld_not_denied if {
+	inp := {"cases": [object.union(case_with(entries), {"index_theme": null})]}
+	"C7: EL-Openglo: [\"index_theme\"] was not measured" in c.withheld with input as inp
+	count(c.deny) == 0 with input as inp
+	count(c.admitted) == 0 with input as inp
+}
+
+# N1 (`measured`: `not c.withheld`): a null withheld dropped the variant from
+# every rule, so a real defect was neither denied nor admitted
+test_null_withheld_variant_still_judged if {
+	inp := {"cases": [object.union(case_with(object.remove(entries, ["pointer"])), {"withheld": null})]}
+	"C1: EL-Openglo lacks the core shape pointer" in c.deny with input as inp
+}
+
+# a null readable on a core shape was DENIED as missing (C1); it is withheld
+test_null_readable_core_shape_is_withheld if {
+	inp := with_entry("pointer", object.union(good, {"readable": null}))
+	"C7: EL-Openglo: [\"pointer.readable\"] was not measured" in c.withheld with input as inp
+	count(c.deny) == 0 with input as inp
+}
+
+test_all_null_case_withheld_only if {
+	inp := {"cases": [{"id": "EL-Openglo", "theme": null, "withheld": null, "index_theme": null, "tokens": null, "entries": null}]}
+	w := c.withheld with input as inp
+	some m in w
+	startswith(m, "C7: EL-Openglo:")
+	count(c.admitted) == 0 with input as inp
+	count(c.deny) == 0 with input as inp
+}
+
 test_withheld_only if {
 	inp := {"cases": [{"id": "EL-Openglo", "withheld": "cannot rasterise"}]}
 	count(c.deny) == 0 with input as inp

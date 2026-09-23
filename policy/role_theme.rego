@@ -30,8 +30,17 @@ deny contains msg if {
 # title: "R1 — every declared role is assigned, and every pin holds"
 deny contains msg if {
 	some r in input.roles
-	not input.assignment[r]
+	not r in object.keys(object.get(input, "assignment", {}))
 	msg := sprintf("R1: role %q is declared but unassigned", [r])
+}
+
+# exactly-once (rego_lint N1): a role that IS in the assignment but carries no
+# string was not measured — withheld, not "unassigned" and not silently fine
+withheld contains msg if {
+	some r in input.roles
+	r in object.keys(object.get(input, "assignment", {}))
+	not is_string(input.assignment[r])
+	msg := sprintf("R1: assignment[%q] was not measured", [r])
 }
 
 deny contains msg if {
@@ -117,7 +126,7 @@ deny contains msg if {
 
 admitted contains c.id if {
 	some c in input.cases
-	input.assignment[c.id]
+	is_string(object.get(object.get(input, "assignment", {}), c.id, null))
 	is_hex(input.json.assignment[c.id])
 	input.best_q <= input.worst_q + 1e-12
 	object.get(input.render.survives, c.id, true)

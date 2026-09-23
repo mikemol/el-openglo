@@ -27,6 +27,39 @@ test_null_withheld_does_not_fire if {
 	count(ap.withheld) == 0 with input as {"variants": [object.union(good, {"withheld": null})]}
 }
 
+# N1 (A2-A4 `not v.withheld`): a null withheld read as a withholding reason and
+# dropped the variant from every deny
+test_null_withheld_is_still_judged if {
+	d := ap.deny with input as {"variants": [object.union(good, {"withheld": null, "error": {"clear": 40, "half": 51, "covered": 103}})]}
+	some a in d
+	startswith(a, "A2:")
+	some b in d
+	startswith(b, "A3:")
+	some c in d
+	startswith(c, "A4:")
+}
+
+test_admits_the_good_variant if {
+	ap.admitted == {"EL-Amber"} with input as {"variants": [good]}
+}
+
+test_all_null_case_withheld_only if {
+	i := {"variants": [{"variant": "EL-Amber", "withheld": null, "expected": null, "seen": null, "error": null}]}
+	w := ap.withheld with input as i
+	some m in w
+	startswith(m, "A5: EL-Amber:")
+	count(ap.admitted) == 0 with input as i
+	count(ap.deny) == 0 with input as i
+}
+
+test_null_pip_error_is_withheld_not_passed if {
+	i := {"variants": [object.union(good, {"error": {"clear": 1, "half": null, "covered": 0}})]}
+	w := ap.withheld with input as i
+	w == {"A5: EL-Amber: error [\"half\"] was not measured"}
+	count(ap.admitted) == 0 with input as i
+	count(ap.deny) == 0 with input as i
+}
+
 test_a2_refuses_a_wrong_floor if {
 	some msg in ap.deny with input as {"variants": [object.union(good, {"error": {"clear": 40, "half": 1, "covered": 0}})]}
 	startswith(msg, "A2:")

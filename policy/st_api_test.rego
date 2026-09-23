@@ -54,3 +54,29 @@ test_null_exported_does_not_admit if {
 	inp := object.union(good, {"cases": [object.union(good.cases[0], {"exported": null})]})
 	count(p.admitted) == 0 with input as inp
 }
+
+# exactly once: a symbol with its judged field null is withheld, never judged
+test_all_null_case_withheld_only if {
+	inp := {"module_present": true, "cases": [{"symbol": "GEOM22", "files": ["a.py"], "exported": null}]}
+	w := p.withheld with input as inp
+	"GEOM22: exported was not measured" in w
+	not "GEOM22" in p.admitted with input as inp
+	d := p.deny with input as inp
+	every msg in d {
+		not contains(msg, "GEOM22")
+	}
+}
+
+# N1 A1: a null module_present is withheld, not "segment_topology.py is absent"
+test_null_module_present_withheld_not_a1 if {
+	inp := {"module_present": null, "cases": [{"symbol": "GEOM22", "files": ["a.py"], "exported": null}]}
+	count(p.deny) == 0 with input as inp
+	"module_present was not measured; no referenced symbol was judged" in p.withheld with input as inp
+	count(p.admitted) == 0 with input as inp
+}
+
+# N1 A2: a null exported is not "ST.x is not exported"
+test_null_exported_not_a2 if {
+	inp := object.union(good, {"cases": [object.union(good.cases[0], {"exported": null})]})
+	count(p.deny) == 0 with input as inp
+}

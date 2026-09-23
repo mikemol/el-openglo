@@ -32,11 +32,13 @@ label(v) := object.get(v, "variant", "?")
 
 rendered(v) if not truth.py(object.get(v, "withheld", null))
 
-err(v, k) := x if {
-	e := object.get(v, "error", null)
+at(v, part, k) := x if {
+	e := object.get(v, part, null)
 	is_object(e)
 	x := object.get(e, k, null)
 } else := null
+
+err(v, k) := at(v, "error", k)
 
 unmeasured(v) := {k | some k, _ in pips; not is_number(err(v, k))}
 
@@ -82,7 +84,7 @@ deny contains msg if {
 	some v in input.variants
 	measured(v)
 	over(v, "clear")
-	msg := sprintf("A2: %s: the clear pip reads %v, not the ghost floor %v", [v.variant, v.seen.clear, v.expected.clear])
+	msg := sprintf("A2: %s: the clear pip reads %v, not the ghost floor %v", [label(v), at(v, "seen", "clear"), at(v, "expected", "clear")])
 }
 
 # METADATA
@@ -93,16 +95,16 @@ deny contains msg if {
 #   for. A snapping field reads it as floor or as lit and fails here. Within 3.
 deny contains msg if {
 	some v in input.variants
-	not v.withheld
-	v.error.half > 3
-	msg := sprintf("A3: %s: the half pip reads %v, not halfway %v", [v.variant, v.seen.half, v.expected.half])
+	measured(v)
+	over(v, "half")
+	msg := sprintf("A3: %s: the half pip reads %v, not halfway %v", [label(v), at(v, "seen", "half"), at(v, "expected", "half")])
 }
 
 # METADATA
 # title: "A4 — the covered pip is the lit token"
 deny contains msg if {
 	some v in input.variants
-	not v.withheld
-	v.error.covered > 2
-	msg := sprintf("A4: %s: the covered pip reads %v, not the lit token %v", [v.variant, v.seen.covered, v.expected.covered])
+	measured(v)
+	over(v, "covered")
+	msg := sprintf("A4: %s: the covered pip reads %v, not the lit token %v", [label(v), at(v, "seen", "covered"), at(v, "expected", "covered")])
 }

@@ -29,8 +29,9 @@ excluded := {
 #   neighbours. Every other occurrence outside `excluded` is a finding.
 offending[c.path] := n if {
 	some c in input.cases
+	measured(c)
 	not excluded[c.path]
-	n := sum([l.count | some l in c.lines; not l.attribution])
+	n := sum([l.count | some l in c.lines; l.attribution == false])
 	n > 0
 }
 
@@ -41,5 +42,31 @@ deny contains msg if {
 
 admitted contains c.path if {
 	some c in input.cases
+	measured(c)
 	not offending[c.path]
+}
+
+# measured: the measurement always emits `lines` (a list, [] for a clean file)
+# and, per line, `count` (int) and `attribution` (bool). A null anywhere is
+# "could not say" — before this a null `lines` summed to 0 and was ADMITTED, and
+# a null `attribution` was read as attribution (`not null` is false).
+measured(c) if count(unmeasured(c)) == 0
+
+unmeasured(c) := {"lines"} if not is_array(object.get(c, "lines", null))
+
+else := {sprintf("lines[%d].%s", [i, k]) |
+	some i, l in c.lines
+	some k, ok in {
+		"count": is_number(object.get(l, "count", null)),
+		"attribution": is_boolean(object.get(l, "attribution", null)),
+	}
+	ok == false
+}
+
+# METADATA
+# title: "K3 — a file the measurement could not describe is withheld, not judged"
+withheld contains msg if {
+	some c in input.cases
+	some f in unmeasured(c)
+	msg := sprintf("K3: %v: %s was not measured", [object.get(c, "path", null), f])
 }

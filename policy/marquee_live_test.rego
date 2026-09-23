@@ -327,6 +327,81 @@ test_null_paused_does_not_fire if {
 	count([m | some m in ml.deny with input as object.union(clean, {"hovered": unstated}); startswith(m, "L7:")]) == 0
 }
 
+# exactly-once: a sample whose judged fields are all null is withheld, never judged
+test_all_null_case_withheld_only if {
+	blank := {"t": 300, "text": "app: hello", "x": 421, "running": null, "paused": null, "boundary": null, "ring": 0.6, "count": 1}
+	inp := object.union(clean, {"samples": [blank, blank, blank]})
+	w := ml.withheld with input as inp
+	"W: main sample t=300: running was not measured" in w
+	"W: main sample t=300: paused was not measured" in w
+	"W: main sample t=300: boundary was not measured" in w
+	d := ml.deny with input as inp
+	count([m | some m in d; regex.match(`^L[1347]:`, m)]) == 0
+}
+
+# population flag: a null or absent runner is withheld (N1 `not input.runner`)
+test_null_runner_is_withheld if {
+	inp := {"runner": null, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
+	w := ml.withheld with input as inp
+	"W: runner was not measured" in w
+	count(ml.deny) == 0 with input as inp
+	w2 := ml.withheld with input as object.remove(clean, ["runner"])
+	"W: runner was not measured" in w2
+}
+
+# N1 (L1 `not s.running` / `not later.running`): the dead rotation with running
+# null is not "not scrolling" — withheld
+test_null_running_l1_withheld if {
+	nulled := object.union(dead, {"samples": [object.union(s, {"running": null}) | some s in dead.samples]})
+	count([m | some m in ml.deny with input as nulled; startswith(m, "L1:")]) == 0
+	w := ml.withheld with input as nulled
+	"W: main sample t=300: running was not measured" in w
+}
+
+# N1 (L3 `not a.boundary`): a null boundary is not "off the boundary"
+test_null_boundary_l3_withheld if {
+	torn := object.union(clean, {"events": [{"t": 900, "op": "replace", "id": 1, "shows": "app: new"}], "samples": [
+		{"t": 880, "text": "app: hello", "x": -100, "running": true, "count": 1, "boundary": false},
+		{"t": 900, "text": "app: new", "x": -150, "running": true, "count": 1, "boundary": null},
+	]})
+	count([m | some m in ml.deny with input as torn; startswith(m, "L3:")]) == 0
+	w := ml.withheld with input as torn
+	"W: main sample t=900: boundary was not measured" in w
+}
+
+# N1 (L5 idle_before `not s.running`): a null idle sample is not "idle"
+test_null_running_idle_before_withheld if {
+	asleep := object.union(clean, {"samples": [
+		{"t": 100, "text": "", "x": -212, "running": null, "count": 0},
+		{"t": 1600, "text": "app: two", "x": -212, "running": false, "count": 1},
+		{"t": 1700, "text": "app: two", "x": -212, "running": false, "count": 1},
+	]})
+	count([m | some m in ml.deny with input as asleep; startswith(m, "L5:")]) == 0
+	w := ml.withheld with input as asleep
+	"W: main sample t=100: running was not measured" in w
+}
+
+# EXTRA: runs_after's `s.running` — a null running after the arrival is neither
+# "woke" (HEAD: null is truthy, so L5 was silently satisfied) nor "did not wake"
+test_null_running_runs_after_withheld if {
+	unknown := object.union(clean, {"samples": [
+		{"t": 100, "text": "", "x": -212, "running": false, "count": 0},
+		{"t": 1600, "text": "app: two", "x": -212, "running": null, "count": 1},
+		{"t": 1700, "text": "app: two", "x": -212, "running": null, "count": 1},
+	]})
+	count([m | some m in ml.deny with input as unknown; startswith(m, "L5:")]) == 0
+	w := ml.withheld with input as unknown
+	"L5: arrival of id 2 at t=1600: whether the board woke was not measured" in w
+}
+
+# N1 (L7 `not s.paused`): a null paused on the main run is not "not paused"
+test_null_paused_main_l7_withheld if {
+	lit := object.union(clean, {"samples": [{"t": 300, "text": "app: hello", "x": 300, "running": true, "paused": null, "ring": 0.6, "count": 1}]})
+	count([m | some m in ml.deny with input as lit; contains(m, "ring is lit")]) == 0
+	w := ml.withheld with input as lit
+	"W: main sample t=300: paused was not measured" in w
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp

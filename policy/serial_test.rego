@@ -64,6 +64,39 @@ test_gap_is_withheld_not_denied if {
 	count(serial.admitted) == 0 with input as {"cases": [c]}
 }
 
+# N1 fix (S3 `not c.kinds[k]`): a null kinds map was not measured — withheld,
+# never "sent no <kind>" for every required kind
+test_null_kinds_withheld_not_s3 if {
+	c := object.union(object.remove(p2, ["kinds"]), {"kinds": null})
+	d := serial.deny with input as {"cases": [c]}
+	every msg in d {
+		not startswith(msg, "S3:")
+	}
+	serial.withheld == {"boot b-1: kinds was not measured"} with input as {"cases": [c]}
+	count(serial.admitted) == 0 with input as {"cases": [c]}
+}
+
+# a null withheld list is "nothing withheld": the boot is judged and admitted
+test_null_withheld_list_is_admitted if {
+	c := object.union(p2, {"withheld": null})
+	serial.admitted == {"b-1"} with input as {"cases": [c]}
+	count(serial.withheld) == 0 with input as {"cases": [c]}
+}
+
+# a boot with a gap is withheld only, not also denied on the facts the gap took
+test_a_withheld_boot_is_not_also_denied if {
+	c := object.union(p2, {"withheld": ["gap: seq 20 missing"], "done": null})
+	count(serial.deny) == 0 with input as {"cases": [c]}
+	serial.withheld == {"boot b-1: gap: seq 20 missing"} with input as {"cases": [c]}
+}
+
+test_all_null_case_withheld_only if {
+	c := {"boot": "b-1", "probe": null, "kinds": null, "done": null, "withheld": null}
+	count(serial.deny) == 0 with input as {"cases": [c]}
+	count(serial.admitted) == 0 with input as {"cases": [c]}
+	serial.withheld == {"boot b-1: probe was not measured", "boot b-1: kinds was not measured"} with input as {"cases": [c]}
+}
+
 test_log_level_withheld_beside_an_admitted_boot if {
 	inp := {"cases": [p2], "withheld": ["line 7: malformed frame"]}
 	serial.withheld == {"log: line 7: malformed frame"} with input as inp

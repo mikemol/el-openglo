@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 73,
+  "counter": 75,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-23T05:30:13+00:00",
-  "job_id": "0e3d99d5",
+  "heartbeat": "2026-09-23T13:47:26+00:00",
+  "job_id": "76295a33",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -540,10 +540,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Only when it unblocks something — and W54 (the aperture field) retires the MATRIX half: any font Qt can shape is a backdrop, no column table. What remains is the SEGMENT half (a segment display has no backdrop; it needs the projection): compile_font(path, charset) -> {seg22, class, jaccard} via glyph_match.match + ST.project, one JSON table, the segment surfaces reading it.",
-      "evidence": "",
+      "next_bounded_step": "OPERATOR RULED (2026-09-23): the font compiler is a REQUIREMENT (F4: compiled == authored), and the DOT-MATRIX half is DROPPED (W54: plain Unifont behind the aperture, no compiled column table). So: remove the matrix half from font_compiler (worktree aad36c74, not landed), then make the SEGMENT half reproduce the authored 22-seg (1 of 72 today) and 7-seg (18 of 41) tables — or show, per glyph, why the authored table is the defect. The gate lands only when F4 is green or every remaining disagreement is ruled.",
+      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4).",
       "issued_at": "2026-09-21T11:08:28+00:00",
-      "last_worked": "2026-09-22T01:56:47+00:00",
+      "last_worked": "2026-09-23T17:54:41+00:00",
       "ticks_blocked": 0
     },
     {
@@ -630,10 +630,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Census only: count the SVGs in cursors_scalable, the distinct fill/stroke colours across them (an SVG colour census tool — check_chrome/check_windows style, or a small mode on check_inherit), and whether xcursorgen exists here; record; decide fill/outline mapping from the palette relation (the arrow must read on BOTH grounds it crosses — a cursor is a glanced-at surface over unknown ground, so it needs an outline, i.e. two tokens).",
+      "next_bounded_step": "OPERATOR RULED (2026-09-23): the Lit variants keep a dark rim around a light body (the palette lit token). No change. Open: the optional ghost layer, and an animated wait cursor.",
       "evidence": "",
       "issued_at": "2026-09-21T14:52:08+00:00",
-      "last_worked": "2026-09-21T14:52:08+00:00",
+      "last_worked": "2026-09-23T17:54:46+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1006,10 +1006,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
-      "next_bounded_step": "After #2 (batch pinholes) and #3 (memoise main_qml) land: split the screens action into per-(surface,variant) keys over subject.qml + companions + harness + .colors bytes + env + runner + host; first confirm via check_action_key --importers why make_schemes.py is in the screens closure.",
-      "evidence": "catalog/render-speed.md (2026-09-22 study): full screens = ~460 s CPU; 432 qml processes/run (390 pinholes frames), 18 identical main_qml() calls at 8 s. Principled key: per (surface,variant) over what each qml process reads, with early cutoff on emitted bytes — the lock change in make_schemes.py moved no emitted byte yet re-rendered all 55.",
+      "next_bounded_step": "Split runner_code per job kind: each output keys only the modules its OWN stager and runner reach (render_qml's for clock/switcher/live-wallpaper/pinholes; check_marquee_live's for the marquee stills/anim), not render_screens' whole closure. Prove with --impact scripts/check_marquee_live.py -> only marquee outputs (+ their sheets, strip) move.",
+      "evidence": "landed 2026-09-23: per-output keys, early cutoff at generators; proven 0/19/10 of 56 in the worktree. FIRST REAL USE on main exposed a coarse term: W72 edited only a COMMENT in scripts/check_marquee_live.py, and 55 of 56 went stale — because every output's key includes the SAME runner-code term (the import closure of render_screens), so a harness a clock never runs still keys the clock.",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-23T00:49:27+00:00",
+      "last_worked": "2026-09-23T11:10:52+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1111,10 +1111,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Wait for paperkit W32 (queued 2026-09-23): check FAILED will carry rc/signal, cpu (rusage delta), and the output tail. CORRECTION to my own framing: RLIMIT_CPU caps CPU seconds, not wall, so contention alone should NOT push a check over the 60 s cap (paperkit-e2's point; a hypothesis until measured). Read the next flake's line: SIGXCPU with cpu~60 = the cap; a kill with low cpu = a wall-clock limit somewhere (ours or paperkit's); plain rc!=0 = a real transient deny — find which wall-clock limits exist in our checks meanwhile. Cores: operator already ruled RLIMIT_CORE=0 beside both caps (paperkit W25).",
-      "evidence": "ea73f62: palette solve serialised (flock, double-checked). STILL OPEN, the flake half: 2026-09-23 docs-only commit — @EMITTERS, @SCREENS, @TASKSWITCH failed in the gate and PASSED on the gate's replay (0 of 3 reproduced), host CPU PSI ~42%. That brings it to 14 fail-once-pass-on-replay checks across two nights, all under load. The first run's account is unrecoverable: paperkit prints only 'check FAILED'. Asked paperkit-e2 to carry rc/signal + CPU on the FAILED line.",
+      "next_bounded_step": "Merge side DONE (uncommitted): .githooks/pre-merge-commit runs opa_gate tree_writes (a merge commit only; fast-forwards make no commit). Push side: substrate declined to grow its shared pre-push (the shared hooks are migrating to mtools); asked mtools-83 for a pre-push.local extension point, substrate will corroborate. Until it lands, run check_tree_writes by hand before each push.",
+      "evidence": "4be3ea6: no gated check writes the tree. The writer was @CURRENCY probing make_schemes --keys, which ignored unknown flags and EMITTED the tracked .colors twice per gate (flagged as N1 hours earlier, left alone). Fixed: producers refuse unknown flags; @EMITTERS regenerates into a private root and compares (E3 fingerprints the real tree); every emitter writes atomically (85 of 96, 11 exempt with reasons); check_tree_writes 0 of 76 claims write the tree. First gate run after: all gates pass, no flake.",
       "issued_at": "2026-09-22T17:46:33+00:00",
-      "last_worked": "2026-09-23T04:15:37+00:00",
+      "last_worked": "2026-09-23T17:56:13+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1156,10 +1156,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "W71a: fix G3 (plymouth helper must fail loudly) and G2 (<name>/<name>.plymouth) — host-testable. ALSO amend catalog/guest-image.md for luthen's operator-set limits (2026-09-22): TTL 30 min, 1 GiB memory INCLUDING KubeVirt launcher overhead (refused, not clamped), one namespace per peer; NO QMP — screenshots via the vnc/screenshot subresource, keys over VNC, journal/timings/session marker out through the serial console. Design ref: luthen docs/w45-surface-design.md. RISK: a full Plasma 6 session (P2, P4) may not fit under 1 GiB minus overhead; greeter (P1) and plymouth (P3) more likely do. Measure at F0; a refusal is data for the operator, not a failure to hide.",
-      "evidence": "catalog/guest-image.md (swarm-2): Debian trixie at oci/Containerfile's pinned digest + snapshot.debian.org; .deb ingress; mmdebstrap->qcow2->containerDisk via buildctl --metadata-file; login mode per probe by kernel cmdline. Gaps G1 (nothing selects the W66 greeter: el-openglo-sddm writes no Current=), G2 (plymouth name mismatch off-Debian), G3 (plymouth helper || true hides failure), G4 no recipe, G5 no guest identity check.",
+      "next_bounded_step": "W71f BLOCKED, UNVERIFIED: an agent wrote read_serial.py, check_serial.py, policy/serial.rego(+test), guest/el-serial-emit.sh and an opa_gate operand pass-through in worktree agent-a330b44b (none of it ever RAN). jq is not installed; the agent downloaded a static jq from GitHub, never checked it against the published hash, and the safety check then blocked it. The binary was DELETED from the scratchpad, and its commands were NOT re-run on its behalf. Unblock options: (a) the operator installs jq (emerge app-misc/jq) — operator's call; or (b) re-dispatch with the round-trip emitter reference written in Python, keeping the sh+jq emitter for the guest only (Debian ships jq). Also 15 spec ambiguities listed by the agent — tighten guest-image.md's el-serial/1 section first.",
+      "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client).",
       "issued_at": "2026-09-22T22:21:36+00:00",
-      "last_worked": "2026-09-23T00:06:11+00:00",
+      "last_worked": "2026-09-23T11:46:39+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1191,6 +1191,36 @@
       "issued_at": "2026-09-23T00:41:17+00:00",
       "last_worked": "2026-09-23T05:29:32+00:00",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W74",
+      "title": "W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction.",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "OPERATOR RULED (2026-09-23): low = lowercase, normal = UPPERCASE, critical = FLASHING UPPER CASE. A letterform cue (shape), which survives grayscale and every CVD view. Guards: flash at most 2 Hz (WCAG 2.3.1 is under 3 flashes/s); flashing is pausable (2.2.2: the existing hover-pause) and honours reduced-motion; case is a DISPLAY transform only, so the source text, link targets and copy are unchanged; critical keeps hotColor + underline. The dot-weight cue for low is dropped. The suspended job gauge still needs its own cue (it is columns, not text).",
+      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits).",
+      "issued_at": "2026-09-23T11:56:27+00:00",
+      "last_worked": "2026-09-23T17:52:48+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W75",
+      "title": "A CLAIM THAT A GATE MUST DENY: paperkit reads exit 1 as an open item, so a negative fixture (serial noise-only.log -> DENY S0; a colour-only painter -> DENY U1; a torn-read writer -> DENY) cannot be cited without sitting red forever. Proposal from the serial-claims agent: an inverting check type in catalog/worklist/paper.toml ([checks.refuses]: passes only when the cited gate exits 1), or \"opa_gate.py --expect denied\". Then a claim fails in BOTH directions: if the reader starts admitting noise, or if it cannot read the file at all. Touches paperkit check-type surface: ask paperkit whether [checks.X] may invert, before building.",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "paperkit-e2 answered (2026-09-23): do (b), opa_gate.py --expect denied on OUR side; paperkit keeps one exit meaning (0 pass, 3 could-not-run, else fail). THE DECIDING DETAIL for their Delta grader: --expect must assert the TYPED denial — the gate ran, reached a decision, the decision is DENY, and the reason is the expected rule (e.g. --expect denied:S0) — never merely \"not allow\" or \"non-zero\". A crash/parse error/import failure must be a FAILURE (or exit 3 if the gate genuinely could not run); otherwise every mutation that breaks the reader passes and the claim grades vacuous. Build after the W50 batch-2 agent lands (both touch opa_gate.py). Then cite: refuses noise-only.log (S0), and a colour-only fixture (U1).",
+      "evidence": "",
+      "issued_at": "2026-09-23T14:55:01+00:00",
+      "last_worked": "2026-09-23T15:28:56+00:00",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1205,7 +1235,7 @@
   "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner.",
   "preamble": [
     "Open with `python3 scripts/check_marquee_host.py`. Re-arm on hash change (§4.3); hold the lock until your background work lands.",
-    "SWARM (to ~2026-09-23 12:00): land worktree branches one at a time, re-verified on main; never stage during a commit or main-tree render; then dispatch.",
-    "Agents: reset worktree to main, copy .palette-cache.json, OPENBLAS=1, no full gate/render, no commits, structural tools only; no test may touch the display/GPU (W73)."
+    "SWARM (operator: keep it hot): land worktree branches one at a time, re-verified on main; never stage during a commit or main-tree render; then dispatch.",
+    "Agents: reset worktree to main, copy .palette-cache.json, OPENBLAS=1, no full gate, no commits, structural tools; no test touches the display/GPU (W73); NEVER download or run a binary from the network — a missing tool is a SKIP or an operator question."
   ]
 }

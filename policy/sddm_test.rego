@@ -92,12 +92,56 @@ test_null_password_field_does_not_fire if {
 	}
 }
 
-# null selector is not bound: S7 must refuse it
+# a null selector was not MEASURED (the harness always emits a boolean): the case
+# is withheld and not admitted — neither bound (admit) nor unbound (S7)
 test_null_selector_does_not_admit if {
-	some msg in s.deny with input as with_probe({"userSelector": null})
-	startswith(msg, "S7:")
-	some msg2 in s.deny with input as with_probe({"sessionSelector": null})
-	startswith(msg2, "S7:")
+	inp := with_probe({"userSelector": null})
+	s.withheld == {"S8: EL-Openglo: probe.userSelector was not measured"} with input as inp
+	count(s.admitted) == 0 with input as inp
+	count(s.deny) == 0 with input as inp
+	inp2 := with_probe({"sessionSelector": null})
+	s.withheld == {"S8: EL-Openglo: probe.sessionSelector was not measured"} with input as inp2
+	count(s.admitted) == 0 with input as inp2
+}
+
+# N1 fix (S3 `not c.probe.passwordField`): null is not "no password field"
+test_null_password_field_withheld_not_s3 if {
+	inp := with_probe({"passwordField": null})
+	count(s.deny) == 0 with input as inp
+	s.withheld == {"S8: EL-Openglo: probe.passwordField was not measured"} with input as inp
+	count(s.admitted) == 0 with input as inp
+}
+
+# N1 fix (S3 `not c.probe.focusedAtStart`): null is not "does not hold focus"
+test_null_focused_at_start_withheld_not_s3 if {
+	inp := with_probe({"focusedAtStart": null})
+	count(s.deny) == 0 with input as inp
+	s.withheld == {"S8: EL-Openglo: probe.focusedAtStart was not measured"} with input as inp
+}
+
+# N1 fix (`not c.withheld` in measured): a null withheld REASON must not drop the case
+test_null_withheld_case_is_judged if {
+	inp := {"expected": expected, "cases": [{"id": "EL-Openglo", "rc": 0, "lit_px": 0, "probe": probe, "withheld": null}]}
+	some msg in s.deny with input as inp
+	startswith(msg, "S2:")
+}
+
+test_all_null_case_withheld_only if {
+	nullprobe := {f: null | some f in s.probe_fields}
+	inp := {"expected": expected, "cases": [{"id": "EL-Openglo", "rc": null, "lit_px": null, "probe": nullprobe}]}
+	count(s.deny) == 0 with input as inp
+	count(s.admitted) == 0 with input as inp
+	w := s.withheld with input as inp
+	count(w) == 10
+	"S8: EL-Openglo: lit_px was not measured" in w
+	"S8: EL-Openglo: probe.clickCall was not measured" in w
+}
+
+test_null_expected_withheld if {
+	inp := object.union(clean, {"expected": null})
+	s.withheld == {"S8: expected was not measured"} with input as inp
+	count(s.deny) == 0 with input as inp
+	count(s.admitted) == 0 with input as inp
 }
 
 # null withheld is not a withholding

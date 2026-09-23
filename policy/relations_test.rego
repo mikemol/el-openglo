@@ -61,6 +61,50 @@ test_r5_refuses_an_empty_handoff if {
 	startswith(msg, "R5:")
 }
 
+test_r5_refuses_a_non_pair_key if {
+	some msg in p.deny with input as object.union(good, {"netlist": [{"key": "'x'", "pair": false, "generator": "g"}]})
+	msg == "R5: netlist key 'x' is not a (u, v) pair"
+}
+
+# N1 fix (R5 `not e.pair`): a null pair is not measured — withheld, never "not a pair"
+test_null_pair_withheld_not_denied if {
+	inp := object.union(good, {"netlist": [{"key": "view~fg", "pair": null, "generator": "wcag"}]})
+	d := p.deny with input as inp
+	every msg in d {
+		not startswith(msg, "R5:")
+	}
+	"R7: netlist edge 0 (view~fg): pair was not measured" in p.withheld with input as inp
+}
+
+# a case whose judged facts are all null lands in withheld only
+test_all_null_case_withheld_only if {
+	c := {"u": null, "v": null, "kind": null, "quantity": null, "bound": null}
+	inp := object.union(good, {"cases": array.concat(good.cases, [c])})
+	w := p.withheld with input as inp
+	"R7: relation 2 (null~null): u was not measured" in w
+	"R7: relation 2 (null~null): kind was not measured" in w
+	a := p.admitted with input as inp
+	not "null~null:null" in a
+	count(a) == 2
+	d := p.deny with input as inp
+	every msg in d {
+		not contains(msg, "null")
+	}
+}
+
+test_null_population_fields_withheld if {
+	every f in ["known", "terminals", "free", "netlist", "open_questions"] {
+		inp := object.union(good, {f: null})
+		sprintf("R7: %s was not measured", [f]) in p.withheld with input as inp
+	}
+	d := p.deny with input as object.union(good, {"known": null})
+	every msg in d {
+		not startswith(msg, "R1:")
+		not startswith(msg, "R3:")
+	}
+	count(p.admitted) == 0 with input as object.union(good, {"known": null})
+}
+
 test_r6_refuses_hidden_gaps if {
 	some msg in p.deny with input as object.union(good, {"open_questions": 0})
 	startswith(msg, "R6:")

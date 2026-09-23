@@ -22,12 +22,40 @@ deny contains msg if {
 	msg := "no actions measured: the population is empty, so nothing was judged"
 }
 
+# ⚑ A FACT THE MEASUREMENT ALWAYS EMITS, NULL OR ABSENT, IS "COULD NOT SAY".
+# check_action_key.py always emits `state` (a string), the four counts (numbers)
+# and the two output-boundary lists (arrays). With one of them null, every rule
+# below fell silent — `null == 0` and `null > 0` are false, `count(null)` is a
+# type error — so the action was neither denied, withheld nor admitted. It is
+# withheld (K0) and judged by nothing else. Fields read with object.get defaults
+# (stale_outputs, unrecorded_outputs, sees_host) are legitimately omitted by
+# older measurements and are not in this set.
+always := {
+	"state": "string",
+	"n_inputs": "number", "n_outputs": "number",
+	"n_unresolved": "number", "n_undeclared_domains": "number",
+	"undeclared_outputs": "array", "declared_absent": "array",
+}
+
+unmeasured(c) := {f | some f, t in always; type_name(object.get(c, f, null)) != t}
+
+judged contains c if {
+	some c in object.get(input, "cases", [])
+	count(unmeasured(c)) == 0
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	count(unmeasured(c)) > 0
+	msg := sprintf("K0: action %v: %v was not measured", [object.get(c, "action", "?"), sort(unmeasured(c))])
+}
+
 # ⚑ PER OUTPUT, THE FACT IS JUDGED — NOT THE SUMMARY (W61). An action keyed one
 # output at a time names each output whose key moved; each is a denial of its own,
 # so the message says WHICH picture is stale, and a measurement whose summary
 # `state` disagrees with its own stale list is still refused.
 deny contains msg if {
-	some c in input.cases
+	some c in judged
 	some f in object.get(c, "stale_outputs", [])
 	msg := sprintf(
 		"action %q output %q is STALE: its inputs moved since it was built — rebuild it (render_screens renders only the stale)",
@@ -36,7 +64,7 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	some c in input.cases
+	some c in judged
 	c.state == "stale"
 	count(object.get(c, "stale_outputs", [])) == 0
 	msg := sprintf(
@@ -49,13 +77,13 @@ deny contains msg if {
 # search. "0 stale over 0 artifacts" and "0 stale over 55 artifacts" must not
 # read the same — the repo's n-of-m rule, as a requirement rather than a print.
 deny contains msg if {
-	some c in input.cases
+	some c in judged
 	c.n_outputs == 0
 	msg := sprintf("action %q declares outputs but none were found: the output domain is broken, not clean", [c.action])
 }
 
 deny contains msg if {
-	some c in input.cases
+	some c in judged
 	c.n_inputs == 0
 	msg := sprintf("action %q has an EMPTY input domain: its key is a constant and can never move", [c.action])
 }
@@ -73,7 +101,7 @@ deny contains msg if {
 # is a limit of the SCANNER; an undeclared output is a defect in the ACTION's own
 # declaration, which the action's author can close by naming the file.
 deny contains msg if {
-	some c in input.cases
+	some c in judged
 	count(c.undeclared_outputs) > 0
 	msg := sprintf("action %q writes %d file(s) it does not declare (%s): an undeclared output has no cone, so its staleness is unattributable", [c.action, count(c.undeclared_outputs), concat(", ", c.undeclared_outputs)])
 }
@@ -82,7 +110,7 @@ deny contains msg if {
 # declared output that is not on disk is a build that did not finish. The commit
 # that captured a pre-fix rendering was this, one frame earlier.
 deny contains msg if {
-	some c in input.cases
+	some c in judged
 	count(c.declared_absent) > 0
 	msg := sprintf("action %q declares %d output(s) that are ABSENT (%s): the build did not finish, or the plan names a file it never writes", [c.action, count(c.declared_absent), concat(", ", c.declared_absent)])
 }
@@ -99,13 +127,13 @@ deny contains msg if {
 # does — a false positive costs one file declared uncovered, a false negative
 # costs a wrong verdict. So this fires generously and never blocks.
 withheld contains msg if {
-	some c in input.cases
+	some c in judged
 	c.n_unresolved > 0
 	msg := sprintf("action %q keyed over a domain with %d UNRESOLVED edge(s): the key is evidence about what the scan COULD see", [c.action, c.n_unresolved])
 }
 
 withheld contains msg if {
-	some c in input.cases
+	some c in judged
 	c.n_undeclared_domains > 0
 	msg := sprintf("action %q keyed over %d UNDECLARED domain(s) (glob/walk/listdir): the population itself is unknown, so neither boundary is computable over it", [c.action, c.n_undeclared_domains])
 }
@@ -114,13 +142,13 @@ withheld contains msg if {
 # answers a different question; the artifacts may be perfectly current. Saying
 # "STALE — rebuild" here is a false accusation the reader cannot check.
 withheld contains msg if {
-	some c in input.cases
+	some c in judged
 	c.state == "reformulated"
 	msg := sprintf("action %q was keyed under an older formula: re-record with scripts/check_action_key.py --write (this is NOT evidence the artifacts are stale)", [c.action])
 }
 
 withheld contains msg if {
-	some c in input.cases
+	some c in judged
 	c.state == "unrecorded"
 	count(object.get(c, "unrecorded_outputs", [])) == 0
 	msg := sprintf("action %q has no recorded key: currency is UNMEASURED, not confirmed", [c.action])
@@ -128,14 +156,14 @@ withheld contains msg if {
 
 # an output never recorded is unmeasured, not stale — named, so the hole is visible
 withheld contains msg if {
-	some c in input.cases
+	some c in judged
 	n := count(object.get(c, "unrecorded_outputs", []))
 	n > 0
 	msg := sprintf("action %q: %d of %d output(s) have no recorded key (%s): their currency is UNMEASURED", [c.action, n, object.get(c, "n_keyed_outputs", 0), concat(", ", c.unrecorded_outputs)])
 }
 
 withheld contains msg if {
-	some c in input.cases
+	some c in judged
 	c.state == "unmeasurable"
 	msg := sprintf(
 		"action %q declares host input(s) absent here (%s): the key is uncomputable on this machine",
@@ -151,7 +179,7 @@ withheld contains msg if {
 # needing declaration is a domain.
 withheld contains msg if {
 	object.get(input, ["host", "kind"], "") == "unpinned"
-	some c in input.cases
+	some c in judged
 	truth.py(c.sees_host)
 	msg := sprintf(
 		"action %q sees the host and the host is UNPINNED: staleness is detectable here, but a cached verdict is not transportable",
@@ -165,8 +193,13 @@ deny contains msg if {
 }
 
 admitted contains msg if {
-	some c in input.cases
+	some c in judged
 	c.state == "current"
 	count(object.get(c, "stale_outputs", [])) == 0
+	# a case a deny above judges is not ALSO admitted
+	c.n_outputs != 0
+	c.n_inputs != 0
+	count(c.undeclared_outputs) == 0
+	count(c.declared_absent) == 0
 	msg := sprintf("action %q current: %d declared input(s) -> %d artifact(s)", [c.action, c.n_inputs, c.n_outputs])
 }
