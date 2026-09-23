@@ -60,3 +60,26 @@ test_s5_refuses_a_tear if {
 	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"tears": [{"frame": 3, "shift": 0, "mismatch": 40, "lit": 90}]})]}
 	startswith(msg, "S5:")
 }
+
+# null exists is not held: the drawn-content rules S2/S3 judge only an existing still
+test_null_screen_exists_does_not_fire if {
+	inp := {"screens": [object.union(good, {"exists": null, "distinct": 1, "modal": "#081411"})]}
+	d := sc.deny with input as inp
+	every msg in d {
+		not startswith(msg, "S2:")
+		not startswith(msg, "S3:")
+	}
+}
+
+# null exists is not held: the frame rules S4(frames)/S5/S6 judge only an existing animation
+test_null_animation_exists_does_not_fire if {
+	bad := object.union(anim, {"exists": null, "frames": 1, "seamless": false,
+		"tears": [{"frame": 3, "shift": 0, "mismatch": 40, "lit": 90}]})
+	inp := {"screens": [good], "animations": [bad]}
+	d := sc.deny with input as inp
+	every msg in d {
+		not contains(msg, "frame(s) — not an animation")
+		not startswith(msg, "S5:")
+		not startswith(msg, "S6:")
+	}
+}

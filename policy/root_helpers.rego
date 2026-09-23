@@ -8,6 +8,8 @@ package el.root_helpers
 
 import rego.v1
 
+import data.el.truth
+
 runs := [c | some c in object.get(input, "cases", []); c.kind == "run"; not c.withheld]
 
 layouts := [c | some c in object.get(input, "cases", []); c.kind == "layout"]
@@ -29,7 +31,7 @@ deny contains msg if {
 
 withheld contains msg if {
 	some c in object.get(input, "cases", [])
-	c.withheld
+	truth.py(c.withheld)
 	msg := sprintf("H0: %s/%s withheld: %s", [c.helper, c.scenario, c.withheld])
 }
 
@@ -198,7 +200,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in runs
 	c.helper == "el-openglo-sddm"
-	c.sddm_conf_written
+	truth.py(c.sddm_conf_written)
 	msg := sprintf("G1: el-openglo-sddm/%s wrote sddm.conf; only the drop-in is ours", [c.scenario])
 }
 

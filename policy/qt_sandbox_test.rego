@@ -35,6 +35,14 @@ test_unrouted_is_not_admitted if {
 	not "scripts/check_ebuild.py:9" in q.admitted with input as {"cases": [bare]}
 }
 
+# null is truthy to a bare Rego reference: a null routed is not routed, and a
+# null withheld is not a withholding
+test_null_routed_withheld_does_not_fire if {
+	inp := {"cases": [routed, object.union(bare, {"routed": null, "withheld": null})]}
+	not "scripts/check_ebuild.py:9" in q.admitted with input as inp
+	count(q.withheld) == 0 with input as inp
+}
+
 test_withheld_only if {
 	inp := {"cases": [{"id": "broken.py", "withheld": "SyntaxError"}]}
 	count(q.deny) == 0 with input as inp

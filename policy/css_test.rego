@@ -68,6 +68,14 @@ test_k4_refuses_a_light_scheme_that_is_not_lit if {
 	msg == "K4: prefers-color-scheme: light is not EL-Openglo-Lit"
 }
 
+# a null parsed is not a parsed sheet: a stale sheet is neither judged nor admitted
+test_null_parsed_does_not_fire if {
+	stale := object.union(block, {"--el-fg": "rgb(0 0 0)"})
+	bad := object.union(good, {"parsed": null, "root": stale, "cases": [{"id": "EL-Openglo", "expected": exp, "got": stale}, good.cases[1]]})
+	count(p.deny) == 0 with input as bad
+	count(p.admitted) == 0 with input as bad
+}
+
 test_tinycss2_absent_is_withheld if {
 	skip := object.union(good, {"parsed": false})
 	count(p.deny) == 0 with input as skip

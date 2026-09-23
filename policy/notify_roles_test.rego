@@ -22,6 +22,11 @@ test_n1_withholds_an_absent_module if {
 	startswith(msg, "N1:")
 }
 
+# null is truthy to a bare Rego reference: withheld: null is not a withholding
+test_null_withheld_does_not_fire if {
+	count(nr.withheld) == 0 with input as object.union(good, {"withheld": null})
+}
+
 test_n2_refuses_a_role_the_host_lacks if {
 	some msg in nr.deny with input as object.union(good, {"needed": ["IdRole", "HintsRole"]})
 	startswith(msg, "N2:")

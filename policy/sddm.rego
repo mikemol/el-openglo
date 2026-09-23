@@ -8,6 +8,8 @@ package el.sddm
 
 import rego.v1
 
+import data.el.truth
+
 cases := object.get(input, "cases", [])
 
 deny contains msg if {
@@ -44,14 +46,14 @@ deny contains msg if {
 
 deny contains msg if {
 	some c in measured
-	c.probe.passwordField
+	truth.py(c.probe.passwordField)
 	c.probe.passwordEcho != 2
 	msg := sprintf("S3: %s password field echoes %v, not TextInput.Password", [c.id, c.probe.passwordEcho])
 }
 
 deny contains msg if {
 	some c in measured
-	c.probe.passwordField
+	truth.py(c.probe.passwordField)
 	not c.probe.focusedAtStart
 	msg := sprintf("S3: %s password field does not hold keyboard focus at start", [c.id])
 }
@@ -104,8 +106,8 @@ deny contains msg if {
 }
 
 selectors_ok(p) if {
-	p.userSelector
-	p.sessionSelector
+	truth.py(p.userSelector)
+	truth.py(p.sessionSelector)
 	p.userCount > 0
 	p.sessionCount > 0
 }
@@ -122,6 +124,6 @@ denied_id(id) if {
 
 withheld contains msg if {
 	some c in cases
-	c.withheld
+	truth.py(c.withheld)
 	msg := sprintf("%s: %s", [c.id, c.withheld])
 }

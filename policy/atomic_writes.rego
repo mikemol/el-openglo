@@ -9,6 +9,8 @@ package el.atomic_writes
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "A0: no write site was measured"
@@ -29,7 +31,7 @@ deny contains msg if {
 
 deny contains msg if {
 	some c in object.get(input, "cases", [])
-	c.exempt
+	truth.py(c.exempt)
 	trim_space(object.get(c, "reason", "")) == ""
 	msg := sprintf("A2: %s.py:%d is exempt with no reason", [c.module, c.line])
 }
@@ -47,11 +49,11 @@ withheld contains msg if {
 
 admitted contains sprintf("%s.py:%d", [c.module, c.line]) if {
 	some c in object.get(input, "cases", [])
-	c.atomic
+	truth.py(c.atomic)
 }
 
 admitted contains sprintf("%s.py:%d", [c.module, c.line]) if {
 	some c in object.get(input, "cases", [])
-	c.exempt
+	truth.py(c.exempt)
 	trim_space(object.get(c, "reason", "")) != ""
 }

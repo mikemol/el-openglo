@@ -105,6 +105,20 @@ test_g1_refuses_an_sddm_conf_write if {
 	contains(msg, "wrote sddm.conf")
 }
 
+# null is truthy to a bare Rego reference: a null sddm_conf_written is not a write,
+# and a null withheld is not a withholding
+test_null_sddm_conf_written_withheld_does_not_fire if {
+	c := object.union(sddm("theme", 0, "el-openglo-azure-lit"), {"sddm_conf_written": null, "withheld": null})
+	inp := {"cases": swap("theme", c)}
+	count(rh.withheld) == 0 with input as inp
+	not any_g1_write with input as inp
+}
+
+any_g1_write if {
+	some msg in rh.deny
+	contains(msg, "wrote sddm.conf")
+}
+
 test_a_seamless_helper_is_withheld if {
 	w := {"kind": "run", "helper": "el-openglo-sddm", "scenario": "theme", "withheld": "no seam"}
 	some msg in rh.withheld with input as {"cases": [layout, w]}

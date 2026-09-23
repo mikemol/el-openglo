@@ -9,6 +9,8 @@ package el.hooks
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "H0: no hooks were measured; the roster is empty, not the hooks healthy"
@@ -29,13 +31,13 @@ deny contains msg if {
 # title: "H2 — every hook's selftest passes from this repo"
 deny contains msg if {
 	some c in input.cases
-	c.present
+	truth.py(c.present)
 	c.rc != 0
 	msg := sprintf("H2: %s: selftest exited %d: %s", [c.hook, c.rc, c.tail])
 }
 
 admitted contains c.hook if {
 	some c in input.cases
-	c.present
+	truth.py(c.present)
 	c.rc == 0
 }

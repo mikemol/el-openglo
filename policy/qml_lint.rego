@@ -9,6 +9,8 @@ package el.qml_lint
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "documents", [])) == 0
 	msg := "Q0: no QML documents were measured; the population is empty, not the tree clean"
@@ -46,7 +48,7 @@ deny contains msg if {
 #   refuse on it without mistaking it for a measured defect.
 withheld contains msg if {
 	some doc in input.documents
-	doc.withheld
+	truth.py(doc.withheld)
 	msg := sprintf("%s: %s", [doc.id, doc.withheld])
 }
 

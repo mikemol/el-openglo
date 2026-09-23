@@ -11,6 +11,8 @@ package el.populations
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "files", [])) == 0
 	msg := "P0: no file was in the census scope"
@@ -28,7 +30,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in object.get(input, "cases", [])
 	not c.borrowed
-	c.recursive
+	truth.py(c.recursive)
 	c.reach in {"root", "unknown"}
 	not c.marked
 	msg := sprintf("P1: %s:%d %s(%s) walks from %s reach with no `# population:` reason; read the population from scripts/git_tracked.py", [c.module, c.line, c.kind, c.root, c.reach])
@@ -37,7 +39,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in object.get(input, "cases", [])
 	not c.borrowed
-	c.marked
+	truth.py(c.marked)
 	trim_space(object.get(c, "reason", "")) == ""
 	msg := sprintf("P2: %s:%d is marked `# population:` with no reason", [c.module, c.line])
 }
@@ -46,8 +48,8 @@ deny contains msg if {
 # reported, never denied here.
 withheld contains msg if {
 	some c in object.get(input, "cases", [])
-	c.borrowed
-	c.recursive
+	truth.py(c.borrowed)
+	truth.py(c.recursive)
 	c.reach in {"root", "unknown"}
 	not c.marked
 	msg := sprintf("P1: %s:%d %s(%s) — a SUBSTRATE finding (borrowed file)", [c.module, c.line, c.kind, c.root])

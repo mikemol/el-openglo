@@ -31,3 +31,13 @@ test_s2_refuses_a_record_without_the_rationale if {
 	some msg in s.deny with input as {"cases": [{"record": "RECOVERY-NOTES.md", "present": true, "evidence": []}]}
 	msg == "S2: RECOVERY-NOTES.md does not record WHY the prior mark was retired"
 }
+
+# null present is not held: no S2 (a record never read cannot lack its rationale)
+test_null_present_does_not_fire if {
+	inp := {"cases": [object.union(good.cases[0], {"present": null, "evidence": []})]}
+	d := s.deny with input as inp
+	every msg in d {
+		not startswith(msg, "S2:")
+	}
+	not "RECOVERY-NOTES.md" in s.admitted with input as {"cases": [object.union(good.cases[0], {"present": null})]}
+}

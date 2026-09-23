@@ -113,6 +113,22 @@ test_m4_admits_a_later_ring if {
 	count([m | some m in mb.deny with input as object.union(clean, {"ring": [r]}); startswith(m, "M4:")]) == 0
 }
 
+# null is truthy to a bare Rego reference: a null runner has not run, so M0/M5 stay silent
+test_null_runner_does_not_fire if {
+	inp := {"runner": null, "parse": [], "join": [], "ring": [], "series": []}
+	count([m | some m in mb.deny with input as inp; startswith(m, "M0:")]) == 0
+	count([m | some m in mb.deny with input as inp; startswith(m, "M5:")]) == 0
+}
+
+# a null text/series is UNSTATED, not an expectation of null: M6/M7 stay silent
+test_null_step_text_series_does_not_fire if {
+	r := {"label": "unstated", "steps": [{"arrive": ["n1"], "live": [], "max": 12, "text": null, "series": null}],
+		"expected": [{"ring": ["n1"], "queue": []}], "trace": [{"ring": ["n1"], "queue": [], "text": "n1#1", "series": {}}]}
+	inp := object.union(clean, {"ring": [r]})
+	count([m | some m in mb.deny with input as inp; startswith(m, "M6:")]) == 0
+	count([m | some m in mb.deny with input as inp; startswith(m, "M7:")]) == 0
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "parse": [], "join": [], "ring": []}
 	count(mb.deny) == 0 with input as inp

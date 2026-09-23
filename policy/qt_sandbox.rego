@@ -9,6 +9,8 @@ package el.qt_sandbox
 
 import rego.v1
 
+import data.el.truth
+
 cases := object.get(input, "cases", [])
 
 deny contains msg if {
@@ -32,17 +34,17 @@ deny contains msg if {
 # and qt_sandbox grants it only under EL_QT_GPU=1), but listed
 gpu_sites contains c.id if {
 	some c in measured
-	c.routed
+	truth.py(c.routed)
 	c.gpu != false
 }
 
 admitted contains c.id if {
 	some c in measured
-	c.routed
+	truth.py(c.routed)
 }
 
 withheld contains msg if {
 	some c in cases
-	c.withheld
+	truth.py(c.withheld)
 	msg := sprintf("%s: %s", [c.id, c.withheld])
 }

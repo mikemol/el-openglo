@@ -39,3 +39,17 @@ test_t2_refuses_a_module_that_will_not_import if {
 	some msg in t.deny with input as object.union(good, {"cases": [broken]})
 	msg == "T2: cvd_gate.SECTORS: module will not import: SyntaxError"
 }
+
+# null imports / present are not held: no "absent from the module" T2, nothing admitted
+test_null_imports_present_do_not_fire if {
+	inp := object.union(good, {"cases": [
+		object.union(ok_case("apca_Lc"), {"imports": null, "present": false}),
+		object.union(ok_case("wcag_ratio"), {"imports": null}),
+		object.union(ok_case("SECTORS"), {"present": null}),
+	]})
+	d := t.deny with input as inp
+	every msg in d {
+		not contains(msg, "absent from the module")
+	}
+	count(t.admitted) == 0 with input as inp
+}

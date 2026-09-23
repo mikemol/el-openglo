@@ -13,6 +13,8 @@ package el.css
 
 import rego.v1
 
+import data.el.truth
+
 # stated beside the tokens: derived identities and flags, not tokens themselves
 derived := {"--el-fg-in-seen", "--el-fg-in-seen-glanced", "--el-ghost-alpha-glanced-infeasible", "--el-tt-is-sel"}
 
@@ -34,14 +36,14 @@ withheld contains msg if {
 # METADATA
 # title: "K1 — every variant block carries every token at the token's value"
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	some c in input.cases
 	c.got == null
 	msg := sprintf("K1: %s: no [data-el-variant=%q] block", [c.id, c.id])
 }
 
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	some c in input.cases
 	c.got != null
 	some prop, want in c.expected
@@ -50,7 +52,7 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	some c in input.cases
 	c.got != null
 	some prop, want in c.expected
@@ -62,7 +64,7 @@ deny contains msg if {
 # METADATA
 # title: "K2 — no --el- property that is not a token"
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	some c in input.cases
 	c.got != null
 	some prop, _ in c.got
@@ -75,7 +77,7 @@ deny contains msg if {
 # METADATA
 # title: "K3 — the seen ghost is stated as color-mix(fg_in over view)"
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	some c in input.cases
 	c.got != null
 	some prop in ["--el-fg-in-seen", "--el-fg-in-seen-glanced"]
@@ -92,13 +94,13 @@ is_mix(v) if {
 # METADATA
 # title: "K4 — the Off/Lit polarity maps onto prefers-color-scheme"
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	not polarity(input.root, "EL-Openglo")
 	msg := "K4: :root is not EL-Openglo"
 }
 
 deny contains msg if {
-	input.parsed
+	truth.py(input.parsed)
 	not polarity(input.light, "EL-Openglo-Lit")
 	msg := "K4: prefers-color-scheme: light is not EL-Openglo-Lit"
 }
@@ -111,7 +113,7 @@ polarity(block, vid) if {
 }
 
 admitted contains c.id if {
-	input.parsed
+	truth.py(input.parsed)
 	some c in input.cases
 	c.got != null
 	every prop, want in c.expected { c.got[prop] == want }

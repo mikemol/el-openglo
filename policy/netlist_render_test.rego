@@ -44,6 +44,12 @@ test_n1_refuses_stuck_interior if {
 	startswith(msg, "N1: 1 interior node(s)")
 }
 
+# null is truthy to a bare Rego reference: an unstated in_dot must not admit the node
+test_null_in_dot_does_not_fire if {
+	inp := object.union(good, {"cases": [{"node": "view", "in_dot": true}, {"node": "fg", "in_dot": null}]})
+	p.admitted == {"view"} with input as inp
+}
+
 test_graphviz_absent_is_withheld_beside_admitted if {
 	skip := object.union(good, {"render": {"ok": null, "detail": "graphviz `dot` is not installed"}, "families": [{"family": "geometry", "colour": "#4080ff", "in_dot": true, "in_svg": null}]})
 	count(p.deny) == 0 with input as skip

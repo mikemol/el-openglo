@@ -10,14 +10,16 @@ package el.marquee_live
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
-	input.runner
+	truth.py(input.runner)
 	count(input.samples) == 0
 	msg := "L0: no samples; the widget did not run"
 }
 
 deny contains msg if {
-	input.runner
+	truth.py(input.runner)
 	count(input.events) == 0
 	msg := "L0: no events; nothing drove the board"
 }
@@ -120,8 +122,8 @@ deny contains msg if {
 	some i
 	a := input.samples[i]
 	b := input.samples[i + 1]
-	a.running
-	b.running
+	truth.py(a.running)
+	truth.py(b.running)
 	a.text != ""
 	b.text == a.text
 	b.x > a.x + 1
@@ -145,7 +147,7 @@ idle_before(e) if {
 runs_after(e) if {
 	some s in input.samples
 	s.t >= e.t
-	s.running
+	truth.py(s.running)
 }
 
 deny contains msg if {
@@ -166,11 +168,11 @@ deny contains msg if {
 #   at least one pitch in that span).
 stalled(i) if {
 	a := input.samples[i]
-	a.running
+	truth.py(a.running)
 	a.text != ""
 	every k in numbers.range(1, 10) {
 		b := input.samples[i + k]
-		b.running
+		truth.py(b.running)
 		b.text == a.text
 		b.x == a.x
 	}
@@ -192,18 +194,18 @@ deny contains msg if {
 #   the offscreen pointer at (0,0)): among the paused samples the ring opacity
 #   takes more than one value and is never zero; over the main run (never
 #   paused) the ring is zero at every sample. Derived from the samples.
-paused_rings := {s.ring | some s in input.hovered.samples; s.paused}
+paused_rings := {s.ring | some s in input.hovered.samples; truth.py(s.paused)}
 
 deny contains msg if {
-	input.runner
-	count([s | some s in input.hovered.samples; s.paused]) > 0
+	truth.py(input.runner)
+	count([s | some s in input.hovered.samples; truth.py(s.paused)]) > 0
 	count(paused_rings) < 2
 	msg := sprintf("L7: the board was paused and the ring did not pulse (opacities seen: %v)", [paused_rings])
 }
 
 deny contains msg if {
 	some s in input.hovered.samples
-	s.paused
+	truth.py(s.paused)
 	s.ring == 0
 	msg := sprintf("L7: paused at t=%v with the ring dark", [s.t])
 }

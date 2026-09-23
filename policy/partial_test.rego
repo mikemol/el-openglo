@@ -43,3 +43,16 @@ test_p2_refuses_an_unnamed_partial_file if {
 	some msg in p.deny with input as bad
 	msg == "P2: RECOVERY-NOTES.md does not mention make_deb.py"
 }
+
+# null is truthy to a bare Rego reference: a null notes_present must not count as
+# "the notes are present" and fire the does-not-mention arm
+test_null_notes_present_does_not_fire if {
+	bad := object.union(good, {"notes_present": null, "cases": [good.cases[0], {"file": "make_deb.py", "exists": true, "named": false}]})
+	not "P2: RECOVERY-NOTES.md does not mention make_deb.py" in p.deny with input as bad
+}
+
+# a null exists/named is not a measured yes: the file must not be admitted
+test_null_exists_named_does_not_admit if {
+	inp := object.union(good, {"cases": [good.cases[0], {"file": "make_deb.py", "exists": null, "named": null}]})
+	not "make_deb.py" in p.admitted with input as inp
+}

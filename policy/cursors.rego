@@ -9,6 +9,8 @@ package el.cursors
 
 import rego.v1
 
+import data.el.truth
+
 cases := object.get(input, "cases", [])
 
 deny contains msg if {
@@ -41,7 +43,7 @@ core_aliases := {
 required_sizes := {24, 32, 48}
 
 usable(c, name) if {
-	c.entries[name].readable
+	truth.py(c.entries[name].readable)
 }
 
 # C1 — a core shape is missing or unreadable
@@ -64,7 +66,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in measured
 	some name, e in c.entries
-	e.readable
+	truth.py(e.readable)
 	some col in e.dominant
 	not col in {c.tokens.lit, c.tokens.ground}
 	msg := sprintf("C3: %s %s is drawn in %s, not its tokens lit=%s ground=%s", [c.id, name, col, c.tokens.lit, c.tokens.ground])
@@ -74,7 +76,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in measured
 	some name, e in c.entries
-	e.readable
+	truth.py(e.readable)
 	count(e.dominant) == 0
 	msg := sprintf("C3: %s %s has no opaque pixels at the probe size", [c.id, name])
 }
@@ -115,6 +117,6 @@ denied_id(id) if {
 
 withheld contains msg if {
 	some c in cases
-	c.withheld
+	truth.py(c.withheld)
 	msg := sprintf("%s: %s", [c.id, c.withheld])
 }

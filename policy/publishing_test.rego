@@ -56,6 +56,14 @@ test_b2_admits_an_unlisted_id_off_the_store if {
 	count(p.deny) == 0 with input as ok
 }
 
+# null is truthy to a bare Rego reference: a null listing is not a cached listing,
+# and a null guessed is not a guess
+test_null_listing_guessed_does_not_fire if {
+	bad := object.union(good, {"listing": null, "rows": array.concat(good.rows, [{"emitter": "make_x", "venue": "KDE Store", "route": "id 999", "guessed": null, "ids": [{"id": "999", "listed": false}]}])})
+	not "B2: make_x: id 999 is not in the OCS listing" in p.deny with input as bad
+	not "B2: make_x: guessed id in \"id 999\"" in p.deny with input as bad
+}
+
 test_b2_refuses_a_missing_listing if {
 	some msg in p.deny with input as object.union(good, {"listing": false})
 	startswith(msg, "B2: no cached OCS listing")

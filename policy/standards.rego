@@ -9,6 +9,8 @@ package el.standards
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "T0: no cited applier was measured; the document is absent, its citation format changed, or the scan is broken"
@@ -34,13 +36,13 @@ deny contains msg if {
 
 deny contains msg if {
 	some c in input.cases
-	c.imports
+	truth.py(c.imports)
 	not c.present
 	msg := sprintf("T2: %s.%s: named in STANDARDS.md, absent from the module", [c.module, c.attr])
 }
 
 admitted contains sprintf("%s.%s", [c.module, c.attr]) if {
 	some c in input.cases
-	c.imports
-	c.present
+	truth.py(c.imports)
+	truth.py(c.present)
 }

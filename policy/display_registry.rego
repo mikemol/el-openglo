@@ -11,6 +11,8 @@ package el.display_registry
 
 import rego.v1
 
+import data.el.truth
+
 kinds := {"stroke", "format", "matrix", "display"}
 
 deny contains msg if {
@@ -50,15 +52,15 @@ deny contains msg if {
 
 deny contains msg if {
 	some k in input.roundtrip.keys
-	k.emitted
+	truth.py(k.emitted)
 	not k.registry
 	msg := sprintf("D1: %s: emitted registry invents it", [k.key])
 }
 
 deny contains msg if {
 	some k in input.roundtrip.keys
-	k.emitted
-	k.registry
+	truth.py(k.emitted)
+	truth.py(k.registry)
 	not k.equal
 	msg := sprintf("D1: %s: emitted value differs from registry()", [k.key])
 }

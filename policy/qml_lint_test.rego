@@ -70,6 +70,12 @@ test_withheld_is_not_deny if {
 	count(qml_lint.withheld) == 1 with input as inp
 }
 
+# null is truthy to a bare Rego reference: a null withheld is not a withholding
+test_null_withheld_does_not_fire if {
+	inp := {"qmllint": true, "documents": [{"id": "clock-main.qml", "lint": [], "bound_running": [], "withheld": null}]}
+	count(qml_lint.withheld) == 0 with input as inp
+}
+
 test_withheld_without_qmllint if {
 	inp := {"qmllint": false, "documents": [{"id": "clock-main.qml", "lint": [], "bound_running": []}]}
 	count(qml_lint.deny) == 0 with input as inp

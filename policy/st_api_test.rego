@@ -38,3 +38,19 @@ test_a2_refuses_the_missing_22_segment_geometry if {
 	msg == "A2: ST.GEOM22 is not exported (referenced by display_types.py)"
 	count(p.admitted) == 2 with input as bad
 }
+
+# null module_present is not held: no A2 over a module never read, nothing admitted
+test_null_module_present_does_not_fire if {
+	inp := {"module_present": null, "cases": [{"symbol": "GEOM22", "files": ["display_types.py"], "exported": false}, good.cases[0]]}
+	d := p.deny with input as inp
+	every msg in d {
+		not startswith(msg, "A2:")
+	}
+	count(p.admitted) == 0 with input as inp
+}
+
+# null exported is not held: the symbol is not admitted
+test_null_exported_does_not_admit if {
+	inp := object.union(good, {"cases": [object.union(good.cases[0], {"exported": null})]})
+	count(p.admitted) == 0 with input as inp
+}

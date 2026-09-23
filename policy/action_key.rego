@@ -12,6 +12,8 @@
 # be both and still be wrong. This is the third obligation.
 package el.action_key
 
+import data.el.truth
+
 # ⚑ AN ABSENT POPULATION IS AN EMPTY ONE. `count(input.cases)` is UNDEFINED on {}
 # and an undefined body ADMITS — a policy that certifies a measurement that never
 # ran. object.get makes the empty case reachable, so it can deny.
@@ -150,7 +152,7 @@ withheld contains msg if {
 withheld contains msg if {
 	object.get(input, ["host", "kind"], "") == "unpinned"
 	some c in input.cases
-	c.sees_host
+	truth.py(c.sees_host)
 	msg := sprintf(
 		"action %q sees the host and the host is UNPINNED: staleness is detectable here, but a cached verdict is not transportable",
 		[c.action],

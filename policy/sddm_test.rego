@@ -81,3 +81,27 @@ test_withheld_only if {
 	count(s.withheld) == 1 with input as inp
 	count(s.admitted) == 0 with input as inp
 }
+
+# null passwordField is not held: echo/focus rules judge only a present field
+test_null_password_field_does_not_fire if {
+	inp := with_probe({"passwordField": null, "passwordEcho": 0, "focusedAtStart": false})
+	d := s.deny with input as inp
+	every msg in d {
+		not contains(msg, "echoes")
+		not contains(msg, "does not hold keyboard focus")
+	}
+}
+
+# null selector is not bound: S7 must refuse it
+test_null_selector_does_not_admit if {
+	some msg in s.deny with input as with_probe({"userSelector": null})
+	startswith(msg, "S7:")
+	some msg2 in s.deny with input as with_probe({"sessionSelector": null})
+	startswith(msg2, "S7:")
+}
+
+# null withheld is not a withholding
+test_null_withheld_does_not_fire if {
+	inp := {"expected": expected, "cases": [{"id": "EL-Openglo", "rc": 0, "lit_px": 900, "probe": probe, "withheld": null}]}
+	count(s.withheld) == 0 with input as inp
+}

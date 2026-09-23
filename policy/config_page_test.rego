@@ -32,6 +32,11 @@ test_c1_withholds_an_absent_pair if {
 	startswith(msg, "C1:")
 }
 
+# a null withheld is "nothing withheld", not a withheld page
+test_null_withheld_does_not_fire if {
+	count(cp.withheld) == 0 with input as {"pages": [object.union(good, {"withheld": null})], "display": good_display}
+}
+
 test_c2_refuses_an_undeclared_value if {
 	some msg in cp.deny with input as {"pages": [object.union(good, {"keys": [{"key": "traceLog", "type": "String", "value": false, "default": true}]})], "display": good_display}
 	startswith(msg, "C2:")

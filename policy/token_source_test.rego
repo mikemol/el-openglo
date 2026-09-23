@@ -41,3 +41,16 @@ test_c1_refuses_an_undeclared_generator if {
 	some msg in p.deny with input as object.union(good, {"undeclared": ["make_new.py"]})
 	msg == "C1: make_new.py is in the tree without a role in emitters.ROLES (3 declared)"
 }
+
+# null present is not held: no C2 over an unread file, and not admitted
+test_null_present_does_not_fire if {
+	inp := object.union(good, {"cases": [
+		object.union(good.cases[0], {"present": null}),
+		{"file": "make_wallpaper.py", "present": null, "reads": []},
+	]})
+	d := p.deny with input as inp
+	every msg in d {
+		not startswith(msg, "C2:")
+	}
+	count(p.admitted) == 0 with input as inp
+}

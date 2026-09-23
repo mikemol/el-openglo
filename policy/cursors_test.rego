@@ -86,6 +86,19 @@ test_c6_admits_no_drift if {
 	count(c.deny) == 0 with input as inp
 }
 
+# a null readable is not a readable glyph: C3 does not judge its (empty) colours
+test_null_readable_does_not_fire if {
+	inp := with_entry("zoom-in", object.union(good, {"readable": null, "dominant": []}))
+	d := c.deny with input as inp
+	every msg in d { not startswith(msg, "C3:") }
+}
+
+# a null withheld is "nothing withheld"
+test_null_withheld_does_not_fire if {
+	inp := {"cases": [object.union(case_with(entries), {"withheld": null})]}
+	count(c.withheld) == 0 with input as inp
+}
+
 test_withheld_only if {
 	inp := {"cases": [{"id": "EL-Openglo", "withheld": "cannot rasterise"}]}
 	count(c.deny) == 0 with input as inp

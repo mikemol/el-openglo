@@ -8,6 +8,8 @@ package el.aperture
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	# absent counts as empty: count(input.variants) is UNDEFINED on {}, and an
 	# undefined rule body admits (measured s131 by opa_gate's selftest)
@@ -15,12 +17,60 @@ deny contains msg if {
 	msg := "A0: no variants were measured"
 }
 
+# ⚑ EVERY VARIANT LANDS IN EXACTLY ONE OF withheld / deny / admitted:
+#   withheld  A1  it could not be rendered (a withholding reason)
+#             A5  it rendered, but a pip's error is null / absent / not a number
+#   deny      A2-A4  a measured pip's error is over its tolerance
+#   admitted      every pip measured and within tolerance
+# A null / "" withheld is NOT a withholding reason (`not v.withheld` read null as
+# one); a null error is NOT a pass (`null > 2` is false, so it was silently
+# neither denied nor admitted).
+
+pips := {"clear": 2, "half": 3, "covered": 2}
+
+label(v) := object.get(v, "variant", "?")
+
+rendered(v) if not truth.py(object.get(v, "withheld", null))
+
+err(v, k) := x if {
+	e := object.get(v, "error", null)
+	is_object(e)
+	x := object.get(e, k, null)
+} else := null
+
+unmeasured(v) := {k | some k, _ in pips; not is_number(err(v, k))}
+
+measured(v) if {
+	rendered(v)
+	count(unmeasured(v)) == 0
+}
+
+over(v, k) if {
+	is_number(err(v, k))
+	err(v, k) > pips[k]
+}
+
 # METADATA
 # title: "A1 — a variant that could not be rendered is withheld, not judged"
 withheld contains msg if {
 	some v in input.variants
-	v.withheld
-	msg := sprintf("A1: %s: %s", [v.variant, v.withheld])
+	truth.py(object.get(v, "withheld", null))
+	msg := sprintf("A1: %s: %s", [label(v), v.withheld])
+}
+
+# METADATA
+# title: "A5 — a rendered variant whose pip error was not measured is withheld"
+withheld contains msg if {
+	some v in input.variants
+	rendered(v)
+	count(unmeasured(v)) > 0
+	msg := sprintf("A5: %s: error %v was not measured", [label(v), sort(unmeasured(v))])
+}
+
+admitted contains label(v) if {
+	some v in input.variants
+	measured(v)
+	count({k | some k, _ in pips; over(v, k)}) == 0
 }
 
 # METADATA
@@ -30,8 +80,8 @@ withheld contains msg if {
 #   palette's global ghost alpha, within 2 (rounding across the composite).
 deny contains msg if {
 	some v in input.variants
-	not v.withheld
-	v.error.clear > 2
+	measured(v)
+	over(v, "clear")
 	msg := sprintf("A2: %s: the clear pip reads %v, not the ghost floor %v", [v.variant, v.seen.clear, v.expected.clear])
 }
 

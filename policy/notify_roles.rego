@@ -9,6 +9,8 @@ package el.notify_roles
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	not input.withheld
 	count(object.get(input, "roles", {})) == 0
@@ -18,7 +20,7 @@ deny contains msg if {
 # METADATA
 # title: "N1 — a host without the module is withheld, not judged"
 withheld contains msg if {
-	input.withheld
+	truth.py(input.withheld)
 	msg := sprintf("N1: %s", [input.withheld])
 }
 

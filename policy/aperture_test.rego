@@ -22,6 +22,11 @@ test_a1_withholds_a_failed_render if {
 	startswith(msg, "A1:")
 }
 
+# a null withheld is "nothing withheld", not a withheld variant
+test_null_withheld_does_not_fire if {
+	count(ap.withheld) == 0 with input as {"variants": [object.union(good, {"withheld": null})]}
+}
+
 test_a2_refuses_a_wrong_floor if {
 	some msg in ap.deny with input as {"variants": [object.union(good, {"error": {"clear": 40, "half": 1, "covered": 0}})]}
 	startswith(msg, "A2:")

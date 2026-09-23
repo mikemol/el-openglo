@@ -9,6 +9,8 @@ package el.partial
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "P0: no partial-recovery roster entry was measured"
@@ -37,15 +39,15 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	input.notes_present
+	truth.py(input.notes_present)
 	some c in input.cases
 	not c.named
 	msg := sprintf("P2: %s does not mention %s", [input.notes, c.file])
 }
 
 admitted contains c.file if {
-	input.notes_present
+	truth.py(input.notes_present)
 	some c in input.cases
-	c.exists
-	c.named
+	truth.py(c.exists)
+	truth.py(c.named)
 }

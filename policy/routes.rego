@@ -9,14 +9,16 @@ package el.routes
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "R0: the hook reports an EMPTY routing table — it would refuse textual queries without naming the owning tool"
 }
 
 admitted contains c.row if {
-	input.hook_present
-	input.skill_present
+	truth.py(input.hook_present)
+	truth.py(input.skill_present)
 	some c in input.cases
 }
 

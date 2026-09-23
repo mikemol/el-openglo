@@ -7,6 +7,8 @@ package el.screens
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "screens", [])) == 0
 	msg := "S0: no stills are planned"
@@ -31,7 +33,7 @@ deny contains msg if {
 #   drew no surface.
 deny contains msg if {
 	some s in input.screens
-	s.exists
+	truth.py(s.exists)
 	s.distinct < 3
 	msg := sprintf("S2: %s has %d distinct colour(s) — nothing was drawn", [s.file, s.distinct])
 }
@@ -45,7 +47,7 @@ deny contains msg if {
 #   picture was rendered under the wrong scheme.
 deny contains msg if {
 	some s in input.screens
-	s.exists
+	truth.py(s.exists)
 	not s.modal in s.grounds
 	msg := sprintf("S3: %s has modal colour %s, not one of %v (variant %s)", [s.file, s.modal, s.grounds, s.variant])
 }
@@ -63,7 +65,7 @@ deny contains msg if {
 
 deny contains msg if {
 	some a in input.animations
-	a.exists
+	truth.py(a.exists)
 	a.frames < 10
 	msg := sprintf("S4: %s has %d frame(s) — not an animation", [a.file, a.frames])
 }
@@ -79,7 +81,7 @@ deny contains msg if {
 #   a left shift and passes.
 deny contains msg if {
 	some a in input.animations
-	a.exists
+	truth.py(a.exists)
 	count(a.tears) > 0
 	msg := sprintf("S5: %s tears at frame(s) %v", [a.file, [t.frame | some t in a.tears]])
 }
@@ -92,7 +94,7 @@ deny contains msg if {
 #   for r/perfectloops").
 deny contains msg if {
 	some a in input.animations
-	a.exists
+	truth.py(a.exists)
 	not a.seamless
 	msg := sprintf("S6: %s does not loop — its first and last frames differ", [a.file])
 }

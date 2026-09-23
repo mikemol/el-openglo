@@ -12,6 +12,8 @@ package el.netlist_render
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "N0: no graph nodes were measured; the search is broken, not the render clean"
@@ -78,5 +80,5 @@ withheld contains msg if {
 
 admitted contains c.node if {
 	some c in input.cases
-	c.in_dot
+	truth.py(c.in_dot)
 }

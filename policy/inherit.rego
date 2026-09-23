@@ -13,6 +13,8 @@ package el.inherit
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "I0: no variants were measured; the roster is empty, not the themes well-formed"
@@ -99,5 +101,5 @@ admitted contains c.id if {
 	last_is_hicolor(c.icon_parents)
 	count(c.icon_dirs) > 0
 	c.cursor_parent != ""
-	c.defaults_ok
+	truth.py(c.defaults_ok)
 }

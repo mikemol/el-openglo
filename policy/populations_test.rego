@@ -50,6 +50,24 @@ test_bounded_marked_and_listing_admitted if {
 	count(populations.deny) == 0 with input as {"files": ["scripts/x.py"], "cases": [bounded, marked, listing]}
 }
 
+# null is truthy to a bare Rego reference: a null recursive/marked must not fire P1/P2
+test_null_recursive_marked_does_not_fire if {
+	inp := {"files": ["scripts/x.py"], "cases": [
+		object.union(bare, {"recursive": null}),
+		object.union(marked_bare, {"marked": null, "recursive": false}),
+	]}
+	count(populations.deny) == 0 with input as inp
+}
+
+# a null borrowed/recursive must not produce a SUBSTRATE withheld finding
+test_null_borrowed_recursive_does_not_withhold if {
+	inp := {"files": ["scripts/ratchet.py"], "cases": [
+		object.union(borrowed, {"recursive": null}),
+		object.union(bare, {"borrowed": null, "recursive": false, "line": 10}),
+	]}
+	count(populations.withheld) == 0 with input as inp
+}
+
 test_no_sites_over_a_population_admitted if {
 	count(populations.deny) == 0 with input as {"files": ["scripts/x.py"], "cases": []}
 }

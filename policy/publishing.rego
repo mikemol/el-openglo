@@ -11,6 +11,8 @@ package el.publishing
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "B0: no emitter was measured; the roster is broken, not every target routed"
@@ -52,7 +54,7 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	input.listing
+	truth.py(input.listing)
 	some r in store_rows
 	some i in r.ids
 	not i.listed
@@ -61,7 +63,7 @@ deny contains msg if {
 
 deny contains msg if {
 	some r in store_rows
-	r.guessed
+	truth.py(r.guessed)
 	msg := sprintf("B2: %s: guessed id in %q", [r.emitter, r.route])
 }
 

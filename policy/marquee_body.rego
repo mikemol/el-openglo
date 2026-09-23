@@ -9,8 +9,10 @@ package el.marquee_body
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
-	input.runner
+	truth.py(input.runner)
 	count(input.parse) + count(input.join) + count(input.ring) == 0
 	msg := "M0: no cases were measured; the population is empty, not the parser right"
 }
@@ -120,7 +122,8 @@ deny contains msg if {
 deny contains msg if {
 	some s in input.ring
 	some i, step in s.steps
-	step.text
+	# STATED means present and non-null: an expected "" is still a statement
+	step.text != null
 	s.trace[i].text != step.text
 	msg := sprintf("M6: %s: boundary %d joined %q, expected %q", [s.label, i, s.trace[i].text, step.text])
 }
@@ -134,7 +137,8 @@ deny contains msg if {
 deny contains msg if {
 	some s in input.ring
 	some i, step in s.steps
-	step.series
+	# STATED means present and non-null: an expected [] is still a statement
+	step.series != null
 	s.trace[i].series != step.series
 	msg := sprintf("M7: %s: boundary %d series %v, expected %v", [s.label, i, s.trace[i].series, step.series])
 }
@@ -154,7 +158,7 @@ deny contains msg if {
 }
 
 deny contains msg if {
-	input.runner
+	truth.py(input.runner)
 	count(input.series) == 0
 	msg := "M5: no series cases were measured"
 }

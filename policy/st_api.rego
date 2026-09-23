@@ -10,6 +10,8 @@ package el.st_api
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "A0: no consumer references to segment_topology were found; the search is broken, not the API complete"
@@ -30,14 +32,14 @@ deny contains msg if {
 #   after most of it was back; measured, only the 22-segment geometry was
 #   missing. This computes that gap instead of recording it.
 deny contains msg if {
-	input.module_present
+	truth.py(input.module_present)
 	some c in input.cases
 	not c.exported
 	msg := sprintf("A2: ST.%s is not exported (referenced by %s)", [c.symbol, concat(", ", c.files)])
 }
 
 admitted contains c.symbol if {
-	input.module_present
+	truth.py(input.module_present)
 	some c in input.cases
-	c.exported
+	truth.py(c.exported)
 }

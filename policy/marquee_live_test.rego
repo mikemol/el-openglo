@@ -301,6 +301,32 @@ test_l11_refuses_a_falling_gauge_for_rising_progress if {
 	startswith(msg, "L11:")
 }
 
+# null is truthy to a bare Rego reference: a null runner has not run, so L0 stays silent
+test_null_runner_does_not_fire if {
+	inp := {"runner": null, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
+	count([m | some m in ml.deny with input as inp; startswith(m, "L0:")]) == 0
+}
+
+# a null `running` is not running: no forward jump (L4) and no running stall (L6)
+test_null_running_does_not_fire if {
+	jumpy := object.union(clean, {"samples": [
+		{"t": 300, "text": "app: hello", "x": 300, "running": null, "count": 1},
+		{"t": 340, "text": "app: hello", "x": 350, "running": null, "count": 1},
+	]})
+	count([m | some m in ml.deny with input as jumpy; startswith(m, "L4:")]) == 0
+	held := [{"t": 1300 + (40 * k), "text": "app: hello", "x": 7.2, "running": null, "count": 1} | some k in numbers.range(0, 11)]
+	count([m | some m in ml.deny with input as object.union(clean, {"samples": held}); startswith(m, "L6:")]) == 0
+}
+
+# a null `paused` is not paused: a dark, flat ring is then not an L7 defect
+test_null_paused_does_not_fire if {
+	unstated := {"samples": [
+		{"t": 1300, "text": "app: hello", "x": 7.2, "running": true, "paused": null, "ring": 0, "count": 1},
+		{"t": 1340, "text": "app: hello", "x": 7.2, "running": true, "paused": null, "ring": 0, "count": 1},
+	]}
+	count([m | some m in ml.deny with input as object.union(clean, {"hovered": unstated}); startswith(m, "L7:")]) == 0
+}
+
 test_withheld_without_runner if {
 	inp := {"runner": false, "events": [], "samples": [], "width": 0, "hovered": {"samples": []}}
 	count(ml.deny) == 0 with input as inp

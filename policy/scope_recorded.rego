@@ -9,6 +9,8 @@ package el.scope_recorded
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "S0: no decision record was measured"
@@ -28,13 +30,13 @@ deny contains msg if {
 #   A reader meeting the rename must find its reason, not only the change.
 deny contains msg if {
 	some c in input.cases
-	c.present
+	truth.py(c.present)
 	count(object.get(c, "evidence", [])) == 0
 	msg := sprintf("S2: %s does not record WHY the prior mark was retired", [c.record])
 }
 
 admitted contains c.record if {
 	some c in input.cases
-	c.present
+	truth.py(c.present)
 	count(object.get(c, "evidence", [])) > 0
 }

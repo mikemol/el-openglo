@@ -23,8 +23,35 @@ deny contains msg if {
 #   without a word. It is now refused.
 deny contains msg if {
 	some c in input.cases
-	not c.present
+	c.present == false
 	msg := sprintf("G1: %s is a declared segment surface and is absent from the tree", [c.file])
+}
+
+# measured: the measurement always emits `present` (bool) and, for a present
+# surface, `reads` and `owns` (lists). Anything else is "could not say".
+measured(c) if {
+	c.present == true
+	is_array(c.reads)
+	is_array(c.owns)
+}
+
+# METADATA
+# title: "G4 — a surface the measurement could not describe is withheld, not judged"
+# description: |
+#   `present` null/absent (neither true nor false), or a present surface whose
+#   `reads`/`owns` is not a list. Every case lands in exactly one of deny /
+#   withheld / admitted; before this, such a case landed in none.
+withheld contains msg if {
+	some c in input.cases
+	not is_boolean(object.get(c, "present", null))
+	msg := sprintf("G4: %v: present was not measured", [object.get(c, "file", null)])
+}
+
+withheld contains msg if {
+	some c in input.cases
+	c.present == true
+	not measured(c)
+	msg := sprintf("G4: %v: reads/owns was not measured", [object.get(c, "file", null)])
 }
 
 # METADATA
@@ -34,7 +61,7 @@ deny contains msg if {
 #   the segment shapes while segment_topology, built to supply them, fed none.
 deny contains msg if {
 	some c in input.cases
-	c.present
+	measured(c)
 	count(c.reads) == 0
 	msg := sprintf("G2: %s reads no geometry authority (%s)", [c.file, concat(", ", object.get(input, "authorities", []))])
 }
@@ -47,14 +74,14 @@ deny contains msg if {
 #   _ST.seg7_svg_grid()` is a derivation and is admitted by the measurement.
 deny contains msg if {
 	some c in input.cases
-	c.present
+	measured(c)
 	count(c.owns) > 0
 	msg := sprintf("G3: %s carries its own stroke table (%s) — a re-implementation", [c.file, concat(", ", c.owns)])
 }
 
 admitted contains c.file if {
 	some c in input.cases
-	c.present
+	measured(c)
 	count(c.reads) > 0
 	count(c.owns) == 0
 }

@@ -31,3 +31,11 @@ test_h2_refuses_a_failing_selftest if {
 	some msg in p.deny with input as bad
 	msg == "H2: hook_no_chaining.py: selftest exited 1: selftest: FAIL"
 }
+
+# null is truthy to a bare Rego reference: an unstated `present` must not arm H2 or admit
+test_null_present_does_not_fire if {
+	failing := {"cases": [{"hook": "hook_no_chaining.py", "present": null, "resolves": "/x", "rc": 1, "tail": "selftest: FAIL"}]}
+	count([m | some m in p.deny with input as failing; startswith(m, "H2:")]) == 0
+	passing := {"cases": [object.union(good.cases[0], {"present": null})]}
+	count(p.admitted) == 0 with input as passing
+}

@@ -101,6 +101,16 @@ test_d1_refuses_an_invented_table_and_an_unparseable_emission if {
 	m2 == "D1: as_qml_js is not parseable: Expecting value"
 }
 
+# null emitted / registry are not "present": D1 neither invents nor differs
+test_null_emitted_registry_does_not_fire if {
+	bad := object.union(good, {"roundtrip": {"parsed": true, "error": null, "keys": [
+		{"key": "zz", "emitted": null, "registry": false, "equal": false},
+		{"key": "segGeom", "emitted": true, "registry": null, "equal": false},
+	]}})
+	d := p.deny with input as bad
+	every msg in d { not contains(msg, "invents it"); not contains(msg, "differs from registry") }
+}
+
 # the selftest's substrate disagreement: a glyph rewritten to ["zz"]
 test_d2_refuses_a_substrate_disagreement if {
 	bad := with_case(1, {"kind": "format", "id": "7", "glyphs": [{"ch": "1", "emitted": ["zz"], "substrate": ["b", "c"]}]})

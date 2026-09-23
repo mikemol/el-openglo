@@ -230,6 +230,15 @@ test_unrecorded_output_withholds_not_denies if {
 	count(w) == 1
 }
 
+# ⚑ NULL IS NOT TRUE. A bare `c.sees_host` holds on null; the measurement's
+# "unknown" must not claim the action sees the host.
+test_null_sees_host_does_not_fire if {
+	c := object.union(_current, {"sees_host": null})
+	i := {"cases": [c], "host": {"kind": "unpinned", "detail": "3 of 3 source(s)"}}
+	w := action_key.withheld with input as i
+	count(w) == 0
+}
+
 test_withheld_beside_admitted if {
 	c := object.union(_current, {"action": "schemes", "state": "unrecorded", "recorded_key": null})
 	i := {"cases": [_current, c]}

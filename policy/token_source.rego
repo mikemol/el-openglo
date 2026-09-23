@@ -11,6 +11,8 @@ package el.token_source
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "cases", [])) == 0
 	msg := "C0: no emitters were measured; the search is broken, not the tree clean"
@@ -47,13 +49,13 @@ deny contains msg if {
 #   computes its palette independently of the one every other target reads.
 deny contains msg if {
 	some c in input.cases
-	c.present
+	truth.py(c.present)
 	count(c.reads) == 0
 	msg := sprintf("C2: %s reads no palette authority (%s); a target that computes its own colours can drift from every other target", [c.file, concat(", ", object.get(input, "authorities", []))])
 }
 
 admitted contains c.file if {
 	some c in input.cases
-	c.present
+	truth.py(c.present)
 	count(c.reads) > 0
 }

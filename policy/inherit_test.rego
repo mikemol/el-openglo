@@ -69,3 +69,9 @@ test_i5_an_uninstalled_parent_is_withheld_not_denied if {
 	count(p.withheld) == 2 with input as bare
 	count(p.admitted) == 2 with input as bare
 }
+
+# null is truthy to a bare Rego reference: unstated defaults must not be admitted
+test_null_defaults_ok_does_not_fire if {
+	inp := object.union(good, {"cases": [object.union(off, {"defaults_ok": null}), lit]})
+	p.admitted == {"EL-Openglo-Lit"} with input as inp
+}

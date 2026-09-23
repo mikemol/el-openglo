@@ -30,6 +30,20 @@ test_exempt_without_reason_denied if {
 	startswith(m, "A2: make_x.py:4")
 }
 
+# a null exempt is not an exemption: no A2, and not admitted as exempt
+test_null_exempt_does_not_fire if {
+	i := {"cases": [object.union(exempt_bare, {"exempt": null})], "helper_present": true}
+	d := atomic_writes.deny with input as i
+	every m in d { not startswith(m, "A2:") }
+	count(atomic_writes.admitted) == 0 with input as i
+}
+
+# a null atomic is not an atomic write: the site is not admitted
+test_null_atomic_does_not_fire if {
+	i := {"cases": [object.union(plain, {"atomic": null})], "helper_present": true}
+	count(atomic_writes.admitted) == 0 with input as i
+}
+
 test_missing_helper_denied if {
 	"A3: emitters.atomic_write is absent — the admitted form names nothing" in atomic_writes.deny with input as {"cases": [atomic], "helper_present": false}
 }

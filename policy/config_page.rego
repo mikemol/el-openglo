@@ -7,6 +7,8 @@ package el.config_page
 
 import rego.v1
 
+import data.el.truth
+
 deny contains msg if {
 	count(object.get(input, "pages", [])) == 0
 	msg := "C0: no config pages are measured"
@@ -16,7 +18,7 @@ deny contains msg if {
 # title: "C1 — a page that could not be measured is withheld"
 withheld contains msg if {
 	some p in input.pages
-	p.withheld
+	truth.py(p.withheld)
 	msg := sprintf("C1: %s: %s", [p.page, p.withheld])
 }
 

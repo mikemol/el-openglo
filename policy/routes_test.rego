@@ -28,6 +28,12 @@ test_r0_r2_refuse_the_symlinked_hook_without_a_skill if {
 	m2 == "R2: no local routing table at .claude/skills/struct-tools/SKILL.md"
 }
 
+# null is truthy to a bare Rego reference: a null presence is not presence
+test_null_hook_skill_present_does_not_admit if {
+	count(r.admitted) == 0 with input as object.union(good, {"hook_present": null})
+	count(r.admitted) == 0 with input as object.union(good, {"skill_present": null})
+}
+
 test_r1_refuses_an_absent_hook if {
 	some msg in r.deny with input as object.union(good, {"hook_present": false})
 	msg == "R1: the structural-query hook is not installed at scripts/hook_structural_query.py"
