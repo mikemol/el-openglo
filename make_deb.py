@@ -828,6 +828,12 @@ def stage(root):
 
     _inh.render_all(VARIANTS, os.path.join(DEB_ROOT, "usr/share/icons"),
                     icon_png=lambda v: os.path.join(icon_assets, f"{v}-segclock.png"))
+    # Phosphor cursors (W36): the palette's lit rim + ground body as XCursor
+    # glyphs, written into the SAME <variant>-cursors theme make_inherit just
+    # declared (so the LnF's cursorTheme= already selects them, and every shape
+    # not drawn still falls through Inherits= to Breeze).
+    import make_cursors as _cur
+    _cur.render_all(VARIANTS, os.path.join(DEB_ROOT, "usr/share/icons"))
 
     # Chrome/Chromium themes (⊕CHROME-THEME): per-variant manifest.json emitted
     # from the same scheme tokens, loadable unpacked via chrome://extensions.

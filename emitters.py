@@ -95,6 +95,7 @@ ROLES = {
     "make_chrome":          "emitter",
     "make_clock":           "emitter",
     "make_css":             "emitter",
+    "make_cursors":         "emitter",     # phosphor XCursor glyphs per variant (W36)
     "make_firefox":         "emitter",
     "make_gtk":             "emitter",
     "make_konsole":         "emitter",
@@ -114,7 +115,8 @@ ROLES = {
     "make_segment_display": "colourless",  # QML geometry; colour bound by caller
     "make_inherit":         "colourless",  # icon/cursor themes that INHERIT Breeze;
                                            # the palette reaches icons through
-                                           # FollowsColorScheme, not this file (W31)
+                                           # FollowsColorScheme, not this file (W31),
+                                           # and cursors through make_cursors (W36)
     "make_deb":             "packager",    # stages what the emitters produced
 }
 

@@ -7,6 +7,10 @@ they take their colours from kdeglobals at render time. So an icon theme that
 INHERITS Breeze and is selected by the Look-and-Feel is how the solved palette
 reaches every icon, with nothing retyped and no SVG shipped. The cursor theme
 is the same move one level down: XCursor honours `Inherits=` in index.theme.
+⚑ SINCE W36 THE CURSOR THEME ALSO DRAWS: make_cursors fills this theme's
+cursors/ with phosphor glyphs from the palette (a cursor is a fixed image, so
+inheritance alone could never colour it); Inherits= stays as the fallback for
+every shape it does not draw.
 
 The contract, read from the host (Plasma 6.7, 2026-09-21):
   - an icon theme is `[Icon Theme]` with Name, Comment, Inherits (a comma list
@@ -78,7 +82,7 @@ def cursor_index(variant):
     return (
         "[Icon Theme]\n"
         f"Name={cursor_theme_name(variant)}\n"
-        f"Comment=EL Openglo {variant} cursors — {cursor_parent(variant)} by inheritance\n"
+        f"Comment=EL Openglo {variant} cursors — phosphor glyphs, {cursor_parent(variant)} for the rest\n"
         f"Inherits={cursor_parent(variant)}\n"
     )
 
