@@ -685,8 +685,8 @@
 }
 
 @misc{REHUE,
-  claim    = {A notification sender's colour reaches the phosphor as a HUE only: make_palette.rehue keeps the lit token's saturation and value at the sender's hue and returns it only if it clears the lit floor against the ground (APCA LIT_FLOOR_LC) and the gate's worst-view separation from the ghost, else the lit token itself; hue_table solves twelve buckets per variant at build time so no widget does colour arithmetic; check_rehue holds every accepted entry to both floors, every fallback to fg, and refuses a dead (all-fallback) table},
-  check    = {tool:check_rehue.py},
+  claim    = {A notification sender's colour reaches the phosphor as a HUE only: make_palette.rehue keeps the lit token's saturation and value at the sender's hue and returns it only if it clears the lit floor against the ground (APCA LIT_FLOOR_LC) and the gate's worst-view separation from the ghost, else the lit token itself; hue_table solves twelve buckets per variant at build time so no widget does colour arithmetic; policy/rehue.rego holds every accepted entry to both floors, every fallback to fg, and refuses a dead (all-fallback) table},
+  check    = {tool:opa_gate.py rehue},
   section  = {pipeline}
 }
 
