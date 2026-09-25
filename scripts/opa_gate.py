@@ -24,6 +24,8 @@ is kept apart from measured-defect.
     scripts/opa_gate.py --test           # opa test policy/ (every rule's refuse/admit pair)
     scripts/opa_gate.py --census [--cpu] # W50: which warrants cite opa_gate vs a bare check_*.py
                                          # (n of m decided in rego); --cpu times each Python one
+    scripts/opa_gate.py --denies         # W75: which gated policies carry an --expect warrant
+                                         # (the gate shown to FAIL end to end), n of m
     scripts/opa_gate.py --selftest
 
 SKIP (exit 0, printed) when opa is absent — a fact about the host. Weakness: the
@@ -128,6 +130,29 @@ def census():
     return out
 
 
+def denies_census():
+    """W75: per GATED policy, the warrants that claim it can FAIL end to end.
+
+    `opa test` proves each RULE refuses its fixture; it never runs the measurement.
+    A warrant citing `opa_gate.py <name> FIXTURE --expect denied:<RULE>` proves the
+    whole path — measurement, policy, exit — reaches a denial on a known-bad input.
+    {name: [keys of --expect warrants]} over every name some warrant gates on; a
+    name with [] has no end-to-end negative claim. Weakness: a policy with no
+    fixture operand (its measurement reads the tree, not a file) cannot take one
+    this way; the census reports it all the same, as work, not as an exemption."""
+    import check_tree_writes
+    out = {}
+    for key, check in check_tree_writes.claims(ROOT):
+        kind, _, rest = check.partition(":")
+        argv_ = rest.split()
+        if kind != "tool" or len(argv_) < 2 or argv_[0] != "opa_gate.py" or argv_[1].startswith("--"):
+            continue
+        out.setdefault(argv_[1], [])
+        if any(a == "--expect" or a.startswith("--expect=") for a in argv_):
+            out[argv_[1]].append(key)
+    return out
+
+
 def cpu_of(script):
     """(rc, user+sys CPU seconds) of one run of scripts/<script> — its own CPU, never
     wall (the box is shared and loaded)."""
@@ -140,7 +165,7 @@ def cpu_of(script):
 
 
 def main(argv):
-    known = {"--list", "--test", "--selftest", "--census", "--cpu"}
+    known = {"--list", "--test", "--selftest", "--census", "--cpu", "--denies"}
     rest, expect = list(argv[1:]), None
     # --expect takes a VALUE (`--expect denied:S0` or `--expect=denied:S0`); it is
     # lifted out before the flag/operand split so the value is not read as an operand
@@ -179,6 +204,16 @@ def main(argv):
         print(f"opa_gate census: {n} of {m} gate claims decided in rego; "
               f"{len(c['direct'])} claims ({len(scripts)} scripts) still decide in Python")
         return 0 if m else 2
+    if "--denies" in args:
+        d = denies_census()
+        for name in sorted(d):
+            keys = d[name]
+            print(f"  {'fails' if keys else 'NONE ':5s}  {name:22s} " +
+                  (", ".join(f"@{k}" for k in keys) if keys else "no end-to-end negative claim"))
+        n = sum(1 for k in d.values() if k)
+        print(f"opa_gate denies: {n} of {len(d)} gated policies carry a claim that the gate "
+              f"DENIES a known-bad fixture (W75)")
+        return 0 if d else 2
     if "--cpu" in args:
         print("opa_gate: --cpu only qualifies --census", file=sys.stderr)
         return 2
@@ -342,6 +377,11 @@ def _selftest():
     chk("--expect: an absent fixture could not run (3)", expect_gate("serial", [os.path.join(fx, "absent.log")], s0), 3)
     chk("--expect: opa absent could not run (3)", expect_gate("serial", [noise], s0, opa=""), 3)
     chk("--expect: an undefined package FAILS (1)", expect_gate("no_such_policy", [noise], s0, script=measurer("serial")), 1)
+    # W75 --denies: the census SEES a negative claim where one exists, and its absence
+    d = denies_census()
+    chk("--denies sees SERIAL-DENIES on serial", "SERIAL-DENIES" in d.get("serial", []), True)
+    chk("--denies reports a gated policy with no negative claim as [] (not absent)",
+        any(v == [] for v in d.values()), True)
     print("opa_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 
