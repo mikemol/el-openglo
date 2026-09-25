@@ -813,6 +813,13 @@
   check    = {tool:opa_gate.py urgency_cues EL-Openglo}
 }
 
+@misc{KERNING,
+  section  = {pipeline},
+  rests-on = {URGENCY-CUES},
+  claim    = {Measured from the real widget's pixels (EL-Openglo, plain and bold body text, four colour-vision views): no two adjacent letters bleed into one run through the pip mask — every interior run of lit columns is at most one glyph plus one bloom column (W76: kerning is a closed loop on bleed, judged by its result, not by the widget's offsets)},
+  check    = {tool:opa_gate.py kerning EL-Openglo}
+}
+
 @misc{TEMPLATES-DENIES,
   section  = {tooling},
   rests-on = {TEMPLATES},
