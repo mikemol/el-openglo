@@ -813,6 +813,13 @@
   check    = {tool:opa_gate.py urgency_cues EL-Openglo}
 }
 
+@misc{TEMPLATES-DENIES,
+  section  = {tooling},
+  rests-on = {TEMPLATES},
+  claim    = {The embedded-markup gate can FAIL end to end: an SVG document held in a string constant (catalog/fixtures/embedded_markup/wallpaper_inline.py — make_wallpaper's pre-template shape), planted into the real scan, is denied by E1 and by nothing else},
+  check    = {tool:opa_gate.py embedded_markup catalog/fixtures/embedded_markup/wallpaper_inline.py --expect denied:E1}
+}
+
 @misc{DEPS-DENIES,
   section  = {tooling},
   rests-on = {DEPS},

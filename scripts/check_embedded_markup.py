@@ -134,7 +134,26 @@ def findings(root=None, min_lines=DOCUMENT_LINES):
     return out
 
 
-def measure(root=None):
+def planted_findings(paths, min_lines=DOCUMENT_LINES):
+    """[(relpath, lineno, marker, n)] for extra .py files walked WITH the tree (W75's
+    negative fixture): the same identification and docstring rule as findings()."""
+    out = []
+    for path in paths:
+        try:
+            tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
+        except SyntaxError:
+            continue
+        docs = _docstrings(tree)
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Constant) and isinstance(node.value, str):
+                n = node.value.count("\n") + 1
+                kind = _identify(node.value) if n >= min_lines else None
+                if kind in ARTIFACT_MIMES and node.lineno not in docs:
+                    out.append((os.path.relpath(path, ROOT), node.lineno, kind, n))
+    return out
+
+
+def measure(root=None, planted=()):
     """The MEASUREMENT policy/embedded_markup.rego decides (W50): every tracked
     top-level module scanned (the population), each markup document found in one
     (path, line, kind, lines), the waivers with their reasons, and the threshold.
@@ -149,7 +168,8 @@ def measure(root=None):
         identifier = True
     except ImportError:
         identifier = False
-    found = findings(root)
+    found = findings(root) + planted_findings(planted)
+    population = list(sources(root)) + [os.path.relpath(p, ROOT) for p in planted]
     return {
         "identifier": identifier,
         "document_lines": DOCUMENT_LINES,
@@ -157,14 +177,14 @@ def measure(root=None):
         "cases": [{"id": fn,
                    "found": [{"line": ln, "kind": k, "lines": n}
                              for f, ln, k, n in found if f == fn]}
-                  for fn in sources(root)],
+                  for fn in population],
     }
 
 
 def main(argv):
     known = {"--report", "--waivers", "--json"}
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_embedded_markup: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--waivers" in argv:
@@ -173,7 +193,10 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
-        print(json.dumps(measure(), indent=1))
+        # W75: .py operands are PLANTED — scanned with the tree, by the same rule
+        planted = [a if os.path.isabs(a) else os.path.join(ROOT, a)
+                   for a in argv[1:] if not a.startswith("--")]
+        print(json.dumps(measure(planted=planted), indent=1))
         return 0
     if "--report" in argv:
         for fn, lineno, marker, n in findings():
