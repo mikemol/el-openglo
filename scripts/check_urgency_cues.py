@@ -136,6 +136,36 @@ def replay(frames, still_png, variant):
     return temporal_facts(res, frames, ground, ink["_grid"])
 
 
+def bold_facts(variant, out_dir):
+    """⟐W72.f — does a BOLD run differ from a regular one in the SET of lit pips, or only
+    in brightness? Operator (2026-09-25): grow=s/2 overhangs into NEIGHBOUR pips, so a
+    heavier stroke should show as a wider footprint through the aperture — "a bloom
+    behind the pip mask, captured by pip brightness" — not as the same pips brighter.
+    Two stills of the real widget, identical text in the BODY (the only markup field,
+    W45), plain vs <b>…</b>, normal urgency. Per view: lit cells (binarised to each
+    still's OWN peak, so brightness drops out), mass, and 1-IoU of the lit sets."""
+    import check_marquee_live as ML
+    body = " ".join(["Hello World"] * 9)
+    got = {}
+    for name, b in (("regular", body), ("bold", f"<b>{body}</b>")):
+        png = os.path.join(out_dir, f"{variant}-{name}.png")
+        tl = [(300, "arrive", 1, {"summary": "", "body": b, "applicationName": APP, "urgency": 1},
+               f"{APP}: {body}")]
+        if ML.run(variant=variant, end_ms=END_MS, grab=png, timeline=tl) is None:
+            return {"variant": variant, "withheld": "the qml runner is not on this host"}
+        got[name] = read_still(png, ground_of(variant))
+        if got[name] is None:
+            return {"variant": variant, "withheld": f"no pip grid found in the {name} still"}
+    views = {}
+    for v in VIEWS:
+        r, bd = got["regular"][v], got["bold"][v]
+        lr, lb = lit_set(r), lit_set(bd)
+        views[v] = {"lit_regular": int(lr.sum()), "lit_bold": int(lb.sum()),
+                    "mass_regular": round(float(r.sum()), 3), "mass_bold": round(float(bd.sum()), 3),
+                    "shape": shape_difference(lr, lb)[0]}
+    return {"variant": variant, "views": views}
+
+
 def paused(variant):
     """A critical arrival with the hover-pause ON: the samples while the board is held."""
     import check_marquee_live as ML
@@ -530,6 +560,15 @@ def main(argv):
             print("check_urgency_cues: --replay needs FRAMES_DIR STILL_PNG VARIANT", file=sys.stderr)
             return 2
         print(json.dumps(replay(args[i + 1], args[i + 2], args[i + 3])))
+        return 0
+    if "--bold" in args:
+        # ⟐W72.f: DIAGNOSTIC — bold vs regular footprint, one variant, stills kept
+        i = args.index("--bold")
+        if i + 1 >= len(args):
+            print("check_urgency_cues: --bold needs OUT_DIR", file=sys.stderr)
+            return 2
+        os.makedirs(args[i + 1], exist_ok=True)
+        print(json.dumps(bold_facts(opts.get("--variant") or "EL-Openglo", args[i + 1]), indent=1))
         return 0
     for a in args:
         if a not in {"--json", "--list", "--selftest", "--charset"}:
