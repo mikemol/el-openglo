@@ -596,7 +596,7 @@
 
 @misc{TERMINALS,
   claim    = {Every terminal format the theme ships — Konsole, Alacritty, foot, Windows Terminal, Termux — is a serialiser over ONE ansi table (make_konsole.ansi_table), parses with the parser its consumer uses, and reads back the same sixteen ANSI colours, ground and foreground},
-  check    = {tool:check_terminals.py},
+  check    = {tool:opa_gate.py terminals},
   note     = {W16/W18, 2026-09-21. alacritty_toml/foot_ini were a recovery gap (make_deb printed a SKIP); the Konsole .colorscheme is byte-identical before and after the refactor (cmp against the installed file).},
   section  = {emitters},
   rests-on = {TOKENS}

@@ -275,7 +275,7 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^STATES]: Machine-verified — `check_states.py`
 [^ROSTER]: Machine-verified — `opa_gate.py readme`
 [^SCHEMES]: Machine-verified — `check_palette_chain.py`
-[^TERMINAL]: Machine-verified — `check_terminals.py`
+[^TERMINAL]: Machine-verified — `opa_gate.py terminals`
 [^KDE-CHROME]: Machine-verified — `check_emitters_run.py` (grounded above in RUNS)
 [^KVANTUM]: Machine-verified — `check_symbol.py KVT`
 [^GTK]: Machine-verified — `opa_gate.py gtk`
@@ -302,7 +302,7 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^OVERLAY]: Machine-verified — `opa_gate.py ebuild`
 [^COMMANDS]: Machine-verified — `opa_gate.py ebuild`
 [^SDDM]: Machine-verified — `check_symbol.py SDDM`
-[^BY-HAND]: Machine-verified — `check_terminals.py`
+[^BY-HAND]: Machine-verified — `opa_gate.py terminals`
 [^LATTICE]: Machine-verified — `segment_topology.py --selftest`
 [^SEG22]: Machine-verified — `check_st_api.py`
 [^CAPABILITIES]: Machine-verified — `check_symbol.py --regressions`

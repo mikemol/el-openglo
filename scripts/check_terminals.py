@@ -10,7 +10,8 @@ Termux, Konsole's INI groups), and the colours read back must equal
 make_konsole.ansi_table(variant) — the 8 normal, 8 bright, ground and
 foreground — for every variant.
 
-    scripts/check_terminals.py           # exit 0 iff every format round-trips the table
+    scripts/check_terminals.py           # the verdict, as opa_gate terminals decides it
+    scripts/check_terminals.py --json    # the measurement policy/terminals.rego decides
     scripts/check_terminals.py --map     # per format: which table keys it carries
     scripts/check_terminals.py --selftest
 
@@ -165,8 +166,27 @@ def population():
     return cells, missing
 
 
+def measure():
+    """The MEASUREMENT policy/terminals.rego decides (W50): both rosters (the
+    declared variants, the formats make_konsole declares), the drift between the
+    emitter's formats and this check's readers in both directions, and per
+    measurable (variant, format) cell either the parse error or the roles whose
+    read-back differs from make_konsole.ansi_table. No verdict here."""
+    cells, _missing = population()
+    cases = []
+    for v, fmt in cells:
+        c = {"id": f"{fmt} {v}", "variant": v, "format": fmt, "parse_error": None, "mismatches": None}
+        try:
+            c["mismatches"] = [{"role": r, "want": e, "got": g} for r, e, g in compare(fmt, v)]
+        except Exception as e:                       # noqa: BLE001
+            c["parse_error"] = f"{type(e).__name__}: {e}"
+        cases.append(c)
+    return {"variants": list(variants()), "formats": formats(),
+            "drift": [{"format": f, "why": why} for f, why in drift()], "cases": cases}
+
+
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_terminals: unknown flag {a!r}", file=sys.stderr)
@@ -182,38 +202,12 @@ def main(argv):
         for f, why in drift():
             print(f"DRIFT {f}: {why}")
         return 0
-    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME. expected is a PRODUCT OF
-    # DECLARED DIMENSIONS, never a typed constant: add a variant or a terminal
-    # target and it moves by itself; let the two rosters disagree and it REFUSES.
-    cells, missing = population()
-    expected = len(vs) * len(fs)
-    if missing or len(cells) != expected or not cells:
-        print(f"check_terminals: REFUSED — measured {len(cells)} of {expected} declared "
-              f"emission(s) ({len(vs)} variant(s) x {len(fs)} format(s)). A SHRINKING "
-              f"POPULATION IS NOT A PASSING ONE: n of n is green for every n.",
-              file=sys.stderr)
-        for v, f, why in missing:
-            print(f"    {v} {f}: {why}", file=sys.stderr)
-        return 2
-    bad = []
-    for v, fmt in cells:
-        try:
-            mm = compare(fmt, v)
-        except Exception as e:                       # noqa: BLE001
-            bad.append(f"{fmt} {v}: does not parse as {fmt}: {type(e).__name__}: {e}")
-            continue
-        if mm:
-            bad.append(f"{fmt} {v}: {len(mm)} role(s) differ from ansi_table: "
-                       + ", ".join(f"{r} {e}!={g}" for r, e, g in mm[:3]))
-    if bad:
-        print(f"check_terminals: REFUSED — {len(bad)} of {expected} emissions do not carry the table:",
-              file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    print(f"check_terminals: {len(cells)} of {expected} declared emissions ({len(fs)} formats x "
-          f"{len(vs)} variants) parse as their consumer reads them and carry the one ansi table")
-    return 0
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import opa_gate
+    return opa_gate.gate("terminals")
 
 
 def _selftest():
@@ -240,7 +234,10 @@ def _selftest():
         del READERS["foot"]
         check("an emitted format with no reader is missing",
               [f for _v, f, _w in population()[1]], ["foot"])
-        check("...and main REFUSES", main(["x"]), 2)
+        m = measure()
+        check("...and the measurement reports the drift, and drops no cell silently",
+              ([d["format"] for d in m["drift"]], any(c["format"] == "foot" for c in m["cases"])),
+              (["foot"], False))
         READERS.clear()
         READERS.update(saved)
         READERS["kitty"] = _read_foot

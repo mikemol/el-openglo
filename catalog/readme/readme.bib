@@ -71,7 +71,7 @@
 @misc{TERMINAL,
   section = {surfaces},
   claim   = {`make_konsole` writes the Konsole scheme and profile, and every terminal format the theme ships — Konsole, Alacritty, foot, Windows Terminal, Termux — is a serialiser of one ANSI table},
-  check   = {tool:check_terminals.py}
+  check   = {tool:opa_gate.py terminals}
 }
 
 @misc{KDE-CHROME,
@@ -243,7 +243,7 @@
 @misc{BY-HAND,
   section = {install},
   claim   = {Without a package, the colour scheme installs from System Settings → Colors & Themes → Colors → Install from File… (pick `EL-Openglo.colors`) or by copying it to `~/.local/share/color-schemes/`, and the Konsole scheme by copying `EL-Openglo.colorscheme` to `~/.local/share/konsole/` and choosing EL Openglo under Edit Current Profile → Appearance},
-  check   = {tool:check_terminals.py}
+  check   = {tool:opa_gate.py terminals}
 }
 
 % ── lattice ──────────────────────────────────────────────────────────────────
