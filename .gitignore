@@ -30,6 +30,13 @@ catalog/cotype/.delta-cache.json
 # check_tree_writes' scratch worktrees — under the repo for the same reason:
 # @EBUILD run inside one stages under that sandbox.
 .tree-writes/
+# agents' private checkouts (the harness's `isolation: worktree`). Never this tree.
+# ⚑ DECLARED HERE, NOT LEFT TO A HEURISTIC (R5, 2026-09-25): in paperkit's Δ sandbox
+# (a copy with no .git) git_tracked walks the disk, and its "a dir holding its own
+# scripts/git_tracked.py is a nested copy" rule MISSED every worktree older than that
+# file — 40,337 of 40,859 walked paths were under .claude/, so check_mark fed opa
+# 80x its real population and was SIGKILLed past paperkit's CPU cap (graded broken).
+.claude/worktrees/
 # W75: content-addressed build artifacts (.build/schemes/<digest>/), materialised by
 # the gate and read by every palette reader; regenerable, never source.
 .build/

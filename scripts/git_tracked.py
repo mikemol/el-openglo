@@ -212,6 +212,16 @@ def main(argv):
     if argv[1:] == ["--source"]:
         print(source())
         return 0
+    if argv[1:] == ["--by-dir"]:
+        # the population's SHAPE, not its 48k lines: where a walk over-counts shows here
+        from collections import Counter
+        got = files()
+        by = Counter(p.split("/", 1)[0] if "/" in p else "(top)" for p in got)
+        for d, n in by.most_common():
+            print(f"{n:7d}  {d}")
+        print(f"git_tracked: {len(got)} path(s) in {len(by)} top-level entr(ies) (via {source()})",
+              file=sys.stderr)
+        return 0 if got else 1
     for a in argv[1:]:
         if a.startswith("--"):
             print(f"git_tracked: unknown flag {a!r}", file=sys.stderr)

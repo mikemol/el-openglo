@@ -191,10 +191,16 @@ DESKTOP_KEYS = ("License", "X-KDE-PluginInfo-License")
 
 
 def tracked_files(root):
-    """Every path git tracks under `root`, relative to it."""
-    out = subprocess.run(["git", "-C", root, "ls-files", "-z"], check=True,
-                         capture_output=True).stdout.decode("utf-8")
-    return [p for p in out.split("\0") if p]
+    """Every path in the tree under `root`, relative to it — from scripts/git_tracked.py,
+    THE population authority.
+
+    ⚑ THIS WAS A RAW `git ls-files` (R5, 2026-09-25), which BYPASSED the authority: in
+    paperkit's Δ sandbox (a copy with no .git) it died with git's exit 128, so @LICENSE
+    graded `broken` there and could never be graded at all. git_tracked answers from git
+    where there is one and from a bounded walk where there is not."""
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
+    import git_tracked
+    return git_tracked.files(root=root)
 
 
 def _third_party(rel):

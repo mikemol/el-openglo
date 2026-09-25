@@ -440,6 +440,33 @@ def main(argv):
             return 2
         only = args[i + 1]
         args = args[:i] + args[i + 2:]
+    if "--sandbox" in args:
+        # ⚑ Δ's SANDBOX, BUILT BY Δ's OWN COPY (R5, 2026-09-25). paperkit deletes its
+        # sandbox unconditionally (no keep knob — paperkit W40), so a check that is
+        # `broken` only there could not be looked at. This builds the same tree with
+        # paperkit.layout._copy_sandbox — the function Δ calls, not a re-derivation of
+        # its skip list — so the check can be re-run on it and its population measured.
+        i = args.index("--sandbox")
+        if i + 1 >= len(args):
+            print("worklist_gate: --sandbox needs a destination directory", file=sys.stderr)
+            return 2
+        dest = os.path.abspath(args[i + 1])
+        if os.path.exists(dest) and os.listdir(dest):
+            print(f"worklist_gate: REFUSED — {dest} is not empty", file=sys.stderr)
+            return 2
+        try:
+            from paperkit import layout as PKL
+        except ImportError:
+            print("worklist_gate: --sandbox needs paperkit importable (uv sync --extra tooling)",
+                  file=sys.stderr)
+            return 3
+        from pathlib import Path
+        PKL._copy_sandbox(Path(ROOT), Path(dest))
+        # population: the Δ-shaped COPY just written to `dest` — outside git by construction
+        n = sum(len(fs) for _d, _ds, fs in os.walk(dest))
+        print(f"worklist_gate: Δ-shaped sandbox of {ROOT} at {dest} ({n} files; "
+              f"skipped {sorted(PKL.SKIP_DIRS)} + *.pyc, exactly as Δ does)")
+        return 0
     for a in args:
         if a == "--where":
             eng, why = locate()
