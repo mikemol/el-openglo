@@ -378,7 +378,13 @@ def _replay(proj, output):
         # in every gate run, a pass here, "FLAKE" three commits running — a
         # deterministic failure mislabelled by the one tool meant to name it. The
         # cap, the preexec and the env are paperkit's, imported, never restated.
-        from paperkit import resolver as PKR
+        try:
+            from paperkit import resolver as PKR
+        except ImportError:
+            print(f"  @{key}: WITHHELD — paperkit is not importable under {sys.executable}; "
+                  f"the replay cannot apply the gate's limits, so it does not run "
+                  f"(uv sync --extra tooling)", file=sys.stderr)
+            continue
         cpu = int(os.environ.get("PAPERKIT_CHECK_CPU", PKR.CHECK_CPU))
         r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True,
                            env=PKR.clean_env(), start_new_session=True,
@@ -531,8 +537,27 @@ def main(argv):
                         blocks = f"unblocks {lev}" if lev else "unblocks nothing yet"
                         eff = f", {c} to change" if c is not None else ", cost unknown"
                         print(f"          @{k}  layer {d}, {blocks}{eff}")
-        worst = max(worst, run.returncode)
+        worst = max(worst, exit_of(name, run.returncode))
     return worst
+
+
+def exit_of(name, rc):
+    """The gate's exit for an engine returncode — a SIGNAL DEATH IS NOT A PASS.
+
+    ⚑ (2026-09-25) subprocess reports a signal as a NEGATIVE returncode, and
+    `max(worst, -24)` is 0 — so an engine killed by SIGXCPU mid-run (measured:
+    --discriminate under a prlimit, dead at 84 of 86, no summary printed) exited
+    this gate 0. A negative rc is named and becomes the shell's 128+N."""
+    if rc >= 0:
+        return rc
+    import signal as _signal
+    try:
+        sig = _signal.Signals(-rc).name
+    except ValueError:
+        sig = f"signal {-rc}"
+    print(f"worklist_gate: {name}: the engine was KILLED by {sig} before it "
+          f"reported — nothing it printed is a verdict", file=sys.stderr)
+    return 128 - rc
 
 
 def _selftest():
@@ -635,12 +660,23 @@ def _selftest():
 
     # the gate is TOLD a passing check failed; the replay must NAME the
     # disagreement rather than swallow it as "fine now"
-    out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
-    check("a check that passes on replay is called a FLAKE", "FLAKE" in out, True)
-    check("...and is counted as flaky", "1 flaky" in out, True)
-    out = replay_of("check FAILED for [@X]: tool:check_symbol.py --bucket RESIDUE")
-    check("a check that fails on replay is REPRODUCED", "REPRODUCED" in out, True)
-    check("...and is counted as reproduced", "1 reproduced" in out, True)
+    try:
+        import paperkit.resolver  # noqa: F401  the replay runs under ITS limits
+        have_pk = True
+    except ImportError:
+        have_pk = False
+    if not have_pk:
+        # a fact about the interpreter, not the replay: counted and printed, not failed
+        print(f"  SKIP replay arms (4) — paperkit not importable under {sys.executable}")
+        out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
+        check("...and without it the replay WITHHOLDS rather than crashing", "WITHHELD" in out, True)
+    else:
+        out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
+        check("a check that passes on replay is called a FLAKE", "FLAKE" in out, True)
+        check("...and is counted as flaky", "1 flaky" in out, True)
+        out = replay_of("check FAILED for [@X]: tool:check_symbol.py --bucket RESIDUE")
+        check("a check that fails on replay is REPRODUCED", "REPRODUCED" in out, True)
+        check("...and is counted as reproduced", "1 reproduced" in out, True)
     out = replay_of("check FAILED for [@X]: nosuchtype:whatever")
     check("an undeclared check type is WITHHELD", "WITHHELD" in out, True)
 
@@ -654,6 +690,15 @@ def _selftest():
                            env=dict(os.environ, **decl), capture_output=True, text=True)
         check("...which a check reads as DECLARED, digest verified",
               (r.returncode, "declared" in r.stdout), (0, True))
+
+    # ⚑ A KILLED ENGINE MUST NOT EXIT 0: SIGXCPU (-24) and SIGKILL (-9) fail as 128+N,
+    # and a real exit code passes through untouched
+    check("an engine killed by SIGXCPU fails the gate (152), never 0", exit_of("selftest", -24), 152)
+    check("an engine killed by SIGKILL fails the gate (137)", exit_of("selftest", -9), 137)
+    check("a real exit code is passed through", (exit_of("selftest", 0), exit_of("selftest", 1)), (0, 1))
+    # and a REAL killed child reaches it: python dies of SIGKILL, rc -9
+    r = subprocess.run([sys.executable, "-c", "import os, signal; os.kill(os.getpid(), signal.SIGKILL)"])
+    check("a child really killed by a signal is seen as one", exit_of("selftest", r.returncode), 137)
 
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")
     return ok
