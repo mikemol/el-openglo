@@ -6,7 +6,8 @@ of every module, subtracts the standard library and this project's own modules,
 and refuses if what remains is not either DECLARED in pyproject.toml or RECORDED
 there as deliberately absent.
 
-    scripts/check_deps.py            # exit 0 iff every import is accounted for
+    scripts/check_deps.py            # the verdict, as opa_gate deps decides it
+    scripts/check_deps.py --json     # the measurement policy/deps.rego decides
     scripts/check_deps.py --imports  # module -> the files importing it
 
 ⚑ THE WALK IS THE AUTHORITY, NOT A REMEMBERED LIST.  The manifest was first
@@ -126,6 +127,19 @@ def imports(files=None):
     return found
 
 
+def _dist_name(spec):
+    """The distribution NAME of a PEP 508 requirement: the leading identifier.
+
+    ⚑ THIS WAS `split('[')...split('<')`, WHICH MISSES `@` AND `;`. A direct
+    reference — `paperkit @ git+https://…` — came out as the whole URL, so the
+    declared set never contained `paperkit`, and the import passed only because
+    the word appeared somewhere in the file (the "recorded" fallback). A pass for
+    the wrong reason is a check that would not have caught its absence."""
+    import re
+    m = re.match(r"\s*([A-Za-z0-9][A-Za-z0-9._-]*)", spec)
+    return m.group(1).lower() if m else spec.strip().lower()
+
+
 def declared():
     """(declared distribution names, the manifest's raw text)."""
     p = os.path.join(ROOT, "pyproject.toml")
@@ -134,53 +148,47 @@ def declared():
     raw = open(p, encoding="utf-8").read()
     cfg = tomllib.loads(raw)
     proj = cfg.get("project", {})
-    out = set()
-    for spec in proj.get("dependencies", []):
-        out.add(spec.split("[")[0].split(">")[0].split("=")[0].split("<")[0].strip().lower())
+    out = {_dist_name(s) for s in proj.get("dependencies", [])}
     for group in (proj.get("optional-dependencies") or {}).values():
-        for spec in group:
-            out.add(spec.split("[")[0].split(">")[0].split("=")[0].split("<")[0].strip().lower())
+        out |= {_dist_name(s) for s in group}
     return out, raw
 
 
+def measure():
+    """The MEASUREMENT policy/deps.rego decides (W50): whether a manifest exists,
+    and per third-party import (the AST walk over every tracked module in
+    SCAN_DIRS): its distribution name, the files importing it, whether that
+    distribution is DECLARED (dependencies or an extra), and whether the name is
+    RECORDED in the manifest's text — the "deliberately absent" notes. The two
+    are separate facts so a pass by mention is visible as one."""
+    decl, raw = declared()
+    found = imports()
+    return {
+        "manifest": decl is not None,
+        "cases": [{"id": mod, "dist": DIST.get(mod, mod).lower(),
+                   "files": sorted(files),
+                   "declared": decl is not None and DIST.get(mod, mod).lower() in decl,
+                   "recorded": mod in raw}
+                  for mod, files in sorted(found.items())],
+    }
+
+
 def main(argv):
-    known = {"--imports"}
+    known = {"--imports", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_deps: unknown flag {a!r}", file=sys.stderr)
             return 2
-    found = imports()
     if "--imports" in argv:
-        for m, files in sorted(found.items()):
+        for m, files in sorted(imports().items()):
             print(f"{m}\t{', '.join(sorted(files))}")
         return 0
-    decl, raw = declared()
-    if decl is None:
-        print("check_deps: REFUSED — no pyproject.toml to account against",
-              file=sys.stderr)
-        return 1
-    if not found:
-        print("check_deps: REFUSED — the import walk found nothing; the walk is "
-              "broken, not the tree dependency-free", file=sys.stderr)
-        return 2
-    unaccounted = []
-    for mod in sorted(found):
-        dist = DIST.get(mod, mod).lower()
-        if dist in decl:
-            continue
-        # not declared — is it RECORDED as deliberately absent?
-        if mod in raw:
-            continue
-        unaccounted.append(mod)
-    if unaccounted:
-        print(f"check_deps: REFUSED — {len(unaccounted)} of {len(found)} third-party "
-              f"import(s) are neither declared nor recorded as absent:", file=sys.stderr)
-        for mod in unaccounted:
-            print(f"    {mod}  (imported by {', '.join(sorted(found[mod]))})",
-                  file=sys.stderr)
-        return 1
-    print(f"check_deps: {len(found)} of {len(found)} third-party imports accounted for")
-    return 0
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("deps")
 
 
 def _selftest():
@@ -221,6 +229,15 @@ def _selftest():
     # signatures, no Python) made `import magic` look local and disappear.
     check("a data directory does not shadow a package",
           "magic" in found or not os.path.isdir(os.path.join(ROOT, "magic")), True)
+    # ⚑ A DIRECT REFERENCE IS DECLARED BY ITS NAME, not found by mention
+    check("a PEP 508 direct reference parses to its name",
+          _dist_name("paperkit @ git+https://github.com/mikemol/paperkit.git@7081cd1"), "paperkit")
+    check("an extra and a marker do not leak into the name",
+          (_dist_name("pillow[webp]>=12 ; python_version >= '3.11'"), _dist_name("numpy")),
+          ("pillow", "numpy"))
+    by = {c["id"]: c for c in measure()["cases"]}
+    check("paperkit is measured DECLARED, not merely mentioned",
+          by.get("paperkit", {}).get("declared"), True)
     print("check_deps selftest:", "PASS" if ok else "FAIL")
     return ok
 

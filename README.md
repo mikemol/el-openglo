@@ -297,7 +297,7 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^PALETTE-TABLE]: Machine-verified — `opa_gate.py readme`
 [^RELATIONS]: Machine-verified — `check_relations.py`
 [^GHOST]: Machine-verified — `check_ghost_balance.py`
-[^UV]: Machine-verified — `check_deps.py`
+[^UV]: Machine-verified — `opa_gate.py deps`
 [^STANDALONE]: Machine-verified — `check_emitters_run.py`
 [^OVERLAY]: Machine-verified — `check_ebuild.py`
 [^COMMANDS]: Machine-verified — `check_ebuild.py`

@@ -209,7 +209,7 @@
 @misc{UV,
   section = {generating},
   claim   = {The environment is uv-managed and `pyproject.toml` is the manifest: `uv sync` for the core emission path, `uv sync --extra research` for the font-ingest and glyph-matching pipeline, and every third-party import in the tree is accounted for there},
-  check   = {tool:check_deps.py}
+  check   = {tool:opa_gate.py deps}
 }
 
 @misc{STANDALONE,
