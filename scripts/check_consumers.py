@@ -8,7 +8,8 @@ context rather than mechanical replay, which is exactly why they get a check
 that executes something.
 
     scripts/check_consumers.py           # the verdict, as opa_gate consumers decides it
-    scripts/check_consumers.py --json    # the measurement policy/consumers.rego decides
+    scripts/check_consumers.py --json [PY...]  # the measurement policy/consumers.rego decides;
+                                               # PY modules are PLANTED beside the roster (W75)
     scripts/check_consumers.py --list    # the modules checked
 
 A module whose third-party dependency is absent (PIL, fontTools) reports SKIP,
@@ -74,7 +75,7 @@ def measure(root=ROOT, modules=MODULES):
 def main(argv):
     known = {"--list", "--json"}
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_consumers: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--list" in argv:
@@ -82,7 +83,12 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
-        print(json.dumps(measure(), indent=1))
+        doc = measure()
+        # W75: .py operands are PLANTED — imported by the same routine, beside the roster
+        for a in (x for x in argv[1:] if not x.startswith("--")):
+            p = a if os.path.isabs(a) else os.path.join(ROOT, a)
+            doc["cases"] += measure(os.path.dirname(p), (os.path.basename(p)[:-3],))["cases"]
+        print(json.dumps(doc, indent=1))
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate

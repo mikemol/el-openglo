@@ -807,6 +807,13 @@
   check    = {tool:opa_gate.py deps catalog/fixtures/deps/undeclared.py --expect denied:D1}
 }
 
+@misc{CONSUMERS-DENIES,
+  section  = {tooling},
+  rests-on = {CONSUMERS},
+  claim    = {The import gate can FAIL end to end: a module planted beside the roster whose top level raises (catalog/fixtures/consumers/raises_at_import.py — the cvd_gate breakage that byte-compiled clean) is denied by I2 and by nothing else},
+  check    = {tool:opa_gate.py consumers catalog/fixtures/consumers/raises_at_import.py --expect denied:I2}
+}
+
 @misc{REGO-LINT,
   section  = {tooling},
   claim    = {Every policy is written so a null or absent field is withheld rather than judged — no bare truthy field test (T1), no `not <field>` that reads null as present (N1), no float verb in a sprintf format (F1) — and the one file where a float verb is correct, the test demonstrating the defect, is a declared exemption with its reason, reported rather than silent},
