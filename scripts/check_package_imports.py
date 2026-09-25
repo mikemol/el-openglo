@@ -17,8 +17,8 @@ So this renders each package to a temp tree the way its emitter does and asks
 QMLLINT, run with that tree's own ui directory on the import path, which types it
 cannot resolve — the same resolution Plasma does, by the tool that owns it.
 
-    scripts/check_package_imports.py             # per package, the unresolved types
-    scripts/check_package_imports.py --json      # the measurement
+    scripts/check_package_imports.py             # the verdict, as opa_gate package_imports decides it
+    scripts/check_package_imports.py --json      # the measurement policy/package_imports.rego decides
     scripts/check_package_imports.py --selftest  # a missing companion is seen
 
 ⚑ THE EXIT CODE IS NOT THE ANSWER (measured s135): qmllint returns 0 whether or
@@ -99,30 +99,12 @@ def main(argv):
         if a not in known:
             print(f"check_package_imports: unknown flag {a!r}", file=sys.stderr)
             return 2
-    m = measure()
     if "--json" in argv:
-        print(json.dumps(m, indent=1))
+        print(json.dumps(measure(), indent=1))
         return 0
-    held = [p for p in m["packages"] if p.get("withheld")]
-    bad = [p for p in m["packages"] if p.get("missing")]
-    for p in m["packages"]:
-        if p.get("withheld"):
-            print(f"  {p['package']:24s} SKIP — {p['withheld']}")
-            continue
-        print(f"  {p['package']:24s} {len(p['documents'])} document(s), "
-              + ("every type resolves" if not p["missing"] else "UNRESOLVED:"))
-        for u in p["missing"]:
-            print(f"        {u['type']} at {u['file']}:{u['line']} — not in the package")
-    if bad:
-        print(f"check_package_imports: REFUSED — {len(bad)} of {len(m['packages'])} packages would fail to load",
-              file=sys.stderr)
-        return 1
-    if held:
-        print(f"check_package_imports: SKIP — {len(held)} of {len(m['packages'])} packages unmeasured (no qmllint)",
-              file=sys.stderr)
-        return 0
-    print(f"check_package_imports: {len(m['packages'])} of {len(m['packages'])} packages resolve every type they name")
-    return 0
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import opa_gate
+    return opa_gate.gate("package_imports")
 
 
 def _selftest():

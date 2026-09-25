@@ -293,7 +293,7 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^SEGMENTS]: Machine-verified — `check_geometry_source.py`
 [^FONTS]: Machine-verified — `check_font.py`
 [^QML]: Machine-verified — `opa_gate.py qml_lint`
-[^PACKAGES]: Machine-verified — `check_package_imports.py`
+[^PACKAGES]: Machine-verified — `opa_gate.py package_imports`
 [^PALETTE-TABLE]: Machine-verified — `opa_gate.py readme`
 [^RELATIONS]: Machine-verified — `check_relations.py`
 [^GHOST]: Machine-verified — `check_ghost_balance.py`
