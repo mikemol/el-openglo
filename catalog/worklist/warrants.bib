@@ -800,6 +800,19 @@
   check    = {tool:opa_gate.py populations}
 }
 
+@misc{FONT-COMPILER,
+  section  = {emitters},
+  claim    = {font_compiler reads a TTF's stroke skeleton and map-matches it onto the segment lattice, and every authored glyph at 22 and 7 segments is either reproduced by that compile or a declared convention with a class and a reason; a declaration the compiler has outgrown is denied, so the convention list cannot quietly grow},
+  check    = {tool:opa_gate.py font_compiler}
+}
+
+@misc{FONT-COMPILER-DENIES,
+  section  = {emitters},
+  rests-on = {FONT-COMPILER},
+  claim    = {The font_compiler gate can FAIL: an authored 8 missing g2 (catalog/fixtures/font_compiler/wrong-8.json) is denied by F4 and by nothing else},
+  check    = {tool:opa_gate.py font_compiler catalog/fixtures/font_compiler/wrong-8.json --expect denied:F4}
+}
+
 @misc{SERIAL,
   section  = {tooling},
   claim    = {A guest VM reporting over its serial console in el-serial/1 is read by a reader that never returns partial data: a clean boot's log (catalog/fixtures/serial/clean.log) is admitted as one judged case with its blobs verified, under policy/serial.rego},

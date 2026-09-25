@@ -21,6 +21,8 @@ catalog/cotype/.delta-cache.json
 .palette-cache.json
 # W68's flock sidecar: serialises the cold solve; empty, per-machine
 .palette-cache.json.lock
+# W30's compiled fonts: keyed on font sha256 + method fingerprint, per-machine
+.font-cache/
 # check_ebuild's work dir: the index tree staged under sys-apps/sandbox. Under
 # the repo rather than /tmp because the sandbox DENIES /tmp (a build must not
 # write shared temp), and DENY covers reads.
