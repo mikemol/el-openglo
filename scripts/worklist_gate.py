@@ -372,8 +372,21 @@ def _replay(proj, output):
                   file=sys.stderr)
             continue
         cmd = tmpl.replace("{target}", target.strip())
-        r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True)
+        # ⚑ REPLAY UNDER THE GATE'S OWN LIMITS (W68, 2026-09-25). This ran uncapped
+        # in our env, while paperkit runs every check under RLIMIT_CPU and its
+        # clean_env. @RELATIONS-SEES burned 68 s of CPU against the 60 s cap: SIGXCPU
+        # in every gate run, a pass here, "FLAKE" three commits running — a
+        # deterministic failure mislabelled by the one tool meant to name it. The
+        # cap, the preexec and the env are paperkit's, imported, never restated.
+        from paperkit import resolver as PKR
+        cpu = int(os.environ.get("PAPERKIT_CHECK_CPU", PKR.CHECK_CPU))
+        r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True,
+                           env=PKR.clean_env(), start_new_session=True,
+                           preexec_fn=PKR._cpu_rlimit(cpu))
         tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
+        if r.returncode in (-24, -9):          # SIGXCPU at the soft cap, SIGKILL at the hard
+            tail.insert(0, f"FAIL: killed by signal {-r.returncode} — exceeded the gate's "
+                           f"{cpu} s CPU cap (RLIMIT_CPU); a cost, not a flake")
         if r.returncode == 0:
             flaky.append(key)
             print(f"  @{key}: ⚑ PASSED ON REPLAY (exit 0) — the gate's failure was "
