@@ -278,7 +278,7 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^TERMINAL]: Machine-verified — `check_terminals.py`
 [^KDE-CHROME]: Machine-verified — `check_emitters_run.py` (grounded above in RUNS)
 [^KVANTUM]: Machine-verified — `check_symbol.py KVT`
-[^GTK]: Machine-verified — `check_gtk.py`
+[^GTK]: Machine-verified — `opa_gate.py gtk`
 [^CSS]: Machine-verified — `check_css.py`
 [^UNION]: Machine-verified — `check_union.py`
 [^FIREFOX]: Machine-verified — `opa_gate.py firefox`

@@ -628,7 +628,7 @@
 
 @misc{GTK,
   claim    = {The palette is emitted as GTK4/libadwaita CSS variables on :root and a GTK3 define-color sheet per variant — every name one the libadwaita CSS-variables reference documents, every value its palette role, the text pairs at WCAG AA and the selection pair at the palette's own floor — and a name typo is a red check, not a silent no-op},
-  check    = {tool:check_gtk.py},
+  check    = {tool:opa_gate.py gtk},
   note     = {⊕GTK closed in session 14 and its emitter, output and gate were all lost in the recovery (found W17, 2026-09-21); rebuilt from the reference read that day. libadwaita reads ~/.config/gtk-4.0/gtk.css :root variables in every app, so this is the sanctioned channel ⊕GTK-ADW's 'unreachable' referred past. GNOME Shell not reached.},
   section  = {emitters},
   rests-on = {TOKENS}
