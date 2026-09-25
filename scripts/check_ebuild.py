@@ -9,7 +9,8 @@ destination make_deb.system_mapping() names exists. The last arm is the one
 that matters: it runs the same function the ebuild runs, against a temp
 DESTDIR, so "the ebuild installs the theme" is measured rather than asserted.
 
-    scripts/check_ebuild.py            # exit 0 iff overlay + ebuild + staging all hold
+    scripts/check_ebuild.py            # the verdict, as opa_gate ebuild decides it
+    scripts/check_ebuild.py --json     # the measurement policy/ebuild.rego decides
     scripts/check_ebuild.py --tree     # the staged install tree, one path per line
     scripts/check_ebuild.py --selftest
 
@@ -191,8 +192,63 @@ def staged_tree(clean=True):
         return sorted(files), missing
 
 
+def lint_facts(path=EBUILD):
+    """What linting the ebuild SAYS: which linter ran (pkgcheck, else a bash parse)
+    and its output — no verdict. `pkgcheck` null means it is not installed here."""
+    text = open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+    out = {"present": os.path.isfile(path),
+           "missing_vars": [v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.M)],
+           "pkgcheck": None, "bash_parse": None}
+    if not out["present"]:
+        return out
+    if shutil.which("pkgcheck"):
+        r = subprocess.run(["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
+                           capture_output=True, text=True)
+        out["pkgcheck"] = {"rc": r.returncode, "errors": "Error" in r.stdout,
+                           "output": (r.stdout or r.stderr).strip()[:400]}
+    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
+    out["bash_parse"] = {"rc": r.returncode, "stderr": r.stderr.strip()[:400]}
+    return out
+
+
+def deps_facts(path=EBUILD):
+    """Per declared atom, whether Portage sees a provider — or `portageq: false`
+    when this is not a Gentoo host (the atoms are still listed)."""
+    atoms = bdepend_atoms(path) if os.path.isfile(path) else []
+    if not shutil.which("portageq"):
+        return {"portageq": False, "atoms": [{"atom": a, "resolves": None} for a in atoms]}
+    env = dict(os.environ, PORTDIR_OVERLAY=OVERLAY)
+    res = []
+    for a in atoms:
+        r = subprocess.run(["portageq", "best_visible", "/", a], env=env,
+                           capture_output=True, text=True)
+        res.append({"atom": a, "resolves": r.returncode == 0 and bool(r.stdout.strip())})
+    return {"portageq": True, "atoms": res}
+
+
+def staging_facts():
+    """Stage from the index under sandbox (staged_tree) and report what came out:
+    the error if it failed, else the file count, the mapped destinations absent,
+    and whether sys-apps/sandbox confined it (false: writes outside unchecked)."""
+    try:
+        files, missing = staged_tree()
+        return {"error": None, "files": len(files), "missing_dests": missing,
+                "sandboxed": shutil.which("sandbox") is not None}
+    except Exception as e:                                   # noqa: BLE001
+        return {"error": f"{type(e).__name__}: {e}", "files": None, "missing_dests": None,
+                "sandboxed": shutil.which("sandbox") is not None}
+
+
+def measure():
+    """The MEASUREMENT policy/ebuild.rego decides (W50). No arm judges itself:
+    a missing linter, a non-Gentoo host, an absent sandbox are FACTS here, where
+    they used to return (True, "SKIP ...") — an arm that passed by not running."""
+    return {"markers": [{"path": p, "present": ok} for p, ok in overlay_markers()],
+            "ebuild": lint_facts(), "deps": deps_facts(), "staging": staging_facts()}
+
+
 def main(argv):
-    known = {"--tree", "--selftest", "--deps"}
+    known = {"--tree", "--selftest", "--deps", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_ebuild: unknown flag {a!r}", file=sys.stderr)
@@ -207,33 +263,13 @@ def main(argv):
         for f in files:
             print(f)
         return 0
-
-    problems, notes = [], []
-    for p, ok in overlay_markers():
-        (notes if ok else problems).append(f"overlay marker {p}: {'present' if ok else 'MISSING'}")
-    ok, detail = ebuild_wellformed()
-    (notes if ok else problems).append(f"ebuild: {detail}")
-    ok, detail = deps_resolve()
-    (notes if ok else problems).append(detail)
-    try:
-        files, missing = staged_tree()
-        if missing:
-            problems.append(f"{len(missing)} mapped destination(s) absent after staging: "
-                            + ", ".join(missing[:5]))
-        else:
-            notes.append(f"staging: {len(files)} files; every mapped destination present; "
-                         + globals().get("_SANDBOX_NOTE", ""))
-    except Exception as e:                                   # noqa: BLE001
-        problems.append(f"staging: {type(e).__name__}: {e}")
-
-    if problems:
-        print(f"check_ebuild: REFUSED — {len(problems)} of {len(problems) + len(notes)} "
-              f"arm(s) do not hold:", file=sys.stderr)
-        for p in problems:
-            print(f"    {p}", file=sys.stderr)
-        return 1
-    print(f"check_ebuild: {len(notes)} of {len(notes)} arms hold — " + "; ".join(notes))
-    return 0
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import opa_gate
+    return opa_gate.gate("ebuild")
 
 
 def _selftest():
@@ -258,6 +294,11 @@ def _selftest():
                            "SLOT=\"0\"\nEGIT_REPO_URI=\"x\"\nsrc_install() {\n")
         w_ok, _d = ebuild_wellformed(p)
         check("an ebuild that does not parse is seen (bash -n / pkgcheck)", w_ok, False)
+        # the MEASUREMENT sees the same breakage as facts (policy/ebuild.rego rules on them)
+        check("lint_facts reports the unparsable ebuild's bash rc", lint_facts(p)["bash_parse"]["rc"] != 0, True)
+        open(p, "w").write('EAPI=8\nDESCRIPTION="x"\n')
+        check("lint_facts names the unset variables",
+              lint_facts(p)["missing_vars"], ["HOMEPAGE", "LICENSE", "SLOT", "EGIT_REPO_URI"])
     e_ok, e_detail = ebuild_wellformed()
     check(f"the real ebuild is well-formed ({e_detail[:60]})", e_ok, True)
     # ⚑ THE DEPS ARM MUST SEE AN ATOM NOBODY PROVIDES, and must refuse an

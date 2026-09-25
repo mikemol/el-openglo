@@ -299,8 +299,8 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^GHOST]: Machine-verified — `check_ghost_balance.py`
 [^UV]: Machine-verified — `opa_gate.py deps`
 [^STANDALONE]: Machine-verified — `check_emitters_run.py`
-[^OVERLAY]: Machine-verified — `check_ebuild.py`
-[^COMMANDS]: Machine-verified — `check_ebuild.py`
+[^OVERLAY]: Machine-verified — `opa_gate.py ebuild`
+[^COMMANDS]: Machine-verified — `opa_gate.py ebuild`
 [^SDDM]: Machine-verified — `check_symbol.py SDDM`
 [^BY-HAND]: Machine-verified — `check_terminals.py`
 [^LATTICE]: Machine-verified — `segment_topology.py --selftest`
@@ -312,4 +312,4 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^WORKLIST]: Machine-verified — `worklist_gate.py --selftest`
 [^COTYPE]: Machine-verified — `cotype_index.py --selftest`
 [^PROJECTION]: Machine-verified — `opa_gate.py readme` (grounded above in WORKLIST)
-[^LICENCE]: Machine-verified — `check_ebuild.py`
+[^LICENCE]: Machine-verified — `opa_gate.py ebuild`

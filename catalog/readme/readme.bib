@@ -223,14 +223,14 @@
 @misc{OVERLAY,
   section = {install},
   claim   = {`overlay/` is a Gentoo Portage repository: its live ebuild `x11-themes/el-openglo-9999` installs through `make_deb.py --stage`, the same staging the Kubuntu `.deb` wraps, so the two package the same tree},
-  check   = {tool:check_ebuild.py}
+  check   = {tool:opa_gate.py ebuild}
 }
 
 @misc{COMMANDS,
   section = {install},
   claim   = {The install puts its commands in `/usr/bin`: `el-openglo-apply EL-Openglo` applies a variant for the current user, `el-openglo-sddm` selects the EL Openglo SDDM greeter theme by writing an `/etc/sddm.conf.d` drop-in (`Current=el-openglo-<slug>`; `--breeze` goes back, `--background` keeps the old background-only route), `el-openglo-plymouth EL-Openglo` the boot splash (as root), and `el-openglo-live` and `el-openglo-notify` place the live wallpaper and the notification ticker},
   rests-on = {OVERLAY},
-  check   = {tool:check_ebuild.py}
+  check   = {tool:opa_gate.py ebuild}
 }
 
 @misc{SDDM,
@@ -318,5 +318,5 @@
 @misc{LICENCE,
   section = {licence},
   claim   = {Distributed under the GNU General Public License v3, as the Gentoo ebuild declares},
-  check   = {tool:check_ebuild.py}
+  check   = {tool:opa_gate.py ebuild}
 }

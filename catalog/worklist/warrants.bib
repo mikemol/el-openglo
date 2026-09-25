@@ -568,7 +568,7 @@
   section  = {emitters},
   rests-on = {EMITTERS},
   claim    = {the Gentoo overlay under overlay/ is a Portage repository whose live ebuild installs, through the same staging function the .deb wraps, a non-empty tree containing every mapped destination},
-  check    = {tool:check_ebuild.py}
+  check    = {tool:opa_gate.py ebuild}
 }
 
 @misc{CSS,
