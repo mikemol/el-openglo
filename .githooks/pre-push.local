@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Repo-local pre-push, run by the shared mikemol-githook-pre-push (mtools ec71fe7)
+# with git's args and stdin replayed. The judgement lives in scripts/pre_push_local.py
+# (the post-commit marker on every pushed tip; the tree-writes gate, operator 2026-09-23).
+ROOT="$(git rev-parse --show-toplevel)"
+PY="$ROOT/.venv/bin/python3"
+[ -x "$PY" ] || PY=python3
+exec "$PY" "$ROOT/scripts/pre_push_local.py" "$@"
