@@ -159,15 +159,9 @@ DECLARED = {
     "W": ("display", "the face's W is four near-vertical strokes meeting in two feet (d1 d2) "
                      "under a centre apex (m); the display's W is the side stems with the "
                      "lower diagonals i l"),
-    # ⚑ KEPT AS AUTHORED, NOT CORRECTED (W30 landing, 2026-09-25). The compiler reads
-    # Liberation Mono's serifed i and centred l, and the agent proposed rewriting the
-    # authored LETTERS22 to match — which moves shipped glyphs (schemes, wallpapers,
-    # screens go stale) on a font's say-so. A face is evidence about a face; the
-    # authored table is the display's letterform, and changing it is an operator call.
-    "i": ("display", "the face's i is serifed (a foot bar d1 d2 and a head bar g1 around the "
-                     "stem m); the display's i is the bare stem m under its dot p1"),
-    "l": ("display", "the face's l is a centred stem with a head serif and a foot (a1 j m d2); "
-                     "the display's l is the left-hand stems e f"),
+    # i and l are NOT declared: the operator adopted the face's letterforms into
+    # LETTERS22 (2026-09-25, "The compiled version is better"), so the compiler now
+    # REPRODUCES them — and F5 would deny a declaration the compiler has outgrown.
     "a": ("mid-x-height", "the face's bowl top sits at half x-height; the compiler reads the "
                           "bowl's upper wall as the diagonal i, the display as the centre stem m"),
     "e": ("mid-x-height", "the face's crossbar sits at half x-height, so the bowl's junction snaps "

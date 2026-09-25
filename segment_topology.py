@@ -374,10 +374,14 @@ LETTERS22 = {
     # selftest claims only dr for g.
     "g": "g1 g2 c d1 d2 e dr dc",
     "h": "f e c g1 g2",
-    "i": "p1 m",
+    # i and l: the FACE's letterforms, adopted (operator 2026-09-25, from the side-by-side
+    # `check_font_compiler.py --compare il`: "The compiled version is better"). i gains
+    # the head serif g1 and the foot d1 d2; l is centred (j m) with a head serif a1 and
+    # a foot d2, where the authored l was the left-hand stems f e.
+    "i": "p1 m g1 d1 d2",
     "j": "p1 c dr",
     "k": "f e g1 l",
-    "l": "f e",
+    "l": "a1 j m d2",
     "m": "e c m g1 g2",
     "n": "e c g1 g2",
     "o": "g1 g2 c d1 d2 e",
