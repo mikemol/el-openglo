@@ -53,10 +53,29 @@ deny contains msg if {
 	some c in object.get(input, "cases", [])
 	measured(c)
 	c.borrowed == false
+	c.kind != "git-ls-files"
 	c.recursive == true
 	c.reach in {"root", "unknown"}
 	c.marked == false
 	msg := sprintf("P1: %s:%d %s(%s) walks from %s reach with no `# population:` reason; read the population from scripts/git_tracked.py", [c.module, c.line, c.kind, c.root, c.reach])
+}
+
+# METADATA
+# title: "P3 — a raw `git ls-files` outside the authority"
+# description: |
+#   2026-09-25 (R6): check_license read its population with a raw `git ls-files`,
+#   bypassing scripts/git_tracked.py, and died with git's exit 128 in paperkit's Δ
+#   sandbox (a copy with no .git) — graded `broken` there. git_tracked answers from
+#   git where there is one and from a bounded walk where there is not. Only it may
+#   run `git ls-files`; anything else carries a `# population:` reason or calls it.
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	measured(c)
+	c.borrowed == false
+	c.kind == "git-ls-files"
+	c.module != "scripts/git_tracked.py"
+	c.marked == false
+	msg := sprintf("P3: %s:%d runs `git ls-files` directly, bypassing scripts/git_tracked.py (which works where there is no .git — the Δ sandbox); call git_tracked.files()", [c.module, c.line])
 }
 
 deny contains msg if {

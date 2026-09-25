@@ -18,6 +18,26 @@ listing := {"module": "scripts/x.py", "line": 9, "kind": "listdir", "recursive":
 
 borrowed := {"module": "scripts/ratchet.py", "line": 3, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": true}
 
+lsfiles := {"module": "scripts/check_license.py", "line": 195, "kind": "git-ls-files", "recursive": true, "reach": "root", "root": "git ls-files", "marked": false, "reason": null, "borrowed": false}
+
+# R6: the bypass that graded @LICENSE broken in Δ's sandbox
+test_raw_git_ls_files_denied_as_p3_not_p1 if {
+	inp := {"files": ["scripts/check_license.py"], "cases": [lsfiles]}
+	some m in populations.deny with input as inp
+	startswith(m, "P3: scripts/check_license.py:195 runs `git ls-files` directly")
+	count([n | some n in populations.deny with input as inp; startswith(n, "P1:")]) == 0
+}
+
+test_git_ls_files_in_the_authority_is_admitted if {
+	own := object.union(lsfiles, {"module": "scripts/git_tracked.py"})
+	count(populations.deny) == 0 with input as {"files": ["scripts/git_tracked.py"], "cases": [own]}
+}
+
+test_marked_git_ls_files_is_admitted if {
+	m := object.union(lsfiles, {"marked": true, "reason": "untracked files of a real repo"})
+	count(populations.deny) == 0 with input as {"files": ["scripts/check_license.py"], "cases": [m]}
+}
+
 test_absent_population_denied if {
 	"P0: no file was in the census scope" in populations.deny with input as {}
 }

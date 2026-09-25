@@ -116,7 +116,9 @@ def make_copy(src, parent):
     if diff:
         subprocess.run(["git", "-C", copy, "apply", "--index", "--whitespace=nowarn"],
                        input=diff, check=True, capture_output=True)
-    # new, not-yet-added files are part of the tree being certified too
+    # new, not-yet-added files are part of the tree being certified too. This runs only in
+    # a real repo (it just built a `git worktree`), and asks what git_tracked does not answer.
+    # population: UNTRACKED files (--others) of a real repo — not the tree git_tracked reads
     new = subprocess.run(["git", "-C", src, "ls-files", "-z", "--others", "--exclude-standard",
                           "--exclude=.tree-writes/"],
                          capture_output=True, check=True).stdout.decode("utf-8").split("\0")

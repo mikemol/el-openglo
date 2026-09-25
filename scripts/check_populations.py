@@ -176,6 +176,16 @@ def _pattern_recursive(call):
     return False
 
 
+def _is_git_ls_files(call):
+    """A call whose argv literal holds "git" and "ls-files" (subprocess.run/check_output/…)."""
+    for a in call.args[:1]:
+        if isinstance(a, (ast.List, ast.Tuple)):
+            words = {e.value for e in a.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)}
+            if {"git", "ls-files"} <= words:
+                return True
+    return False
+
+
 def sites(source, module):
     """[{module, line, kind, recursive, reach, root, marked, reason}] for every disk walk."""
     tree = ast.parse(source)
@@ -197,6 +207,15 @@ def sites(source, module):
             kind, arg = ("glob-recursive", node.func.value) if _pattern_recursive(node) else (None, None)
         elif name in ("listdir", "scandir") and base == "os":
             kind = name
+        elif _is_git_ls_files(node):
+            # ⚑ A RAW `git ls-files` IS A POPULATION READ THAT BYPASSES THE AUTHORITY (R6,
+            # 2026-09-25): check_license ran one, died with exit 128 in paperkit's Δ
+            # sandbox (no .git), and graded `broken` there — git_tracked would have walked.
+            out.append({"module": module, "line": node.lineno, "kind": "git-ls-files",
+                        "recursive": True, "reach": "root", "root": "git ls-files",
+                        "marked": _marker(lines, node.lineno) is not None,
+                        "reason": _marker(lines, node.lineno)})
+            continue
         if kind is None:
             continue
         if arg is None:
@@ -283,6 +302,17 @@ def _selftest():
     see("a non-recursive glob is not a site", 13 not in s)
     see("an unmarked walk of an unknown root must be marked", s.get(14, {}).get("reach") == "unknown"
         and needs_mark(s[14]))
+    # ⚑ R6: a raw `git ls-files` is SEEN as its own site kind; the marker is read for it too
+    g = {c["line"]: c for c in sites(
+        "import subprocess\n"
+        "subprocess.run(['git', '-C', r, 'ls-files', '-z'])\n"
+        "# population: untracked files of a real repo\n"
+        "subprocess.run(['git', 'ls-files', '--others'])\n"
+        "subprocess.run(['git', 'status'])\n", "fx.py")}
+    see("a raw `git ls-files` is a git-ls-files site, unmarked",
+        g.get(2, {}).get("kind") == "git-ls-files" and not g[2]["marked"])
+    see("...and a marked one carries its reason", g.get(4, {}).get("marked") is True)
+    see("a git call that is not ls-files is not a site", 5 not in g)
     doc = measure()
     see(f"the live population is non-empty ({len(doc['files'])} files, {len(doc['cases'])} sites)",
         len(doc["files"]) > 0 and len(doc["cases"]) > 0)
