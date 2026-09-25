@@ -6,22 +6,29 @@ overrides a set of :root variables. Three things must hold, and each can fail:
 (1) the CSS parses (tinycss2); (2) every variable the override sets EXISTS in
 Breeze's own variables.css on this host — an override of a name Breeze does not
 read is a silent no-op; (3) every alpha in the override is the number
-make_union.alphas() solves for that variant, at or above its floor — not an
-authored one.
+make_union.alphas() solves for that variant — not an authored one.
 
-    scripts/check_union.py            # exit 0 iff all three hold for every variant
+    scripts/check_union.py            # the verdict, as opa_gate union decides it
+    scripts/check_union.py --json     # the measurement policy/union.rego decides
     scripts/check_union.py --map      # per variant: variable -> solved alpha (Breeze's beside it)
-    scripts/check_union.py --selftest
+    scripts/check_union.py --selftest # the measurement can SEE each defect
 
-SKIPS, counted and printed: tinycss2 absent (the tooling extra); Breeze's
-variables.css absent (Union not installed here — then arm 2 cannot be measured
-and says so, it does not pass).
+The three requirements are policy/union.rego's ruling (W50); this file reports,
+per variant, the parse-error count, each overridden name with the numbers in its
+value, and each solved alpha — and, once, the names Breeze defines here.
+
+WITHHELD, not failed: tinycss2 absent (the tooling extra; parse_errors is null);
+Breeze's variables.css absent (Union not installed here; breeze is null). Each is
+a fact about the machine. ⚑ BEFORE W50 an absent Breeze DENIED ("SKIP-AS-FAIL");
+the policy withholds it — unmeasured is not failed, and it is not passed either:
+beside the admitted parse and solve arms it is a counted, printed SKIP.
 
 WEAKNESS. This proves the emitted text, not the engine's reading of it. Whether
 Union's cascade applies a later :root, and whether it resolves var() lazily,
 needs the engine (USE=tools ruleinspector, or the desktop) — a SKIP here, an
 ⊕VER there.
 """
+import json
 import os
 import re
 import sys
@@ -49,93 +56,71 @@ def _numbers(value):
     return [float(x) for x in re.findall(r"(?<![\w.])(\d?\.\d+|\d+\.\d*|\d+)(?![\w.])", value)]
 
 
-def check_variant(variant, css_text, breeze):
-    """[(arm, ok, detail)] for one variant's overrides.css."""
+def parse_errors(css_text):
+    """tinycss2's error count over the sheet and its declarations, or None if absent."""
+    try:
+        import tinycss2
+    except ImportError:
+        return None
+    rules = tinycss2.parse_stylesheet(css_text, skip_comments=True, skip_whitespace=True)
+    errs = [r for r in rules if r.type == "error"]
+    # tinycss2 is lenient at the top level; the declarations are where a
+    # broken emission shows (a missing colon, a bare token)
+    for r in rules:
+        if r.type == "qualified-rule":
+            errs += [d for d in tinycss2.parse_declaration_list(
+                r.content, skip_comments=True, skip_whitespace=True) if d.type == "error"]
+    return len(errs)
+
+
+def facts(variant, css_text):
+    """One variant's facts: parse errors, the overrides (name + numbers), the solve."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_union as MU
-    out = []
-    try:
-        import tinycss2
-        rules = tinycss2.parse_stylesheet(css_text, skip_comments=True, skip_whitespace=True)
-        errs = [r for r in rules if r.type == "error"]
-        # tinycss2 is lenient at the top level; the declarations are where a
-        # broken emission shows (a missing colon, a bare token)
-        for r in rules:
-            if r.type == "qualified-rule":
-                errs += [d for d in tinycss2.parse_declaration_list(
-                    r.content, skip_comments=True, skip_whitespace=True) if d.type == "error"]
-        out.append(("parses", not errs, f"{len(errs)} parse error(s)" if errs else "tinycss2 ok"))
-    except ImportError:
-        out.append(("parses", True, "SKIP tinycss2 not installed"))
-    ov = overridden(css_text)
-    if breeze is None:
-        out.append(("overrides exist in Breeze", False, "SKIP-AS-FAIL: Breeze variables.css absent — unmeasured"))
-    else:
-        unknown = sorted(set(ov) - breeze)
-        out.append(("overrides exist in Breeze", not unknown,
-                    f"unknown: {unknown}" if unknown else f"{len(ov)} of {len(ov)} names are Breeze's"))
-    solved = MU.alphas(variant)
-    bad = []
-    for var, (a, _fg, _gnd, _floor, _breeze) in solved.items():
-        if a is None:
-            continue
-        if var not in ov:
-            bad.append(f"{var} missing")
-            continue
-        nums = _numbers(ov[var])
-        if a not in nums:
-            bad.append(f"{var}: emitted {nums} != solved {a}")
-    out.append(("values are the solved alphas", not bad,
-                "; ".join(bad) if bad else f"{len(solved)} of {len(solved)} variables carry their solve"))
-    return out
+    return {"id": variant, "parse_errors": parse_errors(css_text),
+            "overrides": [{"name": k, "numbers": _numbers(v)}
+                          for k, v in sorted(overridden(css_text).items())],
+            "solved": [{"var": var, "alpha": a}
+                       for var, (a, _fg, _gnd, _floor, _breeze) in MU.alphas(variant).items()]}
+
+
+def measure(breeze_path=BREEZE_VARS):
+    """The MEASUREMENT policy/union.rego decides, over the DECLARED roster (W61 R1:
+    never MU.VARIANTS, which is emitted as `roster_drift`)."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import make_union as MU
+    import variant_roster as VR
+    roster = VR.ids()
+    breeze = breeze_variables(breeze_path)
+    return {"roster": roster, "breeze": sorted(breeze) if breeze is not None else None,
+            "roster_drift": VR.drift_facts({"make_union": MU.VARIANTS}, roster),
+            "cases": [facts(v, MU.overrides_css(v)) for v in roster]}
 
 
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_union: unknown flag {a!r}", file=sys.stderr)
             return 2
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_union as MU
-    import variant_roster as VR
-    roster = VR.ids()               # the population is the ROSTER, never MU.VARIANTS (W61 R1)
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--map" in argv:
-        for v in roster:
+        import make_union as MU
+        import variant_roster as VR
+        for v in VR.ids():
             print(v)
             for var, (a, fg, gnd, floor, breeze) in MU.alphas(v).items():
                 print(f"  {var:26} {a!s:>6}  Breeze {breeze}  ({fg} over {gnd}, Lc>={floor})")
         return 0
-    breeze = breeze_variables()
-    # the emitter's own list is compared TO the roster, so a dropped variant is a
-    # refusal rather than a style that is quietly not emitted (W61 R1)
-    drift = VR.drift(MU.VARIANTS, "make_union", roster)
-    fails, total = [], 0
-    for v in roster:
-        for arm, ok, detail in check_variant(v, MU.overrides_css(v), breeze):
-            total += 1
-            if not ok:
-                fails.append(f"{v} {arm}: {detail}")
-    if not total:
-        print("check_union: REFUSED — no variants; nothing measured", file=sys.stderr)
-        return 2
-    if drift:
-        print(f"check_union: REFUSED — {len(drift)} roster drift(s) between make_union.VARIANTS "
-              f"and the {len(roster)} declared variant(s):", file=sys.stderr)
-        for v, why in drift:
-            print(f"    {v}: {why}", file=sys.stderr)
-    if fails:
-        print(f"check_union: REFUSED — {len(fails)} of {total} arm(s) do not hold:", file=sys.stderr)
-        for f in fails:
-            print(f"    {f}", file=sys.stderr)
-        return 1
-    if drift:
-        return 1
-    print(f"check_union: {total} of {total} arms hold over {len(roster)} of {len(roster)} declared styles"
-          + ("" if breeze else " (Breeze absent: override-existence unmeasured)"))
-    return 0
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import opa_gate
+    return opa_gate.gate("union")
 
 
 def _selftest():
@@ -152,37 +137,35 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_union as MU
-    import variant_roster as VR
-    breeze = {"--indicator-color", "--focus-outline-alpha", "--focus-color",
-              "--highlight-hover-color", "--card-hover-color"}
     good = MU.overrides_css("EL-Openglo")
-    arms = {a: ok_ for a, ok_, _d in check_variant("EL-Openglo", good, breeze)}
-    check("the real emission holds every arm", all(arms.values()), True)
-    # ⚑ EACH ARM MUST BE ABLE TO FAIL.
-    unknown = good.replace("--indicator-color", "--indicator-colour")
-    arms = {a: ok_ for a, ok_, _d in check_variant("EL-Openglo", unknown, breeze)}
-    check("an override Breeze does not define is seen", arms["overrides exist in Breeze"], False)
+    f = facts("EL-Openglo", good)
+    check("the real emission's overrides are read", len(f["overrides"]) > 0, True)
+    check("and its solve", any(s["alpha"] is not None for s in f["solved"]), True)
+    # ⚑ EACH DEFECT MUST BE MEASURED (that it is DENIED is policy/union_test.rego's ruling).
+    unknown = facts("EL-Openglo", good.replace("--indicator-color", "--indicator-colour"))
+    check("an override under a name Breeze does not define is measured",
+          "--indicator-colour" in {o["name"] for o in unknown["overrides"]}, True)
     authored = re.sub(r"set-alpha 0\.\d+\)", "set-alpha 0.4)", good, count=1)
-    arms = {a: ok_ for a, ok_, _d in check_variant("EL-Openglo", authored, breeze)}
-    check("an authored alpha in place of the solved one is seen", arms["values are the solved alphas"], False)
-    arms = {a: ok_ for a, ok_, _d in check_variant("EL-Openglo", good, None)}
-    check("an absent Breeze is not a pass", arms["overrides exist in Breeze"], False)
-    try:
-        import tinycss2  # noqa: F401
-        arms = {a: ok_ for a, ok_, _d in check_variant("EL-Openglo", ":root { indicator red; --focus-outline-alpha 0.3 }", breeze)}
-        check("a malformed stylesheet is seen", arms["parses"], False)
-    except ImportError:
+    check("an authored alpha is measured",
+          any(0.4 in o["numbers"] for o in facts("EL-Openglo", authored)["overrides"]), True)
+    n = parse_errors(":root { indicator red; --focus-outline-alpha 0.3 }")
+    if n is None:
         print("  SKIP parse arm — tinycss2 not installed")
-    check("every solved alpha is at or above 0 and at most 1",
-          all(0 <= a <= 1 for v in VR.ids() for a, *_ in MU.alphas(v).values() if a is not None), True)
-    check("the live make_union.VARIANTS is the roster", VR.drift(MU.VARIANTS, "make_union"), [])
+    else:
+        check("a malformed stylesheet is measured", n > 0, True)
+        check("...and the real one is not", f["parse_errors"], 0)
+    check("an absent Breeze is measured as null, not as empty",
+          measure("/nonexistent/variables.css")["breeze"], None)
+    m = measure()
+    check("every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"])
+    check("and the population is not empty", len(m["cases"]) > 0, True)
     kept = MU.VARIANTS
     try:
         MU.VARIANTS = [x for x in kept if x != "EL-Amber"]     # a planted drop
-        rc = main(["check_union.py"])
+        check("an emitter that drops a variant is measured as drift",
+              [d["variant"] for d in measure()["roster_drift"]], ["EL-Amber"])
     finally:
         MU.VARIANTS = kept
-    check("an emitter that drops a variant is REFUSED (exit 1)", rc, 1)
     print("check_union selftest:", "PASS" if ok else "FAIL")
     return ok
 

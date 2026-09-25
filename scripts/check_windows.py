@@ -10,9 +10,13 @@ theme that never appears looks like a theme that was never installed);
 names, as `R G B`; (4) ColorizationColor is the accent as 0xAARRGGBB; (5) the
 wallpaper it references exists beside it after render_all.
 
-    scripts/check_windows.py           # exit 0 iff all five hold for every variant
-    scripts/check_windows.py --map     # .theme key -> palette role
-    scripts/check_windows.py --selftest
+    scripts/check_windows.py            # the verdict, as opa_gate windows decides it
+    scripts/check_windows.py --json     # the measurement policy/windows.rego decides
+    scripts/check_windows.py --map      # .theme key -> palette role
+    scripts/check_windows.py --selftest # the measurement can SEE each defect
+
+The five requirements are policy/windows.rego's ruling (W50); this file reads each
+emitted .theme and reports what it holds beside what the palette says it should.
 
 WEAKNESS. Windows is not here to open the file. This proves the format page's
 requirements, not the Personalization panel's behaviour; and under Aero the
@@ -20,20 +24,15 @@ requirements, not the Personalization panel's behaviour; and under Aero the
 High Contrast user's benefit, not a desktop-wide one.
 """
 import configparser
+import json
 import os
 import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REQUIRED = ("Control Panel\\Desktop", "VisualStyles", "MasterThemeSelector")
-# The arms check_theme reports for EVERY variant when given its folder — one
-# declared dimension of the expected population (the other is GRID's roster).
-ARMS = ("parses as INI", "required sections present with MTSM=DABJDKT",
-        "colours are the palette roles", "ColorizationColor is the accent",
-        "the referenced wallpaper exists beside the theme")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
-from check_selection_contrast import schemes, roster_drift   # noqa: E402  (roster authority)
+from check_selection_contrast import schemes   # noqa: E402  (roster authority)
 
 
 def _rgb(hexs):
@@ -41,105 +40,87 @@ def _rgb(hexs):
     return tuple(int(hexs[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def check_theme(variant, text, folder=None):
-    """[(arm, ok, detail)] for one .theme text; `folder` enables the wallpaper arm."""
+def facts(variant, text, folder=None):
+    """What one .theme text holds, beside what the palette wants. `folder` enables
+    the wallpaper fact (null without it)."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_windows as MWn
     import make_preview as MP
-    out = []
+    out = {"id": variant, "missing": None, "parse_error": None, "sections": [], "mtsm": None,
+           "colors": [], "colorization": None, "accent": None,
+           "wallpaper": None, "wallpaper_exists": None}
     cp = configparser.ConfigParser(interpolation=None)
     cp.optionxform = str
     try:
         cp.read_string(text)
-        out.append(("parses as INI", True, f"{len(cp.sections())} sections"))
     except configparser.Error as e:
-        return [("parses as INI", False, str(e))]
-    missing = [s for s in REQUIRED if s not in cp]
-    ok = not missing and cp["MasterThemeSelector"].get("MTSM") == "DABJDKT" if not missing else False
-    out.append(("required sections present with MTSM=DABJDKT", ok,
-                f"missing {missing}" if missing else
-                ("MTSM != DABJDKT" if not ok else "Desktop, VisualStyles, MasterThemeSelector")))
+        out["parse_error"] = f"{type(e).__name__}: {e}"
+        return out
+    out["sections"] = cp.sections()
+    if "MasterThemeSelector" in cp:
+        out["mtsm"] = cp["MasterThemeSelector"].get("MTSM")
     c = MP.parse_scheme(variant)
-    bad = []
     colors = cp["Control Panel\\Colors"] if "Control Panel\\Colors" in cp else {}
-    for key, role in MWn.COLOR_KEYS:
-        want = "%d %d %d" % _rgb(c[role])
-        if colors.get(key) != want:
-            bad.append(f"{key}={colors.get(key)!r} != {want} ({role})")
-    out.append(("colours are the palette roles", not bad,
-                "; ".join(bad[:3]) if bad else f"{len(MWn.COLOR_KEYS)} of {len(MWn.COLOR_KEYS)} keys"))
-    r, g, b = _rgb(c["accent"])
-    cz = cp["VisualStyles"].get("ColorizationColor", "") if "VisualStyles" in cp else ""
-    out.append(("ColorizationColor is the accent", cz.upper().endswith("%02X%02X%02X" % (r, g, b))
-                and cz.upper().startswith("0X") and len(cz) == 10,
-                cz or "absent"))
-    if folder is not None:
-        wp = cp["Control Panel\\Desktop"].get("Wallpaper", "") if "Control Panel\\Desktop" in cp else ""
-        p = os.path.join(folder, *wp.split("\\")) if wp else ""
-        out.append(("the referenced wallpaper exists beside the theme",
-                    bool(wp) and os.path.isfile(p), wp or "no Wallpaper key"))
+    out["colors"] = [{"key": key, "role": role, "got": colors.get(key),
+                      "want": "%d %d %d" % _rgb(c[role])} for key, role in MWn.COLOR_KEYS]
+    out["accent"] = "%02X%02X%02X" % _rgb(c["accent"])
+    if "VisualStyles" in cp:
+        out["colorization"] = cp["VisualStyles"].get("ColorizationColor")
+    if folder is not None and "Control Panel\\Desktop" in cp:
+        wp = cp["Control Panel\\Desktop"].get("Wallpaper", "") or None
+        out["wallpaper"] = wp
+        out["wallpaper_exists"] = bool(wp) and os.path.isfile(os.path.join(folder, *wp.split("\\")))
     return out
 
 
 def measure():
-    """([(variant, arm, ok, detail)], [(variant, why)]) over the DECLARED roster.
+    """The MEASUREMENT policy/windows.rego decides, over the DECLARED roster.
 
     ⚑ W65: the population was make_windows.VARIANTS — the emitter's own typed
     list — so dropping a variant there took "30 of 30" to "25 of 25", rc 0. It is
-    now make_schemes.GRID; emitter drift, and any arm a theme did not reach (an
-    unparsable INI reports ONE arm), are RETURNED as missing."""
+    make_schemes.GRID; the emitter's own list is emitted as `roster_drift` facts."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_windows as MWn
-    results, missing = [], list(roster_drift(MWn.VARIANTS, "make_windows"))
+    import variant_roster as VR
     roster = schemes()
+    cases = []
     with tempfile.TemporaryDirectory() as td:
         outs = {v: os.path.join(td, v) for v in roster}
-        MWn.render_all(roster, outs)
+        try:
+            MWn.render_all(roster, outs)
+        except Exception as e:                           # noqa: BLE001
+            return {"roster": roster, "roster_drift": [], "cases": [],
+                    "error": f"render_all: {type(e).__name__}: {e}"}
         for v in roster:
-            text = open(os.path.join(outs[v], f"{v}.theme"), encoding="utf-8").read()
-            arms = check_theme(v, text, outs[v])
-            seen = {a for a, _o, _d in arms}
-            missing += [(v, f"arm {a!r} was not measured") for a in ARMS if a not in seen]
-            results += [(v, a, o, d) for a, o, d in arms if a in ARMS]
-    return results, missing
+            p = os.path.join(outs[v], f"{v}.theme")
+            if not os.path.isfile(p):
+                cases.append({"id": v, "missing": f"render_all wrote no {v}.theme"})
+                continue
+            cases.append(facts(v, open(p, encoding="utf-8").read(), outs[v]))
+    return {"roster": roster, "error": None, "cases": cases,
+            "roster_drift": VR.drift_facts({"make_windows": MWn.VARIANTS}, roster)}
 
 
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_windows: unknown flag {a!r}", file=sys.stderr)
             return 2
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_windows as MWn
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--map" in argv:
+        import make_windows as MWn
         for key, role in MWn.COLOR_KEYS:
             print(f"{key:20} <- {role}")
         return 0
-    results, missing = measure()
-    roster = schemes()
-    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME (W65): roster x ARMS.
-    expected = len(roster) * len(ARMS)
-    if missing or len(results) != expected or not results:
-        print(f"check_windows: REFUSED — measured {len(results)} of {expected} declared arm(s) "
-              f"({len(roster)} variant(s) x {len(ARMS)} arm(s)). A SHRINKING POPULATION "
-              f"IS NOT A PASSING ONE: n of n is green for every n.", file=sys.stderr)
-        for v, why in missing:
-            print(f"    {v}: {why}", file=sys.stderr)
-        return 2
-    n = len(results)
-    fails = [f"{v} {arm}: {detail}" for v, arm, ok, detail in results if not ok]
-    if fails:
-        print(f"check_windows: REFUSED — {len(fails)} of {n} arm(s) do not hold:", file=sys.stderr)
-        for f in fails:
-            print(f"    {f}", file=sys.stderr)
-        return 1
-    print(f"check_windows: {n} of {expected} arms hold over {len(roster)} themes "
-          f"(roster: make_schemes.GRID)")
-    return 0
+    import opa_gate
+    return opa_gate.gate("windows")
 
 
 def _selftest():
@@ -157,31 +138,34 @@ def _selftest():
         sys.path.insert(0, ROOT)
     import make_windows as MWn
     good = MWn.theme_ini("EL-Openglo", "DesktopBackground\\EL-Openglo.png")
-    arms = {a: o for a, o, _d in check_theme("EL-Openglo", good)}
-    check("the real emission holds every text arm", all(arms.values()), True)
-    # ⚑ EACH ARM MUST BE ABLE TO FAIL.
-    arms = {a: o for a, o, _d in check_theme("EL-Openglo", good.replace("MTSM=DABJDKT", "MTSM=NOPE"))}
-    check("a wrong MTSM tag is seen", arms["required sections present with MTSM=DABJDKT"], False)
-    arms = {a: o for a, o, _d in check_theme("EL-Openglo", good.replace("[VisualStyles]", "[VisualStyle]"))}
-    check("a missing required section is seen", arms["required sections present with MTSM=DABJDKT"], False)
-    arms = {a: o for a, o, _d in check_theme("EL-Openglo", good.replace("WindowText=", "WindowText=1 2 3 ;"))}
-    check("an authored colour is seen", arms["colours are the palette roles"], False)
-    arms = {a: o for a, o, _d in check_theme("EL-Openglo", good.replace("ColorizationColor=0x", "ColorizationColor=0x00"))}
-    check("a wrong accent is seen", arms["ColorizationColor is the accent"], False)
-    arms = {a: o for a, o, _d in check_theme("EL-Openglo", "[Theme\nDisplayName=x")}
-    check("an unparsable file is seen", arms["parses as INI"], False)
+    f = facts("EL-Openglo", good)
+    check("the real emission parses and carries MTSM", (f["parse_error"], f["mtsm"]), (None, "DABJDKT"))
+    check("every colour key is read", len(f["colors"]), len(MWn.COLOR_KEYS))
+    # ⚑ EACH DEFECT MUST BE MEASURED (that it is DENIED is policy/windows_test.rego's ruling).
+    check("a wrong MTSM tag is measured",
+          facts("EL-Openglo", good.replace("MTSM=DABJDKT", "MTSM=NOPE"))["mtsm"], "NOPE")
+    check("a missing required section is measured",
+          "VisualStyles" in facts("EL-Openglo", good.replace("[VisualStyles]", "[VisualStyle]"))["sections"], False)
+    bent = facts("EL-Openglo", good.replace("WindowText=", "WindowText=1 2 3 ;"))
+    wt = next(c for c in bent["colors"] if c["key"] == "WindowText")
+    check("an authored colour is measured beside the palette's", wt["got"] != wt["want"], True)
+    check("a wrong accent is measured",
+          facts("EL-Openglo", good.replace("ColorizationColor=0x", "ColorizationColor=0x00"))["colorization"][:4],
+          "0x00")
+    check("an unparsable file is measured",
+          facts("EL-Openglo", "[Theme\nDisplayName=x")["parse_error"] is not None, True)
     with tempfile.TemporaryDirectory() as td:
-        arms = {a: o for a, o, _d in check_theme("EL-Openglo", good, td)}
-        check("a wallpaper that is not there is seen", arms["the referenced wallpaper exists beside the theme"], False)
-    # ⚑ THE LIVENESS CONJUNCT: complete AND not vacuously complete
-    results, missing = measure()
-    check("the declared population is complete on a clean tree",
-          (missing, len(results) == len(schemes()) * len(ARMS)), ([], True))
-    check("and it is not vacuously complete", len(results) > 0, True)
+        check("a wallpaper that is not there is measured",
+              facts("EL-Openglo", good, td)["wallpaper_exists"], False)
+    m = measure()
+    check("every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"])
+    check("and the population is not empty", len(m["cases"]) > 0, True)
+    check("the real wallpapers are there", all(c.get("wallpaper_exists") for c in m["cases"]), True)
     saved = list(MWn.VARIANTS)
     try:
         MWn.VARIANTS[:] = saved[:-1]
-        check("an emitter that drops a GRID variant is REFUSED", main(["x"]), 2)
+        check("an emitter that drops a GRID variant is measured as drift",
+              [d["variant"] for d in measure()["roster_drift"]], [saved[-1]])
     finally:
         MWn.VARIANTS[:] = saved
     print("check_windows selftest:", "PASS" if ok else "FAIL")

@@ -3,16 +3,22 @@
 
 The browser theme is one of the palette's emission targets: it reads the SAME
 tokens as the desktop scheme, so it cannot drift.  This runs the emitter for
-every variant it declares and checks the result is a manifest a browser would
-actually load.
+every variant the palette declares and reads back what it produced.
 
-    scripts/check_chrome.py            # exit 0 iff every variant emits valid JSON
+    scripts/check_chrome.py            # the verdict, as opa_gate chrome decides it
+    scripts/check_chrome.py --json     # the measurement policy/chrome.rego decides
     scripts/check_chrome.py --dump     # variant -> frame/text colours
+    scripts/check_chrome.py --selftest # the measurement can SEE each defect
 
-Structural requirements per manifest: manifest_version 3, a name, a theme.colors
-map, and every colour an RGB triple of ints in 0..255.  ⚑ THE RANGE CHECK IS THE
-POINT — a token that failed to parse yields None or a string, and a manifest that
-is merely well-formed JSON would still sail past.
+What makes a manifest loadable — manifest_version 3, a name, a theme.colors map,
+every colour an RGB triple of ints in 0..255 — is policy/chrome.rego's ruling
+(W50). ⚑ THE RANGE CHECK IS THE POINT — a token that failed to parse yields None
+or a string, and a manifest that is merely well-formed JSON would still sail past.
+This file only reports what the emitter produced: each colour's value AS JSON
+and whether every channel was a Python int (JSON cannot tell 3 from 3.0 once
+serialised, so the type is measured here, where it is still visible).
+
+WEAKNESS: the manifest is judged by its shape; no browser loads it.
 """
 import json
 import os
@@ -29,23 +35,22 @@ def variants():
     that a listdir of the tree. A listing cannot tell a clean tree from a deleted
     file: drop EL-Amber.colors and "6 of 6" became "5 of 5", exit 0. Now a
     declared variant whose file is absent fails its manifest (parse_scheme raises)
-    and is COUNTED as invalid; the snapshot's listing is compared TO the roster in
-    snapshot_drift(), so a stray file is seen too. The colours still come from the
-    W75 snapshot, through parse_scheme."""
+    and is measured as an error; the snapshot's listing is emitted beside the
+    roster, so a stray file is seen too. The colours still come from the W75
+    snapshot, through parse_scheme."""
     import variant_roster
     return variant_roster.ids()
 
 
-def snapshot_drift():
-    """[(variant, why)] — the colours snapshot's members compared to the roster."""
+def _snapshot():
+    """The colours snapshot's member names (a LISTING, compared to the roster by policy)."""
     sys.path.insert(0, ROOT)
     import schemes_artifact
-    import variant_roster
-    return variant_roster.listing_drift(schemes_artifact.variants(), "the schemes snapshot")
+    return sorted(schemes_artifact.variants())
 
 
 def _emit():
-    """Import the emitter and build a manifest for every discovered variant."""
+    """Import the emitter and build a manifest for every declared variant."""
     sys.path.insert(0, ROOT)
     import make_chrome as MC
     got = {}
@@ -57,73 +62,74 @@ def _emit():
     return got
 
 
-def _invalid(m):
-    """Why this manifest is not loadable, or None."""
-    if m.get("manifest_version") != 3:
-        return f"manifest_version is {m.get('manifest_version')!r}, not 3"
-    if not m.get("name"):
-        return "no name"
-    colors = (m.get("theme") or {}).get("colors")
-    if not isinstance(colors, dict) or not colors:
-        return "theme.colors is missing or empty"
-    for k, v in colors.items():
-        if (not isinstance(v, list) or len(v) != 3
-                or not all(isinstance(c, int) and 0 <= c <= 255 for c in v)):
-            return f"colour {k!r} is {v!r}, not an RGB triple in 0..255"
-    return None
+def _is_int(c):
+    return isinstance(c, int) and not isinstance(c, bool)
+
+
+def _case(v, m):
+    """One variant's facts: what the emitter returned, or the error it raised."""
+    if isinstance(m, Exception):
+        return {"id": v, "error": f"{type(m).__name__}: {m}", "manifest_version": None,
+                "name": None, "colors": None, "roundtrips": None}
+    colors = (m.get("theme") or {}).get("colors") if isinstance(m, dict) else None
+    try:
+        json.dumps(m)
+        rt = True
+    except (TypeError, ValueError):
+        rt = False
+    cols = None
+    if isinstance(colors, dict):
+        cols = [{"key": str(k),
+                 "value": json.loads(json.dumps(val, default=lambda o: f"<{type(o).__name__}>")),
+                 "ints": isinstance(val, (list, tuple)) and all(_is_int(c) for c in val)}
+                for k, val in colors.items()]
+    elif colors is not None:
+        cols = f"<{type(colors).__name__}>"
+    return {"id": v, "error": None, "manifest_version": m.get("manifest_version"),
+            "name": m.get("name"), "colors": cols, "roundtrips": rt}
+
+
+def measure():
+    """The MEASUREMENT policy/chrome.rego decides: the declared roster, the snapshot's
+    listing, and per declared variant the emitted manifest's facts. A third-party
+    module absent from THIS machine is `withheld` (a fact about the host); a module
+    of ours that will not import is the `error` that stopped the read."""
+    try:
+        got = _emit()
+    except ModuleNotFoundError as e:
+        dep = e.name
+        if not os.path.exists(os.path.join(ROOT, f"{dep}.py")):
+            return {"roster": [], "snapshot": [], "cases": [], "error": None,
+                    "withheld": f"needs {dep}, which is not installed here"}
+        return {"roster": [], "snapshot": [], "cases": [], "withheld": None,
+                "error": f"a module of ours did not import: {dep}"}
+    except Exception as e:                          # noqa: BLE001
+        return {"roster": [], "snapshot": [], "cases": [], "withheld": None,
+                "error": f"the emitter did not import: {type(e).__name__}: {e}"}
+    return {"roster": sorted(got), "snapshot": _snapshot(), "error": None, "withheld": None,
+            "cases": [_case(v, m) for v, m in got.items()]}
 
 
 def main(argv):
-    known = {"--dump"}
+    known = {"--dump", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_chrome: unknown flag {a!r}", file=sys.stderr)
             return 2
-    try:
-        got = _emit()
-    except ModuleNotFoundError as e:
-        # ⚑ NOT CONFIRMED IS NOT FAILED.  A third-party module absent from THIS
-        # machine (the emitter's chain reaches an optional renderer) says nothing
-        # about the theme.  Reporting it red would be a fact about the host
-        # dressed as a fact about the artifact.
-        dep = e.name
-        if not os.path.exists(os.path.join(ROOT, f"{dep}.py")):
-            print(f"check_chrome: SKIP — needs {dep}, which is not installed here "
-                  f"(this is a fact about the machine, not the theme)")
-            return 0
-        print(f"check_chrome: REFUSED — a MODULE OF OURS did not import: {dep}",
-              file=sys.stderr)
-        return 1
-    except Exception as e:                          # noqa: BLE001
-        print(f"check_chrome: REFUSED — the emitter did not import: "
-              f"{type(e).__name__}: {e}", file=sys.stderr)
-        return 1
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--dump" in argv:
-        for v, m in got.items():
+        for v, m in _emit().items():
             if isinstance(m, Exception):
                 print(f"{v}\tERROR {m}")
             else:
                 c = m["theme"]["colors"]
                 print(f"{v}\tframe={c.get('frame')}\tntp_text={c.get('ntp_text')}")
         return 0
-    bad = list(snapshot_drift())
-    for v, m in got.items():
-        if isinstance(m, Exception):
-            bad.append((v, f"{type(m).__name__}: {m}"))
-        else:
-            why = _invalid(m)
-            if why:
-                bad.append((v, why))
-            else:
-                json.dumps(m)                       # must round-trip
-    if bad:
-        print(f"check_chrome: REFUSED — {len(bad)} of {len(got)} variant(s) invalid:",
-              file=sys.stderr)
-        for v, why in bad:
-            print(f"    {v}: {why}", file=sys.stderr)
-        return 1
-    print(f"check_chrome: {len(got)} of {len(got)} variants emit a valid manifest")
-    return 0
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import opa_gate
+    return opa_gate.gate("chrome")
 
 
 def _selftest():
@@ -137,16 +143,64 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    # The validator must REJECT the shapes it exists to catch, or it is decorative.
-    good = {"manifest_version": 3, "name": "x", "theme": {"colors": {"frame": [1, 2, 3]}}}
-    check("accepts a valid manifest", _invalid(good), None)
-    check("rejects wrong version", _invalid({**good, "manifest_version": 2}) is not None, True)
-    check("rejects missing name", _invalid({**good, "name": ""}) is not None, True)
-    bad_c = {"manifest_version": 3, "name": "x", "theme": {"colors": {"frame": "#fff"}}}
-    check("rejects a non-triple colour", _invalid(bad_c) is not None, True)
-    out_of_range = {"manifest_version": 3, "name": "x",
-                    "theme": {"colors": {"frame": [1, 2, 999]}}}
-    check("rejects an out-of-range channel", _invalid(out_of_range) is not None, True)
+    m = measure()
+    check("the emitter is read", (m["error"], m["withheld"]), (None, None))
+    check("every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"])
+    check("and the population is not empty", len(m["cases"]) > 0, True)
+    # ⚑ THE MEASUREMENT MUST SEE EACH DEFECT the policy rules on — that the policy
+    # DENIES it is policy/chrome_test.rego's ruling.
+    import make_chrome as MC
+    real = MC.manifest
+
+    def planted(fn):
+        MC.manifest = fn
+        try:
+            return {c["id"]: c for c in measure()["cases"]}
+        finally:
+            MC.manifest = real
+
+    first = m["roster"][0]
+
+    def bend(edit):
+        def fn(v):
+            out = real(v)
+            if v == first:
+                out = edit(json.loads(json.dumps(out)))
+            return out
+        return fn
+
+    def out_of_range(o):
+        o["theme"]["colors"]["frame"] = [1, 2, 999]
+        return o
+    c = planted(bend(out_of_range))[first]
+    check("an out-of-range channel is measured",
+          next(x["value"] for x in c["colors"] if x["key"] == "frame"), [1, 2, 999])
+
+    def float_channel(o):
+        o["theme"]["colors"]["frame"] = [1.0, 2, 3]
+        return o
+    c = planted(bend(float_channel))[first]
+    check("a float channel is measured as not-int",
+          next(x["ints"] for x in c["colors"] if x["key"] == "frame"), False)
+
+    def hex_string(o):
+        o["theme"]["colors"]["frame"] = "#fff"
+        return o
+    c = planted(bend(hex_string))[first]
+    check("a string colour is measured",
+          next(x["value"] for x in c["colors"] if x["key"] == "frame"), "#fff")
+
+    def v2(o):
+        o["manifest_version"] = 2
+        return o
+    check("a wrong manifest_version is measured", planted(bend(v2))[first]["manifest_version"], 2)
+
+    def raising(v):
+        if v == first:
+            raise FileNotFoundError(f"{v}.colors")
+        return real(v)
+    check("a variant whose scheme is gone is measured as an error, not dropped",
+          (planted(raising)[first]["error"] or "").startswith("FileNotFoundError"), True)
     print("check_chrome selftest:", "PASS" if ok else "FAIL")
     return ok
 

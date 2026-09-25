@@ -397,7 +397,7 @@
   section = {emitters},
   claim   = {the browser theme emits a valid manifest for every declared variant},
   rests-on = {TOKENS},
-  check   = {tool:check_chrome.py}
+  check   = {tool:opa_gate.py chrome}
 }
 
 % ⚑ OPEN, AND CORRECTLY RED.  Selection/ForegroundActive is illegible in ALL SIX
@@ -425,7 +425,7 @@
   section = {emitters},
   claim   = {the colour chain imports and solves, so the shipped schemes are solver output rather than whatever a silent fallback produced},
   rests-on = {CONSUMERS},
-  check   = {tool:check_palette_chain.py}
+  check   = {tool:opa_gate.py palette_chain}
 }
 
 % ⚑ CITED, NOT RE-AUTHORED.  `concept:` imports a witness the LIBRARY owns and
@@ -588,7 +588,7 @@
 
 @misc{UNION,
   claim    = {The palette is emitted as a KDE Union style per variant — Breeze imported, its composited alphas (indicator, focus, hover) replaced by the ghost relation solved over the scheme's own colour pairs, the rest left authored and listed OPEN — and every override names a variable Breeze defines and carries its solve},
-  check    = {tool:check_union.py},
+  check    = {tool:opa_gate.py union},
   note     = {W14, 2026-09-21. Union reads colours via kcolorscheme so only the alphas are ours; UNION_STYLE_NAME selects a style per session (no config file in 6.7.5). For EL-Openglo the solved indicator alpha is 0.396 — Breeze's authored 0.4.},
   section  = {emitters},
   rests-on = {GHOST}
@@ -604,7 +604,7 @@
 
 @misc{WINDOWS,
   claim    = {The palette is emitted as a Windows .theme per variant that carries the three sections Microsoft's format requires (Desktop, VisualStyles, MasterThemeSelector MTSM=DABJDKT), the colour table as palette roles, the accent as ColorizationColor, and the wallpaper it references beside it},
-  check    = {tool:check_windows.py},
+  check    = {tool:opa_gate.py windows},
   note     = {W16, 2026-09-21. Under Aero only wallpaper + accent reach the desktop; the colour table is the High Contrast path. Read from learn.microsoft.com themesfileformat-overview.},
   section  = {emitters},
   rests-on = {TOKENS}
@@ -644,7 +644,7 @@
 
 @misc{MONET,
   claim    = {Android's own scheme derivation (material-color-utilities, TonalSpot at contrast 0), seeded from each variant's lit colour, keeps the seed's HCT hue on every variant, produces WCAG AA text pairs on every variant, and on the Off variants lands its dark surface within 5 dE of the palette's ground — the Lit variants' backlit ground is unreachable by Monet's near-white light surface and is recorded as such in catalog/android.md, not claimed},
-  check    = {tool:check_monet.py},
+  check    = {tool:opa_gate.py monet},
   note     = {W18, 2026-09-21. SKIP when the research extra is absent. The first draft's 'seed survives' arm was a 3x-floor dE that let a 31.9 dE drift pass; replaced by an HCT hue delta (<1° measured).},
   section  = {emitters},
   rests-on = {TOKENS}
