@@ -50,11 +50,11 @@ The requirement is policy/use_of_colour.rego, run through `scripts/opa_gate.py u
 
 WEAKNESS, STATED. It proves a cue EXISTS and shares the predicate; it does not prove the
 cue is PERCEPTIBLE at panel size — a lit row may still be too faint or too small to
-read. That is a PIXEL measurement's job (the urgency-cue render check drafted as
-scripts/check_urgency_cues.py in another worktree; not on main), not a lexer's. The
-aperture rule is also coarse in the other direction: a fillRect that GROWS past its
-cell (bold's +s/2) spills ink into neighbouring apertures, which is partly spatial,
-but this counts every size change behind an aperture as opacity. The lexer is a JS-token lexer, not a JS
+read. That is a PIXEL measurement's job (scripts/check_urgency_cues.py), not a lexer's.
+Behind an aperture the SIGN of a size change decides (⟐W72.f, measured both ways): a
+shrink stays in its pip and is opacity; a growth overhangs into neighbour pips and is
+SHAPE (--bold: 136 -> 202 lit pips). The sign is read from the `cond ? A : B` the
+condition picks; one it cannot read stays opacity. The lexer is a JS-token lexer, not a JS
 parser: a painter written in a shape it does not split (a sink behind a helper the file
 does not import as `import "x.js" as X`, a predicate built at run time) is invisible
 until this learns it. The helper rule credits a CASE CHANGE reachable under the tested
@@ -348,6 +348,32 @@ def animated_properties(toks):
     return out
 
 
+def _branch_grows(stmts, subjects, test, tainted):
+    """Behind an aperture: does the SIZE term this condition selects GROW the dot?
+
+    ⚑ MEASURED BOTH WAYS, SO THE SIGN DECIDES (⟐W72.f, 2026-09-25). A SHRINK (-s/4, the
+    old light dot) stays inside its pip and reads as dimming — W72.h: footprint 1.01-1.05.
+    A GROWTH (+s/2, bold) overhangs into NEIGHBOUR pips and widens the lit set —
+    check_urgency_cues --bold: 136 -> 202 lit pips, 1-IoU 0.33-0.45. Read from the
+    `cond ? A : B` the condition picks: A starting with `-` shrinks; anything else grows.
+    None when no such branch is found — the caller then keeps the conservative opacity."""
+    for target, rhs, _ in stmts:
+        if target not in tainted:
+            continue
+        for k, t in enumerate(rhs):
+            if t[1] not in subjects:
+                continue
+            q = next((j for j in range(k, len(rhs)) if rhs[j][1] == "?"), None)
+            if q is None or q + 1 >= len(rhs):
+                continue
+            if test[0] == "==":
+                lits = [rhs[j][1] for j in range(k, q)]
+                if str(test[1]) not in lits:
+                    continue
+            return rhs[q + 1][1] != "-"
+    return None
+
+
 def measure_painter(src, fn, surface, file, components=frozenset(), companions=None):
     """[case] for one painter: per CONDITION, its channels, split into colour and cues.
     Behind an aperture (see the module docstring) ctx.fillRect is an opacity sink.
@@ -388,9 +414,15 @@ def measure_painter(src, fn, surface, file, components=frozenset(), companions=N
                     tainted.add(target)
                     changed = True
         channels = []
+        grows = _branch_grows(stmts, subjects, test, tainted) if feed else None
         for target, rhs, line in stmts:
             if target in sinks and _mentions(rhs, subjects, test, tainted):
-                channels.append({"kind": sinks[target], "line": line, "via": target})
+                kind = sinks[target]
+                # behind an aperture a GROWTH is spatial (it lights neighbour pips), a
+                # shrink is opacity; an unreadable sign stays opacity (⟐W72.f)
+                if feed and target == "ctx.fillRect" and grows:
+                    kind = "shape"
+                channels.append({"kind": kind, "line": line, "via": target})
             # a case-changing helper handed the subject at an argument it tests
             # against this condition's literal: the letterform is the channel
             for k, t in enumerate(rhs):
@@ -564,6 +596,9 @@ def _selftest():
     chk("behind an aperture: the feed is derived", fed[0]["sampled_by"]["instance"], "fld")
     chk("behind an aperture: low's shrink is opacity, no cue",
         (kinds(fed, "C7", "colour"), kinds(fed, "C7", "cues")), (["opacity"], []))
+    # ⟐W72.f: the SAME grow expression, other sign — bold's +s/2 overhangs into neighbours
+    chk("behind an aperture: bold's GROWTH is shape, not opacity (⟐W72.f)",
+        (kinds(fed, "C10", "colour"), kinds(fed, "C10", "cues")), ([], ["shape"]))
     chk("behind an aperture: critical keeps the lit row (shape), weight gone",
         kinds(fed, "C6", "cues"), ["shape"])
     chk("without the component known, the same painter is not aperture-fed",

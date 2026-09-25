@@ -56,7 +56,7 @@ All paths are relative to the repo root. Line numbers are at `def8fee`.
 | C18 | marquee | NORMAL urgency | none | **text**: UPPER CASE — W74, 2026-09-23 | templates/marquee-body.js (`displayChar`) | PASS (new row) |
 | C8 | marquee | suspended job (gauge) | none | **shape**: a stippled column, the top pip (the value) always lit, every other pip below it dark — W74, 2026-09-23 | templates/marquee-main.qml (gauge painter) | PASS (was LUM-ONLY) |
 | C9 | marquee | hover-paused | ring in `litColor`, opacity pulsing | **animation** (ring breathes on a 400 ms sine); the scroll **stops** | templates/marquee-main.qml:380-395, 526-530 | PASS |
-| C10 | marquee | bold run | a fuller dot reads as a **brighter pip** | **none, measured**: `grow = s/2` enlarges the dot painted into the backdrop, and ApertureField grades each fixed-size pip by the backdrop's coverage, so a fuller dot is a brighter pip. That is luminance. The same mechanism made W72's shrunk low-urgency dot read as dimming (W72.h) | templates/marquee-main.qml (`grow`) | **FAIL** (was PASS; the census assumed dot size survives the aperture, and it does not) |
+| C10 | marquee | bold run | (no colour) | **shape, measured**: `grow = s/2` overhangs the dot into the NEIGHBOURING pips, so the lit footprint widens — a bloom behind the pip mask. `check_urgency_cues --bold` (2026-09-25): 136 → 202 lit pips (gray), 1−IoU 0.33–0.45, binarised to each still's own peak. Only a SHRINK (−s/4, W72.h) stays inside its pip and reads as dimming | templates/marquee-main.qml (`grow`) | **PASS** (a 2026-09-25 edit here graded it FAIL from the lexer's "every size change is opacity" rule; the operator's objection, then the pixels, corrected it) |
 | C11 | marquee | link / `<u>` run | (no colour) | descent row lit (underline) | templates/marquee-main.qml:469, 473 | PASS |
 | C12 | marquee | sender's coloured run | hue-table colour (`overrideFor`) | whatever the sender wrote. The theme re-maps the hue and adds no meaning of its own | templates/marquee-main.qml:237-242, 459-465 | DELEGATED (to the sender) |
 | C13 | task switcher | selected window | `litColor` vs `ghostColor`, with opacity | **Font.Bold** plus a highlight bar with a 1 px **border** | templates/taskswitch-main.qml:123-125, 137-144 | PASS |
@@ -65,14 +65,15 @@ All paths are relative to the repo root. Line numbers are at `def8fee`.
 | C16 | GTK | error / warning / success | `--error-*`, `--warning-*`, `--success-*` | not the theme's: GTK widgets pair these with icons | make_gtk.py:60-62 | DELEGATED |
 | C17 | Konsole ANSI | program-chosen SGR colours, normal vs Intense | `Color{i}`, `Color{i}Intense` | not the theme's. Programs choose. Intense may also map to bold, which is a Konsole profile setting | make_konsole.py:78, 112-119 | DELEGATED |
 
-Summary (updated 2026-09-25): 18 surfaces. 11 PASS (C1-C4, C6-C9, C11, C13, C18), 1 FAIL
-(C10), 4 DELEGATED (C12, C15-C17), 2 need a render (C5, C14).
+Summary (updated 2026-09-25): 18 surfaces. 12 PASS (C1-C4, C6-C11, C13, C18), 0 FAIL,
+4 DELEGATED (C12, C15-C17), 2 need a render (C5, C14). `opa_gate.py use_of_colour`: admitted.
 
 The census's one defect, **C6** (critical marked by hue alone), is fixed by W74's letterform
 cues, and the operator's ruling of 2026-09-23 replaced the LUM-ONLY question for C7/C8 with
-lowercase / UPPERCASE / FLASHING UPPER CASE. The remaining defect is **C10**, which the census
-graded PASS: a bold run is a fuller dot, and a fuller dot through the aperture is only a brighter
-pip. Bold needs a cue the aperture keeps (a different set of lit pips, as W74 did for urgency).
+lowercase / UPPERCASE / FLASHING UPPER CASE. **C10** was briefly graded FAIL here from the
+lexer's rule that every size change behind an aperture is opacity; measured, a GROWTH lights
+neighbouring pips (a different set, not a brighter one) and a SHRINK does not. The lexer now
+reads the sign.
 
 Residue, not deleted:
 
@@ -204,7 +205,9 @@ is strict and turns C7/C8 red with C6. That decision is the one open design ques
 - ~~⟐W72.b Fix C6~~ — done by W74 (text, shape and animation cues).
 - ~~⟐W72.c Implement `check_use_of_colour.py --json` plus the rego pair~~ — done; the gate is
   `opa_gate.py use_of_colour`.
-- ⟐W72.f Fix C10: give a bold run a cue the aperture preserves. Grow is luminance through it.
+- ~~⟐W72.f Fix C10~~ — measured instead of changed: bold's growth IS spatial through the
+  aperture (`check_urgency_cues --bold`), and check_use_of_colour reads the sign of a size
+  change now. No render change was needed.
 - ⟐W72.d Read the clock-plasmoid and live-wallpaper SegmentChar mounts (the C1 residue), and
   `itemCaption` (C14).
 - ⟐W72.e Render check for C5/C14, and a perceptibility check for C1/C9 against `catalog/library/screens/`.
