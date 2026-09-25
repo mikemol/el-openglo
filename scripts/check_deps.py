@@ -7,7 +7,8 @@ and refuses if what remains is not either DECLARED in pyproject.toml or RECORDED
 there as deliberately absent.
 
     scripts/check_deps.py            # the verdict, as opa_gate deps decides it
-    scripts/check_deps.py --json     # the measurement policy/deps.rego decides
+    scripts/check_deps.py --json [PY...]  # the measurement policy/deps.rego decides; PY files
+                                          # are PLANTED into the walk (W75's negative fixture)
     scripts/check_deps.py --imports  # module -> the files importing it
 
 ⚑ THE WALK IS THE AUTHORITY, NOT A REMEMBERED LIST.  The manifest was first
@@ -154,15 +155,20 @@ def declared():
     return out, raw
 
 
-def measure():
+def measure(planted=()):
     """The MEASUREMENT policy/deps.rego decides (W50): whether a manifest exists,
     and per third-party import (the AST walk over every tracked module in
     SCAN_DIRS): its distribution name, the files importing it, whether that
     distribution is DECLARED (dependencies or an extra), and whether the name is
     RECORDED in the manifest's text — the "deliberately absent" notes. The two
-    are separate facts so a pass by mention is visible as one."""
+    are separate facts so a pass by mention is visible as one.
+
+    `planted` — extra .py paths walked WITH the tree (W75): the negative fixture
+    catalog/fixtures/deps/undeclared.py goes through this same walk, so
+    `opa_gate.py deps <it> --expect denied:D1` proves the whole path denies."""
     decl, raw = declared()
-    found = imports()
+    found = imports(files=_python_files() + [(os.path.relpath(p, ROOT), p) for p in planted]
+                    if planted else None)
     return {
         "manifest": decl is not None,
         "cases": [{"id": mod, "dist": DIST.get(mod, mod).lower(),
@@ -176,7 +182,7 @@ def measure():
 def main(argv):
     known = {"--imports", "--json"}
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_deps: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--imports" in argv:
@@ -185,7 +191,9 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
-        print(json.dumps(measure(), indent=1))
+        ops = [os.path.join(ROOT, a) if not os.path.isabs(a) else a
+               for a in argv[1:] if not a.startswith("--")]
+        print(json.dumps(measure(planted=ops), indent=1))
         return 0
     import opa_gate
     return opa_gate.gate("deps")
