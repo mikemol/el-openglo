@@ -9,8 +9,8 @@ populated like the operator's appletsrc of 2026-09-22: a desktop whose
 wallpaperPlugin is a legacy id, a panel with a legacy clock and marquee among
 stock widgets. The measurement is what the fake shell looks like afterwards.
 
-    scripts/check_migration.py            # exit 0 iff the migration lands as stated
-    scripts/check_migration.py --json     # the measurement
+    scripts/check_migration.py            # the verdict, as opa_gate migration decides it
+    scripts/check_migration.py --json     # the measurement policy/migration.rego decides
     scripts/check_migration.py --selftest
 
 SKIP when the qml runner is absent. WEAKNESS: the fake API is the subset the
@@ -50,25 +50,17 @@ def run():
     raise RuntimeError(f"no RESULT from the migration harness (rc={r.returncode}): {(r.stderr or r.stdout)[-600:]}")
 
 
-def problems(m):
-    bad = []
-    if m["desktops"][0]["wallpaper"] != "org.el.openglo.live":
-        bad.append(f"desktop wallpaper is {m['desktops'][0]['wallpaper']!r}, not org.el.openglo.live")
-    types = [w["type"] for w in m["panels"][0]["widgets"]]
-    for legacy in ("org.el.segclock.elazure", "org.el.notifymarquee.elazure"):
-        if legacy in types:
-            bad.append(f"legacy applet {legacy} survived")
-    for one in ("org.el.segclock", "org.el.notifymarquee"):
-        if types.count(one) != 1:
-            bad.append(f"{one} appears {types.count(one)} times, not once")
-    if "org.kde.plasma.kickoff" not in types:
-        bad.append("a stock widget was lost")
-    mq = [w for w in m["panels"][0]["widgets"] if w["type"] == "org.el.notifymarquee"]
-    if mq and mq[0]["config"].get("hoverPause") != "false":
-        bad.append(f"the marquee's settings were not carried (hoverPause={mq[0]['config'].get('hoverPause')!r})")
-    if mq and mq[0]["geometry"] != [300, 0, 420, 30]:
-        bad.append(f"the marquee moved: {mq[0]['geometry']}")
-    return bad
+def measure():
+    """The MEASUREMENT policy/migration.rego decides (W50): the fake shell AFTER
+    the one-shot script ran — its desktops (wallpaper plugin) and panels (each
+    widget's type, config, geometry). `runner: false` when the qml runner is
+    absent: nothing ran, which is withheld, never admitted. What the shell SHOULD
+    look like (the one ids, the settings carried, the geometry kept) is the
+    policy's ruling, not this function's."""
+    m = run()
+    if m is None:
+        return {"runner": False, "why": f"{QML} not present"}
+    return {"runner": True, "desktops": m.get("desktops"), "panels": m.get("panels")}
 
 
 def main(argv):
@@ -77,22 +69,12 @@ def main(argv):
         if a not in known:
             print(f"check_migration: unknown flag {a!r}", file=sys.stderr)
             return 2
-    m = run()
-    if m is None:
-        print(f"check_migration: SKIP — {QML} not present", file=sys.stderr)
-        return 0
     if "--json" in argv:
-        print(json.dumps(m, indent=1))
+        print(json.dumps(measure(), indent=1))
         return 0
-    bad = problems(m)
-    if bad:
-        print(f"check_migration: REFUSED — {len(bad)} problem(s):", file=sys.stderr)
-        for b in bad:
-            print(f"    {b}", file=sys.stderr)
-        return 1
-    print("check_migration: the one-shot update moves 1 desktop wallpaper and 2 legacy applets to the one ids, "
-          "settings and geometry kept, stock widgets untouched")
-    return 0
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import opa_gate
+    return opa_gate.gate("migration")
 
 
 def _selftest():
@@ -103,19 +85,19 @@ def _selftest():
         print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
         ok = ok and got == want
 
-    m = run()
-    if m is None:
-        print("  SKIP — no qml runner")
+    # The MEASUREMENT can see; what is a defect is policy/migration_test.rego's (W50).
+    m = measure()
+    if not m["runner"]:
+        print(f"  SKIP — {m['why']}")
         print("check_migration selftest: SKIP")
         return True
-    chk("the migration lands", problems(m), [])
-    # ⚑ THE CHECK CAN FAIL: an untouched fake shell is refused
-    stale = json.loads(json.dumps(m))
-    stale["desktops"][0]["wallpaper"] = "org.el.openglo.live.elazure"
-    chk("a desktop still on a legacy wallpaper is seen", any("wallpaper" in b for b in problems(stale)), True)
-    stale = json.loads(json.dumps(m))
-    stale["panels"][0]["widgets"].append({"type": "org.el.segclock.elazure", "config": {}, "geometry": [0, 0, 1, 1]})
-    chk("a surviving legacy applet is seen", any("survived" in b for b in problems(stale)), True)
+    chk("the fake shell reports a desktop", len(m["desktops"] or []) > 0, True)
+    chk("the fake shell reports a panel with widgets",
+        len((m["panels"] or [{}])[0].get("widgets", [])) > 0, True)
+    types = [w["type"] for w in m["panels"][0]["widgets"]]
+    # the harness starts from legacy ids; seeing a non-legacy id proves the script RAN
+    chk("the script changed the shell (a legacy id was rewritten)",
+        "org.el.segclock" in types and m["desktops"][0]["wallpaper"] != "org.el.openglo.live.elazure", True)
     print("check_migration selftest:", "PASS" if ok else "FAIL")
     return ok
 

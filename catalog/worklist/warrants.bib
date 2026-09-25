@@ -710,7 +710,7 @@
 
 @misc{MIGRATION,
   claim    = {Every id the per-variant builds ever wrote into a user's containments (org.el.openglo.live.<v>, org.el.segclock.<v>, org.el.notifymarquee.<v>) still ships as a thin copy of the one package (the same bound QML), so an appletsrc naming a legacy id loads - a missing WALLPAPER plugin fails the whole shell (operator, 2026-09-22) - and the shipped one-shot Plasma update script (contents/updates/el-openglo-one-theme.js) moves a desktop's wallpaper plugin and each legacy applet to the one ids with its settings and place kept; check_migration runs that script headless against a fake shell shaped like the operator's appletsrc and requires exactly that outcome},
-  check    = {tool:check_migration.py},
+  check    = {tool:opa_gate.py migration},
   section  = {emitters}
 }
 
