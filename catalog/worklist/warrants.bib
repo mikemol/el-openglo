@@ -800,6 +800,12 @@
   check    = {tool:opa_gate.py populations}
 }
 
+@misc{REGO-LINT,
+  section  = {tooling},
+  claim    = {Every policy is written so a null or absent field is withheld rather than judged — no bare truthy field test (T1), no `not <field>` that reads null as present (N1), no float verb in a sprintf format (F1) — and the one file where a float verb is correct, the test demonstrating the defect, is a declared exemption with its reason, reported rather than silent},
+  check    = {tool:opa_gate.py rego_lint}
+}
+
 @misc{FONT-COMPILER,
   section  = {emitters},
   claim    = {font_compiler reads a TTF's stroke skeleton and map-matches it onto the segment lattice, and every authored glyph at 22 and 7 segments is either reproduced by that compile or a declared convention with a class and a reason; a declaration the compiler has outgrown is denied, so the convention list cannot quietly grow},

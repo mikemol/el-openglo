@@ -49,6 +49,23 @@ test_float_verb_denied if {
 	startswith(m, "F1: policy/x.rego:20")
 }
 
+# the declared exemption: withheld and counted, never denied, never silent
+test_float_verb_in_the_exempt_file_is_withheld_not_denied if {
+	ex := object.union(float_fmt, {"module": "policy/lib/fmt_test.rego", "line": 8})
+	inp := {"files": ["policy/lib/fmt_test.rego"], "fixed": [ex]}
+	count(rego_lint.deny) == 0 with input as inp
+	some m in rego_lint.withheld with input as inp
+	startswith(m, "F1: policy/lib/fmt_test.rego:8 exempt — ")
+	"policy/lib/fmt_test.rego" in rego_lint.admitted with input as inp
+}
+
+# the exemption is by MODULE: the same verb anywhere else still denies
+test_the_exemption_does_not_leak_to_another_file if {
+	inp := {"files": ["policy/lib/fmt.rego"], "fixed": [object.union(float_fmt, {"module": "policy/lib/fmt.rego"})]}
+	some m in rego_lint.deny with input as inp
+	startswith(m, "F1: policy/lib/fmt.rego:")
+}
+
 test_clean_population_admitted if {
 	count(rego_lint.deny) == 0 with input as {"files": ["policy/x.rego"], "truthy": [], "fixed": []}
 	"policy/x.rego" in rego_lint.admitted with input as {"files": ["policy/x.rego"], "truthy": [], "fixed": []}

@@ -51,7 +51,23 @@ deny contains msg if {
 #   fmt.fixed(x, n) (policy/lib/fmt.rego) and %s.
 deny contains msg if {
 	some f in object.get(input, "fixed", [])
+	not f.module in object.keys(F1_EXEMPT)
 	msg := sprintf("F1: %s:%d sprintf format %q holds %v; format the number with fmt.fixed", [f.module, f.line, f.format, f.verbs])
+}
+
+# ⚑ AN EXEMPTION IS A DECLARATION WITH A REASON, NOT A SILENCE (2026-09-25). The
+# one file where a float verb is CORRECT is the test that demonstrates the defect
+# fmt.fixed exists to replace: it asserts `sprintf("%.2f", [25])` mangles. Before
+# this, that line kept rego_lint DENIED on every run — a gate that is always red
+# reports nothing. Hiding the literal (concat("%.", "2f")) would be dodging the
+# lint; declaring it here keeps it VISIBLE (withheld, counted) and every other
+# file still denied.
+F1_EXEMPT := {"policy/lib/fmt_test.rego": "the test that demonstrates the %.2f mangling fmt.fixed replaces"}
+
+withheld contains msg if {
+	some f in object.get(input, "fixed", [])
+	f.module in object.keys(F1_EXEMPT)
+	msg := sprintf("F1: %s:%d exempt — %s", [f.module, f.line, F1_EXEMPT[f.module]])
 }
 
 withheld contains msg if {
