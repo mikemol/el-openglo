@@ -132,13 +132,33 @@ DISPLAY_CASES = [
     ("no urgency: shown as sent", ("a", None), "a"),
 ]
 
+# kernOffsets (W76, the closed loop on the pip mask): two glyphs, their pitch s and plain
+# advance; the EXPECTED OUTCOME is named and the policy (M9) rules on it. H is 5 columns
+# x 7 rows; s = 4 px, advance = 6 cells = 24 px (5 glyph columns + 1 gap).
+_H = [0x7F, 0x08, 0x08, 0x08, 0x7F]
+KERN_CASES = [
+    ("regular pair keeps the plain advance", ([{"bytes": _H, "grow": 0}, {"bytes": _H, "grow": 0}], 7, 4, 24), "plain"),
+    ("bold pair bleeds, then is pushed apart until a dark column separates it",
+     ([{"bytes": _H, "grow": 2}, {"bytes": _H, "grow": 2}], 7, 4, 24), "separated"),
+    ("a pair that can never separate stops at the cap, not forever",
+     ([{"bytes": _H, "grow": 400}, {"bytes": _H, "grow": 400}], 7, 4, 24), "capped"),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s;
-        var out = { parse: [], join: [], ring: [], series: [], display: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s;
+        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [] };
         for (var d = 0; d < display.length; d++) out.display.push(Body.displayChar(display[d][0], display[d][1]));
+        for (d = 0; d < kern.length; d++) {
+            var g = kern[d][0], off = Body.kernOffsets(g, kern[d][1], kern[d][2], kern[d][3]);
+            var inkA = Body.glyphInk(g[0].bytes, kern[d][1], kern[d][2], g[0].grow, off[0]);
+            var inkB = Body.glyphInk(g[1].bytes, kern[d][1], kern[d][2], g[1].grow, off[1]);
+            out.kern.push({ offsets: off, bleeds_after: Body.pairBleeds(inkA, inkB, kern[d][1], kern[d][2]),
+                            bleeds_at_plain: Body.pairBleeds(inkA, Body.glyphInk(g[1].bytes, kern[d][1], kern[d][2], g[1].grow, off[0] + kern[d][3]), kern[d][1], kern[d][2]),
+                            cap: Body.KERN_CAP });
+        }
         for (var i = 0; i < bodies.length; i++) out.parse.push(Body.parseBody(bodies[i]));
         for (i = 0; i < joins.length; i++) out.join.push(Body.joinItem(joins[i][0], joins[i][1], joins[i][2]));
         for (i = 0; i < series.length; i++) out.series.push(Body.seriesToColumns(series[i][0], series[i][1], series[i][2], series[i][3]));
@@ -186,7 +206,8 @@ def run(bodies=None):
         open(h, "w", encoding="utf-8").write(HARNESS % (
             json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
             json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
-            json.dumps([list(c[1]) for c in DISPLAY_CASES])))
+            json.dumps([list(c[1]) for c in DISPLAY_CASES]),
+            json.dumps([list(c[1]) for c in KERN_CASES])))
         r = QT.run([QML, h], capture_output=True, text=True, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -297,8 +318,12 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": []}
+        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": []}
+    for (label, args, expect), got in zip(KERN_CASES, res.get("kern", [])):
+        out["kern"].append({"label": label, "expect": expect, "advance": args[3],
+                            "offsets": got.get("offsets"), "bleeds_after": got.get("bleeds_after"),
+                            "bleeds_at_plain": got.get("bleeds_at_plain"), "cap": got.get("cap")})
     for (label, args, want), got in zip(SERIES_CASES, res.get("series", [])):
         out["series"].append({"label": label, "args": list(args), "expected": want, "columns": got})
     for (label, args, want), got in zip(DISPLAY_CASES, res.get("display", [])):

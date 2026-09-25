@@ -20,7 +20,42 @@ series_ok := {"label": "a ramp fills the rows", "args": [[0, 25, 50, 75, 100], 8
 
 display_ok := {"label": "low lowercases", "args": ["A", 0], "expected": "a", "shown": "a"}
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok]}
+kern_plain := {"label": "regular pair", "expect": "plain", "advance": 24, "offsets": [0, 24], "bleeds_after": false, "bleeds_at_plain": false, "cap": 64}
+
+kern_sep := {"label": "bold pair", "expect": "separated", "advance": 24, "offsets": [0, 30], "bleeds_after": false, "bleeds_at_plain": true, "cap": 64}
+
+kern_cap := {"label": "never separates", "expect": "capped", "advance": 24, "offsets": [0, 88], "bleeds_after": true, "bleeds_at_plain": true, "cap": 64}
+
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap]}
+
+# M9 (W76): the closed loop's three outcomes, each refused when wrong
+test_m9_admits_the_three_outcomes if {
+	count([m | some m in mb.deny with input as clean; startswith(m, "M9:")]) == 0
+}
+
+test_m9_refuses_a_non_bleeding_pair_that_moved if {
+	some m in mb.deny with input as object.union(clean, {"kern": [object.union(kern_plain, {"offsets": [0, 25]})]})
+	startswith(m, "M9: regular pair: a pair that does not bleed moved")
+}
+
+test_m9_refuses_a_pair_still_bleeding_after_the_loop if {
+	some m in mb.deny with input as object.union(clean, {"kern": [object.union(kern_sep, {"bleeds_after": true})]})
+	m == "M9: bold pair: the pair still bleeds after the loop"
+}
+
+test_m9_refuses_a_separated_fixture_that_never_bled if {
+	some m in mb.deny with input as object.union(clean, {"kern": [object.union(kern_sep, {"bleeds_at_plain": false})]})
+	startswith(m, "M9: bold pair: the fixture does not bleed at the plain advance")
+}
+
+test_m9_refuses_an_unbounded_loop if {
+	some m in mb.deny with input as object.union(clean, {"kern": [object.union(kern_cap, {"offsets": [0, 1024]})]})
+	startswith(m, "M9: never separates: stopped at 1024, not advance + cap 88")
+}
+
+test_m9_refuses_no_kern_cases if {
+	"M9: no kerning cases were measured" in mb.deny with input as object.union(clean, {"kern": []})
+}
 
 # M8 refusing: the old lookup's shape — a low char shown in the sender's case
 test_m8_refuses_a_low_char_left_upper if {
@@ -87,10 +122,11 @@ test_admits_clean if {
 }
 
 test_m0_refuses_empty if {
-	# M0, and M8's own empty-population denial (display is absent here) — nothing else
+	# M0, and M8's and M9's own empty-population denials (display and kern are absent here) — nothing else
 	d := mb.deny with input as {"runner": true, "parse": [], "join": [], "ring": []}
 	d == {"M0: no cases were measured; the population is empty, not the parser right",
-		"M8: no display (letterform) cases were measured"}
+		"M8: no display (letterform) cases were measured",
+		"M9: no kerning cases were measured"}
 }
 
 test_m1_refuses_wrong_text if {
@@ -164,8 +200,10 @@ test_all_null_case_withheld_only if {
 	r := object.union(ring_ok, {"trace": null})
 	s := object.union(series_ok, {"columns": null})
 	d := object.union(display_ok, {"shown": null})
-	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d]}
+	k := object.union(kern_sep, {"offsets": null, "bleeds_after": null, "bleeds_at_plain": null})
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k]}
 	w := mb.withheld with input as inp
+	"W: kern bold pair: bleeds_after was not measured" in w
 	"W: parse <b>hi</b>: text was not measured" in w
 	"W: parse <b>hi</b>: runs was not measured" in w
 	sprintf("W: join%v: text was not measured", [join_ok.args]) in w

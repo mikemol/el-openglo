@@ -194,6 +194,59 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "M9 — kerning is a closed loop on the pip mask (W76)"
+# description: |
+#   Operator 2026-09-25: "if letters bleed into each other, the kerning between those two
+#   letters needs to be increased. This is a closed feedback loop." kernOffsets samples each
+#   adjacent pair through the aperture model and pushes the pair apart until a dark pip
+#   column separates it. Per case: `plain` keeps the plain advance and does not bleed;
+#   `separated` bled at the plain advance and does not after; `capped` stops at exactly
+#   advance + KERN_CAP (the loop terminates).
+deny contains msg if {
+	some c in object.get(input, "kern", [])
+	c.expect == "plain"
+	is_array(c.offsets)
+	c.offsets[1] != c.advance
+	msg := sprintf("M9: %s: a pair that does not bleed moved to %v, not the plain advance %v", [c.label, c.offsets[1], c.advance])
+}
+
+deny contains msg if {
+	some c in object.get(input, "kern", [])
+	c.expect in {"plain", "separated"}
+	c.bleeds_after == true
+	msg := sprintf("M9: %s: the pair still bleeds after the loop", [c.label])
+}
+
+deny contains msg if {
+	some c in object.get(input, "kern", [])
+	c.expect == "separated"
+	c.bleeds_at_plain == false
+	msg := sprintf("M9: %s: the fixture does not bleed at the plain advance, so it tests nothing", [c.label])
+}
+
+deny contains msg if {
+	some c in object.get(input, "kern", [])
+	c.expect == "capped"
+	is_array(c.offsets)
+	is_number(c.cap)
+	c.offsets[1] != c.advance + c.cap
+	msg := sprintf("M9: %s: stopped at %v, not advance + cap %v — the loop is unbounded or early", [c.label, c.offsets[1], c.advance + c.cap])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "kern", [])) == 0
+	msg := "M9: no kerning cases were measured"
+}
+
+withheld contains msg if {
+	some c in object.get(input, "kern", [])
+	some k in ["bleeds_after", "bleeds_at_plain"]
+	not is_boolean(object.get(c, k, null))
+	msg := sprintf("W: kern %v: %s was not measured", [object.get(c, "label", null), k])
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 # description: |
 #   The measurement always emits `runner` as a bool. `false` is the host fact;

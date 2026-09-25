@@ -291,6 +291,92 @@ function glyphFor(font, ch, urgency) {
 var FLASH_HZ = 2;
 var FLASH_MS = 1000 / FLASH_HZ;
 
+// ⚑ KERNING IS A CLOSED LOOP ON THE PIP MASK (W76; operator 2026-09-25: "if letters bleed
+// into each other, the kerning between those two letters needs to be increased. This is a
+// closed feedback loop, not a set-and-forget."). A bold dot grows s/2 past its cell and
+// lights NEIGHBOUR pips (check_urgency_cues --bold: 136 -> 202 lit pips), so at a fixed
+// advance two letters can bloom into one. Per adjacent PAIR: place B, sample both through
+// the aperture model, and while they bleed move B one backdrop pixel right — then sample
+// again. A pair that does not bleed keeps the plain advance; each pair gets what ITS mask
+// output needs. Runs at paint time: bleed depends on the live pitch, dotFill and bold.
+//
+// THE APERTURE MODEL, as ApertureField.qml computes it: a pip's brightness is the fraction
+// of its s x s cell the backdrop ink covers. Ink is squares: each lit glyph cell (col c,
+// row r) paints [c*s - g, (c+1)*s + g] x [r*s - g, (r+1)*s + g] with g the run's grow.
+// Coverage is sampled on an N x N sub-grid per pip, so overlapping squares count once.
+var KERN_SUB = 4;          // sub-samples per pip side
+var KERN_LIT = 0.5;        // a pip at >= half coverage reads as lit
+var KERN_DARK = 0.25;      // a separating pip column must stay under a quarter
+var KERN_CAP = 64;         // backdrop px a pair may be pushed apart, at most
+
+// the ink squares of one glyph whose origin is at backdrop px x0 (rows of `bytes` columns)
+function glyphInk(bytes, rows, s, grow, x0) {
+    var out = [];
+    for (var c = 0; c < bytes.length; c++)
+        for (var r = 0; r < rows; r++)
+            if ((bytes[c] & (1 << r)) !== 0)
+                out.push([x0 + c * s - grow, r * s - grow, x0 + (c + 1) * s + grow, (r + 1) * s + grow]);
+    return out;
+}
+
+// the brightest coverage in pip COLUMN k (backdrop px [k*s, (k+1)*s)), over all rows
+function columnCoverage(ink, k, rows, s) {
+    var best = 0, n = KERN_SUB;
+    for (var r = 0; r < rows; r++) {
+        var hit = 0;
+        for (var i = 0; i < n; i++)
+            for (var j = 0; j < n; j++) {
+                var px = k * s + (i + 0.5) * s / n, py = r * s + (j + 0.5) * s / n;
+                for (var q = 0; q < ink.length; q++) {
+                    var b = ink[q];
+                    if (px >= b[0] && px < b[2] && py >= b[1] && py < b[3]) { hit++; break; }
+                }
+            }
+        best = Math.max(best, hit / (n * n));
+    }
+    return best;
+}
+
+// do glyph A's and glyph B's lit footprints run together with no dark pip column between?
+function pairBleeds(inkA, inkB, rows, s) {
+    var both = inkA.concat(inkB);
+    var cols = function (ink) {
+        var xs = ink.map(function (b) { return b[0]; }).concat(ink.map(function (b) { return b[2]; }));
+        return [Math.floor(Math.min.apply(null, xs) / s), Math.ceil(Math.max.apply(null, xs) / s)];
+    };
+    if (!inkA.length || !inkB.length)
+        return false;
+    var a = cols(inkA), b = cols(inkB);
+    var lastA = -1, firstB = Infinity;
+    for (var k = a[0]; k <= a[1]; k++)
+        if (columnCoverage(inkA, k, rows, s) >= KERN_LIT) lastA = k;
+    for (var m = b[1]; m >= b[0]; m--)
+        if (columnCoverage(inkB, m, rows, s) >= KERN_LIT) firstB = m;
+    if (lastA < 0 || firstB === Infinity)
+        return false;
+    for (var g = lastA + 1; g < firstB; g++)
+        if (columnCoverage(both, g, rows, s) < KERN_DARK)
+            return false;           // a dark column separates them
+    return true;
+}
+
+// the closed loop: backdrop-px x of every glyph. glyphs[i] = {bytes, grow}; advance in px.
+function kernOffsets(glyphs, rows, s, advance) {
+    var off = [];
+    for (var i = 0; i < glyphs.length; i++) {
+        if (i === 0) { off.push(0); continue; }
+        var x = off[i - 1] + advance, pushed = 0;
+        var inkA = glyphInk(glyphs[i - 1].bytes, rows, s, glyphs[i - 1].grow, off[i - 1]);
+        while (pushed < KERN_CAP &&
+               pairBleeds(inkA, glyphInk(glyphs[i].bytes, rows, s, glyphs[i].grow, x), rows, s)) {
+            x += 1;
+            pushed += 1;
+        }
+        off.push(x);
+    }
+    return off;
+}
+
 // ⚑ A SPARKLINE (W48, folded into W54's field): a series of values becomes
 // COLUMN HEIGHTS on the matrix — one column per sample, oldest first, the newest
 // at the right — the one thing a segment display cannot do and a matrix can. The
