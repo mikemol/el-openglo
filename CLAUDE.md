@@ -95,9 +95,14 @@ stays 3 — nothing was judged. The first rule must treat an ABSENT population a
 
 `scripts/hook_no_chaining.py`, `hook_structural_query.py`, `hook_cmdparse.py` (the
 tokenizer both hooks import — `scripts/__init__.py` exists so that `from scripts import
-hook_cmdparse` resolves against THIS tree), `ratchet.py`, `gate_ledger.py`,
-`run_selftests.py`, and `.githooks/pre-push` point into `../../substrate/`. **Editing one edits substrate.** Change it there and run BOTH repos'
+hook_cmdparse` resolves against THIS tree), `ratchet.py`, `gate_ledger.py` and
+`run_selftests.py` point into `../../substrate/`. **Editing one edits substrate.** Change it there and run BOTH repos'
 selftests. `scripts/check_hooks.py --list` shows where each resolves.
+
+`.githooks/pre-push` is NOT a symlink any more (2026-09-25): it execs the installed
+`mikemol-githook-pre-push` (mikemol-hooks, sha-pinned in pyproject's `tooling` extra),
+which runs THIS repo's `.githooks/pre-push.local` → `scripts/pre_push_local.py` — the
+post-commit marker on every pushed tip, then the tree-writes gate.
 
 They read their data from THIS repo (each derives its root from `__file__`, and
 `os.path.abspath` does not resolve symlinks), which is what makes sharing the code
@@ -112,8 +117,8 @@ for why, and for how to arm them.
 
 Work and commit on `main`; the pre-commit hook is the promotion gate. After `git commit`
 the post-commit hook AMENDS the commit to fold in the advisory — **wait for the marker
-`post-commit advisory (auto-captured)` in HEAD before pushing** (`pre-push` blocks a tip
-without it), then fetch and fast-forward.
+`post-commit advisory (auto-captured)` in HEAD before pushing** (`pre-push.local` blocks
+a tip without it, and runs the tree-writes gate), then fetch and fast-forward.
 
 ## Reuse-search BEFORE building new machinery
 

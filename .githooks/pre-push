@@ -1,1 +1,6 @@
-../../substrate/.githooks/pre-push
+#!/usr/bin/env bash
+# The shared git pre-push, as an INSTALLED package (mikemol-hooks, sha-pinned in
+# pyproject's tooling extra) — not a symlink into ../substrate (⟐H2, 2026-09-25).
+# It reads git's stdin once, refuses while a git operation is in flight, then runs
+# THIS repo's .githooks/pre-push.local with the same args and stdin replayed.
+exec "$(git rev-parse --show-toplevel)/.venv/bin/mikemol-githook-pre-push" "$@"
