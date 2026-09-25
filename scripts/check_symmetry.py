@@ -18,8 +18,9 @@ falls in, so the output names what to fix rather than grading the picture.
     glyph   one cell, cropped from the face   -> the DISPLAY's geometry
     face    the whole surface at 00:00        -> the MOUNT: kerning, colon centring
 
-    scripts/check_symmetry.py             # every case: the located asymmetries
-    scripts/check_symmetry.py --json      # the measurement
+    scripts/check_symmetry.py             # the verdict, as opa_gate symmetry decides it (the grid)
+    scripts/check_symmetry.py --list      # every case: the located asymmetries (diagnostic)
+    scripts/check_symmetry.py --json      # the measurement policy/symmetry.rego decides
     scripts/check_symmetry.py --selftest  # the locator can see a planted defect
 
 WEAKNESS: a defect symmetric in BOTH planes is invisible (a segment inset
@@ -154,8 +155,10 @@ def grid_regularity(im, ground=None):
             last_end, start = x, None
     # the first and last runs may be clipped by the picture's edge
     body = runs[1:-1] if len(runs) > 2 else runs
-    return {"pip_widths": sorted(set(body)), "gaps": sorted(set(gaps)),
-            "columns": len(runs), "regular": len(set(body)) <= 1 and len(set(gaps)) <= 1}
+    # ⚑ NO `regular` HERE (W50): it was `len(set(widths)) <= 1 and len(set(gaps)) <= 1`,
+    # which a BLANK board satisfies (no columns, no widths, no gaps). policy/symmetry.rego
+    # judges the distinct widths and gaps, and refuses a board with too few columns.
+    return {"pip_widths": sorted(set(body)), "gaps": sorted(set(gaps)), "columns": len(runs)}
 
 
 def _cell_box(im):
@@ -232,15 +235,19 @@ def grid_cases(grids=GRIDS):
 
 
 def main(argv):
-    known = {"--json", "--selftest"}
+    known = {"--json", "--selftest", "--list"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_symmetry: unknown flag {a!r}", file=sys.stderr)
             return 2
-    m = measure()
     if "--json" in argv:
-        print(json.dumps(m, indent=1))
+        print(json.dumps(measure(), indent=1))
         return 0
+    if "--list" not in argv:
+        import opa_gate
+        return opa_gate.gate("symmetry")
+    # --list: the DIAGNOSTIC report — every located mirror asymmetry, and the grids
+    m = measure()
     found = 0
     for r in m["cases"]:
         if "withheld" in r:
@@ -259,21 +266,14 @@ def main(argv):
     # it to fix defects" — so they are reported and never fail the run. The GRID
     # is a claim that can be false: a board's pips sit on one pitch or they do
     # not, and @GRID-REGULAR cites this exit status.
-    irregular = [g for g in m["grids"] if not g.get("withheld") and not g["regular"]]
     for g in m["grids"]:
         if g.get("withheld"):
             print(f"  {g['label']:12s} WITHHELD {g['withheld']}")
             continue
-        state = "regular" if g["regular"] else "IRREGULAR"
-        print(f"  {g['label']:12s} grid: {state} — {g['columns']} columns, "
+        print(f"  {g['label']:12s} grid: {g['columns']} columns, "
               f"pip widths {g['pip_widths']}, gaps {g['gaps']}")
-    print(f"check_symmetry: {found} located asymmetr{'y' if found == 1 else 'ies'} to fix (diagnostic); "
-          f"{len(m['grids']) - len(irregular)} of {len(m['grids'])} matrix grid(s) sit on one pitch")
-    if irregular:
-        for g in irregular:
-            print(f"check_symmetry: REFUSED — {g['label']} pip widths {g['pip_widths']}, "
-                  f"gaps {g['gaps']}: the grid is not one pitch", file=sys.stderr)
-        return 1
+    print(f"check_symmetry: {found} located asymmetr{'y' if found == 1 else 'ies'} to fix "
+          f"(diagnostic); the grid verdict is `opa_gate.py symmetry`")
     return 0
 
 
@@ -316,7 +316,8 @@ def _selftest():
     for c in range(8):
         for dx in range(3):
             even.putpixel((c * 4 + dx, 4), (255, 255, 255))
-    chk("an integer pitch is regular", grid_regularity(even)["regular"], True)
+    ge = grid_regularity(even)
+    chk("an integer pitch measures one width and one gap", (ge["pip_widths"], ge["gaps"]), ([3], [1]))
     odd = Image.new("RGB", (40, 8), (0, 0, 0))
     for c in range(8):
         x = round(c * 4.5)
@@ -324,8 +325,9 @@ def _selftest():
             if x + dx < 40:
                 odd.putpixel((x + dx, 4), (255, 255, 255))
     g = grid_regularity(odd)
-    chk("a fractional pitch is not", g["regular"], False)
-    chk("...and the gaps it reports are the uneven ones", len(g["gaps"]) > 1, True)
+    chk("a fractional pitch measures more than one gap", len(g["gaps"]) > 1, True)
+    chk("a blank board measures NO columns (the policy refuses it)",
+        grid_regularity(Image.new("RGB", (40, 8), (0, 0, 0)), ground=(0, 0, 0))["columns"], 0)
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 
