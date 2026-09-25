@@ -612,7 +612,7 @@
 
 @misc{FIREFOX,
   claim    = {The palette is emitted as a Firefox WebExtension theme per variant in Firefox's own theme.colors vocabulary — the two required keys present, every colour a palette role or the ghost relation solved over its pair (field borders and separators the seen ghost; hover and active fills the highlight over the toolbar at the glanced and looked-at floors), color_scheme matching the variant's polarity, a stable gecko id for AMO signing},
-  check    = {tool:check_firefox.py},
+  check    = {tool:opa_gate.py firefox},
   note     = {W15, 2026-09-21. MDN manifest.json/theme read; web-ext lint is a SKIP arm until installed. Route: addons.mozilla.org, unlisted signing (Firefox refuses unsigned themes since bug 1545109).},
   section  = {emitters},
   rests-on = {CHROME}

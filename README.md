@@ -281,7 +281,7 @@ Distributed under the GNU General Public License v3, as the Gentoo ebuild declar
 [^GTK]: Machine-verified — `check_gtk.py`
 [^CSS]: Machine-verified — `check_css.py`
 [^UNION]: Machine-verified — `check_union.py`
-[^FIREFOX]: Machine-verified — `check_firefox.py`
+[^FIREFOX]: Machine-verified — `opa_gate.py firefox`
 [^CHROME]: Machine-verified — `check_chrome.py`
 [^WINDOWS]: Machine-verified — `check_windows.py`
 [^TASKSWITCH]: Machine-verified — `opa_gate.py taskswitch`

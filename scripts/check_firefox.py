@@ -10,7 +10,8 @@ names, or the solved composite it names, as an [r, g, b] array; (3)
 gecko id is present and stable (AMO signing needs one per theme). Arm (5),
 `web-ext lint`, runs when the tool is installed and is a SKIP otherwise.
 
-    scripts/check_firefox.py           # exit 0 iff every arm holds for every variant
+    scripts/check_firefox.py           # the verdict, as opa_gate firefox decides it
+    scripts/check_firefox.py --json    # the measurement policy/firefox.rego decides
     scripts/check_firefox.py --map     # theme key -> palette role
     scripts/check_firefox.py --selftest
 
@@ -29,87 +30,76 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
 from check_selection_contrast import schemes, roster_drift   # noqa: E402  (roster authority)
 
-# The arms measured for EVERY variant — one declared dimension of the expected
-# population (the other is make_schemes.GRID's roster). web-ext lint is an arm
-# whose SKIP (tool absent) counts as measured-and-not-failed, printed as such.
-ARMS = ("parses as JSON", "required keys present",
-        "every colour is its role or its solved composite",
-        "color_scheme matches the variant's polarity",
-        "a stable gecko id for AMO signing", "web-ext lint")
 
+def facts(variant, text):
+    """What one manifest text SAYS — no verdict (policy/firefox.rego rules, W50).
 
-def check_manifest(variant, text):
-    """[(arm, ok, detail)] for one manifest text."""
+    `parse_error` is the JSON error or null; when it is non-null nothing else
+    could be read, and the other fields are null (unmeasured, not clean)."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
-    out = []
     try:
         m = json.loads(text)
     except json.JSONDecodeError as e:
-        return [("parses as JSON", False, str(e))]
-    out.append(("parses as JSON", True, "ok"))
+        return {"id": variant, "parse_error": str(e), "missing_required": None,
+                "wrong_colours": None, "unmapped_keys": None, "color_scheme": None,
+                "want_scheme": "light" if variant.endswith("-Lit") else "dark",
+                "gecko_id": None}
     colors = m.get("theme", {}).get("colors", {})
-    missing = [k for k in MF.REQUIRED if k not in colors]
-    out.append(("required keys present", not missing,
-                f"missing {missing}" if missing else "frame, tab_background_text"))
     r = MF.roles(variant)
-    bad = [f"{k}={colors.get(k)} != {r[role]} ({role})" for k, role in MF.KEYS
-           if colors.get(k) != r[role]]
-    extra = sorted(set(colors) - {k for k, _ in MF.KEYS})
-    out.append(("every colour is its role or its solved composite", not bad and not extra,
-                "; ".join(bad[:3]) if bad else (f"unmapped keys {extra}" if extra
-                                                else f"{len(MF.KEYS)} of {len(MF.KEYS)} keys")))
-    want = "light" if variant.endswith("-Lit") else "dark"
-    got = m.get("theme", {}).get("properties", {}).get("color_scheme")
-    out.append(("color_scheme matches the variant's polarity", got == want, f"{got} (want {want})"))
-    gid = m.get("browser_specific_settings", {}).get("gecko", {}).get("id", "")
-    out.append(("a stable gecko id for AMO signing", bool(gid) and variant.lower() in gid, gid or "absent"))
-    return out
+    return {
+        "id": variant,
+        "parse_error": None,
+        "missing_required": [k for k in MF.REQUIRED if k not in colors],
+        "wrong_colours": [{"key": k, "role": role, "got": colors.get(k), "want": r[role]}
+                          for k, role in MF.KEYS if colors.get(k) != r[role]],
+        "unmapped_keys": sorted(set(colors) - {k for k, _ in MF.KEYS}),
+        "color_scheme": m.get("theme", {}).get("properties", {}).get("color_scheme"),
+        "want_scheme": "light" if variant.endswith("-Lit") else "dark",
+        "gecko_id": m.get("browser_specific_settings", {}).get("gecko", {}).get("id", ""),
+    }
 
 
 def lint(folder):
-    """web-ext lint over a theme folder; (ok, detail); SKIP when web-ext is absent."""
+    """web-ext lint's error messages over a theme folder, or None when web-ext is
+    absent (a fact about the machine — withheld, not passed)."""
     exe = shutil.which("web-ext")
     if not exe:
-        return True, "SKIP web-ext not installed"
+        return None
     r = subprocess.run([exe, "lint", "--source-dir", folder, "--output", "json", "--no-input"],
                        capture_output=True, text=True)
     try:
-        rep = json.loads(r.stdout)
-        errs = rep.get("errors", [])
-        return not errs, f"web-ext: {len(errs)} error(s)" + (f": {errs[0].get('message')}" if errs else "")
+        return [e.get("message", "") for e in json.loads(r.stdout).get("errors", [])]
     except json.JSONDecodeError:
-        return r.returncode == 0, f"web-ext rc={r.returncode}"
+        return [] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]
 
 
 def measure():
-    """([(variant, arm, ok, detail)], [(variant, why)]) over the DECLARED roster.
+    """{roster, roster_drift, cases} over the DECLARED roster (make_schemes.GRID).
 
     ⚑ W65: the population was make_firefox.VARIANTS — the emitter's own typed
-    list — so dropping a variant there took "36 of 36" to "30 of 30", rc 0. It is
-    now make_schemes.GRID; emitter drift, and any arm a manifest did not reach
-    (an unparsable manifest reports ONE arm), are RETURNED as missing."""
+    list — so dropping a variant there took "36 of 36" to "30 of 30", rc 0. The
+    roster is GRID; the emitter's drift from it is reported for the policy."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
-    results, missing = [], list(roster_drift(MF.VARIANTS, "make_firefox"))
     roster = schemes()
+    cases = []
     with tempfile.TemporaryDirectory() as td:
         outs = {v: os.path.join(td, v) for v in roster}
         MF.render_all(roster, outs)
         for v in roster:
             text = open(os.path.join(outs[v], "manifest.json"), encoding="utf-8").read()
-            arms = check_manifest(v, text)
-            arms.append(("web-ext lint",) + lint(outs[v]))
-            seen = {a for a, _o, _d in arms}
-            missing += [(v, f"arm {a!r} was not measured") for a in ARMS if a not in seen]
-            results += [(v, a, o, d) for a, o, d in arms if a in ARMS]
-    return results, missing
+            cases.append(dict(facts(v, text), lint_errors=lint(outs[v])))
+    return {"roster": list(roster),
+            "roster_drift": [{"variant": v, "why": why}
+                             for v, why in roster_drift(MF.VARIANTS, "make_firefox")],
+            "cases": cases}
 
 
 def main(argv):
-    known = {"--map"}
+    known = {"--map", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_firefox: unknown flag {a!r}", file=sys.stderr)
@@ -121,28 +111,11 @@ def main(argv):
         for k, role in MF.KEYS:
             print(f"{k:30} <- {role}")
         return 0
-    results, missing = measure()
-    roster = schemes()
-    # ⚑ THE POPULATION IS ASSERTED BEFORE THE OUTCOME (W65): roster x ARMS.
-    expected = len(roster) * len(ARMS)
-    if missing or len(results) != expected or not results:
-        print(f"check_firefox: REFUSED — measured {len(results)} of {expected} declared arm(s) "
-              f"({len(roster)} variant(s) x {len(ARMS)} arm(s)). A SHRINKING POPULATION "
-              f"IS NOT A PASSING ONE: n of n is green for every n.", file=sys.stderr)
-        for v, why in missing:
-            print(f"    {v}: {why}", file=sys.stderr)
-        return 2
-    n = len(results)
-    fails = [f"{v} {arm}: {detail}" for v, arm, ok, detail in results if not ok]
-    if fails:
-        print(f"check_firefox: REFUSED — {len(fails)} of {n} arm(s) do not hold:", file=sys.stderr)
-        for f in fails:
-            print(f"    {f}", file=sys.stderr)
-        return 1
-    skip = "" if shutil.which("web-ext") else " (web-ext lint SKIPPED: not installed)"
-    print(f"check_firefox: {n} of {expected} arms hold over {len(roster)} themes "
-          f"(roster: make_schemes.GRID){skip}")
-    return 0
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("firefox")
 
 
 def _selftest():
@@ -159,38 +132,41 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+    # The MEASUREMENT can see; what is a defect is policy/firefox_test.rego's (W50).
     good = json.dumps(MF.manifest("EL-Openglo"))
-    arms = {a: o for a, o, _d in check_manifest("EL-Openglo", good)}
-    check("the real emission holds every arm", all(arms.values()), True)
+    f = facts("EL-Openglo", good)
+    check("the real emission measures clean",
+          (f["parse_error"], f["missing_required"], f["wrong_colours"], f["unmapped_keys"],
+           f["color_scheme"] == f["want_scheme"]), (None, [], [], [], True))
     m = json.loads(good)
     del m["theme"]["colors"]["frame"]
-    arms = {a: o for a, o, _d in check_manifest("EL-Openglo", json.dumps(m))}
-    check("a missing required key is seen", arms["required keys present"], False)
+    check("a missing required key is seen",
+          "frame" in facts("EL-Openglo", json.dumps(m))["missing_required"], True)
     m = json.loads(good)
     m["theme"]["colors"]["toolbar"] = [1, 2, 3]
-    arms = {a: o for a, o, _d in check_manifest("EL-Openglo", json.dumps(m))}
-    check("an authored colour is seen", arms["every colour is its role or its solved composite"], False)
+    check("an authored colour is seen",
+          [w["key"] for w in facts("EL-Openglo", json.dumps(m))["wrong_colours"]], ["toolbar"])
     m = json.loads(good)
     m["theme"]["colors"]["accentcolor"] = [1, 2, 3]
-    arms = {a: o for a, o, _d in check_manifest("EL-Openglo", json.dumps(m))}
-    check("an unmapped key is seen", arms["every colour is its role or its solved composite"], False)
+    check("an unmapped key is seen", facts("EL-Openglo", json.dumps(m))["unmapped_keys"], ["accentcolor"])
     m = json.loads(good)
     m["theme"]["properties"]["color_scheme"] = "light"
-    arms = {a: o for a, o, _d in check_manifest("EL-Openglo", json.dumps(m))}
-    check("a wrong colour scheme is seen", arms["color_scheme matches the variant's polarity"], False)
-    arms = {a: o for a, o, _d in check_manifest("EL-Openglo", "{not json")}
-    check("unparsable JSON is seen", arms["parses as JSON"], False)
+    check("a wrong colour scheme is seen", facts("EL-Openglo", json.dumps(m))["color_scheme"], "light")
+    bad = facts("EL-Openglo", "{not json")
+    check("unparsable JSON is seen, and nothing else is claimed",
+          (bad["parse_error"] is not None, bad["missing_required"]), (True, None))
     check("hover fill is fainter than active fill (glanced < looked alpha)",
           MF.roles("EL-Openglo")["_alphas"]["hover"] < MF.roles("EL-Openglo")["_alphas"]["active"], True)
-    # ⚑ THE LIVENESS CONJUNCT: complete AND not vacuously complete
-    results, missing = measure()
-    check("the declared population is complete on a clean tree",
-          (missing, len(results) == len(schemes()) * len(ARMS)), ([], True))
-    check("and it is not vacuously complete", len(results) > 0, True)
+    # ⚑ THE LIVENESS CONJUNCT: every declared variant measured, and not vacuously
+    got = measure()
+    check("every declared variant is measured",
+          sorted(c["id"] for c in got["cases"]), sorted(got["roster"]))
+    check("and it is not vacuously complete", len(got["cases"]) > 0, True)
     saved = list(MF.VARIANTS)
     try:
         MF.VARIANTS[:] = saved[:-1]
-        check("an emitter that drops a GRID variant is REFUSED", main(["x"]), 2)
+        check("an emitter that drops a GRID variant is reported as drift",
+              len(measure()["roster_drift"]) > 0, True)
     finally:
         MF.VARIANTS[:] = saved
     print("check_firefox selftest:", "PASS" if ok else "FAIL")
