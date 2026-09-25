@@ -67,4 +67,14 @@ post-commit advisory (auto-captured):
 $(printf '%s\n' "$advisory" | sed 's/^/    /')"
   _POST_COMMIT_AMENDING=1 git commit --amend --no-verify -F - <<<"$msg" >/dev/null 2>&1 || true
 fi
+
+# AUTO-PUSH (operator, 2026-09-25). AFTER the amend, so the marker is in HEAD; in the
+# BACKGROUND, so the ~190 s CPU tree-writes gate the push runs does not block the commit.
+# Fast-forward only, main only, serialised; every outcome in .git/auto-push.log.
+# EL_NO_AUTO_PUSH=1 opts a single commit out.
+if [ -z "${EL_NO_AUTO_PUSH:-}" ]; then
+  PY="$ROOT/.venv/bin/python3"
+  [ -x "$PY" ] || PY=python3
+  setsid "$PY" "$ROOT/scripts/auto_push.py" </dev/null >/dev/null 2>&1 &
+fi
 exit 0

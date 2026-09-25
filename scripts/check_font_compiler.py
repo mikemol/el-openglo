@@ -104,14 +104,63 @@ def _table(doc):
     return 0
 
 
+def compare_png(chars, out, font=None, cell=220):
+    """A picture for a human to DECIDE from: per char, the AUTHORED 22-seg glyph (the
+    display's letterform, what ships) beside what the compiler READ from the font.
+    Lit segments are drawn on the unlit lattice, so a missing or extra stroke is seen,
+    not described. The operator's `i`/`l` question (2026-09-25: "I would have to see it")."""
+    from PIL import Image, ImageDraw
+    import font_compiler as FC
+    import segment_topology as ST
+    font = font or find_font()
+    comp = dict(FC.compile_font(font)["segment"]["22"]["glyphs"]) if font else {}
+    geo = ST.geom22()
+    pts = [p for k in geo for p in (ST.endpoints(k)[:2], ST.endpoints(k)[2:])]
+    xmax, ymax = max(p[0] for p in pts), max(p[1] for p in pts)
+    pad, s = cell * 0.18, (cell * 0.64) / max(xmax, ymax / 2)
+    w, h = int(xmax * s + 2 * pad), int(ymax * s + 2 * pad)
+    gap, top = 40, 60
+    img = Image.new("RGB", (len(chars) * 2 * (w + gap) + gap, h + top + 20), (8, 20, 17))
+    d = ImageDraw.Draw(img)
+
+    def draw(x0, lit, label, sub):
+        for k in geo:
+            ax, ay, bx, by = ST.endpoints(k)
+            on = k in lit
+            p, q = (x0 + pad + ax * s, top + pad + ay * s), (x0 + pad + bx * s, top + pad + by * s)
+            col = (75, 250, 215) if on else (30, 70, 60)
+            if p == q:                      # a DOT segment (p1, p2): a line of length 0 draws nothing
+                r = 9 if on else 5
+                d.ellipse([p[0] - r, p[1] - r, p[0] + r, p[1] + r], fill=col)
+            else:
+                d.line([p, q], fill=col, width=12 if on else 4)
+        d.text((x0 + 4, 10), label, fill=(220, 240, 235))
+        d.text((x0 + 4, 30), sub, fill=(140, 180, 170))
+
+    x = gap
+    for ch in chars:
+        draw(x, ST.glyph22(ch), f"'{ch}'  AUTHORED", "what ships now")
+        x += w + gap
+        draw(x, set(comp.get(ch) or ()), f"'{ch}'  FROM THE FONT", "Liberation Mono, compiled")
+        x += w + gap
+    img.save(out)
+    return out
+
+
 def main(argv):
-    known = {"--json", "--table"}
+    known = {"--json", "--table", "--compare", "--png"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
             print(f"check_font_compiler: unknown flag {a!r}", file=sys.stderr)
             return 2
     ops = [a for a in argv[1:] if not a.startswith("--")]
+    if "--compare" in flags:
+        if "--png" not in flags or len(ops) != 2:
+            print("check_font_compiler: --compare CHARS --png OUT", file=sys.stderr)
+            return 2
+        print(compare_png(ops[0], ops[1]))
+        return 0
     if "--json" in flags:
         planted = _fixture(ops[0]) if ops else None
         print(json.dumps(measure(find_font(), planted), sort_keys=True))
