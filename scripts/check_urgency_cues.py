@@ -162,8 +162,30 @@ def bold_facts(variant, out_dir):
         lr, lb = lit_set(r), lit_set(bd)
         views[v] = {"lit_regular": int(lr.sum()), "lit_bold": int(lb.sum()),
                     "mass_regular": round(float(r.sum()), 3), "mass_bold": round(float(bd.sum()), 3),
-                    "shape": shape_difference(lr, lb)[0]}
+                    "shape": shape_difference(lr, lb)[0],
+                    "runs_regular": lit_runs(lr), "runs_bold": lit_runs(lb)}
     return {"variant": variant, "views": views}
+
+
+def lit_runs(lit):
+    """Widths (in pip columns) of the runs of LIT columns, split by fully-dark columns.
+
+    ⚑ THE KERNING GATE, LAYOUT-FREE (W76): letters that bleed merge into one run twice a
+    glyph wide or more; kerned letters stay one glyph (+ its bloom) each. Read from the
+    pixels alone — nothing the widget reports — so it checks the in-widget aperture model
+    against the real ApertureField. The first and last runs may be clipped by the board's
+    edges, so a caller judges the interior runs."""
+    cols = lit.any(axis=0)
+    runs, n = [], 0
+    for c in cols:
+        if c:
+            n += 1
+        elif n:
+            runs.append(n)
+            n = 0
+    if n:
+        runs.append(n)
+    return runs
 
 
 def paused(variant):

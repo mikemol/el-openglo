@@ -198,8 +198,10 @@ Window {
         // timeline's clock, and a tap on a board that has not swapped yet is a tap
         // on nothing (measured s130: the gate refused under load, admitted alone)
         else if (step.op === "tap") {
+            // tap the character's CENTRE from the widget's own kerned layout (W76):
+            // a kerned pair is not at pos x advance
             var s0 = subject.item, pos = s0.tickerText.indexOf(step.fields.text);
-            if (pos >= 0) s0.tapAt(s0.boardRawX + (pos + 0.5) * s0.charAdvance);
+            if (pos >= 0 && s0.charCentre(pos) >= 0) s0.tapAt(s0.boardRawX + s0.charCentre(pos));
             else harness.pendingTaps.push(step);
         }
         events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows, fields: step.fields });
@@ -211,7 +213,7 @@ Window {
         var s0 = subject.item, keep = [];
         for (var i = 0; i < harness.pendingTaps.length; i++) {
             var st = harness.pendingTaps[i], pos = s0.tickerText.indexOf(st.fields.text);
-            if (pos >= 0) s0.tapAt(s0.boardRawX + (pos + 0.5) * s0.charAdvance);
+            if (pos >= 0 && s0.charCentre(pos) >= 0) s0.tapAt(s0.boardRawX + s0.charCentre(pos));
             else keep.push(st);
         }
         harness.pendingTaps = keep;
@@ -247,6 +249,8 @@ Window {
             while (harness.next < timeline.length && timeline[harness.next].t <= now) { apply(timeline[harness.next]); harness.next += 1; }
             if (harness.pendingTaps.length) harness.retryTaps();
             var s = subject.item;
+            // R9: a frame series drives the run by steps, never by the clock
+            if (%(frames)s && s.captureSteps === 0) s.captureSteps = %(capture_steps)d;
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
@@ -277,14 +281,16 @@ Window {
             var frames = %(frames)s;
             // frame 0 is the EMPTY board before anything arrives (the loop's bookend);
             // then every sample while the board runs
-            if (frames && !harness.framePending && harness.frameCount < %(frame_cap)d
+            if (frames && !harness.framePending && harness.frameCount < %(frame_cap)d && !(s.captureRuns > 0)
                 && ((harness.frameCount === 0 && harness.next === 0) || (s.boardRunning && !s.boardPaused))) {
                 harness.framePending = true;
                 var n = harness.frameCount; harness.frameCount += 1;
                 harness.frameX.push({ t: now, x: s.boardX });
+                // R9: the run advances one fixed step only once this frame is saved
                 harness.contentItem.grabToImage(function (r) {
                     r.saveToFile(frames + "/frame-" + String(n).padStart(3, "0") + ".png");
                     harness.framePending = false;
+                    if (n > 0) s.captureAdvance();
                 });
             }
             // the run ends on its CONDITION, else on the clock (a cap, not a plan):
@@ -350,7 +356,8 @@ HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples a
 HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
 
 
-FRAME_CAP = 120           # an animation's frames, at most (one per SAMPLE_MS sample); a traversal is ~60
+CAPTURE_STEPS = 60        # R9: a frame series moves the run in this many equal offsets (≤ FRAME_CAP - 2)
+FRAME_CAP = 120          # an animation's frames, at most (one per SAMPLE_MS sample); a traversal is ~60
 
 
 # one item, once: the periodic content a seamless loop needs (empty -> enters -> leaves -> empty)
@@ -420,7 +427,7 @@ def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=
             "sample": SAMPLE_MS, "end": end_ms or END_MS, "watchdog": WATCHDOG_MS, "stop_paused": stop_paused,
             "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
             "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null",
-            "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP})
+            "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP, "capture_steps": CAPTURE_STEPS})
         # theme_probe's environment (the real theme on the variant's scheme) plus the
         # notification stub on the import path. console.log IS a debug message and
         # the RESULT line rides on it, so only kirigami's own category is quieted.
@@ -626,7 +633,7 @@ def measure(res, hovered=None, variant=VARIANT):
 
 
 def main(argv):
-    known = {"--json", "--trace", "--hovered", "--motion", "--variant", "--selftest", "--event"}
+    known = {"--json", "--trace", "--hovered", "--motion", "--variant", "--selftest", "--event", "--frames"}
     variant = VARIANT
     args = list(argv[1:])
     event_id = None
@@ -648,6 +655,19 @@ def main(argv):
         if a not in known:
             print(f"check_marquee_live: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--frames" in args:
+        # R9: the frame capture alone, as data — how many frames, at which x, and
+        # the per-sample running/paused/text the frame condition keyed on
+        with tempfile.TemporaryDirectory() as td:
+            r = run(**animate_args(variant, td))
+            names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
+        xs = [f["x"] for f in r.get("frames", [])]
+        print(json.dumps({"variant": variant, "files": len(names), "frames": len(xs),
+                          "first_x": xs[1] if len(xs) > 1 else None, "last_x": xs[-1] if xs else None,
+                          # the run's steps, frame 1 on (frame 0 is the empty bookend): stepped
+                          # capture makes this ONE value; a clock-driven series spreads it
+                          "dx": sorted({round(xs[i + 1] - xs[i], 2) for i in range(1, len(xs) - 1)})}, indent=1))
+        return 0
     if "--motion" in args:
         # how the board moves: one item's run, the snapped x against the raw x
         r = run(variant=variant, end_ms=8000, timeline=LOOP_TIMELINE)

@@ -93,11 +93,21 @@ def no_core():
     resource.setrlimit(resource.RLIMIT_CORE, (CORE_LIMIT, CORE_LIMIT))
 
 
-def run(cmd, env=None, gpu=False, **kw):
-    """subprocess.run under env(env, gpu) and no_core. The one Qt spawn in the tree."""
+def run(cmd, env=None, gpu=False, cpu=None, **kw):
+    """subprocess.run under env(env, gpu) and no_core. The one Qt spawn in the tree.
+    `cpu` (seconds) caps the child's OWN CPU (RLIMIT_CPU) — the budget that means the
+    same on an idle host and a loaded one. A wall `timeout` alone failed healthy
+    harnesses while the pre-commit gate loaded the box (2026-09-25,
+    check_marquee_body: 60 s wall, PASS alone); keep a wall timeout only as a
+    generous hang guard (a stalled harness burns no CPU)."""
     if "preexec_fn" in kw:
         raise TypeError("qt_sandbox.run owns preexec_fn")
-    return subprocess.run(cmd, env=globals()["env"](env, gpu), preexec_fn=no_core, **kw)
+
+    def pre():
+        no_core()
+        if cpu is not None:
+            resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))
+    return subprocess.run(cmd, env=globals()["env"](env, gpu), preexec_fn=pre, **kw)
 
 
 def popen(cmd, env=None, gpu=False, **kw):

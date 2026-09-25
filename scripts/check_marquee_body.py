@@ -208,7 +208,7 @@ def run(bodies=None):
             json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
             json.dumps([list(c[1]) for c in DISPLAY_CASES]),
             json.dumps([list(c[1]) for c in KERN_CASES])))
-        r = QT.run([QML, h], capture_output=True, text=True, timeout=60)
+        r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
@@ -245,7 +245,7 @@ def glyph_census(font, chars):
         open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8").write(src)
         h = os.path.join(td, "harness.qml")
         open(h, "w", encoding="utf-8").write(GLYPH_HARNESS % (json.dumps(font), json.dumps(list(chars))))
-        r = QT.run([QML, h], capture_output=True, text=True, timeout=60)
+        r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])

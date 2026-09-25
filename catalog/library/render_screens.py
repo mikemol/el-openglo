@@ -11,6 +11,7 @@ the clock and live wallpaper from render_qml as the render gate draws them.
 
     catalog/library/render_screens.py            # render ONLY the outputs whose key moved (W61)
     catalog/library/render_screens.py --all      # render every output
+    catalog/library/render_screens.py --jobs=8   # N qml processes side by side (default 1)
     catalog/library/render_screens.py --stale    # which outputs would render, n of m
     catalog/library/render_screens.py --keys     # the per-output keys and their inputs, as data
     catalog/library/render_screens.py --list     # what would be written
@@ -271,7 +272,7 @@ def render_one(v, how, out):
     return os.path.isfile(out)
 
 
-def render_all(out_dir=SCREENS, only=None, keys=None):
+def render_all(out_dir=SCREENS, only=None, keys=None, jobs=1):
     """Render the planned outputs — all of them, or `only` those named — and return
     (written, sheets). With `keys` ({file: key}), each output this run PRODUCED has
     the key it was built from recorded (check_action_key.record_outputs): the key is
@@ -290,9 +291,15 @@ def render_all(out_dir=SCREENS, only=None, keys=None):
         p = os.path.join(out_dir, fn)
         if fn in want and os.path.isfile(p):
             os.remove(p)
-    for fn, v, how in plan() + plan_animations():
-        if fn in want and render_one(v, how, os.path.join(out_dir, fn)):
-            written.append(os.path.join(out_dir, fn))
+    # ⚑ PARALLEL (operator, 2026-09-25: "hardly using any CPU at all"): each job
+    # is a qml process that mostly WAITS on its own real-time harness, so `jobs`
+    # of them run side by side. Safe for the animations only since R9's capture
+    # hold: a frame grab no longer races the scroll on a loaded host.
+    from concurrent.futures import ThreadPoolExecutor
+    todo = [(fn, v, how) for fn, v, how in plan() + plan_animations() if fn in want]
+    with ThreadPoolExecutor(max_workers=max(1, jobs)) as ex:
+        done_ok = list(ex.map(lambda t: render_one(t[1], t[2], os.path.join(out_dir, t[0])), todo))
+    written += [os.path.join(out_dir, fn) for (fn, _v, _h), ok in zip(todo, done_ok) if ok]
     sheets = contact_sheets(out_dir, only=want)
     if "README.md" in want:
         open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8").write(index_md())
@@ -549,8 +556,11 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
 
 def main(argv):
     known = {"--list", "--json", "--outputs", "--keys", "--stale", "--all"}
+    jobs = 1
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--jobs=") and a[7:].isdigit() and int(a[7:]) > 0:
+            jobs = int(a[7:])
+        elif a not in known:
             print(f"render_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
     # ⚑ THE GPU OPT-IN IS DECLARED HERE, NOT REMEMBERED (operator ruling 2026-09-22,
@@ -604,7 +614,7 @@ def main(argv):
         print(f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}", file=sys.stderr)
         return 3
     only = None if "--all" in argv else stale(k["outputs"])
-    written, sheets = render_all(only=only, keys=k["outputs"])
+    written, sheets = render_all(only=only, keys=k["outputs"], jobs=jobs)
     rendered = [fn for fn, _v, _h in plan() + plan_animations() if only is None or fn in only]
     print(f"render_screens: {len(written)} of {len(rendered)} stale stills + animations rendered "
           f"({len(plan()) + len(plan_animations()) - len(rendered)} current, skipped), "

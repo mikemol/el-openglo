@@ -108,6 +108,19 @@ PlasmoidItem {
     property real boardRawX: 0
     property real boardWidth: 0
     property bool boardRunning: false
+    // R9 STEPPED CAPTURE: with captureSteps > 0 the rotation is held and a harness
+    // moves the run through `captureSteps` equal offsets by captureAdvance(), one
+    // per grabbed frame — frame spacing is then a fact of the run, not of the
+    // host's load (a hold during the grab alone still tore: a loaded host widened
+    // the WALL gap between samples past the tear check's shift). Not a user pause —
+    // boardPaused does not report it.
+    // ⚑ A SIGNAL, handled inside rep: rotation and field are ids of the
+    // fullRepresentation, which root cannot reach (a root function naming them
+    // threw a ReferenceError in the grab callback — silently; every frame at x=420).
+    property int captureSteps: 0
+    property int captureStep: 0
+    property int captureRuns: 0          // runs completed by stepping: a series is ONE run
+    signal captureAdvance()
     // W51: the hover-pause is holding the board, and the ring's current opacity
     property bool boardPaused: false
     property real ringOpacity: 0
@@ -220,11 +233,19 @@ PlasmoidItem {
     // invokeAction on the row that still carries the item (found by id — the
     // ring may lag the model). Exposed as a function so the harness can tap
     // without synthesising a pointer; returns what it did, for the trace.
-    property real charAdvance: 0        // set by the representation: one cell advance in px
+    property real charAdvance: 0        // set by the representation: the PLAIN advance in px
+    // each character's left edge, in board px from the text's left edge — the kerned
+    // layout (W76): a pushed-apart pair is NOT at i x advance, so a tap SEARCHES this
+    property var charLeft: []
+    // where to tap character i: its left edge plus half a glyph (board px from the text's edge)
+    function charCentre(i) {
+        return i < root.charLeft.length ? root.charLeft[i] + root.matrix.cols * root.charAdvance / (2 * (root.matrix.cols + 1)) : -1;
+    }
     property var lastTap: null
     function tapAt(x) {
-        if (root.charAdvance <= 0) return null;
-        var idx = Math.floor((x - root.boardRawX) / root.charAdvance);
+        if (root.charAdvance <= 0 || root.charLeft.length === 0) return null;
+        var rel = x - root.boardRawX, idx = -1;
+        for (var k = 0; k < root.charLeft.length && root.charLeft[k] <= rel; k++) idx = k;
         var run = root.runAt(idx);
         var did = { index: idx, kind: "none" };
         if (run && run.action !== undefined && run.action !== null) {
@@ -430,12 +451,34 @@ PlasmoidItem {
             onOffsetChanged: { root.boardRawX = rep.width - (offset / scale) * rep.pitch; root.boardX = root.boardRawX; }
         }
 
-        // one character advance, in backdrop cells: the glyph's columns plus a blank
+        // one character advance, in backdrop cells: the glyph's columns plus a blank —
+        // the PLAIN advance; the kerning loop (W76) only ever widens a pair past it
         readonly property int advanceCells: root.matrix.cols + 1
         onPitchChanged: root.charAdvance = advanceCells * pitch
-        // the scrolling text's width, in cells and in px
-        readonly property int textCells: root.tickerText.length * advanceCells
+        // ⚑ ONE LAYOUT, READ BY EVERYONE (W76, part 2). Each character's left edge in
+        // backdrop px comes from Body.kernOffsets — the closed loop on the pip mask: a pair
+        // that bleeds is pushed apart until a dark pip column separates it. The painter,
+        // the gauge, the backdrop size, the scroll length and tapAt all read THESE offsets,
+        // so a kerned pair moves its glyphs, its taps and the end of the run together.
+        property var offs: []                 // backdrop px, per character
+        property int textCells: 0             // the text's width in backdrop cells
         readonly property real textWidth: textCells * pitch
+        function layout(text, idle) {
+            var s = field.scale, glyphs = [];
+            for (var i = 0; i < text.length; i++) {
+                var run = idle ? null : root.runAt(i);
+                if (run && run.series) { glyphs.push({ bytes: [], grow: 0 }); continue; }
+                var u = idle ? 1 : root.urgencyAt(i);
+                glyphs.push({ bytes: Body.glyphFor(root.matrixFont, text.charAt(i), u),
+                              grow: (run && run.bold) ? s / 2 : 0 });
+            }
+            var adv = rep.advanceCells * s;
+            rep.offs = Body.kernOffsets(glyphs, root.matrix.rows, s, adv);
+            var n = rep.offs.length;
+            rep.textCells = n ? Math.ceil((rep.offs[n - 1] + adv) / s) : 0;
+            // board px, for the hit-test and the harness (backdrop px x pitch/scale)
+            root.charLeft = rep.offs.map(function (o) { return o * rep.pitch / s; });
+        }
 
         // ⚑ THE BACKDROP: the ticker (or, idle, the settings' idle text centred on
         // the board) painted as CELLS from the registry's column bytes. A bold run
@@ -448,14 +491,15 @@ PlasmoidItem {
         function paintBackdrop() {
             var idle = root.tickerText.length === 0;
             var text = idle ? root.cfgIdleText : root.tickerText;
-            var cells = text.length * rep.advanceCells;
-            field.sizeBackdrop((idle ? field.cols : field.cols + cells) * field.scale);
+            rep.layout(text, idle);
+            field.sizeBackdrop((idle ? field.cols : field.cols + rep.textCells) * field.scale);
         }
         function drawBackdrop() {
             var s = field.scale, cols = field.cols;
             var idle = root.tickerText.length === 0;
             var text = idle ? root.cfgIdleText : root.tickerText;
-            var cells = text.length * rep.advanceCells;
+            if (rep.offs.length !== text.length) rep.layout(text, idle);
+            var cells = rep.textCells;
             var ctx = field.backdrop.getContext("2d");
             ctx.clearRect(0, 0, field.backdrop.width, field.backdrop.height);
             var x0 = idle ? Math.round((cols - cells) / 2) : cols;
@@ -486,7 +530,7 @@ PlasmoidItem {
                             for (var rr = top; rr < root.matrix.rows; rr++) {
                                 var on = !(stipple && (rr - top) % 2 === 1);
                                 if (!on) continue;
-                                ctx.fillRect((x0 + run.start * rep.advanceCells + sc) * s, rr * s, s, s);
+                                ctx.fillRect((x0 + sc) * s + rep.offs[run.start], rr * s, s, s);
                                 onCells += 1;
                             }
                         }
@@ -518,7 +562,7 @@ PlasmoidItem {
                         var on = !dark && (((byte & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1));
                         if (!on) continue;
                         onCells += 1;
-                        var cx = (x0 + i * rep.advanceCells + c) * s, cy = r * s;
+                        var cx = (x0 + c) * s + rep.offs[i], cy = r * s;
                         ctx.fillRect(cx - grow, cy - grow, s + 2 * grow, s + 2 * grow);
                     }
                 }
@@ -567,8 +611,20 @@ PlasmoidItem {
             // surfaced once the harness sampled on the animation clock)
             root.boardRawX = rep.width; root.boardX = root.boardRawX;
             rotation.start();
+            if (root.captureSteps > 0) { root.captureStep = 0; rotation.pause(); }
         }
         Component.onCompleted: { root.charAdvance = advanceCells * pitch; Qt.callLater(startRun); }
+        // R9 stepped capture (see root.captureSteps)
+        Connections {
+            target: root
+            function onCaptureStepsChanged() { if (rotation.running) rotation.paused = root.captureSteps > 0 || boardHover.hovered; }
+            function onCaptureAdvance() {
+                if (!rotation.running) return;
+                if (root.captureStep >= root.captureSteps) { root.captureRuns += 1; rotation.complete(); return; }
+                root.captureStep += 1;
+                field.offset = rotation.from + (rotation.to - rotation.from) * root.captureStep / root.captureSteps;
+            }
+        }
 
         // ⚑ HYPERLINKS (W40). Hovering the board PAUSES the rotation so a link can
         // be aimed at — the board resumes when the pointer leaves — and a tap
@@ -595,7 +651,7 @@ PlasmoidItem {
             duration: Math.max(1500, (rep.width + rep.textWidth) * 12 / root.cfgSpeed)
             loops: 1
             onRunningChanged: root.boardRunning = running
-            onPausedChanged: root.boardPaused = paused
+            onPausedChanged: root.boardPaused = paused && root.captureSteps === 0
             onFinished: {
                 root.trace("finished x=" + root.boardRawX);
                 root.swapRing();

@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 75,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-23T13:47:26+00:00",
-  "job_id": "76295a33",
+  "heartbeat": "2026-09-25T20:02:42+00:00",
+  "job_id": "9ac17e6a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1234,8 +1234,8 @@
   ],
   "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner.",
   "preamble": [
-    "Open with `python3 scripts/check_marquee_host.py`. Re-arm on hash change (§4.3); hold the lock until your background work lands.",
-    "SWARM (operator: keep it hot): land worktree branches one at a time, re-verified on main; never stage during a commit or main-tree render; then dispatch.",
-    "Agents: reset worktree to main, copy .palette-cache.json, OPENBLAS=1, no full gate, no commits, structural tools; no test touches the display/GPU (W73); NEVER download or run a binary from the network — a missing tool is a SKIP or an operator question."
+    "Open with `python3 scripts/check_marquee_host.py`. Re-arm on hash change (§4.3); hold the lock until your background work lands. Cadence: every 15 minutes.",
+    "NO SWARM (operator 2026-09-25: the free token window is over): work ONE item per tick yourself; dispatch no new worktree agents. Land already-finished worktrees one at a time, re-verified on main; never stage during a commit or main-tree render.",
+    "Agents (if ever dispatched again): reset worktree to main, copy .palette-cache.json, OPENBLAS=1, no full gate, no commits, structural tools; no test touches the display/GPU (W73); NEVER download or run a binary from the network."
   ]
 }
