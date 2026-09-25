@@ -3,7 +3,11 @@
 SC 1.4.1: colour must not be the ONLY visual means of conveying information, indicating
 an action, prompting a response, or distinguishing a visual element.
 
-This is a census and a design. No check exists yet; nothing below is enforced.
+This began as a census and a design (W72, 2026-09-22). **The check now exists and is the
+authority:** `scripts/check_use_of_colour.py --list` prints every condition's live verdict, and
+`scripts/opa_gate.py use_of_colour` decides it. The table below is the census as it stood,
+with the rows that later work changed updated in place and marked with the date they changed.
+Where this page and `--list` disagree, `--list` is right and this page is stale.
 
 ## 1. The source: mat230 `check-a11y` `_check_use_of_colour`
 
@@ -47,11 +51,12 @@ All paths are relative to the repo root. Line numbers are at `def8fee`.
 | C3 | SDDM greeter | login failed | `negativeColor` (neg) | **text** "Login Failed"; password is re-selected and re-focused | templates/sddm-main.qml:161-169, 197-201 | PASS |
 | C4 | SDDM greeter | the clock's segments | as C1 (mount passes lit, ghost, ghostAlpha; weight and bloom left at defaults) | as C1 | templates/sddm-main.qml:95-110 | PASS (inherits C1) |
 | C5 | SDDM greeter | focused control | `palette.highlight: focusColor` | Controls.Basic focus frame and text cursor (style-owned) | templates/sddm-main.qml:53 | needs a render |
-| C6 | marquee | CRITICAL urgency | `hotColor` (fg_act) instead of `litColor` | **none found**: no text prefix, weight or shape. `marquee-body.js` carries `urgency` only as data (`:137`, `:244`) | templates/marquee-main.qml:24-27, 444-446, 463-465 | **FAIL** |
-| C7 | marquee | LOW urgency | `globalAlpha 0.5` (half ink) | none beyond coverage | templates/marquee-main.qml:466 | LUM-ONLY |
-| C8 | marquee | suspended job (gauge) | `globalAlpha 0.5` | none beyond coverage | templates/marquee-main.qml:446 | LUM-ONLY |
+| C6 | marquee | CRITICAL urgency | `hotColor` (fg_act) instead of `litColor` | **text** (UPPER CASE), **shape** (descent row lit), **animation** (flashes at 2 Hz, holds lit on hover-pause and under reduced motion) — W74, 2026-09-23 | templates/marquee-main.qml (`Body.glyphFor`, `flash`) | PASS (was FAIL) |
+| C7 | marquee | LOW urgency | none | **text**: lower case, applied at the glyph lookup only — W74, 2026-09-23 | templates/marquee-body.js (`displayChar`) | PASS (was LUM-ONLY; the shrunk dot measured as dimming through the aperture, W72.h) |
+| C18 | marquee | NORMAL urgency | none | **text**: UPPER CASE — W74, 2026-09-23 | templates/marquee-body.js (`displayChar`) | PASS (new row) |
+| C8 | marquee | suspended job (gauge) | none | **shape**: a stippled column, the top pip (the value) always lit, every other pip below it dark — W74, 2026-09-23 | templates/marquee-main.qml (gauge painter) | PASS (was LUM-ONLY) |
 | C9 | marquee | hover-paused | ring in `litColor`, opacity pulsing | **animation** (ring breathes on a 400 ms sine); the scroll **stops** | templates/marquee-main.qml:380-395, 526-530 | PASS |
-| C10 | marquee | bold run | (no colour) | fuller dot, `grow = s/2` | templates/marquee-main.qml:468, 477 | PASS (weight is the cue) |
+| C10 | marquee | bold run | a fuller dot reads as a **brighter pip** | **none, measured**: `grow = s/2` enlarges the dot painted into the backdrop, and ApertureField grades each fixed-size pip by the backdrop's coverage, so a fuller dot is a brighter pip. That is luminance. The same mechanism made W72's shrunk low-urgency dot read as dimming (W72.h) | templates/marquee-main.qml (`grow`) | **FAIL** (was PASS; the census assumed dot size survives the aperture, and it does not) |
 | C11 | marquee | link / `<u>` run | (no colour) | descent row lit (underline) | templates/marquee-main.qml:469, 473 | PASS |
 | C12 | marquee | sender's coloured run | hue-table colour (`overrideFor`) | whatever the sender wrote. The theme re-maps the hue and adds no meaning of its own | templates/marquee-main.qml:237-242, 459-465 | DELEGATED (to the sender) |
 | C13 | task switcher | selected window | `litColor` vs `ghostColor`, with opacity | **Font.Bold** plus a highlight bar with a 1 px **border** | templates/taskswitch-main.qml:123-125, 137-144 | PASS |
@@ -60,13 +65,14 @@ All paths are relative to the repo root. Line numbers are at `def8fee`.
 | C16 | GTK | error / warning / success | `--error-*`, `--warning-*`, `--success-*` | not the theme's: GTK widgets pair these with icons | make_gtk.py:60-62 | DELEGATED |
 | C17 | Konsole ANSI | program-chosen SGR colours, normal vs Intense | `Color{i}`, `Color{i}Intense` | not the theme's. Programs choose. Intense may also map to bold, which is a Konsole profile setting | make_konsole.py:78, 112-119 | DELEGATED |
 
-Summary: 17 surfaces. 8 PASS (C1-C4, C9-C11, C13), 1 FAIL (C6), 2 LUM-ONLY (C7, C8),
-4 DELEGATED (C12, C15-C17), 2 need a render (C5, C14).
+Summary (updated 2026-09-25): 18 surfaces. 11 PASS (C1-C4, C6-C9, C11, C13, C18), 1 FAIL
+(C10), 4 DELEGATED (C12, C15-C17), 2 need a render (C5, C14).
 
-One real defect: **C6**. A critical notification is marked by hue alone. Two cheap redundant cues
-would fix it, and both reuse existing channels. One is a **weight** cue: paint critical runs with
-C10's `grow`. The other is a **shape** cue: light the descent row, or a leading glyph such as `!`,
-through `Body.joinItem`.
+The census's one defect, **C6** (critical marked by hue alone), is fixed by W74's letterform
+cues, and the operator's ruling of 2026-09-23 replaced the LUM-ONLY question for C7/C8 with
+lowercase / UPPERCASE / FLASHING UPPER CASE. The remaining defect is **C10**, which the census
+graded PASS: a bold run is a fuller dot, and a fuller dot through the aperture is only a brighter
+pip. Bold needs a cue the aperture keeps (a different set of lit pips, as W74 did for urgency).
 
 Residue, not deleted:
 
@@ -193,9 +199,12 @@ is strict and turns C7/C8 red with C6. That decision is the one open design ques
 
 ## Next steps
 
-- ⟐W72.a Decide LUM-ONLY policy (C7/C8): admit or deny.
-- ⟐W72.b Fix C6: add a weight or shape cue to critical marquee runs.
-- ⟐W72.c Implement `check_use_of_colour.py --json` plus the rego pair. Mint the warrant.
+- ~~⟐W72.a Decide LUM-ONLY policy (C7/C8)~~ — superseded by the operator's letterform ruling
+  (2026-09-23); C7 and C8 now carry text and shape cues (W74).
+- ~~⟐W72.b Fix C6~~ — done by W74 (text, shape and animation cues).
+- ~~⟐W72.c Implement `check_use_of_colour.py --json` plus the rego pair~~ — done; the gate is
+  `opa_gate.py use_of_colour`.
+- ⟐W72.f Fix C10: give a bold run a cue the aperture preserves. Grow is luminance through it.
 - ⟐W72.d Read the clock-plasmoid and live-wallpaper SegmentChar mounts (the C1 residue), and
   `itemCaption` (C14).
 - ⟐W72.e Render check for C5/C14, and a perceptibility check for C1/C9 against `catalog/library/screens/`.
