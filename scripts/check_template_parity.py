@@ -7,7 +7,8 @@ as single ones and turning four `{name}` holes into `$name`. Every one of those
 is a chance to drop a character in a way that still parses, still lints, and
 renders subtly different markup. The generator's OUTPUT is the invariant.
 
-    scripts/check_template_parity.py            # every declared pair agrees
+    scripts/check_template_parity.py            # the verdict, as opa_gate template_parity decides it
+    scripts/check_template_parity.py --json     # the measurement policy/template_parity.rego decides
     scripts/check_template_parity.py --pairs    # what is compared against what
 
 ⚑ THE COMPARISON IS AGAINST A RECORDED BASELINE, NOT AGAINST THE OLD LITERAL.
@@ -137,30 +138,48 @@ def unlink_shared():
     return done
 
 
-def compare():
-    """[(label, verdict)] for every declared pair."""
-    out = []
+def measure():
+    """The MEASUREMENT policy/template_parity.rego decides (W50): per declared pair,
+    whether its baseline exists and how many links its inode has, and — when it
+    could be evaluated — whether the generator's output equals it byte for byte,
+    with both sizes. `skip` names a pinned host file that is absent; `raised` is
+    the generator's exception. No verdict here."""
+    cases = []
     for module, accessor, argsrc, name in PAIRS:
-        label = f"{module}.{accessor}"
         path = os.path.join(BASELINES, name)
-        if not os.path.isfile(path):
-            out.append((label, f"NO BASELINE ({name})"))
-            continue
-        if os.stat(path).st_nlink > 1:
-            out.append((label, f"SHARED INODE ({name}: {os.stat(path).st_nlink} links) — "
-                               f"not an independent record; run --unlink"))
-            continue
-        try:
-            got = _value(module, accessor, argsrc)
-        except _Skip as e:
-            out.append((label, f"SKIP ({e})"))
-            continue
-        except Exception as e:                   # noqa: BLE001
-            out.append((label, f"RAISED {type(e).__name__}: {e}"))
-            continue
-        want = open(path, encoding="utf-8").read()
-        out.append((label, "ok" if got == want
-                    else f"DIFFERS ({len(got)} vs {len(want)} bytes)"))
+        c = {"id": f"{module}.{accessor}", "baseline": name,
+             "baseline_present": os.path.isfile(path),
+             "links": os.stat(path).st_nlink if os.path.isfile(path) else None,
+             "skip": None, "raised": None, "equal": None, "got_bytes": None, "want_bytes": None}
+        if c["baseline_present"]:
+            try:
+                got = _value(module, accessor, argsrc)
+                want = open(path, encoding="utf-8").read()
+                c.update(equal=got == want, got_bytes=len(got), want_bytes=len(want))
+            except _Skip as e:
+                c["skip"] = str(e)
+            except Exception as e:                   # noqa: BLE001
+                c["raised"] = f"{type(e).__name__}: {e}"
+        cases.append(c)
+    return {"cases": cases}
+
+
+def compare():
+    """[(label, summary)] — a human summary of measure(), for --diff / --record's
+    pickers and the selftest. The VERDICT is policy/template_parity.rego's."""
+    out = []
+    for c in measure()["cases"]:
+        if not c["baseline_present"]:
+            s = f"NO BASELINE ({c['baseline']})"
+        elif c["skip"]:
+            s = f"SKIP ({c['skip']})"
+        elif c["raised"]:
+            s = f"RAISED {c['raised']}"
+        elif c["equal"]:
+            s = "ok"
+        else:
+            s = f"DIFFERS ({c['got_bytes']} vs {c['want_bytes']} bytes)"
+        out.append((c["id"], s))
     return out
 
 
@@ -280,7 +299,7 @@ def installed():
 
 
 def main(argv):
-    known = {"--pairs", "--diff", "--unlink", "--links", "--installed", "--record"}
+    known = {"--pairs", "--diff", "--unlink", "--links", "--installed", "--record", "--json"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
@@ -323,26 +342,13 @@ def main(argv):
         for module, accessor, argsrc, name in PAIRS:
             print(f"{module}.{accessor}\t<-> catalog/baselines/{name}")
         return 0
-    results = compare()
-    if not results:
-        print("check_template_parity: REFUSED — no pairs declared; the check is "
-              "vacuous, not the templates faithful", file=sys.stderr)
-        return 2
-    skipped = [(l, v) for l, v in results if v.startswith("SKIP")]
-    bad = [(l, v) for l, v in results if v != "ok" and not v.startswith("SKIP")]
-    for label, verdict in skipped:
-        print(f"check_template_parity: {label}: {verdict}", file=sys.stderr)
-    if bad:
-        print(f"check_template_parity: REFUSED — {len(bad)} of {len(results)} "
-              f"template(s) no longer emit their baseline:", file=sys.stderr)
-        for label, verdict in bad:
-            print(f"    {label}: {verdict}", file=sys.stderr)
-        print(f"  fixes: {len(bad)}", file=sys.stderr)
-        return 1
-    n = len(results) - len(skipped)
-    print(f"check_template_parity: {n} of {len(results)} templates "
-          f"emit their baseline byte-for-byte" + (f"; {len(skipped)} SKIPPED" if skipped else ""))
-    return 0
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import opa_gate
+    return opa_gate.gate("template_parity")
 
 
 def _selftest():

@@ -474,7 +474,7 @@
   section = {emitters},
   claim   = {every extracted template still emits its pre-extraction baseline byte for byte, so moving an artifact to a file changed no output},
   rests-on = {TEMPLATES},
-  check   = {tool:check_template_parity.py}
+  check   = {tool:opa_gate.py template_parity}
 }
 
 % ⚑ GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOUR, and this is @TOKENS on the
