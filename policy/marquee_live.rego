@@ -350,6 +350,27 @@ invoked_after(e) if {
 }
 
 # METADATA
+# title: "L12 — a tap on character k resolves to character k, under the kerned layout"
+# description: |
+#   W76: kerning pushes a bleeding pair apart, so character i is NOT at i x advance;
+#   tapAt searches the widget's charLeft. The harness taps each target at the
+#   widget's own charCentre(k) and logs the target beside the index tapAt resolved.
+#   Every logged tap must resolve to its target, and every timeline tap must have
+#   been logged (a tap that never landed judged nothing).
+deny contains msg if {
+	some tp in object.get(input, "taps", [])
+	tp.index != tp.target
+	msg := sprintf("L12: the tap aimed at character %v resolved to character %v", [tp.target, tp.index])
+}
+
+deny contains msg if {
+	count(tap_events) > 0
+	count(object.get(input, "taps", [])) < count(tap_events)
+	msg := sprintf("L12: %d of %d timeline taps were logged: a tap that never landed judged nothing",
+		[count(object.get(input, "taps", [])), count(tap_events)])
+}
+
+# METADATA
 # title: "L11 — a job's progress is painted as a gauge with one column per sample"
 # description: |
 #   W46 (W48 folded): a Job-type item keeps its percentage history and the

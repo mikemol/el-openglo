@@ -63,6 +63,8 @@ def check(state: dict) -> list[str]:
     for r in state["residue"]:
         if not r.get("reason"):
             problems.append(f"{r['symbol']}: dropped without a reason")
+    for f in list_field_faults(state):
+        problems.append(f"{f}: a list field must be a list of symbols (a comma-joined string resolves to nothing)")
     return problems
 
 
@@ -243,17 +245,44 @@ def lock(state: dict, holder: str) -> int:
     return 0
 
 
+# ⚑ LIST FIELDS ARE LISTS (nemik, 2026-09-25): `enables=W46,W35` is not JSON, so it
+# fell through to a raw string and W49/W50/W52/W59 carried one symbol named "W46,W35"
+# — every reader's dependency edge resolved to nothing. A bare value for a list field
+# is split on commas; --check refuses a list field holding anything but symbols.
+LIST_FIELDS = ("enables", "touches", "blocked_on")
+
+
+def coerce(k, v):
+    """The stored value for field `k` from its command-line text `v`."""
+    try:
+        val = json.loads(v)
+    except json.JSONDecodeError:
+        val = v
+    if k in LIST_FIELDS and isinstance(val, str):
+        val = [s.strip() for s in val.split(",") if s.strip()]
+    return val
+
+
+def list_field_faults(state: dict) -> list[str]:
+    """Every list field that is not a list of comma-free strings, as '<sym>.<field>=<value>'."""
+    out = []
+    for w in state.get("waypoints", []):
+        for k in LIST_FIELDS:
+            v = w.get(k, [])
+            if not isinstance(v, list) or any(not isinstance(s, str) or "," in s for s in v):
+                out.append(f"{w.get('symbol', '?')}.{k}={v!r}")
+    return out
+
+
 def set_fields(state: dict, sym: str, kvs: list[str]) -> None:
-    """--set W1 status=done evidence='...' — JSON-typed values where they parse."""
+    """--set W1 status=done evidence='...' — JSON-typed values where they parse; a
+    list field's bare value splits on commas (LIST_FIELDS)."""
     w = find(state, sym)
     for kv in kvs:
         k, _, v = kv.partition("=")
         if k not in w:
             raise SystemExit(f"{sym} has no field {k!r}; fields: {', '.join(w)}")
-        try:
-            w[k] = json.loads(v)
-        except json.JSONDecodeError:
-            w[k] = v
+        w[k] = coerce(k, v)
     w["last_worked"] = now()
     save(state)
 
@@ -311,6 +340,12 @@ def selftest() -> int:
     p = check(bad)
     if not any("W3" in x for x in p) or not any("without a reason" in x for x in p):
         print("selftest: FAIL — could not see a vanished symbol / reasonless drop", p); return 1
+    # nemik 2026-09-25: a comma-joined list field is SEEN by --check, and --set splits one
+    joined = dict(good, waypoints=[{"symbol": "W1", "enables": "W46,W35"}])
+    if not any("W1.enables" in x for x in check(joined)):
+        print("selftest: FAIL — --check did not see a comma-joined enables"); return 1
+    if coerce("enables", "W46,W35") != ["W46", "W35"] or coerce("evidence", "a,b") != "a,b":
+        print("selftest: FAIL — coerce did not split a list field (or split a text one)"); return 1
     # --payload carries the preamble (a), omits it when absent (b), names the job (d).
     wp = {"symbol": "W1", "title": "t", "status": "ready", "blocked_on": [], "blocked_kind": None,
           "ticks_blocked": 0, "next_bounded_step": "s", "evidence": "e"}
@@ -348,7 +383,7 @@ def selftest() -> int:
 def main(argv: list[str]) -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0], allow_abbrev=False)
     g = ap.add_mutually_exclusive_group(required=True)
-    for f in ("hash", "render", "payload", "queue", "check", "selftest"):
+    for f in ("hash", "render", "payload", "queue", "check", "selftest", "normalize"):
         g.add_argument(f"--{f}", action="store_true")
     g.add_argument("--lock", metavar="HOLDER", help="§4.1 take the tick lock (exit 3 if held <30m)")
     g.add_argument("--unlock", action="store_true")
@@ -412,11 +447,23 @@ def main(argv: list[str]) -> int:
         print(payload(state))
     elif a.queue:
         print(queue(state))
+    elif a.normalize:
+        # the repair for LIST_FIELDS written as strings (nemik 2026-09-25), through the
+        # SAME coerce --set uses — no hand edit of the JSON
+        fixed = []
+        for w in state["waypoints"]:
+            for k in LIST_FIELDS:
+                if isinstance(w.get(k), str):
+                    w[k] = coerce(k, w[k]); fixed.append(f"{w['symbol']}.{k}")
+        save(state)
+        print(f"normalized {len(fixed)} list field(s) of {len(state['waypoints'])} waypoint(s); hash={state_hash(state)}")
+        for f in fixed:
+            print(f"  {f}")
     elif a.check:
         p = check(state)
         n = state["counter"]
         if p:
-            print(f"paths_forward --check: REFUSED — {len(p)} of {n} symbol(s) do not resolve:")
+            print(f"paths_forward --check: REFUSED — {len(p)} problem(s) over {n} symbol(s):")
             for x in p:
                 print("    " + x)
             return 1

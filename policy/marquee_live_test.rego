@@ -271,6 +271,23 @@ test_l10_refuses_a_tap_that_resolved_to_nothing if {
 	startswith(msg, "L10:")
 }
 
+# W76: a tap on character k resolves to k
+test_l12_admits_a_tap_on_its_target if {
+	i := object.union(tapped_ok, {"taps": [{"t": 600, "target": 9, "index": 9}]})
+	count([m | some m in ml.deny with input as i; startswith(m, "L12:")]) == 0
+}
+
+test_l12_refuses_a_tap_on_the_neighbour if {
+	i := object.union(tapped_ok, {"taps": [{"t": 600, "target": 9, "index": 8}]})
+	some msg in ml.deny with input as i
+	contains(msg, "aimed at character 9 resolved to character 8")
+}
+
+test_l12_refuses_an_unlogged_tap if {
+	some msg in ml.deny with input as tapped_ok
+	contains(msg, "0 of 1 timeline taps were logged")
+}
+
 # W46 jobs: a gauge with one column per distinct percentage
 job_ok := object.union(clean, {"events": [
 	{"t": 300, "op": "arrive", "id": 40, "fields": {"type": 2, "percentage": 10}, "shows": "kio: copying"},

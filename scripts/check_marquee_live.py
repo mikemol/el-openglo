@@ -201,7 +201,7 @@ Window {
             // tap the character's CENTRE from the widget's own kerned layout (W76):
             // a kerned pair is not at pos x advance
             var s0 = subject.item, pos = s0.tickerText.indexOf(step.fields.text);
-            if (pos >= 0 && s0.charCentre(pos) >= 0) s0.tapAt(s0.boardRawX + s0.charCentre(pos));
+            if (pos >= 0 && s0.charCentre(pos) >= 0) harness.tapChar(pos);
             else harness.pendingTaps.push(step);
         }
         events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows, fields: step.fields });
@@ -213,10 +213,17 @@ Window {
         var s0 = subject.item, keep = [];
         for (var i = 0; i < harness.pendingTaps.length; i++) {
             var st = harness.pendingTaps[i], pos = s0.tickerText.indexOf(st.fields.text);
-            if (pos >= 0 && s0.charCentre(pos) >= 0) s0.tapAt(s0.boardRawX + s0.charCentre(pos));
+            if (pos >= 0 && s0.charCentre(pos) >= 0) harness.tapChar(pos);
             else keep.push(st);
         }
         harness.pendingTaps = keep;
+    }
+    // W76: tap character `pos` at its kerned centre and LOG the target beside what
+    // the widget resolved — L11 holds every tap on char k to resolve to k
+    property var taps: []
+    function tapChar(pos) {
+        var s0 = subject.item, did = s0.tapAt(s0.boardRawX + s0.charCentre(pos));
+        harness.taps.push({ t: clock.elapsed(), target: pos, index: did ? did.index : null });
     }
     property int pausedSeen: 0
     property bool sawText: false
@@ -301,7 +308,7 @@ Window {
             if (s.tickerText !== "") harness.sawText = true;
             if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || (%(stop_paused)d === 0 && drained) || now >= %(end)d) {
                 harness.done = true;
-                console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX }));
+                console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX, taps: harness.taps }));
                 Qt.quit();
             }
         }
@@ -629,6 +636,7 @@ def measure(res, hovered=None, variant=VARIANT):
             "events": res["events"], "samples": mark_boundaries(res["samples"]),
             "width": res["width"],
             "log": res.get("log", []),
+            "taps": res.get("taps", []),
             "hovered": {"samples": hovered["samples"] if hovered else []}}
 
 

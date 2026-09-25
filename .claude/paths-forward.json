@@ -233,7 +233,9 @@
         "make_deb",
         "overlay"
       ],
-      "blocked_on": "mikemol",
+      "blocked_on": [
+        "mikemol"
+      ],
       "blocked_kind": "human",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
       "next_bounded_step": "Operator is reviewing every few commits (2026-09-22) — the probes are being seen; stop nudging. Remaining MACHINE half: gate_ledger --report path mismatch (substrate symlink — fix THERE, both selftests). Leave blocked until the operator reports a specific live defect.",
@@ -251,13 +253,15 @@
         "publishing",
         "every-emitter"
       ],
-      "blocked_on": "mikemol(human)",
-      "blocked_kind": null,
+      "blocked_on": [
+        "mikemol"
+      ],
+      "blocked_kind": "human",
       "rank_reason": "unblocked; the cheapest real step is the operator reading store.kde.org/product/add once (turns every [MEM] line to [WEB]); the machine-side step is a make_store_bundle emitter that packages each target with the preview + description the store wants, keyed by OCS category id",
       "next_bounded_step": "MACHINE half done at 1c61346: catalog/publishing.md (15 emitters → venues; OCS ids from the letter; wallpaper id 299 read from the cached listing) + check_publishing.py @PUBLISHING (52). HUMAN half: open store.kde.org/product/add once and read the form — licence selector? preview requirements? does Aurorae go to 114 or 717? — then record as [WEB] rows. Nudge ONCE, then leave.",
       "evidence": "1c61346; inbox/2026-09-20-linux-sources-contribution-routes-per-target.md; catalog/ocs-categories.xml",
       "issued_at": "2026-09-20T23:28:28+00:00",
-      "last_worked": "2026-09-21T05:43:37+00:00",
+      "last_worked": "2026-09-25T23:44:38+00:00",
       "ticks_blocked": 0
     },
     {
@@ -491,7 +495,11 @@
       "title": "⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention)",
       "status": "done",
       "enables": [],
-      "touches": "glyph_match,segment_topology,check_projection",
+      "touches": [
+        "glyph_match",
+        "segment_topology",
+        "check_projection"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -506,7 +514,11 @@
       "title": "⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs",
       "status": "done",
       "enables": [],
-      "touches": "project_font,glyph_match,segment_topology",
+      "touches": [
+        "project_font",
+        "glyph_match",
+        "segment_topology"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -521,7 +533,11 @@
       "title": "⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio",
       "status": "done",
       "enables": [],
-      "touches": "check_ghost_composite,make_notify_marquee,MatrixChar",
+      "touches": [
+        "check_ghost_composite",
+        "make_notify_marquee",
+        "MatrixChar"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -536,7 +552,12 @@
       "title": "Font COMPILER (operator, 2026-09-21): arbitrary TTF -> precompiled (segment set @22 per glyph, matrix column bytes per glyph) tables, so a font (Liberation, Unifont, ...) is derived ONCE and the emitters read the derived table — the two halves already exist (display_types.font_extension = the matrix half; glyph_match.match + ST.project = the segment half); the compiler is the one entry point + an on-disk table format + the emitters reading it. Operator: 'later; not an immediate priority unless it unblocks something'",
       "status": "ready",
       "enables": [],
-      "touches": "glyph_match,display_types,make_notify_marquee,project_font",
+      "touches": [
+        "glyph_match",
+        "display_types",
+        "make_notify_marquee",
+        "project_font"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -551,7 +572,11 @@
       "title": "TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present",
       "status": "done",
       "enables": [],
-      "touches": "make_deb,make_plasma,templates",
+      "touches": [
+        "make_deb",
+        "make_plasma",
+        "templates"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -566,7 +591,11 @@
       "title": "RESIDUE sweep, the cheap two: ⊕NOTIFY-SEGRENDER (its criterion at :3568 is 'the ticker renders in the actual 7-seg/DOT primitive' — the dot matrix ticker of s77 satisfies the DOT half; propose the COLLAPSE into ⊕NOTIFY-MATRIXRENDER: re-aim its witness at MatrixChar dots, COTYPE closure naming the collapse, CLOSED) and ⊕SUPERSAMPLE-WP (:2583 'the wallpaper generator supersamples at generation time' — measure how make_wallpaper rasterises its PNG (cairosvg at 1920x1080 from the SVG?); if the SVG is rasterised at 1x, render at 2x and downscale with a box filter in the PNG step, check with a synthetic edge (aliasing energy falls), close)",
       "status": "done",
       "enables": [],
-      "touches": "make_notify_marquee,make_wallpaper,check_symbol",
+      "touches": [
+        "make_notify_marquee",
+        "make_wallpaper",
+        "check_symbol"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -581,7 +610,12 @@
       "title": "⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
       "status": "ready",
       "enables": [],
-      "touches": "templates/SegmentChar.qml,templates/clock-main.qml,make_clock,check_ghost_composite",
+      "touches": [
+        "templates/SegmentChar.qml",
+        "templates/clock-main.qml",
+        "make_clock",
+        "check_ghost_composite"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
@@ -596,7 +630,12 @@
       "title": "⊕VER-MARQUEE (operator, live 2026-09-22, screenshot): (a) the ghost pips SCROLL WITH the glyphs — a real board's unlit LEDs are fixed; the dot field must be a static bezel-to-bezel matrix and the lit glyphs scroll OVER it (lit dots light the field's own positions — snap the text to the field's cell pitch, or overlay); (b) the pips only span the message width, not the widget; (c) nothing configurable — the widget has no config page (the clock has one: templates/clock-config.qml/.kcfg + cfg_ aliases; import org.kde.kcmutils as KCM): speed, dot pitch/fill, ghost weight, blink/idle face, seconds of dwell. 'Clock looks amazing.'",
       "status": "done",
       "enables": [],
-      "touches": "templates/marquee-main.qml,templates/MatrixChar.qml,make_notify_marquee,make_deb",
+      "touches": [
+        "templates/marquee-main.qml",
+        "templates/MatrixChar.qml",
+        "make_notify_marquee",
+        "make_deb"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -611,7 +650,14 @@
       "title": "ONE THEME, VARIANT SELECTABLE (operator 2026-09-22): collapse the six-of-everything into one set of packages that read the ACTIVE EL colour scheme at runtime — the clock, marquee, live wallpaper, switcher and LnF become one each; variant selection = applying a colour scheme (the .colors files stay six, that is how Plasma variants work). Design first: which solved tokens are reachable live from QML (Kirigami.Theme standard roles: highlight/text/background… — the palette solves fg/fg_in/view/hover/sel into those roles) and which are NOT (the [EL] group: ghost_alpha, ghost_alpha_glanced — a KConfig read the QML cannot do directly; options: bake ghost alpha into a standard-role relation, or ship a tiny helper, or read via a Plasma DataSource); what the gates become when colours are no longer in the emitted bytes (check_ghost_surfaces reads holes today; parity baselines lose the per-variant pairs)",
       "status": "done",
       "enables": [],
-      "touches": "make_clock,make_notify_marquee,make_wallpaper_live,make_taskswitch,make_deb,check_ghost_surfaces",
+      "touches": [
+        "make_clock",
+        "make_notify_marquee",
+        "make_wallpaper_live",
+        "make_taskswitch",
+        "make_deb",
+        "check_ghost_surfaces"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -626,7 +672,10 @@
       "title": "PHOSPHOR CURSORS (operator 2026-09-22: 'isn't the cursor supposed to inherit something related to the color scheme?'): cursors cannot follow the colour scheme by inheritance (fixed images), but the host has /usr/share/icons/breeze_cursors/cursors_scalable/ (SVG sources) — an EL cursor set is a DERIVATION: recolour the SVGs from the palette (lit for the arrow fill? ground for the outline?) and build with xcursorgen per size. Cheap to measure first: how many SVGs, which colours they use (a census), whether xcursorgen is installed (x11-apps/xcursorgen)",
       "status": "ready",
       "enables": [],
-      "touches": "make_inherit,check_inherit",
+      "touches": [
+        "make_inherit",
+        "check_inherit"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -642,7 +691,7 @@
       "status": "ready",
       "enables": [],
       "touches": [],
-      "blocked_on": "",
+      "blocked_on": [],
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Oxygen flavour: the LnF defaults choose ColorScheme + engine (widgetStyle/decoration); design in catalog/one-theme.md, LnF section, then emit EL-Oxygen as an LnF variant whose defaults select the Oxygen engines (org.kde.oxygen widget style + decoration) with the EL scheme; measure that oxygen reads the scheme roles the way Breeze does (s95). After W35 (5).",
@@ -656,7 +705,10 @@
       "title": "MARQUEE RING BUFFER (operator live 2026-09-22: with watch notify-send hi the scrolling text blips in and out with the popups). Cause, from templates/marquee-main.qml: rebuild() replaces root.tickerText on every notifModel onCountChanged, so the Repeater tears the Row down mid-scroll. Design (operator): double-buffered rings — the SCROLLING ring loops as long as its notifications are active; a PENDING ring collects arrivals; the swap happens at a full rotation (the NumberAnimation's loop boundary), never mid-scroll; a notification that left the model is dropped at the boundary too",
       "status": "done",
       "enables": [],
-      "touches": "templates/marquee-main.qml,make_notify_marquee",
+      "touches": [
+        "templates/marquee-main.qml",
+        "make_notify_marquee"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -671,7 +723,11 @@
       "title": "HTML NOTIFICATION BODIES (operator 2026-09-22): some senders emit HTML bodies; parse the markup and let styling drive the dots — bold/strong as lit weight or glow, font color / span color as a HUE on the lit token where the palette allows (a relation gated by the same floors, never a raw literal on the phosphor), i/em perhaps as a slant or ghost weight. CENSUS FIRST: what markup actually arrives (Plasma's notification spec allows b i u a img; senders also emit font color and span style)",
       "status": "done",
       "enables": [],
-      "touches": "templates/marquee-main.qml,make_notify_marquee,make_palette",
+      "touches": [
+        "templates/marquee-main.qml",
+        "make_notify_marquee",
+        "make_palette"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -686,7 +742,11 @@
       "title": "MARQUEE HYPERLINKS (operator 2026-09-22: 'that would be awesome'). The parser already yields link runs with href (s92). Support = (a) a VISUAL: a link run's characters light their descent row (row 7) as an underline bar — the deferred 'underline -> lit descent row' of relations.md §5a, applied to links (and to <u> runs); (b) a TAP: a TapHandler on the marquee Row; on tap, hit-test the pointer x against the character advance (cellW + spacing) to an index, runAt(index), and Qt.openUrlExternally(run.link) when set; the ring keeps scrolling (or pauses while hovered — a HoverHandler pausing the rotation is the board-reading affordance); (c) the harness already covers link runs; add a case with two links; (d) a settings toggle openLinks (default true)",
       "status": "done",
       "enables": [],
-      "touches": "templates/marquee-main.qml,templates/MatrixChar.qml,make_notify_marquee",
+      "touches": [
+        "templates/marquee-main.qml",
+        "templates/MatrixChar.qml",
+        "make_notify_marquee"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -701,7 +761,11 @@
       "title": "BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
       "status": "ready",
       "enables": [],
-      "touches": "make_firefox,make_chrome,catalog/publishing.md",
+      "touches": [
+        "make_firefox",
+        "make_chrome",
+        "catalog/publishing.md"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -716,7 +780,10 @@
       "title": "THE CODOMAIN MAP (operator 2026-09-22: 'map out the codomain and make EL Openglo the stylistic equivalent of Kleenex'). A CENSUS of every surface a palette + segment/matrix substrate can reach, each with its CONTRACT (what it consumes: colour roles, fonts, meshes, shaders, CSS variables, ANSI tables, SVG, config keys), its VENUE (where it is published), its LICENCE expectation (GPLv3 is right for the desktop theme; engine assets and palettes are adopted under CC0/CC-BY/MIT — a licence split is an operator decision that gates reach), and its STATUS (emitted / contract read / unmeasured). Families: desktops (Plasma DONE; GNOME Shell/libadwaita partial; Xfce/Sway/Hyprland/waybar unmeasured; Windows .theme DONE; macOS none), browsers (Chrome/Firefox DONE, publishing W41), terminals (5 DONE; iTerm2, Windows Terminal DONE, kitty/wezterm/tmux unmeasured), editors (VS Code, JetBrains, Vim/Neovim, Emacs, Sublime, Zed — none; a colour theme per editor is a small JSON/VimL emission off the ANSI+roles table), shells/prompts (starship, oh-my-posh), chat/apps (Discord/Slack custom CSS, Obsidian), web (CSS vars DONE; a Tailwind preset; a design-token file — W3C DTCG JSON is the interchange), mobile (Android Monet DONE; iOS none), engines (W42), hardware (RGB keyboards via OpenRGB profiles; LED matrix signs — the matrix tables ARE the firmware's), print (a swatch card PDF), design tools (Figma/Penpot palette libraries; the DTCG token file feeds them). The map is a DOCUMENT with a CHECK, like catalog/publishing.md + check_publishing: catalog/codomain.md with one row per target and a tool that refuses a row missing its contract or status",
       "status": "ready",
       "enables": [],
-      "touches": "catalog,scripts",
+      "touches": [
+        "catalog",
+        "scripts"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -731,7 +798,12 @@
       "title": "ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
       "status": "ready",
       "enables": [],
-      "touches": "segment_topology,make_palette,make_font,display_types",
+      "touches": [
+        "segment_topology",
+        "make_palette",
+        "make_font",
+        "display_types"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -746,7 +818,17 @@
       "title": "RELICENSE TO APACHE-2.0 (operator 2026-09-22: 'I would prefer Apache2 over GPL-3'). A sweep with a check: (1) LICENSE at the root = Apache-2.0 text + NOTICE; (2) every emitted metadata License string (make_deb LnF + plasmoid + wallpaper metadata, make_notify_marquee, make_taskswitch, make_wallpaper_live, make_plymouth .plymouth, make_inherit comments, chrome/firefox manifests if they carry one, the Windows .theme, the Union styles) -> 'Apache-2.0'; (3) the ebuild LICENSE='Apache-2.0'; (4) catalog/publishing.md rows' licence column (the KDE Store accepts Apache; note it); (5) pyproject license field; (6) scripts/check_licence.py: the ONE licence, read from LICENSE, must be what every emitted License field and the ebuild say — a census over the staged tree's metadata.json / .desktop / .plymouth / .ebuild (parse, do not grep), refusing any GPL string; selftest plants a stray GPL. The overlay's copied colorspacious ebuild keeps ITS upstream licence (not ours). Assets (tokens, fonts, engine files) inherit Apache-2.0 unless the operator later splits them to CC0",
       "status": "done",
       "enables": [],
-      "touches": "LICENSE,make_deb,make_notify_marquee,make_taskswitch,make_wallpaper_live,make_plymouth,overlay,catalog/publishing.md,pyproject.toml",
+      "touches": [
+        "LICENSE",
+        "make_deb",
+        "make_notify_marquee",
+        "make_taskswitch",
+        "make_wallpaper_live",
+        "make_plymouth",
+        "overlay",
+        "catalog/publishing.md",
+        "pyproject.toml"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -761,7 +843,11 @@
       "title": "MARQUEE TRAVERSAL INVARIANT (operator 2026-09-22): a notification must ALWAYS scroll offscreen -> onscreen -> offscreen at least once; never 'just appear', never vanish, never tear visually or temporally. The s91 ring fails the at-least-once half: pendingText is rebuilt from the model on every count change, so an item that arrives and expires before the next boundary never shows. Design: a QUEUE keyed by notification id (the model's IdRole / index key) — an arrival is appended with shown=false; at a boundary the next ring is [every queued item with shown=false] (expired or not), which then scrolls exactly once; an item still in the model after its rotation may be re-queued (it keeps cycling while active); an item removed from the model finishes its current rotation and is dropped at the boundary; the ring NEVER changes mid-rotation. Pure functions in marquee-body.js (ringNext(queue, modelIds) -> {ring, queue}) so the headless harness proves the invariant on synthetic arrival/expiry sequences",
       "status": "done",
       "enables": [],
-      "touches": "templates/marquee-main.qml,templates/marquee-body.js,scripts/check_marquee_body.py",
+      "touches": [
+        "templates/marquee-main.qml",
+        "templates/marquee-body.js",
+        "scripts/check_marquee_body.py"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -776,7 +862,12 @@
       "title": "MARQUEE NOTIFICATION CAPABILITIES (operator 2026-09-22, the notify-send man page: which are we not achieving?). Read from the model per item: URGENCY (⊕NOTIFY-URGENCY, LIVE): critical keeps cycling until dismissed in the HOT token fg_act with bloom; normal as now; low at ghost weight or one traversal; EXPIRE: drop at the next boundary only (critical ignores it, as Plasma does); REPLACE-ID: W45's id-keyed queue upserts (same id -> new text at the boundary, position kept); TRANSIENT: exactly one traversal (the queue's shown flag); ACTIONS: rendered as tappable underlined runs after the text ([Reply] [Open]) and a tap calls the model's invokeAction(index, actionId) — the board becomes interactive; HINTS: read value (progress) — jobs already flow in (showJobs) and a job's percentage is a lit BAR across the field; CATEGORY: a style rule per category, later; ICONS: recorded residue (a 5x8 matrix cannot show one honestly; the app name stands in)",
       "status": "done",
       "enables": [],
-      "touches": "templates/marquee-main.qml,templates/marquee-body.js,make_notify_marquee,catalog/relations.md",
+      "touches": [
+        "templates/marquee-main.qml",
+        "templates/marquee-body.js",
+        "make_notify_marquee",
+        "catalog/relations.md"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: the model's roles are the input to urgency, actions, progress and the series painter; the aperture field made 'weight' and 'colour' numbers the backdrop carries",
@@ -791,7 +882,12 @@
       "title": "THE MATRIX AS A VIEWPORT (operator 2026-09-22): the 5x8 cell is a WINDOW over a taller raster, scrolled vertically — how a single-row board shows anything taller than its LEDs. One mechanism, three payloads: (a) ICONS — the app icon rasterised at runtime in QML (an Image via Qt's icon provider, drawn into a hidden Canvas, getImageData, coverage-threshold or ordered-dither to column bytes — matrix_glyph's rule in JS) as a 16- or 32-row bitmap scrolled vertically through the 8-row window while the text scrolls horizontally; (b) UNICODE / UNIFONT — 8x16 glyphs (CJK, non-Latin) via W30's font compiler emitting a 16-row table, shown by the same vertical scroll or by a 2:1 downsample when legible; (c) any oversized bitmap (a QR code, a logo). This retires the icons-are-residue verdict (s96/W46)",
       "status": "done",
       "enables": [],
-      "touches": "templates/MatrixChar.qml,templates/marquee-main.qml,templates/marquee-body.js,display_types",
+      "touches": [
+        "templates/MatrixChar.qml",
+        "templates/marquee-main.qml",
+        "templates/marquee-body.js",
+        "display_types"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -825,8 +921,15 @@
       "symbol": "W49",
       "title": "THE WIDGET UNDER TEST: run the whole marquee headless against a STUBBED org.kde.notificationmanager (operator: a sandbox like headless chrome for integration tests). A stub module dir on QML2_IMPORT_PATH (qmldir + Notifications.qml = ListModel carrying the role enum incl. IdRole/SummaryRole/BodyRole/ApplicationNameRole, count, index(), data()) shadows the real import; render_qml gains a marquee harness that mocks plasmoid, drives the stub (append / remove / replace on timers), samples tickerText, marquee.x, rotation.running per frame and grabToImage snapshots; asserts the traversal trace (every id enters and leaves the viewport once; x never jumps; running stays true while text is non-empty; the board is never dead after a drain). check_marquee_live.py (@MARQUEE-LIVE) with a refusing arm that re-introduces the running binding. Tier 2 later: kwin_wayland --virtual + session bus + plasmoidviewer + notify-send, screenshots via KWin DBus (the VER-MARQUEE probe without a human).",
       "status": "done",
-      "enables": "W46,W35",
-      "touches": "marquee,render_qml,gates",
+      "enables": [
+        "W46",
+        "W35"
+      ],
+      "touches": [
+        "marquee",
+        "render_qml",
+        "gates"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -840,8 +943,16 @@
       "symbol": "W50",
       "title": "REQUIREMENTS AS REGO (operator: OPA/Rego is a standardized, machine-parseable, machine-actionable spec format; the chk() arms overwhelm an LLM with cognitive load). Split every check into MEASUREMENT and POLICY: a check's --json mode emits what it measured (the population, per-item facts, SKIPs as withheld) and nothing else; policy/<check>.rego declares the requirement as deny/withheld sets over that JSON (luthen's shape: D0 vacuity guard first - an empty population is a deny; withheld separate from deny); policy/<check>_test.rego carries the refuse/admit pair per rule (this REPLACES the chk() falsifiability arms, which shrink to 'the measurement can see'); scripts/opa_gate.py runs opa eval per check and maps deny/withheld to exit 1/3; worklist warrants cite the rego rule. opa is at /usr/bin/opa. First: check_qml_lint (newest, smallest) as the pilot, then check_marquee_body's ring scenarios (already JSON), then the rest by sweep.",
       "status": "ready",
-      "enables": "W46,W35,W44",
-      "touches": "gates,worklist,policy",
+      "enables": [
+        "W46",
+        "W35",
+        "W44"
+      ],
+      "touches": [
+        "gates",
+        "worklist",
+        "policy"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -855,8 +966,14 @@
       "symbol": "W51",
       "title": "HOVER-PAUSE INDICATOR (operator: 'a visual indicator for when hover is active. Perhaps a pulsing outline? the outermost pips of the matrix fading in and out - something clear, active, responsive, and will get someone to move the damn mouse'). While rotation.paused (hover-pause holding the board): MatrixField draws its outermost ring of pips (top row, bottom row, first and last columns) at a separate opacity that a SequentialAnimation pulses between the ghost alpha and the lit alpha (~0.8 s period, Easing.InOutSine); nothing else on the board changes, the run resumes when the pointer leaves. Colour: the ring pulses toward the lit token (not fg_act - this is attention, not alarm; W46's urgency owns hot). Harness: check_marquee_live --hovered samples a new root property boardPaused plus the field's ringOpacity; policy rule L7: while paused the ring opacity CHANGES across samples (a pulse), and while not paused it equals the ghost alpha. Settings: none new - the pulse belongs to hoverPause.",
       "status": "done",
-      "enables": "W46",
-      "touches": "marquee,MatrixField,policy",
+      "enables": [
+        "W46"
+      ],
+      "touches": [
+        "marquee",
+        "MatrixField",
+        "policy"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -870,8 +987,17 @@
       "symbol": "W52",
       "title": "SCREENSHOTS THROUGH THE THEME (operator: 'we can render the widgets and capture actual screenshots of them - for a repo README to showcase'). catalog/library/render_screens.py renders every surface x variant to catalog/library/screens/<surface>-<variant>.png via the themed render path (render_qml under theme_probe.env_for + --apptype widget): clock and live wallpaper as today; the MARQUEE via check_marquee_live's harness with a grabToImage at a mid-scroll sample and a second while the hover-pause pulse is on (the field, the lit text, the ring); the SWITCHER via a render_qml rewrite (KWin.TabBoxSwitcher root -> Item; tabBox.model -> a stub ListModel of three captions with the middle one current, longestCaption()) - which also gives the switcher its first RENDERED gate; then a contact sheet per variant and a six-variant strip (PIL), regenerated by one script so they cannot drift from the emitters. README references them through the README projection (memory: readme-as-projection), never by hand. A check (--json + policy/screens.rego): every surface x variant PNG exists, is non-blank, and its modal colour is that variant's ground (the same census render_qml --pixels does).",
       "status": "done",
-      "enables": "W41,W13",
-      "touches": "render_qml,marquee-harness,taskswitch,catalog,README",
+      "enables": [
+        "W41",
+        "W13"
+      ],
+      "touches": [
+        "render_qml",
+        "marquee-harness",
+        "taskswitch",
+        "catalog",
+        "README"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -885,8 +1011,14 @@
       "symbol": "W53",
       "title": "RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session",
       "status": "ready",
-      "enables": "W46",
-      "touches": "policy,config_page,qml_lint",
+      "enables": [
+        "W46"
+      ],
+      "touches": [
+        "policy",
+        "config_page",
+        "qml_lint"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
@@ -926,8 +1058,14 @@
       "symbol": "W56",
       "title": "OCR ROUND-TRIP LEGIBILITY (operator 2026-09-22: 'OCR models might be useful for helping optimize how we do our supersampling alignment'). The witness s116 left as residue ('legibility is by eye'): render a string through the aperture field → low-pass at the pitch (the eye at distance; raw pips defeat OCR — measured: tesseract read nothing until a Gaussian at ~1.5 pitch reconnected the strokes) → threshold → tesseract → normalised edit distance to the source. Measured today on pinholes-EL-Openglo.png (8 rows, Unifont 2:1): 'Mello A 424 B' for 'Hello 世界 42 ñ 🔔' with eng only. Then it is an OBJECTIVE: phase offset, scale, pixelSize, hinting mode, dotFill and rows (8 vs the 16-row viewport) are searched for the best score per font — alignment optimised by measurement, not by eye",
       "status": "done",
-      "enables": "W54",
-      "touches": "aperture,screens,tesseract",
+      "enables": [
+        "W54"
+      ],
+      "touches": [
+        "aperture",
+        "screens",
+        "tesseract"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: turns W54's legibility residue into a number and gives the alignment parameters an objective",
@@ -941,8 +1079,15 @@
       "symbol": "W57",
       "title": "PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two.",
       "status": "ready",
-      "enables": "W33",
-      "touches": "SegmentChar,segment_topology,clock,live-wallpaper",
+      "enables": [
+        "W33"
+      ],
+      "touches": [
+        "SegmentChar",
+        "segment_topology",
+        "clock",
+        "live-wallpaper"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: a witness that needs no reference — it would have caught the photographed defect before the operator did, and it grades every future emission change",
@@ -956,8 +1101,16 @@
       "symbol": "W58",
       "title": "GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it.",
       "status": "ready",
-      "enables": "W33",
-      "touches": "make_deb,make_wallpaper_live,make_clock,make_notify_marquee,check_package_imports",
+      "enables": [
+        "W33"
+      ],
+      "touches": [
+        "make_deb",
+        "make_wallpaper_live",
+        "make_clock",
+        "make_notify_marquee",
+        "check_package_imports"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
@@ -971,8 +1124,17 @@
       "symbol": "W59",
       "title": "A PIP IS A SEGMENT: ONE DISPLAY ENGINE, THE PRIMITIVE'S SHAPE IS A PARAMETER (operator 2026-09-22: 'this is, again, the symmetry oracle needing application. A pip IS a segment. The only true difference between the 7seg / 22seg / whatever and the matrix engines SHOULD be the shape of the segments.'). ⚑ THIS OVERTURNS ⊕DOT's RECORDED JUDGEMENT (:1002, s65): 'a segment is a subset of a topology while a pixel-cell is a raster, so the two share a CONTRACT rather than a substrate' — the operator's cut is better and the tree already argues for it: SegmentChar and ApertureField now differ in (a) the primitive's geometry (a capsule on a 7-seg lattice vs a round pip on a rectangular one) and (b) the emission model (flat fill vs coverage of a backdrop, graded). Neither difference is a different KIND of display. THREE CONSEQUENCES: (1) the aperture's graded coverage is not a matrix feature — it is the emission model the segment display LACKS, which is precisely the physics W33 is chasing (a gradient across a lit segment IS its coverage profile); (2) the symmetry oracle (W57) applies to the matrix too — a regular pip grid is a translation-invariance property, and the grid glitching the operator caught in marquee-anim was exactly that check going unrun; (3) the content axis unifies: a glyph is a lit-primitive set whether the primitives are seven capsules or forty dots, so display_types' matrix tables and segment_topology's segment tables are one table shape.",
       "status": "done",
-      "enables": "W33,W57",
-      "touches": "SegmentChar,ApertureField,segment_topology,display_types,DOT",
+      "enables": [
+        "W33",
+        "W57"
+      ],
+      "touches": [
+        "SegmentChar",
+        "ApertureField",
+        "segment_topology",
+        "display_types",
+        "DOT"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: the deepest one available — it folds the segment display and the matrix field into one engine, makes the physics layer (W33) a property of the shared emission model rather than per-surface work, and puts the matrix under the symmetry oracle that just found a defect in it",
@@ -986,8 +1148,15 @@
       "symbol": "W60",
       "title": "TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames.",
       "status": "ready",
-      "enables": "W59",
-      "touches": "ApertureField,render_screens,check_marquee_live,check_symmetry",
+      "enables": [
+        "W59"
+      ],
+      "touches": [
+        "ApertureField",
+        "render_screens",
+        "check_marquee_live",
+        "check_symmetry"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: it is the aperture model's whole claim — a pip's brightness is the ink under it NOW, not a translated bitmap — and the operator has now caught two places where the code did the opposite",
@@ -1002,7 +1171,13 @@
       "title": "THE BUILD GRAPH, ITERATIVE AND FINE-GRAINED (operator ruling 2026-09-22)",
       "status": "ready",
       "enables": [],
-      "touches": "warrants.bib,scripts,render_qml,check_legibility,check_symmetry",
+      "touches": [
+        "warrants.bib",
+        "scripts",
+        "render_qml",
+        "check_legibility",
+        "check_symmetry"
+      ],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
@@ -1138,7 +1313,9 @@
       "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": "luthen-observability-4c",
+      "blocked_on": [
+        "luthen-observability-4c"
+      ],
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted themes get in (make_deb? overlay ebuild W12?).",
