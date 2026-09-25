@@ -130,11 +130,24 @@ def staged_tree(clean=True):
             # index as a tree object; outside a commit it equals HEAD's tree.
             src = os.path.join(td, "src")
             os.makedirs(src)
-            tree = subprocess.run(["git", "-C", ROOT, "write-tree"],
-                                  capture_output=True, text=True, check=True).stdout.strip()
-            archive = subprocess.run(["git", "-C", ROOT, "archive", "--format=tar", tree],
-                                     capture_output=True, check=True).stdout
-            subprocess.run(["tar", "-x", "-C", src], input=archive, check=True)
+            sys.path.insert(0, os.path.join(ROOT, "scripts"))
+            import git_tracked
+            if git_tracked.source(ROOT) == "git":
+                tree = subprocess.run(["git", "-C", ROOT, "write-tree"],
+                                      capture_output=True, text=True, check=True).stdout.strip()
+                archive = subprocess.run(["git", "-C", ROOT, "archive", "--format=tar", tree],
+                                         capture_output=True, check=True).stdout
+                subprocess.run(["tar", "-x", "-C", src], input=archive, check=True)
+            else:
+                # ⚑ NO .git (paperkit's Δ sandbox, R5 2026-09-25): there is no index to
+                # write-tree, so @EBUILD graded `broken` there and could never be graded.
+                # The tree is git_tracked's population — the same authority every other
+                # population reads — copied file by file into the private src.
+                for rel in git_tracked.files(root=ROOT):
+                    s, d = os.path.join(ROOT, rel), os.path.join(src, rel)
+                    if os.path.isfile(s):
+                        os.makedirs(os.path.dirname(d), exist_ok=True)
+                        shutil.copy2(s, d, follow_symlinks=False)  # atomic-write: exempt — into the private copy
             # ⚑ THE PALETTE CACHE RIDES ALONG.  It is gitignored, so the archive
             # has none and staging re-solves cold (~108 s) — over paperkit's
             # per-check budget, which read as a red @EBUILD under the hook while
