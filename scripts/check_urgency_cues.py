@@ -570,6 +570,16 @@ def main(argv):
         os.makedirs(args[i + 1], exist_ok=True)
         print(json.dumps(bold_facts(opts.get("--variant") or "EL-Openglo", args[i + 1]), indent=1))
         return 0
+    # a bare VARIANT operand narrows --json to one variant — how opa_gate passes it
+    # (it forwards operands, never flags): the GATED arm, under paperkit's 60 s CPU
+    # cap (one variant 25.8+1.6 s; all six ~200 s, which a cap kills every run — ⟐R7)
+    bare = [a for a in args if not a.startswith("--")]
+    for a in bare:
+        if a not in variants():
+            print(f"check_urgency_cues: {a!r} is not a declared variant {list(variants())}", file=sys.stderr)
+            return 2
+        opts["--variant"] = a
+        args.remove(a)
     for a in args:
         if a not in {"--json", "--list", "--selftest", "--charset"}:
             print(f"check_urgency_cues: unknown flag {a!r}", file=sys.stderr)

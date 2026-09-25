@@ -806,6 +806,13 @@
   check    = {tool:opa_gate.py use_of_colour}
 }
 
+@misc{URGENCY-CUES,
+  section  = {pipeline},
+  rests-on = {USE-OF-COLOUR},
+  claim    = {Measured from the real widget's pixels (EL-Openglo; one variant, so the gated run stays under paperkit's CPU cap — `check_urgency_cues.py --list` sweeps all six): low, normal and critical urgency differ in the SET of lit pips, not only in brightness (lowercase / UPPERCASE / underline), critical flashes within the WCAG 2.3.1 limit, and the flash holds lit while the hover-pause holds the board},
+  check    = {tool:opa_gate.py urgency_cues EL-Openglo}
+}
+
 @misc{DEPS-DENIES,
   section  = {tooling},
   rests-on = {DEPS},
