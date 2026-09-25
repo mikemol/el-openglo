@@ -11,6 +11,8 @@ round glyph walls) and the number that would make agreement gateable is
 over the whole table, and its report can distinguish a font from a mirror of
 itself (selftest) — i.e. the instrument works before anyone tunes with it.
 
+    scripts/check_projection.py                # the verdict, as opa_gate projection decides it
+    scripts/check_projection.py --json         # the measurement policy/projection.rego decides
     scripts/check_projection.py [--font PATH] [--fmt 16|7] [--frame fit|stretch]   # per-glyph agreement report
     scripts/check_projection.py --classes      # the ceiling per glyph class (round / straight / diagonal / narrow)
     scripts/check_projection.py --calibrate    # sweep frame x band, print the landscape (--arcs: sagitta)
@@ -131,9 +133,25 @@ def descenders(font):
     return 0
 
 
+def measure(font=None, fmt="16", frame="stretch"):
+    """The MEASUREMENT policy/projection.rego decides (W50): the font found (null
+    when none is), the format and frame, and per authored glyph its authored and
+    projected segment sets and their jaccard. Which of that is a defect — an empty
+    table, a matcher that projects most glyphs alike — is the policy's ruling.
+    Agreement is REPORTED, never gated here: that threshold is
+    ⊕SEG-PROJECT-CALIBRATE's to solve."""
+    font = font or find_font()
+    if not font:
+        return {"font": None, "fmt": fmt, "frame": frame, "glyphs": []}
+    rows, _summary = report(font, fmt, frame=frame)
+    return {"font": font, "fmt": fmt, "frame": frame,
+            "glyphs": [{"ch": ch, "authored": sorted(a), "projected": sorted(p), "jaccard": j}
+                       for ch, a, p, _h, _m, _e, j in rows]}
+
+
 def main(argv):
     known = {"--font", "--fmt", "--frame", "--calibrate", "--classes", "--arcs", "--sagitta",
-             "--descenders"}
+             "--descenders", "--json"}
     args = [a for a in argv[1:] if a.startswith("--")]
     for a in args:
         if a not in known:
@@ -142,6 +160,18 @@ def main(argv):
     font = find_font(argv[argv.index("--font") + 1] if "--font" in argv else None)
     fmt = argv[argv.index("--fmt") + 1] if "--fmt" in argv else "16"
     frame = argv[argv.index("--frame") + 1] if "--frame" in argv else "stretch"
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(font, fmt, frame), indent=1))
+        return 0
+    # the default mode is the GATE (@PROJECTION-VALIDATE): its verdict is the policy's.
+    # --classes / --descenders / --calibrate are REPORTS with their own refusals, cited
+    # by check_symbol's closed-symbol witnesses by exit status, and stay as they are.
+    if not any(a in argv for a in ("--calibrate", "--descenders", "--classes", "--font",
+                                   "--fmt", "--frame", "--sagitta")):
+        sys.path.insert(0, os.path.join(ROOT, "scripts"))
+        import opa_gate
+        return opa_gate.gate("projection")
     if not font:
         print("check_projection: SKIP — no TTF found (pass --font PATH); 0 authored glyphs measured",
               file=sys.stderr)

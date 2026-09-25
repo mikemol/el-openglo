@@ -660,7 +660,7 @@
 
 @misc{PROJECTION-VALIDATE,
   claim    = {The font-to-segment projection is cross-checked against the authored 16-seg table by a routine that reports per-glyph agreement (glyph_match.validate_projection), run over a real font on this host, and the instrument discriminates — the glyph set projects to distinct segment sets rather than one — so the agreement numbers the calibration symbol needs are measured, not recalled},
-  check    = {tool:check_projection.py},
+  check    = {tool:opa_gate.py projection},
   note     = {W7 / cotype session 74, 2026-09-21. Measured on LiberationMono: mean Jaccard 0.58, 7 of 36 exact, narrow glyphs lose side verticals to the centre column (a frame defect, named for SEG-PROJECT-CALIBRATE). Agreement itself is reported, not gated. SKIP when no TTF is present.},
   section  = {pipeline},
   rests-on = {ST22}
