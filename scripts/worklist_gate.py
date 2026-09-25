@@ -78,44 +78,54 @@ ENTRY = {
 _VERDICT = ("paperkit-gate: check FAILED", "paperkit-gate: PASS",
             "paperkit-gate: FAIL", "cited/placed/grounded", "coverage complete")
 
-# substrate's structural reader for a warrants .bib — the claim-DAG, not its text.
-BIBSTRUCT = os.path.expanduser("~/github/substrate/scratch/bibstruct.py")
+def warrants(bib):
+    """{key: record} for one warrants .bib, read by PAPERKIT's own parser, or None.
+
+    ⚑ THE ENGINE THAT GATES THE FILE IS THE ONE THAT READS IT (operator,
+    2026-09-25: "Don't use substrate's bibstruct. Use paperkit's."). This read
+    through substrate/scratch/bibstruct.py until substrate's in-flight mtools port
+    made it import mikemol.witness — a module this venv does not carry — and every
+    commit here was refused by a parser that is not even the gate's. paperkit's
+    bib.py records consolidating THREE parsers into one; a borrowed fourth is how
+    they drift again. Records carry `check` (scalar) and `rests-on` (list); the
+    project's paper.toml `[paper] consumer_fields` are passed so none is
+    loud-dropped. paperkit is an INSTALLED package (pyproject `tooling`); None when
+    it is not importable — the caller refuses, never reads that as "no claims"."""
+    try:
+        from paperkit import bib as pkbib
+    except ImportError:
+        return None
+    import tomllib
+    from pathlib import Path
+    toml = os.path.join(os.path.dirname(bib), "paper.toml")
+    fields = ()
+    if os.path.isfile(toml):
+        with open(toml, "rb") as fh:
+            fields = tuple(tomllib.load(fh).get("paper", {}).get("consumer_fields", ()))
+    return pkbib.parse(Path(bib), consumer_fields=fields)
 
 
 def _edges(bib):
-    """{key: [keys it rests on]} — read with substrate's reader, not a regex.
+    """({key: [keys it rests on]}, {key: [keys it enables]}) from warrants(), or None.
 
     ⚑ ASK THE TOOL THAT OWNS THE FORMAT.  paperkit's own bib.py opens by recording
     that it consolidated THREE parsers which had each re-derived the format; adding
     a fourth here to save one subprocess is how that happens again."""
-    r = subprocess.run([sys.executable, BIBSTRUCT, "--edges", bib],
-                       capture_output=True, text=True)
-    if r.returncode != 0:
+    recs = warrants(bib)
+    if recs is None:
         return None
-    # The reader emits "  <relation>  CHILD  -> PARENT", then a summary line.
-    # ⚑ THIS PARSER WAS WRONG ONCE, BY GUESSING THE SHAPE INSTEAD OF READING IT:
-    # it took field 0 as the key and returned two "claims" named `edges` and
-    # `rests-on`. A tool's output format is something to look at, not infer.
     out, enables = {}, {}
-    for line in r.stdout.splitlines():
-        if "->" not in line:
-            continue
-        lhs, _, target = line.partition("->")
-        parts = lhs.split()
-        if len(parts) < 2:
-            continue
-        rel, src, target = parts[0], parts[1], target.strip()
-        if rel == "rests-on":
-            out.setdefault(src, []).append(target)
-            out.setdefault(target, [])
-        elif rel == "enables":
-            # ⚑ `enables` RAISES LEVERAGE AND NOT LAYER.  It is SEQUENCING — this
-            # work is cheaper or safer first — whereas `rests-on` is GROUNDING: a
-            # claim cannot be TRUE unless its premises are. Feeding sequencing
-            # into the topological layer would assert a premise the source never
-            # made, just to obtain a sort order.
-            enables.setdefault(src, []).append(target)
-            out.setdefault(src, [])
+    for key, rec in recs.items():
+        out.setdefault(key, [])
+        for parent in rec.get("rests-on") or ():
+            out[key].append(parent)
+            out.setdefault(parent, [])
+        # ⚑ `enables` RAISES LEVERAGE AND NOT LAYER.  It is SEQUENCING — this work
+        # is cheaper or safer first — whereas `rests-on` is GROUNDING: a claim
+        # cannot be TRUE unless its premises are. Feeding sequencing into the
+        # topological layer would assert a premise the source never made.
+        for target in rec.get("enables") or ():
+            enables.setdefault(key, []).append(target)
             out.setdefault(target, [])
         # `from` is prose order — neither grounding nor sequencing.
     return out, enables

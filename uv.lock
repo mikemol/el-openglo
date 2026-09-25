@@ -249,6 +249,7 @@ tooling = [
     { name = "mikemol-mdstruct" },
     { name = "networkx" },
     { name = "panflute" },
+    { name = "paperkit" },
     { name = "python-magic" },
     { name = "tinycss2" },
 ]
@@ -265,6 +266,7 @@ requires-dist = [
     { name = "networkx", marker = "extra == 'tooling'" },
     { name = "numpy" },
     { name = "panflute", marker = "extra == 'tooling'" },
+    { name = "paperkit", marker = "extra == 'tooling'", git = "https://github.com/mikemol/paperkit.git?rev=7081cd13e2f8d933e0598ecdcc18f7e9cf221295" },
     { name = "pillow" },
     { name = "python-magic", marker = "extra == 'tooling'", specifier = ">=0.4.27" },
     { name = "scipy", marker = "extra == 'research'" },
@@ -563,6 +565,11 @@ sdist = { url = "https://files.pythonhosted.org/packages/b7/91/b659923bea127e51b
 wheels = [
     { url = "https://files.pythonhosted.org/packages/bf/dd/49f5d0aa985c14218da8759ec4a93390b683c92fd9081d5b96383d48db6e/panflute-2.3.1-py3-none-any.whl", hash = "sha256:e44afd875b7b17ffebbbe58282849df06d9f1b20a45a2f933cd51bdcf4e89130", size = 36714, upload-time = "2024-03-20T05:47:38.375Z" },
 ]
+
+[[package]]
+name = "paperkit"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/paperkit.git?rev=7081cd13e2f8d933e0598ecdcc18f7e9cf221295#7081cd13e2f8d933e0598ecdcc18f7e9cf221295" }
 
 [[package]]
 name = "pillow"

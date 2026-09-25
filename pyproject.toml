@@ -52,6 +52,13 @@ tooling = [
     # symlink deriving the wrong root. `uv sync --extra tooling` puts `mdstruct` on
     # the venv's PATH; the struct-tools table routes .md to it.
     "mikemol-mdstruct @ git+https://github.com/mikemol/mtools#subdirectory=mdstruct",
+    # ⚑ paperkit AS A PACKAGE (operator, 2026-09-25: "Don't use substrate's bibstruct.
+    # Use paperkit's." — and "paperkit exposes itself as a package"). The warrants
+    # .bib is read with the SAME parser that gates it (worklist_gate.warrants ->
+    # `from paperkit import bib`), not a borrowed substrate script whose own
+    # dependencies became ours. Sha-pinned, never @main (mtools INSTALL.md). The gate
+    # itself still runs the LOCATED checkout (worklist_gate.locate); this is the reader.
+    "paperkit @ git+https://github.com/mikemol/paperkit.git@7081cd13e2f8d933e0598ecdcc18f7e9cf221295",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
     "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG

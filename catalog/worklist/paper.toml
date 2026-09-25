@@ -7,6 +7,10 @@ rubric = "rubric.tsv"
 out = "WORKLIST.md"
 numbered = false
 references = false
+# `enables` is SEQUENCING (worklist_gate --next: raises leverage, not layer) —
+# this project's field, engine-inert; declared so paperkit carries it rather than
+# loud-dropping it.
+consumer_fields = ["enables"]
 
 # ⚑ THE Δ SANDBOX ROOT IS DECLARED, NOT INFERRED.  The mutation grader copies a
 # bounded root into a clean sandbox and re-runs each check there.  Inferred, that

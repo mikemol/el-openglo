@@ -57,23 +57,20 @@ import git_tracked  # noqa: E402  (the pin list is declared once, there)
 for _pin in git_tracked.PINS:
     os.environ.pop(_pin, None)
 WORKLIST = os.path.join("catalog", "worklist")
-BIBSTRUCT = os.path.expanduser("~/github/substrate/scratch/bibstruct.py")
 CACHE = ".palette-cache.json"
 TIMEOUT = 900
 
 
 def claims(root=ROOT):
-    """[(key, check)] from warrants.bib, read by bibstruct --field check."""
-    r = subprocess.run([sys.executable, BIBSTRUCT, "--field", "check",
-                        os.path.join(root, WORKLIST, "warrants.bib")],
-                       capture_output=True, text=True, check=True)
-    out = []
-    for line in r.stdout.splitlines():
-        if not line.startswith("  "):
-            continue                       # the "check: n of m entries" summary
-        key, _, check = line.strip().partition(" ")
-        out.append((key, check.strip()))
-    return out
+    """[(key, check)] from warrants.bib, read by paperkit's parser (worklist_gate.warrants).
+
+    Refuses — raises — when the engine is absent: an empty claim list would read
+    as "no check writes" over nothing."""
+    import worklist_gate
+    recs = worklist_gate.warrants(os.path.join(root, WORKLIST, "warrants.bib"))
+    if recs is None:
+        raise RuntimeError("paperkit not found: cannot read the claims")
+    return [(k, r["check"].strip()) for k, r in recs.items() if r.get("check")]
 
 
 def resolve(check, root=ROOT):
