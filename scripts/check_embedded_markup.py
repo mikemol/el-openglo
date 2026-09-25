@@ -12,7 +12,8 @@ Markup belongs in files. A generator should read a TEMPLATE and substitute, so
 the artifact is previewable at rest and the substitution is the only thing the
 program owns.
 
-    scripts/check_embedded_markup.py            # exit 0 iff no source embeds markup
+    scripts/check_embedded_markup.py            # the verdict, as opa_gate embedded_markup decides it
+    scripts/check_embedded_markup.py --json     # the measurement policy/embedded_markup.rego decides
     scripts/check_embedded_markup.py --report   # every embedding, with its size
     scripts/check_embedded_markup.py --waivers  # the accepted ones, and why
 
@@ -133,8 +134,35 @@ def findings(root=None, min_lines=DOCUMENT_LINES):
     return out
 
 
+def measure(root=None):
+    """The MEASUREMENT policy/embedded_markup.rego decides (W50): every tracked
+    top-level module scanned (the population), each markup document found in one
+    (path, line, kind, lines), the waivers with their reasons, and the threshold.
+
+    ⚑ `identifier` IS A FACT, AND ITS ABSENCE WAS A SILENT PASS. _identify
+    returns None when scripts/identify.py cannot be imported, so every string read
+    as not-an-artifact and every module came back clean. Reported here, the
+    policy WITHHOLDS the scan instead of admitting it."""
+    try:
+        sys.path.insert(0, os.path.join(ROOT, "scripts"))
+        import identify  # noqa: F401
+        identifier = True
+    except ImportError:
+        identifier = False
+    found = findings(root)
+    return {
+        "identifier": identifier,
+        "document_lines": DOCUMENT_LINES,
+        "waivers": [{"path": p, "why": w} for p, w in sorted(WAIVERS.items())],
+        "cases": [{"id": fn,
+                   "found": [{"line": ln, "kind": k, "lines": n}
+                             for f, ln, k, n in found if f == fn]}
+                  for fn in sources(root)],
+    }
+
+
 def main(argv):
-    known = {"--report", "--waivers"}
+    known = {"--report", "--waivers", "--json"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_embedded_markup: unknown flag {a!r}", file=sys.stderr)
@@ -143,32 +171,18 @@ def main(argv):
         for p, why in sorted(WAIVERS.items()):
             print(f"{p}\t{why}")
         return 0
-
-    found = findings()
+    if "--json" in argv:
+        import json
+        print(json.dumps(measure(), indent=1))
+        return 0
     if "--report" in argv:
-        for fn, lineno, marker, n in found:
+        for fn, lineno, marker, n in findings():
             mark = "waived" if fn in WAIVERS else "OPEN  "
             print(f"{mark}\t{fn}:{lineno}\t{marker}\t{n} lines")
         return 0
-
-    unwaived = [f for f in found if f[0] not in WAIVERS]
-    if unwaived:
-        print(f"check_embedded_markup: REFUSED — {len(unwaived)} markup document(s) "
-              f"embedded in source, un-previewable and un-lintable:", file=sys.stderr)
-        for fn, lineno, marker, n in unwaived:
-            print(f"    {fn}:{lineno}  {marker}  {n} lines", file=sys.stderr)
-        print(f"    Move each to a template file the generator READS.",
-              file=sys.stderr)
-        print(f"  fixes: {len(unwaived)}", file=sys.stderr)
-        return 1
-    n = len(sources())
-    if not n:
-        print("check_embedded_markup: REFUSED — no module scanned; the search is broken",
-              file=sys.stderr)
-        return 1
-    print(f"check_embedded_markup: 0 embedded documents in {n} of {n} tracked "
-          f"top-level module(s) ({len(WAIVERS)} waived)")
-    return 0
+    sys.path.insert(0, os.path.join(ROOT, "scripts"))
+    import opa_gate
+    return opa_gate.gate("embedded_markup")
 
 
 def _selftest():
@@ -199,8 +213,14 @@ def _selftest():
         open(os.path.join(td, "prim.py"), "w").write('Z = "<svg><rect/></svg>"\n')
         check("a one-line primitive does not fire",
               [f for f in findings(td) if f[0] == "prim.py"], [])
+        m = measure(td)
+        check("the measurement names the planted module and its document",
+              [c["found"][0]["kind"] for c in m["cases"] if c["id"] == "emb.py"], ["image/svg+xml"])
+        check("and reports the clean modules as scanned, not absent",
+              sorted(c["id"] for c in m["cases"] if not c["found"]), ["doc.py", "prim.py"])
     check("this tool does not fire on itself",
           [f for f in findings() if f[0] == "check_embedded_markup.py"], [])
+    check("the real population is non-empty", len(measure()["cases"]) > 0, True)
 
     # ⚑ IDENTIFICATION ALONE WOULD FIRE ON PROSE, AND POSITION IS WHAT SAVES IT.
     # A docstring DESCRIBING QML identifies AS QML — measured in identify.py's
