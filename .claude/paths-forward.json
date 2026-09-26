@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 94,
+  "counter": 95,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-26T21:20:00Z",
-  "job_id": "012cf060",
+  "heartbeat": "2026-09-26T21:51:26Z",
+  "job_id": "0ec9f447",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -548,7 +548,7 @@
     {
       "symbol": "W30",
       "title": "Font COMPILER (operator, 2026-09-21): arbitrary TTF -> precompiled (segment set @22 per glyph, matrix column bytes per glyph) tables, so a font (Liberation, Unifont, ...) is derived ONCE and the emitters read the derived table — the two halves already exist (display_types.font_extension = the matrix half; glyph_match.match + ST.project = the segment half); the compiler is the one entry point + an on-disk table format + the emitters reading it. Operator: 'later; not an immediate priority unless it unblocks something'",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "glyph_match",
@@ -559,10 +559,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "OPERATOR RULED (2026-09-23): the font compiler is a REQUIREMENT (F4: compiled == authored), and the DOT-MATRIX half is DROPPED (W54: plain Unifont behind the aperture, no compiled column table). So: remove the matrix half from font_compiler (worktree aad36c74, not landed), then make the SEGMENT half reproduce the authored 22-seg (1 of 72 today) and 7-seg (18 of 41) tables — or show, per glyph, why the authored table is the defect. The gate lands only when F4 is green or every remaining disagreement is ruled.",
-      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4). | 2026-09-26: 2026-09-27: edge retrofit — touches display_types with W43 and make_notify_marquee with W58, but REJECTED as collapse candidates: both overlaps are a shared upstream module (font/display geometry), not a stated relationship between the waypoints' own work (font-table compilation vs engine-asset export vs package-load gating). No edge added; do not re-propose from these touches alone.",
+      "next_bounded_step": "",
+      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4). | 2026-09-26: 2026-09-27: edge retrofit — touches display_types with W43 and make_notify_marquee with W58, but REJECTED as collapse candidates: both overlaps are a shared upstream module (font/display geometry), not a stated relationship between the waypoints' own work (font-table compilation vs engine-asset export vs package-load gating). No edge added; do not re-propose from these touches alone. | 2026-09-26: 2026-09-27: W30's queued evidence was STALE — sourced from worktree agent-aad36c74 (an old template-match/phi-threshold prototype, FORMAT=1, 1 of 72 exact) that was never landed. Checked the actual current tree instead of trusting the absence-claim (CLAUDE.md's own standing rule): main's font_compiler.py is a COMPLETELY DIFFERENT, later method (FORMAT=2: raster -> Zhang-Suen skeleton -> stroke graph -> DTW map-match onto the segment lattice), matrix half already dropped per the operator's 2026-09-23 ruling, landed independently of the stale worktree. Measured via --diff: 22-seg 47 of 72 reproduced + 25 of the remainder DECLARED with a structural reason (72/72 accounted for); 7-seg 28 of 41 reproduced + 13 declared (41/41 accounted for) - F4 (compiled==authored or declared) fully satisfied. Warrant FONT-COMPILER already cites tool:opa_gate.py font_compiler (admitted, 0 deny, 113 admitted); FONT-COMPILER-DENIES already proves it can fail (wrong-8.json fixture). check_font_compiler --selftest PASS. worklist_gate --only worklist: PASS, 91 claims resolve. The aad36c74 worktree is superseded and should be pruned (not done this tick - noted, not actioned).",
       "issued_at": "2026-09-21T11:08:28+00:00",
-      "last_worked": "2026-09-26T21:06:00Z",
+      "last_worked": "2026-09-26T21:50:44Z",
       "ticks_blocked": 0
     },
     {
@@ -1729,6 +1729,22 @@
       "caused_by": null,
       "last_worked": "2026-09-26T21:25:39Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W95",
+      "title": "Dozens of stale agent worktrees under .claude/worktrees/ (measured while chasing W30: ~50 entries, most branched from commits many hundreds behind current main, e.g. aad36c74 at e65a61f) — disk usage on md0, and a source of exactly the stale-evidence trap W30 fell into",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "git worktree list; for each whose branch tip is not an ancestor of a still-open waypoint's evidence, git worktree remove (prune the branch too); keep only worktrees an open waypoint's evidence actually cites",
+      "evidence": "",
+      "issued_at": "2026-09-26T21:50:59Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1747,5 +1763,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "0f93da8a"
+  "predecessor_job_id": "012cf060"
 }
