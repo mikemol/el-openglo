@@ -177,4 +177,49 @@ It reads pinned source corpora; its Bazel graph is a CHECK gate, not a product b
    stale-only re-renders map onto action-cache hits; content-addressed palette builds are
    what the CAS already is — you're mostly deleting code."
 
-## cassian-observability, sre-troubleshooting — (to read directly)
+## cassian-observability (read directly, 2026-09-25)
+
+1. **Engine**: `tools/verb.bzl` — `pk_cmd` (one check = one action writing a
+   `<name>.verdict.json` via `tools/verdict.py`; the verdict is the EXIT CODE, never a parsed
+   transcript) and `pk_gate_test` (aggregates the records; `bazel test //:gate` reds iff any
+   reads fail). Copied from linux-sources, which copied paperkit's.
+2. **Tiers** (`_tier_exec`): `sandbox` (hermetic, cached — ALSO the tier for arms that WRITE
+   a tree: the sandbox is a throwaway copy; "a writer wants MORE sandbox, not less", learned
+   from a measured escape), `toolchain` (host env, cached on declared inputs, no stamp),
+   `local` (host, never cached — only for true live-host probes).
+3. **BUILD.bazel is GENERATED** (`tools/gen-gate-build.py` from the check / arm registries)
+   and a `stale-gate-build` target reds the gate if it drifts. Arm `data=` is a declared glob.
+4. **.bazelrc**: disk cache + UNCONDITIONAL remote cache and BES on the loopback BuildBuddy
+   (operator directive 2026-09-07: no opt-in, no fallback); `--config=local-k8s` routes
+   actions to the executor pod, fail-closed. A failing action replays its stdout to stderr
+   only on rc≠0, so a red check explains itself and a green one stays quiet.
+
+## sre-troubleshooting (read directly, 2026-09-25) — scaffolding, UNTRACKED
+
+`MODULE.bazel`, `.bazelrc` and `tools/` exist but are untracked (git status `??`), so the
+survey's "has a root MODULE.bazel" is true of the disk, not of the repo's history. Its ONE
+job: run veraPDF (the PDF/UA verdict) in luthen's `paperkit` EXECUTOR POOL, because the host
+has no JVM. paperkit's checks enter as `new_local_repository` over the sibling checkout;
+`.bazelrc` is `--enable_bzlmod` plus `try-import .bazelrc.remote` (generated). **The pattern
+el-openglo needs from it: a TOOLCHAIN THE HOST LACKS, SUPPLIED BY AN EXECUTOR IMAGE.** For us
+that is Qt + the declared fonts (R10): a render action in an image whose fontconfig names
+only declared files keys on the image digest, and the host-font weakness `output_keys`
+names goes away instead of being recorded.
+
+## el-openglo design — PROPOSAL (for the operator; nothing is built)
+
+- **Engine**: adopt `verb.bzl` + `verdict.py` as the three copies did — but as paperkit's
+  packaged rules if summit's ≥2-consumer decision has landed, not a fourth copy.
+- **Gates**: each warrant's `tool:` check becomes a `pk_cmd`, BUILD generated from
+  `warrants.bib` through paperkit's parser, with a staleness target — the same shape as
+  cassian's registry-generated BUILD. Tiers: pure policy/selftests `sandbox`; Qt harness
+  checks `toolchain` until an image exists, then executor.
+- **Renders**: each declared output of `render_screens.plan_all()` becomes ITS OWN action
+  (outputs = the PNG), inputs = what `stagers()` stages. This replaces `check_action_key`'s
+  hand-computed keys and `--jobs` with the action cache and Bazel's scheduler. The derived
+  sheets depend on their tiles as build edges. The key's named weaknesses (host fonts, the
+  runner code at module grain) become either declared inputs or an image digest.
+- **Order**: (1) gates only, the `pk_gate_test` beside today's pre-commit, differential
+  until they agree; (2) renders as actions under `toolchain`; (3) the executor image (R10).
+- **Open questions for the operator**: packaged rules vs a fourth copy; whether renders
+  belong in the unconditional remote cache (a GPU render is only as pure as its image).
