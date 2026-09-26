@@ -54,11 +54,15 @@ tooling = [
     # ⚑ ONE mtools SHA ACROSS EVERY SPEC (mtools INSTALL.md: two `@main` specs resolve to
     # ONE commit, and it may be the wrong one; only a sha pin moves it). mdstruct was
     # unpinned `#subdirectory=` until mikemol-hooks joined it (2026-09-25, ⟐H2).
-    "mikemol-mdstruct @ git+https://github.com/mikemol/mtools.git@859a10bd432c12312eff6911c8096b01bb69392a#subdirectory=mdstruct",
+    "mikemol-mdstruct @ git+https://github.com/mikemol/mtools.git@f30ea89a30a73b8c03197dacf839aaf12ed519f4#subdirectory=mdstruct",
     # the shared git pre-push (mtools ec71fe7+): .githooks/pre-push execs its console
     # script, which runs THIS repo's .githooks/pre-push.local — replacing the symlink
     # into ../substrate (operator, via substrate: "don't use symlinks, import as packages")
-    "mikemol-hooks @ git+https://github.com/mikemol/mtools.git@859a10bd432c12312eff6911c8096b01bb69392a#subdirectory=hooks",
+    "mikemol-hooks @ git+https://github.com/mikemol/mtools.git@f30ea89a30a73b8c03197dacf839aaf12ed519f4#subdirectory=hooks",
+    # ⚑ THE QUEUE'S ONE WRITER (paths-forward-loop §0; operator 2026-09-26, via nemik:
+    # adoption was "missing"). .claude/paths-forward.json and .ledger are read and written
+    # ONLY by .venv/bin/mikemol-paths-forward; scripts/paths_forward.py is retired (W88).
+    "mikemol-pathsforward @ git+https://github.com/mikemol/mtools.git@f30ea89a30a73b8c03197dacf839aaf12ed519f4#subdirectory=pathsforward",
     # ⚑ paperkit AS A PACKAGE (operator, 2026-09-25: "Don't use substrate's bibstruct.
     # Use paperkit's." — and "paperkit exposes itself as a package"). The warrants
     # .bib is read with the SAME parser that gates it (worklist_gate.warrants ->

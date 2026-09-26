@@ -313,6 +313,7 @@ tooling = [
     { name = "libcst" },
     { name = "mikemol-hooks" },
     { name = "mikemol-mdstruct" },
+    { name = "mikemol-pathsforward" },
     { name = "networkx" },
     { name = "panflute" },
     { name = "paperkit" },
@@ -328,8 +329,9 @@ requires-dist = [
     { name = "libcst", marker = "extra == 'tooling'" },
     { name = "material-color-utilities", marker = "extra == 'research'" },
     { name = "matplotlib", marker = "extra == 'research'" },
-    { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=859a10bd432c12312eff6911c8096b01bb69392a" },
-    { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=859a10bd432c12312eff6911c8096b01bb69392a" },
+    { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=f30ea89a30a73b8c03197dacf839aaf12ed519f4" },
+    { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=f30ea89a30a73b8c03197dacf839aaf12ed519f4" },
+    { name = "mikemol-pathsforward", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=f30ea89a30a73b8c03197dacf839aaf12ed519f4" },
     { name = "networkx", marker = "extra == 'tooling'" },
     { name = "numpy" },
     { name = "panflute", marker = "extra == 'tooling'" },
@@ -643,7 +645,7 @@ wheels = [
 [[package]]
 name = "mikemol-hooks"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=859a10bd432c12312eff6911c8096b01bb69392a#859a10bd432c12312eff6911c8096b01bb69392a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=f30ea89a30a73b8c03197dacf839aaf12ed519f4#f30ea89a30a73b8c03197dacf839aaf12ed519f4" }
 dependencies = [
     { name = "mypy" },
     { name = "ruff" },
@@ -652,10 +654,15 @@ dependencies = [
 [[package]]
 name = "mikemol-mdstruct"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=859a10bd432c12312eff6911c8096b01bb69392a#859a10bd432c12312eff6911c8096b01bb69392a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=f30ea89a30a73b8c03197dacf839aaf12ed519f4#f30ea89a30a73b8c03197dacf839aaf12ed519f4" }
 dependencies = [
     { name = "panflute" },
 ]
+
+[[package]]
+name = "mikemol-pathsforward"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=f30ea89a30a73b8c03197dacf839aaf12ed519f4#f30ea89a30a73b8c03197dacf839aaf12ed519f4" }
 
 [[package]]
 name = "mypy"

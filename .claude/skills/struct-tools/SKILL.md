@@ -86,7 +86,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the segment lattice's own invariants | `segment_topology.py` | `python3 segment_topology.py --selftest` | — |
 | Agda source (`ELProjection.agda`) | `../substrate/scratch/agda_defs.py` + `agda_lex.py` | `python3 ../substrate/scratch/agda_defs.py <name>` | `.agda` `.agdai` `.lagda` |
 | the git hooks: which are installed, where each resolves | `scripts/check_hooks.py` | `python3 scripts/check_hooks.py --list` | `pre-commit` `post-commit` `pre-push` |
-| the paths-forward queue (symbols, order, lock, residue) | `scripts/paths_forward.py` | `python3 scripts/paths_forward.py --queue` | `paths-forward.json` `paths-forward.ledger` |
+| the paths-forward queue (symbols, order, lock, residue, ledger) | `.venv/bin/mikemol-paths-forward` (mtools; the ONE writer, paths-forward-loop §0) | `.venv/bin/mikemol-paths-forward --state .claude/paths-forward.json --queue` | `paths-forward.json` `paths-forward.ledger` |
 | the Gentoo overlay: markers, the ebuild, the staged install tree | `scripts/check_ebuild.py` | `python3 scripts/check_ebuild.py --tree` | `.ebuild` `layout.conf` `repo_name` |
 | the install set (what the theme puts under /usr) | `make_deb.py` | `python3 make_deb.py --stage <dir>` | — |
 | the palette as CSS custom properties (web / site) | `scripts/check_css.py` | `python3 scripts/check_css.py --map` | `.css` |

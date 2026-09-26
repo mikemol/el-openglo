@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 87,
+  "counter": 91,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-26T18:42:00+00:00",
   "job_id": "4a4d8c4e",
@@ -1587,6 +1587,78 @@
       "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom",
       "issued_at": "2026-09-26T18:41:28+00:00",
       "last_worked": "2026-09-26T18:41:34+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W88",
+      "title": "Adopt mikemol-pathsforward as el-openglo own sha-pinned dependency (mtools INSTALL.md) and retire scripts/paths_forward.py: the one writer (nemik adoption: missing)",
+      "status": "done",
+      "enables": [
+        "W89",
+        "W90",
+        "W87"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-09-26: pyproject tooling: mikemol-pathsforward @ mtools f30ea89 (one sha across mdstruct/hooks/pathsforward); scripts/paths_forward.py git rm; struct-tools routes the queue to .venv/bin/mikemol-paths-forward; --check 91/91",
+      "issued_at": "2026-09-26T18:51:20Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-09-26T18:52:23Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W89",
+      "title": "Rewrite the legacy ledger so nemik reads all of it (242 of 255 lines unparsed): a tool that maps each legacy shape to ledger.line through mtools own parse/line, round-trip verified",
+      "status": "ready",
+      "enables": [
+        "W91"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/migrate_ledger.py --report: count unparsed lines by ledger.parse why and by legacy shape (paths_forward --ledger free text, hand echo lines); then --write with kind from origin (tick/op/peer), symbol extracted, full text kept as the note; atomic replace; old form stays in git",
+      "evidence": "",
+      "issued_at": "2026-09-26T18:51:31Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W90",
+      "title": "Every new ledger line goes through --ledger with its kind: ticks as tick, operator turns as op, peer messages as peer, naming the waypoint touched",
+      "status": "ready",
+      "enables": [
+        "W91"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "After W88: the tick, and every operator/peer interrupt handled, writes $PF --ledger SYM OUTCOME MECHANISM NOTE --kind K; never echo >> the ledger",
+      "evidence": "",
+      "issued_at": "2026-09-26T18:51:31Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W91",
+      "title": "nemik sees el-openglo whole: 0 unparsed ledger lines, adoption declared, no el-openglo findings",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "After W89+W90: nemik-metrics --root ~/github shows nemik_ledger_unparsed{repo=el-openglo} 0 and pathsforward_adoption declared; nemik-check --root ~/github lists no el-openglo warnings",
+      "evidence": "",
+      "issued_at": "2026-09-26T18:51:32Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
       "ticks_blocked": 0
     }
   ],
