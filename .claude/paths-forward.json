@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 91,
+  "counter": 92,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-26T18:42:00+00:00",
-  "job_id": "4a4d8c4e",
+  "heartbeat": "2026-09-26T19:08:12Z",
+  "job_id": "0f93da8a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1458,9 +1458,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "(1) When el-deb-pack3 finishes: verify with opa_gate.py deb (staged == packed, steps 0), send out.deb to the operator (tree cac10f7), who removes the predecessor package by hand first. (2) Then @DEB as a warrant that PRODUCES its own inputs (make_deb then deb_pack, ~10 min on md0) — decide its cadence (per push is too heavy)",
-      "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2",
+      "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2 | 2026-09-26: OPERATOR LAPTOP 2026-09-26 (Ubuntu resolute, Plasma 6.6.6, Qt 6.10.2): the cac10f7 .deb (sha256 8c98e29c...) installed and, after plasmashell --replace, the marquee LOADS (clock + dot-matrix field drawing) - the byte fix confirmed on the target Qt",
       "issued_at": "2026-09-26T01:20:13+00:00",
-      "last_worked": "2026-09-26T18:40:29+00:00",
+      "last_worked": "2026-09-26T19:07:51Z",
       "ticks_blocked": 0
     },
     {
@@ -1660,6 +1660,24 @@
       "caused_by": null,
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W92",
+      "title": "An upgrade must take effect without a manual plasmashell restart: after installing the fixed .deb the marquee kept its OLD load error until the operator ran plasmashell --replace (2026-09-26)",
+      "status": "ready",
+      "enables": [
+        "W79"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "el-openglo-apply (the documented post-install step) reloads what it changed: plasmashell --replace for widgets, and clear the stale qmlcache entries for our plasmoids; a dpkg postinst cannot restart a user session, so the apply script owns it — or print exactly that instruction",
+      "evidence": "",
+      "issued_at": "2026-09-26T19:07:51Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1677,5 +1695,6 @@
     "Pushes are automatic (post-commit auto_push); never push by hand; read .git/auto-push.log; no tree writes while check_tree_writes runs.",
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
-  ]
+  ],
+  "predecessor_job_id": "4a4d8c4e"
 }
