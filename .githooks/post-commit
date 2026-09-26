@@ -28,21 +28,13 @@ fi
 advisory="$(
   echo "── post-commit advisory (non-blocking; gates ran pre-commit) ──"
 
-  # Δ ADEQUACY.  Not a gate: a claim can be legitimately hard to falsify while
-  # the work that would make it falsifiable is still open.  But an
-  # `indeterminate` or `vacuous` grade means the gate is certifying a claim that
-  # cannot fail, so it must be SEEN on every commit rather than discovered later.
-  #
-  # ⚑ BOUNDED, AND THE BOUND IS REPORTED.  The Δ grader re-runs every check inside
-  # a fresh sandbox, where the palette cache does not apply and the solve costs
-  # minutes.  An advisory that hangs blocks the amend, and a missing amend blocks
-  # the push — so this is capped. A TIMEOUT IS PRINTED AS A TIMEOUT: silence here
-  # would read as "no adequacy problems", which is the one thing it must not mean.
-  if ! timeout 45 python3 "$ROOT/scripts/worklist_gate.py" --discriminate 2>/dev/null \
-       | grep -E 'indeterminate|vacuous|summary'; then
-    echo "  Δ adequacy: NOT MEASURED this commit (exceeded 45s, or nothing to report)."
-    echo "  Run: python3 scripts/worklist_gate.py --discriminate"
-  fi
+  # Δ ADEQUACY IS NOT RUN HERE (luthen, 2026-09-25): the 45 s capped Δ this hook
+  # started on every commit NEVER finished — every advisory read "NOT MEASURED" —
+  # while its sandbox copies drove md0 (the RAID6 under /home) to 100% busy at
+  # ~800 small writes/s. A bounded run that cannot complete is pure cost. Δ runs
+  # on demand, as a capped systemd service, with PAPERKIT_SCRATCH off md0.
+  echo "  Δ adequacy: not run per commit — run it as a capped service:"
+  echo "  PAPERKIT_SCRATCH=/var/tmp/paperkit-sweep python3 scripts/worklist_gate.py --discriminate"
 
   # The partial-recovery roster: a reminder of which files remain unverified,
   # printed so the uncertainty stays visible instead of decaying into an

@@ -161,7 +161,10 @@ def measure(root=ROOT, only=None, timeout=TIMEOUT, population=None):
     cases, withheld = [], []
     # ⚑ UNDER THE REPO, NOT /tmp: @EBUILD stages under sys-apps/sandbox with
     # SANDBOX_DENY=/tmp, and its work dir is inside whatever tree it runs in.
-    work = os.path.join(root, ".tree-writes")
+    # ⚑ NOT /var/tmp EITHER, MEASURED (2026-09-25, luthen asked to move this off md0):
+    # --only EBUILD exits 1 from a /var/tmp copy and 0 from the in-repo one, all else
+    # equal. Where it CAN live off md0 is open (R11). EL_TREE_WRITES_DIR overrides.
+    work = os.environ.get("EL_TREE_WRITES_DIR", os.path.join(root, ".tree-writes"))
     os.makedirs(work, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="el-", dir=work) as parent:
         copy = make_copy(root, parent)

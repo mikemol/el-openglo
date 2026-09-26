@@ -46,6 +46,13 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# ⚑ Δ's SWEEP SANDBOXES LIVE OFF md0 (luthen 2026-09-25, declared in luthen 9e216a7):
+# paperkit's default ~/.cache/paperkit-sweep sits on the RAID6 under /home, where Δ's
+# small writes become whole-stripe rewrites. /var/tmp is the NVMe root. A caller's own
+# PAPERKIT_SCRATCH wins; the default only fills an unset one (a session older than the
+# environment.d entry has none).
+os.environ.setdefault("PAPERKIT_SCRATCH", "/var/tmp/paperkit-sweep")
+
 # name -> project dir.  Order is the order they run in.
 PROJECTS = {
     "worklist": os.path.join(ROOT, "catalog", "worklist"),
