@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 93,
+  "counter": 94,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-26T19:08:12Z",
-  "job_id": "0f93da8a",
+  "heartbeat": "2026-09-26T21:20:00Z",
+  "job_id": "012cf060",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1224,7 +1224,9 @@
       "symbol": "W64",
       "title": "GRADE THE ARMS BY MUTATION: adopt paperkit's perturbation surface, starting with the temporal UI rules",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W65"
+      ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
@@ -1232,7 +1234,7 @@
       "next_bounded_step": "COLLAPSE AUDITED AND PARTIALLY TAKEN (s143). check_discriminates no longer carries its own .py perturbation vocabulary: it shells paperkit/paperkit/mutate.py, a pure function with a CLI, and its probes are now paperkit SPECS (def:_solved_grid, def:_is_rgb, data-:ROLES#5). ⚑ WHY THE UPSTREAM IS STRICTLY BETTER, measured not argued: it resolves by AST so the ambiguous-anchor defect found here yesterday CANNOT OCCUR by construction; it is LOUD (raises) on a spec naming no such element, so a miss is never a silent no-op; and it REFUSES a key read only via .get(k, DEFAULT) because the default swallows the drop and makes the mutation non-monotone -- a refinement this tree had no notion of. ⚑ AND THE COLLAPSE IS PARTIAL, WHICH IS THE FINDING: paperkit's surface is .py-ONLY and its own docstring defers the rest ('bib-edge / file nodes need eval.py to swap a NON-.py artifact -- a later rung'). The probe that found the whole n-of-n defect corrupts EL-Amber.colors, a themed artifact no AST reaches. That difference CARRIES IDENTITY, so both paths are kept and named rather than merged into a third vocabulary; the substring path is now scoped to non-.py artifacts only. REMAINING FOR W64: the sensitivity interpretation still lives upstream (grader.py, sens.py, the decision-coverage grid for the NON-monotone flip:/dflip: cells) and is NOT adopted here. FIRST STEP UNCHANGED: dflip over TIMELINE in check_marquee_live.py -- the L3 defect WAS a missing dflip. Read paperkit/tools/sites.py for the enumerated surface and paperkit/paperkit/mutate.py for the atom semantics before extending.",
       "evidence": "not started; paperkit/tools/sites.py read 2026-09-22",
       "issued_at": "2026-09-22T15:31:34+00:00",
-      "last_worked": "2026-09-22T16:53:28+00:00",
+      "last_worked": "2026-09-26T21:17:46Z",
       "ticks_blocked": 0
     },
     {
@@ -1245,9 +1247,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "SECOND INSTANCE CLOSED (s142). check_token_source's population was os.listdir(ROOT) for make_*.py minus a local exemption dict — delete make_css.py and it reported '15 of 15 emitters source from the palette', exit 0. ⚑ THE COLLAPSE: emitters.py ALREADY claimed to be the roster and its docstring says 'ONE ROSTER, TWO READERS', naming the incident where two readers disagreeing shipped an install with NO Aurorae decorations. check_token_source was the THIRD reader keeping its own list. emitters.ROLES now declares a role per module (3 authority, 16 emitter, 4 colourless, 1 packager = 24), emitters.drift(root) reports tree-vs-roster in BOTH directions, and emitters.py gained --roster and --drift so the question has a mode instead of an inline script. Probe suite now 4 of 4 flipping, 0 withheld, up from 1 of 4. TWO DEFECTS FOUND IN THE PROBE TOOL ITSELF, both by using it: (1) an AMBIGUOUS ANCHOR silently perturbed the first match — '\"make_css\"' occurs in ORDER before ROLES, so a probe reported 'does NOT flip' about a corruption it never applied where it meant to; now WITHHELD, and that immediately withheld two older probes that had been passing BY LUCK ('def ' matches 13 times in make_schemes.py). (2) A RESTORED FILE IS NOT A RESTORED MODULE: the swaps are often the same LENGTH and a write+restore inside one second leaves a .pyc that (mtime,size) validation accepts, so corrupted bytecode outlived the corrupted source and an unrelated tool read make_cssWAS from a file saying make_css — a contamination path BETWEEN probes. Both have selftest arms. NEXT: extend PROBES to the remaining ~58 checks. Each non-flip under a MEMBER-REMOVING corruption is another site; aim at the POPULATION, not the predicate — a structural check (does X import an authority?) is undisturbed by a def-rename inside that authority, which is why the first token-source probe read as a non-flip for the wrong reason.",
-      "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both",
+      "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both | 2026-09-26: 2026-09-27: edge retrofit — W65 is a specific finding produced by extending the mutation-grading tool W64 adopted (check_discriminates --probe); W64's own next step says 'extend PROBES to the remaining ~58 checks', the same mechanism W65 continues. Wired W64 enables W65.",
       "issued_at": "2026-09-22T15:41:39+00:00",
-      "last_worked": "2026-09-22T16:36:15+00:00",
+      "last_worked": "2026-09-26T21:17:47Z",
       "ticks_blocked": 0
     },
     {
@@ -1346,7 +1348,9 @@
       "symbol": "W72",
       "title": "ADOPT mat230's use-of-colour-check (operator TAKE, 2026-09-22; answered in summit inbox 2026-09-22-el-openglo-mat230-estate-one-taken-two-declined.bib). WCAG 2.2 SC 1.4.1: no meaning carried by colour alone. Source: ~/github/mat230 bin/check-a11y _check_use_of_colour, copied as-is (mat230 makes no more commits). Re-aim from table rows to our surfaces (lit vs ghost segments, the SDDM greeter's neg-colour Login Failed, marquee alert states). Rego shape: --json measurement + policy/use_of_colour.rego + _test.rego, cited from a warrant.",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W74"
+      ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
@@ -1354,7 +1358,7 @@
       "next_bounded_step": "W72.b: give critical marquee runs a non-colour cue (the bold run's fuller dot or a lit underline row), and C7/C8 likewise; then W72.c the check + rego pair.",
       "evidence": "catalog/use-of-colour.md (swarm-2, in worktree a378b2f4, not yet in main): 17 surfaces — 8 cued, 1 COLOUR-ONLY DEFECT (C6: marquee critical notification = hotColor only, templates/marquee-main.qml:444-446,463-465), 2 opacity-only (C7 low urgency, C8 suspended), 4 app-owned roles, 2 render-only. C1 lit/ghost passes only at default settings (weight/ghostWeight/bloom can erase both cues). DECIDED W72.a: opacity-only is a COLOUR difference (WCAG Understanding 1.4.1 counts lightness), so C7/C8 are denied alongside C6 — reversible by the operator.",
       "issued_at": "2026-09-22T22:57:58+00:00",
-      "last_worked": "2026-09-23T00:02:16+00:00",
+      "last_worked": "2026-09-26T21:17:46Z",
       "ticks_blocked": 0
     },
     {
@@ -1382,16 +1386,18 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "OPERATOR RULED (2026-09-23): low = lowercase, normal = UPPERCASE, critical = FLASHING UPPER CASE. A letterform cue (shape), which survives grayscale and every CVD view. Guards: flash at most 2 Hz (WCAG 2.3.1 is under 3 flashes/s); flashing is pausable (2.2.2: the existing hover-pause) and honours reduced-motion; case is a DISPLAY transform only, so the source text, link targets and copy are unchanged; critical keeps hotColor + underline. The dot-weight cue for low is dropped. The suspended job gauge still needs its own cue (it is columns, not text).",
-      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits).",
+      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74.",
       "issued_at": "2026-09-23T11:56:27+00:00",
-      "last_worked": "2026-09-23T17:52:48+00:00",
+      "last_worked": "2026-09-26T21:17:46Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W75",
       "title": "A CLAIM THAT A GATE MUST DENY: paperkit reads exit 1 as an open item, so a negative fixture (serial noise-only.log -> DENY S0; a colour-only painter -> DENY U1; a torn-read writer -> DENY) cannot be cited without sitting red forever. Proposal from the serial-claims agent: an inverting check type in catalog/worklist/paper.toml ([checks.refuses]: passes only when the cited gate exits 1), or \"opa_gate.py --expect denied\". Then a claim fails in BOTH directions: if the reader starts admitting noise, or if it cannot read the file at all. Touches paperkit check-type surface: ask paperkit whether [checks.X] may invert, before building.",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W82"
+      ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
@@ -1399,7 +1405,7 @@
       "next_bounded_step": "paperkit-e2 answered (2026-09-23): do (b), opa_gate.py --expect denied on OUR side; paperkit keeps one exit meaning (0 pass, 3 could-not-run, else fail). THE DECIDING DETAIL for their Delta grader: --expect must assert the TYPED denial — the gate ran, reached a decision, the decision is DENY, and the reason is the expected rule (e.g. --expect denied:S0) — never merely \"not allow\" or \"non-zero\". A crash/parse error/import failure must be a FAILURE (or exit 3 if the gate genuinely could not run); otherwise every mutation that breaks the reader passes and the claim grades vacuous. Build after the W50 batch-2 agent lands (both touch opa_gate.py). Then cite: refuses noise-only.log (S0), and a colour-only fixture (U1).",
       "evidence": "",
       "issued_at": "2026-09-23T14:55:01+00:00",
-      "last_worked": "2026-09-23T15:28:56+00:00",
+      "last_worked": "2026-09-26T21:18:21Z",
       "ticks_blocked": 0
     },
     {
@@ -1508,9 +1514,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Pick the next gate without a DENIES warrant; plant a fixture; warrant with --expect denied:RULE",
-      "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist",
+      "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist | 2026-09-26: 2026-09-27: edge retrofit — title already says 'W75 follow-on'; W75 built the --expect denied:RULE mechanism, W82 is the ongoing sweep using it (DEPS/CONSUMERS/TEMPLATES-DENIES warrants). Wired W75 enables W82.",
       "issued_at": "2026-09-26T18:13:16+00:00",
-      "last_worked": "2026-09-26T18:13:16+00:00",
+      "last_worked": "2026-09-26T21:18:24Z",
       "ticks_blocked": 0
     },
     {
@@ -1580,16 +1586,18 @@
     {
       "symbol": "W87",
       "title": "paths_forward has no way to ORDER the queue: the payload lists waypoints in issue order (W12, blocked, first) while the worked items sit last — §4.2 wants a structural-gain order every tick",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W93"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Add --order SYM... (and a ranked --queue): ready before blocked, then transitive enables weight, then last_worked; the tick records its chosen mechanism in the ledger as now",
-      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom",
+      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom | 2026-09-26: 2026-09-27: blocked on W93 — ranking the queue by leverage is meaningless while the enables/blocked_on graph is mostly empty (W93's job); stated explicitly to the operator this tick, now encoded.",
       "issued_at": "2026-09-26T18:41:28+00:00",
-      "last_worked": "2026-09-26T18:41:34+00:00",
+      "last_worked": "2026-09-26T21:17:47Z",
       "ticks_blocked": 0
     },
     {
@@ -1686,18 +1694,40 @@
       "symbol": "W93",
       "title": "Retrofit enables/blocked_on edges onto the ~27 live waypoints that have none: their own rank_reason/title prose already states collapse or unblock claims (W33's own text: 'collapse: THREE segment renderers... become one') that were never encoded as graph edges",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W87"
+      ],
       "touches": [
         "queue-structure"
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "FIRST PASS DONE (the 8 touches[] overlaps): 2 real edges found and wired (W62 enables W43 - both already stated 'COLLAPSE CANDIDATE WITH' each other in prose; W50 enables W53 - a Rego-sweep member, same pattern as W46/W35/W44), 2 already correctly wired (W58 enables W33; W57 enables W33 - my touches scan flagged them but they were fine), 5 REJECTED with evidence recorded (W30/W43, W30/W58, W43/W57, W42/W61, W60/W61 - shared-module or generic-tag overlaps with no stated relationship). REMAINING: this only covers pairs that share a touches[] tag. The larger sweep is reading every one of the ~25 still-unlinked live waypoints' own title/rank_reason/next_bounded_step prose for a relationship that does NOT share a touches tag (cross-reference by content, not by touches overlap).",
-      "evidence": "2026-09-26: 2026-09-27: first pass complete, see next_bounded_step for the tally; --check clean at 93/93 after each edit",
+      "next_bounded_step": "SECOND PASS DONE: fixed a bug in the diagnostic itself first (it only counted a node's OWN enables/blocked_on, missing incoming edges from others — corrected the true unlinked count from a wrong 27/23 down to 19, now 11). Wired 4 more edges found by title/prose cross-reference (not touches overlap): W72 enables W74 (title names W72 directly), W64 enables W65 (a finding produced by extending W64's adopted mutation-grader), W75 enables W82 (title says 'W75 follow-on'), W93 enables W87 + W87 blocked_on W93 (ranking by leverage needs edges to exist first). REMAINING 11 unlinked: W30, W36, W37, W41, W42, W61, W68, W71, W73, W77, W85 — read each against the others for a stated relationship; W77 is explicitly 'later' (OTEL widget) so may genuinely be independent; W71/W73 (guest boot image / GPU sandbox) look likely to relate to W70 (the k8s harness) on inspection.",
+      "evidence": "2026-09-26: 2026-09-27: first pass complete, see next_bounded_step for the tally; --check clean at 93/93 after each edit | 2026-09-26: 2026-09-27, tick: 19 -> 11 unlinked. Diagnostic bug fixed (incoming-edge blindness). --check clean at 93/93 throughout.",
       "issued_at": "2026-09-26T21:02:25Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-09-26T21:06:30Z",
+      "last_worked": "2026-09-26T21:18:50Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W94",
+      "title": "touches[] overlap is a CONTENTION signal with no lock, cross-repo AND across a single session's context-switches (operator, 2026-09-27, correcting the first framing: not 'if swarm returns' — swarm is LIVE now in 6 sibling repos; and a context-switch between two things touching the same object is the same hazard shape as two agents, no wall-clock concurrency needed)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "queue-structure"
+      ],
+      "blocked_on": [
+        "mtools"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Filed as a census-kit mode-B finding to mtools (schema/package owner of mikemol-pathsforward), nominating nemik (graph renderer) and the six repos with CURRENT swarm-kind ledger activity (gabion, luthen-observability, mtools, paperkit, rosettapkg, substrate — measured via nemik-metrics, not assumed) as the roster. mtools' README documents only a whole-queue --lock (the control-plane file), not a touches[]-scoped resource claim; checked via git grep for mutex/contention language in pathsforward/, one unrelated hit. Waiting on mtools' view before proposing a fix shape (a touches-scoped lease/claim field is one option, not decided). This repo cannot design the fix alone: the object is shared machinery el-openglo consumes, not owns.",
+      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan.",
+      "issued_at": "2026-09-26T21:19:31Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-09-26T21:23:46Z",
       "ticks_blocked": 0
     }
   ],
@@ -1717,5 +1747,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "4a4d8c4e"
+  "predecessor_job_id": "0f93da8a"
 }
