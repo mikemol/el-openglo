@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 95,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-26T21:51:26Z",
-  "job_id": "0ec9f447",
+  "heartbeat": "2026-09-26T22:31:57Z",
+  "job_id": "6fd5953f",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -617,10 +617,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
-      "next_bounded_step": "THE PHYSICS LAYER, which the merge was for — and it lands on both mounts at once. In order of what it buys: (1) a luminance GRADIENT across the lit segment (brighter toward the drive edge, falling along the length) — the strongest 'it is lit' cue and the one the operator's 'no texture' names most directly; (2) BOUNDARY DEPTH — the aperture mask's bevel/shadow where the cover meets the lit area, which is what makes a segment an object rather than a fill; (3) DIFFUSION — the emitting layer scatters, so the edge is not a step even before the bloom; (4) the SUBSTRATE past the digits (the marquee reads as hardware because its field spans bezel to bezel; the wallpaper's ghost stops at the four digits). Each is an EMISSION axis on SegmentChar with a solved amplitude, never authored noise, and each is measured by the texture number (local variance inside lit regions, ~0 for both surfaces today). Do (1) first and show the operator a pair. ⚑ W57's symmetry oracle should land BEFORE or WITH this: a gradient makes the photographed notch harder to see, not gone.",
-      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures.",
+      "next_bounded_step": "AXIS 1 (luminance gradient) landed and shown to the operator as a pair; NEXT is axis 2 (boundary depth) OR, first, building the texture-number measurement (local variance inside lit regions) this note calls for, since litGradient=0.35 is a picked constant, not yet solved by it. Once the tool exists: --tau-sweep-style search over litGradient against the texture number, record the solved value with its derivation (font_compiler.DECLARED's shape: state the number, the method, and the alternative rejected). Then axis 2/3/4, and a full render_screens sweep (clock, live wallpaper, splash all mount SegmentChar) once the amplitude is no longer a first guess.",
+      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33.",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-09-22T12:06:30+00:00",
+      "last_worked": "2026-09-26T22:27:17Z",
       "ticks_blocked": 0
     },
     {
@@ -1763,5 +1763,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "012cf060"
+  "predecessor_job_id": "6824d3dc"
 }

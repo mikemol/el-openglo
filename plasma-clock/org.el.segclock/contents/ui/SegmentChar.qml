@@ -59,6 +59,21 @@ Item {
     // wider opaque copy. 0 disables the layer (crisp fallback).
     property real bloom: 1.5
     property real glow: 1.0           // a mount may breathe the whole cell
+    // ⊕STROKE-GRADIENT (W33 physics layer, axis 1): a lit segment brightest at
+    // its own MIDPOINT, dimming toward both tips — the profile of a light guide
+    // fed by a single point source directly behind its centre (a common real
+    // 7-seg module layout), chosen over "brighter toward one fixed edge"
+    // because a ONE-SIDED gradient is not mirror-invariant: A and D run
+    // left-right, and neither end sits nearer the digit's own mirror axis than
+    // the other, so a one-sided gradient there would read differently under
+    // W57's own left-right flip — manufacturing a fresh asymmetry the moment
+    // it shipped. A centre-fed profile is symmetric by construction, for every
+    // segment, under every one of the digit's own mirrors. FIRST PASS: this
+    // amplitude is a picked constant, never authored noise but not yet SOLVED
+    // by the texture-number measurement the emission-axis note calls for
+    // either — that calibration is the next step, not this one. 0 = flat
+    // (today's behaviour, unchanged).
+    property real litGradient: 0.35
 
     readonly property real colonSlot: segLen * colonAdvance
     readonly property real colonX: segLen + (colonSlot + cellGap) / 2 - dotSize / 2
@@ -105,6 +120,7 @@ Item {
                 visible: sc.isOn(modelData)
                 color: sc.litColor
                 thick: sc.strokeLit
+                lit: true
             }
         }
         ColonDot { visible: sc.insertColon && sc.colonOn; y: sc.segLen * 0.62 }
@@ -118,6 +134,7 @@ Item {
             color: sc.litColor
             opacity: sc.glow
             thick: sc.strokeLit
+            lit: true
         }
     }
     // the colon after this cell: lit when on, ghost (never bloomed) when off
@@ -148,6 +165,7 @@ Item {
     component Segment: Rectangle {
         property string seg: "A"
         property real thick: sc.segThick
+        property bool lit: false          // true only for the halo/crisp LIT instances; ghost stays flat
         property var g: sc.segGeom[seg]          // [kind, ux, uy]
         property bool horiz: g[0] === "h"
         property real gap: sc.segThick * 0.62
@@ -155,6 +173,16 @@ Item {
         radius: thick / 2
         width:  horiz ? sc.segLen - gap * 2 : thick
         height: horiz ? thick : sc.segLen - gap * 2
+        // ⊕STROKE-GRADIENT: see sc.litGradient's doc for why centre-fed, not
+        // edge-fed. Ghost segments never gradient (⊕BLOOM's rule extended: an
+        // un-energised segment has no light guide to be fed unevenly).
+        readonly property Gradient litGrad: Gradient {
+            orientation: horiz ? Gradient.Horizontal : Gradient.Vertical
+            GradientStop { position: 0.0; color: Qt.rgba(sc.litColor.r, sc.litColor.g, sc.litColor.b, 1.0 - sc.litGradient) }
+            GradientStop { position: 0.5; color: sc.litColor }
+            GradientStop { position: 1.0; color: Qt.rgba(sc.litColor.r, sc.litColor.g, sc.litColor.b, 1.0 - sc.litGradient) }
+        }
+        gradient: lit && sc.litGradient > 0 ? litGrad : null
         // ⚑ CENTRED ON THE LATTICE LINE, NOT RESTING BESIDE IT (W57, s134; the
         // operator photographed the consequence: a digit whose top-left corner
         // notches while the bottom-left is clean). This read
