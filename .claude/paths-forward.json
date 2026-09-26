@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 92,
+  "counter": 93,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-26T19:08:12Z",
   "job_id": "0f93da8a",
@@ -560,9 +560,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "OPERATOR RULED (2026-09-23): the font compiler is a REQUIREMENT (F4: compiled == authored), and the DOT-MATRIX half is DROPPED (W54: plain Unifont behind the aperture, no compiled column table). So: remove the matrix half from font_compiler (worktree aad36c74, not landed), then make the SEGMENT half reproduce the authored 22-seg (1 of 72 today) and 7-seg (18 of 41) tables — or show, per glyph, why the authored table is the defect. The gate lands only when F4 is green or every remaining disagreement is ruled.",
-      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4).",
+      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4). | 2026-09-26: 2026-09-27: edge retrofit — touches display_types with W43 and make_notify_marquee with W58, but REJECTED as collapse candidates: both overlaps are a shared upstream module (font/display geometry), not a stated relationship between the waypoints' own work (font-table compilation vs engine-asset export vs package-load gating). No edge added; do not re-propose from these touches alone.",
       "issued_at": "2026-09-21T11:08:28+00:00",
-      "last_worked": "2026-09-23T17:54:41+00:00",
+      "last_worked": "2026-09-26T21:06:00Z",
       "ticks_blocked": 0
     },
     {
@@ -786,15 +786,15 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
-      "evidence": "",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added.",
       "issued_at": "2026-09-21T17:57:24+00:00",
-      "last_worked": "2026-09-21T17:57:24+00:00",
+      "last_worked": "2026-09-26T21:06:02Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W43",
       "title": "ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "segment_topology",
@@ -802,13 +802,15 @@
         "make_font",
         "display_types"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W62"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "⚑ COLLAPSE CANDIDATE WITH W62 (operator, 2026-09-22): 'so much of this engine is written in python, and having that as a module makes porting to, e.g. gimp plugins and script-fu, unreal, godot and whatnot easier.' The engine as an importable mikemol.* distribution IS the porting path -- GIMP's Python-Fu, Godot and Unreal all consume Python or bind to it, and none can consume a tree of scripts/*.py that derive their root from abspath(__file__). So W43 is not a separate emission target; it is what W62 makes possible. Do W62 first, then measure which engine surfaces need only a palette/geometry API rather than a new generator. AUDIT BEFORE MERGING: the repetition may carry identity -- an engine asset pipeline may want material/shader graphs that a Python module does not supply.",
-      "evidence": "",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above.",
       "issued_at": "2026-09-21T17:57:42+00:00",
-      "last_worked": "2026-09-22T14:42:35+00:00",
+      "last_worked": "2026-09-26T21:06:01Z",
       "ticks_blocked": 0
     },
     {
@@ -944,7 +946,8 @@
       "enables": [
         "W46",
         "W35",
-        "W44"
+        "W44",
+        "W53"
       ],
       "touches": [
         "gates",
@@ -957,7 +960,7 @@
       "next_bounded_step": "(b) check_inherit: --json facts (chain, dirs, defaults, parents installed as withheld facts), the print in problems() moves out; policy/inherit.rego; then (c) check_rehue, (d) check_token_source; then the palette family.",
       "evidence": "8101ae4 (pilot), 629ab48 (marquee_body), 978bddc (taskswitch, slice a; 44/44 across five policies; TASKSWITCH warrant + closed witness cite opa_gate)",
       "issued_at": "2026-09-21T19:04:23+00:00",
-      "last_worked": "2026-09-21T21:15:22+00:00",
+      "last_worked": "2026-09-26T21:05:41Z",
       "ticks_blocked": 0
     },
     {
@@ -1090,9 +1093,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock: a witness that needs no reference — it would have caught the photographed defect before the operator did, and it grades every future emission change",
       "next_bounded_step": "The CORNER asymmetries that remain (24 px regions where segments meet — the end-gap against the rounded cap: a horizontal is shortened by gap at each end while a vertical's cap protrudes, so the two do not close the corner identically). Then the constructive half the operator named: least-squares fit of the rendered segment extents against the substrate's unit coordinates, residuals naming the offender, the corrected table snapped to the device grid. And run the oracle on the MATRIX too (W59: a pip is a segment; the grid glitching was this check going unrun).",
-      "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that.",
+      "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that. | 2026-09-26: 2026-09-27: edge retrofit — touches segment_topology with W43 (engine assets); REJECTED, shared module only. No edge added (W57's real edge, enables W33, was already wired).",
       "issued_at": "2026-09-22T11:44:18+00:00",
-      "last_worked": "2026-09-22T12:56:10+00:00",
+      "last_worked": "2026-09-26T21:06:01Z",
       "ticks_blocked": 0
     },
     {
@@ -1113,9 +1116,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
       "next_bounded_step": "Measure what a load needs: (1) does qmllint resolve bare-name types when run INSIDE the emitted package directory (it lints the text today in a temp dir WITHOUT companions, which is why it passed both breakages) — if yes, the gate is one qmllint invocation per emitted package and check_package_imports's name list retires; (2) if not, a load harness: qml --apptype widget over a tiny document that instantiates the package's own contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; (3) the PLUGIN CONTRACT half: metadata.json's Id must match the directory name and the LnF defaults / layout / alias list that reference it (the f521e6f shape) — a cross-emitter check, not a per-package one. Then policy/package_load.rego and a warrant, and RETIRE check_package_imports's heuristic if (1) or (2) subsumes it.",
-      "evidence": "",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added.",
       "issued_at": "2026-09-22T12:16:56+00:00",
-      "last_worked": "2026-09-22T12:18:08+00:00",
+      "last_worked": "2026-09-26T21:06:00Z",
       "ticks_blocked": 0
     },
     {
@@ -1159,9 +1162,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock: it is the aperture model's whole claim — a pip's brightness is the ink under it NOW, not a translated bitmap — and the operator has now caught two places where the code did the opposite",
       "next_bounded_step": "MEASURE the claim rather than assert it: for a scroll, compute the per-frame pip-brightness profile (check_screens already extracts it) and ask whether adjacent frames are related by a FRACTIONAL shift (the aperture re-sampling) or by an INTEGER one (a translated bitmap) — the s120 best_pip_shift already returns k and f, so a run whose f is always 0 is pixelate-then-move, and that is the check. Then: does the optimal alignment (every stroke whole on the pips) occur on the path? It is the offset where the coverage histogram is most bimodal — report whether the scroll passes through it, and at what frame.",
-      "evidence": "",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches check_symmetry with W61 (build-graph keying); REJECTED, shared tool dependency only (W60 reads check_symmetry.best_pip_shift), no stated relationship. No edge added (W60's real edge, enables W59, was already wired).",
       "issued_at": "2026-09-22T12:36:50+00:00",
-      "last_worked": "2026-09-22T12:36:50+00:00",
+      "last_worked": "2026-09-26T21:06:02Z",
       "ticks_blocked": 0
     },
     {
@@ -1180,16 +1183,18 @@
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
       "next_bounded_step": "Split runner_code per job kind: each output keys only the modules its OWN stager and runner reach (render_qml's for clock/switcher/live-wallpaper/pinholes; check_marquee_live's for the marquee stills/anim), not render_screens' whole closure. Prove with --impact scripts/check_marquee_live.py -> only marquee outputs (+ their sheets, strip) move.",
-      "evidence": "landed 2026-09-23: per-output keys, early cutoff at generators; proven 0/19/10 of 56 in the worktree. FIRST REAL USE on main exposed a coarse term: W72 edited only a COMMENT in scripts/check_marquee_live.py, and 55 of 56 went stale — because every output's key includes the SAME runner-code term (the import closure of render_screens), so a harness a clock never runs still keys the clock.",
+      "evidence": "landed 2026-09-23: per-output keys, early cutoff at generators; proven 0/19/10 of 56 in the worktree. FIRST REAL USE on main exposed a coarse term: W72 edited only a COMMENT in scripts/check_marquee_live.py, and 55 of 56 went stale — because every output's key includes the SAME runner-code term (the import closure of render_screens), so a harness a clock never runs still keys the clock. | 2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W42 (codomain census) and check_symmetry with W60 (temporal subpixel); both REJECTED, shared-module/generic-tag overlaps with no stated relationship. No edges added.",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-23T11:10:52+00:00",
+      "last_worked": "2026-09-26T21:06:02Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W62",
       "title": "PACKAGE THE TOOLING: scripts/ and the ../substrate symlinks become mikemol-* distributions",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W43"
+      ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
@@ -1197,7 +1202,7 @@
       "next_bounded_step": "⚑ RANKED UP BY THE SWARM (2026-09-22): the first swarm found FOUR worktree defects in ~90 minutes, all one cause — this repo's tooling assumes it runs from the main checkout at its current HEAD. (1) every ../substrate symlink broken in every worktree (bridged by an ignored .claude/worktrees/substrate link — a workaround); (2) build_graph walked into the worktrees and doubled every population (fixed: _NOT_THE_TREE); (3) pycodemod silently reads 0 of N files under a worktree's own .venv (works via main's .venv/bin/python3 or Provide a command or script to invoke with `uv run <command>` or `uv run <script>.py`.\n\nThe following commands are available in the environment:\n\n- cairosvg\n- cffi-gen-src\n- f2py\n- fonttools\n- mdstruct\n- numpy-config\n- panfl\n- panflute\n- pyftmerge\n- pyftsubset\n- python\n- python3\n- python3.14\n- ttx\n\nSee `uv run --help` for more information.); (4) ⚑ THE WORST: worktrees branched from 929edf9, FIVE COMMITS BEHIND HEAD ef6624f, so every agent's verification was about a DIFFERENT TREE than the one integrated into. It did not fail — it produced a confident stale finding (W67 reported check_action_key --list broken; fixed and committed after its base). A defect that fails loudly is cheap; one that yields a plausible wrong answer is not. Integration therefore RE-VERIFIES every agent's work on current main rather than trusting its green. FIRST BOUNDED STEP for W62 itself: census what el-openglo borrows (check_hooks.py --list names the substrate symlinks) and what it would export; the five symlinks become an installed dependency, which fixes (1) and (3) by construction. Model ~/github/mtools/mdstruct. ⚑ COLLAPSE CANDIDATE WITH W43.",
       "evidence": "⚑ THE FIRST SWARM (2026-09-22) FOUND THREE WORKTREE ENVIRONMENT DEFECTS IN ONE HOUR, all one defect — this repo's tooling assumes it runs from the main checkout. (1) Every ../substrate symlink (hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests) was BROKEN in every worktree: the relative target ../../substrate resolves to .claude/worktrees/substrate from .claude/worktrees/agent-*/scripts/. Bridged by one ignored symlink .claude/worktrees/substrate -> /home/mikemol/github/substrate; the bridge is a workaround, not a fix. (2) build_graph's walk descended into the six worktrees and doubled every population (fixed: _NOT_THE_TREE excludes worktrees). (3) pycodemod SILENTLY reads 0 of N files under a worktree's own .venv (uv ignores VIRTUAL_ENV=main/.venv and uses the worktree's fresh one, where its parser raises AttributeError); it works via /home/mikemol/github/el-openglo/.venv/bin/python3. pycodemod flagged it loudly as a BROKEN QUERY and the subagent correctly marked its census UNMEASURED — the discipline held — but a hand-check then missed 4 refs the working invocation found. ALL THREE vanish under W62's shape: an INSTALLED mikemol-* distribution knows where it lives; a symlink or an editable finder or a venv-relative path does not.",
       "issued_at": "2026-09-22T14:28:13+00:00",
-      "last_worked": "2026-09-22T19:08:01+00:00",
+      "last_worked": "2026-09-26T21:04:08Z",
       "ticks_blocked": 0
     },
     {
@@ -1675,6 +1680,24 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W93",
+      "title": "Retrofit enables/blocked_on edges onto the ~27 live waypoints that have none: their own rank_reason/title prose already states collapse or unblock claims (W33's own text: 'collapse: THREE segment renderers... become one') that were never encoded as graph edges",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "queue-structure"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "FIRST PASS DONE (the 8 touches[] overlaps): 2 real edges found and wired (W62 enables W43 - both already stated 'COLLAPSE CANDIDATE WITH' each other in prose; W50 enables W53 - a Rego-sweep member, same pattern as W46/W35/W44), 2 already correctly wired (W58 enables W33; W57 enables W33 - my touches scan flagged them but they were fine), 5 REJECTED with evidence recorded (W30/W43, W30/W58, W43/W57, W42/W61, W60/W61 - shared-module or generic-tag overlaps with no stated relationship). REMAINING: this only covers pairs that share a touches[] tag. The larger sweep is reading every one of the ~25 still-unlinked live waypoints' own title/rank_reason/next_bounded_step prose for a relationship that does NOT share a touches tag (cross-reference by content, not by touches overlap).",
+      "evidence": "2026-09-26: 2026-09-27: first pass complete, see next_bounded_step for the tally; --check clean at 93/93 after each edit",
+      "issued_at": "2026-09-26T21:02:25Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-09-26T21:06:30Z",
       "ticks_blocked": 0
     }
   ],
