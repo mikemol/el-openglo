@@ -1440,10 +1440,10 @@
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "Rules: blocked on paperkit W52 (packaged pk_* rules; operator ruled no fourth copy of verb.bzl). UNBLOCKED meanwhile: el-openglo own executor image (luthen) — image/executor/Containerfile with pinned layers + offscreen Qt6/qml, tools/pool.bzl, tools/image_digest.py in the key; luthen builds + pins. Open for operator: renders in the shared remote cache? GPU for stills?",
+      "next_bounded_step": "Rules: blocked on paperkit W52 (packaged pk_* rules; operator: no fourth copy). UNBLOCKED meanwhile: el-openglo own executor image (luthen) — image/executor/Containerfile, pinned layers + offscreen Qt6/qml, tools/pool.bzl, tools/image_digest.py in the key. Operator 2026-09-25: renders DO go in the shared remote cache (keys must be complete — the image digest is part of that); GPU for stills UNDECIDED, so stills stay a host-side step",
       "evidence": "86e215d proposal in catalog/bazel-survey.md; operator 2026-09-25 wait for paperkit package",
       "issued_at": "2026-09-25T22:54:05+00:00",
-      "last_worked": "2026-09-26T00:50:16+00:00",
+      "last_worked": "2026-09-26T01:05:34+00:00",
       "ticks_blocked": 0
     }
   ],

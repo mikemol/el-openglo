@@ -65,7 +65,7 @@ tooling = [
     # `from paperkit import bib`), not a borrowed substrate script whose own
     # dependencies became ours. Sha-pinned, never @main (mtools INSTALL.md). The gate
     # itself still runs the LOCATED checkout (worklist_gate.locate); this is the reader.
-    "paperkit @ git+https://github.com/mikemol/paperkit.git@7081cd13e2f8d933e0598ecdcc18f7e9cf221295",
+    "paperkit @ git+https://github.com/mikemol/paperkit.git@88792ac2deb9498b3e46ff938e28ef9a81d372bf",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
     "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG
