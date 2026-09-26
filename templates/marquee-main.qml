@@ -557,9 +557,11 @@ PlasmoidItem {
                 // is driven by root's `flash` animation, and holds true when paused)
                 var dark = urgency === 2 && !root.flashLit;
                 for (var c = 0; c < root.matrix.cols; c++) {
-                    var byte = bytes.length > c ? bytes[c] : 0;
+                    // ⚑ NOT `byte`: Qt 6.10.2 refuses it ("Expected token `identifier'", the operator's
+                    // laptop 2026-09-25) while this host's 6.11.2 accepts it — an ES3 future-reserved word
+                    var colBits = bytes.length > c ? bytes[c] : 0;
                     for (var r = 0; r < root.matrix.rows; r++) {
-                        var on = !dark && (((byte & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1));
+                        var on = !dark && (((colBits & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1));
                         if (!on) continue;
                         onCells += 1;
                         var cx = (x0 + c) * s + rep.offs[i], cy = r * s;

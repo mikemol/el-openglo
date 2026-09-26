@@ -615,7 +615,8 @@ CLOSED = {
         # applies urgency's letterform (a display transform) before indexing
         lambda: _reads("templates/marquee-main.qml", r"Body\.glyphFor\(root\.matrixFont,\s*ch\b") and
                 _reads("templates/marquee-body.js", r"(?m)^function glyphFor\(font, ch, urgency\)") and
-                _reads("templates/marquee-main.qml", r"\(byte & \(1 << r\)\)") and
+                # the column's bits → cells (was `byte`, renamed 2026-09-25: Qt 6.10 refuses it)
+                _reads("templates/marquee-main.qml", r"\(colBits & \(1 << r\)\)") and
                 _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
                 _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*function drawBackdrop\(\)") and

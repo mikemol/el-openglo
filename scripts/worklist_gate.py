@@ -393,9 +393,26 @@ def _replay(proj, output):
                   f"(uv sync --extra tooling)", file=sys.stderr)
             continue
         cpu = int(os.environ.get("PAPERKIT_CHECK_CPU", PKR.CHECK_CPU))
+        # ⚑ NEVER ASK FOR MORE THAN WE INHERITED (2026-09-26). Run as a CHECK, this
+        # process already carries the gate's RLIMIT_CPU, and since paperkit b593c80 its
+        # hard limit equals its soft (no +3 s grace): raising a hard limit is EPERM, so
+        # _cpu_rlimit(cpu) failed in preexec and the @WORKLIST selftest died with a
+        # traceback inside every gate run — while every run outside a gate passed.
+        # A child's CPU starts at zero, so clamping to the inherited hard cap costs nothing.
+        # ⚑ AND NOT THROUGH PKR._cpu_rlimit: that is a PRIVATE helper of the INSTALLED
+        # paperkit (the pin, 88792ac: hard = cap + 3), while the gate that ran us is the
+        # live checkout (b593c80: hard = cap). Calling another version's private helper
+        # is how this broke; the replay owns keeping its limit inside what it inherited.
+        import resource
+        inherited = resource.getrlimit(resource.RLIMIT_CPU)[1]
+        hard = cpu if inherited == resource.RLIM_INFINITY else min(cpu, inherited)
+
+        def _cap(soft=min(cpu, hard), hard=hard):
+            resource.setrlimit(resource.RLIMIT_CPU, (soft, hard))
+            resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
         r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True,
                            env=PKR.clean_env(), start_new_session=True,
-                           preexec_fn=PKR._cpu_rlimit(cpu))
+                           preexec_fn=_cap)
         tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
         if r.returncode in (-24, -9):          # SIGXCPU at the soft cap, SIGKILL at the hard
             tail.insert(0, f"FAIL: killed by signal {-r.returncode} — exceeded the gate's "

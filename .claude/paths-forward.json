@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 79,
+  "counter": 84,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-25T22:54:26+00:00",
   "job_id": "245a93e7",
@@ -234,14 +234,14 @@
         "overlay"
       ],
       "blocked_on": [
-        "mikemol"
+        "operator: act report a specific live defect in the installed ebuild (the machine half is otherwise done)"
       ],
       "blocked_kind": "human",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
       "next_bounded_step": "Operator is reviewing every few commits (2026-09-22) — the probes are being seen; stop nudging. Remaining MACHINE half: gate_ledger --report path mismatch (substrate symlink — fix THERE, both selftests). Leave blocked until the operator reports a specific live defect.",
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open.",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-21T17:49:11+00:00",
+      "last_worked": "2026-09-26T18:13:46+00:00",
       "ticks_blocked": 5
     },
     {
@@ -254,14 +254,14 @@
         "every-emitter"
       ],
       "blocked_on": [
-        "mikemol"
+        "operator: decide which upstream routes to publish each theme target through"
       ],
       "blocked_kind": "human",
       "rank_reason": "unblocked; the cheapest real step is the operator reading store.kde.org/product/add once (turns every [MEM] line to [WEB]); the machine-side step is a make_store_bundle emitter that packages each target with the preview + description the store wants, keyed by OCS category id",
       "next_bounded_step": "MACHINE half done at 1c61346: catalog/publishing.md (15 emitters → venues; OCS ids from the letter; wallpaper id 299 read from the cached listing) + check_publishing.py @PUBLISHING (52). HUMAN half: open store.kde.org/product/add once and read the form — licence selector? preview requirements? does Aurorae go to 114 or 717? — then record as [WEB] rows. Nudge ONCE, then leave.",
       "evidence": "1c61346; inbox/2026-09-20-linux-sources-contribution-routes-per-target.md; catalog/ocs-categories.xml",
       "issued_at": "2026-09-20T23:28:28+00:00",
-      "last_worked": "2026-09-25T23:44:38+00:00",
+      "last_worked": "2026-09-26T18:13:46+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1314,14 +1314,14 @@
       "enables": [],
       "touches": [],
       "blocked_on": [
-        "luthen-observability-4c"
+        "luthen-observability"
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted themes get in (make_deb? overlay ebuild W12?).",
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7).",
       "issued_at": "2026-09-22T22:20:36+00:00",
-      "last_worked": "2026-09-22T22:21:16+00:00",
+      "last_worked": "2026-09-26T18:14:25+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1433,17 +1433,19 @@
       "symbol": "W78",
       "title": "Shift to the Bazel pattern the other repos use (per-output actions, declared populations, tiers)",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W81"
+      ],
       "touches": [],
       "blocked_on": [
-        "paperkit-e1"
+        "paperkit:W52"
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Rules: blocked on paperkit W52 (packaged pk_* rules; operator: no fourth copy). UNBLOCKED meanwhile: el-openglo own executor image (luthen) — image/executor/Containerfile, pinned layers + offscreen Qt6/qml, tools/pool.bzl, tools/image_digest.py in the key. Operator 2026-09-25: renders DO go in the shared remote cache (keys must be complete — the image digest is part of that); GPU for stills UNDECIDED, so stills stay a host-side step",
       "evidence": "86e215d proposal in catalog/bazel-survey.md; operator 2026-09-25 wait for paperkit package",
       "issued_at": "2026-09-25T22:54:05+00:00",
-      "last_worked": "2026-09-26T01:05:34+00:00",
+      "last_worked": "2026-09-26T18:13:45+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1459,6 +1461,87 @@
       "evidence": "no warrant gates make_deb today (warrants.bib has no build check); last make_deb change a70e8f8 2026-09-23",
       "issued_at": "2026-09-26T01:20:13+00:00",
       "last_worked": "2026-09-26T01:20:13+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W80",
+      "title": "@EBUILD is Δ-broken: the gated check cannot fail under the sweep (was R5; four hypotheses falsified: no .git, clean env, CPU cap, strace)",
+      "status": "blocked",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [
+        "paperkit:W45"
+      ],
+      "blocked_kind": "agent",
+      "rank_reason": "",
+      "next_bounded_step": "When paperkit W45 lands, re-run Δ on @EBUILD alone and read check_said",
+      "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported",
+      "issued_at": "2026-09-26T18:13:16+00:00",
+      "last_worked": "2026-09-26T18:13:45+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W81",
+      "title": "Renders read host fonts by FAMILY: declare fonts.conf over declared font files so the render key covers them (was R10)",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "qt_sandbox.env sets FONTCONFIG_FILE to a generated fonts.conf listing only declared font files; check_action_key already keys FONTCONFIG_*; re-render; aperture-text-probe.qml `font.family: \"$font\"` is the leak",
+      "evidence": "output_keys docstring names host fonts as the key weakness; the executor image (W78) is the other half",
+      "issued_at": "2026-09-26T18:13:16+00:00",
+      "last_worked": "2026-09-26T18:13:16+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W82",
+      "title": "Negative fixtures: a claim that a gate must DENY, one plant point per tick (was R1 / W75 follow-on; deps, consumers, embedded_markup done)",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Pick the next gate without a DENIES warrant; plant a fixture; warrant with --expect denied:RULE",
+      "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist",
+      "issued_at": "2026-09-26T18:13:16+00:00",
+      "last_worked": "2026-09-26T18:13:16+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W83",
+      "title": "Emitted QML/JS must parse and run under the OPERATORS Qt (Ubuntu resolute, Qt 6.10.2): `var byte` passed every gate on host Qt 6.11.2 and failed on the laptop",
+      "status": "blocked",
+      "enables": [
+        "W79"
+      ],
+      "touches": [],
+      "blocked_on": [
+        "luthen-observability:W114"
+      ],
+      "blocked_kind": "agent",
+      "rank_reason": "",
+      "next_bounded_step": "When luthen ships the image runner: el-openglo wrapper + policy/qml_target.rego + @QML-TARGET warrant; also settles `transient` in marquee-body.js",
+      "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2",
+      "issued_at": "2026-09-26T18:13:16+00:00",
+      "last_worked": "2026-09-26T18:21:20+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W84",
+      "title": "FLAKE: @WORKLIST (worklist_gate --selftest) failed inside the readme gate and PASSED ON REPLAY on an unchanged tree (2026-09-26) — a defect in the check, not an absence of one",
+      "status": "done",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "done",
+      "evidence": "OURS, not paperkit: worklist_gate._replay called the INSTALLED paperkit private _cpu_rlimit (pin 88792ac: hard=cap+3) inside a check whose inherited hard limit is the gate cap (live checkout b593c80: soft==hard) -> EPERM in preexec -> selftest traceback in every gate run. Reproduced with prlimit --cpu=60:60 + env -i; fixed by an own preexec that never raises the inherited hard limit; readme gate PASS",
+      "issued_at": "2026-09-26T18:21:19+00:00",
+      "last_worked": "2026-09-26T18:30:42+00:00",
       "ticks_blocked": 0
     }
   ],

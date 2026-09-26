@@ -589,6 +589,12 @@ def _splash_qml(ground_hex, lit_hex, ghost_hex, ghost_alpha):
 
 
 
+# ⚑ NO Conflicts/Replaces NAMING THE PREDECESSOR PACKAGE (2026-09-25). The operator's
+# laptop refused the first .deb because the predecessor package (1.24.1, under the
+# retired name) owns the same files; Debian's rename idiom would declare it here —
+# but its name IS the retired mark scripts/check_mark.py keeps out of the tree and out
+# of what ships. It was never published, so only the operator's machines carry it:
+# remove it once by hand (`apt remove`) before installing this.
 CONTROL = f"""Package: {PKG}
 Version: {VERSION}
 Section: kde

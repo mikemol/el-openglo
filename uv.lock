@@ -333,7 +333,7 @@ requires-dist = [
     { name = "networkx", marker = "extra == 'tooling'" },
     { name = "numpy" },
     { name = "panflute", marker = "extra == 'tooling'" },
-    { name = "paperkit", marker = "extra == 'tooling'", git = "https://github.com/mikemol/paperkit.git?rev=7081cd13e2f8d933e0598ecdcc18f7e9cf221295" },
+    { name = "paperkit", marker = "extra == 'tooling'", git = "https://github.com/mikemol/paperkit.git?rev=88792ac2deb9498b3e46ff938e28ef9a81d372bf" },
     { name = "pillow" },
     { name = "python-magic", marker = "extra == 'tooling'", specifier = ">=0.4.27" },
     { name = "scipy", marker = "extra == 'research'" },
@@ -788,7 +788,7 @@ wheels = [
 [[package]]
 name = "paperkit"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/paperkit.git?rev=7081cd13e2f8d933e0598ecdcc18f7e9cf221295#7081cd13e2f8d933e0598ecdcc18f7e9cf221295" }
+source = { git = "https://github.com/mikemol/paperkit.git?rev=88792ac2deb9498b3e46ff938e28ef9a81d372bf#88792ac2deb9498b3e46ff938e28ef9a81d372bf" }
 
 [[package]]
 name = "pathspec"
