@@ -148,7 +148,7 @@ def payload(state: dict) -> str:
     done_line = (f"done ({len(done)}): {', '.join(done)}" if done else "")
     residue = [f"  {r['symbol']}: {r['reason']}" for r in state["residue"]]
 
-    def render(detail_n, with_evidence, with_residue, with_preamble=True):
+    def render(detail_n, with_evidence, with_residue, with_preamble=True, width=160):
         # ⚑ ONLY THE TOP ITEMS NEED THEIR STEP. A tick advances exactly ONE
         # waypoint (§4.4), so the prose that must survive the budget is the prose
         # of the item that will be worked. The rest need identity, status and
@@ -160,7 +160,7 @@ def payload(state: dict) -> str:
         # be the queue; state_path is on line 2 and the tick is told to read it.
         def clip(stanza):
             head = stanza.splitlines()[0]
-            return head if len(head) <= 160 else head[:157] + "..."
+            return head if len(head) <= width else head[:width - 3] + "..."
 
         head = lines[:-1] + (pre_lines if with_preamble else []) + lines[-1:]
         out = head + live[:detail_n] + [clip(l) for l in live[detail_n:]]
@@ -183,12 +183,15 @@ def payload(state: dict) -> str:
              ((n, False, False), ["residue", "evidence"]),
              ((5, False, False), ["residue", "evidence", "steps-below-5"]),
              ((2, False, False), ["residue", "evidence", "steps-below-2"]),
-             ((1, False, False), ["residue", "evidence", "steps-below-1"])]
+             ((1, False, False), ["residue", "evidence", "steps-below-1"]),
+             # ⚑ MANY LIVE WAYPOINTS (2026-09-26: 33 of them at 160 chars = ~5.4 KB before
+             # a header) — clipped shorter before the standing rules are sacrificed
+             ((1, False, False, True, 100), ["residue", "evidence", "steps-below-1", "titles-at-100"])]
     # The preamble is the LAST thing sacrificed, and its loss is named with its
     # line count so the tick knows standing rules are missing, not absent.
     if pre:
-        rungs.append(((1, False, False, False),
-                      ["residue", "evidence", "steps-below-1", f"preamble({len(pre)}-lines)"]))
+        rungs.append(((1, False, False, False, 100),
+                      ["residue", "evidence", "steps-below-1", "titles-at-100", f"preamble({len(pre)}-lines)"]))
     for (flags, dropped) in rungs:
         text = render(*flags)
         if len(text) <= PAYLOAD_BUDGET:

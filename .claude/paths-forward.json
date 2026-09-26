@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 84,
+  "counter": 87,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-25T22:54:26+00:00",
-  "job_id": "245a93e7",
+  "heartbeat": "2026-09-26T18:42:00+00:00",
+  "job_id": "4a4d8c4e",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1402,16 +1402,16 @@
     {
       "symbol": "W76",
       "title": "Closed-loop kerning: kernOffsets pushes a pair apart only while it bleeds through the pip mask (operator: a feedback loop, not set-and-forget)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Kerning pixel gate with its own warrant: one variant, deny any interior lit run wider than glyph cols + 1 (check_urgency_cues lit_runs); a tap on char k resolves to k",
-      "evidence": "1b40ecc part 1 (harness + M9); 138221c part 2 (painter/gauge/textCells/tapAt on one offsets[]), pushed ff 18:38:57",
+      "next_bounded_step": "done",
+      "evidence": "1b40ecc harness+M9; 138221c painter/gauge/textCells/tapAt on one offsets[]; 9a5a3b1 @KERNING (regular 5 / bold 6 cols, 8/8); 7fd3b8b L12 tap on char k resolves to k — all pushed",
       "issued_at": "2026-09-25T22:53:59+00:00",
-      "last_worked": "2026-09-25T22:53:59+00:00",
+      "last_worked": "2026-09-26T18:40:29+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1457,10 +1457,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Build make_deb from the current tree as a capped service, report path + contents; then @DEB warrant (rego): builds from a private root, dpkg-deb accepts it, and it carries every surface the emitters claim",
-      "evidence": "no warrant gates make_deb today (warrants.bib has no build check); last make_deb change a70e8f8 2026-09-23",
+      "next_bounded_step": "(1) When el-deb-pack3 finishes: verify with opa_gate.py deb (staged == packed, steps 0), send out.deb to the operator (tree cac10f7), who removes the predecessor package by hand first. (2) Then @DEB as a warrant that PRODUCES its own inputs (make_deb then deb_pack, ~10 min on md0) — decide its cadence (per push is too heavy)",
+      "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2",
       "issued_at": "2026-09-26T01:20:13+00:00",
-      "last_worked": "2026-09-26T01:20:13+00:00",
+      "last_worked": "2026-09-26T18:40:29+00:00",
       "ticks_blocked": 0
     },
     {
@@ -1543,6 +1543,51 @@
       "issued_at": "2026-09-26T18:21:19+00:00",
       "last_worked": "2026-09-26T18:30:42+00:00",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W85",
+      "title": "Bump the paperkit pin past 0249924 (paperkit W50: Δ scratch honours TMPDIR); our pin 88792ac predates it",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Move pyproject tooling pin to paperkit origin/main at or after 0249924; uv pip install into .venv; readme+worklist gates; commit",
+      "evidence": "git merge-base --is-ancestor 0249924 88792ac exits 1 (confirmed by paperkit-b9)",
+      "issued_at": "2026-09-26T18:40:29+00:00",
+      "last_worked": "2026-09-26T18:40:29+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W86",
+      "title": "The cron payload is GENERATED from the queue, not hand-typed (operator 2026-09-26: the plan lives in the graph)",
+      "status": "done",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "done",
+      "evidence": "preamble stored (--preamble-set, 5 lines); job re-armed from --payload verbatim",
+      "issued_at": "2026-09-26T18:40:30+00:00",
+      "last_worked": "2026-09-26T18:40:42+00:00",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W87",
+      "title": "paths_forward has no way to ORDER the queue: the payload lists waypoints in issue order (W12, blocked, first) while the worked items sit last — §4.2 wants a structural-gain order every tick",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "rank_reason": "",
+      "next_bounded_step": "Add --order SYM... (and a ranked --queue): ready before blocked, then transitive enables weight, then last_worked; the tick records its chosen mechanism in the ledger as now",
+      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom",
+      "issued_at": "2026-09-26T18:41:28+00:00",
+      "last_worked": "2026-09-26T18:41:34+00:00",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1556,8 +1601,9 @@
   ],
   "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner.",
   "preamble": [
-    "Open with `python3 scripts/check_marquee_host.py`. Re-arm on hash change (§4.3); hold the lock until your background work lands. Cadence: every 15 minutes.",
-    "NO SWARM (operator 2026-09-25: the free token window is over): work ONE item per tick yourself; dispatch no new worktree agents. Land already-finished worktrees one at a time, re-verified on main; never stage during a commit or main-tree render.",
-    "Agents (if ever dispatched again): reset worktree to main, copy .palette-cache.json, OPENBLAS=1, no full gate, no commits, structural tools; no test touches the display/GPU (W73); NEVER download or run a binary from the network."
+    "ONE item per tick, no swarm. Checks under .venv/bin/python3. Never stage during a commit/render.",
+    "Pushes are automatic (post-commit auto_push); never push by hand; read .git/auto-push.log; no tree writes while check_tree_writes runs.",
+    "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
+    "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ]
 }
