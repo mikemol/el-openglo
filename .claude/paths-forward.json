@@ -247,21 +247,19 @@
     {
       "symbol": "W13",
       "title": "Upstream contribution routes for every theme target — where each is published, how to submit, licensing gates, whether generated themes are welcome",
-      "status": "blocked",
+      "status": "done",
       "enables": [],
       "touches": [
         "publishing",
         "every-emitter"
       ],
-      "blocked_on": [
-        "operator: decide which upstream routes to publish each theme target through"
-      ],
-      "blocked_kind": "human",
+      "blocked_on": [],
+      "blocked_kind": null,
       "rank_reason": "unblocked; the cheapest real step is the operator reading store.kde.org/product/add once (turns every [MEM] line to [WEB]); the machine-side step is a make_store_bundle emitter that packages each target with the preview + description the store wants, keyed by OCS category id",
-      "next_bounded_step": "MACHINE half done at 1c61346: catalog/publishing.md (15 emitters → venues; OCS ids from the letter; wallpaper id 299 read from the cached listing) + check_publishing.py @PUBLISHING (52). HUMAN half: open store.kde.org/product/add once and read the form — licence selector? preview requirements? does Aurorae go to 114 or 717? — then record as [WEB] rows. Nudge ONCE, then leave.",
-      "evidence": "1c61346; inbox/2026-09-20-linux-sources-contribution-routes-per-target.md; catalog/ocs-categories.xml",
+      "next_bounded_step": "",
+      "evidence": "1c61346; inbox/2026-09-20-linux-sources-contribution-routes-per-target.md; catalog/ocs-categories.xml | 2026-09-26: 2026-09-27: operator saved store.kde.org/product/add's Basics step. RESOLVED: licence selector lists Apache License + all GPL variants (our licences are accepted); Product Logo min 20x20/max 2000x2000/max 2MB, Gallery Pictures max 5MB/5 pics; Aurorae category is id 114 (xdg_type=aurorae_themes, already in catalog/ocs-categories.xml — 717 is untyped, the newer native-decoration bucket). catalog/publishing.md rows + 'What is unverified' section rewritten; check_publishing --selftest PASS; opa_gate publishing 17 admitted, 0 deny",
       "issued_at": "2026-09-20T23:28:28+00:00",
-      "last_worked": "2026-09-26T18:13:46+00:00",
+      "last_worked": "2026-09-26T20:51:00Z",
       "ticks_blocked": 0
     },
     {
