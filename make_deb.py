@@ -1031,6 +1031,15 @@ def build(out_dir=None):
         atomic_write(p, body)
         os.chmod(p, 0o755)
 
+    # ⚑ A MISSING dpkg-deb IS A SKIP, NOT A TRACEBACK (2026-09-25: this Gentoo host has
+    # no dpkg, and the build died at its last step with FileNotFoundError). DEB_ROOT is
+    # complete here — tree, DEBIAN/control, maintainer scripts, DEP-5 copyright — so the
+    # pack is handed to luthen's checks/deb_pack.py (a pinned Debian image on the host's
+    # BuildKit), which runs the same dpkg-deb --build and reports --info / --contents.
+    if shutil.which("dpkg-deb") is None:
+        print(f"make_deb: SKIP pack — dpkg-deb is not on this host; the package root is "
+              f"complete at {DEB_ROOT} (pack it with luthen checks/deb_pack.py --stage {DEB_ROOT})")
+        return None, mapping
     tmp_out = f"/tmp/{PKG}_{VERSION}_{ARCH}.deb"
     subprocess.run(["dpkg-deb", "--build", "--root-owner-group", DEB_ROOT, tmp_out],
                    check=True)
@@ -1056,4 +1065,7 @@ if __name__ == "__main__":
         raise SystemExit(f"make_deb: unknown flag {_sys.argv[1]!r} (modes: --stage DIR, or none)")
     else:
         out, mapping = build()
-        print("built", out, "with", len(mapping), "mapped paths")
+        if out is None:
+            print("assembled", len(mapping), "mapped paths; the .deb itself was not packed (SKIP above)")
+        else:
+            print("built", out, "with", len(mapping), "mapped paths")
