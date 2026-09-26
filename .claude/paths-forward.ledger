@@ -256,3 +256,6 @@
 2026-09-26T18:52:23Z  tick  W88  done      unblock   "adopted mikemol-pathsforward (mtools f30ea89) as the one writer; local scripts/paths_forward.py retired; W89/W90/W91 queued for the ledger rewrite"  evidence=pyproject.toml
 2026-09-26T19:06:30Z  peer  W80  noted     inform    "paperkit-b9: W80 waits on paperkit:W45 via W112->W113->W45 (enables el-openglo:W80); W78 waits on paperkit:W52, ranked after W108-W111 + W77; no change here"
 2026-09-26T19:07:51Z  op    W79  advanced  unblock   "operator laptop: cac10f7 .deb loads the marquee on Qt 6.10.2 after plasmashell --replace; W92 added for reload-on-upgrade"
+2026-09-26T20:41:31Z  op    W12  reasked   clarify   "operator could not recall the sub-dialog tick state; rewrote blocked_on as a fresh reproducible check instead of an unanswerable memory question"
+2026-09-26T20:42:29Z  op    W12  unblocked answer    "operator screenshot showed Colors ticked in the apply dialog; wallpaper question closed (bundled under unticked Desktop layout), Qt-widgets question sharpened into a real repro-able defect (Colors on, kdeglobals stayed BreezeLight)"
+2026-09-26T20:43:48Z  op    W12  blocked   link      "linked to W70 (KVM-via-k8s harness) as the reproduction environment for the kdeglobals ColorScheme defect; needs a real logged-in Plasma session, cannot be faked headlessly"

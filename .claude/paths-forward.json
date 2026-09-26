@@ -234,15 +234,15 @@
         "overlay"
       ],
       "blocked_on": [
-        "operator: act report a specific live defect in the installed ebuild (the machine half is otherwise done)"
+        "W70"
       ],
-      "blocked_kind": "human",
+      "blocked_kind": "agent",
       "rank_reason": "unblock: the host is Gentoo and the theme ships only as a .deb, so nothing reaches the operator desktop; every LIVE-bucket ⊕VER item waits on an install path",
-      "next_bounded_step": "Operator is reviewing every few commits (2026-09-22) — the probes are being seen; stop nudging. Remaining MACHINE half: gate_ledger --report path mismatch (substrate symlink — fix THERE, both selftests). Leave blocked until the operator reports a specific live defect.",
-      "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open.",
+      "next_bounded_step": "Blocked on W70 (KVM-through-k8s boot+GUI harness): the kdeglobals repro needs a real logged-in Plasma session to click Apply and inspect state after, which cannot be faked headlessly. Once W70's VM harness exists, drive it: apply EL-Azure-Lit with Colors ticked, capture kdeglobals + whether plasma-apply-colorscheme was invoked with the EL-* name.",
+      "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open. | 2026-09-26: 2026-09-27: operator does not recall the ticked state from the original observation (Qt widgets stayed BreezeLight, wallpaper unchanged) — re-asking as a fresh, reproducible check rather than relying on memory | 2026-09-26: 2026-09-27: operator screenshot of the 'Choose what to apply' dialog for EL-Azure-Lit — Colors IS ticked (also Application Style, Window Decoration Style, Icons, Plasma Style, Pointers, Splash Screen); only 'Desktop layout' (bundles wallpaper) is unticked. CLOSES the wallpaper question (expected: unticked). SHARPENS the Qt-widgets question into a real defect: Colors was ticked and Apply pressed, yet kdeglobals ColorScheme stayed BreezeLight (earlier measurement).",
       "issued_at": "2026-09-20T23:28:07+00:00",
-      "last_worked": "2026-09-26T18:13:46+00:00",
-      "ticks_blocked": 5
+      "last_worked": "2026-09-26T20:43:47Z",
+      "ticks_blocked": 0
     },
     {
       "symbol": "W13",
@@ -1309,7 +1309,7 @@
     },
     {
       "symbol": "W70",
-      "title": "BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
+      "title": "BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
       "status": "blocked",
       "enables": [],
       "touches": [],
@@ -1321,7 +1321,7 @@
       "next_bounded_step": "Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted themes get in (make_deb? overlay ebuild W12?).",
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7).",
       "issued_at": "2026-09-22T22:20:36+00:00",
-      "last_worked": "2026-09-26T18:14:25+00:00",
+      "last_worked": "2026-09-26T20:43:47Z",
       "ticks_blocked": 0
     },
     {
