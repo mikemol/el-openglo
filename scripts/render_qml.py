@@ -257,27 +257,39 @@ def _emit(surface, variant):
     return qml, kcfg
 
 
-def render_stager(surface, variant, w, h, out_png, config_override=None, software=False):
+def render_stager(surface, variant, w, h, out_png, config_override=None, software=False, component_patches=None):
     """The JOB render() runs, as a stager: `stage(td) -> (argv, env, gpu)` writes
     every file the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS:
     render() runs it, and catalog/library/render_screens.output_keys digests it
     (W61) — so the key is over what the process is HANDED, never a list of what
-    someone believed it reads."""
+    someone believed it reads.
+
+    `component_patches`: {companion filename: [(pattern, repl), ...]}, applied by
+    re.sub to that companion's text before staging — for properties like
+    SegmentChar's litGradient that are a component's own default, not a
+    plasmoid.configuration key, so config_override cannot reach them."""
     qml, config, ground = subject(surface, variant)
     if config_override:
         config.update(config_override)
     comp = companions(surface)
+    for name, patches in (component_patches or {}).items():
+        if name not in comp:
+            raise ValueError(f"render_qml: component_patches names {name!r}, not a companion of {surface!r}")
+        for pat, rep in patches:
+            comp[name], n = re.subn(pat, rep, comp[name])
+            if n == 0:
+                raise ValueError(f"render_qml: patch {pat[:40]!r} matched nothing in {name}")
     harness = SDDM_HARNESS if surface == "sddm" else HARNESS
     return lambda td: stage_document(td, qml, variant, w, h, out_png, config, ground, software, comp,
                                      harness=harness)
 
 
-def render(surface, variant, w, h, out_png, config_override=None, software=False):
+def render(surface, variant, w, h, out_png, config_override=None, software=False, component_patches=None):
     """Render to out_png; returns (rc, stderr). `software` asks for the software
     scene graph explicitly (what the ebuild sandbox gets anyway) — an argument, not
     an environment mutation: render_screens once set EL_RENDER_SOFTWARE in its own
     process for one animation and every later still rendered under it (s125)."""
-    return run_stager(render_stager(surface, variant, w, h, out_png, config_override, software))
+    return run_stager(render_stager(surface, variant, w, h, out_png, config_override, software, component_patches))
 
 
 def companions(surface):
@@ -524,8 +536,48 @@ def edges(png, variant):
             "softness": round(trans / on, 3) if on else None}
 
 
+def texture(png, variant):
+    """How much does BRIGHTNESS VARY inside a lit stroke's own interior? (W33
+    axis 1's own follow-up: litGradient is a picked constant, not yet SOLVED by
+    a measurement.) Reuses edges()'s ground→lit projection L, restricted to the
+    INTERIOR lit pixels edges() already excludes from its rim (on AND not
+    touching a sub-0.85 neighbour) — the population a stroke's own centre-fed
+    dimming acts on, with the antialiased rim's much larger swing filtered out.
+    Reported as the population's variance of L over that interior alone, so a
+    flat stroke (litGradient=0) reads ~0 and a graded one reads > 0, monotonic
+    in the gradient's amplitude — the number a --tau-sweep composes against."""
+    from PIL import Image
+    import make_preview
+    lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
+    im = Image.open(png).convert("RGB")
+    colours = im.getcolors(im.width * im.height) or []
+    ground = max(colours)[1] if colours else (0, 0, 0)
+    lg = [l - g for l, g in zip(lit, ground)]
+    norm = sum(v * v for v in lg) or 1
+    px = im.load()
+    L = [[sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
+          for x in range(im.width)] for y in range(im.height)]
+    interior = []
+    for y in range(im.height):
+        for x in range(im.width):
+            if L[y][x] < 0.85:
+                continue
+            if any(L[y + dy][x + dx] < 0.85
+                   for dy in (-1, 0, 1) for dx in (-1, 0, 1)
+                   if 0 <= y + dy < im.height and 0 <= x + dx < im.width):
+                continue
+            interior.append(L[y][x])
+    n = len(interior)
+    if n == 0:
+        return {"png": os.path.basename(png), "variant": variant, "interior_px": 0, "texture": None}
+    mean = sum(interior) / n
+    var = sum((v - mean) ** 2 for v in interior) / n
+    return {"png": os.path.basename(png), "variant": variant, "interior_px": n,
+            "mean": round(mean, 4), "texture": round(var, 6)}
+
+
 def main(argv):
-    known = {"--variant", "--width", "--height", "--png", "--pixels", "--edges", "--set"}
+    known = {"--variant", "--width", "--height", "--png", "--pixels", "--edges", "--texture", "--set"}
     args = argv[1:]
     for a in args:
         if a.startswith("--") and a not in known:
@@ -567,6 +619,10 @@ def main(argv):
         print(f"  lit       {e['lit_px']} px")
         print(f"  edge      {e['edge_px']} px (intermediate AND touching a lit pixel)")
         print(f"  softness  {e['softness']} (edge per lit pixel; a hard polygon edge is near 0)")
+    if "--texture" in args:
+        t = texture(out, variant)
+        print(f"  interior  {t['interior_px']} px (lit, not touching a sub-threshold neighbour)")
+        print(f"  texture   {t['texture']} (variance of litness over the interior; flat=0)")
     return 0
 
 
@@ -616,6 +672,24 @@ def _selftest():
                 if rc_b == 0:
                     check("bloom=0 renders differently (the halo is drawn)",
                           open(out, "rb").read() == open(out_b, "rb").read(), False)
+            # ⚑ texture() MUST DISTINGUISH A FLAT STROKE FROM A GRADED ONE, per
+            # channel, the same discipline as the weight/bloom arms above:
+            # litGradient=0 is today's flat stroke and must read texture~0;
+            # litGradient=0.35 (the shipped first pass) must read > that.
+            out_flat = os.path.join(td, "g0.png")
+            flat_patch = {"SegmentChar.qml": [(r"property real litGradient: [\d.]+",
+                                               "property real litGradient: 0")]}
+            rc_flat, _ = render("clock", "EL-Openglo", 400, 48, out_flat, None, False, flat_patch)
+            if rc == 0 and rc_flat == 0:
+                t_shipped = texture(out, "EL-Openglo")
+                t_flat = texture(out_flat, "EL-Openglo")
+                if t_flat["texture"] is None or t_shipped["texture"] is None:
+                    print("  SKIP texture arm — no interior lit pixels at this size")
+                else:
+                    check("litGradient=0 measures near-flat interior texture",
+                          t_flat["texture"] < 0.01, True)
+                    check("litGradient=0.35 measures MORE interior texture than flat",
+                          t_shipped["texture"] > t_flat["texture"], True)
     print("render_qml selftest:", "PASS" if ok else "FAIL")
     return ok
 
