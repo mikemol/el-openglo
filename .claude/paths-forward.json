@@ -1719,15 +1719,15 @@
         "queue-structure"
       ],
       "blocked_on": [
-        "mtools"
+        "mtools:W50"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Filed as a census-kit mode-B finding to mtools (schema/package owner of mikemol-pathsforward), nominating nemik (graph renderer) and the six repos with CURRENT swarm-kind ledger activity (gabion, luthen-observability, mtools, paperkit, rosettapkg, substrate — measured via nemik-metrics, not assumed) as the roster. mtools' README documents only a whole-queue --lock (the control-plane file), not a touches[]-scoped resource claim; checked via git grep for mutex/contention language in pathsforward/, one unrelated hit. Waiting on mtools' view before proposing a fix shape (a touches-scoped lease/claim field is one option, not decided). This repo cannot design the fix alone: the object is shared machinery el-openglo consumes, not owns.",
-      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan.",
+      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan. | 2026-09-26: 2026-09-27: mtools claimed as mtools:W50, confirmed the gap (no touches-scoped contention mechanism exists; --lock is the control-plane file only), and noted the lossy-boundary framing on their own waypoint. Direction (not yet built): reuse fence's existing claim keyway (mikemol.fence.admit.claim_key/ClaimKey/Kind, from mtools:W29's hold verb) scoped per touches[] tag, rather than a second lock mechanism. Roster (nemik + the six live-swarm repos) recorded on their side too.",
       "issued_at": "2026-09-26T21:19:31Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-09-26T21:23:46Z",
+      "last_worked": "2026-09-26T21:25:39Z",
       "ticks_blocked": 0
     }
   ],
