@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 98,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T15:49:17Z",
-  "job_id": "2546bc96",
+  "heartbeat": "2026-09-27T16:25:41Z",
+  "job_id": "deba3b02",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -944,7 +944,7 @@
     {
       "symbol": "W50",
       "title": "REQUIREMENTS AS REGO (operator: OPA/Rego is a standardized, machine-parseable, machine-actionable spec format; the chk() arms overwhelm an LLM with cognitive load). Split every check into MEASUREMENT and POLICY: a check's --json mode emits what it measured (the population, per-item facts, SKIPs as withheld) and nothing else; policy/<check>.rego declares the requirement as deny/withheld sets over that JSON (luthen's shape: D0 vacuity guard first - an empty population is a deny; withheld separate from deny); policy/<check>_test.rego carries the refuse/admit pair per rule (this REPLACES the chk() falsifiability arms, which shrink to 'the measurement can see'); scripts/opa_gate.py runs opa eval per check and maps deny/withheld to exit 1/3; worklist warrants cite the rego rule. opa is at /usr/bin/opa. First: check_qml_lint (newest, smallest) as the pilot, then check_marquee_body's ring scenarios (already JSON), then the rest by sweep.",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W46",
         "W35",
@@ -959,10 +959,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "(b) check_inherit: --json facts (chain, dirs, defaults, parents installed as withheld facts), the print in problems() moves out; policy/inherit.rego; then (c) check_rehue, (d) check_token_source; then the palette family.",
-      "evidence": "8101ae4 (pilot), 629ab48 (marquee_body), 978bddc (taskswitch, slice a; 44/44 across five policies; TASKSWITCH warrant + closed witness cite opa_gate)",
+      "next_bounded_step": "",
+      "evidence": "8101ae4 (pilot), 629ab48 (marquee_body), 978bddc (taskswitch, slice a; 44/44 across five policies; TASKSWITCH warrant + closed witness cite opa_gate) | 2026-09-27: 2026-09-27: opa_gate.py --census -> 72 of 72 gate claims decided in rego, 0 scripts still decide in Python; inherit/rehue/token_source gates admitted 6/6/18. The (b)-(d) step text was stale: the sweep had landed.",
       "issued_at": "2026-09-21T19:04:23+00:00",
-      "last_worked": "2026-09-26T21:05:41Z",
+      "last_worked": "2026-09-27T16:26:11Z",
       "ticks_blocked": 0
     },
     {
@@ -1826,5 +1826,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "bbf48200"
+  "predecessor_job_id": "2546bc96"
 }

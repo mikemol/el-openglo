@@ -295,3 +295,4 @@
 2026-09-27T15:48:44Z  hash  --   diverged  --        "divergence: payload v2:1ce85d3d0145c7dc, file v2:f08834b18a5df5aa; the FILE wins"
 2026-09-27T15:49:01Z  tick  W98  filed     unblock   "operator: backend-dependent pixels are a bug; Mesa CPU GL runs the RHI shader path without a GPU. Filed ahead of W33 (enables W33); W96 landed 7bc059b"  evidence=state_hash=v2:9ba6ebb21fdfa077
 2026-09-27T15:59:41Z  tick  W87  advanced  unblock   "ranking already landed upstream (mtools W51/W115: status, -weight, -leverage); el-openglo was pinned at f30ea89 before it. Pins bumped to 6ecf767; W98 now ranks above W33 by its edge, no payload override"  evidence=pyproject.toml@6ecf767
+2026-09-27T16:26:11Z  tick  W50  done      sweep     "next step (b)-(d) already landed; opa_gate --census 72 of 72 in rego; marked done. Also: armed deba3b02 recorded; prior tick skipped (auto_push running)"  evidence=opa_gate.py --census
