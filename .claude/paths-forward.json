@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 108,
+  "counter": 110,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T17:55:15Z",
-  "job_id": "ce32390c",
+  "heartbeat": "2026-09-27T18:20:21Z",
+  "job_id": "26f828a5",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1979,7 +1979,7 @@
     {
       "symbol": "W107",
       "title": "W98.1 PROBE the sessionless Mesa route: kwin_wayland --virtual --socket el-w98 --exit-with-session running a minimal QML that loads the emitted clock and grabToImage to PNG; client QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset (same for kwin). Capped service, cputime. Pass = stderr names llvmpipe/softpipe AND bloom>0 pixels differ from bloom=0. Record fail modes (kwin opens /dev/dri; NVIDIA EGL picked).",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W98"
       ],
@@ -1987,14 +1987,16 @@
         "qt_sandbox.py",
         "scripts/render_qml.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Re-run the probe with QT_LOGGING_RULES=qt.rhi.*=true (override after stage) and read GL_RENDERER; also record kwin/qml /proc/PID/maps for libnvidia vs libEGL_mesa while alive. Pass = llvmpipe named.",
+      "blocked_on": [
+        "W109"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W109 names llvmpipe with no libnvidia mapped (bloom-differs half already witnessed 2026-09-27).",
       "evidence": "2026-09-27: 2026-09-27 probe (scratchpad w107probe.py, capped service el-w107-probe, exit 0): kwin_wayland --virtual runs sessionless; its own EGL init fails (EGL_NOT_INITIALIZED) and it falls back, harmless. Client qml under QT_QPA_PLATFORM=wayland + Mesa EGL vendor + LIBGL_ALWAYS_SOFTWARE=1: rc 0 both arms, \"Creating QRhi with backend OpenGL\", NOT backend software; bloom-default vs bloom-0 PNGs DIFFER (halo drawn; 254 lit / 13378 ground of 19200). No SIGSEGV, no nvidia/dri string. HALF-PASS: GL renderer unnamed - render_qml env sets QT_LOGGING_RULES *.debug=false, which hides qt.rhi.general renderer lines, so llvmpipe vs NVIDIA is not yet witnessed.",
       "issued_at": "2026-09-27T17:36:09Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-27T17:56:15Z",
+      "last_worked": "2026-09-27T18:20:52Z",
       "ticks_blocked": 0
     },
     {
@@ -2020,6 +2022,48 @@
       "caused_by": "W98",
       "last_worked": "2026-09-27T17:36:21Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W109",
+      "title": "W107.1 NAME THE RENDERER on the kwin --virtual + Mesa EGL route: re-run scratchpad w107probe.py with QT_LOGGING_RULES overridden after stage to qt.rhi.*=true (render_qml sets *.debug=false, which hid it) and capture GL_RENDERER from the client; also snapshot /proc/PID/maps of kwin_wayland and qml while alive for libnvidia-* vs libEGL_mesa/libgallium. Pass = llvmpipe (or softpipe) named AND no libnvidia mapped in the client.",
+      "status": "ready",
+      "enables": [
+        "W107"
+      ],
+      "touches": [
+        "qt_sandbox",
+        "render_qml",
+        "kwin",
+        "mesa"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T18:20:35Z",
+      "minted_during": "interrupt",
+      "caused_by": "W107",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W110",
+      "title": "auto_push --running mode: one command that answers is a push (and its tree-writes gate) in flight, exiting 0 idle / 1 running, with --selftest; replaces pgrep -af plus discounting the wrapper line by eye (preamble rule no tree writes while it runs), and --wait so a tick can block on it without a shell until-loop (refused by no-chaining 2026-09-27).",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "auto_push",
+        "hooks"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T18:20:42Z",
+      "minted_during": "interrupt",
+      "caused_by": "W107",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2039,5 +2083,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "3cff1155"
+  "predecessor_job_id": "ce32390c"
 }
