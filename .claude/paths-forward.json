@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 106,
+  "counter": 108,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T17:22:25Z",
-  "job_id": "6ddbf149",
+  "heartbeat": "2026-09-27T17:36:01Z",
+  "job_id": "3cff1155",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1799,7 +1799,7 @@
     {
       "symbol": "W98",
       "title": "ONE RENDER PATH HEADLESS: run every headless Qt render on the RHI (OpenGL) over Mesa CPU rendering (llvmpipe/softpipe via LIBGL_ALWAYS_SOFTWARE=1) instead of Qt Quick software adaptation, which runs no shaders and so drops the MultiEffect bloom halo. Then pixels stop depending on backend, render_screens needs no EL_QT_GPU opt-in (W73: no GPU driver reached), and qt_sandbox can leave the screens key (W96 residue).",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W33"
       ],
@@ -1808,14 +1808,17 @@
         "catalog/library/render_screens.py",
         "scripts/render_qml.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Probe (capped service, cputime): run kwin_wayland --virtual --socket el-w98 --exit-with-session with a minimal QML that loads the emitted clock (render_qml harness text) and grabToImage to a PNG, client env QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset, same env for kwin. Pass = stderr names llvmpipe/softpipe AND the halo draws (render_qml --pixels bloom>0 differs from bloom=0). Fail modes to record: kwin virtual opens /dev/dri (sandbox refusal) or NVIDIA EGL is picked. If the route holds, a qt_sandbox mode (not gpu=True) is the follow-on waypoint.",
+      "blocked_on": [
+        "W107",
+        "W108"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella (split 2026-09-27 on ATOMIZE): W107 probes the kwin --virtual + Mesa EGL route; W108 builds the qt_sandbox mode once it holds. Closes when both land.",
       "evidence": "2026-09-27: operator 2026-09-27: backend-dependent pixels are a bug; asked whether mesa software rendering gives the GPU render without the GPU. Host: /usr/lib64/dri has swrast_dri.so + kms_swrast_dri.so (llvmpipe vs softpipe unconfirmed). Caveats: llvmpipe not bit-identical to a hardware driver (AA/rounding); shader bloom costs CPU - measure by cputime. Ranked ahead of W33 axis 2: axis 2 tunes the segment look this path renders. | 2026-09-27: 2026-09-27 premise measured (no render run): the step as written CANNOT be sessionless. qt_sandbox.py:18-45 + env(): Qt offscreen gets GL only via GLX on DISPLAY, and this host s X server GLX vendor is NVIDIA (glvnd), which ignores LIBGL_ALWAYS_SOFTWARE, so offscreen+rhi+Mesa still reaches libnvidia-glcore (the W73 SIGSEGV vector). Host inventory: no Xvfb/xvfb-run; Qt platforms = linuxfb minimal offscreen vkkhrdisplay vnc wayland xcb (no eglfs); Vulkan ICD nvidia only (no lavapipe); EGL vendors 10_nvidia + 50_mesa; kwin_wayland has --virtual --socket --exit-with-session. Sessionless route: kwin_wayland --virtual on a private socket, client QT_QPA_PLATFORM=wayland + __EGL_VENDOR_LIBRARY_FILENAMES=50_mesa.json + LIBGL_ALWAYS_SOFTWARE=1. ATOMIZE W98 (top for 2) was FALSE: the counted line was my hand-written outcome filed (not minted) - W106. Side finding: substrate pycodemod --literal QSG_RHI_BACKEND reported 0 sites in qt_sandbox.py, which has one at :85 (silent-skip class linux-sources already reported).",
       "issued_at": "2026-09-27T15:48:50Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-27T17:23:27Z",
+      "last_worked": "2026-09-27T17:36:21Z",
       "ticks_blocked": 0
     },
     {
@@ -1972,6 +1975,51 @@
       "caused_by": "W98",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W107",
+      "title": "W98.1 PROBE the sessionless Mesa route: kwin_wayland --virtual --socket el-w98 --exit-with-session running a minimal QML that loads the emitted clock and grabToImage to PNG; client QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset (same for kwin). Capped service, cputime. Pass = stderr names llvmpipe/softpipe AND bloom>0 pixels differ from bloom=0. Record fail modes (kwin opens /dev/dri; NVIDIA EGL picked).",
+      "status": "ready",
+      "enables": [
+        "W98"
+      ],
+      "touches": [
+        "qt_sandbox.py",
+        "scripts/render_qml.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T17:36:09Z",
+      "minted_during": "interrupt",
+      "caused_by": "W98",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W108",
+      "title": "W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
+      "status": "blocked",
+      "enables": [
+        "W98"
+      ],
+      "touches": [
+        "qt_sandbox.py",
+        "scripts/render_qml.py",
+        "catalog/library/render_screens.py"
+      ],
+      "blocked_on": [
+        "W107"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T17:36:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "W98",
+      "last_worked": "2026-09-27T17:36:21Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1988,7 +2036,8 @@
     "ONE item per tick, no swarm. Checks under .venv/bin/python3. Never stage during a commit/render.",
     "Pushes are automatic (post-commit auto_push); never push by hand; read .git/auto-push.log; no tree writes while check_tree_writes runs.",
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
-    "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
+    "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
+    "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "b0cb9150"
+  "predecessor_job_id": "6ddbf149"
 }
