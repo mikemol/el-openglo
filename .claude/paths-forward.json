@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 110,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T19:08:05Z",
-  "job_id": "82e093ed",
+  "heartbeat": "2026-09-27T19:24:55Z",
+  "job_id": "c2d4ba84",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1847,7 +1847,7 @@
     {
       "symbol": "W100",
       "title": "W62.2 check_hooks.py --list counts every symlink under scripts/ that resolves outside the tree (today it names 2 of 6), n of m, with a selftest that plants one",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W99",
         "W101"
@@ -1858,11 +1858,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-27: 2026-09-27: scripts/check_hooks.py gains borrowed() + --list census: \"borrowed: 6 of 106 scripts/ entries are symlinks out of the tree\" naming gate_ledger, hook_cmdparse, hook_no_chaining, hook_structural_query, ratchet, run_selftests (all -> ../substrate/scripts). Refuses a 0-entry scripts/. --selftest PASS incl. planted arm (fake tree: out-of-tree symlink counted, in-tree one not, got (3,[far.py])). opa_gate hooks still admitted 2 of 2. W99/W101 witness: this count falls 6->3->2.",
       "issued_at": "2026-09-27T16:56:11Z",
       "minted_during": "interrupt",
       "caused_by": "W62",
-      "last_worked": null,
+      "last_worked": "2026-09-27T19:25:26Z",
       "ticks_blocked": 0
     },
     {
@@ -2088,5 +2088,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "dba84f4a"
+  "predecessor_job_id": "82e093ed"
 }
