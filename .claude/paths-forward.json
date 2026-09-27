@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 110,
+  "counter": 111,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T19:51:07Z",
-  "job_id": "40ea84af",
+  "heartbeat": "2026-09-27T20:23:01Z",
+  "job_id": "7ebe0a68",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1954,12 +1954,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (status done) once this evidence commit lands.",
+      "evidence": "2026-09-27: 2026-09-27: W77 INDEPENDENT - operator deferred it (LATER, 2026-09-25); a new plasmoid surface whose first step is a query-surface survey; no live waypoint consumes a metrics source and it waits on nothing in flight (palette via make_preview.parse_scheme, a shared authority, not a waypoint); W42 would list it as a codomain row but neither waits. RE-COUNT (scratchpad edge_census.py, incoming edges counted): 36 of 49 live waypoints have >=1 edge; 13 unlinked = W36 W37 W41 W42 W61 W68 W73 W77 W85 (each reviewed in W103-W105 with a no-edge reason) + W95 W97 W106 W110 (never in a W93 cluster). Trend 27->19->11->13 (new unlinked mints W106, W110). The diagnostic is a scratchpad one-off: W111.",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": "2026-09-27T19:51:04Z",
+      "last_worked": "2026-09-27T20:23:00Z",
       "ticks_blocked": 0
     },
     {
@@ -2069,6 +2069,25 @@
       "caused_by": "W107",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W111",
+      "title": "mikemol-paths-forward --unlinked mode (mtools): n of m live waypoints with >=1 edge, counting INCOMING enables/blocked_on as well as outgoing, naming the unlinked; with --selftest. Replaces scratchpad edge_census.py (one-off, re-derived per session; its incoming-edge blindness was already fixed once by hand, W93). Route via the W106 mtools letter.",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "mtools",
+        "queue-structure"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T20:23:00Z",
+      "minted_during": "interrupt",
+      "caused_by": "W105",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2088,5 +2107,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "c2d4ba84"
+  "predecessor_job_id": "40ea84af"
 }
