@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 110,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T18:20:21Z",
-  "job_id": "26f828a5",
+  "heartbeat": "2026-09-27T18:40:58Z",
+  "job_id": "dba84f4a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1340,7 +1340,9 @@
       "symbol": "W71",
       "title": "GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases.",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W70"
+      ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
@@ -1900,7 +1902,7 @@
     {
       "symbol": "W103",
       "title": "W93.1 edges for the harness cluster: read W71 (guest boot image) and W73 (GPU sandbox) against W70 (k8s boot+GUI harness) and W98 (Mesa CPU GL); wire each stated relation, or record in evidence why none holds",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W93"
       ],
@@ -1910,11 +1912,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-27: 2026-09-27 read W70/W71/W73/W98 via --show. WIRED: W71 enables W70 (W70 evidence: luthen supplies the VM surface, \"W71 guest image remains ours\" - W70 probes need it). NO EDGE, with reasons: W73->W70/W98: W73 remaining step is warrant citation of opa_gate qt_sandbox, needs neither; W98 supersedes W73 GPU opt-in (render_screens EL_QT_GPU) but that is W98 own scope (its title), not a W73 dependency. W71<->W98: guest image vs host headless render path, disjoint (a VM guest has its own GL). W70<->W98: VM probes vs host renders, disjoint.",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": null,
+      "last_worked": "2026-09-27T18:40:52Z",
       "ticks_blocked": 0
     },
     {
@@ -2083,5 +2085,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "ce32390c"
+  "predecessor_job_id": "26f828a5"
 }
