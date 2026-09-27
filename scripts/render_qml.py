@@ -537,15 +537,21 @@ def edges(png, variant):
 
 
 def texture(png, variant):
-    """How much does BRIGHTNESS VARY inside a lit stroke's own interior? (W33
+    """How much does BRIGHTNESS VARY across a lit stroke's own footprint? (W33
     axis 1's own follow-up: litGradient is a picked constant, not yet SOLVED by
-    a measurement.) Reuses edges()'s ground→lit projection L, restricted to the
-    INTERIOR lit pixels edges() already excludes from its rim (on AND not
-    touching a sub-0.85 neighbour) — the population a stroke's own centre-fed
-    dimming acts on, with the antialiased rim's much larger swing filtered out.
-    Reported as the population's variance of L over that interior alone, so a
-    flat stroke (litGradient=0) reads ~0 and a graded one reads > 0, monotonic
-    in the gradient's amplitude — the number a --tau-sweep composes against."""
+    a measurement.) Reuses edges()'s ground→lit projection L, over every pixel
+    at or above HALF the ground→lit distance (L >= 0.5) — the segment's own
+    footprint at any amplitude, since dimming the ends never pushes a centre-fed
+    profile's amplitude past 0.5 at the values this axis considers (litGradient
+    <= 0.8 dims to 1-0.8=0.2 OF THE REMAINING SWING, i.e. never below 0.5
+    absolute). ⚑ NOT edges()'s interior-only population (on AND not touching a
+    sub-0.85 neighbour): that population itself SHRINKS as the gradient steepens
+    (fewer pixels stay >= 0.85), so its own variance can fall even as the true
+    swing grows — measured directly (see W33's evidence), not assumed. A FIXED
+    threshold keeps the population close to the segment's true footprint across
+    amplitudes, so variance over it is the swing, not an artifact of a shrinking
+    sample. Reported as that population's variance of L; flat (litGradient=0)
+    reads ~0, a graded stroke reads > 0, monotonically in the amplitude."""
     from PIL import Image
     import make_preview
     lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
@@ -557,16 +563,7 @@ def texture(png, variant):
     px = im.load()
     L = [[sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
           for x in range(im.width)] for y in range(im.height)]
-    interior = []
-    for y in range(im.height):
-        for x in range(im.width):
-            if L[y][x] < 0.85:
-                continue
-            if any(L[y + dy][x + dx] < 0.85
-                   for dy in (-1, 0, 1) for dx in (-1, 0, 1)
-                   if 0 <= y + dy < im.height and 0 <= x + dx < im.width):
-                continue
-            interior.append(L[y][x])
+    interior = [L[y][x] for y in range(im.height) for x in range(im.width) if L[y][x] >= 0.5]
     n = len(interior)
     if n == 0:
         return {"png": os.path.basename(png), "variant": variant, "interior_px": 0, "texture": None}

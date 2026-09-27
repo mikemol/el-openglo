@@ -278,3 +278,6 @@
 2026-09-26T23:12:14Z  tick  W33  advanced  sweep     "texture-number tool + component_patches landed, screens rebuilt, W96 filed on build-artifact smell"  evidence=459016a
 2026-09-26T23:12:24Z  hash  --   diverged  --        "divergence: payload v2:a4bfa869bccf5b20, file v2:515af17c0ad30d6d; the FILE wins"
 2026-09-26T23:20:05Z  tick  W33  skipped   tick      "payload stale (predates W33 landing + W96 filing); reconciled to file, re-armed as c4109fec (deleted 6fd5953f); no tree writes performed while auto_push/check_tree_writes ran for dda3eee->459016a; push succeeded on retry at 19:19:40 (third self-resolving 600s-timeout instance this session, not chased further)"
+2026-09-26T23:30:25Z  tick  W33  skipped   tick      "payload current (hash match), no re-arm needed; auto_push in flight for a75ba7c (pid 3833695), deferring any tree-writing work until it exits"
+2026-09-26T23:40:33Z  tick  W33  advanced  sweep     "fixed texture()'s population to a stable L>=0.5 threshold (was shrinking with amplitude, causing the non-monotonicity); re-swept, confirmed monotonic; litGradient=0.35 kept as a stated (not searched) amplitude; next is axis 2"  evidence=scripts/render_qml.py texture() redefinition; selftest passes
+2026-09-27T13:15:28Z  hash  --   diverged  --        "divergence: payload v2:515af17c0ad30d6d, file v2:6b9d8e6cd99934b5; the FILE wins"
