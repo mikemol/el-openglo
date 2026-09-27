@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 110,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T18:40:58Z",
-  "job_id": "dba84f4a",
+  "heartbeat": "2026-09-27T19:08:05Z",
+  "job_id": "82e093ed",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1298,10 +1298,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Merge side DONE (uncommitted): .githooks/pre-merge-commit runs opa_gate tree_writes (a merge commit only; fast-forwards make no commit). Push side: substrate declined to grow its shared pre-push (the shared hooks are migrating to mtools); asked mtools-83 for a pre-push.local extension point, substrate will corroborate. Until it lands, run check_tree_writes by hand before each push.",
-      "evidence": "4be3ea6: no gated check writes the tree. The writer was @CURRENCY probing make_schemes --keys, which ignored unknown flags and EMITTED the tracked .colors twice per gate (flagged as N1 hours earlier, left alone). Fixed: producers refuse unknown flags; @EMITTERS regenerates into a private root and compares (E3 fingerprints the real tree); every emitter writes atomically (85 of 96, 11 exempt with reasons); check_tree_writes 0 of 76 claims write the tree. First gate run after: all gates pass, no flake.",
+      "next_bounded_step": "CLOSE: both hook sides are tracked and wired (evidence 2026-09-27); confirm one push in .git/auto-push.log shows the tree-writes gate ran, then --status done.",
+      "evidence": "4be3ea6: no gated check writes the tree. The writer was @CURRENCY probing make_schemes --keys, which ignored unknown flags and EMITTED the tracked .colors twice per gate (flagged as N1 hours earlier, left alone). Fixed: producers refuse unknown flags; @EMITTERS regenerates into a private root and compares (E3 fingerprints the real tree); every emitter writes atomically (85 of 96, 11 exempt with reasons); check_tree_writes 0 of 76 claims write the tree. First gate run after: all gates pass, no flake. | 2026-09-27: 2026-09-27 (found by W104): the awaited push side LANDED - .githooks/pre-push.local (tracked, Sep 25) runs scripts/pre_push_local.py = post-commit marker + tree-writes gate via mtools mikemol-githook-pre-push; .githooks/pre-merge-commit tracked (git ls-files .githooks lists both).",
       "issued_at": "2026-09-22T17:46:33+00:00",
-      "last_worked": "2026-09-23T17:56:13+00:00",
+      "last_worked": "2026-09-27T19:08:15Z",
       "ticks_blocked": 0
     },
     {
@@ -1848,7 +1848,10 @@
       "symbol": "W100",
       "title": "W62.2 check_hooks.py --list counts every symlink under scripts/ that resolves outside the tree (today it names 2 of 6), n of m, with a selftest that plants one",
       "status": "ready",
-      "enables": [],
+      "enables": [
+        "W99",
+        "W101"
+      ],
       "touches": [
         "scripts/check_hooks.py"
       ],
@@ -1922,7 +1925,7 @@
     {
       "symbol": "W104",
       "title": "W93.2 edges for the tooling cluster: read W36, W37, W41, W42, W61, W68, W85 against each other and against W62 children W99-W102; wire each stated relation, or record in evidence why none holds",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W93"
       ],
@@ -1932,11 +1935,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-27: 2026-09-27 read all 11 via --show (findings drafted in scratchpad w104-findings.md while auto_push held the tree). WIRED: W100 enables W99,W101 (W100 check_hooks out-of-tree symlink census is the witness their deletions landed). NO EDGE: W85/W101 share pyproject pins, no order; W102 letter uses W62 census already in hand; W36/W37/W41/W42 product work disjoint from hook migration (W41 is a W42 codomain row, neither waits); W61 vs W42 already rejected in W61 evidence. FOUND: W68 push side landed (pre-push.local, pre-merge-commit tracked) - evidence + close-step written to W68.",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": null,
+      "last_worked": "2026-09-27T19:08:15Z",
       "ticks_blocked": 0
     },
     {
@@ -2085,5 +2088,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "26f828a5"
+  "predecessor_job_id": "dba84f4a"
 }
