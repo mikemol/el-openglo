@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 96,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-26T22:31:57Z",
-  "job_id": "6fd5953f",
+  "heartbeat": "2026-09-27T13:36:18Z",
+  "job_id": "3f330e32",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1758,12 +1758,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Decide between (a) DECOUPLE: drop whole-file code: hashes for modules whose only effect on a still is the job they stage (render_qml.py, plasma_rewrite.py, templates/loader.py, qt_sandbox.py) since job0:argv/env/staged-file digests already key exactly what qml is handed (render_stager's own docstring: 'the key is over what the process is HANDED') - keep code: for render_screens.py (contact_sheets composites pixels in Python) and anything that post-processes PNGs; or (b) UNTRACK the PNGs as build output. Check first: does any code: module transform pixels AFTER qml writes them (grep-free: read render_screens.render_one / contact_sheets / animation assembly). Falsifier for (a): an edit to render_qml.texture() must leave every still's key unchanged, while an edit to SegmentChar.qml must still move clock/live-wallpaper keys - write both as a check_action_key selftest arm before landing.",
+      "evidence": "2026-09-27: 2026-09-27: render_screens.py --keys shows each still keyed over code:{render_screens,qt_sandbox,schemes_artifact,plasma_rewrite,render_qml,templates/loader,theme_probe,check_marquee_live} whole-file hashes PLUS job0:argv/env:* digests. The job digests already cover the behaviour; the code: hashes are the conservative layer that made two analysis-only render_qml.py edits (texture(), component_patches) re-render 30 stills each on 2026-09-26/27.",
       "issued_at": "2026-09-26T23:00:52Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-09-27T13:36:38Z",
       "ticks_blocked": 0
     }
   ],
@@ -1783,5 +1783,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "6824d3dc"
+  "predecessor_job_id": "6fd5953f"
 }
