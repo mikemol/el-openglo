@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 102,
+  "counter": 105,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T16:56:11Z",
-  "job_id": "ec92b1c4",
+  "heartbeat": "2026-09-27T17:09:26Z",
+  "job_id": "b0cb9150",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1700,21 +1700,25 @@
     {
       "symbol": "W93",
       "title": "Retrofit enables/blocked_on edges onto the ~27 live waypoints that have none: their own rank_reason/title prose already states collapse or unblock claims (W33's own text: 'collapse: THREE segment renderers... become one') that were never encoded as graph edges",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W87"
       ],
       "touches": [
         "queue-structure"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "SECOND PASS DONE: fixed a bug in the diagnostic itself first (it only counted a node's OWN enables/blocked_on, missing incoming edges from others — corrected the true unlinked count from a wrong 27/23 down to 19, now 11). Wired 4 more edges found by title/prose cross-reference (not touches overlap): W72 enables W74 (title names W72 directly), W64 enables W65 (a finding produced by extending W64's adopted mutation-grader), W75 enables W82 (title says 'W75 follow-on'), W93 enables W87 + W87 blocked_on W93 (ranking by leverage needs edges to exist first). REMAINING 11 unlinked: W30, W36, W37, W41, W42, W61, W68, W71, W73, W77, W85 — read each against the others for a stated relationship; W77 is explicitly 'later' (OTEL widget) so may genuinely be independent; W71/W73 (guest boot image / GPU sandbox) look likely to relate to W70 (the k8s harness) on inspection.",
+      "blocked_on": [
+        "W103",
+        "W104",
+        "W105"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella (split 2026-09-27 on ATOMIZE): closes when W103 (harness cluster), W104 (tooling cluster), W105 (W77 + re-count) land. W30 left the unlinked list: it is done.",
       "evidence": "2026-09-26: 2026-09-27: first pass complete, see next_bounded_step for the tally; --check clean at 93/93 after each edit | 2026-09-26: 2026-09-27, tick: 19 -> 11 unlinked. Diagnostic bug fixed (incoming-edge blindness). --check clean at 93/93 throughout.",
       "issued_at": "2026-09-26T21:02:25Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-09-26T21:18:50Z",
+      "last_worked": "2026-09-27T17:09:33Z",
       "ticks_blocked": 0
     },
     {
@@ -1889,6 +1893,66 @@
       "caused_by": "W62",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W103",
+      "title": "W93.1 edges for the harness cluster: read W71 (guest boot image) and W73 (GPU sandbox) against W70 (k8s boot+GUI harness) and W98 (Mesa CPU GL); wire each stated relation, or record in evidence why none holds",
+      "status": "ready",
+      "enables": [
+        "W93"
+      ],
+      "touches": [
+        "paths-forward-graph"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T17:09:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W93",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W104",
+      "title": "W93.2 edges for the tooling cluster: read W36, W37, W41, W42, W61, W68, W85 against each other and against W62 children W99-W102; wire each stated relation, or record in evidence why none holds",
+      "status": "ready",
+      "enables": [
+        "W93"
+      ],
+      "touches": [
+        "paths-forward-graph"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T17:09:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W93",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W105",
+      "title": "W93.3 W77 (OTEL widget, stated later): decide independent (record why in evidence) or wire; then re-run the unlinked diagnostic and record n of m live waypoints with at least one edge",
+      "status": "ready",
+      "enables": [
+        "W93"
+      ],
+      "touches": [
+        "paths-forward-graph"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T17:09:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W93",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1907,5 +1971,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "b8d4bee6"
+  "predecessor_job_id": "ec92b1c4"
 }
