@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 97,
+  "counter": 98,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T14:50:11Z",
-  "job_id": "bbf48200",
+  "heartbeat": "2026-09-27T15:49:17Z",
+  "job_id": "2546bc96",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1784,6 +1784,28 @@
       "caused_by": null,
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W98",
+      "title": "ONE RENDER PATH HEADLESS: run every headless Qt render on the RHI (OpenGL) over Mesa CPU rendering (llvmpipe/softpipe via LIBGL_ALWAYS_SOFTWARE=1) instead of Qt Quick software adaptation, which runs no shaders and so drops the MultiEffect bloom halo. Then pixels stop depending on backend, render_screens needs no EL_QT_GPU opt-in (W73: no GPU driver reached), and qt_sandbox can leave the screens key (W96 residue).",
+      "status": "ready",
+      "enables": [
+        "W33"
+      ],
+      "touches": [
+        "scripts/qt_sandbox.py",
+        "catalog/library/render_screens.py",
+        "scripts/render_qml.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Probe one clock still under QSG_RHI_BACKEND=opengl + LIBGL_ALWAYS_SOFTWARE=1 (and QT_QPA_PLATFORM as qt_sandbox sets it): confirm stderr says Creating QRhi on llvmpipe/softpipe, and that the halo draws (render_qml --edges/--pixels vs the software-adaptation render). Capped service, cputime recorded.",
+      "evidence": "2026-09-27: operator 2026-09-27: backend-dependent pixels are a bug; asked whether mesa software rendering gives the GPU render without the GPU. Host: /usr/lib64/dri has swrast_dri.so + kms_swrast_dri.so (llvmpipe vs softpipe unconfirmed). Caveats: llvmpipe not bit-identical to a hardware driver (AA/rounding); shader bloom costs CPU - measure by cputime. Ranked ahead of W33 axis 2: axis 2 tunes the segment look this path renders.",
+      "issued_at": "2026-09-27T15:48:50Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-27T15:48:56Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1802,5 +1824,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "a09f165d"
+  "predecessor_job_id": "bbf48200"
 }

@@ -292,3 +292,5 @@
 2026-09-27T15:23:56Z  tick  W96  corrected unblock   "state commit refused by @CURRENCY: uncommitted render_screens.py selftest staled every output; selftest moved to scratchpad, file restored; fix must land selftest+key change+rerender in one commit"  evidence=fc31173; scratchpad/render_screens.w96-selftest.py; state_hash=v2:1ce85d3d0145c7dc
 2026-09-27T15:28:33Z  hash  --   diverged  --        "divergence: payload v2:694e0cf31646c616, file v2:1ce85d3d0145c7dc; the FILE wins"
 2026-09-27T15:33:59Z  tick  W96  done      unblock   "screens key decoupled from job-builder code; selftest 3/3; full rerender 48/48 + --write; untrack rejected (preview stays tracked)"  evidence=render_screens --selftest 3/3; screens 1148 inputs; state_hash=v2:f2c145eb58f4b528
+2026-09-27T15:48:44Z  hash  --   diverged  --        "divergence: payload v2:1ce85d3d0145c7dc, file v2:f08834b18a5df5aa; the FILE wins"
+2026-09-27T15:49:01Z  tick  W98  filed     unblock   "operator: backend-dependent pixels are a bug; Mesa CPU GL runs the RHI shader path without a GPU. Filed ahead of W33 (enables W33); W96 landed 7bc059b"  evidence=state_hash=v2:9ba6ebb21fdfa077
