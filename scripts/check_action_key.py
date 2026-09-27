@@ -889,12 +889,15 @@ def _selftest():
     want = sorted(f for f in per if f.endswith("-EL-Amber.png")) + ["strip.png"]
     chk(f"a byte in EL-Amber.colors moves exactly EL-Amber's outputs + sheet + strip ({len(moved)} of {n})",
         sorted(moved), sorted(want))
-    # ⚑ THE RUNNER CODE IS PER JOB KIND: the marquee harness's source keys the
-    # marquee outputs (and the sheets/strip that stack them) and nothing else —
-    # measured on main before this arm, one comment there moved 55 of 56
+    # ⚑ THE RUNNER CODE IS ONLY WHAT ACTS AFTER THE JOB IS STAGED (W96): the
+    # marquee harness's source keys the marquee ANIMATIONS (animate() sets their
+    # frame delays after qml) and nothing else. Its stills are written by qml
+    # itself — run() only stages and reads RESULT — so they are keyed by their
+    # job bytes, and the sheets/strip stack only stills. Measured on main before
+    # the per-kind split, one comment there moved 55 of 56; before W96, 25 of 56.
     moved, n = impact("scripts/check_marquee_live.py")["screens"]
-    want = sorted(f for f in per if f.startswith(("marquee-", "sheet-")) or f == "strip.png")
-    chk(f"a comment in check_marquee_live moves only marquee outputs + sheets + strip ({len(moved)} of {n})",
+    want = sorted(f for f in per if f.startswith("marquee-anim-"))
+    chk(f"a comment in check_marquee_live moves only the marquee animations ({len(moved)} of {n})",
         sorted(moved), want)
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)

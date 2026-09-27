@@ -101,6 +101,11 @@ def plan_all():
     return plan() + plan_animations() + plan_derived()
 
 
+# the runner modules whose code acts on an output AFTER its job is staged (W96):
+# the sandbox that picks the scene-graph backend. Job-builders are keyed by their
+# staged bytes instead; see output_keys.
+RUNS_AFTER_QML = {"qt_sandbox.py"}
+
 # the viewport's one-process job: (surface, w, h, config key, steps, read-back probe)
 VIEWPORT_JOB = ("aperture-text", 420, 40, "offsetRows", VIEWPORT_STEPS, "offsetY")
 
@@ -184,8 +189,22 @@ def output_keys():
             # assembly) it runs. NOT this file's import closure: that reaches both
             # harnesses, so a comment in check_marquee_live re-keyed the clock
             # (measured on main: 55 of 56 outputs, for one comment).
+            # ⚑ ONLY CODE THAT SHAPES THE PIXELS AFTER THE JOB IS STAGED (W96). The
+            # closure's job-builders (render_qml, plasma_rewrite, templates/loader,
+            # ...) are already in the key as the job0:* bytes they produce; keying
+            # them whole-file too re-rendered 30 stills for an analysis-only edit
+            # (render_qml.texture(), 2026-09-26/27). What stays: qt_sandbox (it
+            # picks the scene-graph backend, which changes pixels), this file (the
+            # viewport APNG and the sheets), and the stager's own module where it
+            # assembles frames after qml (check_marquee_live.animate).
             seed = os.path.relpath(stage.__code__.co_filename, ROOT)
-            code = sorted(set(AK.runner_code([seed])) | {here})
+            closure = AK.runner_code([seed])
+            sandbox = [rel for rel in closure if os.path.basename(rel) in RUNS_AFTER_QML]
+            if not sandbox:
+                raise RuntimeError(f"render_screens: {fn}: none of {sorted(RUNS_AFTER_QML)} in the "
+                                   f"runner closure of {seed} — the key would omit the backend choice")
+            post = [seed] if how[:2] == ("marquee", "animate") else []
+            code = sorted(set(sandbox) | set(post) | {here})
             code_files.update(code)
             for rel in code:
                 inputs[f"code:{rel}"] = AK.digest_rel(rel)
@@ -554,8 +573,61 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
             "shifts": shifts, "tears": tears, "seamless": seamless}
 
 
+def selftest():
+    """W96's falsifier: a key moves exactly when something that shapes the PIXELS
+    moves. Each arm perturbs one code file's digest (check_action_key.digest_rel,
+    monkeypatched — no file is edited, no render runs) and compares output_keys().
+
+      (1) render_qml.py only BUILDS the job (render -> run_stager -> QT.run; nothing
+          touches the png after qml writes it), and the job is already in the key as
+          job0:* bytes — so perturbing it must leave every render_qml still's key
+          unchanged. ⚑ FAILS on the whole-file code term (W96's finding).
+      (2) a SegmentChar-drawn still must name SegmentChar among its job inputs, so a
+          template edit still reaches it through the job bytes (structural, not a
+          perturbation: job_inputs digests the staged bytes, not digest_rel).
+      (3) check_marquee_live.animate assembles the APNG's frame delays AFTER qml —
+          perturbing that file must move every marquee-anim key.
+
+    WEAKNESS: arm (2) checks that the input is NAMED, not that its digest moves
+    the key; key_over over a named input is what makes that follow."""
+    import check_action_key as AK
+    real = AK.digest_rel
+    base = output_keys()["outputs"]
+
+    def perturbed(target):
+        AK.digest_rel = lambda rel: ("perturbed:" + real(rel)) if rel == target else real(rel)
+        try:
+            return output_keys()["outputs"]
+        finally:
+            AK.digest_rel = real
+
+    ok, n = 0, 0
+    rq = perturbed("scripts/render_qml.py")
+    stills = [fn for fn, _v, how in plan() if how[0] == "render_qml"]
+    moved = [fn for fn in stills if rq[fn]["key"] != base[fn]["key"]]
+    n += 1
+    ok += not moved
+    print(f"  {'ok  ' if not moved else 'FAIL'} (1) render_qml.py edit: {len(moved)} of {len(stills)} "
+          f"render_qml still key(s) moved (want 0)")
+    seg = [fn for fn in stills if fn.startswith(("clock-", "wallpaper-live-"))]
+    named = [fn for fn in seg if any("SegmentChar" in k for k in base[fn]["inputs"])]
+    n += 1
+    ok += bool(seg) and len(named) == len(seg)
+    print(f"  {'ok  ' if seg and len(named) == len(seg) else 'FAIL'} (2) SegmentChar named in "
+          f"{len(named)} of {len(seg)} clock/live-wallpaper still(s)' job inputs (want all, >0)")
+    ml = perturbed("scripts/check_marquee_live.py")
+    anims = [fn for fn, _v, how in plan_animations() if how[0] == "marquee"]
+    moved = [fn for fn in anims if ml[fn]["key"] != base[fn]["key"]]
+    n += 1
+    ok += bool(anims) and len(moved) == len(anims)
+    print(f"  {'ok  ' if anims and len(moved) == len(anims) else 'FAIL'} (3) check_marquee_live.py edit: "
+          f"{len(moved)} of {len(anims)} marquee-anim key(s) moved (want all, >0)")
+    print(f"render_screens selftest: {ok}/{n}")
+    return 0 if ok == n else 1
+
+
 def main(argv):
-    known = {"--list", "--json", "--outputs", "--keys", "--stale", "--all"}
+    known = {"--list", "--json", "--outputs", "--keys", "--stale", "--all", "--selftest"}
     jobs = 1
     for a in argv[1:]:
         if a.startswith("--jobs=") and a[7:].isdigit() and int(a[7:]) > 0:
@@ -571,6 +643,8 @@ def main(argv):
     # driver: the vector W73 closed for every test. Set BEFORE --keys, because the
     # opt-in is part of every job's environment and so of every key.
     os.environ.setdefault("EL_QT_GPU", "1")
+    if "--selftest" in argv:
+        return selftest()
     if "--keys" in argv:
         # ⚑ THE PER-OUTPUT KEYS, AS DATA (W61) — check_action_key's reader
         print(json.dumps(output_keys(), indent=1, sort_keys=True))
