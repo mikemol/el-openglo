@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 105,
+  "counter": 106,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T17:09:26Z",
-  "job_id": "b0cb9150",
+  "heartbeat": "2026-09-27T17:22:25Z",
+  "job_id": "6ddbf149",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1810,12 +1810,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Probe one clock still under QSG_RHI_BACKEND=opengl + LIBGL_ALWAYS_SOFTWARE=1 (and QT_QPA_PLATFORM as qt_sandbox sets it): confirm stderr says Creating QRhi on llvmpipe/softpipe, and that the halo draws (render_qml --edges/--pixels vs the software-adaptation render). Capped service, cputime recorded.",
-      "evidence": "2026-09-27: operator 2026-09-27: backend-dependent pixels are a bug; asked whether mesa software rendering gives the GPU render without the GPU. Host: /usr/lib64/dri has swrast_dri.so + kms_swrast_dri.so (llvmpipe vs softpipe unconfirmed). Caveats: llvmpipe not bit-identical to a hardware driver (AA/rounding); shader bloom costs CPU - measure by cputime. Ranked ahead of W33 axis 2: axis 2 tunes the segment look this path renders.",
+      "next_bounded_step": "Probe (capped service, cputime): run kwin_wayland --virtual --socket el-w98 --exit-with-session with a minimal QML that loads the emitted clock (render_qml harness text) and grabToImage to a PNG, client env QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset, same env for kwin. Pass = stderr names llvmpipe/softpipe AND the halo draws (render_qml --pixels bloom>0 differs from bloom=0). Fail modes to record: kwin virtual opens /dev/dri (sandbox refusal) or NVIDIA EGL is picked. If the route holds, a qt_sandbox mode (not gpu=True) is the follow-on waypoint.",
+      "evidence": "2026-09-27: operator 2026-09-27: backend-dependent pixels are a bug; asked whether mesa software rendering gives the GPU render without the GPU. Host: /usr/lib64/dri has swrast_dri.so + kms_swrast_dri.so (llvmpipe vs softpipe unconfirmed). Caveats: llvmpipe not bit-identical to a hardware driver (AA/rounding); shader bloom costs CPU - measure by cputime. Ranked ahead of W33 axis 2: axis 2 tunes the segment look this path renders. | 2026-09-27: 2026-09-27 premise measured (no render run): the step as written CANNOT be sessionless. qt_sandbox.py:18-45 + env(): Qt offscreen gets GL only via GLX on DISPLAY, and this host s X server GLX vendor is NVIDIA (glvnd), which ignores LIBGL_ALWAYS_SOFTWARE, so offscreen+rhi+Mesa still reaches libnvidia-glcore (the W73 SIGSEGV vector). Host inventory: no Xvfb/xvfb-run; Qt platforms = linuxfb minimal offscreen vkkhrdisplay vnc wayland xcb (no eglfs); Vulkan ICD nvidia only (no lavapipe); EGL vendors 10_nvidia + 50_mesa; kwin_wayland has --virtual --socket --exit-with-session. Sessionless route: kwin_wayland --virtual on a private socket, client QT_QPA_PLATFORM=wayland + __EGL_VENDOR_LIBRARY_FILENAMES=50_mesa.json + LIBGL_ALWAYS_SOFTWARE=1. ATOMIZE W98 (top for 2) was FALSE: the counted line was my hand-written outcome filed (not minted) - W106. Side finding: substrate pycodemod --literal QSG_RHI_BACKEND reported 0 sites in qt_sandbox.py, which has one at :85 (silent-skip class linux-sources already reported).",
       "issued_at": "2026-09-27T15:48:50Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-27T15:48:56Z",
+      "last_worked": "2026-09-27T17:23:27Z",
       "ticks_blocked": 0
     },
     {
@@ -1953,6 +1953,25 @@
       "caused_by": "W93",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W106",
+      "title": "mtools pathsforward: (a) --ledger accepts any OUTCOME word, and atomize counts every word not in _NOT_AN_ADVANCE (deny-list), so a hand-written filed on W98 read as an advance (false ATOMIZE W98); ask for an allow-list of advance outcomes refused at write time; (b) --add at 6ecf767 wrote NO minted line for W99-W105 though atomize.py docstring says it does; confirm and report. Send as an mtools inbox letter.",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "mtools",
+        "pathsforward"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T17:22:25Z",
+      "minted_during": "interrupt",
+      "caused_by": "W98",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1971,5 +1990,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "ec92b1c4"
+  "predecessor_job_id": "b0cb9150"
 }
