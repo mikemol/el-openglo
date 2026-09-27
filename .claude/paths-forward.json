@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 97,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T14:14:03Z",
-  "job_id": "a09f165d",
+  "heartbeat": "2026-09-27T14:50:11Z",
+  "job_id": "bbf48200",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1758,12 +1758,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read check_marquee_live.animate for post-processing; then write the falsifier as a check_action_key selftest arm (texture() edit leaves still keys unchanged; SegmentChar.qml edit moves clock/live-wallpaper keys) before decoupling.",
-      "evidence": "2026-09-27: 2026-09-27: render_screens.py --keys shows each still keyed over code:{render_screens,qt_sandbox,schemes_artifact,plasma_rewrite,render_qml,templates/loader,theme_probe,check_marquee_live} whole-file hashes PLUS job0:argv/env:* digests. The job digests already cover the behaviour; the code: hashes are the conservative layer that made two analysis-only render_qml.py edits (texture(), component_patches) re-render 30 stills each on 2026-09-26/27. | 2026-09-27: 2026-09-27 read: render_screens.render_one hands out path straight to qml; pixel post-processing (APNG, sheets) lives only in render_screens. render_qml.render (:287) = run_stager(render_stager(...)); run_stager (:399-409) runs QT.run, reads stderr only for backend name -> render_qml does NOT post-process pixels (supports decouple). qt_sandbox.QT.run picks env/gpu (rhi vs software) which changes pixels -> stays keyed unless captured in job env. Tool gap: pycodemod --source render scripts/render_qml.py -> 0 defs, --binding finds :287 (substrate defect).",
+      "next_bounded_step": "Write the falsifier as a check_action_key (or render_screens --keys) selftest arm FIRST: (1) a comment edit to render_qml.py leaves every still key unchanged; (2) an edit to SegmentChar.qml moves clock/live-wallpaper keys; (3) an edit to check_marquee_live.animate moves marquee-anim keys. Arm (1) must FAIL on current code. Then implement the per-output code term.",
+      "evidence": "2026-09-27: 2026-09-27: render_screens.py --keys shows each still keyed over code:{render_screens,qt_sandbox,schemes_artifact,plasma_rewrite,render_qml,templates/loader,theme_probe,check_marquee_live} whole-file hashes PLUS job0:argv/env:* digests. The job digests already cover the behaviour; the code: hashes are the conservative layer that made two analysis-only render_qml.py edits (texture(), component_patches) re-render 30 stills each on 2026-09-26/27. | 2026-09-27: 2026-09-27 read: render_screens.render_one hands out path straight to qml; pixel post-processing (APNG, sheets) lives only in render_screens. render_qml.render (:287) = run_stager(render_stager(...)); run_stager (:399-409) runs QT.run, reads stderr only for backend name -> render_qml does NOT post-process pixels (supports decouple). qt_sandbox.QT.run picks env/gpu (rhi vs software) which changes pixels -> stays keyed unless captured in job env. Tool gap: pycodemod --source render scripts/render_qml.py -> 0 defs, --binding finds :287 (substrate defect). | 2026-09-27: 2026-09-27 read check_marquee_live.animate (:545-580): DOES post-process - assembles the APNG from frames with displacement-derived delays and a hold bookend. So check_marquee_live stays keyed for marquee ANIMATIONS; for marquee STILLS (run -> qml writes png) it only stages. Decouple rule: key a code module per output only where it transforms pixels or timing after qml (render_screens: animate_viewport+sheets; check_marquee_live: animate; qt_sandbox: backend/env choice). render_qml, plasma_rewrite, templates/loader are job-builders whose effect is already in job0:* digests.",
       "issued_at": "2026-09-26T23:00:52Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-09-27T14:34:46Z",
+      "last_worked": "2026-09-27T14:49:44Z",
       "ticks_blocked": 0
     },
     {
@@ -1802,5 +1802,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "3e33b233"
+  "predecessor_job_id": "a09f165d"
 }

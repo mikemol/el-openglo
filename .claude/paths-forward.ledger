@@ -286,3 +286,5 @@
 2026-09-27T14:14:09Z  tick  W70  repointed peer      "blocked_on -> luthen-observability:W127 at luthen request; W97 added earlier; re-armed a09f165d (file won over stale payload)"  evidence=state_hash=v2:795f7485da521763
 2026-09-27T14:25:23Z  hash  --   diverged  --        "divergence: payload v2:7703b7de59c036fb, file v2:795f7485da521763; the FILE wins"
 2026-09-27T14:34:54Z  tick  W96  advanced  unblock   "render_qml does no pixel post-processing (render->run_stager->QT.run); qt_sandbox stays keyed. Earlier auto_push-running blocks were partly false: pgrep -f auto_push.py self-matches its wrapper shell"  evidence=scripts/render_qml.py:287,399-409; state_hash=v2:1e82a13f94d52e88
+2026-09-27T14:49:29Z  hash  --   diverged  --        "divergence: payload v2:795f7485da521763, file v2:1e82a13f94d52e88; the FILE wins"
+2026-09-27T14:49:48Z  tick  W96  advanced  unblock   "check_marquee_live.animate assembles APNG timing after qml -> stays keyed for marquee anims; decouple rule stated; falsifier arms (3) set as next"  evidence=scripts/check_marquee_live.py:545-580; state_hash=v2:694e0cf31646c616
