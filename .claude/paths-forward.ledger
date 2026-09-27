@@ -284,3 +284,5 @@
 2026-09-27T13:36:43Z  tick  W96  advanced  unblock   "measured the screens key: code: whole-file hashes duplicate the job digests; next step names option (a) decouple vs (b) untrack with a falsifier. Chosen over W33 axis 2 because every axis-2 template edit would otherwise pay the same 30-still rebuild"  evidence=render_screens.py --keys
 2026-09-27T14:05:56Z  hash  --   diverged  --        "divergence: payload v2:7365e7a2442c47c6, file v2:7703b7de59c036fb; the FILE wins"
 2026-09-27T14:14:09Z  tick  W70  repointed peer      "blocked_on -> luthen-observability:W127 at luthen request; W97 added earlier; re-armed a09f165d (file won over stale payload)"  evidence=state_hash=v2:795f7485da521763
+2026-09-27T14:25:23Z  hash  --   diverged  --        "divergence: payload v2:7703b7de59c036fb, file v2:795f7485da521763; the FILE wins"
+2026-09-27T14:34:54Z  tick  W96  advanced  unblock   "render_qml does no pixel post-processing (render->run_stager->QT.run); qt_sandbox stays keyed. Earlier auto_push-running blocks were partly false: pgrep -f auto_push.py self-matches its wrapper shell"  evidence=scripts/render_qml.py:287,399-409; state_hash=v2:1e82a13f94d52e88

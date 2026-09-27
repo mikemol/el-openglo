@@ -1758,12 +1758,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Decide between (a) DECOUPLE: drop whole-file code: hashes for modules whose only effect on a still is the job they stage (render_qml.py, plasma_rewrite.py, templates/loader.py, qt_sandbox.py) since job0:argv/env/staged-file digests already key exactly what qml is handed (render_stager's own docstring: 'the key is over what the process is HANDED') - keep code: for render_screens.py (contact_sheets composites pixels in Python) and anything that post-processes PNGs; or (b) UNTRACK the PNGs as build output. Check first: does any code: module transform pixels AFTER qml writes them (grep-free: read render_screens.render_one / contact_sheets / animation assembly). Falsifier for (a): an edit to render_qml.texture() must leave every still's key unchanged, while an edit to SegmentChar.qml must still move clock/live-wallpaper keys - write both as a check_action_key selftest arm before landing.",
-      "evidence": "2026-09-27: 2026-09-27: render_screens.py --keys shows each still keyed over code:{render_screens,qt_sandbox,schemes_artifact,plasma_rewrite,render_qml,templates/loader,theme_probe,check_marquee_live} whole-file hashes PLUS job0:argv/env:* digests. The job digests already cover the behaviour; the code: hashes are the conservative layer that made two analysis-only render_qml.py edits (texture(), component_patches) re-render 30 stills each on 2026-09-26/27.",
+      "next_bounded_step": "Read check_marquee_live.animate for post-processing; then write the falsifier as a check_action_key selftest arm (texture() edit leaves still keys unchanged; SegmentChar.qml edit moves clock/live-wallpaper keys) before decoupling.",
+      "evidence": "2026-09-27: 2026-09-27: render_screens.py --keys shows each still keyed over code:{render_screens,qt_sandbox,schemes_artifact,plasma_rewrite,render_qml,templates/loader,theme_probe,check_marquee_live} whole-file hashes PLUS job0:argv/env:* digests. The job digests already cover the behaviour; the code: hashes are the conservative layer that made two analysis-only render_qml.py edits (texture(), component_patches) re-render 30 stills each on 2026-09-26/27. | 2026-09-27: 2026-09-27 read: render_screens.render_one hands out path straight to qml; pixel post-processing (APNG, sheets) lives only in render_screens. render_qml.render (:287) = run_stager(render_stager(...)); run_stager (:399-409) runs QT.run, reads stderr only for backend name -> render_qml does NOT post-process pixels (supports decouple). qt_sandbox.QT.run picks env/gpu (rhi vs software) which changes pixels -> stays keyed unless captured in job env. Tool gap: pycodemod --source render scripts/render_qml.py -> 0 defs, --binding finds :287 (substrate defect).",
       "issued_at": "2026-09-26T23:00:52Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-09-27T13:36:38Z",
+      "last_worked": "2026-09-27T14:34:46Z",
       "ticks_blocked": 0
     },
     {
