@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 96,
+  "counter": 97,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T13:36:18Z",
-  "job_id": "3f330e32",
+  "heartbeat": "2026-09-27T14:14:03Z",
+  "job_id": "a09f165d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1319,14 +1319,14 @@
       "enables": [],
       "touches": [],
       "blocked_on": [
-        "luthen-observability"
+        "luthen-observability:W127"
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted themes get in (make_deb? overlay ebuild W12?).",
-      "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7).",
+      "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours.",
       "issued_at": "2026-09-22T22:20:36+00:00",
-      "last_worked": "2026-09-26T20:43:47Z",
+      "last_worked": "2026-09-27T14:14:03Z",
       "ticks_blocked": 0
     },
     {
@@ -1765,6 +1765,25 @@
       "caused_by": null,
       "last_worked": "2026-09-27T13:36:38Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W97",
+      "title": "mikemol-pathsforward --payload dropped a READY, ranked waypoint (W96) under truncation (dropped=residue,evidence,steps-below-1,collapsed) on 2026-09-27; the paths-forward-loop skill's budget order drops residue reasons, then evidence, then oldest done items, never a live waypoint. Report to mtools (the package owner) with the reproducing state hash v2:7365e7a2442c47c6, rather than only patching around it in el-openglo's cron prompt (which is what 3e33b233's prompt does now).",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "mikemol-pathsforward",
+        "cron-payload"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T13:51:17Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1783,5 +1802,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "6fd5953f"
+  "predecessor_job_id": "3e33b233"
 }
