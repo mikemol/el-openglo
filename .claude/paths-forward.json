@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 108,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T17:36:01Z",
-  "job_id": "3cff1155",
+  "heartbeat": "2026-09-27T17:55:15Z",
+  "job_id": "ce32390c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1989,12 +1989,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Re-run the probe with QT_LOGGING_RULES=qt.rhi.*=true (override after stage) and read GL_RENDERER; also record kwin/qml /proc/PID/maps for libnvidia vs libEGL_mesa while alive. Pass = llvmpipe named.",
+      "evidence": "2026-09-27: 2026-09-27 probe (scratchpad w107probe.py, capped service el-w107-probe, exit 0): kwin_wayland --virtual runs sessionless; its own EGL init fails (EGL_NOT_INITIALIZED) and it falls back, harmless. Client qml under QT_QPA_PLATFORM=wayland + Mesa EGL vendor + LIBGL_ALWAYS_SOFTWARE=1: rc 0 both arms, \"Creating QRhi with backend OpenGL\", NOT backend software; bloom-default vs bloom-0 PNGs DIFFER (halo drawn; 254 lit / 13378 ground of 19200). No SIGSEGV, no nvidia/dri string. HALF-PASS: GL renderer unnamed - render_qml env sets QT_LOGGING_RULES *.debug=false, which hides qt.rhi.general renderer lines, so llvmpipe vs NVIDIA is not yet witnessed.",
       "issued_at": "2026-09-27T17:36:09Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": null,
+      "last_worked": "2026-09-27T17:56:15Z",
       "ticks_blocked": 0
     },
     {
@@ -2039,5 +2039,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "6ddbf149"
+  "predecessor_job_id": "3cff1155"
 }
