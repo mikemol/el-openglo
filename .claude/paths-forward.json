@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 98,
+  "counter": 102,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T16:39:37Z",
-  "job_id": "b8d4bee6",
+  "heartbeat": "2026-09-27T16:56:11Z",
+  "job_id": "ec92b1c4",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1193,18 +1193,23 @@
     {
       "symbol": "W62",
       "title": "PACKAGE THE TOOLING: scripts/ and the ../substrate symlinks become mikemol-* distributions",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W99",
+        "W100",
+        "W101",
+        "W102"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "Step 2: repoint .claude/settings PreToolUse hooks from scripts/hook_no_chaining.py and scripts/hook_structural_query.py to the installed mikemol-hook-no-chaining / mikemol-hook-structural-query console scripts; prove both still fire (one refused chain, one refused grep) and still read THIS repo s struct-tools SKILL.md; then delete those two symlinks and hook_cmdparse. Later steps: ratchet as an mtools dependency; letter to mtools for gate_ledger + run_selftests homes; check_hooks --list must count every symlink. Background (swarm 2026-09-22): four worktree defects, one cause, tooling assumes the main checkout; symlinks broke in worktrees; pycodemod read 0 of N under a worktree venv; worktrees five commits stale gave confident stale findings. COLLAPSE CANDIDATE WITH W43.",
+      "next_bounded_step": "Umbrella: closes when W99-W102 land (split 2026-09-27 on ATOMIZE). COLLAPSE CANDIDATE WITH W43.",
       "evidence": "⚑ THE FIRST SWARM (2026-09-22) FOUND THREE WORKTREE ENVIRONMENT DEFECTS IN ONE HOUR, all one defect — this repo's tooling assumes it runs from the main checkout. (1) Every ../substrate symlink (hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests) was BROKEN in every worktree: the relative target ../../substrate resolves to .claude/worktrees/substrate from .claude/worktrees/agent-*/scripts/. Bridged by one ignored symlink .claude/worktrees/substrate -> /home/mikemol/github/substrate; the bridge is a workaround, not a fix. (2) build_graph's walk descended into the six worktrees and doubled every population (fixed: _NOT_THE_TREE excludes worktrees). (3) pycodemod SILENTLY reads 0 of N files under a worktree's own .venv (uv ignores VIRTUAL_ENV=main/.venv and uses the worktree's fresh one, where its parser raises AttributeError); it works via /home/mikemol/github/el-openglo/.venv/bin/python3. pycodemod flagged it loudly as a BROKEN QUERY and the subagent correctly marked its census UNMEASURED — the discipline held — but a hand-check then missed 4 refs the working invocation found. ALL THREE vanish under W62's shape: an INSTALLED mikemol-* distribution knows where it lives; a symlink or an editable finder or a venv-relative path does not. | 2026-09-27: 2026-09-27 census (step 1): scripts/ holds SIX symlinks into ../substrate (find -type l): hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests. check_hooks.py --list names only the two hooks, so it undercounts the borrow (4 of 6 unseen). mtools homes: the three hook_* are ALREADY in mikemol-hooks (installed, pinned 6ecf767: console scripts mikemol-hook-no-chaining, mikemol-hook-structural-query; cmdparse is its module); ratchet has an mtools distribution (mtools/ratchet, not yet a dependency here); gate_ledger and run_selftests have NO mtools home (B1 remainder for mtools). pycodemod is mikemol-pycodemod in mtools (defect 3). The prior next-step text carried a pasted uv-run help screen (backtick execution); replaced.",
       "issued_at": "2026-09-22T14:28:13+00:00",
-      "last_worked": "2026-09-27T16:40:00Z",
+      "last_worked": "2026-09-27T16:56:17Z",
       "ticks_blocked": 0
     },
     {
@@ -1808,6 +1813,82 @@
       "caused_by": "operator",
       "last_worked": "2026-09-27T15:48:56Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W99",
+      "title": "W62.1 repoint the two PreToolUse hooks to the installed mikemol-hook-no-chaining / mikemol-hook-structural-query console scripts; prove each still refuses (a chain, a grep over .py) and still reads THIS repo s struct-tools SKILL.md; then delete the hook_no_chaining, hook_structural_query and hook_cmdparse symlinks",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        ".claude/settings.json",
+        "scripts/hook_no_chaining.py",
+        "scripts/hook_structural_query.py",
+        "scripts/hook_cmdparse.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T16:56:11Z",
+      "minted_during": "interrupt",
+      "caused_by": "W62",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W100",
+      "title": "W62.2 check_hooks.py --list counts every symlink under scripts/ that resolves outside the tree (today it names 2 of 6), n of m, with a selftest that plants one",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "scripts/check_hooks.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T16:56:11Z",
+      "minted_during": "interrupt",
+      "caused_by": "W62",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W101",
+      "title": "W62.3 ratchet from the mtools ratchet distribution: add it at the one mtools sha in pyproject tooling, repoint callers, delete the scripts/ratchet.py symlink",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "pyproject.toml",
+        "scripts/ratchet.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T16:56:12Z",
+      "minted_during": "interrupt",
+      "caused_by": "W62",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W102",
+      "title": "W62.4 letter to mtools (inbox): gate_ledger.py and run_selftests.py are borrowed from substrate by symlink and have no mtools home; ask for one (census-kit B1 remainder)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "mtools"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-27T16:56:12Z",
+      "minted_during": "interrupt",
+      "caused_by": "W62",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -1826,5 +1907,5 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim."
   ],
-  "predecessor_job_id": "deba3b02"
+  "predecessor_job_id": "b8d4bee6"
 }
