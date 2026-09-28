@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 113,
+  "counter": 115,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T17:29:49Z",
-  "job_id": "0eaa485e",
+  "heartbeat": "2026-09-28T18:16:53Z",
+  "job_id": "f2ab5fb8",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -788,9 +788,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools.",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools. | 2026-09-28: 2026-09-28 REUSE before build (life-0e): aeternum:W61 shipped check_codomain at c99794e (~/github/aeternum/scripts/check_codomain.py, read). ADOPT ITS RULES: status in {emitted, contract read, unmeasured}; emitted names >=1 backticked path, each existing and non-empty; non-emitted names none (a path there is an unstated claim). DIFFERS, recorded: this repo check shape needs --selftest, unknown-flag refusal, n-of-m + empty-population refusal, --json with rules in policy/codomain.rego (opa_gate), and a structural table read (mdstruct), none of which it has; it parses rows textually. So port the rules, not the file; if both repos converge, offer the rego+measurement pair on summit as the shared capability (aeternum:W61 cited).",
       "issued_at": "2026-09-21T17:57:24+00:00",
-      "last_worked": "2026-09-28T17:45:15Z",
+      "last_worked": "2026-09-28T18:08:21Z",
       "ticks_blocked": 0
     },
     {
@@ -2005,7 +2005,7 @@
     {
       "symbol": "W108",
       "title": "W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W98"
       ],
@@ -2014,14 +2014,17 @@
         "scripts/render_qml.py",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Port scratchpad w107probe.py spawn shape into qt_sandbox as a mesa mode: private kwin_wayland --virtual --no-lockscreen --socket <unique> --exit-with-session <client.sh>, env drops DISPLAY/XAUTHORITY, sets __EGL_VENDOR_LIBRARY_FILENAMES=50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QT_QPA_PLATFORM=wayland (client only); selftest asserts llvmpipe in qt.rhi.general and no DISPLAY. Do not yet switch render_qml callers.",
-      "evidence": "",
+      "blocked_on": [
+        "W114",
+        "operator: decide how to refresh the 6 stale clock screens when qt_sandbox.py changes: (a) GPU re-render (EL_QT_GPU, W73 vector), (b) wait for the mesa route (after W114), (c) take qt_sandbox out of the screens key first"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "Switch render_qml.stage_document to mesa=True (drop gpu/EL_QT_GPU there), then its selftest bloom arm must RUN (not SKIP) and pass; then render_screens, then take qt_sandbox out of the screens key (W96 residue).",
+      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route.",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T17:29:49Z",
+      "last_worked": "2026-09-28T18:16:45Z",
       "ticks_blocked": 0
     },
     {
@@ -2131,6 +2134,49 @@
       "caused_by": "life:W16",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W114",
+      "title": "A CRASHING VIRTUAL KWIN MUST NOT PAGE THE OPERATOR (luthen coredump sweep 2026-09-28 14:09 EDT: 2 kwin_wayland --virtual SIGSEGVs from the first mesa selftest run raised DrKonqi + Service Crash on the desktop despite KDE_DEBUG=1). Candidate: run kwin detached, client on WAYLAND_DISPLAY, SIGKILL kwin after (no crash path); or a kwin-honoured crash switch (measuring needs a deliberate crash: operator asked first).",
+      "status": "ready",
+      "enables": [
+        "W108"
+      ],
+      "touches": [
+        "qt_sandbox.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T18:16:37Z",
+      "minted_during": "interrupt",
+      "caused_by": "luthen-observability",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W115",
+      "title": "SUMMIT: offer the codomain census check (check_codomain --json + policy/codomain.rego via opa_gate, mdstruct table read) as a shared capability once W42 lands it; cite aeternum:W61 as origin of the three rules and second consumer (aeternum asked el-openglo to lead, 2026-09-28).",
+      "status": "blocked",
+      "enables": [
+        "aeternum:W62"
+      ],
+      "touches": [
+        "summit",
+        "check_codomain"
+      ],
+      "blocked_on": [
+        "W42"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T18:16:37Z",
+      "minted_during": "interrupt",
+      "caused_by": "aeternum:W62",
+      "last_worked": "2026-09-28T18:16:45Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2150,5 +2196,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "ab67fced"
+  "predecessor_job_id": "0eaa485e"
 }
