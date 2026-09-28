@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 140,
+  "counter": 142,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T23:11:14Z",
-  "job_id": "d2556058",
+  "heartbeat": "2026-09-28T23:22:38Z",
+  "job_id": "70b88c09",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2615,7 +2615,7 @@
     {
       "symbol": "W135",
       "title": "W41.2 FIREFOX DYNAMIC-THEME EXTENSION: make_firefox emits ONE extension carrying all six variants (background script + browser.theme.update from a stored choice, options-page chooser where W113 permits a paid reference), plus web-ext build via a pinned install route (project-tooling: npx vs pinned devDependency); check that web-ext lint passes",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W41"
       ],
@@ -2623,14 +2623,17 @@
         "make_firefox",
         "publishing"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Extend scripts/check_firefox.py + policy/firefox.rego with a dynamic-extension case: themes.json keys == VARIANTS and each equals manifest(v)[\"theme\"]; manifest has theme+storage and the options page; X6 lint covers it too. Then install web-ext by a pinned route (project-tooling) so X6 is MEASURED, not withheld, for all seven.",
+      "blocked_on": [
+        "W141",
+        "W142"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): the dynamic extension exists (make_firefox --dynamic, landed); closes when W141 (its check) and W142 (pinned web-ext, X6 measured) land.",
       "evidence": "2026-09-28: 2026-09-28 step 1: make_firefox.py --dynamic writes dist/firefox-dynamic/ (5 files): manifest.json (MV2, permissions theme+storage, background script, options_ui), themes.json GENERATED from manifest(v)[\"theme\"] for all six variants (no drift by construction), background.js (browser.theme.update from storage.local, on install/startup/change), options.html/.js (variant chooser; the W113 paid-reference slot). opa_gate firefox unchanged: 0 deny, 6 admitted, 6 withheld (X6: web-ext not installed, lint unmeasured).",
       "issued_at": "2026-09-28T21:04:54Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T23:10:53Z",
+      "last_worked": "2026-09-28T23:22:38Z",
       "ticks_blocked": 0
     },
     {
@@ -2743,6 +2746,50 @@
       "caused_by": "operator",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W141",
+      "title": "W135.1 DYNAMIC-EXTENSION CASE in check_firefox + policy/firefox.rego: themes.json keys == VARIANTS and each equals manifest(v)[\"theme\"] (no drift), manifest carries theme+storage permissions and the options page; a refusing and an admitting opa test per rule",
+      "status": "working",
+      "enables": [
+        "W135"
+      ],
+      "touches": [
+        "check_firefox",
+        "make_firefox",
+        "policy"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T23:22:27Z",
+      "minted_during": "interrupt",
+      "caused_by": "W135",
+      "last_worked": "2026-09-28T23:22:43Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W142",
+      "title": "W135.2 PINNED web-ext: install web-ext by a pinned, reproducible route (project-tooling: mise-managed node + a pinned devDependency, not a floating npx) so check_firefox X6 lint is MEASURED, not withheld, for the six static themes and the dynamic extension",
+      "status": "ready",
+      "enables": [
+        "W135",
+        "W136"
+      ],
+      "touches": [
+        "check_firefox",
+        "tooling"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T23:22:32Z",
+      "minted_during": "interrupt",
+      "caused_by": "W135",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2762,5 +2809,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "326be9c7"
+  "predecessor_job_id": "d2556058"
 }

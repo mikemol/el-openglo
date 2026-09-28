@@ -332,3 +332,4 @@
 2026-09-28T22:50:33Z  hash  --   diverged  --        "divergence: payload v2:a76ed30a07eb0cd3, file v2:66ebeec6a1d7dea1; the FILE wins"
 2026-09-28T22:50:48Z  tick  W134 done      unblock   "Chrome store zips landed (6 of 6, chrome_zips gate admitted, populations fix); W135 Firefox dynamic-theme extension working"  evidence=scripts/publish_browsers.py
 2026-09-28T23:11:14Z  tick  W135 advanced  unblock   "make_firefox --dynamic: one extension carrying all six variants (themes.json from manifest(v)[theme]), background theme.update + options chooser; firefox gate unchanged; next: dynamic case in check_firefox, pinned web-ext"  evidence=make_firefox.py
+2026-09-28T23:22:38Z  tick  W135 atomized  collapse  "split into W141 dynamic-extension case in check_firefox + rego, W142 pinned web-ext (X6 measured); the extension itself landed"  evidence=W141,W142
