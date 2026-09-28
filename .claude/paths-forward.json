@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 128,
+  "counter": 131,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T20:39:22Z",
-  "job_id": "96089b5c",
+  "heartbeat": "2026-09-28T20:50:03Z",
+  "job_id": "07010de6",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -769,10 +769,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "After W35's shape: scripts/publish_browsers.py (or a make_deb target) that (1) zips each chrome/<variant> folder for the Store, (2) runs web-ext build + web-ext sign --channel unlisted per firefox/<variant> when WEB_EXT_API_KEY/SECRET are set (SKIP printed otherwise), (3) records the signed .xpi paths + an update manifest; a check that the zips/xpis exist and their manifests parse. Requires web-ext on the host (npm; not installed — residue) and the operator's AMO keys (operator). Decide first whether Firefox ships as ONE dynamic-theme extension (a background script + browser.theme.update from a stored variant choice) — if yes, make_firefox gains that shape and there is one .xpi to sign.",
-      "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113).",
+      "next_bounded_step": "Locate make_chrome output (struct tool, not a guess); decide web-ext install route per project-tooling (npx vs a pinned devDependency); then publish_browsers.py step (1): zip each chrome variant, with a check that the zips exist and manifests parse.",
+      "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration.",
       "issued_at": "2026-09-21T17:49:03+00:00",
-      "last_worked": "2026-09-28T20:39:22Z",
+      "last_worked": "2026-09-28T20:50:21Z",
       "ticks_blocked": 0
     },
     {
@@ -2426,15 +2426,15 @@
       "title": "UV-FLUORESCENT INK (operator 2026-09-28): the passive family (W126) made emissive by UV excitation; one excitation layer turns any passive mark into an emitter, reusing the emissive glow/bloom path",
       "status": "blocked",
       "enables": [
-        "W42",
-        "W128"
+        "W42"
       ],
       "touches": [
         "display_types",
         "palette"
       ],
       "blocked_on": [
-        "W126"
+        "W126",
+        "W128"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
@@ -2442,12 +2442,39 @@
       "issued_at": "2026-09-28T20:38:49Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:39:04Z",
+      "last_worked": "2026-09-28T20:49:31Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W128",
-      "title": "BANDGAP-DERIVED UV-MATERIAL COLOURS (operator 2026-09-28, \"if I get that far\"): each fluorescent material colour from its physics (bandgap -> emission spectrum -> CIE XYZ -> sRGB via the palette solver colour science), not a picked hex",
+      "title": "PHOSPHOR-DERIVED PALETTE (operator 2026-09-28: the palettes are phosphors, Openglo=ZnS:Cu, Amber=ZnS:Mn, Azure=ZnS:Cl, \"correct, I think\"; swatches were eyeballed): derive each variant colour from its phosphor emission spectrum (-> CIE XYZ -> sRGB via the palette solver); later the UV inks (W127) use the same method",
+      "status": "blocked",
+      "enables": [
+        "W42",
+        "W127",
+        "W129",
+        "W130",
+        "W131"
+      ],
+      "touches": [
+        "palette",
+        "make_schemes"
+      ],
+      "blocked_on": [
+        "W41"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Derive each variant colour from its phosphor emission, report delta-E from todays eyeballed swatch, propose refined lit/ghost/ground for operator review before any re-solve.",
+      "evidence": "2026-09-28: 2026-09-28 operator: the existing palettes are (unknowingly) ZnS:Mn, ZnS:Cu, ZnS:Cl; also SrS:Ce, CaS:Eu, and Cu/Cl + trace Mn for white (\"Mm\" read as Mn, unconfirmed). Swatches were EYEBALLED: the emission is the refinement target. Re-scoped from UV-ink-only to the existing emissive palettes; no longer waits on W127 (W127 now consumes it).",
+      "issued_at": "2026-09-28T20:38:54Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:49:25Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W129",
+      "title": "SrS:Ce PHOSPHOR VARIANT (operator 2026-09-28): a blue-green palette variant derived from SrS:Ce emission via W128",
       "status": "blocked",
       "enables": [
         "W42"
@@ -2457,15 +2484,61 @@
         "make_schemes"
       ],
       "blocked_on": [
-        "W127"
+        "W128"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
       "evidence": "",
-      "issued_at": "2026-09-28T20:38:54Z",
+      "issued_at": "2026-09-28T20:49:34Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:39:04Z",
+      "last_worked": "2026-09-28T20:49:48Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W130",
+      "title": "CaS:Eu PHOSPHOR VARIANT (operator 2026-09-28): a red palette variant derived from CaS:Eu emission via W128",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "palette",
+        "make_schemes"
+      ],
+      "blocked_on": [
+        "W128"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:49:39Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:49:52Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W131",
+      "title": "WHITE PHOSPHOR VARIANT (operator 2026-09-28): ZnS:Cu,Cl co-doped with trace Mn gives white; a white variant derived from the blended emission via W128",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "palette",
+        "make_schemes"
+      ],
+      "blocked_on": [
+        "W128"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:49:43Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:49:57Z",
       "ticks_blocked": 0
     }
   ],
@@ -2486,5 +2559,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "48de5607"
+  "predecessor_job_id": "96089b5c"
 }
