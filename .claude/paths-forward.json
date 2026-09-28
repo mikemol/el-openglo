@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 137,
+  "counter": 138,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T21:04:42Z",
-  "job_id": "07010de6",
+  "heartbeat": "2026-09-28T21:21:47Z",
+  "job_id": "39ad373d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2604,12 +2604,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "scripts/publish_browsers.py --chrome: call make_chrome.render_all into a private staging dir (the same authority make_deb uses, nothing bespoke), zip each variant folder (manifest.json at the zip root, as the Web Store requires), write dist/chrome/<variant>.zip; --json measurement (n of 6 zips, each manifest parses, manifest_version 3) + --selftest; refuse unknown flags.",
+      "evidence": "2026-09-28: 2026-09-28 LOCATED (pycodemod --importers make_chrome; read make_chrome.py, make_deb.py:850-855): make_chrome.render_all(variants, out_dir_map) writes <dir>/manifest.json per variant (MV3, theme.colors from make_preview.parse_scheme). Callers in the real tree: make_deb.py:852 (into DEB_ROOT usr/share/el-openglo/chrome/<variant>) and scripts/check_chrome.py. Its __main__ writes /tmp/chrome-<v> (outside the tree), hence no chrome/ at the repo root.",
       "issued_at": "2026-09-28T21:04:49Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T21:05:21Z",
+      "last_worked": "2026-09-28T21:21:46Z",
       "ticks_blocked": 0
     },
     {
@@ -2680,6 +2680,25 @@
       "caused_by": "W41",
       "last_worked": "2026-09-28T21:05:10Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W138",
+      "title": "STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "worktrees",
+        "pycodemod"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:21:47Z",
+      "minted_during": "interrupt",
+      "caused_by": "W134",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2699,5 +2718,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "96089b5c"
+  "predecessor_job_id": "07010de6"
 }
