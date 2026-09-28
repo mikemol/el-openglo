@@ -1,9 +1,9 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 121,
+  "counter": 128,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T20:23:52Z",
+  "heartbeat": "2026-09-28T20:39:22Z",
   "job_id": "96089b5c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
@@ -759,7 +759,7 @@
     {
       "symbol": "W41",
       "title": "BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "make_firefox",
@@ -772,7 +772,7 @@
       "next_bounded_step": "After W35's shape: scripts/publish_browsers.py (or a make_deb target) that (1) zips each chrome/<variant> folder for the Store, (2) runs web-ext build + web-ext sign --channel unlisted per firefox/<variant> when WEB_EXT_API_KEY/SECRET are set (SKIP printed otherwise), (3) records the signed .xpi paths + an update manifest; a check that the zips/xpis exist and their manifests parse. Requires web-ext on the host (npm; not installed — residue) and the operator's AMO keys (operator). Decide first whether Firefox ships as ONE dynamic-theme extension (a background script + browser.theme.update from a stored variant choice) — if yes, make_firefox gains that shape and there is one .xpi to sign.",
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113).",
       "issued_at": "2026-09-21T17:49:03+00:00",
-      "last_worked": "2026-09-28T17:45:14Z",
+      "last_worked": "2026-09-28T20:39:22Z",
       "ticks_blocked": 0
     },
     {
@@ -2005,7 +2005,7 @@
     {
       "symbol": "W108",
       "title": "W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W98"
       ],
@@ -2015,13 +2015,13 @@
         "catalog/library/render_screens.py"
       ],
       "blocked_on": [],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Close (done) once this commit lands; W114 closes with it. Later: take qt_sandbox out of the screens key (W96 residue), drop the gpu=True/EL_QT_GPU path.",
+      "blocked_kind": null,
+      "next_bounded_step": "",
       "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step. | 2026-09-28: 2026-09-28: render_qml switched to QT.run(mesa=rhi) (parked scratchpad render_qml.w108.py; selftest PASS, bloom arm runs). Measured scope: render_screens --stale = 55 of 56 outputs (every render_qml surface + marquee stills/anims + sheets + strip key on qt_sandbox/render_qml), not 6. The marquee path renders via qt_sandbox.popen, which has no mesa route yet -> W121 first, else the marquee stills would lose the halo. Tree restored to HEAD; both files parked. | 2026-09-28: 2026-09-28 LANDED (pending commit): qt_sandbox mesa route (kwin_session detached + SIGKILL, W114) and render_qml QT.run(mesa=rhi) installed; render_screens --jobs=4 as capped service el-w108-screens: exit 0; --stale now 0 of 56. 40 PNGs changed (clock, live-wallpaper, switcher, sheets, strip, marquee-anim, pinholes-anim, pinholes-EL-Azure); marquee stills unchanged (software path, as measured). coredumpctl kwin --since -1h: none. render_qml --selftest bloom arm runs and passes.",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T20:23:51Z",
+      "last_worked": "2026-09-28T20:38:43Z",
       "ticks_blocked": 0
     },
     {
@@ -2139,23 +2139,21 @@
     {
       "symbol": "W114",
       "title": "A CRASHING VIRTUAL KWIN MUST NOT PAGE THE OPERATOR (luthen coredump sweep 2026-09-28 14:09 EDT: 2 kwin_wayland --virtual SIGSEGVs from the first mesa selftest run raised DrKonqi + Service Crash on the desktop despite KDE_DEBUG=1). Candidate: run kwin detached, client on WAYLAND_DISPLAY, SIGKILL kwin after (no crash path); or a kwin-honoured crash switch (measuring needs a deliberate crash: operator asked first).",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W108"
       ],
       "touches": [
         "qt_sandbox.py"
       ],
-      "blocked_on": [
-        "W108"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Code is done and tested in park (qt_sandbox.w108.py); it LANDS in the W108 commit, which waits on W121. Close then.",
-      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds. | 2026-09-28: 2026-09-28 LANDED IN PARK (scratchpad qt_sandbox.w108.py): kwin_session() context manager starts kwin_wayland --virtual detached, waits for the socket, yields it, SIGKILLs kwin in finally; run(mesa=True) runs the child with WAYLAND_DISPLAY=<sock>. Selftest 18/18 incl. \"kwin leaves no coredump record\" (before/after 0) and \"not ready in time is refused\" (ready_s=0, NEVER a broken env). coredumpctl kwin --since -1h: none. render_qml --selftest on it: bloom arm RUNS and passes (was SKIP without EL_QT_GPU). Commits with W108 (it staleness-keys the screens).",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds. | 2026-09-28: 2026-09-28 LANDED IN PARK (scratchpad qt_sandbox.w108.py): kwin_session() context manager starts kwin_wayland --virtual detached, waits for the socket, yields it, SIGKILLs kwin in finally; run(mesa=True) runs the child with WAYLAND_DISPLAY=<sock>. Selftest 18/18 incl. \"kwin leaves no coredump record\" (before/after 0) and \"not ready in time is refused\" (ready_s=0, NEVER a broken env). coredumpctl kwin --since -1h: none. render_qml --selftest on it: bloom arm RUNS and passes (was SKIP without EL_QT_GPU). Commits with W108 (it staleness-keys the screens). | 2026-09-28: 2026-09-28 landed with the W108 commit (kwin_session in qt_sandbox.py).",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-09-28T20:09:57Z",
+      "last_worked": "2026-09-28T20:38:43Z",
       "ticks_blocked": 0
     },
     {
@@ -2307,6 +2305,167 @@
       "minted_during": "interrupt",
       "caused_by": "W108",
       "last_worked": "2026-09-28T20:09:57Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W122",
+      "title": "ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom",
+      "status": "ready",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "android",
+        "make_clock",
+        "make_segment_display"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:44Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W123",
+      "title": "NIXIE TUBES display model (operator 2026-09-28, after publishing): stacked cold-cathode digit glyphs, orange neon glow, mesh/anode depth, one lit digit per tube; EMITTED from the core like the segment model",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "display_types",
+        "make_segment_display"
+      ],
+      "blocked_on": [
+        "W41"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:44Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:39:04Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W124",
+      "title": "NEON TUBE display model (operator 2026-09-28, after publishing): bent-tube stroke glyphs with gas glow and dark electrode ends; EMITTED from the core (stroke geometry, palette, bloom)",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "display_types"
+      ],
+      "blocked_on": [
+        "W41"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:44Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:39:04Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W125",
+      "title": "VINTAGE DISPLAY CENSUS (operator 2026-09-28, after publishing): which display technologies the tree already models (display_types, check_display_registry) and which not (candidates: Numitron, Panaplex, split-flap, flip-disc, reflective LCD, CRT vector); each unmodelled one becomes its own waypoint",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "display_types",
+        "check_display_registry"
+      ],
+      "blocked_on": [
+        "W41"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:44Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:39:04Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W126",
+      "title": "PASSIVE (PRINTED) DISPLAY FAMILY (operator 2026-09-28, after publishing): teletype, ticker tape, 8-pin and 24-pin dot-matrix impact print; the registry gains an EMISSIVE vs PASSIVE axis; one print model with per-device head geometry, emitted from the core",
+      "status": "blocked",
+      "enables": [
+        "W42",
+        "W127"
+      ],
+      "touches": [
+        "display_types",
+        "check_display_registry"
+      ],
+      "blocked_on": [
+        "W41"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:44Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:39:04Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W127",
+      "title": "UV-FLUORESCENT INK (operator 2026-09-28): the passive family (W126) made emissive by UV excitation; one excitation layer turns any passive mark into an emitter, reusing the emissive glow/bloom path",
+      "status": "blocked",
+      "enables": [
+        "W42",
+        "W128"
+      ],
+      "touches": [
+        "display_types",
+        "palette"
+      ],
+      "blocked_on": [
+        "W126"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:49Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:39:04Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W128",
+      "title": "BANDGAP-DERIVED UV-MATERIAL COLOURS (operator 2026-09-28, \"if I get that far\"): each fluorescent material colour from its physics (bandgap -> emission spectrum -> CIE XYZ -> sRGB via the palette solver colour science), not a picked hex",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "palette",
+        "make_schemes"
+      ],
+      "blocked_on": [
+        "W127"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T20:38:54Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T20:39:04Z",
       "ticks_blocked": 0
     }
   ],
