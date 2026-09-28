@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 115,
+  "counter": 116,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T18:16:53Z",
-  "job_id": "f2ab5fb8",
+  "heartbeat": "2026-09-28T18:40:06Z",
+  "job_id": "c0f8065c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2090,8 +2090,8 @@
     },
     {
       "symbol": "W112",
-      "title": "RELICENSE the free core GPLv3 -> Apache-2.0 (operator 2026-09-28 via life letter, rulings 1+3: palette, engine, every emitted theme incl. the desktop theme, design tokens). First: census what carries other terms (the 6 substrate symlinks, vendored fonts/assets, emitted metadata licence fields); then LICENSE + NOTICE + SPDX-License-Identifier headers (mtools precedent), and check_license moves to Apache-2.0.",
-      "status": "ready",
+      "title": "APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent)",
+      "status": "working",
       "enables": [
         "life:W16",
         "W41"
@@ -2104,12 +2104,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Read the 6 substrate symlink targets for licence terms (substrate LICENSE / SPDX); then NOTICE + SPDX headers.",
+      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache.",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": null,
+      "last_worked": "2026-09-28T18:39:56Z",
       "ticks_blocked": 0
     },
     {
@@ -2177,6 +2177,29 @@
       "caused_by": "aeternum:W62",
       "last_worked": "2026-09-28T18:16:45Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W116",
+      "title": "KvFlat vs an all-Apache desktop theme: make_kvantum recolours KvFlat (GPL-3.0-or-later), so kvantum/* must stay GPL; the operator ruled the whole desktop theme Apache-2.0 (life:W16 ruling 3)",
+      "status": "blocked",
+      "enables": [
+        "life:W16"
+      ],
+      "touches": [
+        "make_kvantum",
+        "licence"
+      ],
+      "blocked_on": [
+        "operator: decide KvFlat: (a) keep a GPL-3.0 Kvantum layer beside the Apache core (already segregated in debian copyright), or (b) write an original Kvantum theme so the desktop theme is all Apache-2.0"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T18:39:57Z",
+      "minted_during": "interrupt",
+      "caused_by": "life:W16",
+      "last_worked": "2026-09-28T18:40:05Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2196,5 +2219,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "0eaa485e"
+  "predecessor_job_id": "f2ab5fb8"
 }
