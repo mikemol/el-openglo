@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 140,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T22:50:44Z",
-  "job_id": "326be9c7",
+  "heartbeat": "2026-09-28T23:11:14Z",
+  "job_id": "d2556058",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2625,12 +2625,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Extend scripts/check_firefox.py + policy/firefox.rego with a dynamic-extension case: themes.json keys == VARIANTS and each equals manifest(v)[\"theme\"]; manifest has theme+storage and the options page; X6 lint covers it too. Then install web-ext by a pinned route (project-tooling) so X6 is MEASURED, not withheld, for all seven.",
+      "evidence": "2026-09-28: 2026-09-28 step 1: make_firefox.py --dynamic writes dist/firefox-dynamic/ (5 files): manifest.json (MV2, permissions theme+storage, background script, options_ui), themes.json GENERATED from manifest(v)[\"theme\"] for all six variants (no drift by construction), background.js (browser.theme.update from storage.local, on install/startup/change), options.html/.js (variant chooser; the W113 paid-reference slot). opa_gate firefox unchanged: 0 deny, 6 admitted, 6 withheld (X6: web-ext not installed, lint unmeasured).",
       "issued_at": "2026-09-28T21:04:54Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T22:50:44Z",
+      "last_worked": "2026-09-28T23:10:53Z",
       "ticks_blocked": 0
     },
     {
@@ -2762,5 +2762,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "39ad373d"
+  "predecessor_job_id": "326be9c7"
 }

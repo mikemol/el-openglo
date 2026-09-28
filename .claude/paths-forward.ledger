@@ -331,3 +331,4 @@
 2026-09-28T22:40:29Z  tick  W139 minted    unblock   "operator: commits CPU-idle (serial selftests); W139 adopt mtools pytest-spec (letter to mtools inbox), W140 gate_ledger path mismatch; W134 gate fix: # population: on publish_browsers walk"  evidence=mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md
 2026-09-28T22:50:33Z  hash  --   diverged  --        "divergence: payload v2:a76ed30a07eb0cd3, file v2:66ebeec6a1d7dea1; the FILE wins"
 2026-09-28T22:50:48Z  tick  W134 done      unblock   "Chrome store zips landed (6 of 6, chrome_zips gate admitted, populations fix); W135 Firefox dynamic-theme extension working"  evidence=scripts/publish_browsers.py
+2026-09-28T23:11:14Z  tick  W135 advanced  unblock   "make_firefox --dynamic: one extension carrying all six variants (themes.json from manifest(v)[theme]), background theme.update + options chooser; firefox gate unchanged; next: dynamic case in check_firefox, pinned web-ext"  evidence=make_firefox.py
