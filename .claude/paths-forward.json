@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 111,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T17:15:35Z",
-  "job_id": "ab67fced",
+  "heartbeat": "2026-09-28T17:29:49Z",
+  "job_id": "0eaa485e",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1984,7 +1984,7 @@
     {
       "symbol": "W107",
       "title": "W98.1 PROBE the sessionless Mesa route: kwin_wayland --virtual --socket el-w98 --exit-with-session running a minimal QML that loads the emitted clock and grabToImage to PNG; client QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset (same for kwin). Capped service, cputime. Pass = stderr names llvmpipe/softpipe AND bloom>0 pixels differ from bloom=0. Record fail modes (kwin opens /dev/dri; NVIDIA EGL picked).",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W98"
       ],
@@ -1992,22 +1992,20 @@
         "qt_sandbox.py",
         "scripts/render_qml.py"
       ],
-      "blocked_on": [
-        "W109"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: done when W109 names llvmpipe with no libnvidia mapped (bloom-differs half already witnessed 2026-09-27).",
-      "evidence": "2026-09-27: 2026-09-27 probe (scratchpad w107probe.py, capped service el-w107-probe, exit 0): kwin_wayland --virtual runs sessionless; its own EGL init fails (EGL_NOT_INITIALIZED) and it falls back, harmless. Client qml under QT_QPA_PLATFORM=wayland + Mesa EGL vendor + LIBGL_ALWAYS_SOFTWARE=1: rc 0 both arms, \"Creating QRhi with backend OpenGL\", NOT backend software; bloom-default vs bloom-0 PNGs DIFFER (halo drawn; 254 lit / 13378 ground of 19200). No SIGSEGV, no nvidia/dri string. HALF-PASS: GL renderer unnamed - render_qml env sets QT_LOGGING_RULES *.debug=false, which hides qt.rhi.general renderer lines, so llvmpipe vs NVIDIA is not yet witnessed.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-09-27: 2026-09-27 probe (scratchpad w107probe.py, capped service el-w107-probe, exit 0): kwin_wayland --virtual runs sessionless; its own EGL init fails (EGL_NOT_INITIALIZED) and it falls back, harmless. Client qml under QT_QPA_PLATFORM=wayland + Mesa EGL vendor + LIBGL_ALWAYS_SOFTWARE=1: rc 0 both arms, \"Creating QRhi with backend OpenGL\", NOT backend software; bloom-default vs bloom-0 PNGs DIFFER (halo drawn; 254 lit / 13378 ground of 19200). No SIGSEGV, no nvidia/dri string. HALF-PASS: GL renderer unnamed - render_qml env sets QT_LOGGING_RULES *.debug=false, which hides qt.rhi.general renderer lines, so llvmpipe vs NVIDIA is not yet witnessed. | 2026-09-28: 2026-09-28 both halves witnessed: bloom differs (2026-09-27) + llvmpipe named with no libnvidia mapped in the client (W109). The sessionless kwin --virtual + Mesa EGL route holds.",
       "issued_at": "2026-09-27T17:36:09Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-27T18:20:52Z",
+      "last_worked": "2026-09-28T17:29:34Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W108",
       "title": "W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W98"
       ],
@@ -2016,22 +2014,20 @@
         "scripts/render_qml.py",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [
-        "W107"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Port scratchpad w107probe.py spawn shape into qt_sandbox as a mesa mode: private kwin_wayland --virtual --no-lockscreen --socket <unique> --exit-with-session <client.sh>, env drops DISPLAY/XAUTHORITY, sets __EGL_VENDOR_LIBRARY_FILENAMES=50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QT_QPA_PLATFORM=wayland (client only); selftest asserts llvmpipe in qt.rhi.general and no DISPLAY. Do not yet switch render_qml callers.",
       "evidence": "",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-27T17:36:21Z",
+      "last_worked": "2026-09-28T17:29:49Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W109",
       "title": "W107.1 NAME THE RENDERER on the kwin --virtual + Mesa EGL route: re-run scratchpad w107probe.py with QT_LOGGING_RULES overridden after stage to qt.rhi.*=true (render_qml sets *.debug=false, which hid it) and capture GL_RENDERER from the client; also snapshot /proc/PID/maps of kwin_wayland and qml while alive for libnvidia-* vs libEGL_mesa/libgallium. Pass = llvmpipe (or softpipe) named AND no libnvidia mapped in the client.",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W107"
       ],
@@ -2044,11 +2040,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-28: 2026-09-28 PASS (scratchpad w107probe.py + QT_LOGGING_RULES qt.rhi.*=true + /proc maps sampled every 0.25s; capped service el-w109-probe exit 0; scratchpad/w109out/result.json): client log \"qt.rhi.general: OpenGL VENDOR: Mesa RENDERER: llvmpipe (LLVM 22.1.8, 256 bits) VERSION: 4.6 (Compatibility Profile) Mesa 26.2.3\"; qml maps both arms = libEGL, libEGL_mesa, libGLX, libGLdispatch, libgallium-26.2.3, libxcb-dri3, NO libnvidia; bloom-default vs bloom-0 differ (226 lit / 14081 ground of 19200). GAP: kwin_wayland own maps not captured (its log shows eglInitialize failing - ran without GL); criterion is the client, met.",
       "issued_at": "2026-09-27T18:20:35Z",
       "minted_during": "interrupt",
       "caused_by": "W107",
-      "last_worked": "2026-09-28T17:15:35Z",
+      "last_worked": "2026-09-28T17:29:34Z",
       "ticks_blocked": 0
     },
     {
@@ -2107,5 +2103,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "7ebe0a68"
+  "predecessor_job_id": "ab67fced"
 }

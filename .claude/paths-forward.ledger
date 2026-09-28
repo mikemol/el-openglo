@@ -308,3 +308,4 @@
 2026-09-27T19:25:30Z  tick  W100 done      unblock   "check_hooks --list counts out-of-tree symlinks: 6 of 106; selftest plants one; witness for W99/W101 deletions; armed c2d4ba84"  evidence=scripts/check_hooks.py
 2026-09-27T20:05:59Z  hash  --   diverged  --        "divergence: payload v2:4d12a698bbe764cb, file v2:136e18c374b58dab; the FILE wins"
 2026-09-27T20:23:06Z  tick  W105 done      unblock   "W77 independent (operator-deferred, nothing waits either way); re-count 36 of 49 live linked, 13 unlinked (9 reviewed, 4 never clustered); W111 minted for an --unlinked mode; armed 7ebe0a68"  evidence=W105.evidence,W111
+2026-09-28T17:29:43Z  tick  W109 done      unblock   "llvmpipe named, no libnvidia in client maps, bloom differs; W107 closed; W108 unblocked with first step"  evidence=scratchpad/w109out/result.json
