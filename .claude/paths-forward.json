@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 142,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T23:42:35Z",
-  "job_id": "ebbaf941",
+  "heartbeat": "2026-09-28T23:54:59Z",
+  "job_id": "c5ebbe13",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2750,7 +2750,7 @@
     {
       "symbol": "W141",
       "title": "W135.1 DYNAMIC-EXTENSION CASE in check_firefox + policy/firefox.rego: themes.json keys == VARIANTS and each equals manifest(v)[\"theme\"] (no drift), manifest carries theme+storage permissions and the options page; a refusing and an admitting opa test per rule",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W135"
       ],
@@ -2761,18 +2761,18 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands.",
+      "next_bounded_step": "",
       "evidence": "2026-09-28: 2026-09-28: check_firefox gains dynamic_facts (renders make_firefox --dynamic into private staging) + dynamic_facts_in (the READ half, comparing themes.json to make_firefox.manifest(v) so a tampered render can be shown); policy/firefox.rego gains X7 (missing / extra / drifted variant), X8 (theme+storage permissions, options page shipped), X6 for the dynamic extension (withheld without web-ext), a W for an unmeasured extension, and \"dynamic\" in admitted/denied_ids. Selftest 14/14 incl. three tampered-render arms (hand-edited colour -> drifted, dropped variant -> missing, removed options page -> not shipped). opa_gate --test 916/916 (3 static-theme tests narrowed from whole-set equality to the static id). opa_gate firefox: 0 deny, 7 admitted (six + dynamic), 7 withheld (X6: web-ext absent -> W142).",
       "issued_at": "2026-09-28T23:22:27Z",
       "minted_during": "interrupt",
       "caused_by": "W135",
-      "last_worked": "2026-09-28T23:42:35Z",
+      "last_worked": "2026-09-28T23:54:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W142",
       "title": "W135.2 PINNED web-ext: install web-ext by a pinned, reproducible route (project-tooling: mise-managed node + a pinned devDependency, not a floating npx) so check_firefox X6 lint is MEASURED, not withheld, for the six static themes and the dynamic extension",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W135",
         "W136"
@@ -2788,7 +2788,7 @@
       "issued_at": "2026-09-28T23:22:32Z",
       "minted_during": "interrupt",
       "caused_by": "W135",
-      "last_worked": null,
+      "last_worked": "2026-09-28T23:54:59Z",
       "ticks_blocked": 0
     }
   ],
@@ -2809,5 +2809,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "70b88c09"
+  "predecessor_job_id": "ebbaf941"
 }
