@@ -1,9 +1,9 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 131,
+  "counter": 137,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T20:50:03Z",
+  "heartbeat": "2026-09-28T21:04:42Z",
   "job_id": "07010de6",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
@@ -759,20 +759,25 @@
     {
       "symbol": "W41",
       "title": "BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
-      "status": "working",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "make_firefox",
         "make_chrome",
         "catalog/publishing.md"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W134",
+        "W135",
+        "W136",
+        "W137"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "Locate make_chrome output (struct tool, not a guess); decide web-ext install route per project-tooling (npx vs a pinned devDependency); then publish_browsers.py step (1): zip each chrome variant, with a check that the zips exist and manifests parse.",
+      "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W134 Chrome zips, W135 Firefox dynamic-theme extension, W136 AMO signing (operator keys), W137 Chrome Web Store listing (operator registration) land.",
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration.",
       "issued_at": "2026-09-21T17:49:03+00:00",
-      "last_worked": "2026-09-28T20:50:21Z",
+      "last_worked": "2026-09-28T21:05:17Z",
       "ticks_blocked": 0
     },
     {
@@ -2465,11 +2470,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Derive each variant colour from its phosphor emission, report delta-E from todays eyeballed swatch, propose refined lit/ghost/ground for operator review before any re-solve.",
-      "evidence": "2026-09-28: 2026-09-28 operator: the existing palettes are (unknowingly) ZnS:Mn, ZnS:Cu, ZnS:Cl; also SrS:Ce, CaS:Eu, and Cu/Cl + trace Mn for white (\"Mm\" read as Mn, unconfirmed). Swatches were EYEBALLED: the emission is the refinement target. Re-scoped from UV-ink-only to the existing emissive palettes; no longer waits on W127 (W127 now consumes it).",
+      "evidence": "2026-09-28: 2026-09-28 operator: the existing palettes are (unknowingly) ZnS:Mn, ZnS:Cu, ZnS:Cl; also SrS:Ce, CaS:Eu, and Cu/Cl + trace Mn for white (\"Mm\" read as Mn, unconfirmed). Swatches were EYEBALLED: the emission is the refinement target. Re-scoped from UV-ink-only to the existing emissive palettes; no longer waits on W127 (W127 now consumes it). | 2026-09-28: 2026-09-28 METHOD (scratchpad w128-physics.md; numbers UNVERIFIED, source first): the host gap sets excitation, the ACTIVATOR sets colour. ZnS:Cu,Cl + ZnS:Cl = donor-acceptor pair recombination E(r)=Eg-(E_D+E_A)+e^2/(4 pi eps r), hydrogenic E_D/E_A, pair distances enumerated over real lattice shells; ZnS:Mn = Mn2+ d-d 4T1->6A1 by ligand-field theory (Tanabe-Sugano, Racah B/C, Dq); SrS:Ce / CaS:Eu = 5d->4f by the Dorenbos centroid-shift + crystal-field model. Band shape: configuration-coordinate model (Huang-Rhys S, phonon hw, Stokes ~2S hw, FWHM(T)), Varshni gap(T). Spectrum -> CIE 1931 CMFs (measured vision data, the one irreducible table) -> XYZ -> sRGB. Witness: model peak vs measured peak per material, n of m within tolerance. Mixtures (white) = weighted sums of SPECTRA.",
       "issued_at": "2026-09-28T20:38:54Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:49:25Z",
+      "last_worked": "2026-09-28T21:04:25Z",
       "ticks_blocked": 0
     },
     {
@@ -2539,6 +2544,141 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:57Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W132",
+      "title": "DFT-DERIVED PHOSPHOR PARAMETERS (operator 2026-09-28): replace literature parameters (defect/donor/acceptor levels, crystal field, Huang-Rhys S, phonon energy) with DFT defect calculations, as deeper parameters for the Voronoi/Delaunay colour model and the conductance model (shared g-calculus math, a sibling, not a dependency)",
+      "status": "blocked",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "palette"
+      ],
+      "blocked_on": [
+        "W128"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:04:29Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T21:04:33Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W133",
+      "title": "A11Y AS CONDUCTANCES (operator 2026-09-28): WCAG contrast and colour-vision-deficiency separation as constraints INSIDE the conductance graph the palette is solved on, satisfied by construction rather than checked after; first step: census the existing a11y checks (check_legibility, check_use_of_colour, check_selection_contrast; paperkit wcag_entail/wcag_model) and what each constrains, as the edge spec",
+      "status": "ready",
+      "enables": [
+        "W42"
+      ],
+      "touches": [
+        "palette",
+        "check_legibility",
+        "check_use_of_colour",
+        "check_selection_contrast"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:04:41Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W134",
+      "title": "W41.1 CHROME ZIPS: locate make_chrome output (struct tool, not a guess), then publish step (1): zip each chrome variant for the Web Store, with a check that the zips exist, n of m, and each manifest parses",
+      "status": "working",
+      "enables": [
+        "W41"
+      ],
+      "touches": [
+        "make_chrome",
+        "publishing"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:04:49Z",
+      "minted_during": "interrupt",
+      "caused_by": "W41",
+      "last_worked": "2026-09-28T21:05:21Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W135",
+      "title": "W41.2 FIREFOX DYNAMIC-THEME EXTENSION: make_firefox emits ONE extension carrying all six variants (background script + browser.theme.update from a stored choice, options-page chooser where W113 permits a paid reference), plus web-ext build via a pinned install route (project-tooling: npx vs pinned devDependency); check that web-ext lint passes",
+      "status": "ready",
+      "enables": [
+        "W41"
+      ],
+      "touches": [
+        "make_firefox",
+        "publishing"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:04:54Z",
+      "minted_during": "interrupt",
+      "caused_by": "W41",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W136",
+      "title": "W41.3 AMO SIGNING: web-ext sign (channel per the operator) with the operator AMO API key/secret from the environment, SKIP printed when absent; record the signed .xpi and an update manifest",
+      "status": "blocked",
+      "enables": [
+        "W41"
+      ],
+      "touches": [
+        "publishing",
+        "make_firefox"
+      ],
+      "blocked_on": [
+        "W135",
+        "operator: act create an AMO API key/secret on your addons.mozilla.org account and put them where the publish step can read them (WEB_EXT_API_KEY / WEB_EXT_API_SECRET)"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:04:58Z",
+      "minted_during": "interrupt",
+      "caused_by": "W41",
+      "last_worked": "2026-09-28T21:05:04Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W137",
+      "title": "W41.4 CHROME WEB STORE LISTING: upload the W134 zips (dashboard, or the Web Store API for CI), one listing per variant (Chrome has no dynamic-theme API)",
+      "status": "blocked",
+      "enables": [
+        "W41"
+      ],
+      "touches": [
+        "publishing",
+        "make_chrome"
+      ],
+      "blocked_on": [
+        "W134",
+        "operator: act register as a Chrome Web Store developer (one-time fee) and say which account publishes"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T21:05:05Z",
+      "minted_during": "interrupt",
+      "caused_by": "W41",
+      "last_worked": "2026-09-28T21:05:10Z",
       "ticks_blocked": 0
     }
   ],
