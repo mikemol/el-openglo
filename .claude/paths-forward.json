@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 111,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-27T20:23:01Z",
-  "job_id": "7ebe0a68",
+  "heartbeat": "2026-09-28T17:15:35Z",
+  "job_id": "ab67fced",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1945,7 +1945,7 @@
     {
       "symbol": "W105",
       "title": "W93.3 W77 (OTEL widget, stated later): decide independent (record why in evidence) or wire; then re-run the unlinked diagnostic and record n of m live waypoints with at least one edge",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W93"
       ],
@@ -1954,12 +1954,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (status done) once this evidence commit lands.",
+      "next_bounded_step": "",
       "evidence": "2026-09-27: 2026-09-27: W77 INDEPENDENT - operator deferred it (LATER, 2026-09-25); a new plasmoid surface whose first step is a query-surface survey; no live waypoint consumes a metrics source and it waits on nothing in flight (palette via make_preview.parse_scheme, a shared authority, not a waypoint); W42 would list it as a codomain row but neither waits. RE-COUNT (scratchpad edge_census.py, incoming edges counted): 36 of 49 live waypoints have >=1 edge; 13 unlinked = W36 W37 W41 W42 W61 W68 W73 W77 W85 (each reviewed in W103-W105 with a no-edge reason) + W95 W97 W106 W110 (never in a W93 cluster). Trend 27->19->11->13 (new unlinked mints W106, W110). The diagnostic is a scratchpad one-off: W111.",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": "2026-09-27T20:23:00Z",
+      "last_worked": "2026-09-28T17:15:35Z",
       "ticks_blocked": 0
     },
     {
@@ -2031,7 +2031,7 @@
     {
       "symbol": "W109",
       "title": "W107.1 NAME THE RENDERER on the kwin --virtual + Mesa EGL route: re-run scratchpad w107probe.py with QT_LOGGING_RULES overridden after stage to qt.rhi.*=true (render_qml sets *.debug=false, which hid it) and capture GL_RENDERER from the client; also snapshot /proc/PID/maps of kwin_wayland and qml while alive for libnvidia-* vs libEGL_mesa/libgallium. Pass = llvmpipe (or softpipe) named AND no libnvidia mapped in the client.",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W107"
       ],
@@ -2048,7 +2048,7 @@
       "issued_at": "2026-09-27T18:20:35Z",
       "minted_during": "interrupt",
       "caused_by": "W107",
-      "last_worked": null,
+      "last_worked": "2026-09-28T17:15:35Z",
       "ticks_blocked": 0
     },
     {
@@ -2107,5 +2107,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "40ea84af"
+  "predecessor_job_id": "7ebe0a68"
 }
