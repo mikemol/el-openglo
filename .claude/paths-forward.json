@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 116,
+  "counter": 119,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T18:40:06Z",
-  "job_id": "c0f8065c",
+  "heartbeat": "2026-09-28T18:56:50Z",
+  "job_id": "fdbbf9d7",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2091,7 +2091,7 @@
     {
       "symbol": "W112",
       "title": "APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent)",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "life:W16",
         "W41"
@@ -2102,20 +2102,24 @@
         "make_deb",
         "licence"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Read the 6 substrate symlink targets for licence terms (substrate LICENSE / SPDX); then NOTICE + SPDX headers.",
+      "blocked_on": [
+        "W117",
+        "W118",
+        "W119"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W117 (substrate terms), W118 (NOTICE), W119 (SPDX headers) land.",
       "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache.",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-28T18:39:56Z",
+      "last_worked": "2026-09-28T18:56:50Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W113",
       "title": "VENUE PROMOTION POLICY check (operator 2026-09-28 ruling 5: paid references in listing text AND in-product config/about pages, only where policy permits): read KDE Store, AMO, Chrome Web Store (later Blender Extensions, Fab, Unity) rules on promotional content and outbound links; record per venue: listing-text ok?, in-product ok?, with the policy URL and quoted clause.",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "life:W16",
         "W41"
@@ -2132,7 +2136,7 @@
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": null,
+      "last_worked": "2026-09-28T18:56:56Z",
       "ticks_blocked": 0
     },
     {
@@ -2200,6 +2204,70 @@
       "caused_by": "life:W16",
       "last_worked": "2026-09-28T18:40:05Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W117",
+      "title": "W112.1 licence terms of the 6 substrate symlinks (check_hooks --list names them): read substrate LICENSE and each target SPDX/header; record per file whether it may ship inside an Apache-2.0 tree (W99/W101 retire some of them anyway)",
+      "status": "ready",
+      "enables": [
+        "W112"
+      ],
+      "touches": [
+        "licence",
+        "substrate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T18:56:41Z",
+      "minted_during": "interrupt",
+      "caused_by": "W112",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W118",
+      "title": "W112.2 NOTICE file: Apache-2.0 attribution for the tree plus the third-party lines check_license already knows (DSEG and Liberation Mono OFL-1.1, colorspacious MIT, KvFlat GPL-3.0 per W116); check_license gains a NOTICE case that fails when a third_party entry is missing from it",
+      "status": "ready",
+      "enables": [
+        "W112"
+      ],
+      "touches": [
+        "licence",
+        "NOTICE",
+        "check_license"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T18:56:41Z",
+      "minted_during": "interrupt",
+      "caused_by": "W112",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W119",
+      "title": "W112.3 SPDX-License-Identifier: Apache-2.0 headers on authored source (mtools precedent), applied structurally (pycodemod), with check_license reporting n of m authored files carrying the header and refusing a missing one",
+      "status": "ready",
+      "enables": [
+        "W112"
+      ],
+      "touches": [
+        "licence",
+        "check_license"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T18:56:42Z",
+      "minted_during": "interrupt",
+      "caused_by": "W112",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2219,5 +2287,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "f2ab5fb8"
+  "predecessor_job_id": "c0f8065c"
 }
