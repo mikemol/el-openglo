@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 140,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T21:21:47Z",
-  "job_id": "39ad373d",
+  "heartbeat": "2026-09-28T22:50:44Z",
+  "job_id": "326be9c7",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2594,7 +2594,7 @@
     {
       "symbol": "W134",
       "title": "W41.1 CHROME ZIPS: locate make_chrome output (struct tool, not a guess), then publish step (1): zip each chrome variant for the Web Store, with a check that the zips exist, n of m, and each manifest parses",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W41"
       ],
@@ -2604,18 +2604,18 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands; W137 (listing) then waits only on the operator Web Store registration.",
-      "evidence": "2026-09-28: 2026-09-28 LOCATED (pycodemod --importers make_chrome; read make_chrome.py, make_deb.py:850-855): make_chrome.render_all(variants, out_dir_map) writes <dir>/manifest.json per variant (MV3, theme.colors from make_preview.parse_scheme). Callers in the real tree: make_deb.py:852 (into DEB_ROOT usr/share/el-openglo/chrome/<variant>) and scripts/check_chrome.py. Its __main__ writes /tmp/chrome-<v> (outside the tree), hence no chrome/ at the repo root. | 2026-09-28: 2026-09-28 BUILT: scripts/publish_browsers.py --chrome (make_chrome.render_all into private staging, zip CONTENTS so manifest.json is at the root, deterministic bytes) -> 6 of 6 dist/chrome/<variant>.zip; scripts/check_chrome_zips.py --json measurement + policy/chrome_zips.rego (C0 empty, C1 missing, C2 nested manifest, C3 not MV3; dist absent = withheld) + chrome_zips_test.rego 8/8; opa_gate chrome_zips: admitted, 0 deny, 0 withheld, 6 admitted. Both selftests PASS (packager: root + byte-identical; measurement: sees nested, non-zip, missing). /dist/ added to .gitignore.",
+      "next_bounded_step": "",
+      "evidence": "2026-09-28: 2026-09-28 LOCATED (pycodemod --importers make_chrome; read make_chrome.py, make_deb.py:850-855): make_chrome.render_all(variants, out_dir_map) writes <dir>/manifest.json per variant (MV3, theme.colors from make_preview.parse_scheme). Callers in the real tree: make_deb.py:852 (into DEB_ROOT usr/share/el-openglo/chrome/<variant>) and scripts/check_chrome.py. Its __main__ writes /tmp/chrome-<v> (outside the tree), hence no chrome/ at the repo root. | 2026-09-28: 2026-09-28 BUILT: scripts/publish_browsers.py --chrome (make_chrome.render_all into private staging, zip CONTENTS so manifest.json is at the root, deterministic bytes) -> 6 of 6 dist/chrome/<variant>.zip; scripts/check_chrome_zips.py --json measurement + policy/chrome_zips.rego (C0 empty, C1 missing, C2 nested manifest, C3 not MV3; dist absent = withheld) + chrome_zips_test.rego 8/8; opa_gate chrome_zips: admitted, 0 deny, 0 withheld, 6 admitted. Both selftests PASS (packager: root + byte-identical; measurement: sees nested, non-zip, missing). /dist/ added to .gitignore. | 2026-09-28: 2026-09-28 landed after the populations gate refused the first try (P1: an os.walk with no # population: reason); publish_browsers.py now states its walk is a private TemporaryDirectory; populations admitted 154 of 154.",
       "issued_at": "2026-09-28T21:04:49Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T21:43:03Z",
+      "last_worked": "2026-09-28T22:50:39Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W135",
       "title": "W41.2 FIREFOX DYNAMIC-THEME EXTENSION: make_firefox emits ONE extension carrying all six variants (background script + browser.theme.update from a stored choice, options-page chooser where W113 permits a paid reference), plus web-ext build via a pinned install route (project-tooling: npx vs pinned devDependency); check that web-ext lint passes",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W41"
       ],
@@ -2630,7 +2630,7 @@
       "issued_at": "2026-09-28T21:04:54Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": null,
+      "last_worked": "2026-09-28T22:50:44Z",
       "ticks_blocked": 0
     },
     {
@@ -2762,5 +2762,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "07010de6"
+  "predecessor_job_id": "39ad373d"
 }
