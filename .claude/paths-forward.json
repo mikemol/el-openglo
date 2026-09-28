@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 120,
+  "counter": 121,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T19:32:40Z",
-  "job_id": "6a49dfe5",
+  "heartbeat": "2026-09-28T19:52:47Z",
+  "job_id": "48de5607",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2015,15 +2015,15 @@
         "catalog/library/render_screens.py"
       ],
       "blocked_on": [
-        "W114"
+        "W121"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "After W114: restore scratchpad qt_sandbox.w108.py with W114 detached+SIGKILL route in place of --exit-with-session; render_screens re-renders the 6 stale clocks via mesa=True (capped service); one commit.",
-      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step.",
+      "next_bounded_step": "After W121: install parked qt_sandbox.w108.py + render_qml.w108.py + W121 edits; render_screens (stale only) as a capped systemd-run service; commit code + 55 outputs together.",
+      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step. | 2026-09-28: 2026-09-28: render_qml switched to QT.run(mesa=rhi) (parked scratchpad render_qml.w108.py; selftest PASS, bloom arm runs). Measured scope: render_screens --stale = 55 of 56 outputs (every render_qml surface + marquee stills/anims + sheets + strip key on qt_sandbox/render_qml), not 6. The marquee path renders via qt_sandbox.popen, which has no mesa route yet -> W121 first, else the marquee stills would lose the halo. Tree restored to HEAD; both files parked.",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T19:32:40Z",
+      "last_worked": "2026-09-28T19:52:36Z",
       "ticks_blocked": 0
     },
     {
@@ -2141,21 +2141,23 @@
     {
       "symbol": "W114",
       "title": "A CRASHING VIRTUAL KWIN MUST NOT PAGE THE OPERATOR (luthen coredump sweep 2026-09-28 14:09 EDT: 2 kwin_wayland --virtual SIGSEGVs from the first mesa selftest run raised DrKonqi + Service Crash on the desktop despite KDE_DEBUG=1). Candidate: run kwin detached, client on WAYLAND_DISPLAY, SIGKILL kwin after (no crash path); or a kwin-honoured crash switch (measuring needs a deliberate crash: operator asked first).",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W108"
       ],
       "touches": [
         "qt_sandbox.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Port into qt_sandbox (parked copy scratchpad qt_sandbox.w108.py): run(mesa=True) starts kwin detached, waits for the socket, runs the client with WAYLAND_DISPLAY, SIGKILLs kwin in a finally; selftest asserts 0 coredump entries added.",
-      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds.",
+      "blocked_on": [
+        "W121"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Code is done and tested in park (qt_sandbox.w108.py); it LANDS in the W108 commit, which waits on W121. Close then.",
+      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds. | 2026-09-28: 2026-09-28 LANDED IN PARK (scratchpad qt_sandbox.w108.py): kwin_session() context manager starts kwin_wayland --virtual detached, waits for the socket, yields it, SIGKILLs kwin in finally; run(mesa=True) runs the child with WAYLAND_DISPLAY=<sock>. Selftest 18/18 incl. \"kwin leaves no coredump record\" (before/after 0) and \"not ready in time is refused\" (ready_s=0, NEVER a broken env). coredumpctl kwin --since -1h: none. render_qml --selftest on it: bloom arm RUNS and passes (was SKIP without EL_QT_GPU). Commits with W108 (it staleness-keys the screens).",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-09-28T19:32:40Z",
+      "last_worked": "2026-09-28T19:52:47Z",
       "ticks_blocked": 0
     },
     {
@@ -2287,6 +2289,27 @@
       "caused_by": "operator",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W121",
+      "title": "W108.1 popen on the mesa route: qt_sandbox.popen(mesa=True) runs inside a caller-held kwin_session (with QT.kwin_session(QT.mesa_env(env)) as sock), so check_marquee_live (popen, qt_sandbox gpu site :391) renders the marquee stills/animation on llvmpipe with the halo, not the software scene graph; selftest: streamed child on wayland, 0 coredump entries",
+      "status": "working",
+      "enables": [
+        "W108"
+      ],
+      "touches": [
+        "qt_sandbox.py",
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T19:52:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W108",
+      "last_worked": "2026-09-28T19:52:47Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2306,5 +2329,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "0d260737"
+  "predecessor_job_id": "6a49dfe5"
 }
