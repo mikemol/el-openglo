@@ -320,3 +320,4 @@
 2026-09-28T19:32:47Z  tick  W114 advanced  unblock   "detached kwin + SIGKILL probe: client rc returned, 0 coredumps; operator ruled W108 re-render via mesa; W120 nothing-bespoke census minted; W112 points at W116"  evidence=scratchpad/w114probe.py
 2026-09-28T19:37:37Z  hash  --   diverged  --        "divergence: payload v2:9766d92646989b07, file v2:bf421097288f39f9; the FILE wins"
 2026-09-28T19:52:52Z  tick  W114 advanced  unblock   "kwin_session detached+SIGKILL route done in park, selftest 18/18, 0 coredumps; render_qml mesa=rhi bloom arm runs; stale scope measured 55 of 56; W121 minted (popen mesa for the marquee); W108 and W114 land together after W121"  evidence=scratchpad/qt_sandbox.w108.py
+2026-09-28T20:23:52Z  tick  W108 done      unblock   "mesa route landed: kwin_session (W114) + render_qml mesa=rhi; 55 stale screens re-rendered on llvmpipe (40 changed, marquee stills unchanged), 0 of 56 stale, 0 kwin coredumps"  evidence=catalog/library/screens

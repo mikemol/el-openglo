@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 121,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T19:52:47Z",
-  "job_id": "48de5607",
+  "heartbeat": "2026-09-28T20:23:52Z",
+  "job_id": "96089b5c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2005,7 +2005,7 @@
     {
       "symbol": "W108",
       "title": "W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W98"
       ],
@@ -2014,16 +2014,14 @@
         "scripts/render_qml.py",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [
-        "W121"
-      ],
+      "blocked_on": [],
       "blocked_kind": "agent",
-      "next_bounded_step": "After W121: install parked qt_sandbox.w108.py + render_qml.w108.py + W121 edits; render_screens (stale only) as a capped systemd-run service; commit code + 55 outputs together.",
-      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step. | 2026-09-28: 2026-09-28: render_qml switched to QT.run(mesa=rhi) (parked scratchpad render_qml.w108.py; selftest PASS, bloom arm runs). Measured scope: render_screens --stale = 55 of 56 outputs (every render_qml surface + marquee stills/anims + sheets + strip key on qt_sandbox/render_qml), not 6. The marquee path renders via qt_sandbox.popen, which has no mesa route yet -> W121 first, else the marquee stills would lose the halo. Tree restored to HEAD; both files parked.",
+      "next_bounded_step": "Close (done) once this commit lands; W114 closes with it. Later: take qt_sandbox out of the screens key (W96 residue), drop the gpu=True/EL_QT_GPU path.",
+      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step. | 2026-09-28: 2026-09-28: render_qml switched to QT.run(mesa=rhi) (parked scratchpad render_qml.w108.py; selftest PASS, bloom arm runs). Measured scope: render_screens --stale = 55 of 56 outputs (every render_qml surface + marquee stills/anims + sheets + strip key on qt_sandbox/render_qml), not 6. The marquee path renders via qt_sandbox.popen, which has no mesa route yet -> W121 first, else the marquee stills would lose the halo. Tree restored to HEAD; both files parked. | 2026-09-28: 2026-09-28 LANDED (pending commit): qt_sandbox mesa route (kwin_session detached + SIGKILL, W114) and render_qml QT.run(mesa=rhi) installed; render_screens --jobs=4 as capped service el-w108-screens: exit 0; --stale now 0 of 56. 40 PNGs changed (clock, live-wallpaper, switcher, sheets, strip, marquee-anim, pinholes-anim, pinholes-EL-Azure); marquee stills unchanged (software path, as measured). coredumpctl kwin --since -1h: none. render_qml --selftest bloom arm runs and passes.",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T19:52:36Z",
+      "last_worked": "2026-09-28T20:23:51Z",
       "ticks_blocked": 0
     },
     {
@@ -2149,7 +2147,7 @@
         "qt_sandbox.py"
       ],
       "blocked_on": [
-        "W121"
+        "W108"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Code is done and tested in park (qt_sandbox.w108.py); it LANDS in the W108 commit, which waits on W121. Close then.",
@@ -2157,7 +2155,7 @@
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-09-28T19:52:47Z",
+      "last_worked": "2026-09-28T20:09:57Z",
       "ticks_blocked": 0
     },
     {
@@ -2292,10 +2290,10 @@
     },
     {
       "symbol": "W121",
-      "title": "W108.1 popen on the mesa route: qt_sandbox.popen(mesa=True) runs inside a caller-held kwin_session (with QT.kwin_session(QT.mesa_env(env)) as sock), so check_marquee_live (popen, qt_sandbox gpu site :391) renders the marquee stills/animation on llvmpipe with the halo, not the software scene graph; selftest: streamed child on wayland, 0 coredump entries",
-      "status": "working",
+      "title": "MARQUEE GAINS THE HALO: qt_sandbox.popen(mesa=True) inside a caller-held kwin_session, and check_marquee_live defaults to the RHI on it, so the marquee stills/animation render with MultiEffect bloom (today EL_QUICK_BACKEND is never set in-tree, so the marquee has ALWAYS been software, no halo)",
+      "status": "ready",
       "enables": [
-        "W108"
+        "W98"
       ],
       "touches": [
         "qt_sandbox.py",
@@ -2304,11 +2302,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition.",
       "issued_at": "2026-09-28T19:52:36Z",
       "minted_during": "interrupt",
       "caused_by": "W108",
-      "last_worked": "2026-09-28T19:52:47Z",
+      "last_worked": "2026-09-28T20:09:57Z",
       "ticks_blocked": 0
     }
   ],
@@ -2329,5 +2327,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "6a49dfe5"
+  "predecessor_job_id": "48de5607"
 }

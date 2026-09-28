@@ -45,14 +45,35 @@ honoured only when EL_QT_GPU=1 is in the caller's environment; otherwise it is
 software like everything else, and the caller's own backend report says so.
 scripts/check_qt_sandbox.py lists every gpu=True site; the operator decides.
 
+⚑ mesa=True IS THE GPU PICTURE WITHOUT THE GPU (W98/W107/W109, measured 2026-09-28).
+The child runs as the session client of a PRIVATE `kwin_wayland --virtual` on its own
+socket, on QT_QPA_PLATFORM=wayland with EGL pinned to Mesa's vendor file and
+LIBGL_ALWAYS_SOFTWARE=1: the RHI draws on llvmpipe (qt.rhi.general: "RENDERER:
+llvmpipe"), MultiEffect's bloom renders, and neither DISPLAY nor XAUTHORITY nor any
+libnvidia reaches the process (its /proc maps, measured). kwin runs DETACHED and is
+SIGKILLed when the child is done (kwin_session): the child's own returncode is run()'s.
+⚑ W114, MEASURED 2026-09-28 14:09 EDT: the first version ran the child under kwin
+--exit-with-session; kwin crashed (no XDG_RUNTIME_DIR), and DrKonqi plus a "Service
+Crash" notification reached the operator's desktop DESPITE KDE_DEBUG=1 and
+RLIMIT_CORE=0 (the residue above, now observed for kwin). So kwin is never allowed
+an exit of its own: SIGKILL runs no handler and writes no core (0 coredump entries,
+measured). Deliberate-crash measurements go to the k8s+kvm VM (operator ruling).
+WEAKNESSES: kwin's own EGL init fails and it falls back (harmless); llvmpipe is not
+bit-identical to a hardware driver; popen() does not offer it (kwin's lifetime would
+have to be the caller's).
+
 WEAKNESS: routing is a property of the CALL; a child that itself spawns a Qt tool
 (plasmawindowed launching something) inherits the env but not a re-check. And the
 env strip does not stop a child that dials the session bus by a hard-coded path.
 """
+import contextlib
+import itertools
 import os
 import resource
+import shutil
 import subprocess
 import sys
+import time
 
 QT_BIN = "/usr/lib64/qt6/bin"
 QML = os.path.join(QT_BIN, "qml")
@@ -60,6 +81,8 @@ QMLLINT = os.path.join(QT_BIN, "qmllint")
 
 SESSION_VARS = ("DISPLAY", "WAYLAND_DISPLAY", "WAYLAND_SOCKET", "XAUTHORITY")
 CORE_LIMIT = 0        # operator ruling; the 1-vs-0 residue is in the docstring
+MESA_EGL = "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
+KWIN = "kwin_wayland"
 
 
 def gpu_allowed():
@@ -88,12 +111,55 @@ def env(base=None, gpu=False):
     return e
 
 
+def mesa_env(base=None):
+    """The kwin + client environment for mesa=True: sessionless, RHI on OpenGL, Mesa EGL."""
+    e = dict(os.environ if base is None else base)
+    for k in SESSION_VARS + ("QT_QPA_PLATFORM",):
+        e.pop(k, None)
+    e.update(KDE_DEBUG="1", QT_QUICK_BACKEND="rhi", QSG_RHI_BACKEND="opengl",
+             __EGL_VENDOR_LIBRARY_FILENAMES=MESA_EGL, LIBGL_ALWAYS_SOFTWARE="1")
+    # kwin binds its socket under XDG_RUNTIME_DIR; a base without it (the selftest's
+    # minimal one) made kwin SIGSEGV (rc -11, measured 2026-09-28)
+    if "XDG_RUNTIME_DIR" not in e and os.environ.get("XDG_RUNTIME_DIR"):
+        e["XDG_RUNTIME_DIR"] = os.environ["XDG_RUNTIME_DIR"]
+    return e
+
+
+@contextlib.contextmanager
+def kwin_session(e, ready_s=30):
+    """A private `kwin_wayland --virtual` for the duration of the block; yields its
+    socket name. ⚑ W114: kwin is NEVER left to exit on its own: the block's end
+    SIGKILLs it, and SIGKILL runs no crash handler and writes no core, so nothing can
+    reach DrKonqi or the desktop (measured 2026-09-28: 0 coredump entries). The old
+    --exit-with-session route let a kwin teardown/startup crash page the operator."""
+    sock = "el-qt-%d-%d" % (os.getpid(), next(_SOCKETS))
+    path = os.path.join(e.get("XDG_RUNTIME_DIR", ""), sock)
+    k = subprocess.Popen([KWIN, "--virtual", "--no-lockscreen", "--no-global-shortcuts",
+                          "--socket", sock], env=e, preexec_fn=no_core,
+                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        t0 = time.monotonic()
+        while not os.path.exists(path):
+            if k.poll() is not None:
+                raise RuntimeError(f"qt_sandbox: {KWIN} exited rc={k.returncode} before its socket appeared")
+            if time.monotonic() - t0 > ready_s:
+                raise RuntimeError(f"qt_sandbox: {KWIN} socket {sock} not ready in {ready_s}s")
+            time.sleep(0.05)
+        yield sock
+    finally:
+        k.kill()
+        k.wait()
+
+
+_SOCKETS = itertools.count()
+
+
 def no_core():
     """preexec_fn: this child can leave no core and wake no coredump helper."""
     resource.setrlimit(resource.RLIMIT_CORE, (CORE_LIMIT, CORE_LIMIT))
 
 
-def run(cmd, env=None, gpu=False, cpu=None, **kw):
+def run(cmd, env=None, gpu=False, cpu=None, mesa=False, **kw):
     """subprocess.run under env(env, gpu) and no_core. The one Qt spawn in the tree.
     `cpu` (seconds) caps the child's OWN CPU (RLIMIT_CPU) — the budget that means the
     same on an idle host and a loaded one. A wall `timeout` alone failed healthy
@@ -107,13 +173,22 @@ def run(cmd, env=None, gpu=False, cpu=None, **kw):
         no_core()
         if cpu is not None:
             resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))
+    if mesa:
+        if gpu:
+            raise TypeError("qt_sandbox.run: mesa=True and gpu=True are two exceptions; pick one")
+        e = mesa_env(env)
+        with kwin_session(e) as sock:
+            return subprocess.run(cmd, env=dict(e, WAYLAND_DISPLAY=sock, QT_QPA_PLATFORM="wayland"),
+                                  preexec_fn=pre, **kw)
     return subprocess.run(cmd, env=globals()["env"](env, gpu), preexec_fn=pre, **kw)
 
 
-def popen(cmd, env=None, gpu=False, **kw):
+def popen(cmd, env=None, gpu=False, mesa=False, **kw):
     """subprocess.Popen under the same env and no_core as run(): for a harness whose
     measurement must be STREAMED (check_marquee_live ends at its RESULT line and
     kills a teardown hang, W63), which run() cannot do."""
+    if mesa:
+        raise TypeError("qt_sandbox.popen: mesa=True not offered yet (the wrapper dir must outlive the call)")
     if "preexec_fn" in kw:
         raise TypeError("qt_sandbox.popen owns preexec_fn")
     return subprocess.Popen(cmd, env=globals()["env"](env, gpu), preexec_fn=no_core, **kw)
@@ -167,6 +242,53 @@ def _selftest():
         check("a caller's preexec_fn is refused", False, True)
     except TypeError:
         check("a caller's preexec_fn is refused", True, True)
+    # ⚑ THE MESA ROUTE (W108): env and wrapper by construction, then a REAL child.
+    m = mesa_env(base)
+    check("mesa: the session and platform are stripped",
+          [k for k in SESSION_VARS + ("QT_QPA_PLATFORM",) if k in m], [])
+    check("mesa: rhi on opengl over Mesa EGL, software GL",
+          (m["QT_QUICK_BACKEND"], m["QSG_RHI_BACKEND"], m["__EGL_VENDOR_LIBRARY_FILENAMES"],
+           m["LIBGL_ALWAYS_SOFTWARE"]), ("rhi", "opengl", MESA_EGL, "1"))
+    try:
+        run(["true"], gpu=True, mesa=True)
+        check("mesa=True with gpu=True is refused", False, True)
+    except TypeError:
+        check("mesa=True with gpu=True is refused", True, True)
+    if not shutil.which(KWIN):
+        print(f"  SKIP mesa child arms — {KWIN} is not installed")
+    else:
+        r = run([sys.executable, "-c",
+                 "import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
+                 "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'],"
+                 "os.environ['LIBGL_ALWAYS_SOFTWARE'])"],
+                env=base, mesa=True, capture_output=True, text=True, timeout=120)
+        check("mesa: a real child runs core-less, no DISPLAY, on wayland, software GL",
+              r.stdout.strip().splitlines()[-1:] , ["(0, 0) None wayland 1"])
+        r = run(["sh", "-c", "exit 3"], env=base, mesa=True, capture_output=True, text=True, timeout=120)
+        check("mesa: run() returns the child's own code", r.returncode, 3)
+        # ⚑ W114: kwin must leave NO crash record. Counted before/after the two runs above
+        # would race coredumpd, so count around one more run with a settle.
+        def kwin_dumps():
+            c = subprocess.run(["coredumpctl", "list", KWIN, "--no-pager", "-q"],
+                               capture_output=True, text=True)
+            return c.stdout.count("\n") if c.returncode in (0, 1) else None
+        before = kwin_dumps()
+        run(["true"], env=base, mesa=True, timeout=120)
+        time.sleep(2)
+        after = kwin_dumps()
+        if before is None or after is None:
+            print("  SKIP mesa no-crash-record arm — coredumpctl unreadable here")
+        else:
+            check("mesa: kwin leaves no coredump record (SIGKILLed, never crashes)", after - before, 0)
+        # and a kwin not ready in time is REFUSED, not reported as the child's result.
+        # ⚑ ready_s=0, NEVER a broken env: a kwin without XDG_RUNTIME_DIR SIGSEGVs and
+        # pages the operator (the 14:09 incident); a timeout only SIGKILLs it.
+        try:
+            with kwin_session(mesa_env(base), ready_s=0):
+                pass
+            check("mesa: a kwin whose socket is not ready in time is refused", False, True)
+        except RuntimeError:
+            check("mesa: a kwin whose socket is not ready in time is refused", True, True)
     print("qt_sandbox selftest:", "PASS" if ok else "FAIL")
     return ok
 

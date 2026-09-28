@@ -401,8 +401,10 @@ def run_stager(stage, timeout=60):
     with tempfile.TemporaryDirectory(dir=os.path.join(ROOT, ".ebuild-witness")
                                      if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
                                      else None) as td:
-        argv, env, gpu = stage(td)
-        r = QT.run(argv, env=env, gpu=gpu, capture_output=True, text=True, timeout=timeout)
+        argv, env, rhi = stage(td)
+        # W108 (operator 2026-09-28): the RHI is drawn on Mesa llvmpipe under a private,
+        # SIGKILLed kwin (qt_sandbox mesa=True), never on the GPU driver (W73)
+        r = QT.run(argv, env=env, mesa=rhi, capture_output=True, text=True, timeout=timeout)
     backend = "rhi" if "Creating QRhi" in r.stderr else (
         "software" if "backend software" in r.stderr else "unknown")
     err = "\n".join(l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph"))
@@ -448,12 +450,13 @@ def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, so
     # the halo (MultiEffect) is simply absent — reported as backend=software.
     # ⚑ W73: AND OUTSIDE ONE THE GPU IS THE OPERATOR'S.  The RHI harness on
     # the real display SIGSEGV'd in libnvidia-glcore (2026-09-22 20:28) and
-    # raised a crash notification on the desktop. qt_sandbox honours gpu=True
-    # only under EL_QT_GPU=1; otherwise this is the software scene graph and
-    # the halo is absent — `backend=software` in the returned detail says so.
-    gpu = not (software or os.environ.get("SANDBOX_ON") == "1"
+    # raised a crash notification on the desktop. ⚑ W108: so the RHI is now drawn
+    # on Mesa llvmpipe (qt_sandbox mesa=True: private kwin, no DISPLAY, no GPU
+    # driver) — the halo renders WITHOUT the GPU, and no EL_QT_GPU opt-in exists
+    # on this path. The build sandbox still gets the software scene graph.
+    rhi = not (software or os.environ.get("SANDBOX_ON") == "1"
                or os.environ.get("EL_RENDER_SOFTWARE") == "1")
-    return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, gpu
+    return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, rhi
 
 
 def _near(a, b, tol=28):
