@@ -309,3 +309,4 @@
 2026-09-27T20:05:59Z  hash  --   diverged  --        "divergence: payload v2:4d12a698bbe764cb, file v2:136e18c374b58dab; the FILE wins"
 2026-09-27T20:23:06Z  tick  W105 done      unblock   "W77 independent (operator-deferred, nothing waits either way); re-count 36 of 49 live linked, 13 unlinked (9 reviewed, 4 never clustered); W111 minted for an --unlinked mode; armed 7ebe0a68"  evidence=W105.evidence,W111
 2026-09-28T17:29:43Z  tick  W109 done      unblock   "llvmpipe named, no libnvidia in client maps, bloom differs; W107 closed; W108 unblocked with first step"  evidence=scratchpad/w109out/result.json
+2026-09-28T17:45:33Z  tick  W112 minted    unblock   "life:W16 operator licence+funnel ruling: W112 relicense Apache-2.0, W113 venue promotion policy; rulings recorded on W41 W42 W43"  evidence=inbox/archive/2026-09-28-life-operator-ruling-licence-and-funnel.md

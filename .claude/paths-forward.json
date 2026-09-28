@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 111,
+  "counter": 113,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-28T17:29:49Z",
   "job_id": "0eaa485e",
@@ -770,9 +770,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "After W35's shape: scripts/publish_browsers.py (or a make_deb target) that (1) zips each chrome/<variant> folder for the Store, (2) runs web-ext build + web-ext sign --channel unlisted per firefox/<variant> when WEB_EXT_API_KEY/SECRET are set (SKIP printed otherwise), (3) records the signed .xpi paths + an update manifest; a check that the zips/xpis exist and their manifests parse. Requires web-ext on the host (npm; not installed — residue) and the operator's AMO keys (operator). Decide first whether Firefox ships as ONE dynamic-theme extension (a background script + browser.theme.update from a stored variant choice) — if yes, make_firefox gains that shape and there is one .xpi to sign.",
-      "evidence": "",
+      "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113).",
       "issued_at": "2026-09-21T17:49:03+00:00",
-      "last_worked": "2026-09-21T17:49:03+00:00",
+      "last_worked": "2026-09-28T17:45:14Z",
       "ticks_blocked": 0
     },
     {
@@ -788,9 +788,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added.",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools.",
       "issued_at": "2026-09-21T17:57:24+00:00",
-      "last_worked": "2026-09-26T21:06:02Z",
+      "last_worked": "2026-09-28T17:45:15Z",
       "ticks_blocked": 0
     },
     {
@@ -810,9 +810,9 @@
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "⚑ COLLAPSE CANDIDATE WITH W62 (operator, 2026-09-22): 'so much of this engine is written in python, and having that as a module makes porting to, e.g. gimp plugins and script-fu, unreal, godot and whatnot easier.' The engine as an importable mikemol.* distribution IS the porting path -- GIMP's Python-Fu, Godot and Unreal all consume Python or bind to it, and none can consume a tree of scripts/*.py that derive their root from abspath(__file__). So W43 is not a separate emission target; it is what W62 makes possible. Do W62 first, then measure which engine surfaces need only a palette/geometry API rather than a new generator. AUDIT BEFORE MERGING: the repetition may carry identity -- an engine asset pipeline may want material/shader graphs that a Python module does not supply.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above.",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings.",
       "issued_at": "2026-09-21T17:57:42+00:00",
-      "last_worked": "2026-09-26T21:06:01Z",
+      "last_worked": "2026-09-28T17:45:22Z",
       "ticks_blocked": 0
     },
     {
@@ -2082,6 +2082,53 @@
       "issued_at": "2026-09-27T20:23:00Z",
       "minted_during": "interrupt",
       "caused_by": "W105",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W112",
+      "title": "RELICENSE the free core GPLv3 -> Apache-2.0 (operator 2026-09-28 via life letter, rulings 1+3: palette, engine, every emitted theme incl. the desktop theme, design tokens). First: census what carries other terms (the 6 substrate symlinks, vendored fonts/assets, emitted metadata licence fields); then LICENSE + NOTICE + SPDX-License-Identifier headers (mtools precedent), and check_license moves to Apache-2.0.",
+      "status": "ready",
+      "enables": [
+        "life:W16",
+        "W41"
+      ],
+      "touches": [
+        "LICENSE",
+        "check_license",
+        "make_deb",
+        "licence"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T17:45:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "life:W16",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W113",
+      "title": "VENUE PROMOTION POLICY check (operator 2026-09-28 ruling 5: paid references in listing text AND in-product config/about pages, only where policy permits): read KDE Store, AMO, Chrome Web Store (later Blender Extensions, Fab, Unity) rules on promotional content and outbound links; record per venue: listing-text ok?, in-product ok?, with the policy URL and quoted clause.",
+      "status": "ready",
+      "enables": [
+        "life:W16",
+        "W41"
+      ],
+      "touches": [
+        "catalog/publishing.md",
+        "make_firefox",
+        "make_chrome"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T17:45:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "life:W16",
       "last_worked": null,
       "ticks_blocked": 0
     }
