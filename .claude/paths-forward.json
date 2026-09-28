@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 119,
+  "counter": 120,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T19:12:55Z",
-  "job_id": "0d260737",
+  "heartbeat": "2026-09-28T19:32:40Z",
+  "job_id": "6a49dfe5",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1185,9 +1185,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's diagnosis: the same defects keep recurring because the same work exists in copies — three segment renderers, two render paths, a companion list in every emitter. A graph makes a duplicate visible as two nodes with one output kind and the same inputs, an ORPHAN visible as a file nothing produces or consumes, and an UNDECLARED input visible as a file consumed but never produced (every host tool is one).",
       "next_bounded_step": "Split runner_code per job kind: each output keys only the modules its OWN stager and runner reach (render_qml's for clock/switcher/live-wallpaper/pinholes; check_marquee_live's for the marquee stills/anim), not render_screens' whole closure. Prove with --impact scripts/check_marquee_live.py -> only marquee outputs (+ their sheets, strip) move.",
-      "evidence": "landed 2026-09-23: per-output keys, early cutoff at generators; proven 0/19/10 of 56 in the worktree. FIRST REAL USE on main exposed a coarse term: W72 edited only a COMMENT in scripts/check_marquee_live.py, and 55 of 56 went stale — because every output's key includes the SAME runner-code term (the import closure of render_screens), so a harness a clock never runs still keys the clock. | 2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W42 (codomain census) and check_symmetry with W60 (temporal subpixel); both REJECTED, shared-module/generic-tag overlaps with no stated relationship. No edges added.",
+      "evidence": "landed 2026-09-23: per-output keys, early cutoff at generators; proven 0/19/10 of 56 in the worktree. FIRST REAL USE on main exposed a coarse term: W72 edited only a COMMENT in scripts/check_marquee_live.py, and 55 of 56 went stale — because every output's key includes the SAME runner-code term (the import closure of render_screens), so a harness a clock never runs still keys the clock. | 2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W42 (codomain census) and check_symmetry with W60 (temporal subpixel); both REJECTED, shared-module/generic-tag overlaps with no stated relationship. No edges added. | 2026-09-28: 2026-09-28 operator rule: nothing bespoke that can be generated; what cannot be is a lift debt. W61 orphan view (files nothing produces) is the census W120 builds on.",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-26T21:06:02Z",
+      "last_worked": "2026-09-28T19:32:40Z",
       "ticks_blocked": 0
     },
     {
@@ -2015,16 +2015,15 @@
         "catalog/library/render_screens.py"
       ],
       "blocked_on": [
-        "W114",
-        "operator: decide how to refresh the 6 stale clock screens when qt_sandbox.py changes: (a) GPU re-render (EL_QT_GPU, W73 vector), (b) wait for the mesa route (after W114), (c) take qt_sandbox out of the screens key first"
+        "W114"
       ],
-      "blocked_kind": "human",
-      "next_bounded_step": "Switch render_qml.stage_document to mesa=True (drop gpu/EL_QT_GPU there), then its selftest bloom arm must RUN (not SKIP) and pass; then render_screens, then take qt_sandbox out of the screens key (W96 residue).",
-      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route.",
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W114: restore scratchpad qt_sandbox.w108.py with W114 detached+SIGKILL route in place of --exit-with-session; render_screens re-renders the 6 stale clocks via mesa=True (capped service); one commit.",
+      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step.",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T18:16:45Z",
+      "last_worked": "2026-09-28T19:32:40Z",
       "ticks_blocked": 0
     },
     {
@@ -2109,17 +2108,17 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W117 (substrate terms), W118 (NOTICE), W119 (SPDX headers) land.",
-      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache.",
+      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache. | 2026-09-28: 2026-09-28: operator ruled KvFlat (b) directly and via life-0e (\"uniformity and portability\"); the rewrite is W116 (enables life:W16); the debian/copyright GPL-3.0 stanza retires when W116 ships.",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-28T18:56:50Z",
+      "last_worked": "2026-09-28T19:32:40Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W113",
       "title": "VENUE PROMOTION POLICY check (operator 2026-09-28 ruling 5: paid references in listing text AND in-product config/about pages, only where policy permits): read KDE Store, AMO, Chrome Web Store (later Blender Extensions, Fab, Unity) rules on promotional content and outbound links; record per venue: listing-text ok?, in-product ok?, with the policy URL and quoted clause.",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "life:W16",
         "W41"
@@ -2136,13 +2135,13 @@
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-28T19:12:39Z",
+      "last_worked": "2026-09-28T19:32:47Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W114",
       "title": "A CRASHING VIRTUAL KWIN MUST NOT PAGE THE OPERATOR (luthen coredump sweep 2026-09-28 14:09 EDT: 2 kwin_wayland --virtual SIGSEGVs from the first mesa selftest run raised DrKonqi + Service Crash on the desktop despite KDE_DEBUG=1). Candidate: run kwin detached, client on WAYLAND_DISPLAY, SIGKILL kwin after (no crash path); or a kwin-honoured crash switch (measuring needs a deliberate crash: operator asked first).",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W108"
       ],
@@ -2151,12 +2150,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Build the no-crash route locally: kwin_wayland --virtual detached, client with WAYLAND_DISPLAY=<socket>, then SIGKILL kwin (SIGKILL takes no crash path); rc = the client rc. The crash-switch measurement waits for W70.",
-      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only.",
+      "next_bounded_step": "Port into qt_sandbox (parked copy scratchpad qt_sandbox.w108.py): run(mesa=True) starts kwin detached, waits for the socket, runs the client with WAYLAND_DISPLAY, SIGKILLs kwin in a finally; selftest asserts 0 coredump entries added.",
+      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds.",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-09-28T19:12:29Z",
+      "last_worked": "2026-09-28T19:32:40Z",
       "ticks_blocked": 0
     },
     {
@@ -2266,6 +2265,28 @@
       "caused_by": "W112",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W120",
+      "title": "NOTHING BESPOKE (operator 2026-09-28): census + check that every tracked asset/template/config is either PRODUCED by an emitter (build_graph output) or listed as a LIFT DEBT naming its waypoint; an unlisted orphan is refused, n of m reported. Reuse W61 build_graph orphans and check_token_source.",
+      "status": "ready",
+      "enables": [
+        "W116"
+      ],
+      "touches": [
+        "build_graph",
+        "check_token_source",
+        "scripts"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T19:32:40Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -2285,5 +2306,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "fdbbf9d7"
+  "predecessor_job_id": "0d260737"
 }
