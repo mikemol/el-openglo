@@ -95,6 +95,66 @@ withheld contains msg if {
 	msg := sprintf("X6: %s: web-ext is not installed here; the lint is unmeasured", [c.id])
 }
 
+# METADATA
+# title: "X7 — the dynamic extension carries exactly the roster, each variant identical to its static theme"
+# description: |
+#   W135: make_firefox --dynamic ships ONE extension whose themes.json holds every
+#   variant. It is generated from make_firefox.manifest(v), so a variant missing,
+#   an extra one, or one that differs from its static theme is drift.
+deny contains msg if {
+	some v in object.get(object.get(input, "dynamic", {}), "missing_variants", [])
+	msg := sprintf("X7: dynamic: variant %s is not in themes.json", [v])
+}
+
+deny contains msg if {
+	some v in object.get(object.get(input, "dynamic", {}), "extra_variants", [])
+	msg := sprintf("X7: dynamic: themes.json carries %s, which the roster does not declare", [v])
+}
+
+deny contains msg if {
+	some v in object.get(object.get(input, "dynamic", {}), "drifted", [])
+	msg := sprintf("X7: dynamic: %s in themes.json differs from its static theme", [v])
+}
+
+# METADATA
+# title: "X8 — the dynamic extension can apply themes, remember the choice, and ships its chooser"
+deny contains msg if {
+	d := input.dynamic
+	some p in ["theme", "storage"]
+	not p in d.permissions
+	msg := sprintf("X8: dynamic: permission %q is missing", [p])
+}
+
+deny contains "X8: dynamic: the options page is named but not shipped (or not named)" if {
+	input.dynamic.options_page_shipped != true
+}
+
+deny contains msg if {
+	some e in object.get(object.get(input, "dynamic", {}), "lint_errors", [])
+	is_array(input.dynamic.lint_errors)
+	msg := sprintf("X6: dynamic: web-ext: %s", [e])
+}
+
+withheld contains "X6: dynamic: web-ext is not installed here; the lint is unmeasured" if {
+	is_object(object.get(input, "dynamic", null))
+	not is_array(input.dynamic.lint_errors)
+}
+
+withheld contains "W: dynamic: the dynamic extension was not measured" if {
+	count(object.get(input, "cases", [])) > 0
+	not is_object(object.get(input, "dynamic", null))
+}
+
+denied_ids contains "dynamic" if {
+	some m in deny
+	contains(m, ": dynamic:")
+}
+
+admitted contains "dynamic" if {
+	is_object(object.get(input, "dynamic", null))
+	not "dynamic" in denied_ids
+}
+
 # exactly-once: a manifest that parsed but left a fact null was not fully read
 unmeasured(c) := {k |
 	c.parse_error == null

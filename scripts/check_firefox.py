@@ -75,6 +75,42 @@ def lint(folder):
         return [] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]
 
 
+def dynamic_facts(roster):
+    """What the ONE dynamic extension (W135, make_firefox --dynamic) SAYS, emitted
+    into private staging: which variants themes.json carries against the roster,
+    which of them DIFFER from that variant's static theme (drift), its permissions,
+    whether it names an options page that it ships, and web-ext lint (null when
+    web-ext is absent)."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import make_firefox as MF
+    with tempfile.TemporaryDirectory() as td:
+        MF.render_dynamic(td, list(roster))
+        return dynamic_facts_in(td, roster)
+
+
+def dynamic_facts_in(folder, roster):
+    """dynamic_facts' READ half over an already-written extension folder, so the
+    selftest can hand it a tampered render: the comparison side is always the
+    static theme make_firefox.manifest(v) emits, never the folder's own copy."""
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    import make_firefox as MF
+    m = json.load(open(os.path.join(folder, "manifest.json"), encoding="utf-8"))
+    themes = json.load(open(os.path.join(folder, "themes.json"), encoding="utf-8"))
+    page = m.get("options_ui", {}).get("page")
+    return {
+        "id": "dynamic",
+        "missing_variants": sorted(set(roster) - set(themes)),
+        "extra_variants": sorted(set(themes) - set(roster)),
+        "drifted": sorted(v for v in themes if v in roster and themes[v] != MF.manifest(v)["theme"]),
+        "permissions": sorted(m.get("permissions", [])),
+        "options_page": page,
+        "options_page_shipped": bool(page) and os.path.isfile(os.path.join(folder, page)),
+        "lint_errors": lint(folder),
+    }
+
+
 def measure():
     """{roster, roster_drift, cases} over the DECLARED roster (make_schemes.GRID).
 
@@ -95,7 +131,8 @@ def measure():
     return {"roster": list(roster),
             "roster_drift": [{"variant": v, "why": why}
                              for v, why in roster_drift(MF.VARIANTS, "make_firefox")],
-            "cases": cases}
+            "cases": cases,
+            "dynamic": dynamic_facts(roster)}
 
 
 def main(argv):
@@ -157,6 +194,23 @@ def _selftest():
           (bad["parse_error"] is not None, bad["missing_required"]), (True, None))
     check("hover fill is fainter than active fill (glanced < looked alpha)",
           MF.roles("EL-Openglo")["_alphas"]["hover"] < MF.roles("EL-Openglo")["_alphas"]["active"], True)
+    # W135: the dynamic extension's measurement SEES drift and a missing variant
+    d = dynamic_facts(MF.VARIANTS)
+    check("the real dynamic extension measures clean",
+          (d["missing_variants"], d["extra_variants"], d["drifted"], d["options_page_shipped"]),
+          ([], [], [], True))
+    with tempfile.TemporaryDirectory() as td:
+        MF.render_dynamic(td, list(MF.VARIANTS))
+        tp = os.path.join(td, "themes.json")
+        themes = json.load(open(tp, encoding="utf-8"))
+        themes["EL-Amber"]["colors"]["frame"] = [1, 2, 3]      # a hand-edited colour
+        del themes["EL-Azure"]                                  # a dropped variant
+        json.dump(themes, open(tp, "w", encoding="utf-8"))
+        os.remove(os.path.join(td, "options.html"))             # an options page not shipped
+        t = dynamic_facts_in(td, MF.VARIANTS)
+    check("a hand-edited colour in themes.json is seen as drift", t["drifted"], ["EL-Amber"])
+    check("a variant the extension drops is seen as missing", t["missing_variants"], ["EL-Azure"])
+    check("an options page named but not shipped is seen", t["options_page_shipped"], False)
     # ⚑ THE LIVENESS CONJUNCT: every declared variant measured, and not vacuously
     got = measure()
     check("every declared variant is measured",
