@@ -55,3 +55,7 @@ catalog/cotype/.delta-cache.json
 # Ruling: ~/github/summit/proceedings/rulings/inbox-drop-zone.md
 # Ignored from HERE rather than by a file inside it, so provisioning adds nothing to git status.
 /inbox/
+
+# Store packages (W134): scripts/publish_browsers.py rebuilds them from the emitters,
+# so they are build output, never source. check_chrome_zips measures them.
+/dist/

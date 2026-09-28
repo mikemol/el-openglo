@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 138,
+  "counter": 140,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-28T21:21:47Z",
   "job_id": "39ad373d",
@@ -2604,12 +2604,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "scripts/publish_browsers.py --chrome: call make_chrome.render_all into a private staging dir (the same authority make_deb uses, nothing bespoke), zip each variant folder (manifest.json at the zip root, as the Web Store requires), write dist/chrome/<variant>.zip; --json measurement (n of 6 zips, each manifest parses, manifest_version 3) + --selftest; refuse unknown flags.",
-      "evidence": "2026-09-28: 2026-09-28 LOCATED (pycodemod --importers make_chrome; read make_chrome.py, make_deb.py:850-855): make_chrome.render_all(variants, out_dir_map) writes <dir>/manifest.json per variant (MV3, theme.colors from make_preview.parse_scheme). Callers in the real tree: make_deb.py:852 (into DEB_ROOT usr/share/el-openglo/chrome/<variant>) and scripts/check_chrome.py. Its __main__ writes /tmp/chrome-<v> (outside the tree), hence no chrome/ at the repo root.",
+      "next_bounded_step": "Close (done) once this commit lands; W137 (listing) then waits only on the operator Web Store registration.",
+      "evidence": "2026-09-28: 2026-09-28 LOCATED (pycodemod --importers make_chrome; read make_chrome.py, make_deb.py:850-855): make_chrome.render_all(variants, out_dir_map) writes <dir>/manifest.json per variant (MV3, theme.colors from make_preview.parse_scheme). Callers in the real tree: make_deb.py:852 (into DEB_ROOT usr/share/el-openglo/chrome/<variant>) and scripts/check_chrome.py. Its __main__ writes /tmp/chrome-<v> (outside the tree), hence no chrome/ at the repo root. | 2026-09-28: 2026-09-28 BUILT: scripts/publish_browsers.py --chrome (make_chrome.render_all into private staging, zip CONTENTS so manifest.json is at the root, deterministic bytes) -> 6 of 6 dist/chrome/<variant>.zip; scripts/check_chrome_zips.py --json measurement + policy/chrome_zips.rego (C0 empty, C1 missing, C2 nested manifest, C3 not MV3; dist absent = withheld) + chrome_zips_test.rego 8/8; opa_gate chrome_zips: admitted, 0 deny, 0 withheld, 6 admitted. Both selftests PASS (packager: root + byte-identical; measurement: sees nested, non-zip, missing). /dist/ added to .gitignore.",
       "issued_at": "2026-09-28T21:04:49Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T21:21:46Z",
+      "last_worked": "2026-09-28T21:43:03Z",
       "ticks_blocked": 0
     },
     {
@@ -2697,6 +2697,50 @@
       "issued_at": "2026-09-28T21:21:47Z",
       "minted_during": "interrupt",
       "caused_by": "W134",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W139",
+      "title": "ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        ".githooks/pre-commit",
+        "selftests",
+        "mtools"
+      ],
+      "blocked_on": [
+        "mtools"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it.",
+      "issued_at": "2026-09-28T22:40:14Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-09-28T22:40:22Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W140",
+      "title": "GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home)",
+      "status": "ready",
+      "enables": [
+        "W139"
+      ],
+      "touches": [
+        "gate_ledger",
+        ".githooks/pre-commit",
+        "substrate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-28T22:40:23Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
       "last_worked": null,
       "ticks_blocked": 0
     }
