@@ -1,0 +1,9 @@
+{
+  "name": "el-openglo-tooling",
+  "private": true,
+  "description": "Pinned Node tooling for el-openglo's checks (W142): web-ext lints and builds the Firefox packages. No mise on this host, so the pin lives here (project-tooling).",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "web-ext": "10.7.0"
+  }
+}

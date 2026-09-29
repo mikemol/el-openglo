@@ -59,3 +59,7 @@ catalog/cotype/.delta-cache.json
 # Store packages (W134): scripts/publish_browsers.py rebuilds them from the emitters,
 # so they are build output, never source. check_chrome_zips measures them.
 /dist/
+
+# Pinned Node tooling (W142): package.json + package-lock.json are the pin; npm ci
+# rebuilds node_modules/ from them, so it is never source.
+/node_modules/

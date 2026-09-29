@@ -1,9 +1,9 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 142,
+  "counter": 143,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-28T23:54:59Z",
+  "heartbeat": "2026-09-29T00:11:42Z",
   "job_id": "c5ebbe13",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
@@ -2783,12 +2783,33 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (done) once this commit lands.",
+      "evidence": "2026-09-29: 2026-09-28 measured: NO mise on this host (Gentoo; which mise: none); node = /usr/bin/node v26.10.0 (system package) + /usr/bin/npm; web-ext latest = 10.7.0 (npm view). project-tooling: a host without mise still needs a pin, so it lives in the project: package.json (web-ext EXACT devDependency) + committed package-lock.json, npm ci into node_modules/ (gitignored); check_firefox.lint() prefers <repo>/node_modules/.bin/web-ext. | 2026-09-29: 2026-09-28 LANDED (pending commit): package.json (private, devDependencies web-ext EXACT 10.7.0) + package-lock.json; npm install --save-exact added 329 packages (deprecation warnings: whatwg-encoding@3.1.1, eslint@9.39.4, both transitive via web-ext); /node_modules/ gitignored; check_firefox.lint() prefers node_modules/.bin/web-ext. opa_gate firefox: 0 deny, 0 withheld, 7 admitted (X6 now MEASURED, was 7 withheld). A hand run showed the lint is real, not vacuous: the dynamic extension had 1 WARNING MISSING_DATA_COLLECTION_PERMISSIONS (AMO requires it on new extensions); fixed in make_firefox (gecko.data_collection_permissions {required:[none]}) -> 0 errors 0 warnings; static themes clean. FINDING: X6 denies only lint ERRORS, so an AMO-blocking warning passes the gate -> W143.",
       "issued_at": "2026-09-28T23:22:32Z",
       "minted_during": "interrupt",
       "caused_by": "W135",
-      "last_worked": "2026-09-28T23:54:59Z",
+      "last_worked": "2026-09-29T00:11:41Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W143",
+      "title": "X6 WARNINGS: check_firefox lint() keeps only web-ext ERRORS, so an AMO-blocking WARNING (measured 2026-09-28: MISSING_DATA_COLLECTION_PERMISSIONS on the dynamic extension) passes the gate; measure warnings too and deny the codes AMO rejects on submission, with a refusing opa test per code",
+      "status": "ready",
+      "enables": [
+        "W136"
+      ],
+      "touches": [
+        "check_firefox",
+        "policy"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-29T00:11:41Z",
+      "minted_during": "interrupt",
+      "caused_by": "W142",
+      "last_worked": null,
       "ticks_blocked": 0
     }
   ],

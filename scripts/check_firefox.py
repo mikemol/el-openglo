@@ -64,7 +64,10 @@ def facts(variant, text):
 def lint(folder):
     """web-ext lint's error messages over a theme folder, or None when web-ext is
     absent (a fact about the machine — withheld, not passed)."""
-    exe = shutil.which("web-ext")
+    # W142: the project's PINNED web-ext (package.json + lock, npm ci) before PATH, so
+    # the lint measured is the version the lock names, not whatever a host happens to have
+    pinned = os.path.join(ROOT, "node_modules", ".bin", "web-ext")
+    exe = pinned if os.access(pinned, os.X_OK) else shutil.which("web-ext")
     if not exe:
         return None
     r = subprocess.run([exe, "lint", "--source-dir", folder, "--output", "json", "--no-input"],

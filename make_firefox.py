@@ -161,7 +161,10 @@ def dynamic_files(variants=VARIANTS, default="EL-Openglo"):
             "name": "EL Openglo",
             "version": VERSION,
             "description": "Electroluminescent watch display: six phosphor palettes, chosen in the add-on's options",
-            "browser_specific_settings": {"gecko": {"id": DYNAMIC_ID}},
+            # AMO requires data_collection_permissions on every NEW extension (web-ext lint
+            # MISSING_DATA_COLLECTION_PERMISSIONS, measured W142); this one collects nothing
+            "browser_specific_settings": {"gecko": {
+                "id": DYNAMIC_ID, "data_collection_permissions": {"required": ["none"]}}},
             "permissions": ["theme", "storage"],
             "background": {"scripts": ["background.js"]},
             "options_ui": {"page": "options.html"},
