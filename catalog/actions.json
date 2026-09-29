@@ -1,7 +1,7 @@
 {
  "actions": {
   "schemes": {
-   "key": "8cfbb91679714f6436f33a4941310772669e686e8c1337b6a9902a93f50034ac",
+   "key": "ff3acc649404185004e56f1befb8792a1eb638926ddc39d64e4e0c994c49e7ed",
    "n_inputs": 38,
    "n_outputs": 6,
    "n_undeclared_domains": 3,
@@ -11,7 +11,7 @@
   "screens": {
    "key": "85a6d75886e59ba1e318665141905be0b889ebd78f0467c93df96f409ba898c0",
    "n_inputs": 1148,
-   "n_outputs": 56,
+   "n_outputs": 55,
    "n_undeclared_domains": 3,
    "n_unresolved": 7,
    "outputs": {
@@ -75,7 +75,7 @@
    "schema": 4
   },
   "wallpapers": {
-   "key": "231901e7bbc6b021143a97c9fc4fb9210a611188c1a5c255dcf6f4d9fef594ab",
+   "key": "be431ab2981c55a566464e81e3a75ef82bf6bbeeb4acbab045535ba80c51d0e6",
    "n_inputs": 27,
    "n_outputs": 12,
    "n_undeclared_domains": 2,

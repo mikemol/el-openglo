@@ -47,6 +47,41 @@ THIRD_PARTY = (
      "note": "the marquee's dot-matrix glyphs are rasterised from Liberation Mono at build time"},
 )
 
+# ⚑ NOTICE IS GENERATED FROM THIRD_PARTY (W118, nothing bespoke): the Apache-2.0
+# attribution for this tree, then one block per third-party part. It is the same
+# declaration make_deb's DEP-5 copyright file and check_license read, so NOTICE
+# cannot drift from either. `emitters.py --write-notice` writes it; check_license
+# measures the committed NOTICE against notice_text() and policy/license.rego L4
+# refuses a missing, drifted or incomplete one.
+NOTICE_HEAD = (
+    "EL Openglo\n"
+    "Copyright 2026 Mike Mol\n"
+    "\n"
+    f"This product is licensed under {LICENSE_SPDX} (see LICENSE).\n"
+    "\n"
+    "It includes or derives from the following third-party work, each under its own licence:\n"
+)
+
+
+def notice_text():
+    """The NOTICE file's full text, from LICENSE_SPDX and THIRD_PARTY."""
+    blocks = []
+    for t in THIRD_PARTY:
+        where = ", ".join(t["files"]) if t["files"] else "not shipped in the package"
+        blocks.append(f"\n* {t['what']}\n"
+                      f"  Licence: {t['spdx']}\n"
+                      f"  Copyright: {t['copyright']}\n"
+                      f"  Where: {where}\n"
+                      f"  Note: {t['note']}\n")
+    return NOTICE_HEAD + "".join(blocks)
+
+
+def write_notice(root):
+    """Write <root>/NOTICE atomically from notice_text(); returns its path."""
+    p = os.path.join(root, "NOTICE")
+    atomic_write(p, notice_text())
+    return p
+
 # (module, why it sits here) — dependency order, not alphabetical.
 ORDER = (
     ("make_schemes",   "writes the .colors files every other emitter reads"),
@@ -251,12 +286,16 @@ def main(argv):
     """⚑ THE ROSTER ANSWERS FOR ITSELF. Without a mode, "does the declaration
     match the tree" is a question every reader answers with an inline script —
     which is judgement in the turn, re-derived differently by the next reader."""
-    known = {"--roster", "--drift"}
+    known = {"--roster", "--drift", "--write-notice"}
     for a in argv[1:]:
         if a not in known:
             print(f"emitters: unknown flag {a!r}", file=sys.stderr)
             return 2
     root = os.path.dirname(os.path.abspath(__file__))
+    if "--write-notice" in argv:
+        p = write_notice(root)
+        print(f"emitters: wrote {p} ({len(THIRD_PARTY)} third-party part(s))")
+        return 0
     undeclared, absent = drift(root)
     if "--roster" in argv:
         for role in ("authority", "emitter", "colourless", "packager"):

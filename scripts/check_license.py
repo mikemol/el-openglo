@@ -277,10 +277,25 @@ def measure(root=None):
                           "id": ebuild_id(open(os.path.join(ed, fn), encoding="utf-8").read())})
     emitted, scanned, unparsed = emitted_sites(root, tracked_files(root))
     cases += emitted
+    notice = notice_facts(root, E)
     return {"root": root, "cases": cases, "roster": len(roster), "roster_declaring": declaring,
             "emitted_scanned": scanned, "emitted_unparsed": unparsed,
             "third_party": third_party(), "debian_copyright": debian_copyright(),
-            "dep5_format": DEP5_FORMAT}
+            "dep5_format": DEP5_FORMAT, "notice": notice}
+
+
+def notice_facts(root, E):
+    """What <root>/NOTICE says against emitters.notice_text() of THAT tree (W118):
+    present, matches_generated, and which THIRD_PARTY parts it does not name. A tree
+    whose emitters has no notice_text() yields `generator` false (withheld by L5)."""
+    p = os.path.join(root, "NOTICE")
+    gen = getattr(E, "notice_text", None)
+    if not os.path.isfile(p):
+        return {"present": False, "generator": gen is not None, "matches_generated": None, "missing": None}
+    text = open(p, encoding="utf-8").read()
+    return {"present": True, "generator": gen is not None,
+            "matches_generated": (text == gen()) if gen else None,
+            "missing": [t["what"] for t in getattr(E, "THIRD_PARTY", ()) if t["what"] not in text]}
 
 
 def main(argv):
@@ -405,6 +420,20 @@ def _selftest():
         (DEP5_FORMAT, [(["*"], "Apache-2.0"), (["a/*"], "OFL-1.1")], {"OFL-1.1": True}))
     chk("a DEP-5 file with no header Format is seen as such",
         dep5_parse("Files: *\nLicense: X\n")["format"], None)
+    # W118: the NOTICE measurement SEES a missing part and a hand edit, and an absent file
+    import emitters as E
+    with tempfile.TemporaryDirectory() as d:
+        drop = E.THIRD_PARTY[0]["what"]
+        text = E.notice_text().replace(f"* {drop}\n", "")
+        with open(os.path.join(d, "NOTICE"), "w", encoding="utf-8") as fh:
+            fh.write(text)
+        n = notice_facts(d, E)
+        chk("a NOTICE with one part removed is seen as drifted and missing that part",
+            (n["matches_generated"], n["missing"]), (False, [drop]))
+    with tempfile.TemporaryDirectory() as d:
+        chk("an absent NOTICE is seen", notice_facts(d, E)["present"], False)
+    chk("the real NOTICE matches its generator",
+        notice_facts(ROOT, E)["matches_generated"], True)
     m = measure()
     chk("every population kind is non-empty",
         sorted({c["kind"] for c in m["cases"]}), ["authority", "emitted", "file", "generator"])

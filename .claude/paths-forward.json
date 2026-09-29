@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 144,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-29T00:51:57Z",
-  "job_id": "4ebf9d5a",
+  "heartbeat": "2026-09-29T01:22:03Z",
+  "job_id": "32bcfaba",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2229,7 +2229,7 @@
     {
       "symbol": "W118",
       "title": "W112.2 NOTICE file: Apache-2.0 attribution for the tree plus the third-party lines check_license already knows (DSEG and Liberation Mono OFL-1.1, colorspacious MIT; KvFlat leaves with W116); check_license gains a NOTICE case that fails when a third_party entry is missing from it",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W112"
       ],
@@ -2240,12 +2240,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (done) once this commit lands.",
+      "evidence": "2026-09-29: 2026-09-29: NOTICE is GENERATED (nothing bespoke): emitters.notice_text() from LICENSE_SPDX + THIRD_PARTY (the declaration debian/copyright and check_license already read), emitters.write_notice(root) atomic, `emitters.py --write-notice` (main refuses unknown flags). NOTICE written: Apache-2.0 head + 4 parts (colorspacious MIT, KvFlat GPL-3.0-or-later until W116, DSEG OFL-1.1, Liberation Mono OFL-1.1). check_license.notice_facts: present / generator / matches_generated / missing; policy/license.rego L5 denies absent, drifted, and names a missing part; withholds unmeasured and generator-less trees. opa_gate --test 925/925 (+6 L5); check_license selftest 13/13 incl. a NOTICE with one part cut (drift + that part missing) and an absent NOTICE; opa_gate license: admitted 0 deny 0 withheld.",
       "issued_at": "2026-09-28T18:56:41Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": null,
+      "last_worked": "2026-09-29T01:22:02Z",
       "ticks_blocked": 0
     },
     {
@@ -2850,5 +2850,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "26eb3e22"
+  "predecessor_job_id": "4ebf9d5a"
 }

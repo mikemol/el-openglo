@@ -151,6 +151,41 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L5 — NOTICE exists, is exactly what emitters.notice_text() generates, and names every third-party part"
+# description: |
+#   W118: NOTICE is generated from emitters.THIRD_PARTY, the declaration the DEP-5
+#   file reads too. A missing NOTICE, a hand-edited one, or one that omits a part
+#   is refused; `missing` names which. A tree with no generator is withheld.
+notice := object.get(input, "notice", null)
+
+deny contains "L5: NOTICE is absent; write it with `emitters.py --write-notice`" if {
+	is_object(notice)
+	notice.present == false
+}
+
+deny contains "L5: NOTICE differs from emitters.notice_text(); regenerate it with `emitters.py --write-notice`" if {
+	is_object(notice)
+	notice.present == true
+	notice.matches_generated == false
+}
+
+deny contains msg if {
+	is_object(notice)
+	some what in object.get(notice, "missing", [])
+	msg := sprintf("L5: NOTICE does not name the third-party part %q", [what])
+}
+
+withheld contains "L5: NOTICE was not measured" if {
+	count(object.get(input, "cases", [])) > 0
+	not is_object(notice)
+}
+
+withheld contains "L5: this tree has no emitters.notice_text(); NOTICE cannot be compared" if {
+	is_object(notice)
+	notice.generator == false
+}
+
+# METADATA
 # title: "L2 — a generator names the constant, never a literal"
 # description: |
 #   One declared id, imported by every emitter: a literal Apache-2.0 is correct

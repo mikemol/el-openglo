@@ -1,0 +1,30 @@
+EL Openglo
+Copyright 2026 Mike Mol
+
+This product is licensed under Apache-2.0 (see LICENSE).
+
+It includes or derives from the following third-party work, each under its own licence:
+
+* overlay/dev-python/colorspacious
+  Licence: MIT
+  Copyright: Nathaniel J. Smith
+  Where: not shipped in the package
+  Note: upstream's ebuild; overlay only, not in the package
+
+* KvFlat, recoloured by make_kvantum
+  Licence: GPL-3.0-or-later
+  Copyright: Pedram Pourang (tsujan), the Kvantum authors
+  Where: usr/share/el-openglo/kvantum/*
+  Note: a recolour of KvFlat from https://github.com/tsujan/Kvantum is a derived work and keeps upstream's licence
+
+* DSEG fonts, named in make_font.DSEG_NOTE
+  Licence: OFL-1.1
+  Copyright: keshikan
+  Where: not shipped in the package
+  Note: named only; not shipped
+
+* Liberation Mono, rasterised by make_notify_marquee
+  Licence: OFL-1.1
+  Copyright: Red Hat, Inc. (Liberation fonts)
+  Where: usr/share/plasma/plasmoids/org.el.notifymarquee*
+  Note: the marquee's dot-matrix glyphs are rasterised from Liberation Mono at build time

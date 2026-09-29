@@ -47,7 +47,37 @@ dep5 := {"format": fmt, "licenses": {"Apache-2.0": true, "GPL-3.0-or-later": tru
 		{"files": ["usr/share/el-openglo/kvantum/*"], "license": "GPL-3.0-or-later", "copyright": true},
 	]}
 
-good := {"cases": cases, "third_party": tp, "debian_copyright": dep5, "dep5_format": fmt}
+notice_ok := {"present": true, "generator": true, "matches_generated": true, "missing": []}
+
+good := {"cases": cases, "third_party": tp, "debian_copyright": dep5, "dep5_format": fmt, "notice": notice_ok}
+
+with_notice(n) := object.union(object.remove(good, ["notice"]), {"notice": n})
+
+# L5 (W118): NOTICE is generated from THIRD_PARTY
+test_l5_admits_a_generated_notice if {
+	count([m | some m in lc.deny; startswith(m, "L5")]) == 0 with input as good
+	count([m | some m in lc.withheld; startswith(m, "L5")]) == 0 with input as good
+}
+
+test_l5_refuses_an_absent_notice if {
+	"L5: NOTICE is absent; write it with `emitters.py --write-notice`" in lc.deny with input as with_notice({"present": false, "generator": true, "matches_generated": null, "missing": null})
+}
+
+test_l5_refuses_a_hand_edited_notice if {
+	"L5: NOTICE differs from emitters.notice_text(); regenerate it with `emitters.py --write-notice`" in lc.deny with input as with_notice(object.union(notice_ok, {"matches_generated": false}))
+}
+
+test_l5_names_a_missing_part if {
+	"L5: NOTICE does not name the third-party part \"DSEG\"" in lc.deny with input as with_notice(object.union(notice_ok, {"matches_generated": false, "missing": ["DSEG"]}))
+}
+
+test_l5_withholds_an_unmeasured_notice if {
+	"L5: NOTICE was not measured" in lc.withheld with input as object.remove(good, ["notice"])
+}
+
+test_l5_withholds_a_tree_without_a_generator if {
+	"L5: this tree has no emitters.notice_text(); NOTICE cannot be compared" in lc.withheld with input as with_notice(object.union(notice_ok, {"generator": false, "matches_generated": null}))
+}
 
 with_dep5(d) := object.union(object.remove(good, ["debian_copyright"]), {"debian_copyright": d})
 
