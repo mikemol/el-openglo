@@ -343,3 +343,4 @@
 2026-09-29T01:11:44Z  hash  --   diverged  --        "divergence: payload v2:859eb94e305ca955, file v2:e2a7e647ff03d676; the FILE wins"
 2026-09-29T01:22:03Z  tick  W118 done      unblock   "NOTICE generated from emitters.THIRD_PARTY (emitters.py --write-notice); check_license + license.rego L5 refuse absent/drifted/incomplete; opa 925/925, selftest 13/13, license gate admitted"  evidence=NOTICE
 2026-09-29T01:42:35Z  tick  W144 done      unblock   "mtools mikemol-pycodemod installed (pinned 6ecf7672) and struct-tools .py row repointed off substrate scratch; hooks gate admitted; W118 closed, W119 waits on this"  evidence=pyproject.toml
+2026-09-29T01:56:34Z  tick  W145 atomized  collapse  "operator: fix all nemik warnings (a11y); 13 blocker warnings fixed (W112 W62 trimmed, W83 W98 ready, W93 closed, W94 cleared, W80 -> paperkit:W113); W139/W140 wait on an mtools claim; 91 long titles split into W146-W150 batches; W144 closed, W119 unblocked"  evidence=W145
