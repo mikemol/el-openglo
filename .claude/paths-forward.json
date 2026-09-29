@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 143,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-29T00:11:42Z",
-  "job_id": "c5ebbe13",
+  "heartbeat": "2026-09-29T00:23:37Z",
+  "job_id": "a03e483b",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -242,7 +242,7 @@
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open. | 2026-09-26: 2026-09-27: operator does not recall the ticked state from the original observation (Qt widgets stayed BreezeLight, wallpaper unchanged) — re-asking as a fresh, reproducible check rather than relying on memory | 2026-09-26: 2026-09-27: operator screenshot of the 'Choose what to apply' dialog for EL-Azure-Lit — Colors IS ticked (also Application Style, Window Decoration Style, Icons, Plasma Style, Pointers, Splash Screen); only 'Desktop layout' (bundles wallpaper) is unticked. CLOSES the wallpaper question (expected: unticked). SHARPENS the Qt-widgets question into a real defect: Colors was ticked and Apply pressed, yet kdeglobals ColorScheme stayed BreezeLight (earlier measurement).",
       "issued_at": "2026-09-20T23:28:07+00:00",
       "last_worked": "2026-09-26T20:43:47Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W13",
@@ -623,7 +623,7 @@
       "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override.",
       "issued_at": "2026-09-21T13:50:20+00:00",
       "last_worked": "2026-09-27T15:57:33Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W34",
@@ -767,8 +767,6 @@
         "catalog/publishing.md"
       ],
       "blocked_on": [
-        "W134",
-        "W135",
         "W136",
         "W137"
       ],
@@ -777,7 +775,7 @@
       "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W134 Chrome zips, W135 Firefox dynamic-theme extension, W136 AMO signing (operator keys), W137 Chrome Web Store listing (operator registration) land.",
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration.",
       "issued_at": "2026-09-21T17:49:03+00:00",
-      "last_worked": "2026-09-28T21:05:17Z",
+      "last_worked": "2026-09-29T00:23:17Z",
       "ticks_blocked": 0
     },
     {
@@ -818,7 +816,7 @@
       "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings.",
       "issued_at": "2026-09-21T17:57:42+00:00",
       "last_worked": "2026-09-28T17:45:22Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W44",
@@ -1215,7 +1213,7 @@
       "evidence": "⚑ THE FIRST SWARM (2026-09-22) FOUND THREE WORKTREE ENVIRONMENT DEFECTS IN ONE HOUR, all one defect — this repo's tooling assumes it runs from the main checkout. (1) Every ../substrate symlink (hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests) was BROKEN in every worktree: the relative target ../../substrate resolves to .claude/worktrees/substrate from .claude/worktrees/agent-*/scripts/. Bridged by one ignored symlink .claude/worktrees/substrate -> /home/mikemol/github/substrate; the bridge is a workaround, not a fix. (2) build_graph's walk descended into the six worktrees and doubled every population (fixed: _NOT_THE_TREE excludes worktrees). (3) pycodemod SILENTLY reads 0 of N files under a worktree's own .venv (uv ignores VIRTUAL_ENV=main/.venv and uses the worktree's fresh one, where its parser raises AttributeError); it works via /home/mikemol/github/el-openglo/.venv/bin/python3. pycodemod flagged it loudly as a BROKEN QUERY and the subagent correctly marked its census UNMEASURED — the discipline held — but a hand-check then missed 4 refs the working invocation found. ALL THREE vanish under W62's shape: an INSTALLED mikemol-* distribution knows where it lives; a symlink or an editable finder or a venv-relative path does not. | 2026-09-27: 2026-09-27 census (step 1): scripts/ holds SIX symlinks into ../substrate (find -type l): hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests. check_hooks.py --list names only the two hooks, so it undercounts the borrow (4 of 6 unseen). mtools homes: the three hook_* are ALREADY in mikemol-hooks (installed, pinned 6ecf767: console scripts mikemol-hook-no-chaining, mikemol-hook-structural-query; cmdparse is its module); ratchet has an mtools distribution (mtools/ratchet, not yet a dependency here); gate_ledger and run_selftests have NO mtools home (B1 remainder for mtools). pycodemod is mikemol-pycodemod in mtools (defect 3). The prior next-step text carried a pasted uv-run help screen (backtick execution); replaced.",
       "issued_at": "2026-09-22T14:28:13+00:00",
       "last_worked": "2026-09-27T16:56:17Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W63",
@@ -1339,7 +1337,7 @@
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours.",
       "issued_at": "2026-09-22T22:20:36+00:00",
       "last_worked": "2026-09-27T14:14:03Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W71",
@@ -1501,7 +1499,7 @@
       "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-09-26T18:13:45+00:00",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W81",
@@ -1550,7 +1548,7 @@
       "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-09-26T18:21:20+00:00",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W84",
@@ -1612,7 +1610,7 @@
       "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom | 2026-09-26: 2026-09-27: blocked on W93 — ranking the queue by leverage is meaningless while the enables/blocked_on graph is mostly empty (W93's job); stated explicitly to the operator this tick, now encoded.",
       "issued_at": "2026-09-26T18:41:28+00:00",
       "last_worked": "2026-09-26T21:17:47Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W88",
@@ -1726,7 +1724,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-09-27T17:09:33Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W94",
@@ -1826,7 +1824,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-27T17:36:21Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W99",
@@ -2116,12 +2114,12 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-09-28T19:32:40Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W113",
       "title": "VENUE PROMOTION POLICY check (operator 2026-09-28 ruling 5: paid references in listing text AND in-product config/about pages, only where policy permits): read KDE Store, AMO, Chrome Web Store (later Blender Extensions, Fab, Unity) rules on promotional content and outbound links; record per venue: listing-text ok?, in-product ok?, with the policy URL and quoted clause.",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "life:W16",
         "W41"
@@ -2131,14 +2129,16 @@
         "make_firefox",
         "make_chrome"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "operator: act open https://store.kde.org/terms (and opendesktop.org/terms/general) in your browser, since both return an Anubis bot-block to automated fetches, and paste or save the clauses on promotion, outbound links and in-widget content"
+      ],
+      "blocked_kind": "human",
       "next_bounded_step": "Read the KDE Store / opendesktop terms in a real browser (bot-blocked for fetch) for listing text and in-widget promotion.",
-      "evidence": "2026-09-28: 2026-09-28 (scratchpad w113-policy.md; AMO + Chrome quotes re-fetched VERBATIM). AMO (extensionworkshop add-on-policies, updated Apr 30 2026): \"Add-ons with the sole purpose of promoting ... an outside website, application or add-on are not permitted.\"; \"Listings must disclose when payment is required to enable any add-on functionality.\"; \"the inclusion of affiliate promotions in user interface elements that are clearly identified as belonging to the add-on are acceptable.\" -> listing CONDITIONAL, extension options page CONDITIONAL, static theme n/a. Chrome (program-policies/listing-requirements): no misleading metadata; keyword spam = \"Lists of sites/brands/keywords without substantial added value\", \"Unnatural repetition of the same keyword more than 5 times\"; NO rule on mentioning/linking other products -> listing CONDITIONAL (one accurate mention), in-product n/a for a theme. KDE Store: UNFOUND (Anubis bot-block on store.kde.org/terms and opendesktop terms).",
+      "evidence": "2026-09-28: 2026-09-28 (scratchpad w113-policy.md; AMO + Chrome quotes re-fetched VERBATIM). AMO (extensionworkshop add-on-policies, updated Apr 30 2026): \"Add-ons with the sole purpose of promoting ... an outside website, application or add-on are not permitted.\"; \"Listings must disclose when payment is required to enable any add-on functionality.\"; \"the inclusion of affiliate promotions in user interface elements that are clearly identified as belonging to the add-on are acceptable.\" -> listing CONDITIONAL, extension options page CONDITIONAL, static theme n/a. Chrome (program-policies/listing-requirements): no misleading metadata; keyword spam = \"Lists of sites/brands/keywords without substantial added value\", \"Unnatural repetition of the same keyword more than 5 times\"; NO rule on mentioning/linking other products -> listing CONDITIONAL (one accurate mention), in-product n/a for a theme. KDE Store: UNFOUND (Anubis bot-block on store.kde.org/terms and opendesktop terms). | 2026-09-29: 2026-09-29: no browser tool in this session (ToolSearch: WebFetch only); the KDE Store terms stay unreadable here. AMO and Chrome findings (verified verbatim 2026-09-28) stand.",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-28T19:32:47Z",
+      "last_worked": "2026-09-29T00:23:36Z",
       "ticks_blocked": 0
     },
     {
@@ -2182,7 +2182,7 @@
       "minted_during": "interrupt",
       "caused_by": "aeternum:W62",
       "last_worked": "2026-09-28T18:16:45Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W116",
@@ -2355,7 +2355,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:39:04Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W124",
@@ -2377,7 +2377,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:39:04Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W125",
@@ -2400,7 +2400,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:39:04Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W126",
@@ -2424,7 +2424,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:39:04Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W127",
@@ -2448,7 +2448,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:31Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W128",
@@ -2475,7 +2475,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T21:04:25Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W129",
@@ -2498,7 +2498,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:48Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W130",
@@ -2521,7 +2521,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:52Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W131",
@@ -2544,7 +2544,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:57Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W132",
@@ -2566,7 +2566,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T21:04:33Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W133",
@@ -2615,7 +2615,7 @@
     {
       "symbol": "W135",
       "title": "W41.2 FIREFOX DYNAMIC-THEME EXTENSION: make_firefox emits ONE extension carrying all six variants (background script + browser.theme.update from a stored choice, options-page chooser where W113 permits a paid reference), plus web-ext build via a pinned install route (project-tooling: npx vs pinned devDependency); check that web-ext lint passes",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W41"
       ],
@@ -2623,17 +2623,14 @@
         "make_firefox",
         "publishing"
       ],
-      "blocked_on": [
-        "W141",
-        "W142"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): the dynamic extension exists (make_firefox --dynamic, landed); closes when W141 (its check) and W142 (pinned web-ext, X6 measured) land.",
-      "evidence": "2026-09-28: 2026-09-28 step 1: make_firefox.py --dynamic writes dist/firefox-dynamic/ (5 files): manifest.json (MV2, permissions theme+storage, background script, options_ui), themes.json GENERATED from manifest(v)[\"theme\"] for all six variants (no drift by construction), background.js (browser.theme.update from storage.local, on install/startup/change), options.html/.js (variant chooser; the W113 paid-reference slot). opa_gate firefox unchanged: 0 deny, 6 admitted, 6 withheld (X6: web-ext not installed, lint unmeasured).",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-09-28: 2026-09-28 step 1: make_firefox.py --dynamic writes dist/firefox-dynamic/ (5 files): manifest.json (MV2, permissions theme+storage, background script, options_ui), themes.json GENERATED from manifest(v)[\"theme\"] for all six variants (no drift by construction), background.js (browser.theme.update from storage.local, on install/startup/change), options.html/.js (variant chooser; the W113 paid-reference slot). opa_gate firefox unchanged: 0 deny, 6 admitted, 6 withheld (X6: web-ext not installed, lint unmeasured). | 2026-09-29: 2026-09-29: both children landed (W141 check + X7/X8, W142 pinned web-ext with X6 measured); the dynamic extension lints 0 errors 0 warnings after the data_collection_permissions fix. Signing is W136 (operator AMO keys).",
       "issued_at": "2026-09-28T21:04:54Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T23:22:38Z",
+      "last_worked": "2026-09-29T00:23:07Z",
       "ticks_blocked": 0
     },
     {
@@ -2648,7 +2645,6 @@
         "make_firefox"
       ],
       "blocked_on": [
-        "W135",
         "operator: act create an AMO API key/secret on your addons.mozilla.org account and put them where the publish step can read them (WEB_EXT_API_KEY / WEB_EXT_API_SECRET)"
       ],
       "blocked_kind": "human",
@@ -2657,7 +2653,7 @@
       "issued_at": "2026-09-28T21:04:58Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T21:05:04Z",
+      "last_worked": "2026-09-29T00:23:17Z",
       "ticks_blocked": 0
     },
     {
@@ -2672,7 +2668,6 @@
         "make_chrome"
       ],
       "blocked_on": [
-        "W134",
         "operator: act register as a Chrome Web Store developer (one-time fee) and say which account publishes"
       ],
       "blocked_kind": "human",
@@ -2681,7 +2676,7 @@
       "issued_at": "2026-09-28T21:05:05Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-28T21:05:10Z",
+      "last_worked": "2026-09-29T00:23:17Z",
       "ticks_blocked": 0
     },
     {
@@ -2723,7 +2718,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T22:40:22Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W140",
@@ -2772,7 +2767,7 @@
     {
       "symbol": "W142",
       "title": "W135.2 PINNED web-ext: install web-ext by a pinned, reproducible route (project-tooling: mise-managed node + a pinned devDependency, not a floating npx) so check_firefox X6 lint is MEASURED, not withheld, for the six static themes and the dynamic extension",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W135",
         "W136"
@@ -2783,18 +2778,18 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands.",
+      "next_bounded_step": "",
       "evidence": "2026-09-29: 2026-09-28 measured: NO mise on this host (Gentoo; which mise: none); node = /usr/bin/node v26.10.0 (system package) + /usr/bin/npm; web-ext latest = 10.7.0 (npm view). project-tooling: a host without mise still needs a pin, so it lives in the project: package.json (web-ext EXACT devDependency) + committed package-lock.json, npm ci into node_modules/ (gitignored); check_firefox.lint() prefers <repo>/node_modules/.bin/web-ext. | 2026-09-29: 2026-09-28 LANDED (pending commit): package.json (private, devDependencies web-ext EXACT 10.7.0) + package-lock.json; npm install --save-exact added 329 packages (deprecation warnings: whatwg-encoding@3.1.1, eslint@9.39.4, both transitive via web-ext); /node_modules/ gitignored; check_firefox.lint() prefers node_modules/.bin/web-ext. opa_gate firefox: 0 deny, 0 withheld, 7 admitted (X6 now MEASURED, was 7 withheld). A hand run showed the lint is real, not vacuous: the dynamic extension had 1 WARNING MISSING_DATA_COLLECTION_PERMISSIONS (AMO requires it on new extensions); fixed in make_firefox (gecko.data_collection_permissions {required:[none]}) -> 0 errors 0 warnings; static themes clean. FINDING: X6 denies only lint ERRORS, so an AMO-blocking warning passes the gate -> W143.",
       "issued_at": "2026-09-28T23:22:32Z",
       "minted_during": "interrupt",
       "caused_by": "W135",
-      "last_worked": "2026-09-29T00:11:41Z",
+      "last_worked": "2026-09-29T00:23:07Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W143",
       "title": "X6 WARNINGS: check_firefox lint() keeps only web-ext ERRORS, so an AMO-blocking WARNING (measured 2026-09-28: MISSING_DATA_COLLECTION_PERMISSIONS on the dynamic extension) passes the gate; measure warnings too and deny the codes AMO rejects on submission, with a refusing opa test per code",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W136"
       ],
@@ -2809,7 +2804,7 @@
       "issued_at": "2026-09-29T00:11:41Z",
       "minted_during": "interrupt",
       "caused_by": "W142",
-      "last_worked": null,
+      "last_worked": "2026-09-29T00:23:36Z",
       "ticks_blocked": 0
     }
   ],
@@ -2830,5 +2825,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "ebbaf941"
+  "predecessor_job_id": "c5ebbe13"
 }
