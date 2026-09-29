@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 143,
+  "counter": 144,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-09-29T00:51:57Z",
   "job_id": "4ebf9d5a",
@@ -2208,7 +2208,7 @@
     {
       "symbol": "W117",
       "title": "W112.1 licence terms of the 6 substrate symlinks (check_hooks --list names them): read substrate LICENSE and each target SPDX/header; record per file whether it may ship inside an Apache-2.0 tree (W99/W101 retire some of them anyway)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W112"
       ],
@@ -2218,12 +2218,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands; tell substrate about the gate_ledger SPDX spacing (inbox letter; census-kit B1).",
-      "evidence": "2026-09-29: 2026-09-29 READ (head of each substrate/scripts target): gate_ledger.py, hook_cmdparse.py, hook_no_chaining.py, hook_structural_query.py, ratchet.py, run_selftests.py: ALL six carry SPDX-License-Identifier Apache-2.0, Copyright 2026 Mike Mol (the operator, the author of this tree). substrate has no root LICENSE file and its pyproject.toml declares no license field (read lines 1-30); the per-file SPDX headers are the terms. VERDICT: all six may ship inside an Apache-2.0 tree, no consent or relicense needed. NIT (substrate own): gate_ledger.py writes \"SPDX-License-Identifier:Apache-2.0\" with no space after the colon; SPDX tag syntax has one, and a strict scanner could miss it.",
+      "next_bounded_step": "",
+      "evidence": "2026-09-29: 2026-09-29 READ (head of each substrate/scripts target): gate_ledger.py, hook_cmdparse.py, hook_no_chaining.py, hook_structural_query.py, ratchet.py, run_selftests.py: ALL six carry SPDX-License-Identifier Apache-2.0, Copyright 2026 Mike Mol (the operator, the author of this tree). substrate has no root LICENSE file and its pyproject.toml declares no license field (read lines 1-30); the per-file SPDX headers are the terms. VERDICT: all six may ship inside an Apache-2.0 tree, no consent or relicense needed. NIT (substrate own): gate_ledger.py writes \"SPDX-License-Identifier:Apache-2.0\" with no space after the colon; SPDX tag syntax has one, and a strict scanner could miss it. | 2026-09-29: 2026-09-29: the substrate-directed letter was withdrawn (operator: use mtools); the SPDX spacing nit rides in the mtools gate_ledger letter so the mtools version starts clean.",
       "issued_at": "2026-09-28T18:56:41Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-09-29T00:51:57Z",
+      "last_worked": "2026-09-29T01:06:05Z",
       "ticks_blocked": 0
     },
     {
@@ -2723,7 +2723,7 @@
     {
       "symbol": "W140",
       "title": "GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W139"
       ],
@@ -2732,14 +2732,16 @@
         ".githooks/pre-commit",
         "substrate"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "mtools"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read.",
       "issued_at": "2026-09-28T22:40:23Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": null,
+      "last_worked": "2026-09-29T01:06:00Z",
       "ticks_blocked": 0
     },
     {
@@ -2805,6 +2807,29 @@
       "minted_during": "interrupt",
       "caused_by": "W142",
       "last_worked": "2026-09-29T00:51:56Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W144",
+      "title": "USE mtools pycodemod, NOT substrate scratch (operator 2026-09-29: substrate drains into mtools): add the mtools pycodemod distribution sha-pinned to pyproject tooling (the one mtools sha), then repoint .claude/skills/struct-tools/SKILL.md .py row (today ../substrate/scratch/pycodemod.py) to the installed console script, and re-run the hook selftests",
+      "status": "ready",
+      "enables": [
+        "W101"
+      ],
+      "touches": [
+        "pyproject.toml",
+        "struct-tools",
+        "pycodemod",
+        "mtools"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-09-29T01:06:00Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": null,
       "ticks_blocked": 0
     }
   ],
