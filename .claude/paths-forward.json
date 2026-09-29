@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 143,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-29T00:23:37Z",
-  "job_id": "a03e483b",
+  "heartbeat": "2026-09-29T00:37:15Z",
+  "job_id": "26eb3e22",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2799,12 +2799,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (done) once this commit lands.",
+      "evidence": "2026-09-29: 2026-09-29: check_firefox _lint_run returns (errors, warning codes) from ONE web-ext run (no per-path cache: a reused temp path would serve a stale lint); lint_warnings measured for every static theme and the dynamic extension; dead lint() removed (pycodemod --calls lint: 0). policy/firefox.rego X9 denies a warning only when its code is in amo_blocking_warnings = {MISSING_DATA_COLLECTION_PERMISSIONS} (seen to block 2026-09-28); an ordinary warning is admitted (test). Weakness stated in both files: the set is what has been SEEN to block, not AMO full list. opa_gate --test 919/919 (+3 X9); selftest 15/15 incl. a real web-ext run seeing the stripped field; gate 0 deny 0 withheld 7 admitted.",
       "issued_at": "2026-09-29T00:11:41Z",
       "minted_during": "interrupt",
       "caused_by": "W142",
-      "last_worked": "2026-09-29T00:23:36Z",
+      "last_worked": "2026-09-29T00:37:15Z",
       "ticks_blocked": 0
     }
   ],
@@ -2825,5 +2825,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "c5ebbe13"
+  "predecessor_job_id": "a03e483b"
 }

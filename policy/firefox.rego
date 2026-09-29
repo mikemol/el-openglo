@@ -96,6 +96,29 @@ withheld contains msg if {
 }
 
 # METADATA
+# title: "X9 — no web-ext warning AMO rejects on submission"
+# description: |
+#   W143: X6 denies lint ERRORS only, and most warnings do not block AMO, so a
+#   warning is denied only when its code is in amo_blocking_warnings, the codes SEEN
+#   to block submission (MISSING_DATA_COLLECTION_PERMISSIONS, measured 2026-09-28 on
+#   the dynamic extension). Weakness: an unlisted blocking code passes until added.
+amo_blocking_warnings := {"MISSING_DATA_COLLECTION_PERMISSIONS"}
+
+linted contains x if {
+	some x in input.cases
+}
+
+linted contains input.dynamic if is_object(object.get(input, "dynamic", null))
+
+deny contains msg if {
+	some x in linted
+	is_array(object.get(x, "lint_warnings", null))
+	some code in x.lint_warnings
+	code in amo_blocking_warnings
+	msg := sprintf("X9: %s: web-ext warning %s blocks AMO submission", [x.id, code])
+}
+
+# METADATA
 # title: "X7 — the dynamic extension carries exactly the roster, each variant identical to its static theme"
 # description: |
 #   W135: make_firefox --dynamic ships ONE extension whose themes.json holds every

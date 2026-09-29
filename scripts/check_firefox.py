@@ -61,21 +61,27 @@ def facts(variant, text):
     }
 
 
-def lint(folder):
-    """web-ext lint's error messages over a theme folder, or None when web-ext is
-    absent (a fact about the machine — withheld, not passed)."""
+def _lint_run(folder):
+    """(error messages, warning codes) from ONE web-ext lint run over a folder;
+    (None, None) when web-ext is absent (a fact about the machine: withheld, not
+    passed). Errors feed X6. Warning codes feed X9 (W143): most warnings do not block
+    AMO, so policy/firefox.rego denies only the codes it declares AMO rejects on
+    submission (MISSING_DATA_COLLECTION_PERMISSIONS, measured 2026-09-28).
+    WEAKNESS: that set is what has been SEEN to block, not AMO's full list."""
     # W142: the project's PINNED web-ext (package.json + lock, npm ci) before PATH, so
     # the lint measured is the version the lock names, not whatever a host happens to have
     pinned = os.path.join(ROOT, "node_modules", ".bin", "web-ext")
     exe = pinned if os.access(pinned, os.X_OK) else shutil.which("web-ext")
     if not exe:
-        return None
+        return None, None
     r = subprocess.run([exe, "lint", "--source-dir", folder, "--output", "json", "--no-input"],
                        capture_output=True, text=True)
     try:
-        return [e.get("message", "") for e in json.loads(r.stdout).get("errors", [])]
+        report = json.loads(r.stdout)
     except json.JSONDecodeError:
-        return [] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]
+        return ([] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]), None
+    return ([e.get("message", "") for e in report.get("errors", [])],
+            sorted({w.get("code", "") for w in report.get("warnings", [])}))
 
 
 def dynamic_facts(roster):
@@ -102,6 +108,7 @@ def dynamic_facts_in(folder, roster):
     m = json.load(open(os.path.join(folder, "manifest.json"), encoding="utf-8"))
     themes = json.load(open(os.path.join(folder, "themes.json"), encoding="utf-8"))
     page = m.get("options_ui", {}).get("page")
+    errors, warnings = _lint_run(folder)
     return {
         "id": "dynamic",
         "missing_variants": sorted(set(roster) - set(themes)),
@@ -110,7 +117,8 @@ def dynamic_facts_in(folder, roster):
         "permissions": sorted(m.get("permissions", [])),
         "options_page": page,
         "options_page_shipped": bool(page) and os.path.isfile(os.path.join(folder, page)),
-        "lint_errors": lint(folder),
+        "lint_errors": errors,
+        "lint_warnings": warnings,
     }
 
 
@@ -130,7 +138,8 @@ def measure():
         MF.render_all(roster, outs)
         for v in roster:
             text = open(os.path.join(outs[v], "manifest.json"), encoding="utf-8").read()
-            cases.append(dict(facts(v, text), lint_errors=lint(outs[v])))
+            errors, warnings = _lint_run(outs[v])
+            cases.append(dict(facts(v, text), lint_errors=errors, lint_warnings=warnings))
     return {"roster": list(roster),
             "roster_drift": [{"variant": v, "why": why}
                              for v, why in roster_drift(MF.VARIANTS, "make_firefox")],
@@ -214,6 +223,19 @@ def _selftest():
     check("a hand-edited colour in themes.json is seen as drift", t["drifted"], ["EL-Amber"])
     check("a variant the extension drops is seen as missing", t["missing_variants"], ["EL-Azure"])
     check("an options page named but not shipped is seen", t["options_page_shipped"], False)
+    # W143: the lint's WARNING codes are seen (the defect that X6 alone let through)
+    with tempfile.TemporaryDirectory() as td:
+        MF.render_dynamic(td, list(MF.VARIANTS))
+        mp = os.path.join(td, "manifest.json")
+        m = json.load(open(mp, encoding="utf-8"))
+        del m["browser_specific_settings"]["gecko"]["data_collection_permissions"]
+        json.dump(m, open(mp, "w", encoding="utf-8"))
+        _, warnings = _lint_run(td)
+    if warnings is None:
+        print("  SKIP lint-warning arm: web-ext is not installed here")
+    else:
+        check("a missing data_collection_permissions is seen as a lint warning",
+              "MISSING_DATA_COLLECTION_PERMISSIONS" in warnings, True)
     # ⚑ THE LIVENESS CONJUNCT: every declared variant measured, and not vacuously
     got = measure()
     check("every declared variant is measured",

@@ -42,6 +42,25 @@ test_x7_refuses_drift if {
 	not "dynamic" in p.admitted with input as inp
 }
 
+# X9 (W143): an AMO-blocking lint WARNING is denied; an ordinary warning is not
+test_x9_refuses_a_blocking_warning_on_a_theme if {
+	inp := one(object.union(case, {"lint_warnings": ["MISSING_DATA_COLLECTION_PERMISSIONS"]}))
+	"X9: EL-Openglo: web-ext warning MISSING_DATA_COLLECTION_PERMISSIONS blocks AMO submission" in p.deny with input as inp
+	not "EL-Openglo" in p.admitted with input as inp
+}
+
+test_x9_refuses_a_blocking_warning_on_the_dynamic_extension if {
+	inp := with_dyn({"lint_warnings": ["MISSING_DATA_COLLECTION_PERMISSIONS"]})
+	"X9: dynamic: web-ext warning MISSING_DATA_COLLECTION_PERMISSIONS blocks AMO submission" in p.deny with input as inp
+	not "dynamic" in p.admitted with input as inp
+}
+
+test_x9_admits_an_ordinary_warning if {
+	inp := one(object.union(case, {"lint_warnings": ["UNSAFE_VAR_ASSIGNMENT"]}))
+	count(p.deny) == 0 with input as inp
+	"EL-Openglo" in p.admitted with input as inp
+}
+
 # X8: permissions and the shipped chooser
 test_x8_refuses_a_missing_permission if {
 	"X8: dynamic: permission \"storage\" is missing" in p.deny with input as with_dyn({"permissions": ["theme"]})
