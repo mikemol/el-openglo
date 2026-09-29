@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 143,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-29T00:37:15Z",
-  "job_id": "26eb3e22",
+  "heartbeat": "2026-09-29T00:51:57Z",
+  "job_id": "4ebf9d5a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2208,7 +2208,7 @@
     {
       "symbol": "W117",
       "title": "W112.1 licence terms of the 6 substrate symlinks (check_hooks --list names them): read substrate LICENSE and each target SPDX/header; record per file whether it may ship inside an Apache-2.0 tree (W99/W101 retire some of them anyway)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W112"
       ],
@@ -2218,12 +2218,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (done) once this commit lands; tell substrate about the gate_ledger SPDX spacing (inbox letter; census-kit B1).",
+      "evidence": "2026-09-29: 2026-09-29 READ (head of each substrate/scripts target): gate_ledger.py, hook_cmdparse.py, hook_no_chaining.py, hook_structural_query.py, ratchet.py, run_selftests.py: ALL six carry SPDX-License-Identifier Apache-2.0, Copyright 2026 Mike Mol (the operator, the author of this tree). substrate has no root LICENSE file and its pyproject.toml declares no license field (read lines 1-30); the per-file SPDX headers are the terms. VERDICT: all six may ship inside an Apache-2.0 tree, no consent or relicense needed. NIT (substrate own): gate_ledger.py writes \"SPDX-License-Identifier:Apache-2.0\" with no space after the colon; SPDX tag syntax has one, and a strict scanner could miss it.",
       "issued_at": "2026-09-28T18:56:41Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": null,
+      "last_worked": "2026-09-29T00:51:57Z",
       "ticks_blocked": 0
     },
     {
@@ -2789,7 +2789,7 @@
     {
       "symbol": "W143",
       "title": "X6 WARNINGS: check_firefox lint() keeps only web-ext ERRORS, so an AMO-blocking WARNING (measured 2026-09-28: MISSING_DATA_COLLECTION_PERMISSIONS on the dynamic extension) passes the gate; measure warnings too and deny the codes AMO rejects on submission, with a refusing opa test per code",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W136"
       ],
@@ -2799,12 +2799,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands.",
+      "next_bounded_step": "",
       "evidence": "2026-09-29: 2026-09-29: check_firefox _lint_run returns (errors, warning codes) from ONE web-ext run (no per-path cache: a reused temp path would serve a stale lint); lint_warnings measured for every static theme and the dynamic extension; dead lint() removed (pycodemod --calls lint: 0). policy/firefox.rego X9 denies a warning only when its code is in amo_blocking_warnings = {MISSING_DATA_COLLECTION_PERMISSIONS} (seen to block 2026-09-28); an ordinary warning is admitted (test). Weakness stated in both files: the set is what has been SEEN to block, not AMO full list. opa_gate --test 919/919 (+3 X9); selftest 15/15 incl. a real web-ext run seeing the stripped field; gate 0 deny 0 withheld 7 admitted.",
       "issued_at": "2026-09-29T00:11:41Z",
       "minted_during": "interrupt",
       "caused_by": "W142",
-      "last_worked": "2026-09-29T00:37:15Z",
+      "last_worked": "2026-09-29T00:51:56Z",
       "ticks_blocked": 0
     }
   ],
@@ -2825,5 +2825,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "a03e483b"
+  "predecessor_job_id": "26eb3e22"
 }
