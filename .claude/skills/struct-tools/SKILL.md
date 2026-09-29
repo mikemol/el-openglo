@@ -29,16 +29,19 @@ suffixes a tool owns. The hook no longer carries a hardcoded suffix list — it 
 this column — so a suffix claimed by no row is a suffix the hook will not guard, and
 adding a tool without filling this in leaves its artifacts unprotected.
 
-⚑ **SUBSTRATE PROVIDES THE GENERAL READERS; USE THEM.** Python, markdown and BibTeX
-already have structural readers in `../substrate/scratch/`, built precisely because
+⚑ **mtools PROVIDES THE GENERAL READERS; USE THEM** (operator, 2026-09-29: "Don't use
+substrate, use mtools; substrate is getting drained into mtools, with mtools holding
+cleaner versions"). Python and markdown have installed structural readers from mtools
+(`mikemol-pycodemod`, `mdstruct`, both in the `tooling` extra), built precisely because
 someone kept reaching for `grep` at them. Do not grep those artifacts here and do not
 reimplement a reader for them — point outward, exactly as the two PreToolUse hooks do.
+A row still naming `../substrate/scratch/` is a reader mtools has not ported yet.
 This repo's own `check_*.py` answer questions about THIS project (is the mark gone, do
 the emitters agree on one palette); they are not general readers and do not replace these.
 
 | artifact | tool | run bare to list its modes | claims |
 |---|---|---|---|
-| Python — structure of any module | `../substrate/scratch/pycodemod.py` | `python3 ../substrate/scratch/pycodemod.py` | `.py` `.pyi` |
+| Python — structure of any module; subcommands, not flags, each with its own `--help` (`calls --target NAME PATHS`; a bare `calls PATHS` lists EVERY call); the cleanroom `mikemol-pycodemod` from mtools, installed by `uv sync --extra tooling` (W144) | `mikemol-pycodemod` | `uv run --no-sync mikemol-pycodemod --help` | `.py` `.pyi` |
 | markdown — headers, tables, cells; `append-section`/`replace-section --apply` WRITE (the published `mikemol-mdstruct`, installed by `uv sync --extra tooling`; substrate's scratch copy is retired) | `mdstruct` | `uv run --no-sync mdstruct` | `.md` |
 | BibTeX — the claim-DAG, not its text | `../substrate/scratch/bibstruct.py` | `python3 ../substrate/scratch/bibstruct.py` | `.bib` |
 | this repo's Python: does it compile / import (compile: `--json` is what policy/compiles.rego decides) | `scripts/check_compiles.py` + `scripts/check_consumers.py` | `python3 scripts/check_compiles.py --list` | `opa_gate.py compiles` |

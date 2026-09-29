@@ -69,6 +69,11 @@ tooling = [
     # `from paperkit import bib`), not a borrowed substrate script whose own
     # dependencies became ours. Sha-pinned, never @main (mtools INSTALL.md). The gate
     # itself still runs the LOCATED checkout (worklist_gate.locate); this is the reader.
+    # ⚑ pycodemod FROM mtools, NOT substrate's scratch copy (operator, 2026-09-29: "Don't use
+    # substrate, use mtools; substrate is getting drained into mtools, with mtools holding
+    # cleaner versions"). mikemol-pycodemod is the cleanroom port (libcst REQUIRED, so a missing
+    # parser fails at install rather than every mode returning a false zero). W144.
+    "mikemol-pycodemod @ git+https://github.com/mikemol/mtools.git@6ecf7672fed49c55e1dcc6b6b86942a1cdb40844#subdirectory=pycodemod",
     "paperkit @ git+https://github.com/mikemol/paperkit.git@88792ac2deb9498b3e46ff938e28ef9a81d372bf",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST

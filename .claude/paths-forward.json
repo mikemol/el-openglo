@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 144,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-29T01:22:03Z",
-  "job_id": "32bcfaba",
+  "heartbeat": "2026-09-29T01:42:35Z",
+  "job_id": "e3eb5266",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2229,7 +2229,7 @@
     {
       "symbol": "W118",
       "title": "W112.2 NOTICE file: Apache-2.0 attribution for the tree plus the third-party lines check_license already knows (DSEG and Liberation Mono OFL-1.1, colorspacious MIT; KvFlat leaves with W116); check_license gains a NOTICE case that fails when a third_party entry is missing from it",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W112"
       ],
@@ -2240,18 +2240,18 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands.",
-      "evidence": "2026-09-29: 2026-09-29: NOTICE is GENERATED (nothing bespoke): emitters.notice_text() from LICENSE_SPDX + THIRD_PARTY (the declaration debian/copyright and check_license already read), emitters.write_notice(root) atomic, `emitters.py --write-notice` (main refuses unknown flags). NOTICE written: Apache-2.0 head + 4 parts (colorspacious MIT, KvFlat GPL-3.0-or-later until W116, DSEG OFL-1.1, Liberation Mono OFL-1.1). check_license.notice_facts: present / generator / matches_generated / missing; policy/license.rego L5 denies absent, drifted, and names a missing part; withholds unmeasured and generator-less trees. opa_gate --test 925/925 (+6 L5); check_license selftest 13/13 incl. a NOTICE with one part cut (drift + that part missing) and an absent NOTICE; opa_gate license: admitted 0 deny 0 withheld.",
+      "next_bounded_step": "",
+      "evidence": "2026-09-29: 2026-09-29: NOTICE is GENERATED (nothing bespoke): emitters.notice_text() from LICENSE_SPDX + THIRD_PARTY (the declaration debian/copyright and check_license already read), emitters.write_notice(root) atomic, `emitters.py --write-notice` (main refuses unknown flags). NOTICE written: Apache-2.0 head + 4 parts (colorspacious MIT, KvFlat GPL-3.0-or-later until W116, DSEG OFL-1.1, Liberation Mono OFL-1.1). check_license.notice_facts: present / generator / matches_generated / missing; policy/license.rego L5 denies absent, drifted, and names a missing part; withholds unmeasured and generator-less trees. opa_gate --test 925/925 (+6 L5); check_license selftest 13/13 incl. a NOTICE with one part cut (drift + that part missing) and an absent NOTICE; opa_gate license: admitted 0 deny 0 withheld. | 2026-09-29: 2026-09-29 landed on the retry: the first commit was refused by @CURRENCY (emitters.py is a declared input of the schemes + wallpapers actions); both rebuilt as capped services, outputs byte-identical (git status: no .colors / wallpaper change), keys recorded by check_action_key --write; action_key admitted 3, 0 deny.",
       "issued_at": "2026-09-28T18:56:41Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-09-29T01:22:02Z",
+      "last_worked": "2026-09-29T01:41:07Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W119",
       "title": "W112.3 SPDX-License-Identifier: Apache-2.0 headers on authored source (mtools precedent), applied structurally (pycodemod), with check_license reporting n of m authored files carrying the header and refusing a missing one",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W112"
       ],
@@ -2259,14 +2259,16 @@
         "licence",
         "check_license"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W144"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-09-29: 2026-09-29: \"applied structurally (pycodemod)\" now means the MTOOLS pycodemod (operator: use mtools, not substrate), which W144 installs; blocked on it.",
       "issued_at": "2026-09-28T18:56:42Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": null,
+      "last_worked": "2026-09-29T01:41:15Z",
       "ticks_blocked": 0
     },
     {
@@ -2812,7 +2814,7 @@
     {
       "symbol": "W144",
       "title": "USE mtools pycodemod, NOT substrate scratch (operator 2026-09-29: substrate drains into mtools): add the mtools pycodemod distribution sha-pinned to pyproject tooling (the one mtools sha), then repoint .claude/skills/struct-tools/SKILL.md .py row (today ../substrate/scratch/pycodemod.py) to the installed console script, and re-run the hook selftests",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W101"
       ],
@@ -2824,12 +2826,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (done) once this commit lands; W119 then unblocks.",
+      "evidence": "2026-09-29: 2026-09-29: pyproject tooling += mikemol-pycodemod @ mtools 6ecf7672 (the one mtools sha; git cat-file confirmed pycodemod/ exists there); uv sync --extra tooling --extra research installed mikemol-pycodemod 0.1.0, nothing else changed. struct-tools SKILL.md: .py row now routes to `mikemol-pycodemod` (subcommands with their own --help; `calls --target NAME PATHS`, a bare `calls PATHS` lists EVERY call, measured), and the lead paragraph says mtools provides the readers, a row still on ../substrate/scratch/ is unported (BibTeX, Agda remain). opa_gate hooks: admitted 2. Smoke: calls --target _lint_run check_firefox.py -> 3 calls + the def (matches the substrate reading).",
       "issued_at": "2026-09-29T01:06:00Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": null,
+      "last_worked": "2026-09-29T01:42:35Z",
       "ticks_blocked": 0
     }
   ],
@@ -2850,5 +2852,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "4ebf9d5a"
+  "predecessor_job_id": "32bcfaba"
 }
