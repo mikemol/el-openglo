@@ -227,6 +227,7 @@ def _candidates(sector, ground, min_contrast, hot):
     sats = (0.5, 0.7, 0.85, 1.0)
     vs = range(34, 101, 7) if dark else range(20, 64, 5)
     out = []
+    _floors = C.reference_floors() if hot is not None else None
     for dh in span:
         h = (hmid + dh) % 360
         # strictly inside the sector with a 1-degree margin (a candidate exactly on
@@ -243,14 +244,15 @@ def _candidates(sector, ground, min_contrast, hot):
                 cand = _hsv(h, s, vi / 100.0)
                 if C.wcag_ratio(cand, ground) < min_contrast:
                     continue
-                # ⚑ THE FLOOR IS THE AUTHORITY'S, AND IT IS IN THE WRONG METRIC.
-                # This is a SEPARATION constraint (candidate vs the accent) wearing
-                # the contrast filter's clothes, and it measures RAW dE while the
-                # objective it feeds is documented to use the gate's normalized q.
-                # palette_graph.HOT_PRUNE_DE holds the number and the argument;
-                # swapping it to the gate's metric moves colours, so it is staged
-                # behind re-captured baselines rather than smuggled in here.
-                if hot is not None and _cached_dE(cand, hot) < _PG.HOT_PRUNE_DE:
+                # ⚑ THE GATE'S OWN METRIC, NOT RAW dE (W196, 2026-10-01). This is a
+                # SEPARATION constraint: the candidate against the accent, which is
+                # also the FOCUS colour (solve_scheme: focus = accent). It measured
+                # raw dE >= palette_graph.HOT_PRUNE_DE while cvd_gate judged the same
+                # pair by worst-view normalized q - one relation, two metrics - so
+                # EL-Amber shipped focus~pos at dE 5.2 under protanomaly. It now
+                # prunes exactly as the gate judges (q >= 1 at the enforced floor),
+                # and palette_graph promotes focus~{neg,neu,pos,link} to enforced.
+                if hot is not None and C._worst_normalized(cand, hot, _floors)[0] < 1.0:
                     continue
                 out.append(cand)
     # cap to a diverse subset (even stride keeps the value/hue spread) — the

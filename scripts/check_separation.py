@@ -125,7 +125,11 @@ def _selftest():
           (len(m["cases"]) == len(m["variants"]) * len(m["enforced"]) > 0,
            [c["id"] for c in m["cases"] if c["dE"] is None]), (True, []))
     check("the authority declares enforced pairs", len(C.ENFORCED) > 0, True)
-    check("the authority declares surfaced pairs", len(C.SURFACED) > 0, True)
+    # W196: focus~semantic were the only SURFACED pairs and are now ENFORCED, so an empty
+    # surfaced class is a correct state, not a broken read. What must hold is the WIRING:
+    # SURFACED is the authority's projection, whatever its size (falsifiable either way).
+    check("SURFACED is the authority's projection",
+          set(C.SURFACED), set(PG.gate_pairs("surfaced")))
 
     # ⚑ THE PAIRS COME FROM THE AUTHORITY.  If palette_graph and cvd_gate disagreed, this
     # would be gating a different set than the one declared — check_palette_graph gates

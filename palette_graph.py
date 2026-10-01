@@ -216,8 +216,10 @@ CONSTELLATION = SEMANTIC + ("fg",)
 _DECLARED_CLASS = {
     ("neg", "pos"): ENFORCED_CLS, ("neg", "neu"): ENFORCED_CLS,
     ("neu", "pos"): ENFORCED_CLS, ("fg", "link"): ENFORCED_CLS,
-    ("focus", "neu"): SURFACED_CLS, ("focus", "link"): SURFACED_CLS,
-    ("focus", "neg"): SURFACED_CLS, ("focus", "pos"): SURFACED_CLS,
+    # W196: focus IS the accent; make_palette._candidates now prunes the semantic slots
+    # against it on the gate's metric, so these pairs are solved for and ENFORCED.
+    ("focus", "neu"): ENFORCED_CLS, ("focus", "link"): ENFORCED_CLS,
+    ("focus", "neg"): ENFORCED_CLS, ("focus", "pos"): ENFORCED_CLS,
 }
 
 
