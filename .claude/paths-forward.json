@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 170,
+  "counter": 172,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T12:36:26Z",
-  "job_id": "4a3be31c",
+  "heartbeat": "2026-10-01T12:56:59Z",
+  "job_id": "9b818870",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1112,7 +1112,7 @@
     {
       "symbol": "W58",
       "title": "Gate each emitted wallpaper package by loading it the way Plasma does",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W33"
       ],
@@ -1123,13 +1123,16 @@
         "make_notify_marquee",
         "check_package_imports"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W171",
+        "W172"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
-      "next_bounded_step": "Measure what a load needs: (1) does qmllint resolve bare-name types when run INSIDE the emitted package directory (it lints the text today in a temp dir WITHOUT companions, which is why it passed both breakages) — if yes, the gate is one qmllint invocation per emitted package and check_package_imports's name list retires; (2) if not, a load harness: qml --apptype widget over a tiny document that instantiates the package's own contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; (3) the PLUGIN CONTRACT half: metadata.json's Id must match the directory name and the LnF defaults / layout / alias list that reference it (the f521e6f shape) — a cross-emitter check, not a per-package one. Then policy/package_load.rego and a warrant, and RETIRE check_package_imports's heuristic if (1) or (2) subsumes it.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it. | 2026-10-01: W53 2026-10-01: runtime-warnings class wallpaper-plugin-missing is unruled 9 days (R2 denies); W58 plugin-id contract is the rule that retires it - cite it in catalog/runtime-warnings.json when it lands",
+      "next_bounded_step": "umbrella: closes when W171 (plugin-id contract) and W172 (headless load) land",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it. | 2026-10-01: W53 2026-10-01: runtime-warnings class wallpaper-plugin-missing is unruled 9 days (R2 denies); W58 plugin-id contract is the rule that retires it - cite it in catalog/runtime-warnings.json when it lands | 2026-10-01: 2026-10-01 step (1) ANSWERED by reading the tree, not built again: check_package_imports already renders each package to a temp tree and runs qmllint with that package OWN ui dir on the import path, reading the [import] warnings (qmllint exits 0 either way); it replaced the name-list heuristic in s135. The step text \"lints the text in a temp dir WITHOUT companions\" is stale. Its own docstring names what it does not cover: the plugin-id mismatch (f521e6f: a desktop naming org.el.openglo.live.elazure after the one-package build) -> W171; a real load -> W172. ATOMIZED into those two.",
       "issued_at": "2026-09-22T12:16:56+00:00",
-      "last_worked": "2026-10-01T12:47:47Z",
+      "last_worked": "2026-10-01T12:57:12Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -3385,6 +3388,50 @@
       "last_worked": "2026-10-01T12:23:25Z",
       "ticks_blocked": 0,
       "completed": "20261001T122325Z"
+    },
+    {
+      "symbol": "W171",
+      "title": "Check every referenced Plasma plugin id is one a shipped package declares",
+      "status": "working",
+      "enables": [
+        "W58"
+      ],
+      "touches": [
+        "make_deb.py",
+        "templates/one-theme-update.js",
+        "scripts/check_migration.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/check_plugin_ids.py --json: the SHIPPED ids (each emitted package metadata.json KPlugin.Id, plus make_deb.legacy_alias_packages ids) with whether each Id equals its directory name; the REFERENCED ids (look-and-feel defaults and layout, templates/one-theme-update.js targets, any emitted config naming a wallpaper/applet plugin). policy/plugin_ids.rego: P0 empty, P1 an Id that is not its directory name, P2 a referenced id nothing ships (the f521e6f shape: a desktop naming org.el.openglo.live.elazure after the one-package build). Selftest plants a renamed package and a dangling reference.",
+      "evidence": "",
+      "issued_at": "2026-10-01T12:56:59Z",
+      "minted_during": "interrupt",
+      "caused_by": "W58",
+      "last_worked": "2026-10-01T12:57:12Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W172",
+      "title": "Load each emitted Plasma package headless, as plasmashell would, and refuse a load error",
+      "status": "ready",
+      "enables": [
+        "W58"
+      ],
+      "touches": [
+        "scripts/check_package_imports.py",
+        "qt_sandbox.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "A load harness: qml --apptype widget (through qt_sandbox, mesa route where the package needs the RHI) over a tiny document that instantiates each emitted package contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; read the load errors (not the exit code); refuse any. Then retire whatever of check_package_imports it subsumes.",
+      "evidence": "",
+      "issued_at": "2026-10-01T12:56:59Z",
+      "minted_during": "interrupt",
+      "caused_by": "W58",
+      "last_worked": "2026-10-01T12:57:12Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -3404,6 +3451,6 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "fc6c9819",
+  "predecessor_job_id": "4a3be31c",
   "leases": []
 }
