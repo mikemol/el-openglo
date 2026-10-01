@@ -340,7 +340,17 @@ def first_glyph_box(im, max_gap=2, ring=False):
     peak = max(max(r) for r in lum)
     if peak == 0:
         return None
-    core = [[lum[y][x] * 2 >= peak for x in range(im.width)] for y in range(im.height)]
+    # ⚑ THE GLYPH IS LIT ABOVE THE GHOST, NOT ABOVE BLACK (W168, measured 2026-10-01):
+    # on the real board every ghost pip is above half the peak, so a half-peak core
+    # was the whole board in every frame, glyph or none. Lit pips are a small share of
+    # all pips, so the MEDIAN pip luminance is the ghost level; the core is what sits
+    # above halfway from ghost to peak.
+    pip = sorted(v for r in lum for v in r if v * 4 > peak)
+    ghost = pip[len(pip) // 2] if pip else 0
+    # a board with no ghost level of its own (the median pip IS the peak: only the
+    # glyph is lit) keeps the half-peak cut
+    cut = (ghost + peak) / 2 if ghost < peak else peak / 2
+    core = [[lum[y][x] > cut for x in range(im.width)] for y in range(im.height)]
     # ⚑ THE HOVER RING IS NOT A GLYPH (W166, measured 2026-10-01): held, the board's
     # outer ring of pips pulses (W51) to the core threshold and spans the width, and
     # the first real crop was the whole 419x31 board. Each pip row and pip column is
@@ -403,6 +413,28 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
     return out
 
 
+def matrix_probe(out_dir, ch="H", variant=MATRIX_VARIANT):
+    """W168's question as a tool: WHEN is an injected glyph on the board, and at what
+    offset? A scrolling run (no hover hold, so no ring) with the harness's frame
+    capture into out_dir; per frame its t and x and the first-glyph crop. A frame
+    whose crop is about one glyph wide, at a whole-pip x, is the one to mirror."""
+    from PIL import Image
+    import check_marquee_live as ML
+    tl = [(300, "arrive", 1, {"summary": "x", "body": "", "applicationName": ch}, f"{ch}: x")]
+    res = ML.run(variant=variant, end_ms=4000, frames=out_dir, timeline=tl) or {}
+    names = sorted(n for n in os.listdir(out_dir) if n.startswith("frame-"))
+    fx = res.get("frames", [])
+    rows = []
+    for i, n in enumerate(names):
+        im = Image.open(os.path.join(out_dir, n)).convert("RGB")
+        box = first_glyph_box(im)
+        f = fx[i] if i < len(fx) else {}
+        rows.append({"frame": n, "t": f.get("t"), "x": f.get("x"),
+                     "crop": list(box) if box else None,
+                     "crop_w": (box[2] - box[0]) if box else None})
+    return {"frames": rows, "frame_count": len(names), "listed": len(fx)}
+
+
 def grid_cases(grids=GRIDS):
     """The matrix board's grid regularity, per variant, through its own renderer."""
     from PIL import Image
@@ -425,8 +457,16 @@ def grid_cases(grids=GRIDS):
 
 
 def main(argv):
-    known = {"--json", "--selftest", "--list", "--matrix"}
-    for a in argv[1:]:
+    known = {"--json", "--selftest", "--list", "--matrix", "--matrix-probe"}
+    args = list(argv[1:])
+    if "--matrix-probe" in args:                # W168: --matrix-probe DIR
+        i = args.index("--matrix-probe")
+        if i + 1 >= len(args) or not os.path.isdir(args[i + 1]):
+            print("check_symmetry: --matrix-probe needs an existing directory", file=sys.stderr)
+            return 2
+        print(json.dumps(matrix_probe(args[i + 1]), indent=1))
+        return 0
+    for a in args:
         if a not in known:
             print(f"check_symmetry: unknown flag {a!r}", file=sys.stderr)
             return 2
@@ -582,6 +622,23 @@ def _selftest():
     rbox = first_glyph_box(ringed, ring=True)
     chk("with the hover ring lit, the crop is still the first glyph alone", rbox, (6, 6, 25, 33))
     chk("...and without ring exclusion it would not be", first_glyph_box(ringed) != rbox, True)
+    # ...and on a board whose GHOST pips sit above half the peak (the real board,
+    # W168), the glyph is still told apart from them
+    ghosted = Image.new("RGB", (64, 40), (20, 20, 20))
+    for c in range(15):
+        for r in range(9):
+            for dx in range(3):
+                for dy in range(3):
+                    ghosted.putpixel((2 + c * 4 + dx, 2 + r * 4 + dy), (170, 140, 0))
+    for gx in (2, 30):
+        for r, line in enumerate(H):
+            for c, ch in enumerate(line):
+                if ch == "X":
+                    for dx in range(3):
+                        for dy in range(3):
+                            ghosted.putpixel((gx + c * 4 + dx, 2 + r * 4 + dy), (255, 210, 0))
+    chk("with ghost pips above half the peak, the crop is still the first glyph",
+        first_glyph_box(ghosted), (2, 2, 21, 29))
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 

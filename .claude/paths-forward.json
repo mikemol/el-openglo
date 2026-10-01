@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 168,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T09:25:29Z",
-  "job_id": "030fa305",
+  "heartbeat": "2026-10-01T11:05:36Z",
+  "job_id": "2fa425df",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3341,12 +3341,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Run the hovered harness with frames=DIR for the H timeline (check_marquee_live captures frames with t and x); read which frame shows the glyph and at what x offset. If one is on the board at an integer pitch, return it from a check_marquee_live helper (grab at that x). If the hover-hold fires before the text arrives, add a harness mode that grabs when the text left edge reaches a given whole-pip x. Done when check_symmetry --matrix crops ~5 pips wide (about 19 px) on the real board.",
-      "evidence": "",
+      "next_bounded_step": "Point matrix_cases at the scrolling run (matrix_probe), not the hovered hold (which shows no text): pick the frames whose crop is a full 5 pips wide AND full glyph height (the whole-pip-phase ones), mirror the first such; confirm check_symmetry --matrix reports ~19 px crops, then W166 wires it into measure()",
+      "evidence": "2026-10-01: 2026-10-01: check_symmetry --matrix-probe DIR (W168 question as a tool: a scrolling run of the injected glyph with frame capture; per frame t, x, first-glyph crop). First probe: all 62 frames cropped 419 px (the board) - frame-030 READ: H: x is visible but the GHOST pips sit above half the peak, so a half-peak core is every pip. FIX: first_glyph_box cuts halfway between the ghost level (median pip luminance) and the peak, half-peak when there is no separate ghost (synthetic boards). Re-probe: frames now crop the real glyph, 19 px = 5 pips (e.g. frame-006 x 377-396); frames at a fractional phase crop 15x3, the crossbar only (W60 resampling dims the side columns) - only whole-pip-phase frames are usable. Selftest (+ ghosted-board arm) PASS.",
       "issued_at": "2026-10-01T10:51:28Z",
       "minted_during": "interrupt",
       "caused_by": "W166",
-      "last_worked": "2026-10-01T10:51:38Z",
+      "last_worked": "2026-10-01T11:07:12Z",
       "ticks_blocked": 0
     }
   ],
@@ -3367,5 +3367,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "466772dd"
+  "predecessor_job_id": "030fa305"
 }
