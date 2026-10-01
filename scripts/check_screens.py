@@ -10,7 +10,13 @@ window's and the View background a bound surface draws). The requirement — a
 still exists, is not blank, and sits on its variant's ground — is the policy's.
 
     scripts/check_screens.py --json      # the measurement
+    scripts/check_screens.py --motion    # per animation: moving steps, fractional share of them
     scripts/check_screens.py --selftest  # the measurement can see
+
+--motion (W173): a ZERO shift is excluded from the population (operator 2026-10-01: no
+motion, no apparent flicker), so the share is fractional moving steps of MOVING steps; an
+animation with no moving step prints as WITHHELD, never as a share. WEAKNESS: it reads the
+shifts render_screens measured, so it is only as fine as that measurement's eighth-pip grid.
 
 A missing screens/ directory is reported as every still absent (the policy
 denies), because the pictures are checked in: an emitter change without a
@@ -30,13 +36,32 @@ def measure():
     return RS.measure()
 
 
+def motion(anim):
+    """(moving, fractional) step counts of one animation; a zero shift is not a step."""
+    moving = [s for s in anim.get("shifts") or [] if s != 0]
+    return len(moving), sum(1 for s in moving if s != int(s))
+
+
 def main(argv):
-    known = {"--json", "--selftest"}
+    known = {"--json", "--motion", "--selftest"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
     m = measure()
+    if "--motion" in argv:
+        anims = m.get("animations") or []
+        if not anims:
+            print("check_screens: REFUSED - no animations measured; the search is broken, not the motion clean",
+                  file=sys.stderr)
+            return 1
+        for a in anims:
+            n, f = motion(a)
+            share = f"{f / n:.2f}" if n else "WITHHELD (no moving step)"
+            print(f"  {a.get('file')}: {f} of {n} moving steps fractional = {share}; "
+                  f"period2_share {a.get('period2_share')}")
+        print(f"check_screens --motion: {len(anims)} animation(s)")
+        return 0
     if "--json" in argv:
         print(json.dumps(m, indent=1))
         return 0
