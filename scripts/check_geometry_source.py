@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_geometry_source.py — every surface reads ONE geometry, or names its own.
 
 ⚑ THE DEFECT THIS MEASURES IS THE COLOUR DEFECT ON THE SHAPE AXIS.  The design

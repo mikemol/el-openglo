@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Inheriting icon + cursor themes (⊕ICONS-INHERIT, ⊕CURSOR-INHERIT; W31).
 
 ⚑ THESE THEMES DRAW NOTHING OF THEIR OWN, AND THAT IS THE DESIGN.  An icon set

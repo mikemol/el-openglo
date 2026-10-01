@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """qt_sandbox.py — the ONE way this tree spawns a Qt tool: headless, sessionless, dumpless.
 
 ⚑ W73, MEASURED 2026-09-22 20:28 EDT.  check_ebuild's staging ran make_deb's

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_ghost_balance.py — the ghost is SOLVED, and the solve beats the scan.
 
 `cvd_gate.derive_ghost` walks 99 points along lit->ground and returns the best.

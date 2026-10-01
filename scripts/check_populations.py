@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_populations.py — does any check build its population by walking the DISK
 from the repo root?
 

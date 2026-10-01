@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_deps.py — every third-party import is accounted for in the manifest.
 
 A dependency named only in a docstring is a permission slip.  This walks the AST

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Alt+Tab window switcher emitter (⊕TASKSWITCH; W31 — ONE package since W35, ⊕ONE-THEME).
 
 A KWin/WindowSwitcher package: the task list as a phosphor departure board —

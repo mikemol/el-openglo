@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_wall_limits.py — which WALL-CLOCK limits does this tree impose on its checks? (W68)
 
 ⚑ WHY. Fourteen checks across two nights failed once inside the pre-commit gate and

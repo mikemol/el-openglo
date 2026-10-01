@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """W75 negative fixture for policy/embedded_markup.rego: an SVG DOCUMENT held in a
 string constant — the shape make_wallpaper.py had before its SVG moved to a
 template (built at module level, un-previewable, un-lintable). Never imported;

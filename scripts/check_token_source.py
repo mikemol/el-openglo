@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_token_source.py — every emission target reads the ONE palette.
 
 The design's core property: many emission targets (Plasma colours, terminal

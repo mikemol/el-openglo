@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """schemes_artifact.py — the `schemes` action's OUTPUT as one content-addressed artifact (W75).
 
 ⚑ WHY (operator, 2026-09-23: "that's why all that shit needs to be passed as build

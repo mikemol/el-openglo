@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_kerning.py — do adjacent letters bleed into one another through the pip mask? (W76)
 
 ⚑ THE REQUIREMENT IS policy/kerning.rego; THIS IS THE MEASUREMENT. The operator's

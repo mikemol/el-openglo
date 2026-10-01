@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_legibility.py — can a machine READ what the aperture field shows? (W56)
 
 Operator, 2026-09-22: "OCR models might be useful for helping optimize how we do

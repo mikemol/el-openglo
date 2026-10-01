@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_publishing.py — every emitter has a publishing row, and every KDE Store id it cites exists.
 
 ⚑ THE CLAIM.  catalog/publishing.md is a table of where each emission goes.

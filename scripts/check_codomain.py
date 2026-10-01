@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_codomain.py — the codomain map: every surface the palette reaches, or could (W42).
 
 Two halves, and only one is typed by hand:

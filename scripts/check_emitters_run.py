@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_emitters_run.py — the generators actually RUN, and what they emit IS what is tracked.
 
 ⚑ THE WITNESS THAT WOULD HAVE CAUGHT THE PARTIAL FILES.  check_compiles.py passes

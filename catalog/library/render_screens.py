@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """render_screens.py — screenshots of every surface x variant, through the theme (W52).
 
 ⚑ THESE ARE NOT MOCK-UPS. Each PNG is the emitted surface rendered by Qt under

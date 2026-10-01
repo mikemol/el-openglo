@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Shared segment-display emitter (⊕SEGMENT-SUBSTRATE).
 
 ONE geometry source under every surface. Previously the wallpaper, clock,

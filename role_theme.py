@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """role_theme — role→colour as a SOLVED assignment, emitted as data.
 
 ⚑ THE ASSIGNMENT IS ITSELF A MEASUREMENT, WHICH IS WHY A HEX LIST IS NOT THE

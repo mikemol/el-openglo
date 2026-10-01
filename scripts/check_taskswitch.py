@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_taskswitch.py — the Alt+Tab switcher package, MEASURED; policy/taskswitch.rego decides.
 
 ⚑ WHAT IS MEASURED.  make_taskswitch emits ONE KWin/WindowSwitcher package

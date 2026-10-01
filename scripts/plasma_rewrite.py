@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """plasma_rewrite.py — the Plasma-runtime rewrite BOTH headless harnesses apply.
 
 render_qml (clock, switcher, live-wallpaper, pinholes) and check_marquee_live (the

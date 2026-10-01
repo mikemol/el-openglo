@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """emitters — the generator roster, in dependency order, and how to run it.
 
 ⚑ ONE ROSTER, TWO READERS.  scripts/check_emitters_run.py (the @EMITTERS gate)
@@ -26,6 +27,12 @@ import sys
 # ⚑ NOT FOR DERIVED THIRD-PARTY WORK: make_kvantum recolours KvFlat (GPL-family,
 # upstream's licence preserved) and must never declare this.
 LICENSE_SPDX = "Apache-2.0"
+
+# The copyright holder of authored source (operator, 2026-10-01: "W169 yes, I am the
+# holder"). check_license writes `# Copyright (c) <year> <holder>` beside the SPDX line
+# through mikemol-pycodemod header, and policy/license.rego refuses a missing one.
+COPYRIGHT_HOLDER = "Mike Mol"
+COPYRIGHT_YEAR = 2026
 
 # ⚑ THE THIRD-PARTY PARTS, DECLARED ONCE: scripts/check_license.py lists them as
 # excluded from the Apache population, and make_deb.copyright_text() gives each

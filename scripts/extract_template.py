@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """extract_template.py — move an embedded artifact out of source, verbatim.
 
 ⚑ THE EXTRACTION MUST BE BYTE-EXACT, WHICH IS WHY IT IS A TOOL.  Copy-pasting an

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """qml_sanity.py — does the staged QML actually parse? (⊕QML-SANITY, rebuilt W25)
 
 ⚑ "CONTAINS THE STRING" IS NOT "PARSES".  A doubled-quote colour shipped a black

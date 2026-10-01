@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_inherit.py — the inheriting icon and cursor themes name parents that exist.
 
 ⚑ WHAT IS CHECKED.  make_inherit emits, per variant, an icon theme that draws

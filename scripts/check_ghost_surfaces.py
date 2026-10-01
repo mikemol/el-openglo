@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_ghost_surfaces.py — the ghost each SURFACE draws is the ghost the PALETTE solved.
 
 ⚑ THE DEFECT.  @GHOSTCOMP proved the palette's `fg_in`, composited at the emitted

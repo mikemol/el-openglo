@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_compiles.py — every generator in the tree byte-compiles.
 
     scripts/check_compiles.py           # the verdict, as opa_gate compiles decides it

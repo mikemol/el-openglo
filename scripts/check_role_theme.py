@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_role_theme.py — the emitted role theme is SOLVED, and it actually loads.
 
 Built for summit's `ask-cvd-graphviz-theme`. The ask wants role→colour as a data

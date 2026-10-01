@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """netlist_render — the constraint graph as a picture, and as a sequence.
 
 ⚑ THE POINT IS TO SEE HOW VALUES RESOLVE, NOT TO HAVE A DIAGRAM.  A static

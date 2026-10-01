@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Plasma Styles for the EL grid — panel, dialog, tooltip; everything else
 inherits the default theme, recolored by the bundled colors file (the
 breeze-light/-dark pattern, per develop.kde.org/docs/plasma/theme/).

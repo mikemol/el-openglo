@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """scripts — the gates, checks and generators this repo's commit path runs.
 
 ⚑ A MARKER, NOT A FACADE — no re-exports.  It exists because the borrowed hooks

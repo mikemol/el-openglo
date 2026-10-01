@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 170,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T11:43:32Z",
-  "job_id": "927750b3",
+  "heartbeat": "2026-10-01T12:12:00Z",
+  "job_id": "fc6c9819",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3378,11 +3378,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "Re-pin mikemol-pycodemod to mtools e4fe93b; make check_license --write-headers call `mikemol-pycodemod header --spdx <emitters.LICENSE_SPDX> --year 2026 --holder \"<declared holder>\" --write` over authored_sources (holder from one declared constant); retire with_header; run it (every authored file gains the copyright line); schemes/wallpapers/screens/clock keys will move - rebuild capped, record keys; check_license selftest + opa_gate license admitted",
-      "evidence": "2026-10-01: 2026-10-01 mtools:W306 LANDED (mtools e4fe93b): mikemol-pycodemod header --spdx ID --year Y [--holder NAME] [--write] FILE...; keeps shebang + PEP 263 first (our rule), completes a partial header in place, reports a wrong id and refuses it under --write (exit 1), lists shebang files after --write. Checked read-only by mtools on check_license.py, opa_gate.py, emitters.py: without --holder all complete. | 2026-10-01: 2026-10-01 operator decided W169: yes, holder \"Mike Mol\" - so the adoption passes --holder and backfills the copyright line on every authored source.",
+      "evidence": "2026-10-01: 2026-10-01 mtools:W306 LANDED (mtools e4fe93b): mikemol-pycodemod header --spdx ID --year Y [--holder NAME] [--write] FILE...; keeps shebang + PEP 263 first (our rule), completes a partial header in place, reports a wrong id and refuses it under --write (exit 1), lists shebang files after --write. Checked read-only by mtools on check_license.py, opa_gate.py, emitters.py: without --holder all complete. | 2026-10-01: 2026-10-01 operator decided W169: yes, holder \"Mike Mol\" - so the adoption passes --holder and backfills the copyright line on every authored source. | 2026-10-01: 2026-10-01 DONE: all four mtools specs re-pinned to e4fe93b531eff40fe1f36a56bbf3400b0454a1ba (one sha; uv sync swapped exactly hooks/mdstruct/pathsforward/pycodemod; pathsforward --check OK, now also prints UNSCORED n). emitters.COPYRIGHT_HOLDER=\"Mike Mol\", COPYRIGHT_YEAR=2026 beside LICENSE_SPDX. check_license.write_headers runs `mikemol-pycodemod header --spdx --year --holder --write` over authored_sources (header_argv), exit is the tool s; with_header RETIRED. Selftest drives the real tool on a temp file (shebang first, SPDX + holder line, docstring kept, idempotent) PASS. Backfill: 155 authored sources gained `# Copyright (c) 2026 Mike Mol`, exit 0; read-only re-run clean; opa license admitted. schemes/wallpapers/clock byte-identical; screens re-rendered 0 of 56 stale; keys written; template_parity 14/14; no coredumps.",
       "issued_at": "2026-10-01T11:43:32Z",
       "minted_during": "interrupt",
       "caused_by": "mtools:W306",
-      "last_worked": "2026-10-01T12:03:11Z",
+      "last_worked": "2026-10-01T12:14:32Z",
       "ticks_blocked": 0
     }
   ],
@@ -3403,5 +3403,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "2fa425df"
+  "predecessor_job_id": "927750b3"
 }

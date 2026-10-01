@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_matrix_input.py — what does a real font's glyph look like in the 5x8 matrix?
 
 ⚑ WHAT THIS IS AND IS NOT.  ⊕MATRIX-FONT-INPUT (COTYPE :4534) is "arbitrary

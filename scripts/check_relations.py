@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_relations.py — the relations are DECLARATIVE, complete, and solver-ready.
 
 ⚑ TWO COPIES OF ONE CONTENT DRIFT UNLESS SOMETHING FORBIDS IT.  `catalog/relations.md`

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """el_serial_spec.py — the ONE reading of guest/el-serial-spec.json (el-serial/1).
 
 Imported by scripts/el_serial_emit.py (the reference writer) and

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 # [RECONSTRUCTED from this session's own tool calls — later compacted session, not on-disk
 #  transcript. Faithful to the heredoc content. Verify before trusting as final.]
 """Real renderings of the segment displays in the EL Openglo phosphor aesthetic:

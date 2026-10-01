@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_selection_contrast.py — selected text stays legible on the lit backlight.
 
 THE THEME'S SIGNATURE INVERSION: selecting something switches the backlight on —

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_scope_recorded.py — the rename decision is legible where a reader meets it.
 
 A DECISION ITEM IS CLOSED WHILE DECIDED — it is not debt, and it must not block.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_st_api.py — segment_topology exports what its consumers import.
 
 THE RECOVERY'S ONE REAL GAP.  The archive's own notes call the later segment API

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_separation.py — the declared separation pairs are actually GATED.
 
 ⚑ THIS CHECK EXISTS BECAUSE ITS SUBJECT HAD NO CALLER.  `cvd_gate.audit_variant` is the

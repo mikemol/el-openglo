@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """make_css.py — the palette as CSS custom properties: the web's read of the one solve.
 
 ⚑ THE LOWEST-COMMON-DENOMINATOR SINK.  Union's input is CSS, the browser themes

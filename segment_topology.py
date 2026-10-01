@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Segment-display topology: ONE canonical 16-segment geometry; 7/9/14 are
 projections (mask + merge) of it. A glyph is a set of 16-seg segment ids.
 

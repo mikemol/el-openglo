@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """W75 negative fixture for policy/consumers.rego: a module whose TOP LEVEL fails
 when imported — the defect the gate exists for (cvd_gate's attributes absent,
 make_palette broken, nothing red because every file still byte-compiled).

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_runtime_warnings.py — runtime warnings as emit-time tripwires (W53).
 
 catalog/runtime-warnings.json holds one row per class of plasmashell/KWin stderr

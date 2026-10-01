@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_template_parity.py — an extracted template still emits the same bytes.
 
 ⚑ EXTRACTION MUST BE OUTPUT-NEUTRAL, AND SAYING SO IS NOT SHOWING IT.  Moving a

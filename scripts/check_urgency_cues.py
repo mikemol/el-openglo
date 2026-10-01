@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_urgency_cues.py — is marquee urgency VISIBLE without colour at panel size, from pixels (W72.h, W74)?
 
 check_use_of_colour proves the cues EXIST in the painter's source. It cannot prove they

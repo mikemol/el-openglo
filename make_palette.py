@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Parametric palette solver (⊕PARAMETRIC-PALETTE).
 
 The project's inversion: stop AUTHORING color values and TESTING them; instead

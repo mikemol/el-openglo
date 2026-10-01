@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_screens.py — the themed screenshots, MEASURED; policy/screens.rego decides (W52).
 
 The pictures are catalog/library/render_screens.py's; this reports, per planned

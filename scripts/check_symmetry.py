@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_symmetry.py — the display checked against its own mirrors, to LOCATE
 defects (W57).
 

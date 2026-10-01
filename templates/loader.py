@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """templates/loader.py — read an artifact from a file, substitute, return it.
 
 ⚑ WHY TEMPLATES ARE FILES.  A generator that builds SVG or QML by concatenating

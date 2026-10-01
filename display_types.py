@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Display-type abstraction (⊕DOT).
 
 A rendered character = a set of lit PRIMITIVES in a cell. Two instances:

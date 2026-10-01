@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_display_registry.py — the emitted registry IS the Python one.
 
 ⚑ THIS CHECK EXISTS BECAUSE ITS SUBJECT VANISHED AND ITS CLOSURE DID NOT.

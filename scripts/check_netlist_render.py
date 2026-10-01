@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_netlist_render.py — the netlist renders, and the picture is the graph.
 
 The constraint netlist is 21 nodes and 41 edges across four families, and reading

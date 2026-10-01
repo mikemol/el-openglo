@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_cotype_coherence.py — the design log does not contradict itself.
 
 COTYPE.md is append-only and 4,600 lines long, so its own bookkeeping drifts: a

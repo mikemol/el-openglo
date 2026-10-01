@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """SDDM greeter emitter (W66) — the segment display's FOURTH MOUNT.
 
 One SDDM theme per variant, /usr/share/sddm/themes/el-openglo-<slug>/:

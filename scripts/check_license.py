@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_license.py — MEASURE every place this project DECLARES its licence (W44).
 
 The operator relicensed the project GPL-3 -> Apache-2.0 (2026-09-22). A licence
@@ -329,19 +330,6 @@ def header_id(text):
     return None
 
 
-def with_header(text, spdx):
-    """`text` with the SPDX comment after any shebang / coding line; unchanged if it
-    already has one. A comment above the docstring leaves the docstring the module's."""
-    if header_id(text) is not None:
-        return text
-    lines = text.split("\n")
-    at = 0
-    while at < len(lines) and at < 2 and (lines[at].startswith("#!") or
-                                         re.match(r"#.*coding[:=]", lines[at])):
-        at += 1
-    return "\n".join(lines[:at] + [header_line(spdx)] + lines[at:])
-
-
 def header_facts(root, spdx, paths):
     """{population, carrying, missing, wrong} over authored_sources (W119)."""
     pop = authored_sources(root, paths)
@@ -356,22 +344,31 @@ def header_facts(root, spdx, paths):
             "missing": missing, "wrong": wrong}
 
 
+HEADER_TOOL = "mikemol-pycodemod"
+
+
+def header_argv(root, E, files, write=True):
+    """The shared header mode's argv (mtools:W306), from the ONE declared licence,
+    holder and year. The writer is mtools'; choosing the population stays ours."""
+    tool = os.path.join(os.path.dirname(sys.executable), HEADER_TOOL)
+    argv = [tool, "header", "--spdx", getattr(E, CONSTANT),
+            "--year", str(E.COPYRIGHT_YEAR), "--holder", E.COPYRIGHT_HOLDER]
+    return argv + (["--write"] if write else []) + [os.path.join(root, f) for f in files]
+
+
 def write_headers(root=None):
-    """Give every authored source missing one the header, from emitters.LICENSE_SPDX."""
+    """Give every authored source the SPDX line AND the copyright line (W170: written
+    by mikemol-pycodemod header, which completes a partial header in place and
+    REFUSES a wrong id; our own with_header is retired). Exit is the tool's."""
     root = os.path.abspath(root or ROOT)
     import emitters as E
-    spdx = getattr(E, CONSTANT)
-    n = 0
-    for rel in authored_sources(root, tracked_files(root)):
-        p = os.path.join(root, rel)
-        text = open(p, encoding="utf-8").read()
-        new = with_header(text, spdx)
-        if new != text:
-            with open(p, "w", encoding="utf-8") as fh:
-                fh.write(new)
-            n += 1
-    print(f"check_license: wrote the {spdx} header into {n} file(s)")
-    return 0
+    files = authored_sources(root, tracked_files(root))
+    if not files:
+        print("check_license: REFUSED — 0 authored sources; the search is broken", file=sys.stderr)
+        return 1
+    r = subprocess.run(header_argv(root, E, files))
+    print(f"check_license: {HEADER_TOOL} header over {len(files)} authored source(s), exit {r.returncode}")
+    return r.returncode
 
 
 def main(argv):
@@ -512,16 +509,29 @@ def _selftest():
         chk("an absent NOTICE is seen", notice_facts(d, E)["present"], False)
     chk("the real NOTICE matches its generator",
         notice_facts(ROOT, E)["matches_generated"], True)
-    # W119: the header measurement SEES a missing and a wrong header; the writer
-    # places it after the shebang and leaves the docstring the module's
+    # W119: the header measurement SEES a missing and a wrong header
     src = '#!/usr/bin/env python3\n"""doc."""\nx = 1\n'
     chk("a file with no SPDX header reads as None", header_id(src), None)
-    put = with_header(src, "Apache-2.0")
-    chk("the header goes after the shebang",
-        put.split("\n")[:2], ["#!/usr/bin/env python3", "# SPDX-License-Identifier: Apache-2.0"])
-    chk("...the docstring stays the module's", ast.get_docstring(ast.parse(put)), "doc.")
-    chk("...and writing twice is a no-op", with_header(put, "Apache-2.0"), put)
+    put = '#!/usr/bin/env python3\n# SPDX-License-Identifier: Apache-2.0\n"""doc."""\nx = 1\n'
     chk("a GPL header reads as GPL", header_id("# SPDX-License-Identifier: GPL-3.0\n"), "GPL-3.0")
+    # W170: the WRITER is mtools' shared header mode; it can SEE a bare file and fix it
+    tool = os.path.join(os.path.dirname(sys.executable), HEADER_TOOL)
+    if not os.path.isfile(tool):
+        print(f"  SKIP {HEADER_TOOL} is not installed (1 header-writer arm not run)")
+    else:
+        with tempfile.TemporaryDirectory() as d:
+            with open(os.path.join(d, "t.py"), "w") as fh:
+                fh.write(src)
+            rc = subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True).returncode
+            out = open(os.path.join(d, "t.py"), encoding="utf-8").read()
+            head = out.split("\n")[:3]
+            chk("the shared writer exits 0 on a bare file", rc, 0)
+            chk("...shebang first, then SPDX and the holder's copyright line",
+                (head[0], header_id(out), any(E.COPYRIGHT_HOLDER in ln and "Copyright" in ln for ln in head)),
+                ("#!/usr/bin/env python3", E.LICENSE_SPDX, True))
+            chk("...the docstring stays the module's", ast.get_docstring(ast.parse(out)), "doc.")
+            subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True)
+            chk("...and writing twice is a no-op", open(os.path.join(d, "t.py"), encoding="utf-8").read(), out)
     with tempfile.TemporaryDirectory() as d:
         for fn, body in (("a.py", put), ("b.py", src), ("c.py", "# SPDX-License-Identifier: MIT\n")):
             with open(os.path.join(d, fn), "w") as fh:

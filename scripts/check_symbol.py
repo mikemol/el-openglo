@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_symbol.py — the per-symbol witness for the design log's open work.
 
 ⚑ WHY THIS EXISTS.  The design log's 35 open items lived as PROSE that a reader

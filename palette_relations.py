@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """palette_relations — the palette's constraints as DECLARATIVE RELATIONS.
 
 ⚑ THIS MODULE COMPUTES NOTHING.  It states what must hold, in the shape

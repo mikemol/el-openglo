@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_hooks.py — the borrowed structural hooks pass their selftests HERE.
 
 The hooks are symlinked from the repo they were written in.  A symlinked script

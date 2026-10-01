@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """make_windows.py — the palette as a Windows .theme (W16).
 
 ⚑ WHAT A .theme CAN ACTUALLY REACH, measured from Microsoft's own format page

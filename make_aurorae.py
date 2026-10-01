@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Aurorae window decorations for the EL grid — flat, no skeuomorphism.
 
 Frame: panel-off (or lit-panel) flat borders. The active window's only

@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """templates — artifacts as FILES, with the loader that reads them.
 
 ⚑ THIS PACKAGE HOLDS ARTIFACTS, NOT CODE.  Everything beside `loader.py` is a

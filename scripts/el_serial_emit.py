@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """el_serial_emit.py — the pure-Python REFERENCE writer of el-serial/1.
 
 The guest runs guest/el-serial-emit.sh (POSIX sh + jq; there is no Python in the

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """build_graph.py — the build graph this repo HAS, derived from the tree (W61).
 
 Operator ruling, 2026-09-22: "I still see a lot of the same defects I thought I'd

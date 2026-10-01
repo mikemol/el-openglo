@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_mark.py — the trademark-scrub witness.
 
 The project was first built under a name derived from a registered trademark.

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_plymouth_digits.py — the boot splash draws the substrate's glyphs.
 
 ⚑ PLYMOUTH IS THE SURFACE THAT LOOKED DE-SILOED AND WAS NOT.  It imports

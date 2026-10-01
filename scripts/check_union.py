@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_union.py — the emitted Union styles override only what Breeze defines, with solved values.
 
 ⚑ THE CLAIM.  For every variant, make_union emits a style that imports Breeze and

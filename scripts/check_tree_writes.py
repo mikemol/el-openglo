@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_tree_writes.py — which worklist claims' checks WRITE a tracked file?
 
 ⚑ WHY (W68).  The rule is: no gated check writes the real tree. @EMITTERS'

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """render_samples.py — render the theme into catalog/library/samples/, so it can be SEEN.
 
 ⚑ WHY THIS EXISTS.  Nine emitters in this tree produce PNG or SVG, and every one

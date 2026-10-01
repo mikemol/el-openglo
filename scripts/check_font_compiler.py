@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_font_compiler.py — does the compiled font reproduce the authored segment tables?
 
 MEASUREMENT ONLY (the requirement is policy/font_compiler.rego; opa_gate joins them).

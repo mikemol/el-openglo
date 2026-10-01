@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_consumers.py — the research pipeline imports cleanly.
 
 Compiling proves syntax; IMPORTING runs the module's top level and resolves its

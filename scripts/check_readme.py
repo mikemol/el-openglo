@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_readme.py — MEASURE whether README.md covers what the tree declares (W69).
 
 README.md is a paperkit projection (paper.toml at the root, claims in

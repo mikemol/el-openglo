@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_use_of_colour.py — MEASURE, per state a painter shows, which channels carry it (W72).
 
 WCAG 2.2 SC 1.4.1: colour must not be the ONLY visual means of conveying information.

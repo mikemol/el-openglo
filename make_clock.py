@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Seven-segment panel clock plasmoid for the EL grid (Plasma 6).
 
 The clock is a mapping from time digits to the SAME seven-segment geometry the

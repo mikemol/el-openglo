@@ -54,15 +54,15 @@ tooling = [
     # ⚑ ONE mtools SHA ACROSS EVERY SPEC (mtools INSTALL.md: two `@main` specs resolve to
     # ONE commit, and it may be the wrong one; only a sha pin moves it). mdstruct was
     # unpinned `#subdirectory=` until mikemol-hooks joined it (2026-09-25, ⟐H2).
-    "mikemol-mdstruct @ git+https://github.com/mikemol/mtools.git@6ecf7672fed49c55e1dcc6b6b86942a1cdb40844#subdirectory=mdstruct",
+    "mikemol-mdstruct @ git+https://github.com/mikemol/mtools.git@e4fe93b531eff40fe1f36a56bbf3400b0454a1ba#subdirectory=mdstruct",
     # the shared git pre-push (mtools ec71fe7+): .githooks/pre-push execs its console
     # script, which runs THIS repo's .githooks/pre-push.local — replacing the symlink
     # into ../substrate (operator, via substrate: "don't use symlinks, import as packages")
-    "mikemol-hooks @ git+https://github.com/mikemol/mtools.git@6ecf7672fed49c55e1dcc6b6b86942a1cdb40844#subdirectory=hooks",
+    "mikemol-hooks @ git+https://github.com/mikemol/mtools.git@e4fe93b531eff40fe1f36a56bbf3400b0454a1ba#subdirectory=hooks",
     # ⚑ THE QUEUE'S ONE WRITER (paths-forward-loop §0; operator 2026-09-26, via nemik:
     # adoption was "missing"). .claude/paths-forward.json and .ledger are read and written
     # ONLY by .venv/bin/mikemol-paths-forward; scripts/paths_forward.py is retired (W88).
-    "mikemol-pathsforward @ git+https://github.com/mikemol/mtools.git@6ecf7672fed49c55e1dcc6b6b86942a1cdb40844#subdirectory=pathsforward",
+    "mikemol-pathsforward @ git+https://github.com/mikemol/mtools.git@e4fe93b531eff40fe1f36a56bbf3400b0454a1ba#subdirectory=pathsforward",
     # ⚑ paperkit AS A PACKAGE (operator, 2026-09-25: "Don't use substrate's bibstruct.
     # Use paperkit's." — and "paperkit exposes itself as a package"). The warrants
     # .bib is read with the SAME parser that gates it (worklist_gate.warrants ->
@@ -73,7 +73,7 @@ tooling = [
     # substrate, use mtools; substrate is getting drained into mtools, with mtools holding
     # cleaner versions"). mikemol-pycodemod is the cleanroom port (libcst REQUIRED, so a missing
     # parser fails at install rather than every mode returning a false zero). W144.
-    "mikemol-pycodemod @ git+https://github.com/mikemol/mtools.git@6ecf7672fed49c55e1dcc6b6b86942a1cdb40844#subdirectory=pycodemod",
+    "mikemol-pycodemod @ git+https://github.com/mikemol/mtools.git@e4fe93b531eff40fe1f36a56bbf3400b0454a1ba#subdirectory=pycodemod",
     "paperkit @ git+https://github.com/mikemol/paperkit.git@88792ac2deb9498b3e46ff938e28ef9a81d372bf",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST

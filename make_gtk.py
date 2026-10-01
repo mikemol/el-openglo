@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """make_gtk.py — the palette as GTK4/libadwaita CSS variables and a GTK3 @define-color sheet (⊕GTK, W17).
 
 ⚑ REBUILT.  ⊕GTK closed in session 14 (gtk/<id>/gtk{3,4}.css, every name verified

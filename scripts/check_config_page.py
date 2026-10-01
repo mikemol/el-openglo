@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_config_page.py — does each config page declare what Plasma will SET on it,
 and does every mount answer for every DISPLAY parameter?
 

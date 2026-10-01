@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_qt_sandbox.py — every Qt-tool spawn in the tree goes through qt_sandbox (W73).
 
 ⚑ WHY.  2026-09-22 20:28 EDT: check_ebuild's staging ran the render gate's

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_modes — run every declared mode of every check (W67).
 
 A warrant cites ONE invocation of a check, so a mode nobody cites (a broken

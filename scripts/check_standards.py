@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_standards.py — STANDARDS.md names modules that actually apply them.
 
 ⚑ A STANDARDS DOCUMENT IS THE EASIEST THING IN A REPO TO LET ROT.  It is prose

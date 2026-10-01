@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """Plymouth boot-splash emitter (⊕PLYMOUTH) — the EARLIEST + RICHEST seam.
 
 Seventh palette emitter. Generates a per-variant Plymouth `script`-plugin theme:

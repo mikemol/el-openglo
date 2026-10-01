@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """publish_browsers.py — build the store packages for the browser themes (W41).
 
     scripts/publish_browsers.py --chrome [--out DIR]   # dist/chrome/<variant>.zip, one per variant

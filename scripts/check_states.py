@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_states.py — the decoration STATES (focus ring, hover ring, selection field) are pairwise
 distinguishable under the gate's metric, and each clears its ground.
 

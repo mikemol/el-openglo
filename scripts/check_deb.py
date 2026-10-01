@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_deb.py — did the .deb build, does dpkg accept it, and does it carry what was staged? (W79)
 
 ⚑ THE REQUIREMENT IS policy/deb.rego; THIS IS THE MEASUREMENT. The pack is luthen's

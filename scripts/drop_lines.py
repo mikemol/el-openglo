@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """drop_lines.py — delete an inclusive line range from a file, by number.
 
 ⚑ WHY A TOOL FOR SOMETHING SO SMALL.  Removing an 87-line block by hand means

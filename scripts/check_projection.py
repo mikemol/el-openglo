@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_projection.py — how far does the font->segment projection agree with the authored tables?
 
 ⚑ WHAT THIS IS AND IS NOT.  glyph_match.validate_projection is the routine

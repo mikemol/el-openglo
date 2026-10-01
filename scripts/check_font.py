@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
 """check_font.py — the emitted fonts are fonts, carry every declared glyph, and draw the substrate.
 
 ⚑ THE CLAIM.  For each TTF make_font.OUTPUTS names: (1) fontTools opens it and
