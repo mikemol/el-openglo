@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 169,
+  "counter": 170,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T11:05:36Z",
-  "job_id": "2fa425df",
+  "heartbeat": "2026-10-01T11:43:32Z",
+  "job_id": "927750b3",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3298,11 +3298,11 @@
       "blocked_on": [],
       "blocked_kind": "agent",
       "next_bounded_step": "after W168: matrix_cases uses the W168 capture; confirm the real crop is ~5 pips wide, then wire matrix_cases() into measure() and re-run opa_gate symmetry",
-      "evidence": "2026-10-01: 2026-10-01 design (read check_marquee_live.run/stager/timeline): the literal plan measures nothing - a MID-SCROLL still sits at an arbitrary, often fractional offset that W60 temporal subpixel resamples ON PURPOSE (a mirror difference there is expected, not a defect), and a FULL-ON board mirror is the translation symmetry grid_regularity already measures. run() takes `timeline` (t, op, id, fields, shows), so one glyph can be injected. | 2026-10-01: 2026-10-01 built (check_symmetry: MATRIX_GLYPHS, first_glyph_box, matrix_cases via ML.run(hovered_args + timeline injecting the glyph as applicationName); selftest: a synthetic pip H after a second glyph crops to the first alone, mirrors clean, a removed pip is located - PASS). REAL RUN WAS VACUOUS, so NOT wired into measure(): both matrix-H and matrix-O cropped to 419x31, the whole board, and read \"symmetric\" - the hover-pause ring (W51, outer ring of pips pulsing while held) reaches the half-peak core threshold and spans the width, so the column grouping swallowed everything. | 2026-10-01: 2026-10-01 tick 3: ring exclusion added to first_glyph_box (pip bands max_gap 0, outermost band each side dropped; selftest with a lit ring PASS, and without exclusion the crop differs) + check_symmetry --matrix mode (the matrix cases alone, as json). Real crop STILL 411x23: READ catalog/library/screens/marquee-paused-EL-Amber.png (the same hovered still) - the held board shows NO TEXT, every interior pip at one ghost level, only the ring bright. With no glyph lit the half-peak core is the whole interior. The premise that the hover-hold shows the glyph is FALSE for this capture; matrix_cases stays UNWIRED.",
+      "evidence": "2026-10-01: 2026-10-01 design (read check_marquee_live.run/stager/timeline): the literal plan measures nothing - a MID-SCROLL still sits at an arbitrary, often fractional offset that W60 temporal subpixel resamples ON PURPOSE (a mirror difference there is expected, not a defect), and a FULL-ON board mirror is the translation symmetry grid_regularity already measures. run() takes `timeline` (t, op, id, fields, shows), so one glyph can be injected. | 2026-10-01: 2026-10-01 built (check_symmetry: MATRIX_GLYPHS, first_glyph_box, matrix_cases via ML.run(hovered_args + timeline injecting the glyph as applicationName); selftest: a synthetic pip H after a second glyph crops to the first alone, mirrors clean, a removed pip is located - PASS). REAL RUN WAS VACUOUS, so NOT wired into measure(): both matrix-H and matrix-O cropped to 419x31, the whole board, and read \"symmetric\" - the hover-pause ring (W51, outer ring of pips pulsing while held) reaches the half-peak core threshold and spans the width, so the column grouping swallowed everything. | 2026-10-01: 2026-10-01 tick 3: ring exclusion added to first_glyph_box (pip bands max_gap 0, outermost band each side dropped; selftest with a lit ring PASS, and without exclusion the crop differs) + check_symmetry --matrix mode (the matrix cases alone, as json). Real crop STILL 411x23: READ catalog/library/screens/marquee-paused-EL-Amber.png (the same hovered still) - the held board shows NO TEXT, every interior pip at one ghost level, only the ring bright. With no glyph lit the half-peak core is the whole interior. The premise that the hover-hold shows the glyph is FALSE for this capture; matrix_cases stays UNWIRED. | 2026-10-01: 2026-10-01 ATOMIZE W166 (top for 5 ticks) considered and NOT split: the hard part was already split out as W168 (done); what remains is one bounded step - wire matrix_cases() into measure() and re-run opa_gate symmetry.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T11:35:00Z",
+      "last_worked": "2026-10-01T11:43:32Z",
       "ticks_blocked": 0
     },
     {
@@ -3367,6 +3367,25 @@
       "caused_by": "mtools:W306",
       "last_worked": "2026-10-01T11:15:47Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W170",
+      "title": "Adopt mikemol-pycodemod header in check_license and retire with_header",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "scripts/check_license.py",
+        "pyproject.toml"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Re-pin mikemol-pycodemod to mtools e4fe93b (the one mtools sha in pyproject tooling); make check_license --write-headers call `mikemol-pycodemod header --spdx <emitters.LICENSE_SPDX> --year 2026 --write` over authored_sources (pass --holder only if W169 says yes); retire with_header, keeping header_id/header_facts as the measurement; check_license selftest + opa_gate license must stay admitted (no file should change without --holder)",
+      "evidence": "2026-10-01: 2026-10-01 mtools:W306 LANDED (mtools e4fe93b): mikemol-pycodemod header --spdx ID --year Y [--holder NAME] [--write] FILE...; keeps shebang + PEP 263 first (our rule), completes a partial header in place, reports a wrong id and refuses it under --write (exit 1), lists shebang files after --write. Checked read-only by mtools on check_license.py, opa_gate.py, emitters.py: without --holder all complete.",
+      "issued_at": "2026-10-01T11:43:32Z",
+      "minted_during": "interrupt",
+      "caused_by": "mtools:W306",
+      "last_worked": "2026-10-01T11:43:40Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -3386,5 +3405,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "030fa305"
+  "predecessor_job_id": "2fa425df"
 }

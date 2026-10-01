@@ -376,3 +376,4 @@
 2026-10-01T11:15:47Z  tick  W169 minted    unblock   "copyright-line decision recorded as a waypoint blocked on the operator (mtools W306 question)"  evidence=operator asked 2026-10-01
 2026-10-01T11:20:27Z  hash  --   diverged  --        "divergence: payload v2:b34d14957fb1c17b, file v2:1797980d7c1a0ed4; the FILE wins"
 2026-10-01T11:25:33Z  tick  W168 done      unblock   "the injected glyph is captured on the board at a whole-pip phase (19x27, 0.04 px off); H and O mirror clean; W166 can wire it"  evidence=check_symmetry --matrix: 19x27 crops, phase 0.04 px, 0 regions
+2026-10-01T11:43:40Z  tick  W170 minted    unblock   "adopt the shared pycodemod header mode (mtools:W306 landed) in place of our own with_header"  evidence=mtools e4fe93b
