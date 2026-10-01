@@ -364,3 +364,4 @@
 2026-10-01T08:28:01Z  tick  W167 done      unblock   "premise falsified: the face is centred (my misread of truncated --list); real cause is an odd row width on an even canvas, handed to W164"  evidence=check_symmetry --json: 42 regions, verticals paired off by 1 px, colon 204-216 about 210
 2026-10-01T08:41:55Z  hash  --   diverged  --        "divergence: payload v2:ac10ae48e4ddbc75, file v2:c90cee4c5d981f2a; the FILE wins"
 2026-10-01T08:47:47Z  tick  W164 done      unblock   "clock face mirrors exactly: even row width plus a whole-pixel colon; located asymmetries 30 -> 0 across W57"  evidence=check_symmetry --list 0 located; opa symmetry, qml_lint, template_parity admitted
+2026-10-01T09:08:04Z  tick  W165 advanced  unblock   "least-squares segment fit names an offender; real 8 fits all seven at 0.00 px; policy Y3/Y4 refuse offenders and absences"  evidence=check_symmetry --selftest PASS; opa 946/946; opa_gate symmetry admitted

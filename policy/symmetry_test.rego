@@ -20,6 +20,26 @@ test_mirror_regions_never_deny if {
 	count(p.deny) == 0 with input as inp
 }
 
+fit_ok := {"fit": {"ox": 4.5, "oy": 4.5, "segLen": 50}, "residuals": {"A": 0, "B": 0}, "absent": [], "offenders": []}
+
+glyph(f) := {"label": "glyph-8", "scope": "glyph", "planes": {}, "segment_fit": f}
+
+# W165: a clean fit admits
+test_y3_admits_a_clean_fit if {
+	count(p.deny) == 0 with input as object.union(good, {"cases": [glyph(fit_ok)]})
+}
+
+test_y3_refuses_a_named_offender if {
+	bad := object.union(fit_ok, {"residuals": {"A": 0, "B": 3.1}, "offenders": ["B"]})
+	"Y3: glyph-8: segment B misses the substrate fit by 3.1 px" in p.deny with input as object.union(good, {"cases": [glyph(bad)]})
+}
+
+test_y4_refuses_an_absent_segment if {
+	bad := object.union(fit_ok, {"absent": ["G"]})
+	some m in p.deny with input as object.union(good, {"cases": [glyph(bad)]})
+	startswith(m, "Y4: glyph-8")
+}
+
 test_y0_refuses_no_grid if {
 	some m in p.deny with input as {"cases": [], "grids": []}
 	startswith(m, "Y0:")

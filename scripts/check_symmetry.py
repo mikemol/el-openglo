@@ -182,6 +182,91 @@ def _cell_box(im):
     return (x0, min(ys), x1, max(ys) + 1)
 
 
+FIT_TOL = 1.0       # px: a segment whose centroid misses the fit by more is the offender
+
+
+def _unit_centres(segs):
+    """{seg: (a, b)} — each segment's centre in segLen units, from (kind, ux, uy)."""
+    return {s: ((ux + 0.5, uy) if k == "h" else (ux, uy + 0.5)) for s, (k, ux, uy) in segs.items()}
+
+
+def _solve3(m, v):
+    """Solve the 3x3 system m x = v by Cramer's rule (no numpy dependency)."""
+    def det(a):
+        return (a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
+                - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
+                + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]))
+    d = det(m)
+    if abs(d) < 1e-12:
+        return None
+    out = []
+    for i in range(3):
+        mi = [row[:] for row in m]
+        for r in range(3):
+            mi[r][i] = v[r]
+        out.append(det(mi) / d)
+    return out
+
+
+def segment_fit(im, segs, iters=4):
+    """W165: the CONSTRUCTIVE half of the oracle. Fit the rendered segments to the
+    substrate's unit coordinates by least squares — cx = ox + L·a, cy = oy + L·b over
+    every segment's centroid — and return {seg: residual px} plus the fit. A mirror
+    cannot see a defect symmetric in both planes (the WEAKNESS above); a fit to the
+    substrate can, and it NAMES the segment.
+
+    Lit core only: a pixel at least half the brightest one's luminance, so the
+    bloom halo does not drag a centroid. Each pixel goes to the segment whose line
+    is nearest under the current fit, and the fit is re-solved from the centroids.
+    WEAKNESS: the first assignment assumes the core's bbox is the digit; a segment
+    missing from the render has no centroid and is reported absent, not fitted."""
+    px = im.load()
+    lum = [[sum(px[x, y][:3]) for x in range(im.width)] for y in range(im.height)]
+    peak = max(max(r) for r in lum)
+    core = [(x, y) for y in range(im.height) for x in range(im.width) if lum[y][x] * 2 >= peak]
+    if not core:
+        return None
+    uc = _unit_centres(segs)
+    xs, ys = [p[0] for p in core], [p[1] for p in core]
+    L = (max(ys) - min(ys)) / 2.0
+    ox, oy = min(xs) + (max(xs) - min(xs) - L) / 2.0, min(ys)
+    cent = {}
+    for _ in range(iters):
+        acc = {s: [0.0, 0.0, 0] for s in segs}
+        for x, y in core:
+            best, bd = None, None
+            for s, (k, ux, uy) in segs.items():
+                x0, y0 = ox + L * ux, oy + L * uy
+                x1, y1 = (x0 + L, y0) if k == "h" else (x0, y0 + L)
+                tx = min(max(x, min(x0, x1)), max(x0, x1))
+                ty = min(max(y, min(y0, y1)), max(y0, y1))
+                d = (x - tx) ** 2 + (y - ty) ** 2
+                if bd is None or d < bd:
+                    best, bd = s, d
+            a = acc[best]
+            a[0] += x; a[1] += y; a[2] += 1
+        cent = {s: (a[0] / a[2], a[1] / a[2]) for s, a in acc.items() if a[2]}
+        # normal equations for [ox, oy, L]
+        m = [[0.0] * 3 for _ in range(3)]
+        v = [0.0] * 3
+        for s, (cx, cy) in cent.items():
+            a, b = uc[s]
+            for row, val in (([1.0, 0.0, a], cx), ([0.0, 1.0, b], cy)):
+                for i in range(3):
+                    v[i] += row[i] * val
+                    for j in range(3):
+                        m[i][j] += row[i] * row[j]
+        sol = _solve3(m, v)
+        if sol is None:
+            break
+        ox, oy, L = sol
+    resid = {s: round(((cx - (ox + L * uc[s][0])) ** 2 + (cy - (oy + L * uc[s][1])) ** 2) ** 0.5, 2)
+             for s, (cx, cy) in cent.items()}
+    return {"fit": {"ox": round(ox, 2), "oy": round(oy, 2), "segLen": round(L, 2)},
+            "residuals": resid, "absent": sorted(set(segs) - set(cent)),
+            "offenders": sorted(s for s, r in resid.items() if r > FIT_TOL)}
+
+
 def measure(cases=CASES, variant=VARIANT):
     import render_qml as RQ
     from PIL import Image
@@ -202,6 +287,9 @@ def measure(cases=CASES, variant=VARIANT):
             im = Image.open(png).convert("RGB")
             if scope == "glyph":
                 im = im.crop(_cell_box(im))
+                if text[0] == "8":                   # every segment lit: the fit sees all seven
+                    import make_clock as MC
+                    row["segment_fit"] = segment_fit(im, MC.SEGS)
             row["size"] = [im.width, im.height]
             row["planes"] = {}
             for p in planes:
@@ -329,6 +417,28 @@ def _selftest():
     chk("a fractional pitch measures more than one gap", len(g["gaps"]) > 1, True)
     chk("a blank board measures NO columns (the policy refuses it)",
         grid_regularity(Image.new("RGB", (40, 8), (0, 0, 0)), ground=(0, 0, 0))["columns"], 0)
+    # ⚑ THE FIT CAN NAME A SEGMENT (W165): seven synthetic bars on the substrate's own
+    # coordinates fit clean; shift ONE by 3 px and the fit names exactly that one
+    import make_clock as MC
+
+    def eight(shift=None, L=40, t=6, o=10):
+        img = Image.new("RGB", (L + 2 * o, 2 * L + 2 * o), (0, 0, 0))
+        for s, (k, ux, uy) in MC.SEGS.items():
+            x0, y0 = o + L * ux, o + L * uy
+            dx = 3 if s == shift else 0
+            if k == "h":
+                box = (x0 + t + dx, y0 - t // 2, x0 + L - t + dx, y0 + t // 2)
+            else:
+                box = (x0 - t // 2 + dx, y0 + t, x0 + t // 2 + dx, y0 + L - t)
+            for x in range(int(box[0]), int(box[2])):
+                for y in range(int(box[1]), int(box[3])):
+                    img.putpixel((x, y), (255, 255, 255))
+        return img
+    clean = segment_fit(eight(), MC.SEGS)
+    chk("a clean synthetic 8 fits with no offender", clean["offenders"], [])
+    chk("...and recovers its segLen", abs(clean["fit"]["segLen"] - 40) < 1, True)
+    bent = segment_fit(eight(shift="B"), MC.SEGS)
+    chk("a segment shifted 3 px is NAMED by the fit", bent["offenders"], ["B"])
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 

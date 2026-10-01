@@ -47,6 +47,32 @@ deny contains msg if {
 	msg := sprintf("Y2: %s (%s): gaps %v — the grid is not one pitch", [g.label, g.variant, g.gaps])
 }
 
+# METADATA
+# title: "Y3 — every rendered segment sits on the substrate's coordinates"
+# description: |
+#   W165: the glyph-8 render's segments are fitted by least squares to the
+#   substrate's unit coordinates (cx = ox + L·a, cy = oy + L·b). Unlike a mirror
+#   region this is not diagnostic: an offender is a NAMED segment whose centroid
+#   misses the fit by more than a pixel, which no symmetric-in-both-planes defect
+#   can hide from.
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	f := object.get(c, "segment_fit", null)
+	is_object(f)
+	some s in object.get(f, "offenders", [])
+	msg := sprintf("Y3: %s: segment %s misses the substrate fit by %v px", [c.label, s, f.residuals[s]])
+}
+
+# METADATA
+# title: "Y4 — an all-lit glyph shows every segment"
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	f := object.get(c, "segment_fit", null)
+	is_object(f)
+	count(object.get(f, "absent", [])) > 0
+	msg := sprintf("Y4: %s: segment(s) %v absent from an all-lit render", [c.label, f.absent])
+}
+
 withheld contains msg if {
 	some g in input.grids
 	is_string(object.get(g, "withheld", null))
