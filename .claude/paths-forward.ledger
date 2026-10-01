@@ -422,3 +422,4 @@
 2026-10-01T20:12:25Z  hash  --   diverged  --        "divergence: payload v2:4c305ed1a8a342da, file v2:ee0018e5fa9e373b; the FILE wins"
 2026-10-01T20:12:44Z  tick  W120 atomized  collapse  "split W120 into W190 class table (operator confirms), W191 check_bespoke measurement, W192 bespoke.rego; W190 is the working card"  evidence=W190-W192 in state file
 2026-10-01T20:22:58Z  tick  W190 advanced  unblock   "class table drafted (catalog/bespoke-classes.md): 16 kinds, 3 operator questions; working card moves to W140"  evidence=catalog/bespoke-classes.md
+2026-10-01T20:39:34Z  tick  W140 done      unblock   "gate_ledger symlink retired: nothing called it (5 hooks + all .py searched); the hook writes .gate-outcomes.tsv inline and the installed mikemol-gate-ledger reads it with --ledger"  evidence=check_hooks --list 5 of 112 borrowed; opa_gate hooks admitted

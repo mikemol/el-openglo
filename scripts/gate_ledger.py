@@ -1,1 +1,0 @@
-../../substrate/scripts/gate_ledger.py

@@ -95,8 +95,10 @@ stays 3 — nothing was judged. The first rule must treat an ABSENT population a
 
 `scripts/hook_no_chaining.py`, `hook_structural_query.py`, `hook_cmdparse.py` (the
 tokenizer both hooks import — `scripts/__init__.py` exists so that `from scripts import
-hook_cmdparse` resolves against THIS tree), `ratchet.py`, `gate_ledger.py` and
-`run_selftests.py` point into `../../substrate/`. **Editing one edits substrate.** Change it there and run BOTH repos'
+hook_cmdparse` resolves against THIS tree), `ratchet.py` and `run_selftests.py`
+point into `../../substrate/`. (`gate_ledger.py` is retired, W140: the pre-commit `run()`
+writes `.gate-outcomes.tsv` itself, and the installed reader is
+`.venv/bin/mikemol-gate-ledger --ledger .gate-outcomes.tsv --report|--order`.) **Editing one edits substrate.** Change it there and run BOTH repos'
 selftests. `scripts/check_hooks.py --list` shows where each resolves.
 
 `.githooks/pre-push` is NOT a symlink any more (2026-09-25): it execs the installed
