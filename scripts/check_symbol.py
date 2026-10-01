@@ -485,7 +485,8 @@ CLOSED = {
                 _reads("templates/ApertureField.qml", r"(?m)^\s*property real offsetY") and
                 _reads("templates/ApertureField.qml", r"(?m)^\s*property real gamma") and
                 _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
-                _reads("templates/marquee-main.qml", r'target:\s*field;\s*property:\s*"offset"') and
+                # scrolls by offset: since W187 the FrameAnimation writes field.offset per frame
+                _reads("templates/marquee-main.qml", r"(?m)^\s*field\.offset\s*=\s*next;") and
                 _reads("catalog/relations.md", r"(?m)^### 5b\. A pip's brightness") and
                 _reads("templates/marquee-body.js", r"(?m)^function seriesToColumns\(") and
                 _tool("opa_gate.py", "aperture")),
@@ -638,8 +639,10 @@ CLOSED = {
                 # s103 (operator's trace): rows are CAPTURED on rowsInserted — the
                 # real model removes a lone notification before countChanged arrives
                 _reads("templates/marquee-main.qml", r"(?m)^\s*onRowsInserted:") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*loops:\s*1\b") and
-                _reads("templates/marquee-main.qml", r"onFinished:\s*\{[^}]*swapRing\(\)") and
+                # W187: the rotation is a FrameAnimation (a fixed pips-per-frame step); ONE
+                # run is the offset reaching `to`, where complete() stops it and swaps
+                _reads("templates/marquee-main.qml", r"(?m)^\s*FrameAnimation\s*\{") and
+                _reads("templates/marquee-main.qml", r"function complete\(\)\s*\{[^}]*rotation\.stop\(\);[^}]*swapRing\(\)") and
                 _reads("templates/marquee-main.qml", r"(?m)^\s*function startRun\(\)") and
                 not _reads("templates/marquee-main.qml", r"(?m)^\s*running:\s*marquee") and
                 # W45: the summary is PLAIN, the body is markup — one join in the .js

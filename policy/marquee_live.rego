@@ -52,10 +52,24 @@ shown_after(e) if {
 	contains(s.text, e.shows) # a ring may carry several items; the board's text contains this one
 }
 
+# ⚑ SUPERSEDED BEFORE SHOWN (W178/W187; operator 2026-10-01). A text replaced before
+# the board ever reached it has no visible old text to roll away (W183), so the board
+# owes the reader only the CURRENT text of that id. The excuse is narrow: a LATER
+# replace of the SAME id, which L2 still judges in its own right — a replace that never
+# shows is denied, and an arrival that is merely expired is not excused.
+superseded(e) if {
+	some f in input.events
+	f.id == e.id
+	f.op == "replace"
+	f.t > e.t
+	f.shows != ""
+}
+
 deny contains msg if {
 	some e in input.events
 	e.shows != ""
 	not shown_after(e)
+	not superseded(e)
 	msg := sprintf("L2: %s of id %v at t=%v: %q never reached the board", [e.op, e.id, e.t, e.shows])
 }
 

@@ -31,6 +31,27 @@ test_admits_clean if {
 	count(ml.withheld) == 0 with input as clean
 }
 
+# W187: id 2 arrives as "app: two" and is replaced before the board reaches it
+superseded_events := array.concat(clean.events, [{"t": 1650, "op": "replace", "id": 2, "shows": "app: two — new"}])
+
+test_l2_admits_a_text_superseded_before_shown if {
+	samples := array.concat(clean.samples, [{"t": 1800, "text": "app: two — new", "x": 300, "running": true, "count": 1}])
+	inp := object.union(clean, {"events": superseded_events, "samples": samples})
+	count([m | some m in ml.deny with input as inp; startswith(m, "L2:")]) == 0
+}
+
+test_l2_refuses_a_superseding_replace_that_never_shows if {
+	inp := object.union(clean, {"events": superseded_events})
+	some msg in ml.deny with input as inp
+	startswith(msg, "L2: replace of id 2")
+}
+
+test_l2_refuses_an_unshown_arrival_that_only_expires if {
+	evs := array.concat(clean.events, [{"t": 1650, "op": "arrive", "id": 3, "shows": "app: three"}, {"t": 1660, "op": "expire", "id": 3, "shows": ""}])
+	some msg in ml.deny with input as object.union(clean, {"events": evs})
+	startswith(msg, "L2: arrive of id 3")
+}
+
 test_l0_refuses_no_samples if {
 	some msg in ml.deny with input as object.union(clean, {"samples": []})
 	startswith(msg, "L0:")

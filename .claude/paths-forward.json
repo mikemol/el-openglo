@@ -3752,7 +3752,7 @@
     {
       "symbol": "W187",
       "title": "Re-apply the FrameAnimation port (scratchpad/w178/frameanimation-port.diff) with L2 judging a replaced-before-shown item by id",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W183",
         "W178"
@@ -3768,7 +3768,7 @@
       "issued_at": "2026-10-01T19:05:18Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T19:05:30Z",
+      "last_worked": "2026-10-01T19:20:47Z",
       "ticks_blocked": 0,
       "completed": null
     },

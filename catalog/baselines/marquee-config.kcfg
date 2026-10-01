@@ -11,8 +11,11 @@
   <!-- pitch: a fraction of the panel-derived pitch -->
   <entry name="pitchScale" type="Double"><default>1.0</default></entry>
   <!-- MOUNT layer: this marquee's own -->
-  <!-- scroll speed as a factor on the length-scaled duration: 1 = the authored pace -->
-  <entry name="speed" type="Double"><default>1.0</default></entry>
+  <!-- scroll speed: the WHOLE pips the board advances per frame (W178). Each frame moves
+       speed + 1/phi pips, so the step's fraction is 0.618 at every setting, panel height
+       and refresh rate - never a whole or half pip (operator 2026-10-01: >= 2/3 of steps
+       fractional; a half-pip see-saw refused). An old fractional value is rounded. -->
+  <entry name="speed" type="Double"><default>2</default></entry>
   <!-- shown lit on the field when there is nothing to scroll; empty = the bare field -->
   <entry name="idleText" type="String"><default></default></entry>
   <entry name="maxItems" type="Int"><default>12</default></entry>

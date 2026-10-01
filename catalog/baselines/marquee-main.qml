@@ -35,8 +35,14 @@ PlasmoidItem {
     // ⚑ THE SETTINGS (W34 c). Each reads plasmoid.configuration with the solved or
     // authored value as the fallback, so an unconfigured widget draws exactly
     // what the palette emitted; a slider is an override, never the source.
-    property real cfgSpeed: (plasmoid.configuration.speed === undefined) ? 1.0
+    property real cfgSpeed: (plasmoid.configuration.speed === undefined) ? 2
                             : plasmoid.configuration.speed
+    // ⚑ THE STEP, IN PIPS PER FRAME (W178). QML exposes no refresh rate (measured: Screen
+    // has no refreshRate), and a duration-based animation's per-frame step moved with the
+    // panel height and the refresh rate, so it could not hold a step fraction. The board
+    // advances whole(speed) + 1/phi pips per frame instead: the fraction is 0.618 at every
+    // setting on every display (operator: >= 2/3 of steps fractional, no half-pip see-saw).
+    readonly property real stepPips: Math.max(1, Math.round(root.cfgSpeed)) + (Math.sqrt(5) - 1) / 2
     property real cfgPitchScale: (plasmoid.configuration.pitchScale === undefined) ? 1.0
                                  : plasmoid.configuration.pitchScale
     property real cfgDotFill: (plasmoid.configuration.dotFill === undefined) ? 0.82
@@ -666,23 +672,33 @@ PlasmoidItem {
         }
         // ⚑ ONE ROTATION PER RUN, and the ring swaps at its END. A finite run that
         // restarts itself is where "a full rotation" is a real event.
-        NumberAnimation {
+        // ⚑ A FRAME ANIMATION, NOT A DURATION (W178): each frame advances the offset by
+        // root.stepPips pips (field.scale backdrop px per pip), so the per-frame step is
+        // the same fraction on every display. from / to are SET by startRun; the run
+        // ends when the offset reaches `to`, exactly as the NumberAnimation's finish did.
+        FrameAnimation {
             id: rotation
-            target: field; property: "offset"
-            // from / to are SET by startRun (see above); nothing binds them.
-            // speed scales with length so long feeds don't crawl; the settings'
-            // speed factor divides the duration
-            duration: Math.max(1500, (rep.width + rep.textWidth) * 12 / root.cfgSpeed)
-            loops: 1
-            onRunningChanged: root.boardRunning = running
-            onPausedChanged: root.boardPaused = paused && root.captureSteps === 0
-            onFinished: {
+            property real from: 0
+            property real to: 0
+            running: false
+            onTriggered: {
+                if (root.captureSteps > 0) return;           // R9: the harness steps the run
+                var next = field.offset + root.stepPips * field.scale;
+                if (next >= rotation.to) { rotation.complete(); return; }
+                field.offset = next;
+            }
+            // the run's end: the offset at `to`, the animation stopped, the ring swapped
+            function complete() {
+                field.offset = rotation.to;
+                rotation.stop();
                 root.trace("finished x=" + root.boardRawX);
                 root.swapRing();
                 // the next run starts after this one has fully returned; if the
                 // ring drained, the ticker is empty and startRun declines
                 Qt.callLater(rep.startRun);
             }
+            onRunningChanged: root.boardRunning = running
+            onPausedChanged: root.boardPaused = paused && root.captureSteps === 0
         }
 
         property real matrixHeight: root.matrix.rows * pitch

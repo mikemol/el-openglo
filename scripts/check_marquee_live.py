@@ -332,7 +332,11 @@ def subject(hover_pause=False, variant=VARIANT):
     qml, kcfg, files = _emitted()
     import plasma_rewrite as PR
     config = PR._kcfg_defaults(kcfg)
-    config["speed"] = 8.0        # a rotation ~1.5 s on the 420 px board
+    # W178: speed is the WHOLE pips per frame (the widget adds 1/phi). The TIMELINE was
+    # built around a ~1.5 s rotation, so the harness runs 4 (4.618 pips/frame): a faster
+    # whole part, the SAME 0.618 step fraction a user's board takes at any setting.
+    # (It once forced 8.0, a duration factor, when the motion was duration-based.)
+    config["speed"] = 4
     config["hoverPause"] = hover_pause
     config["debugLog"] = True         # the widget's own trace lines ride on stderr
     return qml, config, make_preview.parse_scheme(variant)["ground"], dict(files)

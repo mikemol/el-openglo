@@ -33,7 +33,8 @@ $displayDecls
     property string cfg_traceLogDefault
     Kirigami.FormLayout {
 $displayControls
-        QQC2.Slider { id: speedSlider; from: 0.25; to: 4.0; stepSize: 0.25; Kirigami.FormData.label: "Scroll speed:" }
+        // whole pips per frame (W178): the widget adds 1/phi, so every setting keeps a 0.618 step fraction
+        QQC2.Slider { id: speedSlider; from: 1; to: 4; stepSize: 1; snapMode: QQC2.Slider.SnapAlways; Kirigami.FormData.label: "Scroll speed:" }
         QQC2.TextField { id: idleText; Kirigami.FormData.label: "Idle text:"; placeholderText: "(empty: bare field)" }
         QQC2.SpinBox { id: maxItems; from: 1; to: 50; Kirigami.FormData.label: "Notifications shown:" }
         QQC2.CheckBox { id: openLinks; Kirigami.FormData.label: "Open links on click:" }
