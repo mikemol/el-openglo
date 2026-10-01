@@ -2842,8 +2842,8 @@
     },
     {
       "symbol": "W146",
-      "title": "Shorten the done titles W7 to W35 (25)",
-      "status": "working",
+      "title": "Shorten the done titles W7 to W35 (22)",
+      "status": "done",
       "enables": [
         "W145"
       ],
@@ -2852,12 +2852,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close (done) once this commit lands.",
+      "next_bounded_step": "",
       "evidence": "2026-10-01: 2026-09-30: 22 of 22 done titles in W7-W35 retitled to one clause (each former title appended to its own evidence first; apply script refuses a new title that still trips the rule). Lister: flagged 91 -> 69 (41 live, 28 done); none left in W7-W35. The scratchpad was wiped by a session restart, so the drafts were recreated from the conversation.",
       "issued_at": "2026-09-29T01:56:23Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T03:17:29Z",
+      "last_worked": "2026-10-01T03:28:12Z",
       "ticks_blocked": 0
     },
     {
