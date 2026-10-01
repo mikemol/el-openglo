@@ -3129,7 +3129,7 @@
     {
       "symbol": "W158",
       "title": "Remove the gpu=True and EL_QT_GPU render path, now that the Mesa route serves every render",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W98"
       ],
@@ -3145,13 +3145,13 @@
       "issued_at": "2026-10-01T04:56:08Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-10-01T05:18:41Z",
+      "last_worked": "2026-10-01T05:28:29Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W159",
       "title": "Take qt_sandbox.py out of the screenshots cache key, so a sandbox change stops invalidating them",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W98"
       ],
@@ -3166,7 +3166,7 @@
       "issued_at": "2026-10-01T04:56:08Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": null,
+      "last_worked": "2026-10-01T05:28:29Z",
       "ticks_blocked": 0
     }
   ],
