@@ -781,7 +781,7 @@
     {
       "symbol": "W42",
       "title": "The codomain map: a checked census of every surface the palette can reach",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "catalog",
@@ -793,7 +793,7 @@
       "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
       "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools. | 2026-09-28: 2026-09-28 REUSE before build (life-0e): aeternum:W61 shipped check_codomain at c99794e (~/github/aeternum/scripts/check_codomain.py, read). ADOPT ITS RULES: status in {emitted, contract read, unmeasured}; emitted names >=1 backticked path, each existing and non-empty; non-emitted names none (a path there is an unstated claim). DIFFERS, recorded: this repo check shape needs --selftest, unknown-flag refusal, n-of-m + empty-population refusal, --json with rules in policy/codomain.rego (opa_gate), and a structural table read (mdstruct), none of which it has; it parses rows textually. So port the rules, not the file; if both repos converge, offer the rego+measurement pair on summit as the shared capability (aeternum:W61 cited). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): THE CODOMAIN MAP (operator 2026-09-22: 'map out the codomain and make EL Openglo the stylistic equivalent of Kleenex'). A CENSUS of every surface a palette + segment/matrix substrate can reach, each with its CONTRACT (what it consumes: colour roles, fonts, meshes, shaders, CSS variables, ANSI tables, SVG, config keys), its VENUE (where it is published), its LICENCE expectation (GPLv3 is right for the desktop theme; engine assets and palettes are adopted under CC0/CC-BY/MIT — a licence split is an operator decision that gates reach), and its STATUS (emitted / contract read / unmeasured). Families: desktops (Plasma DONE; GNOME Shell/libadwaita partial; Xfce/Sway/Hyprland/waybar unmeasured; Windows .theme DONE; macOS none), browsers (Chrome/Firefox DONE, publishing W41), terminals (5 DONE; iTerm2, Windows Terminal DONE, kitty/wezterm/tmux unmeasured), editors (VS Code, JetBrains, Vim/Neovim, Emacs, Sublime, Zed — none; a colour theme per editor is a small JSON/VimL emission off the ANSI+roles table), shells/prompts (starship, oh-my-posh), chat/apps (Discord/Slack custom CSS, Obsidian), web (CSS vars DONE; a Tailwind preset; a design-token file — W3C DTCG JSON is the interchange), mobile (Android Monet DONE; iOS none), engines (W42), hardware (RGB keyboards via OpenRGB profiles; LED matrix signs — the matrix tables ARE the firmware's), print (a swatch card PDF), design tools (Figma/Penpot palette libraries; the DTCG token file feeds them). The map is a DOCUMENT with a CHECK, like catalog/publishing.md + check_publishing: catalog/codomain.md with one row per target and a tool that refuses a row missing its contract or status",
       "issued_at": "2026-09-21T17:57:24+00:00",
-      "last_worked": "2026-10-01T04:03:56Z",
+      "last_worked": "2026-10-01T06:33:32Z",
       "ticks_blocked": 0
     },
     {
@@ -2241,7 +2241,7 @@
     {
       "symbol": "W119",
       "title": "W112.3 SPDX-License-Identifier: Apache-2.0 headers on authored source (mtools precedent), applied structurally (pycodemod), with check_license reporting n of m authored files carrying the header and refusing a missing one",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W112"
       ],
@@ -2252,11 +2252,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29: \"applied structurally (pycodemod)\" now means the MTOOLS pycodemod (operator: use mtools, not substrate), which W144 installs; blocked on it. | 2026-10-01: SPDX headers: check_license header_facts (tracked non-symlink non-third-party *.py; n of m) + --write-headers (id from emitters.LICENSE_SPDX, after shebang/coding, docstring kept, idempotent; selftest PASS); policy L6 deny missing/wrong/empty + withheld unmeasured (opa 931/931); gate DENIED 152 before, admitted after writing 152 files; schemes/wallpapers rebuilt byte-identical, screens re-rendered, action keys rewritten; pycodemod has no header-writing mode (writer lives here; mtools letter). run_selftests (substrate symlink) broken: No module mikemol.ratchet",
+      "evidence": "2026-09-29: 2026-09-29: \"applied structurally (pycodemod)\" now means the MTOOLS pycodemod (operator: use mtools, not substrate), which W144 installs; blocked on it. | 2026-10-01: SPDX headers: check_license header_facts (tracked non-symlink non-third-party *.py; n of m) + --write-headers (id from emitters.LICENSE_SPDX, after shebang/coding, docstring kept, idempotent; selftest PASS); policy L6 deny missing/wrong/empty + withheld unmeasured (opa 931/931); gate DENIED 152 before, admitted after writing 152 files; schemes/wallpapers rebuilt byte-identical, screens re-rendered, action keys rewritten; pycodemod has no header-writing mode (writer lives here; mtools letter). run_selftests (substrate symlink) broken: No module mikemol.ratchet | 2026-10-01: mtools-3d 2026-10-01: header mode minted as mtools:W306 (reads this writer + linux-sources codemod_header.py, records divergence before proposing one pycodemod --write/--check); run_selftests.py retires under W139 pytest skeleton (recorded on mtools:W302)",
       "issued_at": "2026-09-28T18:56:42Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-10-01T06:24:06Z",
+      "last_worked": "2026-10-01T06:33:31Z",
       "ticks_blocked": 0
     },
     {
@@ -2703,11 +2703,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit)",
+      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit) | 2026-10-01: mtools-3d 2026-10-01: scripts/run_selftests.py (substrate symlink, dies on mikemol.ratchet) retires here: each selftest moves to tests/test_<module>.py, pytest is the runner",
       "issued_at": "2026-09-28T22:40:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T06:02:50Z",
+      "last_worked": "2026-10-01T06:33:31Z",
       "ticks_blocked": 0
     },
     {
