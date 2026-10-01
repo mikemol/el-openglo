@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 179,
+  "counter": 181,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -1352,18 +1352,21 @@
     {
       "symbol": "W71",
       "title": "Guest boot image for the VM probes: Plasma 6, SDDM and plymouth with our themes",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W70"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W180",
+        "W181"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "W71f option (b), no jq needed: in worktree agent-a330b44b42000d0ed write a Python reference emitter for el-serial/1 (same frames as guest/el-serial-emit.sh), generate catalog/fixtures/serial/*.log from it, rerun read_serial --selftest; the sh+jq round trip stays a counted SKIP on this host. Then tighten guest-image.md el-serial/1 and land the files on main.",
+      "next_bounded_step": "Umbrella: after W180 and W181 land the serial reader, the next guest-image step is the image build itself (distro base, theme ingress, digest).",
       "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context).",
       "issued_at": "2026-09-22T22:21:36+00:00",
-      "last_worked": "2026-10-01T17:37:50Z",
+      "last_worked": "2026-10-01T17:53:18Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -3589,6 +3592,52 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T17:22:24Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W180",
+      "title": "Python reference emitter for el-serial/1 generates the missing serial fixtures so read_serial --selftest passes",
+      "status": "ready",
+      "enables": [
+        "W71"
+      ],
+      "touches": [
+        "guest-image",
+        "el-serial"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "In worktree agent-a330b44b42000d0ed: read guest/el-serial-emit.sh and read_serial.py _selftest (which fixture names it opens), write the Python emitter beside read_serial, generate catalog/fixtures/serial/*.log, rerun read_serial --selftest to exit 0 with the jq round trip as a counted SKIP.",
+      "evidence": "",
+      "issued_at": "2026-10-01T17:53:09Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T17:53:18Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W181",
+      "title": "Land the W71f serial files (read_serial, check_serial, serial.rego, guest emitter) on main with a tightened el-serial/1 spec",
+      "status": "blocked",
+      "enables": [
+        "W71"
+      ],
+      "touches": [
+        "guest-image",
+        "el-serial"
+      ],
+      "blocked_on": [
+        "W180"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W180: re-derive the el-serial/1 ambiguities by reading catalog/guest-image.md against read_serial.py (the agent list was lost), tighten the spec, copy the files to main, add a warrant citing opa_gate serial, commit.",
+      "evidence": "",
+      "issued_at": "2026-10-01T17:53:09Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T17:53:18Z",
       "ticks_blocked": 0,
       "completed": null
     }
