@@ -1090,7 +1090,7 @@
     {
       "symbol": "W57",
       "title": "Planes of symmetry as an oracle: check each display against its own mirror",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W33"
       ],
@@ -1106,7 +1106,7 @@
       "next_bounded_step": "face-0000 h: 6 regions, each a 7x50 px column at a digit edge (x 23-30, 63-70, 132-139 ... 281-288): the MOUNT, not the glyph - digit pitch/kerning or colon centring in clock-main.qml off by a pixel against the face centre; snap the Row spacing and colon slot the way the segment was snapped, then re-run. Then the least-squares fit of rendered extents against the substrate coordinates, and the oracle on the MATRIX (W59)",
       "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that. | 2026-09-26: 2026-09-27: edge retrofit — touches segment_topology with W43 (engine assets); REJECTED, shared module only. No edge added (W57's real edge, enables W33, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two. | 2026-10-01: corners fixed 2026-10-01: SegmentChar Segment stroke snapped to an even integer t and gap to an integer (fractional stroke/gap left each rect to scene-graph rounding: corner boxes 47-51 where 9-13 mirrors to 46-50). check_symmetry: glyph-8 h/v and glyph-0 h/v all symmetric (nothing over the 12 noise floor), located asymmetries 30 -> 6 (all face-0000 = the mount). qml_lint admitted 12/12; plasma-clock regenerated; 19 of 56 screens (the SegmentChar mounts) re-rendered, schemes/wallpapers rebuilt byte-identical, keys written; no coredumps",
       "issued_at": "2026-09-22T11:44:18+00:00",
-      "last_worked": "2026-10-01T07:25:11Z",
+      "last_worked": "2026-10-01T07:39:22Z",
       "ticks_blocked": 0
     },
     {
