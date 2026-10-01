@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 150,
+  "counter": 157,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T03:39:47Z",
   "job_id": "9e9b1cae",
@@ -605,7 +605,7 @@
     },
     {
       "symbol": "W33",
-      "title": "⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
+      "title": "Port the shipped segment surfaces onto the one SegmentChar component",
       "status": "blocked",
       "enables": [],
       "touches": [
@@ -620,9 +620,9 @@
       "blocked_kind": "agent",
       "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
       "next_bounded_step": "Axis 2 (boundary depth): SegmentChar's texture() tool is now trustworthy (fixed L>=0.5 threshold, monotonic in litGradient - re-swept 0/0.15/0.25/0.35/0.5/0.65/0.8 -> texture 0.0021/0.0019/0.0052/0.0104/0.0213/0.0215/0.0236, essentially monotonic past the first tiny dip which is render noise at near-zero amplitude). litGradient=0.35 sits on the rising part of the curve, not saturated at either end - kept as shipped (a picked amplitude, like font_compiler.DECLARED's exceptions: stated, not mechanically solved, because no external perceptual target exists to search against - inventing one would be an unfalsifiable number). Move to axis 2: boundary depth (how far a segment's rounded cap fades before the tip, if at all) - same centre-fed/mirror-invariance discipline as axis 1, checked against opa_gate symmetry before landing.",
-      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override.",
+      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-09-27T15:57:33Z",
+      "last_worked": "2026-10-01T04:03:54Z",
       "ticks_blocked": 1
     },
     {
@@ -669,7 +669,7 @@
     },
     {
       "symbol": "W36",
-      "title": "PHOSPHOR CURSORS (operator 2026-09-22: 'isn't the cursor supposed to inherit something related to the color scheme?'): cursors cannot follow the colour scheme by inheritance (fixed images), but the host has /usr/share/icons/breeze_cursors/cursors_scalable/ (SVG sources) — an EL cursor set is a DERIVATION: recolour the SVGs from the palette (lit for the arrow fill? ground for the outline?) and build with xcursorgen per size. Cheap to measure first: how many SVGs, which colours they use (a census), whether xcursorgen is installed (x11-apps/xcursorgen)",
+      "title": "Phosphor cursors: recolour Breeze's SVG cursors from the palette",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -680,14 +680,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "OPERATOR RULED (2026-09-23): the Lit variants keep a dark rim around a light body (the palette lit token). No change. Open: the optional ghost layer, and an animated wait cursor.",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): PHOSPHOR CURSORS (operator 2026-09-22: 'isn't the cursor supposed to inherit something related to the color scheme?'): cursors cannot follow the colour scheme by inheritance (fixed images), but the host has /usr/share/icons/breeze_cursors/cursors_scalable/ (SVG sources) — an EL cursor set is a DERIVATION: recolour the SVGs from the palette (lit for the arrow fill? ground for the outline?) and build with xcursorgen per size. Cheap to measure first: how many SVGs, which colours they use (a census), whether xcursorgen is installed (x11-apps/xcursorgen)",
       "issued_at": "2026-09-21T14:52:08+00:00",
-      "last_worked": "2026-09-23T17:54:46+00:00",
+      "last_worked": "2026-10-01T04:03:55Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W37",
-      "title": "PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own?",
+      "title": "Plasma 6.7 legacy themes: an Oxygen flavour per variant, and whether Oxygen and Air follow the scheme",
       "status": "ready",
       "enables": [],
       "touches": [],
@@ -695,9 +695,9 @@
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Oxygen flavour: the LnF defaults choose ColorScheme + engine (widgetStyle/decoration); design in catalog/one-theme.md, LnF section, then emit EL-Oxygen as an LnF variant whose defaults select the Oxygen engines (org.kde.oxygen widget style + decoration) with the EL scheme; measure that oxygen reads the scheme roles the way Breeze does (s95). After W35 (5).",
-      "evidence": "a4e7b59: measured on the host (COTYPE s95): oxygen/air Plasma Styles carry fixed colors files; org.kde.oxygen defaults name widgetStyle=oxygen, ColorScheme=OxygenDark, icons oxygen, plasma theme oxygen, cursors Oxygen_Black, decoration org.kde.oxygen, Horos. The scheme-reading engines are already EL's; an Oxygen flavour is an LnF defaults choice. Build deferred to W35's shape (one LnF with an engine choice vs six more).",
+      "evidence": "a4e7b59: measured on the host (COTYPE s95): oxygen/air Plasma Styles carry fixed colors files; org.kde.oxygen defaults name widgetStyle=oxygen, ColorScheme=OxygenDark, icons oxygen, plasma theme oxygen, cursors Oxygen_Black, decoration org.kde.oxygen, Horos. The scheme-reading engines are already EL's; an Oxygen flavour is an LnF defaults choice. Build deferred to W35's shape (one LnF with an engine choice vs six more). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own?",
       "issued_at": "2026-09-21T14:52:17+00:00",
-      "last_worked": "2026-09-21T21:50:14+00:00",
+      "last_worked": "2026-10-01T04:03:55Z",
       "ticks_blocked": 0
     },
     {
@@ -758,7 +758,7 @@
     },
     {
       "symbol": "W41",
-      "title": "BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
+      "title": "Browser publishing pipeline: signed Firefox and Chrome Web Store packages",
       "status": "blocked",
       "enables": [],
       "touches": [
@@ -773,14 +773,14 @@
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W134 Chrome zips, W135 Firefox dynamic-theme extension, W136 AMO signing (operator keys), W137 Chrome Web Store listing (operator registration) land.",
-      "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration.",
+      "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
       "issued_at": "2026-09-21T17:49:03+00:00",
-      "last_worked": "2026-09-29T00:23:17Z",
+      "last_worked": "2026-10-01T04:03:55Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W42",
-      "title": "THE CODOMAIN MAP (operator 2026-09-22: 'map out the codomain and make EL Openglo the stylistic equivalent of Kleenex'). A CENSUS of every surface a palette + segment/matrix substrate can reach, each with its CONTRACT (what it consumes: colour roles, fonts, meshes, shaders, CSS variables, ANSI tables, SVG, config keys), its VENUE (where it is published), its LICENCE expectation (GPLv3 is right for the desktop theme; engine assets and palettes are adopted under CC0/CC-BY/MIT — a licence split is an operator decision that gates reach), and its STATUS (emitted / contract read / unmeasured). Families: desktops (Plasma DONE; GNOME Shell/libadwaita partial; Xfce/Sway/Hyprland/waybar unmeasured; Windows .theme DONE; macOS none), browsers (Chrome/Firefox DONE, publishing W41), terminals (5 DONE; iTerm2, Windows Terminal DONE, kitty/wezterm/tmux unmeasured), editors (VS Code, JetBrains, Vim/Neovim, Emacs, Sublime, Zed — none; a colour theme per editor is a small JSON/VimL emission off the ANSI+roles table), shells/prompts (starship, oh-my-posh), chat/apps (Discord/Slack custom CSS, Obsidian), web (CSS vars DONE; a Tailwind preset; a design-token file — W3C DTCG JSON is the interchange), mobile (Android Monet DONE; iOS none), engines (W42), hardware (RGB keyboards via OpenRGB profiles; LED matrix signs — the matrix tables ARE the firmware's), print (a swatch card PDF), design tools (Figma/Penpot palette libraries; the DTCG token file feeds them). The map is a DOCUMENT with a CHECK, like catalog/publishing.md + check_publishing: catalog/codomain.md with one row per target and a tool that refuses a row missing its contract or status",
+      "title": "The codomain map: a checked census of every surface the palette can reach",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -791,14 +791,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools. | 2026-09-28: 2026-09-28 REUSE before build (life-0e): aeternum:W61 shipped check_codomain at c99794e (~/github/aeternum/scripts/check_codomain.py, read). ADOPT ITS RULES: status in {emitted, contract read, unmeasured}; emitted names >=1 backticked path, each existing and non-empty; non-emitted names none (a path there is an unstated claim). DIFFERS, recorded: this repo check shape needs --selftest, unknown-flag refusal, n-of-m + empty-population refusal, --json with rules in policy/codomain.rego (opa_gate), and a structural table read (mdstruct), none of which it has; it parses rows textually. So port the rules, not the file; if both repos converge, offer the rego+measurement pair on summit as the shared capability (aeternum:W61 cited).",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools. | 2026-09-28: 2026-09-28 REUSE before build (life-0e): aeternum:W61 shipped check_codomain at c99794e (~/github/aeternum/scripts/check_codomain.py, read). ADOPT ITS RULES: status in {emitted, contract read, unmeasured}; emitted names >=1 backticked path, each existing and non-empty; non-emitted names none (a path there is an unstated claim). DIFFERS, recorded: this repo check shape needs --selftest, unknown-flag refusal, n-of-m + empty-population refusal, --json with rules in policy/codomain.rego (opa_gate), and a structural table read (mdstruct), none of which it has; it parses rows textually. So port the rules, not the file; if both repos converge, offer the rego+measurement pair on summit as the shared capability (aeternum:W61 cited). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): THE CODOMAIN MAP (operator 2026-09-22: 'map out the codomain and make EL Openglo the stylistic equivalent of Kleenex'). A CENSUS of every surface a palette + segment/matrix substrate can reach, each with its CONTRACT (what it consumes: colour roles, fonts, meshes, shaders, CSS variables, ANSI tables, SVG, config keys), its VENUE (where it is published), its LICENCE expectation (GPLv3 is right for the desktop theme; engine assets and palettes are adopted under CC0/CC-BY/MIT — a licence split is an operator decision that gates reach), and its STATUS (emitted / contract read / unmeasured). Families: desktops (Plasma DONE; GNOME Shell/libadwaita partial; Xfce/Sway/Hyprland/waybar unmeasured; Windows .theme DONE; macOS none), browsers (Chrome/Firefox DONE, publishing W41), terminals (5 DONE; iTerm2, Windows Terminal DONE, kitty/wezterm/tmux unmeasured), editors (VS Code, JetBrains, Vim/Neovim, Emacs, Sublime, Zed — none; a colour theme per editor is a small JSON/VimL emission off the ANSI+roles table), shells/prompts (starship, oh-my-posh), chat/apps (Discord/Slack custom CSS, Obsidian), web (CSS vars DONE; a Tailwind preset; a design-token file — W3C DTCG JSON is the interchange), mobile (Android Monet DONE; iOS none), engines (W42), hardware (RGB keyboards via OpenRGB profiles; LED matrix signs — the matrix tables ARE the firmware's), print (a swatch card PDF), design tools (Figma/Penpot palette libraries; the DTCG token file feeds them). The map is a DOCUMENT with a CHECK, like catalog/publishing.md + check_publishing: catalog/codomain.md with one row per target and a tool that refuses a row missing its contract or status",
       "issued_at": "2026-09-21T17:57:24+00:00",
-      "last_worked": "2026-09-28T18:08:21Z",
+      "last_worked": "2026-10-01T04:03:56Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W43",
-      "title": "ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
+      "title": "Engine assets and tools: a shared core, then Blender, Godot, Unity and Unreal add-ons",
       "status": "blocked",
       "enables": [],
       "touches": [
@@ -808,15 +808,21 @@
         "display_types"
       ],
       "blocked_on": [
-        "W62"
+        "W151",
+        "W152",
+        "W153",
+        "W154",
+        "W155",
+        "W156",
+        "W157"
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "⚑ COLLAPSE CANDIDATE WITH W62 (operator, 2026-09-22): 'so much of this engine is written in python, and having that as a module makes porting to, e.g. gimp plugins and script-fu, unreal, godot and whatnot easier.' The engine as an importable mikemol.* distribution IS the porting path -- GIMP's Python-Fu, Godot and Unreal all consume Python or bind to it, and none can consume a tree of scripts/*.py that derive their root from abspath(__file__). So W43 is not a separate emission target; it is what W62 makes possible. Do W62 first, then measure which engine surfaces need only a palette/geometry API rather than a new generator. AUDIT BEFORE MERGING: the repetition may carry identity -- an engine asset pipeline may want material/shader graphs that a Python module does not supply.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings.",
+      "next_bounded_step": "Umbrella (split 2026-10-01): core W151 material spec, W152 glTF displays, W153 shader + glyph tables (all after W62); then the add-ons W154 Blender, W155 Godot, W156 Unity, W157 Unreal (each after the core). Paid tier (life:W16).",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
       "issued_at": "2026-09-21T17:57:42+00:00",
-      "last_worked": "2026-09-28T17:45:22Z",
-      "ticks_blocked": 1
+      "last_worked": "2026-10-01T04:05:43Z",
+      "ticks_blocked": 0
     },
     {
       "symbol": "W44",
@@ -1015,7 +1021,7 @@
     },
     {
       "symbol": "W53",
-      "title": "RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session",
+      "title": "Runtime warnings as tripwires: catch each class of shell warning at emit time",
       "status": "ready",
       "enables": [
         "W46"
@@ -1029,9 +1035,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write catalog/runtime-warnings.md from the operator's pastes to date (s93-112: the blank kcm page, the missing wallpaper plugin, the cfg_ Default refusals, 'Created graphical object was not placed in the graphics scene' — is that one a consequence of the Default refusals or its own class? measure by opening the fixed page live) and scripts/check_runtime_warnings.py --json + policy/runtime_warnings.rego: R0 empty, R1 a row without a rule and no 'unruled since' date, R2 an unruled row older than N sessions.",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session",
       "issued_at": "2026-09-22T01:31:10+00:00",
-      "last_worked": "2026-09-22T01:31:10+00:00",
+      "last_worked": "2026-10-01T04:03:56Z",
       "ticks_blocked": 0
     },
     {
@@ -1083,7 +1089,7 @@
     },
     {
       "symbol": "W57",
-      "title": "PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two.",
+      "title": "Planes of symmetry as an oracle: check each display against its own mirror",
       "status": "ready",
       "enables": [
         "W33"
@@ -1098,14 +1104,14 @@
       "blocked_kind": null,
       "rank_reason": "unblock: a witness that needs no reference — it would have caught the photographed defect before the operator did, and it grades every future emission change",
       "next_bounded_step": "The CORNER asymmetries that remain (24 px regions where segments meet — the end-gap against the rounded cap: a horizontal is shortened by gap at each end while a vertical's cap protrudes, so the two do not close the corner identically). Then the constructive half the operator named: least-squares fit of the rendered segment extents against the substrate's unit coordinates, residuals naming the offender, the corrected table snapped to the device grid. And run the oracle on the MATRIX too (W59: a pip is a segment; the grid glitching was this check going unrun).",
-      "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that. | 2026-09-26: 2026-09-27: edge retrofit — touches segment_topology with W43 (engine assets); REJECTED, shared module only. No edge added (W57's real edge, enables W33, was already wired).",
+      "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that. | 2026-09-26: 2026-09-27: edge retrofit — touches segment_topology with W43 (engine assets); REJECTED, shared module only. No edge added (W57's real edge, enables W33, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two.",
       "issued_at": "2026-09-22T11:44:18+00:00",
-      "last_worked": "2026-09-26T21:06:01Z",
+      "last_worked": "2026-10-01T04:03:57Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W58",
-      "title": "GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it.",
+      "title": "Gate each emitted wallpaper package by loading it the way Plasma does",
       "status": "ready",
       "enables": [
         "W33"
@@ -1121,9 +1127,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
       "next_bounded_step": "Measure what a load needs: (1) does qmllint resolve bare-name types when run INSIDE the emitted package directory (it lints the text today in a temp dir WITHOUT companions, which is why it passed both breakages) — if yes, the gate is one qmllint invocation per emitted package and check_package_imports's name list retires; (2) if not, a load harness: qml --apptype widget over a tiny document that instantiates the package's own contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; (3) the PLUGIN CONTRACT half: metadata.json's Id must match the directory name and the LnF defaults / layout / alias list that reference it (the f521e6f shape) — a cross-emitter check, not a per-package one. Then policy/package_load.rego and a warrant, and RETIRE check_package_imports's heuristic if (1) or (2) subsumes it.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added.",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it.",
       "issued_at": "2026-09-22T12:16:56+00:00",
-      "last_worked": "2026-09-26T21:06:00Z",
+      "last_worked": "2026-10-01T04:03:57Z",
       "ticks_blocked": 0
     },
     {
@@ -1152,7 +1158,7 @@
     },
     {
       "symbol": "W60",
-      "title": "TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames.",
+      "title": "Temporal subpixel: move the content, then sample, on every animated surface",
       "status": "ready",
       "enables": [
         "W59"
@@ -1167,9 +1173,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock: it is the aperture model's whole claim — a pip's brightness is the ink under it NOW, not a translated bitmap — and the operator has now caught two places where the code did the opposite",
       "next_bounded_step": "MEASURE the claim rather than assert it: for a scroll, compute the per-frame pip-brightness profile (check_screens already extracts it) and ask whether adjacent frames are related by a FRACTIONAL shift (the aperture re-sampling) or by an INTEGER one (a translated bitmap) — the s120 best_pip_shift already returns k and f, so a run whose f is always 0 is pixelate-then-move, and that is the check. Then: does the optimal alignment (every stroke whole on the pips) occur on the path? It is the offset where the coverage histogram is most bimodal — report whether the scroll passes through it, and at what frame.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches check_symmetry with W61 (build-graph keying); REJECTED, shared tool dependency only (W60 reads check_symmetry.best_pip_shift), no stated relationship. No edge added (W60's real edge, enables W59, was already wired).",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches check_symmetry with W61 (build-graph keying); REJECTED, shared tool dependency only (W60 reads check_symmetry.best_pip_shift), no stated relationship. No edge added (W60's real edge, enables W59, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames.",
       "issued_at": "2026-09-22T12:36:50+00:00",
-      "last_worked": "2026-09-26T21:06:02Z",
+      "last_worked": "2026-10-01T04:03:57Z",
       "ticks_blocked": 0
     },
     {
@@ -1323,7 +1329,7 @@
     },
     {
       "symbol": "W70",
-      "title": "BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
+      "title": "Boot-stack integration harness through k8s throwaway VMs",
       "status": "blocked",
       "enables": [],
       "touches": [],
@@ -1333,14 +1339,14 @@
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Wait for luthen's call-me message. Meanwhile (ours): scope the boot image — which distro base, how emitted themes get in (make_deb? overlay ebuild W12?).",
-      "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours.",
+      "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
       "issued_at": "2026-09-22T22:20:36+00:00",
-      "last_worked": "2026-09-27T14:14:03Z",
+      "last_worked": "2026-10-01T04:03:58Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W71",
-      "title": "GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases.",
+      "title": "Guest boot image for the VM probes: Plasma 6, SDDM and plymouth with our themes",
       "status": "ready",
       "enables": [
         "W70"
@@ -1350,14 +1356,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "W71f BLOCKED, UNVERIFIED: an agent wrote read_serial.py, check_serial.py, policy/serial.rego(+test), guest/el-serial-emit.sh and an opa_gate operand pass-through in worktree agent-a330b44b (none of it ever RAN). jq is not installed; the agent downloaded a static jq from GitHub, never checked it against the published hash, and the safety check then blocked it. The binary was DELETED from the scratchpad, and its commands were NOT re-run on its behalf. Unblock options: (a) the operator installs jq (emerge app-misc/jq) — operator's call; or (b) re-dispatch with the round-trip emitter reference written in Python, keeping the sh+jq emitter for the guest only (Debian ships jq). Also 15 spec ambiguities listed by the agent — tighten guest-image.md's el-serial/1 section first.",
-      "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client).",
+      "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases.",
       "issued_at": "2026-09-22T22:21:36+00:00",
-      "last_worked": "2026-09-23T11:46:39+00:00",
+      "last_worked": "2026-10-01T04:03:58Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W72",
-      "title": "ADOPT mat230's use-of-colour-check (operator TAKE, 2026-09-22; answered in summit inbox 2026-09-22-el-openglo-mat230-estate-one-taken-two-declined.bib). WCAG 2.2 SC 1.4.1: no meaning carried by colour alone. Source: ~/github/mat230 bin/check-a11y _check_use_of_colour, copied as-is (mat230 makes no more commits). Re-aim from table rows to our surfaces (lit vs ghost segments, the SDDM greeter's neg-colour Login Failed, marquee alert states). Rego shape: --json measurement + policy/use_of_colour.rego + _test.rego, cited from a warrant.",
+      "title": "Adopt mat230's use-of-colour check for WCAG 1.4.1",
       "status": "ready",
       "enables": [
         "W74"
@@ -1367,14 +1373,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "W72.b: give critical marquee runs a non-colour cue (the bold run's fuller dot or a lit underline row), and C7/C8 likewise; then W72.c the check + rego pair.",
-      "evidence": "catalog/use-of-colour.md (swarm-2, in worktree a378b2f4, not yet in main): 17 surfaces — 8 cued, 1 COLOUR-ONLY DEFECT (C6: marquee critical notification = hotColor only, templates/marquee-main.qml:444-446,463-465), 2 opacity-only (C7 low urgency, C8 suspended), 4 app-owned roles, 2 render-only. C1 lit/ghost passes only at default settings (weight/ghostWeight/bloom can erase both cues). DECIDED W72.a: opacity-only is a COLOUR difference (WCAG Understanding 1.4.1 counts lightness), so C7/C8 are denied alongside C6 — reversible by the operator.",
+      "evidence": "catalog/use-of-colour.md (swarm-2, in worktree a378b2f4, not yet in main): 17 surfaces — 8 cued, 1 COLOUR-ONLY DEFECT (C6: marquee critical notification = hotColor only, templates/marquee-main.qml:444-446,463-465), 2 opacity-only (C7 low urgency, C8 suspended), 4 app-owned roles, 2 render-only. C1 lit/ghost passes only at default settings (weight/ghostWeight/bloom can erase both cues). DECIDED W72.a: opacity-only is a COLOUR difference (WCAG Understanding 1.4.1 counts lightness), so C7/C8 are denied alongside C6 — reversible by the operator. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mat230's use-of-colour-check (operator TAKE, 2026-09-22; answered in summit inbox 2026-09-22-el-openglo-mat230-estate-one-taken-two-declined.bib). WCAG 2.2 SC 1.4.1: no meaning carried by colour alone. Source: ~/github/mat230 bin/check-a11y _check_use_of_colour, copied as-is (mat230 makes no more commits). Re-aim from table rows to our surfaces (lit vs ghost segments, the SDDM greeter's neg-colour Login Failed, marquee alert states). Rego shape: --json measurement + policy/use_of_colour.rego + _test.rego, cited from a warrant.",
       "issued_at": "2026-09-22T22:57:58+00:00",
-      "last_worked": "2026-09-26T21:17:46Z",
+      "last_worked": "2026-10-01T04:03:58Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W73",
-      "title": "WITNESS HARNESSES MUST NOT TOUCH THE OPERATOR'S GPU (luthen crash report 2026-09-22 20:28 EDT): check_ebuild.py's .ebuild-witness/harness.qml ran /usr/lib64/qt6/bin/qml on the real display; SIGSEGV in libnvidia-glcore under QRhi::endFrame on QSGRenderThread (driver crash at present/teardown, after load), core 6.5M + a KDE crash notification on the desktop. Fix: every qml-spawning check (census them with the tool, don't assume check_ebuild is the only one) runs with QT_QPA_PLATFORM=offscreen + QT_QUICK_BACKEND=software and RLIMIT_CORE=0, and a check asserts that environment for each spawn site.",
+      "title": "Witness harnesses must never touch the operator's GPU",
       "status": "ready",
       "enables": [],
       "touches": [],
@@ -1382,14 +1388,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "N2: cite scripts/opa_gate.py qt_sandbox (and opa_gate license for W44) from warrants.bib, then --project, so the worklist gate carries them.",
-      "evidence": "landed 2026-09-23: qt_sandbox (RLIMIT_CORE=0, operator ruling), 7 of 7 Qt spawns routed, opa_gate qt_sandbox admitted; renders opt into GPU in render_screens (EL_QT_GPU=1, keeps DISPLAY+XAUTHORITY).",
+      "evidence": "landed 2026-09-23: qt_sandbox (RLIMIT_CORE=0, operator ruling), 7 of 7 Qt spawns routed, opa_gate qt_sandbox admitted; renders opt into GPU in render_screens (EL_QT_GPU=1, keeps DISPLAY+XAUTHORITY). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): WITNESS HARNESSES MUST NOT TOUCH THE OPERATOR'S GPU (luthen crash report 2026-09-22 20:28 EDT): check_ebuild.py's .ebuild-witness/harness.qml ran /usr/lib64/qt6/bin/qml on the real display; SIGSEGV in libnvidia-glcore under QRhi::endFrame on QSGRenderThread (driver crash at present/teardown, after load), core 6.5M + a KDE crash notification on the desktop. Fix: every qml-spawning check (census them with the tool, don't assume check_ebuild is the only one) runs with QT_QPA_PLATFORM=offscreen + QT_QUICK_BACKEND=software and RLIMIT_CORE=0, and a check asserts that environment for each spawn site.",
       "issued_at": "2026-09-23T00:41:17+00:00",
-      "last_worked": "2026-09-23T05:29:32+00:00",
+      "last_worked": "2026-10-01T04:03:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W74",
-      "title": "W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction.",
+      "title": "Make low urgency on the marquee read by shape, not only by dimming",
       "status": "ready",
       "enables": [],
       "touches": [],
@@ -1397,14 +1403,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "OPERATOR RULED (2026-09-23): low = lowercase, normal = UPPERCASE, critical = FLASHING UPPER CASE. A letterform cue (shape), which survives grayscale and every CVD view. Guards: flash at most 2 Hz (WCAG 2.3.1 is under 3 flashes/s); flashing is pausable (2.2.2: the existing hover-pause) and honours reduced-motion; case is a DISPLAY transform only, so the source text, link targets and copy are unchanged; critical keeps hotColor + underline. The dot-weight cue for low is dropped. The suspended job gauge still needs its own cue (it is columns, not text).",
-      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74.",
+      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction.",
       "issued_at": "2026-09-23T11:56:27+00:00",
-      "last_worked": "2026-09-26T21:17:46Z",
+      "last_worked": "2026-10-01T04:03:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W75",
-      "title": "A CLAIM THAT A GATE MUST DENY: paperkit reads exit 1 as an open item, so a negative fixture (serial noise-only.log -> DENY S0; a colour-only painter -> DENY U1; a torn-read writer -> DENY) cannot be cited without sitting red forever. Proposal from the serial-claims agent: an inverting check type in catalog/worklist/paper.toml ([checks.refuses]: passes only when the cited gate exits 1), or \"opa_gate.py --expect denied\". Then a claim fails in BOTH directions: if the reader starts admitting noise, or if it cannot read the file at all. Touches paperkit check-type surface: ask paperkit whether [checks.X] may invert, before building.",
+      "title": "Let a claim cite a gate that must deny, without sitting red forever",
       "status": "ready",
       "enables": [
         "W82"
@@ -1414,9 +1420,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "paperkit-e2 answered (2026-09-23): do (b), opa_gate.py --expect denied on OUR side; paperkit keeps one exit meaning (0 pass, 3 could-not-run, else fail). THE DECIDING DETAIL for their Delta grader: --expect must assert the TYPED denial — the gate ran, reached a decision, the decision is DENY, and the reason is the expected rule (e.g. --expect denied:S0) — never merely \"not allow\" or \"non-zero\". A crash/parse error/import failure must be a FAILURE (or exit 3 if the gate genuinely could not run); otherwise every mutation that breaks the reader passes and the claim grades vacuous. Build after the W50 batch-2 agent lands (both touch opa_gate.py). Then cite: refuses noise-only.log (S0), and a colour-only fixture (U1).",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): A CLAIM THAT A GATE MUST DENY: paperkit reads exit 1 as an open item, so a negative fixture (serial noise-only.log -> DENY S0; a colour-only painter -> DENY U1; a torn-read writer -> DENY) cannot be cited without sitting red forever. Proposal from the serial-claims agent: an inverting check type in catalog/worklist/paper.toml ([checks.refuses]: passes only when the cited gate exits 1), or \"opa_gate.py --expect denied\". Then a claim fails in BOTH directions: if the reader starts admitting noise, or if it cannot read the file at all. Touches paperkit check-type surface: ask paperkit whether [checks.X] may invert, before building.",
       "issued_at": "2026-09-23T14:55:01+00:00",
-      "last_worked": "2026-09-26T21:18:21Z",
+      "last_worked": "2026-10-01T04:03:59Z",
       "ticks_blocked": 0
     },
     {
@@ -2893,11 +2899,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-10-01: 16 of 16 live titles in W33-W75 retitled to one clause (former titles in each evidence); W42 title drops the stale GPLv3 licence wording. ATOMIZED W43 (genuinely multi-step): W151 material spec, W152 glTF displays, W153 shader + glyph tables (core, each blocked on W62), W154 Blender, W155 Godot, W156 Unity, W157 Unreal (add-ons, each blocked on the core); W43 is now their umbrella. check: 157 of 157 resolve. Lister: flagged 41 -> 25, all live.",
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T03:51:24Z",
+      "last_worked": "2026-10-01T04:07:18Z",
       "ticks_blocked": 0
     },
     {
@@ -2938,6 +2944,189 @@
       "minted_during": "interrupt",
       "caused_by": "W145",
       "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W151",
+      "title": "Engine core: the palette as a per-variant material spec in JSON",
+      "status": "blocked",
+      "enables": [
+        "W43",
+        "W154",
+        "W155",
+        "W156",
+        "W157"
+      ],
+      "touches": [
+        "make_palette",
+        "make_schemes",
+        "engines"
+      ],
+      "blocked_on": [
+        "W62"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Per-variant JSON emitted from make_schemes.GRID: ground = base, lit = emissive, ghost and its solved alpha, hue table, floors. Ideally the same DTCG token file W42 names, so engines and design tools read one file.",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:29Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:04:53Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W152",
+      "title": "Engine core: the segment and matrix displays as glTF meshes with named segments",
+      "status": "blocked",
+      "enables": [
+        "W43",
+        "W154",
+        "W155",
+        "W156",
+        "W157"
+      ],
+      "touches": [
+        "segment_topology",
+        "display_types",
+        "engines"
+      ],
+      "blocked_on": [
+        "W62"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "segment_topology lattice extruded at the module stroke ratio (bevelled), one .glb per format (7/16/22) with each segment a named node, and the matrix as a dot grid (trimesh or pygltflib).",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:29Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:05:14Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W153",
+      "title": "Engine core: one shader lighting segments from a glyph bitmask, plus the glyph tables as JSON",
+      "status": "blocked",
+      "enables": [
+        "W43",
+        "W154",
+        "W155",
+        "W156",
+        "W157"
+      ],
+      "touches": [
+        "display_types",
+        "engines"
+      ],
+      "blocked_on": [
+        "W62"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "ONE GLSL shader that lights named segments or dots from a glyph bitmask, with the ghost / lit / bloom relation (bloom = blur of the lit layer only), plus the registry glyph tables as JSON. The fonts ship as-is (EL-Segment, EL-Matrix TTFs load in all four engines).",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:29Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:05:41Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W154",
+      "title": "Blender add-on built on the engine core, for the Blender Extensions platform",
+      "status": "blocked",
+      "enables": [
+        "W43"
+      ],
+      "touches": [
+        "engines",
+        "blender"
+      ],
+      "blocked_on": [
+        "W151",
+        "W152",
+        "W153"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Python add-on: segment_topology + make_palette drive a one-click display mesh and material with a variant chooser. Read the Blender Extensions manifest contract before emitting.",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:29Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:05:42Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W155",
+      "title": "Godot add-on built on the engine core",
+      "status": "blocked",
+      "enables": [
+        "W43"
+      ],
+      "touches": [
+        "engines",
+        "godot"
+      ],
+      "blocked_on": [
+        "W151",
+        "W152",
+        "W153"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "A .gdshader port of the core shader plus a Display node. Read the Godot Asset Library contract first.",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:29Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:05:42Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W156",
+      "title": "Unity package built on the engine core",
+      "status": "blocked",
+      "enables": [
+        "W43"
+      ],
+      "touches": [
+        "engines",
+        "unity"
+      ],
+      "blocked_on": [
+        "W151",
+        "W152",
+        "W153"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "A UPM package with a ShaderGraph or HLSL port of the core shader. Read the Unity Asset Store contract first.",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:30Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:05:42Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W157",
+      "title": "Unreal plugin built on the engine core, for Fab",
+      "status": "blocked",
+      "enables": [
+        "W43"
+      ],
+      "touches": [
+        "engines",
+        "unreal"
+      ],
+      "blocked_on": [
+        "W151",
+        "W152",
+        "W153"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "A plugin with a material graph port of the core shader. Read the Fab contract first.",
+      "evidence": "",
+      "issued_at": "2026-10-01T04:04:30Z",
+      "minted_during": "interrupt",
+      "caused_by": "W43",
+      "last_worked": "2026-10-01T04:05:42Z",
       "ticks_blocked": 0
     }
   ],

@@ -347,3 +347,4 @@
 2026-10-01T03:16:31Z  hash  --   diverged  --        "divergence: payload v2:cd4ca2c3ae28bd2b, file v2:6e7685eb4a0ee072; the FILE wins"
 2026-10-01T03:17:29Z  tick  W146 done      sweep     "22 done titles W7-W35 shortened to one clause (former titles kept in evidence); flagged titles 91 -> 69; W147 recounted to 28"  evidence=W146
 2026-10-01T03:39:47Z  tick  W147 done      sweep     "28 done titles W38-W143 shortened to one clause (former titles in evidence); flagged titles 69 -> 41, 0 done left"  evidence=W147
+2026-10-01T04:07:18Z  tick  W148 done      sweep     "16 live titles W33-W75 shortened; W43 atomized into W151-W157 (3 core parts after W62, 4 engine add-ons after the core); flagged titles 41 -> 25"  evidence=W148
