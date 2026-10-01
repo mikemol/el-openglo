@@ -3442,22 +3442,20 @@
     {
       "symbol": "W173",
       "title": "Require at least 2/3 of an animation steps to be fractional, and refuse a half-pip see-saw by its spectral line",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "policy/screens.rego",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [
-        "W178"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "after W178 (motion in pips per frame): confirm the marquee fractional_share >= 2/3 on all six variants; policy screens S8 refuses fractional_share < 2/3; add a synthetic see-saw (alternating whole/half steps) to the selftest, confirm period2_share scores high, then a rule refusing period2_share over a threshold set from that control",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips. | 2026-10-01: 2026-10-01 MEASURED (render_screens.animation_facts, report-only, no rule changed): best_pip_shift now fits EIGHTHS of a pip; each run reports fractional_share and spectral_lines (dominant line, and period2_share = the see-saw line). fractional_share: pinholes-anim 0.94-0.95 (passes 2/3); marquee-anim 0.60-0.64 on EVERY variant (FAILS 2/3) - its steps cycle ~2.625/3.0/3.0/2.75, mean ~2.8 pips/frame, so ~1/3 land on a whole pip. period2_share 0.012-0.013 everywhere: no see-saw. Note the first spectral metric (strongest line) was wrong: it is period = run length (text crossing once, ~1/3 of power). 2/3 rule NOT applied: it would fail the marquee; operator asked. See-saw rule pending a synthetic positive control. Screens re-rendered (render_screens.py is keyed whole), 0 of 56 stale; render_screens selftest 3/3; keys written; no coredumps. | 2026-10-01: 2026-10-01 OPERATOR DECIDED: \"Let s try (a)\" - change the marquee scroll speed so the per-frame step stays off whole and half pips (derived, not guessed), pinned in the config default with the harness reading the same default; then confirm fractional_share >= 2/3 before S8 tightens. | 2026-10-01: 2026-10-01 (a) DERIVED BEFORE CODING: rotation duration = (rep.width + textWidth) * 12 / cfgSpeed ms, so velocity = cfgSpeed/12 px/ms and the per-display-frame step = cfgSpeed * frameMs / (12 * pitch) pips, with pitch = panel height * 0.72 / rows * pitchScale. A CONSTANT cfgSpeed CANNOT fix the step fraction: it moves with panel height and refresh rate (a value tuned for one panel lands on whole pips on another). By construction = state the motion in PIPS PER FRAME (e.g. 2 + 1/phi ~ 2.618, fraction spread by the golden ratio) and derive the duration from pitch and the frame interval - needs the display refresh rate in QML. The screenshot harness samples at its own SAMPLE_MS, which is NOT the display frame.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Measure: render_screens --json animation_facts for the marquee after W187; S8 counts MOVING steps only (zero shifts excluded from the population) and refuses fractional_share < 2/3; an all-stall run is WITHHELD; add the synthetic half-pip see-saw positive control and the period2_share rule.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips. | 2026-10-01: 2026-10-01 MEASURED (render_screens.animation_facts, report-only, no rule changed): best_pip_shift now fits EIGHTHS of a pip; each run reports fractional_share and spectral_lines (dominant line, and period2_share = the see-saw line). fractional_share: pinholes-anim 0.94-0.95 (passes 2/3); marquee-anim 0.60-0.64 on EVERY variant (FAILS 2/3) - its steps cycle ~2.625/3.0/3.0/2.75, mean ~2.8 pips/frame, so ~1/3 land on a whole pip. period2_share 0.012-0.013 everywhere: no see-saw. Note the first spectral metric (strongest line) was wrong: it is period = run length (text crossing once, ~1/3 of power). 2/3 rule NOT applied: it would fail the marquee; operator asked. See-saw rule pending a synthetic positive control. Screens re-rendered (render_screens.py is keyed whole), 0 of 56 stale; render_screens selftest 3/3; keys written; no coredumps. | 2026-10-01: 2026-10-01 OPERATOR DECIDED: \"Let s try (a)\" - change the marquee scroll speed so the per-frame step stays off whole and half pips (derived, not guessed), pinned in the config default with the harness reading the same default; then confirm fractional_share >= 2/3 before S8 tightens. | 2026-10-01: 2026-10-01 (a) DERIVED BEFORE CODING: rotation duration = (rep.width + textWidth) * 12 / cfgSpeed ms, so velocity = cfgSpeed/12 px/ms and the per-display-frame step = cfgSpeed * frameMs / (12 * pitch) pips, with pitch = panel height * 0.72 / rows * pitchScale. A CONSTANT cfgSpeed CANNOT fix the step fraction: it moves with panel height and refresh rate (a value tuned for one panel lands on whole pips on another). By construction = state the motion in PIPS PER FRAME (e.g. 2 + 1/phi ~ 2.618, fraction spread by the golden ratio) and derive the duration from pitch and the frame interval - needs the display refresh rate in QML. The screenshot harness samples at its own SAMPLE_MS, which is NOT the display frame. | 2026-10-01: 2026-10-01 OPERATOR: a zero step is a special case - no motion, no apparent flicker - so S8 excludes zero shifts from its population (stalls from W183 width changes do not count as whole steps).",
       "issued_at": "2026-10-01T14:43:22Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T16:08:54Z",
+      "last_worked": "2026-10-01T19:40:59Z",
       "ticks_blocked": 0,
       "completed": null,
       "weight": 10
@@ -3548,7 +3546,7 @@
     {
       "symbol": "W178",
       "title": "State the marquee motion in pips per frame so its step fraction holds on every panel and refresh rate",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W173"
       ],
@@ -3556,18 +3554,16 @@
         "templates/marquee-main.qml",
         "scripts/check_marquee_live.py"
       ],
-      "blocked_on": [
-        "W183"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "After W183: L2 judges notification 2 by id - a replace before the run is ever shown has no visible old text, so the board owes only the current text; a replace while visible is judged by the roll (W183) and second pass (W185). Re-apply scratchpad/w178/frameanimation-port.diff, retune L2, rerun marquee_live, then report fractional_share for W173.",
-      "evidence": "2026-10-01: 2026-10-01 MEASURED (qmllint on a scratch probe, host Qt 6.11): Screen.refreshRate -> \"Member refreshRate not found on type QQuickScreenAttached\" [missing-property]; Screen.devicePixelRatio and FrameAnimation{frameTime, smoothFrameTime} resolve clean (the positive control: the instrument reports a missing member as missing). QML does NOT expose the refresh rate, so the motion is driven by FrameAnimation (Qt 6.4+, so the operator laptop Qt 6.10 has it). | 2026-10-01: 2026-10-01 PORT ATTEMPTED AND REVERTED (tree restored; patch kept at scratchpad w178/frameanimation-port.diff): rotation NumberAnimation -> FrameAnimation advancing stepPips = max(1, round(speed)) + 1/phi pips/frame; kcfg speed default 2 (whole pips per frame); config slider 1..4 stepSize 1. qml_lint 12/12 and config_page 24/24 admitted, but marquee_live DENIED L2: \"arrive of id 2 at t=5200 never reached the board\", at harness speed 4 AND at the default - so not pace: the port breaks the run-completion / ring-swap path somewhere. Also found: kcfg debugLog ships default TRUE (why the operator board was logging); left as is, the log is content-free since 13ab366. | 2026-10-01: 2026-10-01 DIAGNOSED (patch re-applied, traced with check_marquee_live --trace, reverted again): the FrameAnimation port WORKS - runs complete, `finished` fires, the ring swaps and restarts (item 1 rotates repeatedly; ids 9, 11, 2 all reach the ring). L2 fails on TIMING: id 2 upserts at t=5200 as textLen 18 (\"app: second — bold\") and is REPLACED at t=5600 (textLen 21) before item 11 run finishes, so the bold text never gets its own rotation. Under the NumberAnimation the item-11 run ended before 5600. So a run takes longer in the harness VIRTUAL time: the harness clock is a NumberAnimation on the fixed-step animation driver, while FrameAnimation ticks per RENDERED frame, and the offscreen platform renders fewer frames per virtual second than a display vsync. | 2026-10-01: 2026-10-01 MEASURED from the saved trace samples (40 ms virtual): the harness runs at 60 frames per virtual second (33.3 px per 32 ms = 2 frames, 49.9 px per 48 ms = 3; one frame = 4.618 pips x 3.6 px/pip = 16.6 px) - the \"fewer frames\" hypothesis is FALSIFIED. Runs are FASTER than before (~0.6 s vs the old 1.5 s duration floor). L2 is a PHASE coincidence: flash cycles to 5100, silent runs 5120-5700, id 2 arrives 5200 mid-run, is replaced 5600, next swap 5728 shows \"second - changed\"; the old 1.5 s floor happened to swap near 5420, inside the 400 ms arrival-to-replace window. So L2 passes or fails on run length alone. | 2026-10-01: 2026-10-01 OPERATOR DECIDED the replace semantics (attack from a different direction): replace = vertical roll of the changed characters during the horizontal pan (W183), s-curve acceleration on pileup (W184), second pass when replaced while visible (W185). Consequence for L2: replaced-before-shown is judged by id/current text.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 MEASURED (qmllint on a scratch probe, host Qt 6.11): Screen.refreshRate -> \"Member refreshRate not found on type QQuickScreenAttached\" [missing-property]; Screen.devicePixelRatio and FrameAnimation{frameTime, smoothFrameTime} resolve clean (the positive control: the instrument reports a missing member as missing). QML does NOT expose the refresh rate, so the motion is driven by FrameAnimation (Qt 6.4+, so the operator laptop Qt 6.10 has it). | 2026-10-01: 2026-10-01 PORT ATTEMPTED AND REVERTED (tree restored; patch kept at scratchpad w178/frameanimation-port.diff): rotation NumberAnimation -> FrameAnimation advancing stepPips = max(1, round(speed)) + 1/phi pips/frame; kcfg speed default 2 (whole pips per frame); config slider 1..4 stepSize 1. qml_lint 12/12 and config_page 24/24 admitted, but marquee_live DENIED L2: \"arrive of id 2 at t=5200 never reached the board\", at harness speed 4 AND at the default - so not pace: the port breaks the run-completion / ring-swap path somewhere. Also found: kcfg debugLog ships default TRUE (why the operator board was logging); left as is, the log is content-free since 13ab366. | 2026-10-01: 2026-10-01 DIAGNOSED (patch re-applied, traced with check_marquee_live --trace, reverted again): the FrameAnimation port WORKS - runs complete, `finished` fires, the ring swaps and restarts (item 1 rotates repeatedly; ids 9, 11, 2 all reach the ring). L2 fails on TIMING: id 2 upserts at t=5200 as textLen 18 (\"app: second — bold\") and is REPLACED at t=5600 (textLen 21) before item 11 run finishes, so the bold text never gets its own rotation. Under the NumberAnimation the item-11 run ended before 5600. So a run takes longer in the harness VIRTUAL time: the harness clock is a NumberAnimation on the fixed-step animation driver, while FrameAnimation ticks per RENDERED frame, and the offscreen platform renders fewer frames per virtual second than a display vsync. | 2026-10-01: 2026-10-01 MEASURED from the saved trace samples (40 ms virtual): the harness runs at 60 frames per virtual second (33.3 px per 32 ms = 2 frames, 49.9 px per 48 ms = 3; one frame = 4.618 pips x 3.6 px/pip = 16.6 px) - the \"fewer frames\" hypothesis is FALSIFIED. Runs are FASTER than before (~0.6 s vs the old 1.5 s duration floor). L2 is a PHASE coincidence: flash cycles to 5100, silent runs 5120-5700, id 2 arrives 5200 mid-run, is replaced 5600, next swap 5728 shows \"second - changed\"; the old 1.5 s floor happened to swap near 5420, inside the 400 ms arrival-to-replace window. So L2 passes or fails on run length alone. | 2026-10-01: 2026-10-01 OPERATOR DECIDED the replace semantics (attack from a different direction): replace = vertical roll of the changed characters during the horizontal pan (W183), s-curve acceleration on pileup (W184), second pass when replaced while visible (W185). Consequence for L2: replaced-before-shown is judged by id/current text. | 2026-10-01: 2026-10-01 DONE via W187: the FrameAnimation port is admitted by marquee_live with L2 judging a superseded text by id. The fractional_share measurement moves to W173.",
       "issued_at": "2026-10-01T16:08:41Z",
       "minted_during": "interrupt",
       "caused_by": "W173",
-      "last_worked": "2026-10-01T18:53:28Z",
+      "last_worked": "2026-10-01T19:40:59Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T194059Z"
     },
     {
       "symbol": "W179",
@@ -3676,11 +3672,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella: done when W186-W189 land.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECISION (W178): a replace is shown as a vertical roll of the changed characters - removed ones rotate out, added ones rotate in - while the whole notification keeps panning horizontally; at a 10 Hz replace rate the changing piece is seen rolling as it pans. | 2026-10-01: 2026-10-01 DESIGN (W183, operator decision + defaults stated to operator, unopposed): RENDER MODEL read from templates/marquee-main.qml 417-599: text is painted into ApertureField backdrop at scale=4 px per pip, rows from the registry (5x8 => 8 rows), each glyph cell at rep.offs[i]; the field grades brightness from the backdrop under each aperture. So a vertical offset in BACKDROP px is a graded sub-pip roll by construction (4 sub-steps per pip; the same fractional motion S8 wants horizontally). DECISIONS: (a) changed span = common prefix/suffix diff of the item text, rolled per glyph cell; (b) odometer direction: old moves up and out, new rises from below, travel = (rows+1) cells so the two glyphs never touch; (c) length change: cells past the shorter text roll from/to blank, and the suffix GLIDES horizontally by the width delta on the same progress (offs interpolated), so nothing jumps - the W45 never-tear invariant; (d) a replace of an item NOT on the ring stays a queue upsert (L2 judges by id); (e) cost: drawBackdrop runs per frame only while a roll is live.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECISION (W178): a replace is shown as a vertical roll of the changed characters - removed ones rotate out, added ones rotate in - while the whole notification keeps panning horizontally; at a 10 Hz replace rate the changing piece is seen rolling as it pans. | 2026-10-01: 2026-10-01 DESIGN (W183, operator decision + defaults stated to operator, unopposed): RENDER MODEL read from templates/marquee-main.qml 417-599: text is painted into ApertureField backdrop at scale=4 px per pip, rows from the registry (5x8 => 8 rows), each glyph cell at rep.offs[i]; the field grades brightness from the backdrop under each aperture. So a vertical offset in BACKDROP px is a graded sub-pip roll by construction (4 sub-steps per pip; the same fractional motion S8 wants horizontally). DECISIONS: (a) changed span = common prefix/suffix diff of the item text, rolled per glyph cell; (b) odometer direction: old moves up and out, new rises from below, travel = (rows+1) cells so the two glyphs never touch; (c) length change: cells past the shorter text roll from/to blank, and the suffix GLIDES horizontally by the width delta on the same progress (offs interpolated), so nothing jumps - the W45 never-tear invariant; (d) a replace of an item NOT on the ring stays a queue upsert (L2 judges by id); (e) cost: drawBackdrop runs per frame only while a roll is live. | 2026-10-01: 2026-10-01 OPERATOR RULINGS on the design review: (1) the vertical roll REPLACES L3 for an on-board replace - L3 cannot hold for a replace before the first frame (a race); W189 retires L3 for replaces and judges the roll. (2) cells inside the span whose old and new glyph are identical hold still (no self-roll flicker) - agreed. (3) on board = the span current position: not yet entered -> apply; on the board -> roll; scrolled past -> apply and W185 queues a second pass. (4) WIDTH CHANGE: no segment ever outruns the pan; segments only STALL - a shortened replace (ABBC->ABC) stalls the LEADING segment until the shortened follower catches up; a lengthened one (AABCC->AABBCC) stalls the TRAILING segment while the lengthened leader folds in. Replaces the earlier suffix-glide default. Stated defaults: reduced motion swaps instantly; job progress keeps its gauge path; bold/link/critical styling carried through the roll; roll continues under hover-pause; repaint only span cells.",
       "issued_at": "2026-10-01T18:53:11Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T19:05:31Z",
+      "last_worked": "2026-10-01T19:40:59Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -3752,7 +3748,7 @@
     {
       "symbol": "W187",
       "title": "Re-apply the FrameAnimation port (scratchpad/w178/frameanimation-port.diff) with L2 judging a replaced-before-shown item by id",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W183",
         "W178"
@@ -3763,14 +3759,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "git apply the saved diff; change L2 in check_marquee_live/policy so a notification replaced before its first rotation is satisfied by the current text for that id; rerun opa_gate marquee_live (heavy: systemd-run, MemoryMax=8G).",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 LANDED: FrameAnimation port applied (stepPips = max(1,round(speed)) + 1/phi; kcfg default 2; slider 1-4 step 1; harness speed 4). L2 gains superseded(e): a later replace of the same id excuses an earlier text that never reached the board; tests admit the superseded case and refuse a superseding replace that never shows and an unshown arrival that only expires (opa test 47/47). opa_gate marquee_live: admitted, 0 deny 0 withheld (15.8 s CPU, 136 MB peak). check_symbol witnesses for APERTURE-FIELD and NOTIFY-MATRIXRENDER re-aimed at field.offset = next and complete() (49 of 49); parity re-recorded after reading all three diffs; schemes rebuilt, marquee screens re-rendered, opa_gate screens admitted 48; action keys written.",
       "issued_at": "2026-10-01T19:05:18Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T19:20:47Z",
+      "last_worked": "2026-10-01T19:40:59Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T194059Z"
     },
     {
       "symbol": "W188",
