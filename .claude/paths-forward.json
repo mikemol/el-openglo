@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 202,
+  "counter": 206,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -242,7 +242,7 @@
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open. | 2026-09-26: 2026-09-27: operator does not recall the ticked state from the original observation (Qt widgets stayed BreezeLight, wallpaper unchanged) — re-asking as a fresh, reproducible check rather than relying on memory | 2026-09-26: 2026-09-27: operator screenshot of the 'Choose what to apply' dialog for EL-Azure-Lit — Colors IS ticked (also Application Style, Window Decoration Style, Icons, Plasma Style, Pointers, Splash Screen); only 'Desktop layout' (bundles wallpaper) is unticked. CLOSES the wallpaper question (expected: unticked). SHARPENS the Qt-widgets question into a real defect: Colors was ticked and Apply pressed, yet kdeglobals ColorScheme stayed BreezeLight (earlier measurement).",
       "issued_at": "2026-09-20T23:28:07+00:00",
       "last_worked": "2026-09-26T20:43:47Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -785,7 +785,7 @@
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
       "issued_at": "2026-09-21T17:49:03+00:00",
       "last_worked": "2026-10-01T04:03:55Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -833,7 +833,7 @@
       "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
       "issued_at": "2026-09-21T17:57:42+00:00",
       "last_worked": "2026-10-01T04:05:43Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -1236,7 +1236,7 @@
       "evidence": "⚑ THE FIRST SWARM (2026-09-22) FOUND THREE WORKTREE ENVIRONMENT DEFECTS IN ONE HOUR, all one defect — this repo's tooling assumes it runs from the main checkout. (1) Every ../substrate symlink (hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests) was BROKEN in every worktree: the relative target ../../substrate resolves to .claude/worktrees/substrate from .claude/worktrees/agent-*/scripts/. Bridged by one ignored symlink .claude/worktrees/substrate -> /home/mikemol/github/substrate; the bridge is a workaround, not a fix. (2) build_graph's walk descended into the six worktrees and doubled every population (fixed: _NOT_THE_TREE excludes worktrees). (3) pycodemod SILENTLY reads 0 of N files under a worktree's own .venv (uv ignores VIRTUAL_ENV=main/.venv and uses the worktree's fresh one, where its parser raises AttributeError); it works via /home/mikemol/github/el-openglo/.venv/bin/python3. pycodemod flagged it loudly as a BROKEN QUERY and the subagent correctly marked its census UNMEASURED — the discipline held — but a hand-check then missed 4 refs the working invocation found. ALL THREE vanish under W62's shape: an INSTALLED mikemol-* distribution knows where it lives; a symlink or an editable finder or a venv-relative path does not. | 2026-09-27: 2026-09-27 census (step 1): scripts/ holds SIX symlinks into ../substrate (find -type l): hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests. check_hooks.py --list names only the two hooks, so it undercounts the borrow (4 of 6 unseen). mtools homes: the three hook_* are ALREADY in mikemol-hooks (installed, pinned 6ecf767: console scripts mikemol-hook-no-chaining, mikemol-hook-structural-query; cmdparse is its module); ratchet has an mtools distribution (mtools/ratchet, not yet a dependency here); gate_ledger and run_selftests have NO mtools home (B1 remainder for mtools). pycodemod is mikemol-pycodemod in mtools (defect 3). The prior next-step text carried a pasted uv-run help screen (backtick execution); replaced.",
       "issued_at": "2026-09-22T14:28:13+00:00",
       "last_worked": "2026-09-29T01:55:25Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -1272,7 +1272,7 @@
       "evidence": "not started; paperkit/tools/sites.py read 2026-09-22 | 2026-10-01: 2026-10-01 dflip over TIMELINE is NOT expressible today: paperkit dflip perturbs only the first scalar leaf (t ms). Gap minted as W179.",
       "issued_at": "2026-09-22T15:31:34+00:00",
       "last_worked": "2026-10-01T17:08:41Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1292,7 +1292,7 @@
       "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both | 2026-09-26: 2026-09-27: edge retrofit — W65 is a specific finding produced by extending the mutation-grading tool W64 adopted (check_discriminates --probe); W64's own next step says 'extend PROBES to the remaining ~58 checks', the same mechanism W65 continues. Wired W64 enables W65.",
       "issued_at": "2026-09-22T15:41:39+00:00",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1375,7 +1375,7 @@
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
       "issued_at": "2026-09-22T22:20:36+00:00",
       "last_worked": "2026-10-01T04:03:58Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
     },
@@ -1396,7 +1396,7 @@
       "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context).",
       "issued_at": "2026-09-22T22:21:36+00:00",
       "last_worked": "2026-10-01T17:53:18Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
@@ -1454,7 +1454,7 @@
       "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction.",
       "issued_at": "2026-09-23T11:56:27+00:00",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1550,7 +1550,7 @@
       "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2 | 2026-09-26: OPERATOR LAPTOP 2026-09-26 (Ubuntu resolute, Plasma 6.6.6, Qt 6.10.2): the cac10f7 .deb (sha256 8c98e29c...) installed and, after plasmashell --replace, the marquee LOADS (clock + dot-matrix field drawing) - the byte fix confirmed on the target Qt",
       "issued_at": "2026-09-26T01:20:13+00:00",
       "last_worked": "2026-10-01T19:48:10Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -1570,7 +1570,7 @@
       "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported | 2026-09-29: 2026-09-29: nemik: paperkit:W45 is an umbrella (blocked on its W112 -> W113); cite the child whose landing unblocks this, paperkit:W113. | 2026-09-29: 2026-09-29: nemik treats paperkit:W113 as an umbrella too (it is blocked on its W112), so blocked_on cites the leaf paperkit:W112 (measure grader.py pycheck standing). What W80 actually needs is W113 baseline-only mode, which follows W112 in paperkit.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-09-29T01:57:20Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
     },
@@ -1589,7 +1589,7 @@
       "evidence": "output_keys docstring names host fonts as the key weakness; the executor image (W78) is the other half",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-01T19:48:10Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1609,7 +1609,7 @@
       "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist | 2026-09-26: 2026-09-27: edge retrofit — title already says 'W75 follow-on'; W75 built the --expect denied:RULE mechanism, W82 is the ongoing sweep using it (DEPS/CONSUMERS/TEMPLATES-DENIES warrants). Wired W75 enables W82.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1779,7 +1779,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:48:10Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -2259,7 +2259,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-01T04:33:57Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
     },
@@ -2328,7 +2328,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -2421,7 +2421,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T20:12:44Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 13,
@@ -2475,7 +2475,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T20:59:27Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 2,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
@@ -2502,7 +2502,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2526,7 +2526,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2551,7 +2551,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2577,7 +2577,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2603,7 +2603,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2632,7 +2632,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2657,7 +2657,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:48Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2682,7 +2682,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:52Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2707,7 +2707,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:57Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2731,7 +2731,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T21:04:33Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2759,7 +2759,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T21:25:05Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 2,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
@@ -2828,7 +2828,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -2853,7 +2853,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-09-29T00:23:17Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -3161,7 +3161,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:04:53Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3191,7 +3191,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:14Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3220,7 +3220,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:41Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3247,7 +3247,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3274,7 +3274,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3301,7 +3301,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3328,7 +3328,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3676,7 +3676,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T22:55:12Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null,
       "weight": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
@@ -3813,7 +3813,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:56:26Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -3911,7 +3911,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:40:59Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -3934,7 +3934,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:27Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -3958,7 +3958,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:28Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4031,7 +4031,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:05:30Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4057,7 +4057,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:05:30Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4083,7 +4083,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:22:58Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4110,7 +4110,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:12:43Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4136,7 +4136,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:12:44Z",
-      "ticks_blocked": 2,
+      "ticks_blocked": 3,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4188,7 +4188,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:59:26Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 2,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4214,7 +4214,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:59:27Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 2,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -4264,7 +4264,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T22:28:03Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -4337,11 +4337,12 @@
       "issued_at": "2026-10-01T22:54:54Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T23:25:31Z",
+      "last_worked": "2026-10-01T23:42:33Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 4
     },
     {
       "symbol": "W201",
@@ -4358,13 +4359,13 @@
         "W200"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "policy/screens.rego S8: over MOVING shifts (s != 0), deny fractional share < 2/3, withhold an animation with no moving step; refusing + admitting tests in screens_test.rego; render_screens animation_facts gains moving_fractional_share (or check_screens computes it into --json).",
-      "evidence": "",
+      "next_bounded_step": "S8 counts a step as WHOLE only when its fit is good: over MOVING shifts, a shift with mismatch above a stated share of total is UNRESOLVED (not whole, not fractional, excluded and counted) - check_screens --frames showed 3.000 readings at ~27% mismatch beside 0.02 on 2.750. Then deny fractional share < 2/3 of resolved moving steps; withhold all-stall and all-unresolved. Refusing + admitting tests.",
+      "evidence": "2026-10-01: 2026-10-01 from W203 --frames: high-mismatch whole readings are a measurement artifact; S8 must not count them as whole.",
       "issued_at": "2026-10-01T22:54:54Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T22:55:11Z",
-      "ticks_blocked": 0,
+      "last_worked": "2026-10-01T23:41:48Z",
+      "ticks_blocked": 1,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4390,10 +4391,110 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T22:55:11Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
+    },
+    {
+      "symbol": "W203",
+      "title": "check_screens --frames FILE: every frame of one animation with its measured shift and tear flag",
+      "status": "done",
+      "enables": [
+        "W200"
+      ],
+      "touches": [
+        "check_screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 LANDED: scripts/check_screens.py --frames FILE prints every adjacent frame pair of one x-axis animation (frame index, shift, mismatch of total, TEAR) by reusing render_screens pip_centres/pip_profile/best_pip_shift and the same variant/colour authorities measure() uses (plan_animations, make_preview.parse_scheme phosphor, make_wallpaper_live.colors_for). Refuses an unplanned name and a non-x axis. Selftest 14/14 incl. --frames sees the synthetic tear at frame 3 only. FIRST READ (committed marquee-anim-EL-Amber): shifts cycle 2.625 / 3.000 / 3.000 / 2.750 (period 4, the old even division ~2.8 pip); the 3.000 readings carry mismatch ~27% of total (1.85 of 6.89) vs 0.02 on 2.750 - the \"whole\" steps are partly the measurement failing to resolve the fraction, which is why the marquee fractional share under-reads.",
+      "issued_at": "2026-10-01T23:37:55Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T23:41:47Z",
+      "ticks_blocked": 0,
+      "completed": "20261001T234147Z",
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W204",
+      "title": "Rego contracts for guaranteed information: each measurement record and authority surface declares the fields it always carries, and consumers are checked against the declaration",
+      "status": "ready",
+      "enables": [
+        "W205"
+      ],
+      "touches": [
+        "policy",
+        "scripts",
+        "check_st_api"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Reuse-search first: scripts/check_st_api.py already holds segment_topology exported API against its consumers - generalise its shape, do not start a second mechanism. Then: policy/contracts.rego over a measurement (scripts/check_contracts.py --json) that lists, per producer (every check_*.py --json record type, and authority modules like make_preview / make_schemes.GRID / render_screens.measure), the fields it declares guaranteed, and per consumer the fields it reads (pycodemod key-reads / attr-reads); deny a read of an undeclared field and an empty population. Pilot: render_screens.measure animation records (file, variant, exists, shifts, tears, ...) read by check_screens.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR (prompted by W203: I assumed make_preview.VARIANTS existed; it does not, found only at run time): \"we could use some opa around managing what kinds of information are guaranteed to be present, to provide uniformity around design.\"",
+      "issued_at": "2026-10-01T23:41:26Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T23:41:47Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 3
+    },
+    {
+      "symbol": "W205",
+      "title": "Flesh out the OPA model: Rego holds what is guaranteed, what is expected, and what is hypothesised, not only verdicts on finished artifacts",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        "policy",
+        "opa_gate"
+      ],
+      "blocked_on": [
+        "W204",
+        "W206"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: guarantees (W204 contracts) and hypotheses (W206); add further children as the operator names more of what the model should hold.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR: \"our opa model requires significant fleshing out\". Today Rego judges finished artifacts only; it does not hold what a producer guarantees (W204) or what a debugging step expects (W206).",
+      "issued_at": "2026-10-01T23:42:02Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T23:42:25Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W206",
+      "title": "Hypotheses as Rego: a debugging hypothesis is written with its expected measurement before the run, and opa_gate marks it confirmed or falsified",
+      "status": "ready",
+      "enables": [
+        "W205"
+      ],
+      "touches": [
+        "policy",
+        "opa_gate",
+        "check_screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Shape: catalog/hypotheses/<id>.json = {claim, measurement (a check --json + field path), expect (rego predicate on it), waypoint}; policy/hypotheses.rego marks each confirmed / falsified / unmeasured; opa_gate hypotheses lists them. Pilot on the two W200 hypotheses already spent (first-run-before-capture: falsified; run-end-restart: partly) so the record replaces ledger prose.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR: \"the theory\" ... \"our opa model requires significant fleshing out\" - after two W200 hypotheses were stated and falsified only in chat and ledger prose.",
+      "issued_at": "2026-10-01T23:42:02Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T23:42:25Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
+      "vector_source": "agent",
+      "weight": 3
     }
   ],
   "residue": [

@@ -11,6 +11,7 @@ still exists, is not blank, and sits on its variant's ground — is the policy's
 
     scripts/check_screens.py --json      # the measurement
     scripts/check_screens.py --motion    # per animation: moving steps, fractional share of them
+    scripts/check_screens.py --frames FILE  # every frame pair of one animation: shift, mismatch, tear
     scripts/check_screens.py --selftest  # the measurement can see
 
 --motion (W173): a ZERO shift is excluded from the population (operator 2026-10-01: no
@@ -42,12 +43,71 @@ def motion(anim):
     return len(moving), sum(1 for s in moving if s != int(s))
 
 
+def frame_pairs(path, lit_hex, ground_hex, tolerance=0.5):
+    """Per adjacent frame pair of one x-axis animation: (frame, shift, mismatch, total, tear).
+
+    W203: the SAME helpers render_screens.animation_facts uses (pip_centres, pip_profile,
+    best_pip_shift), reused rather than reimplemented, but keeping the frame index that
+    animation_facts' `shifts` list drops - so a tear's neighbourhood is readable. An empty
+    pair (nothing above the floor) is reported as such, not skipped silently."""
+    import render_screens as RS
+    from PIL import Image, ImageSequence
+    lit, ground = RS._hex(lit_hex), RS._hex(ground_hex)
+    profiles, centres, floor = [], None, 0.0
+    for fr in ImageSequence.Iterator(Image.open(path)):
+        rgb = fr.convert("RGB")
+        if centres is None:
+            centres = RS.pip_centres(rgb, lit, ground, "x")
+            raw = RS.pip_profile(rgb, centres, lit, ground, 0.0, "x")
+            floor = sum(raw) / len(raw) if raw else 0.0
+        profiles.append(RS.pip_profile(rgb, centres, lit, ground, floor, "x"))
+    rows = []
+    for i in range(len(profiles) - 1):
+        prev, cur = profiles[i], profiles[i + 1]
+        total = max(sum(prev), sum(cur))
+        if total < 0.5:
+            rows.append((i + 1, None, None, round(total, 2), False))
+            continue
+        k, f, mism = RS.best_pip_shift(prev, cur, max(1, len(centres) // 4), both_ways=False)
+        rows.append((i + 1, k + f, round(mism, 2), round(total, 2), mism > tolerance * total))
+    return rows
+
+
 def main(argv):
-    known = {"--json", "--motion", "--selftest"}
-    for a in argv[1:]:
+    known = {"--json", "--motion", "--frames", "--selftest"}
+    flags = [a for a in argv[1:] if a.startswith("--")]
+    for a in flags:
         if a not in known:
             print(f"check_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--frames" in argv:
+        rest = [a for a in argv[1:] if not a.startswith("--")]
+        if len(rest) != 1:
+            print("check_screens: --frames takes one animation file (e.g. marquee-anim-EL-Amber.png)", file=sys.stderr)
+            return 2
+        import render_screens as RS
+        name = os.path.basename(rest[0])
+        # the variant, axis and colours from the SAME plan and authorities measure() uses
+        plan = {fn: (v, how) for fn, v, how in RS.plan_animations()}
+        if name not in plan:
+            print(f"check_screens: {name} is not a planned animation ({len(plan)} planned)", file=sys.stderr)
+            return 1
+        variant, how = plan[name]
+        if how[2] != "x":
+            print(f"check_screens: --frames reads x-axis animations; {name} scrolls along {how[2]}", file=sys.stderr)
+            return 2
+        path = os.path.join(measure()["dir"], name)
+        if not os.path.isfile(path):
+            print(f"check_screens: {path} does not exist", file=sys.stderr)
+            return 1
+        import make_preview as MP          # the same two authorities render_screens.measure reads
+        import make_wallpaper_live as WL
+        rows = frame_pairs(path, MP.parse_scheme(variant)["phosphor"], "#%02x%02x%02x" % WL.colors_for(variant)[0])
+        for fr, shift, mism, total, tear in rows:
+            print(f"  frame {fr:3d}: " + ("empty pair" if shift is None else
+                  f"shift {shift:+7.3f}  mismatch {mism:6.2f} of {total:6.2f}{'  TEAR' if tear else ''}"))
+        print(f"check_screens --frames: {len(rows)} pair(s), {sum(1 for r in rows if r[4])} tear(s) in {name}")
+        return 0
     m = measure()
     if "--motion" in argv:
         anims = m.get("animations") or []
@@ -113,6 +173,10 @@ def _selftest():
         chk("a rightward move is a tear, the one-pip shifts are not", [t["frame"] for t in a["tears"]], [3])
         chk("the one-pip shifts are read", [k for k in a["shifts"] if k == 1.0], [1.0, 1.0])
         chk("an open loop is a fact (first and last frames differ)", a["seamless"], False)
+        # W203: --frames keeps the frame index animation_facts drops, and sees the same tear
+        fr = frame_pairs(ap, "#ffd499", "#140f08")
+        chk("--frames sees the tear at frame 3 and only there", [r[0] for r in fr if r[4]], [3])
+        chk("--frames reports the empty first pair, not skips it", fr[0][1] is None or fr[0][0] == 1, True)
         # along y (the viewport): a field of pip ROWS with one lit row stepping down
         # one pip per frame, then up — a ping-pong is admitted on the y axis
         frames = []
