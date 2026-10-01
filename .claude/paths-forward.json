@@ -3619,7 +3619,7 @@
     },
     {
       "symbol": "W181",
-      "title": "Land the W71f serial files (read_serial, check_serial, serial.rego, guest emitter) on main with a tightened el-serial/1 spec",
+      "title": "Reconcile the two el-serial implementations: main (landed) vs worktree agent-a330b44b (W71f); carry the worktree-only parts",
       "status": "ready",
       "enables": [
         "W71"
@@ -3630,12 +3630,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "After W180: re-derive the el-serial/1 ambiguities by reading catalog/guest-image.md against read_serial.py (the agent list was lost), tighten the spec, copy the files to main, add a warrant citing opa_gate serial, commit.",
-      "evidence": "",
+      "next_bounded_step": "Main already has scripts/read_serial.py, guest/el-serial-emit.sh, guest/el-serial-spec.json, policy/serial.rego and catalog/fixtures/serial/{clean,gap,corrupt,noise-only}.log; its selftest PASSES (17 ok). Do NOT copy over it. Compare per part (census B4: two witnesses, record both): does main need (1) the opa_gate operand pass-through, (2) check_serial.py, (3) a no-jq host writer like the worktree PyEmitter? Port only what main lacks, then retire the worktree.",
+      "evidence": "2026-10-01: 2026-10-01 COLLAPSE FINDING: W181 premise (land the W71f files on main) is false. git log shows serial files on main since 6fa3d65; main read_serial.py --selftest PASS 17/17 with fixtures. The worktree is a PARALLEL second implementation (different fixture name noise.log vs noise-only.log, no spec.json, adds PyEmitter, check_serial.py, opa_gate operands). Not merged, not deleted.",
       "issued_at": "2026-10-01T17:53:09Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T18:05:15Z",
+      "last_worked": "2026-10-01T18:23:54Z",
       "ticks_blocked": 0,
       "completed": null
     }
