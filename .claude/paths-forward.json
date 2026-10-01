@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 159,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T05:39:43Z",
-  "job_id": "beb5e16f",
+  "heartbeat": "2026-10-01T06:02:50Z",
+  "job_id": "2331ec36",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -2702,16 +2702,16 @@
         "mtools"
       ],
       "blocked_on": [
-        "mtools"
+        "mtools:W302"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests",
+      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit)",
       "issued_at": "2026-09-28T22:40:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 1
+      "last_worked": "2026-10-01T06:02:50Z",
+      "ticks_blocked": 0
     },
     {
       "symbol": "W140",
@@ -2726,15 +2726,15 @@
         "substrate"
       ],
       "blocked_on": [
-        "mtools"
+        "mtools:W303"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home)",
+      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home) | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W303",
       "issued_at": "2026-09-28T22:40:23Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T04:45:20Z",
+      "last_worked": "2026-10-01T06:02:50Z",
       "ticks_blocked": 0
     },
     {
@@ -3187,5 +3187,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "9e9b1cae"
+  "predecessor_job_id": "beb5e16f"
 }
