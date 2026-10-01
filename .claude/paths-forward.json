@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 166,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T07:23:58Z",
-  "job_id": "56699df8",
+  "heartbeat": "2026-10-01T07:56:55Z",
+  "job_id": "2649c18c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3249,7 +3249,7 @@
     {
       "symbol": "W164",
       "title": "Snap the clock face mount so 00:00 mirrors: digit spacing and colon slot",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W57"
       ],
@@ -3259,12 +3259,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "face-0000 h: 6 regions, each a 7x50 px column at a digit edge (x 23-30, 63-70, 132-139, 172-179, 241-248, 281-288): read the Row spacing (Math.round(segLen*digitGap)) and colonSlot/colonX in SegmentChar against the face centre; snap them so the cell pitch is even about the mirror axis, re-run check_symmetry until face-0000 reads symmetric, re-render the clock screens",
-      "evidence": "",
+      "next_bounded_step": "Make the FACE case measure the mount, not the harness canvas: render_face at the plasmoid Layout.preferredWidth (or crop to the fullRepresentation item bounds, NOT the lit bbox, which would hide a real kerning offset), then re-read face-0000; only what survives that is a mount defect to snap. Update check_symmetry docstring weakness (off-centre face) to match",
+      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T07:48:16Z",
+      "last_worked": "2026-10-01T07:57:37Z",
       "ticks_blocked": 0
     },
     {
@@ -3327,5 +3327,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "01ce4d93"
+  "predecessor_job_id": "56699df8"
 }
