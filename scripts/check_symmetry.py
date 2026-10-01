@@ -330,7 +330,7 @@ def _runs(flags, max_gap):
     return runs
 
 
-def first_glyph_box(im, max_gap=2):
+def first_glyph_box(im, max_gap=2, ring=False):
     """The FIRST glyph's core box on a matrix board: core pixels are at least half the
     peak luminance (the ghost pips covering the board are excluded); columns within
     a glyph are 1 px pip gaps apart, glyphs a blank pip column apart, so columns are
@@ -341,12 +341,26 @@ def first_glyph_box(im, max_gap=2):
     if peak == 0:
         return None
     core = [[lum[y][x] * 2 >= peak for x in range(im.width)] for y in range(im.height)]
-    cols = [any(core[y][x] for y in range(im.height)) for x in range(im.width)]
+    # ⚑ THE HOVER RING IS NOT A GLYPH (W166, measured 2026-10-01): held, the board's
+    # outer ring of pips pulses (W51) to the core threshold and spans the width, and
+    # the first real crop was the whole 419x31 board. Each pip row and pip column is
+    # its own band (max_gap 0); with a ring present the outermost band on each side
+    # is the ring, so only the interior is grouped.
+    if ring:
+        rbands = _runs([any(r) for r in core], 0)
+        cbands = _runs([any(core[y][x] for y in range(im.height)) for x in range(im.width)], 0)
+        if len(rbands) < 3 or len(cbands) < 3:
+            return None
+        iy0, iy1 = rbands[1][0], rbands[-2][1]
+        ix0, ix1 = cbands[1][0], cbands[-2][1]
+    else:
+        iy0, iy1, ix0, ix1 = 0, im.height, 0, im.width
+    cols = [ix0 <= x < ix1 and any(core[y][x] for y in range(iy0, iy1)) for x in range(im.width)]
     runs = _runs(cols, max_gap)
     if not runs:
         return None
     x0, x1 = runs[0]
-    rows = [any(core[y][x] for x in range(x0, x1)) for y in range(im.height)]
+    rows = [iy0 <= y < iy1 and any(core[y][x] for x in range(x0, x1)) for y in range(im.height)]
     ys = [y for y, on in enumerate(rows) if on]
     return (x0, min(ys), x1, max(ys) + 1)
 
@@ -371,9 +385,9 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
                 out.append(row)
                 continue
             im = Image.open(png).convert("RGB")
-            box = first_glyph_box(im)
+            box = first_glyph_box(im, ring=True)
             if box is None:
-                row["withheld"] = "no lit glyph on the held board"
+                row["withheld"] = "no lit glyph inside the held board's ring"
                 out.append(row)
                 continue
             im = im.crop(box)
@@ -411,13 +425,16 @@ def grid_cases(grids=GRIDS):
 
 
 def main(argv):
-    known = {"--json", "--selftest", "--list"}
+    known = {"--json", "--selftest", "--list", "--matrix"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_symmetry: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
+        return 0
+    if "--matrix" in argv:                      # the matrix glyph cases alone (W166)
+        print(json.dumps(matrix_cases(), indent=1))
         return 0
     if "--list" not in argv:
         import opa_gate
@@ -548,6 +565,23 @@ def _selftest():
     chk("a clean pip H mirrors in both planes", (mirror_points(g, "h"), mirror_points(g, "v")), ([], []))
     notched = board(drop=(0, 0)).crop(box)
     chk("a removed pip is located by the mirror", len(regions(mirror_points(notched, "h"))) > 0, True)
+    # ...and WITH the W51 ring lit around the board, the crop is still the first glyph
+    # (the real board's first crop was the whole board: the ring had swallowed it)
+    ringed = Image.new("RGB", (68, 44), (20, 20, 20))
+    for x in range(0, 68, 4):
+        for y in (0, 40):
+            for dx in range(3):
+                for dy in range(3):
+                    ringed.putpixel((x + dx, y + dy), (255, 200, 0))
+    for y in range(0, 44, 4):
+        for x in (0, 64):
+            for dx in range(3):
+                for dy in range(3):
+                    ringed.putpixel((x + dx, y + dy), (255, 200, 0))
+    ringed.paste(b, (4, 4))
+    rbox = first_glyph_box(ringed, ring=True)
+    chk("with the hover ring lit, the crop is still the first glyph alone", rbox, (6, 6, 25, 33))
+    chk("...and without ring exclusion it would not be", first_glyph_box(ringed) != rbox, True)
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 
