@@ -4145,7 +4145,8 @@
     "Pushes are automatic (post-commit auto_push); never push by hand; read .git/auto-push.log; no tree writes while check_tree_writes runs.",
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
-    "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
+    "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106).",
+    "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177). If nemik's order is paradoxical (blocks itself, ranks an item whose blocker it ranks lower, contradicts an operator ruling), do not override it locally: consult nemik-00."
   ],
   "predecessor_job_id": "8d8cd8ee",
   "leases": []
