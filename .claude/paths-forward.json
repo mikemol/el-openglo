@@ -3,7 +3,7 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 150,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-09-29T01:57:20Z",
+  "heartbeat": "2026-10-01T03:17:48Z",
   "job_id": "2ddac196",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
@@ -38,7 +38,7 @@
     },
     {
       "symbol": "W11",
-      "title": "Answer summit's three letters in inbox/ (axis 4 Δ-sandbox root, axis 5 wrapper shape, axis 10 vendoring posture) — answers go in the axis files under the operator's name",
+      "title": "Answer summit's three letters (axes 4, 5 and 10) under the operator's name",
       "status": "done",
       "enables": [],
       "touches": [
@@ -50,9 +50,9 @@
       "blocked_kind": null,
       "rank_reason": "blocked on a human decision; high because a peer is waiting and a decline is a first-class answer",
       "next_bounded_step": "—",
-      "evidence": "Operator declined all three (AskUserQuestion, 2026-09-20). Decline sent to summit-b0 via SendMessage msg_id=e43c0981 (queued; delivery notice pending). Recording in the axis files is summit's convention, left to summit.",
+      "evidence": "Operator declined all three (AskUserQuestion, 2026-09-20). Decline sent to summit-b0 via SendMessage msg_id=e43c0981 (queued; delivery notice pending). Recording in the axis files is summit's convention, left to summit. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Answer summit's three letters in inbox/ (axis 4 Δ-sandbox root, axis 5 wrapper shape, axis 10 vendoring posture) — answers go in the axis files under the operator's name",
       "issued_at": "2026-09-20T18:45:00Z",
-      "last_worked": "2026-09-20T19:37:28+00:00",
+      "last_worked": "2026-10-01T03:16:58Z",
       "ticks_blocked": 1
     },
     {
@@ -152,7 +152,7 @@
     },
     {
       "symbol": "W7",
-      "title": "Segment projection chain: real fontTools ingest → calibrate bandwidth/tau → validate against the authored 44 → descenders in 22-seg — cotype ⊕SEG-FONT-PROJECT, ⊕SEG-PROJECT-CALIBRATE, ⊕SEG-TABLE-VALIDATE, ⊕SEG22-DESCENDERS",
+      "title": "Segment projection chain: fontTools ingest, calibration, validation against the authored 44, 22-segment descenders",
       "status": "done",
       "enables": [],
       "touches": [
@@ -163,14 +163,14 @@
       "blocked_kind": null,
       "rank_reason": "collapse candidate held open: four cotype symbols form one chain (ingest→calibrate→validate); kept as ONE waypoint pointing at four cotype identities, not merged in the cotype itself",
       "next_bounded_step": "",
-      "evidence": "5f2fc5a: glyph_match.calibrate_projection + SW_BAND=0.85 solved; check_projection --calibrate/--frame; mean Jaccard 0.58->0.65, 9/36 exact; frame hypothesis rejected (fit 0.43), crossbar stroke-width defect fixed; COTYPE s75; ⊕SEG-PROJECT-CALIBRATE in check_symbol.CLOSED (33 witnessed). Residue -> ⊕SEG-DOTPRODUCT-TEMPLATES (witnessed open, RESEARCH)",
+      "evidence": "5f2fc5a: glyph_match.calibrate_projection + SW_BAND=0.85 solved; check_projection --calibrate/--frame; mean Jaccard 0.58->0.65, 9/36 exact; frame hypothesis rejected (fit 0.43), crossbar stroke-width defect fixed; COTYPE s75; ⊕SEG-PROJECT-CALIBRATE in check_symbol.CLOSED (33 witnessed). Residue -> ⊕SEG-DOTPRODUCT-TEMPLATES (witnessed open, RESEARCH) | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Segment projection chain: real fontTools ingest → calibrate bandwidth/tau → validate against the authored 44 → descenders in 22-seg — cotype ⊕SEG-FONT-PROJECT, ⊕SEG-PROJECT-CALIBRATE, ⊕SEG-TABLE-VALIDATE, ⊕SEG22-DESCENDERS",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-21T09:29:59+00:00",
+      "last_worked": "2026-10-01T03:16:58Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W8",
-      "title": "⊕SEGMENT-ROLLOUT: every surface draws the palette fg/fg_in at ghost_alpha — 24 of 24 emissions differ; SegmentChar.qml has zero consumers (+ ⊕GHOST-DENSITY)",
+      "title": "Segment rollout: every surface draws lit and ghost from the palette at ghost_alpha",
       "status": "done",
       "enables": [],
       "touches": [
@@ -181,9 +181,9 @@
       "blocked_kind": null,
       "rank_reason": "collapse (operator-decided): one colour chain — surfaces read fg/fg_in/ghost_alpha; retires stretch_lit/derive_ghost in four surfaces and makes W3 reach the screen",
       "next_bounded_step": "—",
-      "evidence": "DONE (tick 16, commit 2dca20e): clock reads fg/fg_in/ghost_alpha, segments+colon at solved alpha; make_schemes emits [EL] GhostAlpha into every .colors; parse_scheme reads ghost+ghost_alpha; plymouth reads both (ghost_from residue). check_ghost_surfaces 24 of 24; @GHOST-SURFACES green; ⊕SEGMENT-ROLLOUT closed (COTYPE session 70, Four gates line); ⊕SEGMENTCHAR-ADOPT opened as residue with a witness. check_palette_chain selftest fixture (pinned to C.derive_ghost) moved to a planted module. Worklist 44/44. ⊕GHOST-DENSITY remains the RESEARCH follow-on.",
+      "evidence": "DONE (tick 16, commit 2dca20e): clock reads fg/fg_in/ghost_alpha, segments+colon at solved alpha; make_schemes emits [EL] GhostAlpha into every .colors; parse_scheme reads ghost+ghost_alpha; plymouth reads both (ghost_from residue). check_ghost_surfaces 24 of 24; @GHOST-SURFACES green; ⊕SEGMENT-ROLLOUT closed (COTYPE session 70, Four gates line); ⊕SEGMENTCHAR-ADOPT opened as residue with a witness. check_palette_chain selftest fixture (pinned to C.derive_ghost) moved to a planted module. Worklist 44/44. ⊕GHOST-DENSITY remains the RESEARCH follow-on. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEGMENT-ROLLOUT: every surface draws the palette fg/fg_in at ghost_alpha — 24 of 24 emissions differ; SegmentChar.qml has zero consumers (+ ⊕GHOST-DENSITY)",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-20T23:18:09+00:00",
+      "last_worked": "2026-10-01T03:16:58Z",
       "ticks_blocked": 0
     },
     {
@@ -207,7 +207,7 @@
     },
     {
       "symbol": "W10",
-      "title": "TUNE bucket: cursor inherit, icons inherit, solver-owned UI tokens, Alt+Tab switcher — cotype ⊕CURSOR-INHERIT, ⊕ICONS-INHERIT, ⊕SOLVER-UI-TOKENS, ⊕TASKSWITCH",
+      "title": "TUNE bucket: cursor and icon inheritance, solver-owned UI tokens, Alt+Tab switcher",
       "status": "done",
       "enables": [],
       "touches": [
@@ -218,9 +218,9 @@
       "blocked_kind": null,
       "rank_reason": "lowest: polish with no downstream; ⊕SOLVER-UI-TOKENS is the only one with structural weight (reuse-search rule) and should go first when this is reached",
       "next_bounded_step": "—",
-      "evidence": "b176de5: states measured at q 0.06-0.75 (authored nudges never separated them); relations §4b + solve_state_steps (smallest feasible step, infeasibility named); check_states @STATES (56); the KNOWN_INFEASIBLE pin fired (2.94→3.33) and left the table; COTYPE s73 closes ⊕SOLVER-UI-TOKENS (31 witnessed). OPEN by name: sel_in, link/visited on selection, sel_alt/sel_act, panel ladder; ⊕SOLVER-PERF untouched. ⊕VER: the Off variants' hover ring is darker now.",
+      "evidence": "b176de5: states measured at q 0.06-0.75 (authored nudges never separated them); relations §4b + solve_state_steps (smallest feasible step, infeasibility named); check_states @STATES (56); the KNOWN_INFEASIBLE pin fired (2.94→3.33) and left the table; COTYPE s73 closes ⊕SOLVER-UI-TOKENS (31 witnessed). OPEN by name: sel_in, link/visited on selection, sel_alt/sel_act, panel ladder; ⊕SOLVER-PERF untouched. ⊕VER: the Off variants' hover ring is darker now. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): TUNE bucket: cursor inherit, icons inherit, solver-owned UI tokens, Alt+Tab switcher — cotype ⊕CURSOR-INHERIT, ⊕ICONS-INHERIT, ⊕SOLVER-UI-TOKENS, ⊕TASKSWITCH",
       "issued_at": "2026-09-20T00:00:00Z",
-      "last_worked": "2026-09-21T08:45:51+00:00",
+      "last_worked": "2026-10-01T03:16:58Z",
       "ticks_blocked": 0
     },
     {
@@ -264,7 +264,7 @@
     },
     {
       "symbol": "W14",
-      "title": "Union theme emitter — the palette emitted as a KDE Union style description (CSS input via cxx-rust-cssparser; Plasma-SVG input defunct 2025-10-09), the sink that subsumes make_kvantum + make_plasma + the QQC2 half of breeze",
+      "title": "Union theme emitter: the palette as a KDE Union style description",
       "status": "done",
       "enables": [],
       "touches": [
@@ -277,9 +277,9 @@
       "blocked_kind": null,
       "rank_reason": "collapse: Union replaces three current engines with one description; a generated palette is exactly its input shape. Measure the format before emitting — the engine is 6.7.5 ~arch, not yet default, and the format may still move",
       "next_bounded_step": "—",
-      "evidence": "8a7c449: make_union.py (one style per variant; Breeze imported; indicator/focus/hover alphas solved by ghost_solve.alpha_min over the scheme's pairs — EL-Openglo indicator 0.396 vs Breeze's authored 0.4; OPEN list kept authored), check_union.py @UNION (worklist 48; 18 of 18 arms), staged under usr/share/union/css/styles/, apply writes UNION_STYLE_NAME env hook, relations.md §3d. ⊕VER after emerge + a LOGIN (HOLD ~2026-09-24): hover fills, focus ring, indicators follow the solve; engine cascade of a later :root is the unproven half.",
+      "evidence": "8a7c449: make_union.py (one style per variant; Breeze imported; indicator/focus/hover alphas solved by ghost_solve.alpha_min over the scheme's pairs — EL-Openglo indicator 0.396 vs Breeze's authored 0.4; OPEN list kept authored), check_union.py @UNION (worklist 48; 18 of 18 arms), staged under usr/share/union/css/styles/, apply writes UNION_STYLE_NAME env hook, relations.md §3d. ⊕VER after emerge + a LOGIN (HOLD ~2026-09-24): hover fills, focus ring, indicators follow the solve; engine cascade of a later :root is the unproven half. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Union theme emitter — the palette emitted as a KDE Union style description (CSS input via cxx-rust-cssparser; Plasma-SVG input defunct 2025-10-09), the sink that subsumes make_kvantum + make_plasma + the QQC2 half of breeze",
       "issued_at": "2026-09-20T23:31:29+00:00",
-      "last_worked": "2026-09-21T04:18:27+00:00",
+      "last_worked": "2026-10-01T03:16:58Z",
       "ticks_blocked": 0
     },
     {
@@ -322,7 +322,7 @@
     },
     {
       "symbol": "W17",
-      "title": "GNOME theming — what of the palette can reach GTK3, GTK4/libadwaita and GNOME Shell, and through which mechanism (gtk.css, adw-gtk3-style theme, Shell user-theme, or the libadwaita accent API), given ⊕GTK-ADW says pure-libadwaita apps honour no override",
+      "title": "GNOME theming: how far the palette reaches GTK3, GTK4/libadwaita and GNOME Shell",
       "status": "done",
       "enables": [],
       "touches": [
@@ -335,14 +335,14 @@
       "blocked_kind": null,
       "rank_reason": "measure-first: the design log already records libadwaita as UNREACHABLE by design (⊕GTK-ADW, :704) and make_deb ships breeze-gtk-shaped GTK3 bits; the question is which GNOME surfaces still take a theme in 2026 (GTK3 via a theme dir; GTK4 via ~/.config/gtk-4.0/gtk.css and the libadwaita accent-color portal; Shell via the user-theme extension) and whether a generated theme is more than a recolour of adw-gtk3. Venue: gnome-look.org — the SAME pling/OCS backend as the KDE Store, so W13's category-id witness extends",
       "next_bounded_step": "—",
-      "evidence": "ef8c504: ⊕GTK found with NO build (third closed symbol this week) — make_gtk.py rebuilt (ADW_VARS 40 → roles; ADW_NAMED from the libadwaita CSS-variables reference read 2026-09-21; GTK3_DEFINES for adw-gtk3), check_gtk @GTK 24 of 24 (name typo red; selection pair at the palette's floor), CLOSED witness in check_symbol (3 of 3), staged where el-openglo-apply already copies from. Reach measured: libadwaita reads gtk.css :root variables in every app — the sanctioned channel. NOT reached: GNOME Shell (user-theme extension) — residue. ⊕VER needs a GTK app after emerge + el-openglo-apply.",
+      "evidence": "ef8c504: ⊕GTK found with NO build (third closed symbol this week) — make_gtk.py rebuilt (ADW_VARS 40 → roles; ADW_NAMED from the libadwaita CSS-variables reference read 2026-09-21; GTK3_DEFINES for adw-gtk3), check_gtk @GTK 24 of 24 (name typo red; selection pair at the palette's floor), CLOSED witness in check_symbol (3 of 3), staged where el-openglo-apply already copies from. Reach measured: libadwaita reads gtk.css :root variables in every app — the sanctioned channel. NOT reached: GNOME Shell (user-theme extension) — residue. ⊕VER needs a GTK app after emerge + el-openglo-apply. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GNOME theming — what of the palette can reach GTK3, GTK4/libadwaita and GNOME Shell, and through which mechanism (gtk.css, adw-gtk3-style theme, Shell user-theme, or the libadwaita accent API), given ⊕GTK-ADW says pure-libadwaita apps honour no override",
       "issued_at": "2026-09-20T23:38:54+00:00",
-      "last_worked": "2026-09-21T06:01:51+00:00",
+      "last_worked": "2026-10-01T03:16:58Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W18",
-      "title": "Android — how a solved palette reaches an Android device: Material You derives its OWN tonal palette from the wallpaper (Monet), so the honest emit may be a wallpaper whose seed colour steers Monet toward the palette, plus a check that Monet's derived scheme agrees with ours",
+      "title": "Android: steer Material You (Monet) toward the palette, and check its derived scheme agrees",
       "status": "done",
       "enables": [],
       "touches": [
@@ -354,14 +354,14 @@
       "blocked_kind": null,
       "rank_reason": "measure-first with a relation question inside it: Android does not take a theme, it derives one — the palette solver and Monet are two solvers over one seed, and whether they agree is a relation (catalog/relations.md) before it is an emitter. Venue: none for a theme; a wallpaper is a file, a wallpaper APP is the Play Store",
       "next_bounded_step": "—",
-      "evidence": "5b25d5e: check_monet.py @MONET (55) — TonalSpot/0 seeded from lit: hue kept <1° on 6/6, AA pairs 6/6, dark surface 2.5-3.4 dE from ground on the Off variants; Lit grounds unreachable (Monet light surface near-white) — recorded in catalog/android.md. Emit = wallpaper + documented seed (the lit colour); Termux already ships. Not built with reasons: themed icons, launcher themes.",
+      "evidence": "5b25d5e: check_monet.py @MONET (55) — TonalSpot/0 seeded from lit: hue kept <1° on 6/6, AA pairs 6/6, dark surface 2.5-3.4 dE from ground on the Off variants; Lit grounds unreachable (Monet light surface near-white) — recorded in catalog/android.md. Emit = wallpaper + documented seed (the lit colour); Termux already ships. Not built with reasons: themed icons, launcher themes. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Android — how a solved palette reaches an Android device: Material You derives its OWN tonal palette from the wallpaper (Monet), so the honest emit may be a wallpaper whose seed colour steers Monet toward the palette, plus a check that Monet's derived scheme agrees with ours",
       "issued_at": "2026-09-20T23:39:05+00:00",
-      "last_worked": "2026-09-21T07:45:45+00:00",
+      "last_worked": "2026-10-01T03:16:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W19",
-      "title": "Web / IndieWeb theme — the palette as CSS custom properties (one :root block per variant, prefers-color-scheme mapping Off/Lit), the sink every site theme reads; the operator's future IndieWeb site is the first consumer",
+      "title": "Web theme: the palette as CSS custom properties, one block per variant",
       "status": "done",
       "enables": [],
       "touches": [
@@ -374,14 +374,14 @@
       "blocked_kind": null,
       "rank_reason": "collapse: CSS custom properties are the lowest-common-denominator of every browser/GNOME/Union sink already queued (Union input IS CSS; Firefox/Chrome themes are colour maps) — emitting the palette as CSS tokens once gives W14, W15 and the site a shared read. Cheap, and it makes the palette linkable from the web (rel=stylesheet, or a theme CSS the IndieWeb templates import)",
       "next_bounded_step": "—",
-      "evidence": "DONE (tick 22, commit 93fc427): make_css.py → catalog/el-openglo.css (6 variants; --el-<key> per token; both alphas; :root = EL-Openglo, prefers-color-scheme:light = -Lit; seen ghost as color-mix per mode); check_css.py wired as @CSS, 228 of 228 properties equal the palette; selftest sees stale/dropped/foreign/non-mix/mis-mapped; tinycss2 declared (tooling extra); make_css in the emitter roster; worklist 46 of 46. IndieWeb specifics wait for the site.",
+      "evidence": "DONE (tick 22, commit 93fc427): make_css.py → catalog/el-openglo.css (6 variants; --el-<key> per token; both alphas; :root = EL-Openglo, prefers-color-scheme:light = -Lit; seen ghost as color-mix per mode); check_css.py wired as @CSS, 228 of 228 properties equal the palette; selftest sees stale/dropped/foreign/non-mix/mis-mapped; tinycss2 declared (tooling extra); make_css in the emitter roster; worklist 46 of 46. IndieWeb specifics wait for the site. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Web / IndieWeb theme — the palette as CSS custom properties (one :root block per variant, prefers-color-scheme mapping Off/Lit), the sink every site theme reads; the operator's future IndieWeb site is the first consumer",
       "issued_at": "2026-09-20T23:39:19+00:00",
-      "last_worked": "2026-09-21T01:29:38+00:00",
+      "last_worked": "2026-10-01T03:16:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W20",
-      "title": "The pre-commit hook warms the palette cache before the worklist gate — a cold .palette-cache.json makes ~13 checks time out at once and the hook refuses a green tree",
+      "title": "Pre-commit warms the palette cache before the worklist gate, so a cold cache cannot fail a green tree",
       "status": "done",
       "enables": [],
       "touches": [
@@ -393,14 +393,14 @@
       "blocked_kind": null,
       "rank_reason": "sweep: three commits this session (aee168a-era, 09177ec, 93fc427) were refused on the first try and passed on the warm retry; the judgement \"retry, it was cold\" lives in the turn, not the hook",
       "next_bounded_step": "—",
-      "evidence": "DONE (tick 23, commit 596da31): make_schemes.py --warm (a mode); hook step 4a `run \"palette-cache\"` before the gate; step 4 captures the gate output and prints it on refusal. CORRECTION from the gate ledger: the three refusals took ~5 s (fast failures), NOT cold-cache timeouts — the reason was discarded by >/dev/null 2>&1; the cascade I saw was from running the gate by hand after a solver edit. Both fixed. The hook exercised itself on this commit.",
+      "evidence": "DONE (tick 23, commit 596da31): make_schemes.py --warm (a mode); hook step 4a `run \"palette-cache\"` before the gate; step 4 captures the gate output and prints it on refusal. CORRECTION from the gate ledger: the three refusals took ~5 s (fast failures), NOT cold-cache timeouts — the reason was discarded by >/dev/null 2>&1; the cascade I saw was from running the gate by hand after a solver edit. Both fixed. The hook exercised itself on this commit. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): The pre-commit hook warms the palette cache before the worklist gate — a cold .palette-cache.json makes ~13 checks time out at once and the hook refuses a green tree",
       "issued_at": "2026-09-21T01:29:50+00:00",
-      "last_worked": "2026-09-21T01:37:44+00:00",
+      "last_worked": "2026-10-01T03:16:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W21",
-      "title": "Restore ⊕STROKE-WEIGHT and ⊕BLOOM to the clock — both CLOSED in COTYPE.md (sessions 40-41, deb 1.10/1.11) and lost in the recovery; templates/clock-main.qml draws lit and ghost at the same segThick with no MultiEffect (only the orphan Effects import survived). Operator, live 2026-09-21: ghost too close to lit; lit should read BIGGER",
+      "title": "Restore stroke weight and bloom to the clock, both lost in the recovery",
       "status": "done",
       "enables": [],
       "touches": [],
@@ -408,14 +408,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "—",
-      "evidence": "3e498c1 (rebuild + @REGRESSIONS); dc55cb7: ⊕VER found config page blank (org.kde.kcm is KF5 → org.kde.kcmutils, blank since recovery) and the halo a haze (64px blurMax + brightness on a 3px stroke) — blur now scaled by stroke×slider; d14f963: scripts/render_qml.py — headless render via Qt's qml runner + grabToImage, RHI forced (offscreen defaults to the SOFTWARE scene graph where MultiEffect draws nothing), --pixels census; rendered clock at panel height and wallpaper look right. UNPUSHED: c8f9995 3e498c1 dc55cb7 d14f963.",
+      "evidence": "3e498c1 (rebuild + @REGRESSIONS); dc55cb7: ⊕VER found config page blank (org.kde.kcm is KF5 → org.kde.kcmutils, blank since recovery) and the halo a haze (64px blurMax + brightness on a 3px stroke) — blur now scaled by stroke×slider; d14f963: scripts/render_qml.py — headless render via Qt's qml runner + grabToImage, RHI forced (offscreen defaults to the SOFTWARE scene graph where MultiEffect draws nothing), --pixels census; rendered clock at panel height and wallpaper look right. UNPUSHED: c8f9995 3e498c1 dc55cb7 d14f963. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Restore ⊕STROKE-WEIGHT and ⊕BLOOM to the clock — both CLOSED in COTYPE.md (sessions 40-41, deb 1.10/1.11) and lost in the recovery; templates/clock-main.qml draws lit and ghost at the same segThick with no MultiEffect (only the orphan Effects import survived). Operator, live 2026-09-21: ghost too close to lit; lit should read BIGGER",
       "issued_at": "2026-09-21T02:39:25+00:00",
-      "last_worked": "2026-09-21T03:16:48+00:00",
+      "last_worked": "2026-10-01T03:16:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W22",
-      "title": "Digit PITCH is substrate, derived from a published module spec — segment_topology fixes the cell (2L×4L), naming and masks, but the ADVANCE per digit and per colon, the slant, and the stroke:height ratio are authored per surface: make_wallpaper 1.55L/0.72L, live wallpaper 2.6U/0.8U, clock digitGap 0.45 (placeholder, 2026-09-21). Operator: 'aren't there published standards for this?' — yes: multi-digit segment-module datasheets (digit pitch, character width, segment width, slant, colon offset) and segment fonts (DSEG advance widths)",
+      "title": "Derive digit pitch, slant and stroke ratio from published segment-module specs",
       "status": "done",
       "enables": [],
       "touches": [],
@@ -423,14 +423,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "—",
-      "evidence": "9e8e27a: four datasheets (Kingbright SA56-11/DA56-11/CC56-12, Avago HDSP-B0xG) agree — pitch 12.7 for H 14.22, single package = char 8.0 + 2×2.35, colon adds no advance. segment_topology.MODULE_METRICS + metrics(H); all three surfaces read it; check_geometry_source --coverable 4th arm (perturbed pitch reaches 3 of 3); substrate selftest asserts the witnesses agree; STANDARDS.md row. Rendered: clock + wallpaper 23:46 at module pitch. RESIDUE: relations.md §geometry entry not written (pitch is a floor relation in prose here, not in the relations table); marquee sample re-renders differently with no input change; slant 8° not applied anywhere yet.",
+      "evidence": "9e8e27a: four datasheets (Kingbright SA56-11/DA56-11/CC56-12, Avago HDSP-B0xG) agree — pitch 12.7 for H 14.22, single package = char 8.0 + 2×2.35, colon adds no advance. segment_topology.MODULE_METRICS + metrics(H); all three surfaces read it; check_geometry_source --coverable 4th arm (perturbed pitch reaches 3 of 3); substrate selftest asserts the witnesses agree; STANDARDS.md row. Rendered: clock + wallpaper 23:46 at module pitch. RESIDUE: relations.md §geometry entry not written (pitch is a floor relation in prose here, not in the relations table); marquee sample re-renders differently with no input change; slant 8° not applied anywhere yet. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Digit PITCH is substrate, derived from a published module spec — segment_topology fixes the cell (2L×4L), naming and masks, but the ADVANCE per digit and per colon, the slant, and the stroke:height ratio are authored per surface: make_wallpaper 1.55L/0.72L, live wallpaper 2.6U/0.8U, clock digitGap 0.45 (placeholder, 2026-09-21). Operator: 'aren't there published standards for this?' — yes: multi-digit segment-module datasheets (digit pitch, character width, segment width, slant, colon offset) and segment fonts (DSEG advance widths)",
       "issued_at": "2026-09-21T03:33:42+00:00",
-      "last_worked": "2026-09-21T03:51:58+00:00",
+      "last_worked": "2026-10-01T03:16:59Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W23",
-      "title": "The palette's solved ghost EQUALS lit on EL-Azure and EL-Amber — check_ghost_surfaces --map (2026-09-21): fg_in == fg for both Off variants ((153,204,255); (255,212,153)); EL-Openglo differs slightly ((141,235,217) vs (153,255,235)). On those variants the ghost/lit distinction is alpha-only, no colour channel — the operator's live 'ghost too close to lit' on Azure at the PALETTE level; every surface is faithful to a degenerate solve and every check passes",
+      "title": "Fix the degenerate ghost solve where ghost equals lit on EL-Azure and EL-Amber",
       "status": "done",
       "enables": [],
       "touches": [],
@@ -438,14 +438,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "—",
-      "evidence": "0511aa9: the defect was the global alpha = max(alpha_min) — reaches every FLOOR, not every CEILING; Azure's seen ghost sat at Lc 25.0 vs 29.8 elsewhere; declared==lit was the side effect. Now max(max(alpha_min, 1 - t_ceiling)) → 0.566; every variant within 1 Lc of the ceiling; check_ghost_composite holds looked-at ghosts to the TARGET (TARGET_SLACK 1 Lc), selftest plants Azure's shape. .colors/css/clock/samples/baselines regenerated; relations §3b. ⊕VER on Azure after emerge: ghost slightly MORE visible than before (ceiling), consistent across variants; fainter = a ceiling change.",
+      "evidence": "0511aa9: the defect was the global alpha = max(alpha_min) — reaches every FLOOR, not every CEILING; Azure's seen ghost sat at Lc 25.0 vs 29.8 elsewhere; declared==lit was the side effect. Now max(max(alpha_min, 1 - t_ceiling)) → 0.566; every variant within 1 Lc of the ceiling; check_ghost_composite holds looked-at ghosts to the TARGET (TARGET_SLACK 1 Lc), selftest plants Azure's shape. .colors/css/clock/samples/baselines regenerated; relations §3b. ⊕VER on Azure after emerge: ghost slightly MORE visible than before (ceiling), consistent across variants; fainter = a ceiling change. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): The palette's solved ghost EQUALS lit on EL-Azure and EL-Amber — check_ghost_surfaces --map (2026-09-21): fg_in == fg for both Off variants ((153,204,255); (255,212,153)); EL-Openglo differs slightly ((141,235,217) vs (153,255,235)). On those variants the ghost/lit distinction is alpha-only, no colour channel — the operator's live 'ghost too close to lit' on Azure at the PALETTE level; every surface is faithful to a degenerate solve and every check passes",
       "issued_at": "2026-09-21T04:44:54+00:00",
-      "last_worked": "2026-09-21T05:07:57+00:00",
+      "last_worked": "2026-10-01T03:17:00Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W24",
-      "title": "Rebuild the font family — ⊕SEG-FONT, ⊕SEG-FONT-TTF, ⊕DOT-FONT, ⊕DOT-FONT-TTF, ⊕DOT-FONT-DESC are CLOSED in COTYPE.md and KNOWN-LOST (check_symbol.LOST, sweep 2026-09-21): make_font.py is a recorded partial nobody imports, fonts/ is absent, make_deb maps fonts/ only if present",
+      "title": "Rebuild the lost segment and dot-matrix font family",
       "status": "done",
       "enables": [],
       "touches": [],
@@ -453,14 +453,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "—",
-      "evidence": "1ab38ca: glyph_contours/matrix_contours → one build_ttf; EL-Segment-{7,16}.ttf + EL-Matrix-5x7.ttf + SVG fonts under fonts/; source-relative orientation gate; check_font @FONT-EMIT (54); make_font in STAGE, mapping unguarded; fonttools to base deps + ebuild; 4 symbols LOST→CLOSED (28/1). Remaining: ⊕DOT-FONT-DESC — the 5x8 table is gone (W26).",
+      "evidence": "1ab38ca: glyph_contours/matrix_contours → one build_ttf; EL-Segment-{7,16}.ttf + EL-Matrix-5x7.ttf + SVG fonts under fonts/; source-relative orientation gate; check_font @FONT-EMIT (54); make_font in STAGE, mapping unguarded; fonttools to base deps + ebuild; 4 symbols LOST→CLOSED (28/1). Remaining: ⊕DOT-FONT-DESC — the 5x8 table is gone (W26). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Rebuild the font family — ⊕SEG-FONT, ⊕SEG-FONT-TTF, ⊕DOT-FONT, ⊕DOT-FONT-TTF, ⊕DOT-FONT-DESC are CLOSED in COTYPE.md and KNOWN-LOST (check_symbol.LOST, sweep 2026-09-21): make_font.py is a recorded partial nobody imports, fonts/ is absent, make_deb maps fonts/ only if present",
       "issued_at": "2026-09-21T06:08:00+00:00",
-      "last_worked": "2026-09-21T07:04:10+00:00",
+      "last_worked": "2026-10-01T03:17:00Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W25",
-      "title": "Rebuild the three small KNOWN-LOST closures: ⊕VER-WIDGET-ICON (make_preview.icon_svg — the clock plasmoid's icon from the scheme; make_deb SKIPs it per variant), ⊕QML-SANITY (qml_sanity.py — the staged QML is unlinted; qmllint at /usr/lib64/qt6/bin exists here), ⊕RENDER-GATE (render_qml.py exists but make_deb does not run it as the fourth gate the closure at :4545 states)",
+      "title": "Rebuild three lost closures: widget icon, QML sanity lint, render gate",
       "status": "done",
       "enables": [],
       "touches": [],
@@ -468,9 +468,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "—",
-      "evidence": "e570137: icon_svg ('12' over ghost at module pitch), qml_sanity.py on qmllint keyed by diagnostic id (Plasma context props not errors), render gate in make_deb (SKIP under SANDBOX_ON — the offscreen platform opens /dev/nvidiactl, a sandbox violation); BDEPEND +qtdeclarative; check_deps fixture de-pinned; three symbols LOST→CLOSED (24 witnessed / 5 lost).",
+      "evidence": "e570137: icon_svg ('12' over ghost at module pitch), qml_sanity.py on qmllint keyed by diagnostic id (Plasma context props not errors), render gate in make_deb (SKIP under SANDBOX_ON — the offscreen platform opens /dev/nvidiactl, a sandbox violation); BDEPEND +qtdeclarative; check_deps fixture de-pinned; three symbols LOST→CLOSED (24 witnessed / 5 lost). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Rebuild the three small KNOWN-LOST closures: ⊕VER-WIDGET-ICON (make_preview.icon_svg — the clock plasmoid's icon from the scheme; make_deb SKIPs it per variant), ⊕QML-SANITY (qml_sanity.py — the staged QML is unlinted; qmllint at /usr/lib64/qt6/bin exists here), ⊕RENDER-GATE (render_qml.py exists but make_deb does not run it as the fourth gate the closure at :4545 states)",
       "issued_at": "2026-09-21T06:08:11+00:00",
-      "last_worked": "2026-09-21T06:36:29+00:00",
+      "last_worked": "2026-10-01T03:17:00Z",
       "ticks_blocked": 0
     },
     {
@@ -490,7 +490,7 @@
     },
     {
       "symbol": "W27",
-      "title": "⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention)",
+      "title": "Curvature-aware segment templates in glyph_match",
       "status": "done",
       "enables": [],
       "touches": [
@@ -502,14 +502,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "877cb1b: glyph_match._arc_field + SAGITTA=-0.15 solved (--calibrate --arcs); per class round 0.60->0.62, straight 0.77->0.79, diagonal 0.67->0.68; overall 0.653->0.672, 10/36 exact; fields vectorised (_band) after --regressions hit 3m15; ⊕SEG-DOTPRODUCT-TEMPLATES in CLOSED (36 witnessed); COTYPE s79",
+      "evidence": "877cb1b: glyph_match._arc_field + SAGITTA=-0.15 solved (--calibrate --arcs); per class round 0.60->0.62, straight 0.77->0.79, diagonal 0.67->0.68; overall 0.653->0.672, 10/36 exact; fields vectorised (_band) after --regressions hit 3m15; ⊕SEG-DOTPRODUCT-TEMPLATES in CLOSED (36 witnessed); COTYPE s79 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEG-DOTPRODUCT-TEMPLATES — curvature-aware segment templates in glyph_match: the measured ceiling per glyph class (s75: round walls 0 O D B miss a/d and gain g; diagonals-to-centre A V 7 W; the '1' convention)",
       "issued_at": "2026-09-21T10:07:54+00:00",
-      "last_worked": "2026-09-21T11:08:34+00:00",
+      "last_worked": "2026-10-01T03:17:00Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W28",
-      "title": "⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs",
+      "title": "Validate the segment projection across all 44 glyphs, plus 22-segment descenders",
       "status": "done",
       "enables": [],
       "touches": [
@@ -521,14 +521,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "d8823f8: segment_topology.LETTERS22/DESCENDER_GLYPHS/glyph22 + substrate arms (caught g==q); ink_field frame=lowercase (+font_xheight); validate at 22: 0.37, every tail bar hit; registry 22 carries lowercase; ⊕SEG22-DESCENDERS in CLOSED (39 witnessed; --regressions 58s CPU); RESEARCH bucket green; COTYPE s84",
+      "evidence": "d8823f8: segment_topology.LETTERS22/DESCENDER_GLYPHS/glyph22 + substrate arms (caught g==q); ink_field frame=lowercase (+font_xheight); validate at 22: 0.37, every tail bar hit; registry 22 carries lowercase; ⊕SEG22-DESCENDERS in CLOSED (39 witnessed; --regressions 58s CPU); RESEARCH bucket green; COTYPE s84 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEG-FONT-PROJECT + ⊕SEG22-DESCENDERS — the projection pipeline validated across ALL 44 (the 36 plus the 8 symbols the log counts) and the 22-seg table gaining lowercase descender glyphs",
       "issued_at": "2026-09-21T10:08:03+00:00",
-      "last_worked": "2026-09-21T12:54:05+00:00",
+      "last_worked": "2026-10-01T03:17:00Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W29",
-      "title": "⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio",
+      "title": "Measure whether the marquee's dot ghost reads as the same texture as the segment ghost",
       "status": "done",
       "enables": [],
       "touches": [
@@ -540,14 +540,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "3a59723: format_coverage + measure_formats; coverage 7 0.396 / 14,16 0.801 / 22 0.837 / dots 0.528; ⊕GHOST-DENSITY in CLOSED (37 witnessed; --regressions 55s); COTYPE s81",
+      "evidence": "3a59723: format_coverage + measure_formats; coverage 7 0.396 / 14,16 0.801 / 22 0.837 / dots 0.528; ⊕GHOST-DENSITY in CLOSED (37 witnessed; --regressions 55s); COTYPE s81 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕GHOST-DENSITY — does the marquee's dot field at the solved ghost_alpha read as the same texture the segment ghost does? Measure, not assume: the seen ghost of a dot cell (dotFill 0.82 of the pitch) vs a stroke at the module stroke ratio",
       "issued_at": "2026-09-21T10:08:12+00:00",
-      "last_worked": "2026-09-21T11:43:10+00:00",
+      "last_worked": "2026-10-01T03:17:01Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W30",
-      "title": "Font COMPILER (operator, 2026-09-21): arbitrary TTF -> precompiled (segment set @22 per glyph, matrix column bytes per glyph) tables, so a font (Liberation, Unifont, ...) is derived ONCE and the emitters read the derived table — the two halves already exist (display_types.font_extension = the matrix half; glyph_match.match + ST.project = the segment half); the compiler is the one entry point + an on-disk table format + the emitters reading it. Operator: 'later; not an immediate priority unless it unblocks something'",
+      "title": "Font compiler: any TTF to precomputed segment and matrix tables the emitters read",
       "status": "done",
       "enables": [],
       "touches": [
@@ -560,14 +560,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4). | 2026-09-26: 2026-09-27: edge retrofit — touches display_types with W43 and make_notify_marquee with W58, but REJECTED as collapse candidates: both overlaps are a shared upstream module (font/display geometry), not a stated relationship between the waypoints' own work (font-table compilation vs engine-asset export vs package-load gating). No edge added; do not re-propose from these touches alone. | 2026-09-26: 2026-09-27: W30's queued evidence was STALE — sourced from worktree agent-aad36c74 (an old template-match/phi-threshold prototype, FORMAT=1, 1 of 72 exact) that was never landed. Checked the actual current tree instead of trusting the absence-claim (CLAUDE.md's own standing rule): main's font_compiler.py is a COMPLETELY DIFFERENT, later method (FORMAT=2: raster -> Zhang-Suen skeleton -> stroke graph -> DTW map-match onto the segment lattice), matrix half already dropped per the operator's 2026-09-23 ruling, landed independently of the stale worktree. Measured via --diff: 22-seg 47 of 72 reproduced + 25 of the remainder DECLARED with a structural reason (72/72 accounted for); 7-seg 28 of 41 reproduced + 13 declared (41/41 accounted for) - F4 (compiled==authored or declared) fully satisfied. Warrant FONT-COMPILER already cites tool:opa_gate.py font_compiler (admitted, 0 deny, 113 admitted); FONT-COMPILER-DENIES already proves it can fail (wrong-8.json fixture). check_font_compiler --selftest PASS. worklist_gate --only worklist: PASS, 91 claims resolve. The aad36c74 worktree is superseded and should be pruned (not done this tick - noted, not actioned).",
+      "evidence": "worktree agent-aad36c74 (NOT landed): font_compiler.py (deterministic JSON keyed on font sha256 + method fingerprint, disk cache), check_font_compiler + policy/font_compiler.rego. The surface 5x8 table the marquee reads is byte-identical (188 of 188). FINDING: from Liberation Mono it does NOT reproduce the hand-authored tables — matrix 13 of 70, 22-seg 1 of 72, 7-seg 18 of 41 ('8' -> a d g, '4' -> nothing); the gate is red, 151 deny (F4). | 2026-09-26: 2026-09-27: edge retrofit — touches display_types with W43 and make_notify_marquee with W58, but REJECTED as collapse candidates: both overlaps are a shared upstream module (font/display geometry), not a stated relationship between the waypoints' own work (font-table compilation vs engine-asset export vs package-load gating). No edge added; do not re-propose from these touches alone. | 2026-09-26: 2026-09-27: W30's queued evidence was STALE — sourced from worktree agent-aad36c74 (an old template-match/phi-threshold prototype, FORMAT=1, 1 of 72 exact) that was never landed. Checked the actual current tree instead of trusting the absence-claim (CLAUDE.md's own standing rule): main's font_compiler.py is a COMPLETELY DIFFERENT, later method (FORMAT=2: raster -> Zhang-Suen skeleton -> stroke graph -> DTW map-match onto the segment lattice), matrix half already dropped per the operator's 2026-09-23 ruling, landed independently of the stale worktree. Measured via --diff: 22-seg 47 of 72 reproduced + 25 of the remainder DECLARED with a structural reason (72/72 accounted for); 7-seg 28 of 41 reproduced + 13 declared (41/41 accounted for) - F4 (compiled==authored or declared) fully satisfied. Warrant FONT-COMPILER already cites tool:opa_gate.py font_compiler (admitted, 0 deny, 113 admitted); FONT-COMPILER-DENIES already proves it can fail (wrong-8.json fixture). check_font_compiler --selftest PASS. worklist_gate --only worklist: PASS, 91 claims resolve. The aad36c74 worktree is superseded and should be pruned (not done this tick - noted, not actioned). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): Font COMPILER (operator, 2026-09-21): arbitrary TTF -> precompiled (segment set @22 per glyph, matrix column bytes per glyph) tables, so a font (Liberation, Unifont, ...) is derived ONCE and the emitters read the derived table — the two halves already exist (display_types.font_extension = the matrix half; glyph_match.match + ST.project = the segment half); the compiler is the one entry point + an on-disk table format + the emitters reading it. Operator: 'later; not an immediate priority unless it unblocks something'",
       "issued_at": "2026-09-21T11:08:28+00:00",
-      "last_worked": "2026-09-26T21:50:44Z",
+      "last_worked": "2026-10-01T03:17:01Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W31",
-      "title": "TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present",
+      "title": "TUNE trio: inherited icon and cursor themes, then the Alt+Tab switcher",
       "status": "done",
       "enables": [],
       "touches": [
@@ -579,14 +579,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "a5f8a75: templates/taskswitch-main.qml + make_taskswitch.py + make_deb wiring + LnF [kwinrc][TabBox]; scripts/check_taskswitch.py @TASKSWITCH (worklist 59); check_ghost_surfaces enumerates the switcher (30/30); ⊕TASKSWITCH in CLOSED (42 witnessed; --regressions 61 s CPU); TUNE bucket green; COTYPE s86",
+      "evidence": "a5f8a75: templates/taskswitch-main.qml + make_taskswitch.py + make_deb wiring + LnF [kwinrc][TabBox]; scripts/check_taskswitch.py @TASKSWITCH (worklist 59); check_ghost_surfaces enumerates the switcher (30/30); ⊕TASKSWITCH in CLOSED (42 witnessed; --regressions 61 s CPU); TUNE bucket green; COTYPE s86 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): TUNE trio: ⊕ICONS-INHERIT + ⊕CURSOR-INHERIT (an icon theme and a cursor theme that INHERIT Breeze — index.theme with Inherits=, named EL-<variant>, wired into make_deb and the LnF defaults so Global Theme sets them) then ⊕TASKSWITCH (an Alt+Tab tabbox/window switcher in the Plasma style). ⊕SOLVER-PERF and ⊕PANEL-LAYOUT already read done by their witnesses; the bucket goes green when these three are present",
       "issued_at": "2026-09-21T12:54:47+00:00",
-      "last_worked": "2026-09-21T13:49:42+00:00",
+      "last_worked": "2026-10-01T03:17:01Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W32",
-      "title": "RESIDUE sweep, the cheap two: ⊕NOTIFY-SEGRENDER (its criterion at :3568 is 'the ticker renders in the actual 7-seg/DOT primitive' — the dot matrix ticker of s77 satisfies the DOT half; propose the COLLAPSE into ⊕NOTIFY-MATRIXRENDER: re-aim its witness at MatrixChar dots, COTYPE closure naming the collapse, CLOSED) and ⊕SUPERSAMPLE-WP (:2583 'the wallpaper generator supersamples at generation time' — measure how make_wallpaper rasterises its PNG (cairosvg at 1920x1080 from the SVG?); if the SVG is rasterised at 1x, render at 2x and downscale with a box filter in the PNG step, check with a synthetic edge (aliasing energy falls), close)",
+      "title": "Residue sweep: collapse the notify segment render, supersample the wallpaper",
       "status": "done",
       "enables": [],
       "touches": [
@@ -598,9 +598,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "751e394 (+ its parent): ⊕NOTIFY-SEGRENDER closed by collapse into MATRIXRENDER; ⊕SUPERSAMPLE-WP closed on measurement (2560x1440 + glow filter); coherence caught SOLVER-PERF/PANEL-LAYOUT dropped without closures — closed properly (s87b); 46 witnessed; RESIDUE now 6: HDR-EMIT KNB2 KVT2 PLA2 SEGMENTCHAR-ADOPT VER-SYSCLOCK",
+      "evidence": "751e394 (+ its parent): ⊕NOTIFY-SEGRENDER closed by collapse into MATRIXRENDER; ⊕SUPERSAMPLE-WP closed on measurement (2560x1440 + glow filter); coherence caught SOLVER-PERF/PANEL-LAYOUT dropped without closures — closed properly (s87b); 46 witnessed; RESIDUE now 6: HDR-EMIT KNB2 KVT2 PLA2 SEGMENTCHAR-ADOPT VER-SYSCLOCK | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): RESIDUE sweep, the cheap two: ⊕NOTIFY-SEGRENDER (its criterion at :3568 is 'the ticker renders in the actual 7-seg/DOT primitive' — the dot matrix ticker of s77 satisfies the DOT half; propose the COLLAPSE into ⊕NOTIFY-MATRIXRENDER: re-aim its witness at MatrixChar dots, COTYPE closure naming the collapse, CLOSED) and ⊕SUPERSAMPLE-WP (:2583 'the wallpaper generator supersamples at generation time' — measure how make_wallpaper rasterises its PNG (cairosvg at 1920x1080 from the SVG?); if the SVG is rasterised at 1x, render at 2x and downscale with a box filter in the PNG step, check with a synthetic edge (aliasing energy falls), close)",
       "issued_at": "2026-09-21T13:50:09+00:00",
-      "last_worked": "2026-09-21T14:24:54+00:00",
+      "last_worked": "2026-10-01T03:17:01Z",
       "ticks_blocked": 0
     },
     {
@@ -627,7 +627,7 @@
     },
     {
       "symbol": "W34",
-      "title": "⊕VER-MARQUEE (operator, live 2026-09-22, screenshot): (a) the ghost pips SCROLL WITH the glyphs — a real board's unlit LEDs are fixed; the dot field must be a static bezel-to-bezel matrix and the lit glyphs scroll OVER it (lit dots light the field's own positions — snap the text to the field's cell pitch, or overlay); (b) the pips only span the message width, not the widget; (c) nothing configurable — the widget has no config page (the clock has one: templates/clock-config.qml/.kcfg + cfg_ aliases; import org.kde.kcmutils as KCM): speed, dot pitch/fill, ghost weight, blink/idle face, seconds of dwell. 'Clock looks amazing.'",
+      "title": "Marquee fixes from live use: static pip field, full-width pips, a config page",
       "status": "done",
       "enables": [],
       "touches": [
@@ -640,14 +640,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "7ab3d17 (+parent): field fix 0c8fa21; settings page (marquee-config.kcfg/.qml, config_xml/config_qml/CONFIG_MODEL, cfg reads in main; kcfg default = solved alpha; parity 9/9; ghost-surfaces 30/30; witness pins); COTYPE s90/s90b",
+      "evidence": "7ab3d17 (+parent): field fix 0c8fa21; settings page (marquee-config.kcfg/.qml, config_xml/config_qml/CONFIG_MODEL, cfg reads in main; kcfg default = solved alpha; parity 9/9; ghost-surfaces 30/30; witness pins); COTYPE s90/s90b | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕VER-MARQUEE (operator, live 2026-09-22, screenshot): (a) the ghost pips SCROLL WITH the glyphs — a real board's unlit LEDs are fixed; the dot field must be a static bezel-to-bezel matrix and the lit glyphs scroll OVER it (lit dots light the field's own positions — snap the text to the field's cell pitch, or overlay); (b) the pips only span the message width, not the widget; (c) nothing configurable — the widget has no config page (the clock has one: templates/clock-config.qml/.kcfg + cfg_ aliases; import org.kde.kcmutils as KCM): speed, dot pitch/fill, ghost weight, blink/idle face, seconds of dwell. 'Clock looks amazing.'",
       "issued_at": "2026-09-21T14:43:42+00:00",
-      "last_worked": "2026-09-21T15:50:24+00:00",
+      "last_worked": "2026-10-01T03:17:01Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W35",
-      "title": "ONE THEME, VARIANT SELECTABLE (operator 2026-09-22): collapse the six-of-everything into one set of packages that read the ACTIVE EL colour scheme at runtime — the clock, marquee, live wallpaper, switcher and LnF become one each; variant selection = applying a colour scheme (the .colors files stay six, that is how Plasma variants work). Design first: which solved tokens are reachable live from QML (Kirigami.Theme standard roles: highlight/text/background… — the palette solves fg/fg_in/view/hover/sel into those roles) and which are NOT (the [EL] group: ghost_alpha, ghost_alpha_glanced — a KConfig read the QML cannot do directly; options: bake ghost alpha into a standard-role relation, or ship a tiny helper, or read via a Plasma DataSource); what the gates become when colours are no longer in the emitted bytes (check_ghost_surfaces reads holes today; parity baselines lose the per-variant pairs)",
+      "title": "One theme with the variant chosen at runtime from the active colour scheme",
       "status": "done",
       "enables": [],
       "touches": [
@@ -662,9 +662,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - LIVE: the operator's next emerge of f521e6f+ runs the update script; ticks read --containments to confirm the ids moved",
-      "evidence": "7575c08 closure; f521e6f migration CONFIRMED live s112 (check_marquee_host --containments shows org.el.openglo.live / org.el.segclock / org.el.notifymarquee)",
+      "evidence": "7575c08 closure; f521e6f migration CONFIRMED live s112 (check_marquee_host --containments shows org.el.openglo.live / org.el.segclock / org.el.notifymarquee) | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ONE THEME, VARIANT SELECTABLE (operator 2026-09-22): collapse the six-of-everything into one set of packages that read the ACTIVE EL colour scheme at runtime — the clock, marquee, live wallpaper, switcher and LnF become one each; variant selection = applying a colour scheme (the .colors files stay six, that is how Plasma variants work). Design first: which solved tokens are reachable live from QML (Kirigami.Theme standard roles: highlight/text/background… — the palette solves fg/fg_in/view/hover/sel into those roles) and which are NOT (the [EL] group: ghost_alpha, ghost_alpha_glanced — a KConfig read the QML cannot do directly; options: bake ghost alpha into a standard-role relation, or ship a tiny helper, or read via a Plasma DataSource); what the gates become when colours are no longer in the emitted bytes (check_ghost_surfaces reads holes today; parity baselines lose the per-variant pairs)",
       "issued_at": "2026-09-21T14:51:57+00:00",
-      "last_worked": "2026-09-22T01:31:25+00:00",
+      "last_worked": "2026-10-01T03:17:02Z",
       "ticks_blocked": 0
     },
     {
@@ -2852,18 +2852,18 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Close (done) once this commit lands.",
+      "evidence": "2026-10-01: 2026-09-30: 22 of 22 done titles in W7-W35 retitled to one clause (each former title appended to its own evidence first; apply script refuses a new title that still trips the rule). Lister: flagged 91 -> 69 (41 live, 28 done); none left in W7-W35. The scratchpad was wiped by a session restart, so the drafts were recreated from the conversation.",
       "issued_at": "2026-09-29T01:56:23Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-09-29T01:56:34Z",
+      "last_worked": "2026-10-01T03:17:29Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W147",
-      "title": "Shorten the done titles W38 to W143 (25)",
-      "status": "ready",
+      "title": "Shorten the remaining done titles W38 to W143 (28)",
+      "status": "working",
       "enables": [
         "W145"
       ],
@@ -2877,7 +2877,7 @@
       "issued_at": "2026-09-29T01:56:23Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": null,
+      "last_worked": "2026-10-01T03:17:47Z",
       "ticks_blocked": 0
     },
     {

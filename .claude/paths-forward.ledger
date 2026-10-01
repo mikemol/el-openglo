@@ -344,3 +344,5 @@
 2026-09-29T01:22:03Z  tick  W118 done      unblock   "NOTICE generated from emitters.THIRD_PARTY (emitters.py --write-notice); check_license + license.rego L5 refuse absent/drifted/incomplete; opa 925/925, selftest 13/13, license gate admitted"  evidence=NOTICE
 2026-09-29T01:42:35Z  tick  W144 done      unblock   "mtools mikemol-pycodemod installed (pinned 6ecf7672) and struct-tools .py row repointed off substrate scratch; hooks gate admitted; W118 closed, W119 waits on this"  evidence=pyproject.toml
 2026-09-29T01:56:34Z  tick  W145 atomized  collapse  "operator: fix all nemik warnings (a11y); 13 blocker warnings fixed (W112 W62 trimmed, W83 W98 ready, W93 closed, W94 cleared, W80 -> paperkit:W113); W139/W140 wait on an mtools claim; 91 long titles split into W146-W150 batches; W144 closed, W119 unblocked"  evidence=W145
+2026-10-01T03:16:31Z  hash  --   diverged  --        "divergence: payload v2:cd4ca2c3ae28bd2b, file v2:6e7685eb4a0ee072; the FILE wins"
+2026-10-01T03:17:29Z  tick  W146 done      sweep     "22 done titles W7-W35 shortened to one clause (former titles kept in evidence); flagged titles 91 -> 69; W147 recounted to 28"  evidence=W146
