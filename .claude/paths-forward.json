@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 172,
+  "counter": 175,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T14:30:52Z",
-  "job_id": "03017bc2",
+  "heartbeat": "2026-10-01T14:43:22Z",
+  "job_id": "428fe456",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1160,7 +1160,7 @@
     {
       "symbol": "W60",
       "title": "Temporal subpixel: move the content, then sample, on every animated surface",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W59"
       ],
@@ -1173,12 +1173,12 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "unblock: it is the aperture model's whole claim — a pip's brightness is the ink under it NOW, not a translated bitmap — and the operator has now caught two places where the code did the opposite",
-      "next_bounded_step": "PART 2: does the scroll pass through the OPTIMAL alignment (every stroke whole on the pips)? It is the offset where the per-frame pip-brightness profile is most BIMODAL (pips near 0 or 1, few in between). Add to animation_facts a per-frame bimodality score (e.g. the fraction of lit pips within 0.1 of 0 or 1) and report the best frame and its score; then decide (with the operator if it is a design choice) whether S8 should also require the path to reach it.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches check_symmetry with W61 (build-graph keying); REJECTED, shared tool dependency only (W60 reads check_symmetry.best_pip_shift), no stated relationship. No edge added (W60's real edge, enables W59, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames. | 2026-10-01: 2026-10-01 PART 1 MEASURED AND REQUIRED: render_screens.animation_facts (not check_screens; best_pip_shift lives in catalog/library/render_screens.py:502) already gives per-pair shifts k+f. check_screens --json over all 12 animations: marquee-anim shifts are mostly fractional (2.5, 2.75 with some whole 3.0), pinholes-anim (y ping-pong) fractional too (0.25, 0.5, -0.25, ...); 0 tears, all seamless - BOTH SURFACES MOVE THEN SAMPLE. Nothing refused a regression, so policy/screens.rego gains S8: an animation whose every measured shift is a whole pip is pixelate-then-move (empty runs not judged); 4 tests incl. negative fractions; the old `anim` fixture [6,6,7,6,12,6] was whole-PIXEL steps from before W54 (the unit is pips now) and is updated. opa 968/968; rego_lint admitted; opa_gate screens admitted 48/48.",
+      "next_bounded_step": null,
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches check_symmetry with W61 (build-graph keying); REJECTED, shared tool dependency only (W60 reads check_symmetry.best_pip_shift), no stated relationship. No edge added (W60's real edge, enables W59, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames. | 2026-10-01: 2026-10-01 PART 1 MEASURED AND REQUIRED: render_screens.animation_facts (not check_screens; best_pip_shift lives in catalog/library/render_screens.py:502) already gives per-pair shifts k+f. check_screens --json over all 12 animations: marquee-anim shifts are mostly fractional (2.5, 2.75 with some whole 3.0), pinholes-anim (y ping-pong) fractional too (0.25, 0.5, -0.25, ...); 0 tears, all seamless - BOTH SURFACES MOVE THEN SAMPLE. Nothing refused a regression, so policy/screens.rego gains S8: an animation whose every measured shift is a whole pip is pixelate-then-move (empty runs not judged); 4 tests incl. negative fractions; the old `anim` fixture [6,6,7,6,12,6] was whole-PIXEL steps from before W54 (the unit is pips now) and is updated. opa 968/968; rego_lint admitted; opa_gate screens admitted 48/48. | 2026-10-01: 2026-10-01 CLOSED (ATOMIZE, advanced 1x without landing): the title claim - move the content, then sample - is MEASURED (fractional pip shifts on every animation) and REQUIRED (policy screens S8). Split out: W173 (operator: >= 2/3 fractional steps + refuse the half-pip see-saw by its spectral line), W174 (does the scroll reach the whole-on-pip alignment), W175 (even power over prime spectral lines, by construction; deferred).",
       "issued_at": "2026-09-22T12:36:50+00:00",
-      "last_worked": "2026-10-01T14:30:51Z",
+      "last_worked": "2026-10-01T14:43:41Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T144341Z"
     },
     {
       "symbol": "W61",
@@ -3431,6 +3431,63 @@
       "last_worked": "2026-10-01T14:05:00Z",
       "ticks_blocked": 0,
       "completed": "20261001T140500Z"
+    },
+    {
+      "symbol": "W173",
+      "title": "Require at least 2/3 of an animation steps to be fractional, and refuse a half-pip see-saw by its spectral line",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "policy/screens.rego",
+        "catalog/library/render_screens.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "In render_screens.animation_facts: (a) report fractional_share = fractional steps / measured steps, and refine best_pip_shift below quarter pips (eighths, or a continuous fit) so a slow mover is not read as whole; (b) per pip, the brightness time series over the run, its DFT, and the dominant non-DC line as a share of total power - the half-pip see-saw is a strong line at period 2 frames. Policy screens: S8 refuses fractional_share < 2/3; a new rule refuses a dominant spectral line over a declared share. CHECK the real marquee share against 2/3 FIRST - it measured about 2/3 on 2026-10-01, so it may sit on the threshold; report before tightening.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips.",
+      "issued_at": "2026-10-01T14:43:22Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-10-01T14:43:41Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W174",
+      "title": "Report whether each scroll passes through the alignment where every stroke sits whole on the pips",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "catalog/library/render_screens.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add to animation_facts a per-frame bimodality score (the share of lit pips within 0.1 of 0 or 1 above the floor) and report the best frame, its score and offset; then report whether each scroll passes through the alignment where every stroke is whole on the pips. Whether to REQUIRE it is an operator decision - report numbers first.",
+      "evidence": "",
+      "issued_at": "2026-10-01T14:43:22Z",
+      "minted_during": "interrupt",
+      "caused_by": "W60",
+      "last_worked": "2026-10-01T14:43:41Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W175",
+      "title": "Spread scroll brightness power evenly over the prime spectral lines, by construction",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "catalog/library/render_screens.py",
+        "templates"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "DEFERRED by the operator behind the current queue. When reached: design the scroll timing so equal power on the prime periods (2, 3, 5, 7, 11, ... up to the widget width in pips) holds BY CONSTRUCTION (a derivation, not a tuned constant); the W173 spectral measurement is the witness.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR (aside, LOWER PRIORITY): \"If I could, I d look for an even power distribution (effectively the same power on each spectral line. Not powers of 2 fft, but prime lines, 2,3,5,7,11... up to however wide the widget is.) but that is a lower priority ask, and is something I d want to be true by construction rather than developed by trial and error - it would be complicated to do right, and we have a lot of other stuff I d want to get done first.\"",
+      "issued_at": "2026-10-01T14:43:22Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-10-01T14:43:41Z",
+      "ticks_blocked": 0,
+      "weight": -10
     }
   ],
   "residue": [
@@ -3450,6 +3507,6 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "d4390ac9",
+  "predecessor_job_id": "03017bc2",
   "leases": []
 }
