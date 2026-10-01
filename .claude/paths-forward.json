@@ -2725,15 +2725,15 @@
         "substrate"
       ],
       "blocked_on": [
-        "operator: decide who owns the gate_ledger path fix - mtools declines (it has no gate_ledger; scripts/gate_ledger.py is a substrate symlink), and the standing rule is mtools over substrate"
+        "mtools:W303"
       ],
-      "blocked_kind": "human",
+      "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home) | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W303 | 2026-10-01: 2026-10-01 mtools-3d (inbox/2026-10-01-mtools-pytestspec-answers.md, \"The gate_ledger path defect\"): not mtools - mtools has no gate_ledger; the fix (one shared constant for the ledger path) is substrate s or whoever adopts gate_ledger next. Conflicts with the operator rule mtools-over-substrate, so the owner is the operator s call: (a) ask mtools to adopt gate_ledger as a mikemol-* distribution, (b) el-openglo vendors and owns it, or (c) substrate after all.",
+      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home) | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W303 | 2026-10-01: 2026-10-01 mtools-3d (inbox/2026-10-01-mtools-pytestspec-answers.md, \"The gate_ledger path defect\"): not mtools - mtools has no gate_ledger; the fix (one shared constant for the ledger path) is substrate s or whoever adopts gate_ledger next. Conflicts with the operator rule mtools-over-substrate, so the owner is the operator s call: (a) ask mtools to adopt gate_ledger as a mikemol-* distribution, (b) el-openglo vendors and owns it, or (c) substrate after all. | 2026-10-01: 2026-10-01 CORRECTED by mtools-3d (inbox letter paragraph replaced, read): the gate_ledger decline was wrong and is withdrawn - mtools had already claimed it as mtools:W303 on 09-29 per the operator ruling (substrate drains into mtools). No operator decision pending; operator ask lifted. W303: gate_ledger gets its mtools home, reader and writer share one ledger path constant.",
       "issued_at": "2026-09-28T22:40:23Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T10:25:06Z",
+      "last_worked": "2026-10-01T10:33:51Z",
       "ticks_blocked": 0
     },
     {
