@@ -425,6 +425,8 @@ def job_inputs(stage):
                 inputs[f"env:{k}"] = digest_text(norm(final[k]))
         inputs["argv"] = digest_text(norm("\0".join(argv)))
         inputs["route"] = str(route)
+        # W159: what qt_sandbox does to the pixels, as data — not its file's bytes
+        inputs["backend"] = digest_text(json.dumps(QT.backend_facts(bool(route)), sort_keys=True))
     for rel in _repo_reads(texts):
         inputs[f"repo:{rel}"] = digest_rel(rel)
     return inputs
@@ -900,6 +902,13 @@ def _selftest():
     want = sorted(f for f in per if f.startswith("marquee-anim-"))
     chk(f"a comment in check_marquee_live moves only the marquee animations ({len(moved)} of {n})",
         sorted(moved), want)
+    # W159: qt_sandbox is keyed by what it does to the pixels (backend_facts), not by
+    # its bytes; one comment there moved 55 of 56 before (W158)
+    moved, n = impact("qt_sandbox.py")["screens"]
+    chk(f"a comment in qt_sandbox moves no screen ({len(moved)} of {n})", sorted(moved), [])
+    import qt_sandbox as QT
+    chk("...while the route it picks IS in the key (software != mesa backend facts)",
+        QT.backend_facts(False) != QT.backend_facts(True), True)
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
     print(f"  note  host is {kind} — "

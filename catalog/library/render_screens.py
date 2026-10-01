@@ -101,11 +101,6 @@ def plan_all():
     return plan() + plan_animations() + plan_derived()
 
 
-# the runner modules whose code acts on an output AFTER its job is staged (W96):
-# the sandbox that picks the scene-graph backend. Job-builders are keyed by their
-# staged bytes instead; see output_keys.
-RUNS_AFTER_QML = {"qt_sandbox.py"}
-
 # the viewport's one-process job: (surface, w, h, config key, steps, read-back probe)
 VIEWPORT_JOB = ("aperture-text", 420, 40, "offsetRows", VIEWPORT_STEPS, "offsetY")
 
@@ -170,8 +165,7 @@ def output_keys():
     change there reads CURRENT when it is stale. The host fingerprint and the
     residue (computed reads in the runner code) are the declared bound on that.
     WEAKNESS (per-kind runner code): the code term is per job KIND at MODULE
-    grain — a helper both stager modules import (qt_sandbox, theme_probe) keys
-    every output that reaches it, which is correct but coarse; and this file is
+    grain — and this file is
     keyed whole, so a comment in it still moves every output."""
     import check_action_key as AK
     sentinel = "/@OUT@"
@@ -193,18 +187,18 @@ def output_keys():
             # closure's job-builders (render_qml, plasma_rewrite, templates/loader,
             # ...) are already in the key as the job0:* bytes they produce; keying
             # them whole-file too re-rendered 30 stills for an analysis-only edit
-            # (render_qml.texture(), 2026-09-26/27). What stays: qt_sandbox (it
-            # picks the scene-graph backend, which changes pixels), this file (the
-            # viewport APNG and the sheets), and the stager's own module where it
+            # (render_qml.texture(), 2026-09-26/27). What stays: this file (the
+            # viewport APNG and the sheets) and the stager's own module where it
             # assembles frames after qml (check_marquee_live.animate).
+            # ⚑ W159: qt_sandbox is keyed as DATA (job_inputs' `backend`, from
+            # qt_sandbox.backend_facts), not as a file — a comment or a selftest edit
+            # in it re-rendered 55 of 56 outputs (W158).
+            if f"job{i}:backend" not in inputs:
+                raise RuntimeError(f"render_screens: {fn}: job {i} has no backend fact — "
+                                   "the key would omit the scene-graph route")
             seed = os.path.relpath(stage.__code__.co_filename, ROOT)
-            closure = AK.runner_code([seed])
-            sandbox = [rel for rel in closure if os.path.basename(rel) in RUNS_AFTER_QML]
-            if not sandbox:
-                raise RuntimeError(f"render_screens: {fn}: none of {sorted(RUNS_AFTER_QML)} in the "
-                                   f"runner closure of {seed} — the key would omit the backend choice")
             post = [seed] if how[:2] == ("marquee", "animate") else []
-            code = sorted(set(sandbox) | set(post) | {here})
+            code = sorted(set(post) | {here})
             code_files.update(code)
             for rel in code:
                 inputs[f"code:{rel}"] = AK.digest_rel(rel)

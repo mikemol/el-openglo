@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 159,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T04:56:29Z",
-  "job_id": "9e9b1cae",
+  "heartbeat": "2026-10-01T05:39:43Z",
+  "job_id": "beb5e16f",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3162,11 +3162,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: qt_sandbox keyed as data: qt_sandbox.backend_facts(mesa) (derived from env/mesa_env over a probe base, plus KWIN_ARGS) -> job_inputs backend; render_screens drops RUNS_AFTER_QML whole-file key, refuses a job with no backend fact; check_action_key selftest: a comment in qt_sandbox moves 0 of 56 (was 55), software!=mesa facts; capped re-render, --stale 0 of 56, no coredumps; time-dependent stills (clock, live-wallpaper, marquee-anim) differ in bytes",
       "issued_at": "2026-10-01T04:56:08Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-10-01T05:28:29Z",
+      "last_worked": "2026-10-01T05:43:09Z",
       "ticks_blocked": 0
     }
   ],
@@ -3187,5 +3187,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "2ddac196"
+  "predecessor_job_id": "9e9b1cae"
 }

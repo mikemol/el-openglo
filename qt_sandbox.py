@@ -81,6 +81,7 @@ SESSION_VARS = ("DISPLAY", "WAYLAND_DISPLAY", "WAYLAND_SOCKET", "XAUTHORITY")
 CORE_LIMIT = 0        # operator ruling; the 1-vs-0 residue is in the docstring
 MESA_EGL = "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 KWIN = "kwin_wayland"
+KWIN_ARGS = ("--virtual", "--no-lockscreen", "--no-global-shortcuts")
 
 
 def env(base=None):
@@ -111,6 +112,24 @@ def mesa_env(base=None):
     return e
 
 
+def backend_facts(mesa=False):
+    """What this module does to a render's PIXELS, as data (W159): the variables the
+    route sets or removes, and kwin's argv on the Mesa route. A cache key holds this
+    in place of the file's bytes, so a comment, the core limit or a selftest edit stops
+    invalidating screenshots. DERIVED by running env()/mesa_env() over an empty
+    base, never listed by hand, so a new override shows up here by construction.
+    WEAKNESS: kwin's binary and Mesa's llvmpipe are host facts, keyed by the host
+    fingerprint, not here; a code path that changes pixels outside these
+    functions (none today) would escape it."""
+    probe = {k: "@" for k in SESSION_VARS + ("QT_QPA_PLATFORM", "QSG_RHI_BACKEND")}
+    e = (mesa_env if mesa else env)(dict(probe))
+    e.pop("XDG_RUNTIME_DIR", None)
+    return {"route": "mesa" if mesa else "software",
+            "set": {k: v for k, v in sorted(e.items()) if probe.get(k) != v},
+            "removed": sorted(k for k in probe if k not in e),
+            "kwin": [KWIN, *KWIN_ARGS] if mesa else None}
+
+
 @contextlib.contextmanager
 def kwin_session(e, ready_s=30):
     """A private `kwin_wayland --virtual` for the duration of the block; yields its
@@ -120,8 +139,7 @@ def kwin_session(e, ready_s=30):
     --exit-with-session route let a kwin teardown/startup crash page the operator."""
     sock = "el-qt-%d-%d" % (os.getpid(), next(_SOCKETS))
     path = os.path.join(e.get("XDG_RUNTIME_DIR", ""), sock)
-    k = subprocess.Popen([KWIN, "--virtual", "--no-lockscreen", "--no-global-shortcuts",
-                          "--socket", sock], env=e, preexec_fn=no_core,
+    k = subprocess.Popen([KWIN, *KWIN_ARGS, "--socket", sock], env=e, preexec_fn=no_core,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         t0 = time.monotonic()
