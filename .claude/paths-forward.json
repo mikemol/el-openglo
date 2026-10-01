@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 168,
+  "counter": 169,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T11:05:36Z",
   "job_id": "2fa425df",
@@ -3347,6 +3347,27 @@
       "minted_during": "interrupt",
       "caused_by": "W166",
       "last_worked": "2026-10-01T11:07:12Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W169",
+      "title": "Decide whether authored source carries a copyright line beside the SPDX header",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        "scripts/check_license.py",
+        "policy/license.rego"
+      ],
+      "blocked_on": [
+        "operator: decide whether el-openglo source files carry \"# Copyright (c) 2026 Mike Mol\" in addition to the SPDX line"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "If YES: header_facts also measures the copyright line, policy L6 refuses a missing one, backfill the 152 files (via mikemol-pycodemod W306 --holder once it lands, else check_license --write-headers); reply to mtools. If NO: record the decision here and tell mtools SPDX only.",
+      "evidence": "2026-10-01: 2026-10-01 mtools-3d asked (W306 header mode, mtools/.claude/design/W306-header-mode.md): el-openglo writes SPDX only (152 files, W119); mtools and linux-sources write both, mtools ruff notice-rgx requires both. The mode takes an optional --holder, so either answer works and W306 is not blocked on it. Asked the operator 2026-10-01; told mtools it is the operator s call.",
+      "issued_at": "2026-10-01T11:15:39Z",
+      "minted_during": "interrupt",
+      "caused_by": "mtools:W306",
+      "last_worked": "2026-10-01T11:15:47Z",
       "ticks_blocked": 0
     }
   ],
