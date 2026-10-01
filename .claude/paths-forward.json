@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 172,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T13:33:47Z",
-  "job_id": "ea74192d",
+  "heartbeat": "2026-10-01T14:05:01Z",
+  "job_id": "d4390ac9",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1112,7 +1112,7 @@
     {
       "symbol": "W58",
       "title": "Gate each emitted wallpaper package by loading it the way Plasma does",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W33"
       ],
@@ -1123,18 +1123,15 @@
         "make_notify_marquee",
         "check_package_imports"
       ],
-      "blocked_on": [
-        "W171",
-        "W172"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
-      "next_bounded_step": "umbrella: closes when W171 (plugin-id contract) and W172 (headless load) land",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it. | 2026-10-01: W53 2026-10-01: runtime-warnings class wallpaper-plugin-missing is unruled 9 days (R2 denies); W58 plugin-id contract is the rule that retires it - cite it in catalog/runtime-warnings.json when it lands | 2026-10-01: 2026-10-01 step (1) ANSWERED by reading the tree, not built again: check_package_imports already renders each package to a temp tree and runs qmllint with that package OWN ui dir on the import path, reading the [import] warnings (qmllint exits 0 either way); it replaced the name-list heuristic in s135. The step text \"lints the text in a temp dir WITHOUT companions\" is stale. Its own docstring names what it does not cover: the plugin-id mismatch (f521e6f: a desktop naming org.el.openglo.live.elazure after the one-package build) -> W171; a real load -> W172. ATOMIZED into those two.",
+      "next_bounded_step": null,
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it. | 2026-10-01: W53 2026-10-01: runtime-warnings class wallpaper-plugin-missing is unruled 9 days (R2 denies); W58 plugin-id contract is the rule that retires it - cite it in catalog/runtime-warnings.json when it lands | 2026-10-01: 2026-10-01 step (1) ANSWERED by reading the tree, not built again: check_package_imports already renders each package to a temp tree and runs qmllint with that package OWN ui dir on the import path, reading the [import] warnings (qmllint exits 0 either way); it replaced the name-list heuristic in s135. The step text \"lints the text in a temp dir WITHOUT companions\" is stale. Its own docstring names what it does not cover: the plugin-id mismatch (f521e6f: a desktop naming org.el.openglo.live.elazure after the one-package build) -> W171; a real load -> W172. ATOMIZED into those two. | 2026-10-01: 2026-10-01 CLOSED: children W171 (plugin-id contract over the staged install: 29/29 references shipped, 40/40 Ids are their directory) and W172 (every applet loads in plasmawindowed, 14/14, with a real positive control) both done; step (1) was already check_package_imports. Wallpapers stay under check_package_imports (types) and W171 (ids); a wallpaper LOAD needs a containment and is not yet measured.",
       "issued_at": "2026-09-22T12:16:56+00:00",
-      "last_worked": "2026-10-01T12:57:12Z",
+      "last_worked": "2026-10-01T14:05:00Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T140500Z"
     },
     {
       "symbol": "W59",
@@ -1163,7 +1160,7 @@
     {
       "symbol": "W60",
       "title": "Temporal subpixel: move the content, then sample, on every animated surface",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W59"
       ],
@@ -1179,8 +1176,9 @@
       "next_bounded_step": "MEASURE the claim rather than assert it: for a scroll, compute the per-frame pip-brightness profile (check_screens already extracts it) and ask whether adjacent frames are related by a FRACTIONAL shift (the aperture re-sampling) or by an INTEGER one (a translated bitmap) — the s120 best_pip_shift already returns k and f, so a run whose f is always 0 is pixelate-then-move, and that is the check. Then: does the optimal alignment (every stroke whole on the pips) occur on the path? It is the offset where the coverage histogram is most bimodal — report whether the scroll passes through it, and at what frame.",
       "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches check_symmetry with W61 (build-graph keying); REJECTED, shared tool dependency only (W60 reads check_symmetry.best_pip_shift), no stated relationship. No edge added (W60's real edge, enables W59, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): TEMPORAL SUBPIXEL: MOVE THE CONTENT, THEN SAMPLE (operator 2026-09-22, on pinholes-anim: 'the pixelation of the glyphs is calculated, and then the pixelated glyphs are moved up and down the grid. What we want instead is for the glyphs to move and the pixelation RECALCULATED, so we get subpixel rendering on a temporal axis. We definitely want to hit the optimal pixelation shape on the scrolling path, but we get a smoother animation if we move the glyphs prior to pixelation. Nyquist gives an upper bound on how fine of motion you need.'). The viewport animation stepped in WHOLE PIPS, so each frame re-sampled an identically-aligned band and the field translated a fixed pattern — pixelate-then-move, the thing the aperture model exists to avoid. Fixed s134 for the viewport (step 1/scale, which is the Nyquist bound: the backdrop pixel is the finest feature the aperture resolves). ⚑ THE SAME QUESTION IS OPEN ON EVERY OTHER MOTION: the marquee's horizontal scroll animates field.offset continuously and integrate() rounds to whole backdrop pixels, so it IS re-sampled per frame — but the harness SAMPLES at 40 ms while the animation runs at the display's rate, so the captured APNG may still alias; and 'hit the optimal pixelation shape on the path' is a REQUIREMENT the repo has not stated: the alignment where a glyph's strokes land whole on the pips must occur ON the scroll path, not be skipped between frames.",
       "issued_at": "2026-09-22T12:36:50+00:00",
-      "last_worked": "2026-10-01T04:03:57Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T14:05:00Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W61",
@@ -3415,7 +3413,7 @@
     {
       "symbol": "W172",
       "title": "Load each emitted Plasma package headless, as plasmashell would, and refuse a load error",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W58"
       ],
@@ -3425,14 +3423,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "A load harness: qml --apptype widget (through qt_sandbox, mesa route where the package needs the RHI) over a tiny document that instantiates each emitted package contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; read the load errors (not the exit code); refuse any. Then retire whatever of check_package_imports it subsumes.",
+      "next_bounded_step": null,
       "evidence": "2026-10-01: 2026-10-01 DONE: scripts/check_package_load.py loads each shipped applet with plasmawindowed (Plasma own applet host, installed; plasmoidviewer is not) from the staged tree via XDG_DATA_DIRS=<stage>/usr/share, through qt_sandbox.popen (offscreen, sessionless, no core), read for 8 s then killed; answer = load-error lines, never the exit code. POSITIVE CONTROL (real runs, in --selftest): an applet naming NoSuchType and an id nothing ships are both REPORTED. Real install: 14 of 14 applets load clean (segclock + notifymarquee, canonical and 6 aliases each); 7 wallpapers named not_loadable (a wallpaper needs a containment). policy/package_load.rego D0-D3 (D2 refuses a silent run as unobserved) + 6 tests; opa 964/964; rego_lint admitted; opa_gate package_load admitted on a fresh stage (2m17s wall, 39 s CPU, 263 MB). check_package_imports NOT retired: it is the only gate over the live wallpaper types, which this harness cannot host.",
       "issued_at": "2026-10-01T12:56:59Z",
       "minted_during": "interrupt",
       "caused_by": "W58",
-      "last_worked": "2026-10-01T13:54:51Z",
+      "last_worked": "2026-10-01T14:05:00Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T140500Z"
     }
   ],
   "residue": [
@@ -3452,6 +3450,6 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "9b818870",
+  "predecessor_job_id": "ea74192d",
   "leases": []
 }
