@@ -3543,7 +3543,7 @@
     {
       "symbol": "W178",
       "title": "State the marquee motion in pips per frame so its step fraction holds on every panel and refresh rate",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W173"
       ],
@@ -3551,15 +3551,18 @@
         "templates/marquee-main.qml",
         "scripts/check_marquee_live.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "operator: decide how check_marquee_live L2 judges a notification replaced before its first rotation - (i) retune the harness to speed 1 so a swap lands in the arrival-to-replace window, (ii) L2 judges the item by id so its replacement text satisfies it, or (iii) the widget shows the pre-replace text once first"
+      ],
+      "blocked_kind": "human",
       "next_bounded_step": "Measure, in the harness, FrameAnimation triggers per virtual second (count onTriggered against the harness clock) - expected ~60 at QSG_FIXED_ANIMATION_STEP. If the offscreen loop renders less often, make the harness drive the board one frame per virtual frame (or step the run as R9 capture does) so virtual time and frames agree; do not reintroduce frameTime into the widget step (that would bring back the refresh-rate dependence). Then marquee_live, re-render, report fractional_share.",
-      "evidence": "2026-10-01: 2026-10-01 MEASURED (qmllint on a scratch probe, host Qt 6.11): Screen.refreshRate -> \"Member refreshRate not found on type QQuickScreenAttached\" [missing-property]; Screen.devicePixelRatio and FrameAnimation{frameTime, smoothFrameTime} resolve clean (the positive control: the instrument reports a missing member as missing). QML does NOT expose the refresh rate, so the motion is driven by FrameAnimation (Qt 6.4+, so the operator laptop Qt 6.10 has it). | 2026-10-01: 2026-10-01 PORT ATTEMPTED AND REVERTED (tree restored; patch kept at scratchpad w178/frameanimation-port.diff): rotation NumberAnimation -> FrameAnimation advancing stepPips = max(1, round(speed)) + 1/phi pips/frame; kcfg speed default 2 (whole pips per frame); config slider 1..4 stepSize 1. qml_lint 12/12 and config_page 24/24 admitted, but marquee_live DENIED L2: \"arrive of id 2 at t=5200 never reached the board\", at harness speed 4 AND at the default - so not pace: the port breaks the run-completion / ring-swap path somewhere. Also found: kcfg debugLog ships default TRUE (why the operator board was logging); left as is, the log is content-free since 13ab366. | 2026-10-01: 2026-10-01 DIAGNOSED (patch re-applied, traced with check_marquee_live --trace, reverted again): the FrameAnimation port WORKS - runs complete, `finished` fires, the ring swaps and restarts (item 1 rotates repeatedly; ids 9, 11, 2 all reach the ring). L2 fails on TIMING: id 2 upserts at t=5200 as textLen 18 (\"app: second — bold\") and is REPLACED at t=5600 (textLen 21) before item 11 run finishes, so the bold text never gets its own rotation. Under the NumberAnimation the item-11 run ended before 5600. So a run takes longer in the harness VIRTUAL time: the harness clock is a NumberAnimation on the fixed-step animation driver, while FrameAnimation ticks per RENDERED frame, and the offscreen platform renders fewer frames per virtual second than a display vsync.",
+      "evidence": "2026-10-01: 2026-10-01 MEASURED (qmllint on a scratch probe, host Qt 6.11): Screen.refreshRate -> \"Member refreshRate not found on type QQuickScreenAttached\" [missing-property]; Screen.devicePixelRatio and FrameAnimation{frameTime, smoothFrameTime} resolve clean (the positive control: the instrument reports a missing member as missing). QML does NOT expose the refresh rate, so the motion is driven by FrameAnimation (Qt 6.4+, so the operator laptop Qt 6.10 has it). | 2026-10-01: 2026-10-01 PORT ATTEMPTED AND REVERTED (tree restored; patch kept at scratchpad w178/frameanimation-port.diff): rotation NumberAnimation -> FrameAnimation advancing stepPips = max(1, round(speed)) + 1/phi pips/frame; kcfg speed default 2 (whole pips per frame); config slider 1..4 stepSize 1. qml_lint 12/12 and config_page 24/24 admitted, but marquee_live DENIED L2: \"arrive of id 2 at t=5200 never reached the board\", at harness speed 4 AND at the default - so not pace: the port breaks the run-completion / ring-swap path somewhere. Also found: kcfg debugLog ships default TRUE (why the operator board was logging); left as is, the log is content-free since 13ab366. | 2026-10-01: 2026-10-01 DIAGNOSED (patch re-applied, traced with check_marquee_live --trace, reverted again): the FrameAnimation port WORKS - runs complete, `finished` fires, the ring swaps and restarts (item 1 rotates repeatedly; ids 9, 11, 2 all reach the ring). L2 fails on TIMING: id 2 upserts at t=5200 as textLen 18 (\"app: second — bold\") and is REPLACED at t=5600 (textLen 21) before item 11 run finishes, so the bold text never gets its own rotation. Under the NumberAnimation the item-11 run ended before 5600. So a run takes longer in the harness VIRTUAL time: the harness clock is a NumberAnimation on the fixed-step animation driver, while FrameAnimation ticks per RENDERED frame, and the offscreen platform renders fewer frames per virtual second than a display vsync. | 2026-10-01: 2026-10-01 MEASURED from the saved trace samples (40 ms virtual): the harness runs at 60 frames per virtual second (33.3 px per 32 ms = 2 frames, 49.9 px per 48 ms = 3; one frame = 4.618 pips x 3.6 px/pip = 16.6 px) - the \"fewer frames\" hypothesis is FALSIFIED. Runs are FASTER than before (~0.6 s vs the old 1.5 s duration floor). L2 is a PHASE coincidence: flash cycles to 5100, silent runs 5120-5700, id 2 arrives 5200 mid-run, is replaced 5600, next swap 5728 shows \"second - changed\"; the old 1.5 s floor happened to swap near 5420, inside the 400 ms arrival-to-replace window. So L2 passes or fails on run length alone.",
       "issued_at": "2026-10-01T16:08:41Z",
       "minted_during": "interrupt",
       "caused_by": "W173",
-      "last_worked": "2026-10-01T16:40:17Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T16:55:04Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
