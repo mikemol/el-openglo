@@ -2863,7 +2863,7 @@
     {
       "symbol": "W147",
       "title": "Shorten the remaining done titles W38 to W143 (28)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W145"
       ],
@@ -2877,13 +2877,13 @@
       "issued_at": "2026-09-29T01:56:23Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T03:39:47Z",
+      "last_worked": "2026-10-01T03:50:51Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W148",
       "title": "Retitle or split the live waypoints W33 to W75 (16)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W145"
       ],
@@ -2897,7 +2897,7 @@
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": null,
+      "last_worked": "2026-10-01T03:51:24Z",
       "ticks_blocked": 0
     },
     {
