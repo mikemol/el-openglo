@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 172,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T12:56:59Z",
-  "job_id": "9b818870",
+  "heartbeat": "2026-10-01T13:33:47Z",
+  "job_id": "ea74192d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3392,7 +3392,7 @@
     {
       "symbol": "W171",
       "title": "Check every referenced Plasma plugin id is one a shipped package declares",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W58"
       ],
@@ -3403,19 +3403,19 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "scripts/check_plugin_ids.py --json: the SHIPPED ids (each emitted package metadata.json KPlugin.Id, plus make_deb.legacy_alias_packages ids) with whether each Id equals its directory name; the REFERENCED ids (look-and-feel defaults and layout, templates/one-theme-update.js targets, any emitted config naming a wallpaper/applet plugin). policy/plugin_ids.rego: P0 empty, P1 an Id that is not its directory name, P2 a referenced id nothing ships (the f521e6f shape: a desktop naming org.el.openglo.live.elazure after the one-package build). Selftest plants a renamed package and a dangling reference.",
+      "next_bounded_step": null,
       "evidence": "2026-10-01: 2026-10-01 DONE: scripts/check_plugin_ids.py measures over make_deb.stage() (the one install set both packagers use): SHIPPED = every package metadata.json with a KPlugin.Id anywhere under usr/share (plasma AND kwin) with dir_matches; REFERENCED = every org.el.* token in staged non-metadata text, with prefix=true when completed at run time (`org.el.openglo.$(...)`). First real run flagged 2 dangling - both MY measurement gaps, fixed: org.el.taskswitch ships at usr/share/kwin/tabbox (plasma-only walk missed it), org.el.openglo is a run-time PREFIX in el-openglo-apply. Real tree: 29 of 29 referenced ids shipped, 40 of 40 package Ids match their directory. policy/plugin_ids.rego P0-P3 + 7 tests (f521e6f dangling id, prefix nothing extends, renamed package); opa 957/957; opa_gate plugin_ids admitted on a fresh stage (36.7 s CPU, 205 MB). Not yet a pre-commit warrant: staging costs ~37 s CPU per run.",
       "issued_at": "2026-10-01T12:56:59Z",
       "minted_during": "interrupt",
       "caused_by": "W58",
-      "last_worked": "2026-10-01T13:14:49Z",
+      "last_worked": "2026-10-01T13:33:47Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T133347Z"
     },
     {
       "symbol": "W172",
       "title": "Load each emitted Plasma package headless, as plasmashell would, and refuse a load error",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W58"
       ],
@@ -3430,8 +3430,9 @@
       "issued_at": "2026-10-01T12:56:59Z",
       "minted_during": "interrupt",
       "caused_by": "W58",
-      "last_worked": "2026-10-01T12:57:12Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T13:33:47Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
@@ -3451,6 +3452,6 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "4a3be31c",
+  "predecessor_job_id": "9b818870",
   "leases": []
 }
