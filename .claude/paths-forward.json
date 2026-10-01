@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 150,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T03:17:48Z",
-  "job_id": "2ddac196",
+  "heartbeat": "2026-10-01T03:39:47Z",
+  "job_id": "9e9b1cae",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -702,7 +702,7 @@
     },
     {
       "symbol": "W38",
-      "title": "MARQUEE RING BUFFER (operator live 2026-09-22: with watch notify-send hi the scrolling text blips in and out with the popups). Cause, from templates/marquee-main.qml: rebuild() replaces root.tickerText on every notifModel onCountChanged, so the Repeater tears the Row down mid-scroll. Design (operator): double-buffered rings — the SCROLLING ring loops as long as its notifications are active; a PENDING ring collects arrivals; the swap happens at a full rotation (the NumberAnimation's loop boundary), never mid-scroll; a notification that left the model is dropped at the boundary too",
+      "title": "Marquee ring buffer: swap the scrolling and pending rings only at a full rotation",
       "status": "done",
       "enables": [],
       "touches": [
@@ -713,14 +713,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "54fdbe8: tickerText/pendingText + swapRing at the rotation's onFinished (loops: 1, restart), idle swaps immediately; lint clean; parity re-captured; witness pins; COTYPE s91. Live confirmation after re-emerge is the operator's.",
+      "evidence": "54fdbe8: tickerText/pendingText + swapRing at the rotation's onFinished (loops: 1, restart), idle swaps immediately; lint clean; parity re-captured; witness pins; COTYPE s91. Live confirmation after re-emerge is the operator's. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): MARQUEE RING BUFFER (operator live 2026-09-22: with watch notify-send hi the scrolling text blips in and out with the popups). Cause, from templates/marquee-main.qml: rebuild() replaces root.tickerText on every notifModel onCountChanged, so the Repeater tears the Row down mid-scroll. Design (operator): double-buffered rings — the SCROLLING ring loops as long as its notifications are active; a PENDING ring collects arrivals; the swap happens at a full rotation (the NumberAnimation's loop boundary), never mid-scroll; a notification that left the model is dropped at the boundary too",
       "issued_at": "2026-09-21T15:50:38+00:00",
-      "last_worked": "2026-09-21T16:14:21+00:00",
+      "last_worked": "2026-10-01T03:39:29Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W39",
-      "title": "HTML NOTIFICATION BODIES (operator 2026-09-22): some senders emit HTML bodies; parse the markup and let styling drive the dots — bold/strong as lit weight or glow, font color / span color as a HUE on the lit token where the palette allows (a relation gated by the same floors, never a raw literal on the phosphor), i/em perhaps as a slant or ghost weight. CENSUS FIRST: what markup actually arrives (Plasma's notification spec allows b i u a img; senders also emit font color and span style)",
+      "title": "HTML notification bodies: let bold, colour and italic markup drive the dots",
       "status": "done",
       "enables": [],
       "touches": [
@@ -732,14 +732,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "b02c4d4: hue_table_js -> $hueTable hole; MatrixChar.litColorOverride; marquee runAt/hueOf/overrideFor, bold = dotFill x1.15; ghost-surfaces 30/30; parity 10/10; witness pins; COTYPE s94. Live: a coloured notify-send after re-emerge.",
+      "evidence": "b02c4d4: hue_table_js -> $hueTable hole; MatrixChar.litColorOverride; marquee runAt/hueOf/overrideFor, bold = dotFill x1.15; ghost-surfaces 30/30; parity 10/10; witness pins; COTYPE s94. Live: a coloured notify-send after re-emerge. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): HTML NOTIFICATION BODIES (operator 2026-09-22): some senders emit HTML bodies; parse the markup and let styling drive the dots — bold/strong as lit weight or glow, font color / span color as a HUE on the lit token where the palette allows (a relation gated by the same floors, never a raw literal on the phosphor), i/em perhaps as a slant or ghost weight. CENSUS FIRST: what markup actually arrives (Plasma's notification spec allows b i u a img; senders also emit font color and span style)",
       "issued_at": "2026-09-21T15:50:52+00:00",
-      "last_worked": "2026-09-21T17:17:00+00:00",
+      "last_worked": "2026-10-01T03:39:30Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W40",
-      "title": "MARQUEE HYPERLINKS (operator 2026-09-22: 'that would be awesome'). The parser already yields link runs with href (s92). Support = (a) a VISUAL: a link run's characters light their descent row (row 7) as an underline bar — the deferred 'underline -> lit descent row' of relations.md §5a, applied to links (and to <u> runs); (b) a TAP: a TapHandler on the marquee Row; on tap, hit-test the pointer x against the character advance (cellW + spacing) to an index, runAt(index), and Qt.openUrlExternally(run.link) when set; the ring keeps scrolling (or pauses while hovered — a HoverHandler pausing the rotation is the board-reading affordance); (c) the harness already covers link runs; add a case with two links; (d) a settings toggle openLinks (default true)",
+      "title": "Marquee hyperlinks: underlined link runs that open on tap",
       "status": "done",
       "enables": [],
       "touches": [
@@ -751,9 +751,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "6d61149: MatrixChar.underline (descent row); HoverHandler pauses the rotation; TapHandler hit-tests to runAt and opens run.link; openLinks setting; harness two-link case; parity 10/10; witness pins; COTYPE s96. Live: notify-send with an a href after re-emerge.",
+      "evidence": "6d61149: MatrixChar.underline (descent row); HoverHandler pauses the rotation; TapHandler hit-tests to runAt and opens run.link; openLinks setting; harness two-link case; parity 10/10; witness pins; COTYPE s96. Live: notify-send with an a href after re-emerge. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): MARQUEE HYPERLINKS (operator 2026-09-22: 'that would be awesome'). The parser already yields link runs with href (s92). Support = (a) a VISUAL: a link run's characters light their descent row (row 7) as an underline bar — the deferred 'underline -> lit descent row' of relations.md §5a, applied to links (and to <u> runs); (b) a TAP: a TapHandler on the marquee Row; on tap, hit-test the pointer x against the character advance (cellW + spacing) to an index, runAt(index), and Qt.openUrlExternally(run.link) when set; the ring keeps scrolling (or pauses while hovered — a HoverHandler pausing the rotation is the board-reading affordance); (c) the harness already covers link runs; add a case with two links; (d) a settings toggle openLinks (default true)",
       "issued_at": "2026-09-21T17:24:43+00:00",
-      "last_worked": "2026-09-21T17:47:21+00:00",
+      "last_worked": "2026-10-01T03:39:30Z",
       "ticks_blocked": 0
     },
     {
@@ -820,7 +820,7 @@
     },
     {
       "symbol": "W44",
-      "title": "RELICENSE TO APACHE-2.0 (operator 2026-09-22: 'I would prefer Apache2 over GPL-3'). A sweep with a check: (1) LICENSE at the root = Apache-2.0 text + NOTICE; (2) every emitted metadata License string (make_deb LnF + plasmoid + wallpaper metadata, make_notify_marquee, make_taskswitch, make_wallpaper_live, make_plymouth .plymouth, make_inherit comments, chrome/firefox manifests if they carry one, the Windows .theme, the Union styles) -> 'Apache-2.0'; (3) the ebuild LICENSE='Apache-2.0'; (4) catalog/publishing.md rows' licence column (the KDE Store accepts Apache; note it); (5) pyproject license field; (6) scripts/check_licence.py: the ONE licence, read from LICENSE, must be what every emitted License field and the ebuild say — a census over the staged tree's metadata.json / .desktop / .plymouth / .ebuild (parse, do not grep), refusing any GPL string; selftest plants a stray GPL. The overlay's copied colorspacious ebuild keeps ITS upstream licence (not ours). Assets (tokens, fonts, engine files) inherit Apache-2.0 unless the operator later splits them to CC0",
+      "title": "Relicense the project to Apache-2.0, with a check over every emitted licence field",
       "status": "done",
       "enables": [],
       "touches": [
@@ -838,14 +838,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write LICENSE (Apache-2.0 verbatim) + NOTICE; scripts/check_licence.py --map over a staging (make_deb --stage) listing every License field it finds and the ebuild's; then the sweep of emitters until the check is green; @LICENCE warrant. One tick if the census is small; measure first.",
-      "evidence": "landed 2026-09-23: LICENSE + emitters.LICENSE_SPDX; check_license 13 of 13 Apache-2.0; opa_gate license admitted. Residue: no debian/copyright declares the KvFlat GPL split.",
+      "evidence": "landed 2026-09-23: LICENSE + emitters.LICENSE_SPDX; check_license 13 of 13 Apache-2.0; opa_gate license admitted. Residue: no debian/copyright declares the KvFlat GPL split. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): RELICENSE TO APACHE-2.0 (operator 2026-09-22: 'I would prefer Apache2 over GPL-3'). A sweep with a check: (1) LICENSE at the root = Apache-2.0 text + NOTICE; (2) every emitted metadata License string (make_deb LnF + plasmoid + wallpaper metadata, make_notify_marquee, make_taskswitch, make_wallpaper_live, make_plymouth .plymouth, make_inherit comments, chrome/firefox manifests if they carry one, the Windows .theme, the Union styles) -> 'Apache-2.0'; (3) the ebuild LICENSE='Apache-2.0'; (4) catalog/publishing.md rows' licence column (the KDE Store accepts Apache; note it); (5) pyproject license field; (6) scripts/check_licence.py: the ONE licence, read from LICENSE, must be what every emitted License field and the ebuild say — a census over the staged tree's metadata.json / .desktop / .plymouth / .ebuild (parse, do not grep), refusing any GPL string; selftest plants a stray GPL. The overlay's copied colorspacious ebuild keeps ITS upstream licence (not ours). Assets (tokens, fonts, engine files) inherit Apache-2.0 unless the operator later splits them to CC0",
       "issued_at": "2026-09-21T18:04:24+00:00",
-      "last_worked": "2026-09-23T05:29:27+00:00",
+      "last_worked": "2026-10-01T03:39:30Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W45",
-      "title": "MARQUEE TRAVERSAL INVARIANT (operator 2026-09-22): a notification must ALWAYS scroll offscreen -> onscreen -> offscreen at least once; never 'just appear', never vanish, never tear visually or temporally. The s91 ring fails the at-least-once half: pendingText is rebuilt from the model on every count change, so an item that arrives and expires before the next boundary never shows. Design: a QUEUE keyed by notification id (the model's IdRole / index key) — an arrival is appended with shown=false; at a boundary the next ring is [every queued item with shown=false] (expired or not), which then scrolls exactly once; an item still in the model after its rotation may be re-queued (it keeps cycling while active); an item removed from the model finishes its current rotation and is dropped at the boundary; the ring NEVER changes mid-rotation. Pure functions in marquee-body.js (ringNext(queue, modelIds) -> {ring, queue}) so the headless harness proves the invariant on synthetic arrival/expiry sequences",
+      "title": "Marquee traversal invariant: every notification scrolls fully across at least once",
       "status": "done",
       "enables": [],
       "touches": [
@@ -857,14 +857,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - LIVE confirm after re-emerge is the operator's (VER-MARQUEE)",
-      "evidence": "2bbf9c5: marquee-body.js joinItem/queueUpsert/ringNext/ringJoin; check_marquee_body 27 of 27 (5 join, 6 ring scenarios); startRun replaces the running binding; check_qml_lint.py @QMLLINT 9 of 9 (refused HEAD 1 of 9 with the fix stashed); COTYPE s98",
+      "evidence": "2bbf9c5: marquee-body.js joinItem/queueUpsert/ringNext/ringJoin; check_marquee_body 27 of 27 (5 join, 6 ring scenarios); startRun replaces the running binding; check_qml_lint.py @QMLLINT 9 of 9 (refused HEAD 1 of 9 with the fix stashed); COTYPE s98 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): MARQUEE TRAVERSAL INVARIANT (operator 2026-09-22): a notification must ALWAYS scroll offscreen -> onscreen -> offscreen at least once; never 'just appear', never vanish, never tear visually or temporally. The s91 ring fails the at-least-once half: pendingText is rebuilt from the model on every count change, so an item that arrives and expires before the next boundary never shows. Design: a QUEUE keyed by notification id (the model's IdRole / index key) — an arrival is appended with shown=false; at a boundary the next ring is [every queued item with shown=false] (expired or not), which then scrolls exactly once; an item still in the model after its rotation may be re-queued (it keeps cycling while active); an item removed from the model finishes its current rotation and is dropped at the boundary; the ring NEVER changes mid-rotation. Pure functions in marquee-body.js (ringNext(queue, modelIds) -> {ring, queue}) so the headless harness proves the invariant on synthetic arrival/expiry sequences",
       "issued_at": "2026-09-21T18:08:36+00:00",
-      "last_worked": "2026-09-21T19:00:32+00:00",
+      "last_worked": "2026-10-01T03:39:30Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W46",
-      "title": "MARQUEE NOTIFICATION CAPABILITIES (operator 2026-09-22, the notify-send man page: which are we not achieving?). Read from the model per item: URGENCY (⊕NOTIFY-URGENCY, LIVE): critical keeps cycling until dismissed in the HOT token fg_act with bloom; normal as now; low at ghost weight or one traversal; EXPIRE: drop at the next boundary only (critical ignores it, as Plasma does); REPLACE-ID: W45's id-keyed queue upserts (same id -> new text at the boundary, position kept); TRANSIENT: exactly one traversal (the queue's shown flag); ACTIONS: rendered as tappable underlined runs after the text ([Reply] [Open]) and a tap calls the model's invokeAction(index, actionId) — the board becomes interactive; HINTS: read value (progress) — jobs already flow in (showJobs) and a job's percentage is a lit BAR across the field; CATEGORY: a style rule per category, later; ICONS: recorded residue (a 5x8 matrix cannot show one honestly; the app name stands in)",
+      "title": "Marquee notification capabilities: urgency, expiry, replace, transient, actions, progress",
       "status": "done",
       "enables": [],
       "touches": [
@@ -877,14 +877,14 @@
       "blocked_kind": null,
       "rank_reason": "unblock: the model's roles are the input to urgency, actions, progress and the series painter; the aperture field made 'weight' and 'colour' numbers the backdrop carries",
       "next_bounded_step": "none - residue named in the closure (category, hints, icons via the viewport, reply, a stopped job's drop, suspend/resume/kill runs); LIVE confirmations after the operator's next emerge (VER-MARQUEE s127-129)",
-      "evidence": "⊕NOTIFY-CAPABILITIES closed s130 (dbd46e8): 9bb647f contract; e637d0b urgency+transient; 450eb0d actions; 1830cdc gauge; the harness's tap now waits for its text (the gate refused under pre-commit load, admitted alone). 49/49 closed symbols; gate 69",
+      "evidence": "⊕NOTIFY-CAPABILITIES closed s130 (dbd46e8): 9bb647f contract; e637d0b urgency+transient; 450eb0d actions; 1830cdc gauge; the harness's tap now waits for its text (the gate refused under pre-commit load, admitted alone). 49/49 closed symbols; gate 69 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): MARQUEE NOTIFICATION CAPABILITIES (operator 2026-09-22, the notify-send man page: which are we not achieving?). Read from the model per item: URGENCY (⊕NOTIFY-URGENCY, LIVE): critical keeps cycling until dismissed in the HOT token fg_act with bloom; normal as now; low at ghost weight or one traversal; EXPIRE: drop at the next boundary only (critical ignores it, as Plasma does); REPLACE-ID: W45's id-keyed queue upserts (same id -> new text at the boundary, position kept); TRANSIENT: exactly one traversal (the queue's shown flag); ACTIONS: rendered as tappable underlined runs after the text ([Reply] [Open]) and a tap calls the model's invokeAction(index, actionId) — the board becomes interactive; HINTS: read value (progress) — jobs already flow in (showJobs) and a job's percentage is a lit BAR across the field; CATEGORY: a style rule per category, later; ICONS: recorded residue (a 5x8 matrix cannot show one honestly; the app name stands in)",
       "issued_at": "2026-09-21T18:18:48+00:00",
-      "last_worked": "2026-09-22T10:25:58+00:00",
+      "last_worked": "2026-10-01T03:39:31Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W47",
-      "title": "THE MATRIX AS A VIEWPORT (operator 2026-09-22): the 5x8 cell is a WINDOW over a taller raster, scrolled vertically — how a single-row board shows anything taller than its LEDs. One mechanism, three payloads: (a) ICONS — the app icon rasterised at runtime in QML (an Image via Qt's icon provider, drawn into a hidden Canvas, getImageData, coverage-threshold or ordered-dither to column bytes — matrix_glyph's rule in JS) as a 16- or 32-row bitmap scrolled vertically through the 8-row window while the text scrolls horizontally; (b) UNICODE / UNIFONT — 8x16 glyphs (CJK, non-Latin) via W30's font compiler emitting a 16-row table, shown by the same vertical scroll or by a 2:1 downsample when legible; (c) any oversized bitmap (a QR code, a logo). This retires the icons-are-residue verdict (s96/W46)",
+      "title": "The matrix as a viewport: scroll taller rasters (icons, Unifont, QR) through the 8-row window",
       "status": "done",
       "enables": [],
       "touches": [
@@ -897,14 +897,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - the vertical scroll animation and icon/QR backdrops are W54's remaining folds",
-      "evidence": "folded into W54: ApertureField.backdropRows + offsetY (f45e52a) — the viewport is the offset's other axis; Unifont read 1:1 through a 16-row backdrop",
+      "evidence": "folded into W54: ApertureField.backdropRows + offsetY (f45e52a) — the viewport is the offset's other axis; Unifont read 1:1 through a 16-row backdrop | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): THE MATRIX AS A VIEWPORT (operator 2026-09-22): the 5x8 cell is a WINDOW over a taller raster, scrolled vertically — how a single-row board shows anything taller than its LEDs. One mechanism, three payloads: (a) ICONS — the app icon rasterised at runtime in QML (an Image via Qt's icon provider, drawn into a hidden Canvas, getImageData, coverage-threshold or ordered-dither to column bytes — matrix_glyph's rule in JS) as a 16- or 32-row bitmap scrolled vertically through the 8-row window while the text scrolls horizontally; (b) UNICODE / UNIFONT — 8x16 glyphs (CJK, non-Latin) via W30's font compiler emitting a 16-row table, shown by the same vertical scroll or by a 2:1 downsample when legible; (c) any oversized bitmap (a QR code, a logo). This retires the icons-are-residue verdict (s96/W46)",
       "issued_at": "2026-09-21T18:28:24+00:00",
-      "last_worked": "2026-09-22T05:34:05+00:00",
+      "last_worked": "2026-10-01T03:39:32Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W48",
-      "title": "SPARKLINES ON THE MATRIX (operator 2026-09-22). A DATA RUN: a series of values -> column heights on the 8 rows (one column per sample, the newest at the right), scrolling like text or pinned at the board's end; the one thing a segment display cannot do and a matrix can. Sources: a job's percentage over time (W46's progress bar is the degenerate one-sample case), Plasma's systemmonitor sensors (CPU, net, temperature — org.kde.ksysguard.sensors / Plasma's SensorDataModel in Plasma 6: measure the QML import), the notification arrival rate itself. Rendering: a run type 'series' in the ring (values[], min/max, lit column height = round(v/max*rows)); optional baseline row; bold = fuller dots; colour via the §5a hue gate (a sensor's colour is a sender colour). Settings: which sensors, samples per column",
+      "title": "Sparklines on the matrix: data series as scrolling column heights",
       "status": "done",
       "enables": [],
       "touches": [
@@ -917,14 +917,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - see W46",
-      "evidence": "folded into W54: seriesToColumns + M5 (b98e723); the painter lands with W46's job progress (recorded on W46)",
+      "evidence": "folded into W54: seriesToColumns + M5 (b98e723); the painter lands with W46's job progress (recorded on W46) | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): SPARKLINES ON THE MATRIX (operator 2026-09-22). A DATA RUN: a series of values -> column heights on the 8 rows (one column per sample, the newest at the right), scrolling like text or pinned at the board's end; the one thing a segment display cannot do and a matrix can. Sources: a job's percentage over time (W46's progress bar is the degenerate one-sample case), Plasma's systemmonitor sensors (CPU, net, temperature — org.kde.ksysguard.sensors / Plasma's SensorDataModel in Plasma 6: measure the QML import), the notification arrival rate itself. Rendering: a run type 'series' in the ring (values[], min/max, lit column height = round(v/max*rows)); optional baseline row; bold = fuller dots; colour via the §5a hue gate (a sensor's colour is a sender colour). Settings: which sensors, samples per column",
       "issued_at": "2026-09-21T18:28:39+00:00",
-      "last_worked": "2026-09-22T07:52:31+00:00",
+      "last_worked": "2026-10-01T03:39:32Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W49",
-      "title": "THE WIDGET UNDER TEST: run the whole marquee headless against a STUBBED org.kde.notificationmanager (operator: a sandbox like headless chrome for integration tests). A stub module dir on QML2_IMPORT_PATH (qmldir + Notifications.qml = ListModel carrying the role enum incl. IdRole/SummaryRole/BodyRole/ApplicationNameRole, count, index(), data()) shadows the real import; render_qml gains a marquee harness that mocks plasmoid, drives the stub (append / remove / replace on timers), samples tickerText, marquee.x, rotation.running per frame and grabToImage snapshots; asserts the traversal trace (every id enters and leaves the viewport once; x never jumps; running stays true while text is non-empty; the board is never dead after a drain). check_marquee_live.py (@MARQUEE-LIVE) with a refusing arm that re-introduces the running binding. Tier 2 later: kwin_wayland --virtual + session bus + plasmoidviewer + notify-send, screenshots via KWin DBus (the VER-MARQUEE probe without a human).",
+      "title": "Test the whole marquee headless against a stubbed notification manager",
       "status": "done",
       "enables": [
         "W46",
@@ -939,14 +939,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - Tier 2 (kwin_wayland --virtual + plasmoidviewer + notify-send) is the VER-MARQUEE live probe, held",
-      "evidence": "9774f8a: scripts/check_marquee_live.py (stub module + timeline + 40 ms sampler; --trace/--hovered/--json); policy/marquee_live.rego L0-L6 + 12 tests; @MARQUEE-LIVE green (64 claims); two stalls found and fixed in marquee-main.qml (from/to set at start; hover-pause a setting); COTYPE s101",
+      "evidence": "9774f8a: scripts/check_marquee_live.py (stub module + timeline + 40 ms sampler; --trace/--hovered/--json); policy/marquee_live.rego L0-L6 + 12 tests; @MARQUEE-LIVE green (64 claims); two stalls found and fixed in marquee-main.qml (from/to set at start; hover-pause a setting); COTYPE s101 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): THE WIDGET UNDER TEST: run the whole marquee headless against a STUBBED org.kde.notificationmanager (operator: a sandbox like headless chrome for integration tests). A stub module dir on QML2_IMPORT_PATH (qmldir + Notifications.qml = ListModel carrying the role enum incl. IdRole/SummaryRole/BodyRole/ApplicationNameRole, count, index(), data()) shadows the real import; render_qml gains a marquee harness that mocks plasmoid, drives the stub (append / remove / replace on timers), samples tickerText, marquee.x, rotation.running per frame and grabToImage snapshots; asserts the traversal trace (every id enters and leaves the viewport once; x never jumps; running stays true while text is non-empty; the board is never dead after a drain). check_marquee_live.py (@MARQUEE-LIVE) with a refusing arm that re-introduces the running binding. Tier 2 later: kwin_wayland --virtual + session bus + plasmoidviewer + notify-send, screenshots via KWin DBus (the VER-MARQUEE probe without a human).",
       "issued_at": "2026-09-21T19:00:44+00:00",
-      "last_worked": "2026-09-21T20:02:11+00:00",
+      "last_worked": "2026-10-01T03:39:33Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W50",
-      "title": "REQUIREMENTS AS REGO (operator: OPA/Rego is a standardized, machine-parseable, machine-actionable spec format; the chk() arms overwhelm an LLM with cognitive load). Split every check into MEASUREMENT and POLICY: a check's --json mode emits what it measured (the population, per-item facts, SKIPs as withheld) and nothing else; policy/<check>.rego declares the requirement as deny/withheld sets over that JSON (luthen's shape: D0 vacuity guard first - an empty population is a deny; withheld separate from deny); policy/<check>_test.rego carries the refuse/admit pair per rule (this REPLACES the chk() falsifiability arms, which shrink to 'the measurement can see'); scripts/opa_gate.py runs opa eval per check and maps deny/withheld to exit 1/3; worklist warrants cite the rego rule. opa is at /usr/bin/opa. First: check_qml_lint (newest, smallest) as the pilot, then check_marquee_body's ring scenarios (already JSON), then the rest by sweep.",
+      "title": "Requirements as Rego: each check emits a measurement and a policy judges it",
       "status": "done",
       "enables": [
         "W46",
@@ -963,14 +963,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "",
-      "evidence": "8101ae4 (pilot), 629ab48 (marquee_body), 978bddc (taskswitch, slice a; 44/44 across five policies; TASKSWITCH warrant + closed witness cite opa_gate) | 2026-09-27: 2026-09-27: opa_gate.py --census -> 72 of 72 gate claims decided in rego, 0 scripts still decide in Python; inherit/rehue/token_source gates admitted 6/6/18. The (b)-(d) step text was stale: the sweep had landed.",
+      "evidence": "8101ae4 (pilot), 629ab48 (marquee_body), 978bddc (taskswitch, slice a; 44/44 across five policies; TASKSWITCH warrant + closed witness cite opa_gate) | 2026-09-27: 2026-09-27: opa_gate.py --census -> 72 of 72 gate claims decided in rego, 0 scripts still decide in Python; inherit/rehue/token_source gates admitted 6/6/18. The (b)-(d) step text was stale: the sweep had landed. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): REQUIREMENTS AS REGO (operator: OPA/Rego is a standardized, machine-parseable, machine-actionable spec format; the chk() arms overwhelm an LLM with cognitive load). Split every check into MEASUREMENT and POLICY: a check's --json mode emits what it measured (the population, per-item facts, SKIPs as withheld) and nothing else; policy/<check>.rego declares the requirement as deny/withheld sets over that JSON (luthen's shape: D0 vacuity guard first - an empty population is a deny; withheld separate from deny); policy/<check>_test.rego carries the refuse/admit pair per rule (this REPLACES the chk() falsifiability arms, which shrink to 'the measurement can see'); scripts/opa_gate.py runs opa eval per check and maps deny/withheld to exit 1/3; worklist warrants cite the rego rule. opa is at /usr/bin/opa. First: check_qml_lint (newest, smallest) as the pilot, then check_marquee_body's ring scenarios (already JSON), then the rest by sweep.",
       "issued_at": "2026-09-21T19:04:23+00:00",
-      "last_worked": "2026-09-27T16:26:11Z",
+      "last_worked": "2026-10-01T03:39:33Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W51",
-      "title": "HOVER-PAUSE INDICATOR (operator: 'a visual indicator for when hover is active. Perhaps a pulsing outline? the outermost pips of the matrix fading in and out - something clear, active, responsive, and will get someone to move the damn mouse'). While rotation.paused (hover-pause holding the board): MatrixField draws its outermost ring of pips (top row, bottom row, first and last columns) at a separate opacity that a SequentialAnimation pulses between the ghost alpha and the lit alpha (~0.8 s period, Easing.InOutSine); nothing else on the board changes, the run resumes when the pointer leaves. Colour: the ring pulses toward the lit token (not fg_act - this is attention, not alarm; W46's urgency owns hot). Harness: check_marquee_live --hovered samples a new root property boardPaused plus the field's ringOpacity; policy rule L7: while paused the ring opacity CHANGES across samples (a pulse), and while not paused it equals the ghost alpha. Settings: none new - the pulse belongs to hoverPause.",
+      "title": "Hover-pause indicator: pulse the matrix's outer ring of pips while paused",
       "status": "done",
       "enables": [
         "W46"
@@ -984,14 +984,14 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - LIVE confirm after re-emerge (a parked pointer pulses the ring)",
-      "evidence": "42efc30: MatrixField ring canvas + showGhost; marquee pulse on ringOpacity while boardPaused; harness hovered run + L7 (34/34); MatrixField parity pair (11 of 11); COTYPE s102",
+      "evidence": "42efc30: MatrixField ring canvas + showGhost; marquee pulse on ringOpacity while boardPaused; harness hovered run + L7 (34/34); MatrixField parity pair (11 of 11); COTYPE s102 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): HOVER-PAUSE INDICATOR (operator: 'a visual indicator for when hover is active. Perhaps a pulsing outline? the outermost pips of the matrix fading in and out - something clear, active, responsive, and will get someone to move the damn mouse'). While rotation.paused (hover-pause holding the board): MatrixField draws its outermost ring of pips (top row, bottom row, first and last columns) at a separate opacity that a SequentialAnimation pulses between the ghost alpha and the lit alpha (~0.8 s period, Easing.InOutSine); nothing else on the board changes, the run resumes when the pointer leaves. Colour: the ring pulses toward the lit token (not fg_act - this is attention, not alarm; W46's urgency owns hot). Harness: check_marquee_live --hovered samples a new root property boardPaused plus the field's ringOpacity; policy rule L7: while paused the ring opacity CHANGES across samples (a pulse), and while not paused it equals the ghost alpha. Settings: none new - the pulse belongs to hoverPause.",
       "issued_at": "2026-09-21T20:02:23+00:00",
-      "last_worked": "2026-09-21T20:39:11+00:00",
+      "last_worked": "2026-10-01T03:39:33Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W52",
-      "title": "SCREENSHOTS THROUGH THE THEME (operator: 'we can render the widgets and capture actual screenshots of them - for a repo README to showcase'). catalog/library/render_screens.py renders every surface x variant to catalog/library/screens/<surface>-<variant>.png via the themed render path (render_qml under theme_probe.env_for + --apptype widget): clock and live wallpaper as today; the MARQUEE via check_marquee_live's harness with a grabToImage at a mid-scroll sample and a second while the hover-pause pulse is on (the field, the lit text, the ring); the SWITCHER via a render_qml rewrite (KWin.TabBoxSwitcher root -> Item; tabBox.model -> a stub ListModel of three captions with the middle one current, longestCaption()) - which also gives the switcher its first RENDERED gate; then a contact sheet per variant and a six-variant strip (PIL), regenerated by one script so they cannot drift from the emitters. README references them through the README projection (memory: readme-as-projection), never by hand. A check (--json + policy/screens.rego): every surface x variant PNG exists, is non-blank, and its modal colour is that variant's ground (the same census render_qml --pixels does).",
+      "title": "Render README screenshots of every surface and variant through the real theme",
       "status": "done",
       "enables": [
         "W41",
@@ -1008,9 +1008,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "none - residue: the clock's colon blink needs the harness to drive time (a second animation kind); take it when a surface animation is wanted",
-      "evidence": "stills 6c61f45; animations c187793 (marquee-anim-<v>.png x6, S4/S5, opa_gate screens admitted 36 of 36)",
+      "evidence": "stills 6c61f45; animations c187793 (marquee-anim-<v>.png x6, S4/S5, opa_gate screens admitted 36 of 36) | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): SCREENSHOTS THROUGH THE THEME (operator: 'we can render the widgets and capture actual screenshots of them - for a repo README to showcase'). catalog/library/render_screens.py renders every surface x variant to catalog/library/screens/<surface>-<variant>.png via the themed render path (render_qml under theme_probe.env_for + --apptype widget): clock and live wallpaper as today; the MARQUEE via check_marquee_live's harness with a grabToImage at a mid-scroll sample and a second while the hover-pause pulse is on (the field, the lit text, the ring); the SWITCHER via a render_qml rewrite (KWin.TabBoxSwitcher root -> Item; tabBox.model -> a stub ListModel of three captions with the middle one current, longestCaption()) - which also gives the switcher its first RENDERED gate; then a contact sheet per variant and a six-variant strip (PIL), regenerated by one script so they cannot drift from the emitters. README references them through the README projection (memory: readme-as-projection), never by hand. A check (--json + policy/screens.rego): every surface x variant PNG exists, is non-blank, and its modal colour is that variant's ground (the same census render_qml --pixels does).",
       "issued_at": "2026-09-21T23:33:07+00:00",
-      "last_worked": "2026-09-22T01:53:00+00:00",
+      "last_worked": "2026-10-01T03:39:34Z",
       "ticks_blocked": 0
     },
     {
@@ -1036,7 +1036,7 @@
     },
     {
       "symbol": "W54",
-      "title": "THE FIELD AS AN APERTURE INTEGRAL (operator 2026-09-22: pips with a brightness RANGE, modelled as a supersampled mask over a higher-resolution backdrop scrolled at the display rate — pinholes over a moving scene; the brain synthesizes the motion). Each pip's brightness = ghostAlpha + coverage * (1 - ghostAlpha), coverage = the backdrop's ink under the pip's aperture at the current offset. In QML: the backdrop (text, icon raster, sparkline, QR) drawn once into a ShaderEffectSource with mipmaps; a ShaderEffect over the static field samples per pip at an LOD matched to the aperture (the box integral for one lookup); the scroll offset is a uniform, so no Row rebuild ever happens. This is what a real LED sign's sub-pixel smooth scroll IS (PWM at fractional offsets). COLLAPSE candidate: W47 (viewport = the vertical uniform), W48 (a sparkline is a backdrop), W34(a) (lit dots ARE the field's, graded not snapped), and the live twin of segment_topology.project / matrix_glyph's offline coverage rule (ink under a cell aperture) — reuse-search hit, not a new operator",
+      "title": "The matrix field as an aperture integral over a scrolling backdrop",
       "status": "done",
       "enables": [
         "W46",
@@ -1055,14 +1055,14 @@
       "blocked_kind": null,
       "rank_reason": "collapse: one operator under W47, W48, W34(a), the matrix half of W30 (operator: plain Unifont behind the mask — any font Qt can shape, no compiled column table) and the offline glyph coverage rule; the marquee's rebuild-free scroll falls out of it",
       "next_bounded_step": "none - LIVE: the panel's smoothness after the operator's next emerge (⊕VER-MARQUEE); γ tuning is W56's; the series painter is W46's; Unifont in the marquee is a setting to add when a second backdrop kind is wanted",
-      "evidence": "⊕APERTURE-FIELD closed s125 (462cdf9): 262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+γ+loop; 1a93b11 --motion; d32c412 §5b; 916559a THE PORT; f45e52a viewport; b98e723 series; 9a0755d bookend+census; dd50c52 MatrixChar retired; 462cdf9 the viewport animation + closure. check_symbol 48/48; gate 68; 74/74 policy tests",
+      "evidence": "⊕APERTURE-FIELD closed s125 (462cdf9): 262bd9c field; c2043cc @APERTURE; 6b6c1e7 text backdrop; a95f574/8f8a37f/45757a7 Unifont+γ+loop; 1a93b11 --motion; d32c412 §5b; 916559a THE PORT; f45e52a viewport; b98e723 series; 9a0755d bookend+census; dd50c52 MatrixChar retired; 462cdf9 the viewport animation + closure. check_symbol 48/48; gate 68; 74/74 policy tests | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): THE FIELD AS AN APERTURE INTEGRAL (operator 2026-09-22: pips with a brightness RANGE, modelled as a supersampled mask over a higher-resolution backdrop scrolled at the display rate — pinholes over a moving scene; the brain synthesizes the motion). Each pip's brightness = ghostAlpha + coverage * (1 - ghostAlpha), coverage = the backdrop's ink under the pip's aperture at the current offset. In QML: the backdrop (text, icon raster, sparkline, QR) drawn once into a ShaderEffectSource with mipmaps; a ShaderEffect over the static field samples per pip at an LOD matched to the aperture (the box integral for one lookup); the scroll offset is a uniform, so no Row rebuild ever happens. This is what a real LED sign's sub-pixel smooth scroll IS (PWM at fractional offsets). COLLAPSE candidate: W47 (viewport = the vertical uniform), W48 (a sparkline is a backdrop), W34(a) (lit dots ARE the field's, graded not snapped), and the live twin of segment_topology.project / matrix_glyph's offline coverage rule (ink under a cell aperture) — reuse-search hit, not a new operator",
       "issued_at": "2026-09-22T01:54:41+00:00",
-      "last_worked": "2026-09-22T07:52:23+00:00",
+      "last_worked": "2026-10-01T03:39:34Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W56",
-      "title": "OCR ROUND-TRIP LEGIBILITY (operator 2026-09-22: 'OCR models might be useful for helping optimize how we do our supersampling alignment'). The witness s116 left as residue ('legibility is by eye'): render a string through the aperture field → low-pass at the pitch (the eye at distance; raw pips defeat OCR — measured: tesseract read nothing until a Gaussian at ~1.5 pitch reconnected the strokes) → threshold → tesseract → normalised edit distance to the source. Measured today on pinholes-EL-Openglo.png (8 rows, Unifont 2:1): 'Mello A 424 B' for 'Hello 世界 42 ñ 🔔' with eng only. Then it is an OBJECTIVE: phase offset, scale, pixelSize, hinting mode, dotFill and rows (8 vs the 16-row viewport) are searched for the best score per font — alignment optimised by measurement, not by eye",
+      "title": "OCR round-trip legibility as an objective for tuning the aperture field",
       "status": "done",
       "enables": [
         "W54"
@@ -1076,9 +1076,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock: turns W54's legibility residue into a number and gives the alignment parameters an objective",
       "next_bounded_step": "none - the sweep's next axes (scale, pixelSize, dotFill) and CJK (tessdata) are residue; the objective exists",
-      "evidence": "62bc652: check_legibility + policy G0-G3 (@LEGIBILITY, 70 claims, 99/99); scores 0.857/0.929/1.000, CJK withheld; --sweep: γ identity at 1:1, γ 0.5 + 1.0-pitch low-pass reads exactly at 2:1 (γ 1 reads nothing); opa_gate admitted set + five D0 absent-population fixes",
+      "evidence": "62bc652: check_legibility + policy G0-G3 (@LEGIBILITY, 70 claims, 99/99); scores 0.857/0.929/1.000, CJK withheld; --sweep: γ identity at 1:1, γ 0.5 + 1.0-pitch low-pass reads exactly at 2:1 (γ 1 reads nothing); opa_gate admitted set + five D0 absent-population fixes | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): OCR ROUND-TRIP LEGIBILITY (operator 2026-09-22: 'OCR models might be useful for helping optimize how we do our supersampling alignment'). The witness s116 left as residue ('legibility is by eye'): render a string through the aperture field → low-pass at the pitch (the eye at distance; raw pips defeat OCR — measured: tesseract read nothing until a Gaussian at ~1.5 pitch reconnected the strokes) → threshold → tesseract → normalised edit distance to the source. Measured today on pinholes-EL-Openglo.png (8 rows, Unifont 2:1): 'Mello A 424 B' for 'Hello 世界 42 ñ 🔔' with eng only. Then it is an OBJECTIVE: phase offset, scale, pixelSize, hinting mode, dotFill and rows (8 vs the 16-row viewport) are searched for the best score per font — alignment optimised by measurement, not by eye",
       "issued_at": "2026-09-22T03:02:49+00:00",
-      "last_worked": "2026-09-22T10:56:03+00:00",
+      "last_worked": "2026-10-01T03:39:34Z",
       "ticks_blocked": 0
     },
     {
@@ -1128,7 +1128,7 @@
     },
     {
       "symbol": "W59",
-      "title": "A PIP IS A SEGMENT: ONE DISPLAY ENGINE, THE PRIMITIVE'S SHAPE IS A PARAMETER (operator 2026-09-22: 'this is, again, the symmetry oracle needing application. A pip IS a segment. The only true difference between the 7seg / 22seg / whatever and the matrix engines SHOULD be the shape of the segments.'). ⚑ THIS OVERTURNS ⊕DOT's RECORDED JUDGEMENT (:1002, s65): 'a segment is a subset of a topology while a pixel-cell is a raster, so the two share a CONTRACT rather than a substrate' — the operator's cut is better and the tree already argues for it: SegmentChar and ApertureField now differ in (a) the primitive's geometry (a capsule on a 7-seg lattice vs a round pip on a rectangular one) and (b) the emission model (flat fill vs coverage of a backdrop, graded). Neither difference is a different KIND of display. THREE CONSEQUENCES: (1) the aperture's graded coverage is not a matrix feature — it is the emission model the segment display LACKS, which is precisely the physics W33 is chasing (a gradient across a lit segment IS its coverage profile); (2) the symmetry oracle (W57) applies to the matrix too — a regular pip grid is a translation-invariance property, and the grid glitching the operator caught in marquee-anim was exactly that check going unrun; (3) the content axis unifies: a glyph is a lit-primitive set whether the primitives are seven capsules or forty dots, so display_types' matrix tables and segment_topology's segment tables are one table shape.",
+      "title": "One display engine: a pip is a segment, and only the primitive's shape differs",
       "status": "done",
       "enables": [
         "W33",
@@ -1145,9 +1145,9 @@
       "blocked_kind": null,
       "rank_reason": "collapse: the deepest one available — it folds the segment display and the matrix field into one engine, makes the physics layer (W33) a property of the shared emission model rather than per-surface work, and puts the matrix under the symmetry oracle that just found a defect in it",
       "next_bounded_step": "MEASURED 2026-09-22 (s144), operator: 'we should divide these settings by layer; which are display-specific? which are mount-specific?' catalog/one-display.md now holds the answer, from check_config_page --json: 8 keys on the clock, 11 on the marquee, 0 on the live wallpaper. THREE layers, not two -- DISPLAY (how a primitive is drawn; means the same on every mount), MOUNT (what string exists and how it behaves; never reaches the display), INSTRUMENT (changes neither; exists so a human can see what the widget did -- debugLog/traceLog, which would have been smuggled into one of the other two if the layer were not named). ⚑ THE FINDING: the display rows are THE SAME FOUR PARAMETERS UNDER TWO VOCABULARIES. showGhost=showField (is the unlit substrate visible), ghostWeight=ghostAlpha (how subordinate), weight=dotFill (the primitive's fill fraction of its cell), digitGap=pitchScale (the lattice pitch). The LABELS diverge as far as the keys: 'Show ghost segments' vs 'Show unlit field' for one quantity. And bloom has NO marquee counterpart although the same engine draws both -- one mount can reach the emission model, the other cannot, and nothing recorded that choice. The live wallpaper declares NO config page, so its display parameters are not differently named but UNREACHABLE: three mounts, three different answers to 'can the user set the pitch'. NEXT BOUNDED STEP: make the display layer ONE declaration that each mount includes, so a new display parameter appears on every mount or is WITHHELD DELIBERATELY as a recorded act. The kcfg templates are the site (templates/clock-config.kcfg, marquee-config.kcfg, live-wallpaper-config.kcfg) and check_config_page is the gate that can already see both. ⚑ DO NOT COLLAPSE THE MOUNT ROWS: use24h is meaningless to a marquee and hoverPause to a clock -- that repetition CARRIES IDENTITY.",
-      "evidence": "e0ea1ff: display_params.py, config_page.rego D0-D4, worklist 73/73",
+      "evidence": "e0ea1ff: display_params.py, config_page.rego D0-D4, worklist 73/73 | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): A PIP IS A SEGMENT: ONE DISPLAY ENGINE, THE PRIMITIVE'S SHAPE IS A PARAMETER (operator 2026-09-22: 'this is, again, the symmetry oracle needing application. A pip IS a segment. The only true difference between the 7seg / 22seg / whatever and the matrix engines SHOULD be the shape of the segments.'). ⚑ THIS OVERTURNS ⊕DOT's RECORDED JUDGEMENT (:1002, s65): 'a segment is a subset of a topology while a pixel-cell is a raster, so the two share a CONTRACT rather than a substrate' — the operator's cut is better and the tree already argues for it: SegmentChar and ApertureField now differ in (a) the primitive's geometry (a capsule on a 7-seg lattice vs a round pip on a rectangular one) and (b) the emission model (flat fill vs coverage of a backdrop, graded). Neither difference is a different KIND of display. THREE CONSEQUENCES: (1) the aperture's graded coverage is not a matrix feature — it is the emission model the segment display LACKS, which is precisely the physics W33 is chasing (a gradient across a lit segment IS its coverage profile); (2) the symmetry oracle (W57) applies to the matrix too — a regular pip grid is a translation-invariance property, and the grid glitching the operator caught in marquee-anim was exactly that check going unrun; (3) the content axis unifies: a glyph is a lit-primitive set whether the primitives are seven capsules or forty dots, so display_types' matrix tables and segment_topology's segment tables are one table shape.",
       "issued_at": "2026-09-22T12:30:00+00:00",
-      "last_worked": "2026-09-22T21:02:35+00:00",
+      "last_worked": "2026-10-01T03:39:35Z",
       "ticks_blocked": 0
     },
     {
@@ -1549,7 +1549,7 @@
     },
     {
       "symbol": "W84",
-      "title": "FLAKE: @WORKLIST (worklist_gate --selftest) failed inside the readme gate and PASSED ON REPLAY on an unchanged tree (2026-09-26) — a defect in the check, not an absence of one",
+      "title": "Fix the worklist selftest flake that failed in the readme gate and passed on replay",
       "status": "done",
       "enables": [],
       "touches": [],
@@ -1557,9 +1557,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "done",
-      "evidence": "OURS, not paperkit: worklist_gate._replay called the INSTALLED paperkit private _cpu_rlimit (pin 88792ac: hard=cap+3) inside a check whose inherited hard limit is the gate cap (live checkout b593c80: soft==hard) -> EPERM in preexec -> selftest traceback in every gate run. Reproduced with prlimit --cpu=60:60 + env -i; fixed by an own preexec that never raises the inherited hard limit; readme gate PASS",
+      "evidence": "OURS, not paperkit: worklist_gate._replay called the INSTALLED paperkit private _cpu_rlimit (pin 88792ac: hard=cap+3) inside a check whose inherited hard limit is the gate cap (live checkout b593c80: soft==hard) -> EPERM in preexec -> selftest traceback in every gate run. Reproduced with prlimit --cpu=60:60 + env -i; fixed by an own preexec that never raises the inherited hard limit; readme gate PASS | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): FLAKE: @WORKLIST (worklist_gate --selftest) failed inside the readme gate and PASSED ON REPLAY on an unchanged tree (2026-09-26) — a defect in the check, not an absence of one",
       "issued_at": "2026-09-26T18:21:19+00:00",
-      "last_worked": "2026-09-26T18:30:42+00:00",
+      "last_worked": "2026-10-01T03:39:35Z",
       "ticks_blocked": 0
     },
     {
@@ -1893,7 +1893,7 @@
     },
     {
       "symbol": "W103",
-      "title": "W93.1 edges for the harness cluster: read W71 (guest boot image) and W73 (GPU sandbox) against W70 (k8s boot+GUI harness) and W98 (Mesa CPU GL); wire each stated relation, or record in evidence why none holds",
+      "title": "Wire the edges for the harness cluster (W70, W71, W73, W98)",
       "status": "done",
       "enables": [
         "W93"
@@ -1904,16 +1904,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-27: 2026-09-27 read W70/W71/W73/W98 via --show. WIRED: W71 enables W70 (W70 evidence: luthen supplies the VM surface, \"W71 guest image remains ours\" - W70 probes need it). NO EDGE, with reasons: W73->W70/W98: W73 remaining step is warrant citation of opa_gate qt_sandbox, needs neither; W98 supersedes W73 GPU opt-in (render_screens EL_QT_GPU) but that is W98 own scope (its title), not a W73 dependency. W71<->W98: guest image vs host headless render path, disjoint (a VM guest has its own GL). W70<->W98: VM probes vs host renders, disjoint.",
+      "evidence": "2026-09-27: 2026-09-27 read W70/W71/W73/W98 via --show. WIRED: W71 enables W70 (W70 evidence: luthen supplies the VM surface, \"W71 guest image remains ours\" - W70 probes need it). NO EDGE, with reasons: W73->W70/W98: W73 remaining step is warrant citation of opa_gate qt_sandbox, needs neither; W98 supersedes W73 GPU opt-in (render_screens EL_QT_GPU) but that is W98 own scope (its title), not a W73 dependency. W71<->W98: guest image vs host headless render path, disjoint (a VM guest has its own GL). W70<->W98: VM probes vs host renders, disjoint. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W93.1 edges for the harness cluster: read W71 (guest boot image) and W73 (GPU sandbox) against W70 (k8s boot+GUI harness) and W98 (Mesa CPU GL); wire each stated relation, or record in evidence why none holds",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": "2026-09-27T18:40:52Z",
+      "last_worked": "2026-10-01T03:39:35Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W104",
-      "title": "W93.2 edges for the tooling cluster: read W36, W37, W41, W42, W61, W68, W85 against each other and against W62 children W99-W102; wire each stated relation, or record in evidence why none holds",
+      "title": "Wire the edges for the tooling cluster (W36 to W85 and W99 to W102)",
       "status": "done",
       "enables": [
         "W93"
@@ -1924,16 +1924,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-27: 2026-09-27 read all 11 via --show (findings drafted in scratchpad w104-findings.md while auto_push held the tree). WIRED: W100 enables W99,W101 (W100 check_hooks out-of-tree symlink census is the witness their deletions landed). NO EDGE: W85/W101 share pyproject pins, no order; W102 letter uses W62 census already in hand; W36/W37/W41/W42 product work disjoint from hook migration (W41 is a W42 codomain row, neither waits); W61 vs W42 already rejected in W61 evidence. FOUND: W68 push side landed (pre-push.local, pre-merge-commit tracked) - evidence + close-step written to W68.",
+      "evidence": "2026-09-27: 2026-09-27 read all 11 via --show (findings drafted in scratchpad w104-findings.md while auto_push held the tree). WIRED: W100 enables W99,W101 (W100 check_hooks out-of-tree symlink census is the witness their deletions landed). NO EDGE: W85/W101 share pyproject pins, no order; W102 letter uses W62 census already in hand; W36/W37/W41/W42 product work disjoint from hook migration (W41 is a W42 codomain row, neither waits); W61 vs W42 already rejected in W61 evidence. FOUND: W68 push side landed (pre-push.local, pre-merge-commit tracked) - evidence + close-step written to W68. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W93.2 edges for the tooling cluster: read W36, W37, W41, W42, W61, W68, W85 against each other and against W62 children W99-W102; wire each stated relation, or record in evidence why none holds",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": "2026-09-27T19:08:15Z",
+      "last_worked": "2026-10-01T03:39:35Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W105",
-      "title": "W93.3 W77 (OTEL widget, stated later): decide independent (record why in evidence) or wire; then re-run the unlinked diagnostic and record n of m live waypoints with at least one edge",
+      "title": "Decide W77's edges and recount how many live waypoints are linked",
       "status": "done",
       "enables": [
         "W93"
@@ -1944,11 +1944,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-27: 2026-09-27: W77 INDEPENDENT - operator deferred it (LATER, 2026-09-25); a new plasmoid surface whose first step is a query-surface survey; no live waypoint consumes a metrics source and it waits on nothing in flight (palette via make_preview.parse_scheme, a shared authority, not a waypoint); W42 would list it as a codomain row but neither waits. RE-COUNT (scratchpad edge_census.py, incoming edges counted): 36 of 49 live waypoints have >=1 edge; 13 unlinked = W36 W37 W41 W42 W61 W68 W73 W77 W85 (each reviewed in W103-W105 with a no-edge reason) + W95 W97 W106 W110 (never in a W93 cluster). Trend 27->19->11->13 (new unlinked mints W106, W110). The diagnostic is a scratchpad one-off: W111.",
+      "evidence": "2026-09-27: 2026-09-27: W77 INDEPENDENT - operator deferred it (LATER, 2026-09-25); a new plasmoid surface whose first step is a query-surface survey; no live waypoint consumes a metrics source and it waits on nothing in flight (palette via make_preview.parse_scheme, a shared authority, not a waypoint); W42 would list it as a codomain row but neither waits. RE-COUNT (scratchpad edge_census.py, incoming edges counted): 36 of 49 live waypoints have >=1 edge; 13 unlinked = W36 W37 W41 W42 W61 W68 W73 W77 W85 (each reviewed in W103-W105 with a no-edge reason) + W95 W97 W106 W110 (never in a W93 cluster). Trend 27->19->11->13 (new unlinked mints W106, W110). The diagnostic is a scratchpad one-off: W111. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W93.3 W77 (OTEL widget, stated later): decide independent (record why in evidence) or wire; then re-run the unlinked diagnostic and record n of m live waypoints with at least one edge",
       "issued_at": "2026-09-27T17:09:26Z",
       "minted_during": "interrupt",
       "caused_by": "W93",
-      "last_worked": "2026-09-28T17:15:35Z",
+      "last_worked": "2026-10-01T03:39:35Z",
       "ticks_blocked": 0
     },
     {
@@ -1972,7 +1972,7 @@
     },
     {
       "symbol": "W107",
-      "title": "W98.1 PROBE the sessionless Mesa route: kwin_wayland --virtual --socket el-w98 --exit-with-session running a minimal QML that loads the emitted clock and grabToImage to PNG; client QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset (same for kwin). Capped service, cputime. Pass = stderr names llvmpipe/softpipe AND bloom>0 pixels differ from bloom=0. Record fail modes (kwin opens /dev/dri; NVIDIA EGL picked).",
+      "title": "Probe whether a private virtual KWin with Mesa EGL renders the clock with bloom",
       "status": "done",
       "enables": [
         "W98"
@@ -1984,16 +1984,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-27: 2026-09-27 probe (scratchpad w107probe.py, capped service el-w107-probe, exit 0): kwin_wayland --virtual runs sessionless; its own EGL init fails (EGL_NOT_INITIALIZED) and it falls back, harmless. Client qml under QT_QPA_PLATFORM=wayland + Mesa EGL vendor + LIBGL_ALWAYS_SOFTWARE=1: rc 0 both arms, \"Creating QRhi with backend OpenGL\", NOT backend software; bloom-default vs bloom-0 PNGs DIFFER (halo drawn; 254 lit / 13378 ground of 19200). No SIGSEGV, no nvidia/dri string. HALF-PASS: GL renderer unnamed - render_qml env sets QT_LOGGING_RULES *.debug=false, which hides qt.rhi.general renderer lines, so llvmpipe vs NVIDIA is not yet witnessed. | 2026-09-28: 2026-09-28 both halves witnessed: bloom differs (2026-09-27) + llvmpipe named with no libnvidia mapped in the client (W109). The sessionless kwin --virtual + Mesa EGL route holds.",
+      "evidence": "2026-09-27: 2026-09-27 probe (scratchpad w107probe.py, capped service el-w107-probe, exit 0): kwin_wayland --virtual runs sessionless; its own EGL init fails (EGL_NOT_INITIALIZED) and it falls back, harmless. Client qml under QT_QPA_PLATFORM=wayland + Mesa EGL vendor + LIBGL_ALWAYS_SOFTWARE=1: rc 0 both arms, \"Creating QRhi with backend OpenGL\", NOT backend software; bloom-default vs bloom-0 PNGs DIFFER (halo drawn; 254 lit / 13378 ground of 19200). No SIGSEGV, no nvidia/dri string. HALF-PASS: GL renderer unnamed - render_qml env sets QT_LOGGING_RULES *.debug=false, which hides qt.rhi.general renderer lines, so llvmpipe vs NVIDIA is not yet witnessed. | 2026-09-28: 2026-09-28 both halves witnessed: bloom differs (2026-09-27) + llvmpipe named with no libnvidia mapped in the client (W109). The sessionless kwin --virtual + Mesa EGL route holds. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W98.1 PROBE the sessionless Mesa route: kwin_wayland --virtual --socket el-w98 --exit-with-session running a minimal QML that loads the emitted clock and grabToImage to PNG; client QT_QPA_PLATFORM=wayland WAYLAND_DISPLAY=el-w98 __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json LIBGL_ALWAYS_SOFTWARE=1 QSG_INFO=1, DISPLAY/XAUTHORITY unset (same for kwin). Capped service, cputime. Pass = stderr names llvmpipe/softpipe AND bloom>0 pixels differ from bloom=0. Record fail modes (kwin opens /dev/dri; NVIDIA EGL picked).",
       "issued_at": "2026-09-27T17:36:09Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T17:29:34Z",
+      "last_worked": "2026-10-01T03:39:35Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W108",
-      "title": "W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
+      "title": "A qt_sandbox mode that renders on Mesa under a private virtual KWin",
       "status": "done",
       "enables": [
         "W98"
@@ -2006,16 +2006,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step. | 2026-09-28: 2026-09-28: render_qml switched to QT.run(mesa=rhi) (parked scratchpad render_qml.w108.py; selftest PASS, bloom arm runs). Measured scope: render_screens --stale = 55 of 56 outputs (every render_qml surface + marquee stills/anims + sheets + strip key on qt_sandbox/render_qml), not 6. The marquee path renders via qt_sandbox.popen, which has no mesa route yet -> W121 first, else the marquee stills would lose the halo. Tree restored to HEAD; both files parked. | 2026-09-28: 2026-09-28 LANDED (pending commit): qt_sandbox mesa route (kwin_session detached + SIGKILL, W114) and render_qml QT.run(mesa=rhi) installed; render_screens --jobs=4 as capped service el-w108-screens: exit 0; --stale now 0 of 56. 40 PNGs changed (clock, live-wallpaper, switcher, sheets, strip, marquee-anim, pinholes-anim, pinholes-EL-Azure); marquee stills unchanged (software path, as measured). coredumpctl kwin --since -1h: none. render_qml --selftest bloom arm runs and passes.",
+      "evidence": "2026-09-28: 2026-09-28 step 1 landed: qt_sandbox gains mesa_env/mesa_cmd and run(mesa=True) (private kwin_wayland --virtual --no-lockscreen --no-global-shortcuts, client wrapper exports QT_QPA_PLATFORM=wayland; Mesa EGL + LIBGL_ALWAYS_SOFTWARE; refuses mesa+gpu; popen refuses mesa for now). --selftest PASS 18 of 18 incl. real-child arms: core-less, DISPLAY None, wayland, software GL; client exit 3 returns 3 through kwin. FOUND: without XDG_RUNTIME_DIR kwin SIGSEGVs (rc -11) - mesa_env now inherits it. check_qt_sandbox 8 of 8 routed, unchanged. | 2026-09-28: 2026-09-28: step-1 code (mesa_env/mesa_cmd/run(mesa=True), selftest 18/18) is PARKED in scratchpad qt_sandbox.w108.py, NOT committed: the pre-commit @CURRENCY gate refused it because qt_sandbox.py is an input of the screens key and 6 clock-EL-*.png went stale. The tree was restored to HEAD. Resume: copy it back once W114 lands and the operator picks the refresh route. | 2026-09-28: 2026-09-28 OPERATOR RULED (2): the 6 stale clock-EL-*.png re-render on the MESA route (llvmpipe; new pixels become the reference), in the same commit as the qt_sandbox mesa change; not the GPU path. Taking qt_sandbox out of the screens key stays a later step. | 2026-09-28: 2026-09-28: render_qml switched to QT.run(mesa=rhi) (parked scratchpad render_qml.w108.py; selftest PASS, bloom arm runs). Measured scope: render_screens --stale = 55 of 56 outputs (every render_qml surface + marquee stills/anims + sheets + strip key on qt_sandbox/render_qml), not 6. The marquee path renders via qt_sandbox.popen, which has no mesa route yet -> W121 first, else the marquee stills would lose the halo. Tree restored to HEAD; both files parked. | 2026-09-28: 2026-09-28 LANDED (pending commit): qt_sandbox mesa route (kwin_session detached + SIGKILL, W114) and render_qml QT.run(mesa=rhi) installed; render_screens --jobs=4 as capped service el-w108-screens: exit 0; --stale now 0 of 56. 40 PNGs changed (clock, live-wallpaper, switcher, sheets, strip, marquee-anim, pinholes-anim, pinholes-EL-Azure); marquee stills unchanged (software path, as measured). coredumpctl kwin --since -1h: none. render_qml --selftest bloom arm runs and passes. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W98.2 qt_sandbox mode for the Mesa route (not gpu=True): a spawn that starts a private kwin_wayland --virtual and runs the child on wayland + Mesa EGL + LIBGL_ALWAYS_SOFTWARE, selftest proving no DISPLAY and llvmpipe; render_qml and render_screens use it; drop the EL_QT_GPU opt-in and take qt_sandbox out of the screens key (W96 residue)",
       "issued_at": "2026-09-27T17:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-09-28T20:38:43Z",
+      "last_worked": "2026-10-01T03:39:36Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W109",
-      "title": "W107.1 NAME THE RENDERER on the kwin --virtual + Mesa EGL route: re-run scratchpad w107probe.py with QT_LOGGING_RULES overridden after stage to qt.rhi.*=true (render_qml sets *.debug=false, which hid it) and capture GL_RENDERER from the client; also snapshot /proc/PID/maps of kwin_wayland and qml while alive for libnvidia-* vs libEGL_mesa/libgallium. Pass = llvmpipe (or softpipe) named AND no libnvidia mapped in the client.",
+      "title": "Confirm the Mesa route renders on llvmpipe with no NVIDIA library loaded",
       "status": "done",
       "enables": [
         "W107"
@@ -2029,11 +2029,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28 PASS (scratchpad w107probe.py + QT_LOGGING_RULES qt.rhi.*=true + /proc maps sampled every 0.25s; capped service el-w109-probe exit 0; scratchpad/w109out/result.json): client log \"qt.rhi.general: OpenGL VENDOR: Mesa RENDERER: llvmpipe (LLVM 22.1.8, 256 bits) VERSION: 4.6 (Compatibility Profile) Mesa 26.2.3\"; qml maps both arms = libEGL, libEGL_mesa, libGLX, libGLdispatch, libgallium-26.2.3, libxcb-dri3, NO libnvidia; bloom-default vs bloom-0 differ (226 lit / 14081 ground of 19200). GAP: kwin_wayland own maps not captured (its log shows eglInitialize failing - ran without GL); criterion is the client, met.",
+      "evidence": "2026-09-28: 2026-09-28 PASS (scratchpad w107probe.py + QT_LOGGING_RULES qt.rhi.*=true + /proc maps sampled every 0.25s; capped service el-w109-probe exit 0; scratchpad/w109out/result.json): client log \"qt.rhi.general: OpenGL VENDOR: Mesa RENDERER: llvmpipe (LLVM 22.1.8, 256 bits) VERSION: 4.6 (Compatibility Profile) Mesa 26.2.3\"; qml maps both arms = libEGL, libEGL_mesa, libGLX, libGLdispatch, libgallium-26.2.3, libxcb-dri3, NO libnvidia; bloom-default vs bloom-0 differ (226 lit / 14081 ground of 19200). GAP: kwin_wayland own maps not captured (its log shows eglInitialize failing - ran without GL); criterion is the client, met. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W107.1 NAME THE RENDERER on the kwin --virtual + Mesa EGL route: re-run scratchpad w107probe.py with QT_LOGGING_RULES overridden after stage to qt.rhi.*=true (render_qml sets *.debug=false, which hid it) and capture GL_RENDERER from the client; also snapshot /proc/PID/maps of kwin_wayland and qml while alive for libnvidia-* vs libEGL_mesa/libgallium. Pass = llvmpipe (or softpipe) named AND no libnvidia mapped in the client.",
       "issued_at": "2026-09-27T18:20:35Z",
       "minted_during": "interrupt",
       "caused_by": "W107",
-      "last_worked": "2026-09-28T17:29:34Z",
+      "last_worked": "2026-10-01T03:39:36Z",
       "ticks_blocked": 0
     },
     {
@@ -2127,7 +2127,7 @@
     },
     {
       "symbol": "W114",
-      "title": "A CRASHING VIRTUAL KWIN MUST NOT PAGE THE OPERATOR (luthen coredump sweep 2026-09-28 14:09 EDT: 2 kwin_wayland --virtual SIGSEGVs from the first mesa selftest run raised DrKonqi + Service Crash on the desktop despite KDE_DEBUG=1). Candidate: run kwin detached, client on WAYLAND_DISPLAY, SIGKILL kwin after (no crash path); or a kwin-honoured crash switch (measuring needs a deliberate crash: operator asked first).",
+      "title": "A crashing virtual KWin must not raise a crash notice on the operator's desktop",
       "status": "done",
       "enables": [
         "W108"
@@ -2138,11 +2138,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds. | 2026-09-28: 2026-09-28 LANDED IN PARK (scratchpad qt_sandbox.w108.py): kwin_session() context manager starts kwin_wayland --virtual detached, waits for the socket, yields it, SIGKILLs kwin in finally; run(mesa=True) runs the child with WAYLAND_DISPLAY=<sock>. Selftest 18/18 incl. \"kwin leaves no coredump record\" (before/after 0) and \"not ready in time is refused\" (ready_s=0, NEVER a broken env). coredumpctl kwin --since -1h: none. render_qml --selftest on it: bloom arm RUNS and passes (was SKIP without EL_QT_GPU). Commits with W108 (it staleness-keys the screens). | 2026-09-28: 2026-09-28 landed with the W108 commit (kwin_session in qt_sandbox.py).",
+      "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED: deliberate kwin crashes are allowed, but NOT on the desktop session: risky things go to the k8s+kvm throwaway VM (W70, blocked on luthen-observability:W127). A private kwin --virtual in this scope still paged the desktop, so the crash-switch measurement is VM-only. | 2026-09-28: 2026-09-28 ~19:22Z scratchpad w114probe.py: detached kwin_wayland --virtual (no --exit-with-session), socket ready under XDG_RUNTIME_DIR, client WAYLAND_DISPLAY=<sock> QT_QPA_PLATFORM=wayland DISPLAY None -> client rc 3 returned directly; kwin SIGKILLed (rc -9); coredumpctl kwin entries added: 0. The no-crash route holds. | 2026-09-28: 2026-09-28 LANDED IN PARK (scratchpad qt_sandbox.w108.py): kwin_session() context manager starts kwin_wayland --virtual detached, waits for the socket, yields it, SIGKILLs kwin in finally; run(mesa=True) runs the child with WAYLAND_DISPLAY=<sock>. Selftest 18/18 incl. \"kwin leaves no coredump record\" (before/after 0) and \"not ready in time is refused\" (ready_s=0, NEVER a broken env). coredumpctl kwin --since -1h: none. render_qml --selftest on it: bloom arm RUNS and passes (was SKIP without EL_QT_GPU). Commits with W108 (it staleness-keys the screens). | 2026-09-28: 2026-09-28 landed with the W108 commit (kwin_session in qt_sandbox.py). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): A CRASHING VIRTUAL KWIN MUST NOT PAGE THE OPERATOR (luthen coredump sweep 2026-09-28 14:09 EDT: 2 kwin_wayland --virtual SIGSEGVs from the first mesa selftest run raised DrKonqi + Service Crash on the desktop despite KDE_DEBUG=1). Candidate: run kwin detached, client on WAYLAND_DISPLAY, SIGKILL kwin after (no crash path); or a kwin-honoured crash switch (measuring needs a deliberate crash: operator asked first).",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-09-28T20:38:43Z",
+      "last_worked": "2026-10-01T03:39:36Z",
       "ticks_blocked": 0
     },
     {
@@ -2191,7 +2191,7 @@
     },
     {
       "symbol": "W117",
-      "title": "W112.1 licence terms of the 6 substrate symlinks (check_hooks --list names them): read substrate LICENSE and each target SPDX/header; record per file whether it may ship inside an Apache-2.0 tree (W99/W101 retire some of them anyway)",
+      "title": "Check the licence terms of the six borrowed substrate scripts",
       "status": "done",
       "enables": [
         "W112"
@@ -2203,16 +2203,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29 READ (head of each substrate/scripts target): gate_ledger.py, hook_cmdparse.py, hook_no_chaining.py, hook_structural_query.py, ratchet.py, run_selftests.py: ALL six carry SPDX-License-Identifier Apache-2.0, Copyright 2026 Mike Mol (the operator, the author of this tree). substrate has no root LICENSE file and its pyproject.toml declares no license field (read lines 1-30); the per-file SPDX headers are the terms. VERDICT: all six may ship inside an Apache-2.0 tree, no consent or relicense needed. NIT (substrate own): gate_ledger.py writes \"SPDX-License-Identifier:Apache-2.0\" with no space after the colon; SPDX tag syntax has one, and a strict scanner could miss it. | 2026-09-29: 2026-09-29: the substrate-directed letter was withdrawn (operator: use mtools); the SPDX spacing nit rides in the mtools gate_ledger letter so the mtools version starts clean.",
+      "evidence": "2026-09-29: 2026-09-29 READ (head of each substrate/scripts target): gate_ledger.py, hook_cmdparse.py, hook_no_chaining.py, hook_structural_query.py, ratchet.py, run_selftests.py: ALL six carry SPDX-License-Identifier Apache-2.0, Copyright 2026 Mike Mol (the operator, the author of this tree). substrate has no root LICENSE file and its pyproject.toml declares no license field (read lines 1-30); the per-file SPDX headers are the terms. VERDICT: all six may ship inside an Apache-2.0 tree, no consent or relicense needed. NIT (substrate own): gate_ledger.py writes \"SPDX-License-Identifier:Apache-2.0\" with no space after the colon; SPDX tag syntax has one, and a strict scanner could miss it. | 2026-09-29: 2026-09-29: the substrate-directed letter was withdrawn (operator: use mtools); the SPDX spacing nit rides in the mtools gate_ledger letter so the mtools version starts clean. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W112.1 licence terms of the 6 substrate symlinks (check_hooks --list names them): read substrate LICENSE and each target SPDX/header; record per file whether it may ship inside an Apache-2.0 tree (W99/W101 retire some of them anyway)",
       "issued_at": "2026-09-28T18:56:41Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-09-29T01:06:05Z",
+      "last_worked": "2026-10-01T03:39:36Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W118",
-      "title": "W112.2 NOTICE file: Apache-2.0 attribution for the tree plus the third-party lines check_license already knows (DSEG and Liberation Mono OFL-1.1, colorspacious MIT; KvFlat leaves with W116); check_license gains a NOTICE case that fails when a third_party entry is missing from it",
+      "title": "A generated NOTICE file, checked against the third-party list",
       "status": "done",
       "enables": [
         "W112"
@@ -2225,11 +2225,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29: NOTICE is GENERATED (nothing bespoke): emitters.notice_text() from LICENSE_SPDX + THIRD_PARTY (the declaration debian/copyright and check_license already read), emitters.write_notice(root) atomic, `emitters.py --write-notice` (main refuses unknown flags). NOTICE written: Apache-2.0 head + 4 parts (colorspacious MIT, KvFlat GPL-3.0-or-later until W116, DSEG OFL-1.1, Liberation Mono OFL-1.1). check_license.notice_facts: present / generator / matches_generated / missing; policy/license.rego L5 denies absent, drifted, and names a missing part; withholds unmeasured and generator-less trees. opa_gate --test 925/925 (+6 L5); check_license selftest 13/13 incl. a NOTICE with one part cut (drift + that part missing) and an absent NOTICE; opa_gate license: admitted 0 deny 0 withheld. | 2026-09-29: 2026-09-29 landed on the retry: the first commit was refused by @CURRENCY (emitters.py is a declared input of the schemes + wallpapers actions); both rebuilt as capped services, outputs byte-identical (git status: no .colors / wallpaper change), keys recorded by check_action_key --write; action_key admitted 3, 0 deny.",
+      "evidence": "2026-09-29: 2026-09-29: NOTICE is GENERATED (nothing bespoke): emitters.notice_text() from LICENSE_SPDX + THIRD_PARTY (the declaration debian/copyright and check_license already read), emitters.write_notice(root) atomic, `emitters.py --write-notice` (main refuses unknown flags). NOTICE written: Apache-2.0 head + 4 parts (colorspacious MIT, KvFlat GPL-3.0-or-later until W116, DSEG OFL-1.1, Liberation Mono OFL-1.1). check_license.notice_facts: present / generator / matches_generated / missing; policy/license.rego L5 denies absent, drifted, and names a missing part; withholds unmeasured and generator-less trees. opa_gate --test 925/925 (+6 L5); check_license selftest 13/13 incl. a NOTICE with one part cut (drift + that part missing) and an absent NOTICE; opa_gate license: admitted 0 deny 0 withheld. | 2026-09-29: 2026-09-29 landed on the retry: the first commit was refused by @CURRENCY (emitters.py is a declared input of the schemes + wallpapers actions); both rebuilt as capped services, outputs byte-identical (git status: no .colors / wallpaper change), keys recorded by check_action_key --write; action_key admitted 3, 0 deny. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W112.2 NOTICE file: Apache-2.0 attribution for the tree plus the third-party lines check_license already knows (DSEG and Liberation Mono OFL-1.1, colorspacious MIT; KvFlat leaves with W116); check_license gains a NOTICE case that fails when a third_party entry is missing from it",
       "issued_at": "2026-09-28T18:56:41Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-09-29T01:41:07Z",
+      "last_worked": "2026-10-01T03:39:36Z",
       "ticks_blocked": 0
     },
     {
@@ -2598,7 +2598,7 @@
     },
     {
       "symbol": "W135",
-      "title": "W41.2 FIREFOX DYNAMIC-THEME EXTENSION: make_firefox emits ONE extension carrying all six variants (background script + browser.theme.update from a stored choice, options-page chooser where W113 permits a paid reference), plus web-ext build via a pinned install route (project-tooling: npx vs pinned devDependency); check that web-ext lint passes",
+      "title": "One Firefox extension carrying all six variants with an options-page chooser",
       "status": "done",
       "enables": [
         "W41"
@@ -2610,11 +2610,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28 step 1: make_firefox.py --dynamic writes dist/firefox-dynamic/ (5 files): manifest.json (MV2, permissions theme+storage, background script, options_ui), themes.json GENERATED from manifest(v)[\"theme\"] for all six variants (no drift by construction), background.js (browser.theme.update from storage.local, on install/startup/change), options.html/.js (variant chooser; the W113 paid-reference slot). opa_gate firefox unchanged: 0 deny, 6 admitted, 6 withheld (X6: web-ext not installed, lint unmeasured). | 2026-09-29: 2026-09-29: both children landed (W141 check + X7/X8, W142 pinned web-ext with X6 measured); the dynamic extension lints 0 errors 0 warnings after the data_collection_permissions fix. Signing is W136 (operator AMO keys).",
+      "evidence": "2026-09-28: 2026-09-28 step 1: make_firefox.py --dynamic writes dist/firefox-dynamic/ (5 files): manifest.json (MV2, permissions theme+storage, background script, options_ui), themes.json GENERATED from manifest(v)[\"theme\"] for all six variants (no drift by construction), background.js (browser.theme.update from storage.local, on install/startup/change), options.html/.js (variant chooser; the W113 paid-reference slot). opa_gate firefox unchanged: 0 deny, 6 admitted, 6 withheld (X6: web-ext not installed, lint unmeasured). | 2026-09-29: 2026-09-29: both children landed (W141 check + X7/X8, W142 pinned web-ext with X6 measured); the dynamic extension lints 0 errors 0 warnings after the data_collection_permissions fix. Signing is W136 (operator AMO keys). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W41.2 FIREFOX DYNAMIC-THEME EXTENSION: make_firefox emits ONE extension carrying all six variants (background script + browser.theme.update from a stored choice, options-page chooser where W113 permits a paid reference), plus web-ext build via a pinned install route (project-tooling: npx vs pinned devDependency); check that web-ext lint passes",
       "issued_at": "2026-09-28T21:04:54Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-29T00:23:07Z",
+      "last_worked": "2026-10-01T03:39:36Z",
       "ticks_blocked": 0
     },
     {
@@ -2730,7 +2730,7 @@
     },
     {
       "symbol": "W141",
-      "title": "W135.1 DYNAMIC-EXTENSION CASE in check_firefox + policy/firefox.rego: themes.json keys == VARIANTS and each equals manifest(v)[\"theme\"] (no drift), manifest carries theme+storage permissions and the options page; a refusing and an admitting opa test per rule",
+      "title": "Check the dynamic Firefox extension against the six static themes",
       "status": "done",
       "enables": [
         "W135"
@@ -2743,11 +2743,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28: check_firefox gains dynamic_facts (renders make_firefox --dynamic into private staging) + dynamic_facts_in (the READ half, comparing themes.json to make_firefox.manifest(v) so a tampered render can be shown); policy/firefox.rego gains X7 (missing / extra / drifted variant), X8 (theme+storage permissions, options page shipped), X6 for the dynamic extension (withheld without web-ext), a W for an unmeasured extension, and \"dynamic\" in admitted/denied_ids. Selftest 14/14 incl. three tampered-render arms (hand-edited colour -> drifted, dropped variant -> missing, removed options page -> not shipped). opa_gate --test 916/916 (3 static-theme tests narrowed from whole-set equality to the static id). opa_gate firefox: 0 deny, 7 admitted (six + dynamic), 7 withheld (X6: web-ext absent -> W142).",
+      "evidence": "2026-09-28: 2026-09-28: check_firefox gains dynamic_facts (renders make_firefox --dynamic into private staging) + dynamic_facts_in (the READ half, comparing themes.json to make_firefox.manifest(v) so a tampered render can be shown); policy/firefox.rego gains X7 (missing / extra / drifted variant), X8 (theme+storage permissions, options page shipped), X6 for the dynamic extension (withheld without web-ext), a W for an unmeasured extension, and \"dynamic\" in admitted/denied_ids. Selftest 14/14 incl. three tampered-render arms (hand-edited colour -> drifted, dropped variant -> missing, removed options page -> not shipped). opa_gate --test 916/916 (3 static-theme tests narrowed from whole-set equality to the static id). opa_gate firefox: 0 deny, 7 admitted (six + dynamic), 7 withheld (X6: web-ext absent -> W142). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W135.1 DYNAMIC-EXTENSION CASE in check_firefox + policy/firefox.rego: themes.json keys == VARIANTS and each equals manifest(v)[\"theme\"] (no drift), manifest carries theme+storage permissions and the options page; a refusing and an admitting opa test per rule",
       "issued_at": "2026-09-28T23:22:27Z",
       "minted_during": "interrupt",
       "caused_by": "W135",
-      "last_worked": "2026-09-28T23:54:59Z",
+      "last_worked": "2026-10-01T03:39:37Z",
       "ticks_blocked": 0
     },
     {
@@ -2774,7 +2774,7 @@
     },
     {
       "symbol": "W143",
-      "title": "X6 WARNINGS: check_firefox lint() keeps only web-ext ERRORS, so an AMO-blocking WARNING (measured 2026-09-28: MISSING_DATA_COLLECTION_PERMISSIONS on the dynamic extension) passes the gate; measure warnings too and deny the codes AMO rejects on submission, with a refusing opa test per code",
+      "title": "Deny the web-ext warnings that block AMO submission, not only errors",
       "status": "done",
       "enables": [
         "W136"
@@ -2786,11 +2786,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29: check_firefox _lint_run returns (errors, warning codes) from ONE web-ext run (no per-path cache: a reused temp path would serve a stale lint); lint_warnings measured for every static theme and the dynamic extension; dead lint() removed (pycodemod --calls lint: 0). policy/firefox.rego X9 denies a warning only when its code is in amo_blocking_warnings = {MISSING_DATA_COLLECTION_PERMISSIONS} (seen to block 2026-09-28); an ordinary warning is admitted (test). Weakness stated in both files: the set is what has been SEEN to block, not AMO full list. opa_gate --test 919/919 (+3 X9); selftest 15/15 incl. a real web-ext run seeing the stripped field; gate 0 deny 0 withheld 7 admitted.",
+      "evidence": "2026-09-29: 2026-09-29: check_firefox _lint_run returns (errors, warning codes) from ONE web-ext run (no per-path cache: a reused temp path would serve a stale lint); lint_warnings measured for every static theme and the dynamic extension; dead lint() removed (pycodemod --calls lint: 0). policy/firefox.rego X9 denies a warning only when its code is in amo_blocking_warnings = {MISSING_DATA_COLLECTION_PERMISSIONS} (seen to block 2026-09-28); an ordinary warning is admitted (test). Weakness stated in both files: the set is what has been SEEN to block, not AMO full list. opa_gate --test 919/919 (+3 X9); selftest 15/15 incl. a real web-ext run seeing the stripped field; gate 0 deny 0 withheld 7 admitted. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): X6 WARNINGS: check_firefox lint() keeps only web-ext ERRORS, so an AMO-blocking WARNING (measured 2026-09-28: MISSING_DATA_COLLECTION_PERMISSIONS on the dynamic extension) passes the gate; measure warnings too and deny the codes AMO rejects on submission, with a refusing opa test per code",
       "issued_at": "2026-09-29T00:11:41Z",
       "minted_during": "interrupt",
       "caused_by": "W142",
-      "last_worked": "2026-09-29T00:51:56Z",
+      "last_worked": "2026-10-01T03:39:37Z",
       "ticks_blocked": 0
     },
     {
@@ -2873,11 +2873,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-09-30: 28 of 28 done titles in W38-W143 retitled to one clause (former titles appended to each one evidence first). Lister: flagged 69 -> 41, all live, 0 done.",
       "issued_at": "2026-09-29T01:56:23Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T03:17:47Z",
+      "last_worked": "2026-10-01T03:39:47Z",
       "ticks_blocked": 0
     },
     {
@@ -2958,5 +2958,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "e3eb5266"
+  "predecessor_job_id": "2ddac196"
 }
