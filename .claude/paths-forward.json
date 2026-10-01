@@ -2454,7 +2454,7 @@
     {
       "symbol": "W122",
       "title": "An Android live wallpaper of the segment clock, emitted from the core",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W42"
       ],
@@ -2463,14 +2463,16 @@
         "make_clock",
         "make_segment_display"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "operator: decide whether a containerised Android SDK + Gradle image is acceptable, and whether the emulator stage is in scope now or waits for the W70 VM harness"
+      ],
+      "blocked_kind": "human",
       "next_bounded_step": "Survey before code: name the core outputs an Android live wallpaper needs (segment geometry from segment_topology, the palette from make_schemes.GRID via make_preview.parse_scheme, the glyph tables) and the delivery form (a WallpaperService APK built from emitted assets, or a Canvas-drawn renderer reading an emitted JSON); record the choice and what the build would need on this host (Android SDK present or not) in evidence.",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom | 2026-10-01: 2026-10-01 SURVEY: this host has no Android toolchain (which: no adb, emulator, sdkmanager, gradle, java, kotlinc; ANDROID_HOME unset). PROPOSED PLAN (to operator): (1) an emitter writes per-variant JSON from the core (segment_topology geometry, make_preview.parse_scheme palette, glyph tables), gated like every emitter; (2) a thin Kotlin WallpaperService draws a Canvas from that JSON, owning no geometry or colour (checkable); (3) build in an Android SDK/Gradle container via the k8s route, nothing installed on the host; (4a) per change: a JVM/Robolectric render to a bitmap, judged by the existing symmetry, pip-grid and token checks; (4b) occasionally: a headless emulator (needs KVM) in the throwaway k8s+KVM VM via luthen, adb screencap into the same checks - a separate waypoint blocked on W70.",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T20:40:00Z",
+      "last_worked": "2026-10-01T20:54:14Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -2734,7 +2736,7 @@
     {
       "symbol": "W133",
       "title": "Put WCAG contrast and colour-blindness separation inside the palette's conductance graph",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W42"
       ],
@@ -2746,16 +2748,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
+      "next_bounded_step": "Survey: run scripts/check_palette_graph.py --edges and scripts/check_separation.py --surfaced; list which WCAG-contrast and CVD-separation constraints are already edges in the palette graph and which live only as separate gates (check_selection_contrast, check_separation, cvd_gate); record the gap list in evidence before changing the solver.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): A11Y AS CONDUCTANCES (operator 2026-09-28): WCAG contrast and colour-vision-deficiency separation as constraints INSIDE the conductance graph the palette is solved on, satisfied by construction rather than checked after; first step: census the existing a11y checks (check_legibility, check_use_of_colour, check_selection_contrast; paperkit wcag_entail/wcag_model) and what each constrains, as the edge spec",
       "issued_at": "2026-09-28T21:04:41Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T04:45:20Z",
+      "last_worked": "2026-10-01T20:54:30Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W134",
