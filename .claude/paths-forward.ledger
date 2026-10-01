@@ -434,3 +434,5 @@
 2026-10-01T22:36:04Z  hash  --   diverged  --        "divergence: payload v2:9699d32e6eb65995, file v2:1fcdb06480f2f817; the FILE wins"
 2026-10-01T22:38:01Z  tick  W173 advanced  unblock   "check_screens --motion added; marquee 0.60-0.64 unchanged by W187 because stepped capture divides the run by frame count and never runs stepPips - the witness measures the harness; next: one advanceFrame for both paths"  evidence=check_screens --motion; templates/marquee-main.qml onCaptureAdvance
 2026-10-01T22:46:22Z  tick  W139 advanced  unblock   "mtools:W372 landed (7b1e381): pytestspec cases can require exact denies; W139 ready to re-pin mtools and port qml_lint with both halves"  evidence=mtools 7b1e381
+2026-10-01T22:54:54Z  hash  --   diverged  --        "divergence: payload v2:92d73e1dfa293a12, file v2:bc9aeb763af162dd; the FILE wins"
+2026-10-01T22:55:12Z  tick  W173 atomized  collapse  "split W173 into W200 one advanceFrame (working), W201 S8 at 2/3 over moving steps, W202 period-2 see-saw rule with a synthetic control"  evidence=W200-W202 in state file

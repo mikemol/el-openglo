@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 199,
+  "counter": 202,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -3658,20 +3658,24 @@
     {
       "symbol": "W173",
       "title": "Require at least 2/3 of an animation steps to be fractional, and refuse a half-pip see-saw by its spectral line",
-      "status": "working",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "policy/screens.rego",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "FIRST make the witness see the widget: in templates/marquee-main.qml put the per-frame advance in ONE function (advanceFrame: offset += root.stepPips * field.scale, complete() at `to`) called by BOTH FrameAnimation.onTriggered and onCaptureAdvance; today onCaptureAdvance divides the run evenly by captureSteps, so the screenshots measure the harness, not stepPips. Then re-render marquee screens (systemd-run), re-run check_screens --motion (expect ~1.00 moving-fractional on the marquee), then raise S8 to fractional_share >= 2/3 over MOVING steps (zero excluded, all-stall WITHHELD) with refusing+admitting tests, then the half-pip see-saw control and the period2_share rule.",
+      "blocked_on": [
+        "W200",
+        "W201",
+        "W202"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W200-W202 land.",
       "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips. | 2026-10-01: 2026-10-01 MEASURED (render_screens.animation_facts, report-only, no rule changed): best_pip_shift now fits EIGHTHS of a pip; each run reports fractional_share and spectral_lines (dominant line, and period2_share = the see-saw line). fractional_share: pinholes-anim 0.94-0.95 (passes 2/3); marquee-anim 0.60-0.64 on EVERY variant (FAILS 2/3) - its steps cycle ~2.625/3.0/3.0/2.75, mean ~2.8 pips/frame, so ~1/3 land on a whole pip. period2_share 0.012-0.013 everywhere: no see-saw. Note the first spectral metric (strongest line) was wrong: it is period = run length (text crossing once, ~1/3 of power). 2/3 rule NOT applied: it would fail the marquee; operator asked. See-saw rule pending a synthetic positive control. Screens re-rendered (render_screens.py is keyed whole), 0 of 56 stale; render_screens selftest 3/3; keys written; no coredumps. | 2026-10-01: 2026-10-01 OPERATOR DECIDED: \"Let s try (a)\" - change the marquee scroll speed so the per-frame step stays off whole and half pips (derived, not guessed), pinned in the config default with the harness reading the same default; then confirm fractional_share >= 2/3 before S8 tightens. | 2026-10-01: 2026-10-01 (a) DERIVED BEFORE CODING: rotation duration = (rep.width + textWidth) * 12 / cfgSpeed ms, so velocity = cfgSpeed/12 px/ms and the per-display-frame step = cfgSpeed * frameMs / (12 * pitch) pips, with pitch = panel height * 0.72 / rows * pitchScale. A CONSTANT cfgSpeed CANNOT fix the step fraction: it moves with panel height and refresh rate (a value tuned for one panel lands on whole pips on another). By construction = state the motion in PIPS PER FRAME (e.g. 2 + 1/phi ~ 2.618, fraction spread by the golden ratio) and derive the duration from pitch and the frame interval - needs the display refresh rate in QML. The screenshot harness samples at its own SAMPLE_MS, which is NOT the display frame. | 2026-10-01: 2026-10-01 OPERATOR: a zero step is a special case - no motion, no apparent flicker - so S8 excludes zero shifts from its population (stalls from W183 width changes do not count as whole steps). | 2026-10-01: 2026-10-01 TOOL ADDED: scripts/check_screens.py --motion (moving-only fractional share per animation; zero shifts excluded; no-moving-step WITHHELD; REFUSES an empty population). MEASURED: marquee-anim 0.60-0.64 on all 6 variants (35-37 of 58-59 moving steps), pinholes-anim 0.98-1.00, period2_share ~0.012 everywhere (no half-pip see-saw). FINDING: the marquee number did not move after W187 because the screenshot path never runs stepPips - onCaptureAdvance sets offset = from + (to-from)*captureStep/captureSteps, an even division by frame count. The witness measures the harness, not the widget.",
       "issued_at": "2026-10-01T14:43:22Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T22:38:01Z",
+      "last_worked": "2026-10-01T22:55:12Z",
       "ticks_blocked": 0,
       "completed": null,
       "weight": 12,
@@ -4314,6 +4318,82 @@
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 2
+    },
+    {
+      "symbol": "W200",
+      "title": "One advanceFrame for the marquee: live FrameAnimation and stepped capture advance by the same stepPips step",
+      "status": "working",
+      "enables": [
+        "W173"
+      ],
+      "touches": [
+        "marquee-main.qml",
+        "render_screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "In templates/marquee-main.qml add function advanceFrame() { var next = field.offset + root.stepPips * field.scale; if (next >= rotation.to) { rotation.complete(); return false; } field.offset = next; return true; } and call it from FrameAnimation.onTriggered and onCaptureAdvance (capture counts frames by captureStep but no longer divides the run). Then: template parity diff/record, marquee_live (systemd-run), re-render marquee screens (systemd-run), check_screens --motion expects the marquee at ~1.00.",
+      "evidence": "",
+      "issued_at": "2026-10-01T22:54:54Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T22:55:11Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W201",
+      "title": "S8 refuses an animation with under 2/3 of its moving steps fractional; zero steps excluded, all-stall withheld",
+      "status": "blocked",
+      "enables": [
+        "W173"
+      ],
+      "touches": [
+        "screens.rego",
+        "check_screens"
+      ],
+      "blocked_on": [
+        "W200"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "policy/screens.rego S8: over MOVING shifts (s != 0), deny fractional share < 2/3, withhold an animation with no moving step; refusing + admitting tests in screens_test.rego; render_screens animation_facts gains moving_fractional_share (or check_screens computes it into --json).",
+      "evidence": "",
+      "issued_at": "2026-10-01T22:54:54Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T22:55:11Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W202",
+      "title": "Refuse a half-pip see-saw by its period-2 spectral line, with a synthetic see-saw as the positive control",
+      "status": "blocked",
+      "enables": [
+        "W173"
+      ],
+      "touches": [
+        "screens.rego",
+        "render_screens"
+      ],
+      "blocked_on": [
+        "W201"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "A synthetic half/whole alternating animation in check_screens selftest must show a dominant period-2 line; then an S9 rule denies period2_share above a stated threshold, with refusing + admitting tests.",
+      "evidence": "",
+      "issued_at": "2026-10-01T22:54:54Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T22:55:11Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
+      "vector_source": "agent"
     }
   ],
   "residue": [
