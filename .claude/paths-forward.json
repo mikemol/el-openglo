@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 206,
+  "counter": 207,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -4322,7 +4322,7 @@
     {
       "symbol": "W200",
       "title": "One advanceFrame for the marquee: live FrameAnimation and stepped capture advance by the same stepPips step",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W173"
       ],
@@ -4330,14 +4330,16 @@
         "marquee-main.qml",
         "render_screens"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W207"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Per W206 (operator: a hypothesis marks model/implementation ambiguity): the unsettled question is what a capture series contains at a run boundary. Refine BOTH: (model) an S-rule in policy/screens.rego - a capture series is exactly one run whose last frame is the run end; (implementation) re-apply scratchpad/w200-attempt2.diff and make captureRuns mark the run end on EVERY completion path, reading check_screens --frames around frame 18 to see which path the frame-18 run took; then check the new rule edges (a series with no complete run).",
-      "evidence": "2026-10-01: 2026-10-01 ATTEMPT 1 (reverted, patch kept at scratchpad/w200-advanceframe.diff): one advanceFrame() for FrameAnimation.onTriggered and onCaptureAdvance. qml_lint 12/12. Result: marquee moving-fractional 0.60-0.64 -> 0.69-0.74 (the witness now sees stepPips), but S5 DENIED 6 marquee-anims, tears at frames [18, 54] - the run ends mid-capture and the restart was grabbed. Fix 2: a capture-completed run increments captureRuns (the harness stops on captureRuns > 0, its stated intent: one run = one seamless loop) -> frame 54 gone, frame 18 remains on all 6 (35 frames, 24-26 fractional). Tree restored to green (opa_gate screens admitted) rather than commit red. NOTE: 0.69-0.74 not ~1.0 also needs explaining - the measurement is on an eighth-pip grid; check render_screens FRACTIONS before raising S8. | 2026-10-01: 2026-10-01 ATTEMPT 2 (reverted, patch at scratchpad/w200-attempt2.diff): harness sets captureSteps at Loader.Ready (before the deferred first startRun). HYPOTHESIS FALSIFIED: identical result - S5 tear at frame 18 on all 6 marquee-anims, 35 frames, 24-26 fractional (0.69-0.74). So the first run is NOT starting on the live clock, or that is not why frame 18 tears. Two guesses spent; the next step is a measurement mode, not a third guess. Tree restored to green.",
+      "evidence": "2026-10-01: 2026-10-01 ATTEMPT 1 (reverted, patch kept at scratchpad/w200-advanceframe.diff): one advanceFrame() for FrameAnimation.onTriggered and onCaptureAdvance. qml_lint 12/12. Result: marquee moving-fractional 0.60-0.64 -> 0.69-0.74 (the witness now sees stepPips), but S5 DENIED 6 marquee-anims, tears at frames [18, 54] - the run ends mid-capture and the restart was grabbed. Fix 2: a capture-completed run increments captureRuns (the harness stops on captureRuns > 0, its stated intent: one run = one seamless loop) -> frame 54 gone, frame 18 remains on all 6 (35 frames, 24-26 fractional). Tree restored to green (opa_gate screens admitted) rather than commit red. NOTE: 0.69-0.74 not ~1.0 also needs explaining - the measurement is on an eighth-pip grid; check render_screens FRACTIONS before raising S8. | 2026-10-01: 2026-10-01 ATTEMPT 2 (reverted, patch at scratchpad/w200-attempt2.diff): harness sets captureSteps at Loader.Ready (before the deferred first startRun). HYPOTHESIS FALSIFIED: identical result - S5 tear at frame 18 on all 6 marquee-anims, 35 frames, 24-26 fractional (0.69-0.74). So the first run is NOT starting on the live clock, or that is not why frame 18 tears. Two guesses spent; the next step is a measurement mode, not a third guess. Tree restored to green. | 2026-10-01: 2026-10-01 --frames read of attempt 2: the frame-18 TEAR is mid-run (shift +4.375, board full), not a restart; the W200 code is innocent and the tear is the measurement grid (W207). Reverted to green again; patch scratchpad/w200-attempt2.diff stays valid.",
       "issued_at": "2026-10-01T22:54:54Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T23:48:29Z",
+      "last_worked": "2026-10-01T23:57:10Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
@@ -4495,6 +4497,32 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 3
+    },
+    {
+      "symbol": "W207",
+      "title": "Fit the scroll shift continuously so a sub-pip step is resolved, and judge a tear against the best possible fit, not the grid best",
+      "status": "working",
+      "enables": [
+        "W200",
+        "W201"
+      ],
+      "touches": [
+        "render_screens",
+        "screens.rego",
+        "check_screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Boundary refinement on BOTH sides (W206 shape). Measurement: render_screens.best_pip_shift fits shifts only on a fixed fractional grid; a 4.618-pip step falls between grid points and the misfit cycles with the step phase. Replace with a continuous (or fine, e.g. 1/64) fit - reuse its pip_profile resampling, do not add a second resampler. Model: S5 tear = no shift explains the pair at the BEST fit; S8 whole/fractional read from the resolved shift. Positive control in check_screens selftest: a synthetic 4.618-pip scroll must read ~0.618 fractional every step with no tear. Then re-run --frames on the committed marquee-anim and re-apply scratchpad/w200-attempt2.diff (W200).",
+      "evidence": "2026-10-01: 2026-10-01 MEASURED with check_screens --frames on the W200 attempt-2 render (marquee-anim-EL-Amber, 36 pairs): ONE run frames 1-35 (total brightness rises, flat 6.89 frames 13-22, falls), every shift forward +4.0..+5.0; frame 18 shift +4.375 mismatch 3.71 of 6.89 (54% > 50% tolerance) = the S5 TEAR; frame 13 mismatch 3.44 (50%). Mismatch cycles 0.02 / 1.26 / 1.85 / 0.02 / 3.7 with the step phase. NOT a restart: a measurement artifact - the step falls between the fit grid points. Same cause as the W201 whole-pip under-read.",
+      "issued_at": "2026-10-01T23:57:10Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T23:57:11Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [
