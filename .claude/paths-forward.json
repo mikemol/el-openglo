@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 189,
+  "counter": 192,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -2400,7 +2400,7 @@
     {
       "symbol": "W120",
       "title": "Nothing bespoke: every tracked asset is either emitted or a named lift debt",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W116"
       ],
@@ -2409,14 +2409,18 @@
         "check_token_source",
         "scripts"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "build_graph alone cannot be the producer set (it REFUSES, 329 indeterminate). check_bespoke.py takes PRODUCED = build_graph output edges UNION check_action_key declared output globs (catalog/actions.json: screens 55, schemes 6, wallpapers 12) UNION make_deb --stage outputs; report produced / lift-debt / orphan n of m; pin the classes for authored source (policy/*.rego, templates, .py, docs) as AUTHORED, not orphan - nothing-bespoke is about generated-looking assets, so first write the class table (what counts as authored vs must-be-emitted) and show it to the operator before denying anything.",
+      "blocked_on": [
+        "W190",
+        "W191",
+        "W192"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W190-W192 land.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): NOTHING BESPOKE (operator 2026-09-28): census + check that every tracked asset/template/config is either PRODUCED by an emitter (build_graph output) or listed as a LIFT DEBT naming its waypoint; an unlisted orphan is refused, n of m reported. Reuse W61 build_graph orphans and check_token_source. | 2026-10-01: 2026-10-01 CENSUS RUN: scripts/build_graph.py REFUSED (329 relations indeterminate; 129 read / 123 write edges computed, 76 undeclared domains). Nodes: artifact 19, baseline 15, document 25, package 4, picture 56, policy 156, scheme 6, template 20. ORPHANS 194 (UPPER BOUND): picture 55 + scheme 6 are produced by render_screens/make_schemes per check_action_key (computed file names hide the edge); policy 81 are *_test.rego (authored); baseline 13, template 2, artifact 19, document 16, package 2. UNCONSUMED 7, LIVE 3, UNBUILT (host inputs) 47. SIDE DEFECT: policy/serial.rego names scripts/check_serial.py, which is not in the tree (the main implementation maps serial to read_serial.py) - feeds W181.",
       "issued_at": "2026-09-28T19:32:40Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T20:04:00Z",
+      "last_worked": "2026-10-01T20:12:44Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -4043,6 +4047,83 @@
       "ticks_blocked": 1,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W190",
+      "title": "Bespoke class table: which tracked file kinds are authored and which must be emitted, shown to the operator",
+      "status": "working",
+      "enables": [
+        "W120"
+      ],
+      "touches": [
+        "scripts",
+        "build_graph"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Write catalog/bespoke-classes.md: one row per file kind seen in the census (policy *.rego and *_test.rego, templates/*, *.py, docs *.md, catalog/baselines/*, screens *.png, *.colors, wallpapers, fonts, plasma packages, .claude state) with AUTHORED or MUST-BE-EMITTED and the producer that owns each emitted kind; then ask the operator to confirm before W191/W192 deny anything.",
+      "evidence": "",
+      "issued_at": "2026-10-01T20:12:32Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T20:12:43Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W191",
+      "title": "check_bespoke.py --json: every tracked file as authored, produced (graph + actions.json + make_deb stage), lift debt or orphan, n of m",
+      "status": "blocked",
+      "enables": [
+        "W120"
+      ],
+      "touches": [
+        "scripts",
+        "build_graph",
+        "check_action_key"
+      ],
+      "blocked_on": [
+        "W190"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Build the measurement from the confirmed class table: produced = build_graph output edges + catalog/actions.json output globs + make_deb --stage paths.",
+      "evidence": "",
+      "issued_at": "2026-10-01T20:12:32Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T20:12:43Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W192",
+      "title": "policy/bespoke.rego: deny an orphan and an empty population, with refusing and admitting tests, gated by a warrant",
+      "status": "blocked",
+      "enables": [
+        "W120"
+      ],
+      "touches": [
+        "policy",
+        "scripts"
+      ],
+      "blocked_on": [
+        "W191"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "policy/bespoke.rego + bespoke_test.rego; warrant under tooling citing opa_gate bespoke.",
+      "evidence": "",
+      "issued_at": "2026-10-01T20:12:32Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T20:12:44Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
     }
   ],
