@@ -299,7 +299,94 @@ def measure(cases=CASES, variant=VARIANT):
                     r["where"] = place_of(r["box"], im.width, im.height)
                 row["planes"][p] = {"regions": regs, "pixels": len(pts)}
         rows.append(row)
+    # matrix_cases() is NOT wired yet (W166): on the real held board the core crop
+    # took the whole 419x31 board (the hover-pause ring, W51, is lit to the core
+    # threshold and spans the width), so its "symmetric" was vacuous
     return {"cases": rows, "grids": grid_cases(), "noise": NOISE}
+
+
+# W166: the matrix's MIRROR, per glyph. A self-mirror glyph is the app name of one
+# injected notification on a HOVERED run, so the board freezes with the text's left
+# edge at the board's (a whole-pip offset: the offscreen pointer rests at 0,0). Not a
+# mid-scroll still — W60 resamples a fractional offset on purpose — and not a full
+# board, whose mirror is only grid_regularity's translation symmetry again.
+MATRIX_GLYPHS = (("matrix-H", "H", ("h", "v")), ("matrix-O", "O", ("h",)))
+MATRIX_VARIANT = "EL-Amber"
+
+
+def _runs(flags, max_gap):
+    """[(start, end)] of True runs, merging runs separated by <= max_gap False."""
+    runs, start, last = [], None, None
+    for i, on in enumerate(flags):
+        if on:
+            if start is None:
+                start = i
+            elif i - last - 1 > max_gap:
+                runs.append((start, last + 1))
+                start = i
+            last = i
+    if start is not None:
+        runs.append((start, last + 1))
+    return runs
+
+
+def first_glyph_box(im, max_gap=2):
+    """The FIRST glyph's core box on a matrix board: core pixels are at least half the
+    peak luminance (the ghost pips covering the board are excluded); columns within
+    a glyph are 1 px pip gaps apart, glyphs a blank pip column apart, so columns are
+    grouped by gaps <= max_gap. None when nothing is lit."""
+    px = im.load()
+    lum = [[sum(px[x, y][:3]) for x in range(im.width)] for y in range(im.height)]
+    peak = max(max(r) for r in lum)
+    if peak == 0:
+        return None
+    core = [[lum[y][x] * 2 >= peak for x in range(im.width)] for y in range(im.height)]
+    cols = [any(core[y][x] for y in range(im.height)) for x in range(im.width)]
+    runs = _runs(cols, max_gap)
+    if not runs:
+        return None
+    x0, x1 = runs[0]
+    rows = [any(core[y][x] for x in range(x0, x1)) for y in range(im.height)]
+    ys = [y for y, on in enumerate(rows) if on]
+    return (x0, min(ys), x1, max(ys) + 1)
+
+
+def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
+    """One mirror case per injected glyph, through the marquee's own harness."""
+    from PIL import Image
+    import check_marquee_live as ML
+    out = []
+    for label, ch, planes in glyphs:
+        row = {"label": label, "scope": "matrix", "text": ch, "variant": variant}
+        if not os.path.isfile(ML.QML):
+            row["withheld"] = f"{ML.QML} is not installed"
+            out.append(row)
+            continue
+        with tempfile.TemporaryDirectory() as td:
+            png = os.path.join(td, "held.png")
+            tl = [(300, "arrive", 1, {"summary": "x", "body": "", "applicationName": ch}, f"{ch}: x")]
+            ML.run(**{**ML.hovered_args(variant, grab_paused=png), "timeline": tl})
+            if not os.path.isfile(png):
+                row["withheld"] = "the hovered run produced no held picture"
+                out.append(row)
+                continue
+            im = Image.open(png).convert("RGB")
+            box = first_glyph_box(im)
+            if box is None:
+                row["withheld"] = "no lit glyph on the held board"
+                out.append(row)
+                continue
+            im = im.crop(box)
+            row["size"] = [im.width, im.height]
+            row["planes"] = {}
+            for p in planes:
+                pts = mirror_points(im, p)
+                regs = regions(pts)
+                for r in regs:
+                    r["where"] = place_of(r["box"], im.width, im.height)
+                row["planes"][p] = {"regions": regs, "pixels": len(pts)}
+        out.append(row)
+    return out
 
 
 def grid_cases(grids=GRIDS):
@@ -439,6 +526,28 @@ def _selftest():
     chk("...and recovers its segLen", abs(clean["fit"]["segLen"] - 40) < 1, True)
     bent = segment_fit(eight(shift="B"), MC.SEGS)
     chk("a segment shifted 3 px is NAMED by the fit", bent["offenders"], ["B"])
+    # ⚑ THE MATRIX CASE CAN SEE (W166): a synthetic 5x7 pip H (3 px pips, 1 px gaps)
+    # after a second glyph is cropped to its FIRST glyph, mirrors clean, and a
+    # removed pip is located
+    H = ["X...X", "X...X", "X...X", "XXXXX", "X...X", "X...X", "X...X"]
+
+    def board(drop=None):
+        img = Image.new("RGB", (60, 40), (20, 20, 20))         # the ghost-pip ground
+        for gx in (2, 30):                                      # two glyphs, a blank column apart
+            for r, line in enumerate(H):
+                for c, ch in enumerate(line):
+                    if ch == "X" and not (gx == 2 and (r, c) == drop):
+                        for dx in range(3):
+                            for dy in range(3):
+                                img.putpixel((gx + c * 4 + dx, 2 + r * 4 + dy), (255, 200, 0))
+        return img
+    b = board()
+    box = first_glyph_box(b)
+    chk("the first glyph is cropped alone (5 pips wide, the second glyph excluded)", box, (2, 2, 21, 29))
+    g = b.crop(box)
+    chk("a clean pip H mirrors in both planes", (mirror_points(g, "h"), mirror_points(g, "v")), ([], []))
+    notched = board(drop=(0, 0)).crop(box)
+    chk("a removed pip is located by the mirror", len(regions(mirror_points(notched, "h"))) > 0, True)
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 

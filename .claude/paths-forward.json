@@ -3301,12 +3301,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Add a matrix CASE: inject ONE self-mirror glyph (H, then O) via run(timeline=...), grab it held at a WHOLE-PIP offset (hover-pause grab, or end_ms at an integer pitch), crop to the glyph CORE (pixels >= half peak luminance, so the ghost pips covering the board are excluded), mirror h and v with the existing locator. Selftest: a planted one-pip notch in a synthetic pip H is located. If a whole-pip offset cannot be pinned through the timeline, that is the finding: add the mode to the harness first.",
-      "evidence": "2026-10-01: 2026-10-01 design (read check_marquee_live.run/stager/timeline): the literal plan measures nothing - a MID-SCROLL still sits at an arbitrary, often fractional offset that W60 temporal subpixel resamples ON PURPOSE (a mirror difference there is expected, not a defect), and a FULL-ON board mirror is the translation symmetry grid_regularity already measures. run() takes `timeline` (t, op, id, fields, shows), so one glyph can be injected.",
+      "next_bounded_step": "Exclude the ring before grouping: find pip bands (rows and columns, max_gap 0 over core), DROP the first and last row band and the first and last column band (the W51 ring), then take the first glyph among the interior columns grouped by a blank-pip-column gap; assert on the real board that the crop is ~5 pips wide (about 19 px) before trusting a symmetric; add a selftest board WITH a ring. Then wire matrix_cases() back into measure().",
+      "evidence": "2026-10-01: 2026-10-01 design (read check_marquee_live.run/stager/timeline): the literal plan measures nothing - a MID-SCROLL still sits at an arbitrary, often fractional offset that W60 temporal subpixel resamples ON PURPOSE (a mirror difference there is expected, not a defect), and a FULL-ON board mirror is the translation symmetry grid_regularity already measures. run() takes `timeline` (t, op, id, fields, shows), so one glyph can be injected. | 2026-10-01: 2026-10-01 built (check_symmetry: MATRIX_GLYPHS, first_glyph_box, matrix_cases via ML.run(hovered_args + timeline injecting the glyph as applicationName); selftest: a synthetic pip H after a second glyph crops to the first alone, mirrors clean, a removed pip is located - PASS). REAL RUN WAS VACUOUS, so NOT wired into measure(): both matrix-H and matrix-O cropped to 419x31, the whole board, and read \"symmetric\" - the hover-pause ring (W51, outer ring of pips pulsing while held) reaches the half-peak core threshold and spans the width, so the column grouping swallowed everything.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T09:25:29Z",
+      "last_worked": "2026-10-01T09:36:19Z",
       "ticks_blocked": 0
     },
     {
