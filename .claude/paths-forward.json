@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 167,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T09:06:15Z",
-  "job_id": "466772dd",
+  "heartbeat": "2026-10-01T09:25:29Z",
+  "job_id": "030fa305",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3291,7 +3291,7 @@
     {
       "symbol": "W166",
       "title": "Run the mirror oracle on the matrix display, not only its pip-grid regularity",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W57"
       ],
@@ -3301,12 +3301,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Add a matrix CASE to check_symmetry: a self-mirror glyph string (e.g. \"HOH\" or a full-on board) through the marquee harness, mirrored h and v, regions located like the glyph cases; W59 says a pip is a segment, so the same locator applies",
-      "evidence": "",
+      "next_bounded_step": "Add a matrix CASE: inject ONE self-mirror glyph (H, then O) via run(timeline=...), grab it held at a WHOLE-PIP offset (hover-pause grab, or end_ms at an integer pitch), crop to the glyph CORE (pixels >= half peak luminance, so the ghost pips covering the board are excluded), mirror h and v with the existing locator. Selftest: a planted one-pip notch in a synthetic pip H is located. If a whole-pip offset cannot be pinned through the timeline, that is the finding: add the mode to the harness first.",
+      "evidence": "2026-10-01: 2026-10-01 design (read check_marquee_live.run/stager/timeline): the literal plan measures nothing - a MID-SCROLL still sits at an arbitrary, often fractional offset that W60 temporal subpixel resamples ON PURPOSE (a mirror difference there is expected, not a defect), and a FULL-ON board mirror is the translation symmetry grid_regularity already measures. run() takes `timeline` (t, op, id, fields, shows), so one glyph can be injected.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T09:16:55Z",
+      "last_worked": "2026-10-01T09:25:29Z",
       "ticks_blocked": 0
     },
     {
@@ -3348,5 +3348,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "76cda76a"
+  "predecessor_job_id": "466772dd"
 }
