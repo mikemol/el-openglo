@@ -2898,7 +2898,7 @@
     {
       "symbol": "W140",
       "title": "Fix gate_ledger reading a different ledger path than the hook writes",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W139"
       ],
@@ -2914,11 +2914,12 @@
       "issued_at": "2026-09-28T22:40:23Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T10:42:36Z",
+      "last_worked": "2026-10-01T20:22:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 12
+      "weight": 12,
+      "completed": null
     },
     {
       "symbol": "W141",
@@ -4052,7 +4053,7 @@
     {
       "symbol": "W190",
       "title": "Bespoke class table: which tracked file kinds are authored and which must be emitted, shown to the operator",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W120"
       ],
@@ -4060,14 +4061,16 @@
         "scripts",
         "build_graph"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "operator: decide the three rows in catalog/bespoke-classes.md - plasma-clock/ produced or lift debt; library samples into actions.json; baselines PRODUCED or RECORDED"
+      ],
+      "blocked_kind": "human",
       "next_bounded_step": "Write catalog/bespoke-classes.md: one row per file kind seen in the census (policy *.rego and *_test.rego, templates/*, *.py, docs *.md, catalog/baselines/*, screens *.png, *.colors, wallpapers, fonts, plasma packages, .claude state) with AUTHORED or MUST-BE-EMITTED and the producer that owns each emitted kind; then ask the operator to confirm before W191/W192 deny anything.",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-10-01 drafted catalog/bespoke-classes.md: 16 file kinds classed AUTHORED / PRODUCED / STATE with the producer per kind; 13 certain, 1 likely (samples), 1 unknown (plasma-clock/), baselines questioned.",
       "issued_at": "2026-10-01T20:12:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T20:12:43Z",
+      "last_worked": "2026-10-01T20:22:58Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",

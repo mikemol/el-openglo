@@ -421,3 +421,4 @@
 2026-10-01T20:02:26Z  tick  W120 advanced  unblock   "census: build_graph refuses (329 indeterminate) so its 194 orphans are an upper bound - screens/schemes are action-key outputs; producer set must union build_graph, actions.json and make_deb staging; authored-vs-emitted class table goes to the operator before any deny"  evidence=scripts/build_graph.py summary 2026-10-01
 2026-10-01T20:12:25Z  hash  --   diverged  --        "divergence: payload v2:4c305ed1a8a342da, file v2:ee0018e5fa9e373b; the FILE wins"
 2026-10-01T20:12:44Z  tick  W120 atomized  collapse  "split W120 into W190 class table (operator confirms), W191 check_bespoke measurement, W192 bespoke.rego; W190 is the working card"  evidence=W190-W192 in state file
+2026-10-01T20:22:58Z  tick  W190 advanced  unblock   "class table drafted (catalog/bespoke-classes.md): 16 kinds, 3 operator questions; working card moves to W140"  evidence=catalog/bespoke-classes.md
