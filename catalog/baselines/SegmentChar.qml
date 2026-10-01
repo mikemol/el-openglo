@@ -76,7 +76,10 @@ Item {
     property real litGradient: 0.35
 
     readonly property real colonSlot: segLen * colonAdvance
-    readonly property real colonX: segLen + (colonSlot + cellGap) / 2 - dotSize / 2
+    // whole pixels (W164): the colon is the face's mirror-centre, so a fractional dot
+    // or offset read as the last asymmetry of 00:00 once the row itself was even
+    readonly property real dotPx: 2 * Math.max(1, Math.round(dotSize / 2))
+    readonly property real colonX: segLen + Math.round((colonSlot + cellGap - dotPx) / 2)
     implicitWidth: segLen + (insertColon ? colonSlot : 0)
     implicitHeight: segLen * 2
     width: implicitWidth
@@ -152,7 +155,7 @@ Item {
     }
 
     component ColonDot: Rectangle {
-        width: sc.dotSize; height: sc.dotSize; radius: sc.dotSize / 2
+        width: sc.dotPx; height: sc.dotPx; radius: sc.dotPx / 2
         color: sc.litColor
         antialiasing: true
         x: sc.colonX

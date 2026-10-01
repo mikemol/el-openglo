@@ -3249,7 +3249,7 @@
     {
       "symbol": "W164",
       "title": "Make the clock face row an even pixel width so 00:00 mirrors about the canvas centre",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W57"
       ],
@@ -3259,12 +3259,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "In clock-main.qml make the Row width even: snap colonSlot to an integer and, if 4*segLen + colonSlot + 3*spacing is odd, add the 1 px to colonSlot (the colon is centred in its slot, so the slot absorbs it symmetrically); re-run check_symmetry --json until face-0000 h has 0 regions; re-record the SegmentChar template-parity baseline if SegmentChar changes; re-render the clock screens under the cap",
-      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width | 2026-10-01: 2026-10-01 cause located (check_symmetry --json, all 42 regions): every vertical flagged in mirror PAIRS off by exactly 1 px (23-30 mirrors to 389-396 but is found at 390-397; 16-20 vs 400-404) and the colon at 204-216 about an axis at 210. A 420 px canvas mirrors about x=210, so symmetric content needs an EVEN width at an integer x; the Row width (4 segLen + colonSlot + 3 spacing) is odd, so anchors.centerIn lands it half a pixel off. Earlier whole-pixel snaps of colonSlot and Row x alone cannot fix an odd total. | 2026-10-01: 2026-10-01 ATOMIZE W164 (top for 3 ticks) considered and NOT split: the prior ticks were diagnosis (two falsified snaps, W167 falsified premise); what remains is ONE bounded step (make the Row width even via colonSlot). Splitting it would be churn; the next tick does the step.",
+      "next_bounded_step": "",
+      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width | 2026-10-01: 2026-10-01 cause located (check_symmetry --json, all 42 regions): every vertical flagged in mirror PAIRS off by exactly 1 px (23-30 mirrors to 389-396 but is found at 390-397; 16-20 vs 400-404) and the colon at 204-216 about an axis at 210. A 420 px canvas mirrors about x=210, so symmetric content needs an EVEN width at an integer x; the Row width (4 segLen + colonSlot + 3 spacing) is odd, so anchors.centerIn lands it half a pixel off. Earlier whole-pixel snaps of colonSlot and Row x alone cannot fix an odd total. | 2026-10-01: 2026-10-01 ATOMIZE W164 (top for 3 ticks) considered and NOT split: the prior ticks were diagnosis (two falsified snaps, W167 falsified premise); what remains is ONE bounded step (make the Row width even via colonSlot). Splitting it would be churn; the next tick does the step. | 2026-10-01: 2026-10-01 FIXED: clock-main.qml Row width made even (cellSpacing whole px; colonPx = round(segLen*colonAdvance) + row parity when the colon count is odd) and SegmentChar colon dot snapped (dotPx even, colonX whole px). check_symmetry: face-0000 h 42 regions -> 2 (the colon) -> 0; every case symmetric, 0 located asymmetries (W57 started at 30); opa symmetry admitted. qml_lint 12/12; template_parity 14/14 after recording SegmentChar + make_clock.main_qml (each diff read: only the intended change). Clock package regenerated, schemes/wallpapers rebuilt byte-identical, screens re-rendered 0 of 56 stale, keys written, no coredumps. WEAKNESS: two colons (seconds shown) leave an odd total odd; only 00:00 is measured",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T08:37:18Z",
+      "last_worked": "2026-10-01T08:47:54Z",
       "ticks_blocked": 0
     },
     {

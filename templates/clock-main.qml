@@ -52,6 +52,20 @@ $tables
     property real bloom: (plasmoid.configuration.bloom === undefined) ? 4.0
                          : plasmoid.configuration.bloom
 
+    // ⚑ AN EVEN ROW (W164, 2026-10-01). check_symmetry found every stroke of 00:00
+    // paired one pixel off its mirror and the colon off the face centre: the Row's
+    // width (cells + colon slots + gaps) was ODD, and an odd width cannot centre on
+    // whole pixels. The colon slot is a whole pixel, plus the one pixel that makes
+    // the total even when there is an odd number of colons (the colon is centred
+    // in its slot, so the slot absorbs it symmetrically). WEAKNESS: with seconds
+    // shown (two colons) an odd total stays odd; only 00:00 is measured.
+    property int cellSpacing: Math.round(segLen * root.digitGap)
+    readonly property int colonCount: timeStr.length > 4 ? 2 : 1
+    readonly property int colonBase: Math.round(segLen * $colonAdvance)
+    readonly property int rowParity: (timeStr.length * segLen + colonCount * colonBase
+                                      + (timeStr.length - 1) * cellSpacing) % 2
+    readonly property int colonPx: colonBase + (colonCount % 2 === 1 ? rowParity : 0)
+
     property string timeStr: "0000"
     property bool colonOn: true
 
@@ -83,7 +97,7 @@ $tables
             // colon slot added 0.7·segLen on ONE side (operator, 2026-09-21: "the
             // crime is in the kerning"). The gap is the digitGap slider, and the
             // colon is CENTRED in the whole space between its two neighbours.
-            spacing: Math.round(segLen * root.digitGap)
+            spacing: root.cellSpacing
             Repeater {
                 model: root.timeStr.length
                 // ⚑ THE DISPLAY IS SHARED, THE MOUNT IS OURS (W33, s133): this
@@ -105,7 +119,7 @@ $tables
                     segLen: root.segLen
                     segThick: root.segThick
                     dotSize: root.dotSize
-                    colonAdvance: $colonAdvance
+                    colonAdvance: root.colonPx / root.segLen
                     cellGap: segRow.spacing
                     litColor: root.litColor
                     ghostColor: root.ghostColor
