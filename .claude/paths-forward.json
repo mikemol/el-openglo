@@ -2261,7 +2261,7 @@
     },
     {
       "symbol": "W120",
-      "title": "NOTHING BESPOKE (operator 2026-09-28): census + check that every tracked asset/template/config is either PRODUCED by an emitter (build_graph output) or listed as a LIFT DEBT naming its waypoint; an unlisted orphan is refused, n of m reported. Reuse W61 build_graph orphans and check_token_source.",
+      "title": "Nothing bespoke: every tracked asset is either emitted or a named lift debt",
       "status": "ready",
       "enables": [
         "W116"
@@ -2274,11 +2274,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): NOTHING BESPOKE (operator 2026-09-28): census + check that every tracked asset/template/config is either PRODUCED by an emitter (build_graph output) or listed as a LIFT DEBT naming its waypoint; an unlisted orphan is refused, n of m reported. Reuse W61 build_graph orphans and check_token_source.",
       "issued_at": "2026-09-28T19:32:40Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:45:18Z",
       "ticks_blocked": 0
     },
     {
@@ -2304,7 +2304,7 @@
     },
     {
       "symbol": "W122",
-      "title": "ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom",
+      "title": "An Android live wallpaper of the segment clock, emitted from the core",
       "status": "ready",
       "enables": [
         "W42"
@@ -2317,16 +2317,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:45:18Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W123",
-      "title": "NIXIE TUBES display model (operator 2026-09-28, after publishing): stacked cold-cathode digit glyphs, orange neon glow, mesh/anode depth, one lit digit per tube; EMITTED from the core like the segment model",
+      "title": "A Nixie tube display model, emitted from the core, after publishing",
       "status": "blocked",
       "enables": [
         "W42"
@@ -2340,16 +2340,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): NIXIE TUBES display model (operator 2026-09-28, after publishing): stacked cold-cathode digit glyphs, orange neon glow, mesh/anode depth, one lit digit per tube; EMITTED from the core like the segment model",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:39:04Z",
+      "last_worked": "2026-10-01T04:45:19Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W124",
-      "title": "NEON TUBE display model (operator 2026-09-28, after publishing): bent-tube stroke glyphs with gas glow and dark electrode ends; EMITTED from the core (stroke geometry, palette, bloom)",
+      "title": "A neon tube display model, emitted from the core, after publishing",
       "status": "blocked",
       "enables": [
         "W42"
@@ -2362,16 +2362,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): NEON TUBE display model (operator 2026-09-28, after publishing): bent-tube stroke glyphs with gas glow and dark electrode ends; EMITTED from the core (stroke geometry, palette, bloom)",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:39:04Z",
+      "last_worked": "2026-10-01T04:45:19Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W125",
-      "title": "VINTAGE DISPLAY CENSUS (operator 2026-09-28, after publishing): which display technologies the tree already models (display_types, check_display_registry) and which not (candidates: Numitron, Panaplex, split-flap, flip-disc, reflective LCD, CRT vector); each unmodelled one becomes its own waypoint",
+      "title": "Census which vintage display technologies are modelled and which are not",
       "status": "blocked",
       "enables": [
         "W42"
@@ -2385,16 +2385,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): VINTAGE DISPLAY CENSUS (operator 2026-09-28, after publishing): which display technologies the tree already models (display_types, check_display_registry) and which not (candidates: Numitron, Panaplex, split-flap, flip-disc, reflective LCD, CRT vector); each unmodelled one becomes its own waypoint",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:39:04Z",
+      "last_worked": "2026-10-01T04:45:19Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W126",
-      "title": "PASSIVE (PRINTED) DISPLAY FAMILY (operator 2026-09-28, after publishing): teletype, ticker tape, 8-pin and 24-pin dot-matrix impact print; the registry gains an EMISSIVE vs PASSIVE axis; one print model with per-device head geometry, emitted from the core",
+      "title": "A passive printed display family: teletype, ticker tape, dot-matrix print",
       "status": "blocked",
       "enables": [
         "W42",
@@ -2409,16 +2409,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): PASSIVE (PRINTED) DISPLAY FAMILY (operator 2026-09-28, after publishing): teletype, ticker tape, 8-pin and 24-pin dot-matrix impact print; the registry gains an EMISSIVE vs PASSIVE axis; one print model with per-device head geometry, emitted from the core",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:39:04Z",
+      "last_worked": "2026-10-01T04:45:19Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W127",
-      "title": "UV-FLUORESCENT INK (operator 2026-09-28): the passive family (W126) made emissive by UV excitation; one excitation layer turns any passive mark into an emitter, reusing the emissive glow/bloom path",
+      "title": "UV-fluorescent ink: make the passive displays emissive under UV",
       "status": "blocked",
       "enables": [
         "W42"
@@ -2433,16 +2433,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): UV-FLUORESCENT INK (operator 2026-09-28): the passive family (W126) made emissive by UV excitation; one excitation layer turns any passive mark into an emitter, reusing the emissive glow/bloom path",
       "issued_at": "2026-09-28T20:38:49Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T20:49:31Z",
+      "last_worked": "2026-10-01T04:45:19Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W128",
-      "title": "PHOSPHOR-DERIVED PALETTE (operator 2026-09-28: the palettes are phosphors, Openglo=ZnS:Cu, Amber=ZnS:Mn, Azure=ZnS:Cl, \"correct, I think\"; swatches were eyeballed): derive each variant colour from its phosphor emission spectrum (-> CIE XYZ -> sRGB via the palette solver); later the UV inks (W127) use the same method",
+      "title": "Derive each palette variant's colour from its phosphor's emission spectrum",
       "status": "blocked",
       "enables": [
         "W42",
@@ -2460,11 +2460,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Derive each variant colour from its phosphor emission, report delta-E from todays eyeballed swatch, propose refined lit/ghost/ground for operator review before any re-solve.",
-      "evidence": "2026-09-28: 2026-09-28 operator: the existing palettes are (unknowingly) ZnS:Mn, ZnS:Cu, ZnS:Cl; also SrS:Ce, CaS:Eu, and Cu/Cl + trace Mn for white (\"Mm\" read as Mn, unconfirmed). Swatches were EYEBALLED: the emission is the refinement target. Re-scoped from UV-ink-only to the existing emissive palettes; no longer waits on W127 (W127 now consumes it). | 2026-09-28: 2026-09-28 METHOD (scratchpad w128-physics.md; numbers UNVERIFIED, source first): the host gap sets excitation, the ACTIVATOR sets colour. ZnS:Cu,Cl + ZnS:Cl = donor-acceptor pair recombination E(r)=Eg-(E_D+E_A)+e^2/(4 pi eps r), hydrogenic E_D/E_A, pair distances enumerated over real lattice shells; ZnS:Mn = Mn2+ d-d 4T1->6A1 by ligand-field theory (Tanabe-Sugano, Racah B/C, Dq); SrS:Ce / CaS:Eu = 5d->4f by the Dorenbos centroid-shift + crystal-field model. Band shape: configuration-coordinate model (Huang-Rhys S, phonon hw, Stokes ~2S hw, FWHM(T)), Varshni gap(T). Spectrum -> CIE 1931 CMFs (measured vision data, the one irreducible table) -> XYZ -> sRGB. Witness: model peak vs measured peak per material, n of m within tolerance. Mixtures (white) = weighted sums of SPECTRA.",
+      "evidence": "2026-09-28: 2026-09-28 operator: the existing palettes are (unknowingly) ZnS:Mn, ZnS:Cu, ZnS:Cl; also SrS:Ce, CaS:Eu, and Cu/Cl + trace Mn for white (\"Mm\" read as Mn, unconfirmed). Swatches were EYEBALLED: the emission is the refinement target. Re-scoped from UV-ink-only to the existing emissive palettes; no longer waits on W127 (W127 now consumes it). | 2026-09-28: 2026-09-28 METHOD (scratchpad w128-physics.md; numbers UNVERIFIED, source first): the host gap sets excitation, the ACTIVATOR sets colour. ZnS:Cu,Cl + ZnS:Cl = donor-acceptor pair recombination E(r)=Eg-(E_D+E_A)+e^2/(4 pi eps r), hydrogenic E_D/E_A, pair distances enumerated over real lattice shells; ZnS:Mn = Mn2+ d-d 4T1->6A1 by ligand-field theory (Tanabe-Sugano, Racah B/C, Dq); SrS:Ce / CaS:Eu = 5d->4f by the Dorenbos centroid-shift + crystal-field model. Band shape: configuration-coordinate model (Huang-Rhys S, phonon hw, Stokes ~2S hw, FWHM(T)), Varshni gap(T). Spectrum -> CIE 1931 CMFs (measured vision data, the one irreducible table) -> XYZ -> sRGB. Witness: model peak vs measured peak per material, n of m within tolerance. Mixtures (white) = weighted sums of SPECTRA. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PHOSPHOR-DERIVED PALETTE (operator 2026-09-28: the palettes are phosphors, Openglo=ZnS:Cu, Amber=ZnS:Mn, Azure=ZnS:Cl, \"correct, I think\"; swatches were eyeballed): derive each variant colour from its phosphor emission spectrum (-> CIE XYZ -> sRGB via the palette solver); later the UV inks (W127) use the same method",
       "issued_at": "2026-09-28T20:38:54Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T21:04:25Z",
+      "last_worked": "2026-10-01T04:45:20Z",
       "ticks_blocked": 1
     },
     {
@@ -2560,7 +2560,7 @@
     },
     {
       "symbol": "W133",
-      "title": "A11Y AS CONDUCTANCES (operator 2026-09-28): WCAG contrast and colour-vision-deficiency separation as constraints INSIDE the conductance graph the palette is solved on, satisfied by construction rather than checked after; first step: census the existing a11y checks (check_legibility, check_use_of_colour, check_selection_contrast; paperkit wcag_entail/wcag_model) and what each constrains, as the edge spec",
+      "title": "Put WCAG contrast and colour-blindness separation inside the palette's conductance graph",
       "status": "ready",
       "enables": [
         "W42"
@@ -2574,11 +2574,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): A11Y AS CONDUCTANCES (operator 2026-09-28): WCAG contrast and colour-vision-deficiency separation as constraints INSIDE the conductance graph the palette is solved on, satisfied by construction rather than checked after; first step: census the existing a11y checks (check_legibility, check_use_of_colour, check_selection_contrast; paperkit wcag_entail/wcag_model) and what each constrains, as the edge spec",
       "issued_at": "2026-09-28T21:04:41Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:45:20Z",
       "ticks_blocked": 0
     },
     {
@@ -2625,7 +2625,7 @@
     },
     {
       "symbol": "W136",
-      "title": "W41.3 AMO SIGNING: web-ext sign (channel per the operator) with the operator AMO API key/secret from the environment, SKIP printed when absent; record the signed .xpi and an update manifest",
+      "title": "Sign the Firefox extension on AMO with the operator's API keys",
       "status": "blocked",
       "enables": [
         "W41"
@@ -2639,11 +2639,11 @@
       ],
       "blocked_kind": "human",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): W41.3 AMO SIGNING: web-ext sign (channel per the operator) with the operator AMO API key/secret from the environment, SKIP printed when absent; record the signed .xpi and an update manifest",
       "issued_at": "2026-09-28T21:04:58Z",
       "minted_during": "interrupt",
       "caused_by": "W41",
-      "last_worked": "2026-09-29T00:23:17Z",
+      "last_worked": "2026-10-01T04:45:20Z",
       "ticks_blocked": 0
     },
     {
@@ -2671,7 +2671,7 @@
     },
     {
       "symbol": "W138",
-      "title": "STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default",
+      "title": "Remove the stale agent worktrees and keep struct-tool queries out of them",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -2681,16 +2681,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default",
       "issued_at": "2026-09-28T21:21:47Z",
       "minted_during": "interrupt",
       "caused_by": "W134",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:45:20Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W139",
-      "title": "ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests",
+      "title": "Adopt mtools pytest-spec so pre-commit selftests run in parallel",
       "status": "blocked",
       "enables": [],
       "touches": [
@@ -2703,16 +2703,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it.",
+      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests",
       "issued_at": "2026-09-28T22:40:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-28T22:40:22Z",
+      "last_worked": "2026-10-01T04:45:20Z",
       "ticks_blocked": 1
     },
     {
       "symbol": "W140",
-      "title": "GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home)",
+      "title": "Fix gate_ledger reading a different ledger path than the hook writes",
       "status": "blocked",
       "enables": [
         "W139"
@@ -2727,11 +2727,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read.",
+      "evidence": "2026-09-29: 2026-09-29 operator: \"Dont use substrate, use mtools; substrate is getting drained into mtools, with mtools holding cleaner versions.\" So the fix is NOT in substrate: letter ~/github/mtools/inbox/2026-09-29-el-openglo-gate-ledger-path.md asks the mtools gate_ledger home (W102 letter) to read ONE shared path constant. A letter first written to substrate inbox was withdrawn before being read. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE LEDGER PATH MISMATCH: scripts/gate_ledger.py (substrate symlink) reads scripts/.gate-outcomes.tsv, the pre-commit hook writes <repo>/.gate-outcomes.tsv, so gate_ledger --report says \"no outcomes recorded\" over a live ledger; make the path one shared constant (fix in substrate and run BOTH repos selftests, or with mtools gate_ledger home)",
       "issued_at": "2026-09-28T22:40:23Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-29T01:06:00Z",
+      "last_worked": "2026-10-01T04:45:20Z",
       "ticks_blocked": 0
     },
     {
@@ -2831,10 +2831,6 @@
         "queue-structure"
       ],
       "blocked_on": [
-        "W146",
-        "W147",
-        "W148",
-        "W149",
         "W150"
       ],
       "blocked_kind": "agent",
@@ -2843,7 +2839,7 @@
       "issued_at": "2026-09-29T01:56:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-09-29T01:56:34Z",
+      "last_worked": "2026-10-01T04:46:05Z",
       "ticks_blocked": 0
     },
     {
@@ -2909,7 +2905,7 @@
     {
       "symbol": "W149",
       "title": "Retitle or split the live waypoints W87 to W115 (12)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W145"
       ],
@@ -2923,13 +2919,13 @@
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T04:34:06Z",
+      "last_worked": "2026-10-01T04:45:00Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W150",
       "title": "Retitle or split the live waypoints W120 to W140 (13)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W145"
       ],
@@ -2939,11 +2935,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-10-01: 13 of 13 live titles in W120-W140 retitled to one clause (former titles in evidence). Lister 0 of 156 flagged; nemik-check (authority) shows NO el-openglo title warnings. Remaining el-openglo warnings: W139, W140 (blocked on mtools, which has not yet minted a claiming waypoint; letters in mtools inbox).",
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:46:05Z",
       "ticks_blocked": 0
     },
     {
