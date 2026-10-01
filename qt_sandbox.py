@@ -12,7 +12,7 @@ desktop session or the GPU driver.
 
     import qt_sandbox as QT
     r = QT.run([QT.QML, doc], env=base_env, capture_output=True, text=True)
-    r = QT.run([QT.QML, ...], gpu=True, ...)   # ONLY where pixels need the RHI
+    r = QT.run([QT.QML, ...], mesa=True, ...)  # where pixels need the RHI (bloom)
 
 What `run` does to the child, and why each one:
   - QT_QPA_PLATFORM=offscreen            no window on any display
@@ -36,14 +36,12 @@ What `run` does to the child, and why each one:
                                           `--selftest` measures only that the child
                                           RUNS under the limit.
 
-⚑ gpu=True IS THE ONE EXCEPTION, AND IT IS NAMED AT THE CALL SITE.  render_qml's
-harness asks for the RHI because MultiEffect (the bloom halo) draws NOTHING on the
-software scene graph (measured: bloom=4 and bloom=0 byte-identical). gpu=True keeps
-the RHI backend and keeps DISPLAY (offscreen GL needs GLX), so it still reaches the
-GPU driver — the crash vector — but never dumps a core or raises DrKonqi. It is
-honoured only when EL_QT_GPU=1 is in the caller's environment; otherwise it is
-software like everything else, and the caller's own backend report says so.
-scripts/check_qt_sandbox.py lists every gpu=True site; the operator decides.
+⚑ THERE IS NO GPU PATH (W158, 2026-10-01).  A gpu=True mode once kept the RHI and
+DISPLAY for renders that need MultiEffect's bloom (which draws NOTHING on the
+software scene graph), honoured under EL_QT_GPU=1. It reached the GPU driver, the
+W73 crash vector. mesa=True replaced it: the same RHI picture on llvmpipe with no GPU
+driver. So gpu= is now an unknown keyword (TypeError), EL_QT_GPU means nothing, and
+policy/qt_sandbox.rego Q2 denies any call that still asks for the GPU.
 
 ⚑ mesa=True IS THE GPU PICTURE WITHOUT THE GPU (W98/W107/W109, measured 2026-09-28).
 The child runs as the session client of a PRIVATE `kwin_wayland --virtual` on its own
@@ -85,29 +83,17 @@ MESA_EGL = "/usr/share/glvnd/egl_vendor.d/50_mesa.json"
 KWIN = "kwin_wayland"
 
 
-def gpu_allowed():
-    """True iff the operator opted this process into the GPU scene graph (EL_QT_GPU=1)."""
-    return os.environ.get("EL_QT_GPU") == "1"
-
-
-def env(base=None, gpu=False):
-    """The child's environment: `base` (default os.environ) made headless and sessionless."""
+def env(base=None):
+    """The child's environment: `base` (default os.environ) made headless and sessionless,
+    on the software scene graph. ⚑ W158: there is no GPU variant any more; a render
+    that needs the RHI (bloom) uses mesa=True, which reaches no GPU driver."""
     e = dict(os.environ if base is None else base)
-    use_gpu = gpu and gpu_allowed()
     e["QT_QPA_PLATFORM"] = "offscreen"
     e["KDE_DEBUG"] = "1"
-    if use_gpu:
-        e.setdefault("QT_QUICK_BACKEND", "rhi")
-        # GLX needs DISPLAY AND its authority: without XAUTHORITY the server refuses
-        # ("Authorization required") and Qt aborts creating the context — measured
-        # 2026-09-23, every GPU render rc=-6. Nothing else of the session passes.
-        for k in ("WAYLAND_DISPLAY", "WAYLAND_SOCKET"):
-            e.pop(k, None)
-    else:
-        e["QT_QUICK_BACKEND"] = "software"
-        e.pop("QSG_RHI_BACKEND", None)
-        for k in SESSION_VARS:
-            e.pop(k, None)
+    e["QT_QUICK_BACKEND"] = "software"
+    e.pop("QSG_RHI_BACKEND", None)
+    for k in SESSION_VARS:
+        e.pop(k, None)
     return e
 
 
@@ -159,8 +145,8 @@ def no_core():
     resource.setrlimit(resource.RLIMIT_CORE, (CORE_LIMIT, CORE_LIMIT))
 
 
-def run(cmd, env=None, gpu=False, cpu=None, mesa=False, **kw):
-    """subprocess.run under env(env, gpu) and no_core. The one Qt spawn in the tree.
+def run(cmd, env=None, cpu=None, mesa=False, **kw):
+    """subprocess.run under env(env) (or the mesa route) and no_core. The one Qt spawn in the tree.
     `cpu` (seconds) caps the child's OWN CPU (RLIMIT_CPU) — the budget that means the
     same on an idle host and a loaded one. A wall `timeout` alone failed healthy
     harnesses while the pre-commit gate loaded the box (2026-09-25,
@@ -174,16 +160,14 @@ def run(cmd, env=None, gpu=False, cpu=None, mesa=False, **kw):
         if cpu is not None:
             resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))
     if mesa:
-        if gpu:
-            raise TypeError("qt_sandbox.run: mesa=True and gpu=True are two exceptions; pick one")
         e = mesa_env(env)
         with kwin_session(e) as sock:
             return subprocess.run(cmd, env=dict(e, WAYLAND_DISPLAY=sock, QT_QPA_PLATFORM="wayland"),
                                   preexec_fn=pre, **kw)
-    return subprocess.run(cmd, env=globals()["env"](env, gpu), preexec_fn=pre, **kw)
+    return subprocess.run(cmd, env=globals()["env"](env), preexec_fn=pre, **kw)
 
 
-def popen(cmd, env=None, gpu=False, mesa=False, **kw):
+def popen(cmd, env=None, mesa=False, **kw):
     """subprocess.Popen under the same env and no_core as run(): for a harness whose
     measurement must be STREAMED (check_marquee_live ends at its RESULT line and
     kills a teardown hang, W63), which run() cannot do."""
@@ -191,7 +175,7 @@ def popen(cmd, env=None, gpu=False, mesa=False, **kw):
         raise TypeError("qt_sandbox.popen: mesa=True not offered yet (the wrapper dir must outlive the call)")
     if "preexec_fn" in kw:
         raise TypeError("qt_sandbox.popen owns preexec_fn")
-    return subprocess.Popen(cmd, env=globals()["env"](env, gpu), preexec_fn=no_core, **kw)
+    return subprocess.Popen(cmd, env=globals()["env"](env), preexec_fn=no_core, **kw)
 
 
 def _selftest():
@@ -211,17 +195,23 @@ def _selftest():
     check("a caller's rhi request is overridden to software", e["QT_QUICK_BACKEND"], "software")
     check("KCrash off", e["KDE_DEBUG"], "1")
     check("the base is not mutated", base["DISPLAY"], ":0")
-    saved = os.environ.pop("EL_QT_GPU", None)
-    check("gpu=True without EL_QT_GPU=1 is software", env(base, gpu=True)["QT_QUICK_BACKEND"], "software")
+    # ⚑ W158: the GPU path is GONE, not merely off: asking for it is a TypeError,
+    # and EL_QT_GPU in the environment changes nothing.
+    for spawn in (run, popen):
+        try:
+            spawn(["true"], gpu=True)
+            check(f"{spawn.__name__}(gpu=True) is refused", False, True)
+        except TypeError:
+            check(f"{spawn.__name__}(gpu=True) is refused", True, True)
+    saved = os.environ.get("EL_QT_GPU")
     os.environ["EL_QT_GPU"] = "1"
-    g = env(base, gpu=True)
-    check("gpu=True with EL_QT_GPU=1 keeps the rhi", g["QT_QUICK_BACKEND"], "rhi")
-    check("...and DISPLAY + XAUTHORITY only", [k for k in SESSION_VARS if k in g],
-          ["DISPLAY", "XAUTHORITY"])
-    if saved is None:
-        os.environ.pop("EL_QT_GPU")
-    else:
-        os.environ["EL_QT_GPU"] = saved
+    try:
+        check("EL_QT_GPU=1 no longer changes the backend", env(base)["QT_QUICK_BACKEND"], "software")
+    finally:
+        if saved is None:
+            os.environ.pop("EL_QT_GPU")
+        else:
+            os.environ["EL_QT_GPU"] = saved
     # ⚑ THE CHILD MUST SEE THE LIMIT AND THE STRIPPED ENV — measured in a real child.
     r = run([sys.executable, "-c",
              "import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
@@ -249,11 +239,6 @@ def _selftest():
     check("mesa: rhi on opengl over Mesa EGL, software GL",
           (m["QT_QUICK_BACKEND"], m["QSG_RHI_BACKEND"], m["__EGL_VENDOR_LIBRARY_FILENAMES"],
            m["LIBGL_ALWAYS_SOFTWARE"]), ("rhi", "opengl", MESA_EGL, "1"))
-    try:
-        run(["true"], gpu=True, mesa=True)
-        check("mesa=True with gpu=True is refused", False, True)
-    except TypeError:
-        check("mesa=True with gpu=True is refused", True, True)
     if not shutil.which(KWIN):
         print(f"  SKIP mesa child arms — {KWIN} is not installed")
     else:

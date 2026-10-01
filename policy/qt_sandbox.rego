@@ -35,17 +35,28 @@ deny contains msg if {
 	msg := sprintf("Q1: %s spawns %v via %v, not qt_sandbox.run — it can reach the session, the GPU and the crash handler", [c.id, c.tool, c.via])
 }
 
-# the sites that ask for the GPU scene graph: not denied (the operator decides,
-# and qt_sandbox grants it only under EL_QT_GPU=1), but listed
+# METADATA
+# title: "Q2 — no site asks for the GPU"
+# description: |
+#   W158 (2026-10-01): qt_sandbox no longer has a GPU path. gpu=True once kept the
+#   RHI and DISPLAY under EL_QT_GPU=1 and reached the GPU driver (the W73 crash
+#   vector); mesa=True replaced it with the same RHI picture on llvmpipe. A routed
+#   site whose gpu fact is anything but false still asks for the removed path.
 gpu_sites contains c.id if {
 	some c in measured
 	c.routed == true
 	c.gpu != false
 }
 
+deny contains msg if {
+	some id in gpu_sites
+	msg := sprintf("Q2: %s asks for the GPU scene graph, which qt_sandbox no longer offers; use mesa=True", [id])
+}
+
 admitted contains c.id if {
 	some c in measured
 	c.routed == true
+	not c.id in gpu_sites
 }
 
 withheld contains msg if {

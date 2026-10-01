@@ -394,14 +394,15 @@ def job_inputs(stage):
                   path and the repo root normalised out so the key is the CONTENT;
       repo:<rel>  every repo file the staged text names and QML would read from it;
       env:<k>     the child's final environment (qt_sandbox.env) under JOB_ENV;
-      argv, gpu   the command and whether the GPU scene graph is granted.
+      argv, route the command and the stager's third value (W158: there is no
+                  GPU path, only software or Mesa).
     ⚑ DERIVED, NOT LISTED: a file the harness starts handing the process is in the
     key the moment it is in the run, because both read the same staging."""
     import tempfile
     import qt_sandbox as QT
     inputs, texts = {}, []
     with tempfile.TemporaryDirectory() as td:
-        argv, env, gpu = stage(td)
+        argv, env, route = stage(td)
 
         def norm(s):
             return s.replace(td, "@JOB@").replace(ROOT, "@ROOT@")
@@ -418,12 +419,12 @@ def job_inputs(stage):
                     continue
                 inputs[f"job:{os.path.relpath(p, td)}"] = digest_text(norm(text))
                 texts.append((p, text))
-        final = QT.env(env, gpu)
+        final = QT.env(env)
         for k in sorted(final):
             if k.startswith(JOB_ENV) and not k.startswith(JOB_ENV_SESSION):
                 inputs[f"env:{k}"] = digest_text(norm(final[k]))
         inputs["argv"] = digest_text(norm("\0".join(argv)))
-        inputs["gpu"] = str(bool(gpu and QT.gpu_allowed()))
+        inputs["route"] = str(route)
     for rel in _repo_reads(texts):
         inputs[f"repo:{rel}"] = digest_rel(rel)
     return inputs

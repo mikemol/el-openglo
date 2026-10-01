@@ -10,10 +10,17 @@ gpu := {"id": "scripts/render_qml.py:327", "file": "scripts/render_qml.py", "lin
 bare := {"id": "scripts/check_ebuild.py:9", "file": "scripts/check_ebuild.py", "line": 9, "tool": "qml", "via": "subprocess", "routed": false, "gpu": null}
 
 test_admits_routed if {
-	inp := {"cases": [routed, gpu]}
+	inp := {"cases": [routed]}
 	count(q.deny) == 0 with input as inp
-	q.admitted == {"theme_probe.py:75", "scripts/render_qml.py:327"} with input as inp
-	q.gpu_sites == {"scripts/render_qml.py:327"} with input as inp
+	q.admitted == {"theme_probe.py:75"} with input as inp
+}
+
+# Q2 (W158): the GPU path is gone, so a routed site that still asks for it is denied
+test_q2_refuses_a_gpu_site if {
+	inp := {"cases": [routed, gpu]}
+	"Q2: scripts/render_qml.py:327 asks for the GPU scene graph, which qt_sandbox no longer offers; use mesa=True" in q.deny with input as inp
+	not "scripts/render_qml.py:327" in q.admitted with input as inp
+	"theme_probe.py:75" in q.admitted with input as inp
 }
 
 test_q0_refuses_absent_population if {

@@ -3141,11 +3141,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: gpu path removed: qt_sandbox.env/run/popen take no gpu (selftest PASS); check_action_key job_inputs keys route not gpu (selftest PASS); policy Q2 denies gpu sites (opa 926/926; gate admitted 8/8); render_screens re-rendered 55 under systemd-run cap, --stale 0 of 56; no coredumps",
       "issued_at": "2026-10-01T04:56:08Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-10-01T04:56:28Z",
+      "last_worked": "2026-10-01T05:18:41Z",
       "ticks_blocked": 0
     },
     {

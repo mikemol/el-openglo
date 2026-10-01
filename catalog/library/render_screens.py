@@ -635,14 +635,12 @@ def main(argv):
         elif a not in known:
             print(f"render_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
-    # ⚑ THE GPU OPT-IN IS DECLARED HERE, NOT REMEMBERED (operator ruling 2026-09-22,
-    # W73): every Qt spawn runs headless on the software scene graph by default, and
-    # MultiEffect's bloom halo draws NOTHING there. The screenshots are the one place
-    # the halo must show, so this process — and only this one — opts into the RHI.
-    # It still gets no core and no DrKonqi from qt_sandbox, but it DOES reach the GPU
-    # driver: the vector W73 closed for every test. Set BEFORE --keys, because the
-    # opt-in is part of every job's environment and so of every key.
-    os.environ.setdefault("EL_QT_GPU", "1")
+    # ⚑ NO GPU OPT-IN ANY MORE (W158, 2026-10-01). This process once set EL_QT_GPU=1 so
+    # the screenshots could draw the bloom halo on the RHI, which reached the GPU
+    # driver (the W73 crash vector). render_qml now draws its RHI on Mesa llvmpipe under
+    # a private SIGKILLed kwin (qt_sandbox mesa=True, W108/W114), so the halo renders
+    # with no GPU driver and no opt-in. Removing the variable changed every job's
+    # environment, and so every screens key: the outputs were re-rendered (on Mesa).
     if "--selftest" in argv:
         return selftest()
     if "--keys" in argv:

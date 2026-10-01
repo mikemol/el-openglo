@@ -256,9 +256,14 @@ def main(argv):
         for c in bad:
             print(f"    {c['id']} ({c['tool']})", file=sys.stderr)
         return 1
+    if gpu:
+        # W158: the GPU path is gone (policy Q2); a site still asking for it is a defect
+        print(f"check_qt_sandbox: REFUSED — {len(gpu)} of {len(cases)} sites still ask for the GPU, "
+              "which qt_sandbox no longer offers (use mesa=True): " + ", ".join(c["id"] for c in gpu),
+              file=sys.stderr)
+        return 1
     print(f"check_qt_sandbox: {len(cases)} of {len(cases)} Qt spawn sites routed through qt_sandbox "
-          f"over {doc['files_scanned']} files; {len(gpu)} ask for the GPU (granted only under EL_QT_GPU=1): "
-          + ", ".join(c["id"] for c in gpu))
+          f"over {doc['files_scanned']} files; 0 ask for the GPU")
     return 0
 
 

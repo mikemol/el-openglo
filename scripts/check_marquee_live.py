@@ -376,7 +376,7 @@ LOOP_TIMELINE = [
 ]
 
 
-def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, gpu=False):
+def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
     """Run the harness; the measurement is COMPLETE at its RESULT line.
 
     ⚑ THE THREADED LOOP CAN HANG AT TEARDOWN (measured W63: 4 of 10 hovered runs
@@ -388,7 +388,9 @@ def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, gpu=False):
     run() reports as a failure to measure."""
     import threading
     # W73: streamed, so it cannot be QT.run — QT.popen is the same sandbox
-    proc = QT.popen(cmd, env=env, gpu=gpu, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    # W158: no GPU path exists; the marquee runs on the software scene graph until W121
+    # gives popen the mesa route (then the halo renders here too)
+    proc = QT.popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
     cap = threading.Timer(wall_cap, proc.kill)
     cap.start()
     lines = []
@@ -441,12 +443,13 @@ def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=
         env = TP.env_for(variant, xdg)
         # W63: virtual time — the animation driver steps one fixed frame per render
         # (never re-synced to the wall), on the threaded loop that owns it.
-        # W73: EL_QUICK_BACKEND=rhi asks for the GPU scene graph; qt_sandbox grants
-        # it only under EL_QT_GPU=1, and software is the default either way.
-        backend = os.environ.get("EL_QUICK_BACKEND", "software")
+        # W158: the software scene graph, always. The GPU path (EL_QUICK_BACKEND=rhi
+        # under EL_QT_GPU=1) is gone; the RHI without a GPU driver is qt_sandbox's
+        # mesa route, which popen will offer for the marquee in W121. The third value
+        # keeps the stager's (argv, env, rhi) shape that render_screens keys over.
         env.update(QSG_FIXED_ANIMATION_STEP="1", QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"))
-        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND=backend)
-        return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, backend != "software"
+        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND="software")
+        return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, False
     return stage
 
 
@@ -472,8 +475,8 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
         return None
     stage = stager(hover_pause, end_ms, stop_paused, variant, grab, grab_paused, frames, timeline)
     with tempfile.TemporaryDirectory() as td:
-        argv, env, gpu = stage(td)
-        r = _run_until_result(argv, env, gpu=gpu)
+        argv, env, _rhi = stage(td)
+        r = _run_until_result(argv, env)
     log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
