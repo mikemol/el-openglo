@@ -355,3 +355,4 @@
 2026-10-01T05:43:10Z  tick  W159 advanced  unblock   "qt_sandbox keyed by backend_facts, not bytes; a sandbox comment moves 0 of 56 screens"  evidence=check_action_key selftest PASS; render_screens --stale 0 of 56
 2026-10-01T06:16:50Z  hash  --   diverged  --        "divergence: payload v2:28c7396a835dc66b, file v2:e674214a2aa4aa65; the FILE wins"
 2026-10-01T06:24:06Z  tick  W119 advanced  sweep     "SPDX Apache-2.0 header on 152 authored sources; policy L6 refuses a missing one"  evidence=opa_gate license admitted (152 denied before); opa 931/931
+2026-10-01T06:43:40Z  tick  W42  advanced  unblock   "codomain census: 17 of 24 emitted, 7 ranked gaps; top three minted W160-W162"  evidence=check_codomain --list; opa_gate codomain admitted
