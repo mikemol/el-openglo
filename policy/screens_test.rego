@@ -10,6 +10,29 @@ test_admits_clean if {
 	count(sc.deny) == 0 with input as {"screens": [good]}
 }
 
+scroll := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 61,
+	"tears": [], "seamless": true, "shifts": [2.75, 3.0, 2.5, 3.0]}
+
+# W60 / S8: move the content, then sample — a fractional shift is the evidence
+test_s8_admits_a_scroll_that_moves_by_fractions_of_a_pip if {
+	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as {"screens": [good], "animations": [scroll]}
+}
+
+test_s8_refuses_a_scroll_that_moves_only_by_whole_pips if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [3.0, 3.0, 2.0, 3.0]})]}
+	"S8: marquee-anim-EL-Amber.png moves only by whole pips over 4 frame pair(s) — pixelated, then moved" in sc.deny with input as inp
+}
+
+test_s8_a_negative_fractional_shift_counts if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [-1.25, 0.0, 2.0]})]}
+	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as inp
+}
+
+test_s8_does_not_judge_a_run_with_no_measured_shift if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": []})]}
+	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as inp
+}
+
 test_s0_refuses_no_plan if {
 	some msg in sc.deny with input as {"screens": []}
 	startswith(msg, "S0:")
@@ -34,8 +57,11 @@ test_s3_admits_the_view_ground if {
 	count(sc.deny) == 0 with input as {"screens": [object.union(good, {"modal": "#140f08"})]}
 }
 
+# shifts in PIPS with quarter-pip fractions, as render_screens.animation_facts measures
+# since W54 (this fixture was [6, 6, 7, 6, 12, 6], whole-pixel steps from before the
+# aperture field — under today's unit exactly the pixelate-then-move shape S8 refuses)
 anim := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 48, "width": 420,
-	"shifts": [6, 6, 7, 6, 12, 6], "tears": [], "seamless": true}
+	"shifts": [2.75, 3.0, 2.5, 3.0, 2.75, 3.0], "tears": [], "seamless": true}
 
 test_s6_refuses_an_open_loop if {
 	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"seamless": false})]}

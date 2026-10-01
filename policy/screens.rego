@@ -132,6 +132,26 @@ case_deny contains {"file": a.file, "msg": sprintf("S5: %s tears at frame(s) %v"
 }
 
 # METADATA
+# title: "S8 — a scroll moves the content, then samples it (temporal subpixel)"
+# description: |
+#   W60 (operator, 2026-09-22, seeing pinholes-anim: "the pixelation of the glyphs is
+#   calculated, and then the pixelated glyphs are moved ... we want the glyphs to move
+#   and the pixelation RECALCULATED"). render_screens.animation_facts gives, per
+#   adjacent frame pair, the best shift in PIPS: a whole k plus a fraction f. A
+#   pre-pixelated bitmap translated across the field only ever moves by whole pips,
+#   so a run whose every measured shift is a whole number is pixelate-then-move. A
+#   run with no measured shift (an empty board) is not judged here.
+fractional(s) if s - floor(s) != 0
+
+case_deny contains {"file": a.file, "msg": sprintf("S8: %s moves only by whole pips over %d frame pair(s) — pixelated, then moved", [a.file, count(a.shifts)])} if {
+	some a in anims
+	a.exists == true
+	is_array(object.get(a, "shifts", null))
+	count(a.shifts) > 0
+	count([s | some s in a.shifts; fractional(s)]) == 0
+}
+
+# METADATA
 # title: "S6 — an animation loops seamlessly"
 # description: |
 #   One item's whole run: the first and last frames are the same picture (the
