@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 167,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T08:06:13Z",
-  "job_id": "46540a25",
+  "heartbeat": "2026-10-01T08:26:22Z",
+  "job_id": "f66703ce",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3248,8 +3248,8 @@
     },
     {
       "symbol": "W164",
-      "title": "Snap the clock face mount, if a mirror defect survives the applet-width render",
-      "status": "blocked",
+      "title": "Make the clock face row an even pixel width so 00:00 mirrors about the canvas centre",
+      "status": "ready",
       "enables": [
         "W57"
       ],
@@ -3257,16 +3257,14 @@
         "templates/clock-main.qml",
         "check_symmetry"
       ],
-      "blocked_on": [
-        "W167"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "after W167: re-read face-0000; if regions remain, snap the Row spacing / colon slot (both whole-pixel snaps were tried on the off-centre canvas and changed nothing, so measure first); if none remain, done with no edit",
-      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "In clock-main.qml make the Row width even: snap colonSlot to an integer and, if 4*segLen + colonSlot + 3*spacing is odd, add the 1 px to colonSlot (the colon is centred in its slot, so the slot absorbs it symmetrically); re-run check_symmetry --json until face-0000 h has 0 regions; re-record the SegmentChar template-parity baseline if SegmentChar changes; re-render the clock screens under the cap",
+      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width | 2026-10-01: 2026-10-01 cause located (check_symmetry --json, all 42 regions): every vertical flagged in mirror PAIRS off by exactly 1 px (23-30 mirrors to 389-396 but is found at 390-397; 16-20 vs 400-404) and the colon at 204-216 about an axis at 210. A 420 px canvas mirrors about x=210, so symmetric content needs an EVEN width at an integer x; the Row width (4 segLen + colonSlot + 3 spacing) is odd, so anchors.centerIn lands it half a pixel off. Earlier whole-pixel snaps of colonSlot and Row x alone cannot fix an odd total.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T08:06:22Z",
+      "last_worked": "2026-10-01T08:28:01Z",
       "ticks_blocked": 0
     },
     {
@@ -3314,7 +3312,7 @@
     {
       "symbol": "W167",
       "title": "Render the symmetry FACE case at the clock applet own width, not a wider canvas",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W164"
       ],
@@ -3324,12 +3322,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "render_face renders at w=420 while the content (fullRepresentation, Layout.preferredWidth) is ~280 px left-aligned. Read the preferred width the face asks for (a qml probe property, or crop to the fullRepresentation item bounds the harness can report), render or crop to it, re-read face-0000; update the docstring WEAKNESS about an off-centre face. Do NOT crop to the lit bbox: it would hide a real kerning offset.",
-      "evidence": "",
+      "next_bounded_step": "",
+      "evidence": "2026-10-01: 2026-10-01 PREMISE FALSIFIED, no edit kept: anchoring the fullRepresentation to fill (as Plasma sizes it) left face-0000 identical, because it already fills. The \"content x 23..300 of 420\" was MY misread of the first 6 of 42 regions in --list; --json shows digits spanning x 16..404, centred. The harness is faithful; nothing to change.",
       "issued_at": "2026-10-01T08:06:13Z",
       "minted_during": "interrupt",
       "caused_by": "W164",
-      "last_worked": "2026-10-01T08:06:22Z",
+      "last_worked": "2026-10-01T08:28:01Z",
       "ticks_blocked": 0
     }
   ],
@@ -3350,5 +3348,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "2649c18c"
+  "predecessor_job_id": "46540a25"
 }
