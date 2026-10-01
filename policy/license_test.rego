@@ -73,6 +73,27 @@ test_l6_refuses_an_empty_population if {
 	"L6: no authored source was measured" in lc.deny with input as with_headers({"population": 0, "carrying": 0, "missing": [], "wrong": []})
 }
 
+held := object.union(headers_ok, {"holder": "Mike Mol", "no_copyright": [], "wrong_holder": []})
+
+# W169: the copyright line, naming the declared holder
+test_l6_admits_every_file_naming_the_holder if {
+	count([m | some m in lc.deny; startswith(m, "L6")]) == 0 with input as with_headers(held)
+	count([m | some m in lc.withheld; startswith(m, "L6")]) == 0 with input as with_headers(held)
+}
+
+test_l6_refuses_a_missing_copyright_line if {
+	"L6: x.py carries no copyright line; run `check_license.py --write-headers`" in lc.deny with input as with_headers(object.union(held, {"no_copyright": ["x.py"]}))
+}
+
+test_l6_refuses_another_holder if {
+	"L6: x.py's copyright names Someone Else, not the declared holder Mike Mol" in lc.deny with input as with_headers(object.union(held, {"wrong_holder": [{"file": "x.py", "holder": "Someone Else"}]}))
+}
+
+test_l6_withholds_a_declared_holder_never_measured if {
+	inp := with_headers(object.union(headers_ok, {"holder": "Mike Mol"}))
+	"L6: a copyright holder is declared but the copyright lines were not measured" in lc.withheld with input as inp
+}
+
 test_l6_withholds_unmeasured_headers if {
 	"L6: authored-source headers were not measured" in lc.withheld with input as object.remove(good, ["headers"])
 }

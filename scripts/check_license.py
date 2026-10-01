@@ -285,7 +285,7 @@ def measure(root=None):
             "emitted_scanned": scanned, "emitted_unparsed": unparsed,
             "third_party": third_party(), "debian_copyright": debian_copyright(),
             "dep5_format": DEP5_FORMAT, "notice": notice,
-            "headers": header_facts(root, spdx, tracked)}
+            "headers": header_facts(root, spdx, tracked, getattr(E, "COPYRIGHT_HOLDER", None))}
 
 
 def notice_facts(root, E):
@@ -330,18 +330,46 @@ def header_id(text):
     return None
 
 
-def header_facts(root, spdx, paths):
-    """{population, carrying, missing, wrong} over authored_sources (W119)."""
+COPYRIGHT_RE = re.compile(r"^#\s*Copyright\s*\(c\)\s*(\d{4})(?:\s*-\s*\d{4})?\s+(.+?)\s*$", re.I)
+
+
+def copyright_holder(text):
+    """The holder named by the first `# Copyright (c) YEAR HOLDER` comment in a file's
+    head (the first 6 lines: shebang, coding, SPDX may precede it), None when there is
+    none (W169). WEAKNESS: only that one spelling is read; a `©` or a holder on a
+    second line reads as missing, which policy L6 then refuses — the writer is ours
+    (mikemol-pycodemod header) and writes exactly this spelling."""
+    for ln in text.split("\n")[:6]:
+        m = COPYRIGHT_RE.match(ln.strip())
+        if m:
+            return m.group(2)
+    return None
+
+
+def header_facts(root, spdx, paths, holder=None):
+    """{population, carrying, missing, wrong} over authored_sources (W119), plus
+    W169's copyright facts when a holder is declared: `no_copyright` (files with no
+    copyright line) and `wrong_holder` ({file, holder} naming someone else)."""
     pop = authored_sources(root, paths)
-    missing, wrong = [], []
+    missing, wrong, no_copy, wrong_holder = [], [], [], []
     for rel in pop:
-        hid = header_id(open(os.path.join(root, rel), encoding="utf-8").read())
+        text = open(os.path.join(root, rel), encoding="utf-8").read()
+        hid = header_id(text)
         if hid is None:
             missing.append(rel)
         elif hid != spdx:
             wrong.append({"file": rel, "id": hid})
-    return {"population": len(pop), "carrying": len(pop) - len(missing) - len(wrong),
-            "missing": missing, "wrong": wrong}
+        if holder is not None:
+            h = copyright_holder(text)
+            if h is None:
+                no_copy.append(rel)
+            elif h != holder:
+                wrong_holder.append({"file": rel, "holder": h})
+    out = {"population": len(pop), "carrying": len(pop) - len(missing) - len(wrong),
+           "missing": missing, "wrong": wrong}
+    if holder is not None:
+        out.update(holder=holder, no_copyright=no_copy, wrong_holder=wrong_holder)
+    return out
 
 
 HEADER_TOOL = "mikemol-pycodemod"
@@ -541,8 +569,24 @@ def _selftest():
         chk("1 of 3 authored carry it; b missing, c wrong, the symlink is not authored",
             (h["population"], h["carrying"], h["missing"], h["wrong"]),
             (3, 1, ["b.py"], [{"file": "c.py", "id": "MIT"}]))
+    # W169: the copyright measurement SEES the right holder, another holder, and none
+    spdx = "# SPDX-License-Identifier: Apache-2.0\n"
+    with tempfile.TemporaryDirectory() as d:
+        for fn, body in (("ok.py", spdx + "# Copyright (c) 2026 Mike Mol\n"),
+                         ("other.py", spdx + "# Copyright (c) 2026 Someone Else\n"),
+                         ("none.py", spdx)):
+            with open(os.path.join(d, fn), "w") as fh:
+                fh.write(body)
+        h = header_facts(d, "Apache-2.0", ["ok.py", "other.py", "none.py"], "Mike Mol")
+        chk("a missing copyright line and another holder are SEEN; the right one is not flagged",
+            (h["no_copyright"], h["wrong_holder"]),
+            (["none.py"], [{"file": "other.py", "holder": "Someone Else"}]))
+    chk("a header with no holder declared carries no copyright facts",
+        "no_copyright" in header_facts(tempfile.gettempdir(), "Apache-2.0", []), False)
     m = measure()
     chk("the real tree's authored-source population is non-empty", m["headers"]["population"] > 0, True)
+    chk("the real tree: every authored source names the declared holder",
+        (m["headers"].get("no_copyright"), m["headers"].get("wrong_holder")), ([], []))
     chk("every population kind is non-empty",
         sorted({c["kind"] for c in m["cases"]}), ["authority", "emitted", "file", "generator"])
     print("check_license selftest:", "PASS" if ok else "FAIL")

@@ -212,6 +212,27 @@ deny contains msg if {
 	msg := sprintf("L6: %s's SPDX header says %v, not %v", [w.file, w.id, authority_id])
 }
 
+# W169 (operator, 2026-10-01: "yes, I am the holder"): every authored source also
+# carries `# Copyright (c) <year> <holder>` naming the declared holder
+# (emitters.COPYRIGHT_HOLDER); `mikemol-pycodemod header --holder` writes it.
+deny contains msg if {
+	is_object(headers)
+	some f in object.get(headers, "no_copyright", [])
+	msg := sprintf("L6: %s carries no copyright line; run `check_license.py --write-headers`", [f])
+}
+
+deny contains msg if {
+	is_object(headers)
+	some w in object.get(headers, "wrong_holder", [])
+	msg := sprintf("L6: %s's copyright names %v, not the declared holder %v", [w.file, w.holder, headers.holder])
+}
+
+withheld contains "L6: a copyright holder is declared but the copyright lines were not measured" if {
+	is_object(headers)
+	truth.py(object.get(headers, "holder", null))
+	not is_array(object.get(headers, "no_copyright", null))
+}
+
 withheld contains "L6: authored-source headers were not measured" if {
 	count(object.get(input, "cases", [])) > 0
 	not is_object(headers)

@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 170,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T12:12:00Z",
-  "job_id": "fc6c9819",
+  "heartbeat": "2026-10-01T12:36:26Z",
+  "job_id": "4a3be31c",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3345,7 +3345,7 @@
     },
     {
       "symbol": "W169",
-      "title": "Decide whether authored source carries a copyright line beside the SPDX header",
+      "title": "Require the copyright line naming the declared holder beside the SPDX header",
       "status": "working",
       "enables": [],
       "touches": [
@@ -3355,11 +3355,11 @@
       "blocked_on": [],
       "blocked_kind": "agent",
       "next_bounded_step": "after W170 backfills: check_license.header_facts also measures the copyright line (holder from one declared constant, e.g. emitters.COPYRIGHT_HOLDER, never retyped), policy L6 refuses a missing or wrong-holder line with tests, opa_gate license admitted",
-      "evidence": "2026-10-01: 2026-10-01 mtools-3d asked (W306 header mode, mtools/.claude/design/W306-header-mode.md): el-openglo writes SPDX only (152 files, W119); mtools and linux-sources write both, mtools ruff notice-rgx requires both. The mode takes an optional --holder, so either answer works and W306 is not blocked on it. Asked the operator 2026-10-01; told mtools it is the operator s call. | 2026-10-01: 2026-10-01 OPERATOR DECIDED: \"W169 yes, I am the holder.\" Authored source carries `# Copyright (c) 2026 Mike Mol` beside the SPDX line. The backfill is W170 (mikemol-pycodemod header --holder \"Mike Mol\" completes a partial header in place); this waypoint then makes it a requirement.",
+      "evidence": "2026-10-01: 2026-10-01 mtools-3d asked (W306 header mode, mtools/.claude/design/W306-header-mode.md): el-openglo writes SPDX only (152 files, W119); mtools and linux-sources write both, mtools ruff notice-rgx requires both. The mode takes an optional --holder, so either answer works and W306 is not blocked on it. Asked the operator 2026-10-01; told mtools it is the operator s call. | 2026-10-01: 2026-10-01 OPERATOR DECIDED: \"W169 yes, I am the holder.\" Authored source carries `# Copyright (c) 2026 Mike Mol` beside the SPDX line. The backfill is W170 (mikemol-pycodemod header --holder \"Mike Mol\" completes a partial header in place); this waypoint then makes it a requirement. | 2026-10-01: 2026-10-01 DONE (operator decided yes; W170 backfilled): check_license.copyright_holder reads `# Copyright (c) YEAR HOLDER` from the first 6 lines; header_facts takes the declared holder (emitters.COPYRIGHT_HOLDER, never retyped) and reports no_copyright + wrong_holder. Selftest: right holder / other holder / none told apart; real tree 0 no_copyright, 0 wrong_holder - PASS. policy/license.rego L6: deny a missing copyright line, deny another holder, withhold a declared holder never measured; 4 new tests; opa 950/950; opa_gate license admitted.",
       "issued_at": "2026-10-01T11:15:39Z",
       "minted_during": "interrupt",
       "caused_by": "mtools:W306",
-      "last_worked": "2026-10-01T12:23:25Z",
+      "last_worked": "2026-10-01T12:37:36Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -3403,6 +3403,6 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "927750b3",
+  "predecessor_job_id": "fc6c9819",
   "leases": []
 }
