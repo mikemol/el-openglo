@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 163,
+  "counter": 166,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T07:23:58Z",
   "job_id": "56699df8",
@@ -1090,7 +1090,7 @@
     {
       "symbol": "W57",
       "title": "Planes of symmetry as an oracle: check each display against its own mirror",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W33"
       ],
@@ -1100,13 +1100,17 @@
         "clock",
         "live-wallpaper"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W164",
+        "W165",
+        "W166"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "unblock: a witness that needs no reference — it would have caught the photographed defect before the operator did, and it grades every future emission change",
-      "next_bounded_step": "face-0000 h: 6 regions, each a 7x50 px column at a digit edge (x 23-30, 63-70, 132-139 ... 281-288): the MOUNT, not the glyph - digit pitch/kerning or colon centring in clock-main.qml off by a pixel against the face centre; snap the Row spacing and colon slot the way the segment was snapped, then re-run. Then the least-squares fit of rendered extents against the substrate coordinates, and the oracle on the MATRIX (W59)",
+      "next_bounded_step": "umbrella: closes when W164 (face mount), W165 (least-squares fit) and W166 (matrix oracle) land",
       "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that. | 2026-09-26: 2026-09-27: edge retrofit — touches segment_topology with W43 (engine assets); REJECTED, shared module only. No edge added (W57's real edge, enables W33, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two. | 2026-10-01: corners fixed 2026-10-01: SegmentChar Segment stroke snapped to an even integer t and gap to an integer (fractional stroke/gap left each rect to scene-graph rounding: corner boxes 47-51 where 9-13 mirrors to 46-50). check_symmetry: glyph-8 h/v and glyph-0 h/v all symmetric (nothing over the 12 noise floor), located asymmetries 30 -> 6 (all face-0000 = the mount). qml_lint admitted 12/12; plasma-clock regenerated; 19 of 56 screens (the SegmentChar mounts) re-rendered, schemes/wallpapers rebuilt byte-identical, keys written; no coredumps",
       "issued_at": "2026-09-22T11:44:18+00:00",
-      "last_worked": "2026-10-01T07:39:22Z",
+      "last_worked": "2026-10-01T07:48:16Z",
       "ticks_blocked": 0
     },
     {
@@ -3240,6 +3244,69 @@
       "minted_during": "interrupt",
       "caused_by": "W53",
       "last_worked": "2026-10-01T07:05:47Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W164",
+      "title": "Snap the clock face mount so 00:00 mirrors: digit spacing and colon slot",
+      "status": "working",
+      "enables": [
+        "W57"
+      ],
+      "touches": [
+        "templates/clock-main.qml",
+        "check_symmetry"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "face-0000 h: 6 regions, each a 7x50 px column at a digit edge (x 23-30, 63-70, 132-139, 172-179, 241-248, 281-288): read the Row spacing (Math.round(segLen*digitGap)) and colonSlot/colonX in SegmentChar against the face centre; snap them so the cell pitch is even about the mirror axis, re-run check_symmetry until face-0000 reads symmetric, re-render the clock screens",
+      "evidence": "",
+      "issued_at": "2026-10-01T07:48:03Z",
+      "minted_during": "interrupt",
+      "caused_by": "W57",
+      "last_worked": "2026-10-01T07:48:16Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W165",
+      "title": "Least-squares fit of rendered segment extents against the substrate coordinates, naming the offender",
+      "status": "ready",
+      "enables": [
+        "W57"
+      ],
+      "touches": [
+        "check_symmetry",
+        "segment_topology"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "In check_symmetry: measure each lit segment rectangle in the glyph render (bounding boxes per segment from a one-segment-lit render each), fit them by least squares to segment_topology unit coordinates x segLen, print residuals per segment; a residual over a pixel names the offender. Selftest plants a shifted segment.",
+      "evidence": "",
+      "issued_at": "2026-10-01T07:48:03Z",
+      "minted_during": "interrupt",
+      "caused_by": "W57",
+      "last_worked": "2026-10-01T07:48:16Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W166",
+      "title": "Run the mirror oracle on the matrix display, not only its pip-grid regularity",
+      "status": "ready",
+      "enables": [
+        "W57"
+      ],
+      "touches": [
+        "check_symmetry",
+        "marquee"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add a matrix CASE to check_symmetry: a self-mirror glyph string (e.g. \"HOH\" or a full-on board) through the marquee harness, mirrored h and v, regions located like the glyph cases; W59 says a pip is a segment, so the same locator applies",
+      "evidence": "",
+      "issued_at": "2026-10-01T07:48:03Z",
+      "minted_during": "interrupt",
+      "caused_by": "W57",
+      "last_worked": "2026-10-01T07:48:16Z",
       "ticks_blocked": 0
     }
   ],
