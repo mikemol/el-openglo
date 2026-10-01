@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 176,
+  "counter": 177,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T15:08:34Z",
   "job_id": "8d8cd8ee",
@@ -3512,6 +3512,28 @@
       "ticks_blocked": 0,
       "completed": "20261001T153602Z",
       "vector": "WV:1/R:H/E:N/C:H/I:N/A:N/X:N/S:C/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W177",
+      "title": "Drop pre-fix marquee traceLog entries on upgrade by versioning the trace format",
+      "status": "working",
+      "enables": [],
+      "touches": [
+        "templates/marquee-main.qml",
+        "trust-boundary"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "templates/marquee-main.qml: a TRACE_FORMAT marker line; root Component.onCompleted resets plasmoid.configuration.traceLog to the marker when it does not start with it; trace() appends after the marker and its 6000-char truncation keeps the marker; a check_marquee_host / harness arm proves a pre-fix log is dropped; parity baseline, qml_lint, marquee_live, re-render, commit.",
+      "evidence": "2026-10-01: 2026-10-01 luthen-observability: the pre-fix traceLog in ~/.config/plasma-org.kde.plasma.desktop-appletsrc is a 6081-char value written before 13ab366 and likely still holds ticker text; that file is synced and backed up (hence E:Y). Not read by us or luthen. Fix: the widget versions its trace format and resets any traceLog lacking the marker on load, so the first load of the upgraded widget clears it. | 2026-10-01: 2026-10-01 BUILT: marquee-main.qml traceFormat marker \"#el-marquee-trace v2 (structure only)\"; root Component.onCompleted resetStaleTrace() replaces any traceLog not starting with it by the bare marker (the pre-fix value is dropped whole, never read); trace() writes marker + body and its 6000-char cap keeps the marker. Parity diff = only this change (baseline re-recorded); qml_lint 12/12; log_content 11/11; marquee_live admitted; screens 0/56 stale; schemes/wallpapers byte-identical; nemik-rank --band: critical (R:H/S:C). WITNESS IS ON-HOST (W:N in-tree): the harness cannot read plasmoid.configuration back after load; luthen asked to witness, after the operator install + plasmashell restart, that traceLog starts with the marker - without reading the value.",
+      "issued_at": "2026-10-01T15:45:13Z",
+      "minted_during": "interrupt",
+      "caused_by": "luthen-observability",
+      "last_worked": "2026-10-01T15:47:19Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:Y/C:H/I:N/A:N/X:N/S:C/F:K/W:N",
       "vector_source": "agent"
     }
   ],

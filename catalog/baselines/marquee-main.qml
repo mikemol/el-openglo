@@ -67,13 +67,28 @@ PlasmoidItem {
     // ~6000 characters are kept, newest last, each line stamped in seconds
     // since the widget loaded.
     readonly property double loadedAt: Date.now()
+    // ⚑ THE PERSISTED LOG IS VERSIONED (W177; luthen-observability, 2026-10-01). Before
+    // 13ab366 the trace carried notification content, and those entries stayed in the
+    // appletsrc - a file that is synced and backed up. Every log written now starts
+    // with this marker; a log WITHOUT it predates the fix and is dropped whole the
+    // first time the upgraded widget loads (see resetStaleTrace), never read or kept.
+    readonly property string traceFormat: "#el-marquee-trace v2 (structure only)\n"
+    function resetStaleTrace() {
+        var old = plasmoid.configuration.traceLog;
+        if (old === undefined || old === null) return;
+        if (String(old).indexOf(root.traceFormat) !== 0) plasmoid.configuration.traceLog = root.traceFormat;
+    }
+    Component.onCompleted: root.resetStaleTrace()
     function trace(what) {
         if (!root.cfgDebugLog) return;
         console.log("el-marquee " + what);
         var line = ((Date.now() - root.loadedAt) / 1000).toFixed(2) + " " + what;
-        var log = (plasmoid.configuration.traceLog || "") + line + "\n";
-        if (log.length > 6000) log = log.substring(log.length - 6000);
-        plasmoid.configuration.traceLog = log;
+        var prev = String(plasmoid.configuration.traceLog || "");
+        var body = prev.indexOf(root.traceFormat) === 0 ? prev.substring(root.traceFormat.length) : "";
+        body += line + "\n";
+        var room = 6000 - root.traceFormat.length;
+        if (body.length > room) body = body.substring(body.length - room);
+        plasmoid.configuration.traceLog = root.traceFormat + body;
     }
 
     preferredRepresentation: fullRepresentation
