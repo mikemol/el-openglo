@@ -3270,7 +3270,7 @@
     {
       "symbol": "W165",
       "title": "Least-squares fit of rendered segment extents against the substrate coordinates, naming the offender",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W57"
       ],
@@ -3280,18 +3280,18 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "In check_symmetry: measure each lit segment rectangle in the glyph render (bounding boxes per segment from a one-segment-lit render each), fit them by least squares to segment_topology unit coordinates x segLen, print residuals per segment; a residual over a pixel names the offender. Selftest plants a shifted segment.",
+      "next_bounded_step": "",
       "evidence": "2026-10-01: 2026-10-01: check_symmetry.segment_fit - least squares of each segment centroid (lit core, >= half peak luminance, halo excluded) to make_clock.SEGS unit centres, cx = ox + L*a, cy = oy + L*b, solved by 3x3 normal equations (no numpy dep), iterated with nearest-line assignment; offender = residual > 1 px. Selftest: clean synthetic 8 fits with none and recovers segLen 40; B shifted 3 px is NAMED. Real glyph-8: all 7 residuals 0.00 px, segLen 50.0 (= floor(120*0.42)). Policy symmetry Y3 (offender) + Y4 (absent segment) DENY with tests; opa 946/946; gate admitted.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T09:08:04Z",
+      "last_worked": "2026-10-01T09:16:55Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W166",
       "title": "Run the mirror oracle on the matrix display, not only its pip-grid regularity",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W57"
       ],
@@ -3306,7 +3306,7 @@
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T07:48:16Z",
+      "last_worked": "2026-10-01T09:16:55Z",
       "ticks_blocked": 0
     },
     {
