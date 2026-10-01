@@ -178,7 +178,8 @@ def _selftest():
     import tempfile
     fixture = ("[Containments][1][Applets][7]\nplugin=org.el.notifymarquee.elopenglo\n\n"
                "[Containments][1][Applets][7][Configuration][General]\ndebugLog=true\n"
-               "traceLog=0.10 upsert id=3 text=\"app: hi\"\\n0.11 swap live=[3] ring=[3]\\n\n"
+               # the trace carries structure, never content (2026-10-01, luthen-observability)
+               "traceLog=0.10 upsert id=3 app=\"app\" textLen=7\\n0.11 swap live=[3] ring=[3]\\n\n"
                "[Containments][1][Applets][8]\nplugin=org.kde.plasma.digitalclock\n")
     with tempfile.NamedTemporaryFile("w", suffix=".rc", delete=False) as f:
         f.write(fixture)
@@ -187,7 +188,7 @@ def _selftest():
     os.unlink(p)
     chk("only marquee applets are read", [r["plugin"] for r in rows], ["org.el.notifymarquee.elopenglo"])
     chk("the log switch is read", rows[0]["debugLog"], True)
-    chk("escaped newlines split the trace", rows[0]["trace"], ['0.10 upsert id=3 text="app: hi"', "0.11 swap live=[3] ring=[3]"])
+    chk("escaped newlines split the trace", rows[0]["trace"], ['0.10 upsert id=3 app="app" textLen=7', "0.11 swap live=[3] ring=[3]"])
     chk("an absent appletsrc is None, not empty", instances("/nonexistent/appletsrc"), None)
     print("check_marquee_host selftest:", "PASS" if ok else "FAIL")
     return ok

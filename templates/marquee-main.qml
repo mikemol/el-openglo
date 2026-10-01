@@ -146,9 +146,12 @@ PlasmoidItem {
         var next = Body.ringNext(root.queue, live, root.cfgMaxItems);
         root.queue = next.queue;
         var joined = Body.ringJoin(next.ring, "     •     ");
+        // ⚑ NO CONTENT IN THE TRACE (luthen-observability, 2026-10-01: the journal is shipped
+        // to VictoriaLogs; ticker text there is senders, subjects and bodies). Structure only:
+        // ids, counts and lengths — never the text, a summary, a body, a label or a link.
         root.trace("swap live=" + JSON.stringify(live) + " ring=" + JSON.stringify(next.ring.map(function (i) { return i.id; }))
                    + " queue=" + JSON.stringify(next.queue.map(function (i) { return [i.id, i.shown]; }))
-                   + " text=" + JSON.stringify(joined.text));
+                   + " textLen=" + joined.text.length);
         root.tickerText = joined.text;         // empty -> the ring drains to idle
         root.tickerRuns = joined.runs;
         root.tickerSpans = joined.spans;       // each item's span with its urgency (W46)
@@ -258,7 +261,11 @@ PlasmoidItem {
             did = { index: idx, kind: "link", link: run.link };
             Qt.openUrlExternally(run.link);
         }
-        root.trace("tap x=" + x.toFixed(1) + " -> " + JSON.stringify(did));
+        // the kind, index and ids only: a link's href is content and is never traced
+        var tapKind = did.kind, tapIndex = did.index;
+        var tapItemId = tapKind === "action" ? did.item : null, tapRow = tapKind === "action" ? did.row : null;
+        root.trace("tap x=" + x.toFixed(1) + " -> kind=" + tapKind + " index=" + tapIndex
+                   + (tapKind === "action" ? " itemId=" + JSON.stringify(tapItemId) + " row=" + tapRow : ""));
         root.lastTap = did;
         return did;
     }
@@ -323,7 +330,7 @@ PlasmoidItem {
         var q = root.queue;
         for (var i = first; i <= last; i++) q = root.upsertRow(q, i);
         root.queue = q;
-        root.trace("capture rows " + first + "-" + last + " queue=" + q.length + " ticker=" + JSON.stringify(root.tickerText));
+        root.trace("capture rows " + first + "-" + last + " queue=" + q.length + " tickerLen=" + root.tickerText.length);
         if (root.tickerText.length === 0) root.swapRing();
     }
 
@@ -359,9 +366,9 @@ PlasmoidItem {
                 var hist = q[k].history || [];
                 if (!isJob || pct === null || pct === undefined || (hist.length && hist[hist.length - 1] === pct)) return q;
             }
-        root.trace("upsert id=" + JSON.stringify(id) + " text=" + JSON.stringify(item.text)
+        root.trace("upsert id=" + JSON.stringify(id) + " app=" + JSON.stringify(app) + " textLen=" + item.text.length
                    + " urgency=" + JSON.stringify(urg) + " transient=" + JSON.stringify(trans)
-                   + " actions=" + JSON.stringify(actions.map(function (x) { return x.id; }))
+                   + " actions=" + actions.length
                    + (isJob ? " job pct=" + JSON.stringify(pct) + " state=" + JSON.stringify(jobState) : ""));
         return Body.queueUpsert(q, { id: id, text: item.text, runs: item.runs, urgency: urg, transient: trans === true,
                                      actions: actions, percentage: isJob ? pct : null, jobState: jobState });
@@ -374,7 +381,7 @@ PlasmoidItem {
         var q = root.queue;
         for (var i = 0; i < notifModel.count; i++) q = root.upsertRow(q, i);
         root.queue = q;
-        root.trace("rebuild count=" + notifModel.count + " queue=" + q.length + " ticker=" + JSON.stringify(root.tickerText));
+        root.trace("rebuild count=" + notifModel.count + " queue=" + q.length + " tickerLen=" + root.tickerText.length);
         // nothing is scrolling: start this rotation now rather than at a boundary
         // that will never come
         if (root.tickerText.length === 0) root.swapRing();

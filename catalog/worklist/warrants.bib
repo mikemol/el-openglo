@@ -34,6 +34,15 @@
   check   = {tool:opa_gate.py mark}
 }
 
+% ── privacy (placed under the emission targets: it constrains an emitted widget) ──
+% luthen-observability, 2026-10-01: the marquee traced its ticker text (senders,
+% subjects, bodies) into the journal shipped to VictoriaLogs and into the appletsrc.
+@misc{LOG-CONTENT,
+  section = {emitters},
+  claim   = {no log call in the shipped QML/JS templates carries notification content: ids, counts and lengths only},
+  check   = {tool:opa_gate.py log_content}
+}
+
 @misc{MARK-SEES,
   section = {rename},
   claim   = {the scrub's own scan is proven able to SEE the mark, so its all-clear is a measurement rather than a blind spot},

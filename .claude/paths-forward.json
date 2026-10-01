@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 175,
+  "counter": 176,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T15:08:34Z",
   "job_id": "8d8cd8ee",
@@ -3435,22 +3435,20 @@
     {
       "symbol": "W173",
       "title": "Require at least 2/3 of an animation steps to be fractional, and refuse a half-pip see-saw by its spectral line",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "policy/screens.rego",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [
-        "operator: decide (a) change the marquee scroll speed so its per-frame step stays off whole/half pips (passes 2/3 by construction; also W175), or (b) keep the speed and set a lower marquee threshold"
-      ],
-      "blocked_kind": "human",
-      "next_bounded_step": "After the operator decides: (a) set the marquee speed so the per-frame step fraction is spread (an irrational-ratio step), re-render, confirm fractional_share >= 2/3; or (b) a per-surface threshold. Either way: S8 refuses fractional_share below the decided threshold; add a synthetic see-saw (alternating whole/half steps) to the selftest, confirm period2_share scores high, then a rule refusing period2_share over a threshold set from that control.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips. | 2026-10-01: 2026-10-01 MEASURED (render_screens.animation_facts, report-only, no rule changed): best_pip_shift now fits EIGHTHS of a pip; each run reports fractional_share and spectral_lines (dominant line, and period2_share = the see-saw line). fractional_share: pinholes-anim 0.94-0.95 (passes 2/3); marquee-anim 0.60-0.64 on EVERY variant (FAILS 2/3) - its steps cycle ~2.625/3.0/3.0/2.75, mean ~2.8 pips/frame, so ~1/3 land on a whole pip. period2_share 0.012-0.013 everywhere: no see-saw. Note the first spectral metric (strongest line) was wrong: it is period = run length (text crossing once, ~1/3 of power). 2/3 rule NOT applied: it would fail the marquee; operator asked. See-saw rule pending a synthetic positive control. Screens re-rendered (render_screens.py is keyed whole), 0 of 56 stale; render_screens selftest 3/3; keys written; no coredumps.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Derive the marquee speed: rotation duration = (width + textWidth) * 12 / cfgSpeed (marquee-main.qml), the harness sets speed 8.0 and samples at SAMPLE_MS; compute the per-frame step in pips as a function of cfgSpeed and the frame interval, and choose the default so its fractional part is irrational-spread (golden-ratio conjugate ~0.618), on the REAL display frame rate, not only the harness; make the harness read the kcfg default instead of hard-coding 8.0; re-render, confirm fractional_share >= 2/3 on all six variants; then tighten S8 and add the see-saw positive control.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips. | 2026-10-01: 2026-10-01 MEASURED (render_screens.animation_facts, report-only, no rule changed): best_pip_shift now fits EIGHTHS of a pip; each run reports fractional_share and spectral_lines (dominant line, and period2_share = the see-saw line). fractional_share: pinholes-anim 0.94-0.95 (passes 2/3); marquee-anim 0.60-0.64 on EVERY variant (FAILS 2/3) - its steps cycle ~2.625/3.0/3.0/2.75, mean ~2.8 pips/frame, so ~1/3 land on a whole pip. period2_share 0.012-0.013 everywhere: no see-saw. Note the first spectral metric (strongest line) was wrong: it is period = run length (text crossing once, ~1/3 of power). 2/3 rule NOT applied: it would fail the marquee; operator asked. See-saw rule pending a synthetic positive control. Screens re-rendered (render_screens.py is keyed whole), 0 of 56 stale; render_screens selftest 3/3; keys written; no coredumps. | 2026-10-01: 2026-10-01 OPERATOR DECIDED: \"Let s try (a)\" - change the marquee scroll speed so the per-frame step stays off whole and half pips (derived, not guessed), pinned in the config default with the harness reading the same default; then confirm fractional_share >= 2/3 before S8 tightens.",
       "issued_at": "2026-10-01T14:43:22Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T15:10:55Z",
+      "last_worked": "2026-10-01T15:20:16Z",
       "ticks_blocked": 0,
       "completed": null,
       "weight": 10
@@ -3492,6 +3490,26 @@
       "last_worked": "2026-10-01T14:43:41Z",
       "ticks_blocked": 0,
       "weight": -10
+    },
+    {
+      "symbol": "W176",
+      "title": "Stop the marquee logging notification content, and gate every template log call",
+      "status": "working",
+      "enables": [],
+      "touches": [
+        "templates/marquee-main.qml",
+        "scripts/check_log_content.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-10-01: 2026-10-01 luthen-observability reported (operator-asked): plasmashell logged `el-marquee rebuild ... ticker=\"<sender: subject body>\"` - notification content - into the journal shipped to VictoriaLogs (~200/24h; earliest 2026-09-29T04:58 EDT); trace() also persists into plasmoid.configuration.traceLog (appletsrc on disk). FIXED in templates/marquee-main.qml: swap (text=), tap (did incl. link href), capture (ticker=), upsert (text=, action ids), rebuild (ticker=) now log ids, counts, lengths, app name only. AUDIT: scripts/check_log_content.py over every console.*/print/trace call in templates/*.qml|js: 11 of 11 carry no content (migration-harness, theme-probe clean; marquee-body.js has no logging). GATE: policy/log_content.rego C0/C1 + tests; warrant LOG-CONTENT (pre-commit). check_marquee_host fixture updated to the content-free shape. qml_lint 12/12, template_parity 14/14 (marquee baseline re-recorded, diff = the trace lines only), marquee_live admitted, 25 marquee screens re-rendered 0/56 stale, schemes/wallpapers byte-identical, opa 971/971. NOT YET LIVE on the desktop: needs a package build/install and a plasmashell restart; purging VictoriaLogs is the operator s call.",
+      "issued_at": "2026-10-01T15:20:00Z",
+      "minted_during": "interrupt",
+      "caused_by": "luthen-observability",
+      "last_worked": "2026-10-01T15:20:15Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
