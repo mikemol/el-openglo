@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 192,
+  "counter": 195,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -1632,7 +1632,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 10
+      "weight": 11
     },
     {
       "symbol": "W84",
@@ -1803,7 +1803,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 10
+      "weight": 11
     },
     {
       "symbol": "W93",
@@ -1951,7 +1951,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 9
     },
     {
       "symbol": "W100",
@@ -1994,7 +1994,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 9
     },
     {
       "symbol": "W102",
@@ -2015,7 +2015,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 7
     },
     {
       "symbol": "W103",
@@ -2234,7 +2234,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 9
+      "weight": 10
     },
     {
       "symbol": "W113",
@@ -2305,7 +2305,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 4
+      "weight": 5
     },
     {
       "symbol": "W116",
@@ -2464,15 +2464,17 @@
         "make_segment_display"
       ],
       "blocked_on": [
-        "operator: decide whether a containerised Android SDK + Gradle image is acceptable, and whether the emulator stage is in scope now or waits for the W70 VM harness"
+        "W193",
+        "W194",
+        "W195"
       ],
-      "blocked_kind": "human",
-      "next_bounded_step": "Survey before code: name the core outputs an Android live wallpaper needs (segment geometry from segment_topology, the palette from make_schemes.GRID via make_preview.parse_scheme, the glyph tables) and the delivery form (a WallpaperService APK built from emitted assets, or a Canvas-drawn renderer reading an emitted JSON); record the choice and what the build would need on this host (Android SDK present or not) in evidence.",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom | 2026-10-01: 2026-10-01 SURVEY: this host has no Android toolchain (which: no adb, emulator, sdkmanager, gradle, java, kotlinc; ANDROID_HOME unset). PROPOSED PLAN (to operator): (1) an emitter writes per-variant JSON from the core (segment_topology geometry, make_preview.parse_scheme palette, glyph tables), gated like every emitter; (2) a thin Kotlin WallpaperService draws a Canvas from that JSON, owning no geometry or colour (checkable); (3) build in an Android SDK/Gradle container via the k8s route, nothing installed on the host; (4a) per change: a JVM/Robolectric render to a bitmap, judged by the existing symmetry, pip-grid and token checks; (4b) occasionally: a headless emulator (needs KVM) in the throwaway k8s+KVM VM via luthen, adb screencap into the same checks - a separate waypoint blocked on W70.",
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W193-W195 land.",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): ANDROID LIVE WALLPAPER of the segment clock (operator 2026-09-28, seeing the llvmpipe render): an Android WallpaperService EMITTED from the core (palette, make_segment_display geometry, bloom), not hand-drawn; first step: measure what the Android Monet emission and make_clock expose, and whether a GLES shader or Canvas reproduces the bloom | 2026-10-01: 2026-10-01 SURVEY: this host has no Android toolchain (which: no adb, emulator, sdkmanager, gradle, java, kotlinc; ANDROID_HOME unset). PROPOSED PLAN (to operator): (1) an emitter writes per-variant JSON from the core (segment_topology geometry, make_preview.parse_scheme palette, glyph tables), gated like every emitter; (2) a thin Kotlin WallpaperService draws a Canvas from that JSON, owning no geometry or colour (checkable); (3) build in an Android SDK/Gradle container via the k8s route, nothing installed on the host; (4a) per change: a JVM/Robolectric render to a bitmap, judged by the existing symmetry, pip-grid and token checks; (4b) occasionally: a headless emulator (needs KVM) in the throwaway k8s+KVM VM via luthen, adb screencap into the same checks - a separate waypoint blocked on W70. | 2026-10-01: 2026-10-01 OPERATOR: containerised Android SDK is fine, but JVM render test first (lighter); the containerised Android env only once the other tests pass. Split into W193 (JSON emitter), W194 (JVM render, judged by existing checks), W195 (containerised SDK + emulator, after W194 and W70).",
       "issued_at": "2026-09-28T20:38:44Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T20:54:14Z",
+      "last_worked": "2026-10-01T20:59:27Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -2896,7 +2898,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 12
     },
     {
       "symbol": "W140",
@@ -3669,7 +3671,7 @@
       "last_worked": "2026-10-01T19:40:59Z",
       "ticks_blocked": 0,
       "completed": null,
-      "weight": 11,
+      "weight": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -3712,7 +3714,7 @@
       "caused_by": "operator",
       "last_worked": "2026-10-01T14:43:41Z",
       "ticks_blocked": 0,
-      "weight": 11,
+      "weight": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -3854,7 +3856,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 8
     },
     {
       "symbol": "W182",
@@ -3977,7 +3979,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W187",
@@ -4131,6 +4133,84 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
+    },
+    {
+      "symbol": "W193",
+      "title": "Emit the segment clock as per-variant JSON (geometry, palette, glyph tables) from the core, gated like every emitter",
+      "status": "ready",
+      "enables": [
+        "W122"
+      ],
+      "touches": [
+        "make_clock",
+        "emitters.py",
+        "android"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Reuse-search first: name the existing authority each field comes from (segment_topology geometry, make_preview.parse_scheme palette, display registry glyph tables) - no colour or geometry computed here. Then make_android_clock.py --json per variant, a parity baseline, and a check that every value traces to its authority.",
+      "evidence": "",
+      "issued_at": "2026-10-01T20:59:12Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T20:59:26Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 4
+    },
+    {
+      "symbol": "W194",
+      "title": "Thin Kotlin clock renderer drawn on a JVM bitmap from the emitted JSON, judged by the existing screen checks",
+      "status": "blocked",
+      "enables": [
+        "W122"
+      ],
+      "touches": [
+        "android",
+        "check_symmetry"
+      ],
+      "blocked_on": [
+        "W193"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "JVM-only, no Android SDK: the renderer draws through a small Canvas interface; on the JVM that interface is backed by java.awt BufferedImage (a JDK image, lighter than Robolectric android-all), on Android by android.graphics.Canvas. Render each variant to PNG and run check_symmetry / pip-grid / token checks on it. Needs a JDK: a container or a host install is the operator call at that point.",
+      "evidence": "",
+      "issued_at": "2026-10-01T20:59:12Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T20:59:26Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W195",
+      "title": "Containerised Android SDK build of the live wallpaper APK, then an emulator run in the k8s VM",
+      "status": "blocked",
+      "enables": [
+        "W122"
+      ],
+      "touches": [
+        "android"
+      ],
+      "blocked_on": [
+        "W194",
+        "W70"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Only after W194 passes (operator 2026-10-01: containerised is fine, JVM test first): an Android SDK + Gradle container builds the APK; the emulator (KVM) runs in the k8s throwaway VM, adb screencap into the same checks.",
+      "evidence": "",
+      "issued_at": "2026-10-01T20:59:12Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T20:59:27Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
+      "vector_source": "agent"
     }
   ],
   "residue": [
@@ -4149,7 +4229,8 @@
     "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106).",
-    "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177). If nemik's order is paradoxical (blocks itself, ranks an item whose blocker it ranks lower, contradicts an operator ruling), do not override it locally: consult nemik-00."
+    "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
+    "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
   "predecessor_job_id": "8d8cd8ee",
   "leases": []
