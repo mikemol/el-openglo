@@ -1,0 +1,10 @@
+{
+ "_doc": "W53: every class of plasmashell/KWin stderr line the live host has produced, as a contract checked at EMIT time instead of late by the shell (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). One row per class: the line as seen, when first seen, the surface, and the rule that now trips it ({file, id}) or the date it has been unruled since. scripts/check_runtime_warnings.py measures; policy/runtime_warnings.rego refuses a row unruled longer than max_unruled_days.",
+ "max_unruled_days": 7,
+ "warnings": [
+  {"class": "cfg-default-refused", "seen": "Setting initial properties failed: cfg_<key>Default is not a property / cannot assign", "first_seen": "2026-09-22", "surface": "plasmoid config pages (clock, marquee)", "rule": {"file": "policy/config_page.rego", "id": "C2/C3"}, "unruled_since": null},
+  {"class": "kf5-kcm-import", "seen": "module \"org.kde.kcm\" is not installed (blank config page)", "first_seen": "2026-09-22", "surface": "plasmoid config pages", "rule": {"file": "policy/qml_lint.rego", "id": "KF5 import"}, "unruled_since": null},
+  {"class": "wallpaper-plugin-missing", "seen": "wallpaper plugin <id> not found; containment falls back", "first_seen": "2026-09-22", "surface": "desktop containments (live wallpaper)", "rule": null, "unruled_since": "2026-09-22", "note": "check_marquee_host --containments READS it on the live host but no gate refuses an emitted plugin id that does not exist"},
+  {"class": "graphics-object-unplaced", "seen": "Created graphical object was not placed in the graphics scene", "first_seen": "2026-09-22", "surface": "plasmoid config pages", "rule": null, "unruled_since": "2026-09-22", "note": "open question: a consequence of the cfg Default refusals, or its own class? needs the fixed page opened live"}
+ ]
+}

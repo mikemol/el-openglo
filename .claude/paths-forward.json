@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 162,
+  "counter": 163,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T06:42:22Z",
-  "job_id": "e160867e",
+  "heartbeat": "2026-10-01T07:04:16Z",
+  "job_id": "01ce4d93",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1035,9 +1035,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Write catalog/runtime-warnings.md from the operator's pastes to date (s93-112: the blank kcm page, the missing wallpaper plugin, the cfg_ Default refusals, 'Created graphical object was not placed in the graphics scene' — is that one a consequence of the Default refusals or its own class? measure by opening the fixed page live) and scripts/check_runtime_warnings.py --json + policy/runtime_warnings.rego: R0 empty, R1 a row without a rule and no 'unruled since' date, R2 an unruled row older than N sessions.",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session | 2026-10-01: corpus catalog/runtime-warnings.json (4 classes; JSON not md: data with a generated page later, nothing typed twice) + scripts/check_runtime_warnings.py (selftest PASS) + policy/runtime_warnings.rego R0-R4 (opa 943/943). Gate DENIES R2 x2 today, genuinely: wallpaper-plugin-missing (owner W58) and graphics-object-unplaced (owner W163, minted) unruled 9 days > 7. 2 of 4 classes ruled. Not cited in warrants yet: a cited gate would sit red until W58/W163 land",
       "issued_at": "2026-09-22T01:31:10+00:00",
-      "last_worked": "2026-10-01T06:52:48Z",
+      "last_worked": "2026-10-01T07:05:47Z",
       "ticks_blocked": 0
     },
     {
@@ -1127,9 +1127,9 @@
       "blocked_kind": null,
       "rank_reason": "unblock, and the operator's standing requirement: 'no commit without a working wallpaper'. The static half is gated as of s134 (@PACKAGE-IMPORTS, which the worklist gate runs and the pre-commit hook therefore enforces); W58 replaces it with an actual LOAD, and adds the plugin-id contract the f521e6f breakage came through.",
       "next_bounded_step": "Measure what a load needs: (1) does qmllint resolve bare-name types when run INSIDE the emitted package directory (it lints the text today in a temp dir WITHOUT companions, which is why it passed both breakages) — if yes, the gate is one qmllint invocation per emitted package and check_package_imports's name list retires; (2) if not, a load harness: qml --apptype widget over a tiny document that instantiates the package's own contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; (3) the PLUGIN CONTRACT half: metadata.json's Id must match the directory name and the LnF defaults / layout / alias list that reference it (the f521e6f shape) — a cross-emitter check, not a per-package one. Then policy/package_load.rego and a warrant, and RETIRE check_package_imports's heuristic if (1) or (2) subsumes it.",
-      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it.",
+      "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches make_notify_marquee with W30 (font compiler); REJECTED, shared module only, no stated relationship. No edge added. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GATE THE WALLPAPER THE WAY PLASMA LOADS IT (operator 2026-09-22, after the SECOND wallpaper breakage: 'how do we gate on it?'). Both failures shipped PERFECT EMITTED TEXT and an unloadable PACKAGE: (1) f521e6f renamed the wallpaper plugin and a containment referenced the old id — the shell came up with no panels; (2) s134 emitted main.qml without SegmentChar.qml beside it — 'SegmentChar is not a type'. Every existing gate reads the emitted TEXT (parity, qml_lint, the symbol witnesses) or renders a REWRITTEN copy in a temp dir (render_qml strips the Plasma imports and supplies its own companions), so the DIRECTORY and the PLUGIN CONTRACT are exactly what nothing sees. check_package_imports (s134) closes half of it statically — every bare-name type a package instantiates must be a file in that package — but a static name list is an approximation, not a load. THE REAL GATE: load each emitted package AS PLASMA DOES, from its own directory, with only the module stubs a headless host needs; a package that does not load is a red check before the operator's emerge, not after it. | 2026-10-01: W53 2026-10-01: runtime-warnings class wallpaper-plugin-missing is unruled 9 days (R2 denies); W58 plugin-id contract is the rule that retires it - cite it in catalog/runtime-warnings.json when it lands",
       "issued_at": "2026-09-22T12:16:56+00:00",
-      "last_worked": "2026-10-01T04:03:57Z",
+      "last_worked": "2026-10-01T07:05:35Z",
       "ticks_blocked": 0
     },
     {
@@ -3222,6 +3222,25 @@
       "caused_by": "W42",
       "last_worked": "2026-10-01T06:43:40Z",
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W163",
+      "title": "Rule the graphics-object-unplaced warning: reproduce it headless on the config page, then gate it",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "catalog/runtime-warnings.json",
+        "config_page"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Render the fixed clock and marquee config pages under qt_sandbox (render_qml, mesa route) and capture stderr; if the line is gone with the cfg Default fix, cite policy/config_page.rego in its row (same class); if it recurs, find its cause and add a qml_lint/config_page rule that trips it, then cite that",
+      "evidence": "",
+      "issued_at": "2026-10-01T07:05:35Z",
+      "minted_during": "interrupt",
+      "caused_by": "W53",
+      "last_worked": "2026-10-01T07:05:47Z",
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -3241,5 +3260,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "2331ec36"
+  "predecessor_job_id": "e160867e"
 }

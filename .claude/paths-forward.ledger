@@ -356,3 +356,4 @@
 2026-10-01T06:16:50Z  hash  --   diverged  --        "divergence: payload v2:28c7396a835dc66b, file v2:e674214a2aa4aa65; the FILE wins"
 2026-10-01T06:24:06Z  tick  W119 advanced  sweep     "SPDX Apache-2.0 header on 152 authored sources; policy L6 refuses a missing one"  evidence=opa_gate license admitted (152 denied before); opa 931/931
 2026-10-01T06:43:40Z  tick  W42  advanced  unblock   "codomain census: 17 of 24 emitted, 7 ranked gaps; top three minted W160-W162"  evidence=check_codomain --list; opa_gate codomain admitted
+2026-10-01T07:05:47Z  tick  W53  advanced  unblock   "runtime-warning tripwire: 4-class corpus, check + policy; R2 denies two classes unruled 9 days, owners W58 and W163"  evidence=check_runtime_warnings --selftest PASS; opa 943/943; opa_gate runtime_warnings DENIED 2
