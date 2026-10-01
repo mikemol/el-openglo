@@ -2889,7 +2889,7 @@
     {
       "symbol": "W148",
       "title": "Retitle or split the live waypoints W33 to W75 (16)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W145"
       ],
@@ -2903,13 +2903,13 @@
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T04:07:18Z",
+      "last_worked": "2026-10-01T04:20:55Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W149",
       "title": "Retitle or split the live waypoints W87 to W115 (12)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W145"
       ],
@@ -2923,7 +2923,7 @@
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:21:01Z",
       "ticks_blocked": 0
     },
     {
