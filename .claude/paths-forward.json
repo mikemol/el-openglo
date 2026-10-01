@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 185,
+  "counter": 189,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -3662,7 +3662,7 @@
     {
       "symbol": "W183",
       "title": "Marquee replace: changed characters roll vertically (old out, new in) while the run keeps panning horizontally",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W178"
       ],
@@ -3670,14 +3670,19 @@
         "marquee-main.qml",
         "check_marquee_live"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "BUILD (design recorded in evidence 2026-10-01): (1) Body.replaceSpan(old,new) -> {p, oldEnd, newEnd} by common prefix/suffix, pure, cased in check_marquee_body; (2) in marquee-main.qml, a replace of an item ON THE RING sets root.roll {span, from, to, progress 0..1} instead of waiting for swapRing; drawBackdrop paints span cells with the old glyph at dy = -progress*(rows+1)*s and the new at dy = (1-progress)*(rows+1)*s, clipped to the cell rows; offs interpolate old->new layout by progress so the suffix glides; (3) progress advances per frame in the FrameAnimation (apply scratchpad/w178/frameanimation-port.diff first); (4) check_marquee_live: an L-rule that a replace of the visible item shows mid-roll frames (root.rollProgress strictly between 0 and 1) and ends with the new text, no swap boundary needed.",
+      "blocked_on": [
+        "W186",
+        "W187",
+        "W188",
+        "W189"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W186-W189 land.",
       "evidence": "2026-10-01: 2026-10-01 OPERATOR DECISION (W178): a replace is shown as a vertical roll of the changed characters - removed ones rotate out, added ones rotate in - while the whole notification keeps panning horizontally; at a 10 Hz replace rate the changing piece is seen rolling as it pans. | 2026-10-01: 2026-10-01 DESIGN (W183, operator decision + defaults stated to operator, unopposed): RENDER MODEL read from templates/marquee-main.qml 417-599: text is painted into ApertureField backdrop at scale=4 px per pip, rows from the registry (5x8 => 8 rows), each glyph cell at rep.offs[i]; the field grades brightness from the backdrop under each aperture. So a vertical offset in BACKDROP px is a graded sub-pip roll by construction (4 sub-steps per pip; the same fractional motion S8 wants horizontally). DECISIONS: (a) changed span = common prefix/suffix diff of the item text, rolled per glyph cell; (b) odometer direction: old moves up and out, new rises from below, travel = (rows+1) cells so the two glyphs never touch; (c) length change: cells past the shorter text roll from/to blank, and the suffix GLIDES horizontally by the width delta on the same progress (offs interpolated), so nothing jumps - the W45 never-tear invariant; (d) a replace of an item NOT on the ring stays a queue upsert (L2 judges by id); (e) cost: drawBackdrop runs per frame only while a roll is live.",
       "issued_at": "2026-10-01T18:53:11Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T18:59:23Z",
+      "last_worked": "2026-10-01T19:05:31Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -3721,6 +3726,99 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:28Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W186",
+      "title": "Body.replaceSpan: the changed span of a replace by common prefix/suffix, pure, cased in check_marquee_body",
+      "status": "ready",
+      "enables": [
+        "W183"
+      ],
+      "touches": [
+        "marquee-body.js",
+        "check_marquee_body"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add replaceSpan(old, new) to templates/marquee-body.js returning {p, oldEnd, newEnd} (longest common prefix p, then longest common suffix not overlapping p); add cases to check_marquee_body (equal, append, delete, middle change, total change, empty) with --json facts and rego rules.",
+      "evidence": "",
+      "issued_at": "2026-10-01T19:05:17Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T19:05:30Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W187",
+      "title": "Re-apply the FrameAnimation port (scratchpad/w178/frameanimation-port.diff) with L2 judging a replaced-before-shown item by id",
+      "status": "ready",
+      "enables": [
+        "W183",
+        "W178"
+      ],
+      "touches": [
+        "marquee-main.qml",
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "git apply the saved diff; change L2 in check_marquee_live/policy so a notification replaced before its first rotation is satisfied by the current text for that id; rerun opa_gate marquee_live (heavy: systemd-run, MemoryMax=8G).",
+      "evidence": "",
+      "issued_at": "2026-10-01T19:05:18Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T19:05:30Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W188",
+      "title": "Paint the roll: drawBackdrop draws span cells at the roll offset, offs glide, progress advances per frame",
+      "status": "blocked",
+      "enables": [
+        "W183"
+      ],
+      "touches": [
+        "marquee-main.qml"
+      ],
+      "blocked_on": [
+        "W186",
+        "W187"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Implement design step (2)+(3) of W183 evidence in templates/marquee-main.qml.",
+      "evidence": "",
+      "issued_at": "2026-10-01T19:05:18Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T19:05:30Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W189",
+      "title": "check_marquee_live L-rule: a replace of the visible item shows mid-roll frames and ends on the new text",
+      "status": "blocked",
+      "enables": [
+        "W183"
+      ],
+      "touches": [
+        "check_marquee_live",
+        "marquee_live.rego"
+      ],
+      "blocked_on": [
+        "W188"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Expose root.rollProgress; add a TIMELINE replace of the visible item; L-rule: some sampled frame has 0 < rollProgress < 1 and the run ends on the new text with no swap boundary between.",
+      "evidence": "",
+      "issued_at": "2026-10-01T19:05:18Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T19:05:30Z",
       "ticks_blocked": 0,
       "completed": null
     }
