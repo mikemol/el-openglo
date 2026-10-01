@@ -3598,6 +3598,28 @@
     {
       "symbol": "W180",
       "title": "Python reference emitter for el-serial/1 generates the missing serial fixtures so read_serial --selftest passes",
+      "status": "done",
+      "enables": [
+        "W71"
+      ],
+      "touches": [
+        "guest-image",
+        "el-serial"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 In worktree agent-a330b44b42000d0ed (uncommitted, lands via W181): scripts/read_serial.py gains PyEmitter (host twin of guest/el-serial-emit.sh, same frames byte for byte; jq -cS == json.dumps sort_keys compact ensure_ascii=False), emit_log(writer=sh|py), --write-fixtures uses py (no jq needed). FIXED a never-run defect: fixtures() searched for a blob of exactly 2 parts and none exists (1/3/5 parts) - now parses frames and takes the first multi-part blob. emit_log now keeps the console \\r\\n (universal-newline read had stripped it). Wrote catalog/fixtures/serial/{clean,corrupt,gap,noise}.log. read_serial --selftest: PASS, 30 ok, 1 skip (sh round trip, jq absent); fixture verdicts 0/3/3/1 as EXPECT. When jq exists the sh writer is checked byte-equal against the py-written fixtures.",
+      "issued_at": "2026-10-01T17:53:09Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T18:05:15Z",
+      "ticks_blocked": 0,
+      "completed": "20261001T180515Z"
+    },
+    {
+      "symbol": "W181",
+      "title": "Land the W71f serial files (read_serial, check_serial, serial.rego, guest emitter) on main with a tightened el-serial/1 spec",
       "status": "ready",
       "enables": [
         "W71"
@@ -3608,36 +3630,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "In worktree agent-a330b44b42000d0ed: read guest/el-serial-emit.sh and read_serial.py _selftest (which fixture names it opens), write the Python emitter beside read_serial, generate catalog/fixtures/serial/*.log, rerun read_serial --selftest to exit 0 with the jq round trip as a counted SKIP.",
-      "evidence": "",
-      "issued_at": "2026-10-01T17:53:09Z",
-      "minted_during": "interrupt",
-      "caused_by": null,
-      "last_worked": "2026-10-01T17:53:18Z",
-      "ticks_blocked": 0,
-      "completed": null
-    },
-    {
-      "symbol": "W181",
-      "title": "Land the W71f serial files (read_serial, check_serial, serial.rego, guest emitter) on main with a tightened el-serial/1 spec",
-      "status": "blocked",
-      "enables": [
-        "W71"
-      ],
-      "touches": [
-        "guest-image",
-        "el-serial"
-      ],
-      "blocked_on": [
-        "W180"
-      ],
-      "blocked_kind": "agent",
       "next_bounded_step": "After W180: re-derive the el-serial/1 ambiguities by reading catalog/guest-image.md against read_serial.py (the agent list was lost), tighten the spec, copy the files to main, add a warrant citing opa_gate serial, commit.",
       "evidence": "",
       "issued_at": "2026-10-01T17:53:09Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T17:53:18Z",
+      "last_worked": "2026-10-01T18:05:15Z",
       "ticks_blocked": 0,
       "completed": null
     }
