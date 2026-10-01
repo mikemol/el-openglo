@@ -1600,7 +1600,7 @@
     },
     {
       "symbol": "W87",
-      "title": "paths_forward has no way to ORDER the queue: the payload lists waypoints in issue order (W12, blocked, first) while the worked items sit last — §4.2 wants a structural-gain order every tick",
+      "title": "Order the queue by structural gain, not by issue order",
       "status": "ready",
       "enables": [],
       "touches": [],
@@ -1608,9 +1608,9 @@
       "blocked_kind": null,
       "rank_reason": "",
       "next_bounded_step": "Add --order SYM... (and a ranked --queue): ready before blocked, then transitive enables weight, then last_worked; the tick records its chosen mechanism in the ledger as now",
-      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom | 2026-09-26: 2026-09-27: blocked on W93 — ranking the queue by leverage is meaningless while the enables/blocked_on graph is mostly empty (W93's job); stated explicitly to the operator this tick, now encoded. | 2026-09-29: 2026-09-29: its blocker W93 (edge retrofit umbrella) closed; ready.",
+      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom | 2026-09-26: 2026-09-27: blocked on W93 — ranking the queue by leverage is meaningless while the enables/blocked_on graph is mostly empty (W93's job); stated explicitly to the operator this tick, now encoded. | 2026-09-29: 2026-09-29: its blocker W93 (edge retrofit umbrella) closed; ready. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): paths_forward has no way to ORDER the queue: the payload lists waypoints in issue order (W12, blocked, first) while the worked items sit last — §4.2 wants a structural-gain order every tick",
       "issued_at": "2026-09-26T18:41:28+00:00",
-      "last_worked": "2026-09-29T01:57:04Z",
+      "last_worked": "2026-10-01T04:33:55Z",
       "ticks_blocked": 0
     },
     {
@@ -1725,7 +1725,7 @@
     },
     {
       "symbol": "W94",
-      "title": "touches[] overlap is a CONTENTION signal with no lock, cross-repo AND across a single session's context-switches (operator, 2026-09-27, correcting the first framing: not 'if swarm returns' — swarm is LIVE now in 6 sibling repos; and a context-switch between two things touching the same object is the same hazard shape as two agents, no wall-clock concurrency needed)",
+      "title": "Touches overlap is a contention signal with no lock, across repos and context switches",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -1734,27 +1734,27 @@
       "blocked_on": [],
       "blocked_kind": "agent",
       "next_bounded_step": "Filed as a census-kit mode-B finding to mtools (schema/package owner of mikemol-pathsforward), nominating nemik (graph renderer) and the six repos with CURRENT swarm-kind ledger activity (gabion, luthen-observability, mtools, paperkit, rosettapkg, substrate — measured via nemik-metrics, not assumed) as the roster. mtools' README documents only a whole-queue --lock (the control-plane file), not a touches[]-scoped resource claim; checked via git grep for mutex/contention language in pathsforward/, one unrelated hit. Waiting on mtools' view before proposing a fix shape (a touches-scoped lease/claim field is one option, not decided). This repo cannot design the fix alone: the object is shared machinery el-openglo consumes, not owns.",
-      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan. | 2026-09-26: 2026-09-27: mtools claimed as mtools:W50, confirmed the gap (no touches-scoped contention mechanism exists; --lock is the control-plane file only), and noted the lossy-boundary framing on their own waypoint. Direction (not yet built): reuse fence's existing claim keyway (mikemol.fence.admit.claim_key/ClaimKey/Kind, from mtools:W29's hold verb) scoped per touches[] tag, rather than a second lock mechanism. Roster (nemik + the six live-swarm repos) recorded on their side too. | 2026-09-29: 2026-09-29: mtools:W50 landed (its design: W118 overlap report, W119 claim owner, W120 tag grain in mtools); blocker cleared.",
+      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan. | 2026-09-26: 2026-09-27: mtools claimed as mtools:W50, confirmed the gap (no touches-scoped contention mechanism exists; --lock is the control-plane file only), and noted the lossy-boundary framing on their own waypoint. Direction (not yet built): reuse fence's existing claim keyway (mikemol.fence.admit.claim_key/ClaimKey/Kind, from mtools:W29's hold verb) scoped per touches[] tag, rather than a second lock mechanism. Roster (nemik + the six live-swarm repos) recorded on their side too. | 2026-09-29: 2026-09-29: mtools:W50 landed (its design: W118 overlap report, W119 claim owner, W120 tag grain in mtools); blocker cleared. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): touches[] overlap is a CONTENTION signal with no lock, cross-repo AND across a single session's context-switches (operator, 2026-09-27, correcting the first framing: not 'if swarm returns' — swarm is LIVE now in 6 sibling repos; and a context-switch between two things touching the same object is the same hazard shape as two agents, no wall-clock concurrency needed)",
       "issued_at": "2026-09-26T21:19:31Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-09-29T01:55:28Z",
+      "last_worked": "2026-10-01T04:33:55Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W95",
-      "title": "Dozens of stale agent worktrees under .claude/worktrees/ (measured while chasing W30: ~50 entries, most branched from commits many hundreds behind current main, e.g. aad36c74 at e65a61f) — disk usage on md0, and a source of exactly the stale-evidence trap W30 fell into",
+      "title": "Clear out the dozens of stale agent worktrees under .claude/worktrees",
       "status": "ready",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "git worktree list; for each whose branch tip is not an ancestor of a still-open waypoint's evidence, git worktree remove (prune the branch too); keep only worktrees an open waypoint's evidence actually cites",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): Dozens of stale agent worktrees under .claude/worktrees/ (measured while chasing W30: ~50 entries, most branched from commits many hundreds behind current main, e.g. aad36c74 at e65a61f) — disk usage on md0, and a source of exactly the stale-evidence trap W30 fell into",
       "issued_at": "2026-09-26T21:50:59Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:56Z",
       "ticks_blocked": 0
     },
     {
@@ -1779,7 +1779,7 @@
     },
     {
       "symbol": "W97",
-      "title": "mikemol-pathsforward --payload dropped a READY, ranked waypoint (W96) under truncation (dropped=residue,evidence,steps-below-1,collapsed) on 2026-09-27; the paths-forward-loop skill's budget order drops residue reasons, then evidence, then oldest done items, never a live waypoint. Report to mtools (the package owner) with the reproducing state hash v2:7365e7a2442c47c6, rather than only patching around it in el-openglo's cron prompt (which is what 3e33b233's prompt does now).",
+      "title": "Report to mtools that --payload truncation dropped a ready, ranked waypoint",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -1789,11 +1789,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mikemol-pathsforward --payload dropped a READY, ranked waypoint (W96) under truncation (dropped=residue,evidence,steps-below-1,collapsed) on 2026-09-27; the paths-forward-loop skill's budget order drops residue reasons, then evidence, then oldest done items, never a live waypoint. Report to mtools (the package owner) with the reproducing state hash v2:7365e7a2442c47c6, rather than only patching around it in el-openglo's cron prompt (which is what 3e33b233's prompt does now).",
       "issued_at": "2026-09-27T13:51:17Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:56Z",
       "ticks_blocked": 0
     },
     {
@@ -1820,7 +1820,7 @@
     },
     {
       "symbol": "W99",
-      "title": "W62.1 repoint the two PreToolUse hooks to the installed mikemol-hook-no-chaining / mikemol-hook-structural-query console scripts; prove each still refuses (a chain, a grep over .py) and still reads THIS repo s struct-tools SKILL.md; then delete the hook_no_chaining, hook_structural_query and hook_cmdparse symlinks",
+      "title": "Point the PreToolUse hooks at the installed mtools hook commands, then delete the symlinks",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -1832,11 +1832,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): W62.1 repoint the two PreToolUse hooks to the installed mikemol-hook-no-chaining / mikemol-hook-structural-query console scripts; prove each still refuses (a chain, a grep over .py) and still reads THIS repo s struct-tools SKILL.md; then delete the hook_no_chaining, hook_structural_query and hook_cmdparse symlinks",
       "issued_at": "2026-09-27T16:56:11Z",
       "minted_during": "interrupt",
       "caused_by": "W62",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:56Z",
       "ticks_blocked": 0
     },
     {
@@ -1881,7 +1881,7 @@
     },
     {
       "symbol": "W102",
-      "title": "W62.4 letter to mtools (inbox): gate_ledger.py and run_selftests.py are borrowed from substrate by symlink and have no mtools home; ask for one (census-kit B1 remainder)",
+      "title": "Ask mtools for a home for gate_ledger.py and run_selftests.py",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -1890,11 +1890,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): W62.4 letter to mtools (inbox): gate_ledger.py and run_selftests.py are borrowed from substrate by symlink and have no mtools home; ask for one (census-kit B1 remainder)",
       "issued_at": "2026-09-27T16:56:12Z",
       "minted_during": "interrupt",
       "caused_by": "W62",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:56Z",
       "ticks_blocked": 0
     },
     {
@@ -1959,7 +1959,7 @@
     },
     {
       "symbol": "W106",
-      "title": "mtools pathsforward: (a) --ledger accepts any OUTCOME word, and atomize counts every word not in _NOT_AN_ADVANCE (deny-list), so a hand-written filed on W98 read as an advance (false ATOMIZE W98); ask for an allow-list of advance outcomes refused at write time; (b) --add at 6ecf767 wrote NO minted line for W99-W105 though atomize.py docstring says it does; confirm and report. Send as an mtools inbox letter.",
+      "title": "Ask mtools for an allow-list of ledger outcomes, and report the missing minted lines",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -1969,11 +1969,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mtools pathsforward: (a) --ledger accepts any OUTCOME word, and atomize counts every word not in _NOT_AN_ADVANCE (deny-list), so a hand-written filed on W98 read as an advance (false ATOMIZE W98); ask for an allow-list of advance outcomes refused at write time; (b) --add at 6ecf767 wrote NO minted line for W99-W105 though atomize.py docstring says it does; confirm and report. Send as an mtools inbox letter.",
       "issued_at": "2026-09-27T17:22:25Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:56Z",
       "ticks_blocked": 0
     },
     {
@@ -2044,7 +2044,7 @@
     },
     {
       "symbol": "W110",
-      "title": "auto_push --running mode: one command that answers is a push (and its tree-writes gate) in flight, exiting 0 idle / 1 running, with --selftest; replaces pgrep -af plus discounting the wrapper line by eye (preamble rule no tree writes while it runs), and --wait so a tick can block on it without a shell until-loop (refused by no-chaining 2026-09-27).",
+      "title": "An auto_push mode that says whether a push is running, and can wait for it",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -2054,16 +2054,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): auto_push --running mode: one command that answers is a push (and its tree-writes gate) in flight, exiting 0 idle / 1 running, with --selftest; replaces pgrep -af plus discounting the wrapper line by eye (preamble rule no tree writes while it runs), and --wait so a tick can block on it without a shell until-loop (refused by no-chaining 2026-09-27).",
       "issued_at": "2026-09-27T18:20:42Z",
       "minted_during": "interrupt",
       "caused_by": "W107",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:56Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W111",
-      "title": "mikemol-paths-forward --unlinked mode (mtools): n of m live waypoints with >=1 edge, counting INCOMING enables/blocked_on as well as outgoing, naming the unlinked; with --selftest. Replaces scratchpad edge_census.py (one-off, re-derived per session; its incoming-edge blindness was already fixed once by hand, W93). Route via the W106 mtools letter.",
+      "title": "A paths-forward mode that counts how many live waypoints are linked",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -2073,16 +2073,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mikemol-paths-forward --unlinked mode (mtools): n of m live waypoints with >=1 edge, counting INCOMING enables/blocked_on as well as outgoing, naming the unlinked; with --selftest. Replaces scratchpad edge_census.py (one-off, re-derived per session; its incoming-edge blindness was already fixed once by hand, W93). Route via the W106 mtools letter.",
       "issued_at": "2026-09-27T20:23:00Z",
       "minted_during": "interrupt",
       "caused_by": "W105",
-      "last_worked": null,
+      "last_worked": "2026-10-01T04:33:57Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W112",
-      "title": "APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent)",
+      "title": "Finish the Apache-2.0 relicense: NOTICE, SPDX headers, borrowed-script terms",
       "status": "blocked",
       "enables": [
         "life:W16",
@@ -2099,16 +2099,16 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W117 (substrate terms), W118 (NOTICE), W119 (SPDX headers) land.",
-      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache. | 2026-09-28: 2026-09-28: operator ruled KvFlat (b) directly and via life-0e (\"uniformity and portability\"); the rewrite is W116 (enables life:W16); the debian/copyright GPL-3.0 stanza retires when W116 ships.",
+      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache. | 2026-09-28: 2026-09-28: operator ruled KvFlat (b) directly and via life-0e (\"uniformity and portability\"); the rewrite is W116 (enables life:W16); the debian/copyright GPL-3.0 stanza retires when W116 ships. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent)",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-29T01:55:17Z",
+      "last_worked": "2026-10-01T04:33:57Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W113",
-      "title": "VENUE PROMOTION POLICY check (operator 2026-09-28 ruling 5: paid references in listing text AND in-product config/about pages, only where policy permits): read KDE Store, AMO, Chrome Web Store (later Blender Extensions, Fab, Unity) rules on promotional content and outbound links; record per venue: listing-text ok?, in-product ok?, with the policy URL and quoted clause.",
+      "title": "Check each store's policy on promoting paid products, per venue",
       "status": "blocked",
       "enables": [
         "life:W16",
@@ -2124,11 +2124,11 @@
       ],
       "blocked_kind": "human",
       "next_bounded_step": "Read the KDE Store / opendesktop terms in a real browser (bot-blocked for fetch) for listing text and in-widget promotion.",
-      "evidence": "2026-09-28: 2026-09-28 (scratchpad w113-policy.md; AMO + Chrome quotes re-fetched VERBATIM). AMO (extensionworkshop add-on-policies, updated Apr 30 2026): \"Add-ons with the sole purpose of promoting ... an outside website, application or add-on are not permitted.\"; \"Listings must disclose when payment is required to enable any add-on functionality.\"; \"the inclusion of affiliate promotions in user interface elements that are clearly identified as belonging to the add-on are acceptable.\" -> listing CONDITIONAL, extension options page CONDITIONAL, static theme n/a. Chrome (program-policies/listing-requirements): no misleading metadata; keyword spam = \"Lists of sites/brands/keywords without substantial added value\", \"Unnatural repetition of the same keyword more than 5 times\"; NO rule on mentioning/linking other products -> listing CONDITIONAL (one accurate mention), in-product n/a for a theme. KDE Store: UNFOUND (Anubis bot-block on store.kde.org/terms and opendesktop terms). | 2026-09-29: 2026-09-29: no browser tool in this session (ToolSearch: WebFetch only); the KDE Store terms stay unreadable here. AMO and Chrome findings (verified verbatim 2026-09-28) stand.",
+      "evidence": "2026-09-28: 2026-09-28 (scratchpad w113-policy.md; AMO + Chrome quotes re-fetched VERBATIM). AMO (extensionworkshop add-on-policies, updated Apr 30 2026): \"Add-ons with the sole purpose of promoting ... an outside website, application or add-on are not permitted.\"; \"Listings must disclose when payment is required to enable any add-on functionality.\"; \"the inclusion of affiliate promotions in user interface elements that are clearly identified as belonging to the add-on are acceptable.\" -> listing CONDITIONAL, extension options page CONDITIONAL, static theme n/a. Chrome (program-policies/listing-requirements): no misleading metadata; keyword spam = \"Lists of sites/brands/keywords without substantial added value\", \"Unnatural repetition of the same keyword more than 5 times\"; NO rule on mentioning/linking other products -> listing CONDITIONAL (one accurate mention), in-product n/a for a theme. KDE Store: UNFOUND (Anubis bot-block on store.kde.org/terms and opendesktop terms). | 2026-09-29: 2026-09-29: no browser tool in this session (ToolSearch: WebFetch only); the KDE Store terms stay unreadable here. AMO and Chrome findings (verified verbatim 2026-09-28) stand. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): VENUE PROMOTION POLICY check (operator 2026-09-28 ruling 5: paid references in listing text AND in-product config/about pages, only where policy permits): read KDE Store, AMO, Chrome Web Store (later Blender Extensions, Fab, Unity) rules on promotional content and outbound links; record per venue: listing-text ok?, in-product ok?, with the policy URL and quoted clause.",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-29T00:23:36Z",
+      "last_worked": "2026-10-01T04:33:57Z",
       "ticks_blocked": 0
     },
     {
@@ -2153,7 +2153,7 @@
     },
     {
       "symbol": "W115",
-      "title": "SUMMIT: offer the codomain census check (check_codomain --json + policy/codomain.rego via opa_gate, mdstruct table read) as a shared capability once W42 lands it; cite aeternum:W61 as origin of the three rules and second consumer (aeternum asked el-openglo to lead, 2026-09-28).",
+      "title": "Offer the codomain census check on summit as a shared capability",
       "status": "blocked",
       "enables": [
         "aeternum:W62"
@@ -2167,11 +2167,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): SUMMIT: offer the codomain census check (check_codomain --json + policy/codomain.rego via opa_gate, mdstruct table read) as a shared capability once W42 lands it; cite aeternum:W61 as origin of the three rules and second consumer (aeternum asked el-openglo to lead, 2026-09-28).",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "aeternum:W62",
-      "last_worked": "2026-09-28T18:16:45Z",
+      "last_worked": "2026-10-01T04:33:57Z",
       "ticks_blocked": 1
     },
     {
@@ -2919,11 +2919,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-10-01: 12 of 12 live titles in W87-W115 retitled to one clause (former titles in each evidence). No atomize needed: each is one unit (W106 lists two items but both go in one mtools letter). Lister: flagged 25 -> 13, all live, all in W150 range.",
       "issued_at": "2026-09-29T01:56:24Z",
       "minted_during": "interrupt",
       "caused_by": "W145",
-      "last_worked": "2026-10-01T04:21:01Z",
+      "last_worked": "2026-10-01T04:34:06Z",
       "ticks_blocked": 0
     },
     {

@@ -348,3 +348,4 @@
 2026-10-01T03:17:29Z  tick  W146 done      sweep     "22 done titles W7-W35 shortened to one clause (former titles kept in evidence); flagged titles 91 -> 69; W147 recounted to 28"  evidence=W146
 2026-10-01T03:39:47Z  tick  W147 done      sweep     "28 done titles W38-W143 shortened to one clause (former titles in evidence); flagged titles 69 -> 41, 0 done left"  evidence=W147
 2026-10-01T04:07:18Z  tick  W148 done      sweep     "16 live titles W33-W75 shortened; W43 atomized into W151-W157 (3 core parts after W62, 4 engine add-ons after the core); flagged titles 41 -> 25"  evidence=W148
+2026-10-01T04:34:06Z  tick  W149 done      sweep     "12 live titles W87-W115 shortened, no atomize needed; flagged titles 25 -> 13"  evidence=W149
