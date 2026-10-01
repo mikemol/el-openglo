@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 167,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T08:26:22Z",
-  "job_id": "f66703ce",
+  "heartbeat": "2026-10-01T08:37:18Z",
+  "job_id": "76cda76a",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3260,11 +3260,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "In clock-main.qml make the Row width even: snap colonSlot to an integer and, if 4*segLen + colonSlot + 3*spacing is odd, add the 1 px to colonSlot (the colon is centred in its slot, so the slot absorbs it symmetrically); re-run check_symmetry --json until face-0000 h has 0 regions; re-record the SegmentChar template-parity baseline if SegmentChar changes; re-render the clock screens under the cap",
-      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width | 2026-10-01: 2026-10-01 cause located (check_symmetry --json, all 42 regions): every vertical flagged in mirror PAIRS off by exactly 1 px (23-30 mirrors to 389-396 but is found at 390-397; 16-20 vs 400-404) and the colon at 204-216 about an axis at 210. A 420 px canvas mirrors about x=210, so symmetric content needs an EVEN width at an integer x; the Row width (4 segLen + colonSlot + 3 spacing) is odd, so anchors.centerIn lands it half a pixel off. Earlier whole-pixel snaps of colonSlot and Row x alone cannot fix an odd total.",
+      "evidence": "2026-10-01: 2026-10-01 FALSIFIED (reverted, templates at committed bytes): snapping colonSlot to an integer and centring the Row on whole pixels left face-0000 h IDENTICAL (6 shown of 42 regions, 1588 px, same boxes). The boxes say why: lit content spans ~x 23..300 of a 420 px picture, so a mirror about x 210 cannot match - the face is OFF-CENTRE in the headless render (fullRepresentation at its preferred width, left-aligned), while in a panel Plasma sizes the applet to that width | 2026-10-01: 2026-10-01 cause located (check_symmetry --json, all 42 regions): every vertical flagged in mirror PAIRS off by exactly 1 px (23-30 mirrors to 389-396 but is found at 390-397; 16-20 vs 400-404) and the colon at 204-216 about an axis at 210. A 420 px canvas mirrors about x=210, so symmetric content needs an EVEN width at an integer x; the Row width (4 segLen + colonSlot + 3 spacing) is odd, so anchors.centerIn lands it half a pixel off. Earlier whole-pixel snaps of colonSlot and Row x alone cannot fix an odd total. | 2026-10-01: 2026-10-01 ATOMIZE W164 (top for 3 ticks) considered and NOT split: the prior ticks were diagnosis (two falsified snaps, W167 falsified premise); what remains is ONE bounded step (make the Row width even via colonSlot). Splitting it would be churn; the next tick does the step.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T08:28:01Z",
+      "last_worked": "2026-10-01T08:37:18Z",
       "ticks_blocked": 0
     },
     {
@@ -3348,5 +3348,5 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "46540a25"
+  "predecessor_job_id": "f66703ce"
 }
