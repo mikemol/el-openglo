@@ -1799,7 +1799,7 @@
     {
       "symbol": "W98",
       "title": "One headless render path: every Qt render on the RHI over Mesa llvmpipe",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W33"
       ],
@@ -1808,17 +1808,14 @@
         "catalog/library/render_screens.py",
         "scripts/render_qml.py"
       ],
-      "blocked_on": [
-        "W158",
-        "W159"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: closes when W158 and W159 land.",
-      "evidence": "2026-09-27: operator 2026-09-27: backend-dependent pixels are a bug; asked whether mesa software rendering gives the GPU render without the GPU. Host: /usr/lib64/dri has swrast_dri.so + kms_swrast_dri.so (llvmpipe vs softpipe unconfirmed). Caveats: llvmpipe not bit-identical to a hardware driver (AA/rounding); shader bloom costs CPU - measure by cputime. Ranked ahead of W33 axis 2: axis 2 tunes the segment look this path renders. | 2026-09-27: 2026-09-27 premise measured (no render run): the step as written CANNOT be sessionless. qt_sandbox.py:18-45 + env(): Qt offscreen gets GL only via GLX on DISPLAY, and this host s X server GLX vendor is NVIDIA (glvnd), which ignores LIBGL_ALWAYS_SOFTWARE, so offscreen+rhi+Mesa still reaches libnvidia-glcore (the W73 SIGSEGV vector). Host inventory: no Xvfb/xvfb-run; Qt platforms = linuxfb minimal offscreen vkkhrdisplay vnc wayland xcb (no eglfs); Vulkan ICD nvidia only (no lavapipe); EGL vendors 10_nvidia + 50_mesa; kwin_wayland has --virtual --socket --exit-with-session. Sessionless route: kwin_wayland --virtual on a private socket, client QT_QPA_PLATFORM=wayland + __EGL_VENDOR_LIBRARY_FILENAMES=50_mesa.json + LIBGL_ALWAYS_SOFTWARE=1. ATOMIZE W98 (top for 2) was FALSE: the counted line was my hand-written outcome filed (not minted) - W106. Side finding: substrate pycodemod --literal QSG_RHI_BACKEND reported 0 sites in qt_sandbox.py, which has one at :85 (silent-skip class linux-sources already reported). | 2026-09-29: 2026-09-29: both blockers landed; renders now draw on llvmpipe under a SIGKILLed private kwin (W108+W114). | 2026-10-01: former title (retitled 2026-10-01): ONE RENDER PATH HEADLESS: run every headless Qt render on the RHI (OpenGL) over Mesa CPU rendering (llvmpipe/softpipe via LIBGL_ALWAYS_SOFTWARE=1) instead of Qt Quick software adaptation, which runs no shaders and so drops the MultiEffect bloom halo. Then pixels stop depending on backend, render_screens needs no EL_QT_GPU opt-in (W73: no GPU driver reached), and qt_sandbox can leave the screens key (W96 residue). | 2026-10-01: ATOMIZE W98 (top for 4 ticks, genuine): the Mesa route landed (W107/W108/W109/W114); the remaining two changes split into W158 (drop gpu=True / EL_QT_GPU) and W159 (qt_sandbox out of the screens key).",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-09-27: operator 2026-09-27: backend-dependent pixels are a bug; asked whether mesa software rendering gives the GPU render without the GPU. Host: /usr/lib64/dri has swrast_dri.so + kms_swrast_dri.so (llvmpipe vs softpipe unconfirmed). Caveats: llvmpipe not bit-identical to a hardware driver (AA/rounding); shader bloom costs CPU - measure by cputime. Ranked ahead of W33 axis 2: axis 2 tunes the segment look this path renders. | 2026-09-27: 2026-09-27 premise measured (no render run): the step as written CANNOT be sessionless. qt_sandbox.py:18-45 + env(): Qt offscreen gets GL only via GLX on DISPLAY, and this host s X server GLX vendor is NVIDIA (glvnd), which ignores LIBGL_ALWAYS_SOFTWARE, so offscreen+rhi+Mesa still reaches libnvidia-glcore (the W73 SIGSEGV vector). Host inventory: no Xvfb/xvfb-run; Qt platforms = linuxfb minimal offscreen vkkhrdisplay vnc wayland xcb (no eglfs); Vulkan ICD nvidia only (no lavapipe); EGL vendors 10_nvidia + 50_mesa; kwin_wayland has --virtual --socket --exit-with-session. Sessionless route: kwin_wayland --virtual on a private socket, client QT_QPA_PLATFORM=wayland + __EGL_VENDOR_LIBRARY_FILENAMES=50_mesa.json + LIBGL_ALWAYS_SOFTWARE=1. ATOMIZE W98 (top for 2) was FALSE: the counted line was my hand-written outcome filed (not minted) - W106. Side finding: substrate pycodemod --literal QSG_RHI_BACKEND reported 0 sites in qt_sandbox.py, which has one at :85 (silent-skip class linux-sources already reported). | 2026-09-29: 2026-09-29: both blockers landed; renders now draw on llvmpipe under a SIGKILLed private kwin (W108+W114). | 2026-10-01: former title (retitled 2026-10-01): ONE RENDER PATH HEADLESS: run every headless Qt render on the RHI (OpenGL) over Mesa CPU rendering (llvmpipe/softpipe via LIBGL_ALWAYS_SOFTWARE=1) instead of Qt Quick software adaptation, which runs no shaders and so drops the MultiEffect bloom halo. Then pixels stop depending on backend, render_screens needs no EL_QT_GPU opt-in (W73: no GPU driver reached), and qt_sandbox can leave the screens key (W96 residue). | 2026-10-01: ATOMIZE W98 (top for 4 ticks, genuine): the Mesa route landed (W107/W108/W109/W114); the remaining two changes split into W158 (drop gpu=True / EL_QT_GPU) and W159 (qt_sandbox out of the screens key). | 2026-10-01: umbrella closed: its atomized children W158 (GPU path removed) and W159 (qt_sandbox keyed as backend_facts) both done 2026-10-01; nemik flagged every blocker landed",
       "issued_at": "2026-09-27T15:48:50Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T04:56:28Z",
+      "last_worked": "2026-10-01T06:11:43Z",
       "ticks_blocked": 0
     },
     {
