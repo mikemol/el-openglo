@@ -3494,22 +3494,25 @@
     {
       "symbol": "W176",
       "title": "Stop the marquee logging notification content, and gate every template log call",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [
         "templates/marquee-main.qml",
-        "scripts/check_log_content.py"
+        "scripts/check_log_content.py",
+        "trust-boundary"
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-01: 2026-10-01 luthen-observability reported (operator-asked): plasmashell logged `el-marquee rebuild ... ticker=\"<sender: subject body>\"` - notification content - into the journal shipped to VictoriaLogs (~200/24h; earliest 2026-09-29T04:58 EDT); trace() also persists into plasmoid.configuration.traceLog (appletsrc on disk). FIXED in templates/marquee-main.qml: swap (text=), tap (did incl. link href), capture (ticker=), upsert (text=, action ids), rebuild (ticker=) now log ids, counts, lengths, app name only. AUDIT: scripts/check_log_content.py over every console.*/print/trace call in templates/*.qml|js: 11 of 11 carry no content (migration-harness, theme-probe clean; marquee-body.js has no logging). GATE: policy/log_content.rego C0/C1 + tests; warrant LOG-CONTENT (pre-commit). check_marquee_host fixture updated to the content-free shape. qml_lint 12/12, template_parity 14/14 (marquee baseline re-recorded, diff = the trace lines only), marquee_live admitted, 25 marquee screens re-rendered 0/56 stale, schemes/wallpapers byte-identical, opa 971/971. NOT YET LIVE on the desktop: needs a package build/install and a plasmashell restart; purging VictoriaLogs is the operator s call.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 luthen-observability reported (operator-asked): plasmashell logged `el-marquee rebuild ... ticker=\"<sender: subject body>\"` - notification content - into the journal shipped to VictoriaLogs (~200/24h; earliest 2026-09-29T04:58 EDT); trace() also persists into plasmoid.configuration.traceLog (appletsrc on disk). FIXED in templates/marquee-main.qml: swap (text=), tap (did incl. link href), capture (ticker=), upsert (text=, action ids), rebuild (ticker=) now log ids, counts, lengths, app name only. AUDIT: scripts/check_log_content.py over every console.*/print/trace call in templates/*.qml|js: 11 of 11 carry no content (migration-harness, theme-probe clean; marquee-body.js has no logging). GATE: policy/log_content.rego C0/C1 + tests; warrant LOG-CONTENT (pre-commit). check_marquee_host fixture updated to the content-free shape. qml_lint 12/12, template_parity 14/14 (marquee baseline re-recorded, diff = the trace lines only), marquee_live admitted, 25 marquee screens re-rendered 0/56 stale, schemes/wallpapers byte-identical, opa 971/971. NOT YET LIVE on the desktop: needs a package build/install and a plasmashell restart; purging VictoriaLogs is the operator s call. | 2026-10-01: 2026-10-01 LANDED as 13ab366. Operator: no VictoriaLogs purge (\"Just need to be careful about leaks in the future\"; memory no-content-in-logs). Scored WV:1/R:H/E:N/C:H/I:N/A:N/X:N/S:C/F:K/W:Y (agent) and tagged trust-boundary - mtools proposed R:C/E:Y, corrected because luthen reported the content never left the host. nemik-rank lists ready items only, so W176 band was not observable while working; its score is the precedent for the next trust-boundary item. Live on the desktop only after a package build/install + plasmashell restart (operator builds the .deb).",
       "issued_at": "2026-10-01T15:20:00Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-10-01T15:20:15Z",
+      "last_worked": "2026-10-01T15:36:02Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261001T153602Z",
+      "vector": "WV:1/R:H/E:N/C:H/I:N/A:N/X:N/S:C/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [
