@@ -299,10 +299,9 @@ def measure(cases=CASES, variant=VARIANT):
                     r["where"] = place_of(r["box"], im.width, im.height)
                 row["planes"][p] = {"regions": regs, "pixels": len(pts)}
         rows.append(row)
-    # matrix_cases() is NOT wired yet (W166): on the real held board the core crop
-    # took the whole 419x31 board (the hover-pause ring, W51, is lit to the core
-    # threshold and spans the width), so its "symmetric" was vacuous
-    return {"cases": rows, "grids": grid_cases(), "noise": NOISE}
+    # W166: the matrix glyph cases, wired once W168 made their crop real (19x27 px =
+    # 5 pips, at the frame nearest a whole-pip phase on the scrolling run)
+    return {"cases": rows + matrix_cases(), "grids": grid_cases(), "noise": NOISE}
 
 
 # W166: the matrix's MIRROR, per glyph. A self-mirror glyph is the app name of one

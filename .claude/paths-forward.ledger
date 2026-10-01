@@ -377,3 +377,5 @@
 2026-10-01T11:20:27Z  hash  --   diverged  --        "divergence: payload v2:b34d14957fb1c17b, file v2:1797980d7c1a0ed4; the FILE wins"
 2026-10-01T11:25:33Z  tick  W168 done      unblock   "the injected glyph is captured on the board at a whole-pip phase (19x27, 0.04 px off); H and O mirror clean; W166 can wire it"  evidence=check_symmetry --matrix: 19x27 crops, phase 0.04 px, 0 regions
 2026-10-01T11:43:40Z  tick  W170 minted    unblock   "adopt the shared pycodemod header mode (mtools:W306 landed) in place of our own with_header"  evidence=mtools e4fe93b
+2026-10-01T11:53:23Z  hash  --   diverged  --        "divergence: payload v2:e997c7ab00dec697, file v2:deeb57e0b726fa70; the FILE wins"
+2026-10-01T11:54:23Z  tick  W166 done      unblock   "matrix glyph mirror cases wired into the symmetry measurement; every case symmetric, gate admitted; W57 children all landed"  evidence=opa_gate symmetry admitted; check_symmetry --list 0 located
