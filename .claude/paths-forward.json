@@ -2890,15 +2890,15 @@
         "mtools"
       ],
       "blocked_on": [
-        "mtools"
+        "mtools:W372"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "When mtools answers (a pytestspec `expect` field for must-deny cases, or a waypoint for it): cite mtools:W<n> in blocked_on; then port qml_lint with BOTH halves (refusing + admitting) into policy/qml_lint.cases.json and keep opa test passing until parity is shown.",
-      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit) | 2026-10-01: mtools-3d 2026-10-01: scripts/run_selftests.py (substrate symlink, dies on mikemol.ratchet) retires here: each selftest moves to tests/test_<module>.py, pytest is the runner | 2026-10-01: 2026-10-01 mtools-3d answered (inbox/2026-10-01-mtools-pytestspec-answers.md; mtools:W302): pytestspec 0.1.0 ready for the Rego half, sha-pinned; opa PINNED 1.20.2 (any other version FAILS every case); spec = <name>.rego + <name>.cases.json, opa *_test.rego NOT collected (move cases into .cases.json); Python half = one plain tests/test_<check>.py per check (mtools SKELETON.md), run_selftests.py retires - do not repair, delete per check; set faulthandler_timeout in [tool.pytest.ini_options] and run under timeout too. xdist MEASURED (mtools:W316, pytest 9.1.1, xdist 3.8.0): -n 4 outcomes identical to serial; ONLY the per-spec pytestspec summary line goes missing under -n - do not read it under -n until W316 fix lands. Not blocking. | 2026-10-01: 2026-10-01 mtools:W316 LANDED (mtools 1bd18ae): the pytestspec differential line now prints correctly under xdist (workers hand tallies to the controller; declarations once, outcomes summed). Pin pytestspec at 1bd18ae or later; the -n caveat above is lifted. README \"Parallel runs\": cap the whole run, xdist does not cap workers. | 2026-10-01: 2026-10-01 READ mtools pytestspec at the pinned sha e4fe93b (README, spec.py, opa.py): opa is already 1.20.2 here (PINNED matches). STRUCTURAL MISMATCH: a case object is the opa input and ONLY admitted passes; a denial always fails (or is declared unmeasured = xfail). It cannot express \"this fixture MUST be denied by rule X\". el-openglo policy/*_test.rego carry refusing AND admitting cases and CLAUDE.md names that pair the falsifiability record; porting qml_lint_test.rego as written would drop the refusing half. Did NOT port half. Asked mtools-3d for a case `expect` field (opa_gate --expect denied:S0 is the precedent).",
+      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit) | 2026-10-01: mtools-3d 2026-10-01: scripts/run_selftests.py (substrate symlink, dies on mikemol.ratchet) retires here: each selftest moves to tests/test_<module>.py, pytest is the runner | 2026-10-01: 2026-10-01 mtools-3d answered (inbox/2026-10-01-mtools-pytestspec-answers.md; mtools:W302): pytestspec 0.1.0 ready for the Rego half, sha-pinned; opa PINNED 1.20.2 (any other version FAILS every case); spec = <name>.rego + <name>.cases.json, opa *_test.rego NOT collected (move cases into .cases.json); Python half = one plain tests/test_<check>.py per check (mtools SKELETON.md), run_selftests.py retires - do not repair, delete per check; set faulthandler_timeout in [tool.pytest.ini_options] and run under timeout too. xdist MEASURED (mtools:W316, pytest 9.1.1, xdist 3.8.0): -n 4 outcomes identical to serial; ONLY the per-spec pytestspec summary line goes missing under -n - do not read it under -n until W316 fix lands. Not blocking. | 2026-10-01: 2026-10-01 mtools:W316 LANDED (mtools 1bd18ae): the pytestspec differential line now prints correctly under xdist (workers hand tallies to the controller; declarations once, outcomes summed). Pin pytestspec at 1bd18ae or later; the -n caveat above is lifted. README \"Parallel runs\": cap the whole run, xdist does not cap workers. | 2026-10-01: 2026-10-01 READ mtools pytestspec at the pinned sha e4fe93b (README, spec.py, opa.py): opa is already 1.20.2 here (PINNED matches). STRUCTURAL MISMATCH: a case object is the opa input and ONLY admitted passes; a denial always fails (or is declared unmeasured = xfail). It cannot express \"this fixture MUST be denied by rule X\". el-openglo policy/*_test.rego carry refusing AND admitting cases and CLAUDE.md names that pair the falsifiability record; porting qml_lint_test.rego as written would drop the refusing half. Did NOT port half. Asked mtools-3d for a case `expect` field (opa_gate --expect denied:S0 is the precedent). | 2026-10-01: 2026-10-01 mtools claimed it as mtools:W372 (--enables el-openglo:W139): case \"expect\": {\"deny\": [rule ids]} matched by rule-id prefix, exact set, withheld never satisfies an expected deny; no bare \"denied\". Queued behind mtools W366; commit hash to follow.",
       "issued_at": "2026-09-28T22:40:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T22:22:31Z",
+      "last_worked": "2026-10-01T22:23:05Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
@@ -4245,21 +4245,23 @@
     {
       "symbol": "W197",
       "title": "State the metric behind the selection-contrast floor of 3.0, and whether selected text needs 4.5",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W133"
       ],
       "touches": [
         "check_selection_contrast"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "operator: decide the selection-text floor - A keep 3.0, B 4.5 for ForegroundNormal only, B-then-C 4.5 for every text role with infeasible pairs named, or D switch to APCA Lc 60"
+      ],
+      "blocked_kind": "human",
       "next_bounded_step": "Read scripts/check_selection_contrast.py FLOOR and its metric; record whether 3.0 is a WCAG ratio, APCA Lc or other; then ask the operator whether selected TEXT is held to 4.5.",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-10-01 MEASURED: check_selection_contrast FLOOR=3.0 IS a WCAG 2.x ratio (its own _rel_luminance/contrast), deliberately the AA LARGE-text threshold pending the \"which token on the selection field\" question; its docstring says raise to 4.5 when decided. --report: ForegroundNormal >= 4.99 on all 6 (4.5 already met); ForegroundActive below 4.5 on the three Lit variants (4.08-4.13); semantics below 4.5: EL-Amber pos 3.70, EL-Azure neg 4.17 / neu 3.12 / pos 3.98, EL-Amber-Lit neg 4.22, EL-Openglo-Lit neg 3.33. Options put to the operator; recommendation B now then C as the solver target with infeasible pairs named.",
       "issued_at": "2026-10-01T21:24:47Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T21:25:03Z",
+      "last_worked": "2026-10-01T22:28:03Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
