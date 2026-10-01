@@ -781,7 +781,7 @@
     {
       "symbol": "W42",
       "title": "The codomain map: a checked census of every surface the palette can reach",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [
         "catalog",
@@ -790,10 +790,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Write catalog/codomain.md as the census (rows: family, target, contract, venue, licence expectation, status, emitter-or-gap) FROM the tree (check_publishing --rows and the make_* roster give the DONE rows), and scripts/check_codomain.py that parses it (mdstruct-style table read) and refuses a row without contract/status, reporting n of m emitted; NO new emitters this tick. Then rank the gaps by reach x cost and propose the first three as waypoints (my prior: the W3C DTCG design-token JSON is the single highest-leverage emission — Figma/Penpot/Tailwind/Style Dictionary all read it — then VS Code/JetBrains/Neovim themes off the roles table, then OpenRGB).",
+      "next_bounded_step": "",
       "evidence": "2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W61 (build-graph keying), the most generic possible tag; REJECTED, no stated relationship between the codomain census and the key-granularity work. No edge added. | 2026-09-28: 2026-09-28 licence column ANSWERED by the operator (life:W16): free core Apache-2.0 incl. the desktop theme (GPLv3 retired, W112); paid = W43 engine assets and tools. | 2026-09-28: 2026-09-28 REUSE before build (life-0e): aeternum:W61 shipped check_codomain at c99794e (~/github/aeternum/scripts/check_codomain.py, read). ADOPT ITS RULES: status in {emitted, contract read, unmeasured}; emitted names >=1 backticked path, each existing and non-empty; non-emitted names none (a path there is an unstated claim). DIFFERS, recorded: this repo check shape needs --selftest, unknown-flag refusal, n-of-m + empty-population refusal, --json with rules in policy/codomain.rego (opa_gate), and a structural table read (mdstruct), none of which it has; it parses rows textually. So port the rules, not the file; if both repos converge, offer the rego+measurement pair on summit as the shared capability (aeternum:W61 cited). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): THE CODOMAIN MAP (operator 2026-09-22: 'map out the codomain and make EL Openglo the stylistic equivalent of Kleenex'). A CENSUS of every surface a palette + segment/matrix substrate can reach, each with its CONTRACT (what it consumes: colour roles, fonts, meshes, shaders, CSS variables, ANSI tables, SVG, config keys), its VENUE (where it is published), its LICENCE expectation (GPLv3 is right for the desktop theme; engine assets and palettes are adopted under CC0/CC-BY/MIT — a licence split is an operator decision that gates reach), and its STATUS (emitted / contract read / unmeasured). Families: desktops (Plasma DONE; GNOME Shell/libadwaita partial; Xfce/Sway/Hyprland/waybar unmeasured; Windows .theme DONE; macOS none), browsers (Chrome/Firefox DONE, publishing W41), terminals (5 DONE; iTerm2, Windows Terminal DONE, kitty/wezterm/tmux unmeasured), editors (VS Code, JetBrains, Vim/Neovim, Emacs, Sublime, Zed — none; a colour theme per editor is a small JSON/VimL emission off the ANSI+roles table), shells/prompts (starship, oh-my-posh), chat/apps (Discord/Slack custom CSS, Obsidian), web (CSS vars DONE; a Tailwind preset; a design-token file — W3C DTCG JSON is the interchange), mobile (Android Monet DONE; iOS none), engines (W42), hardware (RGB keyboards via OpenRGB profiles; LED matrix signs — the matrix tables ARE the firmware's), print (a swatch card PDF), design tools (Figma/Penpot palette libraries; the DTCG token file feeds them). The map is a DOCUMENT with a CHECK, like catalog/publishing.md + check_publishing: catalog/codomain.md with one row per target and a tool that refuses a row missing its contract or status | 2026-10-01: codomain map: catalog/codomain.json (7 authored gaps: contract/venue/licence/reach/cost) + scripts/check_codomain.py (emitted half READ from check_publishing.measure, not typed; selftest PASS) + policy/codomain.rego C0-C3 (opa 937/937; gate admitted). --list: 17 of 24 surfaces emitted. Ranked reach x (6-cost): dtcg-tokens 25, vscode 15, alacritty-kitty-foot 15 -> minted W160, W161, W162",
       "issued_at": "2026-09-21T17:57:24+00:00",
-      "last_worked": "2026-10-01T06:43:40Z",
+      "last_worked": "2026-10-01T06:52:42Z",
       "ticks_blocked": 0
     },
     {
@@ -1022,7 +1022,7 @@
     {
       "symbol": "W53",
       "title": "Runtime warnings as tripwires: catch each class of shell warning at emit time",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W46"
       ],
@@ -1037,7 +1037,7 @@
       "next_bounded_step": "Write catalog/runtime-warnings.md from the operator's pastes to date (s93-112: the blank kcm page, the missing wallpaper plugin, the cfg_ Default refusals, 'Created graphical object was not placed in the graphics scene' — is that one a consequence of the Default refusals or its own class? measure by opening the fixed page live) and scripts/check_runtime_warnings.py --json + policy/runtime_warnings.rego: R0 empty, R1 a row without a rule and no 'unruled since' date, R2 an unruled row older than N sessions.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session",
       "issued_at": "2026-09-22T01:31:10+00:00",
-      "last_worked": "2026-10-01T04:03:56Z",
+      "last_worked": "2026-10-01T06:52:48Z",
       "ticks_blocked": 0
     },
     {
