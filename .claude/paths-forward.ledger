@@ -393,3 +393,4 @@
 2026-10-01T15:47:19Z  tick  W177 advanced  unblock   "marquee versions its persisted trace and drops any pre-fix traceLog on first load of the upgraded widget"  evidence=qml_lint 12/12; log_content 11/11; marquee_live admitted
 2026-10-01T15:57:40Z  hash  --   diverged  --        "divergence: payload v2:ac727f82cc83a030, file v2:fd96300147710379; the FILE wins"
 2026-10-01T15:57:59Z  tick  W173 advanced  unblock   "marquee speed derivation: a constant speed cannot fix the per-frame step fraction (it depends on panel height and refresh); motion must be stated in pips per frame"  evidence=marquee-main.qml rotation duration formula
+2026-10-01T16:08:54Z  tick  W173 atomized  collapse  "ATOMIZE W173 (advanced 2x, genuine): the motion design (W178, pips per frame) is split from the rules that need it (W173: S8 2/3 + see-saw)"  evidence=W178 minted, enables W173
