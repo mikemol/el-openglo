@@ -3553,12 +3553,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "In templates/marquee-main.qml replace the `rotation` NumberAnimation with a FrameAnimation advancing field.offset by pipsPerFrame * field.scale backdrop px per frame (cfgSpeed reinterpreted as pips per frame, default 2 + 1/phi ~ 2.618, kcfg default updated). Carry EVERY behaviour rotation has: from/to endpoints set in startRun; hover-pause (paused); boardRunning/boardPaused observables; onFinished -> swapRing + startRun when offset reaches `to`; the R9 stepped capture (captureSteps/captureAdvance); motionAllowed (reduced motion). Then the harness steps at the same pip advance; marquee_live + qml_lint + parity; re-render; report fractional_share.",
-      "evidence": "2026-10-01: 2026-10-01 MEASURED (qmllint on a scratch probe, host Qt 6.11): Screen.refreshRate -> \"Member refreshRate not found on type QQuickScreenAttached\" [missing-property]; Screen.devicePixelRatio and FrameAnimation{frameTime, smoothFrameTime} resolve clean (the positive control: the instrument reports a missing member as missing). QML does NOT expose the refresh rate, so the motion is driven by FrameAnimation (Qt 6.4+, so the operator laptop Qt 6.10 has it).",
+      "next_bounded_step": "Re-apply the saved patch; run check_marquee_live with its trace (the RESULT log) to see whether the run after item 1 completes - suspects: FrameAnimation under QSG_FIXED_ANIMATION_STEP/threaded loop not ticking like a NumberAnimation, stop() while paused, complete() re-entered from captureAdvance, startRun declining because running stays true. Fix the cause, get marquee_live admitted, then re-render and report the marquee fractional_share.",
+      "evidence": "2026-10-01: 2026-10-01 MEASURED (qmllint on a scratch probe, host Qt 6.11): Screen.refreshRate -> \"Member refreshRate not found on type QQuickScreenAttached\" [missing-property]; Screen.devicePixelRatio and FrameAnimation{frameTime, smoothFrameTime} resolve clean (the positive control: the instrument reports a missing member as missing). QML does NOT expose the refresh rate, so the motion is driven by FrameAnimation (Qt 6.4+, so the operator laptop Qt 6.10 has it). | 2026-10-01: 2026-10-01 PORT ATTEMPTED AND REVERTED (tree restored; patch kept at scratchpad w178/frameanimation-port.diff): rotation NumberAnimation -> FrameAnimation advancing stepPips = max(1, round(speed)) + 1/phi pips/frame; kcfg speed default 2 (whole pips per frame); config slider 1..4 stepSize 1. qml_lint 12/12 and config_page 24/24 admitted, but marquee_live DENIED L2: \"arrive of id 2 at t=5200 never reached the board\", at harness speed 4 AND at the default - so not pace: the port breaks the run-completion / ring-swap path somewhere. Also found: kcfg debugLog ships default TRUE (why the operator board was logging); left as is, the log is content-free since 13ab366.",
       "issued_at": "2026-10-01T16:08:41Z",
       "minted_during": "interrupt",
       "caused_by": "W173",
-      "last_worked": "2026-10-01T16:20:25Z",
+      "last_worked": "2026-10-01T16:28:12Z",
       "ticks_blocked": 0
     }
   ],
