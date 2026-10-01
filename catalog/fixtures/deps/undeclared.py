@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """W75 negative fixture for policy/deps.rego: an import neither declared in
 pyproject.toml nor recorded there as absent, buried in a function body — the
 shape `qml_sanity` reached the tree in. Never imported; only walked, when

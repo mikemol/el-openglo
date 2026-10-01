@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """catalog/library/concepts.py — the concept-witness LIBRARY (the owner of each concept's proof).
 
 A concept is authored ONCE — its record in this library's concepts.bib, its

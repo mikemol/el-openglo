@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_palette_chain.py — the shipped schemes are SOLVER output, not a fallback.
 
 ⚑ THE FAILURE THIS EXISTS FOR WAS SILENT IN EVERY DIRECTION.  8 of the 10

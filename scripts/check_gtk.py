@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_gtk.py — the GTK sheets name only real libadwaita variables and carry the palette.
 
 ⚑ THE HOLE SESSION 14 FOUND, KEPT CLOSED.  A typo'd `--headerbar-bg-colour`

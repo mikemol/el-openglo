@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_discriminates.py — does a named check FLIP when a named input is corrupted?
 
 ⚑ THE QUESTION THIS SETTLES, AND WHY IT COULD NOT BE ANSWERED BY READING. Run in

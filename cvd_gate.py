@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """CVD distinctness gate, calibrated by the Okabe-Ito constellation.
 
 Semantic ambiguity of a color pair = its minimum CAM02-UCS distance across

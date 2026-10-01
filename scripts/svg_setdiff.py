@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """svg_setdiff.py — do two SVGs draw the SAME MARKS, regardless of order?
 
 ⚑ BYTE EQUALITY IS THE WRONG QUESTION FOR A RENDER.  Two SVGs that emit the same

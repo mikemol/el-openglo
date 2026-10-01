@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_license.py — MEASURE every place this project DECLARES its licence (W44).
 
 The operator relicensed the project GPL-3 -> Apache-2.0 (2026-09-22). A licence
@@ -275,13 +276,15 @@ def measure(root=None):
         if fn.endswith(".ebuild"):
             cases.append({"kind": "file", "where": f"{EBUILD_DIR}/{fn} LICENSE=", "via": "ebuild",
                           "id": ebuild_id(open(os.path.join(ed, fn), encoding="utf-8").read())})
-    emitted, scanned, unparsed = emitted_sites(root, tracked_files(root))
+    tracked = tracked_files(root)
+    emitted, scanned, unparsed = emitted_sites(root, tracked)
     cases += emitted
     notice = notice_facts(root, E)
     return {"root": root, "cases": cases, "roster": len(roster), "roster_declaring": declaring,
             "emitted_scanned": scanned, "emitted_unparsed": unparsed,
             "third_party": third_party(), "debian_copyright": debian_copyright(),
-            "dep5_format": DEP5_FORMAT, "notice": notice}
+            "dep5_format": DEP5_FORMAT, "notice": notice,
+            "headers": header_facts(root, spdx, tracked)}
 
 
 def notice_facts(root, E):
@@ -298,8 +301,81 @@ def notice_facts(root, E):
             "missing": [t["what"] for t in getattr(E, "THIRD_PARTY", ()) if t["what"] not in text]}
 
 
+HEADER_KEY = "SPDX-License-Identifier:"
+
+
+def header_line(spdx):
+    return f"# {HEADER_KEY} {spdx}"
+
+
+def authored_sources(root, paths):
+    """The authored Python source under `root` (W119): every TRACKED *.py that is a
+    regular file, not a symlink (scripts/ borrows some from ../substrate — their
+    header is their owner's) and not a third-party path."""
+    return sorted(rel for rel in paths
+                  if rel.endswith(".py") and not _third_party(rel)
+                  and os.path.isfile(os.path.join(root, rel))
+                  and not os.path.islink(os.path.join(root, rel)))
+
+
+def header_id(text):
+    """The id of the first `# SPDX-License-Identifier:` comment in a file's head
+    (the first 5 lines), None when there is none. WEAKNESS: a header placed below
+    line 5 reads as missing — deliberately, since REUSE tooling reads the head."""
+    for ln in text.split("\n")[:5]:
+        s = ln.strip()
+        if s.startswith("#") and HEADER_KEY in s:
+            return s.split(HEADER_KEY, 1)[1].strip() or None
+    return None
+
+
+def with_header(text, spdx):
+    """`text` with the SPDX comment after any shebang / coding line; unchanged if it
+    already has one. A comment above the docstring leaves the docstring the module's."""
+    if header_id(text) is not None:
+        return text
+    lines = text.split("\n")
+    at = 0
+    while at < len(lines) and at < 2 and (lines[at].startswith("#!") or
+                                         re.match(r"#.*coding[:=]", lines[at])):
+        at += 1
+    return "\n".join(lines[:at] + [header_line(spdx)] + lines[at:])
+
+
+def header_facts(root, spdx, paths):
+    """{population, carrying, missing, wrong} over authored_sources (W119)."""
+    pop = authored_sources(root, paths)
+    missing, wrong = [], []
+    for rel in pop:
+        hid = header_id(open(os.path.join(root, rel), encoding="utf-8").read())
+        if hid is None:
+            missing.append(rel)
+        elif hid != spdx:
+            wrong.append({"file": rel, "id": hid})
+    return {"population": len(pop), "carrying": len(pop) - len(missing) - len(wrong),
+            "missing": missing, "wrong": wrong}
+
+
+def write_headers(root=None):
+    """Give every authored source missing one the header, from emitters.LICENSE_SPDX."""
+    root = os.path.abspath(root or ROOT)
+    import emitters as E
+    spdx = getattr(E, CONSTANT)
+    n = 0
+    for rel in authored_sources(root, tracked_files(root)):
+        p = os.path.join(root, rel)
+        text = open(p, encoding="utf-8").read()
+        new = with_header(text, spdx)
+        if new != text:
+            with open(p, "w", encoding="utf-8") as fh:
+                fh.write(new)
+            n += 1
+    print(f"check_license: wrote the {spdx} header into {n} file(s)")
+    return 0
+
+
 def main(argv):
-    known = {"--json", "--list", "--selftest", "--gate"}
+    known = {"--json", "--list", "--selftest", "--gate", "--write-headers"}
     args, root = list(argv[1:]), None
     if "--root" in args:
         i = args.index("--root")
@@ -314,6 +390,8 @@ def main(argv):
             return 2
     if "--selftest" in args:
         return 0 if _selftest() else 1
+    if "--write-headers" in args:
+        return write_headers(root)
     if "--json" in args:
         print(json.dumps(measure(root), indent=1))
         return 0
@@ -434,7 +512,27 @@ def _selftest():
         chk("an absent NOTICE is seen", notice_facts(d, E)["present"], False)
     chk("the real NOTICE matches its generator",
         notice_facts(ROOT, E)["matches_generated"], True)
+    # W119: the header measurement SEES a missing and a wrong header; the writer
+    # places it after the shebang and leaves the docstring the module's
+    src = '#!/usr/bin/env python3\n"""doc."""\nx = 1\n'
+    chk("a file with no SPDX header reads as None", header_id(src), None)
+    put = with_header(src, "Apache-2.0")
+    chk("the header goes after the shebang",
+        put.split("\n")[:2], ["#!/usr/bin/env python3", "# SPDX-License-Identifier: Apache-2.0"])
+    chk("...the docstring stays the module's", ast.get_docstring(ast.parse(put)), "doc.")
+    chk("...and writing twice is a no-op", with_header(put, "Apache-2.0"), put)
+    chk("a GPL header reads as GPL", header_id("# SPDX-License-Identifier: GPL-3.0\n"), "GPL-3.0")
+    with tempfile.TemporaryDirectory() as d:
+        for fn, body in (("a.py", put), ("b.py", src), ("c.py", "# SPDX-License-Identifier: MIT\n")):
+            with open(os.path.join(d, fn), "w") as fh:
+                fh.write(body)
+        os.symlink(os.path.join(d, "b.py"), os.path.join(d, "s.py"))
+        h = header_facts(d, "Apache-2.0", ["a.py", "b.py", "c.py", "s.py", "x.txt"])
+        chk("1 of 3 authored carry it; b missing, c wrong, the symlink is not authored",
+            (h["population"], h["carrying"], h["missing"], h["wrong"]),
+            (3, 1, ["b.py"], [{"file": "c.py", "id": "MIT"}]))
     m = measure()
+    chk("the real tree's authored-source population is non-empty", m["headers"]["population"] > 0, True)
     chk("every population kind is non-empty",
         sorted({c["kind"] for c in m["cases"]}), ["authority", "emitted", "file", "generator"])
     print("check_license selftest:", "PASS" if ok else "FAIL")

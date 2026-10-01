@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_marquee_live.py — the WHOLE marquee, run headless against a stubbed notification model.
 
 ⚑ WHY (operator, 2026-09-22: "Is there a sandbox we can run the widget within,

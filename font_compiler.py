@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """font_compiler.py — an arbitrary TTF, compiled ONCE into the segment-display table (W30).
 
 A font goes in, a deterministic JSON document comes out: {ch: sorted 22-seg ids},

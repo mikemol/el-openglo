@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_windows.py — the emitted .theme files are ones Windows would list, and carry the palette.
 
 ⚑ THE CLAIM.  For every variant, make_windows emits a .theme that (1) parses as

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Live wallpaper emitter (⊕WALLPAPER-LIVE) — the 8th palette surface, mounted
 TWICE (desktop containment + lock screen) from ONE plugin.
 

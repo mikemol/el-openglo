@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """readme_fragments.py — the README's POPULATIONS, written from the tools that declare them (W69).
 
 ⚑ WHY THIS EXISTS.  README.md is a paperkit projection (paper.toml at the repo

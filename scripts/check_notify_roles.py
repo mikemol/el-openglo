@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_notify_roles.py — what the host's notification model actually EXPOSES (W46).
 
 The marquee reads org.kde.notificationmanager's Notifications model. Its roles

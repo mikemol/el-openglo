@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """git_tracked.py — THE population authority for "which files are in this tree".
 
 ⚑ WHY (2026-09-22, 2026-09-23). Twice a check built its population by walking the

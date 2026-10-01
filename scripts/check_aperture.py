@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_aperture.py — the aperture field's brightness relation, MEASURED on pixels (W54).
 
 The relation (operator, 2026-09-22: pips with a brightness RANGE — a mask over a

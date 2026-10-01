@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_terminals.py — every terminal format carries the ONE ansi table, and parses as itself.
 
 ⚑ FIVE SERIALISERS OVER ONE TABLE CAN STILL DISAGREE.  A serialiser that maps

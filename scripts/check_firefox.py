@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_firefox.py — the emitted Firefox theme manifests are loadable and carry the palette.
 
 ⚑ THE CLAIM.  For every variant: (1) the manifest parses as JSON with the shape

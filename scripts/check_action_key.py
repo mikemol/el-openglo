@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """action_key.py — the digest of everything an action's output depends on (W61).
 
 ⚑ THE DEFECT THIS EXISTS TO STOP, MEASURED 2026-09-22. The operator pointed at

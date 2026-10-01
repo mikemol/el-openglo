@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """ghost_solve — the ghost as a SOLVED balance point, not a scanned one.
 
 ⚑ THE SCAN FINDS NUMERICALLY WHAT IS ALGEBRAICALLY DETERMINED, AND CANNOT SAY SO.

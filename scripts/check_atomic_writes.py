@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_atomic_writes.py — does every generator write its files ATOMICALLY?
 
 ⚑ WHY (W68, measured 2026-09-23). The pre-commit gate runs checks in parallel.

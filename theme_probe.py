@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """theme_probe.py — resolve Kirigami.Theme bindings against a VARIANT, headless, with the real engine.
 
 ⚑ MEASURED 2026-09-22 (W35). A QML-defined stub of Kirigami.Theme cannot exist:

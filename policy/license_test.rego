@@ -49,7 +49,33 @@ dep5 := {"format": fmt, "licenses": {"Apache-2.0": true, "GPL-3.0-or-later": tru
 
 notice_ok := {"present": true, "generator": true, "matches_generated": true, "missing": []}
 
-good := {"cases": cases, "third_party": tp, "debian_copyright": dep5, "dep5_format": fmt, "notice": notice_ok}
+headers_ok := {"population": 3, "carrying": 3, "missing": [], "wrong": []}
+
+good := {"cases": cases, "third_party": tp, "debian_copyright": dep5, "dep5_format": fmt, "notice": notice_ok, "headers": headers_ok}
+
+with_headers(h) := object.union(object.remove(good, ["headers"]), {"headers": h})
+
+# L6 (W119): every authored source carries the SPDX header
+test_l6_admits_a_fully_headed_tree if {
+	count([m | some m in lc.deny; startswith(m, "L6")]) == 0 with input as good
+	count([m | some m in lc.withheld; startswith(m, "L6")]) == 0 with input as good
+}
+
+test_l6_refuses_a_missing_header if {
+	"L6: make_clock.py carries no SPDX-License-Identifier header; run `check_license.py --write-headers`" in lc.deny with input as with_headers({"population": 3, "carrying": 2, "missing": ["make_clock.py"], "wrong": []})
+}
+
+test_l6_refuses_a_header_under_another_id if {
+	"L6: x.py's SPDX header says GPL-3.0, not Apache-2.0" in lc.deny with input as with_headers({"population": 3, "carrying": 2, "missing": [], "wrong": [{"file": "x.py", "id": "GPL-3.0"}]})
+}
+
+test_l6_refuses_an_empty_population if {
+	"L6: no authored source was measured" in lc.deny with input as with_headers({"population": 0, "carrying": 0, "missing": [], "wrong": []})
+}
+
+test_l6_withholds_unmeasured_headers if {
+	"L6: authored-source headers were not measured" in lc.withheld with input as object.remove(good, ["headers"])
+}
 
 with_notice(n) := object.union(object.remove(good, ["notice"]), {"notice": n})
 

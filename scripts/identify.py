@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """identify.py — what KIND of content is this? For files and for strings alike.
 
 ⚑ WHY THIS OWNS THE QUESTION.  check_embedded_markup.py carried a hand-written

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_screens.py — the themed screenshots, MEASURED; policy/screens.rego decides (W52).
 
 The pictures are catalog/library/render_screens.py's; this reports, per planned

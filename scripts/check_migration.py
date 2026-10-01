@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_migration.py — the one-shot Plasma update script, run headless against a fake shell.
 
 ⚑ WHY. templates/one-theme-update.js runs ONCE, on the user's real containments,

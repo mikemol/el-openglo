@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_qml_lint.py — every EMITTED QML document lints, and no animation binds `running`.
 
 ⚑ WHY (operator, live 2026-09-22: "Current git head doesn't appear to respond to

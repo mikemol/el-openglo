@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_root_helpers.py — MEASURE the root helpers against a SCRATCH root (W71a/W71b).
 
 `el-openglo-plymouth` and `el-openglo-sddm` are the selection routes a user runs

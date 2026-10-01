@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 # [RECONSTRUCTED from this session's own tool calls — later compacted session, not on-disk
 #  transcript. Faithful to the create_file content (incl. the digit-table __main__ fix).
 #  Verify before trusting as final.]

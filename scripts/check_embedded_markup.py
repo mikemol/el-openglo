@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_embedded_markup.py — an ARTIFACT embedded in Python is un-previewable.
 
 ⚑ THE DEFECT.  A generator that builds SVG or QML by concatenating string

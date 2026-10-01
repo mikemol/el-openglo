@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """read_serial.py — the READER of el-serial/1 (catalog/guest-image.md (f)).
 
 A guest's ttyS0 log (kernel printk, systemd, plymouth, getty, and our `@@EL1`

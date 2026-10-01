@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_cotype_open.py — the open worklist is bucketed by WHO CAN ACT.
 
 The design log sorts its open work by operator, and the buckets are not

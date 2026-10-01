@@ -186,6 +186,38 @@ withheld contains "L5: this tree has no emitters.notice_text(); NOTICE cannot be
 }
 
 # METADATA
+# title: "L6 — every authored source carries the SPDX header"
+# description: |
+#   W119 (mtools precedent): each tracked, non-symlink *.py starts with
+#   `# SPDX-License-Identifier: <authority id>`. An empty population is a broken
+#   search; a missing header is refused (write it with `check_license.py
+#   --write-headers`); a header naming another id is refused.
+headers := object.get(input, "headers", null)
+
+deny contains "L6: no authored source was measured" if {
+	is_object(headers)
+	object.get(headers, "population", 0) == 0
+}
+
+deny contains msg if {
+	is_object(headers)
+	some f in object.get(headers, "missing", [])
+	msg := sprintf("L6: %s carries no SPDX-License-Identifier header; run `check_license.py --write-headers`", [f])
+}
+
+deny contains msg if {
+	is_object(headers)
+	some w in object.get(headers, "wrong", [])
+	w.id != authority_id
+	msg := sprintf("L6: %s's SPDX header says %v, not %v", [w.file, w.id, authority_id])
+}
+
+withheld contains "L6: authored-source headers were not measured" if {
+	count(object.get(input, "cases", [])) > 0
+	not is_object(headers)
+}
+
+# METADATA
 # title: "L2 — a generator names the constant, never a literal"
 # description: |
 #   One declared id, imported by every emitter: a literal Apache-2.0 is correct

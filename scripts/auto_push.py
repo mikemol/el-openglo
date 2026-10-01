@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """auto_push.py — push main after each commit, from the post-commit hook, in the background.
 
 ⚑ AUTHORISED BY THE OPERATOR (2026-09-25): "we're healthy and rigorous now I think we can

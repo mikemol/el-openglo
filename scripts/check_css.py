@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_css.py — the emitted stylesheet is the palette, parsed, not a copy of it.
 
 ⚑ THE CLAIM.  catalog/el-openglo.css parses (tinycss2 — a real CSS tokenizer,

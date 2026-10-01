@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_sddm.py — the SDDM greeter (W66) DRAWS and ACCEPTS INPUT, headless.
 
 ⚑ A GREETER IS AN AUTH SURFACE: one that renders but cannot be typed into is a

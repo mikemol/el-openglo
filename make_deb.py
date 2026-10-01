@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Build el-openglo-themes_<ver>_all.deb (⊕VER-DEB).
 
 One MAPPING, two scopes:

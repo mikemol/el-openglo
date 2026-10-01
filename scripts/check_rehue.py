@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_rehue.py — a sender's hue on the lit token is GATED, and falls back.
 
 ⚑ WHAT IS CHECKED (relations.md §5a).  make_palette.rehue keeps fg's own

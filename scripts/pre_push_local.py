@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """pre_push_local.py — what THIS repo requires before a push, beyond the shared hook.
 
 ⚑ WHY IT EXISTS (2026-09-25). The shared pre-push is now mtools'

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """capture_baseline.py — record a generator's output BEFORE it is rewritten.
 
 ⚑ THE BASELINE MUST PREDATE THE REWRITE, OR IT PROVES NOTHING.  Extraction is

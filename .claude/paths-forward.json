@@ -2252,11 +2252,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "2026-09-29: 2026-09-29: \"applied structurally (pycodemod)\" now means the MTOOLS pycodemod (operator: use mtools, not substrate), which W144 installs; blocked on it.",
+      "evidence": "2026-09-29: 2026-09-29: \"applied structurally (pycodemod)\" now means the MTOOLS pycodemod (operator: use mtools, not substrate), which W144 installs; blocked on it. | 2026-10-01: SPDX headers: check_license header_facts (tracked non-symlink non-third-party *.py; n of m) + --write-headers (id from emitters.LICENSE_SPDX, after shebang/coding, docstring kept, idempotent; selftest PASS); policy L6 deny missing/wrong/empty + withheld unmeasured (opa 931/931); gate DENIED 152 before, admitted after writing 152 files; schemes/wallpapers rebuilt byte-identical, screens re-rendered, action keys rewritten; pycodemod has no header-writing mode (writer lives here; mtools letter). run_selftests (substrate symlink) broken: No module mikemol.ratchet",
       "issued_at": "2026-09-28T18:56:42Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-10-01T05:54:08Z",
+      "last_worked": "2026-10-01T06:24:06Z",
       "ticks_blocked": 0
     },
     {

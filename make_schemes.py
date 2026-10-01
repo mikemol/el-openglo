@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """EL scheme generator: the knob, for the whole theme.
 
 Emits KDE .colors and Konsole .colorscheme files for every cell of the grid

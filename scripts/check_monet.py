@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_monet.py — does Android's own scheme derivation, seeded from the palette, agree with it?
 
 ⚑ THE QUESTION ANDROID FORCES (W18).  Material You (Monet) derives its OWN tonal

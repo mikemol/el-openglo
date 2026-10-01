@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_routes.py — the structural-query hook reads a routing table of OUR own.
 
 THE MEASURED FAILURE THIS EXISTS FOR.  The structural-query hook does not hold

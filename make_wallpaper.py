@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """EL-Openglo wallpaper generator.
 
 Draws a seven-segment watch face: the full 'ghost' segment field (every LCD

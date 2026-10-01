@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """emitters — the generator roster, in dependency order, and how to run it.
 
 ⚑ ONE ROSTER, TWO READERS.  scripts/check_emitters_run.py (the @EMITTERS gate)

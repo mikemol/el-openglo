@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: Apache-2.0
 """palette_graph — THE CONSTRAINT GRAPH, AS DATA.  One authority; everything else READS.
 
 ⚑ THIS MODULE INVENTS NOTHING.  Every edge below already existed, scattered across four

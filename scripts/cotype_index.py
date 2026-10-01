@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """cotype_index.py — read the design log STRUCTURALLY.
 
 COTYPE.md is a 4,600-line append-only design log, and it is not prose: it has a

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """worklist_gate.py — run the paperkit engine over `catalog/worklist/`.
 
 ⚑ WHY THIS EXISTS.  Paperkit is an ENGINE you point at a project directory, not

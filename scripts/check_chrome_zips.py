@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_chrome_zips.py — are the Chrome store zips there, and are they what the Web Store takes? (W134)
 
     scripts/check_chrome_zips.py            # the verdict, as opa_gate chrome_zips decides it

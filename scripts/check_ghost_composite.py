@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_ghost_composite.py — the ghost the GATE certifies is the ghost the EYE sees.
 
 ⚑ THE DEFECT THIS MEASURES SPANS TWO CONCERNS AND SO NO SINGLE-CONCERN CHECK COULD

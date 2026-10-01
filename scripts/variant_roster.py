@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """variant_roster.py — THE answer to "which variants exist": the DECLARATION, never a listing.
 
 ⚑ WHY (W61 B2, 2026-09-23). Nine functions named `variants()` and three more readers

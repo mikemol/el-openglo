@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_chrome.py — the browser theme emits a valid manifest per variant.
 
 The browser theme is one of the palette's emission targets: it reads the SAME

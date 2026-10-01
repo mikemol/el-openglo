@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_marquee_host.py — what the marquee did on THIS desktop, read from the appletsrc.
 
 ⚑ WHY (operator, 2026-09-22: "check the logs yourself on ticks; I won't promise

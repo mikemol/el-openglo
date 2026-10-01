@@ -353,3 +353,5 @@
 2026-10-01T04:56:29Z  tick  W98  atomized  collapse  "W145 (all nemik title warnings, 91 -> 0) and W150 closed; W98 top for 4 ticks: split into W158 drop the GPU path and W159 qt_sandbox out of the screens key; W158 working"  evidence=W158,W159
 2026-10-01T05:18:41Z  tick  W158 advanced  unblock   "GPU render path removed; screens re-rendered on software/Mesa"  evidence=render_screens --stale 0 of 56; opa 926/926
 2026-10-01T05:43:10Z  tick  W159 advanced  unblock   "qt_sandbox keyed by backend_facts, not bytes; a sandbox comment moves 0 of 56 screens"  evidence=check_action_key selftest PASS; render_screens --stale 0 of 56
+2026-10-01T06:16:50Z  hash  --   diverged  --        "divergence: payload v2:28c7396a835dc66b, file v2:e674214a2aa4aa65; the FILE wins"
+2026-10-01T06:24:06Z  tick  W119 advanced  sweep     "SPDX Apache-2.0 header on 152 authored sources; policy L6 refuses a missing one"  evidence=opa_gate license admitted (152 denied before); opa 931/931

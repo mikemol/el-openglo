@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_cursors.py — MEASURE the phosphor cursor themes (W36); policy/cursors.rego decides.
 
 Per variant: make_cursors.render_all writes the theme into a temp dir (or --root

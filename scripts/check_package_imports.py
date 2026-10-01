@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_package_imports.py — every component a package INSTANTIATES ships in it.
 
 ⚑ WHY (measured LIVE, 2026-09-22, s134). The live wallpaper was ported onto the

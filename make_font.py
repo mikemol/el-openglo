@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """SVG-font emitter (⊕SEG-FONT).
 
 A font is a SERIALIZATION of the glyph tables segment_topology already owns —

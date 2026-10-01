@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """opa_gate.py — a check MEASURES (--json); a rego policy DECIDES; this joins them.
 
 ⚑ WHY (operator, 2026-09-22): "OPA and Rego is a standardized specification

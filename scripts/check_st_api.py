@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_st_api.py — segment_topology exports what its consumers import.
 
 THE RECOVERY'S ONE REAL GAP.  The archive's own notes call the later segment API

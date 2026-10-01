@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_rego_lint.py — the policies' own hazards, read from opa's AST (never the text).
 
 ⚑ WHY (2026-09-23, Rego batch 5). Two rego traps a policy author walks into, each

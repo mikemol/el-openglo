@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """display_params — the DISPLAY layer of the settings, declared ONCE (W59; catalog/one-display.md).
 
 Three Plasma packages mount one display (SegmentChar / ApertureField): the clock,

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Phosphor cursor themes, one per variant (W36).
 
 The operator asked (2026-09-22): "isn't the cursor supposed to inherit something

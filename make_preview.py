@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Global Theme preview emitter (⊕VER-PREVIEW).
 
 KDE shows contents/preview.png for each Look-and-Feel package. A preview is not

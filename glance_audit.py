@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Glance audit (⊕GLANCE-AUDIT) — a pre-ship gate for the invariant that
 lit-vs-ghost distinction must scale with a surface's PARSING MODE.
 

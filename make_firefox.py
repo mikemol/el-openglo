@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """make_firefox.py — the palette as a Firefox WebExtension theme (W15).
 
 ⚑ FIREFOX IS NOT CHROME WITH A DIFFERENT NAME.  make_chrome emits Chrome's

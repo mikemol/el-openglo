@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_marquee_body.py — the marquee's body-markup parser, run headless on synthetic bodies.
 
 ⚑ WHY A HARNESS.  templates/marquee-body.js is JavaScript that qmllint parses

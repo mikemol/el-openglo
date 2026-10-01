@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """make_union.py — the palette as a KDE Union style: Breeze, with its alphas SOLVED.
 
 ⚑ WHAT UNION ALREADY GETS FROM US, AND WHAT IT AUTHORS.  Union (kde-plasma/union,

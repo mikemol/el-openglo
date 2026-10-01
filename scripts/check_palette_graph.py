@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """check_palette_graph.py — the constraint graph is ONE authority, and its cycle rank.
 
 `palette_graph` claims to be the single place the palette's constraint edges are named.

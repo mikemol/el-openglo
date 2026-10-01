@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Konsole colorscheme emitter (⊕KONSOLE).
 
 Fifth palette emitter. A terminal's 16 ANSI colors carry MEANING (error=red,

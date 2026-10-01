@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Kvantum widget styles for the EL grid.
 
 Strategy: substrate = KvFlat (complete, proven element set, fetched from the

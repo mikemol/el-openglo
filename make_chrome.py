@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """Chrome/Chromium theme emitter (⊕CHROME-THEME).
 
 A Chrome theme is the FOURTH emission target of the EL palette (peer of the

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
 """render_qml.py — draw an emitted Plasma surface HEADLESS and say what it drew.
 
 ⚑ "LOADS" IS NOT "DRAWS".  plasmawindowed proves a plasmoid instantiates; it says
