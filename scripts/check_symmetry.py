@@ -312,6 +312,7 @@ def measure(cases=CASES, variant=VARIANT):
 # board, whose mirror is only grid_regularity's translation symmetry again.
 MATRIX_GLYPHS = (("matrix-H", "H", ("h", "v")), ("matrix-O", "O", ("h",)))
 MATRIX_VARIANT = "EL-Amber"
+MATRIX_PITCH = 4    # px per pip column: grid_regularity measures pip 3 + gap 1 on this board
 
 
 def _runs(flags, max_gap):
@@ -386,21 +387,38 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
             row["withheld"] = f"{ML.QML} is not installed"
             out.append(row)
             continue
+        # ⚑ THE SCROLLING RUN, NOT THE HOVER HOLD (W168, measured 2026-10-01): the held
+        # board shows NO text, while a scrolling run carries the glyph across it. A
+        # frame at a whole-pip phase crops the full glyph (19 px = 5 pips on the real
+        # board); a fractional phase crops less (W60 resampling dims the side
+        # columns), and a frame past the board's left edge can merge two glyphs (23 px
+        # at x -13, measured). So the frame mirrored is the first whose crop is the
+        # MODAL full-height size: the glyph as most whole-pip frames show it.
         with tempfile.TemporaryDirectory() as td:
-            png = os.path.join(td, "held.png")
-            tl = [(300, "arrive", 1, {"summary": "x", "body": "", "applicationName": ch}, f"{ch}: x")]
-            ML.run(**{**ML.hovered_args(variant, grab_paused=png), "timeline": tl})
-            if not os.path.isfile(png):
-                row["withheld"] = "the hovered run produced no held picture"
+            probe = matrix_probe(td, ch, variant)
+            full = [f for f in probe["frames"] if f["crop_w"] and f["crop_w"] < 100]
+            if not full:
+                row["withheld"] = f"no frame of {probe['frame_count']} showed the glyph alone"
                 out.append(row)
                 continue
-            im = Image.open(png).convert("RGB")
-            box = first_glyph_box(im, ring=True)
-            if box is None:
-                row["withheld"] = "no lit glyph inside the held board's ring"
-                out.append(row)
-                continue
-            im = im.crop(box)
+            dims = [(f["crop"][2] - f["crop"][0], f["crop"][3] - f["crop"][1]) for f in full]
+            tall = max(h for _w, h in dims)
+            sizes = [d for d in dims if d[1] == tall]
+            best = max(set(sizes), key=sizes.count)
+            # ...and of those, the one nearest a WHOLE-PIP phase: x on the pitch, so W60's
+            # resampling lights both side columns alike (x 381.3 = 1.3 px off read as a
+            # 29-level left/right difference that is the resampling, not a defect)
+            at = [f for f, d in zip(full, dims) if d == best and f["x"] is not None]
+            pitch = MATRIX_PITCH
+
+            def off(f):
+                r = f["x"] % pitch
+                return min(r, pitch - r)
+            pick = min(at, key=off)
+            row["glyph_size"], row["frames_at_size"] = list(best), sizes.count(best)
+            row["phase_off_px"] = round(off(pick), 2)
+            im = Image.open(os.path.join(td, pick["frame"])).convert("RGB").crop(tuple(pick["crop"]))
+            row["frame"], row["x"] = pick["frame"], pick["x"]
             row["size"] = [im.width, im.height]
             row["planes"] = {}
             for p in planes:

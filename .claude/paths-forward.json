@@ -3331,7 +3331,7 @@
     {
       "symbol": "W168",
       "title": "Capture the injected matrix glyph on the board at a whole-pip offset",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W166"
       ],
@@ -3342,11 +3342,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "Point matrix_cases at the scrolling run (matrix_probe), not the hovered hold (which shows no text): pick the frames whose crop is a full 5 pips wide AND full glyph height (the whole-pip-phase ones), mirror the first such; confirm check_symmetry --matrix reports ~19 px crops, then W166 wires it into measure()",
-      "evidence": "2026-10-01: 2026-10-01: check_symmetry --matrix-probe DIR (W168 question as a tool: a scrolling run of the injected glyph with frame capture; per frame t, x, first-glyph crop). First probe: all 62 frames cropped 419 px (the board) - frame-030 READ: H: x is visible but the GHOST pips sit above half the peak, so a half-peak core is every pip. FIX: first_glyph_box cuts halfway between the ghost level (median pip luminance) and the peak, half-peak when there is no separate ghost (synthetic boards). Re-probe: frames now crop the real glyph, 19 px = 5 pips (e.g. frame-006 x 377-396); frames at a fractional phase crop 15x3, the crossbar only (W60 resampling dims the side columns) - only whole-pip-phase frames are usable. Selftest (+ ghosted-board arm) PASS.",
+      "evidence": "2026-10-01: 2026-10-01: check_symmetry --matrix-probe DIR (W168 question as a tool: a scrolling run of the injected glyph with frame capture; per frame t, x, first-glyph crop). First probe: all 62 frames cropped 419 px (the board) - frame-030 READ: H: x is visible but the GHOST pips sit above half the peak, so a half-peak core is every pip. FIX: first_glyph_box cuts halfway between the ghost level (median pip luminance) and the peak, half-peak when there is no separate ghost (synthetic boards). Re-probe: frames now crop the real glyph, 19 px = 5 pips (e.g. frame-006 x 377-396); frames at a fractional phase crop 15x3, the crossbar only (W60 resampling dims the side columns) - only whole-pip-phase frames are usable. Selftest (+ ghosted-board arm) PASS. | 2026-10-01: 2026-10-01 MET: matrix_cases now uses the SCROLLING run via matrix_probe and mirrors the frame whose glyph crop is the MODAL full-height size (19x27 px = 5 pips, 38 frames) at the phase NEAREST a whole pip (MATRIX_PITCH 4). check_symmetry --matrix: matrix-H (frame-047, x 63.96, phase 0.04 px) symmetric h and v; matrix-O symmetric h. Not vacuous: the first pick (largest crop) took a 23 px two-glyph merge at x -13, and the 1.3 px-phase frame (x 381.3) showed a 29-level side-column difference - the W60 resampling, which the whole-pip pick removes; so the instrument sees an asymmetry when one is there.",
       "issued_at": "2026-10-01T10:51:28Z",
       "minted_during": "interrupt",
       "caused_by": "W166",
-      "last_worked": "2026-10-01T11:07:12Z",
+      "last_worked": "2026-10-01T11:25:33Z",
       "ticks_blocked": 0
     },
     {
