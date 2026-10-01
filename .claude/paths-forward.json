@@ -3426,11 +3426,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "A load harness: qml --apptype widget (through qt_sandbox, mesa route where the package needs the RHI) over a tiny document that instantiates each emitted package contents/ui/main.qml BY PATH, with org.kde.plasma.* stubbed on QML2_IMPORT_PATH the way check_marquee_live stubs org.kde.notificationmanager; read the load errors (not the exit code); refuse any. Then retire whatever of check_package_imports it subsumes.",
-      "evidence": "",
+      "evidence": "2026-10-01: 2026-10-01 DONE: scripts/check_package_load.py loads each shipped applet with plasmawindowed (Plasma own applet host, installed; plasmoidviewer is not) from the staged tree via XDG_DATA_DIRS=<stage>/usr/share, through qt_sandbox.popen (offscreen, sessionless, no core), read for 8 s then killed; answer = load-error lines, never the exit code. POSITIVE CONTROL (real runs, in --selftest): an applet naming NoSuchType and an id nothing ships are both REPORTED. Real install: 14 of 14 applets load clean (segclock + notifymarquee, canonical and 6 aliases each); 7 wallpapers named not_loadable (a wallpaper needs a containment). policy/package_load.rego D0-D3 (D2 refuses a silent run as unobserved) + 6 tests; opa 964/964; rego_lint admitted; opa_gate package_load admitted on a fresh stage (2m17s wall, 39 s CPU, 263 MB). check_package_imports NOT retired: it is the only gate over the live wallpaper types, which this harness cannot host.",
       "issued_at": "2026-10-01T12:56:59Z",
       "minted_during": "interrupt",
       "caused_by": "W58",
-      "last_worked": "2026-10-01T13:33:47Z",
+      "last_worked": "2026-10-01T13:54:51Z",
       "ticks_blocked": 0,
       "completed": null
     }
