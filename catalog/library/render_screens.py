@@ -499,6 +499,37 @@ def pip_profile(frame, centres, lit, ground, floor, axis="x"):
     return out
 
 
+FRACTIONS = tuple(i / 8 for i in range(8))
+
+
+def spectral_lines(profiles):
+    """W173: the scroll's brightness SPECTRUM. Per pip, its brightness over the run is
+    a time series; its DFT's power, summed over pips, with the DC term dropped, is the
+    run's temporal spectrum. Returns (dominant period in frames, that line's share of
+    the non-DC power, total non-DC power, the period-2 line's share). A see-saw
+    between two states (a scroll alternating whole and half pips) concentrates power
+    at period 2.
+    WEAKNESS: a run of fewer than 4 frames has no spectrum (None, None, 0)."""
+    import numpy as np
+    if len(profiles) < 4 or not profiles[0]:
+        return None, None, 0.0, None
+    series = np.array(profiles, dtype=float)            # frames x pips
+    series = series - series.mean(axis=0)
+    power = (np.abs(np.fft.rfft(series, axis=0)) ** 2).sum(axis=1)[1:]   # drop DC
+    total = float(power.sum())
+    if total <= 0:
+        return None, None, 0.0, None
+    i = int(power.argmax())
+    period = len(profiles) / (i + 1)
+    # ⚑ THE SEE-SAW LINE, NOT THE STRONGEST ONE (measured 2026-10-01): the strongest
+    # line on every real run is period = run length (the text entering and leaving
+    # once, ~1/3 of the power), which says nothing about a whole/half alternation.
+    # That alternation lives at period 2 frames: the highest bin of the rfft.
+    n = len(profiles)
+    p2 = round(float(power[n // 2 - 1]) / total, 4) if n % 2 == 0 else round(float(power[-1]) / total, 4)
+    return round(period, 3), round(float(power[i]) / total, 4), round(total, 3), p2
+
+
 def best_pip_shift(prev, cur, max_shift, both_ways=False):
     """The shift in PIPS (whole k plus a fraction f) under which `cur` best matches
     `prev` moved left — cur[c] ≈ (1-f)·prev[c+k] + f·prev[c+k+1] — and the
@@ -510,7 +541,8 @@ def best_pip_shift(prev, cur, max_shift, both_ways=False):
     best = (None, None, None)
     n = len(cur)
     for k in range(-max_shift if both_ways else 0, max_shift + 1):
-        for f in (0.0, 0.25, 0.5, 0.75):
+        # EIGHTHS of a pip (W173): at quarters a slow mover's 1/8-pip step read as whole
+        for f in FRACTIONS:
             mism = 0.0
             lo, hi = max(0, -k), n - max(0, k) - 1
             for c in range(lo, hi):
@@ -565,8 +597,13 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
     # a seamless loop: the run starts and ends on the same picture (the empty board).
     # Compared from the one forward pass — re-seeking an APNG in PIL re-composites.
     seamless = rgb_first is not None and rgb_first.tobytes() == rgb_last.tobytes()
+    frac = [s for s in shifts if s != int(s)]
+    period, line_share, power, p2 = spectral_lines(profiles)
     return {"frames": len(profiles), "width": width, "axis": axis, "pips": len(centres), "floor": round(floor, 3),
-            "shifts": shifts, "tears": tears, "seamless": seamless}
+            "shifts": shifts, "tears": tears, "seamless": seamless,
+            "fractional_share": round(len(frac) / len(shifts), 4) if shifts else None,
+            "dominant_period": period, "dominant_line_share": line_share, "spectral_power": power,
+            "period2_share": p2}
 
 
 def selftest():

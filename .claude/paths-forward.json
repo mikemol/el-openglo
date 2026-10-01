@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 175,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-01T14:43:22Z",
-  "job_id": "428fe456",
+  "heartbeat": "2026-10-01T15:08:34Z",
+  "job_id": "8d8cd8ee",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3435,20 +3435,22 @@
     {
       "symbol": "W173",
       "title": "Require at least 2/3 of an animation steps to be fractional, and refuse a half-pip see-saw by its spectral line",
-      "status": "working",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "policy/screens.rego",
         "catalog/library/render_screens.py"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "In render_screens.animation_facts: (a) report fractional_share = fractional steps / measured steps, and refine best_pip_shift below quarter pips (eighths, or a continuous fit) so a slow mover is not read as whole; (b) per pip, the brightness time series over the run, its DFT, and the dominant non-DC line as a share of total power - the half-pip see-saw is a strong line at period 2 frames. Policy screens: S8 refuses fractional_share < 2/3; a new rule refuses a dominant spectral line over a declared share. CHECK the real marquee share against 2/3 FIRST - it measured about 2/3 on 2026-10-01, so it may sit on the threshold; report before tightening.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips.",
+      "blocked_on": [
+        "operator: decide (a) change the marquee scroll speed so its per-frame step stays off whole/half pips (passes 2/3 by construction; also W175), or (b) keep the speed and set a lower marquee threshold"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "After the operator decides: (a) set the marquee speed so the per-frame step fraction is spread (an irrational-ratio step), re-render, confirm fractional_share >= 2/3; or (b) a per-surface threshold. Either way: S8 refuses fractional_share below the decided threshold; add a synthetic see-saw (alternating whole/half steps) to the selftest, confirm period2_share scores high, then a rule refusing period2_share over a threshold set from that control.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR DECIDED (refining W60 S8): \"I think a minimum of 2/3 steps should be fractional. Rationale: occasional still looks like whole-pip. 1/2 oscillates back and forth between whole and half, which is its own kind of ugly (measurable, I think, as a fourier analysis over brightness, and a strong spectral line).\" S8 today denies only when EVERY step is whole, and best_pip_shift resolves only quarter pips. | 2026-10-01: 2026-10-01 MEASURED (render_screens.animation_facts, report-only, no rule changed): best_pip_shift now fits EIGHTHS of a pip; each run reports fractional_share and spectral_lines (dominant line, and period2_share = the see-saw line). fractional_share: pinholes-anim 0.94-0.95 (passes 2/3); marquee-anim 0.60-0.64 on EVERY variant (FAILS 2/3) - its steps cycle ~2.625/3.0/3.0/2.75, mean ~2.8 pips/frame, so ~1/3 land on a whole pip. period2_share 0.012-0.013 everywhere: no see-saw. Note the first spectral metric (strongest line) was wrong: it is period = run length (text crossing once, ~1/3 of power). 2/3 rule NOT applied: it would fail the marquee; operator asked. See-saw rule pending a synthetic positive control. Screens re-rendered (render_screens.py is keyed whole), 0 of 56 stale; render_screens selftest 3/3; keys written; no coredumps.",
       "issued_at": "2026-10-01T14:43:22Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T14:52:53Z",
+      "last_worked": "2026-10-01T15:10:55Z",
       "ticks_blocked": 0,
       "completed": null,
       "weight": 10
@@ -3509,6 +3511,6 @@
     "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
     "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106)."
   ],
-  "predecessor_job_id": "03017bc2",
+  "predecessor_job_id": "428fe456",
   "leases": []
 }
