@@ -3249,7 +3249,7 @@
     {
       "symbol": "W164",
       "title": "Make the clock face row an even pixel width so 00:00 mirrors about the canvas centre",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W57"
       ],
@@ -3264,13 +3264,13 @@
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T08:47:54Z",
+      "last_worked": "2026-10-01T08:56:28Z",
       "ticks_blocked": 0
     },
     {
       "symbol": "W165",
       "title": "Least-squares fit of rendered segment extents against the substrate coordinates, naming the offender",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W57"
       ],
@@ -3285,7 +3285,7 @@
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T07:48:16Z",
+      "last_worked": "2026-10-01T08:56:28Z",
       "ticks_blocked": 0
     },
     {
