@@ -168,11 +168,18 @@ Item {
         property bool lit: false          // true only for the halo/crisp LIT instances; ghost stays flat
         property var g: sc.segGeom[seg]          // [kind, ux, uy]
         property bool horiz: g[0] === "h"
-        property real gap: sc.segThick * 0.62
+        // ⚑ SNAPPED TO THE DEVICE GRID (W57, 2026-10-01). check_symmetry located the
+        // corners one pixel off their own mirror (x 47-51 where 46-50 mirrors 9-13):
+        // a fractional stroke and gap left each rectangle to the scene graph's own
+        // rounding. A horizontal's centre (segLen/2) sits midway between the two
+        // verticals only when the stroke is an EVEN integer and the gap an integer,
+        // so both are snapped here; the substrate's ratios stay the target.
+        property real t: 2 * Math.max(1, Math.round(thick / 2))
+        property real gap: Math.round(sc.segThick * 0.62)
         antialiasing: true
-        radius: thick / 2
-        width:  horiz ? sc.segLen - gap * 2 : thick
-        height: horiz ? thick : sc.segLen - gap * 2
+        radius: t / 2
+        width:  horiz ? sc.segLen - gap * 2 : t
+        height: horiz ? t : sc.segLen - gap * 2
         // ⊕STROKE-GRADIENT: see sc.litGradient's doc for why centre-fed, not
         // edge-fed. Ghost segments never gradient (⊕BLOOM's rule extended: an
         // un-energised segment has no light guide to be fed unevenly).
@@ -192,7 +199,7 @@ Item {
         // stroke outside it, and the middle bar hung below the cell's midline.
         // check_symmetry located all six regions of it; centring on the line is
         // the one fix, and it makes the glyph its own mirror by construction.
-        x: (g[1] * sc.segLen) + (horiz ? gap : -thick / 2)
-        y: (g[2] * sc.segLen) + (horiz ? -thick / 2 : gap)
+        x: (g[1] * sc.segLen) + (horiz ? gap : -t / 2)
+        y: (g[2] * sc.segLen) + (horiz ? -t / 2 : gap)
     }
 }
