@@ -242,7 +242,7 @@
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open. | 2026-09-26: 2026-09-27: operator does not recall the ticked state from the original observation (Qt widgets stayed BreezeLight, wallpaper unchanged) — re-asking as a fresh, reproducible check rather than relying on memory | 2026-09-26: 2026-09-27: operator screenshot of the 'Choose what to apply' dialog for EL-Azure-Lit — Colors IS ticked (also Application Style, Window Decoration Style, Icons, Plasma Style, Pointers, Splash Screen); only 'Desktop layout' (bundles wallpaper) is unticked. CLOSES the wallpaper question (expected: unticked). SHARPENS the Qt-widgets question into a real defect: Colors was ticked and Apply pressed, yet kdeglobals ColorScheme stayed BreezeLight (earlier measurement).",
       "issued_at": "2026-09-20T23:28:07+00:00",
       "last_worked": "2026-09-26T20:43:47Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W13",
@@ -606,7 +606,7 @@
     {
       "symbol": "W33",
       "title": "Port the shipped segment surfaces onto the one SegmentChar component",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "templates/SegmentChar.qml",
@@ -614,16 +614,14 @@
         "make_clock",
         "check_ghost_composite"
       ],
-      "blocked_on": [
-        "W98"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
       "next_bounded_step": "Axis 2 (boundary depth): SegmentChar's texture() tool is now trustworthy (fixed L>=0.5 threshold, monotonic in litGradient - re-swept 0/0.15/0.25/0.35/0.5/0.65/0.8 -> texture 0.0021/0.0019/0.0052/0.0104/0.0213/0.0215/0.0236, essentially monotonic past the first tiny dip which is render noise at near-zero amplitude). litGradient=0.35 sits on the rising part of the curve, not saturated at either end - kept as shipped (a picked amplitude, like font_compiler.DECLARED's exceptions: stated, not mechanically solved, because no external perceptual target exists to search against - inventing one would be an unfalsifiable number). Move to axis 2: boundary depth (how far a segment's rounded cap fades before the tip, if at all) - same centre-fed/mirror-invariance discipline as axis 1, checked against opa_gate symmetry before landing.",
       "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
       "issued_at": "2026-09-21T13:50:20+00:00",
       "last_worked": "2026-10-01T04:03:54Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 0
     },
     {
       "symbol": "W34",
@@ -776,7 +774,7 @@
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
       "issued_at": "2026-09-21T17:49:03+00:00",
       "last_worked": "2026-10-01T04:03:55Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W42",
@@ -822,7 +820,7 @@
       "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
       "issued_at": "2026-09-21T17:57:42+00:00",
       "last_worked": "2026-10-01T04:05:43Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W44",
@@ -1220,7 +1218,7 @@
       "evidence": "⚑ THE FIRST SWARM (2026-09-22) FOUND THREE WORKTREE ENVIRONMENT DEFECTS IN ONE HOUR, all one defect — this repo's tooling assumes it runs from the main checkout. (1) Every ../substrate symlink (hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests) was BROKEN in every worktree: the relative target ../../substrate resolves to .claude/worktrees/substrate from .claude/worktrees/agent-*/scripts/. Bridged by one ignored symlink .claude/worktrees/substrate -> /home/mikemol/github/substrate; the bridge is a workaround, not a fix. (2) build_graph's walk descended into the six worktrees and doubled every population (fixed: _NOT_THE_TREE excludes worktrees). (3) pycodemod SILENTLY reads 0 of N files under a worktree's own .venv (uv ignores VIRTUAL_ENV=main/.venv and uses the worktree's fresh one, where its parser raises AttributeError); it works via /home/mikemol/github/el-openglo/.venv/bin/python3. pycodemod flagged it loudly as a BROKEN QUERY and the subagent correctly marked its census UNMEASURED — the discipline held — but a hand-check then missed 4 refs the working invocation found. ALL THREE vanish under W62's shape: an INSTALLED mikemol-* distribution knows where it lives; a symlink or an editable finder or a venv-relative path does not. | 2026-09-27: 2026-09-27 census (step 1): scripts/ holds SIX symlinks into ../substrate (find -type l): hook_no_chaining, hook_structural_query, hook_cmdparse, ratchet, gate_ledger, run_selftests. check_hooks.py --list names only the two hooks, so it undercounts the borrow (4 of 6 unseen). mtools homes: the three hook_* are ALREADY in mikemol-hooks (installed, pinned 6ecf767: console scripts mikemol-hook-no-chaining, mikemol-hook-structural-query; cmdparse is its module); ratchet has an mtools distribution (mtools/ratchet, not yet a dependency here); gate_ledger and run_selftests have NO mtools home (B1 remainder for mtools). pycodemod is mikemol-pycodemod in mtools (defect 3). The prior next-step text carried a pasted uv-run help screen (backtick execution); replaced.",
       "issued_at": "2026-09-22T14:28:13+00:00",
       "last_worked": "2026-09-29T01:55:25Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W63",
@@ -1254,23 +1252,26 @@
       "evidence": "not started; paperkit/tools/sites.py read 2026-09-22 | 2026-10-01: 2026-10-01 dflip over TIMELINE is NOT expressible today: paperkit dflip perturbs only the first scalar leaf (t ms). Gap minted as W179.",
       "issued_at": "2026-09-22T15:31:34+00:00",
       "last_worked": "2026-10-01T17:08:41Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
       "symbol": "W65",
       "title": "THE 73-CLAIM GREEN MAY BE UNINFORMATIVE: 66 of 72 checks grade INDETERMINATE under paperkit's mutation grader",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W64"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "SECOND INSTANCE CLOSED (s142). check_token_source's population was os.listdir(ROOT) for make_*.py minus a local exemption dict — delete make_css.py and it reported '15 of 15 emitters source from the palette', exit 0. ⚑ THE COLLAPSE: emitters.py ALREADY claimed to be the roster and its docstring says 'ONE ROSTER, TWO READERS', naming the incident where two readers disagreeing shipped an install with NO Aurorae decorations. check_token_source was the THIRD reader keeping its own list. emitters.ROLES now declares a role per module (3 authority, 16 emitter, 4 colourless, 1 packager = 24), emitters.drift(root) reports tree-vs-roster in BOTH directions, and emitters.py gained --roster and --drift so the question has a mode instead of an inline script. Probe suite now 4 of 4 flipping, 0 withheld, up from 1 of 4. TWO DEFECTS FOUND IN THE PROBE TOOL ITSELF, both by using it: (1) an AMBIGUOUS ANCHOR silently perturbed the first match — '\"make_css\"' occurs in ORDER before ROLES, so a probe reported 'does NOT flip' about a corruption it never applied where it meant to; now WITHHELD, and that immediately withheld two older probes that had been passing BY LUCK ('def ' matches 13 times in make_schemes.py). (2) A RESTORED FILE IS NOT A RESTORED MODULE: the swaps are often the same LENGTH and a write+restore inside one second leaves a .pyc that (mtime,size) validation accepts, so corrupted bytecode outlived the corrupted source and an unrelated tool read make_cssWAS from a file saying make_css — a contamination path BETWEEN probes. Both have selftest arms. NEXT: extend PROBES to the remaining ~58 checks. Each non-flip under a MEMBER-REMOVING corruption is another site; aim at the POPULATION, not the predicate — a structural check (does X import an authority?) is undisturbed by a def-rename inside that authority, which is why the first token-source probe read as a non-flip for the wrong reason.",
       "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both | 2026-09-26: 2026-09-27: edge retrofit — W65 is a specific finding produced by extending the mutation-grading tool W64 adopted (check_discriminates --probe); W64's own next step says 'extend PROBES to the remaining ~58 checks', the same mechanism W65 continues. Wired W64 enables W65.",
       "issued_at": "2026-09-22T15:41:39+00:00",
-      "last_worked": "2026-09-26T21:17:47Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:11Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W66",
@@ -1347,7 +1348,7 @@
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
       "issued_at": "2026-09-22T22:20:36+00:00",
       "last_worked": "2026-10-01T04:03:58Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W71",
@@ -1358,7 +1359,6 @@
       ],
       "touches": [],
       "blocked_on": [
-        "W180",
         "W181"
       ],
       "blocked_kind": "agent",
@@ -1367,7 +1367,7 @@
       "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context).",
       "issued_at": "2026-09-22T22:21:36+00:00",
       "last_worked": "2026-10-01T17:53:18Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
@@ -1405,17 +1405,20 @@
     {
       "symbol": "W74",
       "title": "Make low urgency on the marquee read by shape, not only by dimming",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W72"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "OPERATOR RULED (2026-09-23): low = lowercase, normal = UPPERCASE, critical = FLASHING UPPER CASE. A letterform cue (shape), which survives grayscale and every CVD view. Guards: flash at most 2 Hz (WCAG 2.3.1 is under 3 flashes/s); flashing is pausable (2.2.2: the existing hover-pause) and honours reduced-motion; case is a DISPLAY transform only, so the source text, link targets and copy are unchanged; critical keeps hotColor + underline. The dot-weight cue for low is dropped. The suspended job gauge still needs its own cue (it is columns, not text).",
       "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction.",
       "issued_at": "2026-09-23T11:56:27+00:00",
-      "last_worked": "2026-10-01T04:03:59Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:11Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W75",
@@ -1486,17 +1489,21 @@
     {
       "symbol": "W79",
       "title": "LOCAL .deb BUILDS the operator installs by hand (operator 2026-09-25: no tagged builds / releases for now; the laptop runs a theme predating openglo)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W83",
+        "W92"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "(1) When el-deb-pack3 finishes: verify with opa_gate.py deb (staged == packed, steps 0), send out.deb to the operator (tree cac10f7), who removes the predecessor package by hand first. (2) Then @DEB as a warrant that PRODUCES its own inputs (make_deb then deb_pack, ~10 min on md0) — decide its cadence (per push is too heavy)",
       "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2 | 2026-09-26: OPERATOR LAPTOP 2026-09-26 (Ubuntu resolute, Plasma 6.6.6, Qt 6.10.2): the cac10f7 .deb (sha256 8c98e29c...) installed and, after plasmashell --replace, the marquee LOADS (clock + dot-matrix field drawing) - the byte fix confirmed on the target Qt",
       "issued_at": "2026-09-26T01:20:13+00:00",
-      "last_worked": "2026-09-26T19:07:51Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:10Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W80",
@@ -1513,37 +1520,43 @@
       "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported | 2026-09-29: 2026-09-29: nemik: paperkit:W45 is an umbrella (blocked on its W112 -> W113); cite the child whose landing unblocks this, paperkit:W113. | 2026-09-29: 2026-09-29: nemik treats paperkit:W113 as an umbrella too (it is blocked on its W112), so blocked_on cites the leaf paperkit:W112 (measure grader.py pycheck standing). What W80 actually needs is W113 baseline-only mode, which follows W112 in paperkit.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-09-29T01:57:20Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W81",
       "title": "Renders read host fonts by FAMILY: declare fonts.conf over declared font files so the render key covers them (was R10)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W78"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "qt_sandbox.env sets FONTCONFIG_FILE to a generated fonts.conf listing only declared font files; check_action_key already keys FONTCONFIG_*; re-render; aperture-text-probe.qml `font.family: \"$font\"` is the leak",
       "evidence": "output_keys docstring names host fonts as the key weakness; the executor image (W78) is the other half",
       "issued_at": "2026-09-26T18:13:16+00:00",
-      "last_worked": "2026-09-26T18:13:16+00:00",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:10Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W82",
       "title": "Negative fixtures: a claim that a gate must DENY, one plant point per tick (was R1 / W75 follow-on; deps, consumers, embedded_markup done)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W75"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "Pick the next gate without a DENIES warrant; plant a fixture; warrant with --expect denied:RULE",
       "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist | 2026-09-26: 2026-09-27: edge retrofit — title already says 'W75 follow-on'; W75 built the --expect denied:RULE mechanism, W82 is the ongoing sweep using it (DEPS/CONSUMERS/TEMPLATES-DENIES warrants). Wired W75 enables W82.",
       "issued_at": "2026-09-26T18:13:16+00:00",
-      "last_worked": "2026-09-26T21:18:24Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:11Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W83",
@@ -1681,18 +1694,22 @@
     {
       "symbol": "W91",
       "title": "nemik sees el-openglo whole: 0 unparsed ledger lines, adoption declared, no el-openglo findings",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W89",
+        "W90"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "After W89+W90: nemik-metrics --root ~/github shows nemik_ledger_unparsed{repo=el-openglo} 0 and pathsforward_adoption declared; nemik-check --root ~/github lists no el-openglo warnings",
       "evidence": "",
       "issued_at": "2026-09-26T18:51:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:10Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W92",
@@ -2092,7 +2109,7 @@
     {
       "symbol": "W112",
       "title": "Finish the Apache-2.0 relicense: NOTICE, SPDX headers, borrowed-script terms",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "life:W16",
         "W41"
@@ -2103,10 +2120,8 @@
         "make_deb",
         "licence"
       ],
-      "blocked_on": [
-        "W119"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W117 (substrate terms), W118 (NOTICE), W119 (SPDX headers) land.",
       "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache. | 2026-09-28: 2026-09-28: operator ruled KvFlat (b) directly and via life-0e (\"uniformity and portability\"); the rewrite is W116 (enables life:W16); the debian/copyright GPL-3.0 stanza retires when W116 ships. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent)",
       "issued_at": "2026-09-28T17:45:14Z",
@@ -2138,7 +2153,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-01T04:33:57Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W114",
@@ -2163,7 +2178,7 @@
     {
       "symbol": "W115",
       "title": "Offer the codomain census check on summit as a shared capability",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "aeternum:W62"
       ],
@@ -2171,22 +2186,20 @@
         "summit",
         "check_codomain"
       ],
-      "blocked_on": [
-        "W42"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): SUMMIT: offer the codomain census check (check_codomain --json + policy/codomain.rego via opa_gate, mdstruct table read) as a shared capability once W42 lands it; cite aeternum:W61 as origin of the three rules and second consumer (aeternum asked el-openglo to lead, 2026-09-28).",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "aeternum:W62",
       "last_worked": "2026-10-01T04:33:57Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 0
     },
     {
       "symbol": "W116",
       "title": "ORIGINAL KVANTUM THEME (operator 2026-09-28 chose (b)): replace the KvFlat recolour (GPL-3.0-or-later) with an original Kvantum SVG theme drawn from the palette, so the whole desktop theme is Apache-2.0",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "life:W16"
       ],
@@ -2194,15 +2207,18 @@
         "make_kvantum",
         "licence"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W120"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Census what make_kvantum takes from KvFlat (SVG element ids Kvantum requires, kvconfig keys) vs what the palette supplies; that list is the drawing spec. Then retire the GPL-3.0 debian copyright stanza and the KvFlat third_party entry in check_license.",
       "evidence": "2026-09-28: 2026-09-28 OPERATOR RULED (b): write an original Kvantum theme rather than keep a GPL KvFlat layer. | 2026-09-28: 2026-09-28 OPERATOR RATIONALE for (b): it pulls the widget style INTO the core, which lends itself to porting and reuse. So: the Kvantum SVGs are EMITTED from the core (palette via make_preview.parse_scheme / make_schemes.GRID, shared geometry), not hand-drawn assets; the same widget-element model should be able to feed other widget toolkits later (GTK/libadwaita, Qt style ports).",
       "issued_at": "2026-09-28T18:39:57Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-09-28T19:12:55Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:11Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W117",
@@ -2282,12 +2298,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
+      "next_bounded_step": "Census first: scripts/check_bespoke.py --json lists every tracked file (git ls-files) as produced (an output in build_graph.py --json), declared lift debt (a LIFT_DEBT table naming its waypoint), or orphan; report n of m per class; policy/bespoke.rego denies any orphan and an empty population. Start by running build_graph.py --json and recording the produced/orphan counts in evidence.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): NOTHING BESPOKE (operator 2026-09-28): census + check that every tracked asset/template/config is either PRODUCED by an emitter (build_graph output) or listed as a LIFT DEBT naming its waypoint; an unlisted orphan is refused, n of m reported. Reuse W61 build_graph orphans and check_token_source.",
       "issued_at": "2026-09-28T19:32:40Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T04:45:18Z",
+      "last_worked": "2026-10-01T19:48:46Z",
       "ticks_blocked": 0
     },
     {
@@ -2354,7 +2370,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W124",
@@ -2376,7 +2392,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W125",
@@ -2399,7 +2415,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W126",
@@ -2423,7 +2439,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W127",
@@ -2447,7 +2463,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W128",
@@ -2474,7 +2490,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W129",
@@ -2497,7 +2513,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:48Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W130",
@@ -2520,7 +2536,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:52Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W131",
@@ -2543,7 +2559,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:57Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W132",
@@ -2565,7 +2581,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T21:04:33Z",
-      "ticks_blocked": 1
+      "ticks_blocked": 2
     },
     {
       "symbol": "W133",
@@ -2653,7 +2669,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W137",
@@ -2676,7 +2692,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-09-29T00:23:17Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W138",
@@ -2700,22 +2716,25 @@
     {
       "symbol": "W139",
       "title": "Adopt mtools pytest-spec so pre-commit selftests run in parallel",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         ".githooks/pre-commit",
         "selftests",
         "mtools"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W140"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Adopt for ONE check first (qml_lint, the opa pilot): add mikemol-pytestspec sha-pinned to the tooling extra; pin opa 1.20.2; move policy/qml_lint_test.rego cases into policy/qml_lint.cases.json; write tests/test_check_qml_lint.py from its --selftest (ship tests/ in the SAME commit as testpaths config - the SKELETON trap); faulthandler_timeout=60; run under systemd-run with MemoryMax",
       "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit) | 2026-10-01: mtools-3d 2026-10-01: scripts/run_selftests.py (substrate symlink, dies on mikemol.ratchet) retires here: each selftest moves to tests/test_<module>.py, pytest is the runner | 2026-10-01: 2026-10-01 mtools-3d answered (inbox/2026-10-01-mtools-pytestspec-answers.md; mtools:W302): pytestspec 0.1.0 ready for the Rego half, sha-pinned; opa PINNED 1.20.2 (any other version FAILS every case); spec = <name>.rego + <name>.cases.json, opa *_test.rego NOT collected (move cases into .cases.json); Python half = one plain tests/test_<check>.py per check (mtools SKELETON.md), run_selftests.py retires - do not repair, delete per check; set faulthandler_timeout in [tool.pytest.ini_options] and run under timeout too. xdist MEASURED (mtools:W316, pytest 9.1.1, xdist 3.8.0): -n 4 outcomes identical to serial; ONLY the per-spec pytestspec summary line goes missing under -n - do not read it under -n until W316 fix lands. Not blocking. | 2026-10-01: 2026-10-01 mtools:W316 LANDED (mtools 1bd18ae): the pytestspec differential line now prints correctly under xdist (workers hand tallies to the controller; declarations once, outcomes summed). Pin pytestspec at 1bd18ae or later; the -n caveat above is lifted. README \"Parallel runs\": cap the whole run, xdist does not cap workers.",
       "issued_at": "2026-09-28T22:40:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T10:51:39Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T19:48:10Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W140",
@@ -2971,7 +2990,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:04:53Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W152",
@@ -2999,7 +3018,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:14Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W153",
@@ -3026,7 +3045,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:41Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W154",
@@ -3051,7 +3070,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W155",
@@ -3076,7 +3095,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W156",
@@ -3101,7 +3120,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W157",
@@ -3126,7 +3145,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 0
+      "ticks_blocked": 1
     },
     {
       "symbol": "W158",
@@ -3586,7 +3605,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T17:22:24Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
@@ -3666,7 +3685,6 @@
       ],
       "blocked_on": [
         "W186",
-        "W187",
         "W188",
         "W189"
       ],
@@ -3677,7 +3695,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:40:59Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
@@ -3698,7 +3716,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:27Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
@@ -3720,7 +3738,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:28Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
@@ -3779,8 +3797,7 @@
         "marquee-main.qml"
       ],
       "blocked_on": [
-        "W186",
-        "W187"
+        "W186"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Implement design step (2)+(3) of W183 evidence in templates/marquee-main.qml.",
@@ -3789,7 +3806,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:05:30Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     },
     {
@@ -3813,7 +3830,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:05:30Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "completed": null
     }
   ],
