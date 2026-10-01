@@ -2400,7 +2400,7 @@
     {
       "symbol": "W120",
       "title": "Nothing bespoke: every tracked asset is either emitted or a named lift debt",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W116"
       ],
@@ -2416,7 +2416,7 @@
       "issued_at": "2026-09-28T19:32:40Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T20:02:26Z",
+      "last_worked": "2026-10-01T20:04:00Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
