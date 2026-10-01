@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 195,
+  "counter": 198,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -2738,7 +2738,7 @@
     {
       "symbol": "W133",
       "title": "Put WCAG contrast and colour-blindness separation inside the palette's conductance graph",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W42"
       ],
@@ -2748,14 +2748,18 @@
         "check_use_of_colour",
         "check_selection_contrast"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Decide per gap, smallest first: (1) the 5 focus~semantic pairs below 8.8 under CVD - promote focus~{neg,neu,pos,link} from SURFACED to enforced in the solver, re-solve, and see which variants move; (2) state the metric of check_selection_contrast FLOOR=3.0 (WCAG ratio or another) and, if WCAG, whether selected TEXT needs 4.5 - an operator question; (3) the 11 ungated semantic pairs and the 5 raw-dE hot-prune pairs onto the gate metric. Each promotion is an edge whose floor the solver honours, not a new gate beside it.",
+      "blocked_on": [
+        "W196",
+        "W197",
+        "W198"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W196-W198 land.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): A11Y AS CONDUCTANCES (operator 2026-09-28): WCAG contrast and colour-vision-deficiency separation as constraints INSIDE the conductance graph the palette is solved on, satisfied by construction rather than checked after; first step: census the existing a11y checks (check_legibility, check_use_of_colour, check_selection_contrast; paperkit wcag_entail/wcag_model) and what each constrains, as the edge spec | 2026-10-01: 2026-10-01 SURVEY (check_palette_graph --edges, check_separation --surfaced): 47 declared edges - derivation 6 (no floor), geometry 6, legibility 11, separation 24. SEPARATION: 4 enforced (link~fg, neg~neu, neg~pos, neu~pos; all variants pass need 8.8), 4 SURFACED only (focus~neu/link/neg/pos), 11 semantic pairs ungated, 5 *~fg_act pruned on RAW dE not the gate metric. SURFACED BELOW 8.8: EL-Amber focus~pos 5.2 (protanomaly), EL-Amber-Lit focus~neu 6.3 (deuteranomaly), EL-Azure focus~link 7.0 (tritanomaly), EL-Openglo-Lit focus~neu 7.4 (protanomaly), EL-Amber-Lit focus~neg 8.7 (protanomaly) - the focus ring can be confused with a status colour under CVD. LEGIBILITY: sel_fg~sel_bg and sel_act~sel_bg floor 3.0 (check_selection_contrast) - below WCAG AA 4.5 for body text IF it is a WCAG ratio; fg~view has no floor (argmax).",
       "issued_at": "2026-09-28T21:04:41Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T21:08:54Z",
+      "last_worked": "2026-10-01T21:25:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -4210,6 +4214,82 @@
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W196",
+      "title": "Enforce focus against the status colours in the palette solver, so no variant falls below the 8.8 CVD floor",
+      "status": "working",
+      "enables": [
+        "W133"
+      ],
+      "touches": [
+        "cvd_gate",
+        "make_schemes",
+        "check_separation"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Read cvd_gate.SURFACED and solve_semantic_set (where enforced pairs enter min_pair); move focus~{neg,neu,pos,link} into the enforced set; re-solve under systemd-run (heavy: palette solve); check_separation must then show all 6 variants >= 8.8 on those pairs; rebuild schemes/screens and record parity.",
+      "evidence": "",
+      "issued_at": "2026-10-01T21:24:47Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T21:25:03Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W197",
+      "title": "State the metric behind the selection-contrast floor of 3.0, and whether selected text needs 4.5",
+      "status": "ready",
+      "enables": [
+        "W133"
+      ],
+      "touches": [
+        "check_selection_contrast"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Read scripts/check_selection_contrast.py FLOOR and its metric; record whether 3.0 is a WCAG ratio, APCA Lc or other; then ask the operator whether selected TEXT is held to 4.5.",
+      "evidence": "",
+      "issued_at": "2026-10-01T21:24:47Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T21:25:03Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent",
+      "weight": 3
+    },
+    {
+      "symbol": "W198",
+      "title": "Put the 11 ungated status-colour pairs and the 5 raw-dE accent prunes onto the gate metric",
+      "status": "blocked",
+      "enables": [
+        "W133"
+      ],
+      "touches": [
+        "cvd_gate",
+        "make_schemes",
+        "check_separation"
+      ],
+      "blocked_on": [
+        "W196"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W196 shows how the solver absorbs promoted pairs: promote the 11 ungated semantic pairs, and replace the raw-dE hot-prune of *~fg_act with the gate metric.",
+      "evidence": "",
+      "issued_at": "2026-10-01T21:24:47Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-01T21:25:04Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     }
   ],
