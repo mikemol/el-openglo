@@ -360,3 +360,4 @@
 2026-10-01T07:25:11Z  tick  W57  advanced  unblock   "segment corners snapped to the device grid: glyph mirrors exact, located asymmetries 30 -> 6 (face/mount left)"  evidence=check_symmetry --list; qml_lint 12/12
 2026-10-01T07:48:16Z  tick  W57  atomized  collapse  "ATOMIZE W57 (top for 2 ticks, genuine): three distinct remaining steps -> W164 face mount, W165 least-squares fit, W166 matrix oracle"  evidence=W164 W165 W166 minted, enables W57
 2026-10-01T07:57:37Z  tick  W164 advanced  unblock   "face asymmetry is the harness canvas, not the mount: two snap hypotheses falsified and reverted; next renders the face at the applet width"  evidence=check_symmetry --list identical before/after; content x 23..300 of 420
+2026-10-01T08:06:23Z  tick  W164 atomized  collapse  "ATOMIZE W164 (top for 2 ticks, genuine): the harness fix (W167, minted) comes before any mount snap; W164 now conditional on what survives"  evidence=W167 enables W164
