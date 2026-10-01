@@ -3435,7 +3435,7 @@
     {
       "symbol": "W173",
       "title": "Require at least 2/3 of an animation steps to be fractional, and refuse a half-pip see-saw by its spectral line",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "policy/screens.rego",
@@ -3448,8 +3448,10 @@
       "issued_at": "2026-10-01T14:43:22Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T14:43:41Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-01T14:52:53Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "weight": 10
     },
     {
       "symbol": "W174",
