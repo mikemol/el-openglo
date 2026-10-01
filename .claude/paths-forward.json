@@ -2244,7 +2244,7 @@
     {
       "symbol": "W119",
       "title": "W112.3 SPDX-License-Identifier: Apache-2.0 headers on authored source (mtools precedent), applied structurally (pycodemod), with check_license reporting n of m authored files carrying the header and refusing a missing one",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W112"
       ],
@@ -2259,7 +2259,7 @@
       "issued_at": "2026-09-28T18:56:42Z",
       "minted_during": "interrupt",
       "caused_by": "W112",
-      "last_worked": "2026-09-29T01:55:37Z",
+      "last_worked": "2026-10-01T05:54:08Z",
       "ticks_blocked": 0
     },
     {
@@ -3151,7 +3151,7 @@
     {
       "symbol": "W159",
       "title": "Take qt_sandbox.py out of the screenshots cache key, so a sandbox change stops invalidating them",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W98"
       ],
@@ -3166,7 +3166,7 @@
       "issued_at": "2026-10-01T04:56:08Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-10-01T05:43:09Z",
+      "last_worked": "2026-10-01T05:54:07Z",
       "ticks_blocked": 0
     }
   ],
