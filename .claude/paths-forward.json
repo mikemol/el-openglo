@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 167,
+  "counter": 168,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T09:25:29Z",
   "job_id": "030fa305",
@@ -2705,11 +2705,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "Adopt for ONE check first (qml_lint, the opa pilot): add mikemol-pytestspec sha-pinned to the tooling extra; pin opa 1.20.2; move policy/qml_lint_test.rego cases into policy/qml_lint.cases.json; write tests/test_check_qml_lint.py from its --selftest (ship tests/ in the SAME commit as testpaths config - the SKELETON trap); faulthandler_timeout=60; run under systemd-run with MemoryMax",
-      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit) | 2026-10-01: mtools-3d 2026-10-01: scripts/run_selftests.py (substrate symlink, dies on mikemol.ratchet) retires here: each selftest moves to tests/test_<module>.py, pytest is the runner | 2026-10-01: 2026-10-01 mtools-3d answered (inbox/2026-10-01-mtools-pytestspec-answers.md; mtools:W302): pytestspec 0.1.0 ready for the Rego half, sha-pinned; opa PINNED 1.20.2 (any other version FAILS every case); spec = <name>.rego + <name>.cases.json, opa *_test.rego NOT collected (move cases into .cases.json); Python half = one plain tests/test_<check>.py per check (mtools SKELETON.md), run_selftests.py retires - do not repair, delete per check; set faulthandler_timeout in [tool.pytest.ini_options] and run under timeout too. xdist MEASURED (mtools:W316, pytest 9.1.1, xdist 3.8.0): -n 4 outcomes identical to serial; ONLY the per-spec pytestspec summary line goes missing under -n - do not read it under -n until W316 fix lands. Not blocking.",
+      "evidence": "2026-09-28: 2026-09-28: letter ~/github/mtools/inbox/2026-09-28-el-openglo-selftest-to-pytest.md (no mtools session live at ListAgents). Asks: pytest-spec consumer-ready + sha-pinned install; parallel model (xdist?) with memory-capped workers; mapping of policy/*_test.rego (SpecItem) and the Python measurement selftests; who supplies faulthandler_timeout (their rule 13). mtools read: W194/W198/W199/W202 done (pytest-spec plugin, opa eval, deny/withheld->fail), W108/W208 blocked (pycodemod 408-case port), W244 done (timeout rule). Repoint blocked_on to mtools:W<n> when they name it. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ADOPT mtools pytest-spec FOR THE SELFTESTS + PARALLEL PRE-COMMIT (operator 2026-09-28: CPU nearly idle during commits; pre-commit runs ~90 check_*.py --selftest strictly serially, .githooks/pre-commit:67-70): adopt mtools pytest-spec (Rego cases -> pytest) and its --selftest migration instead of hand-parallelising; memory-capped workers for the Qt/kwin selftests | 2026-10-01: mtools-3d 2026-10-01: claimed as mtools:W302; see mtools SKELETON.md (ship tests/ with testpaths config in one commit) | 2026-10-01: mtools-3d 2026-10-01: scripts/run_selftests.py (substrate symlink, dies on mikemol.ratchet) retires here: each selftest moves to tests/test_<module>.py, pytest is the runner | 2026-10-01: 2026-10-01 mtools-3d answered (inbox/2026-10-01-mtools-pytestspec-answers.md; mtools:W302): pytestspec 0.1.0 ready for the Rego half, sha-pinned; opa PINNED 1.20.2 (any other version FAILS every case); spec = <name>.rego + <name>.cases.json, opa *_test.rego NOT collected (move cases into .cases.json); Python half = one plain tests/test_<check>.py per check (mtools SKELETON.md), run_selftests.py retires - do not repair, delete per check; set faulthandler_timeout in [tool.pytest.ini_options] and run under timeout too. xdist MEASURED (mtools:W316, pytest 9.1.1, xdist 3.8.0): -n 4 outcomes identical to serial; ONLY the per-spec pytestspec summary line goes missing under -n - do not read it under -n until W316 fix lands. Not blocking. | 2026-10-01: 2026-10-01 mtools:W316 LANDED (mtools 1bd18ae): the pytestspec differential line now prints correctly under xdist (workers hand tallies to the controller; declarations once, outcomes summed). Pin pytestspec at 1bd18ae or later; the -n caveat above is lifted. README \"Parallel runs\": cap the whole run, xdist does not cap workers.",
       "issued_at": "2026-09-28T22:40:14Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T10:25:06Z",
+      "last_worked": "2026-10-01T10:51:39Z",
       "ticks_blocked": 0
     },
     {
@@ -3287,7 +3287,7 @@
     {
       "symbol": "W166",
       "title": "Run the mirror oracle on the matrix display, not only its pip-grid regularity",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W57"
       ],
@@ -3295,14 +3295,16 @@
         "check_symmetry",
         "marquee"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Find when the injected glyph is ON the board: run the hovered harness with frames=DIR (check_marquee_live already captures frames with t and x) for the H timeline, read which frame shows the glyph and at what x offset; if no held frame shows it, the hover-hold fires before the text arrives - then grab at an integer-pitch offset while the text is on the board (the frames list carries x), crop with first_glyph_box(ring=True), and only wire matrix_cases into measure() once the real crop is ~5 pips wide",
+      "blocked_on": [
+        "W168"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "after W168: matrix_cases uses the W168 capture; confirm the real crop is ~5 pips wide, then wire matrix_cases() into measure() and re-run opa_gate symmetry",
       "evidence": "2026-10-01: 2026-10-01 design (read check_marquee_live.run/stager/timeline): the literal plan measures nothing - a MID-SCROLL still sits at an arbitrary, often fractional offset that W60 temporal subpixel resamples ON PURPOSE (a mirror difference there is expected, not a defect), and a FULL-ON board mirror is the translation symmetry grid_regularity already measures. run() takes `timeline` (t, op, id, fields, shows), so one glyph can be injected. | 2026-10-01: 2026-10-01 built (check_symmetry: MATRIX_GLYPHS, first_glyph_box, matrix_cases via ML.run(hovered_args + timeline injecting the glyph as applicationName); selftest: a synthetic pip H after a second glyph crops to the first alone, mirrors clean, a removed pip is located - PASS). REAL RUN WAS VACUOUS, so NOT wired into measure(): both matrix-H and matrix-O cropped to 419x31, the whole board, and read \"symmetric\" - the hover-pause ring (W51, outer ring of pips pulsing while held) reaches the half-peak core threshold and spans the width, so the column grouping swallowed everything. | 2026-10-01: 2026-10-01 tick 3: ring exclusion added to first_glyph_box (pip bands max_gap 0, outermost band each side dropped; selftest with a lit ring PASS, and without exclusion the crop differs) + check_symmetry --matrix mode (the matrix cases alone, as json). Real crop STILL 411x23: READ catalog/library/screens/marquee-paused-EL-Amber.png (the same hovered still) - the held board shows NO TEXT, every interior pip at one ghost level, only the ring bright. With no glyph lit the half-peak core is the whole interior. The premise that the hover-hold shows the glyph is FALSE for this capture; matrix_cases stays UNWIRED.",
       "issued_at": "2026-10-01T07:48:03Z",
       "minted_during": "interrupt",
       "caused_by": "W57",
-      "last_worked": "2026-10-01T09:50:21Z",
+      "last_worked": "2026-10-01T10:51:39Z",
       "ticks_blocked": 0
     },
     {
@@ -3324,6 +3326,27 @@
       "minted_during": "interrupt",
       "caused_by": "W164",
       "last_worked": "2026-10-01T08:28:01Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W168",
+      "title": "Capture the injected matrix glyph on the board at a whole-pip offset",
+      "status": "ready",
+      "enables": [
+        "W166"
+      ],
+      "touches": [
+        "scripts/check_marquee_live.py",
+        "check_symmetry"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Run the hovered harness with frames=DIR for the H timeline (check_marquee_live captures frames with t and x); read which frame shows the glyph and at what x offset. If one is on the board at an integer pitch, return it from a check_marquee_live helper (grab at that x). If the hover-hold fires before the text arrives, add a harness mode that grabs when the text left edge reaches a given whole-pip x. Done when check_symmetry --matrix crops ~5 pips wide (about 19 px) on the real board.",
+      "evidence": "",
+      "issued_at": "2026-10-01T10:51:28Z",
+      "minted_during": "interrupt",
+      "caused_by": "W166",
+      "last_worked": "2026-10-01T10:51:38Z",
       "ticks_blocked": 0
     }
   ],
