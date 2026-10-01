@@ -3526,24 +3526,22 @@
     {
       "symbol": "W177",
       "title": "Drop pre-fix marquee traceLog entries on upgrade by versioning the trace format",
-      "status": "blocked",
+      "status": "done",
       "enables": [],
       "touches": [
         "templates/marquee-main.qml",
         "trust-boundary"
       ],
-      "blocked_on": [
-        "luthen:W264"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "closes when luthen:W264 witnesses the marker prefix and zero ticker= lines after the operator apply + plasmashell restart; then set the vector witness W:Y",
-      "evidence": "2026-10-01: 2026-10-01 luthen-observability: the pre-fix traceLog in ~/.config/plasma-org.kde.plasma.desktop-appletsrc is a 6081-char value written before 13ab366 and likely still holds ticker text; that file is synced and backed up (hence E:Y). Not read by us or luthen. Fix: the widget versions its trace format and resets any traceLog lacking the marker on load, so the first load of the upgraded widget clears it. | 2026-10-01: 2026-10-01 BUILT: marquee-main.qml traceFormat marker \"#el-marquee-trace v2 (structure only)\"; root Component.onCompleted resetStaleTrace() replaces any traceLog not starting with it by the bare marker (the pre-fix value is dropped whole, never read); trace() writes marker + body and its 6000-char cap keeps the marker. Parity diff = only this change (baseline re-recorded); qml_lint 12/12; log_content 11/11; marquee_live admitted; screens 0/56 stale; schemes/wallpapers byte-identical; nemik-rank --band: critical (R:H/S:C). WITNESS IS ON-HOST (W:N in-tree): the harness cannot read plasmoid.configuration back after load; luthen asked to witness, after the operator install + plasmashell restart, that traceLog starts with the marker - without reading the value. | 2026-10-01: 2026-10-01 SHIPPED eec6ccc (on origin/main; luthen smart-live-rebuild --pretend: el-openglo 11d95d2 -> eec6ccc). ATOMIZE W177 (advanced 1x without landing) considered and NOT split: no code remains; what remains is the on-host witness, owned by luthen W264 (enables el-openglo:W177) - after the operator apply + plasmashell restart, traceLog starts with the v2 marker (prefix compared in code, true/false only) and zero ticker= lines.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 luthen-observability: the pre-fix traceLog in ~/.config/plasma-org.kde.plasma.desktop-appletsrc is a 6081-char value written before 13ab366 and likely still holds ticker text; that file is synced and backed up (hence E:Y). Not read by us or luthen. Fix: the widget versions its trace format and resets any traceLog lacking the marker on load, so the first load of the upgraded widget clears it. | 2026-10-01: 2026-10-01 BUILT: marquee-main.qml traceFormat marker \"#el-marquee-trace v2 (structure only)\"; root Component.onCompleted resetStaleTrace() replaces any traceLog not starting with it by the bare marker (the pre-fix value is dropped whole, never read); trace() writes marker + body and its 6000-char cap keeps the marker. Parity diff = only this change (baseline re-recorded); qml_lint 12/12; log_content 11/11; marquee_live admitted; screens 0/56 stale; schemes/wallpapers byte-identical; nemik-rank --band: critical (R:H/S:C). WITNESS IS ON-HOST (W:N in-tree): the harness cannot read plasmoid.configuration back after load; luthen asked to witness, after the operator install + plasmashell restart, that traceLog starts with the marker - without reading the value. | 2026-10-01: 2026-10-01 SHIPPED eec6ccc (on origin/main; luthen smart-live-rebuild --pretend: el-openglo 11d95d2 -> eec6ccc). ATOMIZE W177 (advanced 1x without landing) considered and NOT split: no code remains; what remains is the on-host witness, owned by luthen W264 (enables el-openglo:W177) - after the operator apply + plasmashell restart, traceLog starts with the v2 marker (prefix compared in code, true/false only) and zero ticker= lines. | 2026-10-01: 2026-10-01 luthen-observability W264 DONE (peer message): el-openglo-9999 at 0fc9014 (contains 13ab366, eec6ccc) installed, plasmashell restarted 14:58:01 EDT. Journal _COMM=plasmashell since restart: 0 of 569 el-marquee lines contain ticker=\". appletsrc traceLog begins with the v2 structure-only marker, 80 entries, none containing ticker=\", Gmail:, Threads:, @, or http (checked as booleans, never printed).",
       "issued_at": "2026-10-01T15:45:13Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-10-01T16:08:34Z",
+      "last_worked": "2026-10-01T19:11:33Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261001T191133Z",
       "vector": "WV:1/R:H/E:Y/C:H/I:N/A:N/X:N/S:C/F:K/W:N",
       "vector_source": "agent"
     },

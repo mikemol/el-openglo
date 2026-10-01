@@ -411,3 +411,4 @@
 2026-10-01T18:58:44Z  hash  --   diverged  --        "divergence: payload v2:3ce96bcd9fc535dc, file v2:67a46fcdc1e9e0e2; the FILE wins"
 2026-10-01T18:59:23Z  tick  W183 advanced  unblock   "roll design recorded from the render model: backdrop-px vertical offset gives a graded sub-pip roll; prefix/suffix span, odometer direction, suffix glides on length change"  evidence=templates/marquee-main.qml:417-599 (ApertureField scale=4, drawBackdrop per glyph cell)
 2026-10-01T19:05:31Z  tick  W183 atomized  collapse  "split W183 build into W186 replaceSpan, W187 port re-apply, W188 roll painting, W189 roll L-rule"  evidence=W186-W189 in state file
+2026-10-01T19:11:33Z  tick  W177 done      unblock   "luthen W264 witnessed the live desktop: journal and appletsrc trace are content-free after the upgrade"  evidence=luthen-observability message 2026-10-01; el-openglo-9999 at 0fc9014
