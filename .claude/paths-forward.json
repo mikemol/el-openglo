@@ -1022,7 +1022,7 @@
     {
       "symbol": "W53",
       "title": "Runtime warnings as tripwires: catch each class of shell warning at emit time",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W46"
       ],
@@ -1034,10 +1034,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Write catalog/runtime-warnings.md from the operator's pastes to date (s93-112: the blank kcm page, the missing wallpaper plugin, the cfg_ Default refusals, 'Created graphical object was not placed in the graphics scene' — is that one a consequence of the Default refusals or its own class? measure by opening the fixed page live) and scripts/check_runtime_warnings.py --json + policy/runtime_warnings.rego: R0 empty, R1 a row without a rule and no 'unruled since' date, R2 an unruled row older than N sessions.",
+      "next_bounded_step": "",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): RUNTIME WARNINGS AS TRIPWIRES (operator 2026-09-22: 'we can use the gate as a tripwire for runtime linting'). Every class of plasmashell/KWin stderr line the live host has produced is a contract the shell checks late; the gate checks it at emit time. Done so far: cfg_<key>/cfg_<key>Default (config_page C2/C3), KF5 org.kde.kcm import (qml_lint), a wallpaper plugin id that no longer exists (check_marquee_host --containments, read not gated). Keep a corpus: catalog/runtime-warnings.md, one row per class (the line as seen, date, the surface, the rule that now trips it or 'unruled'), and a check that refuses an unruled row older than a session | 2026-10-01: corpus catalog/runtime-warnings.json (4 classes; JSON not md: data with a generated page later, nothing typed twice) + scripts/check_runtime_warnings.py (selftest PASS) + policy/runtime_warnings.rego R0-R4 (opa 943/943). Gate DENIES R2 x2 today, genuinely: wallpaper-plugin-missing (owner W58) and graphics-object-unplaced (owner W163, minted) unruled 9 days > 7. 2 of 4 classes ruled. Not cited in warrants yet: a cited gate would sit red until W58/W163 land",
       "issued_at": "2026-09-22T01:31:10+00:00",
-      "last_worked": "2026-10-01T07:05:47Z",
+      "last_worked": "2026-10-01T07:15:26Z",
       "ticks_blocked": 0
     },
     {
@@ -1090,7 +1090,7 @@
     {
       "symbol": "W57",
       "title": "Planes of symmetry as an oracle: check each display against its own mirror",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W33"
       ],
@@ -1106,7 +1106,7 @@
       "next_bounded_step": "The CORNER asymmetries that remain (24 px regions where segments meet — the end-gap against the rounded cap: a horizontal is shortened by gap at each end while a vertical's cap protrudes, so the two do not close the corner identically). Then the constructive half the operator named: least-squares fit of the rendered segment extents against the substrate's unit coordinates, residuals naming the offender, the corrected table snapped to the device grid. And run the oracle on the MATRIX too (W59: a pip is a segment; the grid glitching was this check going unrun).",
       "evidence": "7b1bccf: check_symmetry built as a LOCATOR (regions with box, magnitude, place; a mirror difference appears twice — at the defect and at what it should have matched). Found ONE root cause for all six glyph regions: strokes rested beside the lattice line instead of centring on it. Fixed: glyph h 1852->144 px, face 9372->1796. Its own first naming was wrong (predicted segment boxes vs a bloom-offset crop) and reading it caught that. | 2026-09-26: 2026-09-27: edge retrofit — touches segment_topology with W43 (engine assets); REJECTED, shared module only. No edge added (W57's real edge, enables W33, was already wired). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLANES OF SYMMETRY AS A FREE ORACLE (operator 2026-09-22, photographing a clock digit whose top-left corner notches while the bottom-left corner is clean: 'that should have been symmetrical! That gives us another tool: planes of symmetry'). A seven-segment 8 is invariant under a horizontal mirror AND a vertical mirror; 0 likewise; the lattice pairs A/D, B/C, F/E and fixes G. So the display can be checked against ITSELF — render 8, compare to its own mirror in each axis, and any geometric drift (a segment inset, an off-by-one gap, a cap that meets one corner and not the other) is a difference no reference picture and no human eye was needed to find. Cheap, total, and it generalises: the matrix glyphs have their own symmetric set, the palette has its Lit/Off pairs, the switcher's board has a vertical axis. ⚑ THE FIRST INSTANCE IS A REAL DEFECT, PHOTOGRAPHED — and since s133 the clock and the live wallpaper mount ONE display, so it is one defect, not two.",
       "issued_at": "2026-09-22T11:44:18+00:00",
-      "last_worked": "2026-10-01T04:03:57Z",
+      "last_worked": "2026-10-01T07:15:26Z",
       "ticks_blocked": 0
     },
     {
