@@ -103,6 +103,7 @@ ORDER = (
     ("make_metrics",   "the VictoriaMetrics plasmoid (plasma-metrics/); endpoint asked of luthen at runtime (W77)"),
     ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
     ("make_tokens",    "the palette as W3C DTCG design tokens, from GRID (W160)"),
+    ("make_glb",       "the segment and matrix displays as glTF meshes, named nodes per segment (W152)"),
     ("make_union",     "Union styles: Breeze with its alphas solved, from the schemes (W14)"),
     ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),
     ("make_firefox",   "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
@@ -158,6 +159,8 @@ ROLES = {
     # generators that carry NO colour, each with the reason it is exempt
     "make_font":            "colourless",  # glyph outlines only
     "make_glyph_ink":       "colourless",  # an ink field from font winding
+    "make_glb":             "colourless",  # glTF segment/matrix meshes; colour is the
+                                           # W151 material group in the token file
     "make_segment_display": "colourless",  # QML geometry; colour bound by caller
     "make_metrics":         "colourless",  # the VM metrics plasmoid (W77): colour is the
                                            # active scheme's Kirigami View roles, bound

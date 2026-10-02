@@ -904,3 +904,9 @@
   claim    = {The serial gate DENIES a log of console noise with the typed S0 denial (no boot with an el.ident: the population is empty, not the probe clean). The negative twin of SERIAL, so the reader-plus-policy pair is graded in both directions: an admission, a different rule, or a reader that crashes or prints unparseable JSON fails this claim rather than passing it (opa_gate.py --expect, W75).},
   check    = {tool:opa_gate.py serial catalog/fixtures/serial/noise-only.log --expect denied:S0}
 }
+
+@misc{GLB,
+  section  = {emitters},
+  claim    = {make_glb emits the 7-, 16- and 22-segment displays and the 5x7 matrix as glTF 2.0 binaries in catalog/engines/, each segment (or dot) a named node with a solid mesh, the names exactly the format's segment_topology ids after projection, and every file current against a fresh emission (W152)},
+  check    = {tool:check_glb.py}
+}
