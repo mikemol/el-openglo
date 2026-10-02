@@ -1875,7 +1875,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 7
     },
     {
       "symbol": "W96",
@@ -2321,7 +2321,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 5
     },
     {
       "symbol": "W116",
@@ -4009,7 +4009,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W187",
@@ -4577,7 +4577,7 @@
     {
       "symbol": "W209",
       "title": "Derive the S5 tear tolerance from a clean scroll rendered through the aperture field",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W207"
       ],
@@ -4593,12 +4593,12 @@
       "issued_at": "2026-10-02T00:25:38Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T00:25:53Z",
+      "last_worked": "2026-10-02T12:10:11Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 8
     },
     {
       "symbol": "W210",
@@ -5091,17 +5091,19 @@
     {
       "symbol": "W232",
       "title": "el_serial_emit selftest byte-compares the sh writer (guest/el-serial-emit.sh) against the reference writer when jq is present, else a counted SKIP",
-      "status": "working",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "The one real gap (named in el_serial_emit docstring weakness): the sh writer shares the spec table, not the code, and is only sh -n checked. Add a selftest arm that drives guest/el-serial-emit.sh through the same P2 boot as Emitter and asserts byte-equal output when jq is on PATH; when jq is absent print a counted SKIP (a fact about the host, never a pass). jq is absent here today (command -v jq: exit 1), so the arm SKIPs on this host until jq is installed or W71e boots a guest; that is honest, not done.",
-      "evidence": "2026-10-02: Split from W181 (2026-10-02). | 2026-10-02: 2026-10-02 RESCOPED: the py round trip and committed==regenerated fixtures already exist (el_serial_emit --selftest 13/13); only the sh-writer byte comparison is missing.",
+      "blocked_on": [
+        "operator: act install jq on this host (Gentoo app-misc/jq) so the el-serial sh writer can be byte-compared to the reference writer - or decide the comparison runs in a luthen container instead"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "On jq present: add the selftest arm to scripts/el_serial_emit.py - drive guest/el-serial-emit.sh through the same P2 boot as Emitter with EL_SERIAL_SPEC=guest/el-serial-spec.json, EL_SERIAL_DEV=<tmp log>, EL_SERIAL_RUN=<tmp>, EL_SERIAL_BOOT_FILE=<file holding em.BOOT>, EL_SERIAL_UPTIME_FILE=<rewritten per frame to the ticker value>, and assert the log equals the reference writer bytes (the reference writes \\n, the sh writer \\n: compare lines); when jq is absent the arm prints a counted SKIP, never a pass.",
+      "evidence": "2026-10-02: Split from W181 (2026-10-02). | 2026-10-02: 2026-10-02 RESCOPED: the py round trip and committed==regenerated fixtures already exist (el_serial_emit --selftest 13/13); only the sh-writer byte comparison is missing. | 2026-10-02: 2026-10-02 PREREQUISITE LANDED: guest/el-serial-emit.sh read its boot id from /proc/sys/kernel/random/boot_id and its clock from /proc/uptime with NO override, so no host run could ever share a boot id or timestamp with the reference writer - byte comparison was impossible by construction, jq or not. Added EL_SERIAL_BOOT_FILE and EL_SERIAL_UPTIME_FILE, defaulting to those same kernel files (guest behaviour unchanged). sh -n clean; mikemol-shellcheck: 1 finding, SC2016 on the single-quoted jq program TYPE_OK (pre-existing, deliberate: $s/$t are jq variables; moved from line 36 to 41 by the insert). REMAINING: jq is absent on this host (command -v jq: exit 1), so the comparison arm cannot run here - operator act.",
       "issued_at": "2026-10-02T11:44:52Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T11:57:25Z",
+      "last_worked": "2026-10-02T12:09:45Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",

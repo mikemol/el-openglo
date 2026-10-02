@@ -524,3 +524,5 @@
 2026-10-02T11:44:35Z  hash  --   diverged  --        "divergence: payload v2:d86371c341d6370d, file v2:7ccb044584ab9f18; the FILE wins"
 2026-10-02T11:45:18Z  tick  W181 atomized  collapse  "W181 split into W230 writer port -> W231 generated fixtures -> W232 round-trip selftest; worktree retirement became W233, which found 50 stale agent worktrees"  evidence=git worktree list: 50 agent worktrees
 2026-10-02T11:56:56Z  tick  W230 atomized  collapse  "W230 + W231 already landed on main as el_serial_emit.py (spec-driven reference writer, generated fixtures, 13/13 selftest); the worktree PyEmitter was an older parallel design; W232 narrowed to the sh-writer byte comparison"  evidence=el_serial_emit --selftest 13/13
+2026-10-02T12:08:48Z  hash  --   diverged  --        "divergence: payload v2:199331094a57fb41, file v2:15c1a82537f614ed; the FILE wins"
+2026-10-02T12:09:45Z  tick  W232 advanced  unblock   "sh writer gained EL_SERIAL_BOOT_FILE / EL_SERIAL_UPTIME_FILE overrides (defaults unchanged) so it can be driven to reproducible bytes; the comparison needs jq, absent here - operator act"  evidence=sh -n clean; command -v jq exit 1

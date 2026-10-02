@@ -21,6 +21,11 @@ set -eu
 SPEC=${EL_SERIAL_SPEC:-/usr/share/el-openglo/el-serial-spec.json}
 DEV=${EL_SERIAL_DEV:-/dev/ttyS0}
 RUN=${EL_SERIAL_RUN:-/run}
+# The boot id and the clock are READ FROM FILES whose paths a host may override, so the
+# host selftest can drive this writer to the same bytes as the reference writer (W232).
+# In the guest the defaults are the kernel's own files; nothing changes there.
+BOOT_FILE=${EL_SERIAL_BOOT_FILE:-/proc/sys/kernel/random/boot_id}
+UPTIME_FILE=${EL_SERIAL_UPTIME_FILE:-/proc/uptime}
 
 usage() {
 	echo "usage: el-serial-emit frame KIND PAYLOAD-JSON | blob LABEL FILE | done PROBE" >&2
@@ -49,7 +54,7 @@ def type_ok($s; $t):
 MARKER=$(jq -r .marker "$SPEC")
 MAXLINE=$(jq -r .max_line_bytes "$SPEC")
 PARTW=$(jq -r .part_b64_chars "$SPEC")
-read -r BOOT < /proc/sys/kernel/random/boot_id
+read -r BOOT < "$BOOT_FILE"
 
 # One lock hold per invocation: a blob's parts and its end are consecutive SEQs.
 exec 9> "$RUN/el-serial.lock"
@@ -58,7 +63,7 @@ SEQ=0
 [ -f "$RUN/el-serial.seq" ] && read -r SEQ < "$RUN/el-serial.seq"
 
 now_cs() {
-	read -r up _ < /proc/uptime
+	read -r up _ < "$UPTIME_FILE"
 	echo $(( ${up%.*} * 100 + 1${up#*.} - 100 ))
 }
 
