@@ -4620,16 +4620,15 @@
         "tests"
       ],
       "blocked_on": [
-        "mtools:W380",
         "mtools:W381"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "When mtools answers (shared --data for policy/lib, and expect.withheld): cite mtools:W<n>; then port all 17 qml_lint tests - deny-expecting, withheld-expecting and admitted cases - and show the differential line counts match opa test.",
-      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow.",
+      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld).",
       "issued_at": "2026-10-02T00:56:02Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:12:57Z",
+      "last_worked": "2026-10-02T01:33:14Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
