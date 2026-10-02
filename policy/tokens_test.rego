@@ -5,10 +5,10 @@ import rego.v1
 import data.el.tokens
 
 good := {"variant": "EL-Azure", "present": true, "colors": 44, "alphas": 2, "bad": [],
-	"materials": ["base", "emissive", "ghost", "ghost_opacity"]}
+	"materials": ["base", "emissive", "floors", "ghost", "ghost_opacity", "hue"]}
 
 test_missing_material_denied if {
-	inp := {"cases": [object.union(good, {"materials": ["base", "emissive", "ghost"]})], "current": true, "withheld": []}
+	inp := {"cases": [object.union(good, {"materials": ["base", "emissive", "ghost", "hue", "floors"]})], "current": true, "withheld": []}
 	"D5: EL-Azure: material slot ghost_opacity is missing" in tokens.deny with input as inp
 	count(tokens.admitted) == 0 with input as inp
 }

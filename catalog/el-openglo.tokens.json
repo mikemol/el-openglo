@@ -167,6 +167,20 @@
         "$type": "color",
         "$value": "{EL-Amber.color.fg}"
       },
+      "floors": {
+        "chroma_floor": {
+          "$type": "number",
+          "$value": 40.0
+        },
+        "ghost_ceiling_lc": {
+          "$type": "number",
+          "$value": 30.0
+        },
+        "void_max_lum": {
+          "$type": "number",
+          "$value": 0.02
+        }
+      },
       "ghost": {
         "$type": "color",
         "$value": "{EL-Amber.color.fg_in}"
@@ -174,6 +188,11 @@
       "ghost_opacity": {
         "$type": "number",
         "$value": "{EL-Amber.alpha.ghost_alpha}"
+      },
+      "hue": {
+        "$description": "the variant's seed hue, HSV degrees (make_palette.HUE_SEEDS)",
+        "$type": "number",
+        "$value": 35.0
       }
     }
   },
@@ -344,6 +363,20 @@
         "$type": "color",
         "$value": "{EL-Amber-Lit.color.fg}"
       },
+      "floors": {
+        "chroma_floor": {
+          "$type": "number",
+          "$value": 40.0
+        },
+        "ghost_ceiling_lc": {
+          "$type": "number",
+          "$value": 30.0
+        },
+        "void_max_lum": {
+          "$type": "number",
+          "$value": 0.02
+        }
+      },
       "ghost": {
         "$type": "color",
         "$value": "{EL-Amber-Lit.color.fg_in}"
@@ -351,6 +384,11 @@
       "ghost_opacity": {
         "$type": "number",
         "$value": "{EL-Amber-Lit.alpha.ghost_alpha}"
+      },
+      "hue": {
+        "$description": "the variant's seed hue, HSV degrees (make_palette.HUE_SEEDS)",
+        "$type": "number",
+        "$value": 35.0
       }
     }
   },
@@ -521,6 +559,20 @@
         "$type": "color",
         "$value": "{EL-Azure.color.fg}"
       },
+      "floors": {
+        "chroma_floor": {
+          "$type": "number",
+          "$value": 40.0
+        },
+        "ghost_ceiling_lc": {
+          "$type": "number",
+          "$value": 30.0
+        },
+        "void_max_lum": {
+          "$type": "number",
+          "$value": 0.02
+        }
+      },
       "ghost": {
         "$type": "color",
         "$value": "{EL-Azure.color.fg_in}"
@@ -528,6 +580,11 @@
       "ghost_opacity": {
         "$type": "number",
         "$value": "{EL-Azure.alpha.ghost_alpha}"
+      },
+      "hue": {
+        "$description": "the variant's seed hue, HSV degrees (make_palette.HUE_SEEDS)",
+        "$type": "number",
+        "$value": 210.0
       }
     }
   },
@@ -698,6 +755,20 @@
         "$type": "color",
         "$value": "{EL-Azure-Lit.color.fg}"
       },
+      "floors": {
+        "chroma_floor": {
+          "$type": "number",
+          "$value": 40.0
+        },
+        "ghost_ceiling_lc": {
+          "$type": "number",
+          "$value": 30.0
+        },
+        "void_max_lum": {
+          "$type": "number",
+          "$value": 0.02
+        }
+      },
       "ghost": {
         "$type": "color",
         "$value": "{EL-Azure-Lit.color.fg_in}"
@@ -705,6 +776,11 @@
       "ghost_opacity": {
         "$type": "number",
         "$value": "{EL-Azure-Lit.alpha.ghost_alpha}"
+      },
+      "hue": {
+        "$description": "the variant's seed hue, HSV degrees (make_palette.HUE_SEEDS)",
+        "$type": "number",
+        "$value": 210.0
       }
     }
   },
@@ -875,6 +951,20 @@
         "$type": "color",
         "$value": "{EL-Openglo.color.fg}"
       },
+      "floors": {
+        "chroma_floor": {
+          "$type": "number",
+          "$value": 40.0
+        },
+        "ghost_ceiling_lc": {
+          "$type": "number",
+          "$value": 30.0
+        },
+        "void_max_lum": {
+          "$type": "number",
+          "$value": 0.02
+        }
+      },
       "ghost": {
         "$type": "color",
         "$value": "{EL-Openglo.color.fg_in}"
@@ -882,6 +972,11 @@
       "ghost_opacity": {
         "$type": "number",
         "$value": "{EL-Openglo.alpha.ghost_alpha}"
+      },
+      "hue": {
+        "$description": "the variant's seed hue, HSV degrees (make_palette.HUE_SEEDS)",
+        "$type": "number",
+        "$value": 168.0
       }
     }
   },
@@ -1052,6 +1147,20 @@
         "$type": "color",
         "$value": "{EL-Openglo-Lit.color.fg}"
       },
+      "floors": {
+        "chroma_floor": {
+          "$type": "number",
+          "$value": 40.0
+        },
+        "ghost_ceiling_lc": {
+          "$type": "number",
+          "$value": 30.0
+        },
+        "void_max_lum": {
+          "$type": "number",
+          "$value": 0.02
+        }
+      },
       "ghost": {
         "$type": "color",
         "$value": "{EL-Openglo-Lit.color.fg_in}"
@@ -1059,6 +1168,11 @@
       "ghost_opacity": {
         "$type": "number",
         "$value": "{EL-Openglo-Lit.alpha.ghost_alpha}"
+      },
+      "hue": {
+        "$description": "the variant's seed hue, HSV degrees (make_palette.HUE_SEEDS)",
+        "$type": "number",
+        "$value": 168.0
       }
     }
   }

@@ -55,7 +55,7 @@ deny contains "D4: catalog/el-openglo.tokens.json is stale; run make_tokens.py" 
 
 # METADATA
 # title: "D5 — a variant carries the engine material (W151): base, emissive, ghost, ghost_opacity"
-material_slots := {"base", "emissive", "ghost", "ghost_opacity"}
+material_slots := {"base", "emissive", "ghost", "ghost_opacity", "hue", "floors"}
 
 deny contains msg if {
 	some c in input.cases
