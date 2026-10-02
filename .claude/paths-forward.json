@@ -1791,7 +1791,7 @@
     {
       "symbol": "W92",
       "title": "An upgrade must take effect without a manual plasmashell restart: after installing the fixed .deb the marquee kept its OLD load error until the operator ran plasmashell --replace (2026-09-26)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W79"
       ],
@@ -1803,11 +1803,12 @@
       "issued_at": "2026-09-26T19:07:51Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-02T01:54:10Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 13
+      "weight": 13,
+      "completed": null
     },
     {
       "symbol": "W93",
@@ -4613,7 +4614,7 @@
     {
       "symbol": "W211",
       "title": "Port qml_lint to pytestspec with both halves (admitting cases, and refusing cases with expect.deny) and show the same counts as opa test",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W139"
       ],
@@ -4622,16 +4623,14 @@
         "qml_lint",
         "tests"
       ],
-      "blocked_on": [
-        "mtools:W381"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "When mtools answers (shared --data for policy/lib, and expect.withheld): cite mtools:W<n>; then port all 17 qml_lint tests - deny-expecting, withheld-expecting and admitted cases - and show the differential line counts match opa test.",
-      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld).",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Re-pin all five mtools specs to one sha at or after cec108a (contains ac59711 W380 and cec108a W381); uv sync --extra tooling --extra research (BOTH extras); add pytest config with pytestspec_data = policy/lib and testpaths; write policy/qml_lint.cases.json porting all 17 tests (admitting plain, refusing expect.deny, withholding expect.withheld); run pytest under systemd-run MemoryMax; the differential line admitted/refused/withheld-expected must account for all 17; keep opa test until shown.",
+      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld). | 2026-10-02: 2026-10-02 mtools:W381 LANDED as cec108a: expect.withheld beside deny, exact id sets, omitted key = empty; failures name DENY MISMATCH / WITHHELD MISMATCH; differential line gains withheld-expected after refused; malformed expect is a collection error. API: spec.expected_denies -> spec.expectation (el-openglo imports neither). W211 unblocked.",
       "issued_at": "2026-10-02T00:56:02Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:33:14Z",
+      "last_worked": "2026-10-02T01:59:25Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
@@ -4662,7 +4661,7 @@
     {
       "symbol": "W213",
       "title": "check_qml_target.py --json: every staged package lint and load under the laptop Qt via luthen qml_check, n of m, unavailable runner withheld",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W83"
       ],
@@ -4673,14 +4672,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "scripts/check_qml_target.py: --json stages via make_deb --stage into a temp dir, finds every staged package entry (plasmoids/*/contents/ui/main.qml, wallpapers/*, kwin tabbox, sddm theme Main.qml, splash), runs luthen checks.qml_check via sg k3s per entry, records {id, state, step}; a qml_check exit 2 or missing sg/k3s is a withheld fact per package; --list prints n of m; --selftest proves it can see a failure (a staged copy with `property var byte` injected must read step=lint). Heavy: runs under systemd-run.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-02: 2026-10-02 LANDED scripts/check_qml_target.py (--json/--list/--selftest): stages via make_deb --stage, runs luthen checks.qml_check (sg k3s) per staged entry (plasmoids, wallpapers, kwin tabbox, sddm Main.qml, look-and-feel splash), measures byte-identical alias trees once; a runner that cannot run is withheld. Selftest against the real image: clean -> ok, `var byte` -> step=lint (the laptop 2026-09-26 error). FULL RUN (systemd-run): 13 of 34 ok (marquee x7, splash x6), 21 refused at load, 16 distinct trees. Load logs (segclock, sddm amber): `module \"QtQuick.Effects\" is not installed` - every refused package imports QtQuick.Effects (MultiEffect bloom), every passing one does not. Model/implementation ambiguity: the image lacks qml6-module-qtquick-effects which the laptop Plasma desktop very likely has; asked luthen-observability.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:38:52Z",
+      "last_worked": "2026-10-02T01:53:46Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261002T015346Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent"
     },
@@ -4696,15 +4695,15 @@
         "warrants"
       ],
       "blocked_on": [
-        "W213"
+        "luthen-observability"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "policy/qml_target.rego: deny a failed step per package and an empty/absent population; withheld for could-not-run; admitted set; tests with refusing + admitting cases; warrant @QML-TARGET under emitters citing `opa_gate.py qml_target`; then settle `transient` in marquee-body.js.",
-      "evidence": "",
+      "next_bounded_step": "When luthen adds qml6-module-qtquick-effects to the qml-check image (or confirms the laptop lacks it): re-run check_qml_target; then policy/qml_target.rego (deny a failed step per package and an empty population, withhold could-not-run, admitted set), tests, warrant @QML-TARGET.",
+      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:38:52Z",
+      "last_worked": "2026-10-02T02:06:47Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",

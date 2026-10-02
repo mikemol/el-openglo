@@ -454,3 +454,4 @@
 2026-10-02T01:26:08Z  tick  W83  advanced  unblock   "luthen qml_check run by hand: the emitted marquee lints and loads under Qt 6.10.2 (state ok); next is the standing gate over every staged package"  evidence=qml_check verdict state ok, ubuntu@sha256:da6fc2be5478
 2026-10-02T01:38:31Z  hash  --   diverged  --        "divergence: payload v2:d834280dc2d533a0, file v2:c83edafe4f340177; the FILE wins"
 2026-10-02T01:38:53Z  tick  W83  atomized  collapse  "split W83 into W213 check_qml_target measurement (working) and W214 policy + tests + warrant"  evidence=W213, W214 in state file
+2026-10-02T01:53:46Z  tick  W213 done      unblock   "check_qml_target landed and proven on the real image; 13/34 ok, 21 refused on one image gap (QtQuick.Effects not installed); asked luthen; W214 gate waits on the image"  evidence=scratchpad qml-target.txt; load.txt logs for segclock and sddm amber
