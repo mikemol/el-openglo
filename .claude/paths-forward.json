@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 228,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T06:19:24Z",
-  "job_id": "57e4bd6b",
+  "heartbeat": "2026-10-02T06:32:06Z",
+  "job_id": "75b222d2",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1199,7 +1199,7 @@
     {
       "symbol": "W61",
       "title": "THE BUILD GRAPH, ITERATIVE AND FINE-GRAINED (operator ruling 2026-09-22)",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "warrants.bib",
@@ -1214,11 +1214,12 @@
       "next_bounded_step": "Split runner_code per job kind: each output keys only the modules its OWN stager and runner reach (render_qml's for clock/switcher/live-wallpaper/pinholes; check_marquee_live's for the marquee stills/anim), not render_screens' whole closure. Prove with --impact scripts/check_marquee_live.py -> only marquee outputs (+ their sheets, strip) move.",
       "evidence": "landed 2026-09-23: per-output keys, early cutoff at generators; proven 0/19/10 of 56 in the worktree. FIRST REAL USE on main exposed a coarse term: W72 edited only a COMMENT in scripts/check_marquee_live.py, and 55 of 56 went stale — because every output's key includes the SAME runner-code term (the import closure of render_screens), so a harness a clock never runs still keys the clock. | 2026-09-26: 2026-09-27: edge retrofit — touches 'scripts' with W42 (codomain census) and check_symmetry with W60 (temporal subpixel); both REJECTED, shared-module/generic-tag overlaps with no stated relationship. No edges added. | 2026-09-28: 2026-09-28 operator rule: nothing bespoke that can be generated; what cannot be is a lift debt. W61 orphan view (files nothing produces) is the census W120 builds on.",
       "issued_at": "2026-09-22T13:21:32+00:00",
-      "last_worked": "2026-09-28T19:32:40Z",
+      "last_worked": "2026-10-02T06:41:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W62",
@@ -4689,7 +4690,7 @@
     {
       "symbol": "W214",
       "title": "policy/qml_target.rego with refusing and admitting tests, and the @QML-TARGET warrant gating it",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W83"
       ],
@@ -4697,14 +4698,16 @@
         "policy",
         "warrants"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Add a declared kwin host mode to scripts/check_qml_target.py for the tabbox entry: run kwin-tabbox-preview on the staged org.el.taskswitch contents/ui/main.qml inside images/qml-check (kwin-common 6.6.6), QT_QPA_PLATFORM=offscreen, LANG=C.UTF-8, QT_LOGGING_RULES=qt.scenegraph.general=true;qt.scenegraph.time.renderloop=true; a wrapper reads merged stdout line by line and kills the tool on the first \"Frame rendered\" line. Verdicts: ok = a Frame rendered line; refused = exit 255 with Error loading tabbox preview: \"file:///...:LINE message\"; could-not-run (withheld) = any other exit or ending with no frame. Ignore the offscreen noise (KWindowShadow, raise(), keyboard grab). Selftest: valid layout ok, a NoSuchType file refused. Then 34 of 34 ok, and policy/qml_target the W214 rego.",
-      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image. | 2026-10-02: 2026-10-02 luthen W280 PROBE 1 (scratch image = qml-check base + kwin-common 4:6.6.6-0ubuntu0.1 + dbus 1.16.2; images/qml-check unchanged): /usr/lib/x86_64-linux-gnu/libexec/kwin-tabbox-preview exists, `[options] path` (the switcher main QML), takes Qt --platform (offscreen) and --show-desktop, --help exits 0. CATCH: interactive - a good layout stays up with no exit, and a CPU cap cannot bound an idle wait (the qml_check trap). Probe 2 (hypothesis first): KWin-shipped switcher vs a broken one under dbus-run-session offscreen, to find the event to end on (stderr QML error = refused; a readiness signal = ok) and the env it needs. | 2026-10-02: 2026-10-02 luthen W280 DONE (probe 2b): kwin-tabbox-preview hosts org.kde.kwin in-process; valid org.el.taskswitch renders a first frame offscreen (qt.scenegraph.time.renderloop \"Frame rendered with software renderloop in 6ms\"); refused = exit 255 + file:line; D-Bus NOT required; images/qml-check now carries kwin-common. The wrapper is ours to declare inside check_qml_target.",
+      "blocked_on": [
+        "luthen-observability"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "When luthen ships a --host kwin-tabbox mode in checks.qml_check (asked 2026-10-02; cite its waypoint here once minted): pass --host kwin-tabbox for the tabbox ENTRIES row in check_qml_target.run_check, add a selftest arm (a valid tabbox layout ok, a NoSuchType file refused at load), expect 34 of 34 ok, then write policy/qml_target.rego + tests and the @QML-TARGET warrant.",
+      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image. | 2026-10-02: 2026-10-02 luthen W280 PROBE 1 (scratch image = qml-check base + kwin-common 4:6.6.6-0ubuntu0.1 + dbus 1.16.2; images/qml-check unchanged): /usr/lib/x86_64-linux-gnu/libexec/kwin-tabbox-preview exists, `[options] path` (the switcher main QML), takes Qt --platform (offscreen) and --show-desktop, --help exits 0. CATCH: interactive - a good layout stays up with no exit, and a CPU cap cannot bound an idle wait (the qml_check trap). Probe 2 (hypothesis first): KWin-shipped switcher vs a broken one under dbus-run-session offscreen, to find the event to end on (stderr QML error = refused; a readiness signal = ok) and the env it needs. | 2026-10-02: 2026-10-02 luthen W280 DONE (probe 2b): kwin-tabbox-preview hosts org.kde.kwin in-process; valid org.el.taskswitch renders a first frame offscreen (qt.scenegraph.time.renderloop \"Frame rendered with software renderloop in 6ms\"); refused = exit 255 + file:line; D-Bus NOT required; images/qml-check now carries kwin-common. The wrapper is ours to declare inside check_qml_target. | 2026-10-02: 2026-10-02 the kwin host cannot be declared in check_qml_target as luthen suggested: the only way into images/qml-check is luthen BuildKit harness, and checks.qml_check takes only --src/--entry/--out (measured: --help). Rebuilding the harness here would be a second copy of luthen runner (census B4). Asked luthen-observability (live session) for a --host kwin-tabbox mode carrying the 2b contract and the same JSON verdict, with a waypoint --enables el-openglo:W214.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T06:26:35Z",
+      "last_worked": "2026-10-02T06:41:10Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
@@ -5032,6 +5035,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "b78c54df",
+  "predecessor_job_id": "57e4bd6b",
   "leases": []
 }
