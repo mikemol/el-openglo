@@ -504,3 +504,5 @@
 2026-10-02T08:59:18Z  tick  W77  advanced  unblock   "emitter + template written: endpoint asked of luthen tool at runtime, three faces exposed for measurement, no address literal (selftest); found the template is outside qml_lint population"  evidence=make_metrics --selftest PASS; qml_lint 12 admitted before and after
 2026-10-02T09:17:51Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:457b57ad4c5c8c73; the FILE wins"
 2026-10-02T09:18:46Z  tick  W77  advanced  unblock   "metrics template brought into check_qml_lint population: 13 of 13 documents, metrics-main.qml 0 lint findings"  evidence=check_qml_lint --list: 13 measured
+2026-10-02T09:27:58Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:a6ab18fc23065c96; the FILE wins"
+2026-10-02T09:32:17Z  tick  W77  advanced  unblock   "check_metrics measures the widget offscreen per scenario (stub DataSource + local HTTP); opa_gate metrics admits 5 of 5; @METRICS warrant cites it; packaging next"  evidence=opa_gate metrics: 5 admitted; check_metrics --selftest PASS

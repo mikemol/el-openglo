@@ -43,6 +43,14 @@
   check   = {tool:opa_gate.py log_content}
 }
 
+% W77, 2026-10-02: the VictoriaMetrics plasmoid reads luthen's endpoint at runtime
+% (endpoints_query.py contract) and must never draw a blank or carry an address literal.
+@misc{METRICS,
+  section = {emitters},
+  claim   = {the metrics plasmoid shows its contract face in all five endpoint/query scenarios, never blank, with no address literal},
+  check   = {tool:opa_gate.py metrics}
+}
+
 @misc{MARK-SEES,
   section = {rename},
   claim   = {the scrub's own scan is proven able to SEE the mark, so its all-clear is a measurement rather than a blind spot},
