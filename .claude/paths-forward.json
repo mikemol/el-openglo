@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 229,
+  "counter": 233,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T10:22:32Z",
-  "job_id": "28e09b9b",
+  "heartbeat": "2026-10-02T11:46:04Z",
+  "job_id": "351b75c9",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3864,7 +3864,7 @@
     {
       "symbol": "W181",
       "title": "Port the writer round trip to main: el-serial fixtures generated from a writer and checked against it",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W71"
       ],
@@ -3872,14 +3872,18 @@
         "guest-image",
         "el-serial"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Main read_serial.py has NO fixture writer: its fixtures are static and nothing proves guest/el-serial-emit.sh and the reader agree. Port from worktree agent-a330b44b42000d0ed: PyEmitter, emit_log(writer=sh|py), fixtures(), --write-fixtures, and the selftest arms (py writer reads back; fixtures match py writer; sh writer byte-equal when jq present, else counted SKIP). Keep main fixture names (noise-only.log) and main spec.json. Then retire the worktree.",
-      "evidence": "2026-10-01: 2026-10-01 COLLAPSE FINDING: W181 premise (land the W71f files on main) is false. git log shows serial files on main since 6fa3d65; main read_serial.py --selftest PASS 17/17 with fixtures. The worktree is a PARALLEL second implementation (different fixture name noise.log vs noise-only.log, no spec.json, adds PyEmitter, check_serial.py, opa_gate operands). Not merged, not deleted. | 2026-10-01: 2026-10-01 PER-PART ANSWERS: (1) opa_gate operand pass-through - main HAS it (gate(names[0], names[1:])); opa_gate serial catalog/fixtures/serial/clean.log -> admitted, 1 admitted. NOT NEEDED. (2) check_serial.py - main maps serial to read_serial.py directly; NOT NEEDED. (3) writer round trip - main layout (pycodemod layout) has no writer/emit/fixture def; fixtures are static. NEEDED - the worktree unique contribution. Side defect: opa_gate serial with no LOG -> traceback (minted W182).",
+      "blocked_on": [
+        "W230",
+        "W231",
+        "W232"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella since 2026-10-02 (ATOMIZE): closes when W230 (writer port), W231 (generated fixtures) and W232 (round-trip selftest) land; retiring the source worktree moved to W233.",
+      "evidence": "2026-10-01: 2026-10-01 COLLAPSE FINDING: W181 premise (land the W71f files on main) is false. git log shows serial files on main since 6fa3d65; main read_serial.py --selftest PASS 17/17 with fixtures. The worktree is a PARALLEL second implementation (different fixture name noise.log vs noise-only.log, no spec.json, adds PyEmitter, check_serial.py, opa_gate operands). Not merged, not deleted. | 2026-10-01: 2026-10-01 PER-PART ANSWERS: (1) opa_gate operand pass-through - main HAS it (gate(names[0], names[1:])); opa_gate serial catalog/fixtures/serial/clean.log -> admitted, 1 admitted. NOT NEEDED. (2) check_serial.py - main maps serial to read_serial.py directly; NOT NEEDED. (3) writer round trip - main layout (pycodemod layout) has no writer/emit/fixture def; fixtures are static. NEEDED - the worktree unique contribution. Side defect: opa_gate serial with no LOG -> traceback (minted W182). | 2026-10-02: 2026-10-02 ATOMIZED after 2 advances without landing: the step bundled three changes (writer, generated fixtures, round-trip selftest) and a cleanup; split into W230 -> W231 -> W232, worktree retirement into W233 (which found 50 stale agent worktrees).",
       "issued_at": "2026-10-01T17:53:09Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T11:36:03Z",
+      "last_worked": "2026-10-02T11:45:18Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
@@ -5041,6 +5045,92 @@
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 2
+    },
+    {
+      "symbol": "W230",
+      "title": "read_serial gains a fixture writer: port PyEmitter and emit_log(writer=sh|py) from worktree agent-a330b44b42000d0ed",
+      "status": "working",
+      "enables": [
+        "W231",
+        "W232"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Diff scripts/read_serial.py on main against the worktree agent-a330b44b42000d0ed copy (git diff main worktree-agent-a330b44b42000d0ed -- scripts/read_serial.py); port PyEmitter and emit_log(writer=sh|py) only, leaving fixtures and selftest to W231/W232; read_serial --selftest must stay green.",
+      "evidence": "2026-10-02: Split from W181 (ATOMIZE after 2 advances, 2026-10-02).",
+      "issued_at": "2026-10-02T11:44:51Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T11:45:42Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent",
+      "weight": 9,
+      "completed": null
+    },
+    {
+      "symbol": "W231",
+      "title": "read_serial fixtures are generated: fixtures() and --write-fixtures from the py writer, keeping main fixture names and spec.json",
+      "status": "blocked",
+      "enables": [
+        "W232"
+      ],
+      "touches": [],
+      "blocked_on": [
+        "W230"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W230: port fixtures() and --write-fixtures so the fixture logs are GENERATED by the py writer; keep main fixture names (noise-only.log) and main spec.json; regenerate and confirm byte-identical to the committed fixtures, or record which moved and why.",
+      "evidence": "2026-10-02: Split from W181 (2026-10-02).",
+      "issued_at": "2026-10-02T11:44:52Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T11:45:17Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W232",
+      "title": "read_serial selftest proves the round trip: py writer reads back, fixtures match the py writer, sh writer byte-equal when jq is present else a counted SKIP",
+      "status": "blocked",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [
+        "W231"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W231: selftest arms - the py writer output reads back through the reader; the committed fixtures equal the py writer output; the sh writer (guest/el-serial-emit.sh) is byte-equal when jq is present, else a counted SKIP (a fact about the host). Then policy/serial.rego gets the round-trip rule if it is a requirement, not only a selftest.",
+      "evidence": "2026-10-02: Split from W181 (2026-10-02).",
+      "issued_at": "2026-10-02T11:44:52Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T11:45:17Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W233",
+      "title": "Retire the 50 stale agent worktrees under .claude/worktrees, each only after its branch is merged or its useful work is ported",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Census, do not delete blind: for each of the 50 agent worktrees, record its branch tip, whether it is an ancestor of main (merged), and whether its diff against main carries unported work (a tool, not a by-hand read - e.g. a check_worktrees mode); remove only merged-or-empty ones with git worktree remove; list the rest with what each still holds. agent-a330b44b42000d0ed goes once W230-W232 land. Leave .tree-writes/* alone (check_tree_writes owns those).",
+      "evidence": "2026-10-02: 2026-10-02: git worktree list shows 50 agent worktrees under .claude/worktrees (many at the same few commits: def8fee x9, 49dc519 x6, 929edf9 x5, 4abcb5b x4) plus three .tree-writes worktrees. Found while splitting W181, whose last step was retiring one of them.",
+      "issued_at": "2026-10-02T11:44:52Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T11:45:17Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 1
     }
   ],
   "residue": [
@@ -5062,6 +5152,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "e9448ce9",
+  "predecessor_job_id": "28e09b9b",
   "leases": []
 }
