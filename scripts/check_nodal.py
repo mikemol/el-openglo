@@ -28,10 +28,20 @@ Margins, per palette_graph edge floor kind:
     anything else             WITHHELD: an APCA argmax, a ceiling or a composite
                               floor has no margin form here yet; never guessed
 
-⚑ WEAKNESS: the effective-resistance reading is a HYPOTHESIS about the domain
-(series composition of colour distance), recorded in palette_relations
-open_questions as "series-composition-witness". This measures what it implies; it
-does not prove the implication. Geometry edges are out of scope (no colour values).
+⚑ THE ABOVE READING IS RETIRED FOR SEPARATION (2026-10-02, measured): with margin
+as resistance, effective resistance over the dense constraint graph read 177 of
+192 edges as "near through other colours" - it measures how CONNECTED two colours
+are, not how separated. gcalc's own position (families/operator/machine.py:424)
+is that conductance is the physics and min its mass-losing shadow, so the policy
+now judges the SEPARATION OBJECTIVE: margins as CONDUCTANCES composed in SERIES
+(AND = 1/sum(1/q), a smooth min). `--json` emits move visibility; `measure()`
+and `solve()` stay for the linear relations (the ghost divider pilot).
+
+⚑ WEAKNESS: series is strictly monotone in every margin, so N2 can deny only a
+move that leaves every margin exactly unchanged - falsifiable (policy test) but
+near-certain to admit. The comparison it records (max-min blind to 129 of 1079
+moves, series to 0) is the information; the verdict is the guard that it stays so.
+Geometry edges are out of scope (no colour values).
 """
 import json
 import os
@@ -217,7 +227,7 @@ def main(argv):
               f"series blind to {sum(r['flat_series'] for r in rows)} of {m}")
         return 0
     if "--json" in argv:
-        print(json.dumps(measure(), indent=1))
+        print(json.dumps({"cases": move_visibility()}, indent=1))
         return 0
     import opa_gate
     return opa_gate.gate("nodal")
