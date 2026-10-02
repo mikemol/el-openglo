@@ -92,7 +92,10 @@ def measure(out_dir=None):
         path = os.path.join(out_dir, name)
         extras.append({"file": name, "present": os.path.exists(path),
                        "current": os.path.exists(path) and open(path, "rb").read() == data})
-    return {"cases": cases, "extras": extras, "overflow": overflow(MG.glyph_tables()),
+    tables = MG.glyph_tables()
+    files = {"5x7": "el-matrix-5x7.glb", **{f: f"el-seg{f}.glb" for f in MG.SEG_FORMATS}}
+    order = sorted(f for f, t in tables.items() if t["segments"] != fresh[files[f]][0])
+    return {"cases": cases, "extras": extras, "overflow": overflow(tables), "order_mismatch": order,
             "shader": shader_verdict(MG.SHADER), "withheld": []}
 
 
@@ -146,6 +149,8 @@ def _selftest():
     t = MG.glyph_tables()
     chk("the 7-seg 8 lights all seven nodes, and nothing overflows",
         (t["7"]["glyphs"]["8"], overflow(t)), (0b1111111, []))
+    chk("the matrix 1 lights some dots but not all 35", 0 < t["5x7"]["glyphs"]["1"] < (1 << 35) - 1, True)
+    chk("every table's bit order is its mesh's node order", measure()["order_mismatch"], [])
     chk("a mask past the node count is seen",
         overflow({"7": {"segments": ["a"], "glyphs": {"x": 2}}}), ["7:x"])
     print("check_glb selftest:", "PASS" if ok else "FAIL")

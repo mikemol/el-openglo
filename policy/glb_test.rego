@@ -16,6 +16,10 @@ test_overflow_denied if {
 	"G7: glyph 7:x sets a bit past its format's node count" in glb.deny with input as {"cases": [good], "overflow": ["7:x"]}
 }
 
+test_order_mismatch_denied if {
+	"G7: format 5x7: the glyph table's bit order is not its mesh's node order" in glb.deny with input as {"cases": [good], "order_mismatch": ["5x7"]}
+}
+
 test_shader_compile_failure_denied if {
 	some m in glb.deny with input as {"cases": [good], "shader": {"ok": false, "why": "ERROR: 0:1"}}
 	startswith(m, "G8:")

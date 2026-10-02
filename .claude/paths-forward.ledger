@@ -545,3 +545,5 @@
 2026-10-02T14:44:09Z  tick  W152 done      unblock   "bevelled named-segment glTF meshes for 7/16/22 + matrix; gate 4 of 4"  evidence=commit: W152 bevelled segments
 2026-10-02T14:54:24Z  hash  --   diverged  --        "divergence: payload v2:d3427e159f41064f, file v2:19249a1bfa77ae37; the FILE wins"
 2026-10-02T14:57:06Z  tick  W153 advanced  unblock   "one GLSL shader (compiles) + segment glyph tables in node order; gate admitted"
+2026-10-02T15:11:44Z  hash  --   diverged  --        "divergence: payload v2:d3427e159f41064f, file v2:06952034fe7e2c50; the FILE wins"
+2026-10-02T15:16:29Z  tick  W153 advanced  unblock   "5x7 matrix glyph table; table order == mesh order gated (G7)"

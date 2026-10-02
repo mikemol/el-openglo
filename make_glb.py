@@ -155,8 +155,9 @@ SHADER = os.path.join(ROOT, "templates", "el-segment.glsl")
 
 def glyph_tables():
     """{format: {"segments": node order, "glyphs": {char: bitmask}}} - bit i is node i
-    of that format's .glb. Glyphs are segment_topology's (DIGITS16, LETTERS16,
-    SYMBOLS16; LETTERS22 lowercase at 22), projected through FORMATS like the nodes."""
+    of that format's .glb. Segment glyphs are segment_topology's (DIGITS16, LETTERS16,
+    SYMBOLS16; LETTERS22 lowercase at 22), projected through FORMATS like the nodes;
+    the 5x7 matrix's are display_types' bitmaps."""
     ST, _m = _metrics()
     chars = sorted(set(ST.DIGITS16) | set(ST.LETTERS16) | set(ST.SYMBOLS16))
     out = {}
@@ -169,6 +170,15 @@ def glyph_tables():
             segs = ST.glyph22(ch) if fmt == "22" else ST.project(ST.glyph16(ch), fmt)
             glyphs[ch] = sum(1 << bit[s] for s in segs)
         out[fmt] = {"segments": order, "glyphs": glyphs}
+    # the matrix: display_types' 5x7 bitmaps over make_font's charset - the same
+    # source the EL-Matrix TTF is built from; bit r*cols+c is node r<r>c<c>
+    import display_types as DT
+    import make_font as MF
+    cols, rows = MATRIX
+    d = DT.DISPLAYS[f"{cols}x{rows}"]
+    out[f"{cols}x{rows}"] = {
+        "segments": [f"r{r}c{c}" for r in range(rows) for c in range(cols)],
+        "glyphs": {ch: sum(1 << (r * cols + c) for (c, r) in d.glyph(ch)) for ch in sorted(set(MF.MATRIX_CHARSET))}}
     return out
 
 

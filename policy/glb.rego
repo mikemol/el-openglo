@@ -81,6 +81,11 @@ deny contains msg if {
 	msg := sprintf("G7: glyph %s sets a bit past its format's node count", [g])
 }
 
+deny contains msg if {
+	some f in object.get(input, "order_mismatch", [])
+	msg := sprintf("G7: format %s: the glyph table's bit order is not its mesh's node order", [f])
+}
+
 # METADATA
 # title: "G8 — the shader compiles (glslangValidator); not installed is a SKIP, not a pass"
 deny contains msg if {
