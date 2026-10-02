@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 229,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T07:20:22Z",
-  "job_id": "6d8c7620",
+  "heartbeat": "2026-10-02T08:01:51Z",
+  "job_id": "c5a68f5d",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1431,21 +1431,21 @@
     {
       "symbol": "W73",
       "title": "Witness harnesses must never touch the operator's GPU",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "N2: cite scripts/opa_gate.py qt_sandbox (and opa_gate license for W44) from warrants.bib, then --project, so the worklist gate carries them.",
-      "evidence": "landed 2026-09-23: qt_sandbox (RLIMIT_CORE=0, operator ruling), 7 of 7 Qt spawns routed, opa_gate qt_sandbox admitted; renders opt into GPU in render_screens (EL_QT_GPU=1, keeps DISPLAY+XAUTHORITY). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): WITNESS HARNESSES MUST NOT TOUCH THE OPERATOR'S GPU (luthen crash report 2026-09-22 20:28 EDT): check_ebuild.py's .ebuild-witness/harness.qml ran /usr/lib64/qt6/bin/qml on the real display; SIGSEGV in libnvidia-glcore under QRhi::endFrame on QSGRenderThread (driver crash at present/teardown, after load), core 6.5M + a KDE crash notification on the desktop. Fix: every qml-spawning check (census them with the tool, don't assume check_ebuild is the only one) runs with QT_QPA_PLATFORM=offscreen + QT_QUICK_BACKEND=software and RLIMIT_CORE=0, and a check asserts that environment for each spawn site.",
+      "next_bounded_step": null,
+      "evidence": "landed 2026-09-23: qt_sandbox (RLIMIT_CORE=0, operator ruling), 7 of 7 Qt spawns routed, opa_gate qt_sandbox admitted; renders opt into GPU in render_screens (EL_QT_GPU=1, keeps DISPLAY+XAUTHORITY). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): WITNESS HARNESSES MUST NOT TOUCH THE OPERATOR'S GPU (luthen crash report 2026-09-22 20:28 EDT): check_ebuild.py's .ebuild-witness/harness.qml ran /usr/lib64/qt6/bin/qml on the real display; SIGSEGV in libnvidia-glcore under QRhi::endFrame on QSGRenderThread (driver crash at present/teardown, after load), core 6.5M + a KDE crash notification on the desktop. Fix: every qml-spawning check (census them with the tool, don't assume check_ebuild is the only one) runs with QT_QPA_PLATFORM=offscreen + QT_QUICK_BACKEND=software and RLIMIT_CORE=0, and a check asserts that environment for each spawn site. | 2026-10-02: 2026-10-02 CLOSED: the queued N2 step had already landed - opa_gate --census lists @QT-SANDBOX -> opa_gate.py qt_sandbox and @LICENSE -> opa_gate.py license among 73 of 73 claims decided in rego, so the worklist gate carries both. opa_gate qt_sandbox: admitted, 0 deny, 0 withheld, 9 admitted (every Qt spawn site routed through qt_sandbox, up from 7 at landing). Renders that opt into the GPU (render_screens, EL_QT_GPU=1) do so deliberately and are keyed by backend facts (W159); witness harnesses stay offscreen/software with RLIMIT_CORE=0.",
       "issued_at": "2026-09-23T00:41:17+00:00",
-      "last_worked": "2026-10-02T07:56:20Z",
+      "last_worked": "2026-10-02T08:13:41Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:N/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 11,
-      "completed": null
+      "completed": "20261002T081341Z"
     },
     {
       "symbol": "W74",
@@ -1505,20 +1505,23 @@
     {
       "symbol": "W77",
       "title": "An OTEL / VictoriaMetrics-sourcing widget (KDE system monitors cannot read the operator VictoriaMetrics)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "operator: decide when W77 starts - ruled LATER on 2026-09-25 with no date or condition; name one (a date, or a waypoint it waits behind)"
+      ],
+      "blocked_kind": "human",
       "rank_reason": "",
       "next_bounded_step": "LATER per operator; first step: survey what OTEL/VM query surface a plasmoid can reach",
-      "evidence": "operator request 2026-09-25",
+      "evidence": "operator request 2026-09-25 | 2026-10-02: 2026-10-02 CONTRADICTION RESOLVED AS A GRAPH EDIT (case a, missing precondition): nemik ranked W77 first while its own next step records the operator ruling LATER. The vector was not mis-scored (R:H a desktop widget, C:L reads the operator metrics - both per .claude/vector-calibration.md); the ruling lived only in prose, which the ranking cannot read. Encoded as a precondition: blocked on the operator naming when it starts (no date or condition was given, so none is guessed), X:N -> X:P.",
       "issued_at": "2026-09-25T22:54:05+00:00",
-      "last_worked": "2026-09-25T22:54:05+00:00",
+      "last_worked": "2026-10-02T08:14:26Z",
       "ticks_blocked": 0,
-      "vector": "WV:1/R:H/E:N/C:L/I:N/A:N/X:N/S:U/F:U/W:N",
+      "vector": "WV:1/R:H/E:N/C:L/I:N/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W78",
@@ -1662,7 +1665,7 @@
     {
       "symbol": "W85",
       "title": "Bump the paperkit pin past 0249924 (paperkit W50: Δ scratch honours TMPDIR); our pin 88792ac predates it",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [],
       "blocked_on": [],
@@ -1671,11 +1674,12 @@
       "next_bounded_step": "Move pyproject tooling pin to paperkit origin/main at or after 0249924; uv pip install into .venv; readme+worklist gates; commit",
       "evidence": "git merge-base --is-ancestor 0249924 88792ac exits 1 (confirmed by paperkit-b9)",
       "issued_at": "2026-09-26T18:40:29+00:00",
-      "last_worked": "2026-09-26T18:40:29+00:00",
+      "last_worked": "2026-10-02T08:14:48Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W86",
@@ -5058,6 +5062,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "75b222d2",
+  "predecessor_job_id": "6d8c7620",
   "leases": []
 }
