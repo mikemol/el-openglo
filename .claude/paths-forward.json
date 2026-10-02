@@ -242,7 +242,7 @@
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open. | 2026-09-26: 2026-09-27: operator does not recall the ticked state from the original observation (Qt widgets stayed BreezeLight, wallpaper unchanged) — re-asking as a fresh, reproducible check rather than relying on memory | 2026-09-26: 2026-09-27: operator screenshot of the 'Choose what to apply' dialog for EL-Azure-Lit — Colors IS ticked (also Application Style, Window Decoration Style, Icons, Plasma Style, Pointers, Splash Screen); only 'Desktop layout' (bundles wallpaper) is unticked. CLOSES the wallpaper question (expected: unticked). SHARPENS the Qt-widgets question into a real defect: Colors was ticked and Apply pressed, yet kdeglobals ColorScheme stayed BreezeLight (earlier measurement).",
       "issued_at": "2026-09-20T23:28:07+00:00",
       "last_worked": "2026-09-26T20:43:47Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -788,7 +788,7 @@
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
       "issued_at": "2026-09-21T17:49:03+00:00",
       "last_worked": "2026-10-01T04:03:55Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -822,8 +822,6 @@
         "display_types"
       ],
       "blocked_on": [
-        "W152",
-        "W153",
         "W154",
         "W155",
         "W156",
@@ -1274,7 +1272,7 @@
       "evidence": "not started; paperkit/tools/sites.py read 2026-09-22 | 2026-10-01: 2026-10-01 dflip over TIMELINE is NOT expressible today: paperkit dflip perturbs only the first scalar leaf (t ms). Gap minted as W179.",
       "issued_at": "2026-09-22T15:31:34+00:00",
       "last_worked": "2026-10-01T17:08:41Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1294,7 +1292,7 @@
       "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both | 2026-09-26: 2026-09-27: edge retrofit — W65 is a specific finding produced by extending the mutation-grading tool W64 adopted (check_discriminates --probe); W64's own next step says 'extend PROBES to the remaining ~58 checks', the same mechanism W65 continues. Wired W64 enables W65.",
       "issued_at": "2026-09-22T15:41:39+00:00",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1378,7 +1376,7 @@
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
       "issued_at": "2026-09-22T22:20:36+00:00",
       "last_worked": "2026-10-01T04:03:58Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
     },
@@ -1399,7 +1397,7 @@
       "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context).",
       "issued_at": "2026-09-22T22:21:36+00:00",
       "last_worked": "2026-10-01T17:53:18Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
@@ -1458,7 +1456,7 @@
       "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction.",
       "issued_at": "2026-09-23T11:56:27+00:00",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1554,7 +1552,7 @@
       "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2 | 2026-09-26: OPERATOR LAPTOP 2026-09-26 (Ubuntu resolute, Plasma 6.6.6, Qt 6.10.2): the cac10f7 .deb (sha256 8c98e29c...) installed and, after plasmashell --replace, the marquee LOADS (clock + dot-matrix field drawing) - the byte fix confirmed on the target Qt",
       "issued_at": "2026-09-26T01:20:13+00:00",
       "last_worked": "2026-10-01T19:48:10Z",
-      "ticks_blocked": 5,
+      "ticks_blocked": 6,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -1574,7 +1572,7 @@
       "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported | 2026-09-29: 2026-09-29: nemik: paperkit:W45 is an umbrella (blocked on its W112 -> W113); cite the child whose landing unblocks this, paperkit:W113. | 2026-09-29: 2026-09-29: nemik treats paperkit:W113 as an umbrella too (it is blocked on its W112), so blocked_on cites the leaf paperkit:W112 (measure grader.py pycheck standing). What W80 actually needs is W113 baseline-only mode, which follows W112 in paperkit.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-09-29T01:57:20Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
     },
@@ -1593,7 +1591,7 @@
       "evidence": "output_keys docstring names host fonts as the key weakness; the executor image (W78) is the other half",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-01T19:48:10Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1613,7 +1611,7 @@
       "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist | 2026-09-26: 2026-09-27: edge retrofit — title already says 'W75 follow-on'; W75 built the --expect denied:RULE mechanism, W82 is the ongoing sweep using it (DEPS/CONSUMERS/TEMPLATES-DENIES warrants). Wired W75 enables W82.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1635,7 +1633,7 @@
       "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2 | 2026-09-29: 2026-09-29: nemik-check: its only blocker luthen-observability:W114 has landed; back to ready. | 2026-10-02: 2026-10-02 FIRST MEASUREMENT: make_deb --stage (systemd-run) then, per luthen inbox 2026-09-28, `sg k3s -c \"python3 -m checks.qml_check --src <stage>/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui --entry main.qml --out <scratch>\"` -> {\"state\":\"ok\"} on docker.io/library/ubuntu@sha256:da6fc2be5478... (resolute, Qt 6.10.2): the marquee as emitted today lints and loads under the laptop stack. One package of the staged set, by hand; the gate is the next step.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-02T01:38:53Z",
-      "ticks_blocked": 5,
+      "ticks_blocked": 6,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 12,
@@ -1788,7 +1786,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:48:10Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -2274,7 +2272,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-01T04:33:57Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
     },
@@ -2343,7 +2341,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-01T19:48:11Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -2436,7 +2434,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T20:12:44Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 13,
@@ -2490,7 +2488,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T20:59:27Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 10,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
@@ -2517,7 +2515,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2541,7 +2539,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2566,7 +2564,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2592,7 +2590,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2618,7 +2616,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:19Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2647,7 +2645,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2672,7 +2670,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:48Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2697,7 +2695,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:52Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2722,7 +2720,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T20:49:57Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2746,7 +2744,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-09-28T21:04:33Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 13,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
     },
@@ -2774,7 +2772,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T21:25:05Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 10,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
@@ -2843,7 +2841,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-10-01T04:45:20Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -2868,7 +2866,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-09-29T00:23:17Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -2914,7 +2912,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-02T00:56:17Z",
-      "ticks_blocked": 6,
+      "ticks_blocked": 7,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -3215,7 +3213,7 @@
     {
       "symbol": "W153",
       "title": "Engine core: one shader lighting segments from a glyph bitmask, plus the glyph tables as JSON",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W43",
         "W154",
@@ -3229,22 +3227,22 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close.",
+      "next_bounded_step": null,
       "evidence": "2026-10-02: 2026-10-02: templates/el-segment.glsl (GLSL ES 3.00 fragment: uvec2 mask + node index, lit=emissive, unlit=mix(base,ghost,ghost_opacity), MRT bloom = lit only) copied to catalog/engines/; el-glyphs.json per format 7/16/22 (node order = .glb, glyphs from segment_topology projected); check_glb G6-G8, glslangValidator compiles it (caught #version-not-first), opa 20/20, gate admitted; umbrellas W226/W228 blocked on W221 per nemik | 2026-10-02: 2026-10-02: 5x7 matrix glyph table added (display_types bitmaps over make_font.MATRIX_CHARSET, bit r*5+c); check_glb measures table bit order == mesh node order (G7), opa 21/21",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-02T15:12:39Z",
+      "last_worked": "2026-10-02T15:22:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 8,
-      "completed": null
+      "completed": "20261002T152215Z"
     },
     {
       "symbol": "W154",
       "title": "Blender add-on built on the engine core, for the Blender Extensions platform",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W43"
       ],
@@ -3252,25 +3250,23 @@
         "engines",
         "blender"
       ],
-      "blocked_on": [
-        "W152",
-        "W153"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "Python add-on: segment_topology + make_palette drive a one-click display mesh and material with a variant chooser. Read the Blender Extensions manifest contract before emitting.",
       "evidence": "",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 3
     },
     {
       "symbol": "W155",
       "title": "Godot add-on built on the engine core",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W43"
       ],
@@ -3278,25 +3274,23 @@
         "engines",
         "godot"
       ],
-      "blocked_on": [
-        "W152",
-        "W153"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "A .gdshader port of the core shader plus a Display node. Read the Godot Asset Library contract first.",
       "evidence": "",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 3
     },
     {
       "symbol": "W156",
       "title": "Unity package built on the engine core",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W43"
       ],
@@ -3304,25 +3298,23 @@
         "engines",
         "unity"
       ],
-      "blocked_on": [
-        "W152",
-        "W153"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "A UPM package with a ShaderGraph or HLSL port of the core shader. Read the Unity Asset Store contract first.",
       "evidence": "",
       "issued_at": "2026-10-01T04:04:30Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 3
     },
     {
       "symbol": "W157",
       "title": "Unreal plugin built on the engine core, for Fab",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W43"
       ],
@@ -3330,20 +3322,18 @@
         "engines",
         "unreal"
       ],
-      "blocked_on": [
-        "W152",
-        "W153"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "A plugin with a material graph port of the core shader. Read the Fab contract first.",
       "evidence": "",
       "issued_at": "2026-10-01T04:04:30Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-01T04:05:42Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 3
     },
     {
       "symbol": "W158",
@@ -3692,7 +3682,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-01T22:55:12Z",
-      "ticks_blocked": 8,
+      "ticks_blocked": 9,
       "completed": null,
       "weight": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
@@ -3738,7 +3728,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-02T00:39:39Z",
-      "ticks_blocked": 6,
+      "ticks_blocked": 7,
       "weight": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -3832,7 +3822,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:56:26Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -3880,7 +3870,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T11:56:56Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -3931,7 +3921,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:40:59Z",
-      "ticks_blocked": 3,
+      "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -3954,7 +3944,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:27Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -3978,7 +3968,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T18:53:28Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4076,7 +4066,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T19:05:30Z",
-      "ticks_blocked": 11,
+      "ticks_blocked": 12,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4102,7 +4092,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:22:58Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4129,7 +4119,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:12:43Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4155,7 +4145,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:12:44Z",
-      "ticks_blocked": 10,
+      "ticks_blocked": 11,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4207,7 +4197,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:59:26Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 10,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4233,7 +4223,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T20:59:27Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 10,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -4283,7 +4273,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T03:32:50Z",
-      "ticks_blocked": 8,
+      "ticks_blocked": 9,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -4384,7 +4374,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T00:39:05Z",
-      "ticks_blocked": 8,
+      "ticks_blocked": 9,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4410,7 +4400,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T22:55:11Z",
-      "ticks_blocked": 8,
+      "ticks_blocked": 9,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4484,7 +4474,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-01T23:42:25Z",
-      "ticks_blocked": 7,
+      "ticks_blocked": 8,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -4710,7 +4700,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T06:43:25Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -4843,7 +4833,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T04:47:33Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 13,
@@ -4868,7 +4858,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T06:26:14Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "weight": 13,
@@ -4930,7 +4920,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T04:40:35Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4953,7 +4943,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T04:40:35Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4974,7 +4964,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T14:55:08Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -4997,7 +4987,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T06:26:14Z",
-      "ticks_blocked": 4,
+      "ticks_blocked": 5,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -5018,7 +5008,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T14:55:09Z",
-      "ticks_blocked": 0,
+      "ticks_blocked": 1,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -5089,17 +5079,17 @@
     {
       "symbol": "W232",
       "title": "el_serial_emit selftest byte-compares the sh writer (guest/el-serial-emit.sh) against the reference writer when jq is present, else a counted SKIP",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "On jq present: add the selftest arm to scripts/el_serial_emit.py - drive guest/el-serial-emit.sh through the same P2 boot as Emitter with EL_SERIAL_SPEC=guest/el-serial-spec.json, EL_SERIAL_DEV=<tmp log>, EL_SERIAL_RUN=<tmp>, EL_SERIAL_BOOT_FILE=<file holding em.BOOT>, EL_SERIAL_UPTIME_FILE=<rewritten per frame to the ticker value>, and assert the log equals the reference writer bytes (the reference writes \\n, the sh writer \\n: compare lines); when jq is absent the arm prints a counted SKIP, never a pass.",
-      "evidence": "2026-10-02: Split from W181 (2026-10-02). | 2026-10-02: 2026-10-02 RESCOPED: the py round trip and committed==regenerated fixtures already exist (el_serial_emit --selftest 13/13); only the sh-writer byte comparison is missing. | 2026-10-02: 2026-10-02 PREREQUISITE LANDED: guest/el-serial-emit.sh read its boot id from /proc/sys/kernel/random/boot_id and its clock from /proc/uptime with NO override, so no host run could ever share a boot id or timestamp with the reference writer - byte comparison was impossible by construction, jq or not. Added EL_SERIAL_BOOT_FILE and EL_SERIAL_UPTIME_FILE, defaulting to those same kernel files (guest behaviour unchanged). sh -n clean; mikemol-shellcheck: 1 finding, SC2016 on the single-quoted jq program TYPE_OK (pre-existing, deliberate: $s/$t are jq variables; moved from line 36 to 41 by the insert). REMAINING: jq is absent on this host (command -v jq: exit 1), so the comparison arm cannot run here - operator act. | 2026-10-02: 2026-10-02 OPERATOR RULED on the jq ask: \"Ask luthen for the tool to be installed. Or use a python script instead of jq.\" Took the luthen route: the guest writer must stay sh + jq (no Python in the guest image by design), so a Python stand-in for jq would compare a writer the guest never runs. Asked luthen-observability (live) for a container image with jq + sh + coreutils + flock and a qml_check-shaped runner, minting a waypoint --enables el-openglo:W232; W232 now waits on luthen (cite their symbol when minted), no longer on the operator. | 2026-10-02: 2026-10-02 luthen minted luthen-observability:W285 (checks.serial_writer --src DIR --out DIR in an image with jq, sh, coreutils, flock; same JSON verdict as qml_check, exit 2 could-not-run; first checks whether images/qml-check already has the tools) with --enables el-openglo:W232; queued. OPEN QUESTION to the operator first: \"no Python in the guest\" is an unreasoned planning assumption (guest-image.md (f)), not a measured constraint - if python3 is allowed (or already in the trixie closure), the guest can run el_serial_emit.py and W232 dissolves. | 2026-10-02: 2026-10-02 OPERATOR RULED: \"Don't stick python3 in the guest.\" The open question is closed: the guest writer stays sh + jq, so the byte comparison against the reference writer is still needed and runs on luthen-observability:W285. Recorded in catalog/guest-image.md (f), which now names it as a ruling rather than an unreasoned assumption. | 2026-10-02: 2026-10-02: luthen-observability:W285 landed (817db86), told by its session; run: cd luthen-observability, .venv/bin/python -m checks.serial_writer --src <tree> --script <path> --out <dir>; verdict JSON ok/refused/cannot-run",
+      "next_bounded_step": "Close.",
+      "evidence": "2026-10-02: Split from W181 (2026-10-02). | 2026-10-02: 2026-10-02 RESCOPED: the py round trip and committed==regenerated fixtures already exist (el_serial_emit --selftest 13/13); only the sh-writer byte comparison is missing. | 2026-10-02: 2026-10-02 PREREQUISITE LANDED: guest/el-serial-emit.sh read its boot id from /proc/sys/kernel/random/boot_id and its clock from /proc/uptime with NO override, so no host run could ever share a boot id or timestamp with the reference writer - byte comparison was impossible by construction, jq or not. Added EL_SERIAL_BOOT_FILE and EL_SERIAL_UPTIME_FILE, defaulting to those same kernel files (guest behaviour unchanged). sh -n clean; mikemol-shellcheck: 1 finding, SC2016 on the single-quoted jq program TYPE_OK (pre-existing, deliberate: $s/$t are jq variables; moved from line 36 to 41 by the insert). REMAINING: jq is absent on this host (command -v jq: exit 1), so the comparison arm cannot run here - operator act. | 2026-10-02: 2026-10-02 OPERATOR RULED on the jq ask: \"Ask luthen for the tool to be installed. Or use a python script instead of jq.\" Took the luthen route: the guest writer must stay sh + jq (no Python in the guest image by design), so a Python stand-in for jq would compare a writer the guest never runs. Asked luthen-observability (live) for a container image with jq + sh + coreutils + flock and a qml_check-shaped runner, minting a waypoint --enables el-openglo:W232; W232 now waits on luthen (cite their symbol when minted), no longer on the operator. | 2026-10-02: 2026-10-02 luthen minted luthen-observability:W285 (checks.serial_writer --src DIR --out DIR in an image with jq, sh, coreutils, flock; same JSON verdict as qml_check, exit 2 could-not-run; first checks whether images/qml-check already has the tools) with --enables el-openglo:W232; queued. OPEN QUESTION to the operator first: \"no Python in the guest\" is an unreasoned planning assumption (guest-image.md (f)), not a measured constraint - if python3 is allowed (or already in the trixie closure), the guest can run el_serial_emit.py and W232 dissolves. | 2026-10-02: 2026-10-02 OPERATOR RULED: \"Don't stick python3 in the guest.\" The open question is closed: the guest writer stays sh + jq, so the byte comparison against the reference writer is still needed and runs on luthen-observability:W285. Recorded in catalog/guest-image.md (f), which now names it as a ruling rather than an unreasoned assumption. | 2026-10-02: 2026-10-02: luthen-observability:W285 landed (817db86), told by its session; run: cd luthen-observability, .venv/bin/python -m checks.serial_writer --src <tree> --script <path> --out <dir>; verdict JSON ok/refused/cannot-run | 2026-10-02: 2026-10-02: el_serial_emit --sh-bundle DIR: P2 as ops (one sh invocation each, clock per op), reference log, run.sh that replays through guest/el-serial-emit.sh and cmps. Run on luthen-observability checks.serial_writer (debian@sha256:5bc3287b): first run refused rc 5 (jq .value read off the field, not the spec entry), second refused rc 1 (emit clobbered the blob loop n with the line length: no locals in sh), third state ok - 23 lines byte-equal. Both defects fixed in guest/el-serial-emit.sh. Selftest arm runs it where jq+flock exist, counted SKIP here; selftest 14 ok + 1 skip",
       "issued_at": "2026-10-02T11:44:52Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T14:49:00Z",
+      "last_worked": "2026-10-02T15:26:21Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",

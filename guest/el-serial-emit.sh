@@ -13,9 +13,11 @@
 # el.done), and even those are validated against the table. `type_ok` below
 # mirrors scripts/el_serial_spec.py:type_ok arm for arm.
 #
-# Weakness: this file is only syntax-checked on the host (`sh -n`); jq is not
-# run there. The Python reference writer is what the round trip proves. The
-# first guest boot (W71e) is where these bytes meet read_serial.py.
+# Proved byte-equal to the Python reference writer over the P2 boot by
+# `scripts/el_serial_emit.py --sh-bundle` run in a jq-bearing debian image (W232,
+# 2026-10-02; that first run found the .value scoping and the n-clobber below).
+# Weakness: debian-slim's jq, not the guest's; the first guest boot (W71e) is
+# where the guest image's bytes meet read_serial.py.
 set -eu
 
 SPEC=${EL_SERIAL_SPEC:-/usr/share/el-openglo/el-serial-spec.json}
@@ -78,12 +80,13 @@ emit() {
 	  | ($p + {boot: $boot, t: $t}) as $o
 	  | if ($o | keys) != ($want | keys)
 	      then error("\($kind): keys \($o | keys) are not exactly \($want | keys)") else . end
-	  | [$want | to_entries[] | .key as $k | select(($o[$k] | type_ok($s; .value)) | not) | $k] as $bad
+	  | [$want | to_entries[] | .key as $k | .value as $ty | select(($o[$k] | type_ok($s; $ty)) | not) | $k] as $bad
 	  | if ($bad | length) > 0 then error("\($kind): wrong type for \($bad)") else $o end')
 	line="$MARKER $SEQ $1 $json"
-	n=$(printf '%s' "$line" | wc -c)
-	if [ "$n" -gt "$MAXLINE" ]; then
-		echo "el-serial-emit: $1: $n bytes > $MAXLINE; send it as a blob" >&2
+	# `len`, not `n`: sh has no locals, and the blob loop below counts parts in `n`
+	len=$(printf '%s' "$line" | wc -c)
+	if [ "$len" -gt "$MAXLINE" ]; then
+		echo "el-serial-emit: $1: $len bytes > $MAXLINE; send it as a blob" >&2
 		exit 1
 	fi
 	printf '%s\n' "$line" >> "$DEV"
