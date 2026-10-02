@@ -1,1 +1,0 @@
-../../substrate/scripts/run_selftests.py

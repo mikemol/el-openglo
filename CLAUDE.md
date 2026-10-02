@@ -93,13 +93,16 @@ stays 3 — nothing was judged. The first rule must treat an ABSENT population a
 
 ## Borrowed tooling: some scripts are SYMLINKS into ../substrate
 
-`scripts/ratchet.py` and `run_selftests.py` point into `../../substrate/` (W101 and
-W102 retire them). The two PreToolUse hooks are NOT symlinks any more (W99,
+No `scripts/` entry is a symlink out of the tree any more (`check_hooks --list`:
+borrowed 0). `ratchet.py` and `run_selftests.py` were removed (W101/W102, 2026-10-02):
+run_selftests could not import here (its `selftest_pool`, `selftest_series` and
+`substrate` package do not exist in this tree) and ratchet's only importer was it.
+The two PreToolUse hooks are NOT symlinks any more (W99,
 2026-10-02): `.claude/settings.json` runs mtools' installed
 `.venv/bin/mikemol-hook-structural-query` and `mikemol-hook-no-chaining`
 (mikemol-hooks, sha-pinned in the tooling extra), and `check_hooks` measures them by
-behaviour from here. `scripts/__init__.py` stays: ratchet, run_selftests and
-check_license still use `from scripts import`. (`gate_ledger.py` is retired, W140: the pre-commit `run()`
+behaviour from here. `scripts/__init__.py` stays: check_license still uses
+`from scripts import`. (`gate_ledger.py` is retired, W140: the pre-commit `run()`
 writes `.gate-outcomes.tsv` itself, and the installed reader is
 `.venv/bin/mikemol-gate-ledger --ledger .gate-outcomes.tsv --report|--order`.) **Editing one edits substrate.** Change it there and run BOTH repos'
 selftests. `scripts/check_hooks.py --list` shows where each resolves.

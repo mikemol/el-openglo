@@ -69,12 +69,11 @@ for t in "$ROOT"/scripts/check_*.py "$ROOT"/scripts/worklist_gate.py; do
   quiet "selftest:$(basename "$t" .py)" "${RUNNER[@]}" "$t" --selftest
 done
 
-# 2. The borrowed hooks pass their own selftests FROM HERE (they are symlinks;
-#    passing upstream is not passing here).
-for h in hook_no_chaining hook_structural_query; do
-  [ -e "$ROOT/scripts/$h.py" ] || continue
-  quiet "selftest:$h" python3 "$ROOT/scripts/$h.py" --selftest
-done
+# 2. (RETIRED, W99 2026-10-02.) The PreToolUse hooks are no longer symlinks into
+#    substrate: settings.json runs mtools' installed mikemol-hook-* commands, and
+#    check_hooks (step 1, via its --selftest and policy/hooks.rego) measures them by
+#    behaviour from here. The loop that ran the symlinks' selftests guarded on their
+#    existence, so after the symlinks went it would have skipped in silence.
 
 # 2b. THE REQUIREMENTS ARE REGO (W50): every rule's refusing and admitting case,
 #    under opa test. SKIPs (exit 0, printed) when opa is absent.
