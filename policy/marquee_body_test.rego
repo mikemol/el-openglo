@@ -26,7 +26,25 @@ kern_sep := {"label": "bold pair", "expect": "separated", "advance": 24, "offset
 
 kern_cap := {"label": "never separates", "expect": "capped", "advance": 24, "offsets": [0, 88], "bleeds_after": true, "bleeds_at_plain": true, "cap": 64}
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap]}
+span_ok := {"label": "a delete changes only the gap", "args": ["abcd", "abd"], "expected": {"p": 2, "oldEnd": 3, "newEnd": 2}, "span": {"p": 2, "oldEnd": 3, "newEnd": 2}}
+
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok]}
+
+# M10 (W186): a replace's changed span
+test_m10_refuses_a_wrong_span if {
+	c := object.union(span_ok, {"span": {"p": 0, "oldEnd": 4, "newEnd": 3}})
+	some msg in mb.deny with input as object.union(clean, {"span": [c]})
+	startswith(msg, "M10: a delete changes only the gap")
+}
+
+test_m10_refuses_no_span_cases if {
+	"M10: no replaceSpan cases were measured" in mb.deny with input as object.union(clean, {"span": []})
+}
+
+test_m10_withholds_an_unmeasured_span if {
+	c := object.union(span_ok, {"span": null})
+	"W: span a delete changes only the gap: span was not measured" in mb.withheld with input as object.union(clean, {"span": [c]})
+}
 
 # M9 (W76): the closed loop's three outcomes, each refused when wrong
 test_m9_admits_the_three_outcomes if {
@@ -122,11 +140,12 @@ test_admits_clean if {
 }
 
 test_m0_refuses_empty if {
-	# M0, and M8's and M9's own empty-population denials (display and kern are absent here) — nothing else
+	# M0, and M8's, M9's and M10's own empty-population denials (display, kern and span are absent here) — nothing else
 	d := mb.deny with input as {"runner": true, "parse": [], "join": [], "ring": []}
 	d == {"M0: no cases were measured; the population is empty, not the parser right",
 		"M8: no display (letterform) cases were measured",
-		"M9: no kerning cases were measured"}
+		"M9: no kerning cases were measured",
+		"M10: no replaceSpan cases were measured"}
 }
 
 test_m1_refuses_wrong_text if {
@@ -201,7 +220,8 @@ test_all_null_case_withheld_only if {
 	s := object.union(series_ok, {"columns": null})
 	d := object.union(display_ok, {"shown": null})
 	k := object.union(kern_sep, {"offsets": null, "bleeds_after": null, "bleeds_at_plain": null})
-	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k]}
+	sp := object.union(span_ok, {"span": null})
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp]}
 	w := mb.withheld with input as inp
 	"W: kern bold pair: bleeds_after was not measured" in w
 	"W: parse <b>hi</b>: text was not measured" in w

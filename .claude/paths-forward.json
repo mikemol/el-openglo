@@ -3983,7 +3983,7 @@
     {
       "symbol": "W186",
       "title": "Body.replaceSpan: the changed span of a replace by common prefix/suffix, pure, cased in check_marquee_body",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W183"
       ],
@@ -3993,14 +3993,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Add replaceSpan(old, new) to templates/marquee-body.js returning {p, oldEnd, newEnd} (longest common prefix p, then longest common suffix not overlapping p); add cases to check_marquee_body (equal, append, delete, middle change, total change, empty) with --json facts and rego rules.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-02: 2026-10-02 LANDED: templates/marquee-body.js gains replaceSpan(old, neu) -> {p, oldEnd, newEnd} (longest common prefix, then longest common suffix not overlapping it in either string; old[p,oldEnd) leaves, neu[p,newEnd) enters; equal strings give an empty span at the end). check_marquee_body runs it on 8 SPAN_CASES (equal, append, delete, middle change \"50% done\"->\"75% done\", total change, empty->text, non-overlap aa->aaa, the operator width change AABCC->AABBCC) and emits span facts; policy/marquee_body.rego M10 (span == expected; empty population denied; unmeasured withheld) with 3 new tests, fixture updated - opa test 43/43; opa_gate marquee_body admitted; check_marquee_body --selftest PASS; rego_lint admitted. Marquee screens re-keyed (marquee-body.js ships in the package): only the 6 marquee-anim APNGs changed bytes (time-sampled frames); stills byte-identical.",
       "issued_at": "2026-10-01T19:05:17Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T12:29:42Z",
+      "last_worked": "2026-10-02T12:49:32Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261002T124932Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 7

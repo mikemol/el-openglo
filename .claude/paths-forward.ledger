@@ -529,3 +529,5 @@
 2026-10-02T12:23:47Z  hash  --   diverged  --        "divergence: payload v2:199331094a57fb41, file v2:dd4ef458f92fe53f; the FILE wins"
 2026-10-02T12:28:52Z  tick  W209 done      collapse  "S5 judges logged animations by the harness own offsets (a step off the run constant step is a tear, no tolerance); image fit kept only where no log exists; marquee log is 60 x +2.75 pip"  evidence=check_screens --logged; screens_test 36/36; opa_gate screens 48 admitted
 2026-10-02T12:29:11Z  tick  W207 done      collapse  "umbrella closed: W208 logged offsets + W209 S5-by-log mean the linear-blend fit no longer decides any logged verdict; W200 and W201 unblocked"  evidence=W208 done; W209 done
+2026-10-02T12:46:09Z  hash  --   diverged  --        "divergence: payload v2:199331094a57fb41, file v2:3826a582d2562071; the FILE wins"
+2026-10-02T12:49:33Z  tick  W186 done      unblock   "Body.replaceSpan landed (pure prefix/suffix span), 8 cases measured headless, policy M10 with refuse/admit tests 43/43; first step of the W183 roll chain"  evidence=opa_gate marquee_body admitted; opa test 43/43

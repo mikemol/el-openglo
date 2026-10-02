@@ -397,3 +397,20 @@ function seriesToColumns(values, rows, min, max) {
     }
     return out;
 }
+
+// ⚑ THE CHANGED SPAN OF A REPLACE (W186, for W183's roll). A replaced notification
+// keeps whatever it shares with the old text; only the span between the common
+// prefix and the common suffix rolls. Pure: longest common prefix p first, then the
+// longest common suffix that does not overlap p in EITHER string, so
+// old[p, oldEnd) is what leaves and neu[p, newEnd) is what enters. Equal strings give
+// an empty span at the end (p == oldEnd == newEnd == length).
+function replaceSpan(old, neu) {
+    old = old || "";
+    neu = neu || "";
+    var p = 0;
+    var lim = Math.min(old.length, neu.length);
+    while (p < lim && old.charAt(p) === neu.charAt(p)) p++;
+    var s = 0;
+    while (s < lim - p && old.charAt(old.length - 1 - s) === neu.charAt(neu.length - 1 - s)) s++;
+    return { p: p, oldEnd: old.length - s, newEnd: neu.length - s };
+}

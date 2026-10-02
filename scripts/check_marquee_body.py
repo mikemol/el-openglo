@@ -146,12 +146,26 @@ KERN_CASES = [
      ([{"bytes": _H, "grow": 400}, {"bytes": _H, "grow": 400}], 7, 4, 24), "capped"),
 ]
 
+# replaceSpan (W186, the changed span of a replace for W183's roll): (old, new) ->
+# {p, oldEnd, newEnd}: old[p:oldEnd] leaves, new[p:newEnd] enters
+SPAN_CASES = [
+    ("equal strings change nothing", ("abc", "abc"), {"p": 3, "oldEnd": 3, "newEnd": 3}),
+    ("an append changes only the tail", ("abc", "abcd"), {"p": 3, "oldEnd": 3, "newEnd": 4}),
+    ("a delete changes only the gap", ("abcd", "abd"), {"p": 2, "oldEnd": 3, "newEnd": 2}),
+    ("a middle change keeps both ends", ("50% done", "75% done"), {"p": 0, "oldEnd": 2, "newEnd": 2}),
+    ("a total change replaces everything", ("abc", "xyz"), {"p": 0, "oldEnd": 3, "newEnd": 3}),
+    ("empty to text is all new", ("", "hi"), {"p": 0, "oldEnd": 0, "newEnd": 2}),
+    ("the suffix never overlaps the prefix (aa -> aaa)", ("aa", "aaa"), {"p": 2, "oldEnd": 2, "newEnd": 3}),
+    ("the operator's width change (AABCC -> AABBCC)", ("AABCC", "AABBCC"), {"p": 3, "oldEnd": 3, "newEnd": 4}),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s;
-        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s;
+        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [] };
+        for (var sp = 0; sp < spans.length; sp++) out.span.push(Body.replaceSpan(spans[sp][0], spans[sp][1]));
         for (var d = 0; d < display.length; d++) out.display.push(Body.displayChar(display[d][0], display[d][1]));
         for (d = 0; d < kern.length; d++) {
             var g = kern[d][0], off = Body.kernOffsets(g, kern[d][1], kern[d][2], kern[d][3]);
@@ -209,7 +223,8 @@ def run(bodies=None):
             json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
             json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
             json.dumps([list(c[1]) for c in DISPLAY_CASES]),
-            json.dumps([list(c[1]) for c in KERN_CASES])))
+            json.dumps([list(c[1]) for c in KERN_CASES]),
+            json.dumps([list(c[1]) for c in SPAN_CASES])))
         r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -320,8 +335,10 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": []}
+        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": []}
+    for (label, args, want), got in zip(SPAN_CASES, res.get("span", [])):
+        out["span"].append({"label": label, "args": list(args), "expected": want, "span": got})
     for (label, args, expect), got in zip(KERN_CASES, res.get("kern", [])):
         out["kern"].append({"label": label, "expect": expect, "advance": args[3],
                             "offsets": got.get("offsets"), "bleeds_after": got.get("bleeds_after"),
@@ -433,6 +450,8 @@ def _selftest():
     chk("every ring scenario carries steps, expected and trace",
         all(len(s["trace"]) == len(s["expected"]) and s["steps"] for s in m["ring"]), True)
     chk("a runner-less host is withheld", measure(None)["runner"], False)
+    chk("every replaceSpan case carries expected and the span returned",
+        len([c for c in m["span"] if "expected" in c and isinstance(c.get("span"), dict)]), len(SPAN_CASES))
     chk("every display (letterform) case carries expected and shown",
         len([c for c in m["display"] if "expected" in c and "shown" in c]), len(DISPLAY_CASES))
     g = glyph_census({"a": [1], "A": [2], "?": [3]}, ["a", "b"])

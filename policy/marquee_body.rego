@@ -247,6 +247,32 @@ withheld contains msg if {
 }
 
 # METADATA
+# title: "M10 — a replace's changed span is the stated one (W186)"
+# description: |
+#   replaceSpan(old, new) is pure: the longest common prefix p, then the longest common
+#   suffix not overlapping p in either string; old[p, oldEnd) leaves and new[p, newEnd)
+#   enters. W183's roll animates only that span, so a wrong span rolls characters that
+#   did not change (the operator's ruling: unchanged cells hold still).
+deny contains msg if {
+	some c in object.get(input, "span", [])
+	is_object(object.get(c, "span", null))
+	c.span != c.expected
+	msg := sprintf("M10: %s: replaceSpan%v gave %v, expected %v", [c.label, c.args, c.span, c.expected])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "span", [])) == 0
+	msg := "M10: no replaceSpan cases were measured"
+}
+
+withheld contains msg if {
+	some c in object.get(input, "span", [])
+	not is_object(object.get(c, "span", null))
+	msg := sprintf("W: span %v: span was not measured", [object.get(c, "label", null)])
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 # description: |
 #   The measurement always emits `runner` as a bool. `false` is the host fact;
