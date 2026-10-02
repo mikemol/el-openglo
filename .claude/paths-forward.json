@@ -1632,7 +1632,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 12
     },
     {
       "symbol": "W84",
@@ -1803,7 +1803,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 12
     },
     {
       "symbol": "W93",
@@ -1951,7 +1951,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 9
+      "weight": 10
     },
     {
       "symbol": "W100",
@@ -1994,7 +1994,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 9
+      "weight": 10
     },
     {
       "symbol": "W102",
@@ -2015,7 +2015,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 8
     },
     {
       "symbol": "W103",
@@ -2234,7 +2234,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 10
+      "weight": 11
     },
     {
       "symbol": "W113",
@@ -2305,7 +2305,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W116",
@@ -3706,24 +3706,27 @@
     {
       "symbol": "W175",
       "title": "Spread scroll brightness power evenly over the prime spectral lines, by construction",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "catalog/library/render_screens.py",
         "templates"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W173"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "DEFERRED by the operator behind the current queue. When reached: design the scroll timing so equal power on the prime periods (2, 3, 5, 7, 11, ... up to the widget width in pips) holds BY CONSTRUCTION (a derivation, not a tuned constant); the W173 spectral measurement is the witness.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR (aside, LOWER PRIORITY): \"If I could, I d look for an even power distribution (effectively the same power on each spectral line. Not powers of 2 fft, but prime lines, 2,3,5,7,11... up to however wide the widget is.) but that is a lower priority ask, and is something I d want to be true by construction rather than developed by trial and error - it would be complicated to do right, and we have a lot of other stuff I d want to get done first.\"",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR (aside, LOWER PRIORITY): \"If I could, I d look for an even power distribution (effectively the same power on each spectral line. Not powers of 2 fft, but prime lines, 2,3,5,7,11... up to however wide the widget is.) but that is a lower priority ask, and is something I d want to be true by construction rather than developed by trial and error - it would be complicated to do right, and we have a lot of other stuff I d want to get done first.\" | 2026-10-02: 2026-10-02 CONTRADICTION RESOLVED (preamble rule (a), a missing edge): nemik ranked W175 second-ready after the weight sync overwrote its -10 deferral, against the operator ruling that it waits behind the current queue. Its own next step names the W173 spectral measurement as its witness, so the true dependency is W173 -> W175; edge added, W175 blocked on W173.",
       "issued_at": "2026-10-01T14:43:22Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-01T14:43:41Z",
+      "last_worked": "2026-10-02T00:39:39Z",
       "ticks_blocked": 0,
       "weight": 12,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W176",
@@ -3863,7 +3866,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 9
     },
     {
       "symbol": "W182",
@@ -3986,7 +3989,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 5
     },
     {
       "symbol": "W187",
@@ -4575,7 +4578,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 7
     }
   ],
   "residue": [
