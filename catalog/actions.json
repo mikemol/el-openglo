@@ -1,8 +1,8 @@
 {
  "actions": {
   "schemes": {
-   "key": "c984ee3c40cfbd3bf5d0f4b7cdb7b94d1d5f1541d3fca7938239c975061f4a7e",
-   "n_inputs": 38,
+   "key": "97d3876b2def9564dfb341c5741dfa45ace420a0031b1ce8e9f0fcb59f3107be",
+   "n_inputs": 39,
    "n_outputs": 6,
    "n_undeclared_domains": 3,
    "n_unresolved": 13,
@@ -10,7 +10,10 @@
   },
   "screens": {
    "key": "75d8e60bd4d9189191699362aac4db25883be28bc7c6b3888e6d25c97e103173",
-   "n_outputs": 56,
+   "n_inputs": 1028,
+   "n_outputs": 55,
+   "n_undeclared_domains": 3,
+   "n_unresolved": 5,
    "outputs": {
     "README.md": "1657171f816a50b239a987e639bda26fcae306c4d3827969d1acabf96525c5cd",
     "clock-EL-Amber-Lit.png": "1b77c187a595dd3f0586524dd7b56f62b2a985f8c276964c03831c25d60769d6",
@@ -72,8 +75,8 @@
    "schema": 5
   },
   "wallpapers": {
-   "key": "d923e79bb8b162ee44bc6cbc4516898813d4dd7d0972c334b802b1766da44c8b",
-   "n_inputs": 27,
+   "key": "0940d7b2b038628f6f0f2f21cfd8b7383f3355b87973f29860f7d036e139135b",
+   "n_inputs": 28,
    "n_outputs": 12,
    "n_undeclared_domains": 2,
    "n_unresolved": 8,

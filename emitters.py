@@ -156,6 +156,9 @@ ROLES = {
     "make_font":            "colourless",  # glyph outlines only
     "make_glyph_ink":       "colourless",  # an ink field from font winding
     "make_segment_display": "colourless",  # QML geometry; colour bound by caller
+    "make_metrics":         "colourless",  # the VM metrics plasmoid (W77): colour is the
+                                           # active scheme's Kirigami View roles, bound
+                                           # at runtime; no token is read or emitted
     "make_inherit":         "colourless",  # icon/cursor themes that INHERIT Breeze;
                                            # the palette reaches icons through
                                            # FollowsColorScheme, not this file (W31),
