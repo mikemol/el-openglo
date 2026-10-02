@@ -77,7 +77,8 @@ tooling = [
     # W139/W210: Rego specs as pytest items (mtools:W372 7b1e381 adds expect.deny, so a
     # refusing case is expressible and the falsifiability pair survives the port)
     "mikemol-pytestspec @ git+https://github.com/mikemol/mtools.git@03836ccc98cc038439bd256ad30230b1ff1be4d4#subdirectory=pytestspec",
-    "paperkit @ git+https://github.com/mikemol/paperkit.git@88792ac2deb9498b3e46ff938e28ef9a81d372bf",
+    # W85 (2026-10-02): past paperkit 0249924 (W50 there: the Δ scratch honours TMPDIR)
+    "paperkit @ git+https://github.com/mikemol/paperkit.git@b5877102af3b48005fde814416bff5b8f06ba5cd",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)
     "libcst",           # substrate/scratch/pycodemod.py — lossless Python CST
     "networkx",         # substrate/scratch/dagcone.py — reachability over the claim DAG

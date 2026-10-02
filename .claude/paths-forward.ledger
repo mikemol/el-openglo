@@ -508,3 +508,5 @@
 2026-10-02T09:32:17Z  tick  W77  advanced  unblock   "check_metrics measures the widget offscreen per scenario (stub DataSource + local HTTP); opa_gate metrics admits 5 of 5; @METRICS warrant cites it; packaging next"  evidence=opa_gate metrics: 5 admitted; check_metrics --selftest PASS
 2026-10-02T09:43:58Z  hash  --   diverged  --        "divergence: payload v2:a6ab18fc23065c96, file v2:149a5a80c205a9e6; the FILE wins"
 2026-10-02T09:58:59Z  tick  W77  done      unblock   "VM metrics plasmoid shipped: endpoint from luthen at runtime, five scenarios gated, staged, loads under the laptop Qt"  evidence=opa_gate metrics 5/5; check_qml_target org.el.metrics ok
+2026-10-02T10:10:38Z  hash  --   diverged  --        "divergence: payload v2:a6ab18fc23065c96, file v2:7700fbcca83ce063; the FILE wins"
+2026-10-02T10:12:35Z  tick  W85  advanced  sweep     "paperkit pin bumped 88792ac -> b5877102 (past 0249924); worklist 93/93 and readme 45/45 pass on it; cotype @RESIDUE is pre-existing"  evidence=worklist_gate; uv lock: paperkit only
