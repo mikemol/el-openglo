@@ -383,6 +383,7 @@ def measure(out_dir=SCREENS):
         if row["exists"]:
             row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#%02x%02x%02x" % WL.colors_for(v)[0],
                                        axis=how[2]))
+            row["logged_steps"] = logged_steps(p)    # null: no harness log, the policy uses the image fit
         anims.append(row)
     return {"screens": rows, "animations": anims, "dir": out_dir}
 
@@ -510,6 +511,26 @@ def best_pip_shift(prev, cur, max_shift, both_ways=False):
             if best[2] is None or mism < best[2]:
                 best = (k, f, mism)
     return best
+
+
+def logged_steps(path):
+    """W208/W209: the widget's OWN per-frame steps in pips, from the APNG's `el-frames` text
+    chunk (board x per grabbed frame and px per pip, written by check_marquee_live.animate).
+    None when the picture carries no log (rendered before W208, or not harness-driven).
+    Frame 0 is the empty-board bookend and is not a step.
+
+    ⚑ THIS IS WHAT THE HARNESS DID, NOT A FIT OF WHAT IT DREW. Measured 2026-10-02: the
+    marquee-anim log is 60 steps of exactly +2.75 pip, while the linear-blend image fit (below)
+    reported tears on the same run - the fit mis-reads the coverage-graded aperture (W207)."""
+    from PIL import Image
+    raw = getattr(Image.open(path), "text", {}).get("el-frames")
+    if not raw:
+        return None
+    log = json.loads(raw)
+    pitch, xs = log.get("pitch"), [f["x"] for f in log.get("frames", [])[1:]]
+    if not pitch or len(xs) < 2:
+        return None
+    return [(xs[i] - xs[i + 1]) / pitch for i in range(len(xs) - 1)]
 
 
 def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):

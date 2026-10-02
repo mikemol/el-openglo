@@ -38,21 +38,10 @@ def measure():
 
 
 def logged_steps(path):
-    """W208: the widget's own per-frame steps in pips, from the APNG's `el-frames` text chunk
-    (board x per grabbed frame and px per pip, written by check_marquee_live.animate).
-
-    Returns None when the picture carries no log (an animation rendered before W208, or one
-    the harness did not drive): the caller falls back to the image fit and says so. Frame 0
-    is the empty-board bookend and is not a step."""
-    from PIL import Image
-    raw = getattr(Image.open(path), "text", {}).get("el-frames")
-    if not raw:
-        return None
-    log = json.loads(raw)
-    pitch, xs = log.get("pitch"), [f["x"] for f in log.get("frames", [])[1:]]
-    if not pitch or len(xs) < 2:
-        return None
-    return [(xs[i] - xs[i + 1]) / pitch for i in range(len(xs) - 1)]
+    """The widget's own per-frame steps (W208) - ONE reader, render_screens.logged_steps,
+    which the measurement also uses (W209); this delegates rather than keep a second copy."""
+    import render_screens as RS
+    return RS.logged_steps(path)
 
 
 def logged_motion(steps):
@@ -98,12 +87,33 @@ def frame_pairs(path, lit_hex, ground_hex, tolerance=0.5):
 
 
 def main(argv):
-    known = {"--json", "--motion", "--frames", "--selftest"}
+    known = {"--json", "--motion", "--frames", "--logged", "--selftest"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
             print(f"check_screens: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--logged" in argv:
+        # W209: the widget's OWN per-frame steps (pips), from the el-frames chunk W208 writes -
+        # what the harness did, not an image fit of what it drew
+        rest = [a for a in argv[1:] if not a.startswith("--")]
+        if len(rest) != 1:
+            print("check_screens: --logged takes one animation file (e.g. marquee-anim-EL-Amber.png)", file=sys.stderr)
+            return 2
+        path = rest[0] if os.path.isfile(rest[0]) else os.path.join(measure()["dir"], os.path.basename(rest[0]))
+        if not os.path.isfile(path):
+            print(f"check_screens: {path} does not exist", file=sys.stderr)
+            return 1
+        steps = logged_steps(path)
+        if steps is None:
+            print(f"check_screens: {os.path.basename(path)} carries no el-frames log (rendered before W208, or not "
+                  f"harness-driven); only the image fit can describe it", file=sys.stderr)
+            return 3
+        for i, s in enumerate(steps, 2):
+            print(f"  frame {i:3d}: step {s:+9.4f} pip")
+        print(f"check_screens --logged: {len(steps)} step(s) in {os.path.basename(path)}; "
+              f"min {min(steps):+.4f}, max {max(steps):+.4f}")
+        return 0
     if "--frames" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if len(rest) != 1:

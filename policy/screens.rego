@@ -128,7 +128,30 @@ case_deny contains {"file": a.file, "msg": sprintf("S4: %s has %d frame(s) — n
 case_deny contains {"file": a.file, "msg": sprintf("S5: %s tears at frame(s) %v", [a.file, [t.frame | some t in a.tears]])} if {
 	some a in anims
 	a.exists == true
+	not logged(a)
 	count(a.tears) > 0
+}
+
+# METADATA
+# title: "S5 (logged) — where the harness logged its own offsets, a tear is a step off the run's constant step"
+# description: |
+#   W209 (2026-10-02). check_marquee_live writes the board x per grabbed frame into the APNG
+#   (W208), so for those animations S5 judges WHAT THE HARNESS DID, not a linear-blend fit of
+#   what it drew - the fit mis-reads the coverage-graded aperture field (W207) and reported
+#   tears on a run the log shows as 60 steps of exactly +2.75 pip. The widget scrolls at one
+#   speed, so every logged step equals the first; a restart, a frame out of order or a rebuilt
+#   board is a step that differs. No tolerance: there is no fit to absorb. The image fit stays
+#   for an animation with no log (logged_steps null).
+logged(a) if is_array(object.get(a, "logged_steps", null))
+
+step_tears(a) := [f | some i, s in a.logged_steps; abs(s - a.logged_steps[0]) > 0.000001; f := i + 2]
+
+case_deny contains {"file": a.file, "msg": sprintf("S5: %s tears at frame(s) %v - logged step off the run's %v pip", [a.file, step_tears(a), a.logged_steps[0]])} if {
+	some a in anims
+	a.exists == true
+	logged(a)
+	count(a.logged_steps) > 0
+	count(step_tears(a)) > 0
 }
 
 # METADATA

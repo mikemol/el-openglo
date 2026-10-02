@@ -33,6 +33,30 @@ test_s8_does_not_judge_a_run_with_no_measured_shift if {
 	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as inp
 }
 
+# W209 / S5 (logged): the harness's own offsets decide where they exist
+s5(inp) := [m | some m in sc.deny with input as inp; startswith(m, "S5")]
+
+test_s5_logged_uniform_steps_admit_even_when_the_image_fit_reports_tears if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {
+		"tears": [{"frame": 18, "shift": 2.75, "mismatch": 9.1, "total": 12.0}],
+		"logged_steps": [2.75, 2.75, 2.75, 2.75],
+	})]}
+	count(s5(inp)) == 0
+}
+
+test_s5_logged_off_step_denies_and_names_the_frame if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"logged_steps": [2.75, 2.75, -40.0, 2.75]})]}
+	"S5: marquee-anim-EL-Amber.png tears at frame(s) [4] - logged step off the run's 2.75 pip" in sc.deny with input as inp
+}
+
+test_s5_without_a_log_the_image_fit_still_judges if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {
+		"tears": [{"frame": 7, "shift": 2.75, "mismatch": 9.1, "total": 12.0}],
+		"logged_steps": null,
+	})]}
+	"S5: marquee-anim-EL-Amber.png tears at frame(s) [7]" in sc.deny with input as inp
+}
+
 test_s0_refuses_no_plan if {
 	some msg in sc.deny with input as {"screens": []}
 	startswith(msg, "S0:")
