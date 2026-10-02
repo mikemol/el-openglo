@@ -449,3 +449,5 @@
 2026-10-02T00:39:39Z  tick  W175 advanced  unblock   "contradiction: weight sync dropped the operator deferral; resolved by the missing edge W173 -> W175 (W173 measurement is W175 witness), not by a weight"  evidence=preamble contradiction rule (a)
 2026-10-02T00:56:17Z  tick  W139 atomized  collapse  "split W139 into W210 one-sha re-pin + pytestspec (working) and W211 qml_lint port with both halves at parity"  evidence=W210, W211 in state file
 2026-10-02T00:57:31Z  tick  W210 done      unblock   "one mtools sha 03836cc for all specs plus pytestspec; every re-pinned tool proven running"  evidence=pyproject.toml, uv.lock; opa_gate --test 974/974
+2026-10-02T01:11:45Z  hash  --   diverged  --        "divergence: payload v2:4a3703b3a80f0328, file v2:8762e9977b7e3fc9; the FILE wins"
+2026-10-02T01:12:22Z  tick  W211 advanced  unblock   "pytestspec cannot evaluate qml_lint (single --data, policy/lib import fails) nor express 13 of 17 tests (withheld/admitted); asked mtools for shared data and expect.withheld; blocked rather than port 4 of 17"  evidence=opa eval --data policy/qml_lint.rego alone: undefined function data.el.truth.py

@@ -1617,7 +1617,7 @@
     {
       "symbol": "W83",
       "title": "Emitted QML/JS must parse and run under the OPERATORS Qt (Ubuntu resolute, Qt 6.10.2): `var byte` passed every gate on host Qt 6.11.2 and failed on the laptop",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W79"
       ],
@@ -1628,11 +1628,12 @@
       "next_bounded_step": "luthen-observability:W114 (the image runner) has landed: build the el-openglo wrapper that runs the emitted QML under the operator Qt (6.10.2), plus policy/qml_target.rego and the @QML-TARGET warrant; settles `transient` in marquee-body.js",
       "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2 | 2026-09-29: 2026-09-29: nemik-check: its only blocker luthen-observability:W114 has landed; back to ready.",
       "issued_at": "2026-09-26T18:13:16+00:00",
-      "last_worked": "2026-09-29T01:55:27Z",
+      "last_worked": "2026-10-02T01:12:42Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 12
+      "weight": 12,
+      "completed": null
     },
     {
       "symbol": "W84",
@@ -4609,7 +4610,7 @@
     {
       "symbol": "W211",
       "title": "Port qml_lint to pytestspec with both halves (admitting cases, and refusing cases with expect.deny) and show the same counts as opa test",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W139"
       ],
@@ -4618,14 +4619,16 @@
         "qml_lint",
         "tests"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "policy/qml_lint.cases.json from qml_lint_test.rego: each admitting test a plain case, each refusing test a case with \"expect\": {\"deny\": [rule ids]}; tests/ with pytest config (testpaths) in the same commit; run pytest under systemd-run MemoryMax; the pytestspec differential line must show admitted = the admitting tests and refused = the refusing tests; keep opa test until parity is shown.",
-      "evidence": "",
+      "blocked_on": [
+        "mtools"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "When mtools answers (shared --data for policy/lib, and expect.withheld): cite mtools:W<n>; then port all 17 qml_lint tests - deny-expecting, withheld-expecting and admitted cases - and show the differential line counts match opa test.",
+      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field.",
       "issued_at": "2026-10-02T00:56:02Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T00:57:31Z",
+      "last_worked": "2026-10-02T01:12:21Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
@@ -4650,7 +4653,8 @@
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 2
     }
   ],
   "residue": [
