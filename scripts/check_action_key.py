@@ -756,6 +756,34 @@ def impact(rel):
             for n in after}
 
 
+def output_kind(fn):
+    """The kind of a per-output file: its name before the variant (`clock`, `marquee-anim`);
+    the sheets and the strip are one DERIVED kind."""
+    stem = os.path.splitext(fn)[0]
+    if stem == "strip" or stem.startswith("sheet-"):
+        return "derived"
+    return stem.split("-EL-")[0]
+
+
+def impact_census(name):
+    """[(rel, moved, keyed, kinds)] for every repo file in action `name`'s entry import
+    closure: the impact probe run over each (W61). A file whose moved keys span MORE
+    THAN ONE output kind is a coarse term - the next split.
+
+    ⚑ IT WRITES AND RESTORES EACH FILE (impact's perturbation), so it must not run while
+    a commit or check_tree_writes is reading the tree. WEAKNESS: the population is the
+    import closure, so a data file a key reads (a template, a .colors) is not probed here
+    - those already key by content, which the EL-Amber.colors selftest arm witnesses."""
+    action = next(a for a in ACTIONS if a[0] == name)
+    files = import_closure(os.path.join(ROOT, action[1]))
+    out = []
+    for f in files:
+        rel = os.path.relpath(os.path.join(ROOT, f), ROOT)   # the closure mixes absolute and relative
+        moved, keyed = impact(rel)[name]
+        out.append((rel, moved, keyed, sorted({output_kind(f) for f in moved})))
+    return out
+
+
 def _write_is_callable():
     """Does write()'s body still agree with key_of's return type?
 
@@ -941,6 +969,18 @@ def main(argv):
     known = {"--list", "--write", "--check", "--json", "--selftest", "--impact"}
     args = list(argv[1:])
     target = None
+    if args[:1] == ["--impact-census"]:
+        names = [a[0] for a in ACTIONS if per_output_key(a)[1] is not None]
+        if len(args) != 2 or args[1] not in names:
+            print(f"action_key: --impact-census takes one per-output action: {names}", file=sys.stderr)
+            return 2
+        rows = impact_census(args[1])
+        coarse = [r for r in rows if len(r[3]) > 1]
+        for rel, moved, n, kinds in rows:
+            flag = "COARSE" if len(kinds) > 1 else "      "
+            print(f"  {flag} {rel}: moves {len(moved)} of {n}" + (f"  kinds={','.join(kinds)}" if kinds else ""))
+        print(f"action_key: {len(coarse)} of {len(rows)} file(s) in {args[1]}'s closure move more than one output kind")
+        return 0
     if "--impact" in args:
         i = args.index("--impact")
         if i + 1 >= len(args) or not os.path.isfile(os.path.join(ROOT, args[i + 1])):
