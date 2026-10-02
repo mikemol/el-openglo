@@ -551,3 +551,5 @@
 2026-10-02T15:26:21Z  tick  W232 advanced  unblock   "sh writer byte-equal to reference on luthen runner; 2 guest-writer defects found and fixed"
 2026-10-02T15:32:21Z  tick  W232 done      unblock   "sh writer == reference, byte for byte; 2 defects fixed"  evidence=commit: W232 sh guest writer byte-equal
 2026-10-02T15:33:02Z  tick  W181 done      collapse  "umbrella closed: W230-W232 landed"
+2026-10-02T15:42:33Z  hash  --   diverged  --        "divergence: payload v2:d3427e159f41064f, file v2:e3fcb199a7372c51; the FILE wins"
+2026-10-02T15:43:46Z  tick  W71  atomized  collapse  "W71c-h minted as W235-W240 with edges; W71 blocked on W236, W240"

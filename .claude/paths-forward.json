@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 234,
+  "counter": 240,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-02T14:44:45Z",
   "job_id": "49ab01df",
@@ -1383,18 +1383,21 @@
     {
       "symbol": "W71",
       "title": "Guest boot image for the VM probes: Plasma 6, SDDM and plymouth with our themes",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W70"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W236",
+        "W240"
+      ],
+      "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "Umbrella: after W180 and W181 land the serial reader, the next guest-image step is the image build itself (distro base, theme ingress, digest).",
-      "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context).",
+      "next_bounded_step": "Umbrella: closes when W236 (probe digest) and W240 (probe runs, behind W235/W237/W238/W239) land.",
+      "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context). | 2026-10-02: 2026-10-02: ATOMIZED - guest-image.md Next steps W71c-h had no waypoints; minted W235 (recipe), W236 (probe digest), W237 (serial units), W238 (RFB client), W239 (first VMI, blocked on luthen-observability:W126), W240 (probe runs). W71a/b carried by root_helpers gate; W71f spec/writers/reader done (W181/W232).",
       "issued_at": "2026-09-22T22:21:36+00:00",
-      "last_worked": "2026-10-02T15:33:45Z",
+      "last_worked": "2026-10-02T15:43:38Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
@@ -1871,7 +1874,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 8
     },
     {
       "symbol": "W96",
@@ -5133,6 +5136,159 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 2
+    },
+    {
+      "symbol": "W235",
+      "title": "Guest image recipe: oci/guest/ mmdebstrap + containerDisk, refusing an unpinned snapshot (guest-image.md W71c)",
+      "status": "working",
+      "enables": [
+        "W240",
+        "luthen-observability:W127"
+      ],
+      "touches": [
+        "guest-image",
+        "oci"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Write oci/guest/ (mmdebstrap script + containerDisk Containerfile) with the guest-image.md (e) package set and trims; --selftest proves an unpinned snapshot is refused; build once and record catalog/guest-image.json adopted:false. Heavy build = systemd-run --user, MemoryMax=8G.",
+      "evidence": "",
+      "issued_at": "2026-10-02T15:43:01Z",
+      "minted_during": "interrupt",
+      "caused_by": "W71",
+      "last_worked": "2026-10-02T15:44:43Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
+      "vector_source": "agent",
+      "weight": 10,
+      "completed": null
+    },
+    {
+      "symbol": "W236",
+      "title": "check_action_key withholds a probe result lacking guest_digest and deb_sha256 (guest-image.md G5, W71d)",
+      "status": "ready",
+      "enables": [
+        "W71"
+      ],
+      "touches": [
+        "action-key",
+        "guest-image"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "check_action_key reads a probe result guest identity (el.ident guest.deb_sha256 + the image digest) and the policy withholds a result missing either; refusing + admitting rego tests.",
+      "evidence": "",
+      "issued_at": "2026-10-02T15:43:01Z",
+      "minted_during": "interrupt",
+      "caused_by": "W71",
+      "last_worked": "2026-10-02T15:43:37Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
+      "vector_source": "agent",
+      "weight": 7
+    },
+    {
+      "symbol": "W237",
+      "title": "Guest serial units: el-serial.service, el-serial-session.service and the reporter calling the sh writer (G6, W71f)",
+      "status": "ready",
+      "enables": [
+        "W240"
+      ],
+      "touches": [
+        "guest-image",
+        "el-serial"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Write guest/el-serial.service, guest/el-serial-session.service and the reporter (sh) that emits el.ident/el.mem/el.session/el.settled/el.journal/el.file/el.done through el-serial-emit.sh; extend the --sh-bundle comparison to drive the reporter.",
+      "evidence": "",
+      "issued_at": "2026-10-02T15:43:02Z",
+      "minted_during": "interrupt",
+      "caused_by": "W71",
+      "last_worked": "2026-10-02T15:43:37Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
+      "vector_source": "agent",
+      "weight": 9
+    },
+    {
+      "symbol": "W238",
+      "title": "Pick and pin the RFB client for P1 key events: vncdo or a websocket RFB on the vnc subresource (G7, W71g)",
+      "status": "ready",
+      "enables": [
+        "W240"
+      ],
+      "touches": [
+        "harness",
+        "vnc"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Compare vncdo against a websocket RFB client on the KubeVirt vnc subresource (no QMP); pin the choice in pyproject with a reason in guest-image.md G7.",
+      "evidence": "",
+      "issued_at": "2026-10-02T15:43:02Z",
+      "minted_during": "interrupt",
+      "caused_by": "W71",
+      "last_worked": "2026-10-02T15:43:38Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
+      "vector_source": "agent",
+      "weight": 9
+    },
+    {
+      "symbol": "W239",
+      "title": "On the first luthen VMI: measure launcher overhead and QoS class, confirm containerDisk, DRM/serial cmdline, el.probe carrier (W71e)",
+      "status": "blocked",
+      "enables": [
+        "W240"
+      ],
+      "touches": [
+        "guest-image",
+        "kubevirt"
+      ],
+      "blocked_on": [
+        "luthen-observability:W126"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "When luthen W126 gives a working VM launch: boot the W235 image once and record launcher overhead, QoS class, containerDisk fit, DRM/serial cmdline and the el.probe carrier in guest-image.md.",
+      "evidence": "",
+      "issued_at": "2026-10-02T15:43:10Z",
+      "minted_during": "interrupt",
+      "caused_by": "W71",
+      "last_worked": "2026-10-02T15:43:38Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W240",
+      "title": "Run P3, P1, then P2 at 1 GiB with el.mem sampling; on OOM hand the operator the log with the 1.5 GiB ask (W71h)",
+      "status": "blocked",
+      "enables": [
+        "W71"
+      ],
+      "touches": [
+        "guest-image",
+        "probes"
+      ],
+      "blocked_on": [
+        "W235",
+        "W237",
+        "W238",
+        "W239"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-02T15:43:10Z",
+      "minted_during": "interrupt",
+      "caused_by": "W71",
+      "last_worked": "2026-10-02T15:43:38Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [
