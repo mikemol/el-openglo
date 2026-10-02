@@ -538,3 +538,4 @@
 2026-10-02T13:49:16Z  tick  W151 advanced  unblock   "material group as DTCG aliases in tokens.json; D5 gated, 6 of 6"
 2026-10-02T13:58:08Z  hash  --   diverged  --        "divergence: payload v2:8bdda7d4be66f78c, file v2:0668a7841d0394c6; the FILE wins"
 2026-10-02T13:59:28Z  tick  W151 advanced  unblock   "material hue + floors read from make_palette; D5 6 slots, 6 of 6"
+2026-10-02T14:08:11Z  tick  W151 done      unblock   "material group complete (6 slots, aliases + hue + floors); W154-W157 read it"  evidence=commit: W151 material.hue and floors
