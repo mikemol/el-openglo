@@ -447,3 +447,5 @@
 2026-10-02T00:25:53Z  tick  W207 atomized  collapse  "split W207 into W208 step facts from harness offsets (working) and W209 aperture-derived S5 tolerance"  evidence=W208, W209 in state file
 2026-10-02T00:39:05Z  tick  W208 done      unblock   "marquee-anim carries the widget offsets; logged steps read 60/60 fractional (1.00) where the image fit read 0.60-0.64; W201 now judges the logged step"  evidence=check_screens --motion (logged offsets); opa_gate screens admitted 48
 2026-10-02T00:39:39Z  tick  W175 advanced  unblock   "contradiction: weight sync dropped the operator deferral; resolved by the missing edge W173 -> W175 (W173 measurement is W175 witness), not by a weight"  evidence=preamble contradiction rule (a)
+2026-10-02T00:56:17Z  tick  W139 atomized  collapse  "split W139 into W210 one-sha re-pin + pytestspec (working) and W211 qml_lint port with both halves at parity"  evidence=W210, W211 in state file
+2026-10-02T00:57:31Z  tick  W210 done      unblock   "one mtools sha 03836cc for all specs plus pytestspec; every re-pinned tool proven running"  evidence=pyproject.toml, uv.lock; opa_gate --test 974/974
