@@ -4686,7 +4686,7 @@
     {
       "symbol": "W214",
       "title": "policy/qml_target.rego with refusing and admitting tests, and the @QML-TARGET warrant gating it",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W83"
       ],
@@ -4694,16 +4694,14 @@
         "policy",
         "warrants"
       ],
-      "blocked_on": [
-        "luthen-observability"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "When luthen adds qml6-module-qtquick-effects to the qml-check image (or confirms the laptop lacks it): re-run check_qml_target; then policy/qml_target.rego (deny a failed step per package and an empty population, withhold could-not-run, admitted set), tests, warrant @QML-TARGET.",
-      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Model + implementation at the host boundary (W206 shape). MODEL: check_qml_target declares HOST-REGISTERED modules - org.kde.kwin is registered by the KWin process (strings in libkwin.so.6), not an on-disk QML module - and which targets need them (kwin/tabbox/*). IMPLEMENTATION: a declared test double, the same pattern as check_marquee_live StubRegistry (a stub org.kde.kwin qmldir + TabBoxSwitcher and the model roles the switcher uses) placed on the import path ONLY for host-registered targets, with its surface checked against KWin (the kwin version from versions.txt; the switcher roles enumerated from its own QML) so it cannot drift silently. Then 34/34 and policy/qml_target.rego (deny a failed step, empty population; withhold could-not-run; admitted set) with tests, warrant @QML-TARGET.",
+      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:06:47Z",
+      "last_worked": "2026-10-02T02:09:01Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
