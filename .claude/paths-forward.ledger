@@ -506,3 +506,4 @@
 2026-10-02T09:18:46Z  tick  W77  advanced  unblock   "metrics template brought into check_qml_lint population: 13 of 13 documents, metrics-main.qml 0 lint findings"  evidence=check_qml_lint --list: 13 measured
 2026-10-02T09:27:58Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:a6ab18fc23065c96; the FILE wins"
 2026-10-02T09:32:17Z  tick  W77  advanced  unblock   "check_metrics measures the widget offscreen per scenario (stub DataSource + local HTTP); opa_gate metrics admits 5 of 5; @METRICS warrant cites it; packaging next"  evidence=opa_gate metrics: 5 admitted; check_metrics --selftest PASS
+2026-10-02T09:43:58Z  hash  --   diverged  --        "divergence: payload v2:a6ab18fc23065c96, file v2:149a5a80c205a9e6; the FILE wins"

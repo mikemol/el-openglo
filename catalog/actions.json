@@ -1,7 +1,7 @@
 {
  "actions": {
   "schemes": {
-   "key": "97d3876b2def9564dfb341c5741dfa45ace420a0031b1ce8e9f0fcb59f3107be",
+   "key": "bc59480f2e1db7fb4493a6b1f9cc9036ec8021df2cd0dad930c8ce9af586fafa",
    "n_inputs": 39,
    "n_outputs": 6,
    "n_undeclared_domains": 3,
@@ -75,7 +75,7 @@
    "schema": 5
   },
   "wallpapers": {
-   "key": "0940d7b2b038628f6f0f2f21cfd8b7383f3355b87973f29860f7d036e139135b",
+   "key": "ac3e31e4293396d8b819f44882bdc07963ca30840cbc41178a71a1a906e12664",
    "n_inputs": 28,
    "n_outputs": 12,
    "n_undeclared_domains": 2,

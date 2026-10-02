@@ -51,6 +51,10 @@ def system_mapping():
     # the clock plasmoid: ONE package since W35 (bound to the active scheme)
     import make_clock as _mc
     m.append((f"plasma-clock/{_mc.PACKAGE_ID}", f"usr/share/plasma/plasmoids/{_mc.PACKAGE_ID}"))
+    # the VictoriaMetrics plasmoid (W77): an AVAILABLE widget, not placed on the panel
+    # (the layout is the operator's); off-cluster it reads "endpoint unavailable"
+    import make_metrics as _mm
+    m.append((f"{_mm.OUT_DIR}/{_mm.PACKAGE_ID}", f"usr/share/plasma/plasmoids/{_mm.PACKAGE_ID}"))
     # fonts (system font dir; postinst runs fc-cache). `fonts/` was a recovery
     # gap mapped only if present (2026-09-20..21); make_font is in the STAGE
     # roster again (W24), so the mapping names its outputs and staging refuses

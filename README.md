@@ -46,7 +46,7 @@ The generator roster as `emitters.py` declares it — every module, its role, an
 | make_font | colourless | the segment and matrix fonts, TTF + SVG, from the substrate (⊕SEG-FONT family, rebuilt W24) |
 | make_glyph_ink | colourless |  |
 | make_inherit | colourless |  |
-| make_metrics | colourless |  |
+| make_metrics | colourless | the VictoriaMetrics plasmoid (plasma-metrics/); endpoint asked of luthen at runtime (W77) |
 | make_segment_display | colourless |  |
 | make_deb | packager |  |
 

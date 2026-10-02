@@ -100,6 +100,7 @@ ORDER = (
     ("make_plasma",    "Plasma theme SVGs, from GRID"),
     ("make_wallpaper", "wallpaper; sources tokens with a standalone fallback"),
     ("make_clock",     "the segment-clock plasmoid packages (plasma-clock/), from GRID"),
+    ("make_metrics",   "the VictoriaMetrics plasmoid (plasma-metrics/); endpoint asked of luthen at runtime (W77)"),
     ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
     ("make_union",     "Union styles: Breeze with its alphas solved, from the schemes (W14)"),
     ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),

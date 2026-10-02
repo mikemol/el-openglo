@@ -1,0 +1,18 @@
+{
+  "KPlugin": {
+    "Authors": [
+      {
+        "Name": "EL watch themes"
+      }
+    ],
+    "Category": "System Information",
+    "Description": "The operator's VictoriaMetrics on the panel, coloured by the active scheme",
+    "Icon": "utilities-system-monitor",
+    "Id": "org.el.metrics",
+    "Name": "EL Metrics",
+    "Version": "1.0",
+    "License": "Apache-2.0"
+  },
+  "KPackageStructure": "Plasma/Applet",
+  "X-Plasma-API-Minimum-Version": "6.0"
+}
