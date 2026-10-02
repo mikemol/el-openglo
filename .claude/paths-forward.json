@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 219,
+  "counter": 220,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-02T03:21:54Z",
   "job_id": "f4ffba80",
@@ -1218,7 +1218,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11
     },
     {
       "symbol": "W62",
@@ -4821,6 +4821,27 @@
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 2
+    },
+    {
+      "symbol": "W220",
+      "title": "Solver contrast is two-rooted: search both polarity branches (text lighter AND darker than the field) and pale tints, instead of guessing one by ground L < 0.4",
+      "status": "ready",
+      "enables": [
+        "W197"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Model first: state in rego (policy/palette_chain or a new solver-candidates policy) that a contrast constraint |c(t,bg)| >= X admits BOTH roots - candidates must cover text lighter and darker than bg - and that a sector hue admits every value/chroma that still reads as the sector. Then make_palette._candidates: drop the dark = L < 0.4 branch for vs (full 0.20-1.00 on every ground, as its own comment already claims), add low sats (0.25, 0.35) for tints; same for solve_state_steps toward and the solve_semantic_set fallback (three fixed tones). Re-run check_selection_contrast --max-floor apca|wcag before/after (39.75 / 3.30 today) and --options; parity will move the shipped palette, so rebuild + re-record.",
+      "evidence": "2026-10-02: 2026-10-02 operator: \"when you take the absolute value ... there are two input values that solve ... a model problem in the palette solver\". Confirmed in code: make_palette._candidates sets dark = L(ground) < 0.4 and searches value 0.34-1.00 on dark grounds, 0.20-0.63 on light ones, which is ONE branch of |contrast| >= X, while its own comment (L246) says the value span is FULL on both grounds; sats 0.5-1.0 also omit the pale tints of a sector. Same single-root guess in solve_state_steps (toward the ground only) and the fallback. Measured consequence: the uniform floor tops out at APCA Lc 39.75 / WCAG 3.30, bound by sel_neg.",
+      "issued_at": "2026-10-02T03:38:33Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T03:38:45Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent",
+      "weight": 12
     }
   ],
   "residue": [
