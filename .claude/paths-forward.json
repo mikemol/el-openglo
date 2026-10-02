@@ -1880,7 +1880,7 @@
     {
       "symbol": "W97",
       "title": "Report to mtools that --payload truncation dropped a ready, ranked waypoint",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "mikemol-pathsforward",
@@ -1888,16 +1888,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mikemol-pathsforward --payload dropped a READY, ranked waypoint (W96) under truncation (dropped=residue,evidence,steps-below-1,collapsed) on 2026-09-27; the paths-forward-loop skill's budget order drops residue reasons, then evidence, then oldest done items, never a live waypoint. Report to mtools (the package owner) with the reproducing state hash v2:7365e7a2442c47c6, rather than only patching around it in el-openglo's cron prompt (which is what 3e33b233's prompt does now).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mikemol-pathsforward --payload dropped a READY, ranked waypoint (W96) under truncation (dropped=residue,evidence,steps-below-1,collapsed) on 2026-09-27; the paths-forward-loop skill's budget order drops residue reasons, then evidence, then oldest done items, never a live waypoint. Report to mtools (the package owner) with the reproducing state hash v2:7365e7a2442c47c6, rather than only patching around it in el-openglo's cron prompt (which is what 3e33b233's prompt does now). | 2026-10-02: 2026-10-02: re-measured live: the 14:09Z payload (state v2:4908d6f4) listed only W152/W153 while W188, W200, W193, W154-W157, W234 were ready (dropped=...steps-below-1...). Letter written: mtools/inbox/2026-10-02-el-openglo-payload-drops-ready-waypoints.md (two reproductions, the skill budget order, the ask: never drop a live waypoint, name dropped symbols; mint a waypoint citing el-openglo:W97). The report is the deliverable; the fix is mtools.",
       "issued_at": "2026-09-27T13:51:17Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T04:33:56Z",
+      "last_worked": "2026-10-02T17:24:26Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 6,
+      "completed": "20261002T172426Z"
     },
     {
       "symbol": "W98",
@@ -2092,7 +2093,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 1
+      "weight": 6
     },
     {
       "symbol": "W107",
@@ -2301,7 +2302,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 4
     },
     {
       "symbol": "W116",
@@ -4005,7 +4006,7 @@
     {
       "symbol": "W188",
       "title": "Paint the roll: drawBackdrop draws span cells at the roll offset, offs glide, progress advances per frame",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W183"
       ],
@@ -4019,12 +4020,12 @@
       "issued_at": "2026-10-01T19:05:18Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T19:05:30Z",
+      "last_worked": "2026-10-02T17:24:51Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 7
     },
     {
       "symbol": "W189",
@@ -4155,7 +4156,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 4
+      "weight": 5
     },
     {
       "symbol": "W194",
@@ -4332,7 +4333,7 @@
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 7
     },
     {
       "symbol": "W201",
@@ -5149,7 +5150,7 @@
     {
       "symbol": "W236",
       "title": "A serial boot whose el.ident cannot name its build (deb_sha256, git_rev, snapshot) is withheld, not judged (G5, W71d)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W71"
       ],
@@ -5159,17 +5160,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close.",
+      "next_bounded_step": null,
       "evidence": "2026-10-02: 2026-10-02: read_serial reports el.ident guest on each case; policy/serial.rego withholds a boot missing any of deb_sha256/git_rev/snapshot (two new tests: partial identity, no guest object; fixtures carry ident; opa 27/27). End to end: clean.log admitted, reporter log 5 of 5, noise-only still S0, read_serial selftest PASS. RESCOPED from check_action_key: the image digest cannot live in the image, so the launcher pairs it with the log - luthen-observability:W127 told. guest-image.md G5 rewritten.",
       "issued_at": "2026-10-02T15:43:01Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T17:09:56Z",
+      "last_worked": "2026-10-02T17:23:33Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 8,
-      "completed": null
+      "completed": "20261002T172333Z"
     },
     {
       "symbol": "W237",
