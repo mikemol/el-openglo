@@ -18,11 +18,11 @@ test_h0_refuses_an_absent_population if {
 	startswith(msg, "H0:")
 }
 
-# the failure the docstring names: the symlink dangles because upstream moved
-test_h1_refuses_a_dangling_symlink if {
-	bad := {"cases": [good.cases[0], {"hook": "hook_structural_query.py", "present": false, "resolves": null, "rc": null, "tail": ""}]}
+# the failure the docstring names: settings.json runs a hook command that is not installed
+test_h1_refuses_a_missing_hook_command if {
+	bad := {"cases": [good.cases[0], {"hook": "mikemol-hook-structural-query", "present": false, "resolves": null, "rc": null, "tail": ""}]}
 	some msg in p.deny with input as bad
-	msg == "H1: hook_structural_query.py: absent (dangling symlink, or not installed yet)"
+	msg == "H1: mikemol-hook-structural-query: absent (not installed in .venv, or settings.json names a missing command)"
 	count(p.admitted) == 1 with input as bad
 }
 

@@ -29,25 +29,30 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HOOK = os.path.join(ROOT, "scripts", "hook_structural_query.py")
+# ⚑ THE HOOK IS mtools' INSTALLED COMMAND SINCE W99 (2026-10-02), not a symlinked
+# script. It has no --routes flag (it reads a hook event from stdin and ignores argv),
+# so the table is read through the SAME function the hook calls, from the installed
+# package: mikemol.hooks.routing_table.routes - asking the tool, not re-parsing the skill.
+HOOK = os.path.join(ROOT, ".venv", "bin", "mikemol-hook-structural-query")
 SKILL = os.path.join(ROOT, ".claude", "skills", "struct-tools", "SKILL.md")
 
 
-def routes(hook=HOOK):
-    """The hook's own view of its table (ask the tool, never re-parse the skill)."""
-    if not os.path.exists(hook):
+def routes(hook=HOOK, skill=SKILL):
+    """The hook's own view of its table: the installed hook's reader over our skill."""
+    if not os.path.exists(hook) or not os.path.exists(skill):
         return None
-    r = subprocess.run([sys.executable, hook, "--routes"],
-                       capture_output=True, text=True, cwd=ROOT)
-    if r.returncode != 0:
+    try:
+        from pathlib import Path
+        from mikemol.hooks import routing_table
+    except ImportError:
         return None
-    return [ln for ln in r.stdout.splitlines() if ln.strip()]
+    return [f"{a}\t{t}" for a, t in routing_table.routes(Path(skill))]
 
 
 def measure(hook=HOOK, skill=SKILL):
     return {"hook": os.path.relpath(hook, ROOT), "hook_present": os.path.exists(hook),
             "skill": os.path.relpath(skill, ROOT), "skill_present": os.path.exists(skill),
-            "cases": [{"row": r} for r in (routes(hook) or [])]}
+            "cases": [{"row": r} for r in (routes(hook, skill) or [])]}
 
 
 def main(argv):
@@ -77,7 +82,7 @@ def _selftest():
 
     check("SKILL path is repo-local", SKILL.startswith(ROOT), True)
     check("HOOK path is repo-local", HOOK.startswith(ROOT), True)
-    gone = measure(hook=os.path.join(ROOT, "scripts", "no_such_hook.py"),
+    gone = measure(hook=os.path.join(ROOT, ".venv", "bin", "mikemol-hook-no-such"),
                    skill=os.path.join(ROOT, "no_such_skill.md"))
     check("an absent hook is SEEN, with no rows", (gone["hook_present"], gone["skill_present"], gone["cases"]),
           (False, False, []))

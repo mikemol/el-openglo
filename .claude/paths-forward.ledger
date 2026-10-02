@@ -515,3 +515,5 @@
 2026-10-02T10:39:32Z  tick  W94  done      unblock   "resolved upstream as mtools:W50 (touches leases: W174 grammar, W175 check, W178 renew/lapse), all in our pinned pathsforward"  evidence=mtools W50/W174/W175/W178 done; c64b2e2, df87d2a ancestors of 03836cc
 2026-10-02T10:53:20Z  hash  --   diverged  --        "divergence: payload v2:d86371c341d6370d, file v2:3a98ca13be0e7226; the FILE wins"
 2026-10-02T10:54:20Z  tick  W99  advanced  unblock   "PreToolUse hooks repointed to the installed mikemol-hook-* commands (verified by sample events and a live denial); symlink deletion next"  evidence=check_hooks 2 admitted; live denial text from the installed hook
+2026-10-02T11:08:24Z  hash  --   diverged  --        "divergence: payload v2:d86371c341d6370d, file v2:a240d841462c9be3; the FILE wins"
+2026-10-02T11:10:36Z  tick  W99  advanced  unblock   "hook symlinks deleted; check_hooks measures the settings.json roster by behaviour (2 of 2); borrows 5 -> 2"  evidence=check_hooks 2 admitted; hooks_test 17/17; --list borrowed 2 of 114

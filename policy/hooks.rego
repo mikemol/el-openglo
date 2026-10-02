@@ -1,10 +1,11 @@
 # METADATA
 # title: "H0 — no hooks measured admits nothing"
 # description: |
-#   The measurement is `scripts/check_hooks.py --json`: for each borrowed hook
-#   (symlinked from substrate), whether it resolves here, where, and its
-#   `--selftest` exit code and last output line when run FROM THIS REPO — a
-#   symlinked script reads this repo's files while its code lives elsewhere.
+#   The measurement is `scripts/check_hooks.py --json`: for each PreToolUse hook
+#   command .claude/settings.json runs (mtools' installed mikemol-hook-* since
+#   W99, no longer symlinks into substrate), whether its executable is present and
+#   rc = 0 iff, run FROM THIS REPO, it denied a known-bad event and admitted a
+#   known-good one - an installed command reads this repo's tables at run time.
 package el.hooks
 
 import rego.v1
@@ -22,7 +23,7 @@ deny contains msg if {
 deny contains msg if {
 	some c in input.cases
 	c.present == false
-	msg := sprintf("H1: %s: absent (dangling symlink, or not installed yet)", [c.hook])
+	msg := sprintf("H1: %s: absent (not installed in .venv, or settings.json names a missing command)", [c.hook])
 }
 
 # measured: a present hook whose selftest ran. The measurement always emits

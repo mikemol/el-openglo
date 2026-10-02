@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: Apache-2.0
 # Copyright (c) 2026 Mike Mol
-"""check_hooks.py — the borrowed structural hooks pass their selftests HERE.
+"""check_hooks.py — the PreToolUse hooks this repo runs behave correctly HERE.
 
-The hooks are symlinked from the repo they were written in.  A symlinked script
-resolves its own root from `__file__`, so it reads THIS repo's files while its
-code lives elsewhere — which is the whole reason it must be re-verified from
-here rather than trusted because it passes upstream.
+⚑ THE ROSTER IS WHAT .claude/settings.json RUNS (W99, 2026-10-02). The hooks were
+symlinks into substrate; they are now mtools' installed commands (mikemol-hooks in
+the tooling extra), so the population is read from the settings file's PreToolUse
+commands, not from scripts/. Each is measured by BEHAVIOUR, run from this repo:
+it must DENY a known-bad event and ADMIT a known-good one (PROBES). An installed
+command reads this repo's struct-tools table at run time, which is exactly what
+must be re-verified here rather than trusted because it passes upstream.
 
     scripts/check_hooks.py           # the verdict, as opa_gate hooks decides it
     scripts/check_hooks.py --json    # the measurement policy/hooks.rego decides
@@ -29,25 +32,70 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HOOKS = ("hook_no_chaining.py", "hook_structural_query.py")
+SETTINGS = os.path.join(ROOT, ".claude", "settings.json")
+
+# hook command basename -> (an event it must DENY, an event it must ADMIT)
+PROBES = {
+    "mikemol-hook-no-chaining": ("ls a && ls b", "ls a"),
+    "mikemol-hook-structural-query": ("grep foo scripts/check_hooks.py", "ls scripts"),
+}
 
 
-def measure(hooks=HOOKS):
-    """The MEASUREMENT policy/hooks.rego decides (W50): per borrowed hook, whether
-    it resolves here, where, and its --selftest exit code and last output line
-    run FROM THIS REPO. An absent hook and a failing selftest are defects by the
-    policy's ruling (H1, H2), not here."""
-    cases = []
-    for h in hooks:
-        p = os.path.join(ROOT, "scripts", h)
-        if not os.path.exists(p):
-            cases.append({"hook": h, "present": False, "resolves": None, "rc": None, "tail": ""})
+def roster(settings=SETTINGS):
+    """[(name, argv, env)] for every Bash PreToolUse hook command in settings.json.
+
+    A command is `VAR=1 "$CLAUDE_PROJECT_DIR/path"`: leading assignments become env,
+    $CLAUDE_PROJECT_DIR expands to this repo."""
+    import json
+    import shlex
+    doc = json.load(open(settings, encoding="utf-8"))
+    out = []
+    for block in doc.get("hooks", {}).get("PreToolUse", []):
+        if block.get("matcher") != "Bash":
             continue
-        r = subprocess.run([sys.executable, p, "--selftest"],
-                           capture_output=True, text=True, cwd=ROOT)
-        tail = (r.stdout + r.stderr).strip().splitlines()
-        cases.append({"hook": h, "present": True, "resolves": os.path.realpath(p),
-                      "rc": r.returncode, "tail": tail[-1] if tail else ""})
+        for h in block.get("hooks", []):
+            words = shlex.split(h.get("command", "").replace("$CLAUDE_PROJECT_DIR", ROOT))
+            env = {}
+            while words and "=" in words[0] and not words[0].startswith(("/", ".")):
+                k, v = words.pop(0).split("=", 1)
+                env[k] = v
+            if words:
+                out.append((os.path.basename(words[0]), words, env))
+    return out
+
+
+def _decision(argv, env, command):
+    """'deny' or 'allow' for one sample PreToolUse event, as the hook answers it."""
+    import json
+    event = json.dumps({"tool_name": "Bash", "tool_input": {"command": command}, "cwd": ROOT})
+    r = subprocess.run(argv, input=event, capture_output=True, text=True, cwd=ROOT,
+                       env=dict(os.environ, **env))
+    try:
+        d = json.loads(r.stdout or "{}").get("hookSpecificOutput", {}).get("permissionDecision")
+    except ValueError:
+        d = None
+    return d or ("deny" if r.returncode == 2 else "allow")
+
+
+def measure(hooks=None):
+    """The MEASUREMENT policy/hooks.rego decides (W50): per hook settings.json runs,
+    whether its executable is present, and rc = 0 iff it denied its bad probe and
+    admitted its good one, run FROM THIS REPO (tail says which probe misbehaved).
+    An absent hook and a misbehaving one are defects by the policy (H1, H2)."""
+    cases = []
+    for name, argv, env in (hooks if hooks is not None else roster()):
+        if not os.path.isfile(argv[0]):
+            cases.append({"hook": name, "present": False, "resolves": None, "rc": None, "tail": ""})
+            continue
+        bad, good = PROBES.get(name, (None, None))
+        if bad is None:
+            cases.append({"hook": name, "present": True, "resolves": argv[0], "rc": None,
+                          "tail": "no probe declared for this hook"})
+            continue
+        got = (_decision(argv, env, bad), _decision(argv, env, good))
+        ok = got == ("deny", "allow")
+        cases.append({"hook": name, "present": True, "resolves": argv[0], "rc": 0 if ok else 1,
+                      "tail": f"bad probe -> {got[0]}, good probe -> {got[1]}"})
     return {"cases": cases}
 
 
@@ -74,10 +122,9 @@ def main(argv):
             print(f"check_hooks: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--list" in argv:
-        for h in HOOKS:
-            p = os.path.join(ROOT, "scripts", h)
-            where = os.path.realpath(p) if os.path.exists(p) else "(ABSENT)"
-            print(f"{h}\t{where}")
+        for name, hargv, _env in roster():
+            where = hargv[0] if os.path.isfile(hargv[0]) else "(ABSENT)"
+            print(f"{name}\t{where}")
         names, out = borrowed()
         if not names:
             print("check_hooks: REFUSED — scripts/ lists 0 entries; the census is broken", file=sys.stderr)
@@ -97,11 +144,15 @@ def main(argv):
 def _selftest():
     """The measurement can SEE an absent hook (the dangling-symlink case the
     docstring names); policy/hooks_test.rego holds that it is a defect (W50)."""
-    ok = len(HOOKS) > 0
-    print(f"  {'ok  ' if ok else 'FAIL'} roster is non-empty")
-    seen = measure(("hook_that_does_not_exist.py",))["cases"][0]["present"] is False
+    ok = len(roster()) > 0
+    print(f"  {'ok  ' if ok else 'FAIL'} the settings.json roster is non-empty")
+    seen = measure([("ghost", ["/nonexistent/mikemol-hook-ghost"], {})])["cases"][0]["present"] is False
     print(f"  {'ok  ' if seen else 'FAIL'} an absent hook is measured as absent")
     ok = ok and seen
+    # the probe can SEE a hook that admits everything: /bin/true never denies
+    lax = measure([("mikemol-hook-no-chaining", ["/bin/true"], {})])["cases"][0]["rc"]
+    print(f"  {'ok  ' if lax == 1 else 'FAIL'} a hook that never denies is measured as misbehaving (rc {lax})")
+    ok = ok and lax == 1
     # the census can SEE a borrow: plant one symlink out of a fake tree, one inside
     import tempfile
     with tempfile.TemporaryDirectory() as tree, tempfile.TemporaryDirectory() as away:

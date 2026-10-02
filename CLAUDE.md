@@ -93,10 +93,13 @@ stays 3 — nothing was judged. The first rule must treat an ABSENT population a
 
 ## Borrowed tooling: some scripts are SYMLINKS into ../substrate
 
-`scripts/hook_no_chaining.py`, `hook_structural_query.py`, `hook_cmdparse.py` (the
-tokenizer both hooks import — `scripts/__init__.py` exists so that `from scripts import
-hook_cmdparse` resolves against THIS tree), `ratchet.py` and `run_selftests.py`
-point into `../../substrate/`. (`gate_ledger.py` is retired, W140: the pre-commit `run()`
+`scripts/ratchet.py` and `run_selftests.py` point into `../../substrate/` (W101 and
+W102 retire them). The two PreToolUse hooks are NOT symlinks any more (W99,
+2026-10-02): `.claude/settings.json` runs mtools' installed
+`.venv/bin/mikemol-hook-structural-query` and `mikemol-hook-no-chaining`
+(mikemol-hooks, sha-pinned in the tooling extra), and `check_hooks` measures them by
+behaviour from here. `scripts/__init__.py` stays: ratchet, run_selftests and
+check_license still use `from scripts import`. (`gate_ledger.py` is retired, W140: the pre-commit `run()`
 writes `.gate-outcomes.tsv` itself, and the installed reader is
 `.venv/bin/mikemol-gate-ledger --ledger .gate-outcomes.tsv --report|--order`.) **Editing one edits substrate.** Change it there and run BOTH repos'
 selftests. `scripts/check_hooks.py --list` shows where each resolves.
