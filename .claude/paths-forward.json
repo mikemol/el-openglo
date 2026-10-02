@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 234,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T14:09:18Z",
-  "job_id": "2583bb80",
+  "heartbeat": "2026-10-02T14:44:45Z",
+  "job_id": "49ab01df",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -3185,7 +3185,7 @@
     {
       "symbol": "W152",
       "title": "Engine core: the segment and matrix displays as glTF meshes with named segments",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W43",
         "W154",
@@ -3200,22 +3200,22 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close.",
+      "next_bounded_step": null,
       "evidence": "2026-10-02: 2026-10-02: make_glb.py writes catalog/engines/el-seg{7,16,22}.glb + el-matrix-5x7.glb (7/16/22/35 named nodes) from segment_topology GEOM16/geom22/FORMATS + MODULE_METRICS stroke/dot; stdlib GLB writer; check_glb + policy/glb G0-G5, opa 16/16, gate 4 of 4; registered ROLES colourless + ORDER, publishing row (20 of 20), @GLB warrant, README; schemes/wallpapers rebuilt byte-identical | 2026-10-02: 2026-10-02: segments bevelled - hexagonal outlines pointed at lattice endpoints (bevel min(half, len/2)), dots square; fan-triangulated prisms; gate 4 of 4",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-02T14:38:35Z",
+      "last_worked": "2026-10-02T14:44:09Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 8,
-      "completed": null
+      "completed": "20261002T144409Z"
     },
     {
       "symbol": "W153",
       "title": "Engine core: one shader lighting segments from a glyph bitmask, plus the glyph tables as JSON",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W43",
         "W154",
@@ -3234,11 +3234,12 @@
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-01T04:05:41Z",
+      "last_worked": "2026-10-02T14:44:33Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 8,
+      "completed": null
     },
     {
       "symbol": "W154",
@@ -5082,20 +5083,18 @@
     {
       "symbol": "W232",
       "title": "el_serial_emit selftest byte-compares the sh writer (guest/el-serial-emit.sh) against the reference writer when jq is present, else a counted SKIP",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [],
-      "blocked_on": [
-        "luthen-observability:W285"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "On jq present: add the selftest arm to scripts/el_serial_emit.py - drive guest/el-serial-emit.sh through the same P2 boot as Emitter with EL_SERIAL_SPEC=guest/el-serial-spec.json, EL_SERIAL_DEV=<tmp log>, EL_SERIAL_RUN=<tmp>, EL_SERIAL_BOOT_FILE=<file holding em.BOOT>, EL_SERIAL_UPTIME_FILE=<rewritten per frame to the ticker value>, and assert the log equals the reference writer bytes (the reference writes \\n, the sh writer \\n: compare lines); when jq is absent the arm prints a counted SKIP, never a pass.",
-      "evidence": "2026-10-02: Split from W181 (2026-10-02). | 2026-10-02: 2026-10-02 RESCOPED: the py round trip and committed==regenerated fixtures already exist (el_serial_emit --selftest 13/13); only the sh-writer byte comparison is missing. | 2026-10-02: 2026-10-02 PREREQUISITE LANDED: guest/el-serial-emit.sh read its boot id from /proc/sys/kernel/random/boot_id and its clock from /proc/uptime with NO override, so no host run could ever share a boot id or timestamp with the reference writer - byte comparison was impossible by construction, jq or not. Added EL_SERIAL_BOOT_FILE and EL_SERIAL_UPTIME_FILE, defaulting to those same kernel files (guest behaviour unchanged). sh -n clean; mikemol-shellcheck: 1 finding, SC2016 on the single-quoted jq program TYPE_OK (pre-existing, deliberate: $s/$t are jq variables; moved from line 36 to 41 by the insert). REMAINING: jq is absent on this host (command -v jq: exit 1), so the comparison arm cannot run here - operator act. | 2026-10-02: 2026-10-02 OPERATOR RULED on the jq ask: \"Ask luthen for the tool to be installed. Or use a python script instead of jq.\" Took the luthen route: the guest writer must stay sh + jq (no Python in the guest image by design), so a Python stand-in for jq would compare a writer the guest never runs. Asked luthen-observability (live) for a container image with jq + sh + coreutils + flock and a qml_check-shaped runner, minting a waypoint --enables el-openglo:W232; W232 now waits on luthen (cite their symbol when minted), no longer on the operator. | 2026-10-02: 2026-10-02 luthen minted luthen-observability:W285 (checks.serial_writer --src DIR --out DIR in an image with jq, sh, coreutils, flock; same JSON verdict as qml_check, exit 2 could-not-run; first checks whether images/qml-check already has the tools) with --enables el-openglo:W232; queued. OPEN QUESTION to the operator first: \"no Python in the guest\" is an unreasoned planning assumption (guest-image.md (f)), not a measured constraint - if python3 is allowed (or already in the trixie closure), the guest can run el_serial_emit.py and W232 dissolves. | 2026-10-02: 2026-10-02 OPERATOR RULED: \"Don't stick python3 in the guest.\" The open question is closed: the guest writer stays sh + jq, so the byte comparison against the reference writer is still needed and runs on luthen-observability:W285. Recorded in catalog/guest-image.md (f), which now names it as a ruling rather than an unreasoned assumption.",
+      "evidence": "2026-10-02: Split from W181 (2026-10-02). | 2026-10-02: 2026-10-02 RESCOPED: the py round trip and committed==regenerated fixtures already exist (el_serial_emit --selftest 13/13); only the sh-writer byte comparison is missing. | 2026-10-02: 2026-10-02 PREREQUISITE LANDED: guest/el-serial-emit.sh read its boot id from /proc/sys/kernel/random/boot_id and its clock from /proc/uptime with NO override, so no host run could ever share a boot id or timestamp with the reference writer - byte comparison was impossible by construction, jq or not. Added EL_SERIAL_BOOT_FILE and EL_SERIAL_UPTIME_FILE, defaulting to those same kernel files (guest behaviour unchanged). sh -n clean; mikemol-shellcheck: 1 finding, SC2016 on the single-quoted jq program TYPE_OK (pre-existing, deliberate: $s/$t are jq variables; moved from line 36 to 41 by the insert). REMAINING: jq is absent on this host (command -v jq: exit 1), so the comparison arm cannot run here - operator act. | 2026-10-02: 2026-10-02 OPERATOR RULED on the jq ask: \"Ask luthen for the tool to be installed. Or use a python script instead of jq.\" Took the luthen route: the guest writer must stay sh + jq (no Python in the guest image by design), so a Python stand-in for jq would compare a writer the guest never runs. Asked luthen-observability (live) for a container image with jq + sh + coreutils + flock and a qml_check-shaped runner, minting a waypoint --enables el-openglo:W232; W232 now waits on luthen (cite their symbol when minted), no longer on the operator. | 2026-10-02: 2026-10-02 luthen minted luthen-observability:W285 (checks.serial_writer --src DIR --out DIR in an image with jq, sh, coreutils, flock; same JSON verdict as qml_check, exit 2 could-not-run; first checks whether images/qml-check already has the tools) with --enables el-openglo:W232; queued. OPEN QUESTION to the operator first: \"no Python in the guest\" is an unreasoned planning assumption (guest-image.md (f)), not a measured constraint - if python3 is allowed (or already in the trixie closure), the guest can run el_serial_emit.py and W232 dissolves. | 2026-10-02: 2026-10-02 OPERATOR RULED: \"Don't stick python3 in the guest.\" The open question is closed: the guest writer stays sh + jq, so the byte comparison against the reference writer is still needed and runs on luthen-observability:W285. Recorded in catalog/guest-image.md (f), which now names it as a ruling rather than an unreasoned assumption. | 2026-10-02: 2026-10-02: luthen-observability:W285 landed (817db86), told by its session; run: cd luthen-observability, .venv/bin/python -m checks.serial_writer --src <tree> --script <path> --out <dir>; verdict JSON ok/refused/cannot-run",
       "issued_at": "2026-10-02T11:44:52Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T12:38:32Z",
-      "ticks_blocked": 3,
+      "last_worked": "2026-10-02T14:49:00Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -5139,7 +5138,8 @@
       "last_worked": "2026-10-02T14:25:42Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 2
     }
   ],
   "residue": [
@@ -5161,6 +5161,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "c29604db",
+  "predecessor_job_id": "2583bb80",
   "leases": []
 }

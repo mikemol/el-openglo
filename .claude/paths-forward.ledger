@@ -542,3 +542,4 @@
 2026-10-02T14:25:42Z  tick  W152 advanced  unblock   "glTF meshes for 7/16/22-seg + 5x7 matrix, named nodes, gate 4 of 4; minted W234 (bib reader broken)"
 2026-10-02T14:38:11Z  hash  --   diverged  --        "divergence: payload v2:4908d6f4f7192570, file v2:6d4925f5e575f506; the FILE wins"
 2026-10-02T14:38:36Z  tick  W152 advanced  unblock   "segments bevelled (hexagonal, mitred at lattice nodes); gate 4 of 4"
+2026-10-02T14:44:09Z  tick  W152 done      unblock   "bevelled named-segment glTF meshes for 7/16/22 + matrix; gate 4 of 4"  evidence=commit: W152 bevelled segments
