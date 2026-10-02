@@ -531,3 +531,4 @@
 2026-10-02T12:29:11Z  tick  W207 done      collapse  "umbrella closed: W208 logged offsets + W209 S5-by-log mean the linear-blend fit no longer decides any logged verdict; W200 and W201 unblocked"  evidence=W208 done; W209 done
 2026-10-02T12:46:09Z  hash  --   diverged  --        "divergence: payload v2:199331094a57fb41, file v2:3826a582d2562071; the FILE wins"
 2026-10-02T12:49:33Z  tick  W186 done      unblock   "Body.replaceSpan landed (pure prefix/suffix span), 8 cases measured headless, policy M10 with refuse/admit tests 43/43; first step of the W183 roll chain"  evidence=opa_gate marquee_body admitted; opa test 43/43
+2026-10-02T13:15:54Z  tick  W151 advanced  collapse  "W151 and W160 are one artifact (DTCG tokens.json) with two consumers; W160 is the producer, W151 the material group within it; edge W160 -> W151 instead of a second emitter"  evidence=W160 next step; W151 title "ideally the same DTCG token file"

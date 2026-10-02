@@ -1875,7 +1875,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 8
     },
     {
       "symbol": "W96",
@@ -2321,7 +2321,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W116",
@@ -3156,7 +3156,7 @@
     {
       "symbol": "W151",
       "title": "Engine core: the palette as a per-variant material spec in JSON",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W43",
         "W154",
@@ -3169,14 +3169,16 @@
         "make_schemes",
         "engines"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Per-variant JSON emitted from make_schemes.GRID: ground = base, lit = emissive, ghost and its solved alpha, hue table, floors. Ideally the same DTCG token file W42 names, so engines and design tools read one file.",
-      "evidence": "",
+      "blocked_on": [
+        "W160"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W160 lands tokens.json: add a material group to it (base = ground, emissive = lit, ghost colour + its solved alpha as a $type number, the hue table, the legibility floors), so engine adapters (W154-W157) read the same file design tools do; extend the DTCG shape check to the group.",
+      "evidence": "2026-10-02: 2026-10-02 collapse audit: the producer is W160 (make_tokens.py, DTCG tokens.json); this item is the material group within that one file, not a second emitter (reuse-before-build). Blocked on W160.",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-02T13:05:08Z",
+      "last_worked": "2026-10-02T13:15:54Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -3210,7 +3212,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 7
     },
     {
       "symbol": "W153",
@@ -3238,7 +3240,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 8
+      "weight": 7
     },
     {
       "symbol": "W154",
@@ -3394,8 +3396,10 @@
     {
       "symbol": "W160",
       "title": "Emit W3C DTCG design tokens (tokens.json) from the palette authorities",
-      "status": "ready",
-      "enables": [],
+      "status": "working",
+      "enables": [
+        "W151"
+      ],
       "touches": [
         "catalog/codomain.json",
         "emitters.py"
@@ -3403,15 +3407,16 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "make_tokens.py reading GRID/parse_scheme only (no own colours; check_token_source must admit it), emitting tokens.json per variant in DTCG $value/$type form; declare in emitters.ROLES and publishing.md; drop the dtcg-tokens gap (C2 would refuse it); a check that parses the output against the DTCG shape",
-      "evidence": "",
+      "evidence": "2026-10-02: 2026-10-02 COLLAPSE AUDIT with W151 (one artifact, two consumers): W151 (engine material spec: ground=base, lit=emissive, ghost + solved alpha, hue table, floors) asks for \"ideally the same DTCG token file\"; DTCG carries colours ($type color) and alphas/floors ($type number), and a material group maps base/emissive - so make_tokens.py is the ONE producer, serving design tools (this item) and engine adapters (W151 -> W154-W157). Not merged: W151 keeps its distinct step (the material group and its engine semantics); edge W160 -> W151 added.",
       "issued_at": "2026-10-01T06:43:11Z",
       "minted_during": "interrupt",
       "caused_by": "W42",
-      "last_worked": "2026-10-01T06:43:40Z",
+      "last_worked": "2026-10-02T13:16:22Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 9,
+      "completed": null
     },
     {
       "symbol": "W161",
@@ -4052,7 +4057,8 @@
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "weight": 5
     },
     {
       "symbol": "W189",
@@ -4360,7 +4366,7 @@
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 5
     },
     {
       "symbol": "W201",
