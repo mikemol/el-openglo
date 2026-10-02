@@ -181,6 +181,42 @@ def move_visibility():
     return out
 
 
+def divider_interior(Va, Vb, S, y1=1, y2=1):
+    """The interior potential of lit -(y1)- ghost -(y2)- ground with both ends pinned,
+    read off gcalc.solver.laplacian: the Kirchhoff row of the interior node,
+    L_MM V_M = -(L_Ma V_a + L_Mb V_b). Exact over Fraction."""
+    nodes = ["fg", "fg_in", "view"]
+    net = S.netlist({("fg", "fg_in"): "y1", ("fg_in", "view"): "y2"})
+    L, idx = S.laplacian(nodes, net, {"y1": Fraction(y1), "y2": Fraction(y2)})
+    i = {n: dict(idx.items())[n] for n in nodes}
+    m, a, b = i["fg_in"], i["fg"], i["view"]
+    return -(L[m][a] * Va + L[m][b] * Vb) / L[m][m]
+
+
+def ghost_pilot():
+    """W221 pilot: ghost_solve's closed form y = sqrt(ab) against the divider solve.
+
+    The ghost's balance (ghost_solve: a/y = y/b) is a divider in LOG offset
+    luminance with equal conductances - log y = (log a + log b)/2 is the interior
+    potential of a two-resistor chain. This reads it from gcalc's Laplacian instead
+    of the hand-derived formula, per variant, and reports the difference."""
+    import math
+    import cvd_gate as C
+    import ghost_solve as GS
+    import make_palette as mp
+    S = _gcalc()
+    out = []
+    for (t, _d) in mp.build_grid().values():
+        lit, ground = C.rgb(t["fg"]), C.rgb(t["view"])
+        a, b = GS.offsets(lit, ground)
+        Vm = divider_interior(Fraction(math.log(a)), Fraction(math.log(b)), S)
+        y_solver = math.exp(float(Vm))
+        y_closed = GS.balance_luminance(lit, ground)
+        out.append({"variant": t["id"], "closed_form": y_closed, "solver": y_solver,
+                    "rel_diff": abs(y_solver - y_closed) / y_closed})
+    return out
+
+
 def _selftest():
     ok = True
 
@@ -202,6 +238,11 @@ def _selftest():
           all(r[k] <= m + 1e-12 for k, m in {("a", "c"): 1.5, ("a", "b"): 0.4, ("b", "c"): 0.4}.items()), True)
     check("two components are solved apart, not as one singular system",
           sorted(solve({("a", "b"): 1.0, ("c", "d"): 3.0}, S).values()), [1.0, 3.0])
+    # the divider: equal conductances put the interior at the midpoint; 3:1 at the weighted mean
+    check("an equal divider puts the interior at the midpoint",
+          divider_interior(Fraction(1), Fraction(0), S), Fraction(1, 2))
+    check("a 3:1 divider is the conductance-weighted mean (V_M = y1/(y1+y2) for V=1,0)",
+          divider_interior(Fraction(1), Fraction(0), S, 3, 1), Fraction(3, 4))
     # series is a SMOOTH min: below min, and moved by a non-binding margin
     check("series lies below the min (AND(a,b) < min(a,b))", series([2.0, 3.0]) < 2.0, True)
     check("a non-binding margin moves series but not min",
@@ -212,11 +253,18 @@ def _selftest():
 
 def main(argv):
     for a in argv[1:]:
-        if a not in {"--json", "--selftest", "--moves"}:
+        if a not in {"--json", "--selftest", "--moves", "--ghost"}:
             print(f"check_nodal: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--selftest" in argv:
         return 0 if _selftest() else 1
+    if "--ghost" in argv:
+        rows = ghost_pilot()
+        for r in rows:
+            print(f"{r['variant']}\tclosed form {r['closed_form']:.12f}\tsolver {r['solver']:.12f}"
+                  f"\trel diff {r['rel_diff']:.2e}")
+        print(f"max rel diff over {len(rows)} variants: {max(r['rel_diff'] for r in rows):.2e}")
+        return 0
     if "--moves" in argv:
         rows = move_visibility()
         for r in rows:
