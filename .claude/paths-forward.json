@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 221,
+  "counter": 223,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T03:21:54Z",
-  "job_id": "f4ffba80",
+  "heartbeat": "2026-10-02T04:08:41Z",
+  "job_id": "4c8a4af5",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -696,21 +696,21 @@
     {
       "symbol": "W37",
       "title": "Plasma 6.7 legacy themes: an Oxygen flavour per variant, and whether Oxygen and Air follow the scheme",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Apply an Oxygen flavour (org.el.openglo.elazureoxygen) in the k8s+KVM VM through luthen and screenshot a window: confirm oxygen kstyle + decoration draw with the EL-Azure roles (selection, buttons, titlebar) the way Breeze does - the one thing check_lnf cannot see (its stated weakness). Then the Air half of the title: measure whether the Air Plasma Style follows the scheme.",
-      "evidence": "a4e7b59: measured on the host (COTYPE s95): oxygen/air Plasma Styles carry fixed colors files; org.kde.oxygen defaults name widgetStyle=oxygen, ColorScheme=OxygenDark, icons oxygen, plasma theme oxygen, cursors Oxygen_Black, decoration org.kde.oxygen, Horos. The scheme-reading engines are already EL's; an Oxygen flavour is an LnF defaults choice. Build deferred to W35's shape (one LnF with an engine choice vs six more). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own? | 2026-10-02: 2026-10-02 make_deb.ENGINES {breeze, oxygen} + lnf_id(): build_lnf_packages emits VARIANTS x ENGINES (12) LnF packages; Breeze ids unchanged; Oxygen keys copied from the host org.kde.oxygen defaults (widgetStyle=oxygen, kdecoration2 library=org.kde.oxygen, no theme). Host has styles/oxygen6.so + kdecoration3/org.kde.oxygen.so. Staged and read: org.el.openglo.elamberlitoxygen/contents/defaults carries ColorScheme=EL-Amber-Lit, widgetStyle=oxygen, library=org.kde.oxygen, EL icons/cursors/TabBox. | 2026-10-02: 2026-10-02 WITNESSED: scripts/check_lnf.py --json (stages via build_lnf_packages, reads metadata.json + defaults back; population VARIANTS x ENGINES) + policy/lnf.rego L0-L3 (empty population, missing/undeclared, structure/id, ColorScheme == variant, engine widget/deco/theme from make_deb.ENGINES) + lnf_test.rego 9/9 under opa test; opa_gate lnf: admitted - 0 deny, 0 withheld, 12 admitted.",
+      "next_bounded_step": null,
+      "evidence": "a4e7b59: measured on the host (COTYPE s95): oxygen/air Plasma Styles carry fixed colors files; org.kde.oxygen defaults name widgetStyle=oxygen, ColorScheme=OxygenDark, icons oxygen, plasma theme oxygen, cursors Oxygen_Black, decoration org.kde.oxygen, Horos. The scheme-reading engines are already EL's; an Oxygen flavour is an LnF defaults choice. Build deferred to W35's shape (one LnF with an engine choice vs six more). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): PLASMA 6.7 LEGACY THEMES — named (announcement, 2026-06): OXYGEN (KDE 4's default: kstyle + kdecoration + Plasma Style + icons/cursors/sounds) and AIR (the light Plasma Style), 'brought up to par with Breeze' with light/dark/twilight Global Themes, plus the Air and Horos wallpapers; UNION ships as a tech preview (W14 already emits six Union styles — installed, not active here). Theming 'over' Oxygen = a second LnF flavour per variant naming Oxygen's engines (widgetStyle=Oxygen, kwin library org.kde.oxygen) — both read KColorScheme, so the EL scheme already colours them — plus a MEASUREMENT of the Oxygen/Air Plasma Styles: do they follow the system scheme (a colors file / FollowsColorScheme in their metadata) or bake their own? | 2026-10-02: 2026-10-02 make_deb.ENGINES {breeze, oxygen} + lnf_id(): build_lnf_packages emits VARIANTS x ENGINES (12) LnF packages; Breeze ids unchanged; Oxygen keys copied from the host org.kde.oxygen defaults (widgetStyle=oxygen, kdecoration2 library=org.kde.oxygen, no theme). Host has styles/oxygen6.so + kdecoration3/org.kde.oxygen.so. Staged and read: org.el.openglo.elamberlitoxygen/contents/defaults carries ColorScheme=EL-Amber-Lit, widgetStyle=oxygen, library=org.kde.oxygen, EL icons/cursors/TabBox. | 2026-10-02: 2026-10-02 WITNESSED: scripts/check_lnf.py --json (stages via build_lnf_packages, reads metadata.json + defaults back; population VARIANTS x ENGINES) + policy/lnf.rego L0-L3 (empty population, missing/undeclared, structure/id, ColorScheme == variant, engine widget/deco/theme from make_deb.ENGINES) + lnf_test.rego 9/9 under opa test; opa_gate lnf: admitted - 0 deny, 0 withheld, 12 admitted. | 2026-10-02: 2026-10-02 CLOSED (ATOMIZE): the Oxygen flavour per variant landed (make_deb.ENGINES, 12 LnF packages) and is witnessed (check_lnf + policy/lnf.rego, 12 of 12 admitted). Remainders split: W222 the Oxygen render in the VM, W223 whether Air follows the scheme.",
       "issued_at": "2026-09-21T14:52:17+00:00",
-      "last_worked": "2026-10-02T03:30:36Z",
+      "last_worked": "2026-10-02T04:04:43Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
-      "completed": null
+      "completed": "20261002T040443Z"
     },
     {
       "symbol": "W38",
@@ -4823,7 +4823,7 @@
     {
       "symbol": "W220",
       "title": "Solver contrast is two-rooted: search both polarity branches (text lighter AND darker than the field) and pale tints, instead of guessing one by ground L < 0.4",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W197"
       ],
@@ -4835,11 +4835,12 @@
       "issued_at": "2026-10-02T03:38:33Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T03:51:28Z",
+      "last_worked": "2026-10-02T04:05:04Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 13
+      "weight": 13,
+      "completed": null
     },
     {
       "symbol": "W221",
@@ -4861,6 +4862,44 @@
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "weight": 13
+    },
+    {
+      "symbol": "W222",
+      "title": "Oxygen flavour renders with the EL scheme: apply org.el.openglo.elazureoxygen in the k8s+KVM VM and screenshot a window",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Through luthen (k8s+KVM VM, per the k8s-test-harness memory): install the staged el-openglo tree, plasma-apply-lookandfeel -a org.el.openglo.elazureoxygen, open a window with a selection, buttons and a titlebar, screenshot; compare against org.el.openglo.elazure (Breeze) on the same scene - selection, button and titlebar colours must be the EL-Azure roles in both. check_lnf (W37) covers the keys; this covers the drawing.",
+      "evidence": "2026-10-02: Split from W37 (2026-10-02, ATOMIZE): the render check_lnf states it cannot see.",
+      "issued_at": "2026-10-02T04:04:27Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T04:04:42Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:U/W:N",
+      "vector_source": "agent",
+      "weight": 2
+    },
+    {
+      "symbol": "W223",
+      "title": "Air Plasma Style: measure whether it follows the colour scheme or bakes its own colours",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Read the host Air Plasma Style (/usr/share/plasma/desktoptheme/air: metadata, colors file, whether its SVGs use the ColorScheme stylesheet classes) and record whether it follows the scheme or bakes colours; a check mode, not a by-hand read (standing rule). If it follows, an EL flavour is a defaults choice like W37; if it bakes, it needs a recolour emitter like make_plasma.",
+      "evidence": "2026-10-02: Split from W37 (2026-10-02, ATOMIZE): the Air half of W37 title. W37 evidence a4e7b59 already noted the oxygen/air Plasma Styles carry fixed colors files.",
+      "issued_at": "2026-10-02T04:04:27Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T04:04:42Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 2
     }
   ],
   "residue": [
@@ -4882,6 +4921,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "3409dea4",
+  "predecessor_job_id": "f4ffba80",
   "leases": []
 }
