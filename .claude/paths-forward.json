@@ -1336,21 +1336,21 @@
     {
       "symbol": "W68",
       "title": "ELEVEN PALETTE CHECKS FAILED ONCE AND PASSED TWICE — no account was captured, and that is the fixable half",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "CLOSE: both hook sides are tracked and wired (evidence 2026-09-27); confirm one push in .git/auto-push.log shows the tree-writes gate ran, then --status done.",
-      "evidence": "4be3ea6: no gated check writes the tree. The writer was @CURRENCY probing make_schemes --keys, which ignored unknown flags and EMITTED the tracked .colors twice per gate (flagged as N1 hours earlier, left alone). Fixed: producers refuse unknown flags; @EMITTERS regenerates into a private root and compares (E3 fingerprints the real tree); every emitter writes atomically (85 of 96, 11 exempt with reasons); check_tree_writes 0 of 76 claims write the tree. First gate run after: all gates pass, no flake. | 2026-09-27: 2026-09-27 (found by W104): the awaited push side LANDED - .githooks/pre-push.local (tracked, Sep 25) runs scripts/pre_push_local.py = post-commit marker + tree-writes gate via mtools mikemol-githook-pre-push; .githooks/pre-merge-commit tracked (git ls-files .githooks lists both).",
+      "next_bounded_step": null,
+      "evidence": "4be3ea6: no gated check writes the tree. The writer was @CURRENCY probing make_schemes --keys, which ignored unknown flags and EMITTED the tracked .colors twice per gate (flagged as N1 hours earlier, left alone). Fixed: producers refuse unknown flags; @EMITTERS regenerates into a private root and compares (E3 fingerprints the real tree); every emitter writes atomically (85 of 96, 11 exempt with reasons); check_tree_writes 0 of 76 claims write the tree. First gate run after: all gates pass, no flake. | 2026-09-27: 2026-09-27 (found by W104): the awaited push side LANDED - .githooks/pre-push.local (tracked, Sep 25) runs scripts/pre_push_local.py = post-commit marker + tree-writes gate via mtools mikemol-githook-pre-push; .githooks/pre-merge-commit tracked (git ls-files .githooks lists both). | 2026-10-02: 2026-10-02 CLOSED on its stated condition: .git/auto-push.log shows fast-forward pushes through 2026-10-02T03:51:44 (14f22211f3..6eb477022d). Each went through the hook: auto_push.py pushes with a plain `git push origin HEAD:main` (no --no-verify; read at its push call), which runs .githooks/pre-push -> pre-push.local -> scripts/pre_push_local.py, which runs opa_gate.py tree_writes and REFUSES the push on failure. So every logged push passed the tree-writes gate. Weakness kept: the log records the push, not the gate verdict - the gate pass is read from the hook chain, not from a logged line.",
       "issued_at": "2026-09-22T17:46:33+00:00",
-      "last_worked": "2026-10-02T07:41:39Z",
+      "last_worked": "2026-10-02T07:55:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
       "vector_source": "agent",
       "weight": 11,
-      "completed": null
+      "completed": "20261002T075558Z"
     },
     {
       "symbol": "W69",
@@ -1431,7 +1431,7 @@
     {
       "symbol": "W73",
       "title": "Witness harnesses must never touch the operator's GPU",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [],
       "blocked_on": [],
@@ -1440,11 +1440,12 @@
       "next_bounded_step": "N2: cite scripts/opa_gate.py qt_sandbox (and opa_gate license for W44) from warrants.bib, then --project, so the worklist gate carries them.",
       "evidence": "landed 2026-09-23: qt_sandbox (RLIMIT_CORE=0, operator ruling), 7 of 7 Qt spawns routed, opa_gate qt_sandbox admitted; renders opt into GPU in render_screens (EL_QT_GPU=1, keeps DISPLAY+XAUTHORITY). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): WITNESS HARNESSES MUST NOT TOUCH THE OPERATOR'S GPU (luthen crash report 2026-09-22 20:28 EDT): check_ebuild.py's .ebuild-witness/harness.qml ran /usr/lib64/qt6/bin/qml on the real display; SIGSEGV in libnvidia-glcore under QRhi::endFrame on QSGRenderThread (driver crash at present/teardown, after load), core 6.5M + a KDE crash notification on the desktop. Fix: every qml-spawning check (census them with the tool, don't assume check_ebuild is the only one) runs with QT_QPA_PLATFORM=offscreen + QT_QUICK_BACKEND=software and RLIMIT_CORE=0, and a check asserts that environment for each spawn site.",
       "issued_at": "2026-09-23T00:41:17+00:00",
-      "last_worked": "2026-10-01T04:03:59Z",
+      "last_worked": "2026-10-02T07:56:20Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:N/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W74",
