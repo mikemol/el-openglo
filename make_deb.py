@@ -463,13 +463,32 @@ def _decoration_theme(variant):
     # Aurorae decorations are referenced as __aurorae__svg__<ThemeName>
     return f"__aurorae__svg__{variant}"
 
+# The ENGINE axis (W37): which widget style and window decoration a flavour
+# selects. Both engines read KColorScheme, so the EL scheme colours either; the
+# Oxygen keys are exactly org.kde.oxygen's own LnF defaults (widgetStyle=oxygen,
+# kdecoration library org.kde.oxygen; measured on the host, Plasma 6.7). The
+# Breeze flavour keeps its unsuffixed id so installed selections do not move.
+ENGINES = {
+    "breeze": dict(suffix="", label="", widget="Breeze",
+                   deco=lambda v: ("org.kde.kwin.aurorae", _decoration_theme(v))),
+    "oxygen": dict(suffix="oxygen", label=", Oxygen", widget="oxygen",
+                   deco=lambda v: ("org.kde.oxygen", None)),
+}
+
+
+def lnf_id(variant, engine="breeze"):
+    return f"org.el.openglo.{variant.lower().replace('-', '')}{ENGINES[engine]['suffix']}"
+
+
 def build_lnf_packages():
-    """Create one Plasma/LookAndFeel package per variant in a staging dir.
+    """Create one Plasma/LookAndFeel package per (variant, engine) in a staging dir.
     Returns a mapping [(staged_src, deb_dest), ...]."""
     shutil.rmtree(LNF_STAGE, ignore_errors=True)
     mapping = []
-    for v in VARIANTS:
-        pid = f"org.el.openglo.{v.lower().replace('-', '')}"
+    for v, engine in ((v, e) for v in VARIANTS for e in ENGINES):
+        E = ENGINES[engine]
+        pid = lnf_id(v, engine)
+        deco_lib, deco_theme = E["deco"](v)
         pkg_dir = os.path.join(LNF_STAGE, pid)
         contents = os.path.join(pkg_dir, "contents")
         os.makedirs(contents, exist_ok=True)
@@ -479,11 +498,11 @@ def build_lnf_packages():
             "KPlugin": {
                 "Authors": [{"Name": "EL Openglo", "Email": "el@local"}],
                 "Category": "Plasma Look And Feel",
-                "Description": f"Electroluminescent watch display — {v}",
+                "Description": f"Electroluminescent watch display — {v}{E['label']}",
                 "EnabledByDefault": True,
                 "Id": pid,
                 "License": LICENSE_SPDX,
-                "Name": f"EL Openglo ({v})",
+                "Name": f"EL Openglo ({v}{E['label']})",
                 "ServiceTypes": ["Plasma/LookAndFeel"],
                 "Version": VERSION,
             },
@@ -503,13 +522,13 @@ def build_lnf_packages():
             # plasma-apply-colorscheme by hand recoloured everything — the
             # defaults file is the one difference, so it gets the canonical shape.
             "[kdeglobals][KDE]\n"
-            f"widgetStyle=Breeze\n"
+            f"widgetStyle={E['widget']}\n"
             f"LookAndFeelPackage={pid}\n\n"
             "[plasmarc][Theme]\n"
             f"name={v}\n\n"
             "[kwinrc][org.kde.kdecoration2]\n"
-            "library=org.kde.kwin.aurorae\n"
-            f"theme={_decoration_theme(v)}\n\n"
+            f"library={deco_lib}\n"
+            + (f"theme={deco_theme}\n" if deco_theme else "") + "\n"
             "[Wallpaper][org.kde.image][General]\n"
             f"Image=file:///usr/share/wallpapers/{v}/contents/images/1920x1080.png\n\n"
             # the inheriting icon + cursor themes (W31): Global Theme selects them
