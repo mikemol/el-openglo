@@ -14,6 +14,7 @@ it is the one place worth measuring.
     scripts/check_selection_contrast.py --semantic  # the semantic set on the selection field
     scripts/check_selection_contrast.py --samples OUT.html  # W197: today's palette graded per option
     scripts/check_selection_contrast.py --options OUT.html  # W197: the palette each option PRODUCES (4 solves)
+    scripts/check_selection_contrast.py --max-floor apca    # W197: the largest uniform floor the solver can meet, and what binds
 
 ⚑ THIS MEASURES, IT DOES NOT PREFER.  It asserts a legibility FLOOR (WCAG 2.x
 contrast, the same ratio a UI toolkit is judged by), not a particular colour. A
@@ -308,6 +309,28 @@ def options_html(grids):
     return "\n".join(out)
 
 
+def max_floor(metric, lo, hi, tol):
+    """The largest uniform floor X (every role >= X in `metric`) the solver can
+    satisfy on every variant, by bisection over build_grid; plus, at that X and at
+    the first X above it, which (variant, role) bind. ⚑ WEAKNESS: assumes
+    feasibility is monotone in X (a higher floor never admits what a lower one
+    refused); the solver's candidate grids make that nearly but not provably so."""
+    import make_palette
+
+    def infeasible(x):
+        P = dict(metric=metric, normal=x, active=x, sem=x)
+        grid = make_palette.build_grid(sel_policy=P)
+        return sorted(f"{t['id']}:{r}" for (t, _d) in grid.values()
+                      for r in t.get("sel_floor_infeasible", "").split(",") if r)
+
+    if infeasible(lo):
+        return None, lo, infeasible(lo)
+    while hi - lo > tol:
+        mid = (lo + hi) / 2
+        lo, hi = (mid, hi) if not infeasible(mid) else (lo, mid)
+    return lo, hi, infeasible(hi)
+
+
 _POLICY_TEXT = {"A": "as shipped", "B": "Normal ≥ 4.5", "C": "every role ≥ 4.5",
                 "D": "every role APCA |Lc| ≥ 60"}
 
@@ -315,6 +338,19 @@ _POLICY_TEXT = {"A": "as shipped", "B": "Normal ≥ 4.5", "C": "every role ≥ 4
 def main(argv):
     known = {"--report", "--semantic", "--json", "--samples", "--options"}
     args = argv[1:]
+    if args[:1] == ["--max-floor"]:
+        if len(args) != 2 or args[1] not in ("wcag", "apca"):
+            print("check_selection_contrast: --max-floor takes wcag or apca", file=sys.stderr)
+            return 2
+        lo, hi, tol = (1.0, 21.0, 0.05) if args[1] == "wcag" else (0.0, 106.0, 0.5)
+        x, above, binding = max_floor(args[1], lo, hi, tol)
+        unit = "Lc " if args[1] == "apca" else ""
+        if x is None:
+            print(f"no uniform {args[1]} floor is satisfiable even at {unit}{lo}: {binding}")
+            return 0
+        print(f"largest uniform {args[1]} floor every role meets on every variant: "
+              f"{unit}{x:.2f} (fails at {unit}{above:.2f}, bound by: {', '.join(binding)})")
+        return 0
     if "--options" in args:
         i = args.index("--options")
         if i + 1 >= len(args) or len(args) != 2:
