@@ -2320,7 +2320,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W116",
@@ -4043,7 +4043,7 @@
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 5
     },
     {
       "symbol": "W189",
@@ -4351,7 +4351,7 @@
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 5
     },
     {
       "symbol": "W201",
@@ -5140,7 +5140,7 @@
     {
       "symbol": "W235",
       "title": "Guest image recipe: oci/guest/ mmdebstrap + containerDisk, refusing an unpinned snapshot (guest-image.md W71c)",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W240",
         "luthen-observability:W127"
@@ -5149,14 +5149,16 @@
         "guest-image",
         "oci"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "luthen-observability"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Build once as a systemd-run --user service (MemoryMax=8G, no swap, prlimit cpu 7200): mmdebstrap per --plan into guest.raw, qemu-img convert, buildctl with --metadata-file; record catalog/guest-image.json (adopted:false). If mmdebstrap/unshare is unavailable here, ask luthen for a builder (cite W235).",
-      "evidence": "2026-10-02: 2026-10-02: oci/guest/recipe.json (trixie, snapshot 20260920T000000Z via snapshot.debian.org, minbase, (e) package set no-recommends, absent set incl python3), customize.sh (apt install ./deb, el-openglo-plymouth, baloo/zram/initramfs trims, probe user, /etc/el-openglo-guest.json), Containerfile (FROM scratch, /disk/guest.qcow2 107:107); check_guest_recipe + policy/guest_recipe R0-R4 (opa 17/17), gate admitted, selftest sees latest/empty/None/dashed snapshots, a live mirror and a forbidden package; @GUEST-RECIPE warrant; guest-image.md G4 updated",
+      "evidence": "2026-10-02: 2026-10-02: oci/guest/recipe.json (trixie, snapshot 20260920T000000Z via snapshot.debian.org, minbase, (e) package set no-recommends, absent set incl python3), customize.sh (apt install ./deb, el-openglo-plymouth, baloo/zram/initramfs trims, probe user, /etc/el-openglo-guest.json), Containerfile (FROM scratch, /disk/guest.qcow2 107:107); check_guest_recipe + policy/guest_recipe R0-R4 (opa 17/17), gate admitted, selftest sees latest/empty/None/dashed snapshots, a live mirror and a forbidden package; @GUEST-RECIPE warrant; guest-image.md G4 updated | 2026-10-02: 2026-10-02: build attempted to start: which -> no mmdebstrap, no qemu-img on this host (buildctl, unshare present). Asked luthen-observability (live) for a guest-image builder runner shaped like checks.serial_writer, to mint a waypoint --enables el-openglo:W235; replace this bare repo block with their symbol when they reply.",
       "issued_at": "2026-10-02T15:43:01Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T15:56:39Z",
+      "last_worked": "2026-10-02T16:11:28Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
@@ -5190,7 +5192,7 @@
     {
       "symbol": "W237",
       "title": "Guest serial units: el-serial.service, el-serial-session.service and the reporter calling the sh writer (G6, W71f)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W240"
       ],
@@ -5205,11 +5207,12 @@
       "issued_at": "2026-10-02T15:43:02Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T15:43:37Z",
+      "last_worked": "2026-10-02T16:12:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
-      "weight": 9
+      "weight": 9,
+      "completed": null
     },
     {
       "symbol": "W238",

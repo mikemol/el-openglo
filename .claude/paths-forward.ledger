@@ -555,3 +555,4 @@
 2026-10-02T15:43:46Z  tick  W71  atomized  collapse  "W71c-h minted as W235-W240 with edges; W71 blocked on W236, W240"
 2026-10-02T15:54:20Z  hash  --   diverged  --        "divergence: payload v2:d3427e159f41064f, file v2:2be4de02f2fe6e99; the FILE wins"
 2026-10-02T15:56:39Z  tick  W235 advanced  unblock   "guest recipe + chroot hook + containerDisk; pins gated (R0-R4), build next"
+2026-10-02T16:11:28Z  tick  W235 advanced  unblock   "host lacks mmdebstrap/qemu-img; asked luthen for a builder runner; blocked on their mint"
