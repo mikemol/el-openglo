@@ -1625,10 +1625,10 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "luthen-observability:W114 (the image runner) has landed: build the el-openglo wrapper that runs the emitted QML under the operator Qt (6.10.2), plus policy/qml_target.rego and the @QML-TARGET warrant; settles `transient` in marquee-body.js",
-      "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2 | 2026-09-29: 2026-09-29: nemik-check: its only blocker luthen-observability:W114 has landed; back to ready.",
+      "next_bounded_step": "Make it a gate: scripts/check_qml_target.py --json stages via make_deb --stage (scratch), runs luthen checks.qml_check (sg k3s) on every staged package ui/main.qml (plasmoids, wallpapers, kwin tabbox, sddm, splash), reports per-package {id, state, step} n of m, withholds when k3s/docker is unavailable (exit 2 = could not run, a SKIP, not a pass); policy/qml_target.rego denies a failed step and an empty population, with tests; warrant @QML-TARGET under emitters citing opa_gate qml_target. Settle `transient` in marquee-body.js once it runs.",
+      "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2 | 2026-09-29: 2026-09-29: nemik-check: its only blocker luthen-observability:W114 has landed; back to ready. | 2026-10-02: 2026-10-02 FIRST MEASUREMENT: make_deb --stage (systemd-run) then, per luthen inbox 2026-09-28, `sg k3s -c \"python3 -m checks.qml_check --src <stage>/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui --entry main.qml --out <scratch>\"` -> {\"state\":\"ok\"} on docker.io/library/ubuntu@sha256:da6fc2be5478... (resolute, Qt 6.10.2): the marquee as emitted today lints and loads under the laptop stack. One package of the staged set, by hand; the gate is the next step.",
       "issued_at": "2026-09-26T18:13:16+00:00",
-      "last_worked": "2026-10-02T01:12:42Z",
+      "last_worked": "2026-10-02T01:26:08Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -4620,15 +4620,16 @@
         "tests"
       ],
       "blocked_on": [
-        "mtools"
+        "mtools:W380",
+        "mtools:W381"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "When mtools answers (shared --data for policy/lib, and expect.withheld): cite mtools:W<n>; then port all 17 qml_lint tests - deny-expecting, withheld-expecting and admitted cases - and show the differential line counts match opa test.",
-      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field.",
+      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow.",
       "issued_at": "2026-10-02T00:56:02Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:12:21Z",
+      "last_worked": "2026-10-02T01:12:57Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
