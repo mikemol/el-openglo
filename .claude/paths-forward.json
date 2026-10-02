@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 207,
+  "counter": 209,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -4501,7 +4501,7 @@
     {
       "symbol": "W207",
       "title": "The scroll fit models a sub-pip move as linear blending, but the aperture field grades by coverage; fix the model, not the grid",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W200",
         "W201"
@@ -4511,17 +4511,70 @@
         "screens.rego",
         "check_screens"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Refine both sides at the real boundary. (1) Step facts from the widget: the harness already logs each frames board offset (frameX in check_marquee_live HARNESS); expose them with the animation (render_screens writes them beside the APNG) and compute shifts/fractional_share/period2 from those, so S8 measures the step directly. (2) Tear detection keeps the image fit but its tolerance is DERIVED: render a synthetic clean scroll at 4.618 pips/frame THROUGH the aperture (render_qml aperture-probe), measure the linear-blend misfit it produces at every phase, and set S5 tolerance above that ceiling with a stated margin; positive control: that synthetic scroll admits, a real restart denies.",
+      "blocked_on": [
+        "W208",
+        "W209"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: done when W208 (step facts from harness offsets) and W209 (aperture-derived tear tolerance) land.",
       "evidence": "2026-10-01: 2026-10-01 MEASURED with check_screens --frames on the W200 attempt-2 render (marquee-anim-EL-Amber, 36 pairs): ONE run frames 1-35 (total brightness rises, flat 6.89 frames 13-22, falls), every shift forward +4.0..+5.0; frame 18 shift +4.375 mismatch 3.71 of 6.89 (54% > 50% tolerance) = the S5 TEAR; frame 13 mismatch 3.44 (50%). Mismatch cycles 0.02 / 1.26 / 1.85 / 0.02 / 3.7 with the step phase. NOT a restart: a measurement artifact - the step falls between the fit grid points. Same cause as the W201 whole-pip under-read. | 2026-10-02: 2026-10-01 PREMISE FALSIFIED BY ARITHMETIC before any code: FRACTIONS = i/8 (render_screens:502) includes 0.625, 0.007 pip from the true 0.618 - a grid error that small cannot produce a 54% mismatch. The fitted shifts for a CONSTANT 4.618-pip step read 4.0..5.0, so the fit picks wrong k/f when model error dominates. Cause: best_pip_shift models brightness after a sub-pip move as LINEAR interpolation between neighbouring pips (cur[c] ~ (1-f) prev[c+k] + f prev[c+k+1]); the ApertureField grades each pip by coverage under round apertures (dotFill 0.82, gamma) - nonlinear, phase-dependent misfit.",
       "issued_at": "2026-10-01T23:57:10Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T00:06:49Z",
+      "last_worked": "2026-10-02T00:25:53Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W208",
+      "title": "Animation step facts from the harness frame offsets: render_screens records each frame board offset and S8 reads the step from them",
+      "status": "working",
+      "enables": [
+        "W207"
+      ],
+      "touches": [
+        "render_screens",
+        "check_screens",
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "check_marquee_live HARNESS already pushes frameX {t, x: boardX} per grabbed frame into its RESULT; find where render_screens runs that harness for the marquee-anim and write the frameX list beside the APNG (marquee-anim-<variant>.frames.json); check_screens --motion then reads steps from the logged x deltas (pips = dx / pitch) instead of the image fit. Note: x is board px, pitch from the widget.",
+      "evidence": "",
+      "issued_at": "2026-10-02T00:25:38Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T00:25:53Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W209",
+      "title": "Derive the S5 tear tolerance from a clean scroll rendered through the aperture field",
+      "status": "ready",
+      "enables": [
+        "W207"
+      ],
+      "touches": [
+        "render_screens",
+        "screens.rego",
+        "render_qml"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Render a synthetic clean scroll at 4.618 pips/frame through the aperture (render_qml aperture-probe or the marquee with a fixed text), run animation_facts over it, record the max linear-blend misfit share across phases; set S5 tolerance above that ceiling with a stated margin in screens.rego; selftest: that clean scroll admits, a synthetic restart denies.",
+      "evidence": "",
+      "issued_at": "2026-10-02T00:25:38Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T00:25:53Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
       "vector_source": "agent"
     }
   ],

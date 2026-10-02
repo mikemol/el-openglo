@@ -310,7 +310,10 @@ Window {
             if (s.tickerText !== "") harness.sawText = true;
             if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || (%(stop_paused)d === 0 && drained) || now >= %(end)d) {
                 harness.done = true;
-                console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX, taps: harness.taps }));
+                // W208: the board px per pip, from the widget's own layout (advance = cols + 1 pips),
+                // so a frame's logged x converts to pips without the harness guessing a pitch
+                console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX, taps: harness.taps,
+                                                         pitch: s.charAdvance / (s.matrix.cols + 1) }));
                 Qt.quit();
             }
         }
@@ -585,7 +588,16 @@ def animate(variant, out_apng):
         run_delays += [SAMPLE_MS] * (len(ims) - 1 - len(run_delays))
         frames_out = ims + [ims[0]]
         delays = [hold] + run_delays + [hold]
-        frames_out[0].save(out_apng, format="PNG", save_all=True, append_images=frames_out[1:], duration=delays, loop=0)
+        # ⚑ W208: THE WIDGET'S OWN OFFSETS TRAVEL WITH THE PICTURE. The image fit models a
+        # sub-pip move as linear blending, which the aperture's coverage grading is not, so
+        # step facts read from pixels mis-measure a 4.618-pip step (W207). The logged board x
+        # per frame and the px-per-pip are written into the APNG as a text chunk, so
+        # check_screens reads the step the widget TOOK, beside the picture it drew.
+        from PIL.PngImagePlugin import PngInfo
+        info = PngInfo()
+        info.add_text("el-frames", json.dumps({"pitch": res.get("pitch"), "frames": fx}, separators=(",", ":")))
+        frames_out[0].save(out_apng, format="PNG", save_all=True, append_images=frames_out[1:], duration=delays, loop=0,
+                           pnginfo=info)
         return len(frames_out)
 
 

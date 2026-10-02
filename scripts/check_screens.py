@@ -37,6 +37,30 @@ def measure():
     return RS.measure()
 
 
+def logged_steps(path):
+    """W208: the widget's own per-frame steps in pips, from the APNG's `el-frames` text chunk
+    (board x per grabbed frame and px per pip, written by check_marquee_live.animate).
+
+    Returns None when the picture carries no log (an animation rendered before W208, or one
+    the harness did not drive): the caller falls back to the image fit and says so. Frame 0
+    is the empty-board bookend and is not a step."""
+    from PIL import Image
+    raw = getattr(Image.open(path), "text", {}).get("el-frames")
+    if not raw:
+        return None
+    log = json.loads(raw)
+    pitch, xs = log.get("pitch"), [f["x"] for f in log.get("frames", [])[1:]]
+    if not pitch or len(xs) < 2:
+        return None
+    return [(xs[i] - xs[i + 1]) / pitch for i in range(len(xs) - 1)]
+
+
+def logged_motion(steps):
+    """(moving, fractional) from logged steps; a step within 1e-3 pip of an integer is whole."""
+    moving = [s for s in steps if abs(s) > 1e-6]
+    return len(moving), sum(1 for s in moving if abs(s - round(s)) > 1e-3)
+
+
 def motion(anim):
     """(moving, fractional) step counts of one animation; a zero shift is not a step."""
     moving = [s for s in anim.get("shifts") or [] if s != 0]
@@ -116,9 +140,11 @@ def main(argv):
                   file=sys.stderr)
             return 1
         for a in anims:
-            n, f = motion(a)
+            steps = logged_steps(os.path.join(m["dir"], a["file"])) if a.get("exists") else None
+            n, f = logged_motion(steps) if steps is not None else motion(a)
+            source = "logged offsets" if steps is not None else "image fit"
             share = f"{f / n:.2f}" if n else "WITHHELD (no moving step)"
-            print(f"  {a.get('file')}: {f} of {n} moving steps fractional = {share}; "
+            print(f"  {a.get('file')}: {f} of {n} moving steps fractional = {share} ({source}); "
                   f"period2_share {a.get('period2_share')}")
         print(f"check_screens --motion: {len(anims)} animation(s)")
         return 0
