@@ -46,7 +46,9 @@ deny contains msg if {
 # `el.probe=`) must have emitted. Kept here, not in guest/el-serial-spec.json,
 # because it is a requirement and the spec is the wire format.
 required := {
-	"P1": {"el.ident", "el.greeter", "el.journal", "el.done"},
+	# P1 tests the login THROUGH the greeter: el.session is the guest fact that it
+	# succeeded (guest-image.md (d) P1 row); without it the greeter could merely appear
+	"P1": {"el.ident", "el.greeter", "el.session", "el.journal", "el.done"},
 	"P2": {"el.ident", "el.session", "el.settled", "el.journal", "el.file", "el.done"},
 	"P3": {"el.ident", "el.journal", "el.done"},
 	"P4": {"el.ident", "el.session", "el.analyze", "el.done"},

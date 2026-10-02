@@ -5216,10 +5216,11 @@
     },
     {
       "symbol": "W238",
-      "title": "Pick and pin the RFB client for P1 key events: vncdo or a websocket RFB on the vnc subresource (G7, W71g)",
+      "title": "P1 input script: the keys the greeter probe types and the serial records each step waits on (G7, W71g)",
       "status": "working",
       "enables": [
-        "W240"
+        "W240",
+        "luthen-observability:W127"
       ],
       "touches": [
         "harness",
@@ -5227,12 +5228,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Compare vncdo against a websocket RFB client on the KubeVirt vnc subresource (no QMP); pin the choice in pyproject with a reason in guest-image.md G7.",
-      "evidence": "",
+      "next_bounded_step": "Close.",
+      "evidence": "2026-10-02: 2026-10-02: RESCOPED (collapse with luthen-observability:W127): the RFB client is the harness owner choice, so it is not pinned here. Delivered guest/p1-input.json (wait el.greeter, type probe/Tab/probe/Return, wait el.session then el.done, screenshots). Writing it found two defects: the reporter ended P1 on the system side before any login, and policy/serial.rego required[P1] lacked el.session. Fixed: session side ends P1; S3 now requires el.session for P1 (new refusing + admitting tests, opa 25/25). Reporter bundle on luthen runner: state ok, opa_gate serial 5 of 5; clean.log fixture still admitted. guest-image.md G7 rewritten. | 2026-10-02: 2026-10-02: luthen confirmed: p1-input.json recorded on luthen-observability:W127 as the P1 contract; they choose and pin the RFB client there.",
       "issued_at": "2026-10-02T15:43:02Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T16:35:45Z",
+      "last_worked": "2026-10-02T16:51:21Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",

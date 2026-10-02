@@ -10,7 +10,8 @@
 #   el-reporter system    el-serial.service: el.ident, el.mem, then the probe's
 #                         system-side tail (P3: plymouth; P1/P4g: the greeter)
 #   el-reporter session   el-serial-session.service (user): el.session, el.mem
-#                         samples, el.settled, the session tail (P2/P4)
+#                         samples, el.settled, the session tail (P1 after the
+#                         harness logs in, P2/P4 by autologin)
 #
 # ⚑ IT REPORTS WHAT IT OBSERVES. Which kinds a probe REQUIRES is policy/serial.rego's;
 # this file only knows which side of the boot (system / greeter / session) a probe
@@ -129,9 +130,13 @@ system() {
 				"$EMIT" frame el.greeter "$(jq -cn --argjson pid "$(pgrep -x sddm-greeter-qt6 | head -n1)" \
 					--arg th "${theme:-unknown}" '{pid: $pid, theme: $th}')"
 			fi
-			[ "$p" = P4g ] && analyze
-			[ "$p" = P1 ] && journals
-			"$EMIT" "done" "$p"
+			# P1 tests the LOGIN through the greeter: the session side (after the
+			# harness types the credentials, guest/p1-input.json) sends the journals
+			# and el.done. P4g times the boot to the greeter and ends here.
+			if [ "$p" = P4g ]; then
+				analyze
+				"$EMIT" "done" "$p"
+			fi
 			;;
 		*) "$EMIT" "done" "$p" ;;
 	esac
@@ -150,6 +155,7 @@ session() {
 	mem
 	"$EMIT" frame el.settled "$(jq -cn --argjson c "$capped" '{capped: $c}')"
 	case "$p" in
+		P1) journals ;;
 		P2)
 			journals
 			f=$(blob appletsrc cat "$APPLETSRC")

@@ -381,8 +381,14 @@ and `make_sddm.py` before being written down as gaps:
   admitted by `opa_gate serial`, 5 of 5. The settle rule is a guess until W239 measures it. Whether the reader and
   policy hold is `scripts/opa_gate.py serial catalog/fixtures/serial/clean.log`, not
   this line.
-- **G7: no RFB client in the harness.** P1 needs VNC key events. We have no QMP, so
-  vncdo, or a websocket RFB client on the `vnc` subresource, has to be chosen and pinned.
+- **G7: the RFB client is the harness's; what P1 types is ours (W238).** The harness that
+  sends VNC key events is luthen-observability:W127, so the client (vncdo, or a websocket
+  RFB on the `vnc` subresource) is chosen and pinned there, not here. el-openglo's half is
+  `guest/p1-input.json`: the keys P1 types and the serial records each step waits on
+  (`el.greeter` before typing; `el.session` then `el.done` after). Writing it showed the
+  reporter sent P1's `el.done` from the system side before any login and that
+  `policy/serial.rego` did not require `el.session` for P1; both are fixed (the session
+  side now ends P1, and S3 denies a P1 with a greeter but no login).
 
 ## Next steps
 

@@ -18,6 +18,22 @@ test_admits_a_complete_p2 if {
 	serial.admitted == {"b-1"} with input as {"cases": [p2]}
 }
 
+p1_greeter_only := {
+	"boot": "b-p1", "probe": "P1", "withheld": [],
+	"kinds": {"el.ident": 1, "el.greeter": 1, "el.journal": 1, "el.done": 1},
+	"done": {"seq": 9, "probe": "P1", "records": 9},
+}
+
+test_s3_refuses_a_p1_whose_greeter_appeared_but_no_login if {
+	"S3: boot b-p1 (probe P1) sent no el.session" in serial.deny with input as {"cases": [p1_greeter_only]}
+	count(serial.admitted) == 0 with input as {"cases": [p1_greeter_only]}
+}
+
+test_admits_a_p1_that_logged_in if {
+	c := object.union(p1_greeter_only, {"kinds": object.union(p1_greeter_only.kinds, {"el.session": 1})})
+	serial.admitted == {"b-p1"} with input as {"cases": [c]}
+}
+
 test_s0_refuses_empty_population if {
 	count(serial.deny) == 1 with input as {"cases": []}
 }

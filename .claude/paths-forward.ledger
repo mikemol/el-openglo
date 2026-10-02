@@ -559,3 +559,5 @@
 2026-10-02T16:26:07Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:0d9209c10fa2a38e; the FILE wins"
 2026-10-02T16:29:20Z  tick  W237 advanced  unblock   "reporter + units; serial policy admits 5 of 5 probes on luthen runner"
 2026-10-02T16:35:13Z  tick  W237 done      unblock   "guest reporter + units, admitted 5 of 5"  evidence=commit: W237 guest serial reporter
+2026-10-02T16:46:23Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:2be3e282d5fb9a1a; the FILE wins"
+2026-10-02T16:48:27Z  tick  W238 advanced  collapse  "RFB client is the harness owner (luthen W127); delivered p1-input.json; found+fixed P1 ending before login in reporter and policy"

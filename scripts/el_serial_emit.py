@@ -250,7 +250,7 @@ def reporter_bundle(d, probes=("P1", "P2", "P3", "P4", "P4g")):
                f'EL_CMDLINE_FILE="$W/cmdline" sh "$BUNDLE/el-reporter.sh" system',
                f'EL_SERIAL_DEV="$OUT" EL_SERIAL_RUN="$W" EL_SERIAL_BOOT_FILE="$W/boot" EL_SERIAL_UPTIME_FILE="$W/uptime" '
                f'EL_CMDLINE_FILE="$W/cmdline" XDG_SESSION_TYPE=wayland sh "$BUNDLE/el-reporter.sh" session'
-               if p in ("P2", "P4") else ":"]
+               if p in ("P1", "P2", "P4") else ":"]
     sh += ['cat "$OUT"']
     with open(os.path.join(d, "run.sh"), "w") as f:
         f.write("\n".join(sh) + "\n")

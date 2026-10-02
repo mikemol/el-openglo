@@ -1,0 +1,16 @@
+{
+ "_doc": "W238: what probe P1 (the SDDM greeter) types, and how success is known - the harness (luthen-observability:W127) replays it over RFB on the KubeVirt vnc subresource; the RFB client is the harness's choice, not this file's. Keys are X11 keysym names (RFC 6143 KeyEvent). Every wait is on a SERIAL record (catalog/guest-image.md (f)), never on pixels, so 'the greeter is up' and 'login succeeded' are guest facts. Credentials guard nothing: the VM is throwaway (oci/guest/customize.sh).",
+ "probe": "P1",
+ "steps": [
+  {"wait_record": "el.greeter", "timeout_s": 600},
+  {"screenshot": "greeter"},
+  {"type": "probe"},
+  {"key": "Tab"},
+  {"type": "probe"},
+  {"key": "Return"},
+  {"wait_record": "el.session", "timeout_s": 300},
+  {"wait_record": "el.done", "timeout_s": 300},
+  {"screenshot": "after-login"}
+ ],
+ "success": {"record": "el.session then el.done (the session side sends both, only after a login)", "and_policy": "opa_gate serial admits the boot (policy/serial.rego, required[P1])"}
+}
