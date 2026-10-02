@@ -12,6 +12,7 @@ it is the one place worth measuring.
     scripts/check_selection_contrast.py --json    # the measurement policy/selection_contrast.rego decides
     scripts/check_selection_contrast.py --report  # per-scheme contrast ratios
     scripts/check_selection_contrast.py --semantic  # the semantic set on the selection field
+    scripts/check_selection_contrast.py --samples OUT.html  # W197: the options compared, rendered
 
 ⚑ THIS MEASURES, IT DOES NOT PREFER.  It asserts a legibility FLOOR (WCAG 2.x
 contrast, the same ratio a UI toolkit is judged by), not a particular colour. A
@@ -171,9 +172,113 @@ def _report(keys):
     return 0
 
 
+def apca_lc(txt, bg):
+    """APCA-W3 0.1.9 lightness contrast Lc (signed; positive = dark text on light).
+
+    W197 option D's metric, computed here so the options compare on ONE measured
+    population rather than on a reader's recollection of either standard."""
+    def y(rgb):
+        r, g, b = ((c / 255.0) ** 2.4 for c in rgb)
+        v = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b
+        return v + (0.022 - v) ** 1.414 if v < 0.022 else v
+    yt, yb = y(txt), y(bg)
+    if abs(yb - yt) < 0.0005:
+        return 0.0
+    if yb > yt:
+        s = (yb ** 0.56 - yt ** 0.57) * 1.14
+        return 0.0 if s < 0.1 else (s - 0.027) * 100
+    s = (yb ** 0.65 - yt ** 0.62) * 1.14
+    return 0.0 if s > -0.1 else (s + 0.027) * 100
+
+
+# W197's options as predicates over one case. ⚑ A PREVIEW OF A DECISION, NOT THE
+# GATE: the floor in force is policy/selection_contrast.rego's.
+OPTIONS = (
+    ("A", "keep 3.0 everywhere", lambda k, r, lc: r >= 3.0),
+    ("B", "4.5 for ForegroundNormal, 3.0 elsewhere",
+     lambda k, r, lc: r >= (4.5 if k == "ForegroundNormal" else 3.0)),
+    ("C", "4.5 for every text role", lambda k, r, lc: r >= 4.5),
+    ("D", "APCA |Lc| >= 60", lambda k, r, lc: abs(lc) >= 60),
+)
+
+
+def darken_to(fg, bg, target=4.5):
+    """fg mixed toward black (or white, whichever raises contrast) until it meets target.
+
+    ⚑ WEAKNESS: a NAIVE preview of what option C asks of a failing pair — linear
+    RGB mixing, no hue or chroma preservation, no other relation consulted. The
+    solver's answer will differ; this only shows the size of the move."""
+    pole = (0, 0, 0) if _rel_luminance(bg) > 0.18 else (255, 255, 255)
+    lo, hi = 0.0, 1.0
+    if contrast(fg, bg) >= target:
+        return tuple(fg)
+    for _ in range(30):
+        mid = (lo + hi) / 2
+        c = tuple(round(f + (p - f) * mid) for f, p in zip(fg, pole))
+        lo, hi = (lo, mid) if contrast(c, bg) >= target else (mid, hi)
+    return tuple(round(f + (p - f) * hi) for f, p in zip(fg, pole))
+
+
+def samples_html(keys=FG_KEYS + GATED_SEMANTIC):
+    """A comparative sheet for W197: each (scheme, key) as selected text on its
+    selection field at body and large size, its WCAG ratio and APCA Lc, which
+    options admit it, and — where C would refuse it — the naive darken preview."""
+    import html
+    rows = {}
+    for c in measure(keys)["cases"]:
+        rows.setdefault(c["scheme"], []).append(c)
+    hexs = lambda t: "#%02x%02x%02x" % tuple(t)
+    out = []
+    for scheme, cases in rows.items():
+        out.append(f"<section><h2>{html.escape(scheme)}</h2><table><thead><tr>"
+                   "<th>role</th><th>as shipped</th><th>WCAG</th><th>APCA Lc</th>"
+                   + "".join(f"<th title='{html.escape(d)}'>{n}</th>" for n, d, _ in OPTIONS)
+                   + "<th>option C would need (naive preview)</th></tr></thead><tbody>")
+        for c in cases:
+            if c["ratio"] is None:
+                out.append(f"<tr><td>{c['key']}</td><td colspan='9'>MISSING — "
+                           f"{html.escape(c['why'])}</td></tr>")
+                continue
+            fg, bg, r = c["fg"], c["bg"], c["ratio"]
+            lc = apca_lc(fg, bg)
+            verdicts = "".join(
+                f"<td class='{'ok' if p(c['key'], r, lc) else 'no'}'>"
+                f"{'pass' if p(c['key'], r, lc) else 'fail'}</td>" for _, _, p in OPTIONS)
+            sw = lambda f: (f"<div class='sw' style='background:{hexs(bg)};color:{hexs(f)}'>"
+                            f"<span class='body'>Selected row — report.txt</span>"
+                            f"<span class='large'>Selected 18px</span></div>")
+            if r >= 4.5:
+                fix = "<td class='muted'>no change</td>"
+            else:
+                d = darken_to(fg, bg)
+                fix = (f"<td>{sw(d)}<div class='num'>{hexs(d)} · "
+                       f"{contrast(d, bg):.2f}:1 · Lc {apca_lc(d, bg):.0f}</div></td>")
+            out.append(f"<tr><td>{c['key'].removeprefix('Foreground')}</td>"
+                       f"<td>{sw(fg)}<div class='num'>{hexs(fg)} on {hexs(bg)}</div></td>"
+                       f"<td class='num'>{r:.2f}:1</td><td class='num'>{lc:.0f}</td>"
+                       f"{verdicts}{fix}</tr>")
+        out.append("</tbody></table></section>")
+    return "\n".join(out)
+
+
 def main(argv):
-    known = {"--report", "--semantic", "--json"}
-    for a in argv[1:]:
+    known = {"--report", "--semantic", "--json", "--samples"}
+    args = argv[1:]
+    if "--samples" in args:
+        i = args.index("--samples")
+        if i + 1 >= len(args):
+            print("check_selection_contrast: --samples needs an output path", file=sys.stderr)
+            return 2
+        path = args[i + 1]
+        del args[i:i + 2]
+        if args:
+            print(f"check_selection_contrast: unknown flag {args[0]!r}", file=sys.stderr)
+            return 2
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(samples_html())
+        print(f"wrote W197 comparative samples fragment: {path}")
+        return 0
+    for a in args:
         if a not in known:
             print(f"check_selection_contrast: unknown flag {a!r}", file=sys.stderr)
             return 2
@@ -233,6 +338,14 @@ def _selftest():
               (len(m["keys"]), True))
     finally:
         globals()["schemes"] = saved
+    # APCA anchors: black on white is Lc ~106, white on black ~-108, equal is 0.
+    check("APCA black text on white is Lc 106", round(apca_lc((0, 0, 0), (255, 255, 255))), 106)
+    check("APCA white text on black is Lc -108", round(apca_lc((255, 255, 255), (0, 0, 0))), -108)
+    check("APCA a colour on itself is Lc 0", apca_lc((0, 205, 176), (0, 205, 176)), 0.0)
+    check("the C preview reaches 4.5 on a failing pair",
+          contrast(darken_to((0, 120, 100), (0, 205, 176)), (0, 205, 176)) >= 4.5, True)
+    check("the samples sheet sees every case",
+          samples_html().count("<tr><td>"), len(measure()["cases"]))
     import opa_gate
     if opa_gate.OPA:
         check("FLOOR (imported by check_gtk) is the policy's floor",

@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 215,
+  "counter": 217,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-01T16:20:24Z",
   "job_id": "a95423e5",
@@ -608,7 +608,7 @@
     {
       "symbol": "W33",
       "title": "Port the shipped segment surfaces onto the one SegmentChar component",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [
         "templates/SegmentChar.qml",
@@ -619,15 +619,15 @@
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "collapse: THREE segment renderers (the clock's inline components, the wallpaper's Canvas, the unused SegmentChar) become one, so every physics fix lands on both surfaces — the operator's ask, and the clock's hi-DPI insurance",
-      "next_bounded_step": "Axis 2 (boundary depth): SegmentChar's texture() tool is now trustworthy (fixed L>=0.5 threshold, monotonic in litGradient - re-swept 0/0.15/0.25/0.35/0.5/0.65/0.8 -> texture 0.0021/0.0019/0.0052/0.0104/0.0213/0.0215/0.0236, essentially monotonic past the first tiny dip which is render noise at near-zero amplitude). litGradient=0.35 sits on the rising part of the curve, not saturated at either end - kept as shipped (a picked amplitude, like font_compiler.DECLARED's exceptions: stated, not mechanically solved, because no external perceptual target exists to search against - inventing one would be an unfalsifiable number). Move to axis 2: boundary depth (how far a segment's rounded cap fades before the tip, if at all) - same centre-fed/mirror-invariance discipline as axis 1, checked against opa_gate symmetry before landing.",
-      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
+      "next_bounded_step": null,
+      "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port | 2026-10-02: 2026-10-02 CLOSED on its title: the port landed in f41874c (clock pixel-identical through SegmentChar, wallpaper mounts it, Canvas painter retired); check_qml_lint --uses SegmentChar: 3 of 12 documents instantiate it (clock-main, live-wallpaper-main, sddm-main). The 8 non-landing advances were physics tuning stacked on a finished port - split out: W216 axis 2 (boundary depth), W217 the splash, which is outside qml_lint population and unmeasured.",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-10-02T02:22:49Z",
+      "last_worked": "2026-10-02T02:36:39Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 12,
-      "completed": null
+      "completed": "20261002T023639Z"
     },
     {
       "symbol": "W34",
@@ -674,7 +674,7 @@
     {
       "symbol": "W36",
       "title": "Phosphor cursors: recolour Breeze's SVG cursors from the palette",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "make_inherit",
@@ -686,11 +686,12 @@
       "next_bounded_step": "OPERATOR RULED (2026-09-23): the Lit variants keep a dark rim around a light body (the palette lit token). No change. Open: the optional ghost layer, and an animated wait cursor.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): PHOSPHOR CURSORS (operator 2026-09-22: 'isn't the cursor supposed to inherit something related to the color scheme?'): cursors cannot follow the colour scheme by inheritance (fixed images), but the host has /usr/share/icons/breeze_cursors/cursors_scalable/ (SVG sources) — an EL cursor set is a DERIVATION: recolour the SVGs from the palette (lit for the arrow fill? ground for the outline?) and build with xcursorgen per size. Cheap to measure first: how many SVGs, which colours they use (a census), whether xcursorgen is installed (x11-apps/xcursorgen)",
       "issued_at": "2026-09-21T14:52:08+00:00",
-      "last_worked": "2026-10-01T04:03:55Z",
+      "last_worked": "2026-10-02T02:38:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W37",
@@ -4269,11 +4270,11 @@
       ],
       "blocked_kind": "human",
       "next_bounded_step": "Read scripts/check_selection_contrast.py FLOOR and its metric; record whether 3.0 is a WCAG ratio, APCA Lc or other; then ask the operator whether selected TEXT is held to 4.5.",
-      "evidence": "2026-10-01: 2026-10-01 MEASURED: check_selection_contrast FLOOR=3.0 IS a WCAG 2.x ratio (its own _rel_luminance/contrast), deliberately the AA LARGE-text threshold pending the \"which token on the selection field\" question; its docstring says raise to 4.5 when decided. --report: ForegroundNormal >= 4.99 on all 6 (4.5 already met); ForegroundActive below 4.5 on the three Lit variants (4.08-4.13); semantics below 4.5: EL-Amber pos 3.70, EL-Azure neg 4.17 / neu 3.12 / pos 3.98, EL-Amber-Lit neg 4.22, EL-Openglo-Lit neg 3.33. Options put to the operator; recommendation B now then C as the solver target with infeasible pairs named.",
+      "evidence": "2026-10-01: 2026-10-01 MEASURED: check_selection_contrast FLOOR=3.0 IS a WCAG 2.x ratio (its own _rel_luminance/contrast), deliberately the AA LARGE-text threshold pending the \"which token on the selection field\" question; its docstring says raise to 4.5 when decided. --report: ForegroundNormal >= 4.99 on all 6 (4.5 already met); ForegroundActive below 4.5 on the three Lit variants (4.08-4.13); semantics below 4.5: EL-Amber pos 3.70, EL-Azure neg 4.17 / neu 3.12 / pos 3.98, EL-Amber-Lit neg 4.22, EL-Openglo-Lit neg 3.33. Options put to the operator; recommendation B now then C as the solver target with infeasible pairs named. | 2026-10-02: 2026-10-02 operator asked for comparative samples: check_selection_contrast --samples OUT renders every (variant, role) as selected text at 13px/18px with WCAG ratio, APCA Lc (apca_lc, selftest-anchored at 106/-108/0), pass/fail per option A-D, and a naive darken preview of what C would need (darken_to; not solver output). Published as artifact SNC7h8Td71Ep8BstTQuWEC.",
       "issued_at": "2026-10-01T21:24:47Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T22:28:03Z",
+      "last_worked": "2026-10-02T02:42:19Z",
       "ticks_blocked": 4,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
@@ -4696,15 +4697,15 @@
         "warrants"
       ],
       "blocked_on": [
-        "luthen-observability"
+        "luthen-observability:W280"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Host order (operator raised headless KWin; luthen proposed): (1) kwin-tabbox-preview (kwin-common libexec, KWin own switcher previewer) under QT_QPA_PLATFORM=offscreen loading the staged tabbox - smallest TRUE host, org.kde.kwin registered by KWin itself; (2) if not, kwin_wayland --virtual in a dbus session with the tabbox loaded; (3) only if both fail, the declared stub (old plan a). Record each attempt as a W206-shape hypothesis (claim + expected reading), and make the chosen host a declared check_qml_target mode for host-registered targets, never a one-off. Then 34/34, policy/qml_target.rego + tests, warrant @QML-TARGET. Waits on luthen adding kwin-common + a dbus session to images/qml-check for the probe. Any probe that crashes KWin moves to the k8s+KVM VM (operator rule).",
-      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image.",
+      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image. | 2026-10-02: 2026-10-02 luthen W280 PROBE 1 (scratch image = qml-check base + kwin-common 4:6.6.6-0ubuntu0.1 + dbus 1.16.2; images/qml-check unchanged): /usr/lib/x86_64-linux-gnu/libexec/kwin-tabbox-preview exists, `[options] path` (the switcher main QML), takes Qt --platform (offscreen) and --show-desktop, --help exits 0. CATCH: interactive - a good layout stays up with no exit, and a CPU cap cannot bound an idle wait (the qml_check trap). Probe 2 (hypothesis first): KWin-shipped switcher vs a broken one under dbus-run-session offscreen, to find the event to end on (stderr QML error = refused; a readiness signal = ok) and the env it needs.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:22:17Z",
+      "last_worked": "2026-10-02T02:28:36Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
@@ -4728,6 +4729,54 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-02T02:20:31Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 2
+    },
+    {
+      "symbol": "W216",
+      "title": "SegmentChar axis 2: boundary depth, how far a segment cap fades before its tip, centre-fed and mirror-invariant, held by opa_gate symmetry",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "templates/SegmentChar.qml",
+        "render_qml",
+        "check_symmetry"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Before tuning, check W98 (renders on the RHI with bloom) is still the render path, since a shaderless render drops the halo the cap fade interacts with. Add SegmentChar boundaryDepth (emission axis, centre-fed like litGradient so it is mirror-invariant by construction), render the clock at 4x before/after, run opa_gate symmetry (must stay admitted) and render_qml --texture; record the picked depth and why (no external target - a stated amplitude, not a solved one), then make_clock + parity + screens.",
+      "evidence": "2026-10-02: 2026-10-02 split out of W33, whose titled port landed in f41874c; axis 1 (litGradient 0.35, centre-fed, texture() fixed) is recorded in W33 evidence.",
+      "issued_at": "2026-10-02T02:36:18Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T02:36:38Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:U/W:Y",
+      "vector_source": "agent",
+      "weight": 2
+    },
+    {
+      "symbol": "W217",
+      "title": "The look-and-feel splash is outside check_qml_lint population: measure whether it draws segments and, if so, mount SegmentChar",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "templates",
+        "check_qml_lint",
+        "make_splash"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Find the splash emitter and template (look-and-feel contents/splash/Splash.qml); add it to check_qml_lint population (it is staged QML the operator sees at login); read whether it draws segment digits in its own idiom; if yes, mount SegmentChar like the clock/wallpaper/sddm and hold it with check_qml_lint --uses SegmentChar.",
+      "evidence": "",
+      "issued_at": "2026-10-02T02:36:18Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T02:36:38Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
