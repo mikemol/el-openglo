@@ -21,8 +21,9 @@ Units: one lattice unit L = 1 metre-equivalent; the cell is 2 wide, 4 tall (6 fo
 22-seg's descender sub-cell), +Y up (the lattice's y is flipped), +Z toward the
 viewer, depth = half the stroke.
 
-WEAKNESS, STATED. Bars are boxes, not bevelled hexagonal segments; adjoining bars
-overlap at the joints rather than mitring; no normals are emitted (engines flat-
+WEAKNESS, STATED. Bars are bevelled hexagons pointed at the lattice endpoints, so
+joints mitre at the lattice nodes but there is no gap between segments (the
+physical package's hairline separation is not modelled); no normals are emitted (engines flat-
 shade or compute them); no material - colour is the W151 token file's job.
 """
 import json
@@ -68,26 +69,34 @@ def segments(fmt):
     return out
 
 
-def _box(p0, p1, half, depth):
-    """8 vertices and 36 indices: the bar p0-p1 thickened by `half` each side
-    (a point becomes a square) and extruded `depth` toward +Z."""
+def _outline(p0, p1, half):
+    """The face outline, counter-clockwise: a bar p0-p1 becomes the classic BEVELLED
+    segment, a hexagon whose ends come to a point at the endpoints (so meeting bars
+    mitre at 45 degrees instead of overlapping); a point (dot) becomes a square."""
     (x0, y0), (x1, y1) = p0, p1
     y0, y1 = -y0, -y1
     dx, dy = x1 - x0, y1 - y0
     n = (dx * dx + dy * dy) ** 0.5
     if n == 0:
-        ux, uy = 1.0, 0.0
-        x0, x1 = x0 - half, x1 + half
-    else:
-        ux, uy = dx / n, dy / n
+        return [(x0 - half, y0 - half), (x0 + half, y0 - half), (x0 + half, y0 + half), (x0 - half, y0 + half)]
+    ux, uy = dx / n, dy / n
     px, py = -uy * half, ux * half
-    quad = [(x0 + px, y0 + py), (x1 + px, y1 + py), (x1 - px, y1 - py), (x0 - px, y0 - py)]
-    verts = [(x, y, 0.0) for x, y in quad] + [(x, y, depth) for x, y in quad]
-    faces = [(4, 5, 6), (4, 6, 7), (0, 2, 1), (0, 3, 2)]
-    for i in range(4):
-        j = (i + 1) % 4
-        faces += [(i, j, j + 4), (i, j + 4, i + 4)]
-    return verts, [k for f in faces for k in f]
+    t = min(half, n / 2)                     # the bevel never crosses the bar's middle
+    a, b = (x0 + ux * t, y0 + uy * t), (x1 - ux * t, y1 - uy * t)
+    return [(x0, y0), (a[0] - px, a[1] - py), (b[0] - px, b[1] - py), (x1, y1),
+            (b[0] + px, b[1] + py), (a[0] + px, a[1] + py)]
+
+
+def _box(p0, p1, half, depth):
+    """The outline extruded `depth` toward +Z: a convex prism, fan-triangulated."""
+    face = _outline(p0, p1, half)
+    k = len(face)
+    verts = [(x, y, 0.0) for x, y in face] + [(x, y, depth) for x, y in face]
+    faces = [(k, k + i, k + i + 1) for i in range(1, k - 1)] + [(0, i + 1, i) for i in range(1, k - 1)]
+    for i in range(k):
+        j = (i + 1) % k
+        faces += [(i, j, j + k), (i, j + k, i + k)]
+    return verts, [v for f in faces for v in f]
 
 
 def glb(parts):
