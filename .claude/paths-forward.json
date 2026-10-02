@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 229,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T09:28:12Z",
-  "job_id": "e9448ce9",
+  "heartbeat": "2026-10-02T10:22:32Z",
+  "job_id": "28e09b9b",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -1663,21 +1663,21 @@
     {
       "symbol": "W85",
       "title": "Bump the paperkit pin past 0249924 (paperkit W50: Δ scratch honours TMPDIR); our pin 88792ac predates it",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Move pyproject tooling pin to paperkit origin/main at or after 0249924; uv pip install into .venv; readme+worklist gates; commit",
+      "next_bounded_step": null,
       "evidence": "git merge-base --is-ancestor 0249924 88792ac exits 1 (confirmed by paperkit-b9) | 2026-10-02: 2026-10-02 DONE: pyproject tooling pin paperkit 88792ac -> b5877102 (paperkit origin/main; 0249924 is its ancestor, measured with merge-base --is-ancestor); uv lock updated paperkit only; uv sync --extra tooling --extra research swapped paperkit and nothing else. worklist_gate on the new paperkit: worklist 93 of 93 claims resolve to passing checks, readme 45 of 45, both projections match; the one failure is cotype @RESIDUE (5 of 6 residue symbols open), the non-blocking queue that every commit today already printed - pre-existing, not caused by the bump.",
       "issued_at": "2026-09-26T18:40:29+00:00",
-      "last_worked": "2026-10-02T10:12:35Z",
+      "last_worked": "2026-10-02T10:21:09Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 11,
-      "completed": null
+      "completed": "20261002T102109Z"
     },
     {
       "symbol": "W86",
@@ -1697,20 +1697,21 @@
     {
       "symbol": "W87",
       "title": "Order the queue by structural gain, not by issue order",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "Add --order SYM... (and a ranked --queue): ready before blocked, then transitive enables weight, then last_worked; the tick records its chosen mechanism in the ledger as now",
-      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom | 2026-09-26: 2026-09-27: blocked on W93 — ranking the queue by leverage is meaningless while the enables/blocked_on graph is mostly empty (W93's job); stated explicitly to the operator this tick, now encoded. | 2026-09-29: 2026-09-29: its blocker W93 (edge retrofit umbrella) closed; ready. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): paths_forward has no way to ORDER the queue: the payload lists waypoints in issue order (W12, blocked, first) while the worked items sit last — §4.2 wants a structural-gain order every tick",
+      "next_bounded_step": null,
+      "evidence": "--payload 2026-09-26: W12/W13 lead; W79 (the .deb) and W85 (pin) near the bottom | 2026-09-26: 2026-09-27: blocked on W93 — ranking the queue by leverage is meaningless while the enables/blocked_on graph is mostly empty (W93's job); stated explicitly to the operator this tick, now encoded. | 2026-09-29: 2026-09-29: its blocker W93 (edge retrofit umbrella) closed; ready. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): paths_forward has no way to ORDER the queue: the payload lists waypoints in issue order (W12, blocked, first) while the worked items sit last — §4.2 wants a structural-gain order every tick | 2026-10-02: 2026-10-02 CLOSED as landed by other machinery (ATOMIZE flag): the queue IS ordered by structural gain - nemik-rank composes the order (operator asks, then Pareto fronts over priority band and cross-repo weight), --weights-from syncs it into this queue, and --queue prints items in that order with the reason each sits there (seen every tick today: \"unblocks W62\", \"sweep: enables nothing\"). The operator ruled 2026-10-01 that nemik ranking IS the order; W87 proposed --order SYM as a second, local ordering, which would be a rival to that authority rather than the missing piece. Mechanism choice per tick is already recorded in the ledger column.",
       "issued_at": "2026-09-26T18:41:28+00:00",
-      "last_worked": "2026-10-01T04:33:55Z",
+      "last_worked": "2026-10-02T10:21:47Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11,
+      "completed": "20261002T102147Z"
     },
     {
       "symbol": "W88",
@@ -1841,7 +1842,7 @@
     {
       "symbol": "W94",
       "title": "Touches overlap is a contention signal with no lock, across repos and context switches",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "queue-structure"
@@ -1853,11 +1854,12 @@
       "issued_at": "2026-09-26T21:19:31Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T04:33:55Z",
+      "last_worked": "2026-10-02T10:22:14Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W95",
@@ -5060,6 +5062,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "c5a68f5d",
+  "predecessor_job_id": "e9448ce9",
   "leases": []
 }
