@@ -4,7 +4,14 @@ import rego.v1
 
 import data.el.tokens
 
-good := {"variant": "EL-Azure", "present": true, "colors": 44, "alphas": 2, "bad": []}
+good := {"variant": "EL-Azure", "present": true, "colors": 44, "alphas": 2, "bad": [],
+	"materials": ["base", "emissive", "ghost", "ghost_opacity"]}
+
+test_missing_material_denied if {
+	inp := {"cases": [object.union(good, {"materials": ["base", "emissive", "ghost"]})], "current": true, "withheld": []}
+	"D5: EL-Azure: material slot ghost_opacity is missing" in tokens.deny with input as inp
+	count(tokens.admitted) == 0 with input as inp
+}
 
 test_empty_population_denied if {
 	count(tokens.deny) == 1 with input as {}

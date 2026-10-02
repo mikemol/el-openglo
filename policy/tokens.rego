@@ -53,6 +53,18 @@ deny contains "D4: catalog/el-openglo.tokens.json is stale; run make_tokens.py" 
 	input.current == false
 }
 
+# METADATA
+# title: "D5 — a variant carries the engine material (W151): base, emissive, ghost, ghost_opacity"
+material_slots := {"base", "emissive", "ghost", "ghost_opacity"}
+
+deny contains msg if {
+	some c in input.cases
+	c.present == true
+	some s in material_slots
+	not s in {m | some m in object.get(c, "materials", [])}
+	msg := sprintf("D5: %s: material slot %s is missing", [c.variant, s])
+}
+
 withheld contains msg if {
 	some msg in object.get(input, "withheld", [])
 }
@@ -63,4 +75,5 @@ admitted contains c.variant if {
 	count(c.bad) == 0
 	c.colors > 0
 	c.alphas == 2
+	material_slots == {m | some m in object.get(c, "materials", [])}
 }

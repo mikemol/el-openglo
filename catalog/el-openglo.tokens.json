@@ -157,6 +157,24 @@
         "$type": "color",
         "$value": "#231a0d"
       }
+    },
+    "material": {
+      "base": {
+        "$type": "color",
+        "$value": "{EL-Amber.color.view}"
+      },
+      "emissive": {
+        "$type": "color",
+        "$value": "{EL-Amber.color.fg}"
+      },
+      "ghost": {
+        "$type": "color",
+        "$value": "{EL-Amber.color.fg_in}"
+      },
+      "ghost_opacity": {
+        "$type": "number",
+        "$value": "{EL-Amber.alpha.ghost_alpha}"
+      }
     }
   },
   "EL-Amber-Lit": {
@@ -315,6 +333,24 @@
       "window_alt": {
         "$type": "color",
         "$value": "#e7c699"
+      }
+    },
+    "material": {
+      "base": {
+        "$type": "color",
+        "$value": "{EL-Amber-Lit.color.view}"
+      },
+      "emissive": {
+        "$type": "color",
+        "$value": "{EL-Amber-Lit.color.fg}"
+      },
+      "ghost": {
+        "$type": "color",
+        "$value": "{EL-Amber-Lit.color.fg_in}"
+      },
+      "ghost_opacity": {
+        "$type": "number",
+        "$value": "{EL-Amber-Lit.alpha.ghost_alpha}"
       }
     }
   },
@@ -475,6 +511,24 @@
         "$type": "color",
         "$value": "#0d1923"
       }
+    },
+    "material": {
+      "base": {
+        "$type": "color",
+        "$value": "{EL-Azure.color.view}"
+      },
+      "emissive": {
+        "$type": "color",
+        "$value": "{EL-Azure.color.fg}"
+      },
+      "ghost": {
+        "$type": "color",
+        "$value": "{EL-Azure.color.fg_in}"
+      },
+      "ghost_opacity": {
+        "$type": "number",
+        "$value": "{EL-Azure.alpha.ghost_alpha}"
+      }
     }
   },
   "EL-Azure-Lit": {
@@ -633,6 +687,24 @@
       "window_alt": {
         "$type": "color",
         "$value": "#99bfe7"
+      }
+    },
+    "material": {
+      "base": {
+        "$type": "color",
+        "$value": "{EL-Azure-Lit.color.view}"
+      },
+      "emissive": {
+        "$type": "color",
+        "$value": "{EL-Azure-Lit.color.fg}"
+      },
+      "ghost": {
+        "$type": "color",
+        "$value": "{EL-Azure-Lit.color.fg_in}"
+      },
+      "ghost_opacity": {
+        "$type": "number",
+        "$value": "{EL-Azure-Lit.alpha.ghost_alpha}"
       }
     }
   },
@@ -793,6 +865,24 @@
         "$type": "color",
         "$value": "#0d231d"
       }
+    },
+    "material": {
+      "base": {
+        "$type": "color",
+        "$value": "{EL-Openglo.color.view}"
+      },
+      "emissive": {
+        "$type": "color",
+        "$value": "{EL-Openglo.color.fg}"
+      },
+      "ghost": {
+        "$type": "color",
+        "$value": "{EL-Openglo.color.fg_in}"
+      },
+      "ghost_opacity": {
+        "$type": "number",
+        "$value": "{EL-Openglo.alpha.ghost_alpha}"
+      }
     }
   },
   "EL-Openglo-Lit": {
@@ -951,6 +1041,24 @@
       "window_alt": {
         "$type": "color",
         "$value": "#99e7d6"
+      }
+    },
+    "material": {
+      "base": {
+        "$type": "color",
+        "$value": "{EL-Openglo-Lit.color.view}"
+      },
+      "emissive": {
+        "$type": "color",
+        "$value": "{EL-Openglo-Lit.color.fg}"
+      },
+      "ghost": {
+        "$type": "color",
+        "$value": "{EL-Openglo-Lit.color.fg_in}"
+      },
+      "ghost_opacity": {
+        "$type": "number",
+        "$value": "{EL-Openglo-Lit.alpha.ghost_alpha}"
       }
     }
   }

@@ -22,7 +22,9 @@ authority (scripts/check_token_source refuses an emitter that reads none).
 
 WEAKNESS, STATED. Colours and alphas only: no geometry, bloom or stroke weight, and
 no composite ("seen") ghost - DTCG has no colour-mix type, so a consumer composites
-fg_in over view at ghost_alpha itself (relations.md §3b). The material group is W151.
+fg_in over view at ghost_alpha itself (relations.md §3b). The `material` group (W151)
+names base/emissive/ghost/ghost_opacity as aliases; the hue table and legibility floors
+are not in it yet.
 """
 import json
 import os
@@ -31,6 +33,11 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(ROOT, "catalog", "el-openglo.tokens.json")
 ALPHAS = ("ghost_alpha", "ghost_alpha_glanced")
+# W151: the engine-facing material, every slot a DTCG alias into this variant's own
+# leaves (relations.md §3b: the ghost is fg_in over view at ghost_alpha). An alias, not
+# a copy, so the material cannot disagree with the colours it names.
+MATERIAL = (("base", "color", "view"), ("emissive", "color", "fg"),
+            ("ghost", "color", "fg_in"), ("ghost_opacity", "alpha", "ghost_alpha"))
 
 
 def _is_rgb(v):
@@ -59,8 +66,15 @@ def group(t):
     """One variant as a DTCG group: colours and the solved alphas, nothing invented."""
     color = {k: {"$type": "color", "$value": _hex(t[k])} for k in sorted(t) if _is_rgb(t[k])}
     alpha = {k: {"$type": "number", "$value": round(float(t[k]), 4)} for k in ALPHAS if k in t}
+    groups = {"color": color, "alpha": alpha}
+    material = {}
+    for slot, kind, key in MATERIAL:
+        leaf = groups[kind].get(key)
+        if leaf is None:
+            raise SystemExit(f"make_tokens: {t['id']} has no {kind}.{key} for material.{slot}")
+        material[slot] = {"$type": leaf["$type"], "$value": f"{{{t['id']}.{kind}.{key}}}"}
     return {"$description": f"{t.get('name', t['id'])} - solved by make_palette, emitted by make_schemes",
-            "color": color, "alpha": alpha}
+            "color": color, "alpha": alpha, "material": material}
 
 
 def document():

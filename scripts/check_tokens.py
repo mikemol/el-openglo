@@ -13,6 +13,9 @@ carries, and every leaf that is not valid DTCG (`color` must be `#rrggbb`, `numb
 numeric, nothing else typed). Plus whether the committed file equals a fresh
 make_tokens.document() - a stale token file is a file that no longer says the palette.
 
+The `material` group (W151) is aliases: each must resolve in the file to a literal leaf
+of its own $type; the case reports which material slots exist.
+
 WEAKNESS: it checks the DTCG SHAPE this emitter uses (two types), not the whole DTCG
 format; and it proves the file matches the emitter, not that a design tool imports it.
 """
@@ -25,10 +28,22 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 HEX = re.compile(r"^#[0-9a-f]{6}$")
+ALIAS = re.compile(r"^\{([^{}]+)\}$")
 
 
-def bad_leaves(group, prefix=""):
-    """[path] of every leaf in a DTCG group whose $type/$value is not this file's shape."""
+def resolve(doc, ref):
+    """The leaf a DTCG alias path names in doc, or None."""
+    node = doc
+    for part in ref.split("."):
+        if not isinstance(node, dict) or part not in node:
+            return None
+        node = node[part]
+    return node if isinstance(node, dict) and "$value" in node else None
+
+
+def bad_leaves(group, prefix="", doc=None):
+    """[path] of every leaf in a DTCG group whose $type/$value is not this file's shape.
+    An alias `{a.b.c}` is good only if it resolves in doc to a literal leaf of the same $type."""
     out = []
     for k, v in sorted(group.items()):
         if k.startswith("$"):
@@ -36,12 +51,18 @@ def bad_leaves(group, prefix=""):
         path = f"{prefix}.{k}" if prefix else k
         if isinstance(v, dict) and "$value" in v:
             t, val = v.get("$type"), v.get("$value")
-            ok = (t == "color" and isinstance(val, str) and bool(HEX.match(val))) or \
-                 (t == "number" and isinstance(val, (int, float)) and not isinstance(val, bool))
+            m = ALIAS.match(val) if isinstance(val, str) else None
+            if m:
+                target = resolve(doc or {}, m.group(1))
+                ok = target is not None and target.get("$type") == t and \
+                    not (isinstance(target["$value"], str) and ALIAS.match(target["$value"]))
+            else:
+                ok = (t == "color" and isinstance(val, str) and bool(HEX.match(val))) or \
+                     (t == "number" and isinstance(val, (int, float)) and not isinstance(val, bool))
             if not ok:
                 out.append(path)
         elif isinstance(v, dict):
-            out.extend(bad_leaves(v, path))
+            out.extend(bad_leaves(v, path, doc))
         else:
             out.append(path)
     return out
@@ -63,7 +84,8 @@ def measure(path=None):
             cases.append({"variant": v, "present": False})
             continue
         cases.append({"variant": v, "present": True, "colors": len(g.get("color", {})),
-                      "alphas": len(g.get("alpha", {})), "bad": bad_leaves(g)})
+                      "alphas": len(g.get("alpha", {})), "materials": sorted(g.get("material", {})),
+                      "bad": bad_leaves(g, v, doc)})
     return {"roster": roster, "cases": cases, "current": doc == MT.document(), "withheld": []}
 
 
@@ -80,6 +102,12 @@ def _selftest():
         bad_leaves({"color": {"fg": {"$type": "color", "$value": "#00ff00"}}, "alpha": {"a": {"$type": "number", "$value": 0.4}}}), [])
     chk("a non-hex colour is seen", bad_leaves({"color": {"fg": {"$type": "color", "$value": "0,255,0"}}}), ["color.fg"])
     chk("a string number is seen", bad_leaves({"alpha": {"a": {"$type": "number", "$value": "0.4"}}}), ["alpha.a"])
+    d = {"V": {"color": {"fg": {"$type": "color", "$value": "#00ff00"}},
+               "material": {"e": {"$type": "color", "$value": "{V.color.fg}"},
+                            "x": {"$type": "color", "$value": "{V.color.nope}"},
+                            "n": {"$type": "number", "$value": "{V.color.fg}"}}}}
+    chk("an alias resolves; a dangling or type-mismatched alias is seen",
+        bad_leaves(d["V"], "V", d), ["V.material.n", "V.material.x"])
     import make_tokens as MT
     doc = MT.document()
     with tempfile.TemporaryDirectory() as td:
