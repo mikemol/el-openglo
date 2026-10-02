@@ -208,7 +208,30 @@ def _sector_hue(sector):
     return ((lo + hi) / 2.0) if lo <= hi else (((lo + hi + 360) / 2.0) % 360)
 
 
-def _candidates(sector, ground, min_contrast, hot):
+# ---- W197: the selection-text floor as a CONSTRAINT, one policy per option ----
+# ⚑ A CHECK IS A GENERATIVE CONSTRAINT (operator, 2026-10-02: "what do we get when
+# it passes?"). Each option is a floor the solver SATISFIES on the selection
+# field, so its swatch is the palette that option produces - not today's palette
+# graded pass/fail. None is the shipped behaviour (Normal/Active assigned, the
+# semantic set solved at 4.6 WCAG with relaxation), so the default solve is
+# byte-identical. A role no colour can lift to its floor is NAMED on the token
+# (`sel_floor_infeasible`), never clamped.
+SEL_POLICIES = {
+    "A": None,
+    "B": dict(metric="wcag", normal=4.5, active=None, sem=4.6),
+    "C": dict(metric="wcag", normal=4.5, active=4.5, sem=4.5),
+    "D": dict(metric="apca", normal=60.0, active=60.0, sem=60.0),
+}
+
+
+def sel_contrast_fn(metric):
+    """(text, bg) -> the contrast a selection floor is stated in."""
+    if metric == "apca":
+        return lambda t, b: abs(C.apca_Lc(t, b))
+    return C.wcag_ratio
+
+
+def _candidates(sector, ground, min_contrast, hot, contrast_fn=None):
     """In-sector colors clearing contrast-vs-ground and CVD-distinct from hot.
     ⊕SOLVER-BACKLIT-CVD: the constellation's distinctness lives in whatever axis is
     FREE. On a dark ground VALUE is free (bright->dark), so a narrow hue span
@@ -242,7 +265,7 @@ def _candidates(sector, ground, min_contrast, hot):
         for s in sats:
             for vi in vs:
                 cand = _hsv(h, s, vi / 100.0)
-                if C.wcag_ratio(cand, ground) < min_contrast:
+                if (contrast_fn or C.wcag_ratio)(cand, ground) < min_contrast:
                     continue
                 # ⚑ THE GATE'S OWN METRIC, NOT RAW dE (W196, 2026-10-01). This is a
                 # SEPARATION constraint: the candidate against the accent, which is
@@ -274,7 +297,8 @@ def _cached_dE(a, b):
     return v
 
 
-def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
+def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
+                       contrast_fn=None, relax_min=3.0, relax_step=0.3):
     """JOINT solve of the semantic-accent constellation. Each slot draws from its
     in-sector, contrast-clearing, hot-distinct candidates; we choose one per slot
     to MAXIMIZE THE MINIMUM pairwise separation across the whole set (the binding
@@ -295,14 +319,15 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
     The seed is fixed, so the solve is reproducible — a palette that changed
     between runs would make every downstream diff meaningless."""
     slots = list(sectors.keys())
-    cands = {k: _candidates(sectors[k], ground, min_contrast, hot) for k in slots}
+    fn = contrast_fn or C.wcag_ratio
+    cands = {k: _candidates(sectors[k], ground, min_contrast, hot, fn) for k in slots}
     # relax contrast if any slot has no candidate (report via fallback)
     for k in slots:
         if not cands[k]:
             mc = min_contrast
-            while not cands[k] and mc > 3.0:
-                mc -= 0.3
-                cands[k] = _candidates(sectors[k], ground, mc, hot)
+            while not cands[k] and mc > relax_min:
+                mc -= relax_step
+                cands[k] = _candidates(sectors[k], ground, mc, hot, fn)
             if not cands[k]:
                 # ⚑ THE FALLBACK GUESSED POLARITY FROM L < 0.4 and handed a
                 # mid-luminance ground (the Azure selection field, L 0.27) a
@@ -310,7 +335,7 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
                 # and take the one that contrasts MOST with this ground.
                 h = _sector_hue(sectors[k])
                 cands[k] = [max((_hsv(h, 0.85, v) for v in (0.85, 0.4, 0.2)),
-                                key=lambda c: C.wcag_ratio(c, ground))]
+                                key=lambda c: fn(c, ground))]
 
     _floors = C.reference_floors()
 
@@ -363,7 +388,8 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=()):
 
 
 # ---- derived transforms (no search) ---------------------------------------
-def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6):
+def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6,
+                      fg=(), fg_floor=None, fg_fn=None):
     """The decoration states as SOLVED luminance offsets of the accent (⊕SOLVER-UI-TOKENS, W10).
 
     focus = accent; sel_bg = accent nudged d toward the ground; hover = nudged 2d.
@@ -377,7 +403,11 @@ def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6):
     Returns (d, feasible). When no d in (0, max_d] satisfies both, the step that
     maximises the worst pair while holding the ground floor is returned with
     feasible=False — named on the token, never clamped into a number that looks
-    solved."""
+    solved.
+
+    `fg`/`fg_floor`/`fg_fn` (W197): text that will sit on sel_bg must ALSO clear
+    `fg_floor` in `fg_fn` - a step whose field the text cannot read on is skipped,
+    not taken. None (the default) is the shipped solve."""
     floors = C.reference_floors()
     toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0   # toward the ground: darker on dark
     best_d, best_q = None, -1.0
@@ -387,6 +417,8 @@ def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6):
         sel, hov = _lum_nudge(accent, toward * d), _lum_nudge(accent, toward * 2 * d)
         if min(C.wcag_ratio(c, ground) for c in (accent, sel, hov)) < floor:
             break                        # further steps only lose the ground floor
+        if fg_floor is not None and min(fg_fn(f, sel) for f in fg) < fg_floor:
+            continue
         q = min(C._worst_normalized(a, b, floors)[0]
                 for a, b in ((accent, sel), (sel, hov), (accent, hov)))
         if q >= 1.0:
@@ -418,7 +450,23 @@ def _sect(slot, vid):
     return _SECTOR_OVERRIDES.get(vid, {}).get(slot, _SECTORS[slot])
 
 
-def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
+def solve_sel_act(ground, sel_bg, floor, fn, start=0.15, step=0.01, max_k=0.6):
+    """The active selection text: the ground pushed past `start` until it clears
+    `floor` on sel_bg - the smallest push either way. (k, ok); ok False returns
+    the push that contrasts most, named by the caller."""
+    best = (start, -1.0)
+    for i in range(int(round(start / step)), int(round(max_k / step)) + 1):
+        k = i * step
+        for sgn in (-1.0, 1.0):
+            v = fn(_lum_nudge(ground, sgn * k), sel_bg)
+            if v >= floor:
+                return sgn * k, True
+            if v > best[1]:
+                best = (sgn * k, v)
+    return best[0], False
+
+
+def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=None):
     """polarity: 'off' (dark display) or 'lit' (backlit). Returns a full token
     dict — every value SOLVED or DERIVED from (hue, polarity, thresholds).
 
@@ -449,14 +497,28 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
     up = 1 if C._wcag_L(ground) < 0.4 else -1
     # the decoration states — focus / selection field / hover — as ONE solved
     # step (relations.md §4b), not two authored nudges
-    _d, _states_ok = solve_state_steps(accent, ground)
+    P = sel_policy
+    _fn = sel_contrast_fn(P["metric"]) if P else None
+    if P and P["normal"] is not None:
+        _d, _states_ok = solve_state_steps(accent, ground, fg=[ground],
+                                           fg_floor=P["normal"], fg_fn=_fn)
+    else:
+        _d, _states_ok = solve_state_steps(accent, ground)
     _toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0
     sel_bg = _lum_nudge(accent, _toward * _d)
     hover = _lum_nudge(accent, _toward * 2 * _d)
     sel_fg, sel_act = ground, _lum_nudge(ground, -0.15)
-    _sel_sem, _sel_score = solve_semantic_set(
-        {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent, _min_c,
-        anchors=[sel_fg, sel_act])
+    if P and P["active"] is not None:
+        _k, _ = solve_sel_act(ground, sel_bg, P["active"], _fn)
+        sel_act = _lum_nudge(ground, _k)
+    if P:
+        _sel_sem, _sel_score = solve_semantic_set(
+            {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent,
+            P["sem"], anchors=[sel_fg, sel_act], contrast_fn=_fn, relax_min=P["sem"])
+    else:
+        _sel_sem, _sel_score = solve_semantic_set(
+            {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent, _min_c,
+            anchors=[sel_fg, sel_act])
 
     # panel ladder: ground raised by small fixed steps (derived, no search)
     window = _lum_nudge(ground, 0.03 * up)
@@ -552,10 +614,17 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None):
         # carried on every token dict so the emitted scheme is self-describing.
         "ghost_alpha": str(alpha),
     }
+    if P:
+        floors = {"sel_fg": P["normal"], "sel_act": P["active"], "sel_neg": P["sem"],
+                  "sel_neu": P["sem"], "sel_pos": P["sem"]}
+        t["sel_metric"] = P["metric"]
+        t["sel_floor_infeasible"] = ",".join(
+            k for k, f in floors.items()
+            if f is not None and _fn(C.rgb(t[k]), sel_bg) < f)
     return t
 
 
-def build_grid():
+def build_grid(sel_policy=None):
     """Derive the whole GRID from seeds — the OUTPUT that used to be authored.
     The 2nd tuple element is the dark-counterpart SCHEME (a token dict) used for
     the Complementary color group — matching the authored GRID's shape, NOT a
@@ -563,8 +632,8 @@ def build_grid():
     grid = {}
     alpha = solve_ghost_alpha()                 # once: it is one number for the grid
     for seed in HUE_SEEDS:
-        off = solve_scheme(seed, "off", alpha=alpha)
-        lit = solve_scheme(seed, "lit", alpha=alpha)
+        off = solve_scheme(seed, "off", alpha=alpha, sel_policy=sel_policy)
+        lit = solve_scheme(seed, "lit", alpha=alpha, sel_policy=sel_policy)
         grid[(seed, "off")] = (off, off)
         grid[(seed, "lit")] = (lit, off)
     # ⚑ THE GLANCED-AT ALPHA IS A SECOND PASS, because it depends on every

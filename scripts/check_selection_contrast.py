@@ -12,7 +12,8 @@ it is the one place worth measuring.
     scripts/check_selection_contrast.py --json    # the measurement policy/selection_contrast.rego decides
     scripts/check_selection_contrast.py --report  # per-scheme contrast ratios
     scripts/check_selection_contrast.py --semantic  # the semantic set on the selection field
-    scripts/check_selection_contrast.py --samples OUT.html  # W197: the options compared, rendered
+    scripts/check_selection_contrast.py --samples OUT.html  # W197: today's palette graded per option
+    scripts/check_selection_contrast.py --options OUT.html  # W197: the palette each option PRODUCES (4 solves)
 
 ⚑ THIS MEASURES, IT DOES NOT PREFER.  It asserts a legibility FLOOR (WCAG 2.x
 contrast, the same ratio a UI toolkit is judged by), not a particular colour. A
@@ -173,22 +174,13 @@ def _report(keys):
 
 
 def apca_lc(txt, bg):
-    """APCA-W3 0.1.9 lightness contrast Lc (signed; positive = dark text on light).
+    """APCA Lc (signed; positive = dark text on light) - W197 option D's metric.
 
-    W197 option D's metric, computed here so the options compare on ONE measured
-    population rather than on a reader's recollection of either standard."""
-    def y(rgb):
-        r, g, b = ((c / 255.0) ** 2.4 for c in rgb)
-        v = 0.2126729 * r + 0.7151522 * g + 0.0721750 * b
-        return v + (0.022 - v) ** 1.414 if v < 0.022 else v
-    yt, yb = y(txt), y(bg)
-    if abs(yb - yt) < 0.0005:
-        return 0.0
-    if yb > yt:
-        s = (yb ** 0.56 - yt ** 0.57) * 1.14
-        return 0.0 if s < 0.1 else (s - 0.027) * 100
-    s = (yb ** 0.65 - yt ** 0.62) * 1.14
-    return 0.0 if s > -0.1 else (s + 0.027) * 100
+    ⚑ DELEGATES to cvd_gate.apca_Lc, the one the solver uses. A first draft
+    (2026-10-02) carried its own 0.1.9 copy here; two APCAs would let the gate and
+    the solver disagree about the same pair, so the copy was folded in."""
+    import cvd_gate
+    return float(cvd_gate.apca_Lc(txt, bg))
 
 
 # W197's options as predicates over one case. ⚑ A PREVIEW OF A DECISION, NOT THE
@@ -261,9 +253,84 @@ def samples_html(keys=FG_KEYS + GATED_SEMANTIC):
     return "\n".join(out)
 
 
+OPTION_ROLES = (("sel_fg", "Normal"), ("sel_act", "Active"), ("sel_neg", "Negative"),
+                ("sel_neu", "Neutral"), ("sel_pos", "Positive"))
+
+
+def option_grids(names=None):
+    """{option: {variant_id: token dict}} - the grid SOLVED under each W197 option.
+
+    ⚑ GENERATIVE, NOT GRADED: each option is make_palette.SEL_POLICIES[o] handed
+    to build_grid, so a column is the palette that floor PRODUCES. Writes nothing
+    (build_grid returns; make_schemes is not imported, since its import runs the
+    cached solve). ⚑ WEAKNESS: one full solve per option (~100 s wall each)."""
+    import make_palette
+    out = {}
+    for o in names or make_palette.SEL_POLICIES:
+        grid = make_palette.build_grid(sel_policy=make_palette.SEL_POLICIES[o])
+        out[o] = {t["id"]: t for (t, _d) in grid.values()}
+    return out
+
+
+def options_html(grids):
+    """One row per variant, one column per option: the solved selection field with
+    each text role drawn on it, and the field's step and any role named infeasible."""
+    import html
+    import cvd_gate
+    import make_palette
+    opts = list(grids)
+    variants = list(next(iter(grids.values())))
+    hexs = lambda s: "#%02x%02x%02x" % cvd_gate.rgb(s)
+    head = "".join(
+        f"<th>{o}<div class='num'>{html.escape(_POLICY_TEXT.get(o, ''))}</div></th>"
+        for o in opts)
+    out = [f"<table class='opts'><thead><tr><th>variant</th>{head}</tr></thead><tbody>"]
+    for v in variants:
+        cells = []
+        for o in opts:
+            t = grids[o][v]
+            bg = cvd_gate.rgb(t["sel_bg"])
+            fn = make_palette.sel_contrast_fn(t.get("sel_metric", "wcag"))
+            unit = "Lc " if t.get("sel_metric") == "apca" else ""
+            lines = "".join(
+                f"<div style='color:{hexs(t[k])}'><span class='body'>{label}: "
+                f"Selected row — report.txt</span> <span class='num' "
+                f"style='color:inherit'>{unit}{fn(cvd_gate.rgb(t[k]), bg):.1f}"
+                f"{'' if unit else ':1'}</span></div>" for k, label in OPTION_ROLES)
+            bad = t.get("sel_floor_infeasible", "")
+            note = (f"<div class='no'>cannot reach floor: {html.escape(bad)}</div>"
+                    if bad else "")
+            cells.append(f"<td><div class='sw' style='background:{hexs(t['sel_bg'])}'>"
+                         f"{lines}</div><div class='num'>field {hexs(t['sel_bg'])}</div>"
+                         f"{note}</td>")
+        out.append(f"<tr><th>{html.escape(v)}</th>{''.join(cells)}</tr>")
+    out.append("</tbody></table>")
+    return "\n".join(out)
+
+
+_POLICY_TEXT = {"A": "as shipped", "B": "Normal ≥ 4.5", "C": "every role ≥ 4.5",
+                "D": "every role APCA |Lc| ≥ 60"}
+
+
 def main(argv):
-    known = {"--report", "--semantic", "--json", "--samples"}
+    known = {"--report", "--semantic", "--json", "--samples", "--options"}
     args = argv[1:]
+    if "--options" in args:
+        i = args.index("--options")
+        if i + 1 >= len(args) or len(args) != 2:
+            print("check_selection_contrast: --options takes exactly one output path",
+                  file=sys.stderr)
+            return 2
+        grids = option_grids()
+        with open(args[i + 1], "w", encoding="utf-8") as f:
+            f.write(options_html(grids))
+        n = sum(len(g) for g in grids.values())
+        bad = sum(1 for g in grids.values() for t in g.values()
+                  if t.get("sel_floor_infeasible"))
+        print(f"wrote W197 option grids: {len(grids)} options x "
+              f"{n // max(1, len(grids))} variants; {bad} of {n} solved fields name "
+              f"an infeasible role: {args[i + 1]}")
+        return 0
     if "--samples" in args:
         i = args.index("--samples")
         if i + 1 >= len(args):
@@ -338,9 +405,9 @@ def _selftest():
               (len(m["keys"]), True))
     finally:
         globals()["schemes"] = saved
-    # APCA anchors: black on white is Lc ~106, white on black ~-108, equal is 0.
-    check("APCA black text on white is Lc 106", round(apca_lc((0, 0, 0), (255, 255, 255))), 106)
-    check("APCA white text on black is Lc -108", round(apca_lc((255, 255, 255), (0, 0, 0))), -108)
+    # APCA anchors: the published vectors #888 on #fff and #fff on #888.
+    check("APCA #888 on #fff is Lc 63.06", round(apca_lc((136,) * 3, (255,) * 3), 2), 63.06)
+    check("APCA #fff on #888 is Lc -68.54", round(apca_lc((255,) * 3, (136,) * 3), 2), -68.54)
     check("APCA a colour on itself is Lc 0", apca_lc((0, 205, 176), (0, 205, 176)), 0.0)
     check("the C preview reaches 4.5 on a failing pair",
           contrast(darken_to((0, 120, 100), (0, 205, 176)), (0, 205, 176)) >= 4.5, True)
