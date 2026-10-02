@@ -502,3 +502,5 @@
 2026-10-02T08:43:32Z  tick  W77  advanced  unblock   "model first: policy/metrics.rego states the five scenarios and their faces from luthen contract, never blank, no address literal; 16/16 tests; measurement and emitter next"  evidence=opa test metrics 16/16
 2026-10-02T08:57:54Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:e0da78cdd3117c89; the FILE wins"
 2026-10-02T08:59:18Z  tick  W77  advanced  unblock   "emitter + template written: endpoint asked of luthen tool at runtime, three faces exposed for measurement, no address literal (selftest); found the template is outside qml_lint population"  evidence=make_metrics --selftest PASS; qml_lint 12 admitted before and after
+2026-10-02T09:17:51Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:457b57ad4c5c8c73; the FILE wins"
+2026-10-02T09:18:46Z  tick  W77  advanced  unblock   "metrics template brought into check_qml_lint population: 13 of 13 documents, metrics-main.qml 0 lint findings"  evidence=check_qml_lint --list: 13 measured

@@ -56,6 +56,9 @@ DOCS = (
     # the SDDM greeter (W66): BAKED per variant, so pinned at one — the markup
     # around the colour holes is the same template for all six
     ("make_sddm", "main_qml", "EL-Openglo", "sddm-main.qml"),
+    # the VictoriaMetrics plasmoid (W77): outside this population when emitted, so
+    # the first lint run admitted 12 before and after it existed
+    ("make_metrics", "main_qml", None, "metrics-main.qml"),
 )
 
 ANIMATIONS = ("NumberAnimation", "PropertyAnimation", "ColorAnimation", "RotationAnimation",
