@@ -461,3 +461,4 @@
 2026-10-02T02:23:01Z  tick  W112 done      collapse  "umbrella closed on its stated condition: W117, W118, W119 all done"  evidence=done list holds W117 W118 W119
 2026-10-02T02:35:55Z  hash  --   diverged  --        "divergence: payload v2:339bc8073d0911b0, file v2:76464947d8a8fffa; the FILE wins"
 2026-10-02T02:36:39Z  tick  W33  atomized  collapse  "W33 port already landed (f41874c; 3 of 12 documents instantiate SegmentChar); closed, and the stacked physics tuning split to W216 (axis 2) and W217 (unmeasured splash)"  evidence=check_qml_lint --uses SegmentChar 3 of 12
+2026-10-02T03:03:04Z  tick  W36  atomized  collapse  "W36 title landed (make_cursors.py); closed; optional remainders split to W218 animated wait cursor and W219 ghost layer"  evidence=make_cursors.py
