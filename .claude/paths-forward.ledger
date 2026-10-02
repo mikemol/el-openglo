@@ -561,3 +561,5 @@
 2026-10-02T16:35:13Z  tick  W237 done      unblock   "guest reporter + units, admitted 5 of 5"  evidence=commit: W237 guest serial reporter
 2026-10-02T16:46:23Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:2be3e282d5fb9a1a; the FILE wins"
 2026-10-02T16:48:27Z  tick  W238 advanced  collapse  "RFB client is the harness owner (luthen W127); delivered p1-input.json; found+fixed P1 ending before login in reporter and policy"
+2026-10-02T16:57:14Z  tick  W238 done      collapse  "P1 input contract delivered; RFB client owned by luthen W127"  evidence=commit: W238 P1 input contract
+2026-10-02T16:58:06Z  tick  W233 atomized  collapse  "W95 merged into W233 (same retirement); W138 narrowed to the struct-tools skip"

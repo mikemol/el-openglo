@@ -1858,25 +1858,6 @@
       "completed": "20261002T103932Z"
     },
     {
-      "symbol": "W95",
-      "title": "Clear out the dozens of stale agent worktrees under .claude/worktrees",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "git worktree list; for each whose branch tip is not an ancestor of a still-open waypoint's evidence, git worktree remove (prune the branch too); keep only worktrees an open waypoint's evidence actually cites",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): Dozens of stale agent worktrees under .claude/worktrees/ (measured while chasing W30: ~50 entries, most branched from commits many hundreds behind current main, e.g. aad36c74 at e65a61f) — disk usage on md0, and a source of exactly the stale-evidence trap W30 fell into",
-      "issued_at": "2026-09-26T21:50:59Z",
-      "minted_during": "interrupt",
-      "caused_by": null,
-      "last_worked": "2026-10-01T04:33:56Z",
-      "ticks_blocked": 0,
-      "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent",
-      "weight": 8
-    },
-    {
       "symbol": "W96",
       "title": "catalog/library/screens/*.png are tracked source, but @CURRENCY's own staleness key fires on tooling edits (render_qml.py) with zero content/palette change - the operator's read: that's a build-artifact smell, not a content smell. Investigate whether these PNGs belong in git at all vs. generated at build/CI/install time and referenced by the README projection without being tracked bytes. If they must stay tracked (e.g. for GitHub-rendered previews with no CI), the alternative is decoupling the action-key so a pure refactor of the renderer (behavior-preserving) doesn't retrigger every screenshot - state which was rejected and why.",
       "status": "done",
@@ -1916,7 +1897,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 1
+      "weight": 7
     },
     {
       "symbol": "W98",
@@ -2320,7 +2301,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 5
     },
     {
       "symbol": "W116",
@@ -2874,7 +2855,7 @@
     },
     {
       "symbol": "W138",
-      "title": "Remove the stale agent worktrees and keep struct-tool queries out of them",
+      "title": "Struct-tool queries over the repo root skip .claude/worktrees and .tree-writes checkouts by default",
       "status": "ready",
       "enables": [],
       "touches": [
@@ -2883,12 +2864,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default",
+      "next_bounded_step": "Make the struct tools this repo routes to (mikemol-pycodemod, mdstruct) exclude registered worktrees from a repo-root walk - an mtools change, so a letter or waypoint there citing el-openglo:W138 - with a positive control (a planted importer inside a worktree is skipped, one outside is found).",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default | 2026-10-02: 2026-10-02: narrowed in the W95/W138/W233 collapse audit: worktree retirement itself is W233; this keeps the distinct part (pycodemod --importers make_chrome counted 108 sites, 2 real, because worktrees were walked).",
       "issued_at": "2026-09-28T21:21:47Z",
       "minted_during": "interrupt",
       "caused_by": "W134",
-      "last_worked": "2026-10-01T04:45:20Z",
+      "last_worked": "2026-10-02T16:58:06Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -4043,7 +4024,7 @@
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W189",
@@ -4351,7 +4332,7 @@
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 6
     },
     {
       "symbol": "W201",
@@ -5168,7 +5149,7 @@
     {
       "symbol": "W236",
       "title": "check_action_key withholds a probe result lacking guest_digest and deb_sha256 (guest-image.md G5, W71d)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W71"
       ],
@@ -5183,11 +5164,12 @@
       "issued_at": "2026-10-02T15:43:01Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T15:43:37Z",
+      "last_worked": "2026-10-02T16:58:40Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 7
+      "weight": 8,
+      "completed": null
     },
     {
       "symbol": "W237",
@@ -5217,7 +5199,7 @@
     {
       "symbol": "W238",
       "title": "P1 input script: the keys the greeter probe types and the serial records each step waits on (G7, W71g)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W240",
         "luthen-observability:W127"
@@ -5228,17 +5210,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close.",
+      "next_bounded_step": null,
       "evidence": "2026-10-02: 2026-10-02: RESCOPED (collapse with luthen-observability:W127): the RFB client is the harness owner choice, so it is not pinned here. Delivered guest/p1-input.json (wait el.greeter, type probe/Tab/probe/Return, wait el.session then el.done, screenshots). Writing it found two defects: the reporter ended P1 on the system side before any login, and policy/serial.rego required[P1] lacked el.session. Fixed: session side ends P1; S3 now requires el.session for P1 (new refusing + admitting tests, opa 25/25). Reporter bundle on luthen runner: state ok, opa_gate serial 5 of 5; clean.log fixture still admitted. guest-image.md G7 rewritten. | 2026-10-02: 2026-10-02: luthen confirmed: p1-input.json recorded on luthen-observability:W127 as the P1 contract; they choose and pin the RFB client there.",
       "issued_at": "2026-10-02T15:43:02Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T16:51:21Z",
+      "last_worked": "2026-10-02T16:57:14Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 9,
-      "completed": null
+      "completed": "20261002T165714Z"
     },
     {
       "symbol": "W239",
@@ -5302,6 +5284,13 @@
       "title": "THE FIELD AS AN APERTURE INTEGRAL (operator 2026-09-22: pips with a brightness RANGE, modelled as a supersampled mask over a higher-resolution backdrop scrolled at the display rate — pinholes over a moving scene; the brain synthesizes the motion). Each pip's brightness = ghostAlpha + coverage * (1 - ghostAlpha), coverage = the backdrop's ink under the pip's aperture at the current offset. In QML: the backdrop (text, icon raster, sparkline, QR) drawn once into a ShaderEffectSource with mipmaps; a ShaderEffect over the static field samples per pip at an LOD matched to the aperture (the box integral for one lookup); the scroll offset is a uniform, so no Row rebuild ever happens. This is what a real LED sign's sub-pixel smooth scroll IS (PWM at fractional offsets). COLLAPSE candidate: W47 (viewport = the vertical uniform), W48 (a sparkline is a backdrop), W34(a) (lit dots ARE the field's, graded not snapped), and the live twin of segment_topology.project / matrix_glyph's offline coverage rule (ink under a cell aperture) — reuse-search hit, not a new operator",
       "dropped_at": "2026-09-22T01:56:31+00:00",
       "reason": "duplicate of W54: the refused --add (unknown field mechanism=) had already minted W54 half-written; the retry minted W55 with the full record; the record moved to W54 and paths_forward now validates before minting",
+      "recoverable": true
+    },
+    {
+      "symbol": "W95",
+      "title": "Clear out the dozens of stale agent worktrees under .claude/worktrees",
+      "dropped_at": "2026-10-02T16:58:05Z",
+      "reason": "Collapsed into W233: the same retirement of the stale agent worktrees; W233 carries the precise census-before-delete step. W138 keeps the distinct struct-tools-skip-worktrees part.",
       "recoverable": true
     }
   ],
