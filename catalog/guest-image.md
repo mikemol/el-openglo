@@ -365,9 +365,11 @@ and `make_sddm.py` before being written down as gaps:
   `--breeze`) and `el-openglo-plymouth [--no-initramfs] VARIANT` (the alternatives route,
   else `plymouth-set-default-theme -R`). What the gate does not cover is whether plymouth
   *draws* the theme at boot; that is P3's question.
-- **G4: no guest-image recipe or record.** `oci/guest/` (the mmdebstrap script plus
-  the containerDisk Containerfile) and `catalog/guest-image.json` do not exist.
-  Both are W71's build step.
+- **G4: the recipe exists; the record does not.** `oci/guest/` holds `recipe.json` (the
+  pinned inputs), `customize.sh` (the chroot hook) and the containerDisk `Containerfile`;
+  `scripts/check_guest_recipe.py` (`opa_gate guest_recipe`) refuses an unpinned snapshot
+  or a live mirror, and `--plan` prints the mmdebstrap command. The build itself and
+  `catalog/guest-image.json` are el-openglo:W235's remaining step.
 - **G5: no probe-side reader of the guest digest.** `check_action_key.py` reads
   `host.json` only. It needs to read the guest identity for probe results in the
   same way. The `el.ident` record (f) is where a probe result gets it.

@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 240,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T14:44:45Z",
-  "job_id": "49ab01df",
+  "heartbeat": "2026-10-02T15:57:02Z",
+  "job_id": "86bfa067",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -5151,12 +5151,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write oci/guest/ (mmdebstrap script + containerDisk Containerfile) with the guest-image.md (e) package set and trims; --selftest proves an unpinned snapshot is refused; build once and record catalog/guest-image.json adopted:false. Heavy build = systemd-run --user, MemoryMax=8G.",
-      "evidence": "",
+      "next_bounded_step": "Build once as a systemd-run --user service (MemoryMax=8G, no swap, prlimit cpu 7200): mmdebstrap per --plan into guest.raw, qemu-img convert, buildctl with --metadata-file; record catalog/guest-image.json (adopted:false). If mmdebstrap/unshare is unavailable here, ask luthen for a builder (cite W235).",
+      "evidence": "2026-10-02: 2026-10-02: oci/guest/recipe.json (trixie, snapshot 20260920T000000Z via snapshot.debian.org, minbase, (e) package set no-recommends, absent set incl python3), customize.sh (apt install ./deb, el-openglo-plymouth, baloo/zram/initramfs trims, probe user, /etc/el-openglo-guest.json), Containerfile (FROM scratch, /disk/guest.qcow2 107:107); check_guest_recipe + policy/guest_recipe R0-R4 (opa 17/17), gate admitted, selftest sees latest/empty/None/dashed snapshots, a live mirror and a forbidden package; @GUEST-RECIPE warrant; guest-image.md G4 updated",
       "issued_at": "2026-10-02T15:43:01Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T15:44:43Z",
+      "last_worked": "2026-10-02T15:56:39Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
@@ -5310,6 +5310,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "2583bb80",
+  "predecessor_job_id": "49ab01df",
   "leases": []
 }

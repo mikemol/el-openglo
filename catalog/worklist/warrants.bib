@@ -905,6 +905,12 @@
   check    = {tool:opa_gate.py serial catalog/fixtures/serial/noise-only.log --expect denied:S0}
 }
 
+@misc{GUEST-RECIPE,
+  section  = {tooling},
+  claim    = {The guest image recipe (oci/guest/recipe.json) is reproducible by declaration: its snapshot is a pinned snapshot.debian.org timestamp and its mirror resolves through it, its suite is the decided trixie base, the decided packages are in and the declared-absent set (python3, qemu-guest-agent, PIM, Discover) is out; an unpinned snapshot or a live mirror is denied before anything is built (W235)},
+  check    = {tool:check_guest_recipe.py}
+}
+
 @misc{GLB,
   section  = {emitters},
   claim    = {make_glb emits the 7-, 16- and 22-segment displays and the 5x7 matrix as glTF 2.0 binaries in catalog/engines/, each segment (or dot) a named node with a solid mesh, the names exactly the format's segment_topology ids after projection, and every file current against a fresh emission (W152)},

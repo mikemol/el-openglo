@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
+#
+# The guest containerDisk (catalog/guest-image.md (c) step 4): the qcow2 at
+# /disk/guest.qcow2, owned by qemu's 107:107. Built under buildctl with
+# --metadata-file so the digest is buildkitd's witness, not ours.
+FROM scratch
+ADD --chown=107:107 guest.qcow2 /disk/

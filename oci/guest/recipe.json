@@ -1,0 +1,14 @@
+{
+ "_doc": "W235: the guest image's declared inputs (catalog/guest-image.md (a)-(e)). scripts/check_guest_recipe.py validates this file and refuses an unpinned snapshot before anything is built; oci/guest/customize.sh runs inside the chroot. The snapshot is the reproducibility pin: every package comes from snapshot.debian.org at that instant.",
+ "suite": "trixie",
+ "snapshot": "20260920T000000Z",
+ "mirror": "https://snapshot.debian.org/archive/debian/{snapshot}/",
+ "variant": "minbase",
+ "boot": ["linux-image-amd64", "grub-pc", "initramfs-tools", "systemd-sysv", "udev"],
+ "packages": ["kde-plasma-desktop", "sddm", "sddm-greeter-qt6", "plymouth", "plymouth-themes",
+              "systemd-zram-generator", "weston", "jq", "util-linux", "coreutils"],
+ "no_recommends": true,
+ "absent": ["akonadi-server", "plasma-discover", "kdeconnect", "packagekit", "network-manager", "qemu-guest-agent", "python3"],
+ "image_size": "6G",
+ "disk_owner": "107:107"
+}
