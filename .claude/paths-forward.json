@@ -608,7 +608,7 @@
     {
       "symbol": "W33",
       "title": "Port the shipped segment surfaces onto the one SegmentChar component",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "templates/SegmentChar.qml",
@@ -622,11 +622,12 @@
       "next_bounded_step": "Axis 2 (boundary depth): SegmentChar's texture() tool is now trustworthy (fixed L>=0.5 threshold, monotonic in litGradient - re-swept 0/0.15/0.25/0.35/0.5/0.65/0.8 -> texture 0.0021/0.0019/0.0052/0.0104/0.0213/0.0215/0.0236, essentially monotonic past the first tiny dip which is render noise at near-zero amplitude). litGradient=0.35 sits on the rising part of the curve, not saturated at either end - kept as shipped (a picked amplitude, like font_compiler.DECLARED's exceptions: stated, not mechanically solved, because no external perceptual target exists to search against - inventing one would be an unfalsifiable number). Move to axis 2: boundary depth (how far a segment's rounded cap fades before the tip, if at all) - same centre-fed/mirror-invariance discipline as axis 1, checked against opa_gate symmetry before landing.",
       "evidence": "f41874c: ONE DISPLAY, TWO MOUNTS — SegmentChar.qml is the clock's idiom (axes named: geometry/emission/idiom/mount/content); the clock's render is pixel-identical through it (0 of 40000, back to back); the wallpaper mounts it and its Canvas painter is retired; three witnesses moved (⊕BLOOM's layer, the surfaces population, the solved ghost-alpha hole). 49/49 symbols, gate 70, 48/48 pictures. | 2026-09-26: 2026-09-27: added sc.litGradient (emission axis) + per-Segment gradient, CENTRE-FED not edge-fed (rationale: an edge-fed gradient on A/D, which run left-right, is not mirror-invariant under W57's own left-right flip since neither end sits nearer the axis than the other; centre-fed is symmetric by construction for every segment under every mirror, and matches a real common 7-seg module layout - one emitter mounted behind each segment's own centre). qmllint: 0 lint (opa_gate qml_lint: 12 admitted). Rendered clock before/after at 4x (1600x192, EL-Openglo) - visually confirmed the gradient reads as intended, shown to the operator. opa_gate symmetry: IDENTICAL verdict before and after (0 deny, 1 admitted both) - no regression on W57's own oracle, checked directly rather than assumed. litGradient=0.35 is a first-pass constant; the texture-number tool this note itself calls for does not exist yet (git grep: 0 hits) and is the real next step, not axis 2. | 2026-09-26: 2026-09-27: first commit attempt CORRECTLY refused (@CURRENCY/@EMITTERS/@PARITY/readme) - editing the template alone is not enough, the emitted tracked copy (plasma-clock/org.el.segclock/.../SegmentChar.qml, written by make_clock.py) and the recorded parity baseline both need regenerating in step. check_template_parity --diff showed the diff was exactly my intended change (nothing else) before recording. Ran make_clock.py for real (it writes the tracked tree directly, confirmed from its own __main__: rmtree + render_all(path) + check(path)) - opa_gate emitters_run and template_parity both admit clean now. render_screens --stale: 19 of 56 (clock + live-wallpaper stills all 6 variants + sheets/strip, both mount SegmentChar) - re-rendering as el-render-w33. | 2026-09-26: 2026-09-26: added render_qml.texture()/--texture (variance of ground->lit projection over INTERIOR lit pixels, reusing edges()'s L projection) + component_patches on render()/render_stager() (patch a companion QML file's own property default, e.g. SegmentChar.qml's litGradient, since it is not a plasmoid.configuration key config_override can reach) + two new selftest arms (litGradient=0 reads near-flat, 0.35 reads more textured than flat) - both pass. Ran a 7-point sweep (0/0.15/0.25/0.35/0.5/0.65/0.8) via a scratch script: texture is NOT monotonic (interior population shrinks as amplitude grows, so variance over that shrinking population falls even as the true gradient swing rises) - a real finding, not a bug, and it means litGradient cannot be solved from texture() alone as first assumed. Recorded rather than papered over; see next_bounded_step. | 2026-09-26: 2026-09-26: redefined texture()'s population from edges()'s shrinking on-and-not-touching-a-sub-0.85-neighbour interior to a FIXED L>=0.5 threshold over the whole render - the shrinking population was the actual cause of axis 1's non-monotonicity (measured directly, not inferred: interior_px fell from 432 at g=0 to 50 at g=0.8 in the old population, vs 1328->834 in the new one, and the new texture number rises 0.0021->0.0236 essentially monotonically). selftest's two litGradient arms re-verified passing under the new definition. Kept litGradient=0.35 shipped rather than searching texture for a 'solved' value - no external target exists, so a search would produce an unfalsifiable number; texture() now serves as a sanity check (0.35 is mid-curve, not degenerate) rather than an optimizer's objective. | 2026-09-27: operator 2026-09-27: blocked on W98 - axis 2 (boundary depth) would be tuned against renders made on the shaderless software adaptation, which drops the bloom halo; the edge W98->W33 existed only as enables, so the queue ranked W33 first. Edge added as blocked_on, not as a payload override. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ⊕SEGMENTCHAR-ADOPT (:4419) — a shipped surface instantiates templates/SegmentChar.qml rather than drawing segments in its own idiom. The most load-bearing residue: SegmentChar is the one place bloom/weight/pitch could reach every segment surface at once (clock, live wallpaper, splash), instead of each carrying its own. Measure first: what SegmentChar.qml exposes today vs what clock-main.qml draws (strokeLit/strokeGhost, bloom MultiEffect, digitGap/pitch); the gap is the port",
       "issued_at": "2026-09-21T13:50:20+00:00",
-      "last_worked": "2026-10-01T04:03:54Z",
+      "last_worked": "2026-10-02T02:22:49Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 12
+      "weight": 12,
+      "completed": null
     },
     {
       "symbol": "W34",
@@ -2215,7 +2216,7 @@
     {
       "symbol": "W112",
       "title": "Finish the Apache-2.0 relicense: NOTICE, SPDX headers, borrowed-script terms",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "life:W16",
         "W41"
@@ -2228,16 +2229,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Umbrella (split 2026-09-28 on ATOMIZE): closes when W117 (substrate terms), W118 (NOTICE), W119 (SPDX headers) land.",
-      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache. | 2026-09-28: 2026-09-28: operator ruled KvFlat (b) directly and via life-0e (\"uniformity and portability\"); the rewrite is W116 (enables life:W16); the debian/copyright GPL-3.0 stanza retires when W116 ships. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent)",
+      "next_bounded_step": null,
+      "evidence": "2026-09-28: 2026-09-28 MEASURED scripts/check_license.py --json: LICENSE text, pyproject license, overlay ebuild LICENSE=, emitters.LICENSE_SPDX (9 generator sites), emitted plasma-clock KPlugin.License, debian copyright Files:* - ALL already Apache-2.0. The GPLv3 premise (life letter, W42 title) was stale prose. Exceptions: KvFlat recolour (kvantum/*) GPL-3.0-or-later, a derivative that cannot be relicensed (W116); DSEG + Liberation Mono OFL-1.1 and colorspacious MIT sit fine beside Apache. | 2026-09-28: 2026-09-28: operator ruled KvFlat (b) directly and via life-0e (\"uniformity and portability\"); the rewrite is W116 (enables life:W16); the debian/copyright GPL-3.0 stanza retires when W116 ships. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): APACHE-2.0 FINISH (operator 2026-09-28, life:W16): the tree is already Apache-2.0 (check_license --json); remaining = substrate-symlink licence terms, a NOTICE file, SPDX-License-Identifier headers (mtools precedent) | 2026-10-02: 2026-10-02 closed on its own condition: umbrella over W117 (substrate terms), W118 (NOTICE), W119 (SPDX headers) - all three done; the queue had it still ready.",
       "issued_at": "2026-09-28T17:45:14Z",
       "minted_during": "interrupt",
       "caused_by": "life:W16",
-      "last_worked": "2026-10-01T04:33:57Z",
+      "last_worked": "2026-10-02T02:23:01Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 11,
+      "completed": "20261002T022301Z"
     },
     {
       "symbol": "W113",
@@ -4685,7 +4687,7 @@
     {
       "symbol": "W214",
       "title": "policy/qml_target.rego with refusing and admitting tests, and the @QML-TARGET warrant gating it",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W83"
       ],
@@ -4693,14 +4695,16 @@
         "policy",
         "warrants"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Model + implementation at the host boundary (W206 shape). MODEL: check_qml_target declares HOST-REGISTERED modules - org.kde.kwin is registered by the KWin process (strings in libkwin.so.6), not an on-disk QML module - and which targets need them (kwin/tabbox/*). IMPLEMENTATION: a declared test double, the same pattern as check_marquee_live StubRegistry (a stub org.kde.kwin qmldir + TabBoxSwitcher and the model roles the switcher uses) placed on the import path ONLY for host-registered targets, with its surface checked against KWin (the kwin version from versions.txt; the switcher roles enumerated from its own QML) so it cannot drift silently. Then 34/34 and policy/qml_target.rego (deny a failed step, empty population; withhold could-not-run; admitted set) with tests, warrant @QML-TARGET.",
-      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher.",
+      "blocked_on": [
+        "luthen-observability"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Host order (operator raised headless KWin; luthen proposed): (1) kwin-tabbox-preview (kwin-common libexec, KWin own switcher previewer) under QT_QPA_PLATFORM=offscreen loading the staged tabbox - smallest TRUE host, org.kde.kwin registered by KWin itself; (2) if not, kwin_wayland --virtual in a dbus session with the tabbox loaded; (3) only if both fail, the declared stub (old plan a). Record each attempt as a W206-shape hypothesis (claim + expected reading), and make the chosen host a declared check_qml_target mode for host-registered targets, never a one-off. Then 34/34, policy/qml_target.rego + tests, warrant @QML-TARGET. Waits on luthen adding kwin-common + a dbus session to images/qml-check for the probe. Any probe that crashes KWin moves to the k8s+KVM VM (operator rule).",
+      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:20:51Z",
+      "last_worked": "2026-10-02T02:22:17Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
