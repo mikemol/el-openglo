@@ -452,3 +452,5 @@
 2026-10-02T01:11:45Z  hash  --   diverged  --        "divergence: payload v2:4a3703b3a80f0328, file v2:8762e9977b7e3fc9; the FILE wins"
 2026-10-02T01:12:22Z  tick  W211 advanced  unblock   "pytestspec cannot evaluate qml_lint (single --data, policy/lib import fails) nor express 13 of 17 tests (withheld/admitted); asked mtools for shared data and expect.withheld; blocked rather than port 4 of 17"  evidence=opa eval --data policy/qml_lint.rego alone: undefined function data.el.truth.py
 2026-10-02T01:26:08Z  tick  W83  advanced  unblock   "luthen qml_check run by hand: the emitted marquee lints and loads under Qt 6.10.2 (state ok); next is the standing gate over every staged package"  evidence=qml_check verdict state ok, ubuntu@sha256:da6fc2be5478
+2026-10-02T01:38:31Z  hash  --   diverged  --        "divergence: payload v2:d834280dc2d533a0, file v2:c83edafe4f340177; the FILE wins"
+2026-10-02T01:38:53Z  tick  W83  atomized  collapse  "split W83 into W213 check_qml_target measurement (working) and W214 policy + tests + warrant"  evidence=W213, W214 in state file
