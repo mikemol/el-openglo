@@ -549,3 +549,5 @@
 2026-10-02T15:16:29Z  tick  W153 advanced  unblock   "5x7 matrix glyph table; table order == mesh order gated (G7)"
 2026-10-02T15:22:16Z  tick  W153 done      unblock   "shader + glyph tables (7/16/22 + 5x7) in catalog/engines, gated"  evidence=commit: W153 5x7 matrix glyph table
 2026-10-02T15:26:21Z  tick  W232 advanced  unblock   "sh writer byte-equal to reference on luthen runner; 2 guest-writer defects found and fixed"
+2026-10-02T15:32:21Z  tick  W232 done      unblock   "sh writer == reference, byte for byte; 2 defects fixed"  evidence=commit: W232 sh guest writer byte-equal
+2026-10-02T15:33:02Z  tick  W181 done      collapse  "umbrella closed: W230-W232 landed"
