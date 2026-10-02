@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
+#
+# The system side of the guest's serial report (catalog/guest-image.md (f), G6; W237).
+# Wanted by every probe target: graphical.target (P1/P2/P4/P4g) and
+# el-probe-splash.target (P3). The probe arrives as an SMBIOS credential or on the
+# cmdline; el-reporter reads both.
+[Unit]
+Description=el-openglo serial reporter (system side)
+After=local-fs.target systemd-journald.service
+DefaultDependencies=no
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/el-openglo/el-reporter system
+ImportCredential=el.probe
+Environment=EL_SERIAL_DEV=/dev/ttyS0 EL_SERIAL_RUN=/run
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=graphical.target el-probe-splash.target

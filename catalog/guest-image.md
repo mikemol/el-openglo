@@ -373,9 +373,12 @@ and `make_sddm.py` before being written down as gaps:
 - **G5: no probe-side reader of the guest digest.** `check_action_key.py` reads
   `host.json` only. It needs to read the guest identity for probe results in the
   same way. The `el.ident` record (f) is where a probe result gets it.
-- **G6: the serial units do not exist yet.** The writer (`guest/el-serial-emit.sh`), the
-  reader and the policy from (f) do. `el-serial.service`, `el-serial-session.service` and
-  the reporter that calls the writer are still to be written. Whether the reader and
+- **G6: the serial units exist (W237).** `guest/el-reporter.sh` (system and session
+  sides; it reports what it observes, the requirement stays in `policy/serial.rego`),
+  `guest/el-serial.service` and the user unit `guest/el-serial-session.service`, installed
+  by `oci/guest/customize.sh`. `el_serial_emit.py --reporter-bundle` drives one boot per
+  probe on stub files and tools; run in luthen's jq image (2026-10-02) its log was
+  admitted by `opa_gate serial`, 5 of 5. The settle rule is a guess until W239 measures it. Whether the reader and
   policy hold is `scripts/opa_gate.py serial catalog/fixtures/serial/clean.log`, not
   this line.
 - **G7: no RFB client in the harness.** P1 needs VNC key events. We have no QMP, so

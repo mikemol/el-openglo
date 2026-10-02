@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
+#
+# The session side of the guest's serial report (catalog/guest-image.md (f), G6;
+# W237): a USER unit, started with the Plasma session, for the autologin probes
+# (P2/P4). It writes ttyS0 through the same lock and SEQ file as the system side,
+# so the probe user needs write access to /dev/ttyS0 and /run/el-serial.* (granted
+# by the image, customize.sh).
+[Unit]
+Description=el-openglo serial reporter (session side)
+After=graphical-session.target plasma-plasmashell.service
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/libexec/el-openglo/el-reporter session
+Environment=EL_SERIAL_DEV=/dev/ttyS0 EL_SERIAL_RUN=/run
+
+[Install]
+WantedBy=graphical-session.target
