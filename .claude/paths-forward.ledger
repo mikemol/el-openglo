@@ -455,3 +455,5 @@
 2026-10-02T01:38:31Z  hash  --   diverged  --        "divergence: payload v2:d834280dc2d533a0, file v2:c83edafe4f340177; the FILE wins"
 2026-10-02T01:38:53Z  tick  W83  atomized  collapse  "split W83 into W213 check_qml_target measurement (working) and W214 policy + tests + warrant"  evidence=W213, W214 in state file
 2026-10-02T01:53:46Z  tick  W213 done      unblock   "check_qml_target landed and proven on the real image; 13/34 ok, 21 refused on one image gap (QtQuick.Effects not installed); asked luthen; W214 gate waits on the image"  evidence=scratchpad qml-target.txt; load.txt logs for segclock and sddm amber
+2026-10-02T02:17:51Z  hash  --   diverged  --        "divergence: payload v2:3ba8ec9af75953e8, file v2:1d4f442f402961a3; the FILE wins"
+2026-10-02T02:20:32Z  tick  W92  done      unblock   "el-openglo-apply reloads what it changed: clears org.el.* compiled QML, restarts the plasmashell unit or prints the instruction; witnessed on a staged tree in isolation; W215 makes the witness a gated check"  evidence=make_deb.py apply literal step 8; scratch w92-log-active/inactive

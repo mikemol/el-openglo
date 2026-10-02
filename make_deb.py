@@ -282,6 +282,8 @@ APPLY_HELPER = r'''#!/bin/sh
 # System files were installed by the .deb; this wires the per-user bits
 # (GTK, Kvantum) and applies the live selection. No root needed.
 set -eu
+RELOAD=1
+if [ "${1:-}" = "--no-reload" ]; then RELOAD=0; shift; fi
 VARIANT="${1:-EL-Openglo}"
 SHARE=/usr/share
 case " EL-Openglo EL-Openglo-Lit EL-Azure EL-Azure-Lit EL-Amber EL-Amber-Lit " in
@@ -406,6 +408,23 @@ TDIR="$SHARE/el-openglo/terminals"
 if [ -d "$TDIR" ]; then
   echo "  Alacritty: import $TDIR/$VARIANT.alacritty.toml"
   echo "  foot:      include $TDIR/$VARIANT.foot.ini"
+fi
+# 8. RELOAD WHAT WE CHANGED (W92; operator 2026-09-26: after installing the fixed .deb
+# the marquee kept its OLD load error until a manual `plasmashell --replace`). A dpkg
+# postinst cannot restart a user session, so the per-user step owns it: drop the
+# shell's compiled-QML cache for OUR plugins only, then restart the shell through its
+# systemd user unit when that is how it runs; otherwise say exactly what to run.
+if [ "$RELOAD" = 1 ]; then
+  QC="${XDG_CACHE_HOME:-$HOME/.cache}/plasmashell/qmlcache"
+  if [ -d "$QC" ]; then
+    find "$QC" -name '*org.el.*' -delete 2>/dev/null || true
+    echo "  Reload: cleared plasmashell's compiled QML for org.el.* plugins"
+  fi
+  if command -v systemctl >/dev/null 2>&1 && systemctl --user is-active --quiet plasma-plasmashell.service 2>/dev/null; then
+    systemctl --user restart plasma-plasmashell.service && echo "  Reload: plasmashell restarted (its user unit)"
+  else
+    echo "  Reload: run 'plasmashell --replace &' (or re-login) so the shell loads the installed widgets"
+  fi
 fi
 echo "Done. Some changes (GTK, Kvantum) may need apps to restart."
 echo "Login screen (SDDM): System Settings > Login Screen (SDDM) > 'EL Openglo ($VARIANT)'"
