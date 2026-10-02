@@ -87,7 +87,31 @@ def measure(out_dir=None):
             case["nodes"] = sorted(n.get("name", "?") for n in doc.get("nodes", []))
             case["flat"] = flat_nodes(doc)
         cases.append(case)
-    return {"cases": cases, "withheld": []}
+    extras = []
+    for name, data in sorted(MG.extras().items()):
+        path = os.path.join(out_dir, name)
+        extras.append({"file": name, "present": os.path.exists(path),
+                       "current": os.path.exists(path) and open(path, "rb").read() == data})
+    return {"cases": cases, "extras": extras, "overflow": overflow(MG.glyph_tables()),
+            "shader": shader_verdict(MG.SHADER), "withheld": []}
+
+
+def overflow(tables):
+    """['<fmt>:<char>'] for every glyph whose mask sets a bit past its format's node count."""
+    return sorted(f"{fmt}:{ch}" for fmt, t in tables.items()
+                  for ch, m in t["glyphs"].items() if m >> len(t["segments"]))
+
+
+def shader_verdict(path):
+    """{"ok": bool|None, "why": str}: glslangValidator's compile of the fragment shader,
+    or ok None (a SKIP, a fact about the machine) when the validator is not installed."""
+    import shutil
+    import subprocess
+    exe = shutil.which("glslangValidator")
+    if not exe:
+        return {"ok": None, "why": "glslangValidator not installed"}
+    r = subprocess.run([exe, "-S", "frag", path], capture_output=True, text=True)
+    return {"ok": r.returncode == 0, "why": (r.stdout + r.stderr).strip()[-400:]}
 
 
 def _selftest():
@@ -119,6 +143,11 @@ def _selftest():
         chk("a missing file is absent; a wrong file is stale with the wrong nodes",
             (m["el-seg16.glb"]["present"], m["el-seg22.glb"]["current"], m["el-seg22.glb"]["nodes"] == m["el-seg22.glb"]["want"]),
             (False, False, False))
+    t = MG.glyph_tables()
+    chk("the 7-seg 8 lights all seven nodes, and nothing overflows",
+        (t["7"]["glyphs"]["8"], overflow(t)), (0b1111111, []))
+    chk("a mask past the node count is seen",
+        overflow({"7": {"segments": ["a"], "glyphs": {"x": 2}}}), ["7:x"])
     print("check_glb selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -59,6 +59,39 @@ deny contains msg if {
 	msg := sprintf("G5: %s is stale; run make_glb.py", [c.file])
 }
 
+# METADATA
+# title: "G6 — the glyph tables and the shader are present and current (W153)"
+deny contains msg if {
+	some e in object.get(input, "extras", [])
+	e.present == false
+	msg := sprintf("G6: %s: missing; run make_glb.py", [e.file])
+}
+
+deny contains msg if {
+	some e in object.get(input, "extras", [])
+	e.present == true
+	e.current == false
+	msg := sprintf("G6: %s is stale; run make_glb.py", [e.file])
+}
+
+# METADATA
+# title: "G7 — no glyph lights a node its format does not have"
+deny contains msg if {
+	some g in object.get(input, "overflow", [])
+	msg := sprintf("G7: glyph %s sets a bit past its format's node count", [g])
+}
+
+# METADATA
+# title: "G8 — the shader compiles (glslangValidator); not installed is a SKIP, not a pass"
+deny contains msg if {
+	input.shader.ok == false
+	msg := sprintf("G8: el-segment.glsl does not compile: %s", [input.shader.why])
+}
+
+skipped contains input.shader.why if {
+	input.shader.ok == null
+}
+
 withheld contains msg if {
 	some msg in object.get(input, "withheld", [])
 }

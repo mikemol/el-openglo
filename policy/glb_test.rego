@@ -7,6 +7,26 @@ import data.el.glb
 good := {"file": "el-seg7.glb", "present": true, "parse_error": null, "current": true,
 	"want": ["a", "b", "c"], "nodes": ["a", "b", "c"], "flat": []}
 
+test_stale_shader_denied if {
+	inp := {"cases": [good], "extras": [{"file": "el-segment.glsl", "present": true, "current": false}]}
+	"G6: el-segment.glsl is stale; run make_glb.py" in glb.deny with input as inp
+}
+
+test_overflow_denied if {
+	"G7: glyph 7:x sets a bit past its format's node count" in glb.deny with input as {"cases": [good], "overflow": ["7:x"]}
+}
+
+test_shader_compile_failure_denied if {
+	some m in glb.deny with input as {"cases": [good], "shader": {"ok": false, "why": "ERROR: 0:1"}}
+	startswith(m, "G8:")
+}
+
+test_shader_unvalidated_is_skip if {
+	inp := {"cases": [good], "shader": {"ok": null, "why": "glslangValidator not installed"}}
+	count(glb.deny) == 0 with input as inp
+	glb.skipped == {"glslangValidator not installed"} with input as inp
+}
+
 test_empty_population_denied if {
 	count(glb.deny) == 1 with input as {}
 }

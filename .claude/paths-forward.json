@@ -3229,12 +3229,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "ONE GLSL shader that lights named segments or dots from a glyph bitmask, with the ghost / lit / bloom relation (bloom = blur of the lit layer only), plus the registry glyph tables as JSON. The fonts ship as-is (EL-Segment, EL-Matrix TTFs load in all four engines).",
-      "evidence": "",
+      "next_bounded_step": "Matrix glyph table: the 5x7 bitmaps from the EL-Matrix font source into el-glyphs.json (node order r<row>c<col>), then close.",
+      "evidence": "2026-10-02: 2026-10-02: templates/el-segment.glsl (GLSL ES 3.00 fragment: uvec2 mask + node index, lit=emissive, unlit=mix(base,ghost,ghost_opacity), MRT bloom = lit only) copied to catalog/engines/; el-glyphs.json per format 7/16/22 (node order = .glb, glyphs from segment_topology projected); check_glb G6-G8, glslangValidator compiles it (caught #version-not-first), opa 20/20, gate admitted; umbrellas W226/W228 blocked on W221 per nemik",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-02T14:44:33Z",
+      "last_worked": "2026-10-02T14:57:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -4961,20 +4961,23 @@
     {
       "symbol": "W226",
       "title": "Solve the semantic set by the series objective (gcalc AND over pair margins) instead of max-min, with samples to the operator before it ships",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W221"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Add an objective parameter to make_palette.solve_semantic_set (min_pair default = shipped; series = 1/sum(1/q) over the same pairs, keeping the q >= 1 gate as a constraint so a smooth min cannot trade a failing pair for many comfortable ones); render the window + selection semantic sets under both for all six variants as an artifact (the W197 options page shape) and put it to the operator; only on approval flip the default, rebuild schemes + downstream, re-record. Measure with check_nodal --moves and check_separation before/after.",
       "evidence": "2026-10-02: Minted from W221 (2026-10-02): check_nodal --moves showed the series objective blind to 0 of 1079 single-slot moves vs max-min 129; policy/nodal.rego N2 admits 6 of 6. Caution recorded: AND lies below min, so maximising it alone could accept a pair under its floor if many others improve - the floor must stay a hard constraint.",
       "issued_at": "2026-10-02T05:58:09Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T05:58:25Z",
+      "last_worked": "2026-10-02T14:55:08Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W227",
@@ -5002,20 +5005,23 @@
     {
       "symbol": "W228",
       "title": "Ghost floor term as an unequal-conductance divider: one conductance ratio carries the composited floor against the readability ceiling (samples first)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W221"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Model: lit -(y1)- ghost -(y2)- ground in log offset luminance; y1:y2 places the ghost between its readability CEILING (|Lc| < 30, ghost must not read as text) and its composited FLOOR (feasible_ghost_floor through ghost_alpha), the palette_relations open question the-solve-optimises-the-bound-not-in-danger. Solve the ratio from the two bounds (check_nodal.divider_interior already takes y1, y2), render the ghost under today (1:1) and the solved ratio for all six variants as an artifact, put it to the operator; only then change ghost_solve. @GHOSTCOMP is red today and should go green on the solved ratio.",
       "evidence": "2026-10-02: Minted from W221 (2026-10-02): the 1:1 divider reproduces ghost_solve to 1.5e-16; selftest shows a 3:1 divider lands at the conductance-weighted mean y1/(y1+y2), so the floor term is one ratio, not three knobs traded by hand.",
       "issued_at": "2026-10-02T06:25:49Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T06:26:14Z",
+      "last_worked": "2026-10-02T14:55:09Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W229",
@@ -5098,7 +5104,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 9
+      "weight": 8
     },
     {
       "symbol": "W233",
