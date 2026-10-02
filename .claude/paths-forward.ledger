@@ -498,3 +498,5 @@
 2026-10-02T08:20:39Z  tick  W77  advanced  collapse  "reverted: LATER was a deferral that the ranking ended by surfacing W77 a week on; my operator block overrode the adopted ranking; W77 working"  evidence=operator 2026-10-02
 2026-10-02T08:28:00Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:86d7e02c4400ea49; the FILE wins"
 2026-10-02T08:29:53Z  tick  W77  advanced  unblock   "survey done: VM query is a no-auth GET by service name through the dns-delegate; luthen forbids address literals, so the endpoint must come from their declaration; asked luthen for the canonical consumer path and off-cluster reachability"  evidence=luthen terraform/vm.tf, endpoints.json, checks/vm_query.py
+2026-10-02T08:43:16Z  hash  --   diverged  --        "divergence: payload v2:681c5635213145e0, file v2:163383c50f23e7c4; the FILE wins"
+2026-10-02T08:43:32Z  tick  W77  advanced  unblock   "model first: policy/metrics.rego states the five scenarios and their faces from luthen contract, never blank, no address literal; 16/16 tests; measurement and emitter next"  evidence=opa test metrics 16/16
