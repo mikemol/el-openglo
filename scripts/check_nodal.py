@@ -6,6 +6,7 @@
     scripts/check_nodal.py            # the verdict, as opa_gate nodal decides it
     scripts/check_nodal.py --json     # the measurement policy/nodal.rego decides
     scripts/check_nodal.py --selftest # the measurement can see a transitive near-collision
+    scripts/check_nodal.py --moves    # single-slot moves the objective is BLIND to: max-min vs series
 
 Until this, el-openglo used gcalc only SYMBOLICALLY (netlist_render, check_relations):
 no env had ever been bound to measured palette values. This binds one.
@@ -126,6 +127,50 @@ def measure():
     return {"cases": cases, "withheld": sorted(set(withheld))}
 
 
+def series(qs):
+    """gcalc SERIES composition of margins read as conductances: AND = 1 / sum(1/q),
+    a SMOOTH min - every margin moves it (machine.py:424: min is its shadow)."""
+    return 1.0 / sum(1.0 / q for q in qs)
+
+
+def move_visibility():
+    """Per variant: of every single-slot candidate swap in the window semantic set,
+    how many change the objective under the shipped hard max-min and under SERIES.
+
+    The objective is over every pair of the constellation (palette_graph.CONSTELLATION,
+    the slots plus the fixed `fg` anchor), margin = worst-view normalized q - exactly
+    solve_semantic_set.min_pair's population. palette_relations' docstring measured
+    the max-min side once (47% of moves change nothing); this re-measures both."""
+    import cvd_gate as C
+    import make_palette as mp
+    import palette_graph as PG
+    floors = C.reference_floors()
+    out = []
+    for (t, _d) in mp.build_grid().values():
+        vid = t["id"]
+        ground, hot = C.rgb(t["view"]), C.rgb(t["focus"])
+        chosen = {k: C.rgb(t[k]) for k in PG.SEMANTIC}
+        anchor = C.rgb(t["fg"])
+
+        def qs(ch):
+            vals = list(ch.values()) + [anchor]
+            return [max(1e-9, C._worst_normalized(vals[i], vals[j], floors)[0])
+                    for i in range(len(vals)) for j in range(i + 1, len(vals))]
+        base = qs(chosen)
+        b_min, b_ser = min(base), series(base)
+        moves = flat_min = flat_ser = 0
+        for k in PG.SEMANTIC:
+            for c in mp._candidates(mp._sect(k, vid), ground, 4.6, hot):
+                if c == chosen[k]:
+                    continue
+                trial = qs(dict(chosen, **{k: c}))
+                moves += 1
+                flat_min += abs(min(trial) - b_min) < 1e-12
+                flat_ser += abs(series(trial) - b_ser) < 1e-12
+        out.append({"variant": vid, "moves": moves, "flat_max_min": flat_min, "flat_series": flat_ser})
+    return out
+
+
 def _selftest():
     ok = True
 
@@ -147,17 +192,30 @@ def _selftest():
           all(r[k] <= m + 1e-12 for k, m in {("a", "c"): 1.5, ("a", "b"): 0.4, ("b", "c"): 0.4}.items()), True)
     check("two components are solved apart, not as one singular system",
           sorted(solve({("a", "b"): 1.0, ("c", "d"): 3.0}, S).values()), [1.0, 3.0])
+    # series is a SMOOTH min: below min, and moved by a non-binding margin
+    check("series lies below the min (AND(a,b) < min(a,b))", series([2.0, 3.0]) < 2.0, True)
+    check("a non-binding margin moves series but not min",
+          (min([2.0, 3.0]) == min([2.0, 5.0]), series([2.0, 3.0]) != series([2.0, 5.0])), (True, True))
     print("check_nodal selftest:", "PASS" if ok else "FAIL")
     return ok
 
 
 def main(argv):
     for a in argv[1:]:
-        if a not in {"--json", "--selftest"}:
+        if a not in {"--json", "--selftest", "--moves"}:
             print(f"check_nodal: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--selftest" in argv:
         return 0 if _selftest() else 1
+    if "--moves" in argv:
+        rows = move_visibility()
+        for r in rows:
+            print(f"{r['variant']}\t{r['moves']} moves\tmax-min blind to {r['flat_max_min']} of {r['moves']}"
+                  f"\tseries blind to {r['flat_series']} of {r['moves']}")
+        m = sum(r["moves"] for r in rows)
+        print(f"total: max-min blind to {sum(r['flat_max_min'] for r in rows)} of {m}; "
+              f"series blind to {sum(r['flat_series'] for r in rows)} of {m}")
+        return 0
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
