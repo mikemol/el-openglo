@@ -1218,7 +1218,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 11
+      "weight": 12
     },
     {
       "symbol": "W62",
@@ -4689,7 +4689,7 @@
     {
       "symbol": "W214",
       "title": "policy/qml_target.rego with refusing and admitting tests, and the @QML-TARGET warrant gating it",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W83"
       ],
@@ -4697,21 +4697,19 @@
         "policy",
         "warrants"
       ],
-      "blocked_on": [
-        "luthen-observability:W280"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Host order (operator raised headless KWin; luthen proposed): (1) kwin-tabbox-preview (kwin-common libexec, KWin own switcher previewer) under QT_QPA_PLATFORM=offscreen loading the staged tabbox - smallest TRUE host, org.kde.kwin registered by KWin itself; (2) if not, kwin_wayland --virtual in a dbus session with the tabbox loaded; (3) only if both fail, the declared stub (old plan a). Record each attempt as a W206-shape hypothesis (claim + expected reading), and make the chosen host a declared check_qml_target mode for host-registered targets, never a one-off. Then 34/34, policy/qml_target.rego + tests, warrant @QML-TARGET. Waits on luthen adding kwin-common + a dbus session to images/qml-check for the probe. Any probe that crashes KWin moves to the k8s+KVM VM (operator rule).",
-      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image. | 2026-10-02: 2026-10-02 luthen W280 PROBE 1 (scratch image = qml-check base + kwin-common 4:6.6.6-0ubuntu0.1 + dbus 1.16.2; images/qml-check unchanged): /usr/lib/x86_64-linux-gnu/libexec/kwin-tabbox-preview exists, `[options] path` (the switcher main QML), takes Qt --platform (offscreen) and --show-desktop, --help exits 0. CATCH: interactive - a good layout stays up with no exit, and a CPU cap cannot bound an idle wait (the qml_check trap). Probe 2 (hypothesis first): KWin-shipped switcher vs a broken one under dbus-run-session offscreen, to find the event to end on (stderr QML error = refused; a readiness signal = ok) and the env it needs.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add a declared kwin host mode to scripts/check_qml_target.py for the tabbox entry: run kwin-tabbox-preview on the staged org.el.taskswitch contents/ui/main.qml inside images/qml-check (kwin-common 6.6.6), QT_QPA_PLATFORM=offscreen, LANG=C.UTF-8, QT_LOGGING_RULES=qt.scenegraph.general=true;qt.scenegraph.time.renderloop=true; a wrapper reads merged stdout line by line and kills the tool on the first \"Frame rendered\" line. Verdicts: ok = a Frame rendered line; refused = exit 255 with Error loading tabbox preview: \"file:///...:LINE message\"; could-not-run (withheld) = any other exit or ending with no frame. Ignore the offscreen noise (KWindowShadow, raise(), keyboard grab). Selftest: valid layout ok, a NoSuchType file refused. Then 34 of 34 ok, and policy/qml_target the W214 rego.",
+      "evidence": "2026-10-02: 2026-10-02 blocked on luthen: 21 of 34 refusals are one image gap (QtQuick.Effects missing); gating now would refuse every commit on the harness, not the theme. | 2026-10-02: 2026-10-02 luthen W278 added qml6-module-qtquick-effects: re-run check_qml_target -> 33 of 34 ok (20 of 21 refusals cleared). Remaining: kwin/tabbox/org.el.taskswitch refused at load, log `main.qml:18:1: module \"org.kde.kwin\" is not installed` - KWin own QML module, present on the laptop (it runs KWin), absent from the image. Asked luthen for the package that ships org.kde.kwin; W214 lands at 34/34. | 2026-10-02: 2026-10-02 luthen-observability MEASURED: no package ships a top-level org.kde.kwin qmldir (apt-file in the resolute base; Gentoo /usr/lib64/qt6/qml/org/kde/kwin has only decoration/ and private/); org.kde.kwin and TabBoxSwitcher are strings in libkwin.so.6 - KWin registers the module in-process. No image package fixes it. Chosen (a) declared stub, matching the StubRegistry precedent, over (b) lint-only, which would never load the switcher. | 2026-10-02: 2026-10-02 luthen-observability (operator raised headless KWin): two true-host candidates - kwin-tabbox-preview (kwin-common, beside kcm_kwintabbox) and kwin_wayland --virtual (KWin autotests backend). A real host removes the stub drift risk and the bespoke double; chosen over (a), which stays the fallback. Accepted luthen offer to add kwin-common + dbus session to the image. | 2026-10-02: 2026-10-02 luthen W280 PROBE 1 (scratch image = qml-check base + kwin-common 4:6.6.6-0ubuntu0.1 + dbus 1.16.2; images/qml-check unchanged): /usr/lib/x86_64-linux-gnu/libexec/kwin-tabbox-preview exists, `[options] path` (the switcher main QML), takes Qt --platform (offscreen) and --show-desktop, --help exits 0. CATCH: interactive - a good layout stays up with no exit, and a CPU cap cannot bound an idle wait (the qml_check trap). Probe 2 (hypothesis first): KWin-shipped switcher vs a broken one under dbus-run-session offscreen, to find the event to end on (stderr QML error = refused; a readiness signal = ok) and the env it needs. | 2026-10-02: 2026-10-02 luthen W280 DONE (probe 2b): kwin-tabbox-preview hosts org.kde.kwin in-process; valid org.el.taskswitch renders a first frame offscreen (qt.scenegraph.time.renderloop \"Frame rendered with software renderloop in 6ms\"); refused = exit 255 + file:line; D-Bus NOT required; images/qml-check now carries kwin-common. The wrapper is ours to declare inside check_qml_target.",
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:28:36Z",
+      "last_worked": "2026-10-02T03:53:01Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 13
+      "weight": 11
     },
     {
       "symbol": "W215",
@@ -4833,15 +4831,15 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "Model first: state in rego (policy/palette_chain or a new solver-candidates policy) that a contrast constraint |c(t,bg)| >= X admits BOTH roots - candidates must cover text lighter and darker than bg - and that a sector hue admits every value/chroma that still reads as the sector. Then make_palette._candidates: drop the dark = L < 0.4 branch for vs (full 0.20-1.00 on every ground, as its own comment already claims), add low sats (0.25, 0.35) for tints; same for solve_state_steps toward and the solve_semantic_set fallback (three fixed tones). Re-run check_selection_contrast --max-floor apca|wcag before/after (39.75 / 3.30 today) and --options; parity will move the shipped palette, so rebuild + re-record.",
-      "evidence": "2026-10-02: 2026-10-02 operator: \"when you take the absolute value ... there are two input values that solve ... a model problem in the palette solver\". Confirmed in code: make_palette._candidates sets dark = L(ground) < 0.4 and searches value 0.34-1.00 on dark grounds, 0.20-0.63 on light ones, which is ONE branch of |contrast| >= X, while its own comment (L246) says the value span is FULL on both grounds; sats 0.5-1.0 also omit the pale tints of a sector. Same single-root guess in solve_state_steps (toward the ground only) and the fallback. Measured consequence: the uniform floor tops out at APCA Lc 39.75 / WCAG 3.30, bound by sel_neg.",
+      "evidence": "2026-10-02: 2026-10-02 operator: \"when you take the absolute value ... there are two input values that solve ... a model problem in the palette solver\". Confirmed in code: make_palette._candidates sets dark = L(ground) < 0.4 and searches value 0.34-1.00 on dark grounds, 0.20-0.63 on light ones, which is ONE branch of |contrast| >= X, while its own comment (L246) says the value span is FULL on both grounds; sats 0.5-1.0 also omit the pale tints of a sector. Same single-root guess in solve_state_steps (toward the ground only) and the fallback. Measured consequence: the uniform floor tops out at APCA Lc 39.75 / WCAG 3.30, bound by sel_neg. | 2026-10-02: 2026-10-02 RELATION TO W221 (collapse candidate, not merged): W220 fixes the branch guess INSIDE the enumerative search; W221 replaces the search with a nodal solve in which the side is a sign and the guess cannot arise. If W221 lands first, W220 is subsumed and should be dropped with that reason; if W220 lands first, its before/after --max-floor numbers become W221 baseline. Kept separate because W220 is bounded and W221 is not.",
       "issued_at": "2026-10-02T03:38:33Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T03:38:45Z",
+      "last_worked": "2026-10-02T03:51:28Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 12
+      "weight": 13
     },
     {
       "symbol": "W221",
@@ -4853,16 +4851,16 @@
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Re-read ~/github/gcalculus (operator 2026-10-02: dramatically cleaned up) - gcalc/solver.py laplacian/r_eff/eliminate/netlist/frontier_solve and quotient/pareto - and record which relations of palette_relations.relations() are linear (lightness, signed contrast, ghost divider) vs discrete/min-over-views (slot occupancy, sector hue, CVD q). Model first in rego: what the nodal solve guarantees (uniqueness on a connected pinned net, max principle) as properties a solved palette must show. Then a pilot: solve the ghost through gcalc.solver in place of ghost_solve closed form and diff against shipped (palette_relations L22-28 already names that defect). W220 (two roots) is the near fix inside the search; this is the structural one where signed potentials make the branch guess disappear.",
-      "evidence": "2026-10-02: 2026-10-02 operator asked whether the solver uses the g-calculus conductance / nodal approach. Measured: NO. palette_relations.py states the constraints as a gcalc.solver netlist (from palette_graph edges; terminals view/fg/fg_act; ghost as lit-ghost-ground divider verified with gcalc.solver.laplacian) and netlist_render + check_relations + check_palette_graph run it, but make_palette imports neither palette_relations nor gcalc: it searches (~40 candidates/slot, max-min hill-climb, seeded restarts) and the ghost uses ghost_solve closed form, which palette_relations calls a re-derivation defect. palette_relations.open_questions L151-156: nodal is continuous, occupancy discrete; Voronoi/Delaunay over candidates proposed, unmeasured; no Voronoi/Delaunay code exists.",
+      "next_bounded_step": "MEASURE, do not argue (operator: \"this is why the nodal solver is important\"): the r_eff-as-separation question is answered by running gcalc.solver (netlist / laplacian / r_eff / frontier_solve), already importable here - netlist_render.py and check_relations.py import it. Step 1: re-read the cleaned-up gcalculus solver API. Step 2: a check mode (palette_relations or a new check) that builds the palette netlist (palette_relations.netlist_input + terminals), solves it through gcalc.solver, and reports per separation edge the r_eff and how it moves as one slot moves - the measurement that says whether an r_eff floor is a usable constraint. Step 3: rego for what a nodal-solved palette must show; pilot the ghost divider through gcalc.solver vs ghost_solve closed form.",
+      "evidence": "2026-10-02: 2026-10-02 operator asked whether the solver uses the g-calculus conductance / nodal approach. Measured: NO. palette_relations.py states the constraints as a gcalc.solver netlist (from palette_graph edges; terminals view/fg/fg_act; ghost as lit-ghost-ground divider verified with gcalc.solver.laplacian) and netlist_render + check_relations + check_palette_graph run it, but make_palette imports neither palette_relations nor gcalc: it searches (~40 candidates/slot, max-min hill-climb, seeded restarts) and the ghost uses ghost_solve closed form, which palette_relations calls a re-derivation defect. palette_relations.open_questions L151-156: nodal is continuous, occupancy discrete; Voronoi/Delaunay over candidates proposed, unmeasured; no Voronoi/Delaunay code exists. | 2026-10-02: 2026-10-02 CORRECTION (operator: \"oh bull. That just means you have more linear channels to solve, and those channels constrain each other\"): the earlier evidence that slot occupancy and sector hue are inherently discrete was wrong - occupancy is discrete only because the search enumerates ~40 candidates; a sector is a convex cone in the a/b plane; contrast is linear in Y once its sign is a variable; CVD views are linear maps. palette_relations.open_questions L151 makes the same mistaken split and needs the same correction when W221 lands. | 2026-10-02: 2026-10-02 SEPARATION RE-READ (operator: \"See how g-calculus achieves NOT()\"): gcalc NOT = the reciprocal x -> 1/x, conductance <-> resistance (kernel.py:3-9, NOT = lambda x: 1/x; exact.py:103 G_NOT = swap of the (n,d) halves, det -1); OR = parallel (add), AND = series ab/(a+b) = Kron/Schur reduction of a degree-2 node (laws.py:293-300); De Morgan from the involution alone; sign is a parity bit, never a negative value (symbolic.py:56, 238). So \"apart\" = NOT(near) = resistance between the two slot nodes, a lower bound on gcalc.solver.r_eff - a positive-cone quantity, not the exclusion of a ball. The ball is the coordinate picture; it vanishes when separation is read as a resistance between nodes. Open: measure that a lower bound on r_eff behaves as a usable constraint in this solve (effective conductance = min energy over potentials), not asserted.",
       "issued_at": "2026-10-02T03:43:59Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T03:44:25Z",
+      "last_worked": "2026-10-02T03:50:02Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
-      "weight": 12
+      "weight": 13
     }
   ],
   "residue": [
