@@ -51,6 +51,14 @@
   check   = {tool:opa_gate.py metrics}
 }
 
+% W160, 2026-10-02: the palette as W3C DTCG design tokens, one file for design tools
+% and the engine adapters (W151 adds the material group).
+@misc{DTCG,
+  section = {emitters},
+  claim   = {catalog/el-openglo.tokens.json carries every declared variant as valid DTCG colours and both solved alphas, and equals a fresh emission},
+  check   = {tool:opa_gate.py tokens}
+}
+
 @misc{MARK-SEES,
   section = {rename},
   claim   = {the scrub's own scan is proven able to SEE the mark, so its all-clear is a measurement rather than a blind spot},

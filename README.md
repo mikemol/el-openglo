@@ -39,6 +39,7 @@ The generator roster as `emitters.py` declares it — every module, its role, an
 | make_plymouth | emitter |  |
 | make_sddm | emitter |  |
 | make_taskswitch | emitter |  |
+| make_tokens | emitter | the palette as W3C DTCG design tokens, from GRID (W160) |
 | make_union | emitter | Union styles: Breeze with its alphas solved, from the schemes (W14) |
 | make_wallpaper | emitter | wallpaper; sources tokens with a standalone fallback |
 | make_wallpaper_live | emitter |  |

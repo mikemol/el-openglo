@@ -102,6 +102,7 @@ ORDER = (
     ("make_clock",     "the segment-clock plasmoid packages (plasma-clock/), from GRID"),
     ("make_metrics",   "the VictoriaMetrics plasmoid (plasma-metrics/); endpoint asked of luthen at runtime (W77)"),
     ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
+    ("make_tokens",    "the palette as W3C DTCG design tokens, from GRID (W160)"),
     ("make_union",     "Union styles: Breeze with its alphas solved, from the schemes (W14)"),
     ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),
     ("make_firefox",   "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
@@ -139,6 +140,7 @@ ROLES = {
     "make_chrome":          "emitter",
     "make_clock":           "emitter",
     "make_css":             "emitter",
+    "make_tokens":          "emitter",     # W3C DTCG design tokens from GRID (W160)
     "make_cursors":         "emitter",     # phosphor XCursor glyphs per variant (W36)
     "make_firefox":         "emitter",
     "make_gtk":             "emitter",

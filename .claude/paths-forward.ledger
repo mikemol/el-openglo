@@ -532,3 +532,5 @@
 2026-10-02T12:46:09Z  hash  --   diverged  --        "divergence: payload v2:199331094a57fb41, file v2:3826a582d2562071; the FILE wins"
 2026-10-02T12:49:33Z  tick  W186 done      unblock   "Body.replaceSpan landed (pure prefix/suffix span), 8 cases measured headless, policy M10 with refuse/admit tests 43/43; first step of the W183 roll chain"  evidence=opa_gate marquee_body admitted; opa test 43/43
 2026-10-02T13:15:54Z  tick  W151 advanced  collapse  "W151 and W160 are one artifact (DTCG tokens.json) with two consumers; W160 is the producer, W151 the material group within it; edge W160 -> W151 instead of a second emitter"  evidence=W160 next step; W151 title "ideally the same DTCG token file"
+2026-10-02T13:27:49Z  hash  --   diverged  --        "divergence: payload v2:8bdda7d4be66f78c, file v2:cac9ef11820ba3da; the FILE wins"
+2026-10-02T13:30:13Z  tick  W160 advanced  unblock   "DTCG tokens.json emitted from GRID for 6 variants, registered everywhere the gates ask, checked by check_tokens + policy/tokens (6 of 6, 16/16 tests); unblocks W151 material group"  evidence=opa_gate tokens 6 admitted; codomain, token_source, publishing, readme admitted

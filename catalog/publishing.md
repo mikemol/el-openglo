@@ -35,6 +35,7 @@ Tags on the venue column are the letter's: **[OCS]** read from the store's API,
 | make_font | EL-Segment-{7,16}.ttf, EL-Matrix-5x7.ttf (+ SVG fonts) | GitHub release assets — the KDE Store listing has NO font category (`check_publishing --categories font`: 0 of 167) [OCS ABS] | — | GPL-3 (glyphs are the substrate's) | specimen render (check_font --render) | ships in the package |
 | make_gtk | gtk3.css / gtk4.css ×6 | gnome-look.org (GTK3/4 Themes category) [MEM] — or the user's `~/.config/gtk-{3,4}.0/gtk.css` via el-openglo-apply | — | GPL-3 | screenshot | ships in the package |
 | make_css | `el-openglo.css` | the operator's site | consumed directly (W19) | — | — | — | ships |
+| make_tokens | `el-openglo.tokens.json` (W3C DTCG) | the operator's site + GitHub release assets | consumed directly by design tools (Figma/Penpot importers, Style Dictionary) and the engine adapters (W151); no store category | — | Apache-2.0 | — | ships |
 | make_union | Union styles ×6 | none yet | Union has no theme venue in 6.7.5 (styles are found by UNION_STYLE_NAME) | — | GPL-3 | — | ships in the package |
 | make_windows | `.theme` ×6 | GitHub release assets | Microsoft has no third-party theme venue | — | — | DesktopBackground png | ships in the package |
 | make_deb | Kubuntu `.deb` | self-hosted | Debian discourages advertising uploads [WEB]; mentors.debian.net if a request appears | — | DFSG | — | self-hosted |
