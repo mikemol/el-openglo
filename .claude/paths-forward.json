@@ -5148,7 +5148,7 @@
     },
     {
       "symbol": "W236",
-      "title": "check_action_key withholds a probe result lacking guest_digest and deb_sha256 (guest-image.md G5, W71d)",
+      "title": "A serial boot whose el.ident cannot name its build (deb_sha256, git_rev, snapshot) is withheld, not judged (G5, W71d)",
       "status": "working",
       "enables": [
         "W71"
@@ -5159,12 +5159,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "check_action_key reads a probe result guest identity (el.ident guest.deb_sha256 + the image digest) and the policy withholds a result missing either; refusing + admitting rego tests.",
-      "evidence": "",
+      "next_bounded_step": "Close.",
+      "evidence": "2026-10-02: 2026-10-02: read_serial reports el.ident guest on each case; policy/serial.rego withholds a boot missing any of deb_sha256/git_rev/snapshot (two new tests: partial identity, no guest object; fixtures carry ident; opa 27/27). End to end: clean.log admitted, reporter log 5 of 5, noise-only still S0, read_serial selftest PASS. RESCOPED from check_action_key: the image digest cannot live in the image, so the launcher pairs it with the log - luthen-observability:W127 told. guest-image.md G5 rewritten.",
       "issued_at": "2026-10-02T15:43:01Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T16:58:40Z",
+      "last_worked": "2026-10-02T17:09:56Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",

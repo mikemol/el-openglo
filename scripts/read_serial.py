@@ -162,6 +162,7 @@ def _case(spec, boot, frames):
     for fr in good:
         kinds[fr[2]] = kinds.get(fr[2], 0) + 1
     return {"boot": boot, "probe": idents[0][3]["probe"] if idents else None,
+            "guest": idents[0][3]["guest"] if idents else None,
             "frames": len(frames), "seq_max": max(seqs), "kinds": kinds, "done": done,
             "blobs": [] if withheld else [verified[k] for k in sorted(verified, key=lambda b: int(b[1:]))],
             "withheld": withheld}

@@ -370,9 +370,12 @@ and `make_sddm.py` before being written down as gaps:
   `scripts/check_guest_recipe.py` (`opa_gate guest_recipe`) refuses an unpinned snapshot
   or a live mirror, and `--plan` prints the mmdebstrap command. The build itself and
   `catalog/guest-image.json` are el-openglo:W235's remaining step.
-- **G5: no probe-side reader of the guest digest.** `check_action_key.py` reads
-  `host.json` only. It needs to read the guest identity for probe results in the
-  same way. The `el.ident` record (f) is where a probe result gets it.
+- **G5: the guest identity is read and required; the digest pairing is the harness's
+  (W236).** `read_serial.py` reports `el.ident`'s `guest` object on each boot, and
+  `policy/serial.rego` WITHHOLDS a boot whose identity lacks `deb_sha256`, `git_rev` or
+  `snapshot`: such a result cannot name the build it measured. The image DIGEST cannot
+  be inside the image it identifies, so the harness that launched the VMI pairs it with
+  the log (luthen-observability:W127); `check_action_key.py` stays host.json's reader.
 - **G6: the serial units exist (W237).** `guest/el-reporter.sh` (system and session
   sides; it reports what it observes, the requirement stays in `policy/serial.rego`),
   `guest/el-serial.service` and the user unit `guest/el-serial-session.service`, installed

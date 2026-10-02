@@ -6,8 +6,10 @@ package el.serial_test
 import data.el.serial
 import rego.v1
 
+ident := {"deb_sha256": "ab", "git_rev": "4abcb5b", "snapshot": "20260920T000000Z"}
+
 p2 := {
-	"boot": "b-1", "probe": "P2", "withheld": [],
+	"boot": "b-1", "probe": "P2", "withheld": [], "guest": ident,
 	"kinds": {"el.ident": 1, "el.session": 1, "el.settled": 1, "el.journal": 1, "el.file": 1, "el.done": 1},
 	"done": {"seq": 20, "probe": "P2", "records": 20},
 }
@@ -19,7 +21,7 @@ test_admits_a_complete_p2 if {
 }
 
 p1_greeter_only := {
-	"boot": "b-p1", "probe": "P1", "withheld": [],
+	"boot": "b-p1", "probe": "P1", "withheld": [], "guest": ident,
 	"kinds": {"el.ident": 1, "el.greeter": 1, "el.journal": 1, "el.done": 1},
 	"done": {"seq": 9, "probe": "P1", "records": 9},
 }
@@ -32,6 +34,20 @@ test_s3_refuses_a_p1_whose_greeter_appeared_but_no_login if {
 test_admits_a_p1_that_logged_in if {
 	c := object.union(p1_greeter_only, {"kinds": object.union(p1_greeter_only.kinds, {"el.session": 1})})
 	serial.admitted == {"b-p1"} with input as {"cases": [c]}
+}
+
+test_withholds_a_boot_that_cannot_name_its_build if {
+	# object.union merges nested objects, so replace `guest` rather than union into it
+	c := object.union(object.remove(p2, ["guest"]), {"guest": {"git_rev": "4abcb5b", "snapshot": ""}})
+	"boot b-1: el.ident guest identity lacks [\"deb_sha256\", \"snapshot\"]; the result cannot name the build it measured" in serial.withheld with input as {"cases": [c]}
+	count(serial.admitted) == 0 with input as {"cases": [c]}
+	count(serial.deny) == 0 with input as {"cases": [c]}
+}
+
+test_withholds_a_boot_with_no_guest_object if {
+	c := object.remove(p2, ["guest"])
+	count(serial.admitted) == 0 with input as {"cases": [c]}
+	count(serial.withheld) == 1 with input as {"cases": [c]}
 }
 
 test_s0_refuses_empty_population if {
@@ -63,7 +79,7 @@ test_s3_refuses_a_missing_required_kind if {
 }
 
 test_s3_admits_p3_without_session_kinds if {
-	c := {"boot": "b-3", "probe": "P3", "withheld": [], "kinds": {"el.ident": 1, "el.journal": 1, "el.done": 1}, "done": {"seq": 9, "probe": "P3", "records": 9}}
+	c := {"boot": "b-3", "probe": "P3", "withheld": [], "guest": ident, "kinds": {"el.ident": 1, "el.journal": 1, "el.done": 1}, "done": {"seq": 9, "probe": "P3", "records": 9}}
 	serial.admitted == {"b-3"} with input as {"cases": [c]}
 }
 

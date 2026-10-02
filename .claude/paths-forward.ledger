@@ -563,3 +563,5 @@
 2026-10-02T16:48:27Z  tick  W238 advanced  collapse  "RFB client is the harness owner (luthen W127); delivered p1-input.json; found+fixed P1 ending before login in reporter and policy"
 2026-10-02T16:57:14Z  tick  W238 done      collapse  "P1 input contract delivered; RFB client owned by luthen W127"  evidence=commit: W238 P1 input contract
 2026-10-02T16:58:06Z  tick  W233 atomized  collapse  "W95 merged into W233 (same retirement); W138 narrowed to the struct-tools skip"
+2026-10-02T17:08:14Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:b5fe685d1c56d475; the FILE wins"
+2026-10-02T17:09:56Z  tick  W236 advanced  unblock   "el.ident guest identity required (withheld if absent); digest pairing handed to luthen W127"

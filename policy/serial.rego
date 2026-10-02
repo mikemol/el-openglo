@@ -28,6 +28,29 @@ measured(c) if {
 
 held(c) if truth.py(object.get(c, "withheld", null))
 
+# ⚑ A RESULT THAT CANNOT NAME WHAT IT MEASURED IS WITHHELD, NOT PASSED (guest-image.md
+# (c); W236). el.ident's `guest` object (the image's /etc/el-openglo-guest.json) must
+# name the theme build and the image's inputs; the image DIGEST cannot live inside the
+# image, so the harness pairs it with the log (luthen-observability:W127).
+identity_keys := ["deb_sha256", "git_rev", "snapshot"]
+
+guest_of(c) := g if {
+	g := object.get(c, "guest", null)
+	is_object(g)
+} else := {}
+
+missing_identity(c) := [k |
+	some k in identity_keys
+	not nonempty(object.get(guest_of(c), k, ""))
+]
+
+nonempty(v) if {
+	is_string(v)
+	v != ""
+}
+
+held(c) if count(missing_identity(c)) > 0
+
 # the boots a rule may judge: fully measured, nothing withheld on them. A boot
 # with a gap or a bad frame is WITHHELD only — its facts are not partial data
 # to be denied on (a missing el.done beside a gap is the gap's consequence).
@@ -100,6 +123,14 @@ withheld contains msg if {
 	held(c)
 	some r in c.withheld
 	msg := sprintf("boot %s: %s", [c.boot, r])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	measured(c)
+	ks := missing_identity(c)
+	count(ks) > 0
+	msg := sprintf("boot %v: el.ident guest identity lacks %v; the result cannot name the build it measured", [c.boot, ks])
 }
 
 withheld contains msg if {
