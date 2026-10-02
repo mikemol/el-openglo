@@ -1,0 +1,950 @@
+diff --git a/EL-Amber-Lit.colors b/EL-Amber-Lit.colors
+index 12267e6..b53a742 100644
+--- a/EL-Amber-Lit.colors
++++ b/EL-Amber-Lit.colors
+@@ -25,12 +25,12 @@ DecorationFocus=76,48,8
+ DecorationHover=141,89,15
+ ForegroundActive=76,48,8
+ ForegroundInactive=124,102,72
+-ForegroundLink=10,27,64
+-ForegroundNegative=128,64,78
+-ForegroundNeutral=89,78,0
++ForegroundLink=24,65,82
++ForegroundNegative=10,8,8
++ForegroundNeutral=53,61,40
+ ForegroundNormal=41,24,0
+-ForegroundPositive=32,64,41
+-ForegroundVisited=0,68,140
++ForegroundPositive=31,102,52
++ForegroundVisited=0,20,245
+ 
+ [Colors:Complementary]
+ BackgroundAlternate=234,205,165
+@@ -39,12 +39,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=255,212,153
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [Colors:Header]
+ BackgroundAlternate=232,200,157
+@@ -53,12 +53,12 @@ DecorationFocus=76,48,8
+ DecorationHover=141,89,15
+ ForegroundActive=76,48,8
+ ForegroundInactive=124,102,72
+-ForegroundLink=10,27,64
+-ForegroundNegative=128,64,78
+-ForegroundNeutral=89,78,0
++ForegroundLink=24,65,82
++ForegroundNegative=10,8,8
++ForegroundNeutral=53,61,40
+ ForegroundNormal=41,24,0
+-ForegroundPositive=32,64,41
+-ForegroundVisited=0,68,140
++ForegroundPositive=31,102,52
++ForegroundVisited=0,20,245
+ 
+ [Colors:Header][Inactive]
+ BackgroundAlternate=232,200,157
+@@ -67,12 +67,12 @@ DecorationFocus=76,48,8
+ DecorationHover=141,89,15
+ ForegroundActive=76,48,8
+ ForegroundInactive=124,102,72
+-ForegroundLink=10,27,64
+-ForegroundNegative=128,64,78
+-ForegroundNeutral=89,78,0
++ForegroundLink=24,65,82
++ForegroundNegative=10,8,8
++ForegroundNeutral=53,61,40
+ ForegroundNormal=124,102,72
+-ForegroundPositive=32,64,41
+-ForegroundVisited=0,68,140
++ForegroundPositive=31,102,52
++ForegroundVisited=0,20,245
+ 
+ [Colors:Selection]
+ BackgroundAlternate=53,33,6
+@@ -82,10 +82,10 @@ DecorationHover=141,89,15
+ ForegroundActive=221,172,107
+ ForegroundInactive=156,128,88
+ ForegroundLink=235,207,169
+-ForegroundNegative=247,162,124
+-ForegroundNeutral=230,188,115
++ForegroundNegative=255,166,186
++ForegroundNeutral=255,243,128
+ ForegroundNormal=235,207,169
+-ForegroundPositive=0,247,8
++ForegroundPositive=0,255,8
+ ForegroundVisited=187,159,121
+ 
+ [Colors:Tooltip]
+@@ -96,10 +96,10 @@ DecorationHover=141,89,15
+ ForegroundActive=221,172,107
+ ForegroundInactive=156,128,88
+ ForegroundLink=235,207,169
+-ForegroundNegative=247,162,124
+-ForegroundNeutral=230,188,115
++ForegroundNegative=255,166,186
++ForegroundNeutral=255,243,128
+ ForegroundNormal=235,207,169
+-ForegroundPositive=0,247,8
++ForegroundPositive=0,255,8
+ ForegroundVisited=187,159,121
+ 
+ [Colors:View]
+@@ -109,12 +109,12 @@ DecorationFocus=76,48,8
+ DecorationHover=141,89,15
+ ForegroundActive=76,48,8
+ ForegroundInactive=124,102,72
+-ForegroundLink=10,27,64
+-ForegroundNegative=128,64,78
+-ForegroundNeutral=89,78,0
++ForegroundLink=24,65,82
++ForegroundNegative=10,8,8
++ForegroundNeutral=53,61,40
+ ForegroundNormal=41,24,0
+-ForegroundPositive=32,64,41
+-ForegroundVisited=0,68,140
++ForegroundPositive=31,102,52
++ForegroundVisited=0,20,245
+ 
+ [Colors:Window]
+ BackgroundAlternate=231,198,153
+@@ -123,12 +123,12 @@ DecorationFocus=76,48,8
+ DecorationHover=141,89,15
+ ForegroundActive=76,48,8
+ ForegroundInactive=124,102,72
+-ForegroundLink=10,27,64
+-ForegroundNegative=128,64,78
+-ForegroundNeutral=89,78,0
++ForegroundLink=24,65,82
++ForegroundNegative=10,8,8
++ForegroundNeutral=53,61,40
+ ForegroundNormal=41,24,0
+-ForegroundPositive=32,64,41
+-ForegroundVisited=0,68,140
++ForegroundPositive=31,102,52
++ForegroundVisited=0,20,245
+ 
+ [General]
+ ColorScheme=EL-Amber-Lit
+diff --git a/EL-Amber.colors b/EL-Amber.colors
+index 5cdec91..6368bd4 100644
+--- a/EL-Amber.colors
++++ b/EL-Amber.colors
+@@ -25,12 +25,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=255,212,153
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [Colors:Complementary]
+ BackgroundAlternate=24,18,9
+@@ -39,12 +39,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=255,212,153
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [Colors:Header]
+ BackgroundAlternate=31,23,12
+@@ -53,12 +53,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=255,212,153
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [Colors:Header][Inactive]
+ BackgroundAlternate=31,23,12
+@@ -67,12 +67,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=229,191,137
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [Colors:Selection]
+ BackgroundAlternate=249,166,50
+@@ -82,10 +82,10 @@ DecorationHover=167,99,5
+ ForegroundActive=0,0,0
+ ForegroundInactive=135,96,42
+ ForegroundLink=20,15,8
+-ForegroundNegative=87,26,40
+-ForegroundNeutral=87,53,0
++ForegroundNegative=51,33,35
++ForegroundNeutral=71,57,36
+ ForegroundNormal=20,15,8
+-ForegroundPositive=0,87,14
++ForegroundPositive=4,41,0
+ ForegroundVisited=89,64,28
+ 
+ [Colors:Tooltip]
+@@ -96,10 +96,10 @@ DecorationHover=167,99,5
+ ForegroundActive=0,0,0
+ ForegroundInactive=135,96,42
+ ForegroundLink=20,15,8
+-ForegroundNegative=87,26,40
+-ForegroundNeutral=87,53,0
++ForegroundNegative=51,33,35
++ForegroundNeutral=71,57,36
+ ForegroundNormal=20,15,8
+-ForegroundPositive=0,87,14
++ForegroundPositive=4,41,0
+ ForegroundVisited=89,64,28
+ 
+ [Colors:View]
+@@ -109,12 +109,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=255,212,153
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [Colors:Window]
+ BackgroundAlternate=35,26,13
+@@ -123,12 +123,12 @@ DecorationFocus=250,177,75
+ DecorationHover=167,99,5
+ ForegroundActive=250,177,75
+ ForegroundInactive=229,191,137
+-ForegroundLink=115,189,230
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=212,170,106
++ForegroundLink=107,130,143
++ForegroundNegative=245,43,0
++ForegroundNeutral=143,123,93
+ ForegroundNormal=255,212,153
+-ForegroundPositive=86,140,70
+-ForegroundVisited=74,129,247
++ForegroundPositive=138,184,158
++ForegroundVisited=77,133,255
+ 
+ [General]
+ ColorScheme=EL-Amber
+diff --git a/EL-Azure-Lit.colors b/EL-Azure-Lit.colors
+index 0c7cdc8..5b74d5b 100644
+--- a/EL-Azure-Lit.colors
++++ b/EL-Azure-Lit.colors
+@@ -25,12 +25,12 @@ DecorationFocus=8,42,76
+ DecorationHover=16,83,150
+ ForegroundActive=8,42,76
+ ForegroundInactive=66,92,117
+-ForegroundLink=11,71,76
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,41,26
++ForegroundLink=85,66,133
++ForegroundNegative=10,4,0
++ForegroundNeutral=51,47,38
+ ForegroundNormal=0,20,41
+-ForegroundPositive=62,89,45
+-ForegroundVisited=79,0,153
++ForegroundPositive=29,92,14
++ForegroundVisited=4,0,235
+ 
+ [Colors:Complementary]
+ BackgroundAlternate=165,199,234
+@@ -39,12 +39,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,204,255
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [Colors:Header]
+ BackgroundAlternate=157,194,232
+@@ -53,12 +53,12 @@ DecorationFocus=8,42,76
+ DecorationHover=16,83,150
+ ForegroundActive=8,42,76
+ ForegroundInactive=66,92,117
+-ForegroundLink=11,71,76
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,41,26
++ForegroundLink=85,66,133
++ForegroundNegative=10,4,0
++ForegroundNeutral=51,47,38
+ ForegroundNormal=0,20,41
+-ForegroundPositive=62,89,45
+-ForegroundVisited=79,0,153
++ForegroundPositive=29,92,14
++ForegroundVisited=4,0,235
+ 
+ [Colors:Header][Inactive]
+ BackgroundAlternate=157,194,232
+@@ -67,12 +67,12 @@ DecorationFocus=8,42,76
+ DecorationHover=16,83,150
+ ForegroundActive=8,42,76
+ ForegroundInactive=66,92,117
+-ForegroundLink=11,71,76
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,41,26
++ForegroundLink=85,66,133
++ForegroundNegative=10,4,0
++ForegroundNeutral=51,47,38
+ ForegroundNormal=66,92,117
+-ForegroundPositive=62,89,45
+-ForegroundVisited=79,0,153
++ForegroundPositive=29,92,14
++ForegroundVisited=4,0,235
+ 
+ [Colors:Selection]
+ BackgroundAlternate=6,29,53
+@@ -82,10 +82,10 @@ DecorationHover=16,83,150
+ ForegroundActive=107,164,221
+ ForegroundInactive=88,122,156
+ ForegroundLink=169,202,235
+-ForegroundNegative=247,145,124
+-ForegroundNeutral=194,170,0
++ForegroundNegative=214,161,173
++ForegroundNeutral=255,239,191
+ ForegroundNormal=169,202,235
+-ForegroundPositive=92,247,74
++ForegroundPositive=37,245,44
+ ForegroundVisited=121,154,187
+ 
+ [Colors:Tooltip]
+@@ -96,10 +96,10 @@ DecorationHover=16,83,150
+ ForegroundActive=107,164,221
+ ForegroundInactive=88,122,156
+ ForegroundLink=169,202,235
+-ForegroundNegative=247,145,124
+-ForegroundNeutral=194,170,0
++ForegroundNegative=214,161,173
++ForegroundNeutral=255,239,191
+ ForegroundNormal=169,202,235
+-ForegroundPositive=92,247,74
++ForegroundPositive=37,245,44
+ ForegroundVisited=121,154,187
+ 
+ [Colors:View]
+@@ -109,12 +109,12 @@ DecorationFocus=8,42,76
+ DecorationHover=16,83,150
+ ForegroundActive=8,42,76
+ ForegroundInactive=66,92,117
+-ForegroundLink=11,71,76
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,41,26
++ForegroundLink=85,66,133
++ForegroundNegative=10,4,0
++ForegroundNeutral=51,47,38
+ ForegroundNormal=0,20,41
+-ForegroundPositive=62,89,45
+-ForegroundVisited=79,0,153
++ForegroundPositive=29,92,14
++ForegroundVisited=4,0,235
+ 
+ [Colors:Window]
+ BackgroundAlternate=153,191,231
+@@ -123,12 +123,12 @@ DecorationFocus=8,42,76
+ DecorationHover=16,83,150
+ ForegroundActive=8,42,76
+ ForegroundInactive=66,92,117
+-ForegroundLink=11,71,76
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,41,26
++ForegroundLink=85,66,133
++ForegroundNegative=10,4,0
++ForegroundNeutral=51,47,38
+ ForegroundNormal=0,20,41
+-ForegroundPositive=62,89,45
+-ForegroundVisited=79,0,153
++ForegroundPositive=29,92,14
++ForegroundVisited=4,0,235
+ 
+ [General]
+ ColorScheme=EL-Azure-Lit
+diff --git a/EL-Azure.colors b/EL-Azure.colors
+index 7d1ce47..2f0a54b 100644
+--- a/EL-Azure.colors
++++ b/EL-Azure.colors
+@@ -25,12 +25,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,204,255
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [Colors:Complementary]
+ BackgroundAlternate=9,17,24
+@@ -39,12 +39,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,204,255
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [Colors:Header]
+ BackgroundAlternate=12,22,31
+@@ -53,12 +53,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,204,255
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [Colors:Header][Inactive]
+ BackgroundAlternate=12,22,31
+@@ -67,12 +67,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,203,254
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [Colors:Selection]
+ BackgroundAlternate=50,149,249
+@@ -82,10 +82,10 @@ DecorationHover=6,111,217
+ ForegroundActive=0,0,0
+ ForegroundInactive=42,88,135
+ ForegroundLink=8,14,20
+-ForegroundNegative=87,4,0
+-ForegroundNeutral=246,247,124
++ForegroundNegative=71,3,0
++ForegroundNeutral=10,10,2
+ ForegroundNormal=8,14,20
+-ForegroundPositive=8,51,15
++ForegroundPositive=9,31,21
+ ForegroundVisited=28,58,89
+ 
+ [Colors:Tooltip]
+@@ -96,10 +96,10 @@ DecorationHover=6,111,217
+ ForegroundActive=0,0,0
+ ForegroundInactive=42,88,135
+ ForegroundLink=8,14,20
+-ForegroundNegative=87,4,0
+-ForegroundNeutral=246,247,124
++ForegroundNegative=71,3,0
++ForegroundNeutral=10,10,2
+ ForegroundNormal=8,14,20
+-ForegroundPositive=8,51,15
++ForegroundPositive=9,31,21
+ ForegroundVisited=28,58,89
+ 
+ [Colors:View]
+@@ -109,12 +109,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,204,255
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [Colors:Window]
+ BackgroundAlternate=13,25,35
+@@ -123,12 +123,12 @@ DecorationFocus=75,162,250
+ DecorationHover=6,111,217
+ ForegroundActive=75,162,250
+ ForegroundInactive=153,203,254
+-ForegroundLink=79,130,158
+-ForegroundNegative=247,0,56
+-ForegroundNeutral=212,170,106
++ForegroundLink=115,129,153
++ForegroundNegative=245,159,178
++ForegroundNeutral=173,126,52
+ ForegroundNormal=153,204,255
+-ForegroundPositive=0,247,41
+-ForegroundVisited=143,106,212
++ForegroundPositive=206,255,191
++ForegroundVisited=73,128,245
+ 
+ [General]
+ ColorScheme=EL-Azure
+diff --git a/EL-Openglo-Lit.colors b/EL-Openglo-Lit.colors
+index 64936c3..971f518 100644
+--- a/EL-Openglo-Lit.colors
++++ b/EL-Openglo-Lit.colors
+@@ -25,12 +25,12 @@ DecorationFocus=8,76,63
+ DecorationHover=14,131,109
+ ForegroundActive=8,76,63
+ ForegroundInactive=76,129,118
+-ForegroundLink=0,86,140
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,31,0
++ForegroundLink=61,68,82
++ForegroundNegative=51,14,0
++ForegroundNeutral=71,57,21
+ ForegroundNormal=0,41,33
+-ForegroundPositive=58,89,45
+-ForegroundVisited=0,13,153
++ForegroundPositive=0,112,45
++ForegroundVisited=38,56,255
+ 
+ [Colors:Complementary]
+ BackgroundAlternate=165,234,219
+@@ -39,12 +39,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=153,255,235
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [Colors:Header]
+ BackgroundAlternate=157,232,216
+@@ -53,12 +53,12 @@ DecorationFocus=8,76,63
+ DecorationHover=14,131,109
+ ForegroundActive=8,76,63
+ ForegroundInactive=76,129,118
+-ForegroundLink=0,86,140
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,31,0
++ForegroundLink=61,68,82
++ForegroundNegative=51,14,0
++ForegroundNeutral=71,57,21
+ ForegroundNormal=0,41,33
+-ForegroundPositive=58,89,45
+-ForegroundVisited=0,13,153
++ForegroundPositive=0,112,45
++ForegroundVisited=38,56,255
+ 
+ [Colors:Header][Inactive]
+ BackgroundAlternate=157,232,216
+@@ -67,12 +67,12 @@ DecorationFocus=8,76,63
+ DecorationHover=14,131,109
+ ForegroundActive=8,76,63
+ ForegroundInactive=76,129,118
+-ForegroundLink=0,86,140
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,31,0
++ForegroundLink=61,68,82
++ForegroundNegative=51,14,0
++ForegroundNeutral=71,57,21
+ ForegroundNormal=76,129,118
+-ForegroundPositive=58,89,45
+-ForegroundVisited=0,13,153
++ForegroundPositive=0,112,45
++ForegroundVisited=38,56,255
+ 
+ [Colors:Selection]
+ BackgroundAlternate=6,53,44
+@@ -82,10 +82,10 @@ DecorationHover=14,131,109
+ ForegroundActive=107,221,196
+ ForegroundInactive=88,156,142
+ ForegroundLink=169,235,221
+-ForegroundNegative=247,162,124
+-ForegroundNeutral=247,215,124
++ForegroundNegative=255,211,191
++ForegroundNeutral=255,239,191
+ ForegroundNormal=169,235,221
+-ForegroundPositive=86,247,37
++ForegroundPositive=26,255,0
+ ForegroundVisited=121,187,174
+ 
+ [Colors:Tooltip]
+@@ -96,10 +96,10 @@ DecorationHover=14,131,109
+ ForegroundActive=107,221,196
+ ForegroundInactive=88,156,142
+ ForegroundLink=169,235,221
+-ForegroundNegative=247,162,124
+-ForegroundNeutral=247,215,124
++ForegroundNegative=255,211,191
++ForegroundNeutral=255,239,191
+ ForegroundNormal=169,235,221
+-ForegroundPositive=86,247,37
++ForegroundPositive=26,255,0
+ ForegroundVisited=121,187,174
+ 
+ [Colors:View]
+@@ -109,12 +109,12 @@ DecorationFocus=8,76,63
+ DecorationHover=14,131,109
+ ForegroundActive=8,76,63
+ ForegroundInactive=76,129,118
+-ForegroundLink=0,86,140
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,31,0
++ForegroundLink=61,68,82
++ForegroundNegative=51,14,0
++ForegroundNeutral=71,57,21
+ ForegroundNormal=0,41,33
+-ForegroundPositive=58,89,45
+-ForegroundVisited=0,13,153
++ForegroundPositive=0,112,45
++ForegroundVisited=38,56,255
+ 
+ [Colors:Window]
+ BackgroundAlternate=153,231,214
+@@ -123,12 +123,12 @@ DecorationFocus=8,76,63
+ DecorationHover=14,131,109
+ ForegroundActive=8,76,63
+ ForegroundInactive=76,129,118
+-ForegroundLink=0,86,140
+-ForegroundNegative=153,11,0
+-ForegroundNeutral=51,31,0
++ForegroundLink=61,68,82
++ForegroundNegative=51,14,0
++ForegroundNeutral=71,57,21
+ ForegroundNormal=0,41,33
+-ForegroundPositive=58,89,45
+-ForegroundVisited=0,13,153
++ForegroundPositive=0,112,45
++ForegroundVisited=38,56,255
+ 
+ [General]
+ ColorScheme=EL-Openglo-Lit
+diff --git a/EL-Openglo.colors b/EL-Openglo.colors
+index 601c4cb..b286258 100644
+--- a/EL-Openglo.colors
++++ b/EL-Openglo.colors
+@@ -25,12 +25,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=153,255,235
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [Colors:Complementary]
+ BackgroundAlternate=9,24,20
+@@ -39,12 +39,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=153,255,235
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [Colors:Header]
+ BackgroundAlternate=12,31,26
+@@ -53,12 +53,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=153,255,235
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [Colors:Header][Inactive]
+ BackgroundAlternate=12,31,26
+@@ -67,12 +67,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=126,211,195
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [Colors:Selection]
+ BackgroundAlternate=50,249,209
+@@ -82,10 +82,10 @@ DecorationHover=4,128,103
+ ForegroundActive=0,0,0
+ ForegroundInactive=42,135,116
+ ForegroundLink=8,20,17
+-ForegroundNegative=115,57,70
+-ForegroundNeutral=51,41,26
++ForegroundNegative=163,0,37
++ForegroundNeutral=31,28,0
+ ForegroundNormal=8,20,17
+-ForegroundPositive=44,76,23
++ForegroundPositive=24,82,0
+ ForegroundVisited=28,89,76
+ 
+ [Colors:Tooltip]
+@@ -96,10 +96,10 @@ DecorationHover=4,128,103
+ ForegroundActive=0,0,0
+ ForegroundInactive=42,135,116
+ ForegroundLink=8,20,17
+-ForegroundNegative=115,57,70
+-ForegroundNeutral=51,41,26
++ForegroundNegative=163,0,37
++ForegroundNeutral=31,28,0
+ ForegroundNormal=8,20,17
+-ForegroundPositive=44,76,23
++ForegroundPositive=24,82,0
+ ForegroundVisited=28,89,76
+ 
+ [Colors:View]
+@@ -109,12 +109,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=153,255,235
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [Colors:Window]
+ BackgroundAlternate=13,35,29
+@@ -123,12 +123,12 @@ DecorationFocus=75,250,215
+ DecorationHover=4,128,103
+ ForegroundActive=75,250,215
+ ForegroundInactive=126,211,195
+-ForegroundLink=124,171,247
+-ForegroundNegative=247,43,0
+-ForegroundNeutral=158,127,79
++ForegroundLink=107,130,143
++ForegroundNegative=255,11,0
++ForegroundNeutral=255,199,38
+ ForegroundNormal=153,255,235
+-ForegroundPositive=34,230,41
+-ForegroundVisited=74,129,247
++ForegroundPositive=126,194,155
++ForegroundVisited=195,168,224
+ 
+ [General]
+ ColorScheme=EL-Openglo
+diff --git a/make_palette.py b/make_palette.py
+index 1eaea8e..1a10bde 100644
+--- a/make_palette.py
++++ b/make_palette.py
+@@ -247,8 +247,14 @@ def _candidates(sector, ground, min_contrast, hot, contrast_fn=None):
+     # semantic sector (e.g. blue azure phosphor vs the blue `link` sector), the
+     # only way to separate is by LIGHTNESS, so we must not starve the value axis.
+     span = range(-24, 25, 8) if dark else range(-40, 41, 6)
+-    sats = (0.5, 0.7, 0.85, 1.0)
+-    vs = range(34, 101, 7) if dark else range(20, 64, 5)
++    # ⚑ BOTH ROOTS (W220, operator 2026-10-02). |contrast| >= floor is met by text
++    # lighter AND darker than the ground; `vs` used to follow `dark` (34-100 on a
++    # dark ground, 20-63 on a light one), one root guessed from L < 0.4, and the
++    # sats began at 0.5, so a sector's pale tints were never offered. Measured by
++    # check_solver_roots: 7 of 96 slot-sides had a reachable root with 0
++    # candidates, among them both selection-floor ceiling binders.
++    sats = (0.25, 0.35, 0.5, 0.7, 0.85, 1.0)
++    vs = range(4, 101, 4)        # ends ON 1.0: a pale root can need full value
+     out = []
+     _floors = C.reference_floors() if hot is not None else None
+     for dh in span:
+@@ -281,10 +287,17 @@ def _candidates(sector, ground, min_contrast, hot, contrast_fn=None):
+     # cap to a diverse subset (even stride keeps the value/hue spread) — the
+     # max-min search cost is superlinear in candidate count, and ~40 well-spread
+     # candidates carry the same reachable optima as hundreds.
+-    if len(out) > 40:
+-        stride = len(out) / 40.0
+-        out = [out[int(i * stride)] for i in range(40)]
+-    return out
++    # the cap is PER ROOT, so the stride cannot thin one side out of existence
++    lighter = [c for c in out if C._wcag_L(c) > C._wcag_L(ground)]
++    darker = [c for c in out if C._wcag_L(c) <= C._wcag_L(ground)]
++
++    def _cap(xs, other):
++        n = 20 if other else 40      # a lone root keeps the whole budget
++        if len(xs) <= n:
++            return xs
++        stride = len(xs) / float(n)
++        return [xs[int(i * stride)] for i in range(n)]
++    return _cap(lighter, darker) + _cap(darker, lighter)
+ 
+ 
+ _DE_CACHE = {}
+@@ -334,7 +347,9 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
+                 # bright green at 1.77:1 (W10). Offer both tones and the darkest,
+                 # and take the one that contrasts MOST with this ground.
+                 h = _sector_hue(sectors[k])
+-                cands[k] = [max((_hsv(h, 0.85, v) for v in (0.85, 0.4, 0.2)),
++                # both roots and the pale tints (W220), not three fixed tones
++                cands[k] = [max((_hsv(h, s, v) for s in (0.25, 0.5, 0.85)
++                                 for v in (0.95, 0.85, 0.4, 0.2, 0.1)),
+                                 key=lambda c: fn(c, ground))]
+ 
+     _floors = C.reference_floors()
+@@ -389,7 +404,7 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
+ 
+ # ---- derived transforms (no search) ---------------------------------------
+ def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6,
+-                      fg=(), fg_floor=None, fg_fn=None):
++                      fg=(), fg_floor=None, fg_fn=None, allow_away=False):
+     """The decoration states as SOLVED luminance offsets of the accent (⊕SOLVER-UI-TOKENS, W10).
+ 
+     focus = accent; sel_bg = accent nudged d toward the ground; hover = nudged 2d.
+@@ -410,21 +425,34 @@ def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6,
+     not taken. None (the default) is the shipped solve."""
+     floors = C.reference_floors()
+     toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0   # toward the ground: darker on dark
++    # ⚑ THE AWAY ROOT EXISTS AND IS OFF (W220 -> W225). The returned d is SIGNED
++    # relative to `toward` (callers multiply by it) and the loop can try away from
++    # the ground as a second root - but turning it on moved the SHIPPED selection
++    # field (EL-Azure #1988f9 -> #78b9fb, EL-Amber #f29007 -> #fccb87), a visible
++    # design change, so whether the field may step away is the operator's
++    # decision (W225), not a side effect of fixing the text candidates.
+     best_d, best_q = None, -1.0
+     n = int(max_d / step)
++    alive = {1.0: True, -1.0: True}      # a direction that lost the ground floor stays lost
+     for i in range(1, n + 1):
+-        d = i * step
+-        sel, hov = _lum_nudge(accent, toward * d), _lum_nudge(accent, toward * 2 * d)
+-        if min(C.wcag_ratio(c, ground) for c in (accent, sel, hov)) < floor:
+-            break                        # further steps only lose the ground floor
+-        if fg_floor is not None and min(fg_fn(f, sel) for f in fg) < fg_floor:
+-            continue
+-        q = min(C._worst_normalized(a, b, floors)[0]
+-                for a, b in ((accent, sel), (sel, hov), (accent, hov)))
+-        if q >= 1.0:
+-            return d, True
+-        if q > best_q:
+-            best_d, best_q = d, q
++        for sgn in (1.0,) if not allow_away else (1.0, -1.0):
++            if not alive[sgn]:
++                continue
++            d = sgn * i * step
++            sel, hov = _lum_nudge(accent, toward * d), _lum_nudge(accent, toward * 2 * d)
++            if min(C.wcag_ratio(c, ground) for c in (accent, sel, hov)) < floor:
++                alive[sgn] = False
++                continue
++            if fg_floor is not None and min(fg_fn(f, sel) for f in fg) < fg_floor:
++                continue
++            q = min(C._worst_normalized(a, b, floors)[0]
++                    for a, b in ((accent, sel), (sel, hov), (accent, hov)))
++            if q >= 1.0:
++                return d, True
++            if q > best_q:
++                best_d, best_q = d, q
++        if not any(alive.values()):
++            break
+     return (best_d if best_d is not None else step), False
+ 
+ 

@@ -52,14 +52,21 @@ def sector_hues(sector):
 
 def measure_slot(sector, bg, hot, mp, C):
     """{side: {reachable, candidate, n_candidates}} for one slot on one field."""
-    out = {s: {"reachable": 0.0, "candidate": None, "n_candidates": 0}
+    out = {s: {"reachable": 0.0, "candidate": None, "n_candidates": 0,
+               "n_unpruned": 0, "reachable_sat_min": None}
            for s in ("lighter", "darker")}
     for h in sector_hues(sector):
         for s in SWEEP_S:
             for v in SWEEP_V:
                 c = mp._hsv(h, s, v)
                 side = out[side_of(c, bg, C)]
-                side["reachable"] = max(side["reachable"], C.wcag_ratio(c, bg))
+                r = C.wcag_ratio(c, bg)
+                side["reachable"] = max(side["reachable"], r)
+                if r >= FLOOR and (side["reachable_sat_min"] is None or s > side["reachable_sat_min"]):
+                    side["reachable_sat_min"] = s     # the most saturated colour that still clears
+    # candidates WITHOUT the hot prune: tells a grid gap from a separation prune
+    for c in mp._candidates(sector, bg, FLOOR, None):
+        out[side_of(c, bg, C)]["n_unpruned"] += 1
     for c in mp._candidates(sector, bg, FLOOR, hot):
         side = out[side_of(c, bg, C)]
         r = C.wcag_ratio(c, bg)

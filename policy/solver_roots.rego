@@ -22,7 +22,7 @@ deny contains msg if {
 	some c in input.cases
 	c.reachable >= input.floor
 	not covered(c)
-	msg := sprintf("R1: %s: the %s root reaches %s >= %s but the candidates offer %v there (%d candidates)", [c.id, c.side, fmt.fixed(c.reachable, 2), fmt.fixed(input.floor, 2), c.candidate, c.n_candidates])
+	msg := sprintf("R1: %s: the %s root reaches %s >= %s but the candidates offer %v there (%d candidates; %v before the accent prune; most saturated clearing sat %v)", [c.id, c.side, fmt.fixed(c.reachable, 2), fmt.fixed(input.floor, 2), c.candidate, c.n_candidates, object.get(c, "n_unpruned", null), object.get(c, "reachable_sat_min", null)])
 }
 
 covered(c) if {
