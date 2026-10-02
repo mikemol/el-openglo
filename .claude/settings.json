@@ -10,11 +10,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "STRUCT_HOOK_BLOCK=1 python3 \"$CLAUDE_PROJECT_DIR/scripts/hook_structural_query.py\""
+            "command": "STRUCT_HOOK_BLOCK=1 \"$CLAUDE_PROJECT_DIR/.venv/bin/mikemol-hook-structural-query\""
           },
           {
             "type": "command",
-            "command": "NOCHAIN_HOOK_BLOCK=1 python3 \"$CLAUDE_PROJECT_DIR/scripts/hook_no_chaining.py\""
+            "command": "NOCHAIN_HOOK_BLOCK=1 \"$CLAUDE_PROJECT_DIR/.venv/bin/mikemol-hook-no-chaining\""
           }
         ]
       }

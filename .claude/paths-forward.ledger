@@ -513,3 +513,5 @@
 2026-10-02T10:21:09Z  tick  W85  done      sweep     "paperkit pin past 0249924 landed; gates pass on it"  evidence=commit: W85 paperkit pin b5877102
 2026-10-02T10:21:48Z  tick  W87  atomized  collapse  "queue ordering by structural gain landed as nemik-rank + --weights-from + ranked --queue; a local --order would rival the operator-ruled authority; closed"  evidence=--queue ranked output; operator 2026-10-01 nemik ranking is the order
 2026-10-02T10:39:32Z  tick  W94  done      unblock   "resolved upstream as mtools:W50 (touches leases: W174 grammar, W175 check, W178 renew/lapse), all in our pinned pathsforward"  evidence=mtools W50/W174/W175/W178 done; c64b2e2, df87d2a ancestors of 03836cc
+2026-10-02T10:53:20Z  hash  --   diverged  --        "divergence: payload v2:d86371c341d6370d, file v2:3a98ca13be0e7226; the FILE wins"
+2026-10-02T10:54:20Z  tick  W99  advanced  unblock   "PreToolUse hooks repointed to the installed mikemol-hook-* commands (verified by sample events and a live denial); symlink deletion next"  evidence=check_hooks 2 admitted; live denial text from the installed hook
