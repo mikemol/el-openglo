@@ -512,3 +512,4 @@
 2026-10-02T10:12:35Z  tick  W85  advanced  sweep     "paperkit pin bumped 88792ac -> b5877102 (past 0249924); worklist 93/93 and readme 45/45 pass on it; cotype @RESIDUE is pre-existing"  evidence=worklist_gate; uv lock: paperkit only
 2026-10-02T10:21:09Z  tick  W85  done      sweep     "paperkit pin past 0249924 landed; gates pass on it"  evidence=commit: W85 paperkit pin b5877102
 2026-10-02T10:21:48Z  tick  W87  atomized  collapse  "queue ordering by structural gain landed as nemik-rank + --weights-from + ranked --queue; a local --order would rival the operator-ruled authority; closed"  evidence=--queue ranked output; operator 2026-10-01 nemik ranking is the order
+2026-10-02T10:39:32Z  tick  W94  done      unblock   "resolved upstream as mtools:W50 (touches leases: W174 grammar, W175 check, W178 renew/lapse), all in our pinned pathsforward"  evidence=mtools W50/W174/W175/W178 done; c64b2e2, df87d2a ancestors of 03836cc

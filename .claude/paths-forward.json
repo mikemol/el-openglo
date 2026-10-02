@@ -1842,24 +1842,24 @@
     {
       "symbol": "W94",
       "title": "Touches overlap is a contention signal with no lock, across repos and context switches",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [
         "queue-structure"
       ],
       "blocked_on": [],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Filed as a census-kit mode-B finding to mtools (schema/package owner of mikemol-pathsforward), nominating nemik (graph renderer) and the six repos with CURRENT swarm-kind ledger activity (gabion, luthen-observability, mtools, paperkit, rosettapkg, substrate — measured via nemik-metrics, not assumed) as the roster. mtools' README documents only a whole-queue --lock (the control-plane file), not a touches[]-scoped resource claim; checked via git grep for mutex/contention language in pathsforward/, one unrelated hit. Waiting on mtools' view before proposing a fix shape (a touches-scoped lease/claim field is one option, not decided). This repo cannot design the fix alone: the object is shared machinery el-openglo consumes, not owns.",
-      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan. | 2026-09-26: 2026-09-27: mtools claimed as mtools:W50, confirmed the gap (no touches-scoped contention mechanism exists; --lock is the control-plane file only), and noted the lossy-boundary framing on their own waypoint. Direction (not yet built): reuse fence's existing claim keyway (mikemol.fence.admit.claim_key/ClaimKey/Kind, from mtools:W29's hold verb) scoped per touches[] tag, rather than a second lock mechanism. Roster (nemik + the six live-swarm repos) recorded on their side too. | 2026-09-29: 2026-09-29: mtools:W50 landed (its design: W118 overlap report, W119 claim owner, W120 tag grain in mtools); blocker cleared. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): touches[] overlap is a CONTENTION signal with no lock, cross-repo AND across a single session's context-switches (operator, 2026-09-27, correcting the first framing: not 'if swarm returns' — swarm is LIVE now in 6 sibling repos; and a context-switch between two things touching the same object is the same hazard shape as two agents, no wall-clock concurrency needed)",
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-09-26: 2026-09-27: original framing (\"if swarm mode is ever re-enabled\") was WRONG and a solipsist negative — census-kit's Mode B (B2) caught it: checked nemik-metrics before writing anything, swarm-kind ledger lines exist NOW in 6 repos. Filed to mtools-65 (msg eee84aa1) per census-kit B1/B3 rather than writing only a private el-openglo fix plan. | 2026-09-26: 2026-09-27: mtools claimed as mtools:W50, confirmed the gap (no touches-scoped contention mechanism exists; --lock is the control-plane file only), and noted the lossy-boundary framing on their own waypoint. Direction (not yet built): reuse fence's existing claim keyway (mikemol.fence.admit.claim_key/ClaimKey/Kind, from mtools:W29's hold verb) scoped per touches[] tag, rather than a second lock mechanism. Roster (nemik + the six live-swarm repos) recorded on their side too. | 2026-09-29: 2026-09-29: mtools:W50 landed (its design: W118 overlap report, W119 claim owner, W120 tag grain in mtools); blocker cleared. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): touches[] overlap is a CONTENTION signal with no lock, cross-repo AND across a single session's context-switches (operator, 2026-09-27, correcting the first framing: not 'if swarm returns' — swarm is LIVE now in 6 sibling repos; and a context-switch between two things touching the same object is the same hazard shape as two agents, no wall-clock concurrency needed) | 2026-10-02: 2026-10-02 CLOSED - resolved upstream: mtools:W50 IS this finding (caused_by el-openglo-e8; \"touches[] has no contention semantics\") and is done, with its children landed: mtools:W174 the touches grammar (file:/mod:/party:/topic prefixes, !w write-lease suffix, Tag.leasable), mtools:W175 --check validates it, mtools:W178 the tick renews a holder leases and ledgers + reports a lapse. Our pin carries it: mtools c64b2e2 and df87d2a are both ancestors of the tooling pin 03836cc (git merge-base --is-ancestor). No mtools reply was in our inbox because the answer was the work itself. Adopting !w leases on el-openglo touches tags is a separate, optional step if contention ever shows up here (one session works this queue today).",
       "issued_at": "2026-09-26T21:19:31Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T10:22:14Z",
+      "last_worked": "2026-10-02T10:39:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
-      "completed": null
+      "completed": "20261002T103932Z"
     },
     {
       "symbol": "W95",
@@ -1878,7 +1878,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 1
+      "weight": 10
     },
     {
       "symbol": "W96",
@@ -1947,7 +1947,7 @@
     {
       "symbol": "W99",
       "title": "Point the PreToolUse hooks at the installed mtools hook commands, then delete the symlinks",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         ".claude/settings.json",
@@ -1957,16 +1957,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
+      "next_bounded_step": "Inventory: scripts/check_hooks.py --list (where each hook script resolves today: hook_no_chaining, hook_structural_query, hook_cmdparse are symlinks into substrate) against the console scripts mikemol-hooks installs in .venv/bin (pinned at mtools 03836cc); map each symlink to its installed replacement or record that none exists; then repoint .claude/settings.json PreToolUse to the installed commands, keep the struct-tools SKILL.md routing table local, and delete the symlinks; run both hooks selftests and check_hooks.",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): W62.1 repoint the two PreToolUse hooks to the installed mikemol-hook-no-chaining / mikemol-hook-structural-query console scripts; prove each still refuses (a chain, a grep over .py) and still reads THIS repo s struct-tools SKILL.md; then delete the hook_no_chaining, hook_structural_query and hook_cmdparse symlinks",
       "issued_at": "2026-09-27T16:56:11Z",
       "minted_during": "interrupt",
       "caused_by": "W62",
-      "last_worked": "2026-10-01T04:33:56Z",
+      "last_worked": "2026-10-02T10:39:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 10
+      "weight": 11,
+      "completed": null
     },
     {
       "symbol": "W100",
@@ -2009,7 +2010,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 10
+      "weight": 11
     },
     {
       "symbol": "W102",
