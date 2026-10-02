@@ -49,8 +49,9 @@ _repo_reads follows the repo paths that staged text names through QML's director
 import (by the types instantiated) and relative imports. What it cannot see: a
 file the process opens by a path the job never spells (a font by FAMILY, a Qt
 plugin, an image a type loads at runtime by a computed URL), environment outside
-JOB_ENV (the one hand list here), and runner code a generator module contributes
-without emitting it into the job (runner_code's prune). The host fingerprint and
+JOB_ENV (the one hand list here), and post-render code a producer runs without
+naming it in its per-kind code term (render_screens.POST_CODE since W61; runner_code
+below is the older whole-closure form, kept, no longer called by render_screens). The host fingerprint and
 the residue (computed reads in the runner code) are the declared bound on that gap.
 
 ⚑ THE DOMAIN IS DECLARED BY OVER-APPROXIMATION, DELIBERATELY. An action names its
@@ -134,7 +135,10 @@ KEY_SCHEMA = 2
 # never `stale`, and schemes/wallpapers — whose formula did not change — keep 2.
 # 4: the runner-code term became per job kind (the stager's own closure + the
 # producer file), no longer the producer's whole closure.
-PER_OUTPUT_SCHEMA = 4
+# 5: the producer file itself left the key (W61, 2026-10-02): each output keys only
+# its kind's post-render module (render_screens.POST_CODE; screens_sheets for the
+# derived outputs) - a comment in render_screens moved 55 of 56 keys, now 0.
+PER_OUTPUT_SCHEMA = 5
 
 HOST_PIN_FILE = os.path.join(ROOT, "catalog", "host.json")
 
@@ -908,6 +912,16 @@ def _selftest():
     # its bytes; one comment there moved 55 of 56 before (W158)
     moved, n = impact("qt_sandbox.py")["screens"]
     chk(f"a comment in qt_sandbox moves no screen ({len(moved)} of {n})", sorted(moved), [])
+    # W61 (2026-10-02): the producer is not keyed; each post-render module keys only its kind.
+    # Before, one comment in render_screens moved 55 of 56.
+    moved, n = impact("catalog/library/render_screens.py")["screens"]
+    chk(f"a comment in render_screens moves no screen ({len(moved)} of {n})", sorted(moved), [])
+    moved, n = impact("catalog/library/screens_viewport.py")["screens"]
+    chk(f"a comment in screens_viewport moves only the viewport animations ({len(moved)} of {n})",
+        sorted(moved), sorted(f for f in per if f.startswith("pinholes-anim-")))
+    moved, n = impact("catalog/library/screens_sheets.py")["screens"]
+    chk(f"a comment in screens_sheets moves only the sheets and the strip ({len(moved)} of {n})",
+        sorted(moved), sorted(f for f in per if f.startswith("sheet-")) + ["strip.png"])
     import qt_sandbox as QT
     chk("...while the route it picks IS in the key (software != mesa backend facts)",
         QT.backend_facts(False) != QT.backend_facts(True), True)

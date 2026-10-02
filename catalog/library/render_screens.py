@@ -130,6 +130,18 @@ def stagers(v, how, out):
     raise ValueError(f"no job for {how!r}")
 
 
+_LIB = os.path.relpath(os.path.dirname(os.path.abspath(__file__)), ROOT)
+
+# how[0] -> the post-render code an output of that kind runs after its qml job, as
+# repo-relative files (W61). Stills have none: their pixels are the job's bytes. The
+# marquee animation's frames are assembled by its own stager module (`seed`); the
+# viewport's by screens_viewport.
+POST_CODE = {
+    ("aperture-text", "scroll-y"): lambda seed: [os.path.join(_LIB, "screens_viewport.py")],
+    ("marquee", "animate"): lambda seed: [seed],
+}
+
+
 def sheet_tiles(v):
     """The stills a variant's contact sheet stacks, in order — the sheet's inputs."""
     return [f"{name}-{v}.png" for name, _h in STILLS]
@@ -167,13 +179,14 @@ def output_keys():
     change there reads CURRENT when it is stale. The host fingerprint and the
     residue (computed reads in the runner code) are the declared bound on that.
     WEAKNESS (per-kind runner code): the code term is per job KIND at MODULE
-    grain — and this file is
-    keyed whole, so a comment in it still moves every output."""
+    grain (POST_CODE). This file is no longer keyed (W61, 2026-10-02): a change to
+    its dispatch that matters changes the staged job, which is keyed as bytes; a
+    change that does not (a comment, plan bookkeeping) moves nothing."""
     import check_action_key as AK
     sentinel = "/@OUT@"
     here = os.path.relpath(os.path.abspath(__file__), ROOT)
     host, missing = AK.host_inputs()
-    keys, code_files = {}, {here}
+    keys, code_files = {}, set()
     for fn, v, how in plan() + plan_animations():
         inputs = {}
         for i, stage in enumerate(stagers(v, how, os.path.join(sentinel, fn))):
@@ -198,16 +211,22 @@ def output_keys():
             if f"job{i}:backend" not in inputs:
                 raise RuntimeError(f"render_screens: {fn}: job {i} has no backend fact — "
                                    "the key would omit the scene-graph route")
+            # ⚑ PER KIND, NOT THIS FILE (W61, 2026-10-02): keyed whole, this file moved
+            # 55 of 56 keys for one comment. A still's pixels are its job bytes (already
+            # keyed); an animation adds only the module that assembles its frames.
             seed = os.path.relpath(stage.__code__.co_filename, ROOT)
-            post = [seed] if how[:2] == ("marquee", "animate") else []
-            code = sorted(set(post) | {here})
+            post = POST_CODE.get(tuple(how[:2]))
+            code = sorted(post(seed) if post else [])
             code_files.update(code)
             for rel in code:
                 inputs[f"code:{rel}"] = AK.digest_rel(rel)
         inputs.update(host)
         keys[fn] = {"key": AK.key_over(inputs), "inputs": inputs}
-    # a derived output runs only this file's sheet code over tiles already keyed
-    code_inputs = {f"code:{here}": AK.digest_rel(here)}
+    # a derived output runs only the sheet module over tiles already keyed
+    sheets_rel = os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                              "screens_sheets.py"), ROOT)
+    code_files.add(sheets_rel)
+    code_inputs = {f"code:{sheets_rel}": AK.digest_rel(sheets_rel)}
     for fn, v, how in plan_derived():
         src = derived_inputs(fn, v, how)
         if src is None:
@@ -234,36 +253,11 @@ def stale(keys=None):
 
 
 def animate_viewport(variant, out_apng):
-    """The text probe rendered once per band of its backdrop (offsetRows 0..8..0),
-    assembled as an APNG: the field scrolling down a 16-row Unifont cell and back.
-    Returns the frame count.
-
-    ⚑ ONE qml PROCESS FOR ALL 65 FRAMES (render speed #2): render_qml.render_frames
-    steps offsetRows through the probe's plasmoid.configuration BINDING and grabs
-    each step. It was 65 processes, each paying the startup floor for one grab
-    (measured on EL-Openglo: 37.7 s CPU old, see catalog/render-speed.md). The
-    field's offsetY is read back per frame and must equal step x scale — a frame
-    whose binding did not deliver its step is refused, not assembled. A frame
-    count short of the plan is also refused (0): the old loop silently dropped a
-    failed step (64 of 65 once, measured) and the ping-pong was then no longer
-    symmetric."""
-    import tempfile
-    import render_qml as RQ
-    from PIL import Image
-    want = [s * VIEWPORT_SUBSTEPS for s in VIEWPORT_STEPS]
-    with tempfile.TemporaryDirectory() as td:
-        # the same backend as the stills (rhi where the host has it): the frames
-        # must look like the picture beside them
-        s, w, h, key, steps, probe = VIEWPORT_JOB
-        rc, err, seen = RQ.render_frames(s, variant, w, h, td, key, steps, probe)
-        names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
-        if rc != 0 or seen != want or len(names) != len(VIEWPORT_STEPS):
-            print(f"render_screens: pinholes-anim {variant} REFUSED — rc={rc}, {len(names)} of "
-                  f"{len(VIEWPORT_STEPS)} frames, offsetY read back {seen!r}\n{err[-400:]}", file=sys.stderr)
-            return 0
-        ims = [Image.open(os.path.join(td, n)).convert("RGB") for n in names]
-    ims[0].save(out_apng, format="PNG", save_all=True, append_images=ims[1:], duration=VIEWPORT_FRAME_MS, loop=0)
-    return len(ims)
+    """The pinholes-anim APNG (offsetRows 0..8..0, offsetY read back per frame);
+    the assembly lives in screens_viewport so it keys only these outputs (W61)."""
+    import screens_viewport as SV
+    return SV.animate_viewport(variant, out_apng, VIEWPORT_JOB,
+                               [s * VIEWPORT_SUBSTEPS for s in VIEWPORT_STEPS])
 
 
 def render_one(v, how, out):
@@ -355,44 +349,10 @@ def index_md():
 
 
 def contact_sheets(out_dir=SCREENS, only=None):
-    """One sheet per variant (its surfaces stacked) and one strip of the six sheets;
-    with `only`, just the sheets (and strip) named in it."""
-    from PIL import Image, ImageDraw
-    sheets = []
-    per_variant = []
-    for v in VARIANTS:
-        if only is not None and f"sheet-{v}.png" not in only:
-            if "strip.png" in only and os.path.isfile(os.path.join(out_dir, f"sheet-{v}.png")):
-                per_variant.append(Image.open(os.path.join(out_dir, f"sheet-{v}.png")).convert("RGB"))
-            continue
-        tiles = [Image.open(os.path.join(out_dir, t)).convert("RGB")
-                 for t in sheet_tiles(v) if os.path.isfile(os.path.join(out_dir, t))]
-        if not tiles:
-            continue
-        w = max(t.width for t in tiles) + 16
-        h = sum(t.height for t in tiles) + 8 * (len(tiles) + 1) + 20
-        sheet = Image.new("RGB", (w, h), tiles[-1].getpixel((0, 0)))
-        d = ImageDraw.Draw(sheet)
-        d.text((8, 4), v, fill=tiles[0].getpixel((tiles[0].width // 2, tiles[0].height // 2)))
-        y = 20
-        for t in tiles:
-            sheet.paste(t, (8, y))
-            y += t.height + 8
-        p = os.path.join(out_dir, f"sheet-{v}.png")
-        sheet.save(p)
-        sheets.append(p)
-        per_variant.append(sheet)
-    if per_variant and (only is None or "strip.png" in only):
-        strip = Image.new("RGB", (sum(s.width for s in per_variant) + 8 * (len(per_variant) + 1),
-                                  max(s.height for s in per_variant) + 16), (0, 0, 0))
-        x = 8
-        for s in per_variant:
-            strip.paste(s, (x, 8))
-            x += s.width + 8
-        p = os.path.join(out_dir, "strip.png")
-        strip.save(p)
-        sheets.append(p)
-    return sheets
+    """One sheet per variant and the strip; the drawing lives in screens_sheets so it
+    keys only the derived outputs (W61)."""
+    import screens_sheets as SS
+    return SS.contact_sheets(out_dir, VARIANTS, sheet_tiles, only=only)
 
 
 def measure(out_dir=SCREENS):
