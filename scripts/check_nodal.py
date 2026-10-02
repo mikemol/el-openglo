@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
+"""check_nodal.py — the palette's first NUMERIC nodal solve, through gcalc.solver (W221).
+
+    scripts/check_nodal.py            # the verdict, as opa_gate nodal decides it
+    scripts/check_nodal.py --json     # the measurement policy/nodal.rego decides
+    scripts/check_nodal.py --selftest # the measurement can see a transitive near-collision
+
+Until this, el-openglo used gcalc only SYMBOLICALLY (netlist_render, check_relations):
+no env had ever been bound to measured palette values. This binds one.
+
+⚑ ORIENTATION: MARGIN IS RESISTANCE (operator 2026-10-02, "see how g-calculus
+achieves NOT()"; gcalc NOT = x -> 1/x). Each constraint edge's margin m (1.0 =
+exactly at its floor) is read as a RESISTANCE and bound as conductance 1/m. Colour
+distance obeys the triangle inequality, so distances compose in SERIES, which is
+resistance. Effective resistance is then a metric bounded above by the direct edge
+(Rayleigh: a parallel path only lowers it). An edge whose own margin clears
+(m >= 1) while its effective resistance falls below 1 is a pair that is NEAR
+THROUGH OTHER COLOURS - a chain of near neighbours no per-edge gate can see, which
+is exactly what the graph's b1 > 0 loops can hide.
+
+Margins, per palette_graph edge floor kind:
+    "reference_floors"        worst-view normalized q (cvd_gate._worst_normalized)
+    numeric, LEGIBILITY       WCAG ratio / floor
+    numeric, SEPARATION       raw worst-view dE / floor (the hot prune's own metric)
+    anything else             WITHHELD: an APCA argmax, a ceiling or a composite
+                              floor has no margin form here yet; never guessed
+
+⚑ WEAKNESS: the effective-resistance reading is a HYPOTHESIS about the domain
+(series composition of colour distance), recorded in palette_relations
+open_questions as "series-composition-witness". This measures what it implies; it
+does not prove the implication. Geometry edges are out of scope (no colour values).
+"""
+import json
+import os
+import sys
+from fractions import Fraction
+
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, ROOT)
+
+
+def _gcalc():
+    gc = os.path.expanduser("~/github/gcalculus")
+    if os.path.isdir(gc) and gc not in sys.path:
+        sys.path.insert(0, gc)
+    from gcalc import solver as S
+    return S
+
+
+def margin(edge, tok, C, floors):
+    """(margin, None) or (None, why-withheld) for one palette_graph edge on one variant."""
+    if edge.u not in tok or edge.v not in tok:
+        return None, "a node has no colour in this variant's tokens"
+    a, b = C.rgb(tok[edge.u]), C.rgb(tok[edge.v])
+    f = edge.floor
+    if f == "reference_floors":
+        return float(C._worst_normalized(a, b, floors)[0]), None
+    try:
+        x = float(f)
+    except (TypeError, ValueError):
+        return None, f"floor kind {f!r} has no margin form here"
+    import palette_graph as PG
+    if edge.family == PG.LEGIBILITY:
+        return C.wcag_ratio(a, b) / x, None
+    return float(C.worst_view_dE(a, b)[0]) / x, None
+
+
+def components(nodes, keys):
+    adj = {n: set() for n in nodes}
+    for u, v in keys:
+        adj[u].add(v)
+        adj[v].add(u)
+    seen, out = set(), []
+    for n in nodes:
+        if n in seen:
+            continue
+        comp, stack = [], [n]
+        while stack:
+            w = stack.pop()
+            if w not in seen:
+                seen.add(w)
+                comp.append(w)
+                stack.extend(adj[w] - seen)
+        out.append(sorted(comp))
+    return out
+
+
+def solve(margins, S):
+    """{(u,v): r_eff} over the network whose edge conductance is 1/margin."""
+    gen = {k: f"y_{k[0]}_{k[1]}" for k in margins}
+    env = {gen[k]: 1 / Fraction(m).limit_denominator(10 ** 6) for k, m in margins.items()}
+    nodes = sorted({n for k in margins for n in k})
+    out = {}
+    for comp in components(nodes, margins):
+        sub = {k: g for k, g in gen.items() if k[0] in comp}
+        if not sub:
+            continue
+        net = S.netlist(sub)
+        for k in sub:
+            out[k] = float(S.r_eff(comp, net, env, k[0], k[1]))
+    return out
+
+
+def measure():
+    import cvd_gate as C
+    import make_palette as mp
+    import palette_graph as PG
+    S = _gcalc()
+    floors = C.reference_floors()
+    edges = [e for e in PG.edges() if e.family in (PG.SEPARATION, PG.LEGIBILITY)]
+    cases, withheld = [], []
+    for (t, _d) in mp.build_grid().values():
+        margins = {}
+        for e in edges:
+            m, why = margin(e, t, C, floors)
+            if m is None:
+                withheld.append(f"{t['id']}: {e.u}~{e.v}: {why}")
+            elif m > 0:
+                margins[e.key] = min(margins.get(e.key, m), m)   # a doubled edge keeps its tighter margin
+        r = solve(margins, S)
+        for k, m in sorted(margins.items()):
+            cases.append({"id": f"{t['id']}/{k[0]}~{k[1]}", "variant": t["id"],
+                          "u": k[0], "v": k[1], "margin": m, "r_eff": r.get(k)})
+    return {"cases": cases, "withheld": sorted(set(withheld))}
+
+
+def _selftest():
+    ok = True
+
+    def check(label, got, want):
+        nonlocal ok
+        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        ok = ok and got == want
+
+    S = _gcalc()
+    # a lone edge: r_eff IS its margin (resistance in, resistance out)
+    r = solve({("a", "b"): 2.0}, S)
+    check("a lone edge's effective resistance is its margin", round(r[("a", "b")], 6), 2.0)
+    # the transitive near-collision: a~c clears alone (m=1.5) but a~b~c is a near
+    # chain (0.4 + 0.4 in series = 0.8), and in parallel 1.5 || 0.8 < 1
+    r = solve({("a", "c"): 1.5, ("a", "b"): 0.4, ("b", "c"): 0.4}, S)
+    check("a clearing edge with a near chain beside it reads below 1",
+          r[("a", "c")] < 1.0 <= 1.5, True)
+    check("Rayleigh: effective resistance never exceeds the direct edge",
+          all(r[k] <= m + 1e-12 for k, m in {("a", "c"): 1.5, ("a", "b"): 0.4, ("b", "c"): 0.4}.items()), True)
+    check("two components are solved apart, not as one singular system",
+          sorted(solve({("a", "b"): 1.0, ("c", "d"): 3.0}, S).values()), [1.0, 3.0])
+    print("check_nodal selftest:", "PASS" if ok else "FAIL")
+    return ok
+
+
+def main(argv):
+    for a in argv[1:]:
+        if a not in {"--json", "--selftest"}:
+            print(f"check_nodal: unknown flag {a!r}", file=sys.stderr)
+            return 2
+    if "--selftest" in argv:
+        return 0 if _selftest() else 1
+    if "--json" in argv:
+        print(json.dumps(measure(), indent=1))
+        return 0
+    import opa_gate
+    return opa_gate.gate("nodal")
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
