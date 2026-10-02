@@ -325,8 +325,10 @@ by S2):
 **Guest side:** `el-serial.service` (system, `DefaultDependencies=no`, after
 `systemd-journald.service`) runs the reporter, which calls `guest/el-serial-emit.sh`
 (installed as `/usr/libexec/el-openglo/el-serial-emit`, with the spec at
-`/usr/share/el-openglo/el-serial-spec.json`), a POSIX-sh and `jq` writer (no Python in
-the guest) that owns the framing. There is also a user unit
+`/usr/share/el-openglo/el-serial-spec.json`), a POSIX-sh and `jq` writer that owns the
+framing. **No Python in the guest is an operator ruling (2026-10-02: "Don't stick python3 in
+the guest")**; until then it was a planning assumption with no stated reason. `jq` is added
+to the image deliberately, as the writer's one non-POSIX dependency. There is also a user unit
 `el-serial-session.service` `WantedBy=graphical-session.target` that asks it, over a
 FIFO in `/run`, to emit the session-side records. Both ship in the image, not in the `.deb`:
 they are probe machinery, not theme.
