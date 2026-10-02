@@ -567,3 +567,4 @@
 2026-10-02T17:09:56Z  tick  W236 advanced  unblock   "el.ident guest identity required (withheld if absent); digest pairing handed to luthen W127"
 2026-10-02T17:23:33Z  tick  W236 done      unblock   "guest identity required on every serial boot"  evidence=commit: W236 el.ident identity withheld
 2026-10-02T17:24:26Z  tick  W97  done      sweep     "payload truncation bug re-measured and reported to mtools inbox"
+2026-10-02T17:31:00Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:a0badecb8d4ce9e7; the FILE wins"

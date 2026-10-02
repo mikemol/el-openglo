@@ -416,6 +416,24 @@ PlasmoidItem {
     // 5x8: the body rows plus one descent row, so lowercase notification text
     // keeps its descenders. The table is the authored FONT5x8 plus the Latin-1
     // extension rasterised at build time (⊕MATRIX-FONT-INPUT).
+    // ⚑ THE ROLL STATE (W188): a live replace roll is {oldText, span}; rollProgress runs
+    // 0 -> 1 per frame under rollAnim, and every step repaints the span cells
+    // (rep's Connections). startRoll is the one entry; WHEN a replace rolls rather than
+    // applies (on board, not yet entered, scrolled past) is W189's.
+    property var roll: null
+    property real rollProgress: 0
+    readonly property int rollMs: 400
+    function startRoll(oldText, newText) {
+        root.roll = { oldText: oldText, span: Body.replaceSpan(oldText, newText) };
+        rollAnim.restart();
+    }
+    NumberAnimation {
+        id: rollAnim
+        target: root; property: "rollProgress"
+        from: 0; to: 1; duration: root.rollMs
+        onStopped: root.roll = null
+    }
+
     property var registry: $registry
     property var matrix: registry.displays["5x8"]
     property var matrixFont: registry["font" + matrix.font]
@@ -533,7 +551,41 @@ PlasmoidItem {
             var x0 = idle ? Math.round((cols - cells) / 2) : cols;
             var onCells = 0, inks = {};
             var seriesDrawn = [];
-            for (var i = 0; i < text.length; i++) {
+            // ⚑ THE ROLL (W188; W183 design (b)). While root.roll is live, each cell of the
+            // replace's span is painted from Body.rollCells at root.rollProgress: the old
+            // glyph rising up and out, the new rising from below, in BACKDROP px, so the
+            // aperture grades the motion sub-pip exactly as it grades the pan. Cells the
+            // span does not cover paint as always. Rows outside [0, rows) fall off the
+            // backdrop's edge, which is the odometer window.
+            var rollAt = {};
+            if (!idle && root.roll) {
+                var rcs = Body.rollCells(root.roll.oldText, text, root.roll.span, root.rollProgress, root.matrix.rows);
+                for (var rk = 0; rk < rcs.length; rk++) rollAt[root.roll.span.p + rcs[rk].k] = rcs[rk].glyphs;
+            }
+            function paintGlyph(gBytes, xpx, dyRows, grow, underline, dark) {
+                for (var gc = 0; gc < root.matrix.cols; gc++) {
+                    var gBits = gBytes.length > gc ? gBytes[gc] : 0;
+                    for (var gr = 0; gr < root.matrix.rows; gr++) {
+                        var gOn = !dark && (((gBits & (1 << gr)) !== 0) || (underline && gr === root.matrix.rows - 1));
+                        if (!gOn) continue;
+                        onCells += 1;
+                        ctx.fillRect((x0 + gc) * s + xpx - grow, (gr + dyRows) * s - grow, s + 2 * grow, s + 2 * grow);
+                    }
+                }
+            }
+            for (var i = 0; i < text.length || rollAt[i] !== undefined; i++) {
+                if (rollAt[i] !== undefined) {
+                    var rUrg = idle ? 1 : root.urgencyAt(Math.min(i, text.length - 1));
+                    ctx.fillStyle = rUrg === 2 ? String(root.hotColor) : String(root.litColor);
+                    inks[ctx.fillStyle] = true;
+                    // a cell past the new text's end (a shortening) sits one advance on
+                    var rx = i < rep.offs.length ? rep.offs[i]
+                           : (rep.offs.length ? rep.offs[rep.offs.length - 1] : 0) + (i - rep.offs.length + 1) * rep.advanceCells * s;
+                    var rgs = rollAt[i];
+                    for (var rg = 0; rg < rgs.length; rg++)
+                        paintGlyph(Body.glyphFor(root.matrixFont, rgs[rg].ch, rUrg), rx, rgs[rg].dy, 0, false, false);
+                    continue;
+                }
                 var ch = text.charAt(i);
                 var run = idle ? null : root.runAt(i);
                 // ⚑ THE GAUGE (W46; W48's painter, folded): a series run's characters are
@@ -616,6 +668,9 @@ PlasmoidItem {
         Connections {
             target: root
             function onRingSwapped() { if (field.backdrop.available) rep.paintBackdrop(); Qt.callLater(rep.startRun); }
+            // the roll advances per frame: repaint its span cells (W188)
+            function onRollProgressChanged() { if (root.roll && field.backdrop.available) rep.drawBackdrop(); }
+            function onRollChanged() { if (field.backdrop.available) rep.drawBackdrop(); }
             function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
             // the flash toggled: the backdrop is already sized for this text, so redraw only
             function onFlashLitChanged() { if (field.backdrop.available) rep.drawBackdrop(); }

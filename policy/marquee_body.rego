@@ -273,6 +273,32 @@ withheld contains msg if {
 }
 
 # METADATA
+# title: "M11 — the roll shows each span cell as the design states (W188)"
+# description: |
+#   rollCells(old, new, span, progress, rows): old rises up and out, new rises from
+#   below, each a travel of rows+1; an unchanged cell holds one glyph still; a cell past
+#   the shorter side rolls from or to blank. A wrong cell is a glyph in the wrong place
+#   mid-roll, or a self-roll the operator ruled out.
+deny contains msg if {
+	some c in object.get(input, "roll", [])
+	is_array(object.get(c, "cells", null))
+	c.cells != c.expected
+	msg := sprintf("M11: %s: rollCells%v gave %v, expected %v", [c.label, c.args, c.cells, c.expected])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "roll", [])) == 0
+	msg := "M11: no rollCells cases were measured"
+}
+
+withheld contains msg if {
+	some c in object.get(input, "roll", [])
+	not is_array(object.get(c, "cells", null))
+	msg := sprintf("W: roll %v: cells were not measured", [object.get(c, "label", null)])
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 # description: |
 #   The measurement always emits `runner` as a bool. `false` is the host fact;

@@ -414,3 +414,25 @@ function replaceSpan(old, neu) {
     while (s < lim - p && old.charAt(old.length - 1 - s) === neu.charAt(neu.length - 1 - s)) s++;
     return { p: p, oldEnd: old.length - s, newEnd: neu.length - s };
 }
+
+// ⚑ THE ROLL, CELL BY CELL (W188, W183's design (b)): what each cell of a replace's span
+// shows at `progress` in [0, 1]. Odometer: the old glyph moves UP and out, the new rises
+// from below, each travelling rows+1 rows so the two never touch. Pure, in ROW units
+// (the painter multiplies by its backdrop scale). Cell k of the span sits at text index
+// p+k; a cell whose old and new character are the same holds still (operator ruling (2):
+// no self-roll flicker), so it carries one glyph at dy 0. A cell past the shorter side
+// rolls from or to blank (`null`). The width-change STALL (ruling (4)) is the layout's
+// concern, not this function's: it returns cells, not x positions.
+function rollCells(old, neu, span, progress, rows) {
+    var t = Math.max(0, Math.min(1, progress)), travel = rows + 1;
+    var nOld = span.oldEnd - span.p, nNew = span.newEnd - span.p;
+    var out = [];
+    for (var k = 0; k < Math.max(nOld, nNew); k++) {
+        var oc = k < nOld ? old.charAt(span.p + k) : null;
+        var nc = k < nNew ? neu.charAt(span.p + k) : null;
+        if (oc !== null && oc === nc) out.push({ k: k, glyphs: [{ ch: nc, dy: 0 }] });
+        else out.push({ k: k, glyphs: [{ ch: oc, dy: -t * travel }, { ch: nc, dy: (1 - t) * travel }]
+                                        .filter(function (g) { return g.ch !== null; }) });
+    }
+    return out;
+}

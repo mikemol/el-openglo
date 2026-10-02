@@ -159,13 +159,37 @@ SPAN_CASES = [
     ("the operator's width change (AABCC -> AABBCC)", ("AABCC", "AABBCC"), {"p": 3, "oldEnd": 3, "newEnd": 4}),
 ]
 
+# rollCells (W188, W183 design (b)): (old, new, progress, rows) -> per span cell, the
+# glyphs it shows as [char-or-None, dy in rows]; old rises UP and out, new rises from
+# below, travel rows+1; an unchanged cell holds one glyph at dy 0
+ROLL_CASES = [
+    ("at the start the old glyph sits and the new waits a full travel below",
+     ("50%", "75%", 0.0, 8), [[["5", 0], ["7", 9]], [["0", 0], ["5", 9]]]),
+    ("half way, old is half a travel up and new half a travel below (both digits changed)",
+     ("50%", "75%", 0.5, 8), [[["5", -4.5], ["7", 4.5]], [["0", -4.5], ["5", 4.5]]]),
+    ("at the end the new glyph sits and the old is a full travel up",
+     ("50%", "75%", 1.0, 8), [[["5", -9], ["7", 0]], [["0", -9], ["5", 0]]]),
+    ("a cell whose glyph did not change holds still (ABCD -> AXCY)",
+     ("ABCD", "AXCY", 0.5, 8), [[["B", -4.5], ["X", 4.5]], [["C", 0]], [["D", -4.5], ["Y", 4.5]]]),
+    ("a lengthening rolls the extra cell up from blank",
+     ("ab", "abc", 0.5, 8), [[["c", 4.5]]]),
+    ("a shortening rolls the lost cell out to blank",
+     ("abc", "ab", 0.5, 8), [[["c", -4.5]]]),
+    ("progress outside [0, 1] is clamped",
+     ("a", "b", 2.0, 8), [[["a", -9], ["b", 0]]]),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s;
-        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s, rolls = %s;
+        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [], roll: [] };
         for (var sp = 0; sp < spans.length; sp++) out.span.push(Body.replaceSpan(spans[sp][0], spans[sp][1]));
+        for (sp = 0; sp < rolls.length; sp++) {
+            var rc = Body.rollCells(rolls[sp][0], rolls[sp][1], Body.replaceSpan(rolls[sp][0], rolls[sp][1]), rolls[sp][2], rolls[sp][3]);
+            out.roll.push(rc.map(function (c) { return c.glyphs.map(function (g) { return [g.ch, g.dy]; }); }));
+        }
         for (var d = 0; d < display.length; d++) out.display.push(Body.displayChar(display[d][0], display[d][1]));
         for (d = 0; d < kern.length; d++) {
             var g = kern[d][0], off = Body.kernOffsets(g, kern[d][1], kern[d][2], kern[d][3]);
@@ -224,7 +248,8 @@ def run(bodies=None):
             json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
             json.dumps([list(c[1]) for c in DISPLAY_CASES]),
             json.dumps([list(c[1]) for c in KERN_CASES]),
-            json.dumps([list(c[1]) for c in SPAN_CASES])))
+            json.dumps([list(c[1]) for c in SPAN_CASES]),
+            json.dumps([list(c[1]) for c in ROLL_CASES])))
         r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -335,10 +360,12 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": []}
+        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": []}
     for (label, args, want), got in zip(SPAN_CASES, res.get("span", [])):
         out["span"].append({"label": label, "args": list(args), "expected": want, "span": got})
+    for (label, args, want), got in zip(ROLL_CASES, res.get("roll", [])):
+        out["roll"].append({"label": label, "args": list(args), "expected": want, "cells": got})
     for (label, args, expect), got in zip(KERN_CASES, res.get("kern", [])):
         out["kern"].append({"label": label, "expect": expect, "advance": args[3],
                             "offsets": got.get("offsets"), "bleeds_after": got.get("bleeds_after"),

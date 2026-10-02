@@ -5,6 +5,18 @@ package el.marquee_body_test
 import data.el.marquee_body as mb
 import rego.v1
 
+roll_ok := {"label": "a shortening rolls the lost cell out", "args": ["abc", "ab", 0.5, 8], "expected": [[["c", -4.5]]], "cells": [[["c", -4.5]]]}
+
+test_m11_refuses_a_wrong_roll_cell if {
+	inp := object.union(clean, {"roll": [{"label": "x", "args": ["a", "b", 0.5, 8], "expected": [[["a", -4.5], ["b", 4.5]]], "cells": [[["a", 0], ["b", 4.5]]]}]})
+	some m in mb.deny with input as inp
+	startswith(m, "M11: x:")
+}
+
+test_m11_refuses_an_empty_roll_population if {
+	"M11: no rollCells cases were measured" in mb.deny with input as object.union(clean, {"roll": []})
+}
+
 parse_ok := {"body": "<b>hi</b>", "expected_text": "hi", "text": "hi", "expected_runs": [[0, 2, "bold"]], "runs": [[0, 2, "bold"]]}
 
 join_ok := {"args": ["notify-send", "oh <b>hi</b>", ""], "expected_text": "notify-send: oh <b>hi</b>", "text": "notify-send: oh <b>hi</b>", "expected_runs": [], "runs": []}
@@ -28,7 +40,7 @@ kern_cap := {"label": "never separates", "expect": "capped", "advance": 24, "off
 
 span_ok := {"label": "a delete changes only the gap", "args": ["abcd", "abd"], "expected": {"p": 2, "oldEnd": 3, "newEnd": 2}, "span": {"p": 2, "oldEnd": 3, "newEnd": 2}}
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok]}
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok], "roll": [roll_ok]}
 
 # M10 (W186): a replace's changed span
 test_m10_refuses_a_wrong_span if {
@@ -140,12 +152,13 @@ test_admits_clean if {
 }
 
 test_m0_refuses_empty if {
-	# M0, and M8's, M9's and M10's own empty-population denials (display, kern and span are absent here) — nothing else
+	# M0, and M8's to M11's own empty-population denials (display, kern, span and roll are absent here) — nothing else
 	d := mb.deny with input as {"runner": true, "parse": [], "join": [], "ring": []}
 	d == {"M0: no cases were measured; the population is empty, not the parser right",
 		"M8: no display (letterform) cases were measured",
 		"M9: no kerning cases were measured",
-		"M10: no replaceSpan cases were measured"}
+		"M10: no replaceSpan cases were measured",
+		"M11: no rollCells cases were measured"}
 }
 
 test_m1_refuses_wrong_text if {
@@ -221,7 +234,8 @@ test_all_null_case_withheld_only if {
 	d := object.union(display_ok, {"shown": null})
 	k := object.union(kern_sep, {"offsets": null, "bleeds_after": null, "bleeds_at_plain": null})
 	sp := object.union(span_ok, {"span": null})
-	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp]}
+	rl := object.union(roll_ok, {"cells": null})
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp], "roll": [rl]}
 	w := mb.withheld with input as inp
 	"W: kern bold pair: bleeds_after was not measured" in w
 	"W: parse <b>hi</b>: text was not measured" in w
