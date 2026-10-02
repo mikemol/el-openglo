@@ -5192,7 +5192,7 @@
     {
       "symbol": "W237",
       "title": "Guest serial units: el-serial.service, el-serial-session.service and the reporter calling the sh writer (G6, W71f)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W240"
       ],
@@ -5202,22 +5202,22 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Close.",
+      "next_bounded_step": null,
       "evidence": "2026-10-02: 2026-10-02: guest/el-reporter.sh (system: el.ident from credential|cmdline + guest.json, el.mem, P3 plymouth tail, P1/P4g greeter tail; session: el.session, settle, el.settled, P2 journals+appletsrc, P4 analyze; el.done; every path EL_* overridable; shellcheck 0), guest/el-serial.service, guest/el-serial-session.service (user), installed by customize.sh with dialout perms + tmpfiles; el_serial_emit --reporter-bundle: one boot per probe on stubs; luthen checks.serial_writer state ok, opa_gate serial on its stdout: admitted 5 of 5 (P1 P2 P3 P4 P4g); selftest arm counted SKIP here; guest-image.md G6 updated",
       "issued_at": "2026-10-02T15:43:02Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T16:29:20Z",
+      "last_worked": "2026-10-02T16:35:13Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "weight": 9,
-      "completed": null
+      "completed": "20261002T163513Z"
     },
     {
       "symbol": "W238",
       "title": "Pick and pin the RFB client for P1 key events: vncdo or a websocket RFB on the vnc subresource (G7, W71g)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W240"
       ],
@@ -5232,11 +5232,12 @@
       "issued_at": "2026-10-02T15:43:02Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-02T15:43:38Z",
+      "last_worked": "2026-10-02T16:35:45Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 9
+      "weight": 9,
+      "completed": null
     },
     {
       "symbol": "W239",

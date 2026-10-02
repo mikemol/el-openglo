@@ -558,3 +558,4 @@
 2026-10-02T16:11:28Z  tick  W235 advanced  unblock   "host lacks mmdebstrap/qemu-img; asked luthen for a builder runner; blocked on their mint"
 2026-10-02T16:26:07Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:0d9209c10fa2a38e; the FILE wins"
 2026-10-02T16:29:20Z  tick  W237 advanced  unblock   "reporter + units; serial policy admits 5 of 5 probes on luthen runner"
+2026-10-02T16:35:13Z  tick  W237 done      unblock   "guest reporter + units, admitted 5 of 5"  evidence=commit: W237 guest serial reporter
