@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 226,
+  "counter": 228,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T05:18:07Z",
-  "job_id": "b78c54df",
+  "heartbeat": "2026-10-02T06:19:24Z",
+  "job_id": "57e4bd6b",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -4689,7 +4689,7 @@
     {
       "symbol": "W214",
       "title": "policy/qml_target.rego with refusing and admitting tests, and the @QML-TARGET warrant gating it",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W83"
       ],
@@ -4704,7 +4704,7 @@
       "issued_at": "2026-10-02T01:38:32Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T03:53:01Z",
+      "last_worked": "2026-10-02T06:26:35Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:P/S:U/F:K/W:N",
@@ -4847,19 +4847,22 @@
     {
       "symbol": "W221",
       "title": "Palette solver as a nodal solve: drive make_palette from the palette_relations netlist through gcalc.solver, searching only the residual discrete choice",
-      "status": "working",
+      "status": "blocked",
       "enables": [
-        "W226"
+        "W226",
+        "W228"
       ],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Wire it: ghost_solve.balance_luminance delegates to the gcalc divider read (check_nodal.divider_interior moved to a shared module, e.g. palette_relations or a nodal.py the solver imports, NOT a script); schemes must rebuild byte-identical (agreement is 1.5e-16, so any byte change is a finding). Then the ghost floor term (palette_relations open question the-solve-optimises-the-bound-not-in-danger) as an UNEQUAL-conductance divider: the conductance ratio carries the composited floor vs the readability ceiling, solved instead of traded by hand - mint it as its own waypoint with samples to the operator, since it moves the shipped ghost.",
-      "evidence": "2026-10-02: 2026-10-02 operator asked whether the solver uses the g-calculus conductance / nodal approach. Measured: NO. palette_relations.py states the constraints as a gcalc.solver netlist (from palette_graph edges; terminals view/fg/fg_act; ghost as lit-ghost-ground divider verified with gcalc.solver.laplacian) and netlist_render + check_relations + check_palette_graph run it, but make_palette imports neither palette_relations nor gcalc: it searches (~40 candidates/slot, max-min hill-climb, seeded restarts) and the ghost uses ghost_solve closed form, which palette_relations calls a re-derivation defect. palette_relations.open_questions L151-156: nodal is continuous, occupancy discrete; Voronoi/Delaunay over candidates proposed, unmeasured; no Voronoi/Delaunay code exists. | 2026-10-02: 2026-10-02 CORRECTION (operator: \"oh bull. That just means you have more linear channels to solve, and those channels constrain each other\"): the earlier evidence that slot occupancy and sector hue are inherently discrete was wrong - occupancy is discrete only because the search enumerates ~40 candidates; a sector is a convex cone in the a/b plane; contrast is linear in Y once its sign is a variable; CVD views are linear maps. palette_relations.open_questions L151 makes the same mistaken split and needs the same correction when W221 lands. | 2026-10-02: 2026-10-02 SEPARATION RE-READ (operator: \"See how g-calculus achieves NOT()\"): gcalc NOT = the reciprocal x -> 1/x, conductance <-> resistance (kernel.py:3-9, NOT = lambda x: 1/x; exact.py:103 G_NOT = swap of the (n,d) halves, det -1); OR = parallel (add), AND = series ab/(a+b) = Kron/Schur reduction of a degree-2 node (laws.py:293-300); De Morgan from the involution alone; sign is a parity bit, never a negative value (symbolic.py:56, 238). So \"apart\" = NOT(near) = resistance between the two slot nodes, a lower bound on gcalc.solver.r_eff - a positive-cone quantity, not the exclusion of a ball. The ball is the coordinate picture; it vanishes when separation is read as a resistance between nodes. Open: measure that a lower bound on r_eff behaves as a usable constraint in this solve (effective conductance = min energy over potentials), not asserted. | 2026-10-02: 2026-10-02 STEP 1 DONE (gcalc.solver read): netlist(pairs) -> Layered of (u,v) -> admittance term (Q pairs, nothing divided until evaluate); laplacian(nodes, edges, env) evaluates each term with env and builds an exact Fraction Laplacian; r_eff(nodes, edges, env, s, t) solves the reduced system; frontier_solve/freeze/step do symbolic star-mesh elimination (order = gauge, Q count = cost, verdict halt/stop). In el-openglo gcalc is used SYMBOLICALLY only (netlist_render frames/cycle_edges, check_relations): no env has ever been bound to measured palette values - the numeric solve does not exist yet. ORIENTATION QUESTION (hypothesis-is-ambiguity): palette_relations says y >= 1 clears, i.e. admittance = margin ratio (separated = HIGH conductance), while the NOT reading says apart = 1/near (separated = HIGH resistance). The two are each other under G_NOT; the model does not say which is the conductance, so step 2 measures both. | 2026-10-02: 2026-10-02 STEP 2 RAN - FIRST NUMERIC NODAL SOLVE: scripts/check_nodal.py --json (margin per colour edge, bound as resistance = conductance 1/m, gcalc NOT; gcalc.solver.r_eff over each component) + policy/nodal.rego (N0 empty/unsolved, N1 clears-alone-but-r_eff<1) + nodal_test.rego (15/15 with lib); selftest passes (lone edge r_eff == margin; near chain seen; Rayleigh holds; components solved apart). RESULT: opa_gate nodal DENIED 177 of 192 edges, 15 admitted, 18 withheld (ghost ceiling/floor and the APCA argmax have no margin form). Reading: in a dense constraint graph (K6 constellation + accent fans) effective resistance falls with path count, so nearly every edge reads < 1 - but a second route through other colours does not make two colours closer; the triangle inequality makes the direct edge already the shortest path. So colour distance composes in SERIES (sum) with PARALLEL = MIN: min-plus, not the conductance semiring. The measurement refutes the electrical reading of separation (palette_relations open question series-composition-witness: series yes, harmonic-parallel no). The orientation question is answered by the same run: margin-as-resistance is right for series, and neither orientation makes harmonic parallel right. | 2026-10-02: 2026-10-02 CORRECTION OF THE STEP-2 READING (contradiction resolved as a graph edit, not bulldozed): gcalc has NO min-plus solve carrier - domains.TROPICAL (domains.py:280-287) is a classification record with collapse=min and no network; and machine.py:424 logsumexp route tropical-limit-loses-the-mass states the calculus position: \"the conductance solve IS the physics, min is its shadow ... G_AND is a smooth MIN, and it is NOT min ... what the tropical limit discards is the mass axis this calculus is built on\" (checked: AND(a,a)=a/2 != min(a,a), AND(a,b) < min(a,b) over 400 rationals). So step 2 did NOT refute the electrical calculus for separation; it refuted MY ENCODING (margin as resistance, r_eff over the graph topology = how connected two colours are, the wrong question). The agreement: margins are CONDUCTANCES (palette_relations orientation) and the constraint SET composes in SERIES (AND, a smooth min keeping every margin), which is also the repair for the shipped max-min flatness palette_relations measured. The earlier \"separation is min-plus\" claim is withdrawn; min-plus is the mass-losing limit of exactly what the solver should optimise. | 2026-10-02: 2026-10-02 MEASURED (check_nodal --moves; selftest adds series < min and a non-binding margin moves series but not min): over the window semantic set of all six variants, every single-slot candidate swap: shipped hard max-min is BLIND to 129 of 1079 moves (per variant 6/175 .. 39/195); gcalc SERIES composition (AND = 1/sum(1/q), margins as conductances) is blind to 0 of 1079. Confirms machine.py:424 on this palette. DISCREPANCY recorded, not resolved: palette_relations docstring says 47% of moves change max-min not at all; this population measures 12% - that docstring names no population, so its figure is not reproducible as written. | 2026-10-02: 2026-10-02 policy/nodal.rego RESTATED: N1 retired (r_eff over topology, refuted); N0 empty population / empty candidate search; N2 the series objective sees every single-slot move; nodal_test.rego 14/14 with lib; opa_gate nodal admitted 6 of 6. check_nodal --json now emits move visibility; docstring states the retirement and N2 weakness (series is strictly monotone, so N2 is near-certain to admit; the recorded comparison is the information). Solver objective change minted as W226 with samples-first. | 2026-10-02: 2026-10-02 GHOST-DIVIDER PILOT CONFIRMED (check_nodal --ghost; selftest adds equal divider -> midpoint, 3:1 -> y1/(y1+y2)): the ghost balance a/y = y/b is the interior potential of lit -(1)- ghost -(1)- ground in LOG offset luminance; read from gcalc.solver.laplacian (Kirchhoff row of the interior node, exact over Fraction) it matches ghost_solve.balance_luminance = sqrt(ab) on all six variants to max relative difference 1.51e-16 (machine epsilon). The hand-derived closed form palette_relations calls a re-derivation defect is reproduced by the solve without being written.",
+      "blocked_on": [
+        "W227"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "On the W227 ruling: core -> make_palette reads gcalc.solver for the linear relations (ghost divider first, then lightness/signed contrast), with N3 as the regression guard; sibling -> close W221 on the witness shape (check_nodal + policy/nodal N2/N3), its separation and ghost-floor work carried by W226 and W228.",
+      "evidence": "2026-10-02: 2026-10-02 operator asked whether the solver uses the g-calculus conductance / nodal approach. Measured: NO. palette_relations.py states the constraints as a gcalc.solver netlist (from palette_graph edges; terminals view/fg/fg_act; ghost as lit-ghost-ground divider verified with gcalc.solver.laplacian) and netlist_render + check_relations + check_palette_graph run it, but make_palette imports neither palette_relations nor gcalc: it searches (~40 candidates/slot, max-min hill-climb, seeded restarts) and the ghost uses ghost_solve closed form, which palette_relations calls a re-derivation defect. palette_relations.open_questions L151-156: nodal is continuous, occupancy discrete; Voronoi/Delaunay over candidates proposed, unmeasured; no Voronoi/Delaunay code exists. | 2026-10-02: 2026-10-02 CORRECTION (operator: \"oh bull. That just means you have more linear channels to solve, and those channels constrain each other\"): the earlier evidence that slot occupancy and sector hue are inherently discrete was wrong - occupancy is discrete only because the search enumerates ~40 candidates; a sector is a convex cone in the a/b plane; contrast is linear in Y once its sign is a variable; CVD views are linear maps. palette_relations.open_questions L151 makes the same mistaken split and needs the same correction when W221 lands. | 2026-10-02: 2026-10-02 SEPARATION RE-READ (operator: \"See how g-calculus achieves NOT()\"): gcalc NOT = the reciprocal x -> 1/x, conductance <-> resistance (kernel.py:3-9, NOT = lambda x: 1/x; exact.py:103 G_NOT = swap of the (n,d) halves, det -1); OR = parallel (add), AND = series ab/(a+b) = Kron/Schur reduction of a degree-2 node (laws.py:293-300); De Morgan from the involution alone; sign is a parity bit, never a negative value (symbolic.py:56, 238). So \"apart\" = NOT(near) = resistance between the two slot nodes, a lower bound on gcalc.solver.r_eff - a positive-cone quantity, not the exclusion of a ball. The ball is the coordinate picture; it vanishes when separation is read as a resistance between nodes. Open: measure that a lower bound on r_eff behaves as a usable constraint in this solve (effective conductance = min energy over potentials), not asserted. | 2026-10-02: 2026-10-02 STEP 1 DONE (gcalc.solver read): netlist(pairs) -> Layered of (u,v) -> admittance term (Q pairs, nothing divided until evaluate); laplacian(nodes, edges, env) evaluates each term with env and builds an exact Fraction Laplacian; r_eff(nodes, edges, env, s, t) solves the reduced system; frontier_solve/freeze/step do symbolic star-mesh elimination (order = gauge, Q count = cost, verdict halt/stop). In el-openglo gcalc is used SYMBOLICALLY only (netlist_render frames/cycle_edges, check_relations): no env has ever been bound to measured palette values - the numeric solve does not exist yet. ORIENTATION QUESTION (hypothesis-is-ambiguity): palette_relations says y >= 1 clears, i.e. admittance = margin ratio (separated = HIGH conductance), while the NOT reading says apart = 1/near (separated = HIGH resistance). The two are each other under G_NOT; the model does not say which is the conductance, so step 2 measures both. | 2026-10-02: 2026-10-02 STEP 2 RAN - FIRST NUMERIC NODAL SOLVE: scripts/check_nodal.py --json (margin per colour edge, bound as resistance = conductance 1/m, gcalc NOT; gcalc.solver.r_eff over each component) + policy/nodal.rego (N0 empty/unsolved, N1 clears-alone-but-r_eff<1) + nodal_test.rego (15/15 with lib); selftest passes (lone edge r_eff == margin; near chain seen; Rayleigh holds; components solved apart). RESULT: opa_gate nodal DENIED 177 of 192 edges, 15 admitted, 18 withheld (ghost ceiling/floor and the APCA argmax have no margin form). Reading: in a dense constraint graph (K6 constellation + accent fans) effective resistance falls with path count, so nearly every edge reads < 1 - but a second route through other colours does not make two colours closer; the triangle inequality makes the direct edge already the shortest path. So colour distance composes in SERIES (sum) with PARALLEL = MIN: min-plus, not the conductance semiring. The measurement refutes the electrical reading of separation (palette_relations open question series-composition-witness: series yes, harmonic-parallel no). The orientation question is answered by the same run: margin-as-resistance is right for series, and neither orientation makes harmonic parallel right. | 2026-10-02: 2026-10-02 CORRECTION OF THE STEP-2 READING (contradiction resolved as a graph edit, not bulldozed): gcalc has NO min-plus solve carrier - domains.TROPICAL (domains.py:280-287) is a classification record with collapse=min and no network; and machine.py:424 logsumexp route tropical-limit-loses-the-mass states the calculus position: \"the conductance solve IS the physics, min is its shadow ... G_AND is a smooth MIN, and it is NOT min ... what the tropical limit discards is the mass axis this calculus is built on\" (checked: AND(a,a)=a/2 != min(a,a), AND(a,b) < min(a,b) over 400 rationals). So step 2 did NOT refute the electrical calculus for separation; it refuted MY ENCODING (margin as resistance, r_eff over the graph topology = how connected two colours are, the wrong question). The agreement: margins are CONDUCTANCES (palette_relations orientation) and the constraint SET composes in SERIES (AND, a smooth min keeping every margin), which is also the repair for the shipped max-min flatness palette_relations measured. The earlier \"separation is min-plus\" claim is withdrawn; min-plus is the mass-losing limit of exactly what the solver should optimise. | 2026-10-02: 2026-10-02 MEASURED (check_nodal --moves; selftest adds series < min and a non-binding margin moves series but not min): over the window semantic set of all six variants, every single-slot candidate swap: shipped hard max-min is BLIND to 129 of 1079 moves (per variant 6/175 .. 39/195); gcalc SERIES composition (AND = 1/sum(1/q), margins as conductances) is blind to 0 of 1079. Confirms machine.py:424 on this palette. DISCREPANCY recorded, not resolved: palette_relations docstring says 47% of moves change max-min not at all; this population measures 12% - that docstring names no population, so its figure is not reproducible as written. | 2026-10-02: 2026-10-02 policy/nodal.rego RESTATED: N1 retired (r_eff over topology, refuted); N0 empty population / empty candidate search; N2 the series objective sees every single-slot move; nodal_test.rego 14/14 with lib; opa_gate nodal admitted 6 of 6. check_nodal --json now emits move visibility; docstring states the retirement and N2 weakness (series is strictly monotone, so N2 is near-certain to admit; the recorded comparison is the information). Solver objective change minted as W226 with samples-first. | 2026-10-02: 2026-10-02 GHOST-DIVIDER PILOT CONFIRMED (check_nodal --ghost; selftest adds equal divider -> midpoint, 3:1 -> y1/(y1+y2)): the ghost balance a/y = y/b is the interior potential of lit -(1)- ghost -(1)- ground in LOG offset luminance; read from gcalc.solver.laplacian (Kirchhoff row of the interior node, exact over Fraction) it matches ghost_solve.balance_luminance = sqrt(ab) on all six variants to max relative difference 1.51e-16 (machine epsilon). The hand-derived closed form palette_relations calls a re-derivation defect is reproduced by the solve without being written. | 2026-10-02: 2026-10-02 CONTRADICTION RESOLVED AS A GRAPH EDIT: W221 title (drive make_palette through gcalc.solver) conflicts with the recorded pyproject decision that gcalc is a located sibling, not a dependency - the shipped build runs from a clean clone. Agreement until the operator rules (W227): the shipped path keeps ghost_solve closed form; gcalc is the WITNESS. policy/nodal.rego N3 (ghost closed form == divider solve, tolerance 1e-12; withheld when gcalc is absent) + 3 tests (17/17 with lib); opa_gate nodal admitted 6 of 6. W228 (ghost floor, unequal divider) and W226 (series objective) need no gcalc on the shipped path - both are formulas the witness can check.",
       "issued_at": "2026-10-02T03:43:59Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T06:13:34Z",
+      "last_worked": "2026-10-02T06:26:14Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
@@ -4967,6 +4970,47 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
+    },
+    {
+      "symbol": "W227",
+      "title": "Decide whether gcalc becomes a sha-pinned core dependency (so the shipped palette can run gcalc.solver) or stays a located sibling used only by witnesses",
+      "status": "blocked",
+      "enables": [
+        "W221"
+      ],
+      "touches": [],
+      "blocked_on": [
+        "operator: decide whether gcalc (~/github/gcalculus, now a stdlib-only pyproject named gcalculus) becomes a sha-pinned CORE dependency - the ebuild and deb would then fetch and package it - or stays a located sibling that only witnesses import"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "On core: add \"gcalculus @ git+...@<sha>\" to pyproject dependencies (one pinned sha, like paperkit), retire the sys.path.insert in netlist_render/check_nodal/check_palette_graph, teach the ebuild and make_deb to carry it, rewrite the pyproject ABSENT note. On sibling: rewrite the ABSENT note with today reason (packaging, not \"not a distribution\") and close W221 on the witness shape (N3).",
+      "evidence": "2026-10-02: 2026-10-02 from W221: pyproject.toml records gcalc as deliberately ABSENT (LOCATED, not vendored, \"not a PyPI distribution and must not become one here\"); part of that reason is now stale - ~/github/gcalculus/pyproject.toml declares name gcalculus, dependencies = [] (stdlib-only by its own rule), so a sha-pinned git spec would resolve as paperkit does. The shipped palette build (make_schemes, run by the ebuild and make_deb from a clean clone) cannot import a sibling checkout, so W221 cannot drive make_palette through gcalc.solver without this decision.",
+      "issued_at": "2026-10-02T06:25:49Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T06:26:14Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:H/I:H/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W228",
+      "title": "Ghost floor term as an unequal-conductance divider: one conductance ratio carries the composited floor against the readability ceiling (samples first)",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Model: lit -(y1)- ghost -(y2)- ground in log offset luminance; y1:y2 places the ghost between its readability CEILING (|Lc| < 30, ghost must not read as text) and its composited FLOOR (feasible_ghost_floor through ghost_alpha), the palette_relations open question the-solve-optimises-the-bound-not-in-danger. Solve the ratio from the two bounds (check_nodal.divider_interior already takes y1, y2), render the ghost under today (1:1) and the solved ratio for all six variants as an artifact, put it to the operator; only then change ghost_solve. @GHOSTCOMP is red today and should go green on the solved ratio.",
+      "evidence": "2026-10-02: Minted from W221 (2026-10-02): the 1:1 divider reproduces ghost_solve to 1.5e-16; selftest shows a 3:1 divider lands at the conductance-weighted mean y1/(y1+y2), so the floor term is one ratio, not three knobs traded by hand.",
+      "issued_at": "2026-10-02T06:25:49Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-02T06:26:14Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [
@@ -4988,6 +5032,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "4c8a4af5",
+  "predecessor_job_id": "b78c54df",
   "leases": []
 }

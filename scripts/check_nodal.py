@@ -275,7 +275,12 @@ def main(argv):
               f"series blind to {sum(r['flat_series'] for r in rows)} of {m}")
         return 0
     if "--json" in argv:
-        print(json.dumps({"cases": move_visibility()}, indent=1))
+        doc = {"cases": move_visibility(), "ghost": [], "withheld": []}
+        try:
+            doc["ghost"] = ghost_pilot()
+        except ImportError as e:            # gcalc is LOCATED, not a dependency (pyproject)
+            doc["withheld"].append(f"ghost: gcalc not importable here ({e}); the divider witness was not run")
+        print(json.dumps(doc, indent=1))
         return 0
     import opa_gate
     return opa_gate.gate("nodal")

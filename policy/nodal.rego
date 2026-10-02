@@ -39,3 +39,23 @@ admitted contains c.variant if {
 	c.moves > 0
 	c.flat_series == 0
 }
+
+# METADATA
+# title: "N3 — the shipped ghost closed form IS the divider solve"
+# description: |
+#   ghost_solve.balance_luminance (y = sqrt(ab), the shipped path) against the
+#   interior potential of lit -(1)- ghost -(1)- ground in log offset luminance,
+#   read from gcalc.solver.laplacian. gcalc is LOCATED, not a dependency, so the
+#   shipped path keeps the closed form and this is the witness that the two agree;
+#   when gcalc is absent the measurement withholds rather than passing.
+tolerance := 0.000000000001
+
+deny contains msg if {
+	some g in object.get(input, "ghost", [])
+	g.rel_diff > tolerance
+	msg := sprintf("N3: %s: ghost closed form and divider solve disagree (relative difference %v)", [g.variant, g.rel_diff])
+}
+
+withheld contains msg if {
+	some msg in object.get(input, "withheld", [])
+}

@@ -28,6 +28,22 @@ test_empty_candidate_search_denied if {
 	startswith(m, "N0: EL-Azure")
 }
 
+test_ghost_agreement_admitted if {
+	doc := {"cases": [row("EL-Azure", 143, 28, 0)], "ghost": [{"variant": "EL-Azure", "rel_diff": 1.5e-16}]}
+	count(nodal.deny) == 0 with input as doc
+}
+
+test_ghost_disagreement_denied if {
+	doc := {"cases": [row("EL-Azure", 143, 28, 0)], "ghost": [{"variant": "EL-Azure", "rel_diff": 0.003}]}
+	some m in nodal.deny with input as doc
+	startswith(m, "N3: EL-Azure")
+}
+
+test_gcalc_absent_withheld if {
+	doc := {"cases": [row("EL-Azure", 143, 28, 0)], "ghost": [], "withheld": ["ghost: gcalc not importable here"]}
+	count(nodal.withheld) == 1 with input as doc
+}
+
 test_max_min_blindness_alone_is_not_a_deny if {
 	doc := {"cases": [row("EL-Azure", 143, 143, 0)]}
 	count(nodal.deny) == 0 with input as doc
