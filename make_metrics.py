@@ -81,7 +81,7 @@ def main_qml():
 
 def address_literals(text):
     """Every host:port or cluster service name in `text` - the M3 measurement."""
-    return sorted(set(m.group(0) for m in _ADDRESS.finditer(text)))
+    return sorted({m.group(0) for m in _ADDRESS.finditer(text)})
 
 
 def render_all(path):
@@ -102,12 +102,14 @@ def balanced(s, o, c):
 
 def check(path):
     errs = []
-    md = json.load(open(os.path.join(path, "metadata.json")))
+    with open(os.path.join(path, "metadata.json")) as fh:
+        md = json.load(fh)
     if md.get("KPackageStructure") != "Plasma/Applet":
         errs.append("KPackageStructure != Plasma/Applet")
     if md.get("X-Plasma-API-Minimum-Version") != "6.0":
         errs.append("missing X-Plasma-API-Minimum-Version 6.0")
-    q = open(os.path.join(path, "contents", "ui", "main.qml")).read()
+    with open(os.path.join(path, "contents", "ui", "main.qml")) as fh:
+        q = fh.read()
     if "PlasmoidItem {" not in q:
         errs.append("root is not PlasmoidItem")
     for o, c in (("{", "}"), ("(", ")"), ("[", "]")):
@@ -133,7 +135,8 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         p = render_all(os.path.join(td, PACKAGE_ID))
         chk("the emitted package passes its gate", check(p), [])
-        q = open(os.path.join(p, "contents", "ui", "main.qml")).read()
+        with open(os.path.join(p, "contents", "ui", "main.qml")) as fh:
+            q = fh.read()
         chk("the query set is emitted as data", all(x["expr"] in q for x in QUERIES), True)
         chk("the endpoint tool is emitted, not an address", ("endpoints_query.py" in q, address_literals(q)), (True, []))
     print("make_metrics selftest:", "PASS" if ok else "FAIL")

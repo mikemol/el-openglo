@@ -63,13 +63,13 @@ def cycle_edges():
     constraint can fail in company', which is the distinction every per-edge check
     in this tree is blind to."""
     try:
-        import sys
         import os
+        import sys
         gc = os.path.expanduser("~/github/gcalculus")
         if os.path.isdir(gc) and gc not in sys.path:
             sys.path.insert(0, gc)
         from gcalc import solver as S
-    except Exception:                                    # pragma: no cover
+    except ImportError:                                  # pragma: no cover
         return None
     raw = PG.netlist_edges(constraining_only=True)
     ns = list(PG.nodes(constraining_only=True))

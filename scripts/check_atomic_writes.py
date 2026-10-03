@@ -170,6 +170,7 @@ def _selftest():
     and not atomic; the helper call is the atomic kind; a read is not a site; an
     exemption carries its reason; and the live helper really replaces."""
     import tempfile
+
     import emitters
     ok = True
 

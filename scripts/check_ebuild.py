@@ -59,9 +59,10 @@ def overlay_markers():
 
 def bdepend_atoms(path=EBUILD):
     """The package atoms in BDEPEND / DEPEND / RDEPEND, USE-deps stripped."""
-    text = open(path, encoding="utf-8").read()
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
     atoms = []
-    for m in re.finditer(r'^(?:B|R)?DEPEND="([^"]*)"', text, re.M):
+    for m in re.finditer(r'^(?:B|R)?DEPEND="([^"]*)"', text, re.MULTILINE):
         for tok in m.group(1).split():
             tok = re.sub(r"\[.*?\]$", "", tok)
             if "/" in tok and not tok.startswith("$"):
@@ -87,7 +88,7 @@ def deps_resolve(path=EBUILD):
     unresolved = []
     for a in atoms:
         r = subprocess.run(["portageq", "best_visible", "/", a], env=env,
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, check=False)
         if r.returncode != 0 or not r.stdout.strip():
             unresolved.append(a)
     if unresolved:
@@ -108,7 +109,7 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
     `isolated=False` is the old call, kept so --race can show the difference."""
     if not isolated:
         r = subprocess.run(["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, check=False)
         return r.returncode, r.stdout, r.stderr
     with tempfile.TemporaryDirectory(prefix="el-pkgcheck-") as td:
         repo = os.path.join(td, "overlay")
@@ -117,12 +118,12 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
             if path.startswith(OVERLAY + os.sep) else path
         r = subprocess.run(["pkgcheck", "scan", "--cache-dir", os.path.join(td, "cache"),
                             "--repo", repo, "-k", "error", target],
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, check=False)
         return r.returncode, r.stdout, r.stderr
 
 
 # pkgcheck could not LOAD the host's repo set: a fact about the machine, not the ebuild
-ENV_ERROR = re.compile(r"repos\.conf|default repo|is undefined or not a Repo|unable to load", re.I)
+ENV_ERROR = re.compile(r"repos\.conf|default repo|is undefined or not a Repo|unable to load", re.IGNORECASE)
 
 
 def pkgcheck_env_error(rc, stdout, stderr):
@@ -144,8 +145,9 @@ def ebuild_wellformed(path=EBUILD):
     """(ok, detail). pkgcheck if present; else a bash parse + required variables."""
     if not os.path.isfile(path):
         return False, "ebuild missing"
-    text = open(path, encoding="utf-8").read()
-    missing = [v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.M)]
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    missing = [v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.MULTILINE)]
     if missing:
         return False, f"required variable(s) unset: {', '.join(missing)}"
     if shutil.which("pkgcheck"):
@@ -155,7 +157,7 @@ def ebuild_wellformed(path=EBUILD):
         if rc != 0 or "Error" in out:
             return False, "pkgcheck: " + (out or err).strip()[:400]
         return True, "pkgcheck: no errors"
-    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
+    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True, check=False)
     if r.returncode != 0:
         return False, "bash -n: " + r.stderr.strip()[:400]
     return True, "SKIP pkgcheck (not installed); bash parses, required variables set"
@@ -238,7 +240,7 @@ def staged_tree(clean=True):
             env.update(SANDBOX_WRITE=td, SANDBOX_DENY="/tmp:/var/tmp",
                        SANDBOX_PREDICT="", SANDBOX_VERBOSE="1")
             cmd = ["sandbox", "--"] + cmd
-        r = subprocess.run(cmd, cwd=src, capture_output=True, text=True, env=env)
+        r = subprocess.run(cmd, cwd=src, capture_output=True, text=True, env=env, check=False)
         if r.returncode != 0:
             raise RuntimeError(("make_deb --stage failed in a clean clone under sandbox: "
                                 if sandboxed else "make_deb --stage failed in a clean clone: ")
@@ -264,9 +266,12 @@ def staged_tree(clean=True):
 def lint_facts(path=EBUILD):
     """What linting the ebuild SAYS: which linter ran (pkgcheck, else a bash parse)
     and its output — no verdict. `pkgcheck` null means it is not installed here."""
-    text = open(path, encoding="utf-8").read() if os.path.isfile(path) else ""
+    text = ""
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as fh:
+            text = fh.read()
     out = {"present": os.path.isfile(path),
-           "missing_vars": [v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.M)],
+           "missing_vars": [v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.MULTILINE)],
            "pkgcheck": None, "bash_parse": None}
     if not out["present"]:
         return out
@@ -275,7 +280,7 @@ def lint_facts(path=EBUILD):
         out["pkgcheck"] = {"rc": rc, "errors": "Error" in so,
                            "env_error": pkgcheck_env_error(rc, so, se),
                            "output": (so or se).strip()[:400]}
-    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
+    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True, check=False)
     out["bash_parse"] = {"rc": r.returncode, "stderr": r.stderr.strip()[:400]}
     return out
 
@@ -290,7 +295,7 @@ def deps_facts(path=EBUILD):
     res = []
     for a in atoms:
         r = subprocess.run(["portageq", "best_visible", "/", a], env=env,
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, check=False)
         res.append({"atom": a, "resolves": r.returncode == 0 and bool(r.stdout.strip())})
     return {"portageq": True, "atoms": res}
 
@@ -362,16 +367,19 @@ def _selftest():
     # ⚑ THE WELL-FORMEDNESS ARM MUST SEE A BROKEN EBUILD.
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "x-9999.ebuild")
-        open(p, "w").write('EAPI=8\nDESCRIPTION="x"\n')
-        w_ok, w_detail = ebuild_wellformed(p)
+        with open(p, "w") as fh:
+            fh.write('EAPI=8\nDESCRIPTION="x"\n')
+        w_ok, _w_detail = ebuild_wellformed(p)
         check("an ebuild missing required variables is seen", w_ok, False)
-        open(p, "w").write("EAPI=8\nDESCRIPTION=\"x\"\nHOMEPAGE=\"x\"\nLICENSE=\"GPL-3\"\n"
-                           "SLOT=\"0\"\nEGIT_REPO_URI=\"x\"\nsrc_install() {\n")
+        with open(p, "w") as fh:
+            fh.write("EAPI=8\nDESCRIPTION=\"x\"\nHOMEPAGE=\"x\"\nLICENSE=\"GPL-3\"\n"
+                     "SLOT=\"0\"\nEGIT_REPO_URI=\"x\"\nsrc_install() {\n")
         w_ok, _d = ebuild_wellformed(p)
         check("an ebuild that does not parse is seen (bash -n / pkgcheck)", w_ok, False)
         # the MEASUREMENT sees the same breakage as facts (policy/ebuild.rego rules on them)
         check("lint_facts reports the unparsable ebuild's bash rc", lint_facts(p)["bash_parse"]["rc"] != 0, True)
-        open(p, "w").write('EAPI=8\nDESCRIPTION="x"\n')
+        with open(p, "w") as fh:
+            fh.write('EAPI=8\nDESCRIPTION="x"\n')
         check("lint_facts names the unset variables",
               lint_facts(p)["missing_vars"], ["HOMEPAGE", "LICENSE", "SLOT", "EGIT_REPO_URI"])
     e_ok, e_detail = ebuild_wellformed()
@@ -392,8 +400,9 @@ def _selftest():
     # ebuild that declares none (a vacuous all-clear).
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "y-9999.ebuild")
-        open(p, "w").write('EAPI=8\nBDEPEND="\n\tdev-python/numpy[${PYTHON_USEDEP}]\n'
-                           '\tdev-nonesuch/el-openglo-selftest-absent\n"\n')
+        with open(p, "w") as fh:
+            fh.write('EAPI=8\nBDEPEND="\n\tdev-python/numpy[${PYTHON_USEDEP}]\n'
+                     '\tdev-nonesuch/el-openglo-selftest-absent\n"\n')
         check("atoms are read with USE-deps stripped", bdepend_atoms(p),
               ["dev-nonesuch/el-openglo-selftest-absent", "dev-python/numpy"])
         d_ok, d_detail = deps_resolve(p)
@@ -402,7 +411,8 @@ def _selftest():
         else:
             check("an atom with no provider is seen", d_ok, False)
             check("...and named", "el-openglo-selftest-absent" in d_detail, True)
-            open(p, "w").write('EAPI=8\n')
+            with open(p, "w") as fh:
+                fh.write('EAPI=8\n')
             check("an ebuild with no atoms is refused, not passed", deps_resolve(p)[0], False)
             r_ok, r_detail = deps_resolve()
             check(f"the real ebuild's atoms all resolve ({r_detail})", r_ok, True)
@@ -420,11 +430,11 @@ def _selftest():
                        SANDBOX_PREDICT="")
             r = subprocess.run(["sandbox", "--", sys.executable, "-c",
                                 "open('/tmp/check_ebuild-selftest-leak', 'w').write('x')"],
-                               capture_output=True, text=True, env=env)
+                               capture_output=True, text=True, env=env, check=False)
             check("sandbox refuses a write to /tmp", r.returncode != 0, True)
             r = subprocess.run(["sandbox", "--", sys.executable, "-c",
                                 f"open('{td}/ok', 'w').write('x')"],
-                               capture_output=True, text=True, env=env)
+                               capture_output=True, text=True, env=env, check=False)
             check("...and allows a write inside SANDBOX_WRITE", r.returncode, 0)
     else:
         print("  SKIP sandbox arms — sys-apps/sandbox not on PATH")

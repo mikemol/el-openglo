@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 252,
+  "counter": 261,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-02T15:57:02Z",
   "job_id": "86bfa067",
@@ -1529,10 +1529,10 @@
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
-      "next_bounded_step": "Rules: blocked on paperkit W52 (packaged pk_* rules; operator: no fourth copy). UNBLOCKED meanwhile: el-openglo own executor image (luthen) — image/executor/Containerfile, pinned layers + offscreen Qt6/qml, tools/pool.bzl, tools/image_digest.py in the key. Operator 2026-09-25: renders DO go in the shared remote cache (keys must be complete — the image digest is part of that); GPU for stills UNDECIDED, so stills stay a host-side step",
-      "evidence": "86e215d proposal in catalog/bazel-survey.md; operator 2026-09-25 wait for paperkit package",
+      "next_bounded_step": "Independent of paperkit:W52, in order: (1) the executor image as a caller Containerfile for luthen W328 (offscreen Qt6 + declared fonts + pinned layers; the toolchain-tier hermeticity the survey decomposed: tree inputs, .colors, fonts, toolchain; time and GPU are the residue); (2) a DOMAIN WITNESS for check_action_key actions in the shape of mtools domain_witness.sh (arm 1: a transitive edit reaches the action key; arm 2: a transitive defect reaches the verdict), standing, run by the gate; (3) BUILD generation from a declaration with a stale-BUILD gate, tiers per action (sandbox/toolchain/local). Then ask the operator whether mtools atoms satisfy no-fourth-copy so W52 stops being the blocker.",
+      "evidence": "86e215d proposal in catalog/bazel-survey.md; operator 2026-09-25 wait for paperkit package | 2026-10-03: 2026-10-03 OPERATOR: \"what is actually called for is bazel-orchestrated dependency-driven build artifacts; if you can forget to rebuild something that needed to be rebuilt because something else changed, then there was insufficient understanding of the dependencies and build layout\" - and \"mtools has tooling around this problem; look at the pre-commit hooks\". THE CASE: the swarm integration was walked by hand and a SegmentChar edit moved the clock plasmoid tracked copy (plasma-clock/.../SegmentChar.qml); the commit gate caught it (not silent), but the dev loop depends on memory. READ in mtools (no embargoed paths used): (1) SKELETON.md - bazel test //... passes in a clone with no venvs because every tool is a hash-pinned declared input; (2) .githooks/pre-commit - gates the STAGED index (git checkout-index into a STABLE path so bazel action cache survives), derives its populations structurally (dirs with pyproject/MODULE.bazel, refusing an empty derivation), refuses when a tool is absent, records which check failed (note_failure/run_checked/refusal_record), snapshots itself before running; (3) domain_witness.sh - a standing TWO-ARMED witness that a checker domain is not short: a transitive edit must reach the action AND a transitive defect must reach the verdict; (4) findings/deps-build/deps-build-apex.md AX-11a/b: the closure is a CORRECTNESS requirement (linux-sources LS-03/LS-04: three-state first_party/unresolvable/dynamic, hard fail on an under-cover, seventeen adversaries incl. stub files, roster contents, a second artefact of one generator), AX-13 hermeticity (the gate that passes by not running), AX-15 build design (linux-sources: BUILD.bazel GENERATED, 261 pk_cmd, 94 percent sandbox tier, a stale-BUILD gate). The blocker paperkit:W52 (packaged pk_* rules) is behind paperkit hub unfreeze per the 09-26 ruling; mtools bazel atoms (rules_py, check_ruff, check_mypy: real directories with MODULE.bazel) may give a path that needs no fourth verb.bzl - OPEN QUESTION for the operator (below). W252 (a rebuild sequencer) is dropped into this card.",
       "issued_at": "2026-09-25T22:54:05+00:00",
-      "last_worked": "2026-09-26T18:13:45+00:00",
+      "last_worked": "2026-10-03T18:44:30Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -5567,26 +5567,218 @@
       "vector_source": "agent"
     },
     {
-      "symbol": "W252",
-      "title": "One rebuild sequencer: emitters --apply, action_key --rebuild, template parity status and the README/WORKLIST projection, in order, printing what each moved",
-      "status": "ready",
+      "symbol": "W253",
+      "title": "Adopt mtools hooks: wire no-verify, shellcheck and pycheck in .claude/settings.json with a check_hooks probe each (effective at restart)",
+      "status": "blocked",
       "enables": [],
       "touches": [
-        "check_emitters_run",
-        "check_action_key",
-        "check_template_parity",
-        "worklist_gate"
+        "hooks",
+        "settings",
+        "check_hooks"
+      ],
+      "blocked_on": [
+        "W255",
+        "W261"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W254 and W255: add no-verify, shellcheck and pycheck PreToolUse entries to .claude/settings.json (switches inline on each command: NOVERIFY_HOOK_BLOCK=1, SHELLCHECK_HOOK_BLOCK=1, PYCHECK_HOOK_BLOCK=1; matchers Bash / Bash|Edit|Write / Edit|Write per the mtools README), add a PROBES row per hook to scripts/check_hooks.py with refusing and admitting payloads, update policy/hooks.rego and its tests, run opa_gate hooks. no-verify and shellcheck may go first if mikemol-shellcheck --check-tree is clean.",
+      "evidence": "2026-10-03: 2026-10-03 OPERATOR: \"straight-up adopt mtools hooks. Trust mtools and nemik tooling\" and \"initial adoption often requires paying down debt\". Installed and NOT wired: mikemol-hook-no-verify, mikemol-hook-shellcheck, mikemol-hook-pycheck (and mikemol-hook-standing / -standing-stop exist in mtools hooks/bin, newer than our sha 03836cc: W256). Wired today: structural-query and no-chaining only. pycheck refuses a .py edit whose RESULT ruff or mypy flags, judged WHOLE-file against the project own bar (ruff default settings here), so a file with any finding refuses EVERY edit to it: 963 ruff findings today (138 EXE001, 235 SIM115, 137 I001, 77 ISC004, 72 PLW1510, ...). Settings are re-read only at restart, so wiring is safe to do before the debt is paid, but it is wired LAST so the next session is not locked out. no-verify and shellcheck cost nothing if the shell tree is clean. check_hooks measures every hook in settings.json by behaviour (PROBES) and needs a probe per new hook.",
+      "issued_at": "2026-10-03T18:43:36Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-03T19:01:59Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W254",
+      "title": "Pay the ruff debt to zero under the default bar (963 findings): umbrella over the shebang modes, the safe fixes, the reviewed fixes and the manual rest",
+      "status": "done",
+      "enables": [
+        "W253"
+      ],
+      "touches": [
+        "ruff",
+        "python"
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "scripts/rebuild.py: run in order (1) check_emitters_run --apply, (2) check_action_key --rebuild (as the caller wraps it in systemd-run), (3) check_template_parity listing every template that differs from its baseline WITH its diff - it records NOTHING (recording stays the reader act), then (4) readme_fragments --write and worklist_gate --project; print what each moved, n of m, stop at the first failure; selftest over a fixture; refuse unknown flags.",
-      "evidence": "2026-10-03: 2026-10-03: minted from W251. After the two tools the integration is still FOUR commands in a hand-remembered order (emitters --apply; action_key --rebuild; check_template_parity per template; readme_fragments --write + worklist_gate --project), and the parity step has a judgement (read the diff before --record) that no tool can make but a tool CAN gate: it can print every template whose baseline is out of date with the diff and refuse to record unread.",
-      "issued_at": "2026-10-03T18:18:11Z",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 MEASURED (ruff check --statistics, default settings, excluding .claude/.venv/screens): 963 findings. By rule: SIM115 235, EXE001 138, I001 137, ISC004 77, PLW1510 72, C408 48, RUF100 48, UP031 46, FURB167 35, RUF046 20, F401 19, RUF059 14, then a tail of 1-6 each. 262 are auto-fixable (--fix), 227 more only with --unsafe-fixes. The 138 EXE001 are shebang files that are not executable: chmod +x, tracked as a git mode change. Config in force: ruff default settings (verbose: Using Ruff default settings), requires-python 3.13; the recent default rule set is broad. | 2026-10-03: 2026-10-03 (swarm + integration): ruff check under the DEFAULT bar (no config; Using Ruff default settings) 963 findings -> 0 across the repo (excluding .claude/.venv/screens). Steps, each attributable: (1) 138 EXE001 shebang files chmod +x (git mode change); (2) ruff --fix safe fixes, 262 (I001, RUF100, FURB167, F401, F541, RUF010, SIM905...), full worklist gate after: nothing broke, only @CURRENCY (expected: Python edits move code closures); (3) 563 manual findings in 129 files fanned to SIX disjoint-file agents (groups of ~94) under scratchpad/debt-brief.md, all six at zero, each file py_compiled and its own selftest run; group 2 also used ruff --unsafe-fixes for 7 behaviour-preserving rules; (4) qt_sandbox.py PLW1509 by me: preexec_fn replaced by a launcher that sets RLIMIT_CORE/RLIMIT_CPU then execvp (same pid, env and limits; selftest real-child arms pass, +2 arms for the CPU cap it never covered); (5) integration: check_emitters_run --apply 0 of 0 drifted (19 emitters ran: no tracked output changed), check_discriminates selftest PASS (nobody could run it: it mutates real files), check_action_key --rebuild re-keyed all three, schemes/wallpapers/tokens/engines byte-identical; 6 marquee-anim APNGs re-rendered with 37 pixel-identical frames each and a differing t in the log (restored: W259). Behaviour-relevant judgements the agents reported: ISC004 sites were ALL one logical string (parenthesised, no data change); narrowed excepts (make_kvantum -> configparser.Error, check_palette_graph + netlist_render + check_relations gcalc imports -> ImportError, make_clock ET.parse -> (ParseError, OSError), check_notify_roles import -> ImportError: a non-expected exception now propagates); open(p,\"w\").write(expr) -> with-block computes expr first (a failing expr no longer truncates a file); check_nodal PLR0133 constant half dropped; DTZ005/DTZ011 re-expressed with the same local-time value; qt_sandbox.run check=kw.pop(\"check\", False). NOT PAID: 38 findings hidden behind existing # noqa (W260); the format bar (W261); mypy (W255).",
+      "issued_at": "2026-10-03T18:43:36Z",
       "minted_during": "interrupt",
-      "caused_by": "W251",
-      "last_worked": "2026-10-03T18:18:26Z",
+      "caused_by": "W253",
+      "last_worked": "2026-10-03T19:01:49Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent",
+      "completed": "20261003T190149Z"
+    },
+    {
+      "symbol": "W255",
+      "title": "Pay the mypy debt: measure the default-bar findings per file, then clear them so pycheck can be armed",
+      "status": "ready",
+      "enables": [
+        "W253"
+      ],
+      "touches": [
+        "mypy",
+        "python"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Measure first: .venv/bin/mypy over the repo with the default config, per-file error counts (n of m files clean); then decide per file whether to fix, or to declare a documented, measured bar in pyproject [tool.mypy] (mtools: DECLARE, NEVER SUPPRESS - no type: ignore, which pycheck refuses anyway as an added suppression). Clear the debt with disjoint-file agents as for ruff.",
+      "evidence": "2026-10-03: 2026-10-03: pycheck runs mypy as well as ruff on the edited file, from the governing project .venv (mypy is installed here: .venv/bin/mypy). The mypy debt under the default bar has NOT been measured yet.",
+      "issued_at": "2026-10-03T18:43:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W253",
+      "last_worked": "2026-10-03T18:44:05Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W256",
+      "title": "Re-pin all five mtools specs to one current sha and add mikemol-ratchet to the tooling extra, then uv sync both extras",
+      "status": "ready",
+      "enables": [
+        "W211"
+      ],
+      "touches": [
+        "pyproject",
+        "uv"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "git -C ~/github/mtools log -1 for the sha; set it on the five mikemol-* specs in pyproject (mdstruct, hooks, pathsforward, pycodemod, pytestspec) and add mikemol-ratchet at the same sha; uv sync --extra tooling --extra research (BOTH extras); rerun every selftest that touches an mtools tool (check_hooks, check_routes, opa_gate --selftest) and the paths-forward CLI. Do it with no agent running and no commit in flight: the tools in use change.",
+      "evidence": "2026-10-03: 2026-10-03: the pin is the one blocker of W211 (pytestspec 0.1.0 lacks pytestspec_data W380 and expect.withheld W381) and of the newer hooks (mikemol-hook-standing, -standing-stop in mtools hooks/bin) and of mikemol-ratchet (the mtools tool that refuses NEW debt after a baseline; SKELETON.md: ratchet --init-absent mints it). mtools INSTALL.md: ONE sha across every spec. Operator: trust mtools and nemik tooling.",
+      "issued_at": "2026-10-03T18:43:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W253",
+      "last_worked": "2026-10-03T18:44:05Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W257",
+      "title": "oci/engines/Containerfile: Blender and Godot headless, snapshot-pinned, ready for the first luthen W328 run",
+      "status": "ready",
+      "enables": [
+        "W154",
+        "W155"
+      ],
+      "touches": [
+        "oci",
+        "engines"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "oci/engines/Containerfile: FROM debian trixie at the same pinned snapshot as oci/guest/recipe.json, apt-get install blender and godot headless with --no-install-recommends, a sh entry that prints both versions; check it with a check_engines_recipe in the shape of check_guest_recipe (pinned snapshot, mirror through the snapshot, packages named); mark package names [unverified] in the file until W328 runs it.",
+      "evidence": "2026-10-03: 2026-10-03: luthen-observability:W328 (the generic self-serve runner) takes the CALLER Containerfile: the Blender and Godot packages belong in this repo, not in anything luthen writes per tool (operator ruling relayed by luthen). Debian trixie package names for blender and godot are UNVERIFIED here (no apt on this Gentoo host): the first W328 run resolves them.",
+      "issued_at": "2026-10-03T18:43:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W154",
+      "last_worked": "2026-10-03T18:44:06Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W258",
+      "title": "Decide: may el-openglo build on mtools bazel atoms instead of waiting for paperkit packaged pk_* rules (W78)",
+      "status": "blocked",
+      "enables": [
+        "W78"
+      ],
+      "touches": [
+        "bazel",
+        "mtools",
+        "paperkit"
+      ],
+      "blocked_on": [
+        "operator: decide whether el-openglo may adopt mtools own bazel atoms (rules_py, check_ruff, check_mypy: real directories with MODULE.bazel, hash-pinned, consumable through bzlmod) as its build engine now, which satisfies your 09-25 no-fourth-copy-of-verb.bzl ruling because no verb.bzl is copied, or must W78 keep waiting for paperkit:W52 (packaged pk_* rules, itself behind the paperkit hub unfreeze)"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "On the answer: if mtools atoms are fine, W78 step (3) starts from linux-sources tools/verb.bzl-shaped generation using mtools rules_py; if not, leave W78 on paperkit:W52 and keep (1) and (2) moving.",
+      "evidence": "2026-10-03: 2026-10-03: asked at integration after reading mtools pre-commit, SKELETON.md, findings/deps-build apex and domain_witness.sh. What waits on the answer: the generated-BUILD and per-output-action steps of W78. What does NOT wait: the executor image Containerfile (via luthen W328), the domain witness, the ruff/mypy debt (W254/W255), the pin bump (W256).",
+      "issued_at": "2026-10-03T18:44:38Z",
+      "minted_during": "interrupt",
+      "caused_by": "W78",
+      "last_worked": "2026-10-03T18:44:50Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W259",
+      "title": "Marquee animation APNGs are not byte-reproducible: the el-frames log carries per-frame t values that vary between renders (x steps and all 37 pixel frames are identical)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "render_screens",
+        "marquee",
+        "screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Decide what t is FOR: if S5/S8 read it, quantise it to the animation fixed step (it is virtual time under QSG_FIXED_ANIMATION_STEP, so a stable value exists); if nothing reads it, drop it from the logged record. Then re-render, confirm two renders are byte-identical, and promote scratchpad/apngdiff.py to a repo check (frames identical, log x identical) so a diff reviewer has a tool.",
+      "evidence": "2026-10-03: 2026-10-03 MEASURED during the W254 integration: re-rendering the six marquee-anim APNGs after Python-only edits changed each file by 1-3 bytes (16964 -> 16961 etc.). apngdiff over HEAD vs working: 37 frames each, ZERO pixel-differing frames, the x positions in the el-frames log identical; the ONLY difference is the per-frame t in the el-frames text chunk (Amber: t 768 -> 768, then 848/928/1008 vs 800/848/880): t is a measured time, not a function of the inputs. So these files are not reproducible byte for byte, every re-render dirties six tracked files, and a diff of them cannot tell a regression from noise without a tool like scratchpad/apngdiff.py. The screens gate admits either (S5 judges the logged x steps).",
+      "issued_at": "2026-10-03T19:01:05Z",
+      "minted_during": "interrupt",
+      "caused_by": "W254",
+      "last_worked": "2026-10-03T19:01:17Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W260",
+      "title": "Existing # noqa comments hide 38 ruff findings (about 30 broad except Exception nets, 8 import-availability probes): narrow or restructure each, no suppression (mtools: declare, never suppress)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "ruff",
+        "noqa",
+        "python"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "F401 probes: replace `import x  # noqa: F401` with importlib.util.find_spec(\"x\") is not None (the idiom ruff names): behaviour-neutral. BLE001: for each site read the try body and name the exceptions it expects (OSError, ValueError, subprocess errors, json.JSONDecodeError, ImportError); where it is a deliberate net around a MEASUREMENT, keep it broad but state the could-not-run fact (return a withheld fact) instead of swallowing; add a selftest arm that a non-expected exception propagates or is withheld. Fan out by disjoint file sets like W254; no new noqa.",
+      "evidence": "2026-10-03: 2026-10-03 MEASURED (ruff check --ignore-noqa, repo minus .claude/.venv/screens): 38 findings hidden behind existing noqa comments. BLE001 broad `except Exception` (30): render_samples:346, cvd_gate:194, make_wallpaper:47, capture_baseline:73, check_chrome:62+108, check_config_load:78+93+105, check_config_page:107, check_consumers:71, check_ebuild:311, check_monet:134, check_palette_chain:83, check_plymouth_digits:53, check_publishing:113, check_standards:77, check_symbol:990, check_template_parity:164+211+248, check_terminals:193+293, check_windows:96, extract_template:69, identify:70+81, opa_gate:320. F401 import-availability probes (8): check_css:140 tinycss2, check_cursors:133+134+161 cairosvg/PIL, check_embedded_markup:175 identify, check_font:160+186+212 fontTools, check_monet:50 material_color_utilities, worklist_gate:720 paperkit.resolver. pycheck refuses only an ADDED suppression, so these do not block edits; they are the suppress-instead-of-declare debt mtools forbids. The BLE001 nets are mostly could-not-run measurements (a missing optional tool -> SKIP), where narrowing can change what is a SKIP versus a crash.",
+      "issued_at": "2026-10-03T19:01:17Z",
+      "minted_during": "interrupt",
+      "caused_by": "W254",
+      "last_worked": "2026-10-03T19:01:30Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W261",
+      "title": "Format the repo to ruff format (pycheck runs ruff format --check beside lint and mypy): one AST-preserving pass, fixtures with byte-pinned content enumerated in extend-exclude",
+      "status": "ready",
+      "enables": [
+        "W253"
+      ],
+      "touches": [
+        "ruff-format",
+        "python",
+        "pyproject"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Own commit, after W254 lands. (1) Enumerate files whose BYTES are the point (catalog/fixtures/**, anything a check reads by line) and list them in pyproject [tool.ruff] extend-exclude with the reason beside each (pycheck passes --force-exclude, so the exclusion reaches it; relief on the ENUMERABLE side). (2) ruff format over the rest. (3) rerun every selftest and the full gate: a check that located something by line number will fail and name itself; fix each in the check, not by un-formatting. (4) rebuild/re-key (check_emitters_run --apply, check_action_key --rebuild), review that no generated output moved.",
+      "evidence": "2026-10-03: 2026-10-03 DISCOVERED reading mtools hooks/src/mikemol/hooks/checkers.py checker_argv: mikemol-hook-pycheck runs THREE checkers on every .py edit, not two - ruff check (--config pyproject --force-exclude --stdin-filename), ruff format --check --diff (same config/exclusions) AND mypy (--config-file pyproject --pretty on the tempfile, imports followed, no overrides). The format bar was not in my first reading. Measured: `ruff format --check` over the repo reports almost every file as would-be-reformatted (default format: 88 columns, double quotes, magic trailing commas; this codebase is hand-wrapped at ~100+ with aligned continuation). ruff format is AST-preserving, so the pass is behaviour-neutral by construction, but it is a very large diff and some tools read Python source by LINE (a population comment must sit on its line or the line above; fixtures pinned by content; cotype refs like (:585) point into COTYPE.md not python).",
+      "issued_at": "2026-10-03T19:01:30Z",
+      "minted_during": "interrupt",
+      "caused_by": "W253",
+      "last_worked": "2026-10-03T19:01:49Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     }
   ],
@@ -5603,6 +5795,13 @@
       "title": "Clear out the dozens of stale agent worktrees under .claude/worktrees",
       "dropped_at": "2026-10-02T16:58:05Z",
       "reason": "Collapsed into W233: the same retirement of the stale agent worktrees; W233 carries the precise census-before-delete step. W138 keeps the distinct struct-tools-skip-worktrees part.",
+      "recoverable": true
+    },
+    {
+      "symbol": "W252",
+      "title": "One rebuild sequencer: emitters --apply, action_key --rebuild, template parity status and the README/WORKLIST projection, in order, printing what each moved",
+      "dropped_at": "2026-10-03T18:44:30Z",
+      "reason": "Collapsed into W78 (operator 2026-10-03): a hand-ordered rebuild sequencer is what a declared Bazel dependency graph makes unnecessary - a forgotten rebuild means the dependencies were not declared. W251 two tools stay as the interim witness (check_emitters_run --apply, check_action_key --rebuild), not a sequencer on top of them.",
       "recoverable": true
     }
   ],

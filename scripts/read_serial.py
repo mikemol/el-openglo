@@ -29,13 +29,14 @@ hashed, not that the guest read the right file.
 import base64
 import binascii
 import hashlib
+import itertools
 import json
 import os
 import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import el_serial_spec  # noqa: E402
+import el_serial_spec
 
 ROOT = el_serial_spec.ROOT
 
@@ -137,7 +138,7 @@ def _case(spec, boot, frames):
     seqs = [fr[1] for fr in frames]
     for s in sorted({s for s in seqs if seqs.count(s) > 1}):
         withheld.append(f"seq {s} appears {seqs.count(s)} times")
-    if any(b <= a for a, b in zip(seqs, seqs[1:])):
+    if any(b <= a for a, b in itertools.pairwise(seqs)):
         withheld.append("SEQ is not increasing in log order")
     for a, b in _ranges(set(range(max(seqs) + 1)) - set(seqs)):
         withheld.append(f"gap: seq {a}" + (f"–{b}" if b != a else "") + " missing")
@@ -245,7 +246,7 @@ def _selftest():
     chk("split record: malformed line withheld at log level", has(d, "malformed frame"), True)
     chk("split record: its SEQ is a gap", has(d, "gap: seq 3 missing"), True)
     chk("split record: a withheld case reports no blobs", d["cases"][0]["blobs"], [])
-    flip = lambda m: '"sha256":"' + ("1" if m.group(1) == "0" else "0")  # noqa: E731 — still 64 hex
+    flip = lambda m: '"sha256":"' + ("1" if m.group(1) == "0" else "0")
     bad = [re.sub(r'"sha256":"(.)', flip, x, count=1) if " blob.end " in x else x for x in clean]
     chk("bad sha256: mismatch withheld", has(run(bad), "sha256/bytes mismatch"), True)
     chk("noise only: empty population", run([])["cases"], [])

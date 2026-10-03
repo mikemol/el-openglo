@@ -53,7 +53,8 @@ def check_qml(text, label="<qml>"):
         return []
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, os.path.basename(label) if label.endswith(".qml") else "subject.qml")
-        open(p, "w", encoding="utf-8").write(text)
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(text)
         cmd = [exe, "--json", "-"]
         for imp in IMPORTS:
             cmd += ["-I", imp]
@@ -143,7 +144,8 @@ if __name__ == "__main__":
         sys.exit(0 if _selftest() else 1)
     errs = []
     for p in sys.argv[1:]:
-        errs += check_qml(open(p, encoding="utf-8").read(), p)
+        with open(p, encoding="utf-8") as fh:
+            errs += check_qml(fh.read(), p)
     for e in errs:
         print(e, file=sys.stderr)
     print(f"qml_sanity: {len(errs)} error(s) over {len(sys.argv) - 1} file(s)")

@@ -38,8 +38,8 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import palette_graph as PG                                        # noqa: E402
-import netlist_render as NR                                       # noqa: E402
+import netlist_render as NR
+import palette_graph as PG
 
 ARTIFACT_DIR = "catalog/netlist"
 STATIC = "netlist.dot"
@@ -53,7 +53,7 @@ def renders(dot_text):
             with open(src, "w", encoding="utf-8") as fh:
                 fh.write(dot_text)
             out = subprocess.run(["dot", "-Tsvg", src], capture_output=True,
-                                 text=True, timeout=120)
+                                 text=True, timeout=120, check=False)
     except FileNotFoundError:
         return None, "graphviz `dot` is not installed"
     except subprocess.TimeoutExpired:

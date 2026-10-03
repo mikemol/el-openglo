@@ -38,7 +38,6 @@ chosen — which is exactly what makes `b1` computable in advance of a solve.
 """
 from __future__ import annotations
 
-
 # ── the roles, one namespace, stated once ────────────────────────────────────
 #
 # A Node is (key, solver_local, gate_name).  `None` means "this role has no name in that
@@ -54,7 +53,7 @@ class Node:
     them here would erase exactly the distinction whose absence WAS the @ROLES bug — a
     focus ring the colour of the text it surrounds passed every check because no check
     asked whether two ROLES differ.  Aliasing is recorded (`same_as`) and never merged."""
-    __slots__ = ("key", "local", "gate", "same_as")
+    __slots__ = ("gate", "key", "local", "same_as")
 
     def __init__(self, key, local=None, gate=None, same_as=None):
         self.key, self.local, self.gate, self.same_as = key, local, gate, same_as
@@ -159,7 +158,7 @@ def composite(fg, bg, alpha):
     `make_schemes.GHOST_ALPHA`, the value the template is filled with.  Measured
     on the shipped palette at the old 0.45: declared ghost contrast 4.16:1 on
     EL-Openglo, composited 1.79:1 — a 2.37 drop between the gate and the screen."""
-    return tuple(int(round(f * alpha + b * (1 - alpha)))
+    return tuple(round(f * alpha + b * (1 - alpha))
                  for f, b in zip(fg, bg))
 
 # ⚑ A CONSTRAINT IN THE WRONG METRIC, NAMED SO IT CAN BE ARGUED WITH.
@@ -191,7 +190,7 @@ class Edge:
     ENFORCED floor.  That is invisible today only because `reference_floors()` happens to
     return the same number twice; the day those diverge, four pairs change class without
     anything changing in the code.  Carrying the class on the edge makes the read take it."""
-    __slots__ = ("u", "v", "family", "cls", "floor", "why")
+    __slots__ = ("cls", "family", "floor", "u", "v", "why")
 
     def __init__(self, u, v, family, cls=None, floor=None, why=""):
         self.u, self.v, self.family, self.cls = u, v, family, cls

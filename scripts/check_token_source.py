@@ -80,11 +80,12 @@ def emitters():
         if not os.path.isfile(path):
             out.append((fn, None))          # declared and absent — main() refuses
             continue
-        text = open(path, encoding="utf-8", errors="replace").read()
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
         reads = []
         for a in AUTHORITIES:
             # a direct import, or a transitive one via another emitter
-            if re.search(r"\b(?:import\s+%s\b|from\s+%s\s+import)" % (a, a), text):
+            if re.search(rf"\b(?:import\s+{a}\b|from\s+{a}\s+import)", text):
                 reads.append(a)
         # a target may reach tokens through a sibling emitter (e.g. the marquee
         # reuses the live wallpaper's colors_for) — that is still sourcing.
@@ -94,7 +95,7 @@ def emitters():
             for other in ROSTER.declared():
                 if other.startswith("make_") and other + ".py" != fn:
                     mod = other
-                    if re.search(r"\b(?:import\s+%s\b|from\s+%s\s+import)" % (mod, mod), text):
+                    if re.search(rf"\b(?:import\s+{mod}\b|from\s+{mod}\s+import)", text):
                         reads.append(f"via {mod}")
                         break
         out.append((fn, reads))

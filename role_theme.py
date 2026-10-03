@@ -235,7 +235,7 @@ def solve_roles(roles, pinned=None, members=None, ground=None, ground_floor=3.0)
 
 
 def _hex(rgb):
-    return "#%02x%02x%02x" % tuple(int(x) for x in rgb)
+    return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in rgb))
 
 
 def as_json(solved, indent=2):
@@ -291,8 +291,8 @@ def as_dot(solved):
         "// role -> colour, SOLVED rather than listed.",
         "// palette: Okabe & Ito (2008), chromatic members.",
         "// metric:  worst_view_dE under Machado(2009) protan/deutan/tritan,",
-        "//          normalised by the Okabe-Ito reference floor "
-        f"(dE {solved['floor_dE']:.1f}).",
+        ("//          normalised by the Okabe-Ito reference floor "
+         f"(dE {solved['floor_dE']:.1f})."),
         f"// worst pair: q={solved['worst_q']:.3f}"
         + (f" at {solved['binding_pair'][0]}~{solved['binding_pair'][1]}"
            if solved["binding_pair"] else "")

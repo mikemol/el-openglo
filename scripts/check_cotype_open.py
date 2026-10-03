@@ -46,7 +46,7 @@ OPERATOR_BLOCKED = {"LIVE"}
 
 def index():
     r = subprocess.run([sys.executable, INDEX, "--json"],
-                       capture_output=True, text=True, cwd=ROOT)
+                       capture_output=True, text=True, cwd=ROOT, check=False)
     if r.returncode != 0:
         return None
     return json.loads(r.stdout)
@@ -99,7 +99,7 @@ def main(argv):
                         "has been lost, and operator work now reads as closable")
 
     if problems:
-        print(f"check_cotype_open: REFUSED — the open set is not well-formed:",
+        print("check_cotype_open: REFUSED — the open set is not well-formed:",
               file=sys.stderr)
         for p in problems:
             print(f"    {p}", file=sys.stderr)

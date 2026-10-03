@@ -51,7 +51,7 @@ PAIRS = (("clock", "clock-config.qml", ("make_clock", "CONFIG_XML"), ("make_cloc
           ("make_wallpaper_live", "config_qml")))
 KCFG_NS = "{http://www.kde.org/standards/kcfg/1.0}"
 # a declaration with or without an initialiser: `property real cfg_xDefault` is one
-DECL = re.compile(r"^\s*(?:default\s+|readonly\s+)?property\s+(?:alias|\w+)\s+(cfg_\w+)\s*(?::|$)", re.M)
+DECL = re.compile(r"^\s*(?:default\s+|readonly\s+)?property\s+(?:alias|\w+)\s+(cfg_\w+)\s*(?::|$)", re.MULTILINE)
 
 
 def entries(kcfg_text):
@@ -97,6 +97,7 @@ def measure_display(mount, kcfg_text, qml_text, display, mounts):
 
 def measure():
     import check_template_parity as CTP
+
     import display_params as DP
     pages, display = [], []
     for mount, label, (km, ka), (qm, qa) in PAIRS:

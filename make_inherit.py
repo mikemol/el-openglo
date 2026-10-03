@@ -31,6 +31,7 @@ dark desktop); the Lit variants inherit breeze icons and breeze_cursors.
 """
 import os
 import sys
+
 from emitters import atomic_write
 
 VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
@@ -118,6 +119,7 @@ def render_all(variants, icons_root, icon_png=None):
             src = icon_png(v)
             if src and os.path.isfile(src):
                 import shutil
+
                 from emitters import atomic_path
                 with atomic_path(os.path.join(idir, ICON_DIR, "el-segclock.png")) as tmp:
                     shutil.copyfile(src, tmp)

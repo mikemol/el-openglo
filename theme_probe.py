@@ -58,8 +58,9 @@ def scheme_path(variant):
 
 def env_for(variant, xdg):
     """The environment under which the real Kirigami.Theme reads `variant`."""
-    with open(scheme_path(variant), encoding="utf-8") as f:
-        open(os.path.join(xdg, "kdeglobals"), "w", encoding="utf-8").write(f.read())
+    with (open(scheme_path(variant), encoding="utf-8") as f,
+          open(os.path.join(xdg, "kdeglobals"), "w", encoding="utf-8") as out):
+        out.write(f.read())
     return dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QPA_PLATFORMTHEME="kde",
                 QT_QUICK_CONTROLS_STYLE="org.kde.desktop", XDG_CURRENT_DESKTOP="KDE",
                 XDG_CONFIG_HOME=xdg, QT_LOGGING_RULES="kf.kirigami.platform=false")
@@ -77,7 +78,8 @@ def resolve(variant, bindings, names):
         xdg = os.path.join(td, "xdg")
         os.makedirs(xdg)
         p = os.path.join(td, "probe.qml")
-        open(p, "w", encoding="utf-8").write(doc)
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(doc)
         r = QT.run([QML, "--apptype", "widget", p], env=env_for(variant, xdg),
                    capture_output=True, text=True, timeout=60)
     for line in (r.stdout + r.stderr).splitlines():
@@ -91,9 +93,7 @@ def binding_block(qml, names):
     keep = []
     for line in qml.splitlines():
         s = line.strip()
-        if s.startswith("Kirigami.Theme.colorSet:") or s.startswith("Kirigami.Theme.inherit:"):
-            keep.append("    " + s)
-        elif any(re.match(rf"property color {n}\b", s) for n in names):
+        if s.startswith(("Kirigami.Theme.colorSet:", "Kirigami.Theme.inherit:")) or any(re.match(rf"property color {n}\b", s) for n in names):
             keep.append("    " + s)
     return "\n".join(keep)
 

@@ -49,10 +49,12 @@ def measure_dir(pkg_dir):
         if not os.path.isfile(p):
             return {"missing": f"{os.path.relpath(p, pkg_dir)} is absent"}
     try:
-        meta = json.load(open(meta_p, encoding="utf-8"))
+        with open(meta_p, encoding="utf-8") as fh:
+            meta = json.load(fh)
     except ValueError as e:
         return {"missing": f"metadata.json does not parse: {e}"}
-    d = parse_defaults(open(def_p, encoding="utf-8").read())
+    with open(def_p, encoding="utf-8") as fh:
+        d = parse_defaults(fh.read())
     deco = d.get("kwinrc/org.kde.kdecoration2", {})
     return {
         "missing": None,

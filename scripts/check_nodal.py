@@ -162,7 +162,7 @@ def move_visibility():
         chosen = {k: C.rgb(t[k]) for k in PG.SEMANTIC}
         anchor = C.rgb(t["fg"])
 
-        def qs(ch):
+        def qs(ch, anchor=anchor):
             vals = list(ch.values()) + [anchor]
             return [max(1e-9, C._worst_normalized(vals[i], vals[j], floors)[0])
                     for i in range(len(vals)) for j in range(i + 1, len(vals))]
@@ -201,6 +201,7 @@ def ghost_pilot():
     potential of a two-resistor chain. This reads it from gcalc's Laplacian instead
     of the hand-derived formula, per variant, and reports the difference."""
     import math
+
     import cvd_gate as C
     import ghost_solve as GS
     import make_palette as mp
@@ -233,7 +234,7 @@ def _selftest():
     # chain (0.4 + 0.4 in series = 0.8), and in parallel 1.5 || 0.8 < 1
     r = solve({("a", "c"): 1.5, ("a", "b"): 0.4, ("b", "c"): 0.4}, S)
     check("a clearing edge with a near chain beside it reads below 1",
-          r[("a", "c")] < 1.0 <= 1.5, True)
+          r[("a", "c")] < 1.0, True)
     check("Rayleigh: effective resistance never exceeds the direct edge",
           all(r[k] <= m + 1e-12 for k, m in {("a", "c"): 1.5, ("a", "b"): 0.4, ("b", "c"): 0.4}.items()), True)
     check("two components are solved apart, not as one singular system",

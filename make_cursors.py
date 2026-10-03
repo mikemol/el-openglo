@@ -197,6 +197,7 @@ XC_IMAGE = 0xFFFD0002
 def rasterise(svg_text, size):
     """(width, height, [premultiplied ARGB u32]) at size x size."""
     import io
+
     import cairosvg
     from PIL import Image
     png = cairosvg.svg2png(bytestring=svg_text.encode(), output_width=size, output_height=size)
@@ -266,13 +267,14 @@ def read_xcursor(path):
 def read_xcursor_frames(path):
     """{nominal: [(w, h, xhot, yhot, [ARGB], delay_ms), ...]} in TOC order — the
     inverse of xcursor_bytes, for the check. Raises ValueError on a non-XCursor."""
-    data = open(path, "rb").read()
+    with open(path, "rb") as fh:
+        data = fh.read()
     if data[:4] != XC_MAGIC:
         raise ValueError(f"{path}: not an XCursor file")
     _m, hsize, _ver, ntoc = struct.unpack_from("<4sIII", data, 0)
     out = {}
     for i in range(ntoc):
-        typ, sub, pos = struct.unpack_from("<III", data, hsize + 12 * i)
+        typ, _sub, pos = struct.unpack_from("<III", data, hsize + 12 * i)
         if typ != XC_IMAGE:
             continue
         _h, _t, nominal, _v, w, h, xh, yh, delay = struct.unpack_from("<IIIIIIIII", data, pos)

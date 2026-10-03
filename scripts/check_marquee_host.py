@@ -90,14 +90,14 @@ def journal(since="-2h"):
     if not shutil.which("journalctl"):
         return None
     r = subprocess.run(["journalctl", "--user", "--no-pager", "-o", "cat", "--since", since, "-g", "el-marquee"],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, text=True, timeout=60, check=False)
     return [l.split("el-marquee ", 1)[1] for l in r.stdout.splitlines() if "el-marquee " in l]
 
 
 def shell_stderr():
     """Where the running plasmashell's stderr goes (a tty means: unreadable here)."""
     import subprocess
-    r = subprocess.run(["pgrep", "-x", "plasmashell"], capture_output=True, text=True)
+    r = subprocess.run(["pgrep", "-x", "plasmashell"], capture_output=True, text=True, check=False)
     pids = r.stdout.split()
     if not pids:
         return "plasmashell is not running"

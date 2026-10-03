@@ -10,8 +10,9 @@ them toward the variant's phosphor family on its void ground. Not monochrome
 (unusable), not generic Breeze (identity-less): phosphor-tinted-but-distinct.
 """
 import os
-import make_preview as MP
+
 import cvd_gate as C
+import make_preview as MP
 from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -32,7 +33,7 @@ def _rgb(hexstr):
 def _tint(color, toward, t):
     """Pull `color` a fraction t toward the phosphor accent `toward`, preserving
     its own hue identity (small t) so red stays red but gains phosphor cast."""
-    return tuple(int(round(color[i] + (toward[i] - color[i]) * t)) for i in range(3))
+    return tuple(round(color[i] + (toward[i] - color[i]) * t) for i in range(3))
 
 
 def _ansi16(accent, ground, tint=0.22):
@@ -98,7 +99,7 @@ def ansi_table(variant):
 
 
 def _hex(rgb):
-    return "#%02x%02x%02x" % tuple(rgb)
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
 def colorscheme(variant):

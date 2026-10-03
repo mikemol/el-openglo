@@ -109,7 +109,9 @@ def render_face(text, out_png, w=420, h=120, variant=VARIANT):
     """The clock's mount showing `text`. ⚑ THE TIME IS PINNED: the mount reads the
     clock, and a symmetry instrument cannot depend on what minute it is."""
     import re
+
     import render_qml as RQ
+
     import make_clock as MC
     import make_taskswitch as TS
     import templates.loader as TL
@@ -119,7 +121,7 @@ def render_face(text, out_png, w=420, h=120, variant=VARIANT):
     if n != 1:
         raise RuntimeError("the clock's time assignment moved; the symmetry probe cannot pin it")
     for pat, rep in RQ.SUBSTITUTIONS:
-        qml = re.sub(pat, rep, qml, flags=re.M)
+        qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
     cfg = RQ._kcfg_defaults(MC.CONFIG_XML)
     cfg["blinkColon"] = False          # a blinking colon is not an asymmetry
     return RQ.render_document(qml, variant, w, h, out_png, cfg, None, True, RQ.companions("clock"))
@@ -410,8 +412,8 @@ def first_glyph_box(im, max_gap=2, ring=False):
 
 def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
     """One mirror case per injected glyph, through the marquee's own harness."""
-    from PIL import Image
     import check_marquee_live as ML
+    from PIL import Image
     out = []
     for label, ch, planes in glyphs:
         row = {"label": label, "scope": "matrix", "text": ch, "variant": variant}
@@ -443,7 +445,7 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
             at = [f for f, d in zip(full, dims) if d == best and f["x"] is not None]
             pitch = MATRIX_PITCH
 
-            def off(f):
+            def off(f, pitch=pitch):
                 r = f["x"] % pitch
                 return min(r, pitch - r)
             pick = min(at, key=off)
@@ -468,8 +470,8 @@ def matrix_probe(out_dir, ch="H", variant=MATRIX_VARIANT):
     offset? A scrolling run (no hover hold, so no ring) with the harness's frame
     capture into out_dir; per frame its t and x and the first-glyph crop. A frame
     whose crop is about one glyph wide, at a whole-pip x, is the one to mirror."""
-    from PIL import Image
     import check_marquee_live as ML
+    from PIL import Image
     tl = [(300, "arrive", 1, {"summary": "x", "body": "", "applicationName": ch}, f"{ch}: x")]
     res = ML.run(variant=variant, end_ms=4000, frames=out_dir, timeline=tl) or {}
     names = sorted(n for n in os.listdir(out_dir) if n.startswith("frame-"))
@@ -487,8 +489,8 @@ def matrix_probe(out_dir, ch="H", variant=MATRIX_VARIANT):
 
 def grid_cases(grids=GRIDS):
     """The matrix board's grid regularity, per variant, through its own renderer."""
-    from PIL import Image
     import check_marquee_live as ML
+    from PIL import Image
     out = []
     for label, variant in grids:
         row = {"label": label, "variant": variant}

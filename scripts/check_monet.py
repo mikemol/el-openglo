@@ -71,13 +71,13 @@ def monet_roles(seed_rgb, dark):
     """{role: (r, g, b)} for surface / primary / on_surface / on_primary from Monet's
     default (TonalSpot) scheme at the given polarity. Returns None if the library is absent."""
     try:
-        from material_color_utilities import theme_from_color, Variant
+        from material_color_utilities import Variant, theme_from_color
     except ImportError:
         return None
     # TonalSpot at contrast 0 is what Android's system theming applies by default
     # (material-color-utilities' own scheme_generation.md); the library's function
     # default is VIBRANT at 0.25, which is not the phone's.
-    theme = theme_from_color("#%02x%02x%02x" % seed_rgb, 0.0, Variant.TONALSPOT)
+    theme = theme_from_color("#{:02x}{:02x}{:02x}".format(*seed_rgb), 0.0, Variant.TONALSPOT)
     s = theme.schemes.dark if dark else theme.schemes.light
     return {k: _rgb(getattr(s, k)) for k in
             ("surface", "primary", "on_surface", "on_primary", "primary_container")}
@@ -88,8 +88,8 @@ def compare(variant, roles=None):
     `roles` substitutes Monet's output (the selftest's planted defects)."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_preview as MP
     import cvd_gate as C
+    import make_preview as MP
     c = MP.parse_scheme(variant)
     lit, ground, fg = _rgb(c["phosphor"]), _rgb(c["ground"]), _rgb(c["phosphor"])
     dark = not variant.endswith("-Lit")
@@ -110,8 +110,8 @@ def compare(variant, roles=None):
     # "the seed survives" is a hue question, not a dE one (a 3x-floor dE arm let
     # a 31.9 dE drift pass on the first run — measured, replaced)
     from material_color_utilities import Hct
-    h_seed = Hct("#%02x%02x%02x" % lit).hue
-    h_prim = Hct("#%02x%02x%02x" % m["primary"]).hue
+    h_seed = Hct("#{:02x}{:02x}{:02x}".format(*lit)).hue
+    h_prim = Hct("#{:02x}{:02x}{:02x}".format(*m["primary"])).hue
     dh = min(abs(h_seed - h_prim), 360 - abs(h_seed - h_prim))
     surface_de = C.worst_view_dE(m["surface"], ground)[0]
     return {"rows": out, "text_on_surface": text, "on_primary": prim,
@@ -161,7 +161,7 @@ def main(argv):
             r = compare(v)
             print(f"{v} ({'dark' if r['dark'] else 'light'} scheme, seed = lit)")
             for mr, pr, mv, pv, de in r["rows"]:
-                print(f"  {mr:11} {'#%02x%02x%02x' % mv}   {pr:6} {'#%02x%02x%02x' % pv}   "
+                print(f"  {mr:11} {'#{:02x}{:02x}{:02x}'.format(*mv)}   {pr:6} {'#{:02x}{:02x}{:02x}'.format(*pv)}   "
                       f"worst-view dE {de:.1f}" if de is not None else f"  {mr} {mv} vs {pr} {pv}")
             print(f"  Monet on_surface/surface {r['text_on_surface']:.2f}:1; on_primary/primary "
                   f"{r['on_primary']:.2f}:1; primary hue Δ {r['hue_delta']:.1f}°; "
@@ -221,7 +221,7 @@ def _selftest():
     # ⚑ A VARIANT compare() CANNOT MEASURE IS MISSING, NOT DROPPED (synthetic)
     kept = compare
     try:
-        compare = lambda v: None if v == "EL-Amber" else kept(v)   # noqa: E731
+        compare = lambda v: None if v == "EL-Amber" else kept(v)
         chk("an unmeasurable variant is a case with a reason",
             [c["id"] for c in measure()["cases"] if c["missing"]], ["EL-Amber"])
     finally:

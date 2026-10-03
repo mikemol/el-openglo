@@ -170,7 +170,7 @@ def cost(key, proj, engine):
     path = os.path.join(engine, "paperkit", script)
     r = subprocess.run([sys.executable, path, proj],
                        cwd=os.path.join(engine, "paperkit"),
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     text = (r.stdout or "") + (r.stderr or "")
     line = next((l for l in text.splitlines()
                  if "FAILED" in l and f"[@{key}]" in l), None)
@@ -189,7 +189,7 @@ def cost(key, proj, engine):
                parts[1].strip()]
     else:
         return None
-    w = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    w = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=False)
     out = (w.stdout or "") + (w.stderr or "")
     # ⚑ THE WITNESS DECLARES ITS OWN COST; THIS DOES NOT INFER IT.  The first
     # version scraped the failure prose for quoted findings and counted those —
@@ -203,7 +203,7 @@ def cost(key, proj, engine):
     # A witness that says nothing returns None (grade UNAVAILABLE), and the
     # fallback below counts indented item lines, which is a SHAPE rather than a
     # guess at meaning.
-    m = re.search(r"^\s*fixes:\s*(\d+)\s*$", out, re.M)
+    m = re.search(r"^\s*fixes:\s*(\d+)\s*$", out, re.MULTILINE)
     if m:
         return int(m.group(1))
     items = [l.strip() for l in out.splitlines() if l.startswith("    ") and l.strip()]
@@ -311,7 +311,7 @@ def _reexec_under_uv():
     env = dict(os.environ, _WORKLIST_IN_UV="1")
     return subprocess.run(["uv", "run", "--no-sync", "python3",
                            os.path.abspath(__file__)] + sys.argv[1:],
-                          cwd=ROOT, env=env).returncode
+                          cwd=ROOT, env=env, check=False).returncode
 
 
 SCHEMES_ACTION = os.path.join(ROOT, "schemes_artifact.py")
@@ -322,7 +322,7 @@ def _materialise_schemes():
     reason printed). A snapshot this run cannot take is a refusal, never a silent
     fall-back to per-check reads of the mutable tree."""
     r = subprocess.run([sys.executable, SCHEMES_ACTION, "--materialise"],
-                       cwd=ROOT, capture_output=True, text=True)
+                       cwd=ROOT, capture_output=True, text=True, check=False)
     fields = (r.stdout or "").split()
     if r.returncode != 0 or len(fields) != 2:
         print(f"worklist_gate: REFUSED — the schemes artifact could not be materialised: "
@@ -336,7 +336,7 @@ def _materialise_schemes():
     return {"PAPERKIT_BUILT_ARTIFACTS": " ".join(pairs)}
 
 
-_FAILED = re.compile(r"check FAILED for \[@([^\]]+)\]:\s*(\S+):(.+?)\s*$", re.M)
+_FAILED = re.compile(r"check FAILED for \[@([^\]]+)\]:\s*(\S+):(.+?)\s*$", re.MULTILINE)
 
 
 def _replay(proj, output):
@@ -366,7 +366,8 @@ def _replay(proj, output):
     toml_path = os.path.join(proj, "paper.toml")
     try:
         import tomllib
-        decl = tomllib.load(open(toml_path, "rb")).get("checks", {})
+        with open(toml_path, "rb") as fh:
+            decl = tomllib.load(fh).get("checks", {})
     except (OSError, ValueError, ImportError) as e:
         print(f"\n  replay: WITHHELD — cannot read {toml_path}'s check templates ({e})",
               file=sys.stderr)
@@ -409,12 +410,14 @@ def _replay(proj, output):
         inherited = resource.getrlimit(resource.RLIMIT_CPU)[1]
         hard = cpu if inherited == resource.RLIM_INFINITY else min(cpu, inherited)
 
-        def _cap(soft=min(cpu, hard), hard=hard):
+        soft_cap = min(cpu, hard)
+
+        def _cap(soft=soft_cap, hard=hard):
             resource.setrlimit(resource.RLIMIT_CPU, (soft, hard))
             resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
         r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True,
                            env=PKR.clean_env(), start_new_session=True,
-                           preexec_fn=_cap)
+                           preexec_fn=_cap, check=False)
         tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
         if r.returncode in (-24, -9):          # SIGXCPU at the soft cap, SIGKILL at the hard
             tail.insert(0, f"FAIL: killed by signal {-r.returncode} — exceeded the gate's "
@@ -521,7 +524,7 @@ def main(argv):
         print(f"worklist_gate: REFUSED — {why}", file=sys.stderr)
         return 2
 
-    script, label = ENTRY[mode]
+    script, _label = ENTRY[mode]
     path = os.path.join(engine, "paperkit", script)
     if not os.path.isfile(path):
         print(f"worklist_gate: REFUSED — the engine has no {script} "
@@ -556,7 +559,7 @@ def main(argv):
         # times the re-run was done BY HAND because the tool could not do it.
         run = subprocess.run([sys.executable, path, proj],
                              cwd=os.path.join(engine, "paperkit"),
-                             capture_output=True, text=True)
+                             capture_output=True, text=True, check=False)
         if not summary:
             sys.stdout.write(run.stdout or "")
             sys.stderr.write(run.stderr or "")
@@ -740,7 +743,7 @@ def _selftest():
     if decl:
         # a CHECK handed that declaration verifies it (digest == name) and reads IT
         r = subprocess.run([sys.executable, SCHEMES_ACTION, "--where"],
-                           env=dict(os.environ, **decl), capture_output=True, text=True)
+                           env=dict(os.environ, **decl), capture_output=True, text=True, check=False)
         check("...which a check reads as DECLARED, digest verified",
               (r.returncode, "declared" in r.stdout), (0, True))
 
@@ -750,7 +753,7 @@ def _selftest():
     check("an engine killed by SIGKILL fails the gate (137)", exit_of("selftest", -9), 137)
     check("a real exit code is passed through", (exit_of("selftest", 0), exit_of("selftest", 1)), (0, 1))
     # and a REAL killed child reaches it: python dies of SIGKILL, rc -9
-    r = subprocess.run([sys.executable, "-c", "import os, signal; os.kill(os.getpid(), signal.SIGKILL)"])
+    r = subprocess.run([sys.executable, "-c", "import os, signal; os.kill(os.getpid(), signal.SIGKILL)"], check=False)
     check("a child really killed by a signal is seen as one", exit_of("selftest", r.returncode), 137)
 
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")

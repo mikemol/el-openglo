@@ -17,12 +17,9 @@ FETCHED silent-fail traps (honored):
 Config: wallpaper.configuration.<key>. `breathe` gates the continuous backlight
 animation (rich on the lock mount, off/cheap on the desktop mount).
 """
-import os
 import json
-from emitters import LICENSE_SPDX   # the one licence id (W44)
-import make_clock as MC
-import make_preview as MP
-import cvd_gate as C
+import os
+
 # ⚑ GEOMETRY IS A TOKEN SET EXACTLY LIKE COLOUR.  This surface carried its own
 # seven-seg map AND its own stroke table, hand-written INSIDE a QML f-string —
 # which is why two separate gates were blind to them: check_geometry_source scans
@@ -34,8 +31,10 @@ import cvd_gate as C
 # what was hand-written here — same segments per digit, same (kind, x0, x1, y) per
 # stroke. The tables were right; nothing could prove they would stay right.
 import segment_topology as _ST
-import ghost_solve as _GS
-from emitters import atomic_write
+from emitters import (
+    LICENSE_SPDX,  # the one licence id (W44)
+    atomic_write,
+)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -57,7 +56,7 @@ def _rgb(css):
 
 
 def _hex(rgb):
-    return '"#%02x%02x%02x"' % rgb
+    return '"#{:02x}{:02x}{:02x}"'.format(*rgb)
 
 
 def colors_for(variant, parsing="looked_at"):
@@ -80,7 +79,7 @@ def colors_for(variant, parsing="looked_at"):
     live wallpaper and the marquee."""
     from make_schemes import GRID
     ph, mode = _variant_key(variant)
-    tok = [tt for (p, m), (tt, d) in GRID.items() if p == ph and m == mode][0]
+    tok = next(tt for (p, m), (tt, d) in GRID.items() if p == ph and m == mode)
     ground = tuple(int(x) for x in tok["view"].split(","))
     lit = tuple(int(x) for x in tok["fg"].split(","))
     ghost = tuple(int(x) for x in tok["fg_in"].split(","))
@@ -159,10 +158,10 @@ def main_qml():
     lines of QML in an f-string, brace-doubled throughout, carrying two tables it
     had no business owning. Since W35 the colours are not holes either: the
     template binds them to the active scheme's roles (one package)."""
-    import templates.loader as TL
     # pitch / stroke / dot from the substrate's module metrics, in U (H = 4U);
     # the lit stroke at weight=1 is 1.25x the base
     import segment_topology as _ST
+    import templates.loader as TL
     m = _ST.metrics(4.0)
     # ⚑ THE TABLES ARE THE DISPLAY'S NOW (W33, s133). This surface used to carry
     # `seg` (a glyph map) and `stroke` (a geometry table) in ITS OWN spelling,
@@ -185,8 +184,8 @@ def config_main_xml():
     `\\n`, reassembled at parse time. The AST sees ONE constant (which is why the
     scanner caught it), but a reader sees escape sequences instead of XML, and no
     schema validator sees it at all."""
+    import display_params as DP  # the DISPLAY rows, declared once (W59)
     import templates.loader as TL
-    import display_params as DP     # the DISPLAY rows, declared once (W59)
     return TL.render("live-wallpaper-config.kcfg",
                      displayEntries=DP.kcfg_entries("wallpaper", indent="    "))
 
@@ -194,8 +193,8 @@ def config_main_xml():
 def config_qml():
     """contents/ui/config.qml — the settings page (W59: the wallpaper had a kcfg and
     no page, so its display parameters were unreachable)."""
-    import templates.loader as TL
     import display_params as DP
+    import templates.loader as TL
     return TL.render("live-wallpaper-config.qml", displayDecls=DP.qml_decls("wallpaper"),
                      displayControls=DP.qml_controls("wallpaper", indent="    "))
 

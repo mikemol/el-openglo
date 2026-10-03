@@ -91,7 +91,7 @@ WAIVERS = {
 def findings():
     """{class: {symbol: detail}} — the coherence findings, from the index."""
     r = subprocess.run([sys.executable, INDEX, "--json"],
-                       capture_output=True, text=True, cwd=ROOT)
+                       capture_output=True, text=True, cwd=ROOT, check=False)
     if r.returncode != 0:
         return None
     d = json.loads(r.stdout)
@@ -195,7 +195,7 @@ def _selftest():
         import json as _json
         import subprocess as _sp
         d = _json.loads(_sp.run([sys.executable, INDEX, "--json"],
-                                capture_output=True, text=True, cwd=ROOT).stdout)
+                                capture_output=True, text=True, cwd=ROOT, check=False).stdout)
         open_all = {s for v in d["open"].values() for s in v}
         closed = {s for s, x in d["symbols"].items() if x["closed"]}
         check("no symbol is closed AND open (else CONTRADICTION must list it)",

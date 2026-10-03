@@ -185,7 +185,7 @@ def licence_text_id(text):
 
 
 def ebuild_id(text):
-    m = re.search(r'^LICENSE="([^"]*)"', text, re.M)
+    m = re.search(r'^LICENSE="([^"]*)"', text, re.MULTILINE)
     return m.group(1) if m else None
 
 
@@ -233,7 +233,8 @@ def emitted_sites(root, paths):
             continue
         scanned += 1
         try:
-            text = open(full, encoding="utf-8").read()
+            with open(full, encoding="utf-8") as fh:
+                text = fh.read()
             if rel.endswith(".json"):
                 found = [(f"{rel} {k}", v, "json") for k, v in _json_licences(json.loads(text))]
             else:
@@ -261,13 +262,17 @@ def measure(root=None):
         path = os.path.join(root, mod + ".py")
         if not os.path.isfile(path):
             continue                                     # emitters --drift owns absence
-        sites = generator_sites(open(path, encoding="utf-8").read(), spdx)
+        with open(path, encoding="utf-8") as fh:
+            sites = generator_sites(fh.read(), spdx)
         declaring += bool(sites)
         cases += [{"kind": "generator", "where": f"{mod}.py:{ln}", "id": i, "via": via}
                   for ln, i, via in sites]
     lic = os.path.join(root, "LICENSE")
-    cases.append({"kind": "file", "where": "LICENSE", "via": "text",
-                  "id": licence_text_id(open(lic, encoding="utf-8").read()) if os.path.isfile(lic) else None})
+    lic_id = None
+    if os.path.isfile(lic):
+        with open(lic, encoding="utf-8") as fh:
+            lic_id = licence_text_id(fh.read())
+    cases.append({"kind": "file", "where": "LICENSE", "via": "text", "id": lic_id})
     pp = os.path.join(root, "pyproject.toml")
     with open(pp, "rb") as fh:
         cases.append({"kind": "file", "where": "pyproject.toml [project].license", "via": "toml",
@@ -275,8 +280,10 @@ def measure(root=None):
     ed = os.path.join(root, EBUILD_DIR)
     for fn in sorted(os.listdir(ed)) if os.path.isdir(ed) else []:
         if fn.endswith(".ebuild"):
+            with open(os.path.join(ed, fn), encoding="utf-8") as fh:
+                eb_id = ebuild_id(fh.read())
             cases.append({"kind": "file", "where": f"{EBUILD_DIR}/{fn} LICENSE=", "via": "ebuild",
-                          "id": ebuild_id(open(os.path.join(ed, fn), encoding="utf-8").read())})
+                          "id": eb_id})
     tracked = tracked_files(root)
     emitted, scanned, unparsed = emitted_sites(root, tracked)
     cases += emitted
@@ -296,7 +303,8 @@ def notice_facts(root, E):
     gen = getattr(E, "notice_text", None)
     if not os.path.isfile(p):
         return {"present": False, "generator": gen is not None, "matches_generated": None, "missing": None}
-    text = open(p, encoding="utf-8").read()
+    with open(p, encoding="utf-8") as fh:
+        text = fh.read()
     return {"present": True, "generator": gen is not None,
             "matches_generated": (text == gen()) if gen else None,
             "missing": [t["what"] for t in getattr(E, "THIRD_PARTY", ()) if t["what"] not in text]}
@@ -330,7 +338,7 @@ def header_id(text):
     return None
 
 
-COPYRIGHT_RE = re.compile(r"^#\s*Copyright\s*\(c\)\s*(\d{4})(?:\s*-\s*\d{4})?\s+(.+?)\s*$", re.I)
+COPYRIGHT_RE = re.compile(r"^#\s*Copyright\s*\(c\)\s*(\d{4})(?:\s*-\s*\d{4})?\s+(.+?)\s*$", re.IGNORECASE)
 
 
 def copyright_holder(text):
@@ -353,7 +361,8 @@ def header_facts(root, spdx, paths, holder=None):
     pop = authored_sources(root, paths)
     missing, wrong, no_copy, wrong_holder = [], [], [], []
     for rel in pop:
-        text = open(os.path.join(root, rel), encoding="utf-8").read()
+        with open(os.path.join(root, rel), encoding="utf-8") as fh:
+            text = fh.read()
         hid = header_id(text)
         if hid is None:
             missing.append(rel)
@@ -394,7 +403,7 @@ def write_headers(root=None):
     if not files:
         print("check_license: REFUSED — 0 authored sources; the search is broken", file=sys.stderr)
         return 1
-    r = subprocess.run(header_argv(root, E, files))
+    r = subprocess.run(header_argv(root, E, files), check=False)
     print(f"check_license: {HEADER_TOOL} header over {len(files)} authored source(s), exit {r.returncode}")
     return r.returncode
 
@@ -421,7 +430,7 @@ def main(argv):
         print(json.dumps(measure(root), indent=1))
         return 0
     if "--gate" in args:                                 # opa_gate's verdict, on --root's tree
-        from scripts import opa_gate                     # OURS: imported before --root joins sys.path
+        from scripts import opa_gate  # OURS: imported before --root joins sys.path
         sets = opa_gate.evaluate("license", measure(root))
         for kind in ("deny", "withheld"):
             for msg in sets.get(kind, []):
@@ -432,7 +441,7 @@ def main(argv):
     if "--list" in args:
         m = measure(root)
         for c in m["cases"]:
-            print(f"  {c['kind']:9s} {str(c['id']):12s} {c['via']:12s} {c['where']}")
+            print(f"  {c['kind']:9s} {c['id']!s:12s} {c['via']:12s} {c['where']}")
         print(f"\ncheck_license: root {m['root']}")
         for kind in ("authority", "generator", "file", "emitted"):
             ks = [c for c in m["cases"] if c["kind"] == kind]
@@ -550,16 +559,19 @@ def _selftest():
         with tempfile.TemporaryDirectory() as d:
             with open(os.path.join(d, "t.py"), "w") as fh:
                 fh.write(src)
-            rc = subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True).returncode
-            out = open(os.path.join(d, "t.py"), encoding="utf-8").read()
+            rc = subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True, check=False).returncode
+            with open(os.path.join(d, "t.py"), encoding="utf-8") as fh:
+                out = fh.read()
             head = out.split("\n")[:3]
             chk("the shared writer exits 0 on a bare file", rc, 0)
             chk("...shebang first, then SPDX and the holder's copyright line",
                 (head[0], header_id(out), any(E.COPYRIGHT_HOLDER in ln and "Copyright" in ln for ln in head)),
                 ("#!/usr/bin/env python3", E.LICENSE_SPDX, True))
             chk("...the docstring stays the module's", ast.get_docstring(ast.parse(out)), "doc.")
-            subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True)
-            chk("...and writing twice is a no-op", open(os.path.join(d, "t.py"), encoding="utf-8").read(), out)
+            subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True, check=False)
+            with open(os.path.join(d, "t.py"), encoding="utf-8") as fh:
+                twice = fh.read()
+            chk("...and writing twice is a no-op", twice, out)
     with tempfile.TemporaryDirectory() as d:
         for fn, body in (("a.py", put), ("b.py", src), ("c.py", "# SPDX-License-Identifier: MIT\n")):
             with open(os.path.join(d, fn), "w") as fh:

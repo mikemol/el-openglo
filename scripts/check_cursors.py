@@ -116,9 +116,10 @@ def measure_theme(tdir, variant):
 def roster_drift():
     """The emitters' own VARIANTS compared TO the roster (W61 R1): make_cursors renders
     its list, make_inherit names the theme per variant — either dropping one is a fact."""
+    import variant_roster as VR
+
     import make_cursors as MC
     import make_inherit as INH
-    import variant_roster as VR
     return VR.drift_facts({"make_cursors": MC.VARIANTS, "make_inherit": INH.VARIANTS})
 
 
@@ -157,8 +158,9 @@ def _selftest():
         ok = ok and cond
 
     try:
-        import make_cursors as MC
         import cairosvg  # noqa: F401
+
+        import make_cursors as MC
     except ImportError as e:
         print(f"  SKIP — cannot rasterise ({e})\ncheck_cursors selftest: SKIP")
         return True
@@ -166,10 +168,13 @@ def _selftest():
     t = MC.tokens(v)
     with tempfile.TemporaryDirectory() as d:
         good = os.path.join(d, "default")
-        open(good, "wb").write(MC.cursor_file("default", v))
+        with open(good, "wb") as fh:
+            fh.write(MC.cursor_file("default", v))
         bad = os.path.join(d, "bad")
-        open(bad, "wb").write(MC.cursor_file("default", v, colours={"lit": "#ff0000", "ground": t["ground"]}))
-        open(os.path.join(d, "junk"), "wb").write(b"not a cursor")
+        with open(bad, "wb") as fh:
+            fh.write(MC.cursor_file("default", v, colours={"lit": "#ff0000", "ground": t["ground"]}))
+        with open(os.path.join(d, "junk"), "wb") as fh:
+            fh.write(b"not a cursor")
         g, b, j = measure_file(good), measure_file(bad), measure_file(os.path.join(d, "junk"))
         see(f"the emitted glyph's dominant colours are its tokens ({g['dominant']})",
             bool(g["dominant"]) and set(g["dominant"]) <= {t["lit"], t["ground"]})
@@ -177,8 +182,9 @@ def _selftest():
         see(f"every size is read back ({g['sizes']})", g["sizes"] == list(MC.SIZES))
         see("a non-XCursor file is unreadable, not silently empty", j["readable"] is False)
         wf = os.path.join(d, "wait")
-        open(wf, "wb").write(MC.cursor_file("wait", v))
-        w = measure_file(wf, t)
+        with open(wf, "wb") as fh:
+            fh.write(MC.cursor_file("wait", v))
+        w =measure_file(wf, t)
         see(f"wait carries {MC.SEGS} frames per size ({w['frame_counts']})",
             set(w["frame_counts"].values()) == {MC.SEGS} and len(w["frame_counts"]) == len(MC.SIZES))
         see(f"every wait frame has delay {MC.FRAME_MS} ms and the frames differ",
@@ -186,7 +192,8 @@ def _selftest():
             and len({f["pixels"] for f in w["frames"]}) == MC.SEGS)
         see(f"every wait frame shows lit AND ghost ink ({[(f['lit_px'], f['ghost_px']) for f in w['frames']]})",
             all(f["lit_px"] > 0 and f["ghost_px"] > 0 for f in w["frames"]))
-        open(wf, "wb").write(MC.cursor_file("wait", v, colours={"ghost": "#ff00ff"}))
+        with open(wf, "wb") as fh:
+            fh.write(MC.cursor_file("wait", v, colours={"ghost": "#ff00ff"}))
         wb = measure_file(wf, t)
         see(f"a wrong-coloured ghost is SEEN (ghost px {[f['ghost_px'] for f in wb['frames']]} "
             f"vs {[f['ghost_px'] for f in w['frames']]})",

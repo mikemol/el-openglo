@@ -29,9 +29,11 @@ CORPUS = os.path.join(ROOT, "catalog", "runtime-warnings.json")
 
 
 def measure(path=CORPUS, today=None, root=ROOT):
-    today = today or datetime.date.today()
+    # the host's LOCAL calendar date, as date.today() gave it (an aware local now, then .date())
+    today = today or datetime.datetime.now(datetime.UTC).astimezone().date()
     try:
-        doc = json.load(open(path, encoding="utf-8"))
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
     except (OSError, ValueError) as e:
         return {"cases": [], "withheld": f"{type(e).__name__}: {e}", "max_unruled_days": None}
     cases = []

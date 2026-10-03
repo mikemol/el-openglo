@@ -51,8 +51,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
-import display_types as DT                                        # noqa: E402
-import segment_topology as ST                                     # noqa: E402
+import display_types as DT
+import segment_topology as ST
 
 
 def _substrate_source(fmt, ch):
@@ -292,8 +292,8 @@ def _selftest():
     try:
         def _wrong():
             r = saved_reg()
-            fmt = sorted(r["segGlyphs"])[0]
-            ch = sorted(r["segGlyphs"][fmt])[0]
+            fmt = min(r["segGlyphs"])
+            ch = min(r["segGlyphs"][fmt])
             r["segGlyphs"][fmt][ch] = ["zz"]
             return r
         DT.registry = _wrong

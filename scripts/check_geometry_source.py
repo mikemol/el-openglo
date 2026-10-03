@@ -66,7 +66,8 @@ def _module_assigns(path):
     a hand-authored dict or a string of segment labels: a shape this file decided.
     Flagging the name alone reported the fix as the defect."""
     try:
-        tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            tree = ast.parse(fh.read())
     except (SyntaxError, OSError):
         return set()
 
@@ -90,7 +91,8 @@ def _module_assigns(path):
 def _imports(path):
     """Top-level module names this file imports, at any depth."""
     try:
-        tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            tree = ast.parse(fh.read())
     except (SyntaxError, OSError):
         return set()
     out = set()
@@ -155,8 +157,8 @@ def coverable():
     gates were already green; this one was assumed."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import segment_topology as ST
     import make_segment_display as MSD
+    import segment_topology as ST
     out = []
 
     # --- arm 1: one place --------------------------------------------------
@@ -197,9 +199,9 @@ def coverable():
     # every emitted surface that lays out digits must change; one that does not
     # is still carrying its own advance.
     import make_clock as MC
+    import make_schemes as MS
     import make_wallpaper as MW
     import make_wallpaper_live as MWL
-    import make_schemes as MS
     tok = next(v[0] for v in MS.GRID.values())
     variant = tok["id"]
 
@@ -303,24 +305,28 @@ def _selftest():
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "s.py")
-        open(p, "w").write('SEGS = {"A": ("h", 0, 1, 0)}\n')
+        with open(p, "w") as fh:
+            fh.write('SEGS = {"A": ("h", 0, 1, 0)}\n')
         check("sees a module-level stroke table",
               bool(_module_assigns(p) & set(OWN_GEOMETRY)), True)
         # ⚑ AND A DERIVED TABLE IS NOT A SILO — the distinction the check turns
         # on. Without this the fix reads as the defect and de-siloing can never
         # go green.
         p3 = os.path.join(td, "d.py")
-        open(p3, "w").write("import segment_topology as _ST\n"
-                            "SEGS = _ST.seg7_svg_grid()\n")
+        with open(p3, "w") as fh:
+            fh.write("import segment_topology as _ST\n"
+                     "SEGS = _ST.seg7_svg_grid()\n")
         check("a DERIVED table is not owned",
               bool(_module_assigns(p3) & set(OWN_GEOMETRY)), False)
         # a comprehension is still authoring: it names the shapes here
         p4 = os.path.join(td, "e.py")
-        open(p4, "w").write('SEGS = {"A": ("h", 0, 0), "B": ("v", 1, 0)}\n')
+        with open(p4, "w") as fh:
+            fh.write('SEGS = {"A": ("h", 0, 0), "B": ("v", 1, 0)}\n')
         check("a literal dict is owned",
               bool(_module_assigns(p4) & set(OWN_GEOMETRY)), True)
         p2 = os.path.join(td, "t.py")
-        open(p2, "w").write("import segment_topology as ST\nx = ST.SEG22\n")
+        with open(p2, "w") as fh:
+            fh.write("import segment_topology as ST\nx = ST.SEG22\n")
         check("sees an authority import",
               bool(_imports(p2) & set(AUTHORITIES)), True)
 
@@ -330,8 +336,8 @@ def _selftest():
     # refuses, and every arm must flip.
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import segment_topology as ST
     import make_segment_display as MSD
+    import segment_topology as ST
     rows = coverable()
     check("coverable: the real substrate is measured (4 arms)", len(rows), 4)
     saved = (ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js, ST.metrics)

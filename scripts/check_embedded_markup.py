@@ -78,8 +78,10 @@ def embeddings(root=None, min_lines=DOCUMENT_LINES):
     out = []
     for fn in sources(root):
         path = os.path.join(root or ROOT, fn)
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            src = fh.read()
         try:
-            tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
+            tree = ast.parse(src)
         except SyntaxError:
             continue
         for node in ast.walk(tree):
@@ -126,8 +128,10 @@ def findings(root=None, min_lines=DOCUMENT_LINES):
     out = []
     for fn, lineno, marker, n in embeddings(root, min_lines):
         path = os.path.join(root, fn)
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            src = fh.read()
         try:
-            tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
+            tree = ast.parse(src)
         except SyntaxError:
             continue
         if lineno in _docstrings(tree):
@@ -141,8 +145,10 @@ def planted_findings(paths, min_lines=DOCUMENT_LINES):
     negative fixture): the same identification and docstring rule as findings()."""
     out = []
     for path in paths:
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            src = fh.read()
         try:
-            tree = ast.parse(open(path, encoding="utf-8", errors="replace").read())
+            tree = ast.parse(src)
         except SyntaxError:
             continue
         docs = _docstrings(tree)
@@ -224,18 +230,19 @@ def _selftest():
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         # ⚑ THE SCAN MUST SEE A PLANTED ARTIFACT, or its all-clear means nothing.
-        open(os.path.join(td, "emb.py"), "w").write(
-            'X = """<svg>\n' + "\n".join(f"  <rect id='{i}'/>" for i in range(12))
-            + '\n</svg>"""\n')
+        with open(os.path.join(td, "emb.py"), "w") as fh:
+            fh.write('X = """<svg>\n' + "\n".join(f"  <rect id='{i}'/>" for i in range(12))
+                     + '\n</svg>"""\n')
         check("sees a planted SVG document", len(findings(td)) , 1)
         # ⚑ A DOCSTRING MENTIONING MARKUP IS PROSE, NOT AN ARTIFACT. This file's
         # own docstring says `<svg`; if that fired, the tool would refuse itself.
-        open(os.path.join(td, "doc.py"), "w").write(
-            '"""A long docstring about <svg documents.\n' + "\n" * 12 + '"""\nY = 1\n')
+        with open(os.path.join(td, "doc.py"), "w") as fh:
+            fh.write('"""A long docstring about <svg documents.\n' + "\n" * 12 + '"""\nY = 1\n')
         planted = [f for f in findings(td) if f[0] == "doc.py"]
         check("a docstring about markup does not fire", planted, [])
         # ⚑ A SMALL PRIMITIVE IS NOT A DOCUMENT.
-        open(os.path.join(td, "prim.py"), "w").write('Z = "<svg><rect/></svg>"\n')
+        with open(os.path.join(td, "prim.py"), "w") as fh:
+            fh.write('Z = "<svg><rect/></svg>"\n')
         check("a one-line primitive does not fire",
               [f for f in findings(td) if f[0] == "prim.py"], [])
         m = measure(td)

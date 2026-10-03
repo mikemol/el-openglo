@@ -81,7 +81,7 @@ def main(argv):
     runner = [os.path.join(ROOT, ".venv", "bin", "python3")]
     if not os.path.isfile(runner[0]):
         runner = [sys.executable]
-    r = subprocess.run(runner + [os.path.join(ROOT, "scripts", "opa_gate.py"), "tree_writes"], cwd=ROOT)
+    r = subprocess.run(runner + [os.path.join(ROOT, "scripts", "opa_gate.py"), "tree_writes"], cwd=ROOT, check=False)
     if r.returncode != 0:
         print("pre-push: REFUSED — a gated check writes a tracked file (W68); "
               "run scripts/check_tree_writes.py --list, fix the writer, then push", file=sys.stderr)

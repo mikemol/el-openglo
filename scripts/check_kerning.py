@@ -64,8 +64,8 @@ def measure(variant):
 
 
 def _selftest():
-    import numpy as np
     import check_urgency_cues as UC
+    import numpy as np
     ok = True
 
     def chk(label, got, want):

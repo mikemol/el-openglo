@@ -69,12 +69,14 @@ def bad_leaves(group, prefix="", doc=None):
 
 
 def measure(path=None):
-    import make_tokens as MT
     import variant_roster
+
+    import make_tokens as MT
     path = path or MT.OUT
     roster = list(variant_roster.ids())
     try:
-        doc = json.load(open(path, encoding="utf-8"))
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
     except (OSError, ValueError) as e:
         return {"roster": roster, "cases": [], "current": None, "withheld": [f"token file unreadable: {e}"]}
     cases = []
@@ -112,13 +114,15 @@ def _selftest():
     doc = MT.document()
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "t.json")
-        json.dump(doc, open(p, "w"))
+        with open(p, "w") as fh:
+            json.dump(doc, fh)
         m = measure(p)
         chk("a fresh document is current with every variant present",
             (m["current"], all(c["present"] for c in m["cases"])), (True, True))
-        first = sorted(k for k in doc if not k.startswith("$"))[0]
+        first = min(k for k in doc if not k.startswith("$"))
         del doc[first]
-        json.dump(doc, open(p, "w"))
+        with open(p, "w") as fh:
+            json.dump(doc, fh)
         m = measure(p)
         chk("a dropped variant is seen absent, and the file reads stale",
             ([c["variant"] for c in m["cases"] if not c["present"]], m["current"]), ([first], False))

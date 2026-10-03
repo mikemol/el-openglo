@@ -38,7 +38,7 @@ WINDOW_S = 8
 # the lines Plasma and the QML engine print when an applet fails to load
 ERROR_RE = re.compile(r"(is not a type|is not installed|module \"[^\"]+\" .*not|Error loading|"
                       r"Cannot assign|ReferenceError|TypeError|failed to load|Could not load|"
-                      r"plugin .* not found|Unable to assign|Invalid property)", re.I)
+                      r"plugin .* not found|Unable to assign|Invalid property)", re.IGNORECASE)
 
 
 def applets(stage):
@@ -110,9 +110,11 @@ def _selftest():
     chk("an ordinary log line is not", bool(ERROR_RE.search("qml: el-marquee rebuild count=0")), False)
     with tempfile.TemporaryDirectory() as s:
         os.makedirs(os.path.join(s, "usr", "share", "plasma", "plasmoids", "org.el.a"))
-        open(os.path.join(s, "usr", "share", "plasma", "plasmoids", "org.el.a", "metadata.json"), "w").write("{}")
+        with open(os.path.join(s, "usr", "share", "plasma", "plasmoids", "org.el.a", "metadata.json"), "w") as fh:
+            fh.write("{}")
         os.makedirs(os.path.join(s, "usr", "share", "plasma", "wallpapers", "org.el.w"))
-        open(os.path.join(s, "usr", "share", "plasma", "wallpapers", "org.el.w", "metadata.json"), "w").write("{}")
+        with open(os.path.join(s, "usr", "share", "plasma", "wallpapers", "org.el.w", "metadata.json"), "w") as fh:
+            fh.write("{}")
         chk("applets are the plasmoids; wallpapers are named not_loadable, not dropped",
             (applets(s), not_loadable(s)), (["org.el.a"], ["org.el.w"]))
     chk("an unstaged tree is withheld",
@@ -125,11 +127,11 @@ def _selftest():
         with tempfile.TemporaryDirectory() as s:
             ui = os.path.join(s, "usr", "share", "plasma", "plasmoids", "org.el.broken", "contents", "ui")
             os.makedirs(ui)
-            json.dump({"KPlugin": {"Id": "org.el.broken", "Name": "broken"},
-                       "KPackageStructure": "Plasma/Applet", "X-Plasma-API-Minimum-Version": "6.0"},
-                      open(os.path.join(ui, "..", "..", "metadata.json"), "w"))
-            open(os.path.join(ui, "main.qml"), "w").write(
-                "import QtQuick\nimport org.kde.plasma.plasmoid\nPlasmoidItem { NoSuchType {} }\n")
+            with open(os.path.join(ui, "..", "..", "metadata.json"), "w") as fh:
+                json.dump({"KPlugin": {"Id": "org.el.broken", "Name": "broken"},
+                           "KPackageStructure": "Plasma/Applet", "X-Plasma-API-Minimum-Version": "6.0"}, fh)
+            with open(os.path.join(ui, "main.qml"), "w") as fh:
+                fh.write("import QtQuick\nimport org.kde.plasma.plasmoid\nPlasmoidItem { NoSuchType {} }\n")
             broken = load(s, "org.el.broken")
             chk("a real load of an applet naming a missing type REPORTS a load error",
                 len(broken["errors"]) > 0, True)

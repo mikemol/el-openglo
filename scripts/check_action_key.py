@@ -99,13 +99,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ⚑ THE REAL ANSWER IS A DISTRIBUTION (W62), on mtools' shape — src/mikemol/<n>/,
 # PEP 420 implicit namespace, console scripts as the adoption path that replaces
 # a symlink, dependencies published or git-pinned and NEVER editable/path.
-import build_graph  # noqa: E402
+import build_graph
+
 # ⚑ THE `.colors` ROSTER IS DECLARED ONCE (W61 B1): schemes_artifact.SUFFIX, which
 # materialise() and every snapshot reader use. It was typed twice, here and there;
 # ACTIONS now reads it. (Resolves because build_graph put ROOT on sys.path.)
 # The authority sits in schemes_artifact rather than here because its bytes are in
 # the schemes and screens keys: editing it to read ACTIONS would re-key 55 screens.
-import schemes_artifact  # noqa: E402
+import schemes_artifact
+
 MANIFEST = os.path.join(ROOT, "catalog", "actions.json")
 
 # ⚑ YOU DO NOT DECLARE A HOST BINARY. YOU DEFINE YOUR HOST (operator, 2026-09-22,
@@ -204,12 +206,13 @@ SITE_DOMAINS = {
 
 def _site_function(rel, line):
     """The innermost def enclosing `rel:line`, or None at module level."""
-    tree = ast.parse(open(os.path.join(ROOT, rel), encoding="utf-8").read())
+    with open(os.path.join(ROOT, rel), encoding="utf-8") as fh:
+        tree = ast.parse(fh.read())
     best = None
     for n in ast.walk(tree):
-        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.lineno <= line <= n.end_lineno:
-            if best is None or n.lineno >= best.lineno:
-                best = n
+        if (isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.lineno <= line <= n.end_lineno
+                and (best is None or n.lineno >= best.lineno)):
+            best = n
     return best.name if best else None
 
 
@@ -269,7 +272,8 @@ def host_identity():
     UNPINNED HOST IS NOT A FAILURE — it is the state this repo is in today, and
     saying so is the difference between a measurement and a pretence."""
     if os.path.isfile(HOST_PIN_FILE):
-        pin = json.load(open(HOST_PIN_FILE, encoding="utf-8"))
+        with open(HOST_PIN_FILE, encoding="utf-8") as fh:
+            pin = json.load(fh)
         # ⚑ ref AND digest ARE SEPARATE FIELDS, on luthen-observability's
         # images.json shape rather than a spelling invented here. The reference a
         # RUNTIME cites is `localhost/<name>:built` with NO digest — containerd's
@@ -341,7 +345,8 @@ def import_closure(entry, prune=()):
             continue
         seen.add(rel)
         try:
-            tree = ast.parse(open(os.path.join(ROOT, rel), encoding="utf-8").read())
+            with open(os.path.join(ROOT, rel), encoding="utf-8") as fh:
+                tree = ast.parse(fh.read())
         except SyntaxError:
             continue
         names = set()
@@ -459,13 +464,15 @@ def _repo_reads(texts):
             for c in cands:
                 if os.path.isfile(c) and c not in out:
                     out.add(c)
-                    body = open(c, encoding="utf-8", errors="replace").read()
+                    with open(c, encoding="utf-8", errors="replace") as fh:
+                        body = fh.read()
                     pending.append(body)
-                    for rel in re.findall(_QML_REL_IMPORT, body, flags=re.M):
+                    for rel in re.findall(_QML_REL_IMPORT, body, flags=re.MULTILINE):
                         q = os.path.normpath(os.path.join(os.path.dirname(c), rel))
                         if os.path.isfile(q) and q not in out:
                             out.add(q)
-                            pending.append(open(q, encoding="utf-8", errors="replace").read())
+                            with open(q, encoding="utf-8", errors="replace") as fh:
+                                pending.append(fh.read())
     return sorted(os.path.relpath(p, ROOT) for p in out)
 
 
@@ -484,6 +491,7 @@ def job_inputs(stage):
     ⚑ DERIVED, NOT LISTED: a file the harness starts handing the process is in the
     key the moment it is in the run, because both read the same staging."""
     import tempfile
+
     import qt_sandbox as QT
     inputs, texts = {}, []
     with tempfile.TemporaryDirectory() as td:
@@ -496,7 +504,8 @@ def job_inputs(stage):
             dirs.sort()
             for n in sorted(names):
                 p = os.path.join(b, n)
-                data = open(p, "rb").read()
+                with open(p, "rb") as fh:
+                    data = fh.read()
                 try:
                     text = data.decode("utf-8")
                 except UnicodeDecodeError:
@@ -521,7 +530,7 @@ def output_keys(action):
     """The producer's per-output keys (`<entry> --keys`), or None when it declares
     none — then the action is keyed as ONE, over its domain (key_of)."""
     r = subprocess.run([sys.executable, os.path.join(ROOT, action[1]), "--keys"],
-                       capture_output=True, text=True, cwd=ROOT)
+                       capture_output=True, text=True, cwd=ROOT, check=False)
     if r.returncode != 0:
         return None
     try:
@@ -668,7 +677,7 @@ def declared_outputs(action):
     staleness nobody can attribute."""
     entry = os.path.join(ROOT, action[1])
     r = subprocess.run([sys.executable, entry, "--outputs"],
-                       capture_output=True, text=True, cwd=ROOT)
+                       capture_output=True, text=True, cwd=ROOT, check=False)
     if r.returncode != 0:
         return None                      # the action declares no output roster
     try:
@@ -837,7 +846,7 @@ def rebuild():
     ran = []
     for entry in plan:
         print(f"action_key: rebuilding {entry}", flush=True)
-        r = subprocess.run([sys.executable, os.path.join(ROOT, entry)], cwd=ROOT)
+        r = subprocess.run([sys.executable, os.path.join(ROOT, entry)], cwd=ROOT, check=False)
         if r.returncode != 0:
             print(f"action_key: {entry} exited {r.returncode}; nothing recorded", file=sys.stderr)
             return ran, entry
@@ -862,7 +871,8 @@ def impact(rel):
     over the source must. Unlike a hand-reasoned "that file isn't read by the
     clock", this is a measurement, and it answers in n of m."""
     p = os.path.join(ROOT, rel)
-    original = open(p, "rb").read()
+    with open(p, "rb") as fh:
+        original = fh.read()
     base = {a[0]: per_output_key(a)[1] for a in ACTIONS}
     try:
         with open(p, "ab") as fh:
@@ -954,8 +964,9 @@ def _selftest():
     # to stop, wearing the tool's own badge.
     a = ACTIONS[0]
     base = key_of(a)
-    victim = os.path.join(ROOT, sorted(x for x in base.inputs if not x.startswith("host:"))[0])
-    original = open(victim, "rb").read()
+    victim = os.path.join(ROOT, min(x for x in base.inputs if not x.startswith("host:")))
+    with open(victim, "rb") as fh:
+        original = fh.read()
     try:
         with open(victim, "ab") as fh:
             fh.write(b"\n# action_key selftest perturbation\n")
@@ -1025,7 +1036,7 @@ def _selftest():
     # the other recurses.
     for mode in ("--list", "--json"):
         r = subprocess.run([sys.executable, os.path.abspath(__file__), mode],
-                           capture_output=True, text=True, cwd=ROOT)
+                           capture_output=True, text=True, cwd=ROOT, check=False)
         chk(f"mode {mode} runs", (r.returncode, "Traceback" in r.stderr), (0, False))
     chk("an action that declares its outputs yields a roster",
         isinstance(declared_outputs(ACTIONS[0]), list), True)
@@ -1036,7 +1047,8 @@ def _selftest():
     with tempfile.TemporaryDirectory() as d:
         def fixture_stage(body):
             def stage(td):
-                open(os.path.join(td, "subject.qml"), "w").write(body)
+                with open(os.path.join(td, "subject.qml"), "w") as fh:
+                    fh.write(body)
                 return ["qml", os.path.join(td, "subject.qml")], {}, False
             return stage
         doc = f'import "file:{os.path.join(ROOT, "templates")}" as EL\nItem {{ EL.ApertureField {{ }} }}\n'
@@ -1121,7 +1133,8 @@ def _selftest():
         "EL-Amber.colors" in key_of(wall).inputs, True)
     victim = os.path.join(ROOT, "EL-Amber.colors")
     base = key_of(wall).key
-    original = open(victim, "rb").read()
+    with open(victim, "rb") as fh:
+        original = fh.read()
     try:
         with open(victim, "ab") as fh:
             fh.write(b"\n")

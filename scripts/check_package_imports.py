@@ -58,7 +58,7 @@ PACKAGES = (
 QMLLINT = "/usr/lib64/qt6/bin/qmllint"    # = qt_sandbox.QMLLINT; spawned only through it
 # "X was not found. Did you add all imports and dependencies?" — the [import]
 # category, which is what an unresolvable bare-name type reports as
-UNRESOLVED = re.compile(r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[import\]", re.M)
+UNRESOLVED = re.compile(r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[import\]", re.MULTILINE)
 
 
 def lint_tree(ui_dir, docs):
@@ -121,12 +121,13 @@ def _selftest():
     # the display — the live defect of s134, reproduced in a fixture
     def render_broken(d):
         os.makedirs(os.path.join(d, "contents", "ui"), exist_ok=True)
-        open(os.path.join(d, "contents", "ui", "main.qml"), "w").write(
-            "import QtQuick\nItem { SegmentChar { } Rectangle { } }\n")
+        with open(os.path.join(d, "contents", "ui", "main.qml"), "w") as fh:
+            fh.write("import QtQuick\nItem { SegmentChar { } Rectangle { } }\n")
 
     def render_whole(d):
         render_broken(d)
-        open(os.path.join(d, "contents", "ui", "SegmentChar.qml"), "w").write("import QtQuick\nItem { }\n")
+        with open(os.path.join(d, "contents", "ui", "SegmentChar.qml"), "w") as fh:
+            fh.write("import QtQuick\nItem { }\n")
 
     import types
     fake = types.ModuleType("_fake_pkg")

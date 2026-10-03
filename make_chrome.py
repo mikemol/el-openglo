@@ -9,7 +9,9 @@ tokens via make_preview.parse_scheme, so it cannot drift from the theme. Output
 is a manifest.json per variant (manifest v3, `theme.colors` RGB triples) —
 loadable unpacked via chrome://extensions, independent of GTK.
 """
-import os, json
+import json
+import os
+
 import make_preview as MP
 from emitters import atomic_write
 

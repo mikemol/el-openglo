@@ -32,11 +32,11 @@ that declare `known` as a literal; a check without one is reported, not run.
 import ast
 import json
 import os
+import subprocess
 import sys
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor
-import subprocess
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "scripts")

@@ -25,9 +25,11 @@ import json
 import os
 import sys
 
-import make_wallpaper_live as WL   # colors_for: the token-derived ground/lit/ghost/alpha
-from emitters import LICENSE_SPDX   # the one licence id (W44)
-from emitters import atomic_write
+import make_wallpaper_live as WL  # colors_for: the token-derived ground/lit/ghost/alpha
+from emitters import (
+    LICENSE_SPDX,  # the one licence id (W44)
+    atomic_write,
+)
 
 # the variants whose solved alpha must agree for the constant to be honest
 VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",

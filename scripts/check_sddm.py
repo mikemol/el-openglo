@@ -57,7 +57,7 @@ def measure_variant(variant, w=800, h=450):
 
 
 def measure(variants=None):
-    import variant_roster                   # the declared roster (W61 B2), not make_sddm's own
+    import variant_roster  # the declared roster (W61 B2), not make_sddm's own
     vs = list(variants or variant_roster.ids())
     return {"cases": [measure_variant(v) for v in vs],
             "expected": {"user": "bob", "session": 1, "password": "hunter2"}}
@@ -77,7 +77,7 @@ def main(argv):
         return 0
     for c in doc["cases"]:
         print(json.dumps(c))
-    print("check_sddm: measured %d case(s); the verdict is scripts/opa_gate.py sddm" % len(doc["cases"]))
+    print(f"check_sddm: measured {len(doc['cases'])} case(s); the verdict is scripts/opa_gate.py sddm")
     return 0
 
 

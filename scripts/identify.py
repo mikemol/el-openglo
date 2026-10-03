@@ -34,7 +34,6 @@ read it as though it did. A docstring DESCRIBING QML identifies as QML — measu
 handler. Position and parse are the caller's guards; kind is only the first.
 """
 import os
-import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -89,13 +88,14 @@ def kinds():
     if not os.path.exists(REPO_DB):
         return out
     desc = None
-    for line in open(REPO_DB, encoding="utf-8"):
-        s = line.strip()
-        if s.startswith("!:mime"):
-            out.append((s.split(None, 1)[1].strip(), desc or ""))
-        elif s and not s.startswith("#"):
-            parts = s.split("\t")
-            desc = parts[-1].strip() if len(parts) > 1 else s
+    with open(REPO_DB, encoding="utf-8") as fh:
+        for line in fh:
+            s = line.strip()
+            if s.startswith("!:mime"):
+                out.append((s.split(None, 1)[1].strip(), desc or ""))
+            elif s and not s.startswith("#"):
+                parts = s.split("\t")
+                desc = parts[-1].strip() if len(parts) > 1 else s
     return out
 
 

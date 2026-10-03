@@ -78,7 +78,7 @@ def languages():
     under paperkit, one alone), so the absolute path is the fallback."""
     if not TESSERACT:
         return None
-    r = subprocess.run([TESSERACT, "--list-langs"], capture_output=True, text=True)
+    r = subprocess.run([TESSERACT, "--list-langs"], capture_output=True, text=True, check=False)
     return [l.strip() for l in r.stdout.splitlines()[1:] if l.strip()]
 
 
@@ -97,14 +97,15 @@ def preprocess(png, out, blur_pitches=LOWPASS_PITCHES, upscale=UPSCALE):
 
 
 def ocr(png, lang):
-    r = subprocess.run([TESSERACT, png, "-", "--psm", "7", "-l", lang], capture_output=True, text=True)
+    r = subprocess.run([TESSERACT, png, "-", "--psm", "7", "-l", lang], capture_output=True, text=True, check=False)
     return r.stdout.strip()
 
 
 def render_case(font, text, rows, offset_rows, out_png, gamma=None, width=420):
     import render_qml as RQ
+
     import make_notify_marquee as NM
-    kw = dict(font=font, text=text, backdrop_rows=rows, offset_rows=offset_rows)
+    kw = {"font": font, "text": text, "backdrop_rows": rows, "offset_rows": offset_rows}
     if gamma is not None:
         kw["gamma"] = gamma
     qml = NM.aperture_text_probe_qml("file:" + os.path.join(ROOT, "templates"), **kw)
@@ -201,8 +202,9 @@ def _selftest():
     chk("whitespace is collapsed before scoring", similarity("a  b", "a b"), 1.0)
     # the pre-processing can SEE: a field of separate dots becomes connected strokes
     # after the low-pass — a 3-px dot row at 4-px pitch reads as one bar
-    from PIL import Image
     import tempfile
+
+    from PIL import Image
     with tempfile.TemporaryDirectory() as td:
         im = Image.new("L", (80, 20), 20)
         for c in range(5, 15):

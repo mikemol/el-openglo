@@ -50,7 +50,7 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-import qt_sandbox as QT  # noqa: E402
+import qt_sandbox as QT
 
 QML = QT.QML
 VARIANT = "EL-Openglo"
@@ -390,10 +390,11 @@ def _emitted():
     edited during one process is not re-read."""
     if not _EMITTED:
         import plasma_rewrite as PR
+
         import make_notify_marquee as NM
         qml = NM.main_qml()
         for pat, rep in PR.SUBSTITUTIONS:
-            qml = re.sub(pat, rep, qml, flags=re.M)
+            qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
         _EMITTED.append((qml, NM.config_xml(), {
             "ApertureField.qml": NM.aperture_field_component(),
             "marquee-body.js": NM.body_parser(),
@@ -451,6 +452,12 @@ def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
     return subprocess.CompletedProcess(cmd, proc.returncode, "".join(lines), "")
 
 
+def _put(path, text):
+    """Write `text` to `path` (default encoding, as every stager write always was)."""
+    with open(path, "w") as fh:
+        fh.write(text)
+
+
 def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None,
            frames=None, timeline=None):
     """run()'s JOB as a stager: `stage(td) -> (argv, env, gpu)` writes every file
@@ -467,13 +474,13 @@ def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=
         os.makedirs(stub)
         xdg = os.path.join(td, "xdg")
         os.makedirs(xdg)
-        open(os.path.join(stub, "qmldir"), "w").write(STUB_QMLDIR)
-        open(os.path.join(stub, "StubRegistry.qml"), "w").write(STUB_REGISTRY)
-        open(os.path.join(stub, "Notifications.qml"), "w").write(STUB_MODEL)
-        open(os.path.join(td, "subject.qml"), "w").write(qml)
+        _put(os.path.join(stub, "qmldir"), STUB_QMLDIR)
+        _put(os.path.join(stub, "StubRegistry.qml"), STUB_REGISTRY)
+        _put(os.path.join(stub, "Notifications.qml"), STUB_MODEL)
+        _put(os.path.join(td, "subject.qml"), qml)
         for name, text in files.items():
-            open(os.path.join(td, name), "w").write(text)
-        open(os.path.join(td, "harness.qml"), "w").write(HARNESS % {
+            _put(os.path.join(td, name), text)
+        _put(os.path.join(td, "harness.qml"), HARNESS % {
             "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
             "sample": SAMPLE_MS, "end": end_ms or END_MS, "watchdog": WATCHDOG_MS, "stop_paused": stop_paused,
             "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
@@ -532,8 +539,8 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
 
 def hovered_args(variant=VARIANT, grab_paused=None):
     """run()'s arguments for the hovered run — one spelling for run and key (W61)."""
-    return dict(hover_pause=True, end_ms=HOVER_CAP_MS, stop_paused=HOVER_STOP_SAMPLES, variant=variant,
-                grab_paused=grab_paused)
+    return {"hover_pause": True, "end_ms": HOVER_CAP_MS, "stop_paused": HOVER_STOP_SAMPLES, "variant": variant,
+                "grab_paused": grab_paused}
 
 
 def run_hovered(variant=VARIANT, grab_paused=None):
@@ -542,12 +549,12 @@ def run_hovered(variant=VARIANT, grab_paused=None):
 
 def scroll_still_args(variant, out_scroll):
     """run()'s arguments for the mid-scroll still (W52) — one spelling for run and key."""
-    return dict(variant=variant, end_ms=4000, grab=out_scroll)
+    return {"variant": variant, "end_ms": 4000, "grab": out_scroll}
 
 
 def animate_args(variant, frames_dir):
     """run()'s arguments for the one-item loop animate() grabs — one spelling for run and key."""
-    return dict(variant=variant, end_ms=8000, frames=frames_dir, timeline=LOOP_TIMELINE)
+    return {"variant": variant, "end_ms": 8000, "frames": frames_dir, "timeline": LOOP_TIMELINE}
 
 
 def screenshot(variant, out_scroll, out_paused):
@@ -638,7 +645,8 @@ def expected_colors(variant):
     """The variant's solved tokens as the widget's bound colours must resolve (W35)."""
     import make_wallpaper_live as WL
     ground, lit, ghost, _a = WL.colors_for(variant)
-    return {"lit": "#%02x%02x%02x" % lit, "ghost": "#%02x%02x%02x" % ghost, "ground": "#%02x%02x%02x" % ground}
+    return {"lit": "#{:02x}{:02x}{:02x}".format(*lit), "ghost": "#{:02x}{:02x}{:02x}".format(*ghost),
+            "ground": "#{:02x}{:02x}{:02x}".format(*ground)}
 
 
 def mark_boundaries(samples):

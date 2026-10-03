@@ -27,12 +27,12 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 sys.path.insert(0, ROOT)
-from check_projection import find_font   # noqa: E402  one font finder, not two
+from check_projection import find_font
 
 
 def _mods():
-    import make_glyph_ink as GI
     import display_types as DT
+    import make_glyph_ink as GI
     return GI, DT
 
 
@@ -125,8 +125,8 @@ def _selftest():
     # lit the same cells at 0.05 and 0.95 would be a centre sample in disguise
     lo = GI.matrix_glyph(font, "A", threshold=0.05)
     hi = GI.matrix_glyph(font, "A", threshold=0.95)
-    chk("threshold 0.05 lights more of 'A' than 0.95", sum(bin(b).count("1") for b in lo) > sum(bin(b).count("1") for b in hi), True)
-    cap, desc = GI.font_frame(font)
+    chk("threshold 0.05 lights more of 'A' than 0.95", sum(b.bit_count() for b in lo) > sum(b.bit_count() for b in hi), True)
+    _cap, desc = GI.font_frame(font)
     chk("the frame's descent is below the baseline and above hhea", desc < 0, True)
     print("check_matrix_input selftest:", "PASS" if ok else "FAIL")
     return ok

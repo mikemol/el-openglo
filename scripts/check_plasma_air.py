@@ -32,14 +32,15 @@ import re
 import sys
 
 BASE = "/usr/share/plasma/desktoptheme"
-STYLE = re.compile(r"<style\b.*?</style>", re.S | re.I)
+STYLE = re.compile(r"<style\b.*?</style>", re.DOTALL | re.IGNORECASE)
 SCHEME = re.compile(r"""class\s*=\s*["'][^"']*ColorScheme-""")
 BAKED = re.compile(r"""(?:fill|stroke|stop-color|flood-color)\s*[:=]\s*["']?\s*(?:#[0-9a-fA-F]{3,8}\b|rgba?\()""")
-SECTION = re.compile(r"^\[(Colors:\w+)\]", re.M)
+SECTION = re.compile(r"^\[(Colors:\w+)\]", re.MULTILINE)
 
 
 def read_svg(path):
-    raw = open(path, "rb").read()
+    with open(path, "rb") as fh:
+        raw = fh.read()
     return (gzip.decompress(raw) if path.endswith("z") else raw).decode("utf-8", "replace")
 
 
@@ -53,7 +54,10 @@ def measure_theme(base, tid):
     if not os.path.isdir(d):
         return {"id": tid, "withheld": f"{d} is not on this host"}
     colors = os.path.join(d, "colors")
-    sections = SECTION.findall(open(colors).read()) if os.path.exists(colors) else []
+    sections = []
+    if os.path.exists(colors):
+        with open(colors) as fh:
+            sections = SECTION.findall(fh.read())
     svgs = []
     # population: the host's installed Plasma theme directory (a system tree, not tracked files)
     for dp, _dn, fns in sorted(os.walk(d)):
@@ -79,7 +83,8 @@ def _selftest():
     }
     with tempfile.TemporaryDirectory() as t:
         os.makedirs(os.path.join(t, "x", "widgets"))
-        open(os.path.join(t, "x", "colors"), "w").write("[Colors:View]\nBackgroundNormal=1,2,3\n")
+        with open(os.path.join(t, "x", "colors"), "w") as fh:
+            fh.write("[Colors:View]\nBackgroundNormal=1,2,3\n")
         with gzip.open(os.path.join(t, "x", "widgets", "a.svgz"), "wb") as f:
             f.write(b'<svg><rect fill="#abc"/></svg>')
         m = measure_theme(t, "x")

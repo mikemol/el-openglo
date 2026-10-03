@@ -31,7 +31,6 @@ def _seg_path(spec):
     g = T * 0.6
     if spec[0] == "h":
         _, a, b, y = spec
-        a, b, y = a, b, y
         pts = [(a + g, y - T / 2), (b - g, y - T / 2),
                (b - g, y + T / 2), (a + g, y + T / 2)]
     elif spec[0] == "v":

@@ -53,7 +53,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-import git_tracked  # noqa: E402
+import git_tracked
 
 TAG = "population:"
 SCOPE = ("scripts/*.py", "catalog/library/*.py", ":(glob)*.py")
@@ -120,7 +120,7 @@ class _Reach:
         if _from_file(e):
             return "root", ast.unparse(e)
         if isinstance(e, ast.Call):
-            b, n = _call_name(e.func)
+            _b, n = _call_name(e.func)
             if n == "getcwd":
                 return "root", "os.getcwd()"
             if n == "join" and e.args:

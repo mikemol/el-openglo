@@ -33,9 +33,9 @@ SUBSTITUTIONS = (
     # org.kde.kirigami is KEPT (W35): the real module loads headless, and a bound
     # surface reads Kirigami.Theme — theme_probe.env_for makes it resolve a variant
     (r"^PlasmoidItem \{",
-     "Item {\n    property var preferredRepresentation\n"
-     "    property Component fullRepresentation\n"
-     "    Loader { anchors.fill: parent; sourceComponent: parent.fullRepresentation }"),
+     ("Item {\n    property var preferredRepresentation\n"
+      "    property Component fullRepresentation\n"
+      "    Loader { anchors.fill: parent; sourceComponent: parent.fullRepresentation }")),
     (r"^WallpaperItem \{", "Item {"),
 )
 

@@ -13,9 +13,10 @@ conjunction matcher needs. Farming fill to matplotlib/PIL discarded that orienta
 (concatenated contours lose which way each winds) — the lossy-external-projector
 error. Curves are flattened to fine polylines (orientation preserved; NOT the same as
 rasterizing to a pixel grid — no boundary detail is quantized away)."""
-from fontTools.ttLib import TTFont
-from fontTools.pens.recordingPen import DecomposingRecordingPen
 import functools
+
+from fontTools.pens.recordingPen import DecomposingRecordingPen
+from fontTools.ttLib import TTFont
 
 
 @functools.cache

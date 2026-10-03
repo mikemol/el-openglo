@@ -42,7 +42,7 @@ def find_font(explicit=None):
         if os.path.isfile(p):
             return p
     if shutil.which("fc-match"):
-        r = subprocess.run(["fc-match", "--format=%{file}", "monospace"], capture_output=True, text=True)
+        r = subprocess.run(["fc-match", "--format=%{file}", "monospace"], capture_output=True, text=True, check=False)
         if r.returncode == 0 and r.stdout.strip().endswith((".ttf", ".otf")):
             return r.stdout.strip()
     return None

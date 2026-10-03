@@ -30,7 +30,10 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
-from check_selection_contrast import schemes, roster_drift   # noqa: E402  (roster authority)
+from check_selection_contrast import (
+    roster_drift,
+    schemes,
+)
 
 
 def facts(variant, text):
@@ -77,13 +80,28 @@ def _lint_run(folder):
     if not exe:
         return None, None
     r = subprocess.run([exe, "lint", "--source-dir", folder, "--output", "json", "--no-input"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     try:
         report = json.loads(r.stdout)
     except json.JSONDecodeError:
         return ([] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]), None
     return ([e.get("message", "") for e in report.get("errors", [])],
             sorted({w.get("code", "") for w in report.get("warnings", [])}))
+
+
+def _text(path):
+    with open(path, encoding="utf-8") as fh:
+        return fh.read()
+
+
+def _load_json(path):
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _dump_json(obj, path):
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(obj, fh)
 
 
 def dynamic_facts(roster):
@@ -107,8 +125,8 @@ def dynamic_facts_in(folder, roster):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
-    m = json.load(open(os.path.join(folder, "manifest.json"), encoding="utf-8"))
-    themes = json.load(open(os.path.join(folder, "themes.json"), encoding="utf-8"))
+    m = _load_json(os.path.join(folder, "manifest.json"))
+    themes = _load_json(os.path.join(folder, "themes.json"))
     page = m.get("options_ui", {}).get("page")
     errors, warnings = _lint_run(folder)
     return {
@@ -139,7 +157,7 @@ def measure():
         outs = {v: os.path.join(td, v) for v in roster}
         MF.render_all(roster, outs)
         for v in roster:
-            text = open(os.path.join(outs[v], "manifest.json"), encoding="utf-8").read()
+            text = _text(os.path.join(outs[v], "manifest.json"))
             errors, warnings = _lint_run(outs[v])
             cases.append(dict(facts(v, text), lint_errors=errors, lint_warnings=warnings))
     return {"roster": list(roster),
@@ -216,10 +234,10 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         MF.render_dynamic(td, list(MF.VARIANTS))
         tp = os.path.join(td, "themes.json")
-        themes = json.load(open(tp, encoding="utf-8"))
+        themes = _load_json(tp)
         themes["EL-Amber"]["colors"]["frame"] = [1, 2, 3]      # a hand-edited colour
         del themes["EL-Azure"]                                  # a dropped variant
-        json.dump(themes, open(tp, "w", encoding="utf-8"))
+        _dump_json(themes, tp)
         os.remove(os.path.join(td, "options.html"))             # an options page not shipped
         t = dynamic_facts_in(td, MF.VARIANTS)
     check("a hand-edited colour in themes.json is seen as drift", t["drifted"], ["EL-Amber"])
@@ -229,9 +247,9 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         MF.render_dynamic(td, list(MF.VARIANTS))
         mp = os.path.join(td, "manifest.json")
-        m = json.load(open(mp, encoding="utf-8"))
+        m = _load_json(mp)
         del m["browser_specific_settings"]["gecko"]["data_collection_permissions"]
-        json.dump(m, open(mp, "w", encoding="utf-8"))
+        _dump_json(m, mp)
         _, warnings = _lint_run(td)
     if warnings is None:
         print("  SKIP lint-warning arm: web-ext is not installed here")

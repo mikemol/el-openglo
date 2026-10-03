@@ -23,7 +23,7 @@ import zipfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-from publish_browsers import DEFAULT_OUT, VARIANTS  # noqa: E402  (one variant roster)
+from publish_browsers import DEFAULT_OUT, VARIANTS
 
 
 def measure(out=DEFAULT_OUT, variants=VARIANTS):
@@ -76,7 +76,8 @@ def _selftest():
             z.writestr("manifest.json", '{"manifest_version": 3}')
         with zipfile.ZipFile(os.path.join(cd, "nested.zip"), "w") as z:
             z.writestr("good/manifest.json", '{"manifest_version": 3}')
-        open(os.path.join(cd, "junk.zip"), "wb").write(b"not a zip")
+        with open(os.path.join(cd, "junk.zip"), "wb") as fh:
+            fh.write(b"not a zip")
         got = {c["variant"]: c for c in measure(td, ("good", "nested", "junk", "absent"))["cases"]}
         for label, want in (("a good zip reads root manifest v3", (got["good"]["root_manifest"], got["good"]["manifest_version"]) == (True, 3)),
                             ("a nested manifest is SEEN as not at the root", got["nested"]["root_manifest"] is False),

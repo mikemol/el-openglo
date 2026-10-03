@@ -73,7 +73,7 @@ _NOT_THE_TREE = {".git", "__pycache__", ".ebuild-witness", ".venv", "node_module
 # we happened to know about that day, and .build/ / .tree-writes/ were not on it.
 # The population is what git tracks — scripts/git_tracked.py, the one authority —
 # and _NOT_THE_TREE is kept only as the record of what the walk once reached.
-import git_tracked  # noqa: E402
+import git_tracked
 
 
 def py_files():
@@ -84,6 +84,12 @@ def tree_files(exts=(".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".colors", 
     return [p.replace("/", os.sep) for p in git_tracked.files(*("*" + e for e in exts), root=ROOT)]
 
 
+def _slurp(path):
+    """The text of one tree file (utf-8), closed on return."""
+    with open(os.path.join(ROOT, path), encoding="utf-8") as fh:
+        return fh.read()
+
+
 def written_paths(path):
     """[(expr, func)] for every `open(X, "w")` in a Python file — the PRODUCER
     edges. ⚑ THE FIRST RUN OF THIS TOOL HAD NONE (s136) and reported 214 orphans,
@@ -91,7 +97,7 @@ def written_paths(path):
     calls every product an orphan, which is the tool measuring its own gap and
     printing it as a finding about the repo."""
     try:
-        tree = ast.parse(open(os.path.join(ROOT, path), encoding="utf-8").read())
+        tree = ast.parse(_slurp(path))
     except SyntaxError:
         return []
     out = []
@@ -141,7 +147,7 @@ def computed_edges(path):
     unresolved, ORPHAN is an upper bound and the run REFUSES rather than certify a
     graph it knows it cannot see."""
     try:
-        tree = ast.parse(open(os.path.join(ROOT, path), encoding="utf-8").read())
+        tree = ast.parse(_slurp(path))
     except SyntaxError:
         return []
     out = []
@@ -191,7 +197,7 @@ def literal_paths(path):
     """Every string literal in a Python file that names a file in this tree, with
     the function it appears in — the conservative read of what it touches."""
     try:
-        tree = ast.parse(open(os.path.join(ROOT, path), encoding="utf-8").read())
+        tree = ast.parse(_slurp(path))
     except SyntaxError:
         return []
     out = []
@@ -209,7 +215,7 @@ def template_names():
     the producer edges for every emitted document."""
     out = {}
     for p in py_files():
-        text = open(os.path.join(ROOT, p), encoding="utf-8").read()
+        text = _slurp(p)
         for m in re.finditer(r'TL\.render\(\s*"([^"]+)"', text):
             out.setdefault(m.group(1), set()).add(p)
         for m in re.finditer(r'loader\.render\(\s*"([^"]+)"', text):
@@ -288,7 +294,7 @@ def graph():
             indeterminate.append(f"{pol}: names {chk}, which is not in the tree")
 
     host = sorted({m.group(1) for p in py_files()
-                   for m in HOST_TOOLS.finditer(open(os.path.join(ROOT, p), encoding="utf-8").read())})
+                   for m in HOST_TOOLS.finditer(_slurp(p))})
 
     # ⚑ ∂∂: BOTH BOUNDARIES, AND THE DOMAIN UNDER THEM. Every edge this tool
     # cannot resolve is collected in the direction it runs, so an unresolved

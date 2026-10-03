@@ -46,7 +46,7 @@ COTYPE = os.path.join(ROOT, "COTYPE.md")
 SYMBOL = re.compile(r"⊕[A-Z0-9](?:[A-Z0-9-]*[A-Z0-9])?")
 
 # `✓PoC`, `✓ partial`, `✓(4/6)` — a tick the log itself qualifies. Not a closure.
-_QUALIFIED_TICK = re.compile(r"✓\s*(PoC|partial|WIP|\(\d+\s*/\s*\d+\))", re.I)
+_QUALIFIED_TICK = re.compile(r"✓\s*(PoC|partial|WIP|\(\d+\s*/\s*\d+\))", re.IGNORECASE)
 # The operator buckets the final ledger uses, in the log's own words.
 BUCKETS = ("BUILD", "RESEARCH", "LIVE", "TUNE", "TIER 3", "RESIDUE", "OPEN")
 
@@ -105,7 +105,7 @@ def ledger_blocks(text=None):
         if line.startswith("## Symbol ledger"):
             body = []
             for nxt in lines[i + 1:]:
-                if nxt.startswith("## ") or nxt.startswith("# "):
+                if nxt.startswith(("## ", "# ")):
                     break
                 body.append(nxt)
             out.append((i + 1, "\n".join(body)))
@@ -338,7 +338,7 @@ def _selftest():
     # A symbol with a closure must be reported closed.
     clo = closures(text)
     if clo:
-        s = sorted(clo)[0]
+        s = min(clo)
         check(f"a closed symbol reads closed ({s})", symbols(text)[s]["closed"], True)
 
     # ⚑ THE FOUR READING RULES, EACH ASSERTED BECAUSE EACH WAS WRONG ONCE.

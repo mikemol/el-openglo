@@ -23,12 +23,10 @@ the variant's fg hex and picks the row from the live lit colour (hue_tables_js).
 Degrades gracefully: if the model is empty or the import is unavailable, the
 widget shows an idle phosphor face rather than crashing.
 """
-import os
-import json
 import functools
-from emitters import LICENSE_SPDX   # the one licence id (W44)
-import make_wallpaper_live as WL   # colors_for: the token-derived lit/ghost/void per variant
-import make_taskswitch as TS       # ghost_alpha(): the measured-global constant; VARIANTS
+import json
+import os
+
 # ⚑ THIS SURFACE IS A DOT-MATRIX DISPLAY, NOT A SEGMENT ONE, AND NOT STYLED TEXT.
 # It rendered `font.family: "monospace"` — a phosphor ticker drawn in whatever the
 # system serves — because ⊕NOTIFY-MATRIXRENDER was never built. The obvious repair
@@ -38,7 +36,12 @@ import make_taskswitch as TS       # ghost_alpha(): the measured-global constant
 # raster — no shared substrate. The abstraction was lifted one level instead, so
 # this consumes THE REGISTRY and dispatches on `kind`.
 import display_types as DT
-from emitters import atomic_write
+import make_taskswitch as TS  # ghost_alpha(): the measured-global constant; VARIANTS
+import make_wallpaper_live as WL  # colors_for: the token-derived lit/ghost/void per variant
+from emitters import (
+    LICENSE_SPDX,  # the one licence id (W44)
+    atomic_write,
+)
 
 PACKAGE_ID = "org.el.notifymarquee"
 VARIANTS = TS.VARIANTS
@@ -48,7 +51,7 @@ FALLBACK_VARIANT = "EL-Openglo"
 
 
 def _hex(rgb):
-    return "#%02x%02x%02x" % rgb
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
 def metadata():
@@ -165,8 +168,8 @@ def aperture_probe_qml(templates_url="."):
     """templates/aperture-probe.qml — the field over a synthetic edge block, the gate's
     subject (check_aperture, W54). Never shipped; `templates_url` is where the
     harness finds ApertureField.qml. The ghost alpha is the palette's global one."""
-    import templates.loader as TL
     import make_wallpaper_live as WL
+    import templates.loader as TL
     return TL.render("aperture-probe.qml", templates=templates_url,
                      ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
 
@@ -198,8 +201,8 @@ def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APE
                             offset_rows=APERTURE_OFFSET_ROWS):
     """templates/aperture-text-probe.qml — a Qt Text item as the backdrop (W54 step 3):
     the font Qt shapes, read 1:1 through the pinholes via the viewport (W47)."""
-    import templates.loader as TL
     import make_wallpaper_live as WL
+    import templates.loader as TL
     return TL.render("aperture-text-probe.qml", templates=templates_url, font=font, text=text,
                      gamma=f"{gamma:.3f}", backdropRows=str(backdrop_rows), offsetRows=str(offset_rows),
                      ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
@@ -215,16 +218,16 @@ def config_xml():
     """contents/config/main.xml — the settings' kcfg. The ghostAlpha DEFAULT is the
     palette's solved (global) alpha, filled here: the slider is a per-user override,
     so an unconfigured widget draws exactly what check_ghost_surfaces measured."""
+    import display_params as DP  # the DISPLAY rows, declared once (W59)
     import templates.loader as TL
-    import display_params as DP     # the DISPLAY rows, declared once (W59)
     return TL.render("marquee-config.kcfg", displayEntries=DP.kcfg_entries(
         "marquee", {"ghostAlpha": TS.ghost_alpha()}, "  "))
 
 
 def config_qml():
     """contents/ui/configGeneral.qml — the settings page (clock pattern, W34 c)."""
-    import templates.loader as TL
     import display_params as DP
+    import templates.loader as TL
     return TL.render("marquee-config.qml", displayDecls=DP.qml_decls("marquee"),
                      displayControls=DP.qml_controls("marquee"))
 

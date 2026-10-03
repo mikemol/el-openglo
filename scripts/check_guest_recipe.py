@@ -37,7 +37,8 @@ REQUIRED = ("kde-plasma-desktop", "sddm", "sddm-greeter-qt6", "plymouth", "jq")
 def measure(recipe=None):
     if recipe is None:
         try:
-            recipe = json.load(open(RECIPE, encoding="utf-8"))
+            with open(RECIPE, encoding="utf-8") as fh:
+                recipe = json.load(fh)
         except (OSError, ValueError) as e:
             return {"cases": [], "withheld": [f"recipe unreadable: {e}"]}
     snap = recipe.get("snapshot")
@@ -78,7 +79,8 @@ def _selftest():
         print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
         ok = ok and got == want
 
-    good = json.load(open(RECIPE, encoding="utf-8"))
+    with open(RECIPE, encoding="utf-8") as fh:
+        good = json.load(fh)
     c = measure(good)["cases"][0]
     chk("the committed recipe is pinned, through the snapshot, nothing missing or forbidden",
         (c["snapshot_pinned"], c["mirror_through_snapshot"], c["missing"], c["forbidden_present"]), (True, True, [], []))
@@ -104,7 +106,8 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     if "--plan" in argv:
-        print(" ".join(plan(json.load(open(RECIPE, encoding="utf-8")))))
+        with open(RECIPE, encoding="utf-8") as fh:
+            print(" ".join(plan(json.load(fh))))
         return 0
     import opa_gate
     return opa_gate.gate("guest_recipe")

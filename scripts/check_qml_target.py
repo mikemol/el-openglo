@@ -47,7 +47,7 @@ ENTRIES = (
 def stage(dest):
     """The install tree the .deb ships, staged by the one authority that builds it."""
     r = subprocess.run([sys.executable, os.path.join(ROOT, "make_deb.py"), "--stage", dest],
-                       cwd=ROOT, capture_output=True, text=True)
+                       cwd=ROOT, capture_output=True, text=True, check=False)
     if r.returncode != 0:
         raise RuntimeError(f"make_deb --stage exited {r.returncode}: {r.stderr[-300:]}")
 
@@ -92,7 +92,7 @@ def runner_unavailable():
 def run_check(src, entry, out):
     """luthen checks.qml_check on one directory: (verdict dict, exit code)."""
     cmd = (f"cd {LUTHEN} && python3 -m checks.qml_check --src {src} --entry {entry} --out {out}")
-    r = subprocess.run(["sg", "k3s", "-c", cmd], capture_output=True, text=True)
+    r = subprocess.run(["sg", "k3s", "-c", cmd], capture_output=True, text=True, check=False)
     line = next((ln for ln in reversed(r.stdout.splitlines()) if ln.startswith("{")), None)
     try:
         verdict = json.loads(line) if line else {}

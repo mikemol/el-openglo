@@ -44,8 +44,8 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import cvd_gate as C                                              # noqa: E402
-import role_theme as RT                                           # noqa: E402
+import cvd_gate as C
+import role_theme as RT
 
 # substrate's declared roles, SUPPLIED BY SUBSTRATE rather than read off its source.
 #
@@ -123,7 +123,7 @@ def renders(dot_text):
             with open(src, "w", encoding="utf-8") as fh:
                 fh.write(dot_text)
             out = subprocess.run(["dot", "-Tsvg", src], capture_output=True,
-                                 text=True, timeout=60)
+                                 text=True, timeout=60, check=False)
     except FileNotFoundError:
         return None, "graphviz `dot` is not installed"
     except subprocess.TimeoutExpired:

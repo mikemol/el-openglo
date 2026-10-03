@@ -61,7 +61,7 @@ class Relation:
         balance     the two sides are equal — a fixed point of the involution
         arrow       b is computed FROM a; no floor, not a constraint
     """
-    __slots__ = ("u", "v", "kind", "quantity", "bound", "why")
+    __slots__ = ("bound", "kind", "quantity", "u", "v", "why")
 
     def __init__(self, u, v, kind, quantity, bound=None, why=""):
         self.u, self.v, self.kind = u, v, kind
@@ -147,24 +147,24 @@ def open_questions():
     ⚑ RECORDED AS RESIDUE, NOT OMITTED.  An explanation is a place defects hide,
     and a relation set that quietly covered its gaps would read as complete."""
     return (
-        ("discrete-occupancy",
+        ("discrete-occupancy", (
          "A nodal solve gives continuous potentials; slot occupancy is a DISCRETE "
          "choice among ~40 candidates. Voronoi cells over the candidate sites under "
          "the gate's metric are the regions where the answer's SHAPE is constant, "
          "with the Delaunay dual naming which candidate can displace which. The "
          "machinery exists (spanning_tree/cycle_basis) and NOTHING HERE HAS "
-         "MEASURED IT."),
-        ("series-composition-witness",
+         "MEASURED IT.")),
+        ("series-composition-witness", (
          "That two distinguishing axes chain in SERIES as strains is one "
          "proposition about the DOMAIN, not an assumption about how margins add. "
          "It still needs a witness; it is now the kind of thing a witness could "
-         "refute."),
-        ("bias-as-conjunct",
+         "refute.")),
+        ("bias-as-conjunct", (
          "The stride cap in _candidates and every _lum_nudge are biases that are "
          "not expressible as constraints, so none can be checked, removed or "
          "compared. The fix is to move them INTO the satisfactory set, not to add "
-         "a bias mechanism."),
-        ("geometry-is-the-same-netlist",
+         "a bias mechanism.")),
+        ("geometry-is-the-same-netlist", (
          "⚑ GEOMETRY IS NOT A SECOND NETWORK — it is unstated edges of THIS one, "
          "and carrying it as separate work was an error corrected by measurement. "
          "Every geometry quantity here is already a fraction of the cell unit "
@@ -174,8 +174,8 @@ def open_questions():
          "Nothing had to be made compatible; they already were. BUILT: the "
          "geometry family is now 5 edges over 8 nodes in the ONE authority, and "
          "the unified netlist (21 nodes, 40 edges) hands to the solver and "
-         "eliminates to the same 3 terms at 62 Q."),
-        ("geometry-and-colour-now-TOUCH",
+         "eliminates to the same 3 terms at 62 Q.")),
+        ("geometry-and-colour-now-TOUCH", (
          "⚑ CLOSED, AND THE EDGE FOUND A LIVE DEFECT. The halves were disjoint — "
          "5 components, none mixing colour and geometry — until fg_in~ghost_stroke "
          "was written. Now 4 components with the main one MIXED (14 nodes, b1=24), "
@@ -186,8 +186,8 @@ def open_questions():
          "WIDTH (0.65x) multiplying into one perceived quantity — and the "
          "composited ghost is UNDER feasible_ghost_floor on all six variants "
          "(EL-Openglo gated at 4.16:1, renders at 1.79:1, floor 3.00). @GHOSTCOMP "
-         "is RED and must be."),
-        ("the-solve-optimises-the-bound-not-in-danger",
+         "is RED and must be.")),
+        ("the-solve-optimises-the-bound-not-in-danger", (
          "The ghost has a CEILING (must not read as text) and a FLOOR (must still "
          "read as shape), and alpha makes the ceiling SAFER while making the floor "
          "HARDER. Measured |Lc|: 29.8 declared, 7.7 composited, against a limit of "
@@ -195,5 +195,5 @@ def open_questions():
          "22-point margin, while nothing models the one being missed. The fix is "
          "NOT to lower alpha or widen the stroke by hand: it is to give the ghost "
          "solve a floor term in the composited quantity, so the three knobs are "
-         "solved together instead of traded blind. NOT YET BUILT."),
+         "solved together instead of traded blind. NOT YET BUILT.")),
     )

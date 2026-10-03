@@ -90,9 +90,11 @@ def _selftest():
     check("roster is non-empty", len(PARTIAL) > 0, True)
     check("roster has no duplicates", len(set(PARTIAL)), len(PARTIAL))
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "a.py"), "w").write("")
+        with open(os.path.join(td, "a.py"), "w"):
+            pass
         check("notes absent is SEEN", measure(td, ("a.py",))["notes_present"], False)
-        open(os.path.join(td, NOTES), "w").write("a.py is partial\n")
+        with open(os.path.join(td, NOTES), "w") as fh:
+            fh.write("a.py is partial\n")
         m = measure(td, ("a.py", "b.py"))
         check("a present, named file is seen as such", m["cases"][0], {"file": "a.py", "exists": True, "named": True})
         check("a vanished, unnamed file is SEEN", m["cases"][1], {"file": "b.py", "exists": False, "named": False})

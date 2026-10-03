@@ -46,7 +46,7 @@ NAMES = ("black", "red", "green", "yellow", "blue", "magenta", "cyan", "white")
 
 
 def _hex(rgb):
-    return "#%02x%02x%02x" % tuple(rgb)
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
 
 
 def _expected(t):
@@ -63,7 +63,7 @@ def _read_konsole(text):
     cp.read_string(text)
 
     def col(sec):
-        return "#%02x%02x%02x" % tuple(int(x) for x in cp[sec]["Color"].split(","))
+        return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in cp[sec]["Color"].split(",")))
     out = {"ground": col("Background"), "foreground": col("Foreground")}
     for i in range(8):
         out[f"n{i}"], out[f"b{i}"] = col(f"Color{i}"), col(f"Color{i}Intense")

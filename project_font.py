@@ -18,8 +18,9 @@ NOTE: superseded as the MATCHER by glyph_match.py (region-graph + Matthews-phi c
 project_font remains LIVE for its ingest (winding_ink / raster_ink), which glyph_match uses.
 """
 import math
-import segment_topology as ST
+
 import make_glyph_ink as GI
+import segment_topology as ST
 
 
 def endpoints(spec):
@@ -40,8 +41,8 @@ def winding_ink(path, ch, box=(2.0, 4.0), frame="stretch"):
 def raster_ink(path, ch, box=(2.0, 4.0), cell=64):
     """Bitmap font (Unifont): rasterize the glyph to its native pixel grid, sample.
     OUTSIDE the drawn area is pure not-here (-1)."""
-    from PIL import Image, ImageFont, ImageDraw
     import numpy as np
+    from PIL import Image, ImageDraw, ImageFont
     f = ImageFont.truetype(path, cell)
     im = Image.new("L", (cell, cell), 0)
     d = ImageDraw.Draw(im)

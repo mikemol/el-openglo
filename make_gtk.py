@@ -25,6 +25,7 @@ user-theme extension question, recorded, not claimed.
 """
 import os
 import sys
+
 from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -94,7 +95,7 @@ def roles(variant):
     """{role: '#rrggbb'} — parse_scheme's roles plus the solved composites."""
     import make_firefox as MF
     r = MF.roles(variant)
-    return {k: "#%02x%02x%02x" % tuple(v) for k, v in r.items() if not k.startswith("_")}
+    return {k: "#{:02x}{:02x}{:02x}".format(*v) for k, v in r.items() if not k.startswith("_")}
 
 
 def gtk4_css(variant):

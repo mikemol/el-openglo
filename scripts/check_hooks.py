@@ -48,7 +48,8 @@ def roster(settings=SETTINGS):
     $CLAUDE_PROJECT_DIR expands to this repo."""
     import json
     import shlex
-    doc = json.load(open(settings, encoding="utf-8"))
+    with open(settings, encoding="utf-8") as fh:
+        doc = json.load(fh)
     out = []
     for block in doc.get("hooks", {}).get("PreToolUse", []):
         if block.get("matcher") != "Bash":
@@ -69,7 +70,7 @@ def _decision(argv, env, command):
     import json
     event = json.dumps({"tool_name": "Bash", "tool_input": {"command": command}, "cwd": ROOT})
     r = subprocess.run(argv, input=event, capture_output=True, text=True, cwd=ROOT,
-                       env=dict(os.environ, **env))
+                       env=dict(os.environ, **env), check=False)
     try:
         d = json.loads(r.stdout or "{}").get("hookSpecificOutput", {}).get("permissionDecision")
     except ValueError:

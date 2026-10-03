@@ -34,7 +34,7 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
-from check_selection_contrast import schemes   # noqa: E402  (roster authority)
+from check_selection_contrast import schemes
 
 
 def _rgb(hexs):
@@ -47,8 +47,8 @@ def facts(variant, text, folder=None):
     the wallpaper fact (null without it)."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_windows as MWn
     import make_preview as MP
+    import make_windows as MWn
     out = {"id": variant, "missing": None, "parse_error": None, "sections": [], "mtsm": None,
            "colors": [], "colorization": None, "accent": None,
            "wallpaper": None, "wallpaper_exists": None}
@@ -63,10 +63,10 @@ def facts(variant, text, folder=None):
     if "MasterThemeSelector" in cp:
         out["mtsm"] = cp["MasterThemeSelector"].get("MTSM")
     c = MP.parse_scheme(variant)
-    colors = cp["Control Panel\\Colors"] if "Control Panel\\Colors" in cp else {}
+    colors = cp["Control Panel\\Colors"] if cp.has_section("Control Panel\\Colors") else {}
     out["colors"] = [{"key": key, "role": role, "got": colors.get(key),
-                      "want": "%d %d %d" % _rgb(c[role])} for key, role in MWn.COLOR_KEYS]
-    out["accent"] = "%02X%02X%02X" % _rgb(c["accent"])
+                      "want": "{} {} {}".format(*_rgb(c[role]))} for key, role in MWn.COLOR_KEYS]
+    out["accent"] = "{:02X}{:02X}{:02X}".format(*_rgb(c["accent"]))
     if "VisualStyles" in cp:
         out["colorization"] = cp["VisualStyles"].get("ColorizationColor")
     if folder is not None and "Control Panel\\Desktop" in cp:
@@ -84,8 +84,9 @@ def measure():
     make_schemes.GRID; the emitter's own list is emitted as `roster_drift` facts."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_windows as MWn
     import variant_roster as VR
+
+    import make_windows as MWn
     roster = schemes()
     cases = []
     with tempfile.TemporaryDirectory() as td:
@@ -100,7 +101,9 @@ def measure():
             if not os.path.isfile(p):
                 cases.append({"id": v, "missing": f"render_all wrote no {v}.theme"})
                 continue
-            cases.append(facts(v, open(p, encoding="utf-8").read(), outs[v]))
+            with open(p, encoding="utf-8") as fh:
+                theme_text = fh.read()
+            cases.append(facts(v, theme_text, outs[v]))
     return {"roster": roster, "error": None, "cases": cases,
             "roster_drift": VR.drift_facts({"make_windows": MWn.VARIANTS}, roster)}
 

@@ -310,8 +310,8 @@ def run_unloaded(check):
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
     t0 = time.monotonic()
     r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", argv[0])] + argv[1:],
-                       cwd=ROOT, capture_output=True, text=True)
-    wall = time.monotonic() - t0
+                       cwd=ROOT, capture_output=True, text=True, check=False)
+    wall =time.monotonic() - t0
     after = resource.getrusage(resource.RUSAGE_CHILDREN)
     cpu = (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
     return {"wall_s": round(wall, 2), "cpu_s": round(cpu, 2), "rc": r.returncode,

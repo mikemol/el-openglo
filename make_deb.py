@@ -11,11 +11,17 @@ One MAPPING, two scopes:
 
 All six grid variants ship. Helper defaults to EL-Openglo.
 """
-import os, shutil, subprocess, stat, hashlib, sys
-import make_inherit as _inh   # icon + cursor themes that INHERIT Breeze (W31)
+import os
+import shutil
+import subprocess
+import sys
+
+import make_inherit as _inh  # icon + cursor themes that INHERIT Breeze (W31)
 import make_taskswitch as _ts  # the Alt+Tab switcher packages (W31)
-from emitters import LICENSE_SPDX  # the one licence id (W44)
-from emitters import atomic_write
+from emitters import (
+    LICENSE_SPDX,  # the one licence id (W44)
+    atomic_write,
+)
 
 VERSION = "1.3.0"   # 1.3: ⊕BLOOM + ⊕STROKE-WEIGHT restored (clock, live wallpaper)
 ARCH = "all"
@@ -67,7 +73,7 @@ def system_mapping():
     # not selectable; the previous single-dir dump was invalid.
     for v in VARIANTS:
         # pick this variant's wallpaper png (lit variants use the -lit image)
-        base = v[:-4] if v.endswith("-Lit") else v
+        base = v.removesuffix("-Lit")
         lit = "-lit" if v.endswith("-Lit") else ""
         wp = f"{base}{lit}-wallpaper.png"
         m.append((wp, f"usr/share/wallpapers/{v}/contents/images/1920x1080.png"))
@@ -461,6 +467,7 @@ import json as _json
 # assumed (after the container output dir and BUILD itself). Seen only once the
 # ebuild witness staged from a clean clone.
 import tempfile as _tempfile
+
 LNF_STAGE = _tempfile.mkdtemp(prefix="el-openglo-lnf-")
 
 def _decoration_theme(variant):
@@ -473,10 +480,10 @@ def _decoration_theme(variant):
 # kdecoration library org.kde.oxygen; measured on the host, Plasma 6.7). The
 # Breeze flavour keeps its unsuffixed id so installed selections do not move.
 ENGINES = {
-    "breeze": dict(suffix="", label="", widget="Breeze",
-                   deco=lambda v: ("org.kde.kwin.aurorae", _decoration_theme(v))),
-    "oxygen": dict(suffix="oxygen", label=", Oxygen", widget="oxygen",
-                   deco=lambda v: ("org.kde.oxygen", None)),
+    "breeze": {"suffix": "", "label": "", "widget": "Breeze",
+               "deco": lambda v: ("org.kde.kwin.aurorae", _decoration_theme(v))},
+    "oxygen": {"suffix": "oxygen", "label": ", Oxygen", "widget": "oxygen",
+               "deco": lambda v: ("org.kde.oxygen", None)},
 }
 
 
@@ -513,7 +520,6 @@ def build_lnf_packages():
         }
         atomic_write(os.path.join(pkg_dir, "metadata.json"), _json.dumps(meta, indent=2))
         # defaults — INI referencing the ALREADY-INSTALLED components by name
-        lit = v.endswith("-Lit")
         import make_clock as _mc
         plasmoid_id = _mc.PACKAGE_ID          # ONE clock since W35; the scheme above colours it
         defaults = (
@@ -710,8 +716,8 @@ def copyright_text():
     /usr/share/common-licenses where Debian ships the text, the full text otherwise.
     scripts/check_license.py parses this; policy/license.rego L3 decides."""
     import emitters as _E
-    out = [f"Format: {DEP5_FORMAT}\nUpstream-Name: {PKG}\n"
-           "Source: https://github.com/mikemol/el-openglo\n",
+    out = [(f"Format: {DEP5_FORMAT}\nUpstream-Name: {PKG}\n"
+            "Source: https://github.com/mikemol/el-openglo\n"),
            f"Files: *\nCopyright: 2026 Mike Mol\nLicense: {LICENSE_SPDX}\n"]
     used = [LICENSE_SPDX]
     for t in _E.THIRD_PARTY:
@@ -726,7 +732,8 @@ def copyright_text():
         if src.startswith("/usr/share/common-licenses/"):
             body = f"On Debian systems the full text is in {src}."
         else:
-            body = open(os.path.join(ROOT, src), encoding="utf-8").read()
+            with open(os.path.join(ROOT, src), encoding="utf-8") as fh:
+                body = fh.read()
         out.append(f"License: {lid}\n{_dep5_text(body)}\n")
     return "\n".join(out)
 
@@ -758,7 +765,8 @@ def legacy_alias_packages(root, specs):
             # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
             shutil.copytree(src, dst, dirs_exist_ok=True)
             mp = os.path.join(dst, "metadata.json")
-            meta = _json.loads(open(mp).read())
+            with open(mp) as fh:
+                meta = _json.loads(fh.read())
             meta["KPlugin"]["Id"] = legacy
             meta["KPlugin"]["Name"] = meta["KPlugin"]["Name"] + f" (legacy id, {v})"
             meta["KPlugin"]["Description"] = (meta["KPlugin"].get("Description", "")
@@ -839,9 +847,10 @@ def stage(root):
     # degraded case). Since W35 the clock is ONE package, so it carries ONE icon
     # (the fallback variant's phosphor); the per-variant PNGs still feed the
     # inheriting icon themes below, from a shared asset dir.
-    import make_preview as _mp
-    import make_clock as _mc
     import cairosvg as _cs
+
+    import make_clock as _mc
+    import make_preview as _mp
     icon_assets = os.path.join(DEB_ROOT, "usr/share/el-openglo/icons")
     os.makedirs(icon_assets, exist_ok=True)
     for v in VARIANTS:
@@ -857,7 +866,8 @@ def stage(root):
         # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
         shutil.copyfile(os.path.join(icon_assets, "EL-Openglo-segclock.png"),
                         os.path.join(icons_dir, "el-segclock.png"))
-        meta = _json.loads(open(meta_p).read())
+        with open(meta_p) as fh:
+            meta = _json.loads(fh.read())
         meta["KPlugin"]["Icon"] = "el-segclock"
         atomic_write(meta_p, _json.dumps(meta, indent=2))
     for v in VARIANTS:
@@ -1043,7 +1053,9 @@ def stage(root):
             for _f in _fs:
                 if _f.endswith(".qml"):
                     _p = os.path.join(_r, _f)
-                    _qml_errs += _qs.check_qml(open(_p).read(), _p.replace(DEB_ROOT, ""))
+                    with open(_p) as _fh:
+                        _qml_text = _fh.read()
+                    _qml_errs += _qs.check_qml(_qml_text, _p.replace(DEB_ROOT, ""))
         if _qml_errs:
             raise SystemExit("QML-SANITY failed (real qmllint):\n  " + "\n  ".join(_qml_errs[:12]))
         # ⊕RENDER-GATE: "loads" is not "draws" — the two surfaces render_qml can

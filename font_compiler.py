@@ -81,6 +81,7 @@ while it still disagrees — an outgrown declaration is denied.
 SKIP (printed, exit 0) when no TTF is found and none is given.
 """
 import hashlib
+import itertools
 import json
 import math
 import os
@@ -129,65 +130,65 @@ PARAMS = {"px": PX, "spur_sw": SPUR_SW, "dot_extent": DOT_EXTENT, "dot_reach": D
 #                 that CURLS has no bar to run along.
 #   lattice       the face's stroke needs a segment the 22-lattice does not have.
 DECLARED = {
-    "!": ("display", "the face sets '!' as a stem over a detached baseline dot; the display "
-                     "draws the whole centre column j m (there is no baseline dot segment)"),
-    "'": ("display", "the face's apostrophe is a short centre tick (j); the display sets it "
-                     "on the upper-left stem f"),
-    "-": ("display", "the face's hyphen is shorter than DOT_EXTENT and reads as a dot (p2); "
-                     "the display's hyphen is the whole middle bar g1 g2"),
-    "=": ("display", "the face's bars sit at 0.28 and 0.72 of cap height, both nearest the "
-                     "middle row; the display draws '=' on the middle and baseline bars"),
-    "1": ("display", "the face's '1' is a centre stem with flag and foot; the 7-segment '1' "
-                     "is the right-hand stems b c"),
-    "4": ("display", "the face closes the top of '4' with a diagonal, which on the 7-seg digit "
-                     "lattice reads as the top bar a; the 7-segment '4' is open-topped (f g b c)"),
-    "7": ("display", "the face's '7' stem is a diagonal to the bottom centre, which on the 7-seg "
-                     "lattice routes down c and back along d and g; the 7-segment '7' is a b c"),
-    "*": ("display", "the face's asterisk is a small six-armed star raised into the top half "
-                     "(a1 a2 b f); the display's is the full-cell eight-armed starburst"),
-    "?": ("display", "the face draws a hook over a detached baseline dot; the display runs the "
-                     "hook into the centre stem m (there is no baseline dot segment)"),
-    "B": ("display", "the display draws B as a D with a waist (spine j m, g2) so that B is not "
-                     "8; the face's B is a stem and two bowls"),
-    "D": ("display", "the display draws D with a centre spine (j m) so that D is not O or 0; "
-                     "the face's D is a stem and a bowl (e f)"),
-    "J": ("display", "the face's J carries a top bar (a2); the display's J is the bare hook "
-                     "with its left stem e"),
-    "Q": ("display", "the face's Q tail drops below the baseline (dr); the display keeps the "
-                     "tail inside the cell as the diagonal l"),
-    "V": ("display", "the face's V arms run corner to bottom centre, a full-height diagonal the "
+    "!": ("display", ("the face sets '!' as a stem over a detached baseline dot; the display "
+                     "draws the whole centre column j m (there is no baseline dot segment)")),
+    "'": ("display", ("the face's apostrophe is a short centre tick (j); the display sets it "
+                     "on the upper-left stem f")),
+    "-": ("display", ("the face's hyphen is shorter than DOT_EXTENT and reads as a dot (p2); "
+                     "the display's hyphen is the whole middle bar g1 g2")),
+    "=": ("display", ("the face's bars sit at 0.28 and 0.72 of cap height, both nearest the "
+                     "middle row; the display draws '=' on the middle and baseline bars")),
+    "1": ("display", ("the face's '1' is a centre stem with flag and foot; the 7-segment '1' "
+                     "is the right-hand stems b c")),
+    "4": ("display", ("the face closes the top of '4' with a diagonal, which on the 7-seg digit "
+                     "lattice reads as the top bar a; the 7-segment '4' is open-topped (f g b c)")),
+    "7": ("display", ("the face's '7' stem is a diagonal to the bottom centre, which on the 7-seg "
+                     "lattice routes down c and back along d and g; the 7-segment '7' is a b c")),
+    "*": ("display", ("the face's asterisk is a small six-armed star raised into the top half "
+                     "(a1 a2 b f); the display's is the full-cell eight-armed starburst")),
+    "?": ("display", ("the face draws a hook over a detached baseline dot; the display runs the "
+                     "hook into the centre stem m (there is no baseline dot segment)")),
+    "B": ("display", ("the display draws B as a D with a waist (spine j m, g2) so that B is not "
+                     "8; the face's B is a stem and two bowls")),
+    "D": ("display", ("the display draws D with a centre spine (j m) so that D is not O or 0; "
+                     "the face's D is a stem and a bowl (e f)")),
+    "J": ("display", ("the face's J carries a top bar (a2); the display's J is the bare hook "
+                     "with its left stem e")),
+    "Q": ("display", ("the face's Q tail drops below the baseline (dr); the display keeps the "
+                     "tail inside the cell as the diagonal l")),
+    "V": ("display", ("the face's V arms run corner to bottom centre, a full-height diagonal the "
                      "lattice lacks (its diagonals are half-height); the display's V is the "
-                     "reference table's e f i k"),
-    "W": ("display", "the face's W is four near-vertical strokes meeting in two feet (d1 d2) "
+                     "reference table's e f i k")),
+    "W": ("display", ("the face's W is four near-vertical strokes meeting in two feet (d1 d2) "
                      "under a centre apex (m); the display's W is the side stems with the "
-                     "lower diagonals i l"),
+                     "lower diagonals i l")),
     # i and l are NOT declared: the operator adopted the face's letterforms into
     # LETTERS22 (2026-09-25, "The compiled version is better"), so the compiler now
     # REPRODUCES them — and F5 would deny a declaration the compiler has outgrown.
-    "a": ("mid-x-height", "the face's bowl top sits at half x-height; the compiler reads the "
-                          "bowl's upper wall as the diagonal i, the display as the centre stem m"),
-    "e": ("mid-x-height", "the face's crossbar sits at half x-height, so the bowl's junction snaps "
+    "a": ("mid-x-height", ("the face's bowl top sits at half x-height; the compiler reads the "
+                          "bowl's upper wall as the diagonal i, the display as the centre stem m")),
+    "e": ("mid-x-height", ("the face's crossbar sits at half x-height, so the bowl's junction snaps "
                           "to the x-height and the left wall e is lost; the display marks the "
-                          "crossbar with the diagonal l"),
-    "k": ("mid-x-height", "the face's arm and leg meet the stem at half x-height; the compiler "
-                          "reads the arm as g2 + i, the display draws g1 l"),
-    "s": ("mid-x-height", "the face's spine crosses half x-height; the compiler reads the two "
-                          "bowls as bars with no spine, the display draws the spine as i"),
-    "w": ("mid-x-height", "the face's inner apex rises to half x-height; the compiler reads the "
-                          "inner left stroke as the diagonal i, the display as the baseline half d1"),
-    "x": ("mid-x-height", "the face's arms cross at half x-height, below the lattice's only "
-                          "crossing (1,2); the display uses i l n1"),
-    "v": ("lattice", "the face's right arm runs from (2,2) to the bottom centre, the mirror of "
+                          "crossbar with the diagonal l")),
+    "k": ("mid-x-height", ("the face's arm and leg meet the stem at half x-height; the compiler "
+                          "reads the arm as g2 + i, the display draws g1 l")),
+    "s": ("mid-x-height", ("the face's spine crosses half x-height; the compiler reads the two "
+                          "bowls as bars with no spine, the display draws the spine as i")),
+    "w": ("mid-x-height", ("the face's inner apex rises to half x-height; the compiler reads the "
+                          "inner left stroke as the diagonal i, the display as the baseline half d1")),
+    "x": ("mid-x-height", ("the face's arms cross at half x-height, below the lattice's only "
+                          "crossing (1,2); the display uses i l n1")),
+    "v": ("lattice", ("the face's right arm runs from (2,2) to the bottom centre, the mirror of "
                      "n1, which the lattice does not have; the compiler reaches the vertex by "
-                     "c then d2, the display draws the arm as c alone"),
-    "g": ("descender", "the face's tail curls left below the baseline and reads as dl, which "
+                     "c then d2, the display draws the arm as c alone")),
+    "g": ("descender", ("the face's tail curls left below the baseline and reads as dl, which "
                        "makes g IDENTICAL to p; the authored dr dc is what keeps g distinct "
-                       "(segment_topology's own no-collision selftest)"),
-    "j": ("descender", "the face's hook curls left below the baseline (the compiler routes it "
+                       "(segment_topology's own no-collision selftest)")),
+    "j": ("descender", ("the face's hook curls left below the baseline (the compiler routes it "
                        "back along d1 d2 to dl) and its tittle sits over the right-hand stem, "
-                       "not on the centre dot p1"),
-    "y": ("descender", "the face's tail is a diagonal falling left through the baseline "
-                       "(n1 into dl); the display's y is a u with a centre descender dc"),
+                       "not on the centre dot p1")),
+    "y": ("descender", ("the face's tail is a diagonal falling left through the baseline "
+                       "(n1 into dl); the display's y is a u with a centre descender dc")),
 }
 DECLARED_CLASSES = ("display", "mid-x-height", "descender", "lattice")
 
@@ -221,7 +222,7 @@ def _raster(polys, px=PX):
     X, Y = np.meshgrid(cx, cy)
     w = np.zeros(X.shape, dtype=np.int32)
     for pl in polys:
-        for (ax, ay), (bx, by) in zip(pl, pl[1:]):
+        for (ax, ay), (bx, by) in itertools.pairwise(pl):
             if ay == by:
                 continue
             up = (ay <= Y) & (by > Y)
@@ -342,7 +343,7 @@ def _graph(skel):
     # two node clusters adjacent with no run between them: a zero-length stroke
     for a in range(nn):
         ring = ndimage.binary_dilation(nlab == a + 1, structure=S8)
-        for b in set(int(v) - 1 for v in np.unique(nlab[ring]) if v) - {a}:
+        for b in {int(v) - 1 for v in np.unique(nlab[ring]) if v} - {a}:
             if a < b:
                 strokes.append(([], a, b))
     return nodes, strokes
@@ -410,7 +411,7 @@ def _sample_graph(mask=None):
         coords, seg, src, dst = [list(n) for n in nodes], [None] * len(nodes), [], []
         for k, (a, b) in sorted(edges.items()):
             for u, v in ((a, b), (b, a)):
-                m = max(2, int(round(math.hypot(v[0] - u[0], v[1] - u[1]) / SAMPLE)))
+                m = max(2, round(math.hypot(v[0] - u[0], v[1] - u[1]) / SAMPLE))
                 prev = idx[u]
                 for j in range(1, m):
                     t = j / m
@@ -612,6 +613,7 @@ def trace(path, ch):
     per stroke/dot, and the lit set. None when the font lacks the glyph."""
     import numpy as np
     from scipy import ndimage
+
     import make_glyph_ink as GI
     _f, _gs, cmap = GI._font(path)
     if ord(ch) not in cmap:
@@ -631,7 +633,7 @@ def trace(path, ch):
         return T(np.interp(c, np.arange(len(cx)), cx), np.interp(r, np.arange(len(cy)), cy))
 
     fmask = _digit_mask() if ch in _digits() else None
-    lnodes, ledges, ldots = _lattice(fmask)
+    lnodes, _ledges, ldots = _lattice(fmask)
 
     def snap(p):
         return min(lnodes, key=lambda q: (math.hypot(p[0] - q[0], p[1] - q[1]), q))
@@ -639,7 +641,7 @@ def trace(path, ch):
     out, lit = [], set()
     comp, nc = ndimage.label(skel, structure=np.ones((3, 3)))
     nodes, strokes = _graph(skel)
-    r2 = lambda e: [round(float(v), 2) for v in e]   # noqa: E731
+    r2 = lambda e: [round(float(v), 2) for v in e]
     small = set()
     for ci in range(1, nc + 1):
         pts = np.array([lat(rc) for rc in np.argwhere(comp == ci)])
@@ -653,7 +655,7 @@ def trace(path, ch):
         if near:
             lit.add(k)
     for walk, a, b in strokes:
-        anchor = walk[0] if walk else tuple(int(round(v)) for v in nodes[a])
+        anchor = walk[0] if walk else tuple(round(v) for v in nodes[a])
         if comp[anchor] in small:
             continue
         if a is None:                           # a closed, node-free loop: start
@@ -878,9 +880,9 @@ def _selftest():
         print("font_compiler selftest: SKIP")
         return ok
     seg = compile_segments(font, charset="HLT ☃")
-    chk("'H' compiles to its stems and crossbar", seg["H"], sorted("b c e f g1 g2".split()))
-    chk("'L' compiles to its stem and foot", seg["L"], sorted("d1 d2 e f".split()))
-    chk("'T' compiles to its bar and centre stem", seg["T"], sorted("a1 a2 j m".split()))
+    chk("'H' compiles to its stems and crossbar", seg["H"], sorted(["b", "c", "e", "f", "g1", "g2"]))
+    chk("'L' compiles to its stem and foot", seg["L"], sorted(["d1", "d2", "e", "f"]))
+    chk("'T' compiles to its bar and centre stem", seg["T"], sorted(["a1", "a2", "j", "m"]))
     chk("a space lights nothing", seg[" "], [])
     chk("a char the font lacks is absent", "☃" in seg, False)
     print("font_compiler selftest:", "PASS" if ok else "FAIL")

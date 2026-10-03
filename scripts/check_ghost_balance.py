@@ -36,8 +36,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import cvd_gate as C                                               # noqa: E402
-import ghost_solve as G                                            # noqa: E402
+import cvd_gate as C
+import ghost_solve as G
 
 # The residual the 8-bit segment can leave after an exact luminance solve. A
 # ghost whose two sides differ by more than this is not a quantisation artifact.

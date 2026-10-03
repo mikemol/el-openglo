@@ -48,7 +48,8 @@ def measure(gaps_path=GAPS):
     emitted = [{"target": c["emitter"].removeprefix("make_"), "emitter": c["emitter"],
                 "venues": venues.get(c["emitter"], [])} for c in pub["cases"]]
     try:
-        gaps = json.load(open(gaps_path, encoding="utf-8"))["gaps"]
+        with open(gaps_path, encoding="utf-8") as fh:
+            gaps = json.load(fh)["gaps"]
         withheld = None
     except (OSError, ValueError, KeyError) as e:
         gaps, withheld = [], f"{type(e).__name__}: {e}"
@@ -100,7 +101,7 @@ def main(argv):
         n = len(m["emitted"]) + len(m["gaps"])
         print(f"check_codomain: {len(m['emitted'])} of {n} surfaces emitted; {len(m['gaps'])} gap(s), ranked:")
         for g in sorted(m["gaps"], key=lambda g: -(g["rank"] or 0)):
-            print(f"  {str(g['rank']):>3}  {g['target']:24} {g['family']:20} {g['venue']}")
+            print(f"  {g['rank']!s:>3}  {g['target']:24} {g['family']:20} {g['venue']}")
         return 0
     print("usage: check_codomain.py --json | --list | --selftest  (verdict: scripts/opa_gate.py codomain)",
           file=sys.stderr)

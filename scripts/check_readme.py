@@ -42,10 +42,11 @@ for p in (ROOT, os.path.join(ROOT, "scripts"), os.path.join(ROOT, "catalog", "li
 
 def populations():
     """[(kind, name, token)] — every item the front page must name, from its authority."""
-    import emitters as E
-    import render_screens as RS
     import check_symbol as CS
+    import render_screens as RS
     import variant_roster as VR
+
+    import emitters as E
     d = os.path.relpath(RS.SCREENS, ROOT)
     out = [("emitter", m, m) for m in sorted(E.ROLES)]
     out += [("variant", v, v) for v in VR.ordered()]
@@ -57,7 +58,11 @@ def populations():
 def measure(readme_text=None, fragments=None):
     import readme_fragments as RF
     if readme_text is None:
-        readme_text = open(README, encoding="utf-8").read() if os.path.isfile(README) else None
+        if os.path.isfile(README):
+            with open(README, encoding="utf-8") as fh:
+                readme_text = fh.read()
+        else:
+            readme_text = None
     items = [{"kind": k, "name": n, "named": readme_text is not None and tok in readme_text}
              for k, n, tok in populations()]
     gen = RF.generate()

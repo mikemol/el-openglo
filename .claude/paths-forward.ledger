@@ -595,3 +595,4 @@
 2026-10-03T17:54:15Z  tick  W229 advanced  unblock   "8 undeclared domains declared per site (names/files/covered/output/job); 26 unresolved edges remain"
 2026-10-03T17:54:51Z  tick  W204 atomized  collapse  "first slice landed (one surface, K0-K3, 17/17); remainder minted W246-W249"
 2026-10-03T18:18:26Z  tick  W251 done      unblock   "check_emitters_run --apply and check_action_key --rebuild: the rebuild is measured, not reasoned"
+2026-10-03T19:02:00Z  tick  W254 done      unblock   "ruff default bar 963 -> 0 (138 chmod, 262 safe fixes, 563 by six agents + qt_sandbox launcher); format bar W261, mypy W255, hidden noqa W260 remain"

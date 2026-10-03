@@ -70,7 +70,8 @@ def _reads(path, pat, count=1):
     p = os.path.join(ROOT, path)
     if not os.path.isfile(p):
         return False
-    text = open(p, encoding="utf-8", errors="replace").read()
+    with open(p, encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
     return len(re.findall(pat, text)) >= count
 
 
@@ -94,7 +95,7 @@ def _emitted_clock_is_vector():
     qml = make_clock.main_qml()          # one package since W35: no token dict
     no_canvas = re.search(r"\bCanvas\b|ctx\.fill|getContext", qml) is None
     segment = re.search(r"component Segment:.*?(Rectangle|Shape)\s*\{.*?antialiasing:\s*true",
-                        qml, re.S) is not None
+                        qml, re.DOTALL) is not None
     return no_canvas and segment
 
 
@@ -113,7 +114,7 @@ def _plymouth_scales_at_boot():
 def _tool(*args):
     """True iff a repo tool exits 0 — the witness IS the tool that owns the question."""
     r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", args[0]), *args[1:]],
-                       cwd=ROOT, capture_output=True, text=True)
+                       cwd=ROOT, capture_output=True, text=True, check=False)
     return r.returncode == 0
 
 
@@ -127,9 +128,9 @@ WITNESS = {
     # coverable (--coverable, 3 arms: a lattice edit reaches every surface, an
     # absent glyph is refused). Session 67 records the closure with those tools.
     "⊕SEGMENT-SUBSTRATE": (
-        "one geometry substrate under wallpaper/clock/marquee/plymouth: every surface"
+        ("one geometry substrate under wallpaper/clock/marquee/plymouth: every surface"
         " reads it, none owns a table, a lattice edit reaches all, an absent glyph"
-        " is refused; the four gates are stated at :4427 (:4399)",
+        " is refused; the four gates are stated at :4427 (:4399)"),
         lambda: _tool("check_geometry_source.py") and
                 _tool("check_geometry_source.py", "--coverable")),
     # ⚑ REOPENED FROM ⊕SEGMENT-SUBSTRATE'S CLOSURE (session 69). The substrate is
@@ -137,8 +138,8 @@ WITNESS = {
     # the substrate's COMPONENT, and draws the palette's ghost, is this: the
     # witness is the tool that asks what each surface EMITS.
     "⊕SEGMENT-ROLLOUT": (
-        "every surface draws the palette's fg/fg_in at ghost_alpha rather than deriving"
-        " its own on the way in; check_ghost_surfaces measures what each emits (:4419)",
+        ("every surface draws the palette's fg/fg_in at ghost_alpha rather than deriving"
+        " its own on the way in; check_ghost_surfaces measures what each emits (:4419)"),
         lambda: _tool("check_ghost_surfaces.py")),
 
     # ── RESEARCH: design work, no package impact ──
@@ -161,8 +162,8 @@ WITNESS = {
     # stale on both FILE and IDIOM, and read OPEN for a surface that was done.
     # It now reads the EMITTED artifact and asks the criterion.
     "⊕CLOCK-VECTOR": (
-        "the clock draws vector segments rather than raster — no Canvas in the emitted"
-        " QML, every segment a scene-graph item with antialiasing (:4228)",
+        ("the clock draws vector segments rather than raster — no Canvas in the emitted"
+        " QML, every segment a scene-graph item with antialiasing (:4228)"),
         lambda: _emitted_clock_is_vector()),
     # ⚑ PLYMOUTH IS PNG-BAKED BY DESIGN and the log says what vector means there:
     # "pre-render at target res or SVG support if the theme allows" (:4229). The
@@ -173,8 +174,8 @@ WITNESS = {
     # holds on every surface in its own idiom; this asks whether any shipped
     # surface INSTANTIATES the shared component — an idiom question, kept open.
     "⊕SEGMENTCHAR-ADOPT": (
-        "a shipped surface instantiates templates/SegmentChar.qml rather than drawing"
-        " segments in its own idiom (:4419)",
+        ("a shipped surface instantiates templates/SegmentChar.qml rather than drawing"
+        " segments in its own idiom (:4419)"),
         lambda: _any(["templates/live-wallpaper-main.qml", "templates/clock-main.qml",
                       "templates/marquee-main.qml"], r"\bSegmentChar\s*\{")),
     "⊕HDR-EMIT": (
@@ -193,8 +194,8 @@ WITNESS = {
     # FULL vocabulary beyond them, deferred "if the element vocabulary proves
     # large" (:585). Witnessing the shipped three would report the deferral done.
     "⊕KVT2": (
-        "Kvantum coverage beyond the shipped buttons/line-edits/progress-bar —"
-        " scrollbars, sliders, tabs, menus (:585)",
+        ("Kvantum coverage beyond the shipped buttons/line-edits/progress-bar —"
+        " scrollbars, sliders, tabs, menus (:585)"),
         lambda: _reads("make_kvantum.py", r"(?i)ScrollBar|Slider|TabWidget|MenuItem")),
     # ⚑ THIS WITNESS WAS WRONG ONCE, AND IT PASSED.  It matched `FrameSvg|prefix`,
     # which hits the generic frame() helper building the panel/dialog/tooltip that
@@ -203,8 +204,8 @@ WITNESS = {
     # invisible chrome" (:541). A witness aimed at the wrong noun reports the
     # completed work as evidence for the deferred work.
     "⊕PLA2": (
-        "widget-by-widget Plasma SVGs (tasks/buttons/sliders), not just the panel,"
-        " dialog and tooltip frames that shipped (:541)",
+        ("widget-by-widget Plasma SVGs (tasks/buttons/sliders), not just the panel,"
+        " dialog and tooltip frames that shipped (:541)"),
         lambda: _reads("make_plasma.py", r"(?i)\btasks\b|\bbutton\b|\bslider\b")),
     "⊕KNB2": (
         "the designer's export is wired through the actual generators (:787)",
@@ -219,8 +220,8 @@ def _emitted_surfaces():
         sys.path.insert(0, ROOT)
     os.chdir(ROOT)
     import make_clock
-    import make_wallpaper_live
     import make_segment_display
+    import make_wallpaper_live
     # ⚑ THE DISPLAY IS A SURFACE'S WORK TOO (W33, s133): the clock and the live
     # wallpaper MOUNT templates/SegmentChar.qml, so the stroke weight, the ghost
     # and the lit-only bloom live THERE now — reading only the two mounts would
@@ -328,19 +329,19 @@ def _closed_bloom():
 # artifacts; `--regressions` is red when a closed symbol's work is gone.
 CLOSED = {
     "⊕STROKE-WEIGHT": (
-        "every segment surface draws the lit stroke thicker than the ghost stroke"
-        " (T_lit/T_ghost > 1 at weight=1, read from the emitted QML) (:2646)",
+        ("every segment surface draws the lit stroke thicker than the ghost stroke"
+        " (T_lit/T_ghost > 1 at weight=1, read from the emitted QML) (:2646)"),
         _closed_stroke_weight),
     "⊕BLOOM": (
-        "every segment surface blooms by BLURRING a lit-only layer (MultiEffect,"
-        " gated by config bloom), never the ghost (:2567)",
+        ("every segment surface blooms by BLURRING a lit-only layer (MultiEffect,"
+        " gated by config bloom), never the ghost (:2567)"),
         _closed_bloom),
     # ⚑ THE THIRD CLOSED SYMBOL WITH NO BUILD (found 2026-09-21, W17): make_gtk,
     # gtk/, and its gate were all absent; el-openglo-apply skipped the copy behind
     # an isdir guard. The witness is the gate that carries session 14's name set.
     "⊕GTK": (
-        "gtk/<id>/gtk{3,4}.css emit, every name a documented libadwaita one, values"
-        " the palette's, bg/fg pairs gated (:683)",
+        ("gtk/<id>/gtk{3,4}.css emit, every name a documented libadwaita one, values"
+        " the palette's, bg/fg pairs gated (:683)"),
         lambda: os.path.isfile(os.path.join(ROOT, "make_gtk.py")) and _tool("check_gtk.py")),
     # ── the sweep of 2026-09-21 (W-sweep): every other closed symbol that names an
     # artifact, witnessed by the tool or definition that IS the artifact ──
@@ -370,9 +371,9 @@ CLOSED = {
     # A closure that requires a manual root step is not closed in the sense the
     # list implies. W66 then built the real theme; the witness now requires BOTH
     # halves — the package stages it AND it is an SDDM theme, not a background.
-    "⊕SDDM": ("an SDDM greeter theme per variant (make_sddm -> /usr/share/sddm/themes/"
+    "⊕SDDM": (("an SDDM greeter theme per variant (make_sddm -> /usr/share/sddm/themes/"
               "el-openglo-*, W66); the el-openglo-sddm Breeze-background helper is the "
-              "secondary route (:3074)",
+              "secondary route (:3074)"),
               # ⚑ ALIAS-AGNOSTIC BY BACKREFERENCE. The first draft matched the
               # literal text `make_sddm.render_all` and read OPEN on a tree where
               # the theme IS staged — make_deb imports it `as _sddm` (:777), so
@@ -419,15 +420,15 @@ CLOSED = {
     # were dropped from the ledger at s86 without closures — check_cotype_coherence
     # caught it. Measured and closed properly there.
     "⊕SOLVER-PERF": (
-        "make_schemes._solved_grid solves the whole grid once and caches it under a"
+        ("make_schemes._solved_grid solves the whole grid once and caches it under a"
         " content stamp over the solver's sources (.palette-cache.json), bypassed by"
-        " EL_NO_PALETTE_CACHE (:4182)",
+        " EL_NO_PALETTE_CACHE (:4182)"),
         lambda: _reads("make_schemes.py", r"def\s+_solved_grid\b") and
                 _reads("make_schemes.py", r"\.palette-cache\.json") and
                 _reads("make_schemes.py", r"EL_NO_PALETTE_CACHE")),
     "⊕PANEL-LAYOUT": (
-        "the LnF layout.js builds a bottom panel with kickoff, pager, icontasks, the"
-        " system tray and the EL clock — richer than wallpaper+clock (:2785)",
+        ("the LnF layout.js builds a bottom panel with kickoff, pager, icontasks, the"
+        " system tray and the EL clock — richer than wallpaper+clock (:2785)"),
         lambda: _reads("make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.systemtray\"\)") and
                 _reads("make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.icontasks\"\)")),
     # closed session 87 (W32, 2026-09-22). The deferral at :2583 names two halves —
@@ -436,9 +437,9 @@ CLOSED = {
     # a wallpaper served as 1920x1080 (1.33x), and the SVG carries the #glow
     # feGaussianBlur. Both halves are in the tree; this aims at them.
     "⊕SUPERSAMPLE-WP": (
-        "the wallpaper PNG is rasterised above its served resolution (cairosvg at"
+        ("the wallpaper PNG is rasterised above its served resolution (cairosvg at"
         " 2560x1440 for a 1920x1080 wallpaper) from an SVG carrying a Gaussian glow"
-        " filter — the two halves of the deferral (:2583)",
+        " filter — the two halves of the deferral (:2583)"),
         lambda: _reads("make_wallpaper.py", r"output_width=(2[5-9]\d\d|[3-9]\d{3})\b") and
                 _reads("make_wallpaper.py", r"<feGaussianBlur\b") and
                 _reads("make_deb.py", r"1920x1080\.png")),
@@ -455,10 +456,10 @@ CLOSED = {
     # emitters' one-package ids, the global-alpha guard, the migration route
     # (aliases + the update script) and the gates that resolve the bindings.
     "⊕ONE-THEME": (
-        "every shipped QML surface (switcher, marquee, clock, live wallpaper) binds"
+        ("every shipped QML surface (switcher, marquee, clock, live wallpaper) binds"
         " Kirigami.Theme's View roles instead of baked holes and ships as ONE package;"
         " legacy ids alias it and a one-shot update migrates a user's containments;"
-        " the LnF stays the selector (catalog/one-theme.md) (:6603)",
+        " the LnF stays the selector (catalog/one-theme.md) (:6603)"),
         lambda: all(_reads(t, r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View")
                     for t in ("templates/taskswitch-main.qml", "templates/marquee-main.qml",
                               "templates/clock-main.qml", "templates/live-wallpaper-main.qml")) and
@@ -477,10 +478,10 @@ CLOSED = {
     # brightness RANGE, the ink of a supersampled backdrop under its aperture; the
     # marquee's board since the s120 port; relations.md §5b states the relation.
     "⊕APERTURE-FIELD": (
-        "the matrix field is an aperture integral: ApertureField.qml grades every pip by"
+        ("the matrix field is an aperture integral: ApertureField.qml grades every pip by"
         " a backdrop's coverage (prefix sums, no shader), the marquee paints its cells"
         " into that backdrop and scrolls by offset, the viewport is offsetY, and"
-        " check_aperture holds the floor / halfway / lit relation on seen pixels (:7590)",
+        " check_aperture holds the floor / halfway / lit relation on seen pixels (:7590)"),
         lambda: _reads("templates/ApertureField.qml", r"(?m)^\s*function integrate\(\)") and
                 _reads("templates/ApertureField.qml", r"(?m)^\s*property real offsetY") and
                 _reads("templates/ApertureField.qml", r"(?m)^\s*property real gamma") and
@@ -494,10 +495,10 @@ CLOSED = {
     # the board — the model's contract measured, urgency as the hot token, transience,
     # actions as runs reaching invokeAction, job progress as a gauge.
     "⊕NOTIFY-CAPABILITIES": (
-        "the marquee reads urgency, transient, actions and job progress from the host's"
+        ("the marquee reads urgency, transient, actions and job progress from the host's"
         " model (its contract measured by check_notify_roles), paints critical in the hot"
         " token and a job's history as a gauge, and a tap on an action run reaches"
-        " invokeAction — catalog/notify-capabilities.md row by row (:7640)",
+        " invokeAction — catalog/notify-capabilities.md row by row (:7640)"),
         lambda: _reads("templates/marquee-main.qml", r"(?m)^\s*property color hotColor:\s*Kirigami\.Theme\.activeTextColor") and
                 _reads("templates/marquee-main.qml", r"Notifications\.UrgencyRole") and
                 _reads("templates/marquee-main.qml", r"Notifications\.TransientRole") and
@@ -512,8 +513,8 @@ CLOSED = {
                 _tool("opa_gate.py", "notify_roles") and
                 _tool("opa_gate.py", "marquee_body")),
     "⊕NOTIFY-SEGRENDER": (
-        "the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
-        " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)",
+        ("the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
+        " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)"),
         lambda: _reads("templates/ApertureField.qml", r"radius:\s*width\s*/\s*2") and
                 _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
                 # a BINDING, not the comment that records the old idiom
@@ -524,10 +525,10 @@ CLOSED = {
     # defaults, enumerated by check_ghost_surfaces as a looked-at surface, and
     # checked for shape + lint by check_taskswitch.
     "⊕TASKSWITCH": (
-        "make_taskswitch emits ONE KWin/WindowSwitcher package (lit selection, ghost rest,"
+        ("make_taskswitch emits ONE KWin/WindowSwitcher package (lit selection, ghost rest,"
         " void ground — the active scheme's roles since W35) selected by [kwinrc][TabBox]"
         " LayoutName; policy/taskswitch.rego holds the structure, the id, the root, the"
-        " lint and the bindings (:2787)",
+        " lint and the bindings (:2787)"),
         lambda: _reads("make_taskswitch.py", r"def\s+main_qml\b") and
                 _reads("templates/taskswitch-main.qml", r"KWin\.TabBoxSwitcher\s*\{") and
                 _reads("make_deb.py", r"_ts\.defaults_fragment\(") and
@@ -538,15 +539,15 @@ CLOSED = {
     # "Inherits=" near "icon"/"cursor" in make_deb or make_plasma; the emitter is
     # make_inherit, selected through the LnF defaults, checked by check_inherit.
     "⊕ICONS-INHERIT": (
-        "make_inherit.icon_index: an icon theme that inherits breeze(-dark) with"
-        " FollowsColorScheme, selected by the LnF defaults [kdeglobals][Icons] (:2774)",
+        ("make_inherit.icon_index: an icon theme that inherits breeze(-dark) with"
+        " FollowsColorScheme, selected by the LnF defaults [kdeglobals][Icons] (:2774)"),
         lambda: _reads("make_inherit.py", r"def\s+icon_index\b") and
                 _reads("make_inherit.py", r"FollowsColorScheme=true") and
                 _reads("make_deb.py", r"_inh\.defaults_fragment\(") and
                 _tool("check_inherit.py")),
     "⊕CURSOR-INHERIT": (
-        "make_inherit.cursor_index: a cursor theme that inherits Breeze cursors by"
-        " ground, selected by the LnF defaults [kcminputrc][Mouse] (:2806)",
+        ("make_inherit.cursor_index: a cursor theme that inherits Breeze cursors by"
+        " ground, selected by the LnF defaults [kcminputrc][Mouse] (:2806)"),
         lambda: _reads("make_inherit.py", r"def\s+cursor_index\b") and
                 _reads("make_inherit.py", r"def\s+cursor_parent\b") and
                 _reads("make_inherit.py", r"cursorTheme=") and
@@ -556,9 +557,9 @@ CLOSED = {
     # ones that hang, no two alike, uppercase untouched), and the validation at
     # 22 on the lowercase frame with every tail's bar hit (check_projection).
     "⊕SEG22-DESCENDERS": (
-        "segment_topology.LETTERS22 (26 lowercase over SEG22, g j p q y on dl/dc/dr,"
+        ("segment_topology.LETTERS22 (26 lowercase over SEG22, g j p q y on dl/dc/dr,"
         " DESCENDER_GLYPHS, glyph22) with its arms in the substrate selftest, validated"
-        " at 22 by check_projection on the lowercase frame (:4455)",
+        " at 22 by check_projection on the lowercase frame (:4455)"),
         lambda: _reads("segment_topology.py", r"(?m)^LETTERS22\s*=") and
                 _reads("segment_topology.py", r"(?m)^DESCENDER_GLYPHS\s*=") and
                 _reads("segment_topology.py", r"def\s+glyph22\b") and
@@ -571,9 +572,9 @@ CLOSED = {
     # over every authored key (glyph_match.AUTHORED_CHARS: 46 non-blank now);
     # the convention-gap glyphs are pinned by name and the selftest holds the pin.
     "⊕SEG-FONT-PROJECT": (
-        "make_glyph_ink ingests native TTF outlines through fontTools and"
+        ("make_glyph_ink ingests native TTF outlines through fontTools and"
         " validate_projection runs over every authored key by default, the"
-        " convention-gap glyphs pinned in KNOWN_CONVENTION (:4644)",
+        " convention-gap glyphs pinned in KNOWN_CONVENTION (:4644)"),
         lambda: _reads("make_glyph_ink.py", r"\bTTFont\b") and
                 _reads("glyph_match.py", r"(?m)^AUTHORED_CHARS\s*=") and
                 _reads("glyph_match.py", r"(?m)^KNOWN_CONVENTION\s*=") and
@@ -584,9 +585,9 @@ CLOSED = {
     # (7: 0.40, 16: 0.80, 22: 0.84) and per dot matrix (0.53), each an effective
     # alpha beside the stroke's — the density the same Lc reads at.
     "⊕GHOST-DENSITY": (
-        "check_ghost_composite.measure_formats gives the unlit field's cell coverage at"
+        ("check_ghost_composite.measure_formats gives the unlit field's cell coverage at"
         " 7/14/16/22 from the substrate geometry and measure_matrix the dot field's;"
-        " --matrix reports both beside the stroke ghost per variant (:4459)",
+        " --matrix reports both beside the stroke ghost per variant (:4459)"),
         lambda: _reads("scripts/check_ghost_composite.py", r"def\s+measure_formats\b") and
                 _reads("scripts/check_ghost_composite.py", r"def\s+measure_matrix\b") and
                 _tool("check_ghost_composite.py", "--matrix")),
@@ -595,9 +596,9 @@ CLOSED = {
     # class at s78 (round 0.60 over 19). The witness is the arc field, the solved
     # (negative) sagitta, and the sweep mode that refuses a flat landscape.
     "⊕SEG-DOTPRODUCT-TEMPLATES": (
-        "glyph_match._arc_field bends the outer strokes to an arc; SAGITTA is solved by"
+        ("glyph_match._arc_field bends the outer strokes to an arc; SAGITTA is solved by"
         " calibrate_projection --arcs (inward), and the round class is measured against"
-        " it by --classes (:5204)",
+        " it by --classes (:5204)"),
         lambda: _reads("glyph_match.py", r"def\s+_arc_field\b") and
                 _reads("glyph_match.py", r"(?m)^SAGITTA\s*=\s*-") and
                 _tool("check_projection.py", "--classes")),
@@ -607,9 +608,9 @@ CLOSED = {
     # the emitter's recorded font decision, the '?' fallback in the component,
     # and the two tools that measure the table and the ingest.
     "⊕NOTIFY-MATRIXRENDER": (
-        "the marquee draws its cells off the emitted registry's 5x8 display — since W54 as"
+        ("the marquee draws its cells off the emitted registry's 5x8 display — since W54 as"
         " a backdrop behind an ApertureField — and check_display_registry round-trips that"
-        " emission against the substrate (:4524)",
+        " emission against the substrate (:4524)"),
         # W54 (s120): the Row of MatrixChar became a backdrop painted from the SAME
         # registry bytes (matrixFont[ch] → column bits → cells) behind ApertureField;
         # the field is still fixed and the glyphs still draw no ghost — the ghost is
@@ -672,9 +673,9 @@ CLOSED = {
                 _reads("make_notify_marquee.py", r"as_qml_js\(") and
                 _tool("check_display_registry.py")),
     "⊕MATRIX-FONT-INPUT": (
-        "display_types.font_extension rasterises a build-time font (make_notify_marquee."
+        ("display_types.font_extension rasterises a build-time font (make_notify_marquee."
         "matrix_font, the decision recorded) into the 5x8 table for Latin-1 beyond the"
-        " authored glyphs; the board falls back to '?'; check_matrix_input measures (:4534)",
+        " authored glyphs; the board falls back to '?'; check_matrix_input measures (:4534)"),
         lambda: _reads("display_types.py", r"def\s+font_extension\b") and
                 _reads("make_notify_marquee.py", r"def\s+matrix_font\b") and
                 _reads("make_notify_marquee.py", r"font_path=") and
@@ -689,8 +690,8 @@ CLOSED = {
     # constant it solved (SW_BAND carries the sweep in its comment), and at the
     # tool's --calibrate mode, which refuses a flat sweep.
     "⊕SEG-PROJECT-CALIBRATE": (
-        "glyph_match.calibrate_projection solves frame x band by agreement over the"
-        " authored table; SW_BAND is its argmax, not a hand-set 0.7 (:4631)",
+        ("glyph_match.calibrate_projection solves frame x band by agreement over the"
+        " authored table; SW_BAND is its argmax, not a hand-set 0.7 (:4631)"),
         lambda: _reads("glyph_match.py", r"def\s+calibrate_projection\b") and
                 _reads("glyph_match.py", r"(?m)^SW_BAND\s*=") and
                 # the selftest sweeps a 2x2 and refuses a flat one; the full
@@ -700,27 +701,27 @@ CLOSED = {
     # "cross-check" in a docstring (s69); this one aims at the def and at the
     # tool that runs it over a font and requires the instrument to discriminate.
     "⊕SEG-TABLE-VALIDATE": (
-        "glyph_match.validate_projection cross-checks the projection against the authored"
-        " table per glyph, and check_projection runs it and requires distinct projections (:4632)",
+        ("glyph_match.validate_projection cross-checks the projection against the authored"
+        " table per glyph, and check_projection runs it and requires distinct projections (:4632)"),
         lambda: _reads("glyph_match.py", r"def\s+validate_projection\b") and _tool("check_projection.py")),
     # closed session 73 (W10, 2026-09-21): three RGB literals became the
     # constellation solve over the selection field; the state nudges became
     # solve_state_steps — the witness names both halves
     "⊕SOLVER-UI-TOKENS": (
-        "no RGB literal in solve_scheme's token dict, and the hover/selection states"
-        " are solved by solve_state_steps, not authored nudges (:3928)",
+        ("no RGB literal in solve_scheme's token dict, and the hover/selection states"
+        " are solved by solve_state_steps, not authored nudges (:3928)"),
         lambda: not _reads("make_palette.py", r'"sel_\w+":\s*"\d+,\d+,\d+"') and
                 not _reads("make_palette.py", r'"hover":\s*_s\(_lum_nudge\(accent,\s*-?0\.\d+') and
                 _reads("make_palette.py", r"def\s+solve_state_steps\b") and _tool("check_states.py")),
     # closed session 72 (W9, 2026-09-21): the target resolution is known only at
     # boot, so the emitted .script scales oversampled assets by Window.GetHeight
     "⊕PLYMOUTH-VECTOR": (
-        "the boot splash is drawn at the screen's size: the emitted .script scales the"
-        " oversampled assets by Window.GetHeight and lays them out at the module pitch (:4228)",
+        ("the boot splash is drawn at the screen's size: the emitted .script scales the"
+        " oversampled assets by Window.GetHeight and lays them out at the module pitch (:4228)"),
         lambda: _plymouth_scales_at_boot()),
     # rebuilt W26 (2026-09-21): the 5x8 table re-authored, baseline as a LINE
-    "⊕DOT-FONT-DESC": ("FONT5x8 with lowercase whose g j p q y descend below a declared baseline line,"
-                       " built into a TTF with negative descent (:1496)",
+    "⊕DOT-FONT-DESC": (("FONT5x8 with lowercase whose g j p q y descend below a declared baseline line,"
+                       " built into a TTF with negative descent (:1496)"),
                        lambda: _reads("display_types.py", r"\bFONT5x8_BASELINE\b") and
                        _reads("make_font.py", r"baseline=") and _tool("check_font.py")),
     # rebuilt W25 (2026-09-21), moved here from LOST
@@ -773,7 +774,7 @@ def open_symbols():
     """{symbol: bucket} for the log's currently-open work."""
     import json
     r = subprocess.run([sys.executable, INDEX, "--json"],
-                       capture_output=True, text=True, cwd=ROOT)
+                       capture_output=True, text=True, cwd=ROOT, check=False)
     if r.returncode != 0:
         return None
     out = {}
@@ -976,7 +977,8 @@ def _selftest():
     # a choice, not an omission.
     if opn is not None:
         import json as _json
-        r = subprocess.run([sys.executable, INDEX, "--json"], capture_output=True, text=True, cwd=ROOT)
+        r = subprocess.run([sys.executable, INDEX, "--json"], capture_output=True, text=True, cwd=ROOT,
+                           check=False)
         closed_syms = {s for s, m in _json.loads(r.stdout)["symbols"].items() if m["closed"]}
         unaccounted = sorted(closed_syms - set(CLOSED) - set(LOST) - NO_ARTIFACT)
         check(f"every closed symbol is witnessed, known-lost, or listed as artifact-free ({unaccounted})",

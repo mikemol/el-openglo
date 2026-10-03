@@ -88,12 +88,16 @@ def facts(variant, text):
     """What one theme file SAYS - no verdict (policy/vscode.rego rules). parse_error non-null => the rest is null."""
     import make_vscode as MV
     want_type = "light" if variant.endswith("-Lit") else "dark"
+    parse_error = None
     try:
         doc = json.loads(text)
-        if not isinstance(doc, dict):
-            raise ValueError("not a JSON object")
     except ValueError as e:
-        return {"id": variant, "present": True, "parse_error": str(e), "wrong_colours": None,
+        parse_error = str(e)
+    else:
+        if not isinstance(doc, dict):
+            parse_error = "not a JSON object"
+    if parse_error is not None:
+        return {"id": variant, "present": True, "parse_error": parse_error, "wrong_colours": None,
                 "unmapped_keys": None, "wrong_tokens": None, "type": None, "want_type": want_type,
                 "contrast": None, "current": None}
     r = MV.roles(variant)
@@ -118,8 +122,9 @@ def package_facts(folder, roster):
     if not os.path.exists(p):
         return {"present": False}
     try:
-        pj = json.load(open(p, encoding="utf-8"))
-        themes = pj["contributes"]["themes"]
+        with open(p, encoding="utf-8") as fh:
+            pj = json.load(fh)
+        themes =pj["contributes"]["themes"]
     except (ValueError, KeyError, TypeError) as e:
         return {"present": True, "parse_error": f"{type(e).__name__}: {e}"}
     by_path = {t.get("path"): t for t in themes}
@@ -161,8 +166,9 @@ def vsix_facts(roster):
 
 
 def measure(folder=None):
-    import make_vscode as MV
     import variant_roster
+
+    import make_vscode as MV
     folder = folder or MV.OUT_DIR
     roster = list(variant_roster.ids())
     cases = []
@@ -217,9 +223,11 @@ def _selftest():
         pf = package_facts(td, [v, "EL-Azure"])
         chk("a package missing a roster variant is seen, with its file", (pf["missing"], pf["missing_files"]),
             (["EL-Azure"], ["EL-Azure"]))
-        pj = json.load(open(os.path.join(td, "package.json"), encoding="utf-8"))
+        with open(os.path.join(td, "package.json"), encoding="utf-8") as fh:
+            pj = json.load(fh)
         pj["contributes"]["themes"][0]["uiTheme"] = "vs"
-        json.dump(pj, open(os.path.join(td, "package.json"), "w", encoding="utf-8"))
+        with open(os.path.join(td, "package.json"), "w", encoding="utf-8") as fh:
+            json.dump(pj, fh)
         chk("a wrong uiTheme is seen", package_facts(td, [v])["wrong_ui"], [v])
     vf = vsix_facts([v])
     chk("a fresh vsix opens with the documented entries and nothing differs",

@@ -156,7 +156,8 @@ def measure():
         if c["baseline_present"]:
             try:
                 got = _value(module, accessor, argsrc)
-                want = open(path, encoding="utf-8").read()
+                with open(path, encoding="utf-8") as fh:
+                    want = fh.read()
                 c.update(equal=got == want, got_bytes=len(got), want_bytes=len(want))
             except _Skip as e:
                 c["skip"] = str(e)
@@ -203,7 +204,8 @@ def diff(match):
         if not os.path.isfile(path):
             print(f"{label}: NO BASELINE ({name})")
             continue
-        want = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as fh:
+            want = fh.read()
         try:
             got = _value(module, accessor, argsrc)
         except Exception as e:                   # noqa: BLE001
@@ -247,7 +249,11 @@ def record(match):
         print(f"check_template_parity: {label}: RAISED {type(e).__name__}: {e} — "
               f"nothing recorded", file=sys.stderr)
         return 1
-    if os.path.isfile(path) and open(path, encoding="utf-8").read() == got:
+    on_disk = None
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as fh:
+            on_disk = fh.read()
+    if on_disk is not None and on_disk == got:
         print(f"record: {label} already matches catalog/baselines/{name}; nothing written")
         return 0
     diff(match)
@@ -290,7 +296,8 @@ def installed():
         except _Skip as e:
             out.append((name, "SKIP", str(e)))
             continue
-        host = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as fh:
+            host = fh.read()
         if host == tree:
             out.append((name, "current", "byte-identical to the tree's emission"))
             continue
@@ -379,7 +386,8 @@ def _selftest():
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         a = os.path.join(td, "a.txt")
-        open(a, "w").write("same bytes\n")
+        with open(a, "w") as fh:
+            fh.write("same bytes\n")
         os.link(a, os.path.join(td, "b.txt"))
         try:
             globals()["BASELINES"] = td
@@ -387,8 +395,9 @@ def _selftest():
                   ["a.txt", "b.txt"])
             unlink_shared()
             check("--unlink leaves every baseline on its own inode", shared_inodes(), [])
-            check("...with the same bytes", open(os.path.join(td, "b.txt")).read(),
-                  "same bytes\n")
+            with open(os.path.join(td, "b.txt")) as fh:
+                b_text = fh.read()
+            check("...with the same bytes", b_text, "same bytes\n")
         finally:
             globals()["BASELINES"] = saved
     check("the real baselines share no inode", shared_inodes(), [])

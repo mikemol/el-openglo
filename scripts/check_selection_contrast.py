@@ -128,7 +128,9 @@ def selection_pairs(keys=FG_KEYS):
             missing.extend((scheme, k, "the .colors file is absent") for k in keys)
             continue
         cur, sect = None, {}
-        for line in open(path, encoding="utf-8", errors="replace"):
+        with open(path, encoding="utf-8", errors="replace") as fh:
+            colors_lines = fh.readlines()
+        for line in colors_lines:
             line = line.strip()
             if line.startswith("[") and line.endswith("]"):
                 cur = line
@@ -220,7 +222,7 @@ def samples_html(keys=FG_KEYS + GATED_SEMANTIC):
     rows = {}
     for c in measure(keys)["cases"]:
         rows.setdefault(c["scheme"], []).append(c)
-    hexs = lambda t: "#%02x%02x%02x" % tuple(t)
+    hexs = lambda t: "#{:02x}{:02x}{:02x}".format(*t)
     out = []
     for scheme, cases in rows.items():
         out.append(f"<section><h2>{html.escape(scheme)}</h2><table><thead><tr>"
@@ -237,7 +239,7 @@ def samples_html(keys=FG_KEYS + GATED_SEMANTIC):
             verdicts = "".join(
                 f"<td class='{'ok' if p(c['key'], r, lc) else 'no'}'>"
                 f"{'pass' if p(c['key'], r, lc) else 'fail'}</td>" for _, _, p in OPTIONS)
-            sw = lambda f: (f"<div class='sw' style='background:{hexs(bg)};color:{hexs(f)}'>"
+            sw = lambda f, bg=bg: (f"<div class='sw' style='background:{hexs(bg)};color:{hexs(f)}'>"
                             f"<span class='body'>Selected row — report.txt</span>"
                             f"<span class='large'>Selected 18px</span></div>")
             if r >= 4.5:
@@ -277,11 +279,12 @@ def options_html(grids):
     """One row per variant, one column per option: the solved selection field with
     each text role drawn on it, and the field's step and any role named infeasible."""
     import html
+
     import cvd_gate
     import make_palette
     opts = list(grids)
     variants = list(next(iter(grids.values())))
-    hexs = lambda s: "#%02x%02x%02x" % cvd_gate.rgb(s)
+    hexs = lambda s: "#{:02x}{:02x}{:02x}".format(*cvd_gate.rgb(s))
     head = "".join(
         f"<th>{o}<div class='num'>{html.escape(_POLICY_TEXT.get(o, ''))}</div></th>"
         for o in opts)
@@ -318,7 +321,7 @@ def max_floor(metric, lo, hi, tol):
     import make_palette
 
     def infeasible(x):
-        P = dict(metric=metric, normal=x, active=x, sem=x)
+        P = {"metric": metric, "normal": x, "active": x, "sem": x}
         grid = make_palette.build_grid(sel_policy=P)
         return sorted(f"{t['id']}:{r}" for (t, _d) in grid.values()
                       for r in t.get("sel_floor_infeasible", "").split(",") if r)

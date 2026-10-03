@@ -34,8 +34,8 @@ DIGITS = "0123456789"
 def rows():
     """[(digit, substrate_segments, plymouth_segments)] for 0-9."""
     os.chdir(ROOT)
-    import segment_topology as ST
     import make_plymouth as MP
+    import segment_topology as ST
     out = []
     for d in DIGITS:
         want = set(ST.project(ST.glyph16(d), "7"))

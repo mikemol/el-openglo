@@ -38,7 +38,7 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-import qt_sandbox as QT  # noqa: E402
+import qt_sandbox as QT
 
 QML = QT.QML
 
@@ -46,7 +46,7 @@ QML = QT.QML
 # check_marquee_live and lives in plasma_rewrite (W61 follow-up), so neither
 # harness's key reaches the other's code. RE-EXPORTED here: check_symmetry reads
 # RQ.SUBSTITUTIONS and RQ._kcfg_defaults.
-from plasma_rewrite import SUBSTITUTIONS, _kcfg_defaults  # noqa: E402,F401
+from plasma_rewrite import SUBSTITUTIONS, _kcfg_defaults
 
 # ⚑ THE SWITCHER'S RUNTIME IS KWIN'S, NOT PLASMA'S (W52): KWin.TabBoxSwitcher
 # supplies model / currentIndex / visible / screenGeometry, PlasmaCore.Dialog is
@@ -58,20 +58,20 @@ from plasma_rewrite import SUBSTITUTIONS, _kcfg_defaults  # noqa: E402,F401
 SWITCHER_SUBSTITUTIONS = (
     (r"^import org\.kde\.kwin as KWin\n", ""),
     (r"^KWin\.TabBoxSwitcher \{",
-     "Item {\n"
-     "    property var model: stubModel\n"
-     "    property int currentIndex\n"
-     "    property rect screenGeometry: Qt.rect(0, 0, width, height)\n"
-     "    function i18ndc(d, c, s) { return s }\n"
-     "    ListModel {\n"
-     "        id: stubModel\n"
-     "        ListElement { caption: \"Konsole\"; icon: \"utilities-terminal\"; minimized: false }\n"
-     "        ListElement { caption: \"Dolphin — Home\"; icon: \"system-file-manager\"; minimized: false }\n"
-     "        ListElement { caption: \"Firefox\"; icon: \"firefox\"; minimized: true }\n"
-     "        function longestCaption() { return \"Dolphin — Home\" }\n"
-     "        function activate(i) {}\n"
-     "    }\n"
-     "    Component.onCompleted: list.currentIndex = 1"),
+     ("Item {\n"
+      "    property var model: stubModel\n"
+      "    property int currentIndex\n"
+      "    property rect screenGeometry: Qt.rect(0, 0, width, height)\n"
+      "    function i18ndc(d, c, s) { return s }\n"
+      "    ListModel {\n"
+      "        id: stubModel\n"
+      "        ListElement { caption: \"Konsole\"; icon: \"utilities-terminal\"; minimized: false }\n"
+      "        ListElement { caption: \"Dolphin — Home\"; icon: \"system-file-manager\"; minimized: false }\n"
+      "        ListElement { caption: \"Firefox\"; icon: \"firefox\"; minimized: true }\n"
+      "        function longestCaption() { return \"Dolphin — Home\" }\n"
+      "        function activate(i) {}\n"
+      "    }\n"
+      "    Component.onCompleted: list.currentIndex = 1")),
     (r"^    PlasmaCore\.Dialog \{\n        id: dialog\n        location:[^\n]*\n        visible:[^\n]*\n        flags:[^\n]*\n        x:[^\n]*\n        y:[^\n]*\n",
      "    Item {\n        id: dialog\n        anchors.fill: parent\n"),
     (r"mainItem: Item \{", "Item {\n            anchors.centerIn: parent"),
@@ -234,7 +234,7 @@ def _emit(surface, variant):
         import make_taskswitch
         qml, kcfg = make_taskswitch.main_qml(), ""
         for pat, rep in SWITCHER_SUBSTITUTIONS:
-            qml, n = re.subn(pat, rep, qml, flags=re.M)
+            qml, n = re.subn(pat, rep, qml, flags=re.MULTILINE)
             if n == 0:
                 raise ValueError(f"switcher rewrite: {pat[:40]!r} matched nothing — the template moved under the harness")
     elif surface == "aperture":
@@ -255,7 +255,7 @@ def _emit(surface, variant):
     else:
         raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture, aperture-text or sddm")
     for pat, rep in SUBSTITUTIONS:
-        qml = re.sub(pat, rep, qml, flags=re.M)
+        qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
     return qml, kcfg
 
 
@@ -425,12 +425,16 @@ def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, so
     if ground is None:
         import make_preview
         ground = make_preview.parse_scheme(variant)["ground"]
-    open(os.path.join(td, "subject.qml"), "w").write(qml)
+    with open(os.path.join(td, "subject.qml"), "w") as fh:
+        fh.write(qml)
     for name, text in (companions or {}).items():
-        open(os.path.join(td, name), "w").write(text)
-    open(os.path.join(td, "harness.qml"), "w").write(harness % dict({
+        with open(os.path.join(td, name), "w") as fh:
+            fh.write(text)
+    harness_src = harness % dict({
         "w": w, "h": h, "ground": ground, "config": json.dumps(config),
-        "out": os.path.abspath(out_png)}, **(extra or {})))
+        "out": os.path.abspath(out_png)}, **(extra or {}))
+    with open(os.path.join(td, "harness.qml"), "w") as fh:
+        fh.write(harness_src)
     # ⚑ THE OFFSCREEN PLATFORM DEFAULTS TO THE SOFTWARE SCENE GRAPH, which has
     # no shaders: MultiEffect silently draws nothing and a bloom check would
     # pass or fail on a picture the desktop never shows (measured: bloom=4 and
@@ -497,7 +501,8 @@ def pixels(png, variant):
     # the modal colour, so a large "other" names itself instead of being argued with
     from collections import Counter
     mode, count = Counter(data).most_common(1)[0]
-    n["modal"] = "#%02x%02x%02x (%d px; expected ground #%02x%02x%02x)" % (*mode, count, *ground)
+    n["modal"] = "#{:02x}{:02x}{:02x} ({:d} px; expected ground #{:02x}{:02x}{:02x})".format(
+        *mode, count, *ground)
     return n
 
 
@@ -511,6 +516,7 @@ def edges(png, variant):
     depend on how much of the surface is text. The ground is read from the picture
     (its modal colour), not assumed: a surface may draw its own void."""
     from PIL import Image
+
     import make_preview
     lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
     im = Image.open(png).convert("RGB")
@@ -536,7 +542,7 @@ def edges(png, variant):
                                   for dy in (-1, 0, 1) for dx in (-1, 0, 1)
                                   if 0 <= y + dy < im.height and 0 <= x + dx < im.width):
                 trans += 1
-    return {"png": os.path.basename(png), "variant": variant, "ground": "#%02x%02x%02x" % ground,
+    return {"png": os.path.basename(png), "variant": variant, "ground": "#{:02x}{:02x}{:02x}".format(*ground),
             "lit_px": on, "edge_px": trans,
             "softness": round(trans / on, 3) if on else None}
 
@@ -558,6 +564,7 @@ def texture(png, variant):
     sample. Reported as that population's variance of L; flat (litGradient=0)
     reads ~0, a graded stroke reads > 0, monotonically in the amplitude."""
     from PIL import Image
+
     import make_preview
     lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
     im = Image.open(png).convert("RGB")
@@ -643,7 +650,7 @@ def _selftest():
           _kcfg_defaults('<entry name="a" type="Bool"><default>true</default></entry>'
                          '<entry name="b" type="Double"><default>1.5</default></entry>'),
           {"a": True, "b": 1.5})
-    qml, cfg, ground = subject("clock", "EL-Openglo")
+    qml, cfg, _ground = subject("clock", "EL-Openglo")
     check("the Plasma root type is rewritten", "PlasmoidItem" in qml, False)
     check("no org.kde.plasma import survives", "org.kde.plasma" in qml, False)
     check("the config carries the kcfg keys", {"bloom", "weight", "showGhost"} <= set(cfg), True)
@@ -664,16 +671,18 @@ def _selftest():
             out_w = os.path.join(td, "w0.png")
             rc_w, _ = render("clock", "EL-Openglo", 400, 48, out_w, {"weight": 0})
             if rc == 0 and rc_w == 0:
-                check("weight=0 renders differently",
-                      open(out, "rb").read() == open(out_w, "rb").read(), False)
+                with open(out, "rb") as fa, open(out_w, "rb") as fb:
+                    same_w = fa.read() == fb.read()
+                check("weight=0 renders differently", same_w, False)
             if "backend=rhi" not in err:
                 print(f"  SKIP bloom arm — scene graph is not the RHI ({err.splitlines()[0]})")
             else:
                 out_b = os.path.join(td, "b0.png")
                 rc_b, _ = render("clock", "EL-Openglo", 400, 48, out_b, {"bloom": 0})
                 if rc_b == 0:
-                    check("bloom=0 renders differently (the halo is drawn)",
-                          open(out, "rb").read() == open(out_b, "rb").read(), False)
+                    with open(out, "rb") as fa, open(out_b, "rb") as fb:
+                        same_b = fa.read() == fb.read()
+                    check("bloom=0 renders differently (the halo is drawn)", same_b, False)
             # ⚑ texture() MUST DISTINGUISH A FLAT STROKE FROM A GRADED ONE, per
             # channel, the same discipline as the weight/bloom arms above:
             # litGradient=0 is today's flat stroke and must read texture~0;

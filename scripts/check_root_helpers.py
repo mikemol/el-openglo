@@ -100,8 +100,9 @@ def _variants():
 
 
 def roster_drift():
-    import make_deb
     import variant_roster as VR
+
+    import make_deb
     return VR.drift_facts({"make_deb": make_deb.VARIANTS})
 
 
@@ -123,7 +124,8 @@ def build_root(root):
     for v in vs:
         wp = os.path.join(root, f"usr/share/wallpapers/{v}/contents/images")
         os.makedirs(wp, exist_ok=True)
-        open(os.path.join(wp, "1920x1080.png"), "wb").write(b"png")
+        with open(os.path.join(wp, "1920x1080.png"), "wb") as fh:
+            fh.write(b"png")
 
 
 def plymouth_layout(root):
@@ -153,7 +155,8 @@ def _bindir(scratch, tools):
         os.symlink(shutil.which(c), os.path.join(b, c))
     for t in ["id"] + tools:
         p = os.path.join(b, t)
-        open(p, "w").write(STUBS[t])
+        with open(p, "w") as fh:
+            fh.write(STUBS[t])
         os.chmod(p, 0o755)
     return b
 
@@ -163,7 +166,8 @@ def _read_tree(root, rel):
     if os.path.islink(p):
         return {"link": os.readlink(p)}
     if os.path.isfile(p):
-        return {"text": open(p, encoding="utf-8", errors="replace").read()}
+        with open(p, encoding="utf-8", errors="replace") as fh:
+            return {"text": fh.read()}
     return None
 
 
@@ -179,22 +183,27 @@ def run_case(helper, scenario, argv, tools, env, scripts, work):
     root = os.path.join(scratch, "root")
     shutil.copytree(os.path.join(work, "_themes"), root, symlinks=True)
     helper_p = os.path.join(scratch, helper)
-    open(helper_p, "w").write(body)
+    with open(helper_p, "w") as fh:
+        fh.write(body)
     os.chmod(helper_p, 0o755)
     b = _bindir(scratch, tools)
     e = {"PATH": b, "EL_OPENGLO_ROOT": root, **env}
 
     def go(args):
-        return subprocess.run(["/bin/sh", helper_p, *args], env=e, capture_output=True, text=True)
+        return subprocess.run(["/bin/sh", helper_p, *args], env=e, capture_output=True, text=True, check=False)
 
     if scenario == "breeze_after_theme":            # select the greeter first, then undo
         pre = go(["EL-Openglo"])
         case["pre_exit"] = pre.returncode
     r = go(argv)
     log = os.path.join(root, "tool.log")
+    tool_log = []
+    if os.path.isfile(log):
+        with open(log) as fh:
+            tool_log = fh.read().splitlines()
     case.update({
         "exit": r.returncode, "stdout": r.stdout, "stderr": r.stderr,
-        "tool_log": open(log).read().splitlines() if os.path.isfile(log) else [],
+        "tool_log": tool_log,
         "alternative": _read_tree(root, "etc/alternatives/default.plymouth"),
         "dropin": _read_tree(root, "etc/sddm.conf.d/el-openglo.conf"),
         "sddm_conf_written": os.path.exists(os.path.join(root, "etc/sddm.conf")),
@@ -220,19 +229,22 @@ def run_reload(scenario, argv, active, body, work):
     qc = os.path.join(home, ".cache/plasmashell/qmlcache")
     os.makedirs(qc)
     for n in (CACHE_EL, CACHE_FOREIGN):
-        open(os.path.join(qc, n), "w").write("x")
+        with open(os.path.join(qc, n), "w") as fh:
+            fh.write("x")
     b = os.path.join(scratch, "bin")
     os.makedirs(b)
     for c in APPLY_UTILS:
         os.symlink(shutil.which(c), os.path.join(b, c))
     sc = os.path.join(b, "systemctl")
-    open(sc, "w").write(SYSTEMCTL_STUB)
+    with open(sc, "w") as fh:
+        fh.write(SYSTEMCTL_STUB)
     os.chmod(sc, 0o755)
     helper_p = os.path.join(scratch, "el-openglo-apply")
-    open(helper_p, "w").write(body)
+    with open(helper_p, "w") as fh:
+        fh.write(body)
     os.chmod(helper_p, 0o755)
     e = {"HOME": home, "PATH": b, **({"STUB_ACTIVE": "1"} if active else {})}
-    r = subprocess.run(["/bin/sh", helper_p, *argv], env=e, capture_output=True, text=True)
+    r = subprocess.run(["/bin/sh", helper_p, *argv], env=e, capture_output=True, text=True, check=False)
     log = os.path.join(home, "systemctl.log")
     return {"kind": "reload", "helper": "el-openglo-apply", "scenario": scenario, "argv": argv,
             "active": active, "exit": r.returncode, "stdout": r.stdout, "stderr": r.stderr,

@@ -22,6 +22,7 @@ idiom proven to render, unlike a JS function in a path binding) plus the baked
 geometry + glyph tables from the substrate. Surfaces instantiate it.
 """
 import json
+
 import segment_topology as ST
 
 
@@ -70,8 +71,8 @@ def segment_char_component():
     invisible to a diff except as "the .py changed". As a file it opens in a QML
     editor and its braces need no escaping. This function is now the ACCESSOR,
     which is what every caller already expected it to be."""
-    import templates.loader as TL
     import make_schemes
+    import templates.loader as TL
     # ⚑ THE ONE HOLE IS THE GHOST ALPHA, and it is filled from the palette
     # authority: the value is SOLVED (ghost_solve.solve_ghost_alpha) so that every
     # variant's ghost can clear its floor on screen, not authored in the markup.

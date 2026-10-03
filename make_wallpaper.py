@@ -50,7 +50,7 @@ def _tokens(variant="EL-Openglo"):
 
 def output_name(variant):
     """`<Base>-wallpaper.png` / `<Base>-lit-wallpaper.png` — the names make_deb maps."""
-    base = variant[:-4] if variant.endswith("-Lit") else variant
+    base = variant.removesuffix("-Lit")
     return f"{base}{'-lit' if variant.endswith('-Lit') else ''}-wallpaper"
 
 # seven-segment geometry -----------------------------------------------------

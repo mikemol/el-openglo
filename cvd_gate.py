@@ -13,6 +13,7 @@ admissible if it is at least as separated (x a class factor) as the reference
 shape's own tightest pair.
 """
 import functools
+
 import numpy as np
 from colorspacious import cspace_convert
 
@@ -109,13 +110,13 @@ def wcag_ratio(a, b):
 # ⚑ POLARITY MATTERS AND THE SIGN IS THE POINT.  Lc is signed: dark-text-on-light
 # and light-text-on-dark are different perceptual problems, which is exactly the
 # asymmetry WCAG 2 is blind to.  Never take abs() inside this function.
-_APCA = dict(
-    Y_TRC=2.4, Rco=0.2126729, Gco=0.7151522, Bco=0.0721750,
-    Bclip=0.022, Bexp=1.414,          # black soft-clamp
-    normBG=0.56, normTXT=0.57,        # normal polarity (dark text on light)
-    revBG=0.65, revTXT=0.62,          # reverse polarity (light text on dark)
-    scale=1.14, offset=0.027, loClip=0.001,
-)
+_APCA = {
+    "Y_TRC": 2.4, "Rco": 0.2126729, "Gco": 0.7151522, "Bco": 0.0721750,
+    "Bclip": 0.022, "Bexp": 1.414,          # black soft-clamp
+    "normBG": 0.56, "normTXT": 0.57,        # normal polarity (dark text on light)
+    "revBG": 0.65, "revTXT": 0.62,          # reverse polarity (light text on dark)
+    "scale": 1.14, "offset": 0.027, "loClip": 0.001,
+}
 
 
 def _apca_Y(c):
@@ -172,7 +173,7 @@ SECTORS = {"neg": (340, 25), "neu": (30, 75), "pos": (90, 170),
 
 
 def _lerp(a, b, t):
-    return tuple(int(round(x + (y - x) * t)) for x, y in zip(a, b))
+    return tuple(round(x + (y - x) * t) for x, y in zip(a, b))
 
 
 def stretch_lit(lit, ground, target=STRETCH_TARGET, chroma_floor=CHROMA_FLOOR):
@@ -419,7 +420,7 @@ def _selftest():
           sorted(SECTORS), ["link", "neg", "neu", "pos", "visited"])
 
     # ── the gate's own metric normalizes ──
-    q, view, d = _worst_normalized(OKABE_ITO["blue"], OKABE_ITO["orange"],
+    q, _view, _d = _worst_normalized(OKABE_ITO["blue"], OKABE_ITO["orange"],
                                    reference_floors())
     check("normalized-q clears for a reference pair", q >= 1.0, True)
 

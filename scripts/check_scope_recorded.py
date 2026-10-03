@@ -101,10 +101,12 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         check("an absent record is SEEN", measure(td)["cases"][0]["present"], False)
         p = os.path.join(td, RECORD)
-        open(p, "w").write("# notes\nnothing about it\n")
+        with open(p, "w") as fh:
+            fh.write("# notes\nnothing about it\n")
         check("a record without the rationale has no evidence", measure(td)["cases"][0]["evidence"], [])
         # the wrapped paragraph that the one-line version reported absent
-        open(p, "w").write("The rename was about a\ntrademark; the prior mark was\nretired everywhere.\n")
+        with open(p, "w") as fh:
+            fh.write("The rename was about a\ntrademark; the prior mark was\nretired everywhere.\n")
         check("a WRAPPED rationale is seen", len(measure(td)["cases"][0]["evidence"]), 1)
     print("check_scope_recorded selftest:", "PASS" if ok else "FAIL")
     return ok

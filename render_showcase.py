@@ -7,10 +7,14 @@
 lit segments bright, OFF segments faint ghost (present-but-not-active), on OLED void.
 Every stroke thickened perpendicular (handles h/v/d uniformly) so diagonals render."""
 import matplotlib
+
 matplotlib.use("Agg")
+import math
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
-import math, segment_topology as ST
+
+import segment_topology as ST
 
 VOID="#080e14"; LIT="#a6d3ff"; GHOST="#2c3f52"; BLOOM="#a6d3ff"
 

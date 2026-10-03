@@ -25,7 +25,7 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-import make_inherit as MI                                        # noqa: E402
+import make_inherit as MI
 
 ICON_ROOTS = ("/usr/share/icons", "/usr/local/share/icons")
 

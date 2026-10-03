@@ -60,7 +60,8 @@ def shipped_ids(stage):
         if "metadata.json" not in fs:
             continue
         try:
-            pid = json.load(open(os.path.join(dp, "metadata.json"), encoding="utf-8"))["KPlugin"]["Id"]
+            with open(os.path.join(dp, "metadata.json"), encoding="utf-8") as fh:
+                pid = json.load(fh)["KPlugin"]["Id"]
         except (ValueError, KeyError, TypeError, OSError):
             continue                      # not a KPackage metadata file
         d = os.path.basename(dp)
@@ -84,7 +85,8 @@ def referenced_ids(stage):
             if os.path.islink(p) or not os.path.isfile(p):
                 continue
             try:
-                text = open(p, encoding="utf-8").read()
+                with open(p, encoding="utf-8") as fh:
+                    text = fh.read()
             except (UnicodeDecodeError, OSError):
                 continue
             for m in ID_RE.finditer(text):
@@ -121,17 +123,19 @@ def _selftest():
     def pkg(stage, kind, d, pid):
         p = os.path.join(stage, PLASMA, kind, d)
         os.makedirs(p)
-        json.dump({"KPlugin": {"Id": pid}}, open(os.path.join(p, "metadata.json"), "w"))
+        with open(os.path.join(p, "metadata.json"), "w") as fh:
+            json.dump({"KPlugin": {"Id": pid}}, fh)
 
     with tempfile.TemporaryDirectory() as s:
         pkg(s, "wallpapers", "org.el.openglo.live", "org.el.openglo.live")
         pkg(s, "plasmoids", "org.el.segclock", "org.el.renamed")          # a renamed package
         lf = os.path.join(s, PLASMA, "look-and-feel", "x", "contents", "layouts")
         os.makedirs(lf)
-        open(os.path.join(lf, "org.kde.plasma.desktop-layout.js"), "w").write(
-            'd.wallpaperPlugin = "org.el.openglo.live";\n'
-            'd.addWidget("org.el.openglo.live.elazure");\n'            # the f521e6f dangling id
-            'p.addWidget("org.kde.plasma.digitalclock");\n')
+        with open(os.path.join(lf, "org.kde.plasma.desktop-layout.js"), "w") as fh:
+            fh.write(
+                'd.wallpaperPlugin = "org.el.openglo.live";\n'
+                'd.addWidget("org.el.openglo.live.elazure");\n'            # the f521e6f dangling id
+                'p.addWidget("org.kde.plasma.digitalclock");\n')
         m = measure(s)
         ship = {x["id"]: x["dir_matches"] for x in m["shipped"]}
         chk("a package whose Id is not its directory is SEEN", ship.get("org.el.renamed"), False)
@@ -143,10 +147,11 @@ def _selftest():
         pkg(s, "wallpapers", "org.el.openglo.live", "org.el.openglo.live")
         tb = os.path.join(s, SHARE, "kwin", "tabbox", "org.el.taskswitch")
         os.makedirs(tb)
-        json.dump({"KPlugin": {"Id": "org.el.taskswitch"}}, open(os.path.join(tb, "metadata.json"), "w"))
+        with open(os.path.join(tb, "metadata.json"), "w") as fh:
+            json.dump({"KPlugin": {"Id": "org.el.taskswitch"}}, fh)
         os.makedirs(os.path.join(s, "usr", "bin"))
-        open(os.path.join(s, "usr", "bin", "apply"), "w").write(
-            'PID="org.el.openglo.$(echo "$V" | tr A-Z a-z)"\n')
+        with open(os.path.join(s, "usr", "bin", "apply"), "w") as fh:
+            fh.write('PID="org.el.openglo.$(echo "$V" | tr A-Z a-z)"\n')
         m = measure(s)
         chk("a kwin task switcher outside usr/share/plasma is SHIPPED",
             "org.el.taskswitch" in {x["id"] for x in m["shipped"]}, True)

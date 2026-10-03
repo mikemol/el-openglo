@@ -169,7 +169,7 @@ def main(argv):
         print(f"{'variant':16s} {'surface':22s} {'lit':>13s} {'ghost':>13s} {'alpha':>6s}   vs palette")
         for vid, name, lo, go, ao, (sl, sg, sa), (pl, pg, pa) in rows:
             flags = ("" if lo else " LIT≠") + ("" if go else " GHOST≠") + ("" if ao else " ALPHA≠")
-            print(f"{vid:16s} {name:22s} {str(sl):>13s} {str(sg):>13s} {str(sa):>6s}   "
+            print(f"{vid:16s} {name:22s} {sl!s:>13s} {sg!s:>13s} {sa!s:>6s}   "
                   f"{pl} {pg} {pa}{flags}")
         return 0
     bad = [r for r in rows if not (r[3] and r[4])]
@@ -224,7 +224,7 @@ def _selftest():
         check("a surface drawing its own ghost is seen", main(["x"]), 1)
         globals()["measure"] = lambda: [("V", "s", True, True, False, (0, 0, 0), (0, 0, 0))]
         check("a surface drawing at its own alpha is seen", main(["x"]), 1)
-        globals()["measure"] = lambda: []
+        globals()["measure"] = list
         check("an empty population REFUSES", main(["x"]), 2)
     finally:
         globals()["measure"] = saved

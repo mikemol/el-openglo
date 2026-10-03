@@ -34,6 +34,7 @@ plain roles are the ghost relation on three pairs (relations.md §3b/§3d):
 import json
 import os
 import sys
+
 from emitters import atomic_write
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -74,9 +75,9 @@ def _rgb(hexs):
 
 def roles(variant):
     """{role: [r, g, b]} — parse_scheme's roles plus the three solved composites."""
-    import make_preview as MP
-    import ghost_solve as GS
     import cvd_gate as C
+    import ghost_solve as GS
+    import make_preview as MP
     import palette_graph as PG
     c = MP.parse_scheme(variant)
     out = {k: _rgb(v) for k, v in c.items() if isinstance(v, str) and v.startswith("#")}

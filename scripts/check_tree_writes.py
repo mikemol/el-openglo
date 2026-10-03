@@ -55,7 +55,8 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # fixture repo's git was handed main's index. And a check run in the scratch copy
 # would inherit them too, reading MAIN's index while certifying the copy. So the
 # pins are scrubbed once, for this process and every child.
-import git_tracked  # noqa: E402  (the pin list is declared once, there)
+import git_tracked
+
 for _pin in git_tracked.PINS:
     os.environ.pop(_pin, None)
 WORKLIST = os.path.join("catalog", "worklist")
@@ -137,9 +138,9 @@ def make_copy(src, parent):
 
 def drop_copy(src, copy):
     subprocess.run(["git", "-C", src, "worktree", "remove", "--force", copy],
-                   capture_output=True)
+                   capture_output=True, check=False)
     shutil.rmtree(copy, ignore_errors=True)
-    subprocess.run(["git", "-C", src, "worktree", "prune"], capture_output=True)
+    subprocess.run(["git", "-C", src, "worktree", "prune"], capture_output=True, check=False)
 
 
 def restore(src, copy, paths):
@@ -181,7 +182,7 @@ def measure(root=ROOT, only=None, timeout=TIMEOUT, population=None):
                 before = fingerprint(copy, paths)
                 try:
                     r = subprocess.run(cmd, shell=True, cwd=cwd, env=env, capture_output=True,
-                                       text=True, timeout=timeout)
+                                       text=True, timeout=timeout, check=False)
                     rc = r.returncode
                 except subprocess.TimeoutExpired:
                     rc = None
@@ -283,9 +284,11 @@ def _selftest():
         see("a missing command is WITHHELD, not admitted",
             [w["key"] for w in doc["withheld"]] == ["NOCMD"])
         see("the population is counted", doc["claims"] == 4 and doc["measured"] == 4)
-        see("the real fixture tree was not written",
-            open(os.path.join(repo, "out.txt")).read() == "A\n")
-        wl = subprocess.run(["git", "-C", repo, "worktree", "list"], capture_output=True, text=True).stdout
+        with open(os.path.join(repo, "out.txt")) as fh:
+            out_txt = fh.read()
+        see("the real fixture tree was not written", out_txt == "A\n")
+        wl = subprocess.run(["git", "-C", repo, "worktree", "list"], capture_output=True,
+                            text=True, check=False).stdout
         see("the scratch worktree was removed", len(wl.splitlines()) == 1)
     print("check_tree_writes selftest:", "PASS" if ok else "FAIL")
     return ok

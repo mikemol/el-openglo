@@ -26,7 +26,7 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
-import qt_sandbox as QT  # noqa: E402
+import qt_sandbox as QT
 
 QML = QT.QML
 
@@ -39,9 +39,11 @@ def run():
     if not os.path.isfile(QML):
         return None
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "update.js"), "w").write(script)
+        with open(os.path.join(td, "update.js"), "w") as fh:
+            fh.write(script)
         h = os.path.join(td, "harness.qml")
-        open(h, "w").write(harness)
+        with open(h, "w") as fh:
+            fh.write(harness)
         # the harness reads update.js through XMLHttpRequest, which Qt 6 refuses on
         # file:// unless told otherwise
         env = dict(os.environ, QML_XHR_ALLOW_FILE_READ="1")

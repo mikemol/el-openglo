@@ -179,9 +179,19 @@ def _drop_bytecode(path):
                 pass
 
 
+def _read_bytes(path):
+    with open(path, "rb") as fh:
+        return fh.read()
+
+
+def _write_bytes(path, data):
+    with open(path, "wb") as fh:
+        fh.write(data)
+
+
 def _run(argv):
     r = subprocess.run([sys.executable] + [os.path.join(ROOT, argv[0])] + argv[1:],
-                       capture_output=True, text=True, cwd=ROOT)
+                       capture_output=True, text=True, cwd=ROOT, check=False)
     return r.returncode, (r.stdout + r.stderr).strip().splitlines()[-1:] or [""]
 
 
@@ -189,12 +199,12 @@ def _perturb(path, how):
     """(bytes, description) — the perturbed source, or (None, why) if it cannot be
     made. `how` is either a paperkit SPEC string (.py only) or an (old, new)
     substring pair for a non-.py artifact."""
-    original = open(path, "rb").read()
+    original = _read_bytes(path)
     if isinstance(how, str):
         if not os.path.isfile(MUTATE):
             return None, f"paperkit's mutate.py is not at {MUTATE} on this host"
         r = subprocess.run([sys.executable, MUTATE, path, how],
-                           capture_output=True, text=True, cwd=ROOT)
+                           capture_output=True, text=True, cwd=ROOT, check=False)
         if r.returncode != 0:
             # ⚑ LOUD UPSTREAM, WITHHELD HERE. mutate.py raises on a spec that
             # names no such element, which is exactly the miss this tool reports
@@ -221,7 +231,7 @@ def probe(p):
     path = os.path.join(ROOT, rel)
     if not os.path.isfile(path):
         return {"name": name, "withheld": f"{rel} is not in the tree"}
-    original = open(path, "rb").read()
+    original = _read_bytes(path)
     # ⚑ A PERTURBATION THAT CHANGES NOTHING GRADES NOTHING. Whether the mutation
     # could be made at all is decided BEFORE the check is run, so an unapplied
     # corruption reports `withheld` rather than a green that reads as blindness.
@@ -230,11 +240,11 @@ def probe(p):
         return {"name": name, "withheld": f"{rel}: {how_desc}"}
     rc_before, out_before = _run(argv)
     try:
-        open(path, "wb").write(mutated)
+        _write_bytes(path, mutated)
         _drop_bytecode(path)
         rc_after, out_after = _run(argv)
     finally:
-        open(path, "wb").write(original)
+        _write_bytes(path, original)
         _drop_bytecode(path)
     return {"name": name, "check": argv[0], "input": rel,
             "perturbation": how_desc,
@@ -288,19 +298,18 @@ def _selftest():
     chk("and the two paths are distinguishable",
         (isinstance(PROBES[0][3], tuple), isinstance(PROBES[2][3], str)), (True, True))
     # and the file survives every path
-    before = open(os.path.join(ROOT, "EL-Amber.colors"), "rb").read()
+    before = _read_bytes(os.path.join(ROOT, "EL-Amber.colors"))
     probe(PROBES[0])
     chk("the input is restored after a probe",
-        open(os.path.join(ROOT, "EL-Amber.colors"), "rb").read(), before)
+        _read_bytes(os.path.join(ROOT, "EL-Amber.colors")), before)
     # ⚑ AND THE MODULE IS RESTORED, NOT ONLY THE FILE. A same-length swap inside
     # one second leaves a .pyc that (mtime, size) validation accepts, so the
     # corrupted bytecode outlives the corrupted source — a contamination path
     # between probes that no per-probe assertion about the FILE can see.
-    roster = os.path.join(ROOT, "emitters.py")
     probe(PROBES[2])
     import subprocess as _sp
     after = _sp.run([sys.executable, os.path.join(ROOT, "emitters.py"), "--drift"],
-                    capture_output=True, text=True, cwd=ROOT)
+                    capture_output=True, text=True, cwd=ROOT, check=False)
     chk("the module is restored too, not just the file", after.returncode, 0)
     print("check_discriminates selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1

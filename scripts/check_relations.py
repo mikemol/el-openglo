@@ -33,16 +33,16 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import palette_graph as PG                                        # noqa: E402
-import palette_relations as PR                                    # noqa: E402
+import palette_graph as PG
+import palette_relations as PR
 
 _GCALC = os.path.expanduser("~/github/gcalculus")
 try:
     if os.path.isdir(_GCALC):
         sys.path.insert(0, _GCALC)
-    from gcalc import solver as SOLVER
     from gcalc import carrier as CARRIER
-except Exception:                                                 # pragma: no cover
+    from gcalc import solver as SOLVER
+except ImportError:                                               # pragma: no cover
     SOLVER = CARRIER = None
 
 KINDS = ("floor", "ceiling", "balance", "arrow")

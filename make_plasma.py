@@ -9,11 +9,16 @@ Emits plasma/desktoptheme/<id>/ per grid cell. Checklist gate runs on every
 generation: 9-part frames + mask frames present, colors file byte-derived
 from make_schemes.emit_colors minus [ColorEffects:*], metadata Id == folder.
 Violating themes are deleted, not shipped."""
-import os, sys, json, shutil, re
+import json
+import os
+import re
+import shutil
+import sys
 import xml.etree.ElementTree as ET
+
+from emitters import LICENSE_SPDX, atomic_write
 from make_schemes import GRID, emit_colors
-from emitters import LICENSE_SPDX
-from emitters import atomic_write
+
 
 def hexc(s):
     r, g, b = s.split(",")
@@ -100,10 +105,13 @@ def check(path, t, dark):
         for pos in POS:
             if pos not in ids: errs.append(f"{rel}: missing {pos}")
             if f"mask-{pos}" not in ids: errs.append(f"{rel}: missing mask-{pos}")
-    md = json.load(open(os.path.join(path, "metadata.json")))
+    with open(os.path.join(path, "metadata.json")) as fh:
+        md = json.load(fh)
     if md["KPlugin"]["Id"] != t["id"]: errs.append("metadata Id != folder")
     want = colors_file(t, dark)
-    if open(os.path.join(path, "colors")).read() != want:
+    with open(os.path.join(path, "colors")) as fh:
+        have = fh.read()
+    if have != want:
         errs.append("colors file not byte-derived from emit_colors")
     if "[ColorEffects" in want: errs.append("ColorEffects sections not stripped")
     return errs
@@ -111,7 +119,7 @@ def check(path, t, dark):
 if __name__ == "__main__":
     shutil.rmtree("plasma", ignore_errors=True)
     failures = {}
-    for (ph, mode), (t, dark) in GRID.items():
+    for (t, dark) in GRID.values():
         path = f"plasma/desktoptheme/{t['id']}"
         for rel, builder in FILES.items():
             os.makedirs(os.path.dirname(os.path.join(path, rel)), exist_ok=True)

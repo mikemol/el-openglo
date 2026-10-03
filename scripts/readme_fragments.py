@@ -59,8 +59,9 @@ def roster_tsv():
 def palette_tsv():
     """Columns are the ROSTER in GRID's declared order (variant_roster.ordered()), never
     render_screens.VARIANTS — check_readme compares that list to the roster (R4)."""
-    import make_preview as MP
     import variant_roster as VR
+
+    import make_preview as MP
     vs = VR.ordered()
     schemes = {v: MP.parse_scheme(v) for v in vs}
     roles = [k for k, val in schemes[vs[0]].items() if isinstance(val, str)]
@@ -157,9 +158,10 @@ def _selftest():
         print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
         ok = ok and got == want
 
-    import emitters as E
-    import render_screens as RS
     import check_symbol as CS
+    import render_screens as RS
+
+    import emitters as E
     gen = generate()
     chk("every roster module is a row", all(f"\n{m}\t" in gen["roster.tsv"] for m in E.ROLES), True)
     import variant_roster as VR

@@ -125,8 +125,8 @@ def still(variant, u, out, frames):
     os.makedirs(frames, exist_ok=True)
     res = ML.run(variant=variant, end_ms=END_MS, grab=out, frames=frames, timeline=timeline(u))
     if res is not None:          # kept beside the frames, so --replay can re-read them
-        json.dump({k: res[k] for k in ("width", "samples", "frames") if k in res},
-                  open(os.path.join(frames, "result.json"), "w"))
+        with open(os.path.join(frames, "result.json"), "w") as fh:
+            json.dump({k: res[k] for k in ("width", "samples", "frames") if k in res}, fh)
     return res
 
 
@@ -134,7 +134,8 @@ def replay(frames, still_png, variant):
     """The temporal facts, recomputed from a kept frame series (--stills) — no Qt run."""
     ground = ground_of(variant)
     ink = read_still(still_png, ground)
-    res = json.load(open(os.path.join(frames, "result.json")))
+    with open(os.path.join(frames, "result.json")) as fh:
+        res = json.load(fh)
     return temporal_facts(res, frames, ground, ink["_grid"])
 
 
@@ -423,9 +424,10 @@ def pause_facts(res):
 def charset_facts():
     """The registry the marquee ships, and per LETTER of the declared charset what the
     shipped lookup rasterises at each urgency; None when the runner is absent."""
+    import check_marquee_body as MB
+
     import display_types as DT
     import make_notify_marquee as NM
-    import check_marquee_body as MB
     font_path = NM.matrix_font()
     reg = json.loads(DT.as_qml_js(NM.MATRIX_DISPLAY, font_path=font_path))
     font = reg["font" + reg["displays"][NM.MATRIX_DISPLAY]["font"]]
@@ -448,8 +450,10 @@ def charset_facts():
 
 def measure(only=None, stills_dir=None):
     import tempfile
-    import make_preview
+
     import check_marquee_live as ML
+
+    import make_preview
     if not os.path.isfile(ML.QML):
         return {"cases": [], "withheld": [{"variant": "*", "reason": "no qml runner on this host"}],
                 "views": list(VIEWS), "charset": None}
@@ -698,6 +702,7 @@ def _selftest():
         shape_difference(lit_set(normal["gray"]), np.roll(lit_set(normal["gray"]), 1, axis=1))[0], 0.0)
     # the frame arm, on a synthetic series: 4 Hz edges over 40 ms samples (2 Hz flash)
     import tempfile
+
     from PIL import Image
     with tempfile.TemporaryDirectory() as td:
         lit_img = synth_board(synth_coverage(n=17, start=0))

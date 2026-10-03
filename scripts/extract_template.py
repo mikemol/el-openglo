@@ -80,7 +80,8 @@ def main(argv):
         if not os.path.isfile(path):
             print(f"extract_template: REFUSED — no template at {name}", file=sys.stderr)
             return 1
-        on_disk = open(path, encoding="utf-8").read()
+        with open(path, encoding="utf-8") as fh:
+            on_disk = fh.read()
         if on_disk != text:
             print(f"extract_template: DIFFERS — {module}.{accessor} and {name} "
                   f"no longer agree ({len(text)} vs {len(on_disk)} bytes)",
@@ -91,7 +92,8 @@ def main(argv):
         return 0
 
     os.makedirs(TEMPLATES, exist_ok=True)
-    open(path, "w", encoding="utf-8").write(text)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
     print(f"extract_template: wrote {name} ({len(text)} bytes) "
           f"from {module}.{accessor}")
     return 0

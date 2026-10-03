@@ -66,7 +66,7 @@ def _env(root):
 def source(root=ROOT):
     """'git' when `root` is a git work-tree TOP, else 'walk' (the Δ sandbox)."""
     r = subprocess.run(["git", "-C", root, "rev-parse", "--show-toplevel"],
-                       capture_output=True, text=True, env=_env(root))
+                       capture_output=True, text=True, env=_env(root), check=False)
     top = r.stdout.strip()
     return "git" if r.returncode == 0 and top and os.path.realpath(top) == os.path.realpath(root) else "walk"
 

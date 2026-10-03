@@ -41,7 +41,7 @@ def _grid_tokens():
 
 def _rgb_hex(v):
     r, g, b = (int(p) for p in str(v).split(","))
-    return "#%02x%02x%02x" % (r, g, b)
+    return f"#{r:02x}{g:02x}{b:02x}"
 
 
 def expected_palette(t):
@@ -84,7 +84,8 @@ def case(vid, t, out_dir, fresh):
     path = os.path.join(out_dir, f"{vid}.json")
     if not os.path.exists(path):
         return {"variant": vid, "present": False}
-    raw = open(path, encoding="utf-8").read()
+    with open(path, encoding="utf-8") as fh:
+        raw = fh.read()
     try:
         doc = json.loads(raw)
     except ValueError as e:
@@ -100,8 +101,9 @@ def case(vid, t, out_dir, fresh):
 
 
 def measure(out_dir=None):
-    import make_android_clock as MA
     import variant_roster
+
+    import make_android_clock as MA
     out_dir = out_dir or MA.OUT_DIR
     roster = list(variant_roster.ids())
     toks, fresh = _grid_tokens(), MA.documents()
@@ -115,6 +117,7 @@ def measure(out_dir=None):
 def _selftest():
     import shutil
     import tempfile
+
     import make_android_clock as MA
     ok = True
 
@@ -126,27 +129,32 @@ def _selftest():
     docs = MA.documents()
     with tempfile.TemporaryDirectory() as td:
         for name, text in docs.items():
-            open(os.path.join(td, name), "w", encoding="utf-8").write(text)
+            with open(os.path.join(td, name), "w", encoding="utf-8") as fh:
+                fh.write(text)
         m = measure(td)
         good = all(c["present"] and c["current"] and not c["palette_mismatch"] and not c["geometry_mismatch"]
                    and not c["missing_keys"] and not c["digit_gaps"] for c in m["cases"])
         chk("a fresh tree is present, current and traces everywhere", (good, m["orphans"]), (True, []))
         v = m["roster"][0]
         p = os.path.join(td, f"{v}.json")
-        d = json.load(open(p, encoding="utf-8"))
+        with open(p, encoding="utf-8") as fh:
+            d = json.load(fh)
         d["palette"]["lit"] = "#ff00ff"
         d["geometry"]["digSegs"]["8"] = ""
         d["geometry"]["metrics"]["pitch"] = 9.9
         del d["sources"]
-        open(p, "w", encoding="utf-8").write(json.dumps(d))
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(d))
         c = measure(td)["cases"][0]
         chk("a wrong lit colour, a blank digit, a moved metric and a dropped section are each seen",
             (c["palette_mismatch"], c["digit_gaps"], c["geometry_mismatch"], c["missing_keys"], c["current"]),
             (["lit"], ["8"], ["geometry.digSegs", "geometry.metrics"], ["sources"], False))
-        open(p, "w", encoding="utf-8").write("{")
+        with open(p, "w", encoding="utf-8") as fh:
+            fh.write("{")
         chk("an unparseable file is a parse error, not a pass", measure(td)["cases"][0]["parse_error"] is not None, True)
         os.remove(p)
-        open(os.path.join(td, "stray.json"), "w").write("{}")
+        with open(os.path.join(td, "stray.json"), "w") as fh:
+            fh.write("{}")
         m = measure(td)
         chk("a missing file is absent and a stray file is an orphan",
             (m["cases"][0]["present"], m["orphans"]), (False, ["stray.json"]))

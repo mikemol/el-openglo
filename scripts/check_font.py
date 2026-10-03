@@ -23,7 +23,6 @@ WEAKNESS. fontconfig and a text shaper are not run; whether a desktop picks the
 family name up is ⊕VER. The matrix font is uppercase+digits (the 5x8 descender
 table is KNOWN-LOST, ⊕DOT-FONT-DESC).
 """
-import io
 import os
 import sys
 import xml.etree.ElementTree as ET

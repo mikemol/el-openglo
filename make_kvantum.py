@@ -12,28 +12,35 @@ config override. No reliance on missing-element fallback.
 Gate on every generation: kvconfig parses; every element referenced by the
 config resolves in the SVG; the appended family is state/part complete; no
 substrate accent hex survives recoloring. Violating themes deleted."""
-import os, re, sys, shutil, colorsys, configparser
-import xml.etree.ElementTree as ET
-from make_schemes import GRID
-from emitters import atomic_write
+import colorsys
+import configparser
+import os
+import re
+import shutil
+import sys
 
-SUB_CFG = open("/tmp/KvFlat.kvconfig").read()
-SUB_SVG = open("/tmp/KvFlat.svg").read()
+from emitters import atomic_write
+from make_schemes import GRID
+
+with open("/tmp/KvFlat.kvconfig") as _fh:
+    SUB_CFG = _fh.read()
+with open("/tmp/KvFlat.svg") as _fh:
+    SUB_SVG = _fh.read()
 
 def rgbT(t, k): return tuple(int(x) for x in t[k].split(","))
-def hexs(c): return "#%02x%02x%02x" % tuple(c)
+def hexs(c): return "#{:02x}{:02x}{:02x}".format(*c)
 
 ACCENTS = {  # KvFlat chromatic tokens -> our token keys
     "#3f67a5": "sel_bg", "#2e4c7a": "hover", "#2EB8E6": "link", "#FF6666": "neg",
 }
 
 def make_mapper(t, lit):
-    h_p, s_p, _ = colorsys.rgb_to_hls(*[v/255 for v in rgbT(t, "focus")])
+    h_p, _s_p, _ = colorsys.rgb_to_hls(*[v/255 for v in rgbT(t, "focus")])
     def gray_map(v):  # v in 0..1 (substrate lightness)
         L = (0.96 - 0.86 * v) if lit else (v * 0.92 + 0.02)
         s = 0.10 + 0.14 * (1 - abs(2*L - 1))
         r, g, b = colorsys.hls_to_rgb(h_p, L, s)
-        return "#%02x%02x%02x" % (round(r*255), round(g*255), round(b*255))
+        return f"#{round(r*255):02x}{round(g*255):02x}{round(b*255):02x}"
     def map_hex(m):
         hx = m.group(0)
         low = hx.lower()
@@ -68,7 +75,7 @@ def build(t, lit):
     svg = svg.replace("</svg>", elprogress_family(t) + "\n</svg>")
     cfg = re.sub(r"#[0-9a-fA-F]{6}", mapper, SUB_CFG)
     cfg = cfg.replace("=white", "=" + hexs(rgbT(t, "fg")))
-    cfg = cfg.replace("author=Tsu Jan", f"author=EL watch themes (KvFlat substrate by Tsu Jan)")
+    cfg = cfg.replace("author=Tsu Jan", "author=EL watch themes (KvFlat substrate by Tsu Jan)")
     cfg = cfg.replace("comment=A dark flat theme inspired by Breeze",
                       f"comment={t['name']} — EL phosphor widgets on the KvFlat substrate")
     cfg = re.sub(r"\[ProgressbarContents\]\ninherits=PanelButtonCommand\nframe=true\n"
@@ -84,14 +91,14 @@ def build(t, lit):
           "button.text.color": "fg", "disabled.text.color": "fg_in", "tooltip.text.color": "fg_act",
           "highlight.text.color": "sel_fg", "link.color": "link", "link.visited.color": "visited"}
     for k, tok in gc.items():
-        cfg = re.sub(rf"^{re.escape(k)}=.*$", f"{k}={hexs(rgbT(t, tok))}", cfg, flags=re.M)
+        cfg = re.sub(rf"^{re.escape(k)}=.*$", f"{k}={hexs(rgbT(t, tok))}", cfg, flags=re.MULTILINE)
     return cfg, svg
 
 def check(cfg, svg, t):
     errs = []
     cp = configparser.ConfigParser(strict=False, interpolation=None); cp.optionxform = str
     try: cp.read_string(cfg)
-    except Exception as e: errs.append(f"kvconfig parse: {e}"); return errs
+    except configparser.Error as e: errs.append(f"kvconfig parse: {e}"); return errs
     ids = set(re.findall(r'id="([^"]+)"', svg))
     for name in set(re.findall(r"element=([A-Za-z-]+)", cfg)):
         if f"{name}-normal" not in ids and not any(i.startswith(name + "-normal-") for i in ids):
@@ -107,7 +114,7 @@ def check(cfg, svg, t):
 if __name__ == "__main__":
     shutil.rmtree("kvantum", ignore_errors=True)
     failures = {}
-    for (ph, mode), (t, dark) in GRID.items():
+    for t, _dark in GRID.values():
         lit = t["tt_is_sel"]
         cfg, svg = build(t, lit)
         errs = check(cfg, svg, t)

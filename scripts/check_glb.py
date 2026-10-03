@@ -69,6 +69,16 @@ def flat_nodes(doc):
     return out
 
 
+def _read_bytes(path):
+    with open(path, "rb") as fh:
+        return fh.read()
+
+
+def _write_bytes(path, data):
+    with open(path, "wb") as fh:
+        fh.write(data)
+
+
 def measure(out_dir=None):
     import make_glb as MG
     out_dir = out_dir or MG.OUT_DIR
@@ -79,7 +89,7 @@ def measure(out_dir=None):
         if not os.path.exists(path):
             cases.append({"file": name, "present": False})
             continue
-        raw = open(path, "rb").read()
+        raw = _read_bytes(path)
         doc, why = parse(raw)
         case = {"file": name, "present": True, "parse_error": why, "current": raw == data,
                 "want": sorted(want), "nodes": [], "flat": []}
@@ -91,7 +101,7 @@ def measure(out_dir=None):
     for name, data in sorted(MG.extras().items()):
         path = os.path.join(out_dir, name)
         extras.append({"file": name, "present": os.path.exists(path),
-                       "current": os.path.exists(path) and open(path, "rb").read() == data})
+                       "current": os.path.exists(path) and _read_bytes(path) == data})
     tables = MG.glyph_tables()
     files = {"5x7": "el-matrix-5x7.glb", **{f: f"el-seg{f}.glb" for f in MG.SEG_FORMATS}}
     order = sorted(f for f, t in tables.items() if t["segments"] != fresh[files[f]][0])
@@ -113,12 +123,13 @@ def shader_verdict(path):
     exe = shutil.which("glslangValidator")
     if not exe:
         return {"ok": None, "why": "glslangValidator not installed"}
-    r = subprocess.run([exe, "-S", "frag", path], capture_output=True, text=True)
+    r = subprocess.run([exe, "-S", "frag", path], capture_output=True, text=True, check=False)
     return {"ok": r.returncode == 0, "why": (r.stdout + r.stderr).strip()[-400:]}
 
 
 def _selftest():
     import tempfile
+
     import make_glb as MG
     ok = True
 
@@ -128,7 +139,7 @@ def _selftest():
         ok = ok and got == want
 
     docs = MG.documents()
-    nodes, data = docs["el-seg7.glb"]
+    _nodes, data = docs["el-seg7.glb"]
     doc, why = parse(data)
     chk("a fresh 7-seg mesh parses, with 7 named nodes and none flat",
         (why, sorted(n["name"] for n in doc["nodes"]), flat_nodes(doc)), (None, sorted("abcdefg"), []))
@@ -136,12 +147,12 @@ def _selftest():
     chk("a truncated file is seen", parse(data[:-4])[1] is not None, True)
     with tempfile.TemporaryDirectory() as td:
         for name, (_n, d) in docs.items():
-            open(os.path.join(td, name), "wb").write(d)
+            _write_bytes(os.path.join(td, name), d)
         m = measure(td)
         chk("a fresh tree is present and current everywhere",
             all(c["present"] and c["current"] and c["nodes"] == c["want"] for c in m["cases"]), True)
         os.remove(os.path.join(td, "el-seg16.glb"))
-        open(os.path.join(td, "el-seg22.glb"), "wb").write(docs["el-seg7.glb"][1])
+        _write_bytes(os.path.join(td, "el-seg22.glb"), docs["el-seg7.glb"][1])
         m = {c["file"]: c for c in measure(td)["cases"]}
         chk("a missing file is absent; a wrong file is stale with the wrong nodes",
             (m["el-seg16.glb"]["present"], m["el-seg22.glb"]["current"], m["el-seg22.glb"]["nodes"] == m["el-seg22.glb"]["want"]),

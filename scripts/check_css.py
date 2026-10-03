@@ -90,7 +90,9 @@ def measure(text=None):
            "cases": [{"id": vid, "expected": props, "got": None} for vid, props in exp.items()]}
     if not present:
         return out
-    text = open(CSS, encoding="utf-8").read() if text is None else text
+    if text is None:
+        with open(CSS, encoding="utf-8") as fh:
+            text = fh.read()
     try:
         parsed = _parse(text)
     except ImportError:

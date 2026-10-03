@@ -63,7 +63,7 @@ def read_pips(png, height=40):
 
 def measure(variants=None):
     import render_qml as RQ
-    import variant_roster                   # the declared roster (W61 B2), not a typed tuple
+    import variant_roster  # the declared roster (W61 B2), not a typed tuple
     rows = []
     variants = variant_roster.ids() if variants is None else variants
     for v in variants:

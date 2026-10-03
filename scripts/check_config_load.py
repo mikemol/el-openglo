@@ -94,8 +94,10 @@ def measure(runner=None, pages=PAGES):
             out["pages"].append({"page": label, "withheld": f"{mod}.{acc} raised {type(e).__name__}: {e}"})
             continue
         with tempfile.TemporaryDirectory() as d:
-            open(os.path.join(d, label), "w").write(page)
-            open(os.path.join(d, "wrap.qml"), "w").write(WRAP % label)
+            with open(os.path.join(d, label), "w") as fh:
+                fh.write(page)
+            with open(os.path.join(d, "wrap.qml"), "w") as fh:
+                fh.write(WRAP % label)
             import qt_sandbox as QT
             try:
                 r = (runner or QT.run)([QT.QML, os.path.join(d, "wrap.qml")], mesa=True, capture_output=True,

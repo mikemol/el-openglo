@@ -110,7 +110,7 @@ TOKENS = (
 
 
 def _hex(rgb):
-    return "#%02x%02x%02x" % tuple(int(x) for x in rgb)
+    return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in rgb))
 
 
 def _rgb(h):
@@ -242,8 +242,10 @@ def vsixmanifest():
 
 def vsix_entries(vs=None):
     """{zip path: text} — the layout the Marketplace documents (the .vsix is an OPC zip)."""
+    with open(os.path.join(ROOT, "LICENSE"), encoding="utf-8") as fh:
+        license_text = fh.read()
     out = {"[Content_Types].xml": CONTENT_TYPES, "extension.vsixmanifest": vsixmanifest(),
-           "extension/LICENSE.txt": open(os.path.join(ROOT, "LICENSE"), encoding="utf-8").read()}
+           "extension/LICENSE.txt": license_text}
     for rel, text in files(vs).items():
         out["extension/" + rel] = text
     return out

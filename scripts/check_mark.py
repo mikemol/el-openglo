@@ -84,7 +84,7 @@ def _lines_git(root):
     tell an allowed attribution from a disallowed self-naming in the same file —
     and one allowed line would then excuse every other occurrence around it."""
     r = subprocess.run(["git", "-C", root, "grep", "-Iin", "-e", MARK, "--", "."],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, check=False)
     # rc 1 = no match; rc >1 = git could not answer (e.g. not a repo).
     if r.returncode > 1:
         return None
@@ -164,6 +164,12 @@ def main(argv):
     return opa_gate.gate("mark")
 
 
+def _write(path, text):
+    """Write `text` to `path` (default text-mode encoding, as the bare open() did)."""
+    with open(path, "w") as fh:
+        fh.write(text)
+
+
 def _selftest():
     """The scan must SEE the mark where it exists, or its all-clear means nothing."""
     import shutil
@@ -185,7 +191,7 @@ def _selftest():
     # ⚑ BOTH PATHS ARE EXERCISED: the walk is the one the Δ sandbox uses (no git
     # there), so testing only the git path would leave the load-bearing branch unproven.
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "planted.txt"), "w").write(f"a {MARK} here\n")
+        _write(os.path.join(td, "planted.txt"), f"a {MARK} here\n")
         m = measure(td)
         check("the walk is used when git cannot answer", m["source"], "walk")
         check("the walk SEES a planted mark", hits(m),
@@ -193,14 +199,14 @@ def _selftest():
         # a worktree copy inside the sandbox is not the tree (2026-09-23)
         wt = os.path.join(td, ".claude", "worktrees", "a")
         os.makedirs(os.path.join(wt, "scripts"))
-        open(os.path.join(wt, "scripts", "git_tracked.py"), "w").write("")
-        open(os.path.join(wt, "planted.txt"), "w").write(f"a {MARK} here\n")
+        _write(os.path.join(wt, "scripts", "git_tracked.py"), "")
+        _write(os.path.join(wt, "planted.txt"), f"a {MARK} here\n")
         check("the walk does NOT descend a nested copy of the tree", list(hits(measure(td))), ["planted.txt"])
         shutil.rmtree(os.path.join(td, ".claude"))
         os.remove(os.path.join(td, "planted.txt"))
-        open(os.path.join(td, "attrib.md"), "w").write(
-            "looks like the Timex Indiglo era: ZnS:Cu phosphor\n")
-        open(os.path.join(td, "selfname.md"), "w").write("welcome to EL-Indiglo, our theme\n")
+        _write(os.path.join(td, "attrib.md"),
+               "looks like the Timex Indiglo era: ZnS:Cu phosphor\n")
+        _write(os.path.join(td, "selfname.md"), "welcome to EL-Indiglo, our theme\n")
         h = hits(measure(td))
         check("an attribution line is SEEN as attribution", h.get("attrib.md", [{}])[0].get("attribution"), True)
         check("self-naming is SEEN as not attribution", h.get("selfname.md", [{}])[0].get("attribution"), False)

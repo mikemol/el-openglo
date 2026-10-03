@@ -27,11 +27,11 @@ start auto pushing as a post-commit hook." Before this, every push waited on the
 Weakness: if the push is refused (the tree-writes gate reddens), the commit stays local
 and the log says why — the refusal is visible only there and in `git status` (ahead N).
 """
-import datetime
 import fcntl
 import os
 import subprocess
 import sys
+import time
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REMOTE, BRANCH = "origin", "main"
@@ -59,7 +59,7 @@ def decide(branch, local, remote, remote_is_ancestor):
 
 
 def log(line):
-    stamp = datetime.datetime.now().isoformat(timespec="seconds")
+    stamp = time.strftime("%Y-%m-%dT%H:%M:%S")      # naive local time, as the log always wrote it
     with open(os.path.join(git_dir(), "auto-push.log"), "a", encoding="utf-8") as fh:
         fh.write(f"{stamp}  {line}\n")
 
@@ -105,7 +105,8 @@ def main(argv):
         busy = is_running(lock_path())
         print(f"auto_push: {'RUNNING (a push holds the lock)' if busy else 'idle (no push in flight)'}")
         return 1 if busy else 0
-    lock = open(os.path.join(git_dir(), "auto-push.lock"), "w")
+    lock = os.fdopen(os.open(os.path.join(git_dir(), "auto-push.lock"),
+                             os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666), "w")
     fcntl.flock(lock, fcntl.LOCK_EX)          # serialise; the newest HEAD is read AFTER the lock
     try:
         fetched = git("fetch", "--quiet", REMOTE, BRANCH)
@@ -157,8 +158,8 @@ def _selftest():
         lp = os.path.join(td, "auto-push.lock")
         chk("an unheld lock reads idle", is_running(lp), False)
         holder = subprocess.Popen([sys.executable, "-c",
-            "import fcntl,sys\nf=open(sys.argv[1],'a')\nfcntl.flock(f,fcntl.LOCK_EX)\n"
-            "print('held',flush=True)\nsys.stdin.readline()", lp],
+            ("import fcntl,sys\nf=open(sys.argv[1],'a')\nfcntl.flock(f,fcntl.LOCK_EX)\n"
+             "print('held',flush=True)\nsys.stdin.readline()"), lp],
             stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
         try:
             chk("the holder took the lock", holder.stdout.readline().strip(), "held")

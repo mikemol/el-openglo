@@ -18,6 +18,7 @@ so make_wallpaper / make_clock render a DISPLAY, not specifically segments.
 This subsumes ⊕SEG*: SegmentDisplay is the segment path unchanged.
 """
 import os
+
 import segment_topology as _seg
 
 

@@ -12,11 +12,15 @@ FrameSvg element IDs, parseable rc/metadata) runs on every generation and
 fails loudly; live render remains for the user's Plasma session.
 Spec: https://develop.kde.org/docs/plasma/aurorae/
 """
-import os, sys, shutil, configparser
+import configparser
+import os
+import shutil
+import sys
 import xml.etree.ElementTree as ET
+
+from emitters import LICENSE_SPDX, atomic_write
 from make_schemes import GRID
-from emitters import LICENSE_SPDX
-from emitters import atomic_write
+
 
 def rgb2hex(s):
     r, g, b = s.split(",")
@@ -139,7 +143,7 @@ if __name__ == "__main__":
     out = "aurorae/themes"
     shutil.rmtree("aurorae", ignore_errors=True)
     failures = {}
-    for (ph, mode), (t, dark) in GRID.items():
+    for (t, dark) in GRID.values():
         path = os.path.join(out, t["id"]); os.makedirs(path, exist_ok=True)
         atomic_write(os.path.join(path, "decoration.svg"), decoration_svg(t))
         for b in GLYPHS:

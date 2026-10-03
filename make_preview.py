@@ -9,7 +9,9 @@ theme identity, so we render it deterministically from the SAME color tokens the
 scheme carries. The preview reads EL-<variant>.colors; it cannot drift from the
 theme because it has no palette of its own.
 """
-import os, cairosvg, re
+import os
+
+import cairosvg
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 W, H = 384, 256  # KDE thumbnail aspect
@@ -24,7 +26,8 @@ def parse_scheme(variant):
     even while something rewrites the tracked EL-*.colors."""
     import schemes_artifact
     path = schemes_artifact.path(variant)
-    text = open(path).read()
+    with open(path) as fh:
+        text = fh.read()
     section = {}
     cur = None
     for line in text.splitlines():
@@ -38,7 +41,7 @@ def parse_scheme(variant):
         v = section.get((sect, key))
         if not v:
             raise KeyError(f"{variant}: missing {sect} {key}")
-        return "#%02x%02x%02x" % tuple(int(x) for x in v.split(","))
+        return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in v.split(",")))
     # window bg (ground), foreground (phosphor text), accent (lit segment)
     return {
         "ground": rgb("[Colors:Window]", "BackgroundNormal")

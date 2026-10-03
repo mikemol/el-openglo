@@ -23,11 +23,14 @@ Honest ceiling (COTYPE session 83): straight-segment templates vs ROUND glyph wa
 phi at partial overlap; round-glyph margins stay slightly negative until curvature-aware
 templates exist (⊕SEG-DOTPRODUCT-TEMPLATES). L (all-straight) already recovers 4/4.
 """
+import itertools
 import math
+
 import numpy as np
 from scipy import ndimage
-import segment_topology as ST
+
 import project_font as PF
+import segment_topology as ST
 
 SEG = {k: ST.endpoints(k) for k in ST.SEG22}
 RES = 64
@@ -55,13 +58,13 @@ CELL_H = 4.0    # the body cell; a 22-seg cell with descenders is 6.0 (BODY + DE
 
 def _rows(H):
     """Grid rows for a cell of height H at the body's sampling pitch (RES per 4)."""
-    return int(round(RES * H / CELL_H))
+    return round(RES * H / CELL_H)
 
 
 def ink_grid(G, res=RES, H=CELL_H):
     """Sample a two-valued ink field to a boolean presence grid over a 2 x H cell
     at RES samples per 2 units across and per 4 units down."""
-    rows = int(round(res * H / CELL_H))
+    rows = round(res * H / CELL_H)
     return np.array([[G(i/res*2.0, j/res*4.0) > 0 for i in range(res+1)]
                      for j in range(rows+1)], dtype=bool)
 
@@ -80,7 +83,7 @@ def region_graph(pres):
     n_holes = ndimage.label(holes)[1]
     bg = ~ndimage.binary_fill_holes(pres)
     n_bg = ndimage.label(bg)[1]
-    return dict(presence=n_pres, holes=n_holes, background=n_bg)
+    return {"presence": n_pres, "holes": n_holes, "background": n_bg}
 
 
 def strata(pres):
@@ -89,8 +92,8 @@ def strata(pres):
     core = ndimage.binary_erosion(pres, iterations=2)
     mantle = (ndimage.binary_dilation(core) & pres) & ~core
     rim = (pres & ~core) & ~mantle
-    return dict(core=core, mantle=mantle, rim=rim,
-                rim_frac=round(rim.sum()/max(1, pres.sum()), 3))
+    return {"core": core, "mantle": mantle, "rim": rim,
+            "rim_frac": round(rim.sum()/max(1, pres.sum()), 3)}
 
 
 # Template half-width as a fraction of the measured stroke width. SOLVED by
@@ -143,7 +146,7 @@ def _band(pts, sw, H=CELL_H):
     3m15 once the arc field arrived, past the gate's timeout; session 79)."""
     GX, GY = _grid(H)
     S = np.zeros(GX.shape, bool)
-    for (qx, qy), (rx, ry) in zip(pts, pts[1:]):
+    for (qx, qy), (rx, ry) in itertools.pairwise(pts):
         ex, ey = rx-qx, ry-qy; L2 = ex*ex+ey*ey or 1e-9
         t = np.clip(((GX-qx)*ex + (GY-qy)*ey)/L2, 0.0, 1.0)
         S |= np.hypot(GX-(qx+t*ex), GY-(qy+t*ey)) < sw

@@ -119,7 +119,8 @@ def _selftest():
         for name, body in (("pk_boom", "raise ValueError('top-level failure')\n"),
                            ("pk_theirs", "import no_such_thirdparty_pkg_x\n"),
                            ("pk_fine", "X = 1\n")):
-            open(os.path.join(td, name + ".py"), "w").write(body)
+            with open(os.path.join(td, name + ".py"), "w") as fh:
+                fh.write(body)
         got = {c["id"]: c for c in measure(td, ("pk_boom", "pk_theirs", "pk_fine", "pk_absent"))["cases"]}
         sys.path.remove(td)
     check("a top-level exception is seen", (got["pk_boom"]["imported"], got["pk_boom"]["error"]),

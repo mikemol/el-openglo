@@ -32,13 +32,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 def referenced():
     """{symbol: [files]} for every ST.<sym> in the tree (the module aliased as ST)."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
-    import git_tracked                 # the tree is what git tracks, not the disk
+    import git_tracked  # the tree is what git tracks, not the disk
     used = {}
     for fn in git_tracked.files(":(glob)*.py", root=ROOT):
         if fn == "segment_topology.py":
             continue
         p = os.path.join(ROOT, fn)
-        text = open(p, encoding="utf-8", errors="replace").read()
+        with open(p, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
         if not re.search(r"import\s+segment_topology\s+as\s+ST\b", text):
             continue
         for m in re.finditer(r"\bST\.([A-Za-z_][A-Za-z0-9_]*)", text):
@@ -51,10 +52,11 @@ def exported():
     p = os.path.join(ROOT, "segment_topology.py")
     if not os.path.exists(p):
         return None
-    text = open(p, encoding="utf-8", errors="replace").read()
-    names = set(re.findall(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=", text, re.M))
-    names |= set(re.findall(r"^def\s+([A-Za-z_][A-Za-z0-9_]*)", text, re.M))
-    names |= set(re.findall(r"^class\s+([A-Za-z_][A-Za-z0-9_]*)", text, re.M))
+    with open(p, encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
+    names = set(re.findall(r"^([A-Za-z_][A-Za-z0-9_]*)\s*=", text, re.MULTILINE))
+    names |= set(re.findall(r"^def\s+([A-Za-z_][A-Za-z0-9_]*)", text, re.MULTILINE))
+    names |= set(re.findall(r"^class\s+([A-Za-z_][A-Za-z0-9_]*)", text, re.MULTILINE))
     return names
 
 

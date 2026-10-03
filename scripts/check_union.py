@@ -43,13 +43,13 @@ def breeze_variables(path=BREEZE_VARS):
     """The set of --names Breeze's variables.css defines, or None if absent."""
     if not os.path.isfile(path):
         return None
-    return set(re.findall(r"^\s*(--[a-z0-9-]+)\s*:", open(path, encoding="utf-8").read(), re.M))
+    return set(re.findall(r"^\s*(--[a-z0-9-]+)\s*:", open(path, encoding="utf-8").read(), re.MULTILINE))
 
 
 def overridden(css_text):
     """{--name: declaration value} from the emitted overrides.css."""
     out = {}
-    for m in re.finditer(r"^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);", css_text, re.M):
+    for m in re.finditer(r"^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);", css_text, re.MULTILINE):
         out[m.group(1)] = m.group(2).strip()
     return out
 
@@ -92,8 +92,9 @@ def measure(breeze_path=BREEZE_VARS):
     never MU.VARIANTS, which is emitted as `roster_drift`)."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_union as MU
     import variant_roster as VR
+
+    import make_union as MU
     roster = VR.ids()
     breeze = breeze_variables(breeze_path)
     return {"roster": roster, "breeze": sorted(breeze) if breeze is not None else None,
@@ -113,8 +114,9 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     if "--map" in argv:
-        import make_union as MU
         import variant_roster as VR
+
+        import make_union as MU
         for v in VR.ids():
             print(v)
             for var, (a, fg, gnd, floor, breeze) in MU.alphas(v).items():

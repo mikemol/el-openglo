@@ -83,6 +83,7 @@ def listing_drift(names, what, roster=None):
 def listings():
     """{what: [variant names]} — the two listings of the `.colors` roster this tree keeps."""
     import git_tracked
+
     import schemes_artifact
     suffix = schemes_artifact.SUFFIX
     return {

@@ -134,9 +134,9 @@ def main(argv):
         if not os.path.isfile(path):
             print(f"check_screens: {path} does not exist", file=sys.stderr)
             return 1
-        import make_preview as MP          # the same two authorities render_screens.measure reads
+        import make_preview as MP  # the same two authorities render_screens.measure reads
         import make_wallpaper_live as WL
-        rows = frame_pairs(path, MP.parse_scheme(variant)["phosphor"], "#%02x%02x%02x" % WL.colors_for(variant)[0])
+        rows = frame_pairs(path, MP.parse_scheme(variant)["phosphor"], "#{:02x}{:02x}{:02x}".format(*WL.colors_for(variant)[0]))
         for fr, shift, mism, total, tear in rows:
             print(f"  frame {fr:3d}: " + ("empty pair" if shift is None else
                   f"shift {shift:+7.3f}  mismatch {mism:6.2f} of {total:6.2f}{'  TEAR' if tear else ''}"))
@@ -174,8 +174,9 @@ def _selftest():
         print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
         ok = ok and got == want
 
-    import render_screens as RS
     import tempfile
+
+    import render_screens as RS
     from PIL import Image
     m = measure()
     chk("the plan is 6 stills x 6 variants", len(m["screens"]), 36)

@@ -47,7 +47,8 @@ def capture(module, accessor, name, args=()):
     path = os.path.join(BASELINES, name)
     if os.path.exists(path):
         raise FileExistsError(path)
-    open(path, "w", encoding="utf-8").write(text)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
     return path, len(text)
 
 

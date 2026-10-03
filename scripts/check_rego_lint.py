@@ -65,7 +65,7 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-import git_tracked  # noqa: E402
+import git_tracked
 
 OPA = shutil.which("opa")
 SCOPE = ("policy/*.rego",)
@@ -75,7 +75,7 @@ FLOAT_VERB = re.compile(r"%[-+ #0]*\d*(?:\.\d+)?[fFeEgG]")
 def parse(path, opa=None):
     """opa's JSON AST of one file (with locations)."""
     r = subprocess.run([opa or OPA, "parse", "--format", "json", "--json-include", "locations", path],
-                       capture_output=True, text=True, timeout=60)
+                       capture_output=True, text=True, timeout=60, check=False)
     if r.returncode != 0:
         raise ValueError(r.stderr.strip()[-300:])
     return json.loads(r.stdout)

@@ -40,8 +40,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import cvd_gate as C                                              # noqa: E402
-import palette_graph as PG                                        # noqa: E402
+import cvd_gate as C
+import palette_graph as PG
 
 
 def variants():
@@ -171,8 +171,8 @@ def _selftest():
     check("ENFORCED is the authority's projection",
           set(C.ENFORCED), set(PG.gate_pairs("enforced")))
 
-    import io
     import contextlib
+    import io
 
     # a variant where every enforced pair is the SAME colour: maximal violation.
     # ⚑ THE FIXTURE MUST COVER SURFACED TOO.  `audit_variant` walks BOTH lists, so a

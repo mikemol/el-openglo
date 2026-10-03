@@ -37,7 +37,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import palette_graph as PG                                        # noqa: E402
+import palette_graph as PG
 
 # gcalc is LOCATED, not vendored — same discipline as paperkit in worklist_gate.py.
 # A missing optional dependency is a SKIP, counted and printed: a fact about the machine,
@@ -47,7 +47,7 @@ try:
     if os.path.isdir(_GCALC):
         sys.path.insert(0, _GCALC)
     from gcalc import solver as SOLVER
-except Exception:                                                 # pragma: no cover
+except ImportError:                                               # pragma: no cover
     SOLVER = None
 
 

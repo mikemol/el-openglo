@@ -95,7 +95,9 @@ def measure(root=ROOT):
                    glob.glob(os.path.join(root, "templates", "*.js")))
     cases = []
     for p in files:
-        cases += calls(open(p, encoding="utf-8").read(), os.path.relpath(p, root))
+        with open(p, encoding="utf-8") as fh:
+            text = fh.read()
+        cases += calls(text, os.path.relpath(p, root))
     return {"files": len(files), "cases": cases}
 
 

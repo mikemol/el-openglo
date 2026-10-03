@@ -23,6 +23,7 @@ def animate_viewport(variant, out_apng, job, want):
     is also refused (0): the old loop silently dropped a failed step (64 of 65 once,
     measured) and the ping-pong was then no longer symmetric."""
     import tempfile
+
     import render_qml as RQ
     from PIL import Image
     s, w, h, key, steps, probe = job

@@ -39,7 +39,7 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 sys.path.insert(0, ROOT)
-from check_projection import find_font   # noqa: E402  one font finder, not two
+from check_projection import find_font
 
 FORMATS = ("22", "7")
 
@@ -112,6 +112,7 @@ def compare_png(chars, out, font=None, cell=220):
     Lit segments are drawn on the unlit lattice, so a missing or extra stroke is seen,
     not described. The operator's `i`/`l` question (2026-09-25: "I would have to see it")."""
     from PIL import Image, ImageDraw
+
     import font_compiler as FC
     import segment_topology as ST
     font = font or find_font()
@@ -191,7 +192,7 @@ def _selftest():
         return ok
     import segment_topology as ST
     auth8 = sorted(ST.glyph16("8"))
-    by = lambda d: {(c["fmt"], c["ch"]): c for c in d["cases"]}  # noqa: E731
+    by = lambda d: {(c["fmt"], c["ch"]): c for c in d["cases"]}
     good = by(measure(font, {"8": auth8}))
     chk("an '8' equal to the authored set is seen as reproduced at 22", good[("22", "8")]["agree"], True)
     chk("... and at 7", good[("7", "8")]["agree"], True)

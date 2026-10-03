@@ -78,8 +78,10 @@ def _selftest():
 
     import tempfile
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "plain.qml"), "w").write("Item { id: root }\n")
-        open(os.path.join(td, "holed.qml"), "w").write("color: $lit\nItem { }\n")
+        with open(os.path.join(td, "plain.qml"), "w") as fh:
+            fh.write("Item { id: root }\n")
+        with open(os.path.join(td, "holed.qml"), "w") as fh:
+            fh.write("color: $lit\nItem { }\n")
         # ⚑ BRACES SURVIVE UNTOUCHED — the property this exists for.
         check("a brace artifact round-trips", render("plain.qml", root=td),
               "Item { id: root }\n")

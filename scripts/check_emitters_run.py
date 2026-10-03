@@ -71,7 +71,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # ⚑ THE ROSTER LIVES IN emitters.py, READ BY THIS GATE AND BY make_deb.stage().
 sys.path.insert(0, ROOT)
-from emitters import ORDER, EXTERNAL  # noqa: E402
+from emitters import EXTERNAL, ORDER
 
 CACHE = ".palette-cache.json"          # untracked, but the solve it saves is ~108 s CPU
 
@@ -150,7 +150,7 @@ def run_in(copy, mod, timeout=600):
     against outputs that never saw it."""
     import schemes_artifact
     r = subprocess.run([sys.executable, os.path.join(copy, mod + ".py")], cwd=copy,
-                       capture_output=True, text=True, timeout=timeout,
+                       capture_output=True, text=True, timeout=timeout, check=False,
                        env=schemes_artifact.with_declared(os.environ, None))
     tail = (r.stderr or r.stdout).strip().splitlines()
     return r.returncode, (tail[-1] if tail else f"exit {r.returncode}")
@@ -316,14 +316,18 @@ def _selftest():
             fh.write("import sys\nsys.exit(1)\n")
         subprocess.run(["git", "-C", repo, "add", "make_bad.py"], check=True)
         bad = measure(repo, (("make_bad", "bad"),), {}, mutate=drifted, adopt=True)
+        with open(os.path.join(repo, "out.colors")) as fh:
+            colors_after_bad = fh.read()
         see("--apply adopts NOTHING when an emitter failed, and says so",
             bad["adopted"] == [] and bool(bad["refused"])
-            and open(os.path.join(repo, "out.colors")).read() == "A=1\n")
+            and colors_after_bad == "A=1\n")
         # ... and adopts a drifted tracked file when every emitter ran, without calling it a tree write
         ap = measure(repo, order, {}, mutate=drifted, adopt=True)
+        with open(os.path.join(repo, "out.colors")) as fh:
+            colors_after_ap = fh.read()
         see("--apply adopts the drifted file into the real tree, listed, not a tree write",
             ap["adopted"] == ["out.colors"] and not ap["refused"] and not ap["tree_touched"]
-            and open(os.path.join(repo, "out.colors")).read() == "A=2\n")
+            and colors_after_ap == "A=2\n")
     print("check_emitters_run selftest:", "PASS" if ok else "FAIL")
     return ok
 

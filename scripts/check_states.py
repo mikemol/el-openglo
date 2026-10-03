@@ -77,7 +77,7 @@ def main(argv):
         for vid, m in rows:
             print(vid)
             for s in STATES:
-                print(f"  {s:7} #{'%02x%02x%02x' % m['cols'][s]}   vs ground {m['grounds'][s]:.2f}:1")
+                print(f"  {s:7} #{'{:02x}{:02x}{:02x}'.format(*m['cols'][s])}   vs ground {m['grounds'][s]:.2f}:1")
             for (a, b), q in m["pairs"].items():
                 print(f"  {a}/{b}: q={q:.2f}")
         return 0

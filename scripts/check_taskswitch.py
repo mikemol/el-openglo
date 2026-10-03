@@ -32,8 +32,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 os.chdir(ROOT)                                                   # templates read by bare name
-import make_taskswitch as MT                                     # noqa: E402
-import qml_sanity as QS                                          # noqa: E402
+import make_taskswitch as MT
+import qml_sanity as QS
 
 # the hole -> the role it must be bound to (catalog/one-theme.md)
 ROLES = {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}
@@ -53,8 +53,8 @@ def resolution(qml):
     """{variant: {'resolved': {lit, ghost, void}, 'expected': {lit, ghost, void}}} — the emitted
     binding lines RUN under each variant's scheme by the real Kirigami.Theme (theme_probe),
     beside the tokens the palette solved for that variant. None when the runner is absent."""
-    import theme_probe as TP
     import make_wallpaper_live as WL
+    import theme_probe as TP
     names = [f"{k}Color" for k in ROLES]
     import variant_roster as VR
     block = TP.binding_block(qml, names)
@@ -65,7 +65,7 @@ def resolution(qml):
             return None
         ground, lit, ghost, _a = WL.colors_for(v)
         out[v] = {"resolved": {"lit": got["litColor"], "ghost": got["ghostColor"], "void": got["voidColor"]},
-                  "expected": {"lit": "#%02x%02x%02x" % lit, "ghost": "#%02x%02x%02x" % ghost, "void": "#%02x%02x%02x" % ground}}
+                  "expected": {"lit": "#{:02x}{:02x}{:02x}".format(*lit), "ghost": "#{:02x}{:02x}{:02x}".format(*ghost), "void": "#{:02x}{:02x}{:02x}".format(*ground)}}
     return out
 
 

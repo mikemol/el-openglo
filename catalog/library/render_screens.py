@@ -63,7 +63,7 @@ ANIMATIONS = (("marquee-anim", ("marquee", "animate", "x")),
 # real re-sampling — and it is also the Nyquist bound: the backdrop pixel is the
 # finest feature the aperture can resolve, so a finer step adds nothing.
 VIEWPORT_SUBSTEPS = 4                                          # = ApertureField.scale
-VIEWPORT_STEPS = ([i / VIEWPORT_SUBSTEPS for i in range(0, 8 * VIEWPORT_SUBSTEPS + 1)]
+VIEWPORT_STEPS = ([i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS + 1)]
                   + [i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS - 1, -1, -1)])
 VIEWPORT_FRAME_MS = 40
 
@@ -113,8 +113,8 @@ def stagers(v, how, out):
     a key's input list comes from (W61): not a list of files someone believes the
     render reads, but the job itself, staged and digested. `out` is where the
     output would go; the key passes a sentinel so no output is read as an input."""
-    import render_qml as RQ
     import check_marquee_live as ML
+    import render_qml as RQ
     if how[0] == "render_qml":
         _k, surface, w, h = how
         return [RQ.render_stager(surface, v, w, h, out)]
@@ -184,7 +184,6 @@ def output_keys():
     change that does not (a comment, plan bookkeeping) moves nothing."""
     import check_action_key as AK
     sentinel = "/@OUT@"
-    here = os.path.relpath(os.path.abspath(__file__), ROOT)
     host, missing = AK.host_inputs()
     keys, code_files = {}, set()
     for fn, v, how in plan() + plan_animations():
@@ -262,8 +261,8 @@ def animate_viewport(variant, out_apng):
 
 def render_one(v, how, out):
     """Produce one planned still or animation at `out`; its jobs are stagers()'s."""
-    import render_qml as RQ
     import check_marquee_live as ML
+    import render_qml as RQ
     try:
         if how[0] == "render_qml":
             _k, surface, w, h = how
@@ -311,7 +310,8 @@ def render_all(out_dir=SCREENS, only=None, keys=None, jobs=1):
     written += [os.path.join(out_dir, fn) for (fn, _v, _h), ok in zip(todo, done_ok) if ok]
     sheets = contact_sheets(out_dir, only=want)
     if "README.md" in want:
-        open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8").write(index_md())
+        with open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8") as fh:
+            fh.write(index_md())
     if keys is not None:
         import check_action_key as AK
         done = {os.path.basename(p) for p in written}
@@ -359,6 +359,7 @@ def measure(out_dir=SCREENS):
     """Per planned still: exists, size, modal colour, the variant's ground — the facts
     policy/screens.rego decides on."""
     from PIL import Image
+
     import make_preview as MP
     import make_wallpaper_live as WL
     rows = []
@@ -368,12 +369,12 @@ def measure(out_dir=SCREENS):
         # "ground", the Window background) and the View background a bound
         # surface draws as its own void
         row = {"file": fn, "variant": v, "exists": os.path.isfile(p),
-               "grounds": [MP.parse_scheme(v)["ground"], "#%02x%02x%02x" % WL.colors_for(v)[0]]}
+               "grounds": [MP.parse_scheme(v)["ground"], "#{:02x}{:02x}{:02x}".format(*WL.colors_for(v)[0])]}
         if row["exists"]:
             im = Image.open(p).convert("RGB")
             colours = im.getcolors(im.width * im.height)
-            n, modal = max(colours)
-            row.update(width=im.width, height=im.height, modal="#%02x%02x%02x" % modal,
+            _n, modal = max(colours)
+            row.update(width=im.width, height=im.height, modal="#{:02x}{:02x}{:02x}".format(*modal),
                        distinct=len(colours))
         rows.append(row)
     anims = []
@@ -381,7 +382,7 @@ def measure(out_dir=SCREENS):
         p = os.path.join(out_dir, fn)
         row = {"file": fn, "variant": v, "exists": os.path.isfile(p)}
         if row["exists"]:
-            row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#%02x%02x%02x" % WL.colors_for(v)[0],
+            row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#{:02x}{:02x}{:02x}".format(*WL.colors_for(v)[0]),
                                        axis=how[2]))
             row["logged_steps"] = logged_steps(p)    # null: no harness log, the policy uses the image fit
         anims.append(row)

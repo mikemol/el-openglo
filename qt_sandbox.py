@@ -24,7 +24,7 @@ What `run` does to the child, and why each one:
                                           session, so it cannot open GLX on it
   - KDE_DEBUG=1                          KCrash installs no handler (libKF6Crash
                                           reads it), so no DrKonqi from in-process
-  - RLIMIT_CORE soft=hard=0 (preexec)    OPERATOR RULING 2026-09-22: 0. The agent
+  - RLIMIT_CORE soft=hard=0 (launcher)   OPERATOR RULING 2026-09-22: 0. The agent
                                           that wrote this proposed 1, reading
                                           fs/coredump.c and core(5): core_pattern
                                           here pipes to systemd-coredump, and with
@@ -69,7 +69,6 @@ env strip does not stop a child that dials the session bus by a hard-coded path.
 import contextlib
 import itertools
 import os
-import resource
 import shutil
 import subprocess
 import sys
@@ -139,9 +138,9 @@ def kwin_session(e, ready_s=30):
     SIGKILLs it, and SIGKILL runs no crash handler and writes no core, so nothing can
     reach DrKonqi or the desktop (measured 2026-09-28: 0 coredump entries). The old
     --exit-with-session route let a kwin teardown/startup crash page the operator."""
-    sock = "el-qt-%d-%d" % (os.getpid(), next(_SOCKETS))
+    sock = f"el-qt-{os.getpid()}-{next(_SOCKETS)}"
     path = os.path.join(e.get("XDG_RUNTIME_DIR", ""), sock)
-    k = subprocess.Popen([KWIN, *KWIN_ARGS, "--socket", sock], env=e, preexec_fn=no_core,
+    k = subprocess.Popen(launch_argv([KWIN, *KWIN_ARGS, "--socket", sock]), env=e,
                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         t0 = time.monotonic()
@@ -160,9 +159,30 @@ def kwin_session(e, ready_s=30):
 _SOCKETS = itertools.count()
 
 
-def no_core():
-    """preexec_fn: this child can leave no core and wake no coredump helper."""
-    resource.setrlimit(resource.RLIMIT_CORE, (CORE_LIMIT, CORE_LIMIT))
+# ⚑ THE LIMITS ARE SET BY A LAUNCHER, NOT BY preexec_fn (2026-10-03, ruff PLW1509: preexec_fn
+# runs Python between fork and exec and is unsafe in a threaded parent - the documented
+# deadlock; the repo is held to ruff's default bar by mtools' pycheck hook). The launcher is
+# the child's own first act: it sets RLIMIT_CORE (and RLIMIT_CPU when asked) and then
+# EXECS the real command, so the pid, the environment and the inherited limits are exactly
+# what the preexec route gave; the selftest measures the limit in a real child. argv[1] is
+# the core limit, argv[2] the cpu cap in seconds or -1, argv[3:] the command.
+_LAUNCHER = (
+    "import os, resource, sys\n"
+    "core, cpu = int(sys.argv[1]), int(sys.argv[2])\n"
+    "resource.setrlimit(resource.RLIMIT_CORE, (core, core))\n"
+    "if cpu >= 0:\n"
+    "    resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))\n"
+    "os.execvp(sys.argv[3], sys.argv[3:])\n"
+)
+
+
+def launch_argv(cmd, cpu=None):
+    """`cmd` wrapped so the child leaves no core (and wakes no coredump helper), and is CPU-capped
+    when `cpu` is given: the launcher sets the limits, then execs `cmd`."""
+    if isinstance(cmd, (str, bytes)):
+        raise TypeError("qt_sandbox: the command is an argv list, never a shell string")
+    return [sys.executable, "-c", _LAUNCHER, str(CORE_LIMIT), str(-1 if cpu is None else int(cpu)),
+            *map(os.fspath, cmd)]
 
 
 def run(cmd, env=None, cpu=None, mesa=False, **kw):
@@ -174,28 +194,24 @@ def run(cmd, env=None, cpu=None, mesa=False, **kw):
     generous hang guard (a stalled harness burns no CPU)."""
     if "preexec_fn" in kw:
         raise TypeError("qt_sandbox.run owns preexec_fn")
-
-    def pre():
-        no_core()
-        if cpu is not None:
-            resource.setrlimit(resource.RLIMIT_CPU, (cpu, cpu))
+    argv = launch_argv(cmd, cpu)
     if mesa:
         e = mesa_env(env)
         with kwin_session(e) as sock:
-            return subprocess.run(cmd, env=dict(e, WAYLAND_DISPLAY=sock, QT_QPA_PLATFORM="wayland"),
-                                  preexec_fn=pre, **kw)
-    return subprocess.run(cmd, env=globals()["env"](env), preexec_fn=pre, **kw)
+            return subprocess.run(argv, env=dict(e, WAYLAND_DISPLAY=sock, QT_QPA_PLATFORM="wayland"),
+                                  check=kw.pop("check", False), **kw)
+    return subprocess.run(argv, env=globals()["env"](env), check=kw.pop("check", False), **kw)
 
 
 def popen(cmd, env=None, mesa=False, **kw):
-    """subprocess.Popen under the same env and no_core as run(): for a harness whose
+    """subprocess.Popen under the same env and core limit (launch_argv) as run(): for a harness whose
     measurement must be STREAMED (check_marquee_live ends at its RESULT line and
     kills a teardown hang, W63), which run() cannot do."""
     if mesa:
         raise TypeError("qt_sandbox.popen: mesa=True not offered yet (the wrapper dir must outlive the call)")
     if "preexec_fn" in kw:
         raise TypeError("qt_sandbox.popen owns preexec_fn")
-    return subprocess.Popen(cmd, env=globals()["env"](env), preexec_fn=no_core, **kw)
+    return subprocess.Popen(launch_argv(cmd), env=globals()["env"](env), **kw)
 
 
 def _selftest():
@@ -234,19 +250,25 @@ def _selftest():
             os.environ["EL_QT_GPU"] = saved
     # ⚑ THE CHILD MUST SEE THE LIMIT AND THE STRIPPED ENV — measured in a real child.
     r = run([sys.executable, "-c",
-             "import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
-             "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'])"],
+             ("import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
+              "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'])")],
             env=base, capture_output=True, text=True)
     # The literal 0 is the operator's ruling, not CORE_LIMIT: an edit back to 1
     # must turn this red, not silently agree with itself.
     check("a child runs with RLIMIT_CORE=0, no DISPLAY, offscreen",
           r.stdout.strip(), "(0, 0) None offscreen")
     p = popen([sys.executable, "-c",
-               "import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
-               "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'])"],
+               ("import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
+                "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'])")],
               env=base, stdout=subprocess.PIPE, text=True)
     out, _ = p.communicate()
     check("popen's child is sandboxed the same way", out.strip(), "(0, 0) None offscreen")
+    # the CPU cap (run's `cpu`) is set by the same launcher: measured in a real child, and
+    # absent when not asked (RLIM_INFINITY is -1)
+    for cap, want in ((7, "(7, 7)"), (None, "(-1, -1)")):
+        r = run([sys.executable, "-c", "import resource;print(resource.getrlimit(resource.RLIMIT_CPU))"],
+                env=base, cpu=cap, capture_output=True, text=True)
+        check(f"run(cpu={cap}) gives the child RLIMIT_CPU {want}", r.stdout.strip(), want)
     try:
         run(["true"], preexec_fn=lambda: None)
         check("a caller's preexec_fn is refused", False, True)
@@ -263,9 +285,9 @@ def _selftest():
         print(f"  SKIP mesa child arms — {KWIN} is not installed")
     else:
         r = run([sys.executable, "-c",
-                 "import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
-                 "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'],"
-                 "os.environ['LIBGL_ALWAYS_SOFTWARE'])"],
+                 ("import os,resource;print(resource.getrlimit(resource.RLIMIT_CORE),"
+                  "os.environ.get('DISPLAY'),os.environ['QT_QPA_PLATFORM'],"
+                  "os.environ['LIBGL_ALWAYS_SOFTWARE'])")],
                 env=base, mesa=True, capture_output=True, text=True, timeout=120)
         check("mesa: a real child runs core-less, no DISPLAY, on wayland, software GL",
               r.stdout.strip().splitlines()[-1:] , ["(0, 0) None wayland 1"])
@@ -275,7 +297,7 @@ def _selftest():
         # would race coredumpd, so count around one more run with a settle.
         def kwin_dumps():
             c = subprocess.run(["coredumpctl", "list", KWIN, "--no-pager", "-q"],
-                               capture_output=True, text=True)
+                               capture_output=True, text=True, check=False)
             return c.stdout.count("\n") if c.returncode in (0, 1) else None
         before = kwin_dumps()
         run(["true"], env=base, mesa=True, timeout=120)

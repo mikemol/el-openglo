@@ -107,7 +107,7 @@ TOKEN = re.compile(r"""
     (?P<id>[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*) |
     (?P<num>\d+(?:\.\d+)?) |
     (?P<op>===|!==|==|!=|<=|>=|&&|\|\||<<|>>|\+=|-=|\*=|/=|[-+*/%<>=!?:,;(){}\[\].&|^~@#])
-""", re.X | re.S)
+""", re.VERBOSE | re.DOTALL)
 
 
 def lex(src):
@@ -465,8 +465,11 @@ def measure():
     companions = companion_sources()
     for p in PAINTERS:
         path = os.path.join(ROOT, p["file"])
-        got = measure_painter(open(path, encoding="utf-8").read(), p["function"], p["surface"], p["file"],
-                              components, companions) if os.path.isfile(path) else None
+        got = None
+        if os.path.isfile(path):
+            with open(path, encoding="utf-8") as fh:
+                got = measure_painter(fh.read(), p["function"], p["surface"], p["file"],
+                                      components, companions)
         if got is None:
             withheld.append({"id": p["surface"], "file": p["file"], "line": 0,
                              "reason": f"painter function {p['function']} not found"})

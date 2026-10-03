@@ -222,8 +222,10 @@ def _selftest():
         see("re-materialising unchanged input reuses the snapshot", materialise(src, store)[1] == snap)
         with open(os.path.join(src, "EL-A.colors"), "wb") as fh:  # atomic-write: exempt — fixture
             fh.write(b"[Colors:View]\nA=999\n")
+        with open(os.path.join(snap, "EL-A.colors"), "rb") as fh:
+            snap_a = fh.read()
         see("a rewritten source does not change the snapshot",
-            open(os.path.join(snap, "EL-A.colors"), "rb").read() == b"[Colors:View]\nA=1\n"
+            snap_a == b"[Colors:View]\nA=1\n"
             and verify(snap) == d)
         d2, snap2 = materialise(src, store)
         see("a changed source is a DIFFERENT snapshot", d2 != d and snap2 != snap)
@@ -248,12 +250,12 @@ def _selftest():
         see("a private build can UN-declare it", declared(with_declared(env, None)) is None
             and with_declared(env, None)[ENV] == "wheel.whl=/x")
         r = subprocess.run([sys.executable, os.path.abspath(__file__), "--where"],
-                           env=with_declared(os.environ, snap), capture_output=True, text=True)
+                           env=with_declared(os.environ, snap), capture_output=True, text=True, check=False)
         see("a child handed the declared path reads IT", r.returncode == 0 and snap in r.stdout
             and "declared" in r.stdout)
         r = subprocess.run([sys.executable, os.path.abspath(__file__), "--where"],
                            env=with_declared(os.environ, os.path.join(store, "0" * 64)),
-                           capture_output=True, text=True)
+                           capture_output=True, text=True, check=False)
         see("a declared path that does not exist RAISES (no fallback ladder)", r.returncode != 0)
     print("schemes_artifact selftest:", "PASS" if ok else "FAIL")
     return ok
@@ -309,7 +311,7 @@ def race(readers=24, seconds=120.0):
         declared_seen, parsed_seen, control_seen, failures = [], [], [], []
         for _ in range(readers):
             r = subprocess.run([sys.executable, os.path.abspath(__file__), "--json", "--parsed"],
-                               env=env, capture_output=True, text=True)
+                               env=env, capture_output=True, text=True, check=False)
             if r.returncode != 0:
                 failures.append(r.stderr.strip().splitlines()[-1:])
                 continue

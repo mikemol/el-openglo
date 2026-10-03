@@ -32,10 +32,12 @@ differs from SDDM's real object is invisible to it. `sddm-greeter-qt6
 import os
 import sys
 
-from make_schemes import GRID
-from emitters import LICENSE_SPDX   # the one licence id (W44)
 import make_wallpaper_live as _WPL
-from emitters import atomic_write
+from emitters import (
+    LICENSE_SPDX,  # the one licence id (W44)
+    atomic_write,
+)
+from make_schemes import GRID
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 VARIANTS = _WPL.ALL_VARIANTS
@@ -48,28 +50,28 @@ def theme_id(variant):
 
 def _tok(variant):
     ph, mode = _WPL._variant_key(variant)
-    return [tt for (p, m), (tt, _d) in GRID.items() if p == ph and m == mode][0]
+    return next(tt for (p, m), (tt, _d) in GRID.items() if p == ph and m == mode)
 
 
 def _hex(csv):
-    return "#%02x%02x%02x" % tuple(int(x) for x in csv.split(","))
+    return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in csv.split(",")))
 
 
 def colors(variant):
     """{hole: "#rrggbb" or alpha} for the template — a READ of GRID."""
     ground, lit, ghost, alpha = _WPL.colors_for(variant, "glanced_at")
     t = _tok(variant)
-    return {"ground": "#%02x%02x%02x" % ground, "lit": "#%02x%02x%02x" % lit,
-            "ghost": "#%02x%02x%02x" % ghost, "ghostAlpha": f"{alpha}",
+    return {"ground": "#{:02x}{:02x}{:02x}".format(*ground), "lit": "#{:02x}{:02x}{:02x}".format(*lit),
+            "ghost": "#{:02x}{:02x}{:02x}".format(*ghost), "ghostAlpha": f"{alpha}",
             "field": _hex(t["button"]), "focus": _hex(t["focus"]),
             "negative": _hex(t["neg"])}
 
 
 def main_qml(variant):
     """templates/sddm-main.qml with the variant's palette and the display's tables."""
-    import templates.loader as TL
-    import segment_topology as _ST
     import make_clock as _MC
+    import segment_topology as _ST
+    import templates.loader as TL
     m = _ST.metrics(4.0)
     return TL.render("sddm-main.qml", tables=_MC.qml_tables(),
                      pitch=f"{m['pitch']:.3f}", strokeBase=f"{m['stroke'] / 1.25:.3f}",

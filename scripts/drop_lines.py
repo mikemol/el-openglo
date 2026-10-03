@@ -36,7 +36,8 @@ def main(argv):
     if not os.path.isfile(path):
         print(f"drop_lines: REFUSED — no such file {path}", file=sys.stderr)
         return 2
-    lines = open(path, encoding="utf-8").read().splitlines(keepends=True)
+    with open(path, encoding="utf-8") as fh:
+        lines = fh.read().splitlines(keepends=True)
     if not (1 <= first <= last <= len(lines)):
         print(f"drop_lines: REFUSED — range {first}..{last} is outside "
               f"1..{len(lines)}", file=sys.stderr)
@@ -55,7 +56,8 @@ def main(argv):
             print(f"drop_lines: REFUSED — the result would not parse: {e}",
                   file=sys.stderr)
             return 1
-    open(path, "w", encoding="utf-8").write(text)
+    with open(path, "w", encoding="utf-8") as fh:
+        fh.write(text)
     print(f"drop_lines: removed {last - first + 1} line(s) from {path} "
           f"({len(lines)} -> {len(kept)})")
     return 0
@@ -75,15 +77,23 @@ def _selftest():
     import tempfile
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "a.py")
-        open(p, "w").write("A = 1\nB = 2\nC = 3\nD = 4\n")
+        def slurp(q):
+            with open(q) as fh:
+                return fh.read()
+
+        def put(q, s):
+            with open(q, "w") as fh:
+                fh.write(s)
+
+        put(p, "A = 1\nB = 2\nC = 3\nD = 4\n")
         check("drops the named range", main(["drop_lines", p, "2", "3"]), 0)
-        check("kept the rest", open(p).read(), "A = 1\nD = 4\n")
+        check("kept the rest", slurp(p), "A = 1\nD = 4\n")
         # ⚑ A DELETION THAT BREAKS THE PARSE IS REFUSED, NOT WRITTEN.
         p2 = os.path.join(td, "b.py")
-        open(p2, "w").write("def f():\n    return 1\n")
+        put(p2, "def f():\n    return 1\n")
         check("refuses a range that breaks the parse",
               main(["drop_lines", p2, "2", "2"]), 1)
-        check("left the file untouched", open(p2).read(), "def f():\n    return 1\n")
+        check("left the file untouched", slurp(p2), "def f():\n    return 1\n")
         check("refuses an out-of-range span", main(["drop_lines", p, "1", "99"]), 2)
     print("drop_lines selftest:", "PASS" if ok else "FAIL")
     return ok

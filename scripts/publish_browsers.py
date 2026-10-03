@@ -85,14 +85,17 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         src = os.path.join(td, "v")
         os.makedirs(os.path.join(src, "images"))
-        open(os.path.join(src, "manifest.json"), "w").write('{"manifest_version": 3}')
-        open(os.path.join(src, "images", "a.png"), "wb").write(b"x")
+        with open(os.path.join(src, "manifest.json"), "w") as fh:
+            fh.write('{"manifest_version": 3}')
+        with open(os.path.join(src, "images", "a.png"), "wb") as fh:
+            fh.write(b"x")
         a = zip_dir(src, os.path.join(td, "out", "a.zip"))
         b = zip_dir(src, os.path.join(td, "out", "b.zip"))
         names = sorted(zipfile.ZipFile(a).namelist())
         root = names == ["images/a.png", "manifest.json"]
         print(f"  {'ok  ' if root else 'FAIL'} manifest.json sits at the zip root (got {names})")
-        same = open(a, "rb").read() == open(b, "rb").read()
+        with open(a, "rb") as fa, open(b, "rb") as fb:
+            same = fa.read() == fb.read()
         print(f"  {'ok  ' if same else 'FAIL'} the same input gives byte-identical zips")
         ok = root and same
     print("publish_browsers selftest:", "PASS" if ok else "FAIL")

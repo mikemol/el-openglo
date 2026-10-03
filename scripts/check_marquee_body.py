@@ -26,7 +26,7 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
-import qt_sandbox as QT  # noqa: E402
+import qt_sandbox as QT
 
 QML = QT.QML
 
@@ -68,42 +68,42 @@ JOIN_CASES = [
 # Expected: the ring's ids at each boundary, and the queue's ids after.
 RING_CASES = [
     ("arrive-and-expire-before-boundary still scrolls once",
-     [dict(arrive=["n1"], live=[], max=12)], [(["n1"], [])]),
+     [{"arrive": ["n1"], "live": [], "max": 12}], [(["n1"], [])]),
     ("an active item keeps cycling",
-     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=[], live=["n1"], max=12)],
+     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": [], "live": ["n1"], "max": 12}],
      [(["n1"], ["n1"]), (["n1"], ["n1"])]),
     ("an expired item drops only after its rotation",
-     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=[], live=[], max=12),
-      dict(arrive=[], live=[], max=12)],
+     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": [], "live": [], "max": 12},
+      {"arrive": [], "live": [], "max": 12}],
      [(["n1"], ["n1"]), ([], []), ([], [])]),
     ("a mid-rotation arrival waits for the boundary, then leads",
-     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=["n2"], live=["n1", "n2"], max=12)],
+     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": ["n2"], "live": ["n1", "n2"], "max": 12}],
      [(["n1"], ["n1"]), (["n2", "n1"], ["n2", "n1"])]),
     ("a replaced id shows the new text once more",
-     [dict(arrive=["n1"], live=["n1"], max=12), dict(arrive=["n1"], live=["n1"], max=12)],
+     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": ["n1"], "live": ["n1"], "max": 12}],
      [(["n1"], ["n1"]), (["n1"], ["n1"])]),
     ("the cap holds an unshown item back, still owed",
-     [dict(arrive=["n1", "n2", "n3"], live=["n1", "n2", "n3"], max=2),
-      dict(arrive=[], live=[], max=2)],
+     [{"arrive": ["n1", "n2", "n3"], "live": ["n1", "n2", "n3"], "max": 2},
+      {"arrive": [], "live": [], "max": 2}],
      [(["n1", "n2"], ["n1", "n2", "n3"]), (["n3"], [])]),
     # W46: a TRANSIENT item gets exactly one traversal — dropped after it even
     # while the model still holds it; a live non-transient beside it keeps cycling
     ("a transient item scrolls once and is not re-queued while live",
-     [dict(arrive=["t1", "n1"], transient=["t1"], live=["t1", "n1"], max=12),
-      dict(arrive=[], live=["t1", "n1"], max=12)],
+     [{"arrive": ["t1", "n1"], "transient": ["t1"], "live": ["t1", "n1"], "max": 12},
+      {"arrive": [], "live": ["t1", "n1"], "max": 12}],
      [(["t1", "n1"], ["n1"]), (["n1"], ["n1"])]),
     # W46: an item's actions join as " [Label]" runs after its text
     ("an item's actions are appended as runs",
-     [dict(arrive=["n1"], actions={"n1": [["open", "Open"], ["dismiss", "Dismiss"]]}, live=["n1"], max=12,
-           text="n1#1 [Open] [Dismiss]")],
+     [{"arrive": ["n1"], "actions": {"n1": [["open", "Open"], ["dismiss", "Dismiss"]]}, "live": ["n1"], "max": 12,
+           "text": "n1#1 [Open] [Dismiss]"}],
      [(["n1"], ["n1"])]),
     # W46 jobs: three progress replaces (same text, new percentage) keep the item's
     # place and `shown` — the ring is unchanged, the history grows to three samples,
     # and the join carries a series run: text + " " + one placeholder (3 samples ≤ 6 cells)
     ("a job's progress replaces grow its history without re-owing a rotation",
-     [dict(arrive=["j1"], progress={"j1": 10}, live=["j1"], max=12, text="j1#1 ░", series={"j1": [10]}),
-      dict(arrive=["j1"], progress={"j1": 50}, live=["j1"], max=12, text="j1#1 ░", series={"j1": [10, 50]}),
-      dict(arrive=["j1"], progress={"j1": 90}, live=["j1"], max=12, text="j1#1 ░", series={"j1": [10, 50, 90]})],
+     [{"arrive": ["j1"], "progress": {"j1": 10}, "live": ["j1"], "max": 12, "text": "j1#1 ░", "series": {"j1": [10]}},
+      {"arrive": ["j1"], "progress": {"j1": 50}, "live": ["j1"], "max": 12, "text": "j1#1 ░", "series": {"j1": [10, 50]}},
+      {"arrive": ["j1"], "progress": {"j1": 90}, "live": ["j1"], "max": 12, "text": "j1#1 ░", "series": {"j1": [10, 50, 90]}}],
      [(["j1"], ["j1"]), (["j1"], ["j1"]), (["j1"], ["j1"])]),
 ]
 
@@ -291,11 +291,13 @@ def run(bodies=None):
     if not os.path.isfile(QML):
         return None
     bodies = [c[0] for c in CASES] if bodies is None else bodies
-    src = open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8").read()
+    with open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8") as fh:
+        src = fh.read()
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8").write(src)
+        with open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8") as fh:
+            fh.write(src)
         h = os.path.join(td, "harness.qml")
-        open(h, "w", encoding="utf-8").write(HARNESS % (
+        harness_src = HARNESS % (
             json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
             json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
             json.dumps([list(c[1]) for c in DISPLAY_CASES]),
@@ -303,7 +305,9 @@ def run(bodies=None):
             json.dumps([list(c[1]) for c in SPAN_CASES]),
             json.dumps([list(c[1]) for c in ROLL_CASES]),
             json.dumps([list(c[1]) for c in STALL_CASES]), json.dumps(STALL_PROGRESS), STALL_ADVANCE,
-            json.dumps([list(c[1]) for c in PLAIN_CASES])))
+            json.dumps([list(c[1]) for c in PLAIN_CASES]))
+        with open(h, "w", encoding="utf-8") as fh:
+            fh.write(harness_src)
         r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -336,11 +340,14 @@ def glyph_census(font, chars):
     declared flash rate. Run under Qt's qml like run(); None when the runner is absent."""
     if not os.path.isfile(QML):
         return None
-    src = open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8").read()
+    with open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8") as fh:
+        src = fh.read()
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8").write(src)
+        with open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8") as fh:
+            fh.write(src)
         h = os.path.join(td, "harness.qml")
-        open(h, "w", encoding="utf-8").write(GLYPH_HARNESS % (json.dumps(font), json.dumps(list(chars))))
+        with open(h, "w", encoding="utf-8") as fh:
+            fh.write(GLYPH_HARNESS % (json.dumps(font), json.dumps(list(chars))))
         r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -550,8 +557,9 @@ def _selftest():
     chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])
     # the shipped file IS the tested file
     import make_notify_marquee as MM
-    chk("the package ships the parser this ran",
-        MM.body_parser() == open(os.path.join(ROOT, "templates", "marquee-body.js")).read(), True)
+    with open(os.path.join(ROOT, "templates", "marquee-body.js")) as fh:
+        shipped = fh.read()
+    chk("the package ships the parser this ran", MM.body_parser() == shipped, True)
     print("check_marquee_body selftest:", "PASS" if ok else "FAIL")
     return ok
 

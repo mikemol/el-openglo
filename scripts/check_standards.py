@@ -119,7 +119,8 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         d = os.path.join(td, "STANDARDS.md")
         check("an absent document is SEEN", measure(d)["doc_present"], False)
-        open(d, "w").write("APCA is `cvd_gate.apca_Lc`; gone is `cvd_gate.no_such_applier`.\n")
+        with open(d, "w") as fh:
+            fh.write("APCA is `cvd_gate.apca_Lc`; gone is `cvd_gate.no_such_applier`.\n")
         got = {(c["attr"], c["present"]) for c in measure(d)["cases"]}
         check("a present and an ABSENT applier are both seen", got,
               {("apca_Lc", True), ("no_such_applier", False)})

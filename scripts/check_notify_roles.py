@@ -62,7 +62,7 @@ def parse(text):
         enums = {}
         for eb in _blocks(body, "Enum"):
             en = _field(eb, "name")
-            vals = re.search(r"values:\s*\[([^\]]*)\]", eb, re.S)
+            vals = re.search(r"values:\s*\[([^\]]*)\]", eb, re.DOTALL)
             if en and vals:
                 keys = re.findall(r'"([^"]+)"', vals.group(1))
                 enums[en] = {k: i for i, k in enumerate(keys)}
@@ -87,15 +87,15 @@ NEEDED = ("IdRole", "SummaryRole", "BodyRole", "ApplicationNameRole", "UrgencyRo
 def measure(path=QMLTYPES):
     if not os.path.isfile(path):
         return {"withheld": f"{path} is not on this host", "roles": {}, "needed": list(NEEDED)}
-    p = parse(open(path, encoding="utf-8").read())
+    with open(path, encoding="utf-8") as fh:
+        p = parse(fh.read())
     model = p["components"].get("NotificationManager::Notifications", {})
     roles = model.get("enums", {}).get("Roles", {})
-    stub_text = ""
     try:
         import check_marquee_live as ML
-        stub_text = ML.STUB_MODEL
-    except Exception:
-        pass
+    except ImportError:
+        ML = None
+    stub_text = ML.STUB_MODEL if ML is not None else ""
     stub_roles = set(re.findall(r"\b(\w+Role)\b", stub_text))
     return {"path": path, "roles": roles, "needed": list(NEEDED),
             "enums": {k: v for k, v in model.get("enums", {}).items() if k != "Roles"},

@@ -23,12 +23,12 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 os.chdir(ROOT)
-import cvd_gate as C                                              # noqa: E402
-import make_palette as MP                                         # noqa: E402
-import make_wallpaper_live as WL                                  # noqa: E402
+import cvd_gate as C
+import make_palette as MP
+import make_wallpaper_live as WL
 
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-import variant_roster                                              # noqa: E402
+import variant_roster
 
 
 def tables():

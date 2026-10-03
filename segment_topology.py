@@ -472,7 +472,7 @@ def _selftest():
     check("LETTERS22 covers a-z", "".join(sorted(LETTERS22)), "abcdefghijklmnopqrstuvwxyz")
     unknown = sorted({s for v in LETTERS22.values() for s in v.split()} - set(SEG22))
     check(f"every lowercase segment is a 22-seg id ({unknown})", unknown, [])
-    hangs = frozenset(ch for ch in LETTERS22 if glyph22(ch) & set(("dl", "dc", "dr")))
+    hangs = frozenset(ch for ch in LETTERS22 if glyph22(ch) & {"dl", "dc", "dr"})
     check("the glyphs that hang below the baseline are DESCENDER_GLYPHS", hangs, DESCENDER_GLYPHS)
     dup = {}
     for ch in LETTERS22:
@@ -555,8 +555,9 @@ if __name__ == "__main__":
         sys.exit(0 if _selftest() else 1)
     # self-report: the family lattice and a parity check vs the wallpaper 7-seg
     import re
-    wp = open("make_wallpaper.py").read()
-    DIGIT7 = eval(re.search(r'DIGIT = (\{.*?\})', wp, re.S).group(1))
+    with open("make_wallpaper.py") as fh:
+        wp = fh.read()
+    DIGIT7 = eval(re.search(r'DIGIT = (\{.*?\})', wp, re.DOTALL).group(1))
     print("format masks:", {k: len(v["mask"]) for k, v in FORMATS.items()})
     ok = True
     for d, segs in DIGIT7.items():

@@ -30,7 +30,7 @@ import tomllib
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-import git_tracked  # noqa: E402
+import git_tracked
 
 # import-name -> distribution-name, where they differ.
 DIST = {"PIL": "pillow", "fontTools": "fonttools", "PySide6": "pyside6",
@@ -113,8 +113,8 @@ def imports(files=None):
     found = {}
     for fn, path in (files if files is not None else _python_files()):
         try:
-            tree = ast.parse(open(path, encoding="utf-8",
-                                  errors="replace").read())
+            with open(path, encoding="utf-8", errors="replace") as fh:
+                tree = ast.parse(fh.read())
         except SyntaxError:
             continue
         for node in ast.walk(tree):
@@ -148,7 +148,8 @@ def declared():
     p = os.path.join(ROOT, "pyproject.toml")
     if not os.path.exists(p):
         return None, ""
-    raw = open(p, encoding="utf-8").read()
+    with open(p, encoding="utf-8") as fh:
+        raw = fh.read()
     cfg = tomllib.loads(raw)
     proj = cfg.get("project", {})
     out = {_dist_name(s) for s in proj.get("dependencies", [])}
@@ -222,8 +223,8 @@ def _selftest():
     # a planted module with a body-level import of a name nothing provides.
     import tempfile
     with tempfile.TemporaryDirectory() as td:
-        open(os.path.join(td, "planted.py"), "w").write(
-            "def f():\n    import el_openglo_selftest_absent_dep\n    return 1\n")
+        with open(os.path.join(td, "planted.py"), "w") as fh:
+            fh.write("def f():\n    import el_openglo_selftest_absent_dep\n    return 1\n")
         planted = imports(files=[("planted.py", os.path.join(td, "planted.py"))])
         check("the walk sees a function-body import (planted)",
               "el_openglo_selftest_absent_dep" in planted, True)

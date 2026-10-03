@@ -78,11 +78,14 @@ def measure(outdir, stage, verdict_path=None):
     if not os.path.isfile(os.path.join(stage, "DEBIAN", "control")):
         facts["withheld"].append(f"{stage} is not a package root (no DEBIAN/control)")
         return facts
-    facts["steps"] = parse_status(open(status, encoding="utf-8").read())
-    facts["packed"] = parse_contents(open(contents, encoding="utf-8").read())
+    with open(status, encoding="utf-8") as fh:
+        facts["steps"] = parse_status(fh.read())
+    with open(contents, encoding="utf-8") as fh:
+        facts["packed"] = parse_contents(fh.read())
     facts["staged"] = staged_files(stage)
     if verdict_path and os.path.isfile(verdict_path):
-        facts["verdict"] = json.loads(open(verdict_path, encoding="utf-8").read())
+        with open(verdict_path, encoding="utf-8") as fh:
+            facts["verdict"] = json.loads(fh.read())
     return facts
 
 
@@ -104,8 +107,10 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         os.makedirs(os.path.join(td, "DEBIAN"))
         os.makedirs(os.path.join(td, "usr", "share"))
-        open(os.path.join(td, "DEBIAN", "control"), "w").write("x")
-        open(os.path.join(td, "usr", "share", "f"), "w").write("x")
+        with open(os.path.join(td, "DEBIAN", "control"), "w") as fh:
+            fh.write("x")
+        with open(os.path.join(td, "usr", "share", "f"), "w") as fh:
+            fh.write("x")
         chk("the stage excludes DEBIAN/", staged_files(td), ["/usr/share/f"])
         chk("an absent pack output is WITHHELD", bool(measure(os.path.join(td, "none"), td)["withheld"]), True)
     print(f"check_deb selftest: {'PASS' if ok else 'FAIL'}")

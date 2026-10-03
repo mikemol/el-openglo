@@ -58,10 +58,10 @@ def index_is_generated():
     witness that the index was regenerated rather than edited: every sample on
     disk appears in it, and it names no sample that is absent."""
     sys.path.insert(0, HERE)
-    import render_samples as RS
     md = os.path.join(HERE, "library.md")
     assert os.path.isfile(md), "library.md is absent — nothing to look at"
-    text = open(md, encoding="utf-8").read()
+    with open(md, encoding="utf-8") as fh:
+        text = fh.read()
     on_disk = sorted(f for f in os.listdir(SAMPLES)) if os.path.isdir(SAMPLES) else []
     assert on_disk, "samples/ is empty"
     unnamed = [f for f in on_disk if f not in text]
@@ -94,8 +94,9 @@ def marquee_sample_covers_the_font(text=None, font=None):
         font = DT.FONT5x7
     if text is None:
         sys.path.insert(0, HERE)
-        import render_samples as RS
         import inspect
+
+        import render_samples as RS
         src = inspect.getsource(RS._marquee)
         # the sample's own string, read from the renderer that draws it — so the
         # witness cannot drift from what is actually rendered
@@ -177,7 +178,8 @@ def ghost_registers_with_lit(svg_path=None):
     import re
     path = svg_path or os.path.join(SAMPLES, "wallpaper.svg")
     assert os.path.isfile(path), f"no wallpaper sample at {path}"
-    text = open(path, encoding="utf-8").read()
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
     # (transform, is_lit) per group; the lit layers are the filtered ones.
     groups = [(m.group(1), "filter=" in m.group(0))
               for m in re.finditer(r'<g transform="(translate\([^)]*\)[^"]*)"[^>]*>', text)]
@@ -205,8 +207,8 @@ def preview_clock_fits():
     Witnessed by measuring the drawn text against the bezel it is drawn in, so it
     fails while the overflow exists and passes when the geometry is fixed —
     rather than by pinning today's pixel positions, which would freeze the bug."""
-    import make_preview as MP
-    src = open(os.path.join(ROOT, "make_preview.py"), encoding="utf-8").read()
+    with open(os.path.join(ROOT, "make_preview.py"), encoding="utf-8") as fh:
+        src = fh.read()
     assert "CLOCK_FIT" in src or "textlength" in src or "textbbox" in src, (
         "the clock text is placed without measuring it against its bezel — the "
         "digits overflow on the right in every rendered sample. Measure the text "
@@ -280,8 +282,10 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         ok_p = os.path.join(td, "ok.svg")
         bad_p = os.path.join(td, "bad.svg")
-        open(ok_p, "w").write(aligned)
-        open(bad_p, "w").write(offset)
+        with open(ok_p, "w") as fh:
+            fh.write(aligned)
+        with open(bad_p, "w") as fh:
+            fh.write(offset)
         try:
             ghost_registers_with_lit(ok_p)
             check("registration passes when the layers align", True, True)

@@ -50,7 +50,7 @@ WEIGHT_BONUS = 1.15     # lit stroke wider -> more integrated area -> perceived 
 
 
 def _composite(fg, bg, a):
-    return tuple(int(round(fg[i] * a + bg[i] * (1 - a))) for i in range(3))
+    return tuple(round(fg[i] * a + bg[i] * (1 - a)) for i in range(3))
 
 
 def effective_separation(lit, ghost, ground, ghost_alpha=1.0,
@@ -104,27 +104,27 @@ def surface_registry(variant="EL-Azure"):
     reg = []
 
     # clock plasmoid — LOOKED-AT; color + subordinated ghost + stroke-weight + bloom
-    reg.append(dict(name="clock", mode=LOOKED_AT, lit=lit, ghost=ghost, ground=ground,
-                    ghost_alpha=alpha_looked, bloom=True, stroke_weight=True))
+    reg.append({"name": "clock", "mode": LOOKED_AT, "lit": lit, "ghost": ghost, "ground": ground,
+                    "ghost_alpha": alpha_looked, "bloom": True, "stroke_weight": True})
 
     # live wallpaper — GLANCED-AT; the bloom and stroke-weight channels are still
     # detected from the emitted Canvas idiom (a dropped channel is what this audit
     # was written to catch); the alpha is the palette's GLANCED one (W12 §3c).
-    reg.append(dict(name="wallpaper-live", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground, ghost_alpha=alpha_glanced,
-                    bloom=(("T*2.1" in wq and "T*1.5" in wq) or "U*0.84" in wq),
-                    stroke_weight=(("U * 0.40" in wq and "U * 0.26" in wq)
-                                   or ("U*0.40" in wq and "U*0.26" in wq))))
+    reg.append({"name": "wallpaper-live", "mode": GLANCED_AT, "lit": lit, "ghost": ghost,
+                    "ground": ground, "ghost_alpha": alpha_glanced,
+                    "bloom": (("T*2.1" in wq and "T*1.5" in wq) or "U*0.84" in wq),
+                    "stroke_weight": (("U * 0.40" in wq and "U * 0.26" in wq)
+                                   or ("U*0.40" in wq and "U*0.26" in wq))})
 
     # KDE splash & plymouth — GLANCED-AT; the palette's ghost at the glanced alpha
-    reg.append(dict(name="kde-splash", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground, ghost_alpha=alpha_glanced, bloom=False, stroke_weight=False))
-    reg.append(dict(name="plymouth", mode=GLANCED_AT, lit=lit, ghost=ghost,
-                    ground=ground, ghost_alpha=alpha_glanced, bloom=False, stroke_weight=False))
+    reg.append({"name": "kde-splash", "mode": GLANCED_AT, "lit": lit, "ghost": ghost,
+                    "ground": ground, "ghost_alpha": alpha_glanced, "bloom": False, "stroke_weight": False})
+    reg.append({"name": "plymouth", "mode": GLANCED_AT, "lit": lit, "ghost": ghost,
+                    "ground": ground, "ghost_alpha": alpha_glanced, "bloom": False, "stroke_weight": False})
 
     # notify marquee — lit text on void, no ghost -> exempt
-    reg.append(dict(name="notify-marquee", mode=LOOKED_AT, lit=lit, ghost=ghost,
-                    ground=ground, has_ghost=False))
+    reg.append({"name": "notify-marquee", "mode": LOOKED_AT, "lit": lit, "ghost": ghost,
+                    "ground": ground, "has_ghost": False})
 
     return reg
 

@@ -25,7 +25,6 @@ Weakness: it counts rows; it does not check a row names a tool that exists.
 """
 import json
 import os
-import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -43,6 +42,7 @@ def routes(hook=HOOK, skill=SKILL):
         return None
     try:
         from pathlib import Path
+
         from mikemol.hooks import routing_table
     except ImportError:
         return None

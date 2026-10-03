@@ -32,7 +32,8 @@ _MARK = re.compile(r"<(polygon|rect|circle|path|text|line|ellipse)\b([^>]*)>")
 
 def marks(path):
     """[(tag, attrs)] in document order."""
-    text = open(path, encoding="utf-8", errors="replace").read()
+    with open(path, encoding="utf-8", errors="replace") as fh:
+        text = fh.read()
     return [(m.group(1), m.group(2).strip()) for m in _MARK.finditer(text)]
 
 
@@ -102,10 +103,13 @@ def _selftest():
         a = os.path.join(td, "a.svg")
         b = os.path.join(td, "b.svg")
         c = os.path.join(td, "c.svg")
-        open(a, "w").write('<svg><rect x="1"/><rect x="2"/></svg>')
-        open(b, "w").write('<svg><rect x="2"/><rect x="1"/></svg>')   # reordered
-        open(c, "w").write('<svg><rect x="1"/><rect x="3"/></svg>')   # changed
-        same, oa, obb, moved = compare(a, b)
+        with open(a, "w") as fh:
+            fh.write('<svg><rect x="1"/><rect x="2"/></svg>')
+        with open(b, "w") as fh:
+            fh.write('<svg><rect x="2"/><rect x="1"/></svg>')   # reordered
+        with open(c, "w") as fh:
+            fh.write('<svg><rect x="1"/><rect x="3"/></svg>')   # changed
+        same, _oa, _obb, moved = compare(a, b)
         check("a reordering has the same mark set", same, True)
         check("and reports how many moved", moved, 2)
         same2, oa2, ob2, _ = compare(a, c)

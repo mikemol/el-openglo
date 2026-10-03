@@ -17,10 +17,11 @@ PlasmoidItem, entry contents/ui/main.qml, config schema contents/config/main.xml
 Emits plasma-clock/<id>/ per grid cell. Gate: metadata JSON parse + required
 keys, QML brace/paren balance, config XML parse, SEG/DIG byte-parity with
 make_wallpaper, sabotage. Live render (plasmoidviewer) = ⊕VER."""
-import os, re, sys, json, shutil
+import json
+import os
+import shutil
+import sys
 import xml.etree.ElementTree as ET
-from make_schemes import GRID
-from emitters import LICENSE_SPDX
 
 # --- single source of truth: the segment substrate (⊕SEGMENT-SUBSTRATE) ------
 # ⚑ THIS READ THE WALLPAPER'S SOURCE TEXT AND eval'd IT.  Three lines of regex
@@ -33,7 +34,7 @@ from emitters import LICENSE_SPDX
 # taken by scraping. The substrate is the source; both surfaces read it, and the
 # format ("7" for digits) is the only per-surface choice.
 import segment_topology as _ST
-from emitters import atomic_write
+from emitters import LICENSE_SPDX, atomic_write
 
 SEGS = _ST.seg7_svg_grid()
 DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
@@ -100,6 +101,7 @@ def _metrics_holes():
 # ⚑ THE DISPLAY ROWS ARE INCLUDED, NOT WRITTEN HERE (W59): display_params declares
 # them once for every mount; the templates carry only this clock's mount rows.
 import display_params as _DP
+
 CONFIG_XML = _t("clock-config.kcfg", displayEntries=_DP.kcfg_entries("clock", _metrics_holes(), "  "))
 CONFIG_QML = _t("clock-config.qml", displayDecls=_DP.qml_decls("clock"),
                 displayControls=_DP.qml_controls("clock", _metrics_holes()))
@@ -114,6 +116,7 @@ def main_qml():
     # make_schemes.emit_colors wrote the tokens into — the chain is one link shorter.
     # The one hole that is a colour fact is the ghost alpha, global.
     import make_taskswitch as TS
+
     # ⚑ THE QML IS templates/clock-main.qml.  It was 104 lines of markup in an
     # f-string, which cost ~40 DOUBLED BRACE PAIRS — every `{{` and `}}` an
     # artifact of surviving as a Python literal rather than anything QML asked
@@ -155,19 +158,21 @@ def render_all(path):
 
 def check(path):
     errs = []
-    md = json.load(open(os.path.join(path, "metadata.json")))
+    with open(os.path.join(path, "metadata.json")) as fh:
+        md = json.load(fh)
     if md.get("KPackageStructure") != "Plasma/Applet":
         errs.append("KPackageStructure != Plasma/Applet")
     if md.get("X-Plasma-API-Minimum-Version") != "6.0":
         errs.append("missing X-Plasma-API-Minimum-Version 6.0")
     if not md["KPlugin"].get("Id"): errs.append("missing KPlugin.Id")
-    q = open(os.path.join(path, "contents/ui/main.qml")).read()
+    with open(os.path.join(path, "contents/ui/main.qml")) as fh:
+        q = fh.read()
     if "PlasmoidItem" not in q.split("\n")[0:12].__str__() and "PlasmoidItem {" not in q:
         errs.append("root is not PlasmoidItem")
     for o, c in [("{", "}"), ("(", ")"), ("[", "]")]:
         if not balanced(q, o, c): errs.append(f"main.qml unbalanced {o}{c}")
     try: ET.parse(os.path.join(path, "contents/config/main.xml"))
-    except Exception as e: errs.append(f"config xml: {e}")
+    except (ET.ParseError, OSError) as e: errs.append(f"config xml: {e}")
     # geometry parity: the tables in the QML must equal the wallpaper's
     for k, v in SEGS.items():
         if f'"{k}": ["{v[0]}", {v[1]}, {v[2]}]' not in q:

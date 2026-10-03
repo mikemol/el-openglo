@@ -24,7 +24,9 @@ The .script deliberately reuses idioms from real, shipping Plymouth themes
 runs in the initramfs and can't be live-tested here (operator=other reboot).
 """
 import os
+
 from PIL import Image, ImageDraw
+
 import make_preview as MP
 import segment_topology as ST
 from emitters import atomic_write
@@ -94,7 +96,7 @@ def render_digit(ch, lit_rgb, ghost_rgb, U=48, weight=1.0, ghost=True, ghost_alp
         if seg in on:
             _draw_stroke(dr, spec, U, T_lit, ox, oy, lit_rgb + (255,))
         elif ghost:
-            _draw_stroke(dr, spec, U, T_gh, ox, oy, ghost_rgb + (int(round(255 * ghost_alpha)),))
+            _draw_stroke(dr, spec, U, T_gh, ox, oy, ghost_rgb + (round(255 * ghost_alpha),))
     return img
 
 
@@ -119,7 +121,7 @@ def ghost_from(lit_rgb, ground_rgb):
     through alpha, and this a fixed lerp. Retired 2026-09-20 (W8): render_assets
     reads the scheme's ForegroundInactive and [EL] GhostAlpha. Kept so the old
     number can be re-read; no caller in the emit path."""
-    return tuple(int(round(lit_rgb[i] + (ground_rgb[i] - lit_rgb[i]) * 0.6)) for i in range(3))
+    return tuple(round(lit_rgb[i] + (ground_rgb[i] - lit_rgb[i]) * 0.6) for i in range(3))
 
 
 # ⚑ ⊕PLYMOUTH-VECTOR (W9, 2026-09-21): THE SPLASH IS DRAWN AT BOOT AT A SIZE

@@ -37,7 +37,10 @@ PAIRS = (("--window-bg-color", "--window-fg-color", 4.5), ("--view-bg-color", "-
          ("--card-bg-color", "--card-fg-color", 4.5), ("--dialog-bg-color", "--dialog-fg-color", 4.5),
          ("--popover-bg-color", "--popover-fg-color", 4.5), ("--accent-bg-color", "--accent-fg-color", None))
 
-from check_selection_contrast import schemes, roster_drift   # noqa: E402  (roster authority)
+from check_selection_contrast import (
+    roster_drift,
+    schemes,
+)
 
 
 def _rgb(hexs):
@@ -46,11 +49,11 @@ def _rgb(hexs):
 
 
 def vars_in(css):
-    return dict(re.findall(r"^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);", css, re.M))
+    return dict(re.findall(r"^\s*(--[a-z0-9-]+)\s*:\s*([^;]+);", css, re.MULTILINE))
 
 
 def defines_in(css):
-    return dict(re.findall(r"^@define-color\s+(\w+)\s+([^;]+);", css, re.M))
+    return dict(re.findall(r"^@define-color\s+(\w+)\s+([^;]+);", css, re.MULTILINE))
 
 
 def facts(variant, gtk4, gtk3):
@@ -62,9 +65,10 @@ def facts(variant, gtk4, gtk3):
     green. Here it is `present: false, ratio: null`, and the policy denies it."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    import make_gtk as MG
-    import cvd_gate as C
     from check_selection_contrast import FLOOR as SEL_FLOOR
+
+    import cvd_gate as C
+    import make_gtk as MG
     try:
         import tinycss2
         parse_errors = sum(1 for r in tinycss2.parse_stylesheet(
@@ -162,7 +166,7 @@ def _selftest():
     swapped = g4.replace(f"--window-fg-color: {r['window_fg']}", f"--window-fg-color: {r['ground']}")
     win = next(p for p in facts("EL-Openglo", swapped, g3)["pairs"] if p["fg"] == "--window-fg-color")
     chk("fg == bg is measured at ratio 1", round(win["ratio"], 2), 1.0)
-    chk("ADW_NAMED covers every emitted variable", set(v for v, _ in MG.ADW_VARS) <= MG.ADW_NAMED, True)
+    chk("ADW_NAMED covers every emitted variable", {v for v, _ in MG.ADW_VARS} <= MG.ADW_NAMED, True)
     # ⚑ W65: an absent pair variable is REPORTED absent, not dropped from the pairs
     gone = facts("EL-Openglo", g4.replace("--card-fg-color", "--card-fg-gone"), g3)["pairs"]
     chk("an absent pair variable is reported, the pair count kept",

@@ -24,8 +24,8 @@ Everything else is solved/derived:
 """
 import colorsys
 import random as _random
+
 import cvd_gate as C
-import palette_graph as _PG
 import ghost_solve as _GS
 
 # ---- the two non-derivable inputs -----------------------------------------
@@ -35,16 +35,16 @@ HUE_SEEDS = {          # base hue (HSV degrees) — the identity, chosen not sol
     "amber":   35.0,   # classic LCD amber
 }
 
-THRESHOLDS = dict(
-    void_max_lum=C.OLED_VOID_MAX_LUM,   # 2% — ground reads as OLED void
-    chroma_floor=40,                    # keep the phosphor hue (not grey/black)
-    ghost_ceiling_lc=C.GHOST_READABLE_LC,  # 30 — ghost must FAIL readability
-)
+THRESHOLDS = {
+    "void_max_lum": C.OLED_VOID_MAX_LUM,   # 2% — ground reads as OLED void
+    "chroma_floor": 40,                    # keep the phosphor hue (not grey/black)
+    "ghost_ceiling_lc": C.GHOST_READABLE_LC,  # 30 — ghost must FAIL readability
+}
 
 
 def _hsv(h_deg, s, v):
     r, g, b = colorsys.hsv_to_rgb((h_deg % 360) / 360.0, s, v)
-    return (int(round(r * 255)), int(round(g * 255)), int(round(b * 255)))
+    return (round(r * 255), round(g * 255), round(b * 255))
 
 
 def _chroma(rgb):
@@ -218,9 +218,9 @@ def _sector_hue(sector):
 # (`sel_floor_infeasible`), never clamped.
 SEL_POLICIES = {
     "A": None,
-    "B": dict(metric="wcag", normal=4.5, active=None, sem=4.6),
-    "C": dict(metric="wcag", normal=4.5, active=4.5, sem=4.5),
-    "D": dict(metric="apca", normal=60.0, active=60.0, sem=60.0),
+    "B": {"metric": "wcag", "normal": 4.5, "active": None, "sem": 4.6},
+    "C": {"metric": "wcag", "normal": 4.5, "active": 4.5, "sem": 4.5},
+    "D": {"metric": "apca", "normal": 60.0, "active": 60.0, "sem": 60.0},
 }
 
 
@@ -452,15 +452,16 @@ def _lum_nudge(rgb, delta):
     h, l, s = colorsys.rgb_to_hls(*[c / 255.0 for c in rgb])
     l = max(0.0, min(1.0, l + delta))
     r, g, b = colorsys.hls_to_rgb(h, l, s)
-    return (int(round(r * 255)), int(round(g * 255)), int(round(b * 255)))
+    return (round(r * 255), round(g * 255), round(b * 255))
 
 
 def _mix(a, b, t):
-    return tuple(int(round(a[i] * (1 - t) + b[i] * t)) for i in range(3))
+    return tuple(round(a[i] * (1 - t) + b[i] * t) for i in range(3))
 
 
 def _s(rgb):
-    return "%d,%d,%d" % rgb
+    r, g, b = rgb
+    return f"{int(r)},{int(g)},{int(b)}"
 
 
 _SECTOR_OVERRIDES = {"EL-Amber-Lit": {"neu": (30, 95)}}
@@ -475,7 +476,7 @@ def solve_sel_act(ground, sel_bg, floor, fn, start=0.15, step=0.01, max_k=0.6):
     `floor` on sel_bg - the smallest push either way. (k, ok); ok False returns
     the push that contrasts most, named by the caller."""
     best = (start, -1.0)
-    for i in range(int(round(start / step)), int(round(max_k / step)) + 1):
+    for i in range(round(start / step), round(max_k / step) + 1):
         k = i * step
         for sgn in (-1.0, 1.0):
             v = fn(_lum_nudge(ground, sgn * k), sel_bg)

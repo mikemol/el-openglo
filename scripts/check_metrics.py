@@ -121,14 +121,15 @@ class _Handler(http.server.BaseHTTPRequestHandler):
 
 
 def subject_qml():
-    import make_metrics as MM
     import plasma_rewrite as PR
+
+    import make_metrics as MM
     q, n = re.subn(r"^import org\.kde\.plasma\.plasma5support as P5Support$", "import elstub.p5 as P5Support",
-                   MM.main_qml(), flags=re.M)
+                   MM.main_qml(), flags=re.MULTILINE)
     if n != 1:
         raise RuntimeError("check_metrics: the plasma5support import was not found to redirect")
     for pat, rep in PR.SUBSTITUTIONS:
-        q = re.sub(pat, rep, q, flags=re.M)
+        q = re.sub(pat, rep, q, flags=re.MULTILINE)
     return q
 
 

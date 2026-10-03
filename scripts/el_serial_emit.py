@@ -32,7 +32,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import el_serial_spec  # noqa: E402
+import el_serial_spec
 
 ROOT = el_serial_spec.ROOT
 FIXTURES = os.path.join(ROOT, "catalog", "fixtures", "serial")
@@ -100,8 +100,8 @@ def p2_boot():
     e = Emitter(BOOT, _ticker())
     e.frame("el.ident", guest={"deb_sha256": "0" * 64, "git_rev": "4abcb5b", "snapshot": "20260920T000000Z"},
             cmdline="BOOT_IMAGE=/vmlinuz quiet splash console=tty0 console=ttyS0 el.probe=P2", probe="P2")
-    mem = dict(mem_total_kb=716800, mem_available_kb=402112, swap_total_kb=358400, swap_free_kb=358400,
-               zram_orig_bytes=0, zram_compr_bytes=0)
+    mem = {"mem_total_kb": 716800, "mem_available_kb": 402112, "swap_total_kb": 358400, "swap_free_kb": 358400,
+           "zram_orig_bytes": 0, "zram_compr_bytes": 0}
     e.frame("el.mem", **mem)
     e.frame("el.session", uid=1000, session_type="wayland")
     e.frame("el.settled", capped=False)
@@ -118,13 +118,13 @@ def p2_boot():
 def p2_ops():
     """The P2 boot as OPERATIONS, the unit both writers share: ("frame", kind, payload),
     ("blob", label, bytes), ("done", probe). One op is one sh-writer invocation."""
-    mem = dict(mem_total_kb=716800, mem_available_kb=402112, swap_total_kb=358400, swap_free_kb=358400,
-               zram_orig_bytes=0, zram_compr_bytes=0)
-    ops = [("frame", "el.ident", dict(guest={"deb_sha256": "0" * 64, "git_rev": "4abcb5b", "snapshot": "20260920T000000Z"},
-                                      cmdline="BOOT_IMAGE=/vmlinuz quiet splash console=tty0 console=ttyS0 el.probe=P2",
-                                      probe="P2")),
-           ("frame", "el.mem", mem), ("frame", "el.session", dict(uid=1000, session_type="wayland")),
-           ("frame", "el.settled", dict(capped=False))]
+    mem = {"mem_total_kb": 716800, "mem_available_kb": 402112, "swap_total_kb": 358400, "swap_free_kb": 358400,
+           "zram_orig_bytes": 0, "zram_compr_bytes": 0}
+    ops = [("frame", "el.ident", {"guest": {"deb_sha256": "0" * 64, "git_rev": "4abcb5b", "snapshot": "20260920T000000Z"},
+                                  "cmdline": "BOOT_IMAGE=/vmlinuz quiet splash console=tty0 console=ttyS0 el.probe=P2",
+                                  "probe": "P2"}),
+           ("frame", "el.mem", mem), ("frame", "el.session", {"uid": 1000, "session_type": "wayland"}),
+           ("frame", "el.settled", {"capped": False})]
     # a blob id is "b<seq of its first part>", deterministic; a scratch writer finds them
     scratch = Emitter(BOOT, lambda: 0)
     for op in ops:
@@ -246,10 +246,10 @@ def reporter_bundle(d, probes=("P1", "P2", "P3", "P4", "P4g")):
         boot = f"{i:08x}-0000-4000-8000-000000000000"
         sh += [f'W=$(mktemp -d); echo "{boot}" > "$W/boot"; echo "BOOT_IMAGE=/vmlinuz quiet el.probe={p}" > "$W/cmdline"',
                'echo "100.00 0.00" > "$W/uptime"',
-               f'EL_SERIAL_DEV="$OUT" EL_SERIAL_RUN="$W" EL_SERIAL_BOOT_FILE="$W/boot" EL_SERIAL_UPTIME_FILE="$W/uptime" '
-               f'EL_CMDLINE_FILE="$W/cmdline" sh "$BUNDLE/el-reporter.sh" system',
-               f'EL_SERIAL_DEV="$OUT" EL_SERIAL_RUN="$W" EL_SERIAL_BOOT_FILE="$W/boot" EL_SERIAL_UPTIME_FILE="$W/uptime" '
-               f'EL_CMDLINE_FILE="$W/cmdline" XDG_SESSION_TYPE=wayland sh "$BUNDLE/el-reporter.sh" session'
+               ('EL_SERIAL_DEV="$OUT" EL_SERIAL_RUN="$W" EL_SERIAL_BOOT_FILE="$W/boot" EL_SERIAL_UPTIME_FILE="$W/uptime" '
+               'EL_CMDLINE_FILE="$W/cmdline" sh "$BUNDLE/el-reporter.sh" system'),
+               'EL_SERIAL_DEV="$OUT" EL_SERIAL_RUN="$W" EL_SERIAL_BOOT_FILE="$W/boot" EL_SERIAL_UPTIME_FILE="$W/uptime" '
+               'EL_CMDLINE_FILE="$W/cmdline" XDG_SESSION_TYPE=wayland sh "$BUNDLE/el-reporter.sh" session'
                if p in ("P1", "P2", "P4") else ":"]
     sh += ['cat "$OUT"']
     with open(os.path.join(d, "run.sh"), "w") as f:
@@ -325,7 +325,11 @@ def _selftest():
     chk("an empty blob is ONE part with empty b64", (e.blob("empty", b""), e.lines[-2].count('"b64":""')), ("b0", 1))
     for name, data in sorted(fixtures().items()):
         p = os.path.join(FIXTURES, name)
-        chk(f"committed {name} == regenerated", os.path.isfile(p) and open(p, "rb").read() == data, True)
+        committed = None
+        if os.path.isfile(p):
+            with open(p, "rb") as fh:
+                committed = fh.read()
+        chk(f"committed {name} == regenerated", committed is not None and committed == data, True)
     ref, _times = op_reference(p2_ops())
     rdoc = read_serial.measure("".join(x + "\n" for x in ref).encode(), "<op-reference>")
     rc = rdoc["cases"][0] if rdoc["cases"] else {}
@@ -341,11 +345,11 @@ def _selftest():
     else:
         with tempfile.TemporaryDirectory() as td:
             sh_bundle(td)
-            r = subprocess.run(["sh", os.path.join(td, "run.sh")], capture_output=True, text=True)
+            r = subprocess.run(["sh", os.path.join(td, "run.sh")], capture_output=True, text=True, check=False)
             chk("the sh writer's log is byte-equal to the reference writer's", (r.returncode, r.stderr[-300:]), (0, ""))
         with tempfile.TemporaryDirectory() as td:
             ps = reporter_bundle(td)
-            r = subprocess.run(["sh", os.path.join(td, "run.sh")], capture_output=True)
+            r = subprocess.run(["sh", os.path.join(td, "run.sh")], capture_output=True, check=False)
             rd = read_serial.measure(r.stdout, "<reporter>")
             chk("the reporter's log reads back one clean boot per probe",
                 (r.returncode, sorted(c.get("probe") for c in rd["cases"]), [c.get("withheld") for c in rd["cases"]]),

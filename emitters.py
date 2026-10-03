@@ -207,9 +207,9 @@ def atomic_write(path, data, fsync=False):
 
     Stdlib only, and it lives here because every generator already may import
     this module without a cycle (it imports nothing of ours)."""
-    with atomic_path(path, fsync=fsync) as tmp:
-        with open(tmp, "wb") as fh:  # atomic-write: exempt — the helper's own temp file
-            fh.write(data.encode("utf-8") if isinstance(data, str) else data)
+    with atomic_path(path, fsync=fsync) as tmp, \
+            open(tmp, "wb") as fh:  # atomic-write: exempt — the helper's own temp file
+        fh.write(data.encode("utf-8") if isinstance(data, str) else data)
 
 
 class atomic_path:
@@ -298,7 +298,7 @@ def run_all(root, python=None, quiet=True, only=None):
         if only is not None and mod not in only:
             continue
         r = subprocess.run([python or sys.executable, os.path.join(root, mod + ".py")],
-                           cwd=root, capture_output=True, text=True)
+                           cwd=root, capture_output=True, text=True, check=False)
         out.append((mod, r.returncode, r.stderr.strip()[-400:]))
     return out
 

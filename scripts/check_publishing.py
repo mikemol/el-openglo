@@ -58,12 +58,13 @@ def categories(path=CACHE):
 def rows(path=TABLE):
     """[(emitter, venue, route)] from the table's first three columns."""
     out = []
-    for line in open(path, encoding="utf-8"):
-        if not line.startswith("|") or line.startswith("|---") or line.startswith("| emitter"):
-            continue
-        cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) >= 4:
-            out.append((cells[0].strip("`"), cells[2], cells[3]))
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            if not line.startswith("|") or line.startswith(("|---", "| emitter")):
+                continue
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) >= 4:
+                out.append((cells[0].strip("`"), cells[2], cells[3]))
     return out
 
 
@@ -113,7 +114,8 @@ def main(argv):
             print(f"check_publishing: SKIP refresh — offline or refused ({type(e).__name__}); "
                   f"the cached listing stands", file=sys.stderr)
             return 0
-        open(CACHE, "wb").write(data)
+        with open(CACHE, "wb") as fh:
+            fh.write(data)
         print(f"check_publishing: cached {len(categories())} categories from {OCS_URL}")
         return 0
     if "--categories" in args:

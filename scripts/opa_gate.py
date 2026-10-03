@@ -68,7 +68,7 @@ def measure(name, operands=(), script=None):
     overrides the measurer (the --expect selftest's raising/garbage fixtures)."""
     script = script or measurer(name)
     r = subprocess.run([sys.executable, script, "--json", *operands],
-                       capture_output=True, text=True, cwd=ROOT, timeout=600)
+                       capture_output=True, text=True, cwd=ROOT, timeout=600, check=False)
     if r.returncode == 2:
         raise UsageRefusal(f"{os.path.basename(script)} refused its arguments (exit 2): "
                            f"{r.stderr.strip()[-300:]}")
@@ -87,7 +87,7 @@ def value(name, doc):
     defines, for a check whose listing mode shows what the POLICY derived (e.g.
     check_mark --files reads `offending`) rather than re-deriving it in Python."""
     r = subprocess.run([OPA, "eval", "-f", "json", "-I", "-d", POLICY, f"data.el.{name}"],
-                       input=json.dumps(doc), capture_output=True, text=True, timeout=120)
+                       input=json.dumps(doc), capture_output=True, text=True, timeout=120, check=False)
     if r.returncode != 0:
         raise RuntimeError(f"opa eval exited {r.returncode}: {r.stderr[-300:]}")
     res = json.loads(r.stdout)["result"]
@@ -169,7 +169,7 @@ def cpu_of(script):
     import resource
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
     r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", script)],
-                       capture_output=True, cwd=ROOT, timeout=900)
+                       capture_output=True, cwd=ROOT, timeout=900, check=False)
     after = resource.getrusage(resource.RUSAGE_CHILDREN)
     return r.returncode, (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
 
@@ -236,7 +236,7 @@ def main(argv):
             print(f"{n:24s} policy/{n}.rego  {os.path.basename(m)} {'--json' if os.path.isfile(m) else 'ABSENT'}")
         return 0
     if "--test" in args:
-        r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True)
+        r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True, check=False)
         print(r.stdout.strip() or r.stderr.strip())
         return r.returncode
     if not names:
@@ -366,7 +366,7 @@ def _selftest():
     chk("a withheld case beside admitted ones is a SKIP (0)", verdict({"deny": [], "withheld": ["x"], "admitted": ["a"]}), 0)
     chk("a withheld case with nothing admitted is 3", verdict({"deny": [], "withheld": ["x"], "admitted": []}), 3)
     chk("a deny outranks admitted", verdict({"deny": ["d"], "withheld": [], "admitted": ["a"]}), 1)
-    r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True)
+    r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True, check=False)
     chk("opa test policy/ passes", r.returncode, 0)
     # W75 --expect: one arm per outcome, over the real serial reader and fixtures
     import tempfile

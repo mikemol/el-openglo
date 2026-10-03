@@ -52,9 +52,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-import cvd_gate as C                                              # noqa: E402
-import palette_graph as PG                                        # noqa: E402
-
+import cvd_gate as C
+import palette_graph as PG
 
 # The parsing mode under measurement (W12): looked-at surfaces draw ghost_alpha,
 # glanced-at ones ghost_alpha_glanced, and each mode has its own ground floor.
@@ -249,6 +248,7 @@ def format_coverage(fmt):
     0.105 H), rasterised on glyph_match's cell grid. 22 uses every SEG22 stroke;
     the others use segment_topology.FORMATS[fmt]['mask'] over GEOM16."""
     import numpy as np
+
     import glyph_match as GM
     import segment_topology as ST
     sw = ST.metrics(4.0)["stroke"] / 2.0
@@ -317,7 +317,7 @@ def _solve_report():
     for vid, ground, lit, ghost in rows:
         s = solve_through_alpha(lit, ground)
         req = s["fg_in_required"]
-        req_s = ",".join(str(int(round(c))) for c in req) if req else "—"
+        req_s = ",".join(str(round(c)) for c in req) if req else "—"
         t_s = f"{s['t_declared']:.3f}" if s["t_declared"] is not None else "  <0  "
         a_s = f"{s['alpha_min']:.2f}" if s["alpha_min"] is not None else "  —"
         n_ok += bool(s["feasible"])
