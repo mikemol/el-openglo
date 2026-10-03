@@ -604,3 +604,4 @@
 2026-10-03T21:07:13Z  tick  W262 done      minted    "check_qml_lint --decls: QML declarations located structurally; W242 unblocked with line-addressed next step"  evidence=marquee-main.qml 98 declarations
 2026-10-03T22:04:32Z  tick  W242 done      advanced  "shortened replace measured live (L14), boardX defect fixed"  evidence=opa_gate marquee_live admitted
 2026-10-03T22:08:08Z  tick  W263 minted    collapse  "operator clock report measured: harness shows config reaches pixels, the default halo washes the face; legibility gate and reach witness (W264) minted"  evidence=render_qml bloom sweep: other px 762/3559/5439/5960
+2026-10-03T22:49:36Z  tick  W265 minted    collapse  "clock strokes quantise to the same 2 px at panel size; W266 gate gap; both minted from the operator clock report"  evidence=W263 evidence
