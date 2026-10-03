@@ -4,6 +4,8 @@
  <group name="General">
   <!-- DISPLAY layer: display_params.MOUNTS['clock'] (do not hand-edit here) -->
   <entry name="showGhost" type="Bool"><default>true</default></entry>
+  <!-- ghostOpacity: the DEFAULT is the palette's SOLVED ghost alpha, filled at emit time; the slider is a per-user override, never the source -->
+  <entry name="ghostAlpha" type="Double"><default>0.566</default></entry>
   <entry name="weight" type="Double"><default>1.0</default></entry>
   <!-- ghostWeight: 0.4: the operator's live tuning promoted to the default (2026-09-22) -->
   <entry name="ghostWeight" type="Double"><default>0.4</default></entry>

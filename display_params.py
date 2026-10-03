@@ -107,12 +107,22 @@ _PIP_ONE_SIZE = (
 MOUNTS = {
     "clock": {
         "ghost": Exposed("showGhost", "true"),
-        "ghostOpacity": Withheld(_BAKED_ALPHA + " (looked-at alpha)"),
+        # operator 2026-10-03: "the ghost brightness is too high and not adjustable". The DEFAULT stays the
+        # palette's SOLVED alpha (filled at emit time); the slider is a per-user override, never the source
+        "ghostOpacity": Exposed(
+            "ghostAlpha",
+            "$ghostAlpha",
+            ("0.0", "1.0", "0.02"),
+            "the DEFAULT is the palette's SOLVED ghost alpha, filled at emit "
+            "time; the slider is a per-user override, never the source",
+        ),
         "litWeight": Exposed("weight", "1.0", ("0", "1", "0.25")),
+        # the slider's floor is 0, which is OFF (SegmentChar draws no ghost at 0): the old floor of 0.3
+        # sat inside the 2 px stroke quantisation, so the whole lower range drew the same ghost (W263)
         "ghostWeight": Exposed(
             "ghostWeight",
             "0.4",
-            ("0.3", "1.0", "0.05"),
+            ("0", "1.0", "0.05"),
             "0.4: the operator's live tuning promoted to the default (2026-09-22)",
         ),
         "fill": Withheld(_SEG_FILL),

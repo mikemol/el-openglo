@@ -117,14 +117,23 @@ def _metrics_holes():
 # them once for every mount; the templates carry only this clock's mount rows.
 import display_params as _DP
 
+
+def _display_holes():
+    """The holes the display rows may name: the metrics, and the palette's solved ghost alpha
+    (the DEFAULT of the unlit-opacity override)."""
+    import make_taskswitch as TS
+
+    return dict(_metrics_holes(), ghostAlpha=TS.ghost_alpha())
+
+
 CONFIG_XML = _t(
     "clock-config.kcfg",
-    displayEntries=_DP.kcfg_entries("clock", _metrics_holes(), "  "),
+    displayEntries=_DP.kcfg_entries("clock", _display_holes(), "  "),
 )
 CONFIG_QML = _t(
     "clock-config.qml",
     displayDecls=_DP.qml_decls("clock"),
-    displayControls=_DP.qml_controls("clock", _metrics_holes()),
+    displayControls=_DP.qml_controls("clock", _display_holes()),
 )
 
 
