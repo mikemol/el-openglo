@@ -365,6 +365,25 @@
   check   = {tool:check_ghost_composite.py --selftest}
 }
 
+% ⚑ A GATE THAT DID NOT GATE (W266, 2026-10-03). A clock template edit that replaced the baked
+% ghost alpha with a configuration expression made check_ghost_surfaces refuse 6 of 6 clock
+% variants, and the commit PASSED: the check was listed in COTYPE.md (cotype is non-blocking)
+% but cited by no warrant, so no gate ran it. The claim is that every surface draws the
+% palette's solved ghost at the palette's solved alpha; the check refuses an empty population.
+@misc{GHOST-SURFACES,
+  section = {emitters},
+  claim   = {every emitted surface draws the ghost the palette solved, at the alpha the palette solved, under every variant (30 of 30 surface by variant emissions today)},
+  rests-on = {GHOST},
+  check   = {tool:check_ghost_surfaces.py}
+}
+
+@misc{GHOST-SURFACES-SEES,
+  section = {emitters},
+  claim   = {the surface comparison is shown to admit a faithful surface and to refuse one drawing its own ghost, one drawing its own alpha, a baked hex or wrong role binding, and an empty population},
+  rests-on = {GHOST-SURFACES},
+  check   = {tool:check_ghost_surfaces.py --selftest}
+}
+
 % ⚑ A GRAPH READ AS A TABLE IS HOW A CYCLE STAYS INVISIBLE. 21 nodes over four
 % families, with b1=24 counting the places pairwise satisfaction need not compose
 % — none of which a per-edge listing can show. The render carries the graph's own
