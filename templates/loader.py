@@ -25,6 +25,7 @@ raises on an unfilled `$name`. A silently-blank colour renders as black and look
 like a design decision; the whole point of moving these out of the source is that
 failures become visible rather than plausible.
 """
+
 import os
 import string
 import sys
@@ -61,8 +62,11 @@ def render(name, root=None, **holes):
 def names(root=None):
     """Every template this directory holds, sorted."""
     d = root or HERE
-    return sorted(f for f in os.listdir(d)
-                  if not f.startswith((".", "_")) and not f.endswith(".py"))
+    return sorted(
+        f
+        for f in os.listdir(d)
+        if not f.startswith((".", "_")) and not f.endswith(".py")
+    )
 
 
 def _selftest():
@@ -77,16 +81,23 @@ def _selftest():
             print(f"  ok   {label}")
 
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         with open(os.path.join(td, "plain.qml"), "w") as fh:
             fh.write("Item { id: root }\n")
         with open(os.path.join(td, "holed.qml"), "w") as fh:
             fh.write("color: $lit\nItem { }\n")
         # ⚑ BRACES SURVIVE UNTOUCHED — the property this exists for.
-        check("a brace artifact round-trips", render("plain.qml", root=td),
-              "Item { id: root }\n")
-        check("a hole is filled", render("holed.qml", root=td, lit="#99ffeb"),
-              "color: #99ffeb\nItem { }\n")
+        check(
+            "a brace artifact round-trips",
+            render("plain.qml", root=td),
+            "Item { id: root }\n",
+        )
+        check(
+            "a hole is filled",
+            render("holed.qml", root=td, lit="#99ffeb"),
+            "color: #99ffeb\nItem { }\n",
+        )
         # ⚑ AN UNFILLED HOLE RAISES rather than rendering blank.
         try:
             render("holed.qml", root=td, wrong="x")

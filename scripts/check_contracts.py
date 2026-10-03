@@ -24,6 +24,7 @@ listed there. A key built at run time, a record passed through another name, and
 consumer that is a Rego policy (policy/screens.rego reads the same rows) are invisible.
 Declaring that a field is guaranteed is not a proof it is guaranteed on every path.
 """
+
 import ast
 import json
 import os
@@ -36,19 +37,34 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # and the function whose returned literal the loop merges in. consumers: file -> receivers.
 SURFACES = {
     "render_screens.animation": {
-        "producer": {"file": "catalog/library/render_screens.py", "func": "measure",
-                     "loop_calls": "plan_animations", "merges": "animation_facts"},
+        "producer": {
+            "file": "catalog/library/render_screens.py",
+            "func": "measure",
+            "loop_calls": "plan_animations",
+            "merges": "animation_facts",
+        },
         "consumers": {"scripts/check_screens.py": ["a", "anim"]},
     },
 }
 
 
 def _str_keys(node):
-    return [k.value for k in node.keys if isinstance(k, ast.Constant) and isinstance(k.value, str)]
+    return [
+        k.value
+        for k in node.keys
+        if isinstance(k, ast.Constant) and isinstance(k.value, str)
+    ]
 
 
 def _func(tree, name):
-    return next((n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef) and n.name == name), None)
+    return next(
+        (
+            n
+            for n in ast.walk(tree)
+            if isinstance(n, ast.FunctionDef) and n.name == name
+        ),
+        None,
+    )
 
 
 def _returned_keys(fn):
@@ -65,8 +81,13 @@ def emitted(source, spec):
     fn = _func(tree, spec["func"])
     if fn is None:
         return None
-    loops = [n for n in ast.walk(fn) if isinstance(n, ast.For) and isinstance(n.iter, ast.Call)
-             and getattr(n.iter.func, "id", None) == spec["loop_calls"]]
+    loops = [
+        n
+        for n in ast.walk(fn)
+        if isinstance(n, ast.For)
+        and isinstance(n.iter, ast.Call)
+        and getattr(n.iter.func, "id", None) == spec["loop_calls"]
+    ]
     if not loops:
         return None
     keys = set()
@@ -75,12 +96,21 @@ def emitted(source, spec):
             keys.update(_str_keys(n.value))
         elif isinstance(n, ast.Assign):
             for t in n.targets:
-                if (isinstance(t, ast.Subscript) and isinstance(t.slice, ast.Constant)
-                        and isinstance(t.slice.value, str)):
+                if (
+                    isinstance(t, ast.Subscript)
+                    and isinstance(t.slice, ast.Constant)
+                    and isinstance(t.slice.value, str)
+                ):
                     keys.add(t.slice.value)
-        elif (isinstance(n, ast.Call) and getattr(n.func, "attr", None) == "update"
-              and any(getattr(a.func, "id", None) == spec["merges"]
-                      for a in n.args if isinstance(a, ast.Call))):
+        elif (
+            isinstance(n, ast.Call)
+            and getattr(n.func, "attr", None) == "update"
+            and any(
+                getattr(a.func, "id", None) == spec["merges"]
+                for a in n.args
+                if isinstance(a, ast.Call)
+            )
+        ):
             merged = _func(tree, spec["merges"])
             if merged is not None:
                 keys.update(_returned_keys(merged))
@@ -91,13 +121,25 @@ def reads(source, receivers):
     """[{field, line}] for every `<recv>["k"]` / `<recv>.get("k")` over the named receivers."""
     out = []
     for n in ast.walk(ast.parse(source)):
-        if (isinstance(n, ast.Subscript) and isinstance(n.value, ast.Name) and n.value.id in receivers
-                and isinstance(n.slice, ast.Constant) and isinstance(n.slice.value, str)
-                and isinstance(n.ctx, ast.Load)):
+        if (
+            isinstance(n, ast.Subscript)
+            and isinstance(n.value, ast.Name)
+            and n.value.id in receivers
+            and isinstance(n.slice, ast.Constant)
+            and isinstance(n.slice.value, str)
+            and isinstance(n.ctx, ast.Load)
+        ):
             out.append({"field": n.slice.value, "line": n.lineno})
-        elif (isinstance(n, ast.Call) and isinstance(n.func, ast.Attribute) and n.func.attr == "get"
-              and isinstance(n.func.value, ast.Name) and n.func.value.id in receivers
-              and n.args and isinstance(n.args[0], ast.Constant) and isinstance(n.args[0].value, str)):
+        elif (
+            isinstance(n, ast.Call)
+            and isinstance(n.func, ast.Attribute)
+            and n.func.attr == "get"
+            and isinstance(n.func.value, ast.Name)
+            and n.func.value.id in receivers
+            and n.args
+            and isinstance(n.args[0], ast.Constant)
+            and isinstance(n.args[0].value, str)
+        ):
             out.append({"field": n.args[0].value, "line": n.lineno})
     return sorted(out, key=lambda r: (r["line"], r["field"]))
 
@@ -120,7 +162,12 @@ def measure(surfaces=None, read=_read):
         cons = []
         for rel, recv in sorted(spec["consumers"].items()):
             csrc = read(rel)
-            cons.append({"file": rel, "reads": reads(csrc, set(recv)) if csrc is not None else None})
+            cons.append(
+                {
+                    "file": rel,
+                    "reads": reads(csrc, set(recv)) if csrc is not None else None,
+                }
+            )
         out.append({"surface": name, "emitted": keys, "consumers": cons})
     return {"surfaces": out}
 
@@ -135,6 +182,7 @@ def main(argv):
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("contracts")
 
 
@@ -143,7 +191,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     prod = (
@@ -156,22 +207,59 @@ def _selftest():
         "    for fn in plan():\n"
         "        row = {'screen_only': 1}\n"
     )
-    spec = {"file": "p.py", "func": "measure", "loop_calls": "plan_animations", "merges": "facts"}
-    chk("emitted sees the literal, the update merge and the store, not another loop",
-        emitted(prod, spec), ["exists", "file", "frames", "logged", "tears"])
-    chk("a producer without the loop is unreadable (None)", emitted("def measure():\n    pass\n", spec), None)
+    spec = {
+        "file": "p.py",
+        "func": "measure",
+        "loop_calls": "plan_animations",
+        "merges": "facts",
+    }
+    chk(
+        "emitted sees the literal, the update merge and the store, not another loop",
+        emitted(prod, spec),
+        ["exists", "file", "frames", "logged", "tears"],
+    )
+    chk(
+        "a producer without the loop is unreadable (None)",
+        emitted("def measure():\n    pass\n", spec),
+        None,
+    )
     cons = "def f(a, b):\n    x = a['frames']\n    y = a.get('seamless')\n    z = b['other']\n    a['w'] = 1\n"
-    chk("reads sees subscripts and .get on the named receiver only, not stores",
-        [r["field"] for r in reads(cons, {"a"})], ["frames", "seamless"])
-    m = measure({"s": {"producer": spec, "consumers": {"c.py": ["a"]}}},
-                read={"p.py": prod, "c.py": cons}.get)
-    chk("measure joins them", (m["surfaces"][0]["emitted"][0], len(m["surfaces"][0]["consumers"][0]["reads"])),
-        ("exists", 2))
-    gone = measure({"s": {"producer": spec, "consumers": {"c.py": ["a"]}}}, read=lambda _p: None)
-    chk("an unreadable producer is null, not empty", gone["surfaces"][0]["emitted"], None)
+    chk(
+        "reads sees subscripts and .get on the named receiver only, not stores",
+        [r["field"] for r in reads(cons, {"a"})],
+        ["frames", "seamless"],
+    )
+    m = measure(
+        {"s": {"producer": spec, "consumers": {"c.py": ["a"]}}},
+        read={"p.py": prod, "c.py": cons}.get,
+    )
+    chk(
+        "measure joins them",
+        (
+            m["surfaces"][0]["emitted"][0],
+            len(m["surfaces"][0]["consumers"][0]["reads"]),
+        ),
+        ("exists", 2),
+    )
+    gone = measure(
+        {"s": {"producer": spec, "consumers": {"c.py": ["a"]}}}, read=lambda _p: None
+    )
+    chk(
+        "an unreadable producer is null, not empty",
+        gone["surfaces"][0]["emitted"],
+        None,
+    )
     real = measure()
-    chk("the real surface is read (emitted a non-empty list)", bool(real["surfaces"][0]["emitted"]), True)
-    chk("the real consumer reads at least one field", len(real["surfaces"][0]["consumers"][0]["reads"]) > 0, True)
+    chk(
+        "the real surface is read (emitted a non-empty list)",
+        bool(real["surfaces"][0]["emitted"]),
+        True,
+    )
+    chk(
+        "the real consumer reads at least one field",
+        len(real["surfaces"][0]["consumers"][0]["reads"]) > 0,
+        True,
+    )
     print("check_contracts selftest:", "PASS" if ok else "FAIL")
     return ok
 

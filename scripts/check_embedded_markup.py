@@ -30,6 +30,7 @@ loop is a DRAWING PRIMITIVE — the program's proper business. A 40-line documen
 with a <defs> block and a filter chain is an ARTIFACT wearing a string's
 clothes. The threshold is stated, not implied, so raising it is a visible act.
 """
+
 import ast
 import os
 import sys
@@ -70,6 +71,7 @@ def sources(root=None):
     .tree-writes/) and untracked files included — not the modules it scanned."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import git_tracked
+
     return git_tracked.files(":(glob)*.py", root=root or ROOT)
 
 
@@ -112,8 +114,9 @@ def _docstrings(tree):
     """Line numbers of every docstring constant, which are prose by definition."""
     lines = set()
     for node in ast.walk(tree):
-        if isinstance(node, (ast.Module, ast.ClassDef, ast.FunctionDef,
-                             ast.AsyncFunctionDef)):
+        if isinstance(
+            node, (ast.Module, ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)
+        ):
             doc = ast.get_docstring(node, clean=False)
             if doc is not None and node.body:
                 first = node.body[0]
@@ -173,6 +176,7 @@ def measure(root=None, planted=()):
     try:
         sys.path.insert(0, os.path.join(ROOT, "scripts"))
         import identify  # noqa: F401
+
         identifier = True
     except ImportError:
         identifier = False
@@ -182,10 +186,17 @@ def measure(root=None, planted=()):
         "identifier": identifier,
         "document_lines": DOCUMENT_LINES,
         "waivers": [{"path": p, "why": w} for p, w in sorted(WAIVERS.items())],
-        "cases": [{"id": fn,
-                   "found": [{"line": ln, "kind": k, "lines": n}
-                             for f, ln, k, n in found if f == fn]}
-                  for fn in population],
+        "cases": [
+            {
+                "id": fn,
+                "found": [
+                    {"line": ln, "kind": k, "lines": n}
+                    for f, ln, k, n in found
+                    if f == fn
+                ],
+            }
+            for fn in population
+        ],
     }
 
 
@@ -201,9 +212,13 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
+
         # W75: .py operands are PLANTED — scanned with the tree, by the same rule
-        planted = [a if os.path.isabs(a) else os.path.join(ROOT, a)
-                   for a in argv[1:] if not a.startswith("--")]
+        planted = [
+            a if os.path.isabs(a) else os.path.join(ROOT, a)
+            for a in argv[1:]
+            if not a.startswith("--")
+        ]
         print(json.dumps(measure(planted=planted), indent=1))
         return 0
     if "--report" in argv:
@@ -213,6 +228,7 @@ def main(argv):
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("embedded_markup")
 
 
@@ -228,30 +244,50 @@ def _selftest():
             print(f"  ok   {label}")
 
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         # ⚑ THE SCAN MUST SEE A PLANTED ARTIFACT, or its all-clear means nothing.
         with open(os.path.join(td, "emb.py"), "w") as fh:
-            fh.write('X = """<svg>\n' + "\n".join(f"  <rect id='{i}'/>" for i in range(12))
-                     + '\n</svg>"""\n')
-        check("sees a planted SVG document", len(findings(td)) , 1)
+            fh.write(
+                'X = """<svg>\n'
+                + "\n".join(f"  <rect id='{i}'/>" for i in range(12))
+                + '\n</svg>"""\n'
+            )
+        check("sees a planted SVG document", len(findings(td)), 1)
         # ⚑ A DOCSTRING MENTIONING MARKUP IS PROSE, NOT AN ARTIFACT. This file's
         # own docstring says `<svg`; if that fired, the tool would refuse itself.
         with open(os.path.join(td, "doc.py"), "w") as fh:
-            fh.write('"""A long docstring about <svg documents.\n' + "\n" * 12 + '"""\nY = 1\n')
+            fh.write(
+                '"""A long docstring about <svg documents.\n'
+                + "\n" * 12
+                + '"""\nY = 1\n'
+            )
         planted = [f for f in findings(td) if f[0] == "doc.py"]
         check("a docstring about markup does not fire", planted, [])
         # ⚑ A SMALL PRIMITIVE IS NOT A DOCUMENT.
         with open(os.path.join(td, "prim.py"), "w") as fh:
             fh.write('Z = "<svg><rect/></svg>"\n')
-        check("a one-line primitive does not fire",
-              [f for f in findings(td) if f[0] == "prim.py"], [])
+        check(
+            "a one-line primitive does not fire",
+            [f for f in findings(td) if f[0] == "prim.py"],
+            [],
+        )
         m = measure(td)
-        check("the measurement names the planted module and its document",
-              [c["found"][0]["kind"] for c in m["cases"] if c["id"] == "emb.py"], ["image/svg+xml"])
-        check("and reports the clean modules as scanned, not absent",
-              sorted(c["id"] for c in m["cases"] if not c["found"]), ["doc.py", "prim.py"])
-    check("this tool does not fire on itself",
-          [f for f in findings() if f[0] == "check_embedded_markup.py"], [])
+        check(
+            "the measurement names the planted module and its document",
+            [c["found"][0]["kind"] for c in m["cases"] if c["id"] == "emb.py"],
+            ["image/svg+xml"],
+        )
+        check(
+            "and reports the clean modules as scanned, not absent",
+            sorted(c["id"] for c in m["cases"] if not c["found"]),
+            ["doc.py", "prim.py"],
+        )
+    check(
+        "this tool does not fire on itself",
+        [f for f in findings() if f[0] == "check_embedded_markup.py"],
+        [],
+    )
     check("the real population is non-empty", len(measure()["cases"]) > 0, True)
 
     # ⚑ IDENTIFICATION ALONE WOULD FIRE ON PROSE, AND POSITION IS WHAT SAVES IT.
@@ -262,11 +298,17 @@ def _selftest():
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     try:
         import identify
-        prose = ("The QML lives in templates/, not here. A generator that "
-                 "writes\n\n    import QtQuick\n    Item { id: root }\n\n"
-                 "inline has hidden an artifact inside a program.\n")
-        check("prose about QML DOES identify as QML (position is the guard)",
-              identify.of_string(prose), "text/x-qml")
+
+        prose = (
+            "The QML lives in templates/, not here. A generator that "
+            "writes\n\n    import QtQuick\n    Item { id: root }\n\n"
+            "inline has hidden an artifact inside a program.\n"
+        )
+        check(
+            "prose about QML DOES identify as QML (position is the guard)",
+            identify.of_string(prose),
+            "text/x-qml",
+        )
     except ImportError:
         check("identify.py is importable", False, True)
     check("every waiver carries a reason", all(WAIVERS.values()), True)

@@ -13,6 +13,7 @@ conjunction matcher needs. Farming fill to matplotlib/PIL discarded that orienta
 (concatenated contours lose which way each winds) — the lossy-external-projector
 error. Curves are flattened to fine polylines (orientation preserved; NOT the same as
 rasterizing to a pixel grid — no boundary detail is quantized away)."""
+
 import functools
 
 from fontTools.pens.recordingPen import DecomposingRecordingPen
@@ -33,9 +34,13 @@ def _font(path):
 
 
 def _flatten_q(p0, c, p1, n=12):
-    return [((1-t)**2*p0[0]+2*(1-t)*t*c[0]+t*t*p1[0],
-             (1-t)**2*p0[1]+2*(1-t)*t*c[1]+t*t*p1[1])
-            for t in [i/n for i in range(1, n+1)]]
+    return [
+        (
+            (1 - t) ** 2 * p0[0] + 2 * (1 - t) * t * c[0] + t * t * p1[0],
+            (1 - t) ** 2 * p0[1] + 2 * (1 - t) * t * c[1] + t * t * p1[1],
+        )
+        for t in [i / n for i in range(1, n + 1)]
+    ]
 
 
 def contours(path, ch):
@@ -47,27 +52,44 @@ def contours(path, ch):
     76): 'e' 2 contours, 'é' 0. The decomposing pen draws the components
     through the glyph set with their offsets applied."""
     _f, gs, cmap = _font(path)
-    pen = DecomposingRecordingPen(gs); gs[cmap[ord(ch)]].draw(pen)
-    polys = []; cur = []; last = (0, 0)
+    pen = DecomposingRecordingPen(gs)
+    gs[cmap[ord(ch)]].draw(pen)
+    polys = []
+    cur = []
+    last = (0, 0)
     for op, a in pen.value:
         if op == "moveTo":
-            cur = [a[0]]; last = a[0]
+            cur = [a[0]]
+            last = a[0]
         elif op == "lineTo":
-            cur.append(a[0]); last = a[0]
+            cur.append(a[0])
+            last = a[0]
         elif op == "qCurveTo":
-            pts = list(a); on = pts[-1]; offs = pts[:-1]; prev = last
+            pts = list(a)
+            on = pts[-1]
+            offs = pts[:-1]
+            prev = last
             for i in range(len(offs)):
                 c = offs[i]
-                nxt = on if i == len(offs)-1 else ((offs[i][0]+offs[i+1][0])/2,
-                                                   (offs[i][1]+offs[i+1][1])/2)
-                cur += _flatten_q(prev, c, nxt); prev = nxt
+                nxt = (
+                    on
+                    if i == len(offs) - 1
+                    else (
+                        (offs[i][0] + offs[i + 1][0]) / 2,
+                        (offs[i][1] + offs[i + 1][1]) / 2,
+                    )
+                )
+                cur += _flatten_q(prev, c, nxt)
+                prev = nxt
             last = on
         elif op == "curveTo":
-            cur.append(a[-1]); last = a[-1]
+            cur.append(a[-1])
+            last = a[-1]
         elif op == "closePath":
             if len(cur) >= 3:
-                cur.append(cur[0])         # explicitly close
-                polys.append(cur); cur = []
+                cur.append(cur[0])  # explicitly close
+                polys.append(cur)
+                cur = []
     return polys
 
 
@@ -79,34 +101,47 @@ def outline_stats(path, ch, axis_tol=0.15):
     (⊕SEG-DOTPRODUCT-TEMPLATES, session 78): the shape the templates must
     follow, measured on the ink rather than guessed from the letter."""
     import math
-    f = TTFont(path); gs = f.getGlyphSet(); cmap = f.getBestCmap()
+
+    f = TTFont(path)
+    gs = f.getGlyphSet()
+    cmap = f.getBestCmap()
     if ord(ch) not in cmap:
         return None
-    pen = DecomposingRecordingPen(gs); gs[cmap[ord(ch)]].draw(pen)
+    pen = DecomposingRecordingPen(gs)
+    gs[cmap[ord(ch)]].draw(pen)
     out = {"straight": 0.0, "diagonal": 0.0, "curve": 0.0}
-    xs = []; ys = []
+    xs = []
+    ys = []
     last = start = (0, 0)
     for op, a in pen.value:
         if op == "moveTo":
-            last = start = a[0]; xs.append(a[0][0]); ys.append(a[0][1])
+            last = start = a[0]
+            xs.append(a[0][0])
+            ys.append(a[0][1])
         elif op == "lineTo":
-            p = a[0]; dx, dy = p[0]-last[0], p[1]-last[1]
+            p = a[0]
+            dx, dy = p[0] - last[0], p[1] - last[1]
             L = math.hypot(dx, dy)
             if L:
                 ratio = min(abs(dx), abs(dy)) / max(abs(dx), abs(dy))
                 out["straight" if ratio <= axis_tol else "diagonal"] += L
-            last = p; xs.append(p[0]); ys.append(p[1])
+            last = p
+            xs.append(p[0])
+            ys.append(p[1])
         elif op in ("qCurveTo", "curveTo"):
-            pts = list(a); on = pts[-1]
+            pts = list(a)
+            on = pts[-1]
             prev = last
             for q in pts:
                 if q is None:
                     continue
-                out["curve"] += math.hypot(q[0]-prev[0], q[1]-prev[1]); prev = q
-                xs.append(q[0]); ys.append(q[1])
+                out["curve"] += math.hypot(q[0] - prev[0], q[1] - prev[1])
+                prev = q
+                xs.append(q[0])
+                ys.append(q[1])
             last = on
         elif op == "closePath":
-            dx, dy = start[0]-last[0], start[1]-last[1]
+            dx, dy = start[0] - last[0], start[1] - last[1]
             L = math.hypot(dx, dy)
             if L:
                 ratio = min(abs(dx), abs(dy)) / max(abs(dx), abs(dy))
@@ -117,15 +152,15 @@ def outline_stats(path, ch, axis_tol=0.15):
 
 
 def _is_left(a, b, p):
-    return (b[0]-a[0])*(p[1]-a[1]) - (p[0]-a[0])*(b[1]-a[1])
+    return (b[0] - a[0]) * (p[1] - a[1]) - (p[0] - a[0]) * (b[1] - a[1])
 
 
 def _winding(px, py, polys):
     """Winding number of (px,py) over all oriented contours (Sunday wn_PnPoly)."""
     wn = 0
     for poly in polys:
-        for i in range(len(poly)-1):
-            a, b = poly[i], poly[i+1]
+        for i in range(len(poly) - 1):
+            a, b = poly[i], poly[i + 1]
             if a[1] <= py:
                 if b[1] > py and _is_left(a, b, (px, py)) > 0:
                     wn += 1
@@ -149,15 +184,16 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
     hypothesis was the calibration's first input and its rejection is the
     record; a proportional font's narrow glyphs may yet want it."""
     polys = contours(path, ch)
-    xs = [p[0] for pl in polys for p in pl]; ys = [p[1] for pl in polys for p in pl]
+    xs = [p[0] for pl in polys for p in pl]
+    ys = [p[1] for pl in polys for p in pl]
     x0, x1, y0, y1 = min(xs), max(xs), min(ys), max(ys)
     W, H = box
     if frame == "stretch":
-        sx, sy, ox, oy = W/(x1-x0), H/(y1-y0), 0.0, 0.0
+        sx, sy, ox, oy = W / (x1 - x0), H / (y1 - y0), 0.0, 0.0
     elif frame == "fit":
-        s = min(W/(x1-x0), H/(y1-y0))
+        s = min(W / (x1 - x0), H / (y1 - y0))
         sx = sy = s
-        ox, oy = (W-(x1-x0)*s)/2, (H-(y1-y0)*s)/2
+        ox, oy = (W - (x1 - x0) * s) / 2, (H - (y1 - y0) * s) / 2
     elif frame == "lowercase":
         # ⚑ THE LOWERCASE FRAME (session 84): the lattice's lowercase convention
         # puts the x-height at the MID-BAR (g, cell y=2) and the ascender at the
@@ -168,18 +204,19 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
         # piecewise, the way a segment display compresses a lowercase body.
         cap, desc = font_frame(path)
         xh = font_xheight(path) or cap * 0.5
-        sx = W/(x1-x0)
+        sx = W / (x1 - x0)
         below = H - BODY_H
 
         def _gy(py):
             if py >= xh:
-                return (BODY_H/2) - (py-xh)/max(1e-9, cap-xh) * (BODY_H/2)
+                return (BODY_H / 2) - (py - xh) / max(1e-9, cap - xh) * (BODY_H / 2)
             if py >= 0:
-                return BODY_H - py/xh * (BODY_H/2)
+                return BODY_H - py / xh * (BODY_H / 2)
             if below <= 0 or desc >= 0:
                 return BODY_H + 1e-3
-            return BODY_H + (py/desc) * below
-        tp = [[((px-x0)*sx, _gy(py)) for px, py in pl] for pl in polys]
+            return BODY_H + (py / desc) * below
+
+        tp = [[((px - x0) * sx, _gy(py)) for px, py in pl] for pl in polys]
         return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
     elif frame == "metrics":
         # ⚑ THE FONT'S FRAME, as matrix_glyph uses (session 76): x from the
@@ -192,24 +229,28 @@ def ink_field(path, ch, box=(2.0, 4.0), frame="stretch"):
         # (session 83, ⊕SEG22-DESCENDERS: the 2x6 cell). A box of exactly the
         # body height clips descenders below it.
         cap, desc = font_frame(path)
-        sx = W/(x1-x0)
+        sx = W / (x1 - x0)
         below = H - BODY_H
 
         def _gy(py):
             if py >= 0:
-                return BODY_H - py/cap*BODY_H
+                return BODY_H - py / cap * BODY_H
             if below <= 0 or desc >= 0:
-                return BODY_H + 1e-3          # below the cell, clipped
-            return BODY_H + (py/desc) * below  # py, desc both negative
-        tp = [[((px-x0)*sx, _gy(py)) for px, py in pl] for pl in polys]
+                return BODY_H + 1e-3  # below the cell, clipped
+            return BODY_H + (py / desc) * below  # py, desc both negative
+
+        tp = [[((px - x0) * sx, _gy(py)) for px, py in pl] for pl in polys]
         return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
     else:
         raise ValueError(f"ink_field: unknown frame {frame!r} (stretch|fit|metrics)")
-    tp = [[(ox+(px-x0)*sx, H-oy-(py-y0)*sy) for px, py in pl] for pl in polys]
+    tp = [
+        [(ox + (px - x0) * sx, H - oy - (py - y0) * sy) for px, py in pl]
+        for pl in polys
+    ]
     return lambda gx, gy: 1 if _winding(gx, gy, tp) != 0 else -1
 
 
-BODY_H = 4.0    # the lattice body cell's height in cell units (segment_topology: 2L x 4L)
+BODY_H = 4.0  # the lattice body cell's height in cell units (segment_topology: 2L x 4L)
 
 
 # ── ⊕MATRIX-FONT-INPUT: a font glyph into the dot matrix ─────────────────────
@@ -238,14 +279,17 @@ def font_frame(path):
     immutable (float, float) read from a build-input file (see _font)."""
     f, gs, cmap = _font(path)
     from fontTools.pens.boundsPen import BoundsPen
+
     cap = getattr(f["OS/2"], "sCapHeight", 0) if "OS/2" in f else 0
     if not cap and ord("H") in cmap:
-        bp = BoundsPen(gs); gs[cmap[ord("H")]].draw(bp)
+        bp = BoundsPen(gs)
+        gs[cmap[ord("H")]].draw(bp)
         cap = bp.bounds[3]
     lows = []
     for ch in DESCENDER_PROBES:
         if ord(ch) in cmap:
-            bp = BoundsPen(gs); gs[cmap[ord(ch)]].draw(bp)
+            bp = BoundsPen(gs)
+            gs[cmap[ord(ch)]].draw(bp)
             if bp.bounds:
                 lows.append(bp.bounds[1])
     desc = min(lows) if lows else (f["hhea"].descent if "hhea" in f else -cap * 0.25)
@@ -259,10 +303,13 @@ def font_xheight(path):
     xh = getattr(f["OS/2"], "sxHeight", 0) if "OS/2" in f else 0
     if xh:
         return float(xh)
-    gs = f.getGlyphSet(); cmap = f.getBestCmap()
+    gs = f.getGlyphSet()
+    cmap = f.getBestCmap()
     if ord("x") in cmap:
         from fontTools.pens.boundsPen import BoundsPen
-        bp = BoundsPen(gs); gs[cmap[ord("x")]].draw(bp)
+
+        bp = BoundsPen(gs)
+        gs[cmap[ord("x")]].draw(bp)
         if bp.bounds:
             return float(bp.bounds[3])
     return None
@@ -282,7 +329,7 @@ def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
         return None
     polys = contours(path, ch)
     if not polys:
-        return [0] * cols                       # a space: present, nothing lit
+        return [0] * cols  # a space: present, nothing lit
     cap, desc = font_frame(path)
     xs = [p[0] for pl in polys for p in pl]
     x0, x1 = min(xs), max(xs)
@@ -313,4 +360,6 @@ def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
 
 def matrix_rows(colbytes, rows=8):
     """Column bytes -> row strings ('#' lit), the readable form _cols() authors in."""
-    return ["".join("#" if b & (1 << r) else "." for b in colbytes) for r in range(rows)]
+    return [
+        "".join("#" if b & (1 << r) else "." for b in colbytes) for r in range(rows)
+    ]

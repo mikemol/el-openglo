@@ -35,6 +35,7 @@ roles, and nothing about whether a consumer should adopt it — a legend readers
 learned has value no metric can see, and substrate's live assignment clears the
 floor comfortably at q=1.494. Optimal is not the same as owed.
 """
+
 import json
 import os
 import subprocess
@@ -69,8 +70,7 @@ PINNED: dict[str, str] = {}
 # The same consumer's LIVE assignment, for the comparison arm. Not a target — a
 # measured starting point that clears the floor and is not optimal. `returns` is
 # omitted because it currently carries `neutral`, which is not a palette member.
-LIVE = {"read": "blue", "write": "bluegreen", "pywrite": "purple",
-        "flow": "vermillion"}
+LIVE = {"read": "blue", "write": "bluegreen", "pywrite": "purple", "flow": "vermillion"}
 
 # The emitted artifacts, named here rather than at a call site — the ask's witness
 # scans the tree for a DATA file, so where these live is part of the answer.
@@ -108,8 +108,7 @@ def solved():
 
 def solved_on_ground():
     """The same consumer's roles, constrained to be legible as strokes on white."""
-    return RT.solve_roles(list(GROUND_ROLES), pinned=dict(GROUND_PINNED),
-                          ground=GROUND)
+    return RT.solve_roles(list(GROUND_ROLES), pinned=dict(GROUND_PINNED), ground=GROUND)
 
 
 def renders(dot_text):
@@ -122,8 +121,13 @@ def renders(dot_text):
             src = os.path.join(td, "theme.dot")
             with open(src, "w", encoding="utf-8") as fh:
                 fh.write(dot_text)
-            out = subprocess.run(["dot", "-Tsvg", src], capture_output=True,
-                                 text=True, timeout=60, check=False)
+            out = subprocess.run(
+                ["dot", "-Tsvg", src],
+                capture_output=True,
+                text=True,
+                timeout=60,
+                check=False,
+            )
     except FileNotFoundError:
         return None, "graphviz `dot` is not installed"
     except subprocess.TimeoutExpired:
@@ -139,6 +143,7 @@ def best_q(roles=ROLES, pinned=PINNED):
     compared to this by policy/role_theme.rego (optimality is the falsifiable
     property; admissibility is not — see the module docstring)."""
     import itertools
+
     p = RT.pool()
     floors = C.reference_floors()
     free = [r for r in roles if r not in pinned]
@@ -170,29 +175,53 @@ def measure():
     except ValueError as e:
         json_error = str(e)
     q, best = best_q()
-    m = {"roles": list(ROLES), "pinned": dict(PINNED),
-         "assignment": dict(s["assignment"]),
-         "pins_hold": {r: s["colours"].get(r) == s["colours"].get(t) for r, t in PINNED.items()},
-         "worst_q": s["worst_q"], "best_q": q, "best_assignment": best,
-         "json": {"error": json_error, "fields": sorted(doc),
-                  "assignment": {r: doc.get("assignment", {}).get(r) for r in ROLES}}}
+    m = {
+        "roles": list(ROLES),
+        "pinned": dict(PINNED),
+        "assignment": dict(s["assignment"]),
+        "pins_hold": {
+            r: s["colours"].get(r) == s["colours"].get(t) for r, t in PINNED.items()
+        },
+        "worst_q": s["worst_q"],
+        "best_q": q,
+        "best_assignment": best,
+        "json": {
+            "error": json_error,
+            "fields": sorted(doc),
+            "assignment": {r: doc.get("assignment", {}).get(r) for r in ROLES},
+        },
+    }
     try:
         g = solved_on_ground()
-        m["ground"] = {"refused": None, "ground": g.get("ground"),
-                       "contrast": dict(g.get("ground_contrast") or {}),
-                       "pins_hold": {r: g["colours"].get(r) == g["colours"].get(t)
-                                     for r, t in GROUND_PINNED.items()}}
+        m["ground"] = {
+            "refused": None,
+            "ground": g.get("ground"),
+            "contrast": dict(g.get("ground_contrast") or {}),
+            "pins_hold": {
+                r: g["colours"].get(r) == g["colours"].get(t)
+                for r, t in GROUND_PINNED.items()
+            },
+        }
     except ValueError as e:
-        m["ground"] = {"refused": str(e), "ground": None, "contrast": {}, "pins_hold": {}}
+        m["ground"] = {
+            "refused": str(e),
+            "ground": None,
+            "contrast": {},
+            "pins_hold": {},
+        }
     ok, detail = renders(RT.as_dot(s))
     if ok is None:
         m["render"] = {"withheld": detail, "error": None, "survives": {}}
     elif not ok:
         m["render"] = {"withheld": None, "error": detail, "survives": {}}
     else:
-        m["render"] = {"withheld": None, "error": None,
-                       "survives": {r: RT._hex(s["colours"][r]).lower() in detail.lower()
-                                    for r in ROLES}}
+        m["render"] = {
+            "withheld": None,
+            "error": None,
+            "survives": {
+                r: RT._hex(s["colours"][r]).lower() in detail.lower() for r in ROLES
+            },
+        }
     # one case per declared role: the population the policy's R0 counts
     m["cases"] = [{"id": r} for r in ROLES]
     return m
@@ -219,10 +248,12 @@ def main(argv):
         # next reader would have re-derived it differently. The paths are here.
         s, g = solved(), solved_on_ground()
         out = []
-        for name, text in ((ARTIFACT_DOT, RT.as_dot(s)),
-                           (ARTIFACT_JSON, RT.as_json(s)),
-                           (ARTIFACT_GROUND_DOT, RT.as_dot(g)),
-                           (ARTIFACT_GROUND_JSON, RT.as_json(g))):
+        for name, text in (
+            (ARTIFACT_DOT, RT.as_dot(s)),
+            (ARTIFACT_JSON, RT.as_json(s)),
+            (ARTIFACT_GROUND_DOT, RT.as_dot(g)),
+            (ARTIFACT_GROUND_JSON, RT.as_json(g)),
+        ):
             path = os.path.join(ROOT, name)
             os.makedirs(os.path.dirname(path), exist_ok=True)
             with open(path, "w", encoding="utf-8") as fh:
@@ -240,19 +271,26 @@ def main(argv):
         for r in sorted(set(LIVE) | set(s["assignment"])):
             print(f"{r:10s} {LIVE.get(r, '-'):12s} {s['assignment'].get(r, '-'):12s}")
         print(f"\nlive   q={lq:.3f}  binding {lb[0]}~{lb[1]}")
-        print(f"solved q={s['worst_q']:.3f}  binding "
-              f"{s['binding_pair'][0]}~{s['binding_pair'][1]}")
-        print(f"gap    {s['worst_q'] - lq:+.3f}  "
-              f"(live is {100.0 * lq / s['worst_q']:.0f}% of achievable)")
-        print("\n⚑ BOTH CLEAR THE FLOOR. The gap is optimality, not admissibility — "
-              "and whether\n  it is worth changing a legend readers have learned is "
-              "the consumer's call.")
+        print(
+            f"solved q={s['worst_q']:.3f}  binding "
+            f"{s['binding_pair'][0]}~{s['binding_pair'][1]}"
+        )
+        print(
+            f"gap    {s['worst_q'] - lq:+.3f}  "
+            f"(live is {100.0 * lq / s['worst_q']:.0f}% of achievable)"
+        )
+        print(
+            "\n⚑ BOTH CLEAR THE FLOOR. The gap is optimality, not admissibility — "
+            "and whether\n  it is worth changing a legend readers have learned is "
+            "the consumer's call."
+        )
         return 0
 
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("role_theme")
 
 
@@ -272,9 +310,14 @@ def _selftest():
     # score, a grounded role under 3:1, or a colour lost in the render is DENIED
     # is policy/role_theme_test.rego's ruling (W50).
     m = measure()
-    check("the real theme is measured: every role assigned, score at the exhaustive best",
-          (sorted(m["assignment"]) == sorted(ROLES), abs(m["best_q"] - m["worst_q"]) <= 1e-12),
-          (True, True))
+    check(
+        "the real theme is measured: every role assigned, score at the exhaustive best",
+        (
+            sorted(m["assignment"]) == sorted(ROLES),
+            abs(m["best_q"] - m["worst_q"]) <= 1e-12,
+        ),
+        (True, True),
+    )
 
     # ⚑ THE CONSUMER'S ASSIGNED COLOURS WERE ALREADY OPTIMAL, and the selftest says
     # so rather than asserting the flattering thing. An earlier version asserted the
@@ -288,8 +331,11 @@ def _selftest():
     s_now = solved()
     check("the live assignment clears the floor", lq >= 1.0, True)
     check("the solve is at least as good", s_now["worst_q"] >= lq - 1e-12, True)
-    check("the solve places the roles live did not",
-          sorted(set(s_now["assignment"]) - set(LIVE)), ["returns", "roundtrip"])
+    check(
+        "the solve places the roles live did not",
+        sorted(set(s_now["assignment"]) - set(LIVE)),
+        ["returns", "roundtrip"],
+    )
     # ⚑ AND THE SOLVE DOES MOVE COLOURS, which I asserted it did not.  I wrote an
     # arm claiming the live colours SURVIVE into the solve; it failed on its first
     # run — `pywrite` moves purple->orange and `flow` vermillion->sky, and only
@@ -298,8 +344,11 @@ def _selftest():
     # two that had no palette member, at no cost to the worst pair. Recorded as an
     # arm rather than dropped, because the wrong version passed my reading and only
     # failed when run.
-    moved = sorted(r for r, n in LIVE.items()
-                   if r in s_now["assignment"] and s_now["assignment"][r] != n)
+    moved = sorted(
+        r
+        for r, n in LIVE.items()
+        if r in s_now["assignment"] and s_now["assignment"][r] != n
+    )
     check("the solve reassigns exactly pywrite and flow", moved, ["flow", "pywrite"])
 
     # ⚑ THE FIXTURE MUST COVER EVERY DECLARED ROLE, and my first one did not — it
@@ -308,6 +357,7 @@ def _selftest():
     # subject. The same shape as the marquee fixture that omitted `focus`.
     saved = RT.solve_roles
     try:
+
         def _worse(roles, pinned=None, members=None, **kw):
             # ⚑ **kw, BECAUSE A STUB WITH A FROZEN SIGNATURE BREAKS ON THE NEXT
             # ARGUMENT.  This stub omitted `ground=` and raised TypeError the moment
@@ -323,12 +373,16 @@ def _selftest():
             s["assignment"] = bad
             s["colours"] = {r: p[n] for r, n in bad.items()}
             s["worst_q"], s["binding_pair"] = RT.worst_pair(s["colours"])
-            s["worst_q"] -= 0.5          # claim a score the assignment cannot support
+            s["worst_q"] -= 0.5  # claim a score the assignment cannot support
             return s
+
         RT.solve_roles = _worse
         mw = measure()
-        check("sees a sub-optimal assignment (best_q above the emitted score)",
-              mw["best_q"] > mw["worst_q"] + 1e-12, True)
+        check(
+            "sees a sub-optimal assignment (best_q above the emitted score)",
+            mw["best_q"] > mw["worst_q"] + 1e-12,
+            True,
+        )
     finally:
         RT.solve_roles = saved
 
@@ -337,10 +391,12 @@ def _selftest():
     # clear is the silently-wrong file wearing a reassuring filename.
     g = solved_on_ground()
     check("the grounded solve records its ground", g["ground"], "#ffffff")
-    check("every grounded role clears 3:1",
-          all(v >= 3.0 for v in g["ground_contrast"].values()), True)
-    check("the grounded pin holds",
-          g["colours"]["roundtrip"], g["colours"]["flow"])
+    check(
+        "every grounded role clears 3:1",
+        all(v >= 3.0 for v in g["ground_contrast"].values()),
+        True,
+    )
+    check("the grounded pin holds", g["colours"]["roundtrip"], g["colours"]["flow"])
     # ⚑ AND IT MUST REFUSE ONE ROLE FURTHER — five FREE roles over four eligible
     # members. I nearly emitted that without checking, which is why it is an arm.
     try:
@@ -352,9 +408,13 @@ def _selftest():
     saved_g = solved_on_ground
     try:
         globals()["solved_on_ground"] = lambda: dict(
-            g, ground_contrast=dict(g["ground_contrast"], read=1.32))
-        check("sees a grounded role's contrast as solved (1.32 reaches the measurement)",
-              measure()["ground"]["contrast"]["read"], 1.32)
+            g, ground_contrast=dict(g["ground_contrast"], read=1.32)
+        )
+        check(
+            "sees a grounded role's contrast as solved (1.32 reaches the measurement)",
+            measure()["ground"]["contrast"]["read"],
+            1.32,
+        )
     finally:
         globals()["solved_on_ground"] = saved_g
 
@@ -366,8 +426,11 @@ def _selftest():
         print("  SKIP render arm — graphviz absent")
     else:
         check("a bogus attribute still parses", r_ok, True)
-        check("...but its colour is absent from the render",
-              "#0072b2" not in (detail or "").lower(), True)
+        check(
+            "...but its colour is absent from the render",
+            "#0072b2" not in (detail or "").lower(),
+            True,
+        )
 
     print("check_role_theme selftest:", "PASS" if ok else "FAIL")
     return ok

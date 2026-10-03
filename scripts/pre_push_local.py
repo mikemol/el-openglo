@@ -25,6 +25,7 @@ A deleted ref (local sha all zeros) has no tip to check. Weakness: the marker is
 checked on each pushed TIP, not on every commit in the range — the post-commit
 hook amends the commit it just made, so the tip is where a missing amend shows.
 """
+
 import os
 import subprocess
 import sys
@@ -45,7 +46,7 @@ def pushed_tips(stdin_text):
             continue
         local_ref, local_sha = parts[0], parts[1]
         if local_sha.strip("0") == "":
-            continue                          # a deletion: nothing to certify
+            continue  # a deletion: nothing to certify
         out.append((local_ref, local_sha))
     return out
 
@@ -55,8 +56,12 @@ def has_marker(message):
 
 
 def message_of(sha):
-    return subprocess.run(["git", "-C", ROOT, "log", "-1", "--format=%B", sha],
-                          capture_output=True, text=True, check=True).stdout
+    return subprocess.run(
+        ["git", "-C", ROOT, "log", "-1", "--format=%B", sha],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout
 
 
 def main(argv):
@@ -67,24 +72,37 @@ def main(argv):
             return 2
     tips = pushed_tips(sys.stdin.read())
     if not tips:
-        print("pre_push_local: no ref with a tip is being pushed (deletions only); nothing to check")
+        print(
+            "pre_push_local: no ref with a tip is being pushed (deletions only); nothing to check"
+        )
         return 0
     missing = [(ref, sha) for ref, sha in tips if not has_marker(message_of(sha))]
     if missing:
         for ref, sha in missing:
-            print(f"pre-push: REFUSED — {ref} tip {sha[:10]} has no '{MARKER}' marker: the "
-                  f"post-commit amend has not landed. Wait for it (CLAUDE.md commit policy).",
-                  file=sys.stderr)
+            print(
+                f"pre-push: REFUSED — {ref} tip {sha[:10]} has no '{MARKER}' marker: the "
+                f"post-commit amend has not landed. Wait for it (CLAUDE.md commit policy).",
+                file=sys.stderr,
+            )
         return 1
-    print(f"pre-push: {len(tips)} of {len(tips)} pushed tip(s) carry the post-commit marker")
+    print(
+        f"pre-push: {len(tips)} of {len(tips)} pushed tip(s) carry the post-commit marker"
+    )
     # the operator's ruling: no gated check writes the tree — checked before each push
     runner = [os.path.join(ROOT, ".venv", "bin", "python3")]
     if not os.path.isfile(runner[0]):
         runner = [sys.executable]
-    r = subprocess.run(runner + [os.path.join(ROOT, "scripts", "opa_gate.py"), "tree_writes"], cwd=ROOT, check=False)
+    r = subprocess.run(
+        runner + [os.path.join(ROOT, "scripts", "opa_gate.py"), "tree_writes"],
+        cwd=ROOT,
+        check=False,
+    )
     if r.returncode != 0:
-        print("pre-push: REFUSED — a gated check writes a tracked file (W68); "
-              "run scripts/check_tree_writes.py --list, fix the writer, then push", file=sys.stderr)
+        print(
+            "pre-push: REFUSED — a gated check writes a tracked file (W68); "
+            "run scripts/check_tree_writes.py --list, fix the writer, then push",
+            file=sys.stderr,
+        )
         return 1
     return 0
 
@@ -94,18 +112,35 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     a, b = "a" * 40, "b" * 40
-    chk("a pushed ref's tip is read from git's stdin line",
-        pushed_tips(f"refs/heads/main {a} refs/heads/main {b}\n"), [("refs/heads/main", a)])
-    chk("a deletion (all-zero local sha) is not a tip to check",
-        pushed_tips(f"(delete) {ZERO} refs/heads/old {b}\n"), [])
+    chk(
+        "a pushed ref's tip is read from git's stdin line",
+        pushed_tips(f"refs/heads/main {a} refs/heads/main {b}\n"),
+        [("refs/heads/main", a)],
+    )
+    chk(
+        "a deletion (all-zero local sha) is not a tip to check",
+        pushed_tips(f"(delete) {ZERO} refs/heads/old {b}\n"),
+        [],
+    )
     chk("a malformed line is ignored, not guessed at", pushed_tips("garbage\n"), [])
     # ⚑ THE CHECK CAN SEE A MISSING MARKER — the case this exists for
-    chk("a message with the marker passes", has_marker(f"subject\n\n── {MARKER} ──\n"), True)
-    chk("a message WITHOUT the marker is seen", has_marker("subject\n\nbody, no amend yet\n"), False)
+    chk(
+        "a message with the marker passes",
+        has_marker(f"subject\n\n── {MARKER} ──\n"),
+        True,
+    )
+    chk(
+        "a message WITHOUT the marker is seen",
+        has_marker("subject\n\nbody, no amend yet\n"),
+        False,
+    )
     # and on the real repo: HEAD's own message is readable (the amend normally carries it)
     chk("HEAD's message is readable from git", len(message_of("HEAD")) > 0, True)
     print("pre_push_local selftest:", "PASS" if ok else "FAIL")

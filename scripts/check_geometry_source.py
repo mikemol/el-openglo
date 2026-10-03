@@ -27,6 +27,7 @@ per-surface decision is "7" for digits or "22" for alphanumerics — a projectio
 of the one lattice. Carrying a stroke table is a different act, and that is what
 this looks for.
 """
+
 import ast
 import os
 import sys
@@ -49,12 +50,25 @@ AUTHORITIES = ("segment_topology", "make_segment_display", "display_types")
 
 # Names that, assigned at module level, mean this file OWNS a stroke table.
 # Measured from the four silos the log names, not guessed.
-OWN_GEOMETRY = ("SEGS", "SEG", "SEVENSEG", "SEG_STROKE", "DIGIT", "DIGITS",
-                "STROKES", "litPrimitives")
+OWN_GEOMETRY = (
+    "SEGS",
+    "SEG",
+    "SEVENSEG",
+    "SEG_STROKE",
+    "DIGIT",
+    "DIGITS",
+    "STROKES",
+    "litPrimitives",
+)
 
 # Surfaces that render segments. A file here must read an authority.
-SURFACES = ("make_wallpaper.py", "make_wallpaper_live.py", "make_clock.py",
-            "make_plymouth.py", "make_notify_marquee.py")
+SURFACES = (
+    "make_wallpaper.py",
+    "make_wallpaper_live.py",
+    "make_clock.py",
+    "make_plymouth.py",
+    "make_notify_marquee.py",
+)
 
 
 def _module_assigns(path):
@@ -125,9 +139,18 @@ def measure(rows=None):
     surface, whether it is present, which geometry authorities it imports, and
     which OWN_GEOMETRY names it binds to a LITERAL at module level."""
     rows = survey() if rows is None else rows
-    return {"authorities": list(AUTHORITIES),
-            "cases": [{"file": fn, "present": reads is not None, "reads": reads or [],
-                       "owns": owns or []} for fn, reads, owns in rows]}
+    return {
+        "authorities": list(AUTHORITIES),
+        "cases": [
+            {
+                "file": fn,
+                "present": reads is not None,
+                "reads": reads or [],
+                "owns": owns or [],
+            }
+            for fn, reads, owns in rows
+        ],
+    }
 
 
 def coverable():
@@ -159,6 +182,7 @@ def coverable():
         sys.path.insert(0, ROOT)
     import make_segment_display as MSD
     import segment_topology as ST
+
     out = []
 
     # --- arm 1: one place --------------------------------------------------
@@ -167,7 +191,12 @@ def coverable():
     saved = dict(ST.GEOM16)
     try:
         k, v = "a1", ST.GEOM16["a1"]
-        ST.GEOM16[k] = (v[0], v[1], v[2], v[3] + 0.5)      # move the top bar down half a row
+        ST.GEOM16[k] = (
+            v[0],
+            v[1],
+            v[2],
+            v[3] + 0.5,
+        )  # move the top bar down half a row
         # ⚑ A REFUSAL IS A MOVE.  A derivation that rejects a lattice it cannot
         # project has SEEN the edit — the opposite of a copy that renders the
         # old shape unchanged. Only silence fails this arm.
@@ -184,14 +213,24 @@ def coverable():
         ST.GEOM16.update(saved)
     moved_7 = after_7 != before_7
     moved_js = after_js != before_js
-    out.append(("7-seg surfaces (wallpaper/clock/plymouth) move with GEOM16",
-                moved_7,
-                "seg7_svg_grid() is `_SEG7_GRID`, a second literal — a GEOM16 edit does not reach it"
-                if not moved_7 else "seg7_svg_grid() re-derived from the perturbed lattice"))
-    out.append(("SegmentChar surfaces (live wallpaper/marquee) move with GEOM16",
-                moved_js,
-                "geometry_js() reads a GEOM22 snapshot taken at import — a GEOM16 edit does not reach it until re-import"
-                if not moved_js else "geometry_js() moved with the lattice (reads geom22() at call time)"))
+    out.append(
+        (
+            "7-seg surfaces (wallpaper/clock/plymouth) move with GEOM16",
+            moved_7,
+            "seg7_svg_grid() is `_SEG7_GRID`, a second literal — a GEOM16 edit does not reach it"
+            if not moved_7
+            else "seg7_svg_grid() re-derived from the perturbed lattice",
+        )
+    )
+    out.append(
+        (
+            "SegmentChar surfaces (live wallpaper/marquee) move with GEOM16",
+            moved_js,
+            "geometry_js() reads a GEOM22 snapshot taken at import — a GEOM16 edit does not reach it until re-import"
+            if not moved_js
+            else "geometry_js() moved with the lattice (reads geom22() at call time)",
+        )
+    )
 
     # --- arm 1b: the PITCH is one place too -------------------------------
     # ⚑ THE CELL WAS SUBSTRATE AND THE ADVANCE WAS NOT (W22, 2026-09-21): three
@@ -202,13 +241,17 @@ def coverable():
     import make_schemes as MS
     import make_wallpaper as MW
     import make_wallpaper_live as MWL
+
     tok = next(v[0] for v in MS.GRID.values())
     variant = tok["id"]
 
     def emit_all():
-        return {"clock": MC.main_qml(),
-                "live-wallpaper": MWL.main_qml(),
-                "wallpaper": MW.wallpaper_svg(variant)}
+        return {
+            "clock": MC.main_qml(),
+            "live-wallpaper": MWL.main_qml(),
+            "wallpaper": MW.wallpaper_svg(variant),
+        }
+
     before = emit_all()
     saved_m = dict(ST.MODULE_METRICS)
     try:
@@ -218,30 +261,57 @@ def coverable():
         ST.MODULE_METRICS.clear()
         ST.MODULE_METRICS.update(saved_m)
     stuck = [n for n in before if before[n] == after[n]]
-    out.append(("every digit surface moves with MODULE_METRICS pitch", not stuck,
-                f"{', '.join(stuck)} did not move — still authoring an advance" if stuck
-                else f"{len(before)} of {len(before)} surfaces re-emitted at the perturbed pitch"))
+    out.append(
+        (
+            "every digit surface moves with MODULE_METRICS pitch",
+            not stuck,
+            f"{', '.join(stuck)} did not move — still authoring an advance"
+            if stuck
+            else f"{len(before)} of {len(before)} surfaces re-emitted at the perturbed pitch",
+        )
+    )
 
     # --- arm 2: not silent-empty ------------------------------------------
     # ⚑ THE STRICT FORM IS WHAT AN EMIT PATH MUST ASK.  The lenient default is
     # the render contract (a board shows nothing for a glyph it lacks) and is
     # kept by choice; the gate is that a caller who NEEDS the glyph can be told
     # it is absent, and can ask beforehand.
-    snowman = "☃"                                        # in no table
+    snowman = "☃"  # in no table
     try:
         g = ST.glyph16(snowman, strict=True)
-        out.append(("an absent glyph is refused, not rendered blank", False,
-                    f"glyph16(strict=True) returned {g!r} for an unknown glyph"))
+        out.append(
+            (
+                "an absent glyph is refused, not rendered blank",
+                False,
+                f"glyph16(strict=True) returned {g!r} for an unknown glyph",
+            )
+        )
     except TypeError:
-        out.append(("an absent glyph is refused, not rendered blank", False,
-                    "glyph16() has no strict form — every caller gets a blank cell"))
-    except (KeyError, ValueError) as e:                       # a refusal IS the pass
-        asks = hasattr(ST, "has_glyph") and ST.has_glyph(snowman) is False \
+        out.append(
+            (
+                "an absent glyph is refused, not rendered blank",
+                False,
+                "glyph16() has no strict form — every caller gets a blank cell",
+            )
+        )
+    except (KeyError, ValueError) as e:  # a refusal IS the pass
+        asks = (
+            hasattr(ST, "has_glyph")
+            and ST.has_glyph(snowman) is False
             and ST.has_glyph(" ") is True
-        out.append(("an absent glyph is refused, not rendered blank", asks,
-                    f"glyph16(strict=True) refused: {type(e).__name__}: {e}" +
-                    ("; has_glyph() distinguishes an unknown glyph from a KNOWN blank"
-                     if asks else "; but has_glyph() is missing or cannot tell ' ' from unknown")))
+        )
+        out.append(
+            (
+                "an absent glyph is refused, not rendered blank",
+                asks,
+                f"glyph16(strict=True) refused: {type(e).__name__}: {e}"
+                + (
+                    "; has_glyph() distinguishes an unknown glyph from a KNOWN blank"
+                    if asks
+                    else "; but has_glyph() is missing or cannot tell ' ' from unknown"
+                ),
+            )
+        )
     return out
 
 
@@ -253,11 +323,15 @@ def main(argv):
         for label, holds, detail in rows:
             print(f"  {'ok  ' if holds else 'FAIL'} {label}\n        {detail}")
         if bad:
-            print(f"check_geometry_source --coverable: REFUSED — {len(bad)} of {len(rows)} "
-                  f"coverable arm(s) do not hold; ⊕SEGMENT-SUBSTRATE's fourth gate is open",
-                  file=sys.stderr)
+            print(
+                f"check_geometry_source --coverable: REFUSED — {len(bad)} of {len(rows)} "
+                f"coverable arm(s) do not hold; ⊕SEGMENT-SUBSTRATE's fourth gate is open",
+                file=sys.stderr,
+            )
             return 1
-        print(f"check_geometry_source --coverable: {len(rows)} of {len(rows)} arms hold")
+        print(
+            f"check_geometry_source --coverable: {len(rows)} of {len(rows)} arms hold"
+        )
         return 0
     for a in argv[1:]:
         if a not in known:
@@ -265,6 +339,7 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     if "--map" in argv:
@@ -277,6 +352,7 @@ def main(argv):
             print(f"{fn}\t{r}{o}")
         return 0
     import opa_gate
+
     return opa_gate.gate("geometry_source")
 
 
@@ -298,37 +374,48 @@ def _selftest():
     # ⚑ THE MEASUREMENT CAN SEE (W50) an owned table, an unread authority and an
     # absent surface as facts; policy/geometry_source.rego rules on them.
     m = measure([("make_clock.py", [], ["SEGS"]), ("make_gone.py", None, None)])
-    check("an owned table and no authority are seen", m["cases"][0],
-          {"file": "make_clock.py", "present": True, "reads": [], "owns": ["SEGS"]})
+    check(
+        "an owned table and no authority are seen",
+        m["cases"][0],
+        {"file": "make_clock.py", "present": True, "reads": [], "owns": ["SEGS"]},
+    )
     check("an absent surface is seen", m["cases"][1]["present"], False)
     # ⚑ THE SCAN MUST SEE AN OWNED TABLE, or its all-clear means nothing.
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "s.py")
         with open(p, "w") as fh:
             fh.write('SEGS = {"A": ("h", 0, 1, 0)}\n')
-        check("sees a module-level stroke table",
-              bool(_module_assigns(p) & set(OWN_GEOMETRY)), True)
+        check(
+            "sees a module-level stroke table",
+            bool(_module_assigns(p) & set(OWN_GEOMETRY)),
+            True,
+        )
         # ⚑ AND A DERIVED TABLE IS NOT A SILO — the distinction the check turns
         # on. Without this the fix reads as the defect and de-siloing can never
         # go green.
         p3 = os.path.join(td, "d.py")
         with open(p3, "w") as fh:
-            fh.write("import segment_topology as _ST\n"
-                     "SEGS = _ST.seg7_svg_grid()\n")
-        check("a DERIVED table is not owned",
-              bool(_module_assigns(p3) & set(OWN_GEOMETRY)), False)
+            fh.write("import segment_topology as _ST\nSEGS = _ST.seg7_svg_grid()\n")
+        check(
+            "a DERIVED table is not owned",
+            bool(_module_assigns(p3) & set(OWN_GEOMETRY)),
+            False,
+        )
         # a comprehension is still authoring: it names the shapes here
         p4 = os.path.join(td, "e.py")
         with open(p4, "w") as fh:
             fh.write('SEGS = {"A": ("h", 0, 0), "B": ("v", 1, 0)}\n')
-        check("a literal dict is owned",
-              bool(_module_assigns(p4) & set(OWN_GEOMETRY)), True)
+        check(
+            "a literal dict is owned",
+            bool(_module_assigns(p4) & set(OWN_GEOMETRY)),
+            True,
+        )
         p2 = os.path.join(td, "t.py")
         with open(p2, "w") as fh:
             fh.write("import segment_topology as ST\nx = ST.SEG22\n")
-        check("sees an authority import",
-              bool(_imports(p2) & set(AUTHORITIES)), True)
+        check("sees an authority import", bool(_imports(p2) & set(AUTHORITIES)), True)
 
     # ⚑ THE COVERABLE WITNESS MUST BE ABLE TO SEE A PASS, or its three FAILs are
     # a complaint rather than a measurement. Substitute a substrate whose coarse
@@ -338,6 +425,7 @@ def _selftest():
         sys.path.insert(0, ROOT)
     import make_segment_display as MSD
     import segment_topology as ST
+
     rows = coverable()
     check("coverable: the real substrate is measured (4 arms)", len(rows), 4)
     saved = (ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js, ST.metrics)
@@ -346,34 +434,47 @@ def _selftest():
         # ⚑ A SILENT substrate must FAIL every arm — including one whose glyph
         # lookup has no strict form at all (the pre-2026-09-20 shape), and one
         # whose metrics() ignores MODULE_METRICS (an authored pitch in disguise).
-        ST.seg7_svg_grid = lambda: {"A": ("h", 0, 0)}          # a literal: does not move
-        MSD.geometry_js = lambda: "{}"                          # a literal: does not move
-        def _blank_glyph(ch) -> set[str]:                       # no strict form, blank
+        ST.seg7_svg_grid = lambda: {"A": ("h", 0, 0)}  # a literal: does not move
+        MSD.geometry_js = lambda: "{}"  # a literal: does not move
+
+        def _blank_glyph(ch) -> set[str]:  # no strict form, blank
             return set()
 
         ST.glyph16 = _blank_glyph
-        ST.metrics = lambda H: {k: (v * H if k != "slant_deg" else v)
-                                for k, v in frozen.items()}   # frozen: does not move
+        ST.metrics = lambda H: {
+            k: (v * H if k != "slant_deg" else v) for k, v in frozen.items()
+        }  # frozen: does not move
         rows = coverable()
-        check("coverable: a SILENT substrate fails every arm",
-              all(not h for _l, h, _d in rows), True)
+        check(
+            "coverable: a SILENT substrate fails every arm",
+            all(not h for _l, h, _d in rows),
+            True,
+        )
         # and a derived, refusing one passes every arm
         ST.seg7_svg_grid = lambda: {k: v for k, v in ST.GEOM16.items()}
         MSD.geometry_js = lambda: repr(sorted(ST.GEOM16.items()))
         ST.metrics = saved[3]
+
         def _refuse(ch, strict=False):
             if strict:
                 raise KeyError(f"no glyph for {ch!r}")
             return set()
+
         ST.glyph16 = _refuse
         rows = coverable()
-        check("coverable: a DERIVED, refusing substrate passes every arm",
-              all(h for _l, h, _d in rows), True)
+        check(
+            "coverable: a DERIVED, refusing substrate passes every arm",
+            all(h for _l, h, _d in rows),
+            True,
+        )
     finally:
         ST.seg7_svg_grid, ST.glyph16, MSD.geometry_js, ST.metrics = saved
     rows = coverable()
-    check("coverable: the real substrate is measured again after the substitution is undone",
-          len(rows), 4)
+    check(
+        "coverable: the real substrate is measured again after the substitution is undone",
+        len(rows),
+        4,
+    )
     print("check_geometry_source selftest:", "PASS" if ok else "FAIL")
     return ok
 

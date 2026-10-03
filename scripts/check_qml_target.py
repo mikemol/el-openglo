@@ -23,6 +23,7 @@ WEAKNESS: offscreen load proves the document instantiates under the target Qt wi
 modules; it does not exercise a live Plasma shell (applet containment, real notification
 model). It is the laptop's parser and type system, not the laptop's session.
 """
+
 import hashlib
 import json
 import os
@@ -46,8 +47,13 @@ ENTRIES = (
 
 def stage(dest):
     """The install tree the .deb ships, staged by the one authority that builds it."""
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "make_deb.py"), "--stage", dest],
-                       cwd=ROOT, capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [sys.executable, os.path.join(ROOT, "make_deb.py"), "--stage", dest],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     if r.returncode != 0:
         raise RuntimeError(f"make_deb --stage exited {r.returncode}: {r.stderr[-300:]}")
 
@@ -91,9 +97,13 @@ def runner_unavailable():
 
 def run_check(src, entry, out):
     """luthen checks.qml_check on one directory: (verdict dict, exit code)."""
-    cmd = (f"cd {LUTHEN} && python3 -m checks.qml_check --src {src} --entry {entry} --out {out}")
-    r = subprocess.run(["sg", "k3s", "-c", cmd], capture_output=True, text=True, check=False)
-    line = next((ln for ln in reversed(r.stdout.splitlines()) if ln.startswith("{")), None)
+    cmd = f"cd {LUTHEN} && python3 -m checks.qml_check --src {src} --entry {entry} --out {out}"
+    r = subprocess.run(
+        ["sg", "k3s", "-c", cmd], capture_output=True, text=True, check=False
+    )
+    line = next(
+        (ln for ln in reversed(r.stdout.splitlines()) if ln.startswith("{")), None
+    )
     try:
         verdict = json.loads(line) if line else {}
     except ValueError:
@@ -110,20 +120,34 @@ def measure(stage_dir=None):
         why = runner_unavailable()
         seen = {}
         for kind, pkg, d, entry in entries(sd):
-            case = {"id": pkg, "kind": kind, "entry": entry, "digest": tree_digest(d), "shared_with": None}
+            case = {
+                "id": pkg,
+                "kind": kind,
+                "entry": entry,
+                "digest": tree_digest(d),
+                "shared_with": None,
+            }
             if why:
                 case["withheld"] = why
             elif case["digest"] in seen:
                 rep = seen[case["digest"]]
-                case.update(shared_with=rep["id"], state=rep.get("state"), step=rep.get("step"),
-                            withheld=rep.get("withheld"))
+                case.update(
+                    shared_with=rep["id"],
+                    state=rep.get("state"),
+                    step=rep.get("step"),
+                    withheld=rep.get("withheld"),
+                )
             else:
                 verdict, rc, tail = run_check(d, entry, os.path.join(td, "out-" + pkg))
                 if rc == 2 or not verdict:
                     case["withheld"] = f"qml_check could not run (exit {rc}): {tail}"
                 else:
-                    case.update(state=verdict.get("state"), step=verdict.get("step"),
-                                base=verdict.get("base"), withheld=None)
+                    case.update(
+                        state=verdict.get("state"),
+                        step=verdict.get("step"),
+                        base=verdict.get("base"),
+                        withheld=None,
+                    )
                 seen[case["digest"]] = case
             cases.append(case)
     return {"cases": cases}
@@ -135,13 +159,23 @@ def listing(doc):
         if c.get("withheld"):
             out.append(f"  {c['kind']:9s} {c['id']}: WITHHELD - {c['withheld']}")
         else:
-            out.append(f"  {c['kind']:9s} {c['id']}: {c.get('state')}"
-                       + (f" at {c['step']}" if c.get("step") else "")
-                       + (f" (same tree as {c['shared_with']})" if c.get("shared_with") else ""))
-    ok = sum(1 for c in doc["cases"] if c.get("state") == "ok" and not c.get("withheld"))
+            out.append(
+                f"  {c['kind']:9s} {c['id']}: {c.get('state')}"
+                + (f" at {c['step']}" if c.get("step") else "")
+                + (
+                    f" (same tree as {c['shared_with']})"
+                    if c.get("shared_with")
+                    else ""
+                )
+            )
+    ok = sum(
+        1 for c in doc["cases"] if c.get("state") == "ok" and not c.get("withheld")
+    )
     measured = len({c["digest"] for c in doc["cases"] if not c.get("shared_with")})
-    out.append(f"check_qml_target: {ok} of {len(doc['cases'])} staged package(s) ok under the operator Qt; "
-               f"{measured} distinct tree(s) measured")
+    out.append(
+        f"check_qml_target: {ok} of {len(doc['cases'])} staged package(s) ok under the operator Qt; "
+        f"{measured} distinct tree(s) measured"
+    )
     return "\n".join(out)
 
 
@@ -152,7 +186,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     why = runner_unavailable()
@@ -168,12 +205,24 @@ def _selftest():
         bad = os.path.join(td, "bad")
         os.makedirs(bad)
         with open(os.path.join(bad, "main.qml"), "w") as f:
-            f.write("import QtQuick\nItem { function f() { var byte = 1; return byte; } }\n")
+            f.write(
+                "import QtQuick\nItem { function f() { var byte = 1; return byte; } }\n"
+            )
         v, rc, _ = run_check(clean, "main.qml", os.path.join(td, "o1"))
-        chk("a clean document is ok under the target Qt", (rc, v.get("state")), (0, "ok"))
+        chk(
+            "a clean document is ok under the target Qt",
+            (rc, v.get("state")),
+            (0, "ok"),
+        )
         v, rc, _ = run_check(bad, "main.qml", os.path.join(td, "o2"))
-        chk("`var byte` fails at lint under the target Qt (the laptop's 2026-09-26 error)", (rc, v.get("step")), (1, "lint"))
-        chk("an unchanged tree digests the same", tree_digest(clean), tree_digest(clean))
+        chk(
+            "`var byte` fails at lint under the target Qt (the laptop's 2026-09-26 error)",
+            (rc, v.get("step")),
+            (1, "lint"),
+        )
+        chk(
+            "an unchanged tree digests the same", tree_digest(clean), tree_digest(clean)
+        )
     print("check_qml_target selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -188,8 +237,10 @@ def main(argv):
         return 0 if _selftest() else 1
     doc = measure()
     if not doc["cases"]:
-        print("check_qml_target: REFUSED - no staged QML package found; the stage is broken, not the tree clean",
-              file=sys.stderr)
+        print(
+            "check_qml_target: REFUSED - no staged QML package found; the stage is broken, not the tree clean",
+            file=sys.stderr,
+        )
         return 1
     print(json.dumps(doc, indent=1) if "--json" in argv else listing(doc))
     return 0

@@ -25,6 +25,7 @@ added here. Only the templates/ population is read — the emitted packages are
 generated from it — and Python build tools are out of scope (they print build data,
 not user content). A `.length` read of a content name is structure, and is allowed.
 """
+
 import glob
 import json
 import os
@@ -33,8 +34,25 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # names that hold notification content in the marquee (text, summary, body, links, labels)
-CONTENT_NAMES = frozenset({"tickerText", "text", "summary", "sum", "body", "link", "href",
-                           "label", "labels", "paintedText", "idleText", "did", "joined", "item", "run"})
+CONTENT_NAMES = frozenset(
+    {
+        "tickerText",
+        "text",
+        "summary",
+        "sum",
+        "body",
+        "link",
+        "href",
+        "label",
+        "labels",
+        "paintedText",
+        "idleText",
+        "did",
+        "joined",
+        "item",
+        "run",
+    }
+)
 CALL_RE = re.compile(r"\b(console\.(?:log|info|warn|debug|error)|print|trace)\s*\(")
 IDENT_RE = re.compile(r"[A-Za-z_$][A-Za-z0-9_$]*(?:\s*\.\s*[A-Za-z_$][A-Za-z0-9_$]*)*")
 
@@ -57,9 +75,9 @@ def _argument(src, i):
         elif c == ")":
             depth -= 1
             if depth == 0:
-                return src[i + 1:j]
+                return src[i + 1 : j]
         j += 1
-    return src[i + 1:]
+    return src[i + 1 :]
 
 
 def _strip_strings(s):
@@ -82,17 +100,23 @@ def content_names(arg):
 def calls(src, rel):
     out = []
     for m in CALL_RE.finditer(src):
-        if m.group(1) == "trace" and src[max(0, m.start() - 9):m.start()].rstrip().endswith("function"):
-            continue                                  # the definition, not a call
+        if m.group(1) == "trace" and src[
+            max(0, m.start() - 9) : m.start()
+        ].rstrip().endswith("function"):
+            continue  # the definition, not a call
         arg = _argument(src, m.end() - 1)
         line = src.count("\n", 0, m.start()) + 1
-        out.append({"id": f"{rel}:{line}", "call": m.group(1), "content": content_names(arg)})
+        out.append(
+            {"id": f"{rel}:{line}", "call": m.group(1), "content": content_names(arg)}
+        )
     return out
 
 
 def measure(root=ROOT):
-    files = sorted(glob.glob(os.path.join(root, "templates", "*.qml")) +
-                   glob.glob(os.path.join(root, "templates", "*.js")))
+    files = sorted(
+        glob.glob(os.path.join(root, "templates", "*.qml"))
+        + glob.glob(os.path.join(root, "templates", "*.js"))
+    )
     cases = []
     for p in files:
         with open(p, encoding="utf-8") as fh:
@@ -106,21 +130,44 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(("  ok   " if got == want else "  FAIL ") + label
-              + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            ("  ok   " if got == want else "  FAIL ")
+            + label
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     leak = 'root.trace("rebuild count=" + n + " ticker=" + JSON.stringify(root.tickerText));'
     safe = 'root.trace("rebuild count=" + n + " tickerLen=" + root.tickerText.length);'
-    chk("a traced ticker text is SEEN", calls(leak, "x.qml")[0]["content"], ["tickerText"])
+    chk(
+        "a traced ticker text is SEEN",
+        calls(leak, "x.qml")[0]["content"],
+        ["tickerText"],
+    )
     chk("...and its length alone is structure", calls(safe, "x.qml")[0]["content"], [])
-    chk("a content word inside a string literal is not a reference",
-        calls('console.log("text=" + count)', "x.js")[0]["content"], [])
-    chk("a link href is SEEN", calls('trace("tap " + JSON.stringify(did))', "x.qml")[0]["content"], ["did"])
-    chk("the trace definition is not counted as a call",
-        calls("function trace(what) { console.log(\"el \" + what); }", "x.qml")[0]["call"], "console.log")
+    chk(
+        "a content word inside a string literal is not a reference",
+        calls('console.log("text=" + count)', "x.js")[0]["content"],
+        [],
+    )
+    chk(
+        "a link href is SEEN",
+        calls('trace("tap " + JSON.stringify(did))', "x.qml")[0]["content"],
+        ["did"],
+    )
+    chk(
+        "the trace definition is not counted as a call",
+        calls('function trace(what) { console.log("el " + what); }', "x.qml")[0][
+            "call"
+        ],
+        "console.log",
+    )
     real = measure()
-    chk("the real templates are read", real["files"] > 0 and len(real["cases"]) > 0, True)
+    chk(
+        "the real templates are read",
+        real["files"] > 0 and len(real["cases"]) > 0,
+        True,
+    )
     print("check_log_content selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -138,10 +185,14 @@ def main(argv):
         return 0
     if "--list" in argv:
         for c in m["cases"]:
-            print(f"  {c['id']:40} {c['call']:12} {'CONTENT ' + str(c['content']) if c['content'] else 'ok'}")
+            print(
+                f"  {c['id']:40} {c['call']:12} {'CONTENT ' + str(c['content']) if c['content'] else 'ok'}"
+            )
         bad = sum(1 for c in m["cases"] if c["content"])
-        print(f"check_log_content: {len(m['cases']) - bad} of {len(m['cases'])} log call(s) carry no content "
-              f"over {m['files']} template file(s)")
+        print(
+            f"check_log_content: {len(m['cases']) - bad} of {len(m['cases'])} log call(s) carry no content "
+            f"over {m['files']} template file(s)"
+        )
         return 0
     print("usage: check_log_content.py --json | --list | --selftest", file=sys.stderr)
     return 2

@@ -28,6 +28,7 @@ still exist? Both are needed — a correct implementation nobody can find is as
 lost as an absent one.  Weakness: a citation is a backticked `module.attr` whose
 module is a .py at the root; a citation in another form is not seen.
 """
+
 import importlib
 import json
 import os
@@ -60,7 +61,7 @@ def cited(doc=DOC):
         if mod in NOT_OURS or attr in NOT_ATTRS:
             continue
         if not os.path.exists(os.path.join(ROOT, mod + ".py")):
-            continue                      # not a module of ours; prose, not a citation
+            continue  # not a module of ours; prose, not a citation
         out.append((mod, attr))
     return sorted(set(out))
 
@@ -74,12 +75,31 @@ def measure(doc=DOC):
     for mod, attr in pairs or []:
         try:
             m = importlib.import_module(mod)
-        except Exception as e:            # noqa: BLE001
-            cases.append({"module": mod, "attr": attr, "imports": False, "error": str(e), "present": False})
+        except Exception as e:  # noqa: BLE001
+            cases.append(
+                {
+                    "module": mod,
+                    "attr": attr,
+                    "imports": False,
+                    "error": str(e),
+                    "present": False,
+                }
+            )
             continue
-        cases.append({"module": mod, "attr": attr, "imports": True, "error": None,
-                      "present": hasattr(m, attr)})
-    return {"doc": os.path.relpath(doc, ROOT), "doc_present": pairs is not None, "cases": cases}
+        cases.append(
+            {
+                "module": mod,
+                "attr": attr,
+                "imports": True,
+                "error": None,
+                "present": hasattr(m, attr),
+            }
+        )
+    return {
+        "doc": os.path.relpath(doc, ROOT),
+        "doc_present": pairs is not None,
+        "cases": cases,
+    }
 
 
 def main(argv):
@@ -96,17 +116,22 @@ def main(argv):
             print(f"{mod}.{attr}")
         return 0
     import opa_gate
+
     return opa_gate.gate("standards")
 
 
 def _selftest():
     """The measurement can SEE the appliers this repo lost, and an absent one."""
     import tempfile
+
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     pairs = cited()
@@ -120,10 +145,15 @@ def _selftest():
         d = os.path.join(td, "STANDARDS.md")
         check("an absent document is SEEN", measure(d)["doc_present"], False)
         with open(d, "w") as fh:
-            fh.write("APCA is `cvd_gate.apca_Lc`; gone is `cvd_gate.no_such_applier`.\n")
+            fh.write(
+                "APCA is `cvd_gate.apca_Lc`; gone is `cvd_gate.no_such_applier`.\n"
+            )
         got = {(c["attr"], c["present"]) for c in measure(d)["cases"]}
-        check("a present and an ABSENT applier are both seen", got,
-              {("apca_Lc", True), ("no_such_applier", False)})
+        check(
+            "a present and an ABSENT applier are both seen",
+            got,
+            {("apca_Lc", True), ("no_such_applier", False)},
+        )
     print("check_standards selftest:", "PASS" if ok else "FAIL")
     return ok
 

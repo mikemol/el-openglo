@@ -19,6 +19,7 @@ absent, not refused. A rule is checked for its FILE, not that the cited rule id
 in it actually trips this line — that link is the row's claim, read by a human.
 Age is calendar days from today, not sessions.
 """
+
 import datetime
 import json
 import os
@@ -35,7 +36,11 @@ def measure(path=CORPUS, today=None, root=ROOT):
         with open(path, encoding="utf-8") as fh:
             doc = json.load(fh)
     except (OSError, ValueError) as e:
-        return {"cases": [], "withheld": f"{type(e).__name__}: {e}", "max_unruled_days": None}
+        return {
+            "cases": [],
+            "withheld": f"{type(e).__name__}: {e}",
+            "max_unruled_days": None,
+        }
     cases = []
     for w in doc.get("warnings", []):
         rule = w.get("rule")
@@ -44,33 +49,63 @@ def measure(path=CORPUS, today=None, root=ROOT):
             age = (today - datetime.date.fromisoformat(since)).days if since else None
         except ValueError:
             age = None
-        cases.append({"class": w.get("class"), "ruled": bool(rule),
-                      "rule_file": rule.get("file") if rule else None,
-                      "rule_file_exists": os.path.isfile(os.path.join(root, rule["file"]))
-                      if rule and rule.get("file") else None,
-                      "unruled_since": since, "unruled_days": age})
-    return {"cases": cases, "withheld": None, "max_unruled_days": doc.get("max_unruled_days")}
+        cases.append(
+            {
+                "class": w.get("class"),
+                "ruled": bool(rule),
+                "rule_file": rule.get("file") if rule else None,
+                "rule_file_exists": os.path.isfile(os.path.join(root, rule["file"]))
+                if rule and rule.get("file")
+                else None,
+                "unruled_since": since,
+                "unruled_days": age,
+            }
+        )
+    return {
+        "cases": cases,
+        "withheld": None,
+        "max_unruled_days": doc.get("max_unruled_days"),
+    }
 
 
 def _selftest():
     import tempfile
+
     ok = True
 
     def chk(label, got, want):
         nonlocal ok
-        print(("  ok   " if got == want else "  FAIL ") + label
-              + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            ("  ok   " if got == want else "  FAIL ")
+            + label
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
-        json.dump({"max_unruled_days": 7, "warnings": [
-            {"class": "a", "rule": {"file": "no/such.rego", "id": "X"}, "unruled_since": None},
-            {"class": "b", "rule": None, "unruled_since": "2026-09-01"}]}, fh)
+        json.dump(
+            {
+                "max_unruled_days": 7,
+                "warnings": [
+                    {
+                        "class": "a",
+                        "rule": {"file": "no/such.rego", "id": "X"},
+                        "unruled_since": None,
+                    },
+                    {"class": "b", "rule": None, "unruled_since": "2026-09-01"},
+                ],
+            },
+            fh,
+        )
     m = measure(fh.name, today=datetime.date(2026, 10, 1))
     os.unlink(fh.name)
     chk("a rule whose file is gone is SEEN", m["cases"][0]["rule_file_exists"], False)
     chk("an unruled row's age is measured in days", m["cases"][1]["unruled_days"], 30)
-    chk("an unreadable corpus is withheld", measure("/nonexistent.json")["withheld"] is not None, True)
+    chk(
+        "an unreadable corpus is withheld",
+        measure("/nonexistent.json")["withheld"] is not None,
+        True,
+    )
     real = measure()
     chk("the real corpus is non-empty", len(real["cases"]) > 0, True)
     print("check_runtime_warnings selftest:", "PASS" if ok else "FAIL")
@@ -92,11 +127,19 @@ def main(argv):
     if "--list" in argv:
         cs = m["cases"]
         for c in cs:
-            state = f"ruled by {c['rule_file']}" if c["ruled"] else f"UNRULED {c['unruled_days']} day(s)"
+            state = (
+                f"ruled by {c['rule_file']}"
+                if c["ruled"]
+                else f"UNRULED {c['unruled_days']} day(s)"
+            )
             print(f"  {c['class']:28} {state}")
-        print(f"check_runtime_warnings: {sum(c['ruled'] for c in cs)} of {len(cs)} classes ruled")
+        print(
+            f"check_runtime_warnings: {sum(c['ruled'] for c in cs)} of {len(cs)} classes ruled"
+        )
         return 0
-    print("usage: check_runtime_warnings.py --json | --list | --selftest", file=sys.stderr)
+    print(
+        "usage: check_runtime_warnings.py --json | --list | --selftest", file=sys.stderr
+    )
     return 2
 
 

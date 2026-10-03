@@ -31,6 +31,7 @@ inside a NESTED block of the animation is out of its reach (none exist today).
 SKIP (printed, counted) when qmllint is absent — qml_sanity says so per document;
 the `running` rule needs no host tool and always runs.
 """
+
 import os
 import re
 import sys
@@ -43,16 +44,41 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 DOCS = (
     ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
-    ("make_clock", "main_qml", None, "clock-main.qml"),   # one package since W35
-    ("make_wallpaper_live", "main_qml", None, "live-wallpaper-main.qml"),   # one package since W35
-    ("make_wallpaper_live", "config_qml", None, "live-wallpaper-config.qml"),   # W59
-    ("make_notify_marquee", "main_qml", ("PARITY_FONT",), "marquee-main.qml"),   # one package since W35
+    ("make_clock", "main_qml", None, "clock-main.qml"),  # one package since W35
+    (
+        "make_wallpaper_live",
+        "main_qml",
+        None,
+        "live-wallpaper-main.qml",
+    ),  # one package since W35
+    ("make_wallpaper_live", "config_qml", None, "live-wallpaper-config.qml"),  # W59
+    (
+        "make_notify_marquee",
+        "main_qml",
+        ("PARITY_FONT",),
+        "marquee-main.qml",
+    ),  # one package since W35
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     # MatrixChar.qml / MatrixField.qml retired s124 (--uses: 0 of 12 instantiators)
-    ("make_notify_marquee", "aperture_field_component", None, "ApertureField.qml"),   # W54
-    ("make_notify_marquee", "aperture_probe_qml", None, "aperture-probe.qml"),        # W54's gate subject
+    (
+        "make_notify_marquee",
+        "aperture_field_component",
+        None,
+        "ApertureField.qml",
+    ),  # W54
+    (
+        "make_notify_marquee",
+        "aperture_probe_qml",
+        None,
+        "aperture-probe.qml",
+    ),  # W54's gate subject
     ("make_notify_marquee", "aperture_text_probe_qml", None, "aperture-text-probe.qml"),
-    ("make_taskswitch", "main_qml", None, "taskswitch-main.qml"),   # one package since W35
+    (
+        "make_taskswitch",
+        "main_qml",
+        None,
+        "taskswitch-main.qml",
+    ),  # one package since W35
     # the SDDM greeter (W66): BAKED per variant, so pinned at one — the markup
     # around the colour holes is the same template for all six
     ("make_sddm", "main_qml", "EL-Openglo", "sddm-main.qml"),
@@ -61,11 +87,23 @@ DOCS = (
     ("make_metrics", "main_qml", None, "metrics-main.qml"),
     # the look-and-feel splash (W217): staged QML the operator sees at login, outside
     # the population until now. Holes pinned as check_template_parity pins them.
-    ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"), "splash.qml"),
+    (
+        "make_deb",
+        "_splash_qml",
+        ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"),
+        "splash.qml",
+    ),
 )
 
-ANIMATIONS = ("NumberAnimation", "PropertyAnimation", "ColorAnimation", "RotationAnimation",
-              "SequentialAnimation", "ParallelAnimation", "PauseAnimation")
+ANIMATIONS = (
+    "NumberAnimation",
+    "PropertyAnimation",
+    "ColorAnimation",
+    "RotationAnimation",
+    "SequentialAnimation",
+    "ParallelAnimation",
+    "PauseAnimation",
+)
 
 
 def _blocks(qml, names):
@@ -76,7 +114,7 @@ def _blocks(qml, names):
         while i < len(qml) and depth:
             depth += {"{": 1, "}": -1}.get(qml[i], 0)
             i += 1
-        out.append((m.group(1), qml[m.end():i - 1]))
+        out.append((m.group(1), qml[m.end() : i - 1]))
     return out
 
 
@@ -91,7 +129,11 @@ def bound_running(qml):
         loops = re.search(r"(?m)(?:^|;)\s*loops\s*:\s*([^\n;]+)", own)
         running = re.search(r"(?m)(?:^|;)\s*running\s*:\s*([^\n;]+)", own)
         infinite = loops is not None and "Infinite" in loops.group(1)
-        if running and not infinite and running.group(1).strip() not in ("true", "false"):
+        if (
+            running
+            and not infinite
+            and running.group(1).strip() not in ("true", "false")
+        ):
             bad.append((name, loops.group(1).strip() if loops else "1"))
     return bad
 
@@ -99,6 +141,7 @@ def bound_running(qml):
 def documents():
     """[(label, text)] rendered, or (label, None) for a pair this host cannot evaluate."""
     import check_template_parity as CTP
+
     out = []
     for module, accessor, argsrc, label in DOCS:
         try:
@@ -114,16 +157,23 @@ def measure(docs):
     a document this host cannot render is `withheld` with its reason. No verdict
     lives here — the requirement is the rego rule, tested by opa test."""
     import qml_sanity as QS
+
     out = {"documents": [], "qmllint": bool(QS._qmllint())}
     for label, text in docs:
         if text is None:
-            out["documents"].append({"id": label, "withheld": "a pinned host file is absent"})
+            out["documents"].append(
+                {"id": label, "withheld": "a pinned host file is absent"}
+            )
             continue
-        out["documents"].append({
-            "id": label,
-            "lint": list(QS.check_qml(text, label)) if out["qmllint"] else [],
-            "bound_running": [{"animation": n, "loops": l} for n, l in bound_running(text)],
-        })
+        out["documents"].append(
+            {
+                "id": label,
+                "lint": list(QS.check_qml(text, label)) if out["qmllint"] else [],
+                "bound_running": [
+                    {"animation": n, "loops": l} for n, l in bound_running(text)
+                ],
+            }
+        )
     return out
 
 
@@ -134,7 +184,10 @@ def uses(name, docs=None):
     docs = documents() if docs is None else docs
     # bare (`MatrixChar {`) or qualified (`EL.ApertureField {`) — both instantiate
     pat = re.compile(r"(?<!\w)(?:\w+\.)?" + re.escape(name) + r"\s*\{")
-    return [(label, len(pat.findall(text)) if text is not None else None) for label, text in docs]
+    return [
+        (label, len(pat.findall(text)) if text is not None else None)
+        for label, text in docs
+    ]
 
 
 def main(argv):
@@ -146,12 +199,14 @@ def main(argv):
             print("check_qml_lint: --uses needs a component name", file=sys.stderr)
             return 2
         name = args[i + 1]
-        del args[i:i + 2]
+        del args[i : i + 2]
         rows = uses(name)
         users = [(l, n) for l, n in rows if n]
         for l, n in rows:
             print(f"{l:28s} {'SKIP' if n is None else n}")
-        print(f"check_qml_lint --uses {name}: {len(users)} of {len(rows)} documents instantiate it")
+        print(
+            f"check_qml_lint --uses {name}: {len(users)} of {len(rows)} documents instantiate it"
+        )
         return 0
     for a in args:
         if a not in known:
@@ -159,6 +214,7 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(documents()), indent=1))
         return 0
     if "--list" in argv:
@@ -168,15 +224,20 @@ def main(argv):
             if "withheld" in d:
                 print(f"{d['id']:28s} WITHHELD {d['withheld']}")
                 continue
-            print(f"{d['id']:28s} {len(d['lint'])} lint, {len(d['bound_running'])} bound running")
+            print(
+                f"{d['id']:28s} {len(d['lint'])} lint, {len(d['bound_running'])} bound running"
+            )
             for x in d["lint"]:
                 print(f"    {x}")
             for b in d["bound_running"]:
                 print(f"    {b['animation']} loops {b['loops']} binds running:")
-        print(f"check_qml_lint --list: {len(m['documents'])} documents measured "
-              f"(qmllint {'present' if m['qmllint'] else 'ABSENT'})")
+        print(
+            f"check_qml_lint --list: {len(m['documents'])} documents measured "
+            f"(qmllint {'present' if m['qmllint'] else 'ABSENT'})"
+        )
         return 0
     import opa_gate
+
     return opa_gate.gate("qml_lint")
 
 
@@ -185,41 +246,88 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     # ⚑ THE RULE MUST SEE THE DEFECT THAT PROMPTED IT — the marquee's binding, verbatim
     bad = "Row { NumberAnimation { id: r; loops: 1; running: marquee.visible\n onFinished: {} } }"
-    chk("a bound running on a finite animation is seen", bound_running(bad), [("NumberAnimation", "1")])
-    chk("an infinite animation may bind running",
-        bound_running("NumberAnimation { loops: Animation.Infinite\n running: x.visible }"), [])
-    chk("a literal running is not a binding",
-        bound_running("NumberAnimation { loops: 1\n running: true }"), [])
-    chk("a nested block's running is charged to the nested block, not the outer",
-        bound_running("SequentialAnimation { loops: 3\n NumberAnimation { running: a.b } }"),
-        [("NumberAnimation", "1")])
-    chk("an outer block does not inherit a nested running",
-        bound_running("SequentialAnimation { loops: 3\n PauseAnimation { duration: 1 } }"), [])
+    chk(
+        "a bound running on a finite animation is seen",
+        bound_running(bad),
+        [("NumberAnimation", "1")],
+    )
+    chk(
+        "an infinite animation may bind running",
+        bound_running(
+            "NumberAnimation { loops: Animation.Infinite\n running: x.visible }"
+        ),
+        [],
+    )
+    chk(
+        "a literal running is not a binding",
+        bound_running("NumberAnimation { loops: 1\n running: true }"),
+        [],
+    )
+    chk(
+        "a nested block's running is charged to the nested block, not the outer",
+        bound_running(
+            "SequentialAnimation { loops: 3\n NumberAnimation { running: a.b } }"
+        ),
+        [("NumberAnimation", "1")],
+    )
+    chk(
+        "an outer block does not inherit a nested running",
+        bound_running(
+            "SequentialAnimation { loops: 3\n PauseAnimation { duration: 1 } }"
+        ),
+        [],
+    )
     docs = documents()
     chk("the population is the declared documents", len(docs), len(DOCS))
     # ⚑ THE MEASUREMENT CAN SEE (W50). Whether what it sees is a DEFECT is
     # policy/qml_lint.rego's ruling, with its refuse/admit pairs in
     # policy/qml_lint_test.rego under `opa test` — not re-argued here.
-    m = measure([("bad.qml", "NumberAnimation { loops: 1; running: a.b }"), ("skip.qml", None)])
-    chk("the measurement reports a bound running as a fact", m["documents"][0]["bound_running"],
-        [{"animation": "NumberAnimation", "loops": "1"}])
-    chk("the measurement reports an unrenderable document as withheld", "withheld" in m["documents"][1], True)
+    m = measure(
+        [("bad.qml", "NumberAnimation { loops: 1; running: a.b }"), ("skip.qml", None)]
+    )
+    chk(
+        "the measurement reports a bound running as a fact",
+        m["documents"][0]["bound_running"],
+        [{"animation": "NumberAnimation", "loops": "1"}],
+    )
+    chk(
+        "the measurement reports an unrenderable document as withheld",
+        "withheld" in m["documents"][1],
+        True,
+    )
     import qml_sanity as QS
+
     if QS._qmllint():
         broken = measure([("broken.qml", 'import QtQuick\nItem { color: ""#000" }')])
-        chk("the measurement reports a syntax error as a fact", bool(broken["documents"][0]["lint"]), True)
+        chk(
+            "the measurement reports a syntax error as a fact",
+            bool(broken["documents"][0]["lint"]),
+            True,
+        )
     else:
         print("  SKIP qmllint absent — the syntax arm did not run")
     # --uses sees a bare AND a qualified instantiation, not a mention in a comment
     # or a property name, and reports an unrenderable document as SKIP (None)
-    chk("--uses counts bare and qualified instantiations",
-        uses("MatrixChar", [("a.qml", "Item { MatrixChar { } EL.MatrixChar { } }"), ("b.qml", "// MatrixChar\nproperty var matrixCharFont"), ("c.qml", None)]),
-        [("a.qml", 2), ("b.qml", 0), ("c.qml", None)])
+    chk(
+        "--uses counts bare and qualified instantiations",
+        uses(
+            "MatrixChar",
+            [
+                ("a.qml", "Item { MatrixChar { } EL.MatrixChar { } }"),
+                ("b.qml", "// MatrixChar\nproperty var matrixCharFont"),
+                ("c.qml", None),
+            ],
+        ),
+        [("a.qml", 2), ("b.qml", 0), ("c.qml", None)],
+    )
     print("check_qml_lint selftest:", "PASS" if ok else "FAIL")
     return ok
 

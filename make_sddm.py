@@ -29,6 +29,7 @@ WEAKNESS: the greeter's runtime (the `sddm`, `userModel`, `sessionModel`,
 differs from SDDM's real object is invisible to it. `sddm-greeter-qt6
 --test-mode --theme <dir>` is the live check and needs a display.
 """
+
 import os
 import sys
 
@@ -45,7 +46,7 @@ VARIANTS = _WPL.ALL_VARIANTS
 
 def theme_id(variant):
     """el-openglo-<slug>: EL-Azure-Lit -> el-openglo-azure-lit."""
-    return "el-openglo-" + variant.lower()[len("el-"):]
+    return "el-openglo-" + variant.lower()[len("el-") :]
 
 
 def _tok(variant):
@@ -61,10 +62,15 @@ def colors(variant):
     """{hole: "#rrggbb" or alpha} for the template — a READ of GRID."""
     ground, lit, ghost, alpha = _WPL.colors_for(variant, "glanced_at")
     t = _tok(variant)
-    return {"ground": "#{:02x}{:02x}{:02x}".format(*ground), "lit": "#{:02x}{:02x}{:02x}".format(*lit),
-            "ghost": "#{:02x}{:02x}{:02x}".format(*ghost), "ghostAlpha": f"{alpha}",
-            "field": _hex(t["button"]), "focus": _hex(t["focus"]),
-            "negative": _hex(t["neg"])}
+    return {
+        "ground": "#{:02x}{:02x}{:02x}".format(*ground),
+        "lit": "#{:02x}{:02x}{:02x}".format(*lit),
+        "ghost": "#{:02x}{:02x}{:02x}".format(*ghost),
+        "ghostAlpha": f"{alpha}",
+        "field": _hex(t["button"]),
+        "focus": _hex(t["focus"]),
+        "negative": _hex(t["neg"]),
+    }
 
 
 def main_qml(variant):
@@ -72,27 +78,35 @@ def main_qml(variant):
     import make_clock as _MC
     import segment_topology as _ST
     import templates.loader as TL
+
     m = _ST.metrics(4.0)
-    return TL.render("sddm-main.qml", tables=_MC.qml_tables(),
-                     pitch=f"{m['pitch']:.3f}", strokeBase=f"{m['stroke'] / 1.25:.3f}",
-                     dotR=f"{m['dot'] / 2:.3f}", colonAdvance=f"{m['colon_advance']:.3f}",
-                     **colors(variant))
+    return TL.render(
+        "sddm-main.qml",
+        tables=_MC.qml_tables(),
+        pitch=f"{m['pitch']:.3f}",
+        strokeBase=f"{m['stroke'] / 1.25:.3f}",
+        dotR=f"{m['dot'] / 2:.3f}",
+        colonAdvance=f"{m['colon_advance']:.3f}",
+        **colors(variant),
+    )
 
 
 def metadata_desktop(variant):
     tid = theme_id(variant)
-    return ("[SddmGreeterTheme]\n"
-            f"Name=EL Openglo ({variant})\n"
-            f"Description=Electroluminescent segment-clock login screen — {variant}\n"
-            "Author=EL Openglo\n"
-            f"License={LICENSE_SPDX}\n"
-            "Type=sddm-theme\n"
-            "Version=0.1\n"
-            "MainScript=Main.qml\n"
-            "ConfigFile=theme.conf\n"
-            f"Theme-Id={tid}\n"
-            "Theme-API=2.0\n"
-            "QtVersion=6\n")
+    return (
+        "[SddmGreeterTheme]\n"
+        f"Name=EL Openglo ({variant})\n"
+        f"Description=Electroluminescent segment-clock login screen — {variant}\n"
+        "Author=EL Openglo\n"
+        f"License={LICENSE_SPDX}\n"
+        "Type=sddm-theme\n"
+        "Version=0.1\n"
+        "MainScript=Main.qml\n"
+        "ConfigFile=theme.conf\n"
+        f"Theme-Id={tid}\n"
+        "Theme-API=2.0\n"
+        "QtVersion=6\n"
+    )
 
 
 def theme_conf(variant):
@@ -103,6 +117,7 @@ def theme_conf(variant):
 def render_all(themes_dir, variants=VARIANTS):
     """Write one theme directory per variant under themes_dir; returns the dirs."""
     import make_segment_display as SD
+
     out = []
     for v in variants:
         d = os.path.join(themes_dir, theme_id(v))
@@ -118,6 +133,8 @@ def render_all(themes_dir, variants=VARIANTS):
 
 if __name__ == "__main__":
     if len(sys.argv) > 1:
-        raise SystemExit(f"make_sddm: unknown argument {sys.argv[1]!r} (no modes; writes /tmp/el-sddm)")
+        raise SystemExit(
+            f"make_sddm: unknown argument {sys.argv[1]!r} (no modes; writes /tmp/el-sddm)"
+        )
     dirs = render_all("/tmp/el-sddm")
     print(f"rendered {len(dirs)} of {len(VARIANTS)} SDDM themes into /tmp/el-sddm")

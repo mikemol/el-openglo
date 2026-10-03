@@ -36,6 +36,7 @@ KNOWN state rather than a lowered bar. An unwaived finding of any class is red.
 A waiver naming a symbol that no longer has that finding is itself an error —
 stale waivers are how an exemption list becomes a blindfold.
 """
+
 import json
 import os
 import subprocess
@@ -65,33 +66,37 @@ WAIVERS = {
     "⊕KVANTUM": "prose spelling of ⊕KVT, which is closed",
     "⊕PARAMETRIC": "prose stem of ⊕PARAMETRIC-PALETTE",
     "⊕SEG-FONT-KERN": "the log marks it closed-by-design (a deliberate non-goal)",
-
     # ── UNRESOLVED, triaged by READING each symbol's context in the log ──
     # ⚑ EACH LINE BELOW IS A VERDICT WITH A CITATION, NOT A DISMISSAL.  A waiver
     # that says "not a real item" without saying how that was established is an
     # exemption list growing into a blindfold.
     "⊕LOCK-ANIM": "superseded — the log states ⊕WALLPAPER-LIVE supersedes it (:3401)",
     "⊕LOCK-AUTH": "a sub-risk CONSTRAINT (never replace the auth widget), honored as "
-                  "a decision, not a work item (:2976, :2986)",
+    "a decision, not a work item (:2976, :2986)",
     "⊕AZR-LIT": "deliberately unnumbered — 'derivable by composing the two existing "
-                "rules; left open, unnumbered' (:123)",
+    "rules; left open, unnumbered' (:123)",
     "⊕SHAPE-AA-TUNE": "conditional on a LIVE observation — 'if Qt Shape AA still soft "
-                      "on this GPU' (:4257); it has no standing until someone looks",
+    "on this GPU' (:4257); it has no standing until someone looks",
     "⊕TERM-ALACRITTY": "named once as a BONUS off ⊕KONSOLE's same 16 colours (:2843); "
-                       "an aspiration mentioned in passing, never scoped",
+    "an aspiration mentioned in passing, never scoped",
     "⊕TERM-FOOT": "as ⊕TERM-ALACRITTY — the same single bonus mention (:2843)",
     "⊕SOLVER-CEILING-GHOST-SPLASH": "named only inside another item's parenthetical "
-                                    "describing the in-flight splash work (:3922, :3964)",
+    "describing the in-flight splash work (:3922, :3964)",
     "⊕SOLVER-SEL-BACKLIT": "the light-ground selection-contrast residue; its substance "
-                           "was discharged by the @SELECTION fix (12/12 pairs now clear, "
-                           "worst 5.52:1) — the symbol outlived the problem",
+    "was discharged by the @SELECTION fix (12/12 pairs now clear, "
+    "worst 5.52:1) — the symbol outlived the problem",
 }
 
 
 def findings():
     """{class: {symbol: detail}} — the coherence findings, from the index."""
-    r = subprocess.run([sys.executable, INDEX, "--json"],
-                       capture_output=True, text=True, cwd=ROOT, check=False)
+    r = subprocess.run(
+        [sys.executable, INDEX, "--json"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     if r.returncode != 0:
         return None
     d = json.loads(r.stdout)
@@ -102,7 +107,9 @@ def findings():
     for s, info in syms.items():
         if info["closed"] and s in open_all:
             buckets = ",".join(info["buckets"])
-            out["CONTRADICTION"][s] = f"marked closed ({info['by']}) yet listed open in {buckets}"
+            out["CONTRADICTION"][s] = (
+                f"marked closed ({info['by']}) yet listed open in {buckets}"
+            )
         elif info["closed"] and info["by"] == "closure" and info["gates"] == 0:
             out["UNGATED"][s] = "closure section carries no four-gate verdict"
         elif not info["closed"] and s not in open_all:
@@ -123,8 +130,11 @@ def main(argv):
 
     f = findings()
     if f is None:
-        print("check_cotype_coherence: REFUSED — the index would not run; the log "
-              "cannot be read structurally", file=sys.stderr)
+        print(
+            "check_cotype_coherence: REFUSED — the index would not run; the log "
+            "cannot be read structurally",
+            file=sys.stderr,
+        )
         return 2
     total = sum(len(v) for v in f.values())
 
@@ -136,13 +146,16 @@ def main(argv):
         return 0
 
     if total == 0:
-        print("check_cotype_coherence: REFUSED — no findings AT ALL, including the "
-              "classes known to exist; the index is broken, not the log perfect",
-              file=sys.stderr)
+        print(
+            "check_cotype_coherence: REFUSED — no findings AT ALL, including the "
+            "classes known to exist; the index is broken, not the log perfect",
+            file=sys.stderr,
+        )
         return 2
 
-    unwaived = {cls: {s: w for s, w in d.items() if s not in WAIVERS}
-                for cls, d in f.items()}
+    unwaived = {
+        cls: {s: w for s, w in d.items() if s not in WAIVERS} for cls, d in f.items()
+    }
     n_unwaived = sum(len(v) for v in unwaived.values())
 
     # A waiver for a finding that no longer exists is itself a defect.
@@ -150,17 +163,24 @@ def main(argv):
     stale = sorted(set(WAIVERS) - all_found)
 
     if n_unwaived or stale:
-        print(f"check_cotype_coherence: REFUSED — {n_unwaived} unwaived finding(s) "
-              f"of {total}, {len(stale)} stale waiver(s):", file=sys.stderr)
+        print(
+            f"check_cotype_coherence: REFUSED — {n_unwaived} unwaived finding(s) "
+            f"of {total}, {len(stale)} stale waiver(s):",
+            file=sys.stderr,
+        )
         for cls in ("CONTRADICTION", "UNGATED", "UNRESOLVED"):
             for s, why in sorted(unwaived[cls].items()):
                 print(f"    {cls}  {s}: {why}", file=sys.stderr)
         for s in stale:
-            print(f"    STALE WAIVER  {s}: waived, but no longer a finding",
-                  file=sys.stderr)
+            print(
+                f"    STALE WAIVER  {s}: waived, but no longer a finding",
+                file=sys.stderr,
+            )
         return 1
-    print(f"check_cotype_coherence: {total} of {total} findings waived with a "
-          f"reason, 0 unwaived, 0 stale")
+    print(
+        f"check_cotype_coherence: {total} of {total} findings waived with a "
+        f"reason, 0 unwaived, 0 stale"
+    )
     return 0
 
 
@@ -187,27 +207,44 @@ def _selftest():
         # assertions failed exactly as intended, and the pre-commit gate caught
         # it. Pinning a finding tests the SUBJECT; what wants testing is the
         # DETECTOR, which must still discriminate after its subject changes.
-        check("the three finding classes are all reachable",
-              sorted(f), ["CONTRADICTION", "UNGATED", "UNRESOLVED"])
+        check(
+            "the three finding classes are all reachable",
+            sorted(f),
+            ["CONTRADICTION", "UNGATED", "UNRESOLVED"],
+        )
         check("finds ungated closures", len(f["UNGATED"]) > 0, True)
         # A contradiction must be RECOGNISED when one exists: closed-and-open is
         # the predicate, so a symbol in both sets must land in CONTRADICTION.
         import json as _json
         import subprocess as _sp
-        d = _json.loads(_sp.run([sys.executable, INDEX, "--json"],
-                                capture_output=True, text=True, cwd=ROOT, check=False).stdout)
+
+        d = _json.loads(
+            _sp.run(
+                [sys.executable, INDEX, "--json"],
+                capture_output=True,
+                text=True,
+                cwd=ROOT,
+                check=False,
+            ).stdout
+        )
         open_all = {s for v in d["open"].values() for s in v}
         closed = {s for s, x in d["symbols"].items() if x["closed"]}
-        check("no symbol is closed AND open (else CONTRADICTION must list it)",
-              sorted(closed & open_all), sorted(f["CONTRADICTION"]))
+        check(
+            "no symbol is closed AND open (else CONTRADICTION must list it)",
+            sorted(closed & open_all),
+            sorted(f["CONTRADICTION"]),
+        )
         # ⚑ NO STALE WAIVERS.  A waiver naming a symbol that is no longer a
         # finding is an exemption nobody has re-examined — the way a waiver list
         # decays into a blindfold. (Written and then caught: the first version of
         # this check ended in `or True`, which cannot fail — the vacuous-claim
         # shape the whole worklist exists to refuse.)
         all_found = {s for d_ in f.values() for s in d_}
-        check(f"no waiver is stale ({sorted(set(WAIVERS) - all_found)})",
-              sorted(set(WAIVERS) - all_found), [])
+        check(
+            f"no waiver is stale ({sorted(set(WAIVERS) - all_found)})",
+            sorted(set(WAIVERS) - all_found),
+            [],
+        )
     print("check_cotype_coherence selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -33,6 +33,7 @@ read it as though it did. A docstring DESCRIBING QML identifies as QML — measu
 — so a caller that dispatches on kind alone will hand its own prose to a QML
 handler. Position and parse are the caller's guards; kind is only the first.
 """
+
 import os
 import sys
 
@@ -40,8 +41,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_DB = os.path.join(ROOT, "magic", "el-openglo.magic")
 
 # Where the system database may live. The first that exists wins.
-SYSTEM_DB = ("/usr/share/misc/magic.mgc", "/usr/share/file/magic.mgc",
-             "/etc/magic")
+SYSTEM_DB = ("/usr/share/misc/magic.mgc", "/usr/share/file/magic.mgc", "/etc/magic")
 
 
 def system_db():
@@ -60,6 +60,7 @@ def magic_path():
 
 def _magic(mime=True):
     import magic
+
     return magic.Magic(mime=mime, magic_file=magic_path() or None)
 
 
@@ -67,7 +68,7 @@ def of_bytes(data, mime=True):
     """The kind of a byte string — the mode a string literal needs."""
     try:
         return _magic(mime).from_buffer(data)
-    except Exception as e:                       # noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         return f"(unidentifiable: {type(e).__name__})"
 
 
@@ -78,7 +79,7 @@ def of_string(text, mime=True):
 def of_file(path, mime=True):
     try:
         return _magic(mime).from_file(path)
-    except Exception as e:                       # noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         return f"(unidentifiable: {type(e).__name__})"
 
 
@@ -125,8 +126,10 @@ def main(argv):
         print(of_string(" ".join(args), mime))
         return 0
     if not args:
-        print("usage: identify.py <path>... | --string <text> | --db | --kinds",
-              file=sys.stderr)
+        print(
+            "usage: identify.py <path>... | --string <text> | --db | --kinds",
+            file=sys.stderr,
+        )
         return 2
     missing = [p for p in args if not os.path.exists(p)]
     if missing:
@@ -156,30 +159,42 @@ def _selftest():
     check("the repo db is first", magic_path().startswith(REPO_DB), True)
 
     # the four kinds this repo added signatures for
-    check("QML identifies", of_string("// c\nimport QtQuick\nItem { }\n"),
-          "text/x-qml")
-    check("a colour scheme identifies",
-          of_string("[ColorEffects:Disabled]\nColor=6,11,13\n"),
-          "text/x-kde-colorscheme")
-    check("warrants identify",
-          of_string("% a header\n" * 4 + "@misc{KEY,\n  claim = {x}\n}\n"),
-          "text/x-bibtex")
+    check("QML identifies", of_string("// c\nimport QtQuick\nItem { }\n"), "text/x-qml")
+    check(
+        "a colour scheme identifies",
+        of_string("[ColorEffects:Disabled]\nColor=6,11,13\n"),
+        "text/x-kde-colorscheme",
+    )
+    check(
+        "warrants identify",
+        of_string("% a header\n" * 4 + "@misc{KEY,\n  claim = {x}\n}\n"),
+        "text/x-bibtex",
+    )
     # ⚑ AND THE STOCK KINDS STILL WORK — the regression the repo-only db caused.
-    check("SVG still identifies",
-          of_string('<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'),
-          "image/svg+xml")
-    check("Python still identifies",
-          of_string("#!/usr/bin/env python3\nimport os\n\n\ndef f():\n    return 1\n"),
-          "text/x-script.python")
+    check(
+        "SVG still identifies",
+        of_string('<svg xmlns="http://www.w3.org/2000/svg"><rect/></svg>'),
+        "image/svg+xml",
+    )
+    check(
+        "Python still identifies",
+        of_string("#!/usr/bin/env python3\nimport os\n\n\ndef f():\n    return 1\n"),
+        "text/x-script.python",
+    )
 
     # ⚑ IDENTIFICATION IS NOT PARSING, and this is the measured proof: prose
     # DESCRIBING QML identifies AS QML. A caller dispatching on kind alone will
     # hand its own documentation to a QML handler.
-    prose = ("    The QML lives in templates/SegmentChar.qml, not here. A "
-             "generator that writes\n\n        import QtQuick\n        "
-             "Item { id: root }\n\n    inline has hidden an artifact.\n")
-    check("prose about QML identifies as QML (the caller must guard)",
-          of_string(prose), "text/x-qml")
+    prose = (
+        "    The QML lives in templates/SegmentChar.qml, not here. A "
+        "generator that writes\n\n        import QtQuick\n        "
+        "Item { id: root }\n\n    inline has hidden an artifact.\n"
+    )
+    check(
+        "prose about QML identifies as QML (the caller must guard)",
+        of_string(prose),
+        "text/x-qml",
+    )
 
     check("every declared kind has a mime", all(m for m, _ in kinds()), True)
     check("kinds() finds the four signatures", len(kinds()), 4)

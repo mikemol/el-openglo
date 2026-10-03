@@ -24,6 +24,7 @@ gate, held on the terminal, not on code), and the floors are measured ones, decl
 a claim that the palette meets AA everywhere. `vsce` is not run, so the .vsix is checked against
 the layout, not against the Marketplace.
 """
+
 import json
 import os
 import sys
@@ -57,11 +58,12 @@ TOKEN_FLOORS = {"variable": 4.5, "operator and punctuation": 4.5, "keyword": 3.0
 
 def _rgb(h):
     h = h.lstrip("#")
-    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def _ratio(a, b):
     import cvd_gate as C
+
     return round(C.wcag_ratio(_rgb(a), _rgb(b)), 2)
 
 
@@ -71,22 +73,35 @@ def contrast_facts(doc):
     out = []
     for fg, bg, floor in FLOORS:
         if fg in colors and bg in colors:
-            out.append({"pair": f"{fg} on {bg}", "ratio": _ratio(colors[fg], colors[bg]), "floor": floor})
+            out.append(
+                {
+                    "pair": f"{fg} on {bg}",
+                    "ratio": _ratio(colors[fg], colors[bg]),
+                    "floor": floor,
+                }
+            )
         else:
             out.append({"pair": f"{fg} on {bg}", "ratio": None, "floor": floor})
     ground = colors.get("editor.background")
-    for t in doc.get("tokenColors", []) if isinstance(doc.get("tokenColors"), list) else []:
+    for t in (
+        doc.get("tokenColors", []) if isinstance(doc.get("tokenColors"), list) else []
+    ):
         fgc = t.get("settings", {}).get("foreground")
         if fgc and ground:
-            out.append({"pair": f"token {t.get('name')} on editor.background",
-                        "ratio": _ratio(fgc, ground),
-                        "floor": TOKEN_FLOORS.get(t.get("name"), TOKEN_FLOOR)})
+            out.append(
+                {
+                    "pair": f"token {t.get('name')} on editor.background",
+                    "ratio": _ratio(fgc, ground),
+                    "floor": TOKEN_FLOORS.get(t.get("name"), TOKEN_FLOOR),
+                }
+            )
     return out
 
 
 def facts(variant, text):
     """What one theme file SAYS - no verdict (policy/vscode.rego rules). parse_error non-null => the rest is null."""
     import make_vscode as MV
+
     want_type = "light" if variant.endswith("-Lit") else "dark"
     parse_error = None
     try:
@@ -97,47 +112,86 @@ def facts(variant, text):
         if not isinstance(doc, dict):
             parse_error = "not a JSON object"
     if parse_error is not None:
-        return {"id": variant, "present": True, "parse_error": parse_error, "wrong_colours": None,
-                "unmapped_keys": None, "wrong_tokens": None, "type": None, "want_type": want_type,
-                "contrast": None, "current": None}
+        return {
+            "id": variant,
+            "present": True,
+            "parse_error": parse_error,
+            "wrong_colours": None,
+            "unmapped_keys": None,
+            "wrong_tokens": None,
+            "type": None,
+            "want_type": want_type,
+            "contrast": None,
+            "current": None,
+        }
     r = MV.roles(variant)
     colors = doc.get("colors", {}) if isinstance(doc.get("colors"), dict) else {}
-    wrong = [{"key": k, "role": role, "got": colors.get(k), "want": r[role]}
-             for k, role in MV.KEYS if colors.get(k) != r[role]]
+    wrong = [
+        {"key": k, "role": role, "got": colors.get(k), "want": r[role]}
+        for k, role in MV.KEYS
+        if colors.get(k) != r[role]
+    ]
     toks = {t.get("name"): t for t in doc.get("tokenColors", []) if isinstance(t, dict)}
-    wrong_tokens = [{"name": name, "role": role, "got": toks.get(name, {}).get("settings", {}).get("foreground"),
-                     "want": r[role]}
-                    for name, _s, role, _st in MV.TOKENS
-                    if toks.get(name, {}).get("settings", {}).get("foreground") != r[role]]
-    return {"id": variant, "present": True, "parse_error": None, "wrong_colours": wrong,
-            "unmapped_keys": sorted(set(colors) - {k for k, _ in MV.KEYS}),
-            "wrong_tokens": wrong_tokens, "type": doc.get("type"), "want_type": want_type,
-            "contrast": contrast_facts(doc), "current": text == MV.files([variant])[MV.theme_path(variant)]}
+    wrong_tokens = [
+        {
+            "name": name,
+            "role": role,
+            "got": toks.get(name, {}).get("settings", {}).get("foreground"),
+            "want": r[role],
+        }
+        for name, _s, role, _st in MV.TOKENS
+        if toks.get(name, {}).get("settings", {}).get("foreground") != r[role]
+    ]
+    return {
+        "id": variant,
+        "present": True,
+        "parse_error": None,
+        "wrong_colours": wrong,
+        "unmapped_keys": sorted(set(colors) - {k for k, _ in MV.KEYS}),
+        "wrong_tokens": wrong_tokens,
+        "type": doc.get("type"),
+        "want_type": want_type,
+        "contrast": contrast_facts(doc),
+        "current": text == MV.files([variant])[MV.theme_path(variant)],
+    }
 
 
 def package_facts(folder, roster):
     """What the committed package.json says against the roster."""
     import make_vscode as MV
+
     p = os.path.join(folder, "package.json")
     if not os.path.exists(p):
         return {"present": False}
     try:
         with open(p, encoding="utf-8") as fh:
             pj = json.load(fh)
-        themes =pj["contributes"]["themes"]
+        themes = pj["contributes"]["themes"]
     except (ValueError, KeyError, TypeError) as e:
         return {"present": True, "parse_error": f"{type(e).__name__}: {e}"}
     by_path = {t.get("path"): t for t in themes}
     want = {"./" + MV.theme_path(v): v for v in roster}
-    return {"present": True, "parse_error": None,
-            "missing": sorted(v for pth, v in want.items() if pth not in by_path),
-            "extra": sorted(str(pth) for pth in by_path if pth not in want),
-            "missing_files": sorted(v for pth, v in want.items()
-                                    if not os.path.exists(os.path.join(folder, pth[2:]))),
-            "wrong_ui": sorted(v for pth, v in want.items() if pth in by_path and
-                               by_path[pth].get("uiTheme") != ("vs" if v.endswith("-Lit") else "vs-dark")),
-            "current": text_of(p) == MV.files(roster)["package.json"],
-            "engine": pj.get("engines", {}).get("vscode"), "publisher": pj.get("publisher")}
+    return {
+        "present": True,
+        "parse_error": None,
+        "missing": sorted(v for pth, v in want.items() if pth not in by_path),
+        "extra": sorted(str(pth) for pth in by_path if pth not in want),
+        "missing_files": sorted(
+            v
+            for pth, v in want.items()
+            if not os.path.exists(os.path.join(folder, pth[2:]))
+        ),
+        "wrong_ui": sorted(
+            v
+            for pth, v in want.items()
+            if pth in by_path
+            and by_path[pth].get("uiTheme")
+            != ("vs" if v.endswith("-Lit") else "vs-dark")
+        ),
+        "current": text_of(p) == MV.files(roster)["package.json"],
+        "engine": pj.get("engines", {}).get("vscode"),
+        "publisher": pj.get("publisher"),
+    }
 
 
 def text_of(path):
@@ -148,6 +202,7 @@ def vsix_facts(roster):
     """What a .vsix packed afresh into private staging says: it opens as a zip, carries the documented
     entries, one per theme, and each equals the folder's emission."""
     import make_vscode as MV
+
     with tempfile.TemporaryDirectory() as td:
         path = MV.pack_vsix(os.path.join(td, "t.vsix"), roster)
         try:
@@ -158,17 +213,29 @@ def vsix_facts(roster):
         except zipfile.BadZipFile as e:
             return {"opens": False, "why": str(e)}
     want = MV.vsix_entries(roster)
-    return {"opens": True, "corrupt_member": bad,
-            "missing": sorted(set(want) - set(names)), "extra": sorted(set(names) - set(want)),
-            "differs": sorted(n for n in names if n in want and content[n] != want[n]),
-            "required": [n for n in ("[Content_Types].xml", "extension.vsixmanifest", "extension/package.json")
-                         if n not in names]}
+    return {
+        "opens": True,
+        "corrupt_member": bad,
+        "missing": sorted(set(want) - set(names)),
+        "extra": sorted(set(names) - set(want)),
+        "differs": sorted(n for n in names if n in want and content[n] != want[n]),
+        "required": [
+            n
+            for n in (
+                "[Content_Types].xml",
+                "extension.vsixmanifest",
+                "extension/package.json",
+            )
+            if n not in names
+        ],
+    }
 
 
 def measure(folder=None):
     import variant_roster
 
     import make_vscode as MV
+
     folder = folder or MV.OUT_DIR
     roster = list(variant_roster.ids())
     cases = []
@@ -179,50 +246,93 @@ def measure(folder=None):
             continue
         cases.append(facts(v, text_of(p)))
     tdir = os.path.join(folder, "themes")
-    orphans = sorted(f for f in os.listdir(tdir)
-                     if f not in {os.path.basename(MV.theme_path(v)) for v in roster}) if os.path.isdir(tdir) else []
-    return {"roster": roster, "cases": cases, "orphans": orphans,
-            "package": package_facts(folder, roster), "vsix": vsix_facts(roster)}
+    orphans = (
+        sorted(
+            f
+            for f in os.listdir(tdir)
+            if f not in {os.path.basename(MV.theme_path(v)) for v in roster}
+        )
+        if os.path.isdir(tdir)
+        else []
+    )
+    return {
+        "roster": roster,
+        "cases": cases,
+        "orphans": orphans,
+        "package": package_facts(folder, roster),
+        "vsix": vsix_facts(roster),
+    }
 
 
 def _selftest():
     import make_vscode as MV
+
     ok = True
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     v = "EL-Openglo"
     good = MV.files([v])[MV.theme_path(v)]
     f = facts(v, good)
-    chk("the real emission measures faithful", (f["parse_error"], f["wrong_colours"], f["unmapped_keys"],
-                                              f["wrong_tokens"], f["type"] == f["want_type"], f["current"]),
-        (None, [], [], [], True, True))
+    chk(
+        "the real emission measures faithful",
+        (
+            f["parse_error"],
+            f["wrong_colours"],
+            f["unmapped_keys"],
+            f["wrong_tokens"],
+            f["type"] == f["want_type"],
+            f["current"],
+        ),
+        (None, [], [], [], True, True),
+    )
     d = json.loads(good)
     d["colors"]["editor.background"] = "#ffffff"
     f = facts(v, json.dumps(d))
-    chk("a wrong ground is seen, and so is the low contrast it makes",
-        ([w["key"] for w in f["wrong_colours"]], f["current"],
-         any(c["pair"] == "editor.foreground on editor.background" and c["ratio"] < c["floor"] for c in f["contrast"])),
-        (["editor.background"], False, True))
+    chk(
+        "a wrong ground is seen, and so is the low contrast it makes",
+        (
+            [w["key"] for w in f["wrong_colours"]],
+            f["current"],
+            any(
+                c["pair"] == "editor.foreground on editor.background"
+                and c["ratio"] < c["floor"]
+                for c in f["contrast"]
+            ),
+        ),
+        (["editor.background"], False, True),
+    )
     d = json.loads(good)
     d["colors"]["madeUp.key"] = "#000000"
     d["tokenColors"][1]["settings"]["foreground"] = "#010203"
     f = facts(v, json.dumps(d))
-    chk("an unmapped key and a wrong token colour are seen",
-        (f["unmapped_keys"], [t["name"] for t in f["wrong_tokens"]]), (["madeUp.key"], ["string"]))
+    chk(
+        "an unmapped key and a wrong token colour are seen",
+        (f["unmapped_keys"], [t["name"] for t in f["wrong_tokens"]]),
+        (["madeUp.key"], ["string"]),
+    )
     d = json.loads(good)
     d["type"] = "light"
     chk("a wrong polarity is seen", facts(v, json.dumps(d))["type"], "light")
-    chk("unparsable JSON is a parse error and nothing else is claimed",
-        (facts(v, "{")["parse_error"] is not None, facts(v, "{")["contrast"]), (True, None))
+    chk(
+        "unparsable JSON is a parse error and nothing else is claimed",
+        (facts(v, "{")["parse_error"] is not None, facts(v, "{")["contrast"]),
+        (True, None),
+    )
     with tempfile.TemporaryDirectory() as td:
         MV.render_all(td, [v])
         pf = package_facts(td, [v, "EL-Azure"])
-        chk("a package missing a roster variant is seen, with its file", (pf["missing"], pf["missing_files"]),
-            (["EL-Azure"], ["EL-Azure"]))
+        chk(
+            "a package missing a roster variant is seen, with its file",
+            (pf["missing"], pf["missing_files"]),
+            (["EL-Azure"], ["EL-Azure"]),
+        )
         with open(os.path.join(td, "package.json"), encoding="utf-8") as fh:
             pj = json.load(fh)
         pj["contributes"]["themes"][0]["uiTheme"] = "vs"
@@ -230,10 +340,17 @@ def _selftest():
             json.dump(pj, fh)
         chk("a wrong uiTheme is seen", package_facts(td, [v])["wrong_ui"], [v])
     vf = vsix_facts([v])
-    chk("a fresh vsix opens with the documented entries and nothing differs",
-        (vf["opens"], vf["required"], vf["missing"], vf["extra"], vf["differs"]), (True, [], [], [], []))
+    chk(
+        "a fresh vsix opens with the documented entries and nothing differs",
+        (vf["opens"], vf["required"], vf["missing"], vf["extra"], vf["differs"]),
+        (True, [], [], [], []),
+    )
     m = measure()
-    chk("every declared variant is measured and none is vacuous", (len(m["cases"]) == len(m["roster"]) > 0), True)
+    chk(
+        "every declared variant is measured and none is vacuous",
+        (len(m["cases"]) == len(m["roster"]) > 0),
+        True,
+    )
     print("check_vscode selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -246,6 +363,7 @@ def main(argv):
     if "--selftest" in argv:
         return 0 if _selftest() else 1
     import make_vscode as MV
+
     if "--map" in argv:
         for key, role in MV.KEYS:
             print(f"{key:40} <- {role}")
@@ -254,6 +372,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("vscode")
 
 

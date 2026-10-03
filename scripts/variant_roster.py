@@ -32,6 +32,7 @@ WEAKNESS, stated: importing make_schemes solves the palette (seconds from the wa
 And GRID is itself read by path (.palette-cache.json), not content-addressed: this
 fixes WHICH question is asked, not W75's snapshot of GRID.
 """
+
 import os
 import sys
 
@@ -43,6 +44,7 @@ if ROOT not in sys.path:
 def ids():
     """Sorted variant ids the palette DECLARES (make_schemes.GRID)."""
     import make_schemes
+
     return sorted(t["id"] for (t, _dark) in make_schemes.GRID.values())
 
 
@@ -54,30 +56,42 @@ def ordered():
     emitter's VARIANTS happened to equal this order, so moving a display onto it
     changes no output — but if an emitter reorders, the display does not follow."""
     import make_schemes
+
     return [t["id"] for (t, _dark) in make_schemes.GRID.values()]
 
 
 def drift_facts(declared_by, roster=None):
     """[{variant, who, why}] — drift() over {who: declared VARIANTS}, as JSON facts a
     policy can deny on (each check's `roster_drift`)."""
-    return [{"variant": v, "who": who, "why": why}
-            for who, declared in declared_by.items()
-            for v, why in drift(declared, who, roster)]
+    return [
+        {"variant": v, "who": who, "why": why}
+        for who, declared in declared_by.items()
+        for v, why in drift(declared, who, roster)
+    ]
 
 
 def drift(declared, who, roster=None):
     """[(variant, why)] — a typed roster `declared` (named `who`) against the roster, BOTH ways."""
     want, mine = set(ids() if roster is None else roster), set(declared)
-    return ([(v, f"{who}.VARIANTS does not declare it (GRID does)") for v in sorted(want - mine)]
-            + [(v, f"{who}.VARIANTS declares it but GRID does not") for v in sorted(mine - want)])
+    return [
+        (v, f"{who}.VARIANTS does not declare it (GRID does)")
+        for v in sorted(want - mine)
+    ] + [
+        (v, f"{who}.VARIANTS declares it but GRID does not")
+        for v in sorted(mine - want)
+    ]
 
 
 def listing_drift(names, what, roster=None):
     """[(variant, why)] — a LISTING of files (variant names) compared to the roster.
     A declared variant with no file is missing; a file with no declaration is a stray."""
     want, have = set(ids() if roster is None else roster), set(names)
-    return ([(v, f"declared by GRID but absent from {what}") for v in sorted(want - have)]
-            + [(v, f"present in {what} but GRID does not declare it") for v in sorted(have - want)])
+    return [
+        (v, f"declared by GRID but absent from {what}") for v in sorted(want - have)
+    ] + [
+        (v, f"present in {what} but GRID does not declare it")
+        for v in sorted(have - want)
+    ]
 
 
 def listings():
@@ -85,11 +99,13 @@ def listings():
     import git_tracked
 
     import schemes_artifact
+
     suffix = schemes_artifact.SUFFIX
     return {
         "the schemes snapshot": sorted(schemes_artifact.variants()),
-        "the tracked tree": sorted(f[:-len(suffix)] for f in
-                                   git_tracked.files(":(glob)*" + suffix, root=ROOT)),
+        "the tracked tree": sorted(
+            f[: -len(suffix)] for f in git_tracked.files(":(glob)*" + suffix, root=ROOT)
+        ),
     }
 
 
@@ -102,14 +118,28 @@ def _selftest():
         ok = ok and bool(cond)
 
     roster = ("A", "B", "C")
-    see("a listing equal to the roster has no drift", listing_drift(["A", "B", "C"], "x", roster) == [])
+    see(
+        "a listing equal to the roster has no drift",
+        listing_drift(["A", "B", "C"], "x", roster) == [],
+    )
     got = listing_drift(["A", "C", "Z"], "x", roster)
-    see(f"a MISSING file is seen ({got})", ("B", "declared by GRID but absent from x") in got)
-    see("a STRAY file is seen", ("Z", "present in x but GRID does not declare it") in got)
-    see("an emitter roster that drops one is seen", [v for v, _ in drift(["A", "B"], "m", roster)] == ["C"])
+    see(
+        f"a MISSING file is seen ({got})",
+        ("B", "declared by GRID but absent from x") in got,
+    )
+    see(
+        "a STRAY file is seen",
+        ("Z", "present in x but GRID does not declare it") in got,
+    )
+    see(
+        "an emitter roster that drops one is seen",
+        [v for v, _ in drift(["A", "B"], "m", roster)] == ["C"],
+    )
     facts = drift_facts({"m": ["A", "B"], "n": ["A", "B", "C"]}, roster)
-    see(f"drift_facts names the emitter that dropped one ({facts})",
-        [(f["who"], f["variant"]) for f in facts] == [("m", "C")])
+    see(
+        f"drift_facts names the emitter that dropped one ({facts})",
+        [(f["who"], f["variant"]) for f in facts] == [("m", "C")],
+    )
     live = ids()
     see(f"the live roster is non-empty ({len(live)})", len(live) > 0)
     see("ordered() is the same set as ids()", sorted(ordered()) == live)
@@ -127,8 +157,10 @@ def main(argv):
         return _selftest()
     roster = ids()
     if not roster:
-        print("variant_roster: REFUSED — GRID declares no variant; the palette did not load",
-              file=sys.stderr)
+        print(
+            "variant_roster: REFUSED — GRID declares no variant; the palette did not load",
+            file=sys.stderr,
+        )
         return 2
     if "--compare" in argv:
         bad = 0
@@ -136,14 +168,19 @@ def main(argv):
             d = listing_drift(names, what, roster)
             bad += len(d)
             present = len(set(roster) & set(names))
-            print(f"variant_roster: {present} of {len(roster)} declared variant(s) present in "
-                  f"{what}; {len(d)} drift")
+            print(
+                f"variant_roster: {present} of {len(roster)} declared variant(s) present in "
+                f"{what}; {len(d)} drift"
+            )
             for v, why in d:
                 print(f"    {v}: {why}", file=sys.stderr)
         return 1 if bad else 0
     for v in roster:
         print(v)
-    print(f"variant_roster: {len(roster)} variant(s) declared by make_schemes.GRID", file=sys.stderr)
+    print(
+        f"variant_roster: {len(roster)} variant(s) declared by make_schemes.GRID",
+        file=sys.stderr,
+    )
     return 0
 
 

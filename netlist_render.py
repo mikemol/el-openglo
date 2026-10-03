@@ -28,6 +28,7 @@ nothing about the answer passes through it. Emitting `.dot` directly means the
 render works with `dot` alone when networkx is absent — a SKIP that is counted and
 printed rather than a failure.
 """
+
 from __future__ import annotations
 
 import palette_graph as PG
@@ -37,15 +38,16 @@ import palette_graph as PG
 # and a diagram about a colour-accessibility graph that was itself illegible to a
 # CVD reader would be the instrument failing in its own domain.
 FAMILY_STYLE = {
-    PG.SEPARATION: ("#0072b2", "solid"),    # blue
-    PG.LEGIBILITY: ("#009e73", "solid"),    # bluegreen
-    PG.GEOMETRY:   ("#d55e00", "solid"),    # vermillion
-    PG.DERIVATION: ("#cc79a7", "dashed"),   # purple — an ARROW, not a constraint
+    PG.SEPARATION: ("#0072b2", "solid"),  # blue
+    PG.LEGIBILITY: ("#009e73", "solid"),  # bluegreen
+    PG.GEOMETRY: ("#d55e00", "solid"),  # vermillion
+    PG.DERIVATION: ("#cc79a7", "dashed"),  # purple — an ARROW, not a constraint
 }
 
 
 def _terminals():
     import palette_relations as PR
+
     return set(PR.terminals())
 
 
@@ -65,16 +67,17 @@ def cycle_edges():
     try:
         import os
         import sys
+
         gc = os.path.expanduser("~/github/gcalculus")
         if os.path.isdir(gc) and gc not in sys.path:
             sys.path.insert(0, gc)
         from gcalc import solver as S
-    except ImportError:                                  # pragma: no cover
+    except ImportError:  # pragma: no cover
         return None
     raw = PG.netlist_edges(constraining_only=True)
     ns = list(PG.nodes(constraining_only=True))
     adj = {}
-    for (u, v) in raw:
+    for u, v in raw:
         adj.setdefault(u, set()).add(v)
         adj.setdefault(v, set()).add(u)
     seen, on_cycle = set(), set()
@@ -106,6 +109,7 @@ def frames(keep=None):
     only what a frame draws."""
     import os
     import sys
+
     gc = os.path.expanduser("~/github/gcalculus")
     if os.path.isdir(gc) and gc not in sys.path:
         sys.path.insert(0, gc)
@@ -125,8 +129,16 @@ def frames(keep=None):
         fz = fz.step(nxt)
         step += 1
         now = set(fz.edges)
-        out.append((step, nxt, tuple(fz.nodes), tuple(sorted(now)),
-                    tuple(sorted(now - prev)), sum(m for _, m in fz.cost)))
+        out.append(
+            (
+                step,
+                nxt,
+                tuple(fz.nodes),
+                tuple(sorted(now)),
+                tuple(sorted(now - prev)),
+                sum(m for _, m in fz.cost),
+            )
+        )
         prev = now
     return out
 
@@ -150,19 +162,25 @@ def as_dot(step=None, keep=None):
         live = set(PG.nodes())
         live_e = None
 
-    L = ["graph netlist {",
-         '  graph [fontname="monospace", labelloc="t", fontsize=11];',
-         '  node  [fontname="monospace", fontsize=10, shape=ellipse];',
-         '  edge  [fontname="monospace", fontsize=8];']
+    L = [
+        "graph netlist {",
+        '  graph [fontname="monospace", labelloc="t", fontsize=11];',
+        '  node  [fontname="monospace", fontsize=10, shape=ellipse];',
+        '  edge  [fontname="monospace", fontsize=8];',
+    ]
 
     if fr is not None:
-        title = (f"elimination step {step} of {len(fr) - 1}"
-                 + (f" — eliminated {elim}" if elim else " — the netlist as given")
-                 + f"\\n{len(live)} nodes, {len(live_e)} edges, {q} Q spent")
+        title = (
+            f"elimination step {step} of {len(fr) - 1}"
+            + (f" — eliminated {elim}" if elim else " — the netlist as given")
+            + f"\\n{len(live)} nodes, {len(live_e)} edges, {q} Q spent"
+        )
     else:
-        title = (f"the constraint netlist — {len(PG.nodes())} nodes, "
-                 f"{len(PG.edges())} edges\\nb1 = {len(_basis())} independent "
-                 f"cycles; terminals are boxed")
+        title = (
+            f"the constraint netlist — {len(PG.nodes())} nodes, "
+            f"{len(PG.edges())} edges\\nb1 = {len(_basis())} independent "
+            f"cycles; terminals are boxed"
+        )
     L.append(f'  label="{title}";')
 
     for n in sorted(set(PG.nodes()) | terms):
@@ -170,14 +188,15 @@ def as_dot(step=None, keep=None):
             # ⚑ AN ELIMINATED NODE IS DRAWN FAINT, NOT DELETED. Removing it would
             # make each frame a different graph and the sequence unreadable; the
             # reader is watching ONE graph resolve, not fifteen pictures.
-            L.append(f'  "{n}" [style=dotted, color="#999999", '
-                     f'fontcolor="#999999"];')
+            L.append(f'  "{n}" [style=dotted, color="#999999", fontcolor="#999999"];')
             continue
         shape = "box" if n in terms else "ellipse"
         pen = "2.4" if n in terms else "1.0"
         fill_c = "#f0e442" if n == elim else ("#eeeeee" if n in geom else "white")
-        L.append(f'  "{n}" [shape={shape}, penwidth={pen}, style=filled, '
-                 f'fillcolor="{fill_c}"];')
+        L.append(
+            f'  "{n}" [shape={shape}, penwidth={pen}, style=filled, '
+            f'fillcolor="{fill_c}"];'
+        )
 
     drawn = set()
     for e in PG.edges():
@@ -186,7 +205,7 @@ def as_dot(step=None, keep=None):
             continue
         drawn.add(key)
         colour, style = FAMILY_STYLE.get(e.family, ("#555555", "solid"))
-        attrs = [f'color="{colour}"', f'style={style}']
+        attrs = [f'color="{colour}"', f"style={style}"]
         if live_e is not None and key not in live_e:
             attrs = ['color="#dddddd"', "style=dotted"]
         elif key in on_cycle:
@@ -195,13 +214,15 @@ def as_dot(step=None, keep=None):
         L.append(f'  "{e.u}" -- "{e.v}" [{", ".join(attrs)}];')
 
     if live_e is not None:
-        for (u, v) in sorted(fill):
+        for u, v in sorted(fill):
             # ⚑ FILL-IN IS THE STAR->MESH TRANSFORM MADE VISIBLE, and it is the
             # one thing a static picture cannot show: eliminating a node replaces
             # its incident star with a mesh among its neighbours, which is where
             # the Q cost comes from.
-            L.append(f'  "{u}" -- "{v}" [color="#d55e00", penwidth=3.0, '
-                     f'style=bold, label="fill-in"];')
+            L.append(
+                f'  "{u}" -- "{v}" [color="#d55e00", penwidth=3.0, '
+                f'style=bold, label="fill-in"];'
+            )
 
     L.append("}")
     return "\n".join(L) + "\n"
@@ -211,14 +232,16 @@ def _basis():
     """The fundamental cycles, for the static view's label."""
     import os
     import sys
+
     gc = os.path.expanduser("~/github/gcalculus")
     if os.path.isdir(gc) and gc not in sys.path:
         sys.path.insert(0, gc)
     from gcalc import solver as S
+
     raw = PG.netlist_edges(constraining_only=True)
     ns = list(PG.nodes(constraining_only=True))
     adj = {}
-    for (u, v) in raw:
+    for u, v in raw:
         adj.setdefault(u, set()).add(v)
         adj.setdefault(v, set()).add(u)
     seen, out = set(), []

@@ -37,6 +37,7 @@ sees tracked files only (untracked build products are not the gate's inputs
 by definition), and a check that writes only under some input it did not get
 this run is not seen. It is heavy: it runs every claim's check (use --only).
 """
+
 import json
 import os
 import shutil
@@ -70,6 +71,7 @@ def claims(root=ROOT):
     Refuses — raises — when the engine is absent: an empty claim list would read
     as "no check writes" over nothing."""
     import worklist_gate
+
     recs = worklist_gate.warrants(os.path.join(root, WORKLIST, "warrants.bib"))
     if recs is None:
         raise RuntimeError("paperkit not found: cannot read the claims")
@@ -95,6 +97,7 @@ def tracked(root):
     was a second `git ls-files -z` copy). `root` is never this repo here, so
     git_tracked runs git with the GIT_* pins scrubbed, whatever this process holds."""
     import git_tracked
+
     return git_tracked.files(root=root)
 
 
@@ -112,35 +115,66 @@ def fingerprint(root, paths):
 def make_copy(src, parent):
     """A detached worktree of `src` with its uncommitted diff applied to the index."""
     copy = os.path.join(parent, "tree")
-    subprocess.run(["git", "-C", src, "worktree", "add", "-q", "--detach", copy, "HEAD"],
-                   check=True, capture_output=True)
-    diff = subprocess.run(["git", "-C", src, "diff", "--binary", "HEAD"],
-                          capture_output=True, check=True).stdout
+    subprocess.run(
+        ["git", "-C", src, "worktree", "add", "-q", "--detach", copy, "HEAD"],
+        check=True,
+        capture_output=True,
+    )
+    diff = subprocess.run(
+        ["git", "-C", src, "diff", "--binary", "HEAD"], capture_output=True, check=True
+    ).stdout
     if diff:
-        subprocess.run(["git", "-C", copy, "apply", "--index", "--whitespace=nowarn"],
-                       input=diff, check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", copy, "apply", "--index", "--whitespace=nowarn"],
+            input=diff,
+            check=True,
+            capture_output=True,
+        )
     # new, not-yet-added files are part of the tree being certified too. This runs only in
     # a real repo (it just built a `git worktree`), and asks what git_tracked does not answer.
     # population: UNTRACKED files (--others) of a real repo — not the tree git_tracked reads
-    new = subprocess.run(["git", "-C", src, "ls-files", "-z", "--others", "--exclude-standard",
-                          "--exclude=.tree-writes/"],
-                         capture_output=True, check=True).stdout.decode("utf-8").split("\0")
+    untracked = subprocess.run(
+        [
+            "git",
+            "-C",
+            src,
+            "ls-files",
+            "-z",
+            "--others",
+            "--exclude-standard",
+            "--exclude=.tree-writes/",
+        ],
+        capture_output=True,
+        check=True,
+    )
+    new = untracked.stdout.decode("utf-8").split("\0")
     new = [p for p in new if p and not os.path.isdir(os.path.join(src, p))]
     for p in new:
         os.makedirs(os.path.dirname(os.path.join(copy, p)), exist_ok=True)
-        shutil.copy2(os.path.join(src, p), os.path.join(copy, p), follow_symlinks=False)  # atomic-write: exempt — into the private copy
+        shutil.copy2(
+            os.path.join(src, p), os.path.join(copy, p), follow_symlinks=False
+        )  # atomic-write: exempt — into the private copy
     if new:
-        subprocess.run(["git", "-C", copy, "add", "--"] + new, check=True, capture_output=True)
+        subprocess.run(
+            ["git", "-C", copy, "add", "--"] + new, check=True, capture_output=True
+        )
     if os.path.isfile(os.path.join(src, CACHE)):
-        shutil.copy2(os.path.join(src, CACHE), os.path.join(copy, CACHE))  # atomic-write: exempt — into the private copy
+        shutil.copy2(
+            os.path.join(src, CACHE), os.path.join(copy, CACHE)
+        )  # atomic-write: exempt — into the private copy
     return copy
 
 
 def drop_copy(src, copy):
-    subprocess.run(["git", "-C", src, "worktree", "remove", "--force", copy],
-                   capture_output=True, check=False)
+    subprocess.run(
+        ["git", "-C", src, "worktree", "remove", "--force", copy],
+        capture_output=True,
+        check=False,
+    )
     shutil.rmtree(copy, ignore_errors=True)
-    subprocess.run(["git", "-C", src, "worktree", "prune"], capture_output=True, check=False)
+    subprocess.run(
+        ["git", "-C", src, "worktree", "prune"], capture_output=True, check=False
+    )
 
 
 def restore(src, copy, paths):
@@ -152,15 +186,20 @@ def restore(src, copy, paths):
             os.unlink(d)
         if os.path.lexists(s):
             os.makedirs(os.path.dirname(d), exist_ok=True)
-            shutil.copy2(s, d, follow_symlinks=False)  # atomic-write: exempt — restoring the private copy
+            shutil.copy2(
+                s, d, follow_symlinks=False
+            )  # atomic-write: exempt — restoring the private copy
 
 
 def measure(root=ROOT, only=None, timeout=TIMEOUT, population=None):
     """The --json document. `population` overrides the claims (selftest)."""
     every = population if population is not None else claims(root)
     chosen = [c for c in every if only is None or c[0] in only]
-    env = dict(os.environ, PATH=os.path.dirname(sys.executable) + os.pathsep
-               + os.environ.get("PATH", ""), OPENBLAS_NUM_THREADS="1")
+    env = dict(
+        os.environ,
+        PATH=os.path.dirname(sys.executable) + os.pathsep + os.environ.get("PATH", ""),
+        OPENBLAS_NUM_THREADS="1",
+    )
     cases, withheld = [], []
     # ⚑ UNDER THE REPO, NOT /tmp: @EBUILD stages under sys-apps/sandbox with
     # SANDBOX_DENY=/tmp, and its work dir is inside whatever tree it runs in.
@@ -181,8 +220,16 @@ def measure(root=ROOT, only=None, timeout=TIMEOUT, population=None):
                     continue
                 before = fingerprint(copy, paths)
                 try:
-                    r = subprocess.run(cmd, shell=True, cwd=cwd, env=env, capture_output=True,
-                                       text=True, timeout=timeout, check=False)
+                    r = subprocess.run(
+                        cmd,
+                        shell=True,
+                        cwd=cwd,
+                        env=env,
+                        capture_output=True,
+                        text=True,
+                        timeout=timeout,
+                        check=False,
+                    )
                     rc = r.returncode
                 except subprocess.TimeoutExpired:
                     rc = None
@@ -191,16 +238,32 @@ def measure(root=ROOT, only=None, timeout=TIMEOUT, population=None):
                 if written:
                     restore(root, copy, written)
                 if rc is None or rc == 127:
-                    withheld.append({"key": key, "check": check, "written": written,
-                                     "withheld": (f"exceeded {timeout} s" if rc is None
-                                                  else "command not found (127)")})
+                    withheld.append(
+                        {
+                            "key": key,
+                            "check": check,
+                            "written": written,
+                            "withheld": (
+                                f"exceeded {timeout} s"
+                                if rc is None
+                                else "command not found (127)"
+                            ),
+                        }
+                    )
                     continue
                 cases.append({"key": key, "check": check, "rc": rc, "written": written})
         finally:
             drop_copy(root, copy)
-    return {"cases": cases, "withheld": withheld, "claims": len(every),
-            "measured": len(chosen), "tracked": len(paths),
-            "not_measured": sorted(k for k, _ in every if only is not None and k not in only)}
+    return {
+        "cases": cases,
+        "withheld": withheld,
+        "claims": len(every),
+        "measured": len(chosen),
+        "tracked": len(paths),
+        "not_measured": sorted(
+            k for k, _ in every if only is not None and k not in only
+        ),
+    }
 
 
 def main(argv):
@@ -228,7 +291,10 @@ def main(argv):
     if only is not None:
         unknown = only - {k for k, _ in claims()}
         if unknown:
-            print(f"check_tree_writes: no such claim(s): {sorted(unknown)}", file=sys.stderr)
+            print(
+                f"check_tree_writes: no such claim(s): {sorted(unknown)}",
+                file=sys.stderr,
+            )
             return 2
     doc = measure(only=only)
     if "--json" in flags:
@@ -236,15 +302,24 @@ def main(argv):
         return 0
     writers = [c for c in doc["cases"] + doc["withheld"] if c.get("written")]
     for c in writers:
-        print(f"    WRITES {c['key']} ({c['check']}): {', '.join(c['written'])}", file=sys.stderr)
+        print(
+            f"    WRITES {c['key']} ({c['check']}): {', '.join(c['written'])}",
+            file=sys.stderr,
+        )
     for w in doc["withheld"]:
         print(f"    WITHHELD {w['key']}: {w['withheld']}", file=sys.stderr)
     bad = bool(writers) or not doc["cases"]
-    print(f"check_tree_writes: {len(writers)} of {doc['measured']} measured claim(s) write "
-          f"the tree ({len(doc['withheld'])} withheld; {doc['measured']} of {doc['claims']} "
-          f"claims measured; {doc['tracked']} tracked files fingerprinted)"
-          + (f"; not measured: {', '.join(doc['not_measured'])}" if doc["not_measured"] else ""),
-          file=sys.stderr if bad else sys.stdout)
+    print(
+        f"check_tree_writes: {len(writers)} of {doc['measured']} measured claim(s) write "
+        f"the tree ({len(doc['withheld'])} withheld; {doc['measured']} of {doc['claims']} "
+        f"claims measured; {doc['tracked']} tracked files fingerprinted)"
+        + (
+            f"; not measured: {', '.join(doc['not_measured'])}"
+            if doc["not_measured"]
+            else ""
+        ),
+        file=sys.stderr if bad else sys.stdout,
+    )
     return 1 if bad else 0
 
 
@@ -260,35 +335,66 @@ def _selftest():
 
     got = claims()
     see(f"the real population is non-empty ({len(got)} claims)", len(got) > 0)
-    see("tool: resolves through paper.toml", resolve("tool:x.py --y")[0] == "python3 ../../scripts/x.py --y")
+    see(
+        "tool: resolves through paper.toml",
+        resolve("tool:x.py --y")[0] == "python3 ../../scripts/x.py --y",
+    )
     see("an undeclared type is refused", resolve("nosuch:z")[0] is None)
     with tempfile.TemporaryDirectory() as repo:
         os.makedirs(os.path.join(repo, WORKLIST))
-        files = {"out.txt": "A\n", "same.txt": "S\n",
-                 os.path.join(WORKLIST, "paper.toml"): '[checks.cmd]\ncmd = "{target}"\n'}
+        files = {
+            "out.txt": "A\n",
+            "same.txt": "S\n",
+            os.path.join(WORKLIST, "paper.toml"): '[checks.cmd]\ncmd = "{target}"\n',
+        }
         for name, body in files.items():
-            with open(os.path.join(repo, name), "w") as fh:  # atomic-write: exempt — selftest fixture
+            with open(
+                os.path.join(repo, name), "w"
+            ) as fh:  # atomic-write: exempt — selftest fixture
                 fh.write(body)
-        for c in (["init", "-q"], ["add", "."],
-                  ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "x"]):
+        for c in (
+            ["init", "-q"],
+            ["add", "."],
+            ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-qm", "x"],
+        ):
             subprocess.run(["git", "-C", repo] + c, check=True)
-        pop = [("WRITER", "cmd:echo B > ../../out.txt"),
-               ("CLEAN", "cmd:true"),
-               ("SAMEBYTES", "cmd:cp ../../same.txt ../../s2 && mv ../../s2 ../../same.txt"),
-               ("NOCMD", "cmd:no-such-command-el-openglo")]
+        pop = [
+            ("WRITER", "cmd:echo B > ../../out.txt"),
+            ("CLEAN", "cmd:true"),
+            (
+                "SAMEBYTES",
+                "cmd:cp ../../same.txt ../../s2 && mv ../../s2 ../../same.txt",
+            ),
+            ("NOCMD", "cmd:no-such-command-el-openglo"),
+        ]
         doc = measure(repo, population=pop)
         by = {c["key"]: c for c in doc["cases"]}
-        see("a check that writes a tracked file is SEEN", by.get("WRITER", {}).get("written") == ["out.txt"])
-        see("a same-bytes rewrite is SEEN", by.get("SAMEBYTES", {}).get("written") == ["same.txt"])
-        see("a clean check is not blamed (the writer was restored)", by.get("CLEAN", {}).get("written") == [])
-        see("a missing command is WITHHELD, not admitted",
-            [w["key"] for w in doc["withheld"]] == ["NOCMD"])
+        see(
+            "a check that writes a tracked file is SEEN",
+            by.get("WRITER", {}).get("written") == ["out.txt"],
+        )
+        see(
+            "a same-bytes rewrite is SEEN",
+            by.get("SAMEBYTES", {}).get("written") == ["same.txt"],
+        )
+        see(
+            "a clean check is not blamed (the writer was restored)",
+            by.get("CLEAN", {}).get("written") == [],
+        )
+        see(
+            "a missing command is WITHHELD, not admitted",
+            [w["key"] for w in doc["withheld"]] == ["NOCMD"],
+        )
         see("the population is counted", doc["claims"] == 4 and doc["measured"] == 4)
         with open(os.path.join(repo, "out.txt")) as fh:
             out_txt = fh.read()
         see("the real fixture tree was not written", out_txt == "A\n")
-        wl = subprocess.run(["git", "-C", repo, "worktree", "list"], capture_output=True,
-                            text=True, check=False).stdout
+        wl = subprocess.run(
+            ["git", "-C", repo, "worktree", "list"],
+            capture_output=True,
+            text=True,
+            check=False,
+        ).stdout
         see("the scratch worktree was removed", len(wl.splitlines()) == 1)
     print("check_tree_writes selftest:", "PASS" if ok else "FAIL")
     return ok

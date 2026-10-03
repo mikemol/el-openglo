@@ -18,6 +18,7 @@ exactly that reason — see check_partial.py.
 print the same thing, or a glob that silently matches nothing reads as success —
 policy/compiles.rego's K0 denies the empty population (W50).
 """
+
 import os
 import py_compile
 import sys
@@ -39,6 +40,7 @@ def sources():
     exactly when a commit is about to certify it."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import git_tracked
+
     out = []
     for rel in git_tracked.files("*.py", root=ROOT):
         if rel.startswith("scripts/") or rel.split("/", 1)[0] in SKIP_DIRS:
@@ -67,8 +69,15 @@ def measure(src=None):
     with the compiler's error or null. Whether an error is a defect is the
     policy's ruling, not this file's."""
     src = sources() if src is None else src
-    return {"cases": [{"id": rel.replace(os.sep, "/"), "error": compile_error(os.path.join(ROOT, rel))}
-                      for rel in src]}
+    return {
+        "cases": [
+            {
+                "id": rel.replace(os.sep, "/"),
+                "error": compile_error(os.path.join(ROOT, rel)),
+            }
+            for rel in src
+        ]
+    }
 
 
 def main(argv):
@@ -82,9 +91,11 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("compiles")
 
 
@@ -93,16 +104,23 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     src = sources()
     chk("sources() finds files", len(src) > 0, True)
-    chk("sources() excludes the checkers themselves",
-        [s for s in src if s.startswith("scripts" + os.sep)], [])
+    chk(
+        "sources() excludes the checkers themselves",
+        [s for s in src if s.startswith("scripts" + os.sep)],
+        [],
+    )
     # ⚑ THE MEASUREMENT MUST SEE A SYNTAX ERROR (synthetic: a scratch file). That
     # a case carrying one is DENIED is policy/compiles_test.rego's ruling.
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         bad = os.path.join(td, "bad.py")
         with open(bad, "w", encoding="utf-8") as fh:

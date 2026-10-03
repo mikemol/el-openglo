@@ -46,6 +46,7 @@ directory holds scratch — none of catalog/, policy/, etc. does today. (3) It s
 the spelled call; a walk routed through a third-party API (pathlib's own recursion
 under another name) is invisible.
 """
+
 import ast
 import json
 import os
@@ -80,7 +81,16 @@ def _from_file(e):
         return _from_file(e.value)
     if isinstance(e, ast.Call):
         _, n = _call_name(e.func)
-        if n in ("dirname", "abspath", "realpath", "resolve", "Path", "normpath", "absolute", "expanduser"):
+        if n in (
+            "dirname",
+            "abspath",
+            "realpath",
+            "resolve",
+            "Path",
+            "normpath",
+            "absolute",
+            "expanduser",
+        ):
             if e.args:
                 return _from_file(e.args[0])
             if isinstance(e.func, ast.Attribute):
@@ -92,7 +102,11 @@ class _Reach:
     def __init__(self, tree):
         self.bind = {}
         for n in ast.walk(tree):
-            if isinstance(n, ast.Assign) and len(n.targets) == 1 and isinstance(n.targets[0], ast.Name):
+            if (
+                isinstance(n, ast.Assign)
+                and len(n.targets) == 1
+                and isinstance(n.targets[0], ast.Name)
+            ):
                 self.bind.setdefault(n.targets[0].id, n.value)
 
     def of(self, e, depth=0):
@@ -155,7 +169,11 @@ class _Reach:
                 return "root", f"{d}/{nxt.value}"
             return "bounded", f"{d}/{nxt.value}"
         r2, d2 = self.of(nxt, depth + 1)
-        return ("bounded", f"{d}/{d2}") if r2 == "bounded" else ("unknown", f"{d}/{ast.unparse(nxt)}")
+        return (
+            ("bounded", f"{d}/{d2}")
+            if r2 == "bounded"
+            else ("unknown", f"{d}/{ast.unparse(nxt)}")
+        )
 
 
 def _marker(lines, lineno):
@@ -164,16 +182,23 @@ def _marker(lines, lineno):
             t = lines[ln - 1]
             i = t.find("# " + TAG)
             if i >= 0:
-                return t[i + len(TAG) + 2:].strip(" —-:\t")
+                return t[i + len(TAG) + 2 :].strip(" —-:\t")
     return None
 
 
 def _pattern_recursive(call):
-    if any(k.arg == "recursive" and isinstance(k.value, ast.Constant) and k.value.value for k in call.keywords):
+    if any(
+        k.arg == "recursive" and isinstance(k.value, ast.Constant) and k.value.value
+        for k in call.keywords
+    ):
         return True
     for a in call.args[:1]:
         for n in ast.walk(a):
-            if isinstance(n, ast.Constant) and isinstance(n.value, str) and "**" in n.value:
+            if (
+                isinstance(n, ast.Constant)
+                and isinstance(n.value, str)
+                and "**" in n.value
+            ):
                 return True
     return False
 
@@ -182,7 +207,11 @@ def _is_git_ls_files(call):
     """A call whose argv literal holds "git" and "ls-files" (subprocess.run/check_output/…)."""
     for a in call.args[:1]:
         if isinstance(a, (ast.List, ast.Tuple)):
-            words = {e.value for e in a.elts if isinstance(e, ast.Constant) and isinstance(e.value, str)}
+            words = {
+                e.value
+                for e in a.elts
+                if isinstance(e, ast.Constant) and isinstance(e.value, str)
+            }
             if {"git", "ls-files"} <= words:
                 return True
     return False
@@ -206,17 +235,29 @@ def sites(source, module):
         elif name in ("glob", "iglob") and base == "glob":
             kind = "glob-recursive" if _pattern_recursive(node) else None
         elif name == "glob" and isinstance(node.func, ast.Attribute) and base != "glob":
-            kind, arg = ("glob-recursive", node.func.value) if _pattern_recursive(node) else (None, None)
+            kind, arg = (
+                ("glob-recursive", node.func.value)
+                if _pattern_recursive(node)
+                else (None, None)
+            )
         elif name in ("listdir", "scandir") and base == "os":
             kind = name
         elif _is_git_ls_files(node):
             # ⚑ A RAW `git ls-files` IS A POPULATION READ THAT BYPASSES THE AUTHORITY (R6,
             # 2026-09-25): check_license ran one, died with exit 128 in paperkit's Δ
             # sandbox (no .git), and graded `broken` there — git_tracked would have walked.
-            out.append({"module": module, "line": node.lineno, "kind": "git-ls-files",
-                        "recursive": True, "reach": "root", "root": "git ls-files",
-                        "marked": _marker(lines, node.lineno) is not None,
-                        "reason": _marker(lines, node.lineno)})
+            out.append(
+                {
+                    "module": module,
+                    "line": node.lineno,
+                    "kind": "git-ls-files",
+                    "recursive": True,
+                    "reach": "root",
+                    "root": "git ls-files",
+                    "marked": _marker(lines, node.lineno) is not None,
+                    "reason": _marker(lines, node.lineno),
+                }
+            )
             continue
         if kind is None:
             continue
@@ -227,9 +268,18 @@ def sites(source, module):
         else:
             r, d = reach.of(arg)
         m = _marker(lines, node.lineno)
-        out.append({"module": module, "line": node.lineno, "kind": kind,
-                    "recursive": kind in RECURSIVE, "reach": r, "root": d,
-                    "marked": m is not None, "reason": m})
+        out.append(
+            {
+                "module": module,
+                "line": node.lineno,
+                "kind": kind,
+                "recursive": kind in RECURSIVE,
+                "reach": r,
+                "root": d,
+                "marked": m is not None,
+                "reason": m,
+            }
+        )
     return sorted(out, key=lambda s: s["line"])
 
 
@@ -261,7 +311,12 @@ def measure(root=ROOT):
         for c in found:
             c["borrowed"] = borrowed
         cases.extend(found)
-    return {"scope": list(SCOPE), "files": files, "cases": cases, "unreadable": unreadable}
+    return {
+        "scope": list(SCOPE),
+        "files": files,
+        "cases": cases,
+        "unreadable": unreadable,
+    }
 
 
 def _selftest():
@@ -289,35 +344,66 @@ def _selftest():
         "for dp, dn, fs in os.walk(tmp): pass\n"
     )
     s = {x["line"]: x for x in sites(fixture, "fixture")}
-    see("a bare os.walk(ROOT) is a root-reach recursive site, unmarked",
-        s.get(4, {}).get("reach") == "root" and s[4]["recursive"] and not s[4]["marked"] and needs_mark(s[4]))
-    see("os.walk(join(ROOT, 'catalog')) is bounded", s.get(5, {}).get("reach") == "bounded" and not needs_mark(s[5]))
-    see("a marked walk carries its reason", s.get(7, {}).get("reason") == "a private tempdir")
-    see("a recursive glob from ROOT/** is root reach", s.get(8, {}).get("reach") == "root"
-        and s[8]["kind"] == "glob-recursive")
-    see("Path(ROOT).rglob is root reach", s.get(9, {}).get("kind") == "rglob" and s[9]["reach"] == "root")
+    see(
+        "a bare os.walk(ROOT) is a root-reach recursive site, unmarked",
+        s.get(4, {}).get("reach") == "root"
+        and s[4]["recursive"]
+        and not s[4]["marked"]
+        and needs_mark(s[4]),
+    )
+    see(
+        "os.walk(join(ROOT, 'catalog')) is bounded",
+        s.get(5, {}).get("reach") == "bounded" and not needs_mark(s[5]),
+    )
+    see(
+        "a marked walk carries its reason",
+        s.get(7, {}).get("reason") == "a private tempdir",
+    )
+    see(
+        "a recursive glob from ROOT/** is root reach",
+        s.get(8, {}).get("reach") == "root" and s[8]["kind"] == "glob-recursive",
+    )
+    see(
+        "Path(ROOT).rglob is root reach",
+        s.get(9, {}).get("kind") == "rglob" and s[9]["reach"] == "root",
+    )
     see("ast.walk is NOT a disk site", 10 not in s)
-    see("os.listdir(ROOT) is root reach, non-recursive: advisory, not denied",
-        s.get(11, {}).get("reach") == "root" and not s[11]["recursive"]
-        and advisory(s[11]) and not needs_mark(s[11]))
+    see(
+        "os.listdir(ROOT) is root reach, non-recursive: advisory, not denied",
+        s.get(11, {}).get("reach") == "root"
+        and not s[11]["recursive"]
+        and advisory(s[11])
+        and not needs_mark(s[11]),
+    )
     see("os.listdir(ROOT/policy) is bounded", s.get(12, {}).get("reach") == "bounded")
     see("a non-recursive glob is not a site", 13 not in s)
-    see("an unmarked walk of an unknown root must be marked", s.get(14, {}).get("reach") == "unknown"
-        and needs_mark(s[14]))
+    see(
+        "an unmarked walk of an unknown root must be marked",
+        s.get(14, {}).get("reach") == "unknown" and needs_mark(s[14]),
+    )
     # ⚑ R6: a raw `git ls-files` is SEEN as its own site kind; the marker is read for it too
-    g = {c["line"]: c for c in sites(
-        "import subprocess\n"
-        "subprocess.run(['git', '-C', r, 'ls-files', '-z'])\n"
-        "# population: untracked files of a real repo\n"
-        "subprocess.run(['git', 'ls-files', '--others'])\n"
-        "subprocess.run(['git', 'status'])\n", "fx.py")}
-    see("a raw `git ls-files` is a git-ls-files site, unmarked",
-        g.get(2, {}).get("kind") == "git-ls-files" and not g[2]["marked"])
+    g = {
+        c["line"]: c
+        for c in sites(
+            "import subprocess\n"
+            "subprocess.run(['git', '-C', r, 'ls-files', '-z'])\n"
+            "# population: untracked files of a real repo\n"
+            "subprocess.run(['git', 'ls-files', '--others'])\n"
+            "subprocess.run(['git', 'status'])\n",
+            "fx.py",
+        )
+    }
+    see(
+        "a raw `git ls-files` is a git-ls-files site, unmarked",
+        g.get(2, {}).get("kind") == "git-ls-files" and not g[2]["marked"],
+    )
     see("...and a marked one carries its reason", g.get(4, {}).get("marked") is True)
     see("a git call that is not ls-files is not a site", 5 not in g)
     doc = measure()
-    see(f"the live population is non-empty ({len(doc['files'])} files, {len(doc['cases'])} sites)",
-        len(doc["files"]) > 0 and len(doc["cases"]) > 0)
+    see(
+        f"the live population is non-empty ({len(doc['files'])} files, {len(doc['cases'])} sites)",
+        len(doc["files"]) > 0 and len(doc["cases"]) > 0,
+    )
     print("check_populations selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -336,21 +422,35 @@ def main(argv):
         return 0
     cases = doc["cases"]
     if not doc["files"]:
-        print("check_populations: REFUSED — no file in scope; the search is broken", file=sys.stderr)
+        print(
+            "check_populations: REFUSED — no file in scope; the search is broken",
+            file=sys.stderr,
+        )
         return 1
     bad, sub = [], []
     for c in cases:
         need = needs_mark(c)
-        tag = (("MARKED (" + (c["reason"] or "") + ")") if c["marked"] else
-               "UNMARKED" if need else "advisory: one-level root listing" if advisory(c) else "ok")
+        tag = (
+            ("MARKED (" + (c["reason"] or "") + ")")
+            if c["marked"]
+            else "UNMARKED"
+            if need
+            else "advisory: one-level root listing"
+            if advisory(c)
+            else "ok"
+        )
         if need and not (c["marked"] and c["reason"]):
             (sub if c["borrowed"] else bad).append(c)
         b = " [borrowed]" if c["borrowed"] else ""
-        print(f"  {c['module']}:{c['line']:<5d} {c['kind']:15s} {c['reach']:8s} {c['root'][:40]:40s} {tag}{b}")
+        print(
+            f"  {c['module']}:{c['line']:<5d} {c['kind']:15s} {c['reach']:8s} {c['root'][:40]:40s} {tag}{b}"
+        )
     for u in doc["unreadable"]:
         print(f"  SKIP {u['module']}: {u['withheld']}")
-    print(f"\ncheck_populations: {len(doc['unreadable'])} file(s) withheld; {len(bad)} unmarked root/unknown walk(s) of {len(cases)} site(s) "
-          f"in {len(doc['files'])} file(s); {len(sub)} more in borrowed (substrate) files")
+    print(
+        f"\ncheck_populations: {len(doc['unreadable'])} file(s) withheld; {len(bad)} unmarked root/unknown walk(s) of {len(cases)} site(s) "
+        f"in {len(doc['files'])} file(s); {len(sub)} more in borrowed (substrate) files"
+    )
     return 1 if bad or not cases else 0
 
 

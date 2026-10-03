@@ -9,4 +9,5 @@ planted by `check_deps.py --json catalog/fixtures/deps/undeclared.py`.
 
 def uses_an_undeclared_dependency():
     import el_openglo_w75_undeclared_dep
+
     return el_openglo_w75_undeclared_dep

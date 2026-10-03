@@ -79,6 +79,7 @@ assertion by whoever runs it. And a host input that is ABSENT is `withheld`, nev
 skipped silently: an unreadable font is a fact about the machine, so the key cannot
 be computed and must not be pretended.
 """
+
 import ast
 import hashlib
 import json
@@ -160,21 +161,30 @@ HOST_FINGERPRINT_SOURCES = (
 # the machine it ran on — in which case the WHOLE host is in its domain and the
 # host identity goes in its key — or it cannot. There is no partial host.
 ACTIONS = (
-    ("screens",
-     "catalog/library/render_screens.py",
-     ("templates", "catalog/library"),
-     True,                                  # Qt renders it: the host is the domain
-     "catalog/library/screens", (".png",)),
-    ("schemes",
-     "make_schemes.py",
-     ("templates",),
-     False,                                 # pure Python over the palette
-     ".", (schemes_artifact.SUFFIX,)),
-    ("wallpapers",
-     "make_wallpaper.py",
-     ("templates",),
-     False,
-     ".", ("-wallpaper.png", "-wallpaper.svg")),
+    (
+        "screens",
+        "catalog/library/render_screens.py",
+        ("templates", "catalog/library"),
+        True,  # Qt renders it: the host is the domain
+        "catalog/library/screens",
+        (".png",),
+    ),
+    (
+        "schemes",
+        "make_schemes.py",
+        ("templates",),
+        False,  # pure Python over the palette
+        ".",
+        (schemes_artifact.SUFFIX,),
+    ),
+    (
+        "wallpapers",
+        "make_wallpaper.py",
+        ("templates",),
+        False,
+        ".",
+        ("-wallpaper.png", "-wallpaper.svg"),
+    ),
 )
 ACTIONS_BY_NAME = {a[0]: a for a in ACTIONS}
 
@@ -196,8 +206,10 @@ ACTIONS_BY_NAME = {a[0]: a for a in ACTIONS}
 # stale entry cannot pass as coverage.
 SITE_DOMAINS = {
     ("emitters.py", "drift"): {"*": ("names", (":(glob)make_*.py",))},
-    ("schemes_artifact.py", "members"): {"schemes": ("output", ()),
-                                         "wallpapers": ("files", (":(glob)*.colors",))},
+    ("schemes_artifact.py", "members"): {
+        "schemes": ("output", ()),
+        "wallpapers": ("files", (":(glob)*.colors",)),
+    },
     ("templates/loader.py", "names"): {"*": ("covered", ("templates",))},
     ("catalog/library/screens_viewport.py", "*"): {"screens": ("job", ())},
     ("scripts/check_marquee_live.py", "*"): {"screens": ("job", ())},
@@ -210,8 +222,11 @@ def _site_function(rel, line):
         tree = ast.parse(fh.read())
     best = None
     for n in ast.walk(tree):
-        if (isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.lineno <= line <= n.end_lineno
-                and (best is None or n.lineno >= best.lineno)):
+        if (
+            isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and n.lineno <= line <= n.end_lineno
+            and (best is None or n.lineno >= best.lineno)
+        ):
             best = n
     return best.name if best else None
 
@@ -223,8 +238,10 @@ def site_declaration(action, rel, line, domains=None):
         decl = SITE_DOMAINS.get(key, {})
         got = decl.get(action) or decl.get("*")
         if got:
-            if got[0] == "covered" and not set(got[1]) <= set(domains if domains is not None else ACTIONS_BY_NAME[action][2]):
-                return None            # claims coverage the action does not have
+            if got[0] == "covered" and not set(got[1]) <= set(
+                domains if domains is not None else ACTIONS_BY_NAME[action][2]
+            ):
+                return None  # claims coverage the action does not have
             return got
     return None
 
@@ -247,6 +264,7 @@ def _split_sites(action, sites, domains=None):
 def population_inputs(pops):
     """{name: digest} for the declared populations a site lists."""
     import git_tracked
+
     out = {}
     for ps, kind in sorted(pops.items()):
         found = git_tracked.files(ps, root=ROOT)
@@ -291,13 +309,26 @@ def host_identity():
         # emitters into the image and re-baselines their outputs.
         if not pin.get("adopted"):
             kind, hid, detail = _fingerprint()
-            return kind, hid, (f"{detail}; a pinned host is DECLARED but NOT ADOPTED "
-                               f"({digest[:23] if isinstance(digest, str) else '?'}…) — "
-                               f"nothing has been built in it yet")
+            return (
+                kind,
+                hid,
+                (
+                    f"{detail}; a pinned host is DECLARED but NOT ADOPTED "
+                    f"({digest[:23] if isinstance(digest, str) else '?'}…) — "
+                    f"nothing has been built in it yet"
+                ),
+            )
         if isinstance(digest, str) and digest.startswith("sha256:"):
-            return "pinned", digest, f"{ref or '(no ref)'} — {pin.get('source', 'no source recorded')}"
-        return ("unmeasurable", None,
-                f"{os.path.relpath(HOST_PIN_FILE, ROOT)} has no `digest` starting sha256:")
+            return (
+                "pinned",
+                digest,
+                f"{ref or '(no ref)'} — {pin.get('source', 'no source recorded')}",
+            )
+        return (
+            "unmeasurable",
+            None,
+            f"{os.path.relpath(HOST_PIN_FILE, ROOT)} has no `digest` starting sha256:",
+        )
     return _fingerprint()
 
 
@@ -316,7 +347,11 @@ def _fingerprint():
         # ⚑ REFUSE AN EMPTY POPULATION. A fingerprint over nothing is a constant,
         # and every host would agree with every other host forever.
         return "unmeasurable", None, "no host fingerprint source is readable"
-    return "unpinned", h.hexdigest(), f"{len(seen)} of {len(HOST_FINGERPRINT_SOURCES)} source(s)"
+    return (
+        "unpinned",
+        h.hexdigest(),
+        f"{len(seen)} of {len(HOST_FINGERPRINT_SOURCES)} source(s)",
+    )
 
 
 def _digest_file(path):
@@ -373,8 +408,18 @@ def import_closure(entry, prune=()):
 # locale and font configuration text shaping reads. ⚑ A HAND LIST, AND THE ONE IN
 # THIS FILE: the inherited remainder (PATH, HOME, the session) is the HOST's, and
 # is covered — incompletely, and said so — by host_identity().
-JOB_ENV = ("QT_", "QSG_", "QML", "KDE_DEBUG", "EL_", "XDG_CONFIG_HOME", "XDG_CURRENT_DESKTOP",
-           "LANG", "LC_", "FONTCONFIG_")
+JOB_ENV = (
+    "QT_",
+    "QSG_",
+    "QML",
+    "KDE_DEBUG",
+    "EL_",
+    "XDG_CONFIG_HOME",
+    "XDG_CURRENT_DESKTOP",
+    "LANG",
+    "LC_",
+    "FONTCONFIG_",
+)
 # ...less the desktop SESSION's own variables, which reach the child only because
 # qt_sandbox passes the environment through, and which the offscreen platform
 # never consults: keying them would make a hook's key differ from a terminal's.
@@ -414,6 +459,7 @@ def runner_code(seeds):
     itself, so without the cut a change to how keys are COMPUTED would read as
     every render being stale — a formula change, which is PER_OUTPUT_SCHEMA's job."""
     import emitters
+
     me = os.path.basename(__file__)[:-3]
     return import_closure(list(seeds), prune=set(emitters.ROLES) | {me})
 
@@ -440,6 +486,7 @@ def _repo_reads(texts):
     name, lazily, so digesting every file in templates/ would make the pinholes
     stale when SegmentChar.qml moves, which it never reads."""
     import re
+
     root = re.escape(ROOT)
     named = set()
     for _p, t in texts:
@@ -460,7 +507,9 @@ def _repo_reads(texts):
         seen_text.add(t)
         types = set(re.findall(_QML_TYPE_USE, t))
         for d in dirs:
-            cands = [os.path.join(d, "qmldir")] + [os.path.join(d, f"{n}.qml") for n in types]
+            cands = [os.path.join(d, "qmldir")] + [
+                os.path.join(d, f"{n}.qml") for n in types
+            ]
             for c in cands:
                 if os.path.isfile(c) and c not in out:
                     out.add(c)
@@ -493,12 +542,14 @@ def job_inputs(stage):
     import tempfile
 
     import qt_sandbox as QT
+
     inputs, texts = {}, []
     with tempfile.TemporaryDirectory() as td:
         argv, env, route = stage(td)
 
         def norm(s):
             return s.replace(td, "@JOB@").replace(ROOT, "@ROOT@")
+
         # population: the job's own staging tempdir — every file in it IS handed to the process
         for b, dirs, names in os.walk(td):
             dirs.sort()
@@ -509,7 +560,9 @@ def job_inputs(stage):
                 try:
                     text = data.decode("utf-8")
                 except UnicodeDecodeError:
-                    inputs[f"job:{os.path.relpath(p, td)}"] = hashlib.sha256(data).hexdigest()
+                    inputs[f"job:{os.path.relpath(p, td)}"] = hashlib.sha256(
+                        data
+                    ).hexdigest()
                     continue
                 inputs[f"job:{os.path.relpath(p, td)}"] = digest_text(norm(text))
                 texts.append((p, text))
@@ -520,7 +573,9 @@ def job_inputs(stage):
         inputs["argv"] = digest_text(norm("\0".join(argv)))
         inputs["route"] = str(route)
         # W159: what qt_sandbox does to the pixels, as data — not its file's bytes
-        inputs["backend"] = digest_text(json.dumps(QT.backend_facts(bool(route)), sort_keys=True))
+        inputs["backend"] = digest_text(
+            json.dumps(QT.backend_facts(bool(route)), sort_keys=True)
+        )
     for rel in _repo_reads(texts):
         inputs[f"repo:{rel}"] = digest_rel(rel)
     return inputs
@@ -529,8 +584,13 @@ def job_inputs(stage):
 def output_keys(action):
     """The producer's per-output keys (`<entry> --keys`), or None when it declares
     none — then the action is keyed as ONE, over its domain (key_of)."""
-    r = subprocess.run([sys.executable, os.path.join(ROOT, action[1]), "--keys"],
-                       capture_output=True, text=True, cwd=ROOT, check=False)
+    r = subprocess.run(
+        [sys.executable, os.path.join(ROOT, action[1]), "--keys"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     if r.returncode != 0:
         return None
     try:
@@ -546,9 +606,11 @@ def _manifest():
 
 
 def _save_manifest(m):
-    m["note"] = ("generated by scripts/check_action_key.py (--write, or a producer recording "
-                 "the outputs it built); the key of each action's — or each output's — "
-                 "declared inputs at the time it was built")
+    m["note"] = (
+        "generated by scripts/check_action_key.py (--write, or a producer recording "
+        "the outputs it built); the key of each action's — or each output's — "
+        "declared inputs at the time it was built"
+    )
     os.makedirs(os.path.dirname(MANIFEST), exist_ok=True)
     with open(MANIFEST, "w", encoding="utf-8") as fh:
         json.dump(m, fh, indent=1, sort_keys=True)
@@ -589,6 +651,7 @@ def domain_files(domains):
     authority for what the tree holds. `screens` (rendered output) and .json stay
     excluded as before: those are PRODUCTS, not inputs."""
     import git_tracked
+
     out = []
     for rel in git_tracked.files(*domains, root=ROOT):
         if rel.endswith((".pyc", ".json")) or "screens" in rel.split("/")[:-1]:
@@ -618,10 +681,11 @@ class Key(NamedTuple):
     approximating the DEPENDENCY set has no terminating condition; over-
     approximating the RESIDUE set does. A false positive costs one file declared
     uncovered; a false negative costs a wrong verdict."""
+
     key: str
     inputs: dict
     missing_host: list
-    unresolved: list          # edges the scan could not resolve, `file:line: why`
+    unresolved: list  # edges the scan could not resolve, `file:line: why`
     undeclared_domains: list  # glob/walk/listdir sites: the population is unknown
 
 
@@ -676,10 +740,15 @@ def declared_outputs(action):
     to be enumerable from the plan, so an undeclared output is one whose
     staleness nobody can attribute."""
     entry = os.path.join(ROOT, action[1])
-    r = subprocess.run([sys.executable, entry, "--outputs"],
-                       capture_output=True, text=True, cwd=ROOT, check=False)
+    r = subprocess.run(
+        [sys.executable, entry, "--outputs"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     if r.returncode != 0:
-        return None                      # the action declares no output roster
+        return None  # the action declares no output roster
     try:
         return sorted(o["file"] for o in json.loads(r.stdout)["outputs"])
     except (ValueError, KeyError):
@@ -696,8 +765,11 @@ def outputs_of(action):
     # stays a listdir of the declared out dir. But a DOTFILE is never a declared
     # output, while emitters.atomic_path's in-flight temp `.<name>.<rand><sfx>` is
     # one — a listdir racing @EMITTERS would count it (2026-09-23).
-    return sorted(os.path.relpath(os.path.join(base, n), ROOT)
-                  for n in os.listdir(base) if n.endswith(sfx) and not n.startswith("."))
+    return sorted(
+        os.path.relpath(os.path.join(base, n), ROOT)
+        for n in os.listdir(base)
+        if n.endswith(sfx) and not n.startswith(".")
+    )
 
 
 def per_output_key(action):
@@ -711,7 +783,11 @@ def per_output_key(action):
     per = {fn: o["key"] for fn, o in po["outputs"].items()}
     # one entry per (output, input) EDGE: a union by name would fold 56 different
     # subject.qml digests into one and under-report the domain
-    inputs = {f"{fn}|{name}": d for fn, o in po["outputs"].items() for name, d in o["inputs"].items()}
+    inputs = {
+        f"{fn}|{name}": d
+        for fn, o in po["outputs"].items()
+        for name, d in o["inputs"].items()
+    }
     unresolved, undeclared = [], []
     for rel in po["code"]:
         for line, direction, why in build_graph.computed_edges(rel):
@@ -721,7 +797,9 @@ def per_output_key(action):
     pop = population_inputs(pops)
     inputs.update({f"|{n}": d for n, d in pop.items()})
     key = key_over({**per, **{f"population|{n}": d for n, d in pop.items()}})
-    return Key(key, inputs, po["missing_host"], sorted(unresolved), sorted(undeclared)), per
+    return Key(
+        key, inputs, po["missing_host"], sorted(unresolved), sorted(undeclared)
+    ), per
 
 
 def measure():
@@ -737,64 +815,95 @@ def measure():
         declared = declared_outputs(a)
         present = {os.path.basename(p) for p in outs}
         undeclared = [] if declared is None else sorted(present - set(declared))
-        absent = [] if declared is None else sorted(
-            f for f in declared if f.endswith(a[5])
-            and not os.path.isfile(os.path.join(ROOT, a[4], f)))
+        absent = (
+            []
+            if declared is None
+            else sorted(
+                f
+                for f in declared
+                if f.endswith(a[5]) and not os.path.isfile(os.path.join(ROOT, a[4], f))
+            )
+        )
         was = recorded.get(name, {})
         schema = KEY_SCHEMA if per is None else PER_OUTPUT_SCHEMA
         # ⚑ PER OUTPUT, n OF m (W61): which declared outputs moved, which were never
         # recorded. The policy judges these FACTS, not the summary state below.
         rec_out = was.get("outputs", {}) if was.get("schema") == schema else {}
-        stale_out = [] if per is None else sorted(f for f in per if f in rec_out and rec_out[f] != per[f])
+        stale_out = (
+            []
+            if per is None
+            else sorted(f for f in per if f in rec_out and rec_out[f] != per[f])
+        )
         # (under an older formula every output is "unrecorded"; `reformulated` says it once)
-        unrec_out = [] if per is None or was.get("schema") != schema else sorted(
-            f for f in per if f not in rec_out)
+        unrec_out = (
+            []
+            if per is None or was.get("schema") != schema
+            else sorted(f for f in per if f not in rec_out)
+        )
         if per is None:
-            state = ("unmeasurable" if missing
-                     else "unrecorded" if not was.get("key")
-                     # the recorded key answers a DIFFERENT question than this one
-                     else "reformulated" if was.get("schema") != schema
-                     else "current" if was["key"] == key
-                     else "stale")
+            state = (
+                "unmeasurable"
+                if missing
+                else "unrecorded"
+                if not was.get("key")
+                # the recorded key answers a DIFFERENT question than this one
+                else "reformulated"
+                if was.get("schema") != schema
+                else "current"
+                if was["key"] == key
+                else "stale"
+            )
         else:
-            state = ("unmeasurable" if missing
-                     else "unrecorded" if not was.get("key")
-                     else "reformulated" if was.get("schema") != schema
-                     else "stale" if stale_out
-                     else "unrecorded" if unrec_out
-                     else "current")
-        cases.append({
-            "per_output": per is not None,
-            "n_keyed_outputs": 0 if per is None else len(per),
-            "stale_outputs": stale_out,
-            "unrecorded_outputs": unrec_out,
-            "action": name,
-            "key": key,
-            "recorded_key": was.get("key"),
-            "n_inputs": len(k.inputs),
-            "n_outputs": len(outs),
-            "missing_host": missing,
-            # ⚑ THE RESIDUE TRAVELS WITH THE MEASUREMENT, so the policy can
-            # WITHHOLD rather than admit a key whose domain scan under-covered.
-            "n_unresolved": len(k.unresolved),
-            "n_undeclared_domains": len(k.undeclared_domains),
-            "unresolved": k.unresolved[:5],
-            "undeclared_domains": k.undeclared_domains[:5],
-            # ⚑ ∂ AT THE OUTPUT BOUNDARY: what the action SAYS it writes against
-            # what is on disk. Undeclared files are outputs nobody can attribute a
-            # staleness to; declared-but-absent are a build that did not finish —
-            # which is the original incident, seen from the other side.
-            "undeclared_outputs": undeclared,
-            "declared_absent": absent,
-            # ⚑ NO RECORD IS `withheld`, NOT `deny`. Nobody has asserted a build,
-            # so currency is UNMEASURED here — not confirmed, and not failed. An
-            # absent host input is withheld for the same reason, one level out.
-            "sees_host": a[3],
-            "state": state,
-        })
+            state = (
+                "unmeasurable"
+                if missing
+                else "unrecorded"
+                if not was.get("key")
+                else "reformulated"
+                if was.get("schema") != schema
+                else "stale"
+                if stale_out
+                else "unrecorded"
+                if unrec_out
+                else "current"
+            )
+        cases.append(
+            {
+                "per_output": per is not None,
+                "n_keyed_outputs": 0 if per is None else len(per),
+                "stale_outputs": stale_out,
+                "unrecorded_outputs": unrec_out,
+                "action": name,
+                "key": key,
+                "recorded_key": was.get("key"),
+                "n_inputs": len(k.inputs),
+                "n_outputs": len(outs),
+                "missing_host": missing,
+                # ⚑ THE RESIDUE TRAVELS WITH THE MEASUREMENT, so the policy can
+                # WITHHOLD rather than admit a key whose domain scan under-covered.
+                "n_unresolved": len(k.unresolved),
+                "n_undeclared_domains": len(k.undeclared_domains),
+                "unresolved": k.unresolved[:5],
+                "undeclared_domains": k.undeclared_domains[:5],
+                # ⚑ ∂ AT THE OUTPUT BOUNDARY: what the action SAYS it writes against
+                # what is on disk. Undeclared files are outputs nobody can attribute a
+                # staleness to; declared-but-absent are a build that did not finish —
+                # which is the original incident, seen from the other side.
+                "undeclared_outputs": undeclared,
+                "declared_absent": absent,
+                # ⚑ NO RECORD IS `withheld`, NOT `deny`. Nobody has asserted a build,
+                # so currency is UNMEASURED here — not confirmed, and not failed. An
+                # absent host input is withheld for the same reason, one level out.
+                "sees_host": a[3],
+                "state": state,
+            }
+        )
     kind, _hid, detail = host_identity()
-    return {"cases": cases, "manifest": os.path.relpath(MANIFEST, ROOT),
-            "host": {"kind": kind, "detail": detail}}
+    return {
+        "cases": cases,
+        "manifest": os.path.relpath(MANIFEST, ROOT),
+        "host": {"kind": kind, "detail": detail},
+    }
 
 
 def write():
@@ -802,20 +911,25 @@ def write():
     for a in ACTIONS:
         k, per = per_output_key(a)
         if k.missing_host:
-            print(f"action_key: REFUSED to record {a[0]} — declared host input(s) "
-                  f"absent: {', '.join(k.missing_host)}", file=sys.stderr)
+            print(
+                f"action_key: REFUSED to record {a[0]} — declared host input(s) "
+                f"absent: {', '.join(k.missing_host)}",
+                file=sys.stderr,
+            )
             raise SystemExit(3)
         # ⚑ THE RESIDUE IS RECORDED WITH THE KEY, not merely reported beside it.
         # A manifest that stores only the digest cannot tell a later reader how
         # much of the domain that digest actually covered — so a key recorded
         # while 21 edges were unresolved would read, a month later, exactly like
         # one recorded over a fully-resolved domain.
-        out["actions"][a[0]] = {"key": k.key,
-                                "schema": KEY_SCHEMA if per is None else PER_OUTPUT_SCHEMA,
-                                "n_inputs": len(k.inputs),
-                                "n_unresolved": len(k.unresolved),
-                                "n_undeclared_domains": len(k.undeclared_domains),
-                                "n_outputs": len(outputs_of(a))}
+        out["actions"][a[0]] = {
+            "key": k.key,
+            "schema": KEY_SCHEMA if per is None else PER_OUTPUT_SCHEMA,
+            "n_inputs": len(k.inputs),
+            "n_unresolved": len(k.unresolved),
+            "n_undeclared_domains": len(k.undeclared_domains),
+            "n_outputs": len(outputs_of(a)),
+        }
         if per is not None:
             out["actions"][a[0]]["outputs"] = per
     _save_manifest(out)
@@ -846,9 +960,14 @@ def rebuild():
     ran = []
     for entry in plan:
         print(f"action_key: rebuilding {entry}", flush=True)
-        r = subprocess.run([sys.executable, os.path.join(ROOT, entry)], cwd=ROOT, check=False)
+        r = subprocess.run(
+            [sys.executable, os.path.join(ROOT, entry)], cwd=ROOT, check=False
+        )
         if r.returncode != 0:
-            print(f"action_key: {entry} exited {r.returncode}; nothing recorded", file=sys.stderr)
+            print(
+                f"action_key: {entry} exited {r.returncode}; nothing recorded",
+                file=sys.stderr,
+            )
             return ran, entry
         ran.append(entry)
     if ran:
@@ -856,9 +975,11 @@ def rebuild():
     return ran, None
 
 
-_COMMENT = {".py": b"\n# check_action_key --impact probe\n",
-            ".qml": b"\n// check_action_key --impact probe\n",
-            ".js": b"\n// check_action_key --impact probe\n"}
+_COMMENT = {
+    ".py": b"\n# check_action_key --impact probe\n",
+    ".qml": b"\n// check_action_key --impact probe\n",
+    ".js": b"\n// check_action_key --impact probe\n",
+}
 
 
 def impact(rel):
@@ -876,13 +997,19 @@ def impact(rel):
     base = {a[0]: per_output_key(a)[1] for a in ACTIONS}
     try:
         with open(p, "ab") as fh:
-            fh.write(_COMMENT.get(os.path.splitext(rel)[1], b"\n# check_action_key --impact probe\n"))
+            fh.write(
+                _COMMENT.get(
+                    os.path.splitext(rel)[1], b"\n# check_action_key --impact probe\n"
+                )
+            )
         after = {a[0]: per_output_key(a)[1] for a in ACTIONS if base[a[0]] is not None}
     finally:
         with open(p, "wb") as fh:
             fh.write(original)
-    return {n: (sorted(f for f in base[n] if after[n].get(f) != base[n][f]), len(base[n]))
-            for n in after}
+    return {
+        n: (sorted(f for f in base[n] if after[n].get(f) != base[n][f]), len(base[n]))
+        for n in after
+    }
 
 
 def output_kind(fn):
@@ -907,7 +1034,9 @@ def impact_census(name):
     files = import_closure(os.path.join(ROOT, action[1]))
     out = []
     for f in files:
-        rel = os.path.relpath(os.path.join(ROOT, f), ROOT)   # the closure mixes absolute and relative
+        rel = os.path.relpath(
+            os.path.join(ROOT, f), ROOT
+        )  # the closure mixes absolute and relative
         moved, keyed = impact(rel)[name]
         out.append((rel, moved, keyed, sorted({output_kind(f) for f in moved})))
     return out
@@ -919,6 +1048,7 @@ def _write_is_callable():
     ⚑ EXERCISED AGAINST A SCRATCH MANIFEST, never the real one: a selftest that
     records keys would ASSERT A BUILD, which is the one thing --write means."""
     import tempfile
+
     global MANIFEST
     real = MANIFEST
     try:
@@ -937,8 +1067,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}"
-              + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     print("action_key selftest:")
@@ -946,14 +1078,35 @@ def _selftest():
     # wallpapers before screens - never ACTIONS' screens-first order; a recorded-under-an-
     # older-formula or never-recorded action is not stale, so it is not rebuilt
     st = lambda *pairs: [{"action": n, "state": s} for n, s in pairs]
-    chk("rebuild plan: nothing stale -> nothing to run",
-        rebuild_plan(st(("screens", "current"), ("schemes", "current"), ("wallpapers", "current"))), [])
-    chk("rebuild plan: stale actions run in pipeline order, not ACTIONS order",
-        rebuild_plan(st(("screens", "stale"), ("schemes", "stale"), ("wallpapers", "stale"))),
-        ["make_schemes.py", "make_wallpaper.py", "catalog/library/render_screens.py"])
-    chk("rebuild plan: reformulated and unrecorded are not rebuilt",
-        rebuild_plan(st(("screens", "reformulated"), ("schemes", "unrecorded"), ("wallpapers", "stale"))),
-        ["make_wallpaper.py"])
+    chk(
+        "rebuild plan: nothing stale -> nothing to run",
+        rebuild_plan(
+            st(
+                ("screens", "current"),
+                ("schemes", "current"),
+                ("wallpapers", "current"),
+            )
+        ),
+        [],
+    )
+    chk(
+        "rebuild plan: stale actions run in pipeline order, not ACTIONS order",
+        rebuild_plan(
+            st(("screens", "stale"), ("schemes", "stale"), ("wallpapers", "stale"))
+        ),
+        ["make_schemes.py", "make_wallpaper.py", "catalog/library/render_screens.py"],
+    )
+    chk(
+        "rebuild plan: reformulated and unrecorded are not rebuilt",
+        rebuild_plan(
+            st(
+                ("screens", "reformulated"),
+                ("schemes", "unrecorded"),
+                ("wallpapers", "stale"),
+            )
+        ),
+        ["make_wallpaper.py"],
+    )
     # ⚑ THE POPULATION IS NOT EMPTY — a key over nothing is a constant, and three
     # actions all keyed on an empty domain would agree with each other forever.
     for a in ACTIONS:
@@ -964,7 +1117,9 @@ def _selftest():
     # to stop, wearing the tool's own badge.
     a = ACTIONS[0]
     base = key_of(a)
-    victim = os.path.join(ROOT, min(x for x in base.inputs if not x.startswith("host:")))
+    victim = os.path.join(
+        ROOT, min(x for x in base.inputs if not x.startswith("host:"))
+    )
     with open(victim, "rb") as fh:
         original = fh.read()
     try:
@@ -976,15 +1131,35 @@ def _selftest():
             fh.write(original)
     chk("the key is restored with the input", key_of(a).key, base.key)
     # ⚑ THE HOST HALF MUST BE IN THE KEY TOO, and an absent one must be VISIBLE
-    chk("a host-seeing action carries a host identity",
-        any(k.startswith("host:") for k in key_of(ACTIONS[0]).inputs), True)
-    chk("a pure action carries NO host identity",
-        any(k.startswith("host:") for k in key_of(ACTIONS[1]).inputs), False)
+    chk(
+        "a host-seeing action carries a host identity",
+        any(k.startswith("host:") for k in key_of(ACTIONS[0]).inputs),
+        True,
+    )
+    chk(
+        "a pure action carries NO host identity",
+        any(k.startswith("host:") for k in key_of(ACTIONS[1]).inputs),
+        False,
+    )
     # ⚑ THE HOST HALF MUST MOVE THE KEY, or declaring it is decoration
-    pure = ("screens-pure", ACTIONS[0][1], ACTIONS[0][2], False, ACTIONS[0][4], ACTIONS[0][5])
-    chk("dropping the host changes the key", key_of(pure).key != key_of(ACTIONS[0]).key, True)
-    chk("the key carries its residue as fields",
-        set(Key._fields), {"key", "inputs", "missing_host", "unresolved", "undeclared_domains"})
+    pure = (
+        "screens-pure",
+        ACTIONS[0][1],
+        ACTIONS[0][2],
+        False,
+        ACTIONS[0][4],
+        ACTIONS[0][5],
+    )
+    chk(
+        "dropping the host changes the key",
+        key_of(pure).key != key_of(ACTIONS[0]).key,
+        True,
+    )
+    chk(
+        "the key carries its residue as fields",
+        set(Key._fields),
+        {"key", "inputs", "missing_host", "unresolved", "undeclared_domains"},
+    )
     # ⚑ POPULATION OVER A FIXTURE, RETIREMENT OVER PRODUCTION (linux-sources-99,
     # 2026-09-22). This arm used to assert that the PRODUCTION screens residue was
     # non-empty, with the comment "if this ever reads zero, the scanner stopped
@@ -1000,19 +1175,28 @@ def _selftest():
     # So the SCANNER is proven on a fixture it cannot resolve by construction, and
     # production residue is free to reach zero.
     import tempfile
+
     with tempfile.TemporaryDirectory() as d:
         fixture = os.path.join(d, "fixture_computed.py")
         with open(fixture, "w", encoding="utf-8") as fh:
-            fh.write("import os\n"
-                     "def f(name, where):\n"
-                     "    open(name).read()\n"          # a computed read
-                     "    return os.listdir(where)\n")   # an undeclared domain
+            fh.write(
+                "import os\n"
+                "def f(name, where):\n"
+                "    open(name).read()\n"  # a computed read
+                "    return os.listdir(where)\n"
+            )  # an undeclared domain
         seen = build_graph.computed_edges(fixture)
         kinds = {direction for _line, direction, _why in seen}
-    chk("the scanner SEES a computed read and an undeclared domain in a fixture",
-        {"read", "domain"} <= kinds, True)
-    chk("...and names the line of each (the site survives)",
-        all(isinstance(line, int) and line > 0 for line, _d, _w in seen), True)
+    chk(
+        "the scanner SEES a computed read and an undeclared domain in a fixture",
+        {"read", "domain"} <= kinds,
+        True,
+    )
+    chk(
+        "...and names the line of each (the site survives)",
+        all(isinstance(line, int) and line > 0 for line, _d, _w in seen),
+        True,
+    )
     # ⚑ THE OUTPUT BOUNDARY MUST BE MEASURABLE, AND ITS ABSENCE DISTINGUISHABLE
     # FROM AGREEMENT. An action with no --outputs roster returns None, which is
     # "not declared"; an action with one returns a list, which can then disagree.
@@ -1035,40 +1219,66 @@ def _selftest():
     # arm. ⚑ --write and --selftest are excluded deliberately: one ASSERTS A BUILD,
     # the other recurses.
     for mode in ("--list", "--json"):
-        r = subprocess.run([sys.executable, os.path.abspath(__file__), mode],
-                           capture_output=True, text=True, cwd=ROOT, check=False)
+        r = subprocess.run(
+            [sys.executable, os.path.abspath(__file__), mode],
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=False,
+        )
         chk(f"mode {mode} runs", (r.returncode, "Traceback" in r.stderr), (0, False))
-    chk("an action that declares its outputs yields a roster",
-        isinstance(declared_outputs(ACTIONS[0]), list), True)
-    chk("an action that declares none is None, not an empty roster",
-        declared_outputs(ACTIONS[1]), None)
+    chk(
+        "an action that declares its outputs yields a roster",
+        isinstance(declared_outputs(ACTIONS[0]), list),
+        True,
+    )
+    chk(
+        "an action that declares none is None, not an empty roster",
+        declared_outputs(ACTIONS[1]),
+        None,
+    )
     # ⚑ PER-OUTPUT KEYS (W61) — the measurement can SEE a staged byte, a repo file a
     # job names through a directory import, and ONLY the types it instantiates.
     with tempfile.TemporaryDirectory() as d:
+
         def fixture_stage(body):
             def stage(td):
                 with open(os.path.join(td, "subject.qml"), "w") as fh:
                     fh.write(body)
                 return ["qml", os.path.join(td, "subject.qml")], {}, False
+
             return stage
+
         doc = f'import "file:{os.path.join(ROOT, "templates")}" as EL\nItem {{ EL.ApertureField {{ }} }}\n'
         a1 = job_inputs(fixture_stage(doc))
         a2 = job_inputs(fixture_stage(doc + "// one more byte\n"))
         chk("a staged byte moves the job's inputs", key_over(a1) != key_over(a2), True)
-        chk("a directory import reads the type it instantiates",
-            "repo:templates/ApertureField.qml" in a1, True)
-        chk("...and NOT a type it never names (SegmentChar.qml)",
-            "repo:templates/SegmentChar.qml" in a1, False)
+        chk(
+            "a directory import reads the type it instantiates",
+            "repo:templates/ApertureField.qml" in a1,
+            True,
+        )
+        chk(
+            "...and NOT a type it never names (SegmentChar.qml)",
+            "repo:templates/SegmentChar.qml" in a1,
+            False,
+        )
     screens = next(x for x in ACTIONS if x[0] == "screens")
     _k, per = per_output_key(screens)
-    chk("screens is keyed per output, one key per declared output",
-        sorted(per or {}), declared_outputs(screens))
+    chk(
+        "screens is keyed per output, one key per declared output",
+        sorted(per or {}),
+        declared_outputs(screens),
+    )
     # the locality witness: one variant's scheme moves exactly its outputs, its
     # sheet and the strip — nothing of any other variant
     moved, n = impact("EL-Amber.colors")["screens"]
     want = sorted(f for f in per if f.endswith("-EL-Amber.png")) + ["strip.png"]
-    chk(f"a byte in EL-Amber.colors moves exactly EL-Amber's outputs + sheet + strip ({len(moved)} of {n})",
-        sorted(moved), sorted(want))
+    chk(
+        f"a byte in EL-Amber.colors moves exactly EL-Amber's outputs + sheet + strip ({len(moved)} of {n})",
+        sorted(moved),
+        sorted(want),
+    )
     # ⚑ THE RUNNER CODE IS ONLY WHAT ACTS AFTER THE JOB IS STAGED (W96): the
     # marquee harness's source keys the marquee ANIMATIONS (animate() sets their
     # frame delays after qml) and nothing else. Its stills are written by qml
@@ -1077,30 +1287,56 @@ def _selftest():
     # the per-kind split, one comment there moved 55 of 56; before W96, 25 of 56.
     moved, n = impact("scripts/check_marquee_live.py")["screens"]
     want = sorted(f for f in per if f.startswith("marquee-anim-"))
-    chk(f"a comment in check_marquee_live moves only the marquee animations ({len(moved)} of {n})",
-        sorted(moved), want)
+    chk(
+        f"a comment in check_marquee_live moves only the marquee animations ({len(moved)} of {n})",
+        sorted(moved),
+        want,
+    )
     # W159: qt_sandbox is keyed by what it does to the pixels (backend_facts), not by
     # its bytes; one comment there moved 55 of 56 before (W158)
     moved, n = impact("qt_sandbox.py")["screens"]
-    chk(f"a comment in qt_sandbox moves no screen ({len(moved)} of {n})", sorted(moved), [])
+    chk(
+        f"a comment in qt_sandbox moves no screen ({len(moved)} of {n})",
+        sorted(moved),
+        [],
+    )
     # W61 (2026-10-02): the producer is not keyed; each post-render module keys only its kind.
     # Before, one comment in render_screens moved 55 of 56.
     moved, n = impact("catalog/library/render_screens.py")["screens"]
-    chk(f"a comment in render_screens moves no screen ({len(moved)} of {n})", sorted(moved), [])
+    chk(
+        f"a comment in render_screens moves no screen ({len(moved)} of {n})",
+        sorted(moved),
+        [],
+    )
     moved, n = impact("catalog/library/screens_viewport.py")["screens"]
-    chk(f"a comment in screens_viewport moves only the viewport animations ({len(moved)} of {n})",
-        sorted(moved), sorted(f for f in per if f.startswith("pinholes-anim-")))
+    chk(
+        f"a comment in screens_viewport moves only the viewport animations ({len(moved)} of {n})",
+        sorted(moved),
+        sorted(f for f in per if f.startswith("pinholes-anim-")),
+    )
     moved, n = impact("catalog/library/screens_sheets.py")["screens"]
-    chk(f"a comment in screens_sheets moves only the sheets and the strip ({len(moved)} of {n})",
-        sorted(moved), sorted(f for f in per if f.startswith("sheet-")) + ["strip.png"])
+    chk(
+        f"a comment in screens_sheets moves only the sheets and the strip ({len(moved)} of {n})",
+        sorted(moved),
+        sorted(f for f in per if f.startswith("sheet-")) + ["strip.png"],
+    )
     import qt_sandbox as QT
-    chk("...while the route it picks IS in the key (software != mesa backend facts)",
-        QT.backend_facts(False) != QT.backend_facts(True), True)
+
+    chk(
+        "...while the route it picks IS in the key (software != mesa backend facts)",
+        QT.backend_facts(False) != QT.backend_facts(True),
+        True,
+    )
     kind, _hid, _d = host_identity()
     chk("the host identity names its own kind", kind in ("pinned", "unpinned"), True)
-    print(f"  note  host is {kind} — "
-          + ("a cache hit is transportable" if kind == "pinned"
-             else "staleness is detectable HERE; cross-host reuse is NOT licensed"))
+    print(
+        f"  note  host is {kind} — "
+        + (
+            "a cache hit is transportable"
+            if kind == "pinned"
+            else "staleness is detectable HERE; cross-host reuse is NOT licensed"
+        )
+    )
     # ⚑ W229: A DECLARED DOMAIN IS IN THE KEY, AND A DECLARATION IS NOT DECORATION.
     # Every undeclared-domain site in every action's scan is covered, every
     # declaration names a site some scan actually found, and the declared populations
@@ -1108,8 +1344,8 @@ def _selftest():
     # content.
     raw, used = [], set()
     for x in ACTIONS:
-        po = output_keys(x)           # the code a per-output action actually runs
-        for rel in (po["code"] if po else import_closure(x[1])):
+        po = output_keys(x)  # the code a per-output action actually runs
+        for rel in po["code"] if po else import_closure(x[1]):
             for line, direction, _w in build_graph.computed_edges(rel):
                 if direction == "domain":
                     raw.append((x[0], rel, line))
@@ -1117,20 +1353,38 @@ def _selftest():
                     for k in ((rel, fn), (rel, "*")):
                         if k in SITE_DOMAINS:
                             used.add(k)
-    chk(f"the raw scan finds undeclared domains to cover ({len(raw)} site(s) over {len(ACTIONS)} action(s))",
-        len(raw) > 0, True)
-    chk("...and every one is declared in SITE_DOMAINS (the undeclared residue reads 0)",
-        [r for r in raw if site_declaration(r[0], r[1], r[2]) is None], [])
-    chk("...every SITE_DOMAINS entry names a site a scan found (none stale)",
-        sorted(set(SITE_DOMAINS) - used), [])
+    chk(
+        f"the raw scan finds undeclared domains to cover ({len(raw)} site(s) over {len(ACTIONS)} action(s))",
+        len(raw) > 0,
+        True,
+    )
+    chk(
+        "...and every one is declared in SITE_DOMAINS (the undeclared residue reads 0)",
+        [r for r in raw if site_declaration(r[0], r[1], r[2]) is None],
+        [],
+    )
+    chk(
+        "...every SITE_DOMAINS entry names a site a scan found (none stale)",
+        sorted(set(SITE_DOMAINS) - used),
+        [],
+    )
     sch = ACTIONS_BY_NAME["schemes"]
-    chk("a declared NAMES population is in the schemes key",
-        any(k.startswith("population:") for k in key_of(sch).inputs), True)
-    chk("a names listing keys NAMES, not bytes: make_font.py is not itself a schemes input",
-        ("make_font.py" in key_of(sch).inputs), False)
+    chk(
+        "a declared NAMES population is in the schemes key",
+        any(k.startswith("population:") for k in key_of(sch).inputs),
+        True,
+    )
+    chk(
+        "a names listing keys NAMES, not bytes: make_font.py is not itself a schemes input",
+        ("make_font.py" in key_of(sch).inputs),
+        False,
+    )
     wall = ACTIONS_BY_NAME["wallpapers"]
-    chk("a declared FILES population (the .colors the wallpapers read) is in their key",
-        "EL-Amber.colors" in key_of(wall).inputs, True)
+    chk(
+        "a declared FILES population (the .colors the wallpapers read) is in their key",
+        "EL-Amber.colors" in key_of(wall).inputs,
+        True,
+    )
     victim = os.path.join(ROOT, "EL-Amber.colors")
     base = key_of(wall).key
     with open(victim, "rb") as fh:
@@ -1138,20 +1392,31 @@ def _selftest():
     try:
         with open(victim, "ab") as fh:
             fh.write(b"\n")
-        chk("a byte in a declared FILES population moves the wallpapers key",
-            key_of(wall).key != base, True)
+        chk(
+            "a byte in a declared FILES population moves the wallpapers key",
+            key_of(wall).key != base,
+            True,
+        )
     finally:
         with open(victim, "wb") as fh:
             fh.write(original)
     # distinct actions must not collide
-    keys ={x[0]: key_of(x).key for x in ACTIONS}
+    keys = {x[0]: key_of(x).key for x in ACTIONS}
     chk("distinct actions have distinct keys", len(set(keys.values())), len(ACTIONS))
     print("action_key selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
 
 def main(argv):
-    known = {"--list", "--write", "--check", "--json", "--selftest", "--impact", "--rebuild"}
+    known = {
+        "--list",
+        "--write",
+        "--check",
+        "--json",
+        "--selftest",
+        "--impact",
+        "--rebuild",
+    }
     args = list(argv[1:])
     target = None
     if args[:1] == ["--rebuild"]:
@@ -1161,20 +1426,34 @@ def main(argv):
         ran, failed = rebuild()
         if failed:
             return 1
-        print(f"action_key: --rebuild ran {len(ran)} of {len(ACTIONS)} action builder(s)"
-              + (f" ({', '.join(ran)}) and re-recorded every key" if ran else ": nothing was stale"))
+        print(
+            f"action_key: --rebuild ran {len(ran)} of {len(ACTIONS)} action builder(s)"
+            + (
+                f" ({', '.join(ran)}) and re-recorded every key"
+                if ran
+                else ": nothing was stale"
+            )
+        )
         return 0
     if args[:1] == ["--impact-census"]:
         names = [a[0] for a in ACTIONS if per_output_key(a)[1] is not None]
         if len(args) != 2 or args[1] not in names:
-            print(f"action_key: --impact-census takes one per-output action: {names}", file=sys.stderr)
+            print(
+                f"action_key: --impact-census takes one per-output action: {names}",
+                file=sys.stderr,
+            )
             return 2
         rows = impact_census(args[1])
         coarse = [r for r in rows if len(r[3]) > 1]
         for rel, moved, n, kinds in rows:
             flag = "COARSE" if len(kinds) > 1 else "      "
-            print(f"  {flag} {rel}: moves {len(moved)} of {n}" + (f"  kinds={','.join(kinds)}" if kinds else ""))
-        print(f"action_key: {len(coarse)} of {len(rows)} file(s) in {args[1]}'s closure move more than one output kind")
+            print(
+                f"  {flag} {rel}: moves {len(moved)} of {n}"
+                + (f"  kinds={','.join(kinds)}" if kinds else "")
+            )
+        print(
+            f"action_key: {len(coarse)} of {len(rows)} file(s) in {args[1]}'s closure move more than one output kind"
+        )
         return 0
     if "--impact" in args:
         i = args.index("--impact")
@@ -1189,11 +1468,15 @@ def main(argv):
     if target is not None:
         res = impact(target)
         if not res:
-            print("action_key: REFUSED — no action is keyed per output; nothing to measure",
-                  file=sys.stderr)
+            print(
+                "action_key: REFUSED — no action is keyed per output; nothing to measure",
+                file=sys.stderr,
+            )
             return 3
         for name, (moved, n) in sorted(res.items()):
-            print(f"  {name}: a comment in {target} moves {len(moved)} of {n} output key(s)")
+            print(
+                f"  {name}: a comment in {target} moves {len(moved)} of {n} output key(s)"
+            )
             for f in moved:
                 print(f"    stale  {f}")
         return 0
@@ -1202,10 +1485,14 @@ def main(argv):
     if "--write" in argv:
         out = write()
         for name, rec in sorted(out["actions"].items()):
-            print(f"  {name:12s} key={rec['key'][:16]}  "
-                  f"{rec['n_inputs']} input(s) -> {rec['n_outputs']} output(s)")
-        print(f"action_key: recorded {len(out['actions'])} action(s) "
-              f"in {os.path.relpath(MANIFEST, ROOT)}")
+            print(
+                f"  {name:12s} key={rec['key'][:16]}  "
+                f"{rec['n_inputs']} input(s) -> {rec['n_outputs']} output(s)"
+            )
+        print(
+            f"action_key: recorded {len(out['actions'])} action(s) "
+            f"in {os.path.relpath(MANIFEST, ROOT)}"
+        )
         return 0
     m = measure()
     if "--json" in argv:
@@ -1216,16 +1503,30 @@ def main(argv):
             k, per = per_output_key(a)
             print(f"  {a[0]:12s} entry={a[1]}")
             if per is None:
-                print(f"               domains={', '.join(a[2])}  ({len(k.inputs)} file(s))")
+                print(
+                    f"               domains={', '.join(a[2])}  ({len(k.inputs)} file(s))"
+                )
             else:
-                print(f"               keyed PER OUTPUT: {len(per)} output key(s) over "
-                      f"{len(k.inputs)} (output, input) edge(s) (job bytes, repo reads, env, code, host)")
-            print(f"               host={'the whole host' if a[3] else '(none declared)'}"
-                  + (f"  ⚑ UNCOMPUTABLE: {', '.join(k.missing_host)}" if k.missing_host else ""))
-            print(f"               residue={len(k.unresolved)} unresolved, "
-                  f"{len(k.undeclared_domains)} undeclared domain(s)")
-            print(f"               outputs={a[4]}/*{'|*'.join(a[5])}  "
-                  f"({len(outputs_of(a))} file(s))")
+                print(
+                    f"               keyed PER OUTPUT: {len(per)} output key(s) over "
+                    f"{len(k.inputs)} (output, input) edge(s) (job bytes, repo reads, env, code, host)"
+                )
+            print(
+                f"               host={'the whole host' if a[3] else '(none declared)'}"
+                + (
+                    f"  ⚑ UNCOMPUTABLE: {', '.join(k.missing_host)}"
+                    if k.missing_host
+                    else ""
+                )
+            )
+            print(
+                f"               residue={len(k.unresolved)} unresolved, "
+                f"{len(k.undeclared_domains)} undeclared domain(s)"
+            )
+            print(
+                f"               outputs={a[4]}/*{'|*'.join(a[5])}  "
+                f"({len(outputs_of(a))} file(s))"
+            )
         return 0
     host = m["host"]
     print(f"  host: {host['kind']} — {host['detail']}")
@@ -1238,32 +1539,48 @@ def main(argv):
     unrec = [c for c in cases if c["state"] == "unrecorded"]
     unmeas = [c for c in cases if c["state"] == "unmeasurable"]
     if unmeas:
-        print(f"\naction_key: WITHHELD — {len(unmeas)} of {len(cases)} action(s) declare "
-              f"a host input absent on this machine:", file=sys.stderr)
+        print(
+            f"\naction_key: WITHHELD — {len(unmeas)} of {len(cases)} action(s) declare "
+            f"a host input absent on this machine:",
+            file=sys.stderr,
+        )
         for c in unmeas:
             print(f"    {c['action']}: {', '.join(c['missing_host'])}", file=sys.stderr)
         if len(unmeas) == len(cases):
             return 3
     for c in cases:
         gap = c["n_unresolved"] + c["n_undeclared_domains"]
-        print(f"  {c['state']:11s} {c['action']:12s} "
-              f"{c['n_inputs']} input(s), {c['n_outputs']} output(s)"
-              + (f"  ⚑ residue: {c['n_unresolved']} unresolved edge(s), "
-                 f"{c['n_undeclared_domains']} undeclared domain(s)" if gap else ""))
+        print(
+            f"  {c['state']:11s} {c['action']:12s} "
+            f"{c['n_inputs']} input(s), {c['n_outputs']} output(s)"
+            + (
+                f"  ⚑ residue: {c['n_unresolved']} unresolved edge(s), "
+                f"{c['n_undeclared_domains']} undeclared domain(s)"
+                if gap
+                else ""
+            )
+        )
         if c["per_output"]:
-            print(f"                  per output: {len(c['stale_outputs'])} of {c['n_keyed_outputs']} "
-                  f"stale, {len(c['unrecorded_outputs'])} unrecorded")
+            print(
+                f"                  per output: {len(c['stale_outputs'])} of {c['n_keyed_outputs']} "
+                f"stale, {len(c['unrecorded_outputs'])} unrecorded"
+            )
             for f in c["stale_outputs"]:
                 print(f"                  stale  {f}")
         for s in c["unresolved"] + c["undeclared_domains"]:
             print(f"                  {s}")
     if stale:
-        print(f"\naction_key: REFUSED — {len(stale)} of {len(cases)} action(s) STALE: "
-              f"the outputs in the tree were built from inputs that have since changed.",
-              file=sys.stderr)
+        print(
+            f"\naction_key: REFUSED — {len(stale)} of {len(cases)} action(s) STALE: "
+            f"the outputs in the tree were built from inputs that have since changed.",
+            file=sys.stderr,
+        )
         for c in stale:
-            print(f"    {c['action']}: recorded {c['recorded_key'][:16]} "
-                  f"but the domain now keys {c['key'][:16]}", file=sys.stderr)
+            print(
+                f"    {c['action']}: recorded {c['recorded_key'][:16]} "
+                f"but the domain now keys {c['key'][:16]}",
+                file=sys.stderr,
+            )
         print("  rebuild, then: scripts/action_key.py --write", file=sys.stderr)
         return 1
     # ⚑ REFORMULATED WAS COUNTED AS CURRENT HERE (measured 2026-09-23: "3 of 3
@@ -1271,15 +1588,22 @@ def main(argv):
     # or reformulated action is UNMEASURED; the tally counts only what is current.
     unrec = [c for c in cases if c["state"] in ("unrecorded", "reformulated")]
     if unrec and len(unrec) == len(cases):
-        print(f"\naction_key: WITHHELD — {len(unrec)} of {len(cases)} action(s) have no "
-              f"recorded key; currency is UNMEASURED, not confirmed.", file=sys.stderr)
+        print(
+            f"\naction_key: WITHHELD — {len(unrec)} of {len(cases)} action(s) have no "
+            f"recorded key; currency is UNMEASURED, not confirmed.",
+            file=sys.stderr,
+        )
         return 3
     if unrec:
-        print(f"\naction_key: SKIP for {len(unrec)} of {len(cases)} unrecorded or reformulated action(s); "
-              f"{len(cases) - len(unrec)} current")
+        print(
+            f"\naction_key: SKIP for {len(unrec)} of {len(cases)} unrecorded or reformulated action(s); "
+            f"{len(cases) - len(unrec)} current"
+        )
         return 0
-    print(f"\naction_key: {len(cases)} of {len(cases)} action(s) current — "
-          f"every declared input matches the key recorded at build time")
+    print(
+        f"\naction_key: {len(cases)} of {len(cases)} action(s) current — "
+        f"every declared input matches the key recorded at build time"
+    )
     return 0
 
 

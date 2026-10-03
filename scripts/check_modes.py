@@ -29,6 +29,7 @@ that declare `known` as a literal; a check without one is reported, not run.
     check_modes.py --json     the measurement
     check_modes.py --selftest prove a raising mode is seen, and 0-of-0 refuses
 """
+
 import ast
 import json
 import os
@@ -55,25 +56,39 @@ EXCLUDE = {
     # (this tool's own) and double the slowest part of the gate
     "--selftest": "covered by run_selftests.py; recursive and slow here",
     # per-check rows, read from each main() before admitting the mode:
-    ("check_template_parity.py", "--unlink"):
-        "mutates: rewrites catalog/baselines/* to give each its own inode",
-    ("check_template_parity.py", "--record"):
-        "mutates: re-records ONE baseline from the tree's emission",
-    ("check_publishing.py", "--refresh"):
-        "mutates + network: fetches the OCS listing and overwrites the cache",
-    ("check_font.py", "--render"):
-        "mutates: writes glyph.png into the working directory",
+    (
+        "check_template_parity.py",
+        "--unlink",
+    ): "mutates: rewrites catalog/baselines/* to give each its own inode",
+    (
+        "check_template_parity.py",
+        "--record",
+    ): "mutates: re-records ONE baseline from the tree's emission",
+    (
+        "check_publishing.py",
+        "--refresh",
+    ): "mutates + network: fetches the OCS listing and overwrites the cache",
+    (
+        "check_font.py",
+        "--render",
+    ): "mutates: writes glyph.png into the working directory",
 }
 
 # Arguments read positionally (not by .index), which the AST scan cannot see.
 # Declared, per check, from reading its main().
 POSITIONAL = {
-    ("check_template_parity.py", "--diff"):
-        "needs a pair name as a positional operand; bare exits 2 by design",
-    ("check_display_registry.py", "--glyph"):
-        "needs a character as a positional operand; bare exits 2 by design",
-    ("check_symbol.py", "--bucket"):
-        "needs exactly one bucket name as a positional operand; bare exits 2",
+    (
+        "check_template_parity.py",
+        "--diff",
+    ): "needs a pair name as a positional operand; bare exits 2 by design",
+    (
+        "check_display_registry.py",
+        "--glyph",
+    ): "needs a character as a positional operand; bare exits 2 by design",
+    (
+        "check_symbol.py",
+        "--bucket",
+    ): "needs exactly one bucket name as a positional operand; bare exits 2",
 }
 
 
@@ -92,8 +107,9 @@ def declared_known(path):
             continue
         if isinstance(node.value, (ast.Set, ast.List, ast.Tuple)):
             elts = node.value.elts
-            if all(isinstance(e, ast.Constant) and isinstance(e.value, str)
-                   for e in elts):
+            if all(
+                isinstance(e, ast.Constant) and isinstance(e.value, str) for e in elts
+            ):
                 return sorted(e.value for e in elts), tree
     return None, tree
 
@@ -102,11 +118,15 @@ def arg_taking(tree):
     """Flags the source reads an argument for: `<x>.index("--flag")` calls."""
     out = set()
     for node in ast.walk(tree):
-        if (isinstance(node, ast.Call) and isinstance(node.func, ast.Attribute)
-                and node.func.attr == "index" and len(node.args) == 1
-                and isinstance(node.args[0], ast.Constant)
-                and isinstance(node.args[0].value, str)
-                and node.args[0].value.startswith("-")):
+        if (
+            isinstance(node, ast.Call)
+            and isinstance(node.func, ast.Attribute)
+            and node.func.attr == "index"
+            and len(node.args) == 1
+            and isinstance(node.args[0], ast.Constant)
+            and isinstance(node.args[0].value, str)
+            and node.args[0].value.startswith("-")
+        ):
             out.add(node.args[0].value)
     return out
 
@@ -119,20 +139,39 @@ def discover(scripts_dir, exclude=SELF):
             continue
         path = os.path.join(scripts_dir, name)
         known, tree = declared_known(path)
-        rec = {"check": name, "path": path, "declares_known": known is not None,
-               "modes": []}
+        rec = {
+            "check": name,
+            "path": path,
+            "declares_known": known is not None,
+            "modes": [],
+        }
         if known is not None:
             takes = arg_taking(tree)
             for flag in known:
                 if excluded(name, flag):
-                    rec["modes"].append({"mode": flag, "plan": "excluded",
-                                         "reason": excluded(name, flag)})
+                    rec["modes"].append(
+                        {
+                            "mode": flag,
+                            "plan": "excluded",
+                            "reason": excluded(name, flag),
+                        }
+                    )
                 elif (name, flag) in POSITIONAL:
-                    rec["modes"].append({"mode": flag, "plan": "skipped",
-                                         "reason": POSITIONAL[(name, flag)]})
+                    rec["modes"].append(
+                        {
+                            "mode": flag,
+                            "plan": "skipped",
+                            "reason": POSITIONAL[(name, flag)],
+                        }
+                    )
                 elif flag in takes:
-                    rec["modes"].append({"mode": flag, "plan": "skipped",
-                                         "reason": "takes an argument (.index(flag))"})
+                    rec["modes"].append(
+                        {
+                            "mode": flag,
+                            "plan": "skipped",
+                            "reason": "takes an argument (.index(flag))",
+                        }
+                    )
                 else:
                     rec["modes"].append({"mode": flag, "plan": "run"})
         checks.append(rec)
@@ -143,8 +182,13 @@ def run_mode(path, mode, cwd, timeout=TIMEOUT):
     """Run one mode; per-child CPU from wait4, wall from the clock."""
     with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
         t0 = time.monotonic()
-        p = subprocess.Popen([sys.executable, path, mode], cwd=cwd,
-                             stdin=subprocess.DEVNULL, stdout=out, stderr=err)
+        p = subprocess.Popen(
+            [sys.executable, path, mode],
+            cwd=cwd,
+            stdin=subprocess.DEVNULL,
+            stdout=out,
+            stderr=err,
+        )
         while True:
             pid, status, ru = os.wait4(p.pid, os.WNOHANG)
             if pid:
@@ -153,19 +197,29 @@ def run_mode(path, mode, cwd, timeout=TIMEOUT):
                 p.kill()
                 pid, status, ru = os.wait4(p.pid, 0)
                 p.returncode = -9
-                return {"exit": None, "timeout": True, "traceback": False,
-                        "wall_s": round(time.monotonic() - t0, 2),
-                        "cpu_s": round(ru.ru_utime + ru.ru_stime, 2)}
+                return {
+                    "exit": None,
+                    "timeout": True,
+                    "traceback": False,
+                    "wall_s": round(time.monotonic() - t0, 2),
+                    "cpu_s": round(ru.ru_utime + ru.ru_stime, 2),
+                }
             time.sleep(0.05)
         p.returncode = os.waitstatus_to_exitcode(status)
         wall = time.monotonic() - t0
         err.seek(0)
         stderr = err.read().decode("utf-8", "replace")
     tb = "Traceback" in stderr
-    return {"exit": p.returncode, "timeout": False, "traceback": tb,
-            "wall_s": round(wall, 2), "cpu_s": round(ru.ru_utime + ru.ru_stime, 2),
-            "stderr_tail": stderr.strip().splitlines()[-1] if (tb or p.returncode == 2)
-            and stderr.strip() else ""}
+    return {
+        "exit": p.returncode,
+        "timeout": False,
+        "traceback": tb,
+        "wall_s": round(wall, 2),
+        "cpu_s": round(ru.ru_utime + ru.ru_stime, 2),
+        "stderr_tail": stderr.strip().splitlines()[-1]
+        if (tb or p.returncode == 2) and stderr.strip()
+        else "",
+    }
 
 
 def verdict(r):
@@ -182,8 +236,11 @@ def measure(scripts_dir=SCRIPTS, cwd=ROOT, exclude=SELF, jobs=4, timeout=TIMEOUT
     checks = discover(scripts_dir, exclude)
     todo = [(c, m) for c in checks for m in c["modes"] if m["plan"] == "run"]
     with ThreadPoolExecutor(max_workers=jobs) as ex:
-        results = list(ex.map(lambda cm: run_mode(cm[0]["path"], cm[1]["mode"],
-                                                   cwd, timeout), todo))
+        results = list(
+            ex.map(
+                lambda cm: run_mode(cm[0]["path"], cm[1]["mode"], cwd, timeout), todo
+            )
+        )
     for (c, m), r in zip(todo, results):
         m.update(r)
         m["verdict"] = verdict(r)
@@ -202,10 +259,18 @@ def summarize(m):
         "m_declared": len(modes),
         "ran": len(ran),
         "clean": sum(x["verdict"] == "ok" for x in ran),
-        "failed": [(c["check"], x) for c in checks for x in c["modes"]
-                   if x.get("verdict", "").startswith("FAIL")],
-        "timeout": [(c["check"], x) for c in checks for x in c["modes"]
-                    if x.get("verdict") == "timeout"],
+        "failed": [
+            (c["check"], x)
+            for c in checks
+            for x in c["modes"]
+            if x.get("verdict", "").startswith("FAIL")
+        ],
+        "timeout": [
+            (c["check"], x)
+            for c in checks
+            for x in c["modes"]
+            if x.get("verdict") == "timeout"
+        ],
         "skipped": sum(x["plan"] == "skipped" for x in modes),
         "excluded": sum(x["plan"] == "excluded" for x in modes),
     }
@@ -214,8 +279,11 @@ def summarize(m):
 def report(m):
     s = summarize(m)
     if s["ran"] == 0:
-        print("check_modes: REFUSED — 0 runnable modes discovered; the search is "
-              "broken, not the tree clean", file=sys.stderr)
+        print(
+            "check_modes: REFUSED — 0 runnable modes discovered; the search is "
+            "broken, not the tree clean",
+            file=sys.stderr,
+        )
         return 2
     for c in m["checks"]:
         if not c["declares_known"]:
@@ -223,19 +291,25 @@ def report(m):
             continue
         for x in c["modes"]:
             if x["plan"] != "run":
-                print(f"  {c['check']:32s} {x['mode']:18s} {x['plan']:9s} ({x['reason']})")
+                print(
+                    f"  {c['check']:32s} {x['mode']:18s} {x['plan']:9s} ({x['reason']})"
+                )
             else:
-                print(f"  {c['check']:32s} {x['mode']:18s} {x['verdict']:15s} "
-                      f"exit={x['exit']} wall={x['wall_s']}s cpu={x['cpu_s']}s")
+                print(
+                    f"  {c['check']:32s} {x['mode']:18s} {x['verdict']:15s} "
+                    f"exit={x['exit']} wall={x['wall_s']}s cpu={x['cpu_s']}s"
+                )
     for name, x in s["failed"]:
         print(f"  ⚑ FAILED {name} {x['mode']}: {x['stderr_tail']}", file=sys.stderr)
     for name, x in s["timeout"]:
         print(f"  UNMEASURED {name} {x['mode']}: timed out", file=sys.stderr)
-    print(f"\ncheck_modes: {s['clean']} of {s['ran']} run mode(s) clean across "
-          f"{s['k_declaring']} of {s['K']} check(s) declaring `known`; "
-          f"{len(s['failed'])} failed, {len(s['timeout'])} timed out, "
-          f"{s['skipped']} skipped (take an argument), {s['excluded']} excluded "
-          f"(of {s['m_declared']} declared)")
+    print(
+        f"\ncheck_modes: {s['clean']} of {s['ran']} run mode(s) clean across "
+        f"{s['k_declaring']} of {s['K']} check(s) declaring `known`; "
+        f"{len(s['failed'])} failed, {len(s['timeout'])} timed out, "
+        f"{s['skipped']} skipped (take an argument), {s['excluded']} excluded "
+        f"(of {s['m_declared']} declared)"
+    )
     return 1 if s["failed"] else 0
 
 
@@ -257,12 +331,17 @@ def _selftest():
             "    if '--boom' in argv: raise RuntimeError('seen')\n"
             "    if '--nodecl' in argv: return 2\n"
             "    return 0\n"
-            "sys.exit(main(sys.argv))\n")
+            "sys.exit(main(sys.argv))\n"
+        )
         with open(os.path.join(d, "check_fake.py"), "w") as f:
             f.write(src)
         m = measure(d, d, exclude=None, jobs=2, timeout=30)
         modes = {x["mode"]: x for x in m["checks"][0]["modes"]}
-        chk("raising mode is FAIL-traceback", modes["--boom"]["verdict"], "FAIL-traceback")
+        chk(
+            "raising mode is FAIL-traceback",
+            modes["--boom"]["verdict"],
+            "FAIL-traceback",
+        )
         chk("exit-2 mode is FAIL-exit2", modes["--nodecl"]["verdict"], "FAIL-exit2")
         chk("clean mode is ok", modes["--good"]["verdict"], "ok")
         chk("argument-taking mode skipped", modes["--name"]["plan"], "skipped")
@@ -290,8 +369,10 @@ def main(argv):
                 print(f"  {c['check']:32s} ⚑ declares no `known` literal")
             for x in c["modes"]:
                 n += 1
-                print(f"  {c['check']:32s} {x['mode']:18s} {x['plan']}"
-                      + (f"  ({x['reason']})" if "reason" in x else ""))
+                print(
+                    f"  {c['check']:32s} {x['mode']:18s} {x['plan']}"
+                    + (f"  ({x['reason']})" if "reason" in x else "")
+                )
         print(f"\ncheck_modes: {n} declared mode(s) over {len(checks)} check(s)")
         return 0 if n else 2
     m = measure()

@@ -45,6 +45,7 @@ where a reader would look anyway. (4) It proves the SPELLING is atomic, not the
 filesystem: os.replace is atomic within one filesystem, which a same-directory
 mkstemp guarantees.
 """
+
 import ast
 import json
 import os
@@ -80,7 +81,7 @@ def _exemption(lines, lineno):
             text = lines[ln - 1]
             i = text.find(EXEMPT_TAG)
             if i >= 0:
-                return text[i + len(EXEMPT_TAG):].strip(" —-:\t") or ""
+                return text[i + len(EXEMPT_TAG) :].strip(" —-:\t") or ""
     return None
 
 
@@ -95,7 +96,13 @@ def _guarded(tree):
         for item in w.items:
             c = item.context_expr
             fn = c.func if isinstance(c, ast.Call) else None
-            nm = fn.id if isinstance(fn, ast.Name) else fn.attr if isinstance(fn, ast.Attribute) else None
+            nm = (
+                fn.id
+                if isinstance(fn, ast.Name)
+                else fn.attr
+                if isinstance(fn, ast.Attribute)
+                else None
+            )
             if nm == PATH_HELPER and isinstance(item.optional_vars, ast.Name):
                 tmps.add(item.optional_vars.id)
         if not tmps:
@@ -103,8 +110,9 @@ def _guarded(tree):
         for stmt in w.body:
             for n in ast.walk(stmt):
                 if isinstance(n, ast.Call) and any(
-                        isinstance(a, ast.Name) and a.id in tmps
-                        for a in list(n.args) + [k.value for k in n.keywords]):
+                    isinstance(a, ast.Name) and a.id in tmps
+                    for a in list(n.args) + [k.value for k in n.keywords]
+                ):
                     out.add(id(n))
     return out
 
@@ -119,8 +127,18 @@ def sites(source, module):
         if not isinstance(node, ast.Call):
             continue
         f = node.func
-        name = f.id if isinstance(f, ast.Name) else f.attr if isinstance(f, ast.Attribute) else None
-        base = f.value.id if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name) else None
+        name = (
+            f.id
+            if isinstance(f, ast.Name)
+            else f.attr
+            if isinstance(f, ast.Attribute)
+            else None
+        )
+        base = (
+            f.value.id
+            if isinstance(f, ast.Attribute) and isinstance(f.value, ast.Name)
+            else None
+        )
         kind = mode = None
         if name == HELPER:
             kind = HELPER
@@ -139,16 +157,24 @@ def sites(source, module):
         if kind is None:
             continue
         ex = _exemption(lines, node.lineno)
-        out.append({"module": module, "line": node.lineno, "kind": kind, "mode": mode,
-                    "atomic": kind == HELPER or id(node) in guarded,
-                    "exempt": ex is not None,
-                    "reason": ex if ex is not None else None})
+        out.append(
+            {
+                "module": module,
+                "line": node.lineno,
+                "kind": kind,
+                "mode": mode,
+                "atomic": kind == HELPER or id(node) in guarded,
+                "exempt": ex is not None,
+                "reason": ex if ex is not None else None,
+            }
+        )
     return sorted(out, key=lambda s: s["line"])
 
 
 def measure():
     """The --json document: the population and every write site in it."""
     import emitters
+
     modules = emitters.declared()
     cases, withheld = [], []
     for m in modules:
@@ -160,9 +186,13 @@ def measure():
             withheld.append({"module": m, "withheld": f"unreadable: {e}"})
             continue
         cases.extend(sites(src, m))
-    return {"modules": modules, "cases": cases, "unreadable": withheld,
-            "helper": "emitters." + HELPER,
-            "helper_present": callable(getattr(emitters, HELPER, None))}
+    return {
+        "modules": modules,
+        "cases": cases,
+        "unreadable": withheld,
+        "helper": "emitters." + HELPER,
+        "helper_present": callable(getattr(emitters, HELPER, None)),
+    }
 
 
 def _selftest():
@@ -172,6 +202,7 @@ def _selftest():
     import tempfile
 
     import emitters
+
     ok = True
 
     def see(label, cond):
@@ -183,31 +214,46 @@ def _selftest():
         'open("EL-X.colors", "w").write("x")\n'
         'emitters.atomic_write("EL-Y.colors", "y")\n'
         'data = open("EL-Z.colors").read()\n'
-        '# atomic-write: exempt — a private tempdir\n'
+        "# atomic-write: exempt — a private tempdir\n"
         'open(tmpname, "wb")\n'
         'pathlib.Path("q").write_text("z")\n'
-        'shutil.copy2(a, b)\n'
-        'img.save(dst)\n'
-        'open(p, mode)\n'
-        'with emitters.atomic_path(dst) as tmp:\n'
-        '    img.save(tmp)\n'
-        '    other.save(dst)\n'
-        'cairosvg.svg2png(bytestring=b, write_to=dst)\n'
+        "shutil.copy2(a, b)\n"
+        "img.save(dst)\n"
+        "open(p, mode)\n"
+        "with emitters.atomic_path(dst) as tmp:\n"
+        "    img.save(tmp)\n"
+        "    other.save(dst)\n"
+        "cairosvg.svg2png(bytestring=b, write_to=dst)\n"
     )
     s = {x["line"]: x for x in sites(fixture, "fixture")}
-    see("a plain open(..., 'w') is a non-atomic, non-exempt open site",
-        s.get(1, {}).get("kind") == "open" and not s[1]["atomic"] and not s[1]["exempt"])
+    see(
+        "a plain open(..., 'w') is a non-atomic, non-exempt open site",
+        s.get(1, {}).get("kind") == "open"
+        and not s[1]["atomic"]
+        and not s[1]["exempt"],
+    )
     see("the helper call is counted as atomic", s.get(2, {}).get("atomic") is True)
     see("a read-mode open is NOT a write site", 3 not in s)
-    see("an exemption is seen, with its reason", s.get(5, {}).get("exempt") is True and s[5]["reason"] == "a private tempdir")
+    see(
+        "an exemption is seen, with its reason",
+        s.get(5, {}).get("exempt") is True and s[5]["reason"] == "a private tempdir",
+    )
     see("Path.write_text is a write site", s.get(6, {}).get("kind") == "write_text")
     see("shutil.copy2 is a write site", s.get(7, {}).get("kind") == "shutil.copy2")
     see(".save(path) is a write site", s.get(8, {}).get("kind") == "save")
     see("a non-literal mode is conservatively a write", s.get(9, {}).get("mode") == "?")
-    see("a saver aimed at atomic_path's temp is atomic", s.get(11, {}).get("atomic") is True)
-    see("a saver in the same block aimed ELSEWHERE is not", s.get(12, {}).get("atomic") is False)
-    see("svg2png(write_to=) is a write site", s.get(13, {}).get("kind") == "svg2png"
-        and not s[13]["atomic"])
+    see(
+        "a saver aimed at atomic_path's temp is atomic",
+        s.get(11, {}).get("atomic") is True,
+    )
+    see(
+        "a saver in the same block aimed ELSEWHERE is not",
+        s.get(12, {}).get("atomic") is False,
+    )
+    see(
+        "svg2png(write_to=) is a write site",
+        s.get(13, {}).get("kind") == "svg2png" and not s[13]["atomic"],
+    )
     with tempfile.TemporaryDirectory() as d:
         p = os.path.join(d, "f.txt")
         emitters.atomic_write(p, "one")
@@ -217,12 +263,16 @@ def _selftest():
         um = os.umask(0)
         os.umask(um)
         see("atomic_write writes text then bytes", body == "two")
-        see("atomic_write leaves the umask mode, not mkstemp's 0600",
-            os.stat(p).st_mode & 0o777 == 0o666 & ~um)
+        see(
+            "atomic_write leaves the umask mode, not mkstemp's 0600",
+            os.stat(p).st_mode & 0o777 == 0o666 & ~um,
+        )
         see("atomic_write leaves no temp file behind", os.listdir(d) == ["f.txt"])
     doc = measure()
-    see(f"the live population is non-empty ({len(doc['modules'])} modules, {len(doc['cases'])} sites)",
-        len(doc["modules"]) > 0 and len(doc["cases"]) > 0)
+    see(
+        f"the live population is non-empty ({len(doc['modules'])} modules, {len(doc['cases'])} sites)",
+        len(doc["modules"]) > 0 and len(doc["cases"]) > 0,
+    )
     print("check_atomic_writes selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -241,17 +291,28 @@ def main(argv):
         return 0
     cases = doc["cases"]
     if not cases:
-        print("check_atomic_writes: REFUSED — no write site found in "
-              f"{len(doc['modules'])} module(s); the scan is broken", file=sys.stderr)
+        print(
+            "check_atomic_writes: REFUSED — no write site found in "
+            f"{len(doc['modules'])} module(s); the scan is broken",
+            file=sys.stderr,
+        )
         return 1
     bad = [c for c in cases if not c["atomic"] and not c["exempt"]]
     for c in cases:
-        tag = "atomic" if c["atomic"] else f"EXEMPT ({c['reason']})" if c["exempt"] else "PLAIN"
+        tag = (
+            "atomic"
+            if c["atomic"]
+            else f"EXEMPT ({c['reason']})"
+            if c["exempt"]
+            else "PLAIN"
+        )
         print(f"  {c['module']}.py:{c['line']:<5d} {c['kind']:15s} {tag}")
     n_at = sum(c["atomic"] for c in cases)
     n_ex = sum(c["exempt"] for c in cases)
-    print(f"\ncheck_atomic_writes: {n_at} atomic, {n_ex} exempt, {len(bad)} plain "
-          f"of {len(cases)} write site(s) in {len(doc['modules'])} module(s)")
+    print(
+        f"\ncheck_atomic_writes: {n_at} atomic, {n_ex} exempt, {len(bad)} plain "
+        f"of {len(cases)} write site(s) in {len(doc['modules'])} module(s)"
+    )
     return 1 if bad else 0
 
 

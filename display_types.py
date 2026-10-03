@@ -17,6 +17,7 @@ so make_wallpaper / make_clock render a DISPLAY, not specifically segments.
 
 This subsumes ⊕SEG*: SegmentDisplay is the segment path unchanged.
 """
+
 import os
 
 import segment_topology as _seg
@@ -70,28 +71,50 @@ class SegmentDisplay:
 # Measured against its own neighbours: 'H' puts its bar on row 3 and 'E' its bars
 # on 0/3/6; 'A' was the only glyph disagreeing with the set it belongs to.
 FONT5x7 = {
-    "0": [0x3e,0x51,0x49,0x45,0x3e], "1": [0x00,0x42,0x7f,0x40,0x00],
-    "2": [0x42,0x61,0x51,0x49,0x46], "3": [0x21,0x41,0x45,0x4b,0x31],
-    "4": [0x18,0x14,0x12,0x7f,0x10], "5": [0x27,0x45,0x45,0x45,0x39],
-    "6": [0x3c,0x4a,0x49,0x49,0x30], "7": [0x01,0x71,0x09,0x05,0x03],
-    "8": [0x36,0x49,0x49,0x49,0x36], "9": [0x06,0x49,0x49,0x29,0x1e],
-    "A": [0x7e,0x09,0x09,0x09,0x7e], "B": [0x7f,0x49,0x49,0x49,0x36],
-    "C": [0x3e,0x41,0x41,0x41,0x22], "D": [0x7f,0x41,0x41,0x22,0x1c],
-    "E": [0x7f,0x49,0x49,0x49,0x41], "F": [0x7f,0x09,0x09,0x09,0x01],
-    "G": [0x3e,0x41,0x49,0x49,0x7a], "H": [0x7f,0x08,0x08,0x08,0x7f],
-    "I": [0x00,0x41,0x7f,0x41,0x00], "J": [0x20,0x40,0x41,0x3f,0x01],
-    "K": [0x7f,0x08,0x14,0x22,0x41], "L": [0x7f,0x40,0x40,0x40,0x40],
-    "M": [0x7f,0x02,0x0c,0x02,0x7f], "N": [0x7f,0x04,0x08,0x10,0x7f],
-    "O": [0x3e,0x41,0x41,0x41,0x3e], "P": [0x7f,0x09,0x09,0x09,0x06],
-    "Q": [0x3e,0x41,0x51,0x21,0x5e], "R": [0x7f,0x09,0x19,0x29,0x46],
-    "S": [0x46,0x49,0x49,0x49,0x31], "T": [0x01,0x01,0x7f,0x01,0x01],
-    "U": [0x3f,0x40,0x40,0x40,0x3f], "V": [0x1f,0x20,0x40,0x20,0x1f],
-    "W": [0x7f,0x20,0x18,0x20,0x7f], "X": [0x63,0x14,0x08,0x14,0x63],
-    "Y": [0x03,0x04,0x78,0x04,0x03], "Z": [0x61,0x51,0x49,0x45,0x43],
-    " ": [0x00,0x00,0x00,0x00,0x00], "-": [0x08,0x08,0x08,0x08,0x08],
-    ":": [0x00,0x36,0x36,0x00,0x00], ".": [0x00,0x60,0x60,0x00,0x00],
-    "/": [0x20,0x10,0x08,0x04,0x02], "*": [0x14,0x08,0x3e,0x08,0x14],
-    "+": [0x08,0x08,0x3e,0x08,0x08], "?": [0x02,0x01,0x51,0x09,0x06],
+    "0": [0x3E, 0x51, 0x49, 0x45, 0x3E],
+    "1": [0x00, 0x42, 0x7F, 0x40, 0x00],
+    "2": [0x42, 0x61, 0x51, 0x49, 0x46],
+    "3": [0x21, 0x41, 0x45, 0x4B, 0x31],
+    "4": [0x18, 0x14, 0x12, 0x7F, 0x10],
+    "5": [0x27, 0x45, 0x45, 0x45, 0x39],
+    "6": [0x3C, 0x4A, 0x49, 0x49, 0x30],
+    "7": [0x01, 0x71, 0x09, 0x05, 0x03],
+    "8": [0x36, 0x49, 0x49, 0x49, 0x36],
+    "9": [0x06, 0x49, 0x49, 0x29, 0x1E],
+    "A": [0x7E, 0x09, 0x09, 0x09, 0x7E],
+    "B": [0x7F, 0x49, 0x49, 0x49, 0x36],
+    "C": [0x3E, 0x41, 0x41, 0x41, 0x22],
+    "D": [0x7F, 0x41, 0x41, 0x22, 0x1C],
+    "E": [0x7F, 0x49, 0x49, 0x49, 0x41],
+    "F": [0x7F, 0x09, 0x09, 0x09, 0x01],
+    "G": [0x3E, 0x41, 0x49, 0x49, 0x7A],
+    "H": [0x7F, 0x08, 0x08, 0x08, 0x7F],
+    "I": [0x00, 0x41, 0x7F, 0x41, 0x00],
+    "J": [0x20, 0x40, 0x41, 0x3F, 0x01],
+    "K": [0x7F, 0x08, 0x14, 0x22, 0x41],
+    "L": [0x7F, 0x40, 0x40, 0x40, 0x40],
+    "M": [0x7F, 0x02, 0x0C, 0x02, 0x7F],
+    "N": [0x7F, 0x04, 0x08, 0x10, 0x7F],
+    "O": [0x3E, 0x41, 0x41, 0x41, 0x3E],
+    "P": [0x7F, 0x09, 0x09, 0x09, 0x06],
+    "Q": [0x3E, 0x41, 0x51, 0x21, 0x5E],
+    "R": [0x7F, 0x09, 0x19, 0x29, 0x46],
+    "S": [0x46, 0x49, 0x49, 0x49, 0x31],
+    "T": [0x01, 0x01, 0x7F, 0x01, 0x01],
+    "U": [0x3F, 0x40, 0x40, 0x40, 0x3F],
+    "V": [0x1F, 0x20, 0x40, 0x20, 0x1F],
+    "W": [0x7F, 0x20, 0x18, 0x20, 0x7F],
+    "X": [0x63, 0x14, 0x08, 0x14, 0x63],
+    "Y": [0x03, 0x04, 0x78, 0x04, 0x03],
+    "Z": [0x61, 0x51, 0x49, 0x45, 0x43],
+    " ": [0x00, 0x00, 0x00, 0x00, 0x00],
+    "-": [0x08, 0x08, 0x08, 0x08, 0x08],
+    ":": [0x00, 0x36, 0x36, 0x00, 0x00],
+    ".": [0x00, 0x60, 0x60, 0x00, 0x00],
+    "/": [0x20, 0x10, 0x08, 0x04, 0x02],
+    "*": [0x14, 0x08, 0x3E, 0x08, 0x14],
+    "+": [0x08, 0x08, 0x3E, 0x08, 0x08],
+    "?": [0x02, 0x01, 0x51, 0x09, 0x06],
 }
 
 
@@ -101,7 +124,9 @@ def _cols(*rows):
     session was hex nobody could see)."""
     w = len(rows[0])
     assert all(len(r) == w for r in rows), "ragged glyph"
-    return [sum(1 << r for r, row in enumerate(rows) if row[c] == "#") for c in range(w)]
+    return [
+        sum(1 << r for r, row in enumerate(rows) if row[c] == "#") for c in range(w)
+    ]
 
 
 # ⚑ "DESCENDER" IS PIXELS BELOW A DECLARED BASELINE LINE, NOT A TALLER GRID
@@ -110,36 +135,92 @@ def _cols(*rows):
 # with FONT5x7's uppercase and digits; row 7 is descent, used by g j p q y. The
 # lowercase follows standard pixel-font conventions (spleen / HD44780-A02
 # lineage) and is authored, not pinned to a vendor bitmap — the closure's residue.
-FONT5x8_BASELINE = 6            # the last BODY row; the baseline LINE is its bottom edge, cell-y 7
+FONT5x8_BASELINE = (
+    6  # the last BODY row; the baseline LINE is its bottom edge, cell-y 7
+)
 FONT5x8 = dict(FONT5x7)
-FONT5x8.update({
-    "a": _cols(".....", ".....", ".###.", "....#", ".####", "#...#", ".####", "....."),
-    "b": _cols("#....", "#....", "####.", "#...#", "#...#", "#...#", "####.", "....."),
-    "c": _cols(".....", ".....", ".####", "#....", "#....", "#....", ".####", "....."),
-    "d": _cols("....#", "....#", ".####", "#...#", "#...#", "#...#", ".####", "....."),
-    "e": _cols(".....", ".....", ".###.", "#...#", "#####", "#....", ".####", "....."),
-    "f": _cols("..##.", ".#..#", ".#...", "###..", ".#...", ".#...", ".#...", "....."),
-    "g": _cols(".....", ".....", ".####", "#...#", "#...#", ".####", "....#", ".###."),
-    "h": _cols("#....", "#....", "####.", "#...#", "#...#", "#...#", "#...#", "....."),
-    "i": _cols("..#..", ".....", ".##..", "..#..", "..#..", "..#..", ".###.", "....."),
-    "j": _cols("...#.", ".....", "..##.", "...#.", "...#.", "...#.", "#..#.", ".##.."),
-    "k": _cols("#....", "#....", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "....."),
-    "l": _cols(".##..", "..#..", "..#..", "..#..", "..#..", "..#..", ".###.", "....."),
-    "m": _cols(".....", ".....", "##.#.", "#.#.#", "#.#.#", "#...#", "#...#", "....."),
-    "n": _cols(".....", ".....", "####.", "#...#", "#...#", "#...#", "#...#", "....."),
-    "o": _cols(".....", ".....", ".###.", "#...#", "#...#", "#...#", ".###.", "....."),
-    "p": _cols(".....", ".....", "####.", "#...#", "#...#", "####.", "#....", "#...."),
-    "q": _cols(".....", ".....", ".####", "#...#", "#...#", ".####", "....#", "....#"),
-    "r": _cols(".....", ".....", "#.##.", "##..#", "#....", "#....", "#....", "....."),
-    "s": _cols(".....", ".....", ".####", "#....", ".###.", "....#", "####.", "....."),
-    "t": _cols(".#...", ".#...", "###..", ".#...", ".#...", ".#..#", "..##.", "....."),
-    "u": _cols(".....", ".....", "#...#", "#...#", "#...#", "#..##", ".##.#", "....."),
-    "v": _cols(".....", ".....", "#...#", "#...#", "#...#", ".#.#.", "..#..", "....."),
-    "w": _cols(".....", ".....", "#...#", "#...#", "#.#.#", "#.#.#", ".#.#.", "....."),
-    "x": _cols(".....", ".....", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "....."),
-    "y": _cols(".....", ".....", "#...#", "#...#", "#...#", ".####", "....#", ".###."),
-    "z": _cols(".....", ".....", "#####", "...#.", "..#..", ".#...", "#####", "....."),
-})
+FONT5x8.update(
+    {
+        "a": _cols(
+            ".....", ".....", ".###.", "....#", ".####", "#...#", ".####", "....."
+        ),
+        "b": _cols(
+            "#....", "#....", "####.", "#...#", "#...#", "#...#", "####.", "....."
+        ),
+        "c": _cols(
+            ".....", ".....", ".####", "#....", "#....", "#....", ".####", "....."
+        ),
+        "d": _cols(
+            "....#", "....#", ".####", "#...#", "#...#", "#...#", ".####", "....."
+        ),
+        "e": _cols(
+            ".....", ".....", ".###.", "#...#", "#####", "#....", ".####", "....."
+        ),
+        "f": _cols(
+            "..##.", ".#..#", ".#...", "###..", ".#...", ".#...", ".#...", "....."
+        ),
+        "g": _cols(
+            ".....", ".....", ".####", "#...#", "#...#", ".####", "....#", ".###."
+        ),
+        "h": _cols(
+            "#....", "#....", "####.", "#...#", "#...#", "#...#", "#...#", "....."
+        ),
+        "i": _cols(
+            "..#..", ".....", ".##..", "..#..", "..#..", "..#..", ".###.", "....."
+        ),
+        "j": _cols(
+            "...#.", ".....", "..##.", "...#.", "...#.", "...#.", "#..#.", ".##.."
+        ),
+        "k": _cols(
+            "#....", "#....", "#..#.", "#.#..", "##...", "#.#..", "#..#.", "....."
+        ),
+        "l": _cols(
+            ".##..", "..#..", "..#..", "..#..", "..#..", "..#..", ".###.", "....."
+        ),
+        "m": _cols(
+            ".....", ".....", "##.#.", "#.#.#", "#.#.#", "#...#", "#...#", "....."
+        ),
+        "n": _cols(
+            ".....", ".....", "####.", "#...#", "#...#", "#...#", "#...#", "....."
+        ),
+        "o": _cols(
+            ".....", ".....", ".###.", "#...#", "#...#", "#...#", ".###.", "....."
+        ),
+        "p": _cols(
+            ".....", ".....", "####.", "#...#", "#...#", "####.", "#....", "#...."
+        ),
+        "q": _cols(
+            ".....", ".....", ".####", "#...#", "#...#", ".####", "....#", "....#"
+        ),
+        "r": _cols(
+            ".....", ".....", "#.##.", "##..#", "#....", "#....", "#....", "....."
+        ),
+        "s": _cols(
+            ".....", ".....", ".####", "#....", ".###.", "....#", "####.", "....."
+        ),
+        "t": _cols(
+            ".#...", ".#...", "###..", ".#...", ".#...", ".#..#", "..##.", "....."
+        ),
+        "u": _cols(
+            ".....", ".....", "#...#", "#...#", "#...#", "#..##", ".##.#", "....."
+        ),
+        "v": _cols(
+            ".....", ".....", "#...#", "#...#", "#...#", ".#.#.", "..#..", "....."
+        ),
+        "w": _cols(
+            ".....", ".....", "#...#", "#...#", "#.#.#", "#.#.#", ".#.#.", "....."
+        ),
+        "x": _cols(
+            ".....", ".....", "#...#", ".#.#.", "..#..", ".#.#.", "#...#", "....."
+        ),
+        "y": _cols(
+            ".....", ".....", "#...#", "#...#", "#...#", ".####", "....#", ".###."
+        ),
+        "z": _cols(
+            ".....", ".....", "#####", "...#.", "..#..", ".#...", "#####", "....."
+        ),
+    }
+)
 DESCENDERS = frozenset("gjpqy")
 
 
@@ -186,8 +267,10 @@ class MatrixDisplay:
 
 # --- display registry + legibility that spans the whole lattice --------------
 DISPLAYS = {
-    "7": SegmentDisplay("7"), "9": SegmentDisplay("9"),
-    "14": SegmentDisplay("14"), "16": SegmentDisplay("16"),
+    "7": SegmentDisplay("7"),
+    "9": SegmentDisplay("9"),
+    "14": SegmentDisplay("14"),
+    "16": SegmentDisplay("16"),
     "5x7": MatrixDisplay(5, 7),
     "5x8": MatrixDisplay(5, 8, font=FONT5x8, baseline=FONT5x8_BASELINE),
 }
@@ -223,6 +306,7 @@ def collision_classes(disp_key, charset):
 # `cell_aspect()` and `lit_primitives()`, and a renderer consumes A DISPLAY. So
 # this emits BOTH kinds under one registry with `kind` as the dispatch tag, and
 # the QML branches on that rather than on which table it was handed.
+
 
 def _seg_endpoints(spec):
     """Any stroke -> (ax, ay, bx, by) in unit-grid coords.
@@ -301,16 +385,25 @@ def registry():
 # Authored glyphs WIN: the extension fills only what the table lacks, so a
 # designed 'A' is never replaced by a rasterised one. Anything outside the
 # charset falls back to '?' in the QML — the log's fallback (:4534).
-MATRIX_CHARSET = "".join(chr(c) for c in range(0x20, 0x7F)) + "".join(chr(c) for c in range(0xA0, 0x100))
+MATRIX_CHARSET = "".join(chr(c) for c in range(0x20, 0x7F)) + "".join(
+    chr(c) for c in range(0xA0, 0x100)
+)
 
 
-def font_extension(path, cols=5, rows=8, baseline=FONT5x8_BASELINE, charset=MATRIX_CHARSET,
-                   exclude=None):
+def font_extension(
+    path,
+    cols=5,
+    rows=8,
+    baseline=FONT5x8_BASELINE,
+    charset=MATRIX_CHARSET,
+    exclude=None,
+):
     """{ch: column bytes} rasterised from `path` for every char in `charset` that
     is not in `exclude` and that the font has. Chars the font lacks are simply
     absent (the QML's '?' fallback handles them); a glyph that rasterises blank
     is DROPPED rather than shipped as an invisible cell."""
     import make_glyph_ink as GI
+
     exclude = exclude or {}
     out = {}
     for ch in charset:
@@ -349,14 +442,19 @@ def registry_for(*keys, font_path=None):
         out["segGlyphs"] = {f: r["segGlyphs"][f] for f in sorted(fmts)}
     if "matrix" in kinds:
         # only the fonts the requested matrix displays NAME
-        for fname in sorted({d["font"] for d in displays.values() if d["kind"] == "matrix"}):
+        for fname in sorted(
+            {d["font"] for d in displays.values() if d["kind"] == "matrix"}
+        ):
             out[f"font{fname}"] = dict(r[f"font{fname}"])
         # ⊕MATRIX-FONT-INPUT: the rasterised extension goes under the authored
         # table it extends — authored glyphs win, the font fills the rest
         if font_path and "font5x8" in out:
             ext = font_extension(font_path, exclude=out["font5x8"])
             out["font5x8"] = {**ext, **out["font5x8"]}
-            out["fontExtension"] = {"path": os.path.basename(font_path), "glyphs": len(ext)}
+            out["fontExtension"] = {
+                "path": os.path.basename(font_path),
+                "glyphs": len(ext),
+            }
     return out
 
 
@@ -372,6 +470,7 @@ def as_qml_js(*keys, indent=None, font_path=None):
     With no keys this emits everything, which is what a surface offering the full
     display picker needs; with keys it emits only those displays' tables."""
     import json as _json
+
     data = registry_for(*keys, font_path=font_path) if keys else registry()
     return _json.dumps(data, sort_keys=True, indent=indent)
 
@@ -391,7 +490,9 @@ if __name__ == "__main__":
     r = registry()
     print("\nregistry (⊕DOT-WIRE), as QML would receive it:")
     print(f"  segGeom   : {len(r['segGeom'])} strokes")
-    print(f"  segGlyphs : {', '.join(f'{k}={len(v)}' for k, v in sorted(r['segGlyphs'].items()))}")
+    print(
+        f"  segGlyphs : {', '.join(f'{k}={len(v)}' for k, v in sorted(r['segGlyphs'].items()))}"
+    )
     print(f"  font5x7   : {len(r['font5x7'])} glyphs")
     kinds = ", ".join(f"{k}({v['kind']})" for k, v in sorted(r["displays"].items()))
     print(f"  displays  : {kinds}")

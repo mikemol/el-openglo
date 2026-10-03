@@ -19,6 +19,7 @@ judges against the packager's own declaration.
 applies them or that the engine draws with the EL scheme. That is a render in
 the k8s VM (W37's next step), not something a file read can see.
 """
+
 import json
 import os
 import sys
@@ -33,7 +34,9 @@ def parse_defaults(text):
     for line in text.splitlines():
         line = line.strip()
         if line.startswith("[") and line.endswith("]"):
-            cur = "/".join(p.strip("[]") for p in line.replace("][", "]\0[").split("\0"))
+            cur = "/".join(
+                p.strip("[]") for p in line.replace("][", "]\0[").split("\0")
+            )
             out.setdefault(cur, {})
         elif "=" in line and cur is not None:
             k, v = line.split("=", 1)
@@ -70,10 +73,18 @@ def measure_dir(pkg_dir):
 
 def measure():
     import make_deb
-    staged = {os.path.basename(src): src for src, _dest in make_deb.build_lnf_packages()}
-    engines = {e: {"widget": E["widget"], "deco_library": E["deco"]("X")[0],
-                   "deco_theme": E["deco"]("X")[1] is not None}
-               for e, E in make_deb.ENGINES.items()}
+
+    staged = {
+        os.path.basename(src): src for src, _dest in make_deb.build_lnf_packages()
+    }
+    engines = {
+        e: {
+            "widget": E["widget"],
+            "deco_library": E["deco"]("X")[0],
+            "deco_theme": E["deco"]("X")[1] is not None,
+        }
+        for e, E in make_deb.ENGINES.items()
+    }
     cases = []
     for v in make_deb.VARIANTS:
         for e in make_deb.ENGINES:
@@ -91,27 +102,47 @@ def measure():
 
 def _selftest():
     import tempfile
+
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
-    d = parse_defaults("[kdeglobals][KDE]\nwidgetStyle=oxygen\n\n[kwinrc][org.kde.kdecoration2]\nlibrary=org.kde.oxygen\n")
-    check("nested groups join with /", sorted(d), ["kdeglobals/KDE", "kwinrc/org.kde.kdecoration2"])
+    d = parse_defaults(
+        "[kdeglobals][KDE]\nwidgetStyle=oxygen\n\n[kwinrc][org.kde.kdecoration2]\nlibrary=org.kde.oxygen\n"
+    )
+    check(
+        "nested groups join with /",
+        sorted(d),
+        ["kdeglobals/KDE", "kwinrc/org.kde.kdecoration2"],
+    )
     check("a key is read under its group", d["kdeglobals/KDE"]["widgetStyle"], "oxygen")
     with tempfile.TemporaryDirectory() as t:
-        check("an empty package dir is missing, with a reason",
-              measure_dir(t)["missing"] is not None, True)
+        check(
+            "an empty package dir is missing, with a reason",
+            measure_dir(t)["missing"] is not None,
+            True,
+        )
         os.makedirs(os.path.join(t, "contents"))
         with open(os.path.join(t, "metadata.json"), "w") as f:
-            json.dump({"KPackageStructure": "Plasma/LookAndFeel", "KPlugin": {"Id": "x"}}, f)
+            json.dump(
+                {"KPackageStructure": "Plasma/LookAndFeel", "KPlugin": {"Id": "x"}}, f
+            )
         with open(os.path.join(t, "contents", "defaults"), "w") as f:
-            f.write("[kdeglobals][General]\nColorScheme=EL-Azure\n[kdeglobals][KDE]\nwidgetStyle=Breeze\n")
+            f.write(
+                "[kdeglobals][General]\nColorScheme=EL-Azure\n[kdeglobals][KDE]\nwidgetStyle=Breeze\n"
+            )
         m = measure_dir(t)
-        check("a well-formed package is read", (m["missing"], m["color_scheme"], m["widget_style"],
-                                                m["deco_library"]), (None, "EL-Azure", "Breeze", None))
+        check(
+            "a well-formed package is read",
+            (m["missing"], m["color_scheme"], m["widget_style"], m["deco_library"]),
+            (None, "EL-Azure", "Breeze", None),
+        )
     print("check_lnf selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -127,6 +158,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("lnf")
 
 

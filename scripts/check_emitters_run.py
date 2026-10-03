@@ -59,6 +59,7 @@ but not compared: there is no tracked version to compare against. (3) The tree
 fingerprint covers TRACKED files only. (4) The default (non --json) mode repeats
 the policy's judgement in Python; opa_gate.py emitters_run is the authority.
 """
+
 import difflib
 import json
 import os
@@ -73,7 +74,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 from emitters import EXTERNAL, ORDER
 
-CACHE = ".palette-cache.json"          # untracked, but the solve it saves is ~108 s CPU
+CACHE = ".palette-cache.json"  # untracked, but the solve it saves is ~108 s CPU
 
 
 # ⚑ SESSION STATE IS NOT TREE CONTENT (measured 2026-09-23). E3 flaked twice: each
@@ -94,6 +95,7 @@ def tracked(root):
     this repo, and walks where there is no git (the Δ sandbox), where the copy here
     raised. SESSION_STATE (above) is then removed, by declaration."""
     import git_tracked
+
     return [p for p in git_tracked.files(root=root) if not p.startswith(SESSION_STATE)]
 
 
@@ -127,8 +129,14 @@ def diff_summary(a, b, name):
         at, bt = a.decode("utf-8").splitlines(), b.decode("utf-8").splitlines()
     except (UnicodeDecodeError, AttributeError):
         return f"binary: {len(a or b'')} -> {len(b or b'')} bytes"
-    d = list(difflib.unified_diff(at, bt, f"tracked/{name}", f"emitted/{name}", n=0, lineterm=""))
-    return "\n".join(d[:12]) + (f"\n… {len(d) - 12} more diff line(s)" if len(d) > 12 else "")
+    d = list(
+        difflib.unified_diff(
+            at, bt, f"tracked/{name}", f"emitted/{name}", n=0, lineterm=""
+        )
+    )
+    return "\n".join(d[:12]) + (
+        f"\n… {len(d) - 12} more diff line(s)" if len(d) > 12 else ""
+    )
 
 
 def copy_tree(src, dst, paths):
@@ -137,7 +145,9 @@ def copy_tree(src, dst, paths):
         if os.path.islink(s) or os.path.isfile(s):
             d = os.path.join(dst, p)
             os.makedirs(os.path.dirname(d), exist_ok=True)
-            shutil.copy2(s, d, follow_symlinks=False)  # atomic-write: exempt — into a private tempdir
+            shutil.copy2(
+                s, d, follow_symlinks=False
+            )  # atomic-write: exempt — into a private tempdir
 
 
 def run_in(copy, mod, timeout=600):
@@ -149,9 +159,16 @@ def run_in(copy, mod, timeout=600):
     emitters downstream of a re-solve, and a drift in make_schemes would be judged
     against outputs that never saw it."""
     import schemes_artifact
-    r = subprocess.run([sys.executable, os.path.join(copy, mod + ".py")], cwd=copy,
-                       capture_output=True, text=True, timeout=timeout, check=False,
-                       env=schemes_artifact.with_declared(os.environ, None))
+
+    r = subprocess.run(
+        [sys.executable, os.path.join(copy, mod + ".py")],
+        cwd=copy,
+        capture_output=True,
+        text=True,
+        timeout=timeout,
+        check=False,
+        env=schemes_artifact.with_declared(os.environ, None),
+    )
     tail = (r.stderr or r.stdout).strip().splitlines()
     return r.returncode, (tail[-1] if tail else f"exit {r.returncode}")
 
@@ -162,6 +179,7 @@ def adopt_drift(root, copy, drift, cases):
     (a half-run pipeline's output is not the pipeline's), and refuses a path the run
     DELETED or turned into a symlink (a rebuild must not remove or relink tracked files)."""
     from emitters import atomic_write
+
     failed = [c["module"] for c in cases if c["rc"] != 0]
     if failed:
         return [], [f"an emitter failed ({', '.join(failed)}): nothing adopted"]
@@ -169,7 +187,9 @@ def adopt_drift(root, copy, drift, cases):
     for d in drift:
         src = os.path.join(copy, d["path"])
         if not os.path.isfile(src) or os.path.islink(src):
-            refused.append(f"{d['path']}: the run deleted it or made it a link; not adopted")
+            refused.append(
+                f"{d['path']}: the run deleted it or made it a link; not adopted"
+            )
             continue
         with open(src, "rb") as fh:
             atomic_write(os.path.join(root, d["path"]), fh.read())
@@ -189,7 +209,9 @@ def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None, adopt=False)
         copy_tree(root, copy, paths)
         for mod, _why in order:
             if not os.path.exists(os.path.join(copy, mod + ".py")):
-                cases.append({"module": mod, "rc": None, "detail": "module file absent"})
+                cases.append(
+                    {"module": mod, "rc": None, "detail": "module file absent"}
+                )
                 continue
             rc, detail = run_in(copy, mod)
             cases.append({"module": mod, "rc": rc, "detail": detail})
@@ -204,8 +226,14 @@ def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None, adopt=False)
         for p in paths:
             a, b = _read(os.path.join(root, p)), _read(os.path.join(copy, p))
             if a != b:
-                drift.append({"path": p, "summary": diff_summary(a, b, p) if b is not None
-                              else "deleted by the run"})
+                drift.append(
+                    {
+                        "path": p,
+                        "summary": diff_summary(a, b, p)
+                        if b is not None
+                        else "deleted by the run",
+                    }
+                )
         if adopt:
             adopted, refused = adopt_drift(root, copy, drift, cases)
         seen = set(paths)
@@ -216,9 +244,16 @@ def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None, adopt=False)
                     untracked_new += 1
     after = fingerprint(root, paths)
     touched = sorted(p for p in paths if before[p] != after[p] and p not in adopted)
-    return {"cases": cases, "withheld": withheld, "drift": drift,
-            "tree_touched": touched, "tracked": len(paths),
-            "untracked_emitted": untracked_new, "adopted": adopted, "refused": refused}
+    return {
+        "cases": cases,
+        "withheld": withheld,
+        "drift": drift,
+        "tree_touched": touched,
+        "tracked": len(paths),
+        "untracked_emitted": untracked_new,
+        "adopted": adopted,
+        "refused": refused,
+    }
 
 
 def main(argv):
@@ -241,10 +276,12 @@ def main(argv):
         for p in doc["adopted"]:
             print(f"    ADOPTED {p}:\n{by_path[p]}")
         bad = failed or doc["refused"] or doc["tree_touched"] or not doc["cases"]
-        print(f"check_emitters_run --apply: {len(doc['adopted'])} of {len(doc['drift'])} drifted "
-              f"tracked file(s) adopted; {len(doc['cases']) - len(failed)} emitter(s) ran, "
-              f"{len(failed)} failed; review with git diff, then re-run without --apply to confirm 0 drift",
-              file=sys.stderr if bad else sys.stdout)
+        print(
+            f"check_emitters_run --apply: {len(doc['adopted'])} of {len(doc['drift'])} drifted "
+            f"tracked file(s) adopted; {len(doc['cases']) - len(failed)} emitter(s) ran, "
+            f"{len(failed)} failed; review with git diff, then re-run without --apply to confirm 0 drift",
+            file=sys.stderr if bad else sys.stdout,
+        )
         return 1 if bad else 0
     if "--list" in argv:
         for i, (m, why) in enumerate(ORDER, 1):
@@ -266,12 +303,16 @@ def main(argv):
     for p in doc["tree_touched"]:
         print(f"    TREE WRITTEN {p}", file=sys.stderr)
     bad = failed or doc["drift"] or doc["tree_touched"] or not cases
-    note = "".join(f"\n    SKIP {w['module']} — {w['withheld']}" for w in doc["withheld"])
-    print(f"check_emitters_run: {len(cases) - len(failed)} ran, {len(failed)} failed, "
-          f"{len(doc['withheld'])} skipped of {total}; {len(doc['drift'])} drifted of "
-          f"{doc['tracked']} tracked file(s); {len(doc['tree_touched'])} tree file(s) written; "
-          f"{doc['untracked_emitted']} untracked output(s) not compared{note}",
-          file=sys.stderr if bad else sys.stdout)
+    note = "".join(
+        f"\n    SKIP {w['module']} — {w['withheld']}" for w in doc["withheld"]
+    )
+    print(
+        f"check_emitters_run: {len(cases) - len(failed)} ran, {len(failed)} failed, "
+        f"{len(doc['withheld'])} skipped of {total}; {len(doc['drift'])} drifted of "
+        f"{doc['tracked']} tracked file(s); {len(doc['tree_touched'])} tree file(s) written; "
+        f"{doc['untracked_emitted']} untracked output(s) not compared{note}",
+        file=sys.stderr if bad else sys.stdout,
+    )
     return 1 if bad else 0
 
 
@@ -285,49 +326,83 @@ def _selftest():
         print(f"  {'ok  ' if cond else 'FAIL'} {label}")
         ok = ok and cond
 
-    see("order is non-empty and make_schemes runs first", bool(ORDER) and ORDER[0][0] == "make_schemes")
+    see(
+        "order is non-empty and make_schemes runs first",
+        bool(ORDER) and ORDER[0][0] == "make_schemes",
+    )
     stale = [m for m, _ in ORDER if not os.path.exists(os.path.join(ROOT, m + ".py"))]
     see(f"no module in the order is missing ({stale})", stale == [])
     with tempfile.TemporaryDirectory() as repo:
-        stub = ('import os\nhere = os.path.dirname(os.path.abspath(__file__))\n'
-                'open(os.path.join(here, "out.colors"), "w").write("A=1\\n")\n')
+        stub = (
+            "import os\nhere = os.path.dirname(os.path.abspath(__file__))\n"
+            'open(os.path.join(here, "out.colors"), "w").write("A=1\\n")\n'
+        )
         for name, body in (("make_stub.py", stub), ("out.colors", "A=1\n")):
-            with open(os.path.join(repo, name), "w") as fh:  # atomic-write: exempt — selftest fixture
+            with open(
+                os.path.join(repo, name), "w"
+            ) as fh:  # atomic-write: exempt — selftest fixture
                 fh.write(body)
         subprocess.run(["git", "-C", repo, "init", "-q"], check=True)
         subprocess.run(["git", "-C", repo, "add", "."], check=True)
         order = (("make_stub", "stub"),)
         clean = measure(repo, order, {})
-        see("a faithful emitter: ran, no drift, tree untouched",
-            clean["cases"][0]["rc"] == 0 and not clean["drift"] and not clean["tree_touched"])
+        see(
+            "a faithful emitter: ran, no drift, tree untouched",
+            clean["cases"][0]["rc"] == 0
+            and not clean["drift"]
+            and not clean["tree_touched"],
+        )
+
         def drifted(copy):
-            with open(os.path.join(copy, "out.colors"), "w") as fh:  # atomic-write: exempt — selftest, private copy
+            with open(
+                os.path.join(copy, "out.colors"), "w"
+            ) as fh:  # atomic-write: exempt — selftest, private copy
                 fh.write("A=2\n")
+
         d = measure(repo, order, {}, mutate=drifted)
-        see("a drifted output is SEEN, with a diff summary",
-            [x["path"] for x in d["drift"]] == ["out.colors"] and "+A=2" in d["drift"][0]["summary"])
+        see(
+            "a drifted output is SEEN, with a diff summary",
+            [x["path"] for x in d["drift"]] == ["out.colors"]
+            and "+A=2" in d["drift"][0]["summary"],
+        )
+
         def write_tree(_copy):
-            with open(os.path.join(repo, "out.colors"), "w") as fh:  # atomic-write: exempt — selftest writes its own fixture repo
+            with open(
+                os.path.join(repo, "out.colors"), "w"
+            ) as fh:  # atomic-write: exempt — selftest writes its own fixture repo
                 fh.write("A=1\n")
+
         t = measure(repo, order, {}, mutate=write_tree)
-        see("a same-bytes write into the REAL tree is SEEN", t["tree_touched"] == ["out.colors"])
+        see(
+            "a same-bytes write into the REAL tree is SEEN",
+            t["tree_touched"] == ["out.colors"],
+        )
         # --apply: refuses when an emitter FAILED (nothing adopted, file untouched) ...
-        with open(os.path.join(repo, "make_bad.py"), "w") as fh:  # atomic-write: exempt — selftest fixture
+        with open(
+            os.path.join(repo, "make_bad.py"), "w"
+        ) as fh:  # atomic-write: exempt — selftest fixture
             fh.write("import sys\nsys.exit(1)\n")
         subprocess.run(["git", "-C", repo, "add", "make_bad.py"], check=True)
         bad = measure(repo, (("make_bad", "bad"),), {}, mutate=drifted, adopt=True)
         with open(os.path.join(repo, "out.colors")) as fh:
             colors_after_bad = fh.read()
-        see("--apply adopts NOTHING when an emitter failed, and says so",
-            bad["adopted"] == [] and bool(bad["refused"])
-            and colors_after_bad == "A=1\n")
+        see(
+            "--apply adopts NOTHING when an emitter failed, and says so",
+            bad["adopted"] == []
+            and bool(bad["refused"])
+            and colors_after_bad == "A=1\n",
+        )
         # ... and adopts a drifted tracked file when every emitter ran, without calling it a tree write
         ap = measure(repo, order, {}, mutate=drifted, adopt=True)
         with open(os.path.join(repo, "out.colors")) as fh:
             colors_after_ap = fh.read()
-        see("--apply adopts the drifted file into the real tree, listed, not a tree write",
-            ap["adopted"] == ["out.colors"] and not ap["refused"] and not ap["tree_touched"]
-            and colors_after_ap == "A=2\n")
+        see(
+            "--apply adopts the drifted file into the real tree, listed, not a tree write",
+            ap["adopted"] == ["out.colors"]
+            and not ap["refused"]
+            and not ap["tree_touched"]
+            and colors_after_ap == "A=2\n",
+        )
     print("check_emitters_run selftest:", "PASS" if ok else "FAIL")
     return ok
 

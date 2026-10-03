@@ -12,12 +12,14 @@ the Okabe-Ito color-universal-design palette itself. A pair of ours is
 admissible if it is at least as separated (x a class factor) as the reference
 shape's own tightest pair.
 """
+
 import functools
 
 import numpy as np
 from colorspacious import cspace_convert
 
 VIEWS = [None, "protanomaly", "deuteranomaly", "tritanomaly"]
+
 
 def _ucs(rgb255, cvd):
     c = np.asarray(rgb255, dtype=float)
@@ -28,15 +30,24 @@ def _ucs(rgb255, cvd):
         # per make_notify_marquee.main_qml. A COPY is returned so a caller that
         # mutates the result cannot poison the cache.
         return _ucs_one(tuple(float(x) for x in c), cvd).copy()
-    src = "sRGB1" if cvd is None else {"name": "sRGB1+CVD", "cvd_type": cvd, "severity": 100}
+    src = (
+        "sRGB1"
+        if cvd is None
+        else {"name": "sRGB1+CVD", "cvd_type": cvd, "severity": 100}
+    )
     return cspace_convert(c / 255.0, src, "CAM02-UCS")
 
 
 @functools.cache
 def _ucs_one(rgb255, cvd):
     c = np.asarray(rgb255, dtype=float) / 255.0
-    src = "sRGB1" if cvd is None else {"name": "sRGB1+CVD", "cvd_type": cvd, "severity": 100}
+    src = (
+        "sRGB1"
+        if cvd is None
+        else {"name": "sRGB1+CVD", "cvd_type": cvd, "severity": 100}
+    )
     return cspace_convert(c, src, "CAM02-UCS")
+
 
 def worst_view_dE(a, b):
     """min over views of CAM02-UCS distance; also returns the collapsing view."""
@@ -47,12 +58,18 @@ def worst_view_dE(a, b):
             best = (d, v or "trichromat")
     return best
 
+
 # Okabe & Ito (2008) Color Universal Design palette, chromatic members
 OKABE_ITO = {
-    "orange": (230, 159, 0), "sky": (86, 180, 233), "bluegreen": (0, 158, 115),
-    "yellow": (240, 228, 66), "blue": (0, 114, 178), "vermillion": (213, 94, 0),
+    "orange": (230, 159, 0),
+    "sky": (86, 180, 233),
+    "bluegreen": (0, 158, 115),
+    "yellow": (240, 228, 66),
+    "blue": (0, 114, 178),
+    "vermillion": (213, 94, 0),
     "purple": (204, 121, 167),
 }
+
 
 @functools.cache
 def reference_floor():
@@ -66,6 +83,7 @@ def reference_floor():
             if d < floor[0]:
                 floor = (d, names[i], names[j], view)
     return floor
+
 
 def reference_floors():
     """{class: floor} — the per-class Okabe-Ito floor.
@@ -89,7 +107,7 @@ def rgb(s):
 def _wcag_L(c):
     """Relative luminance of an sRGB triple, per WCAG 2.x."""
     out = []
-    for ch in (np.asarray(c, dtype=float) / 255.0):
+    for ch in np.asarray(c, dtype=float) / 255.0:
         out.append(ch / 12.92 if ch <= 0.04045 else ((ch + 0.055) / 1.055) ** 2.4)
     r, g, b = out
     return 0.2126 * r + 0.7152 * g + 0.0722 * b
@@ -111,11 +129,19 @@ def wcag_ratio(a, b):
 # and light-text-on-dark are different perceptual problems, which is exactly the
 # asymmetry WCAG 2 is blind to.  Never take abs() inside this function.
 _APCA = {
-    "Y_TRC": 2.4, "Rco": 0.2126729, "Gco": 0.7151522, "Bco": 0.0721750,
-    "Bclip": 0.022, "Bexp": 1.414,          # black soft-clamp
-    "normBG": 0.56, "normTXT": 0.57,        # normal polarity (dark text on light)
-    "revBG": 0.65, "revTXT": 0.62,          # reverse polarity (light text on dark)
-    "scale": 1.14, "offset": 0.027, "loClip": 0.001,
+    "Y_TRC": 2.4,
+    "Rco": 0.2126729,
+    "Gco": 0.7151522,
+    "Bco": 0.0721750,
+    "Bclip": 0.022,
+    "Bexp": 1.414,  # black soft-clamp
+    "normBG": 0.56,
+    "normTXT": 0.57,  # normal polarity (dark text on light)
+    "revBG": 0.65,
+    "revTXT": 0.62,  # reverse polarity (light text on dark)
+    "scale": 1.14,
+    "offset": 0.027,
+    "loClip": 0.001,
 }
 
 
@@ -135,10 +161,10 @@ def apca_Lc(text, bg):
     ytxt, ybg = _apca_Y(text), _apca_Y(bg)
     if abs(ytxt - ybg) < k["loClip"]:
         return 0.0
-    if ybg > ytxt:                                    # normal: dark on light
+    if ybg > ytxt:  # normal: dark on light
         sapc = (ybg ** k["normBG"] - ytxt ** k["normTXT"]) * k["scale"]
         out = 0.0 if sapc < k["offset"] else sapc - k["offset"]
-    else:                                             # reverse: light on dark
+    else:  # reverse: light on dark
         sapc = (ybg ** k["revBG"] - ytxt ** k["revTXT"]) * k["scale"]
         out = 0.0 if sapc > -k["offset"] else sapc + k["offset"]
     return out * 100.0
@@ -168,8 +194,13 @@ CHROMA_FLOOR = 40.0
 # ⚑ THE CANONICAL TABLE LIVES HERE.  make_palette.py carried a private `_SECTORS`
 # fork of it — the carrier-locality disease: two copies of one table, and the
 # solver silently optimising against a different one than the gate audits.
-SECTORS = {"neg": (340, 25), "neu": (30, 75), "pos": (90, 170),
-           "link": (180, 270), "visited": (180, 310)}
+SECTORS = {
+    "neg": (340, 25),
+    "neu": (30, 75),
+    "pos": (90, 170),
+    "link": (180, 270),
+    "visited": (180, 310),
+}
 
 
 def _lerp(a, b, t):
@@ -191,7 +222,7 @@ def stretch_lit(lit, ground, target=STRETCH_TARGET, chroma_floor=CHROMA_FLOOR):
         cand = _lerp(lit, away, i / 100.0)
         try:
             chroma = float(np.linalg.norm(_ucs(cand, None)[1:]))
-        except Exception:                              # noqa: BLE001
+        except Exception:  # noqa: BLE001
             chroma = chroma_floor
         if chroma < chroma_floor:
             break
@@ -234,7 +265,7 @@ def feasible_ghost_floor(lit, ground):
     metrics do not commute across polarity.  Operator ruling 2026-09-20 (W3):
     state the floor in APCA too.  Kept so the old number can be re-read."""
     span = wcag_ratio(lit, ground)
-    return min(STRETCH_TARGET, (span ** 0.5) * 0.95)
+    return min(STRETCH_TARGET, (span**0.5) * 0.95)
 
 
 # ⚑ THE GHOST FLOOR, IN THE CEILING'S OWN METRIC.  "Visible as shape" is a lower
@@ -295,7 +326,7 @@ def derive_ghost_ceiling(lit, ground, ceiling_lc=GHOST_READABLE_LC):
         lc = abs(apca_Lc(cand, ground))
         if lc < ceiling_lc and lc > best_lc:
             best, best_lc = cand, lc
-    if best is None:                                   # span too small to fail-by-design
+    if best is None:  # span too small to fail-by-design
         best = _lerp(lit, ground, 0.5)
     return best
 
@@ -324,6 +355,7 @@ def _worst_normalized(a, b, floors, factor=0.8, cls="enforced"):
     need = floors[cls] * factor
     return (d / need if need else float("inf")), view, d
 
+
 # ⚑ PAIR CLASSES NOW COME FROM THE AUTHORITY, NOT FROM A LITERAL HERE.
 # These lists were the ONLY declaration of which pairs are constrained, and
 # `audit_variant` — their only consumer — HAD NO CALLER anywhere in the tree.
@@ -334,10 +366,13 @@ def _worst_normalized(a, b, floors, factor=0.8, cls="enforced"):
 # surface (`check_st_api`/`check_palette_chain` resolve them by name).
 def _pairs(cls):
     import palette_graph as _pg
+
     return [tuple(p) for p in _pg.gate_pairs(cls)]
+
 
 ENFORCED = _pairs("enforced")
 SURFACED = _pairs("surfaced")
+
 
 def audit_variant(t, floor, factor=0.8, enforced=None, surfaced=None):
     """Walk the declared pairs of one variant; return the ENFORCED violations.
@@ -348,16 +383,19 @@ def audit_variant(t, floor, factor=0.8, enforced=None, surfaced=None):
     this walk can SEE a violation rather than merely never reporting one."""
     need = floor * factor
     viol = []
-    for name, a, b in (ENFORCED if enforced is None else enforced):
+    for name, a, b in ENFORCED if enforced is None else enforced:
         d, view = worst_view_dE(rgb(t[a]), rgb(t[b]))
         ok = d >= need
-        print(f"  {t['id']:16s} {name:12s} dE={d:5.1f} worst={view:11s} need {need:.1f}  {'ok' if ok else 'VIOLATION'}")
+        print(
+            f"  {t['id']:16s} {name:12s} dE={d:5.1f} worst={view:11s} need {need:.1f}  {'ok' if ok else 'VIOLATION'}"
+        )
         if not ok:
             viol.append(f"{name} dE={d:.1f}<{need:.1f} ({view})")
-    for name, a, b in (SURFACED if surfaced is None else surfaced):
+    for name, a, b in SURFACED if surfaced is None else surfaced:
         d, view = worst_view_dE(rgb(t[a]), rgb(t[b]))
         print(f"  {t['id']:16s} {name:12s} dE={d:5.1f} worst={view:11s} (surfaced)")
     return viol
+
 
 def _selftest():
     """The restored API, checked against PUBLISHED reference values.
@@ -372,17 +410,27 @@ def _selftest():
         nonlocal ok
         good = (abs(got - want) <= tol) if tol is not None else (got == want)
         if not good:
-            print(f"  FAIL {label}: got {got!r} want {want!r}"
-                  f"{f' (tol {tol})' if tol else ''}")
+            print(
+                f"  FAIL {label}: got {got!r} want {want!r}"
+                f"{f' (tol {tol})' if tol else ''}"
+            )
             ok = False
         else:
             print(f"  ok   {label}")
 
     # ── APCA against the published vectors (apca-w3 0.0.98G) ──
-    check("apca #888 on #fff = 63.06", apca_Lc((136, 136, 136), (255, 255, 255)),
-          63.06, 0.02)
-    check("apca #fff on #888 = -68.54", apca_Lc((255, 255, 255), (136, 136, 136)),
-          -68.54, 0.02)
+    check(
+        "apca #888 on #fff = 63.06",
+        apca_Lc((136, 136, 136), (255, 255, 255)),
+        63.06,
+        0.02,
+    )
+    check(
+        "apca #fff on #888 = -68.54",
+        apca_Lc((255, 255, 255), (136, 136, 136)),
+        -68.54,
+        0.02,
+    )
     # polarity is signed and NOT symmetric — the asymmetry WCAG 2 cannot see
     a = apca_Lc((0, 0, 0), (255, 255, 255))
     b = apca_Lc((255, 255, 255), (0, 0, 0))
@@ -390,38 +438,58 @@ def _selftest():
     check("apca polarity is asymmetric", abs(abs(a) - abs(b)) > 1.0, True)
 
     # ── WCAG 2.x against its own normative anchors ──
-    check("wcag black/white = 21:1", round(wcag_ratio((0, 0, 0), (255, 255, 255)), 2),
-          21.0, 0.01)
+    check(
+        "wcag black/white = 21:1",
+        round(wcag_ratio((0, 0, 0), (255, 255, 255)), 2),
+        21.0,
+        0.01,
+    )
     check("wcag identity = 1:1", round(wcag_ratio((1, 2, 3), (1, 2, 3)), 4), 1.0, 1e-4)
     check("wcag L(white) = 1.0", round(_wcag_L((255, 255, 255)), 6), 1.0, 1e-6)
     check("wcag L(black) = 0.0", round(_wcag_L((0, 0, 0)), 6), 0.0, 1e-6)
 
     # ── the thresholds are OURS and must stay legible ──
     check("OLED void ceiling is 2%", OLED_VOID_MAX_LUM, 0.02)
-    check("a mid grey trips the void ceiling",
-          _wcag_L((40, 40, 40)) > OLED_VOID_MAX_LUM, True)
+    check(
+        "a mid grey trips the void ceiling",
+        _wcag_L((40, 40, 40)) > OLED_VOID_MAX_LUM,
+        True,
+    )
     check("a true void clears it", _wcag_L((6, 11, 13)) < OLED_VOID_MAX_LUM, True)
 
     # ── the derivations do what their invariants say ──
     lit, ground = (140, 232, 218), (6, 11, 13)
     gh = derive_ghost(lit, ground)
     lo = min(wcag_ratio(lit, gh), wcag_ratio(gh, ground))
-    check("derive_ghost balances both sides", lo >= feasible_ghost_floor(lit, ground) * 0.95,
-          True)
+    check(
+        "derive_ghost balances both sides",
+        lo >= feasible_ghost_floor(lit, ground) * 0.95,
+        True,
+    )
     ceil_gh = derive_ghost_ceiling(lit, ground)
-    check("ceiling ghost FAILS readability by design",
-          abs(apca_Lc(ceil_gh, ground)) < GHOST_READABLE_LC, True)
+    check(
+        "ceiling ghost FAILS readability by design",
+        abs(apca_Lc(ceil_gh, ground)) < GHOST_READABLE_LC,
+        True,
+    )
     st = stretch_lit((90, 150, 142), ground)
-    check("stretch_lit pushes away from ground",
-          wcag_ratio(st, ground) >= wcag_ratio((90, 150, 142), ground), True)
+    check(
+        "stretch_lit pushes away from ground",
+        wcag_ratio(st, ground) >= wcag_ratio((90, 150, 142), ground),
+        True,
+    )
 
     # ── SECTORS is the canonical table, and it is complete ──
-    check("SECTORS covers every semantic accent",
-          sorted(SECTORS), ["link", "neg", "neu", "pos", "visited"])
+    check(
+        "SECTORS covers every semantic accent",
+        sorted(SECTORS),
+        ["link", "neg", "neu", "pos", "visited"],
+    )
 
     # ── the gate's own metric normalizes ──
-    q, _view, _d = _worst_normalized(OKABE_ITO["blue"], OKABE_ITO["orange"],
-                                   reference_floors())
+    q, _view, _d = _worst_normalized(
+        OKABE_ITO["blue"], OKABE_ITO["orange"], reference_floors()
+    )
     check("normalized-q clears for a reference pair", q >= 1.0, True)
 
     print("cvd_gate selftest:", "PASS" if ok else "FAIL")
@@ -430,6 +498,7 @@ def _selftest():
 
 if __name__ == "__main__":
     import sys
+
     if "--selftest" in sys.argv:
         sys.exit(0 if _selftest() else 1)
     f, a, b, v = reference_floor()

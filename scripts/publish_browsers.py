@@ -19,6 +19,7 @@ policy/chrome_zips.rego through scripts/opa_gate.py chrome_zips.
 WEAKNESS: this packages; it does not upload. The listing is W137 (operator's Web
 Store account), and no store-side validation runs here.
 """
+
 import os
 import sys
 import tempfile
@@ -28,7 +29,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 DEFAULT_OUT = os.path.join(ROOT, "dist")
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit", "EL-Amber", "EL-Amber-Lit")
+VARIANTS = (
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+)
 
 
 def zip_dir(src, dest):
@@ -43,7 +51,9 @@ def zip_dir(src, dest):
             dirs.sort()
             for f in sorted(files):
                 p = os.path.join(base, f)
-                info = zipfile.ZipInfo(os.path.relpath(p, src), date_time=(1980, 1, 1, 0, 0, 0))
+                info = zipfile.ZipInfo(
+                    os.path.relpath(p, src), date_time=(1980, 1, 1, 0, 0, 0)
+                )
                 info.compress_type = zipfile.ZIP_DEFLATED
                 with open(p, "rb") as fh:
                     z.writestr(info, fh.read())
@@ -55,10 +65,13 @@ def build_chrome(out=DEFAULT_OUT, variants=VARIANTS):
     """Emit each variant through make_chrome into private staging, zip it; [zip paths]."""
     os.chdir(ROOT)
     import make_chrome
+
     with tempfile.TemporaryDirectory(prefix="el-chrome-") as td:
         dirs = {v: os.path.join(td, v) for v in variants}
         make_chrome.render_all(variants, dirs)
-        return [zip_dir(dirs[v], os.path.join(out, "chrome", f"{v}.zip")) for v in variants]
+        return [
+            zip_dir(dirs[v], os.path.join(out, "chrome", f"{v}.zip")) for v in variants
+        ]
 
 
 def main(argv):
@@ -75,7 +88,9 @@ def main(argv):
         return 2
     out = args[args.index("--out") + 1] if "--out" in args else DEFAULT_OUT
     zips = build_chrome(out)
-    print(f"publish_browsers: {len(zips)} of {len(VARIANTS)} Chrome zips -> {os.path.join(out, 'chrome')}")
+    print(
+        f"publish_browsers: {len(zips)} of {len(VARIANTS)} Chrome zips -> {os.path.join(out, 'chrome')}"
+    )
     return 0 if len(zips) == len(VARIANTS) else 1
 
 
@@ -93,10 +108,14 @@ def _selftest():
         b = zip_dir(src, os.path.join(td, "out", "b.zip"))
         names = sorted(zipfile.ZipFile(a).namelist())
         root = names == ["images/a.png", "manifest.json"]
-        print(f"  {'ok  ' if root else 'FAIL'} manifest.json sits at the zip root (got {names})")
+        print(
+            f"  {'ok  ' if root else 'FAIL'} manifest.json sits at the zip root (got {names})"
+        )
         with open(a, "rb") as fa, open(b, "rb") as fb:
             same = fa.read() == fb.read()
-        print(f"  {'ok  ' if same else 'FAIL'} the same input gives byte-identical zips")
+        print(
+            f"  {'ok  ' if same else 'FAIL'} the same input gives byte-identical zips"
+        )
         ok = root and same
     print("publish_browsers selftest:", "PASS" if ok else "FAIL")
     return ok

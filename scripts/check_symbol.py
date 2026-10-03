@@ -48,6 +48,7 @@ enumerates what remains ("NOT wired to fontTools, NOT calibrated, NOT validated
 against all 44"), that list IS the witness. When it does not, aim at a definition
 rather than a mention — a `def`-anchored pattern over the bare word "validate".
 """
+
 import os
 import re
 import subprocess
@@ -62,18 +63,35 @@ INDEX = os.path.join(ROOT, "scripts", "cotype_index.py")
 # not gaps: a witness here would be an unfalsifiable claim wearing a checkmark.
 UNWITNESSABLE = {
     "⊕GTK-ADW": "the log calls it unreachable by design — pure-libadwaita apps "
-                "honour no override, so no artifact here can satisfy it (:704)",
+    "honour no override, so no artifact here can satisfy it (:704)",
 }
 
 
+MISSES: list[
+    tuple[str, str]
+] = []  # the (path, pattern) of every _reads that came back False
+
+
 def _reads(path, pat, count=1):
-    """True iff `path` matches `pat` at least `count` times."""
+    """True iff `path` matches `pat` at least `count` times. A False is recorded in
+    MISSES so a regression names the read that failed, not only the symbol."""
     p = os.path.join(ROOT, path)
     if not os.path.isfile(p):
+        MISSES.append((path, "(no such file)"))
         return False
     with open(p, encoding="utf-8", errors="replace") as fh:
         text = fh.read()
-    return len(re.findall(pat, text)) >= count
+    if len(re.findall(pat, text)) >= count:
+        return True
+    MISSES.append((path, pat))
+    return False
+
+
+def _first_miss(pred):
+    """(held, first unmet read) of one witness predicate."""
+    MISSES.clear()
+    held = pred()
+    return held, (MISSES[0] if MISSES else None)
 
 
 def _any(paths, pat):
@@ -91,12 +109,19 @@ def _emitted_clock_is_vector():
     measured, not the generator's source text."""
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
-    os.chdir(ROOT)                       # make_clock reads sibling files by bare name
+    os.chdir(ROOT)  # make_clock reads sibling files by bare name
     import make_clock
-    qml = make_clock.main_qml()          # one package since W35: no token dict
+
+    qml = make_clock.main_qml()  # one package since W35: no token dict
     no_canvas = re.search(r"\bCanvas\b|ctx\.fill|getContext", qml) is None
-    segment = re.search(r"component Segment:.*?(Rectangle|Shape)\s*\{.*?antialiasing:\s*true",
-                        qml, re.DOTALL) is not None
+    segment = (
+        re.search(
+            r"component Segment:.*?(Rectangle|Shape)\s*\{.*?antialiasing:\s*true",
+            qml,
+            re.DOTALL,
+        )
+        is not None
+    )
     return no_canvas and segment
 
 
@@ -105,17 +130,25 @@ def _plymouth_scales_at_boot():
         sys.path.insert(0, ROOT)
     os.chdir(ROOT)
     import make_plymouth
+
     s = make_plymouth.script("EL-Openglo")
-    return (re.search(r"\.Scale \(", s) is not None
-            and re.search(r"sh = Window\.GetHeight", s) is not None
-            and re.search(r"pitch = ", s) is not None
-            and make_plymouth.ASSET_U >= 4 * 48)
+    return (
+        re.search(r"\.Scale \(", s) is not None
+        and re.search(r"sh = Window\.GetHeight", s) is not None
+        and re.search(r"pitch = ", s) is not None
+        and make_plymouth.ASSET_U >= 4 * 48
+    )
 
 
 def _tool(*args):
     """True iff a repo tool exits 0 — the witness IS the tool that owns the question."""
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", args[0]), *args[1:]],
-                       cwd=ROOT, capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [sys.executable, os.path.join(ROOT, "scripts", args[0]), *args[1:]],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     return r.returncode == 0
 
 
@@ -129,29 +162,34 @@ WITNESS = {
     # coverable (--coverable, 3 arms: a lattice edit reaches every surface, an
     # absent glyph is refused). Session 67 records the closure with those tools.
     "⊕SEGMENT-SUBSTRATE": (
-        ("one geometry substrate under wallpaper/clock/marquee/plymouth: every surface"
-        " reads it, none owns a table, a lattice edit reaches all, an absent glyph"
-        " is refused; the four gates are stated at :4427 (:4399)"),
-        lambda: _tool("check_geometry_source.py") and
-                _tool("check_geometry_source.py", "--coverable")),
+        (
+            "one geometry substrate under wallpaper/clock/marquee/plymouth: every surface"
+            " reads it, none owns a table, a lattice edit reaches all, an absent glyph"
+            " is refused; the four gates are stated at :4427 (:4399)"
+        ),
+        lambda: (
+            _tool("check_geometry_source.py")
+            and _tool("check_geometry_source.py", "--coverable")
+        ),
+    ),
     # ⚑ REOPENED FROM ⊕SEGMENT-SUBSTRATE'S CLOSURE (session 69). The substrate is
     # the geometry SOURCE on every surface — that closed. Whether any surface USES
     # the substrate's COMPONENT, and draws the palette's ghost, is this: the
     # witness is the tool that asks what each surface EMITS.
     "⊕SEGMENT-ROLLOUT": (
-        ("every surface draws the palette's fg/fg_in at ghost_alpha rather than deriving"
-        " its own on the way in; check_ghost_surfaces measures what each emits (:4419)"),
-        lambda: _tool("check_ghost_surfaces.py")),
-
+        (
+            "every surface draws the palette's fg/fg_in at ghost_alpha rather than deriving"
+            " its own on the way in; check_ghost_surfaces measures what each emits (:4419)"
+        ),
+        lambda: _tool("check_ghost_surfaces.py"),
+    ),
     # ── RESEARCH: design work, no package impact ──
     # ⚑ THE LOG STATES THIS ONE'S CRITERIA AND MY FIRST WITNESS IGNORED THEM.  It
     # matched the PoC and reported done, while the log says outright: "PoC-level
     # … NOT wired to fontTools glyph ingest, NOT calibrated, NOT validated against
     # all 44. A proven PRINCIPLE, not a shipped pipeline" (:4644). When the log
     # enumerates what remains, the witness is that list — not the name.
-
     # ── TUNE ──
-
     # ── TIER 3 ──
     # ⚑ THE WITNESS LOOKED IN THE GENERATOR FOR ONE IDIOM.  It read make_clock.py
     # for `Shape {` / `ShapePath` / `SegmentChar` — but the QML was extracted to
@@ -163,9 +201,12 @@ WITNESS = {
     # stale on both FILE and IDIOM, and read OPEN for a surface that was done.
     # It now reads the EMITTED artifact and asks the criterion.
     "⊕CLOCK-VECTOR": (
-        ("the clock draws vector segments rather than raster — no Canvas in the emitted"
-        " QML, every segment a scene-graph item with antialiasing (:4228)"),
-        lambda: _emitted_clock_is_vector()),
+        (
+            "the clock draws vector segments rather than raster — no Canvas in the emitted"
+            " QML, every segment a scene-graph item with antialiasing (:4228)"
+        ),
+        lambda: _emitted_clock_is_vector(),
+    ),
     # ⚑ PLYMOUTH IS PNG-BAKED BY DESIGN and the log says what vector means there:
     # "pre-render at target res or SVG support if the theme allows" (:4229). The
     # splash renders PIL polygons from the substrate at a FIXED U=48, so it is
@@ -175,16 +216,29 @@ WITNESS = {
     # holds on every surface in its own idiom; this asks whether any shipped
     # surface INSTANTIATES the shared component — an idiom question, kept open.
     "⊕SEGMENTCHAR-ADOPT": (
-        ("a shipped surface instantiates templates/SegmentChar.qml rather than drawing"
-        " segments in its own idiom (:4419)"),
-        lambda: _any(["templates/live-wallpaper-main.qml", "templates/clock-main.qml",
-                      "templates/marquee-main.qml"], r"\bSegmentChar\s*\{")),
+        (
+            "a shipped surface instantiates templates/SegmentChar.qml rather than drawing"
+            " segments in its own idiom (:4419)"
+        ),
+        lambda: _any(
+            [
+                "templates/live-wallpaper-main.qml",
+                "templates/clock-main.qml",
+                "templates/marquee-main.qml",
+            ],
+            r"\bSegmentChar\s*\{",
+        ),
+    ),
     "⊕HDR-EMIT": (
         "extended-range colour is emitted, once Qt exposes it to QML (:2411)",
-        lambda: _any(["make_schemes.py", "make_clock.py"], r"(?i)\bhdr\b|extended.?range")),
+        lambda: _any(
+            ["make_schemes.py", "make_clock.py"], r"(?i)\bhdr\b|extended.?range"
+        ),
+    ),
     "⊕VER-SYSCLOCK": (
         "the system clock itself renders in EL, not only the plasmoid (:2074)",
-        lambda: _reads("make_deb.py", r"(?i)sysclock|system.*clock")),
+        lambda: _reads("make_deb.py", r"(?i)sysclock|system.*clock"),
+    ),
     # ⚑ ⊕GTK-ADW HAS NO WITNESS AND MUST NOT GET ONE.  The log calls it
     # "unreachable by design" (:704): pure-libadwaita apps honour no override, so
     # NO artifact in this tree can ever satisfy it. My first witness matched
@@ -195,9 +249,12 @@ WITNESS = {
     # FULL vocabulary beyond them, deferred "if the element vocabulary proves
     # large" (:585). Witnessing the shipped three would report the deferral done.
     "⊕KVT2": (
-        ("Kvantum coverage beyond the shipped buttons/line-edits/progress-bar —"
-        " scrollbars, sliders, tabs, menus (:585)"),
-        lambda: _reads("make_kvantum.py", r"(?i)ScrollBar|Slider|TabWidget|MenuItem")),
+        (
+            "Kvantum coverage beyond the shipped buttons/line-edits/progress-bar —"
+            " scrollbars, sliders, tabs, menus (:585)"
+        ),
+        lambda: _reads("make_kvantum.py", r"(?i)ScrollBar|Slider|TabWidget|MenuItem"),
+    ),
     # ⚑ THIS WITNESS WAS WRONG ONCE, AND IT PASSED.  It matched `FrameSvg|prefix`,
     # which hits the generic frame() helper building the panel/dialog/tooltip that
     # were DONE. What ⊕PLA2 defers is the WIDGET-BY-WIDGET SVGs — tasks, buttons,
@@ -205,12 +262,18 @@ WITNESS = {
     # invisible chrome" (:541). A witness aimed at the wrong noun reports the
     # completed work as evidence for the deferred work.
     "⊕PLA2": (
-        ("widget-by-widget Plasma SVGs (tasks/buttons/sliders), not just the panel,"
-        " dialog and tooltip frames that shipped (:541)"),
-        lambda: _reads("make_plasma.py", r"(?i)\btasks\b|\bbutton\b|\bslider\b")),
+        (
+            "widget-by-widget Plasma SVGs (tasks/buttons/sliders), not just the panel,"
+            " dialog and tooltip frames that shipped (:541)"
+        ),
+        lambda: _reads("make_plasma.py", r"(?i)\btasks\b|\bbutton\b|\bslider\b"),
+    ),
     "⊕KNB2": (
         "the designer's export is wired through the actual generators (:787)",
-        lambda: _any(["make_palette.py", "make_schemes.py"], r"(?i)designer|phosphor-designer")),
+        lambda: _any(
+            ["make_palette.py", "make_schemes.py"], r"(?i)designer|phosphor-designer"
+        ),
+    ),
 }
 
 
@@ -223,34 +286,43 @@ def _emitted_surfaces():
     import make_clock
     import make_segment_display
     import make_wallpaper_live
+
     # ⚑ THE DISPLAY IS A SURFACE'S WORK TOO (W33, s133): the clock and the live
     # wallpaper MOUNT templates/SegmentChar.qml, so the stroke weight, the ghost
     # and the lit-only bloom live THERE now — reading only the two mounts would
     # report a shared fact as lost from both.
-    return {"clock": make_clock.main_qml(),
-            "live-wallpaper": make_wallpaper_live.main_qml(),
-            "segment-display": make_segment_display.segment_char_component()}
+    return {
+        "clock": make_clock.main_qml(),
+        "live-wallpaper": make_wallpaper_live.main_qml(),
+        "segment-display": make_segment_display.segment_char_component(),
+    }
 
 
 def _arith(expr, **env):
     """Evaluate an arithmetic expression (+ - * / parentheses, names in env)."""
     import ast
+
     node = ast.parse(expr.strip(), mode="eval").body
-    ops = {ast.Add: lambda a, b: a + b, ast.Sub: lambda a, b: a - b,
-           ast.Mult: lambda a, b: a * b, ast.Div: lambda a, b: a / b}
+    ops = {
+        ast.Add: lambda a, b: a + b,
+        ast.Sub: lambda a, b: a - b,
+        ast.Mult: lambda a, b: a * b,
+        ast.Div: lambda a, b: a / b,
+    }
 
     def ev(n):
         if isinstance(n, ast.Constant):
             return float(n.value)
         if isinstance(n, ast.Name):
             return float(env[n.id])
-        if isinstance(n, ast.Attribute):          # root.weight -> weight
+        if isinstance(n, ast.Attribute):  # root.weight -> weight
             return float(env[n.attr])
         if isinstance(n, ast.BinOp):
             return ops[type(n.op)](ev(n.left), ev(n.right))
         if isinstance(n, ast.UnaryOp) and isinstance(n.op, ast.USub):
             return -ev(n.operand)
         raise ValueError(f"not arithmetic: {ast.dump(n)}")
+
     return ev(node)
 
 
@@ -280,7 +352,7 @@ def _bloom_is_blur(qml):
     # the ITEM that owns `layer.enabled` (brace-matched) must not draw the ghost
     for m in re.finditer(r"layer\.enabled:", qml):
         depth, start = 0, None
-        for i in range(m.start(), -1, -1):          # back to the item's own `{`
+        for i in range(m.start(), -1, -1):  # back to the item's own `{`
             if qml[i] == "}":
                 depth += 1
             elif qml[i] == "{":
@@ -289,7 +361,7 @@ def _bloom_is_blur(qml):
                     break
                 depth -= 1
         depth, end = 0, None
-        for i in range(start, len(qml)):            # forward to its `}`
+        for i in range(start, len(qml)):  # forward to its `}`
             if qml[i] == "{":
                 depth += 1
             elif qml[i] == "}":
@@ -316,8 +388,10 @@ def _closed_bloom():
     surfaces = _emitted_surfaces()
     if not _bloom_is_blur(surfaces["segment-display"]):
         return False
-    return all(re.search(r"(?m)^\s*bloom:\s*\w+\.bloom\b", surfaces[m])
-               for m in ("clock", "live-wallpaper"))
+    return all(
+        re.search(r"(?m)^\s*bloom:\s*\w+\.bloom\b", surfaces[m])
+        for m in ("clock", "live-wallpaper")
+    )
 
 
 # ⚑ CLOSED SYMBOLS HAVE WITNESSES TOO.  Every entry above is for the OPEN set,
@@ -330,40 +404,73 @@ def _closed_bloom():
 # artifacts; `--regressions` is red when a closed symbol's work is gone.
 CLOSED = {
     "⊕STROKE-WEIGHT": (
-        ("every segment surface draws the lit stroke thicker than the ghost stroke"
-        " (T_lit/T_ghost > 1 at weight=1, read from the emitted QML) (:2646)"),
-        _closed_stroke_weight),
+        (
+            "every segment surface draws the lit stroke thicker than the ghost stroke"
+            " (T_lit/T_ghost > 1 at weight=1, read from the emitted QML) (:2646)"
+        ),
+        _closed_stroke_weight,
+    ),
     "⊕BLOOM": (
-        ("every segment surface blooms by BLURRING a lit-only layer (MultiEffect,"
-        " gated by config bloom), never the ghost (:2567)"),
-        _closed_bloom),
+        (
+            "every segment surface blooms by BLURRING a lit-only layer (MultiEffect,"
+            " gated by config bloom), never the ghost (:2567)"
+        ),
+        _closed_bloom,
+    ),
     # ⚑ THE THIRD CLOSED SYMBOL WITH NO BUILD (found 2026-09-21, W17): make_gtk,
     # gtk/, and its gate were all absent; el-openglo-apply skipped the copy behind
     # an isdir guard. The witness is the gate that carries session 14's name set.
     "⊕GTK": (
-        ("gtk/<id>/gtk{3,4}.css emit, every name a documented libadwaita one, values"
-        " the palette's, bg/fg pairs gated (:683)"),
-        lambda: os.path.isfile(os.path.join(ROOT, "make_gtk.py")) and _tool("check_gtk.py")),
+        (
+            "gtk/<id>/gtk{3,4}.css emit, every name a documented libadwaita one, values"
+            " the palette's, bg/fg pairs gated (:683)"
+        ),
+        lambda: (
+            os.path.isfile(os.path.join(ROOT, "make_gtk.py")) and _tool("check_gtk.py")
+        ),
+    ),
     # ── the sweep of 2026-09-21 (W-sweep): every other closed symbol that names an
     # artifact, witnessed by the tool or definition that IS the artifact ──
-    "⊕KONSOLE": ("the Konsole scheme + profile emit and read back through the one ansi table (:2846)",
-                 lambda: _tool("check_terminals.py")),
-    "⊕CHROME-THEME": ("a valid Chrome manifest per variant from the scheme tokens (:2706)",
-                      lambda: _tool("check_chrome.py")),
-    "⊕PLYMOUTH": ("the boot splash renders the substrate's digits per variant (:3331)",
-                  lambda: _tool("check_plymouth_digits.py")),
-    "⊕WALLPAPER-VECTOR": ("the wallpaper is an SVG from the substrate, not a raster (:4233)",
-                          lambda: _reads("make_wallpaper.py", r"def\s+wallpaper_svg\b")),
-    "⊕WALLPAPER-LIVE": ("a Plasma/Wallpaper package per variant from the live template (:3440)",
-                        lambda: _reads("make_wallpaper_live.py", r"def\s+main_qml\b") and
-                        os.path.isfile(os.path.join(ROOT, "templates", "live-wallpaper-main.qml"))),
-    "⊕NOTIFY-MARQUEE": ("a matrix-rendered notification ticker plasmoid per variant (:3542)",
-                        # the matrix primitive is ApertureField since s120 (MatrixChar retired s124)
-                        lambda: _reads("make_notify_marquee.py", r"def\s+main_qml\b") and
-                        os.path.isfile(os.path.join(ROOT, "templates", "ApertureField.qml"))),
-    "⊕SPLASH": ("the LnF splash reads progress and the palette's ghost (:2910)",
-                lambda: _reads("make_deb.py", r"def\s+_splash_qml\b") and
-                os.path.isfile(os.path.join(ROOT, "templates", "splash.qml"))),
+    "⊕KONSOLE": (
+        "the Konsole scheme + profile emit and read back through the one ansi table (:2846)",
+        lambda: _tool("check_terminals.py"),
+    ),
+    "⊕CHROME-THEME": (
+        "a valid Chrome manifest per variant from the scheme tokens (:2706)",
+        lambda: _tool("check_chrome.py"),
+    ),
+    "⊕PLYMOUTH": (
+        "the boot splash renders the substrate's digits per variant (:3331)",
+        lambda: _tool("check_plymouth_digits.py"),
+    ),
+    "⊕WALLPAPER-VECTOR": (
+        "the wallpaper is an SVG from the substrate, not a raster (:4233)",
+        lambda: _reads("make_wallpaper.py", r"def\s+wallpaper_svg\b"),
+    ),
+    "⊕WALLPAPER-LIVE": (
+        "a Plasma/Wallpaper package per variant from the live template (:3440)",
+        lambda: (
+            _reads("make_wallpaper_live.py", r"def\s+main_qml\b")
+            and os.path.isfile(
+                os.path.join(ROOT, "templates", "live-wallpaper-main.qml")
+            )
+        ),
+    ),
+    "⊕NOTIFY-MARQUEE": (
+        "a matrix-rendered notification ticker plasmoid per variant (:3542)",
+        # the matrix primitive is ApertureField since s120 (MatrixChar retired s124)
+        lambda: (
+            _reads("make_notify_marquee.py", r"def\s+main_qml\b")
+            and os.path.isfile(os.path.join(ROOT, "templates", "ApertureField.qml"))
+        ),
+    ),
+    "⊕SPLASH": (
+        "the LnF splash reads progress and the palette's ghost (:2910)",
+        lambda: (
+            _reads("make_deb.py", r"def\s+_splash_qml\b")
+            and os.path.isfile(os.path.join(ROOT, "templates", "splash.qml"))
+        ),
+    ),
     # ⚑ THIS CLAIM MISLED THE OPERATOR, SO IT WAS REWRITTEN RATHER THAN LEFT TRUE.
     # It read "the SDDM background path ships as el-openglo-sddm", which is
     # literally accurate and scans, in a list of CLOSED items, as "SDDM is themed".
@@ -372,78 +479,141 @@ CLOSED = {
     # A closure that requires a manual root step is not closed in the sense the
     # list implies. W66 then built the real theme; the witness now requires BOTH
     # halves — the package stages it AND it is an SDDM theme, not a background.
-    "⊕SDDM": (("an SDDM greeter theme per variant (make_sddm -> /usr/share/sddm/themes/"
-              "el-openglo-*, W66); the el-openglo-sddm Breeze-background helper is the "
-              "secondary route (:3074)"),
-              # ⚑ ALIAS-AGNOSTIC BY BACKREFERENCE. The first draft matched the
-              # literal text `make_sddm.render_all` and read OPEN on a tree where
-              # the theme IS staged — make_deb imports it `as _sddm` (:777), so
-              # that text never occurs. A witness that cannot pass is not a
-              # stricter witness, it is a broken one. Whatever alias the import
-              # binds, the call must be made through it.
-              lambda: _reads("make_deb.py",
-                             r"import\s+make_sddm\s+as\s+(\w+)[\s\S]*?\b\1\.render_all\(") and
-              _reads("make_sddm.py", r"Type=sddm-theme")),
-    "⊕LOCKSCREEN": ("the lock screen mounts the live wallpaper (:3001)",
-                    lambda: _reads("make_wallpaper_live.py", r"(?i)lock")),
-    "⊕KVT": ("the Kvantum recolour: a KvFlat mapper plus the elprogress family (KvFlat itself is EXTERNAL) (:612)",
-             lambda: _reads("make_kvantum.py", r"def\s+make_mapper\b") and
-             _reads("make_kvantum.py", r"elprogress")),
-    "⊕GLANCE-AUDIT": ("the glance audit runs each variant against its parsing-mode floor (:3652)",
-                      lambda: _reads("glance_audit.py", r"def\s+run\b")),
-    "⊕CONTRAST-STRETCH": ("the lit stretch survives as cvd_gate.stretch_lit (:2487)",
-                          lambda: _reads("cvd_gate.py", r"def\s+stretch_lit\b")),
-    "⊕APCA-CROSSCHECK": ("APCA is implemented and cross-checked (:3743)",
-                         lambda: _reads("cvd_gate.py", r"def\s+apca_Lc\b")),
-    "⊕PARAMETRIC-PALETTE": ("the solver derives the scheme from the relations (:3894)",
-                            lambda: _reads("make_palette.py", r"def\s+solve_scheme\b")),
-    "⊕SEG22": ("the 22-seg geometry is the 16-seg lattice plus six additions (:1576)",
-               lambda: _reads("segment_topology.py", r"def\s+geom22\b")),
-    "⊕DOT": ("the dot-matrix display component exists (:1002)",
-             # ApertureField since s120: the pips ARE the component; MatrixChar retired s124
-             lambda: os.path.isfile(os.path.join(ROOT, "templates", "ApertureField.qml"))),
-    "⊕VER-PREVIEW": ("the Global Theme previews render from the scheme (:1918)",
-                     lambda: _reads("make_preview.py", r"def\s+preview_svg\b") and
-                     _reads("make_deb.py", r"contents/previews")),
+    "⊕SDDM": (
+        (
+            "an SDDM greeter theme per variant (make_sddm -> /usr/share/sddm/themes/"
+            "el-openglo-*, W66); the el-openglo-sddm Breeze-background helper is the "
+            "secondary route (:3074)"
+        ),
+        # ⚑ ALIAS-AGNOSTIC BY BACKREFERENCE. The first draft matched the
+        # literal text `make_sddm.render_all` and read OPEN on a tree where
+        # the theme IS staged — make_deb imports it `as _sddm` (:777), so
+        # that text never occurs. A witness that cannot pass is not a
+        # stricter witness, it is a broken one. Whatever alias the import
+        # binds, the call must be made through it.
+        lambda: (
+            _reads(
+                "make_deb.py",
+                r"import\s+make_sddm\s+as\s+(\w+)[\s\S]*?\b\1\.render_all\(",
+            )
+            and _reads("make_sddm.py", r"Type=sddm-theme")
+        ),
+    ),
+    "⊕LOCKSCREEN": (
+        "the lock screen mounts the live wallpaper (:3001)",
+        lambda: _reads("make_wallpaper_live.py", r"(?i)lock"),
+    ),
+    "⊕KVT": (
+        "the Kvantum recolour: a KvFlat mapper plus the elprogress family (KvFlat itself is EXTERNAL) (:612)",
+        lambda: (
+            _reads("make_kvantum.py", r"def\s+make_mapper\b")
+            and _reads("make_kvantum.py", r"elprogress")
+        ),
+    ),
+    "⊕GLANCE-AUDIT": (
+        "the glance audit runs each variant against its parsing-mode floor (:3652)",
+        lambda: _reads("glance_audit.py", r"def\s+run\b"),
+    ),
+    "⊕CONTRAST-STRETCH": (
+        "the lit stretch survives as cvd_gate.stretch_lit (:2487)",
+        lambda: _reads("cvd_gate.py", r"def\s+stretch_lit\b"),
+    ),
+    "⊕APCA-CROSSCHECK": (
+        "APCA is implemented and cross-checked (:3743)",
+        lambda: _reads("cvd_gate.py", r"def\s+apca_Lc\b"),
+    ),
+    "⊕PARAMETRIC-PALETTE": (
+        "the solver derives the scheme from the relations (:3894)",
+        lambda: _reads("make_palette.py", r"def\s+solve_scheme\b"),
+    ),
+    "⊕SEG22": (
+        "the 22-seg geometry is the 16-seg lattice plus six additions (:1576)",
+        lambda: _reads("segment_topology.py", r"def\s+geom22\b"),
+    ),
+    "⊕DOT": (
+        "the dot-matrix display component exists (:1002)",
+        # ApertureField since s120: the pips ARE the component; MatrixChar retired s124
+        lambda: os.path.isfile(os.path.join(ROOT, "templates", "ApertureField.qml")),
+    ),
+    "⊕VER-PREVIEW": (
+        "the Global Theme previews render from the scheme (:1918)",
+        lambda: (
+            _reads("make_preview.py", r"def\s+preview_svg\b")
+            and _reads("make_deb.py", r"contents/previews")
+        ),
+    ),
     # rebuilt W24 (2026-09-21), moved here from LOST: the fonts are peer emitters
     # of the substrate, and check_font holds them to it
-    "⊕SEG-FONT": ("an SVG font whose glyphs are the union of the substrate's lit segments (:1252)",
-                  lambda: _reads("make_font.py", r"def\s+emit_svg_font\b") and _tool("check_font.py")),
-    "⊕SEG-FONT-TTF": ("TTFs built natively from glyph_contours via fontTools, orientation gated on glyf (:1366)",
-                      lambda: _reads("make_font.py", r"def\s+build_ttf\b") and
-                      _reads("make_font.py", r"def\s+gate_ttf_orientation\b")),
-    "⊕DOT-FONT": ("the matrix glyph table drives a font: matrix_contours over MatrixDisplay.glyph (:1068)",
-                  lambda: _reads("make_font.py", r"def\s+matrix_contours\b")),
-    "⊕DOT-FONT-TTF": ("one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
-                      lambda: _reads("make_font.py", r"def\s+build_matrix_ttf\b") and
-                      _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")),
+    "⊕SEG-FONT": (
+        "an SVG font whose glyphs are the union of the substrate's lit segments (:1252)",
+        lambda: (
+            _reads("make_font.py", r"def\s+emit_svg_font\b") and _tool("check_font.py")
+        ),
+    ),
+    "⊕SEG-FONT-TTF": (
+        "TTFs built natively from glyph_contours via fontTools, orientation gated on glyf (:1366)",
+        lambda: (
+            _reads("make_font.py", r"def\s+build_ttf\b")
+            and _reads("make_font.py", r"def\s+gate_ttf_orientation\b")
+        ),
+    ),
+    "⊕DOT-FONT": (
+        "the matrix glyph table drives a font: matrix_contours over MatrixDisplay.glyph (:1068)",
+        lambda: _reads("make_font.py", r"def\s+matrix_contours\b"),
+    ),
+    "⊕DOT-FONT-TTF": (
+        "one build_ttf over a contour source; build_matrix_ttf is a thin wrapper (:1425)",
+        lambda: (
+            _reads("make_font.py", r"def\s+build_matrix_ttf\b")
+            and _reads("make_deb.py", r"EL-Matrix|_mf\.OUTPUTS")
+        ),
+    ),
     # closed session 87b (2026-09-22): both had read done by their witnesses and
     # were dropped from the ledger at s86 without closures — check_cotype_coherence
     # caught it. Measured and closed properly there.
     "⊕SOLVER-PERF": (
-        ("make_schemes._solved_grid solves the whole grid once and caches it under a"
-        " content stamp over the solver's sources (.palette-cache.json), bypassed by"
-        " EL_NO_PALETTE_CACHE (:4182)"),
-        lambda: _reads("make_schemes.py", r"def\s+_solved_grid\b") and
-                _reads("make_schemes.py", r"\.palette-cache\.json") and
-                _reads("make_schemes.py", r"EL_NO_PALETTE_CACHE")),
+        (
+            "make_schemes._solved_grid solves the whole grid once and caches it under a"
+            " content stamp over the solver's sources (.palette-cache.json), bypassed by"
+            " EL_NO_PALETTE_CACHE (:4182)"
+        ),
+        lambda: (
+            _reads("make_schemes.py", r"def\s+_solved_grid\b")
+            and _reads("make_schemes.py", r"\.palette-cache\.json")
+            and _reads("make_schemes.py", r"EL_NO_PALETTE_CACHE")
+        ),
+    ),
     "⊕PANEL-LAYOUT": (
-        ("the LnF layout.js builds a bottom panel with kickoff, pager, icontasks, the"
-        " system tray and the EL clock — richer than wallpaper+clock (:2785)"),
-        lambda: _reads("make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.systemtray\"\)") and
-                _reads("make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.icontasks\"\)")),
+        (
+            "the LnF layout.js builds a bottom panel with kickoff, pager, icontasks, the"
+            " system tray and the EL clock — richer than wallpaper+clock (:2785)"
+        ),
+        lambda: (
+            _reads(
+                "make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.systemtray\"\)"
+            )
+            and _reads(
+                "make_deb.py", r"panel\.addWidget\(\"org\.kde\.plasma\.icontasks\"\)"
+            )
+        ),
+    ),
     # closed session 87 (W32, 2026-09-22). The deferral at :2583 names two halves —
     # "bump render px + add SVG blur filter" — and the residue witness looked for
     # the WORD supersample. Measured: cairosvg rasterises the SVG at 2560x1440 for
     # a wallpaper served as 1920x1080 (1.33x), and the SVG carries the #glow
     # feGaussianBlur. Both halves are in the tree; this aims at them.
     "⊕SUPERSAMPLE-WP": (
-        ("the wallpaper PNG is rasterised above its served resolution (cairosvg at"
-        " 2560x1440 for a 1920x1080 wallpaper) from an SVG carrying a Gaussian glow"
-        " filter — the two halves of the deferral (:2583)"),
-        lambda: _reads("make_wallpaper.py", r"output_width=(2[5-9]\d\d|[3-9]\d{3})\b") and
-                _reads("make_wallpaper.py", r"<feGaussianBlur\b") and
-                _reads("make_deb.py", r"1920x1080\.png")),
+        (
+            "the wallpaper PNG is rasterised above its served resolution (cairosvg at"
+            " 2560x1440 for a 1920x1080 wallpaper) from an SVG carrying a Gaussian glow"
+            " filter — the two halves of the deferral (:2583)"
+        ),
+        lambda: (
+            _reads("make_wallpaper.py", r"output_width=(2[5-9]\d\d|[3-9]\d{3})\b")
+            and _reads("make_wallpaper.py", r"<feGaussianBlur\b")
+            and _reads("make_deb.py", r"1920x1080\.png")
+        ),
+    ),
     # closed session 87 (W32, 2026-09-22) BY COLLAPSE into ⊕NOTIFY-MATRIXRENDER.
     # The log's words at :3568 are "render ticker in the actual 7-seg/dot-matrix
     # display lib rather than monospace Text"; s65 corrected the topology (the
@@ -457,115 +627,182 @@ CLOSED = {
     # emitters' one-package ids, the global-alpha guard, the migration route
     # (aliases + the update script) and the gates that resolve the bindings.
     "⊕ONE-THEME": (
-        ("every shipped QML surface (switcher, marquee, clock, live wallpaper) binds"
-        " Kirigami.Theme's View roles instead of baked holes and ships as ONE package;"
-        " legacy ids alias it and a one-shot update migrates a user's containments;"
-        " the LnF stays the selector (catalog/one-theme.md) (:6603)"),
-        lambda: all(_reads(t, r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View")
-                    for t in ("templates/taskswitch-main.qml", "templates/marquee-main.qml",
-                              "templates/clock-main.qml", "templates/live-wallpaper-main.qml")) and
-                not _any(["templates/taskswitch-main.qml", "templates/marquee-main.qml",
-                          "templates/clock-main.qml", "templates/live-wallpaper-main.qml"],
-                         r'property color \w+Color:\s*"?\$(lit|ghost|ground|hot)\b') and
-                _reads("make_wallpaper_live.py", r"def\s+global_alpha\b") and
-                all(_reads(m, r'(?m)^PACKAGE_ID\s*=\s*"org\.el\.') for m in
-                    ("make_taskswitch.py", "make_notify_marquee.py", "make_clock.py", "make_wallpaper_live.py")) and
-                _reads("make_deb.py", r"def\s+legacy_alias_packages\b") and
-                _reads("make_deb.py", r"contents/updates\b") and
-                _reads("catalog/one-theme.md", r"(?m)^## The Look-and-Feel") and
-                _tool("opa_gate.py", "taskswitch") and
-                _tool("check_migration.py")),
+        (
+            "every shipped QML surface (switcher, marquee, clock, live wallpaper) binds"
+            " Kirigami.Theme's View roles instead of baked holes and ships as ONE package;"
+            " legacy ids alias it and a one-shot update migrates a user's containments;"
+            " the LnF stays the selector (catalog/one-theme.md) (:6603)"
+        ),
+        lambda: (
+            all(
+                _reads(t, r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View")
+                for t in (
+                    "templates/taskswitch-main.qml",
+                    "templates/marquee-main.qml",
+                    "templates/clock-main.qml",
+                    "templates/live-wallpaper-main.qml",
+                )
+            )
+            and not _any(
+                [
+                    "templates/taskswitch-main.qml",
+                    "templates/marquee-main.qml",
+                    "templates/clock-main.qml",
+                    "templates/live-wallpaper-main.qml",
+                ],
+                r'property color \w+Color:\s*"?\$(lit|ghost|ground|hot)\b',
+            )
+            and _reads("make_wallpaper_live.py", r"def\s+global_alpha\b")
+            and all(
+                _reads(m, r'(?m)^PACKAGE_ID\s*=\s*"org\.el\.')
+                for m in (
+                    "make_taskswitch.py",
+                    "make_notify_marquee.py",
+                    "make_clock.py",
+                    "make_wallpaper_live.py",
+                )
+            )
+            and _reads("make_deb.py", r"def\s+legacy_alias_packages\b")
+            and _reads("make_deb.py", r"contents/updates\b")
+            and _reads("catalog/one-theme.md", r"(?m)^## The Look-and-Feel")
+            and _tool("opa_gate.py", "taskswitch")
+            and _tool("check_migration.py")
+        ),
+    ),
     # closed session 125 (W54, 2026-09-22): the operator's pinholes — every pip a
     # brightness RANGE, the ink of a supersampled backdrop under its aperture; the
     # marquee's board since the s120 port; relations.md §5b states the relation.
     "⊕APERTURE-FIELD": (
-        ("the matrix field is an aperture integral: ApertureField.qml grades every pip by"
-        " a backdrop's coverage (prefix sums, no shader), the marquee paints its cells"
-        " into that backdrop and scrolls by offset, the viewport is offsetY, and"
-        " check_aperture holds the floor / halfway / lit relation on seen pixels (:7590)"),
-        lambda: _reads("templates/ApertureField.qml", r"(?m)^\s*function integrate\(\)") and
-                _reads("templates/ApertureField.qml", r"(?m)^\s*property real offsetY") and
-                _reads("templates/ApertureField.qml", r"(?m)^\s*property real gamma") and
-                _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
-                # scrolls by offset: since W187 the FrameAnimation writes field.offset per frame
-                _reads("templates/marquee-main.qml", r"(?m)^\s*field\.offset\s*=\s*next;") and
-                _reads("catalog/relations.md", r"(?m)^### 5b\. A pip's brightness") and
-                _reads("templates/marquee-body.js", r"(?m)^function seriesToColumns\(") and
-                _tool("opa_gate.py", "aperture")),
+        (
+            "the matrix field is an aperture integral: ApertureField.qml grades every pip by"
+            " a backdrop's coverage (prefix sums, no shader), the marquee paints its cells"
+            " into that backdrop and scrolls by offset, the viewport is offsetY, and"
+            " check_aperture holds the floor / halfway / lit relation on seen pixels (:7590)"
+        ),
+        lambda: (
+            _reads("templates/ApertureField.qml", r"(?m)^\s*function integrate\(\)")
+            and _reads("templates/ApertureField.qml", r"(?m)^\s*property real offsetY")
+            and _reads("templates/ApertureField.qml", r"(?m)^\s*property real gamma")
+            and _reads("templates/marquee-main.qml", r"ApertureField\s*\{")
+            and
+            # scrolls by offset: since W187 the FrameAnimation writes field.offset per frame
+            _reads("templates/marquee-main.qml", r"(?m)^\s*field\.offset\s*=\s*next;")
+            and _reads("catalog/relations.md", r"(?m)^### 5b\. A pip's brightness")
+            and _reads("templates/marquee-body.js", r"(?m)^function seriesToColumns\(")
+            and _tool("opa_gate.py", "aperture")
+        ),
+    ),
     # closed session 130 (W46, 2026-09-22): the notify-send man page's capabilities on
     # the board — the model's contract measured, urgency as the hot token, transience,
     # actions as runs reaching invokeAction, job progress as a gauge.
     "⊕NOTIFY-CAPABILITIES": (
-        ("the marquee reads urgency, transient, actions and job progress from the host's"
-        " model (its contract measured by check_notify_roles), paints critical in the hot"
-        " token and a job's history as a gauge, and a tap on an action run reaches"
-        " invokeAction — catalog/notify-capabilities.md row by row (:7640)"),
-        lambda: _reads("templates/marquee-main.qml", r"(?m)^\s*property color hotColor:\s*Kirigami\.Theme\.activeTextColor") and
-                _reads("templates/marquee-main.qml", r"Notifications\.UrgencyRole") and
-                _reads("templates/marquee-main.qml", r"Notifications\.TransientRole") and
-                _reads("templates/marquee-main.qml", r"Notifications\.ActionNamesRole") and
-                _reads("templates/marquee-main.qml", r"Notifications\.PercentageRole") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*function tapAt\(x\)") and
-                _reads("templates/marquee-main.qml", r"notifModel\.invokeAction\(") and
-                _reads("templates/marquee-main.qml", r"Body\.seriesToColumns\(") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*signal ringSwapped\(\)") and
-                _reads("templates/marquee-body.js", r"(?m)^function historyAfter\(") and
-                _reads("catalog/notify-capabilities.md", r"(?m)^\| job progress \|") and
-                _tool("opa_gate.py", "notify_roles") and
-                _tool("opa_gate.py", "marquee_body")),
+        (
+            "the marquee reads urgency, transient, actions and job progress from the host's"
+            " model (its contract measured by check_notify_roles), paints critical in the hot"
+            " token and a job's history as a gauge, and a tap on an action run reaches"
+            " invokeAction — catalog/notify-capabilities.md row by row (:7640)"
+        ),
+        lambda: (
+            _reads(
+                "templates/marquee-main.qml",
+                r"(?m)^\s*property color hotColor:\s*Kirigami\.Theme\.activeTextColor",
+            )
+            and _reads("templates/marquee-main.qml", r"Notifications\.UrgencyRole")
+            and _reads("templates/marquee-main.qml", r"Notifications\.TransientRole")
+            and _reads("templates/marquee-main.qml", r"Notifications\.ActionNamesRole")
+            and _reads("templates/marquee-main.qml", r"Notifications\.PercentageRole")
+            and _reads("templates/marquee-main.qml", r"(?m)^\s*function tapAt\(x\)")
+            and _reads("templates/marquee-main.qml", r"notifModel\.invokeAction\(")
+            and _reads("templates/marquee-main.qml", r"Body\.seriesToColumns\(")
+            and _reads("templates/marquee-main.qml", r"(?m)^\s*signal ringSwapped\(\)")
+            and _reads("templates/marquee-body.js", r"(?m)^function historyAfter\(")
+            and _reads("catalog/notify-capabilities.md", r"(?m)^\| job progress \|")
+            and _tool("opa_gate.py", "notify_roles")
+            and _tool("opa_gate.py", "marquee_body")
+        ),
+    ),
     "⊕NOTIFY-SEGRENDER": (
-        ("the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
-        " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)"),
-        lambda: _reads("templates/ApertureField.qml", r"radius:\s*width\s*/\s*2") and
-                _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
-                # a BINDING, not the comment that records the old idiom
-                not _reads("templates/marquee-main.qml", r"(?m)^\s*font\.family\s*:")),
+        (
+            "the ticker renders in the actual dot-matrix primitive (the field's round pips off the"
+            " registry's 5x8 display), not monospace Text — the s65-corrected form (:3568)"
+        ),
+        lambda: (
+            _reads("templates/ApertureField.qml", r"radius:\s*width\s*/\s*2")
+            and _reads("templates/marquee-main.qml", r'displays\["5x8"\]')
+            and
+            # a BINDING, not the comment that records the old idiom
+            not _reads("templates/marquee-main.qml", r"(?m)^\s*font\.family\s*:")
+        ),
+    ),
     # closed session 86 (W31, 2026-09-21). The open witness looked for the words
     # windowswitcher|tabbox|taskswitch in make_plasma or make_deb; the emitter is
     # make_taskswitch over templates/taskswitch-main.qml, selected by the LnF
     # defaults, enumerated by check_ghost_surfaces as a looked-at surface, and
     # checked for shape + lint by check_taskswitch.
     "⊕TASKSWITCH": (
-        ("make_taskswitch emits ONE KWin/WindowSwitcher package (lit selection, ghost rest,"
-        " void ground — the active scheme's roles since W35) selected by [kwinrc][TabBox]"
-        " LayoutName; policy/taskswitch.rego holds the structure, the id, the root, the"
-        " lint and the bindings (:2787)"),
-        lambda: _reads("make_taskswitch.py", r"def\s+main_qml\b") and
-                _reads("templates/taskswitch-main.qml", r"KWin\.TabBoxSwitcher\s*\{") and
-                _reads("make_deb.py", r"_ts\.defaults_fragment\(") and
-                _reads("scripts/check_ghost_surfaces.py", r'"make_taskswitch":\s*"looked_at"') and
-                # W50: the verdict is the rego policy over the measurement, not the check's exit
-                _tool("opa_gate.py", "taskswitch")),
+        (
+            "make_taskswitch emits ONE KWin/WindowSwitcher package (lit selection, ghost rest,"
+            " void ground — the active scheme's roles since W35) selected by [kwinrc][TabBox]"
+            " LayoutName; policy/taskswitch.rego holds the structure, the id, the root, the"
+            " lint and the bindings (:2787)"
+        ),
+        lambda: (
+            _reads("make_taskswitch.py", r"def\s+main_qml\b")
+            and _reads("templates/taskswitch-main.qml", r"KWin\.TabBoxSwitcher\s*\{")
+            and _reads("make_deb.py", r"_ts\.defaults_fragment\(")
+            and _reads(
+                "scripts/check_ghost_surfaces.py", r'"make_taskswitch":\s*"looked_at"'
+            )
+            and
+            # W50: the verdict is the rego policy over the measurement, not the check's exit
+            _tool("opa_gate.py", "taskswitch")
+        ),
+    ),
     # closed session 85 (W31, 2026-09-21). The open witnesses looked for
     # "Inherits=" near "icon"/"cursor" in make_deb or make_plasma; the emitter is
     # make_inherit, selected through the LnF defaults, checked by check_inherit.
     "⊕ICONS-INHERIT": (
-        ("make_inherit.icon_index: an icon theme that inherits breeze(-dark) with"
-        " FollowsColorScheme, selected by the LnF defaults [kdeglobals][Icons] (:2774)"),
-        lambda: _reads("make_inherit.py", r"def\s+icon_index\b") and
-                _reads("make_inherit.py", r"FollowsColorScheme=true") and
-                _reads("make_deb.py", r"_inh\.defaults_fragment\(") and
-                _tool("check_inherit.py")),
+        (
+            "make_inherit.icon_index: an icon theme that inherits breeze(-dark) with"
+            " FollowsColorScheme, selected by the LnF defaults [kdeglobals][Icons] (:2774)"
+        ),
+        lambda: (
+            _reads("make_inherit.py", r"def\s+icon_index\b")
+            and _reads("make_inherit.py", r"FollowsColorScheme=true")
+            and _reads("make_deb.py", r"_inh\.defaults_fragment\(")
+            and _tool("check_inherit.py")
+        ),
+    ),
     "⊕CURSOR-INHERIT": (
-        ("make_inherit.cursor_index: a cursor theme that inherits Breeze cursors by"
-        " ground, selected by the LnF defaults [kcminputrc][Mouse] (:2806)"),
-        lambda: _reads("make_inherit.py", r"def\s+cursor_index\b") and
-                _reads("make_inherit.py", r"def\s+cursor_parent\b") and
-                _reads("make_inherit.py", r"cursorTheme=") and
-                _tool("check_inherit.py")),
+        (
+            "make_inherit.cursor_index: a cursor theme that inherits Breeze cursors by"
+            " ground, selected by the LnF defaults [kcminputrc][Mouse] (:2806)"
+        ),
+        lambda: (
+            _reads("make_inherit.py", r"def\s+cursor_index\b")
+            and _reads("make_inherit.py", r"def\s+cursor_parent\b")
+            and _reads("make_inherit.py", r"cursorTheme=")
+            and _tool("check_inherit.py")
+        ),
+    ),
     # closed session 84 (W28, 2026-09-21). The table, its invariants in the
     # substrate's own selftest (26 over SEG22, the descender glyphs exactly the
     # ones that hang, no two alike, uppercase untouched), and the validation at
     # 22 on the lowercase frame with every tail's bar hit (check_projection).
     "⊕SEG22-DESCENDERS": (
-        ("segment_topology.LETTERS22 (26 lowercase over SEG22, g j p q y on dl/dc/dr,"
-        " DESCENDER_GLYPHS, glyph22) with its arms in the substrate selftest, validated"
-        " at 22 by check_projection on the lowercase frame (:4455)"),
-        lambda: _reads("segment_topology.py", r"(?m)^LETTERS22\s*=") and
-                _reads("segment_topology.py", r"(?m)^DESCENDER_GLYPHS\s*=") and
-                _reads("segment_topology.py", r"def\s+glyph22\b") and
-                _reads("glyph_match.py", r"ST\.glyph22\(") and
-                _tool("check_projection.py", "--descenders")),
+        (
+            "segment_topology.LETTERS22 (26 lowercase over SEG22, g j p q y on dl/dc/dr,"
+            " DESCENDER_GLYPHS, glyph22) with its arms in the substrate selftest, validated"
+            " at 22 by check_projection on the lowercase frame (:4455)"
+        ),
+        lambda: (
+            _reads("segment_topology.py", r"(?m)^LETTERS22\s*=")
+            and _reads("segment_topology.py", r"(?m)^DESCENDER_GLYPHS\s*=")
+            and _reads("segment_topology.py", r"def\s+glyph22\b")
+            and _reads("glyph_match.py", r"ST\.glyph22\(")
+            and _tool("check_projection.py", "--descenders")
+        ),
+    ),
     # closed session 82 (W28, 2026-09-21). The log's criterion at :4644 — "wired to
     # real fontTools glyph ingest and validated across all 44, not the synthetic-
     # stroke PoC" — its open witness wanted those words in project_font. The
@@ -573,189 +810,328 @@ CLOSED = {
     # over every authored key (glyph_match.AUTHORED_CHARS: 46 non-blank now);
     # the convention-gap glyphs are pinned by name and the selftest holds the pin.
     "⊕SEG-FONT-PROJECT": (
-        ("make_glyph_ink ingests native TTF outlines through fontTools and"
-        " validate_projection runs over every authored key by default, the"
-        " convention-gap glyphs pinned in KNOWN_CONVENTION (:4644)"),
-        lambda: _reads("make_glyph_ink.py", r"\bTTFont\b") and
-                _reads("glyph_match.py", r"(?m)^AUTHORED_CHARS\s*=") and
-                _reads("glyph_match.py", r"(?m)^KNOWN_CONVENTION\s*=") and
-                _reads("glyph_match.py", r"chars\s*=\s*AUTHORED_CHARS")),
+        (
+            "make_glyph_ink ingests native TTF outlines through fontTools and"
+            " validate_projection runs over every authored key by default, the"
+            " convention-gap glyphs pinned in KNOWN_CONVENTION (:4644)"
+        ),
+        lambda: (
+            _reads("make_glyph_ink.py", r"\bTTFont\b")
+            and _reads("glyph_match.py", r"(?m)^AUTHORED_CHARS\s*=")
+            and _reads("glyph_match.py", r"(?m)^KNOWN_CONVENTION\s*=")
+            and _reads("glyph_match.py", r"chars\s*=\s*AUTHORED_CHARS")
+        ),
+    ),
     # closed session 81 (W29, 2026-09-21). The open witness looked in the CONTRAST
     # tools for the words "inter-stroke" / "density"; the measurement lives at the
     # join, in check_ghost_composite: the unlit FIELD's cell coverage per format
     # (7: 0.40, 16: 0.80, 22: 0.84) and per dot matrix (0.53), each an effective
     # alpha beside the stroke's — the density the same Lc reads at.
     "⊕GHOST-DENSITY": (
-        ("check_ghost_composite.measure_formats gives the unlit field's cell coverage at"
-        " 7/14/16/22 from the substrate geometry and measure_matrix the dot field's;"
-        " --matrix reports both beside the stroke ghost per variant (:4459)"),
-        lambda: _reads("scripts/check_ghost_composite.py", r"def\s+measure_formats\b") and
-                _reads("scripts/check_ghost_composite.py", r"def\s+measure_matrix\b") and
-                _tool("check_ghost_composite.py", "--matrix")),
+        (
+            "check_ghost_composite.measure_formats gives the unlit field's cell coverage at"
+            " 7/14/16/22 from the substrate geometry and measure_matrix the dot field's;"
+            " --matrix reports both beside the stroke ghost per variant (:4459)"
+        ),
+        lambda: (
+            _reads("scripts/check_ghost_composite.py", r"def\s+measure_formats\b")
+            and _reads("scripts/check_ghost_composite.py", r"def\s+measure_matrix\b")
+            and _tool("check_ghost_composite.py", "--matrix")
+        ),
+    ),
     # closed session 79 (W27, 2026-09-21). Named in glyph_match's banner since
     # s83 (transcript), placed in the ledger at s75, its ceiling measured per
     # class at s78 (round 0.60 over 19). The witness is the arc field, the solved
     # (negative) sagitta, and the sweep mode that refuses a flat landscape.
     "⊕SEG-DOTPRODUCT-TEMPLATES": (
-        ("glyph_match._arc_field bends the outer strokes to an arc; SAGITTA is solved by"
-        " calibrate_projection --arcs (inward), and the round class is measured against"
-        " it by --classes (:5204)"),
-        lambda: _reads("glyph_match.py", r"def\s+_arc_field\b") and
-                _reads("glyph_match.py", r"(?m)^SAGITTA\s*=\s*-") and
-                _tool("check_projection.py", "--classes")),
+        (
+            "glyph_match._arc_field bends the outer strokes to an arc; SAGITTA is solved by"
+            " calibrate_projection --arcs (inward), and the round class is measured against"
+            " it by --classes (:5204)"
+        ),
+        lambda: (
+            _reads("glyph_match.py", r"def\s+_arc_field\b")
+            and _reads("glyph_match.py", r"(?m)^SAGITTA\s*=\s*-")
+            and _tool("check_projection.py", "--classes")
+        ),
+    ),
     # closed session 77 (W6, 2026-09-21). ⚑ THE OPEN WITNESSES MATCHED THE WORDS
     # "matrix" and "rasteri" in the emitter — and the emitter had carried the word
     # "matrix" in a comment since s65. These aim at the registry's extension def,
     # the emitter's recorded font decision, the '?' fallback in the component,
     # and the two tools that measure the table and the ingest.
     "⊕NOTIFY-MATRIXRENDER": (
-        ("the marquee draws its cells off the emitted registry's 5x8 display — since W54 as"
-        " a backdrop behind an ApertureField — and check_display_registry round-trips that"
-        " emission against the substrate (:4524)"),
+        (
+            "the marquee draws its cells off the emitted registry's 5x8 display — since W54 as"
+            " a backdrop behind an ApertureField — and check_display_registry round-trips that"
+            " emission against the substrate (:4524)"
+        ),
         # W54 (s120): the Row of MatrixChar became a backdrop painted from the SAME
         # registry bytes (matrixFont[ch] → column bits → cells) behind ApertureField;
         # the field is still fixed and the glyphs still draw no ghost — the ghost is
         # the field's floor (relations §5b) — so W34's facts hold in their new form
         # W74: the painter's registry lookup goes through Body.glyphFor, which
         # applies urgency's letterform (a display transform) before indexing
-        lambda: _reads("templates/marquee-main.qml", r"Body\.glyphFor\(root\.matrixFont,\s*ch\b") and
-                _reads("templates/marquee-body.js", r"(?m)^function glyphFor\(font, ch, urgency\)") and
-                # the column's bits → cells (was `byte`, renamed 2026-09-25: Qt 6.10 refuses it)
-                _reads("templates/marquee-main.qml", r"\(colBits & \(1 << r\)\)") and
-                _reads("templates/marquee-main.qml", r'displays\["5x8"\]') and
-                _reads("templates/marquee-main.qml", r"ApertureField\s*\{") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*function drawBackdrop\(\)") and
-                # W34 (c): a settings page, its kcfg carrying the solved alpha as the default
-                _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{") and
-                # since W59 the display rows are declared once in display_params and
-                # INCLUDED into the kcfg; the solved-alpha default lives there now
-                _reads("display_params.py", r'Exposed\("ghostAlpha",\s*"\$ghostAlpha"') and
-                _reads("make_notify_marquee.py", r"configGeneral\.qml") and
-                # W38/W45 (operator, live): the traversal invariant — the model UPSERTS
-                # into root.queue, the swap happens in the rotation's onFinished (one
-                # loop) through the pure ringNext, and the rotation is STARTED, never
-                # bound (a finite run overwrites a `running:` binding when it ends)
-                _reads("templates/marquee-main.qml", r"(?m)^\s*property var queue:") and
-                _reads("templates/marquee-main.qml", r"Body\.queueUpsert\(") and
-                _reads("templates/marquee-main.qml", r"Body\.ringNext\(") and
-                # s103 (operator's trace): rows are CAPTURED on rowsInserted — the
-                # real model removes a lone notification before countChanged arrives
-                _reads("templates/marquee-main.qml", r"(?m)^\s*onRowsInserted:") and
-                # W187: the rotation is a FrameAnimation (a fixed pips-per-frame step); ONE
-                # run is the offset reaching `to`, where complete() stops it and swaps
-                _reads("templates/marquee-main.qml", r"(?m)^\s*FrameAnimation\s*\{") and
-                _reads("templates/marquee-main.qml", r"function complete\(\)\s*\{[^}]*rotation\.stop\(\);[^}]*swapRing\(\)") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*function startRun\(\)") and
-                not _reads("templates/marquee-main.qml", r"(?m)^\s*running:\s*marquee") and
-                # W45: the summary is PLAIN, the body is markup — one join in the .js
-                _reads("templates/marquee-body.js", r"(?m)^function joinItem\(") and
-                _reads("templates/marquee-body.js", r"(?m)^function ringNext\(") and
-                _reads("templates/marquee-main.qml", r"Body\.joinItem\(") and
-                # W39: bodies are parsed to text + runs by the shipped .js, never scrolled raw
-                _reads("templates/marquee-main.qml", r'(?m)^import "marquee-body\.js" as Body') and
-                _reads("templates/marquee-body.js", r"(?m)^function parseBody\(") and
-                # W39 widget half: the solved hue table is a hole, a run's colour is a
-                # table LOOKUP, bold is a fuller dot — no colour arithmetic in the widget
-                # W35: every variant's table, keyed by fg; the row is picked from the LIVE lit
-                _reads("templates/marquee-main.qml", r"(?m)^\s*readonly property var hueTables:\s*\$hueTables") and
-                _reads("templates/marquee-main.qml", r"hueTables\[String\(root\.litColor\)\]") and
-                # the run's colour is painted INTO the backdrop (the table's colour) and
-                # read back per pip (ApertureField.colourFromInk); MatrixChar retired s124
-                _reads("templates/marquee-main.qml", r"var colour = root\.overrideFor\(run\)") and
-                _reads("templates/marquee-main.qml", r"(?m)^\s*colourFromInk:\s*true") and
-                _reads("templates/ApertureField.qml", r"(?m)^\s*property bool colourFromInk") and
-                _reads("make_notify_marquee.py", r"MP\.hue_table\(") and
-                # W40: links are underlined (the descent row lit in the backdrop) and a
-                # tap opens the run's href
-                _reads("templates/marquee-main.qml", r"underline && r === root\.matrix\.rows - 1") and
-                # the tap resolves to a run in root.tapAt (W46 s128: actions share it)
-                _reads("templates/marquee-main.qml", r"TapHandler\s*\{[^}]*root\.tapAt\(") and
-                _reads("templates/marquee-main.qml", r"openUrlExternally\(run\.link\)") and
-                _reads("make_notify_marquee.py", r"as_qml_js\(") and
-                _tool("check_display_registry.py")),
+        lambda: (
+            _reads(
+                "templates/marquee-main.qml",
+                r"Body\.glyphFor\(root\.matrixFont,\s*ch\b",
+            )
+            and _reads(
+                "templates/marquee-body.js",
+                r"(?m)^function glyphFor\(font, ch, urgency\)",
+            )
+            and
+            # the column's bits → cells (was `byte`, renamed 2026-09-25: Qt 6.10 refuses it)
+            _reads("templates/marquee-main.qml", r"\(colBits & \(1 << r\)\)")
+            and _reads("templates/marquee-main.qml", r'displays\["5x8"\]')
+            and _reads("templates/marquee-main.qml", r"ApertureField\s*\{")
+            and _reads(
+                "templates/marquee-main.qml", r"(?m)^\s*function drawBackdrop\(\)"
+            )
+            and
+            # W34 (c): a settings page, its kcfg carrying the solved alpha as the default
+            _reads("templates/marquee-config.qml", r"KCM\.SimpleKCM\s*\{")
+            and
+            # since W59 the display rows are declared once in display_params and
+            # INCLUDED into the kcfg; the solved-alpha default lives there now
+            _reads("display_params.py", r'Exposed\(\s*"ghostAlpha",\s*"\$ghostAlpha"')
+            and _reads("make_notify_marquee.py", r"configGeneral\.qml")
+            and
+            # W38/W45 (operator, live): the traversal invariant — the model UPSERTS
+            # into root.queue, the swap happens in the rotation's onFinished (one
+            # loop) through the pure ringNext, and the rotation is STARTED, never
+            # bound (a finite run overwrites a `running:` binding when it ends)
+            _reads("templates/marquee-main.qml", r"(?m)^\s*property var queue:")
+            and _reads("templates/marquee-main.qml", r"Body\.queueUpsert\(")
+            and _reads("templates/marquee-main.qml", r"Body\.ringNext\(")
+            and
+            # s103 (operator's trace): rows are CAPTURED on rowsInserted — the
+            # real model removes a lone notification before countChanged arrives
+            _reads("templates/marquee-main.qml", r"(?m)^\s*onRowsInserted:")
+            and
+            # W187: the rotation is a FrameAnimation (a fixed pips-per-frame step); ONE
+            # run is the offset reaching `to`, where complete() stops it and swaps
+            _reads("templates/marquee-main.qml", r"(?m)^\s*FrameAnimation\s*\{")
+            and _reads(
+                "templates/marquee-main.qml",
+                r"function complete\(\)\s*\{[^}]*rotation\.stop\(\);[^}]*swapRing\(\)",
+            )
+            and _reads("templates/marquee-main.qml", r"(?m)^\s*function startRun\(\)")
+            and not _reads("templates/marquee-main.qml", r"(?m)^\s*running:\s*marquee")
+            and
+            # W45: the summary is PLAIN, the body is markup — one join in the .js
+            _reads("templates/marquee-body.js", r"(?m)^function joinItem\(")
+            and _reads("templates/marquee-body.js", r"(?m)^function ringNext\(")
+            and _reads("templates/marquee-main.qml", r"Body\.joinItem\(")
+            and
+            # W39: bodies are parsed to text + runs by the shipped .js, never scrolled raw
+            _reads(
+                "templates/marquee-main.qml", r'(?m)^import "marquee-body\.js" as Body'
+            )
+            and _reads("templates/marquee-body.js", r"(?m)^function parseBody\(")
+            and
+            # W39 widget half: the solved hue table is a hole, a run's colour is a
+            # table LOOKUP, bold is a fuller dot — no colour arithmetic in the widget
+            # W35: every variant's table, keyed by fg; the row is picked from the LIVE lit
+            _reads(
+                "templates/marquee-main.qml",
+                r"(?m)^\s*readonly property var hueTables:\s*\$hueTables",
+            )
+            and _reads(
+                "templates/marquee-main.qml", r"hueTables\[String\(root\.litColor\)\]"
+            )
+            and
+            # the run's colour is painted INTO the backdrop (the table's colour) and
+            # read back per pip (ApertureField.colourFromInk); MatrixChar retired s124
+            _reads(
+                "templates/marquee-main.qml", r"var colour = root\.overrideFor\(run\)"
+            )
+            and _reads("templates/marquee-main.qml", r"(?m)^\s*colourFromInk:\s*true")
+            and _reads(
+                "templates/ApertureField.qml", r"(?m)^\s*property bool colourFromInk"
+            )
+            and _reads("make_notify_marquee.py", r"MP\.hue_table\(")
+            and
+            # W40: links are underlined (the descent row lit in the backdrop) and a
+            # tap opens the run's href
+            _reads(
+                "templates/marquee-main.qml",
+                r"underline && r === root\.matrix\.rows - 1",
+            )
+            and
+            # the tap resolves to a run in root.tapAt (W46 s128: actions share it)
+            _reads("templates/marquee-main.qml", r"TapHandler\s*\{[^}]*root\.tapAt\(")
+            and _reads("templates/marquee-main.qml", r"openUrlExternally\(run\.link\)")
+            and _reads("make_notify_marquee.py", r"as_qml_js\(")
+            and _tool("check_display_registry.py")
+        ),
+    ),
     "⊕MATRIX-FONT-INPUT": (
-        ("display_types.font_extension rasterises a build-time font (make_notify_marquee."
-        "matrix_font, the decision recorded) into the 5x8 table for Latin-1 beyond the"
-        " authored glyphs; the board falls back to '?'; check_matrix_input measures (:4534)"),
-        lambda: _reads("display_types.py", r"def\s+font_extension\b") and
-                _reads("make_notify_marquee.py", r"def\s+matrix_font\b") and
-                _reads("make_notify_marquee.py", r"font_path=") and
-                # the '?' fallback moved with the painter (drawBackdrop, s120); MatrixChar retired s124
-                # and moved again into Body.glyphKey (W74), the last arm of its fallback
-                _reads("templates/marquee-body.js", r'\(up\.length === 1 && font\[up\]\) \? up : "\?"') and
-                _reads("templates/marquee-main.qml", r"Body\.glyphFor\(root\.matrixFont,") and
-                _tool("check_matrix_input.py")),
+        (
+            "display_types.font_extension rasterises a build-time font (make_notify_marquee."
+            "matrix_font, the decision recorded) into the 5x8 table for Latin-1 beyond the"
+            " authored glyphs; the board falls back to '?'; check_matrix_input measures (:4534)"
+        ),
+        lambda: (
+            _reads("display_types.py", r"def\s+font_extension\b")
+            and _reads("make_notify_marquee.py", r"def\s+matrix_font\b")
+            and _reads("make_notify_marquee.py", r"font_path=")
+            and
+            # the '?' fallback moved with the painter (drawBackdrop, s120); MatrixChar retired s124
+            # and moved again into Body.glyphKey (W74), the last arm of its fallback
+            _reads(
+                "templates/marquee-body.js",
+                r'\(up\.length === 1 && font\[up\]\) \? up : "\?"',
+            )
+            and _reads(
+                "templates/marquee-main.qml", r"Body\.glyphFor\(root\.matrixFont,"
+            )
+            and _tool("check_matrix_input.py")
+        ),
+    ),
     # closed session 75 (W7, 2026-09-21). ⚑ ITS OPEN-SET WITNESS MATCHED "calibrat"
     # and read validate_projection's docstring — which NAMED this symbol as the
     # thing still to do — as its closure. This one aims at the solver def, at the
     # constant it solved (SW_BAND carries the sweep in its comment), and at the
     # tool's --calibrate mode, which refuses a flat sweep.
     "⊕SEG-PROJECT-CALIBRATE": (
-        ("glyph_match.calibrate_projection solves frame x band by agreement over the"
-        " authored table; SW_BAND is its argmax, not a hand-set 0.7 (:4631)"),
-        lambda: _reads("glyph_match.py", r"def\s+calibrate_projection\b") and
-                _reads("glyph_match.py", r"(?m)^SW_BAND\s*=") and
-                # the selftest sweeps a 2x2 and refuses a flat one; the full
-                # --calibrate (14 x 46) pushed --regressions past the gate (s84)
-                _tool("check_projection.py", "--selftest")),
+        (
+            "glyph_match.calibrate_projection solves frame x band by agreement over the"
+            " authored table; SW_BAND is its argmax, not a hand-set 0.7 (:4631)"
+        ),
+        lambda: (
+            _reads("glyph_match.py", r"def\s+calibrate_projection\b")
+            and _reads("glyph_match.py", r"(?m)^SW_BAND\s*=")
+            and
+            # the selftest sweeps a 2x2 and refuses a flat one; the full
+            # --calibrate (14 x 46) pushed --regressions past the gate (s84)
+            _tool("check_projection.py", "--selftest")
+        ),
+    ),
     # closed session 74 (W7, 2026-09-21). ⚑ ITS FIRST WITNESS MATCHED THE WORD
     # "cross-check" in a docstring (s69); this one aims at the def and at the
     # tool that runs it over a font and requires the instrument to discriminate.
     "⊕SEG-TABLE-VALIDATE": (
-        ("glyph_match.validate_projection cross-checks the projection against the authored"
-        " table per glyph, and check_projection runs it and requires distinct projections (:4632)"),
-        lambda: _reads("glyph_match.py", r"def\s+validate_projection\b") and _tool("check_projection.py")),
+        (
+            "glyph_match.validate_projection cross-checks the projection against the authored"
+            " table per glyph, and check_projection runs it and requires distinct projections (:4632)"
+        ),
+        lambda: (
+            _reads("glyph_match.py", r"def\s+validate_projection\b")
+            and _tool("check_projection.py")
+        ),
+    ),
     # closed session 73 (W10, 2026-09-21): three RGB literals became the
     # constellation solve over the selection field; the state nudges became
     # solve_state_steps — the witness names both halves
     "⊕SOLVER-UI-TOKENS": (
-        ("no RGB literal in solve_scheme's token dict, and the hover/selection states"
-        " are solved by solve_state_steps, not authored nudges (:3928)"),
-        lambda: not _reads("make_palette.py", r'"sel_\w+":\s*"\d+,\d+,\d+"') and
-                not _reads("make_palette.py", r'"hover":\s*_s\(_lum_nudge\(accent,\s*-?0\.\d+') and
-                _reads("make_palette.py", r"def\s+solve_state_steps\b") and _tool("check_states.py")),
+        (
+            "no RGB literal in solve_scheme's token dict, and the hover/selection states"
+            " are solved by solve_state_steps, not authored nudges (:3928)"
+        ),
+        lambda: (
+            not _reads("make_palette.py", r'"sel_\w+":\s*"\d+,\d+,\d+"')
+            and not _reads(
+                "make_palette.py", r'"hover":\s*_s\(_lum_nudge\(accent,\s*-?0\.\d+'
+            )
+            and _reads("make_palette.py", r"def\s+solve_state_steps\b")
+            and _tool("check_states.py")
+        ),
+    ),
     # closed session 72 (W9, 2026-09-21): the target resolution is known only at
     # boot, so the emitted .script scales oversampled assets by Window.GetHeight
     "⊕PLYMOUTH-VECTOR": (
-        ("the boot splash is drawn at the screen's size: the emitted .script scales the"
-        " oversampled assets by Window.GetHeight and lays them out at the module pitch (:4228)"),
-        lambda: _plymouth_scales_at_boot()),
+        (
+            "the boot splash is drawn at the screen's size: the emitted .script scales the"
+            " oversampled assets by Window.GetHeight and lays them out at the module pitch (:4228)"
+        ),
+        lambda: _plymouth_scales_at_boot(),
+    ),
     # rebuilt W26 (2026-09-21): the 5x8 table re-authored, baseline as a LINE
-    "⊕DOT-FONT-DESC": (("FONT5x8 with lowercase whose g j p q y descend below a declared baseline line,"
-                       " built into a TTF with negative descent (:1496)"),
-                       lambda: _reads("display_types.py", r"\bFONT5x8_BASELINE\b") and
-                       _reads("make_font.py", r"baseline=") and _tool("check_font.py")),
+    "⊕DOT-FONT-DESC": (
+        (
+            "FONT5x8 with lowercase whose g j p q y descend below a declared baseline line,"
+            " built into a TTF with negative descent (:1496)"
+        ),
+        lambda: (
+            _reads("display_types.py", r"\bFONT5x8_BASELINE\b")
+            and _reads("make_font.py", r"baseline=")
+            and _tool("check_font.py")
+        ),
+    ),
     # rebuilt W25 (2026-09-21), moved here from LOST
-    "⊕VER-WIDGET-ICON": ("the plasmoid icon is a lit '12' over its ghost from the substrate (:2058)",
-                         lambda: _reads("make_preview.py", r"def\s+icon_svg\b") and
-                         _reads("make_deb.py", r"icon_svg\(")),
-    "⊕QML-SANITY": ("every staged .qml goes through Qt's qmllint, gated on error ids (:4318)",
-                    lambda: _reads("qml_sanity.py", r"def\s+check_qml\b") and
-                    _reads("make_deb.py", r"import qml_sanity")),
-    "⊕RENDER-GATE": ("make_deb renders the clock and live wallpaper headless and requires lit pixels (:4545)",
-                     lambda: _reads("make_deb.py", r"render_nonempty\(") and
-                     _reads("qml_sanity.py", r"def\s+render_nonempty\b")),
-    "⊕VER-CLOCK-TIME": ("the clock advances by a Timer (:2184)",
-                        lambda: os.path.isfile(os.path.join(ROOT, "templates", "clock-main.qml")) and
-                        _reads("templates/clock-main.qml", r"Timer\s*\{")),
+    "⊕VER-WIDGET-ICON": (
+        "the plasmoid icon is a lit '12' over its ghost from the substrate (:2058)",
+        lambda: (
+            _reads("make_preview.py", r"def\s+icon_svg\b")
+            and _reads("make_deb.py", r"icon_svg\(")
+        ),
+    ),
+    "⊕QML-SANITY": (
+        "every staged .qml goes through Qt's qmllint, gated on error ids (:4318)",
+        lambda: (
+            _reads("qml_sanity.py", r"def\s+check_qml\b")
+            and _reads("make_deb.py", r"import qml_sanity")
+        ),
+    ),
+    "⊕RENDER-GATE": (
+        "make_deb renders the clock and live wallpaper headless and requires lit pixels (:4545)",
+        lambda: (
+            _reads("make_deb.py", r"render_nonempty\(")
+            and _reads("qml_sanity.py", r"def\s+render_nonempty\b")
+        ),
+    ),
+    "⊕VER-CLOCK-TIME": (
+        "the clock advances by a Timer (:2184)",
+        lambda: (
+            os.path.isfile(os.path.join(ROOT, "templates", "clock-main.qml"))
+            and _reads("templates/clock-main.qml", r"Timer\s*\{")
+        ),
+    ),
 }
 
 # Closed symbols that name NO artifact this tree could carry: palette decisions
 # already witnessed by the worklist's own claims, live observations, naming
 # rulings, and symbols subsumed by a later one. Listed so the sweep's coverage
 # arm is a choice per symbol rather than an omission.
-NO_ARTIFACT = frozenset({
-    "⊕AZR", "⊕AMB", "⊕LIT", "⊕GEN", "⊕ITO", "⊕BRT", "⊕KNB", "⊕GIT",   # palette/process decisions, @GRAPH/@SEPARATION witness them
-    "⊕AUR", "⊕PLA",                                                   # aurorae/plasma: @EMITTERS + @EBUILD stage them
-    "⊕SEG", "⊕SEG16", "⊕SEG16-WIRE", "⊕SEG16-DISTINCT", "⊕SEG-FONT-SPEC-FLIP",  # substrate: @ST22 / segment_topology selftest
-    "⊕DOT-WIRE",                                                      # subsumed by ⊕NOTIFY-MARQUEE
-    "⊕VER-LNF", "⊕VER-DESKTOP", "⊕VER-THUMB", "⊕VER-DEB", "⊕VER-SURFACE",  # observations at the desktop; @EBUILD stages the LnF
-    "⊕GHOST-CONTRAST", "⊕GHOST-CONTRAST-2", "⊕GHOST-CEILING", "⊕HDR-BLACK",  # ghost relations: @GHOST/@GHOSTCOMP
-    "⊕SUPERSAMPLE",                                                   # the clock is scene-graph now (⊕CLOCK-VECTOR); FBO moot
-    "⊕WALLPAPER-CONTRAST",                                            # subsumed by ⊕GLANCE-AUDIT
-    "⊕SOLVER-BACKLIT-CVD", "⊕SOLVER-DEFAULT", "⊕SOLVER-SEMANTIC",     # solver: @PALETTE-CHAIN
-    "⊕SEGMENT-SUBSTRATE", "⊕SEGMENT-ROLLOUT", "⊕CLOCK-VECTOR",        # witnessed in WITNESS (open-set table) / @GEOMETRY
-})
+NO_ARTIFACT = frozenset(
+    {
+        "⊕AZR",
+        "⊕AMB",
+        "⊕LIT",
+        "⊕GEN",
+        "⊕ITO",
+        "⊕BRT",
+        "⊕KNB",
+        "⊕GIT",  # palette/process decisions, @GRAPH/@SEPARATION witness them
+        "⊕AUR",
+        "⊕PLA",  # aurorae/plasma: @EMITTERS + @EBUILD stage them
+        "⊕SEG",
+        "⊕SEG16",
+        "⊕SEG16-WIRE",
+        "⊕SEG16-DISTINCT",
+        "⊕SEG-FONT-SPEC-FLIP",  # substrate: @ST22 / segment_topology selftest
+        "⊕DOT-WIRE",  # subsumed by ⊕NOTIFY-MARQUEE
+        "⊕VER-LNF",
+        "⊕VER-DESKTOP",
+        "⊕VER-THUMB",
+        "⊕VER-DEB",
+        "⊕VER-SURFACE",  # observations at the desktop; @EBUILD stages the LnF
+        "⊕GHOST-CONTRAST",
+        "⊕GHOST-CONTRAST-2",
+        "⊕GHOST-CEILING",
+        "⊕HDR-BLACK",  # ghost relations: @GHOST/@GHOSTCOMP
+        "⊕SUPERSAMPLE",  # the clock is scene-graph now (⊕CLOCK-VECTOR); FBO moot
+        "⊕WALLPAPER-CONTRAST",  # subsumed by ⊕GLANCE-AUDIT
+        "⊕SOLVER-BACKLIT-CVD",
+        "⊕SOLVER-DEFAULT",
+        "⊕SOLVER-SEMANTIC",  # solver: @PALETTE-CHAIN
+        "⊕SEGMENT-SUBSTRATE",
+        "⊕SEGMENT-ROLLOUT",
+        "⊕CLOCK-VECTOR",  # witnessed in WITNESS (open-set table) / @GEOMETRY
+    }
+)
 
 # ⚑ CLOSED SYMBOLS WHOSE BUILD IS KNOWN LOST.  Found by the sweep of 2026-09-21:
 # the design log closes these, the tree does not carry them, and RECOVERY-NOTES
@@ -774,8 +1150,14 @@ LOST: dict[str, tuple[str, Callable[[], bool], str]] = {}
 def open_symbols():
     """{symbol: bucket} for the log's currently-open work."""
     import json
-    r = subprocess.run([sys.executable, INDEX, "--json"],
-                       capture_output=True, text=True, cwd=ROOT, check=False)
+
+    r = subprocess.run(
+        [sys.executable, INDEX, "--json"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     if r.returncode != 0:
         return None
     out = {}
@@ -797,25 +1179,46 @@ def main(argv):
     if "--regressions" in args:
         # exit 0 iff every CLOSED symbol's work is still in the tree.
         if not CLOSED:
-            print("check_symbol: REFUSED — no closed symbol has a witness; the check "
-                  "is vacuous, not the closures intact", file=sys.stderr)
+            print(
+                "check_symbol: REFUSED — no closed symbol has a witness; the check "
+                "is vacuous, not the closures intact",
+                file=sys.stderr,
+            )
             return 2
         gone = [s for s in sorted(CLOSED) if not CLOSED[s][1]()]
         # a LOST entry whose artifact has REAPPEARED is a stale status: refuse it
         stale = [s for s in sorted(LOST) if not LOST[s][1]()]
         if gone or stale:
-            print(f"check_symbol: REGRESSED — {len(gone)} of {len(CLOSED)} closed "
-                  f"symbol(s) no longer have their work in the tree"
-                  + (f"; {len(stale)} LOST entr(y/ies) whose build is back and must move to CLOSED"
-                     if stale else "") + ":", file=sys.stderr)
+            print(
+                f"check_symbol: REGRESSED — {len(gone)} of {len(CLOSED)} closed "
+                f"symbol(s) no longer have their work in the tree"
+                + (
+                    f"; {len(stale)} LOST entr(y/ies) whose build is back and must move to CLOSED"
+                    if stale
+                    else ""
+                )
+                + ":",
+                file=sys.stderr,
+            )
             for s in gone:
                 print(f"    {s}: {CLOSED[s][0]}", file=sys.stderr)
+                miss = _first_miss(CLOSED[s][1])[1]
+                if miss:
+                    print(
+                        f"        first unmet read: {miss[0]} /{miss[1]}/",
+                        file=sys.stderr,
+                    )
             for s in stale:
-                print(f"    {s}: LOST says '{LOST[s][0]}' but the artifact exists", file=sys.stderr)
+                print(
+                    f"    {s}: LOST says '{LOST[s][0]}' but the artifact exists",
+                    file=sys.stderr,
+                )
             return 1
-        print(f"check_symbol: {len(CLOSED)} of {len(CLOSED)} witnessed closed symbols still "
-              f"re-derive from the tree; {len(LOST)} closed symbol(s) KNOWN-LOST"
-              + (", named:" if LOST else ""))
+        print(
+            f"check_symbol: {len(CLOSED)} of {len(CLOSED)} witnessed closed symbols still "
+            f"re-derive from the tree; {len(LOST)} closed symbol(s) KNOWN-LOST"
+            + (", named:" if LOST else "")
+        )
         for s in sorted(LOST):
             print(f"    {s}: {LOST[s][0]} → {LOST[s][2]}")
         return 0
@@ -825,8 +1228,9 @@ def main(argv):
         # ⚑ THE BUCKET IS THE LOG'S OWN UNIT, so a claim per bucket tracks the
         # log's structure rather than imposing one. Per-symbol detail is --status.
         if len(syms) != 1:
-            print("check_symbol: --bucket needs exactly one bucket name",
-                  file=sys.stderr)
+            print(
+                "check_symbol: --bucket needs exactly one bucket name", file=sys.stderr
+            )
             return 2
         want = syms[0].upper().replace("_", " ")
         opn = open_symbols()
@@ -836,8 +1240,11 @@ def main(argv):
         in_bucket = sorted(s for s, b in opn.items() if b.upper() == want)
         members = [s for s in in_bucket if s in WITNESS]
         if in_bucket and not members:
-            print(f"check_symbol: REFUSED — {len(in_bucket)} open symbol(s) in bucket {want!r} "
-                  f"and none witnessed: {in_bucket}", file=sys.stderr)
+            print(
+                f"check_symbol: REFUSED — {len(in_bucket)} open symbol(s) in bucket {want!r} "
+                f"and none witnessed: {in_bucket}",
+                file=sys.stderr,
+            )
             return 2
         if not in_bucket:
             # ⚑ A BUCKET WITH NO OPEN SYMBOL IS CLOSED OUT, NOT UNMEASURED. TIER 3
@@ -848,8 +1255,10 @@ def main(argv):
             return 0
         openv = [s for s in members if not WITNESS[s][1]()]
         if openv:
-            print(f"check_symbol: {want} — {len(openv)} of {len(members)} open:",
-                  file=sys.stderr)
+            print(
+                f"check_symbol: {want} — {len(openv)} of {len(members)} open:",
+                file=sys.stderr,
+            )
             for s in openv:
                 print(f"    {s}: {WITNESS[s][0]}", file=sys.stderr)
             return 1
@@ -870,9 +1279,11 @@ def main(argv):
 
     if "--unwitnessed" in args:
         # LIVE is operator-blocked BY DESIGN, so it is not a gap.
-        gaps = sorted(s for s, b in opn.items()
-                      if b != "LIVE" and s not in WITNESS
-                      and s not in UNWITNESSABLE)
+        gaps = sorted(
+            s
+            for s, b in opn.items()
+            if b != "LIVE" and s not in WITNESS and s not in UNWITNESSABLE
+        )
         for s in gaps:
             print(f"{s}\t{opn[s]}")
         for s, why in sorted(UNWITNESSABLE.items()):
@@ -887,8 +1298,10 @@ def main(argv):
         return 0
 
     if not syms:
-        print("check_symbol: name a symbol, or use --list / --status / --unwitnessed",
-              file=sys.stderr)
+        print(
+            "check_symbol: name a symbol, or use --list / --status / --unwitnessed",
+            file=sys.stderr,
+        )
         return 2
     rc = 0
     for s in syms:
@@ -899,9 +1312,11 @@ def main(argv):
         # `--regressions` sweep. The witness existed; the mode that named it did not.
         table = WITNESS if key in WITNESS else CLOSED
         if key not in table:
-            print(f"check_symbol: REFUSED — no witness for {key}. Operator-blocked "
-                  f"work has none BY DESIGN; anything else is a gap to fill.",
-                  file=sys.stderr)
+            print(
+                f"check_symbol: REFUSED — no witness for {key}. Operator-blocked "
+                f"work has none BY DESIGN; anything else is a gap to fill.",
+                file=sys.stderr,
+            )
             rc = max(rc, 2)
             continue
         what, pred = table[key]
@@ -924,23 +1339,36 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("every witness carries a description",
-          all(w and callable(p) for w, p in WITNESS.values()), True)
-    check("every description cites a log line",
-          all(re.search(r":\d+\)", w) for w, _ in WITNESS.values()), True)
+    check(
+        "every witness carries a description",
+        all(w and callable(p) for w, p in WITNESS.values()),
+        True,
+    )
+    check(
+        "every description cites a log line",
+        all(re.search(r":\d+\)", w) for w, _ in WITNESS.values()),
+        True,
+    )
     opn = open_symbols()
     check("the index answers", opn is not None, True)
     if opn:
         # ⚑ NO NON-LIVE OPEN SYMBOL MAY LACK A WITNESS. That is the migration
         # being complete: prose became predicate for everything a check CAN
         # reach, and the rest is honestly operator-blocked.
-        gaps = sorted(s for s, b in opn.items() if b != "LIVE"
-                      and s not in WITNESS and s not in UNWITNESSABLE)
+        gaps = sorted(
+            s
+            for s, b in opn.items()
+            if b != "LIVE" and s not in WITNESS and s not in UNWITNESSABLE
+        )
         check(f"no unwitnessed non-LIVE open symbol ({gaps})", gaps, [])
-        check("every unwitnessable symbol states why",
-              all(UNWITNESSABLE.values()), True)
-        check("unwitnessable and witnessed are disjoint",
-              sorted(set(UNWITNESSABLE) & set(WITNESS)), [])
+        check(
+            "every unwitnessable symbol states why", all(UNWITNESSABLE.values()), True
+        )
+        check(
+            "unwitnessable and witnessed are disjoint",
+            sorted(set(UNWITNESSABLE) & set(WITNESS)),
+            [],
+        )
         # ⚑ AND NO WITNESS FOR OPERATOR-BLOCKED WORK: a green check there would
         # be an unfalsifiable claim wearing a checkmark.
         live = sorted(s for s, b in opn.items() if b == "LIVE" and s in WITNESS)
@@ -948,26 +1376,58 @@ def _selftest():
     # ⚑ THE CLOSED WITNESSES MUST BE ABLE TO SEE THE REGRESSION THEY EXIST FOR.
     # Synthetic QML, not the tree: equal strokes, and a bloom that is a wider
     # opaque copy rather than a blur (the recovered state of 2026-09-21).
-    equal = ("property real strokeLit: segThick * (1 + 0.25 * weight)\n"
-             "property real strokeGhost: segThick * (1 + 0.25 * weight)\n")
-    weighted = ("property real strokeLit: segThick * (1 + 0.25 * weight)\n"
-                "property real strokeGhost: segThick * (1 - 0.19 * weight)\n")
+    equal = (
+        "property real strokeLit: segThick * (1 + 0.25 * weight)\n"
+        "property real strokeGhost: segThick * (1 + 0.25 * weight)\n"
+    )
+    weighted = (
+        "property real strokeLit: segThick * (1 + 0.25 * weight)\n"
+        "property real strokeGhost: segThick * (1 - 0.19 * weight)\n"
+    )
     check("equal strokes are not stroke-weight", _stroke_ratio(equal), 1.0)
     check("weighted strokes measure > 1", round(_stroke_ratio(weighted), 2), 1.54)
     check("no stroke properties is None", _stroke_ratio("Item {}"), None)
     fake_bloom = "Rectangle { opacity: 0.18; width: thick * 2.1; color: root.litColor }"
-    real_bloom = ("Item {\n  layer.enabled: root.bloom > 0\n  layer.effect: MultiEffect {"
-                  " blurEnabled: true }\n  Rectangle { color: root.litColor }\n}")
-    ghost_bloom = ("Item {\n  layer.enabled: root.bloom > 0\n  layer.effect: MultiEffect {"
-                   " blurEnabled: true }\n  Rectangle { color: root.ghostColor }\n}")
+    real_bloom = (
+        "Item {\n  layer.enabled: root.bloom > 0\n  layer.effect: MultiEffect {"
+        " blurEnabled: true }\n  Rectangle { color: root.litColor }\n}"
+    )
+    ghost_bloom = (
+        "Item {\n  layer.enabled: root.bloom > 0\n  layer.effect: MultiEffect {"
+        " blurEnabled: true }\n  Rectangle { color: root.ghostColor }\n}"
+    )
     check("a wider opaque copy is not a bloom", _bloom_is_blur(fake_bloom), False)
     check("a blurred lit-only layer is", _bloom_is_blur(real_bloom), True)
-    check("a blurred layer that draws the ghost is not", _bloom_is_blur(ghost_bloom), False)
-    check("closed witnesses cite a log line",
-          all(re.search(r":\d+\)", w) for w, _ in CLOSED.values()), True)
-    check("closed and open witnesses are disjoint", sorted(set(CLOSED) & set(WITNESS)), [])
+    check(
+        "a blurred layer that draws the ghost is not",
+        _bloom_is_blur(ghost_bloom),
+        False,
+    )
+    check(
+        "closed witnesses cite a log line",
+        all(re.search(r":\d+\)", w) for w, _ in CLOSED.values()),
+        True,
+    )
+    check(
+        "closed and open witnesses are disjoint", sorted(set(CLOSED) & set(WITNESS)), []
+    )
     check("closed and lost are disjoint", sorted(set(CLOSED) & set(LOST)), [])
-    check("every LOST entry names a rebuild waypoint", all(w.startswith("W") for _r, _p, w in LOST.values()), True)
+    # a regression NAMES the read that failed: the first unmet _reads, not only the symbol
+    check(
+        "a failed read is named",
+        _first_miss(lambda: _reads("pyproject.toml", "no-such-text-xyzzy")),
+        (False, ("pyproject.toml", "no-such-text-xyzzy")),
+    )
+    check(
+        "a held read names nothing",
+        _first_miss(lambda: _reads("pyproject.toml", "el-openglo")),
+        (True, None),
+    )
+    check(
+        "every LOST entry names a rebuild waypoint",
+        all(w.startswith("W") for _r, _p, w in LOST.values()),
+        True,
+    )
     # ⚑ A LOST ENTRY MUST STILL BE LOST — otherwise it is the stale status this
     # repo forbids, one level up.
     back = [s for s, (_r, p, _w) in LOST.items() if not p()]
@@ -978,17 +1438,28 @@ def _selftest():
     # a choice, not an omission.
     if opn is not None:
         import json as _json
-        r = subprocess.run([sys.executable, INDEX, "--json"], capture_output=True, text=True, cwd=ROOT,
-                           check=False)
-        closed_syms = {s for s, m in _json.loads(r.stdout)["symbols"].items() if m["closed"]}
+
+        r = subprocess.run(
+            [sys.executable, INDEX, "--json"],
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=False,
+        )
+        closed_syms = {
+            s for s, m in _json.loads(r.stdout)["symbols"].items() if m["closed"]
+        }
         unaccounted = sorted(closed_syms - set(CLOSED) - set(LOST) - NO_ARTIFACT)
-        check(f"every closed symbol is witnessed, known-lost, or listed as artifact-free ({unaccounted})",
-              unaccounted, [])
+        check(
+            f"every closed symbol is witnessed, known-lost, or listed as artifact-free ({unaccounted})",
+            unaccounted,
+            [],
+        )
     # every predicate must RUN without raising
     for s, (_w, p) in list(WITNESS.items()) + list(CLOSED.items()):
         try:
             p()
-        except Exception as e:                      # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
             check(f"{s} predicate runs", f"raised {e}", "ok")
     print("check_symbol selftest:", "PASS" if ok else "FAIL")
     return ok

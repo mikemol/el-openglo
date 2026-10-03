@@ -38,6 +38,7 @@ mangled key while ignoring a wrong colour still flips here. This answers
 perturbation was not one the check's question ranges over. The probe names what
 it corrupted so a reader can judge that rather than trust the boolean.
 """
+
 import json
 import os
 import subprocess
@@ -89,9 +90,12 @@ PROBES = (
     # check's inputs — which is exactly why the Δ grader's corruption misses and
     # reports "blind to all project content". The inputs are undeclared; the
     # grader and I are both inferring, and inference is what W61 replaces.
-    ("selection-contrast/emitted-colors",
-     ["scripts/check_selection_contrast.py"], "EL-Amber.colors",
-     ("[Colors:Selection]", "[Colors:SelectionWAS]")),
+    (
+        "selection-contrast/emitted-colors",
+        ["scripts/check_selection_contrast.py"],
+        "EL-Amber.colors",
+        ("[Colors:Selection]", "[Colors:SelectionWAS]"),
+    ),
     # ⚑ AND THE SECOND AUTHORITY IS A DIFFERENT FILE PER CHECK, WHICH IS THE
     # MECHANISM. A probe at make_preview.py did not flip check_selection_contrast
     # — measured by `pycodemod --importers make_preview`, that check is NOT among
@@ -100,8 +104,12 @@ PROBES = (
     # and the miss reports as "the check is blind to all project content".
     # a def-DROP in the authority: its body becomes an uncatchable raise, so a
     # consumer flips only if it actually EXERCISES that function
-    ("selection-contrast/authority",
-     ["scripts/check_selection_contrast.py"], "make_schemes.py", "def:_solved_grid"),
+    (
+        "selection-contrast/authority",
+        ["scripts/check_selection_contrast.py"],
+        "make_schemes.py",
+        "def:_solved_grid",
+    ),
     # ⚑ AIMED AT THE POPULATION, NOT THE PREDICATE. check_token_source asks a
     # STRUCTURAL question ("does this emitter import an authority?") that a
     # def-rename inside the authority cannot disturb — so the make_schemes probe
@@ -113,21 +121,31 @@ PROBES = (
     # drops the sixth element of the ROLES literal by AST — the same perturbation
     # the hand-rolled anchor was reaching for, minus the ambiguity that made the
     # first attempt grade the wrong declaration.
-    ("token-source/roster",
-     ["scripts/check_token_source.py"], "emitters.py", "data-:ROLES#5"),
-    ("css/emitted-sheet",
-     ["scripts/check_css.py"], "make_css.py", "def:_is_rgb"),
+    (
+        "token-source/roster",
+        ["scripts/check_token_source.py"],
+        "emitters.py",
+        "data-:ROLES#5",
+    ),
+    ("css/emitted-sheet", ["scripts/check_css.py"], "make_css.py", "def:_is_rgb"),
     # ⚑ W65 SWEEP, batch A: each emitter carries its OWN typed VARIANTS list, and each
     # check iterated THAT — so dropping a variant from the emitter shrank the
     # check's population with it (36 of 36 -> 30 of 30, rc 0). The probe drops
     # one member of the emitter's roster; it must flip once the check measures
     # against make_schemes.GRID.
-    ("gtk/variant-roster",
-     ["scripts/check_gtk.py"], "make_gtk.py", "data-:VARIANTS#5"),
-    ("firefox/variant-roster",
-     ["scripts/check_firefox.py"], "make_firefox.py", "data-:VARIANTS#5"),
-    ("windows/variant-roster",
-     ["scripts/check_windows.py"], "make_windows.py", "data-:VARIANTS#5"),
+    ("gtk/variant-roster", ["scripts/check_gtk.py"], "make_gtk.py", "data-:VARIANTS#5"),
+    (
+        "firefox/variant-roster",
+        ["scripts/check_firefox.py"],
+        "make_firefox.py",
+        "data-:VARIANTS#5",
+    ),
+    (
+        "windows/variant-roster",
+        ["scripts/check_windows.py"],
+        "make_windows.py",
+        "data-:VARIANTS#5",
+    ),
     # ⚑ W65 SWEEP, batch B (check_terminals / check_inherit / check_monet). Each probe drops
     # ONE MEMBER from a roster the check iterates, never touching a predicate.
     # The typed-in-the-check rosters (check_terminals' FORMATS, check_monet's
@@ -135,21 +153,40 @@ PROBES = (
     # literal"), which is the measurement that the member-removing path no
     # longer exists. The rosters that remain are EMITTER declarations the check
     # holds against an authority, and dropping a member of one must REFUSE.
-    ("terminals/format-roster",
-     ["scripts/check_terminals.py"], "make_konsole.py", "data-:TERMINAL_FORMATS#4"),
-    ("terminals/typed-formats",
-     ["scripts/check_terminals.py"], "scripts/check_terminals.py", "data-:FORMATS#4"),
-    ("inherit/variant-roster",
-     ["scripts/check_inherit.py"], "make_inherit.py", "data-:VARIANTS#5"),
-    ("monet/typed-variants",
-     ["scripts/check_monet.py"], "scripts/check_monet.py", "data-:VARIANTS#5"),
+    (
+        "terminals/format-roster",
+        ["scripts/check_terminals.py"],
+        "make_konsole.py",
+        "data-:TERMINAL_FORMATS#4",
+    ),
+    (
+        "terminals/typed-formats",
+        ["scripts/check_terminals.py"],
+        "scripts/check_terminals.py",
+        "data-:FORMATS#4",
+    ),
+    (
+        "inherit/variant-roster",
+        ["scripts/check_inherit.py"],
+        "make_inherit.py",
+        "data-:VARIANTS#5",
+    ),
+    (
+        "monet/typed-variants",
+        ["scripts/check_monet.py"],
+        "scripts/check_monet.py",
+        "data-:VARIANTS#5",
+    ),
     # ⚑ W63: the marquee harness moved onto the ANIMATION clock so load cannot make
     # it deny; this proves it still CAN deny. The rotation is never started — the
     # dead-rotation shape (COTYPE s98) on the real widget, not a typed trace — and
     # the board shows text that never scrolls (L1).
-    ("marquee-live/dead-rotation",
-     ["scripts/opa_gate.py", "marquee_live"], "templates/marquee-main.qml",
-     ("rotation.start();", "/* rotation.start() */;")),
+    (
+        "marquee-live/dead-rotation",
+        ["scripts/opa_gate.py", "marquee_live"],
+        "templates/marquee-main.qml",
+        ("rotation.start();", "/* rotation.start() */;"),
+    ),
 )
 
 
@@ -170,7 +207,7 @@ def _drop_bytecode(path):
     cache = os.path.join(d, "__pycache__")
     if not os.path.isdir(cache):
         return
-    stem = base[:-len(".py")]
+    stem = base[: -len(".py")]
     for f in os.listdir(cache):
         if f.startswith(stem + ".") and f.endswith(".pyc"):
             try:
@@ -190,8 +227,13 @@ def _write_bytes(path, data):
 
 
 def _run(argv):
-    r = subprocess.run([sys.executable] + [os.path.join(ROOT, argv[0])] + argv[1:],
-                       capture_output=True, text=True, cwd=ROOT, check=False)
+    r = subprocess.run(
+        [sys.executable] + [os.path.join(ROOT, argv[0])] + argv[1:],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     return r.returncode, (r.stdout + r.stderr).strip().splitlines()[-1:] or [""]
 
 
@@ -203,24 +245,37 @@ def _perturb(path, how):
     if isinstance(how, str):
         if not os.path.isfile(MUTATE):
             return None, f"paperkit's mutate.py is not at {MUTATE} on this host"
-        r = subprocess.run([sys.executable, MUTATE, path, how],
-                           capture_output=True, text=True, cwd=ROOT, check=False)
+        r = subprocess.run(
+            [sys.executable, MUTATE, path, how],
+            capture_output=True,
+            text=True,
+            cwd=ROOT,
+            check=False,
+        )
         if r.returncode != 0:
             # ⚑ LOUD UPSTREAM, WITHHELD HERE. mutate.py raises on a spec that
             # names no such element, which is exactly the miss this tool reports
             # rather than grading a corruption it never applied.
-            return None, f"mutate.py {how}: {r.stderr.strip().splitlines()[-1:] or ['failed']}"
+            return (
+                None,
+                f"mutate.py {how}: {r.stderr.strip().splitlines()[-1:] or ['failed']}",
+            )
         out = r.stdout.encode()
         if out == original:
-            return None, f"mutate.py {how} produced a byte-identical module — nothing was perturbed"
+            return (
+                None,
+                f"mutate.py {how} produced a byte-identical module — nothing was perturbed",
+            )
         return out, f"mutate.py {how}"
     old, new = how
     hits = original.count(old.encode())
     if hits == 0:
         return None, f"does not contain {old!r} — nothing was perturbed"
     if hits > 1:
-        return None, (f"contains {old!r} {hits} times — an ambiguous anchor perturbs "
-                      f"whichever comes first; make it unique")
+        return None, (
+            f"contains {old!r} {hits} times — an ambiguous anchor perturbs "
+            f"whichever comes first; make it unique"
+        )
     return original.replace(old.encode(), new.encode(), 1), f"{old!r} -> {new!r}"
 
 
@@ -246,19 +301,27 @@ def probe(p):
     finally:
         _write_bytes(path, original)
         _drop_bytecode(path)
-    return {"name": name, "check": argv[0], "input": rel,
-            "perturbation": how_desc,
-            "rc_before": rc_before, "rc_after": rc_after,
-            "before": out_before[0], "after": out_after[0],
-            "flipped": rc_before == 0 and rc_after != 0}
+    return {
+        "name": name,
+        "check": argv[0],
+        "input": rel,
+        "perturbation": how_desc,
+        "rc_before": rc_before,
+        "rc_after": rc_after,
+        "before": out_before[0],
+        "after": out_after[0],
+        "flipped": rc_before == 0 and rc_after != 0,
+    }
 
 
 def measure():
     cases = [probe(p) for p in PROBES]
-    return {"cases": cases,
-            "n": len(cases),
-            "flipped": sum(1 for c in cases if c.get("flipped")),
-            "withheld": sum(1 for c in cases if "withheld" in c)}
+    return {
+        "cases": cases,
+        "n": len(cases),
+        "flipped": sum(1 for c in cases if c.get("flipped")),
+        "withheld": sum(1 for c in cases if "withheld" in c),
+    }
 
 
 def _selftest():
@@ -266,8 +329,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}"
-              + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     print("check_discriminates selftest:")
@@ -275,41 +340,72 @@ def _selftest():
     # ⚑ THE HARNESS MUST SEE A FLIP IT KNOWS IS THERE. A probe whose anchor is
     # absent must report WITHHELD, never a quiet non-flip — the two readings
     # demand opposite work, which is the whole subject of this tool.
-    absent = ("absent-anchor", ["scripts/check_selection_contrast.py"], "EL-Amber.colors",
-              ("THIS-STRING-IS-NOT-IN-THE-FILE", "x"))
-    chk("an anchor that is absent is WITHHELD, not a non-flip",
-        "withheld" in probe(absent), True)
-    missing = ("absent-file", ["scripts/check_selection_contrast.py"], "no-such-file.colors",
-               ("a", "b"))
+    absent = (
+        "absent-anchor",
+        ["scripts/check_selection_contrast.py"],
+        "EL-Amber.colors",
+        ("THIS-STRING-IS-NOT-IN-THE-FILE", "x"),
+    )
+    chk(
+        "an anchor that is absent is WITHHELD, not a non-flip",
+        "withheld" in probe(absent),
+        True,
+    )
+    missing = (
+        "absent-file",
+        ["scripts/check_selection_contrast.py"],
+        "no-such-file.colors",
+        ("a", "b"),
+    )
     chk("a missing input is WITHHELD", "withheld" in probe(missing), True)
     # ⚑ AN AMBIGUOUS ANCHOR MUST BE WITHHELD, NOT SILENTLY FIRST-MATCHED. Measured
     # 2026-09-22: '"make_css"' occurs in emitters.ORDER before emitters.ROLES, so
     # the probe corrupted a declaration it did not mean to and reported "does NOT
     # flip" about a perturbation it had never applied where it intended.
-    ambiguous = ("ambiguous-anchor", ["scripts/check_token_source.py"], "emitters.py",
-                 ("make_css", "make_cssWAS"))
+    ambiguous = (
+        "ambiguous-anchor",
+        ["scripts/check_token_source.py"],
+        "emitters.py",
+        ("make_css", "make_cssWAS"),
+    )
     chk("an ambiguous anchor is WITHHELD", "withheld" in probe(ambiguous), True)
     # ⚑ THE SPEC PATH MUST WITHHOLD TOO, and for the upstream reason: mutate.py is
     # LOUD (KeyError) on a spec naming no such element, so a miss can never become
     # a silent no-op that reads as "the check is blind".
-    bogus = ("bogus-spec", ["scripts/check_token_source.py"], "emitters.py",
-             "data-:NO_SUCH_LITERAL#0")
+    bogus = (
+        "bogus-spec",
+        ["scripts/check_token_source.py"],
+        "emitters.py",
+        "data-:NO_SUCH_LITERAL#0",
+    )
     chk("a spec naming no such element is WITHHELD", "withheld" in probe(bogus), True)
-    chk("and the two paths are distinguishable",
-        (isinstance(PROBES[0][3], tuple), isinstance(PROBES[2][3], str)), (True, True))
+    chk(
+        "and the two paths are distinguishable",
+        (isinstance(PROBES[0][3], tuple), isinstance(PROBES[2][3], str)),
+        (True, True),
+    )
     # and the file survives every path
     before = _read_bytes(os.path.join(ROOT, "EL-Amber.colors"))
     probe(PROBES[0])
-    chk("the input is restored after a probe",
-        _read_bytes(os.path.join(ROOT, "EL-Amber.colors")), before)
+    chk(
+        "the input is restored after a probe",
+        _read_bytes(os.path.join(ROOT, "EL-Amber.colors")),
+        before,
+    )
     # ⚑ AND THE MODULE IS RESTORED, NOT ONLY THE FILE. A same-length swap inside
     # one second leaves a .pyc that (mtime, size) validation accepts, so the
     # corrupted bytecode outlives the corrupted source — a contamination path
     # between probes that no per-probe assertion about the FILE can see.
     probe(PROBES[2])
     import subprocess as _sp
-    after = _sp.run([sys.executable, os.path.join(ROOT, "emitters.py"), "--drift"],
-                    capture_output=True, text=True, cwd=ROOT, check=False)
+
+    after = _sp.run(
+        [sys.executable, os.path.join(ROOT, "emitters.py"), "--drift"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     chk("the module is restored too, not just the file", after.returncode, 0)
     print("check_discriminates selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
@@ -325,7 +421,7 @@ def main(argv):
             print("check_discriminates: --probe needs a name", file=sys.stderr)
             return 2
         only = args[i + 1]
-        del args[i:i + 2]
+        del args[i : i + 2]
     for a in args:
         if a not in known:
             print(f"check_discriminates: unknown flag {a!r}", file=sys.stderr)
@@ -342,8 +438,10 @@ def main(argv):
         return 0
     ps = [p for p in PROBES if only is None or p[0] == only]
     if only is not None and not ps:
-        print(f"check_discriminates: no probe named {only!r}; --list shows them",
-              file=sys.stderr)
+        print(
+            f"check_discriminates: no probe named {only!r}; --list shows them",
+            file=sys.stderr,
+        )
         return 2
     cases = [probe(p) for p in ps]
     if "--json" in args:
@@ -360,13 +458,17 @@ def main(argv):
         print(f"                 after  rc={c['rc_after']}  {c['after']}")
     graded = [c for c in cases if "withheld" not in c]
     if not graded:
-        print("\ncheck_discriminates: REFUSED — every probe was withheld; "
-              "nothing was graded, which is not the same as nothing being wrong",
-              file=sys.stderr)
+        print(
+            "\ncheck_discriminates: REFUSED — every probe was withheld; "
+            "nothing was graded, which is not the same as nothing being wrong",
+            file=sys.stderr,
+        )
         return 3
     flipped = sum(1 for c in graded if c["flipped"])
-    print(f"\ncheck_discriminates: {flipped} of {len(graded)} graded probe(s) flip "
-          f"({len(cases) - len(graded)} withheld)")
+    print(
+        f"\ncheck_discriminates: {flipped} of {len(graded)} graded probe(s) flip "
+        f"({len(cases) - len(graded)} withheld)"
+    )
     return 0 if flipped == len(graded) else 1
 
 

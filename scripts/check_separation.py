@@ -34,6 +34,7 @@ dE 11.8 against need 8.78), so the remaining gap is non-constellation pairs, whi
 `check_palette_graph.py --edges` shows.  A green run here means "every declared pair
 clears", never "every pair that matters clears".
 """
+
 import os
 import sys
 
@@ -47,13 +48,14 @@ import palette_graph as PG
 def variants():
     """[(id, token-dict)] for every solved variant — the same GRID the emitters ship."""
     import make_schemes
+
     grid = getattr(make_schemes, "GRID", None) or {}
     out = []
-    for value in (grid.values() if isinstance(grid, dict) else grid):
-        for scheme in (value if isinstance(value, (list, tuple)) else (value,)):
+    for value in grid.values() if isinstance(grid, dict) else grid:
+        for scheme in value if isinstance(value, (list, tuple)) else (value,):
             if isinstance(scheme, dict) and "id" in scheme:
                 out.append((scheme["id"], scheme))
-                break                      # the 2nd element is the dark COUNTERPART
+                break  # the 2nd element is the dark COUNTERPART
     return out
 
 
@@ -81,12 +83,19 @@ def measure(vs=None, enforced=None):
             cases.append(case)
     # W199: slots the solver filled by its unchecked last-resort fallback, as the token
     # names them (make_palette.solve_scheme `sem_infeasible`, present only when non-empty)
-    infeasible = [{"variant": vid, "slots": t["sem_infeasible"].split(",")}
-                  for vid, t in vs if t.get("sem_infeasible")]
-    return {"variants": [v for v, _t in vs], "enforced": [n for n, _a, _b in enforced],
-            "infeasible": infeasible,
-            "surfaced": [n for n, _a, _b in C.SURFACED],
-            "floor": round(C.reference_floor()[0], 4), "cases": cases}
+    infeasible = [
+        {"variant": vid, "slots": t["sem_infeasible"].split(",")}
+        for vid, t in vs
+        if t.get("sem_infeasible")
+    ]
+    return {
+        "variants": [v for v, _t in vs],
+        "enforced": [n for n, _a, _b in enforced],
+        "infeasible": infeasible,
+        "surfaced": [n for n, _a, _b in C.SURFACED],
+        "floor": round(C.reference_floor()[0], 4),
+        "cases": cases,
+    }
 
 
 def main(argv):
@@ -97,6 +106,7 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     if "--surfaced" in argv:
@@ -105,6 +115,7 @@ def main(argv):
             C.audit_variant(t, floor)
         return 0
     import opa_gate
+
     return opa_gate.gate("separation")
 
 
@@ -133,43 +144,73 @@ def _selftest():
 
     floor = C.reference_floor()[0]
     m = measure()
-    check("the real palette is measured, every pair read",
-          (len(m["cases"]) == len(m["variants"]) * len(m["enforced"]) > 0,
-           [c["id"] for c in m["cases"] if c["dE"] is None]), (True, []))
+    check(
+        "the real palette is measured, every pair read",
+        (
+            len(m["cases"]) == len(m["variants"]) * len(m["enforced"]) > 0,
+            [c["id"] for c in m["cases"] if c["dE"] is None],
+        ),
+        (True, []),
+    )
     check("the authority declares enforced pairs", len(C.ENFORCED) > 0, True)
     # W199: a variant whose token names an infeasible slot is REPORTED, not skipped
     flagged = dict(broken_fixture(), sem_infeasible="neu,sel_pos")
-    check("an infeasible fallback slot is measured",
-          measure(vs=[("SELFTEST-INF", flagged)])["infeasible"],
-          [{"variant": "SELFTEST-INF", "slots": ["neu", "sel_pos"]}])
+    check(
+        "an infeasible fallback slot is measured",
+        measure(vs=[("SELFTEST-INF", flagged)])["infeasible"],
+        [{"variant": "SELFTEST-INF", "slots": ["neu", "sel_pos"]}],
+    )
     # the SOLVER names its fallback: a floor of 21:1 (white on black) no in-sector colour
     # on a mid grey can reach, relaxed no lower than 20, forces the last resort
     import make_palette as MP
+
     _c, _s, bad = MP.solve_semantic_set_checked(
-        {"neg": C.SECTORS["neg"]}, (128, 128, 128), (255, 255, 255), 21.0, relax_min=20.0)
+        {"neg": C.SECTORS["neg"]},
+        (128, 128, 128),
+        (255, 255, 255),
+        21.0,
+        relax_min=20.0,
+    )
     check("the solver reports a fallback slot infeasible", bad, ["neg"])
     _c, _s, ok_bad = MP.solve_semantic_set_checked(
-        {"neg": C.SECTORS["neg"]}, (6, 11, 13), (0, 200, 200), 4.6)
+        {"neg": C.SECTORS["neg"]}, (6, 11, 13), (0, 200, 200), 4.6
+    )
     check("a satisfiable slot is not reported", ok_bad, [])
-    check("a fully feasible palette reports no infeasible slot",
-          measure()["infeasible"], [])
+    check(
+        "a fully feasible palette reports no infeasible slot",
+        measure()["infeasible"],
+        [],
+    )
     # W198: every pair min_pair optimises is gated (15 = K6 on the constellation)
     con = PG.CONSTELLATION
     gated = {tuple(sorted((a, b))) for _n, a, b in C.ENFORCED}
-    check("every constellation pair is enforced",
-          sorted(tuple(sorted((u, v))) for i, u in enumerate(con) for v in con[i + 1:]
-                 if tuple(sorted((u, v))) not in gated), [])
+    check(
+        "every constellation pair is enforced",
+        sorted(
+            tuple(sorted((u, v)))
+            for i, u in enumerate(con)
+            for v in con[i + 1 :]
+            if tuple(sorted((u, v))) not in gated
+        ),
+        [],
+    )
     # W196: focus~semantic were the only SURFACED pairs and are now ENFORCED, so an empty
     # surfaced class is a correct state, not a broken read. What must hold is the WIRING:
     # SURFACED is the authority's projection, whatever its size (falsifiable either way).
-    check("SURFACED is the authority's projection",
-          set(C.SURFACED), set(PG.gate_pairs("surfaced")))
+    check(
+        "SURFACED is the authority's projection",
+        set(C.SURFACED),
+        set(PG.gate_pairs("surfaced")),
+    )
 
     # ⚑ THE PAIRS COME FROM THE AUTHORITY.  If palette_graph and cvd_gate disagreed, this
     # would be gating a different set than the one declared — check_palette_graph gates
     # that they agree, and this asserts the wiring is live rather than a coincidence.
-    check("ENFORCED is the authority's projection",
-          set(C.ENFORCED), set(PG.gate_pairs("enforced")))
+    check(
+        "ENFORCED is the authority's projection",
+        set(C.ENFORCED),
+        set(PG.gate_pairs("enforced")),
+    )
 
     import contextlib
     import io
@@ -188,11 +229,19 @@ def _selftest():
     check("sees identical colours as violations", len(viol), len(C.ENFORCED))
     # ...and the MEASUREMENT sees them too: every pair at dE 0. That dE 0 is
     # DENIED is policy/separation_test.rego's ruling.
-    check("the measurement reads identical colours as dE 0",
-          {c["dE"] for c in measure(vs=[("SELFTEST-BAD", broken)])["cases"]}, {0.0})
-    check("a variant missing a token is measured as unreadable, not skipped",
-          [c["why"] is not None for c in measure(vs=[("SELFTEST-EMPTY", {"id": "x"})])["cases"]],
-          [True] * len(C.ENFORCED))
+    check(
+        "the measurement reads identical colours as dE 0",
+        {c["dE"] for c in measure(vs=[("SELFTEST-BAD", broken)])["cases"]},
+        {0.0},
+    )
+    check(
+        "a variant missing a token is measured as unreadable, not skipped",
+        [
+            c["why"] is not None
+            for c in measure(vs=[("SELFTEST-EMPTY", {"id": "x"})])["cases"]
+        ],
+        [True] * len(C.ENFORCED),
+    )
 
     # and a variant built from the Okabe-Ito reference itself: must NOT violate
     names = list(C.OKABE_ITO)
@@ -202,14 +251,19 @@ def _selftest():
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         viol_ok = C.audit_variant(good, floor)
-    check("a spread palette is not flagged wholesale", len(viol_ok) < len(C.ENFORCED), True)
+    check(
+        "a spread palette is not flagged wholesale",
+        len(viol_ok) < len(C.ENFORCED),
+        True,
+    )
 
     # ⟡PARAMETRIC: the pair list is an argument, so a hypothetical edge set can be audited
     # without mutating module state.
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        viol_p = C.audit_variant(broken, floor,
-                                 enforced=[("probe", "neg", "pos")], surfaced=[])
+        viol_p = C.audit_variant(
+            broken, floor, enforced=[("probe", "neg", "pos")], surfaced=[]
+        )
     check("the pair list is parametric", len(viol_p), 1)
 
     print("check_separation selftest:", "PASS" if ok else "FAIL")

@@ -51,6 +51,7 @@ solved target. That last step is a projection, and it is why `solve_ghost_t`
 returns the parameter and its exactness separately from the colour: the relation
 is the answer, and a particular colour is a READ of it.
 """
+
 from __future__ import annotations
 
 import cvd_gate as C
@@ -109,7 +110,7 @@ def solve_ghost_t(lit, ground):
     # the segment runs from lit to ground; luminance is monotone along it, but
     # which END is brighter depends on polarity (off vs backlit).
     ascending = hi_v > lo_v
-    for _ in range(60):                     # 2^-60 on t: far below 8-bit quantisation
+    for _ in range(60):  # 2^-60 on t: far below 8-bit quantisation
         mid = (lo + hi) / 2.0
         v = lum_at(mid)
         if (v < target) == ascending:
@@ -153,6 +154,7 @@ def solve_ceiling_t(lit, ground, ceiling_lc):
     machine precision. Returns (t, lc_at_t) with lc_at_t < ceiling guaranteed, or
     (None, None) when the whole segment already fails the ceiling — a REFUSAL
     rather than a silent midpoint."""
+
     def lc_at(t):
         return abs(C.apca_Lc(C._lerp(lit, ground, t), ground))
 
@@ -164,13 +166,13 @@ def solve_ceiling_t(lit, ground, ceiling_lc):
     if lo_v < ceiling_lc:
         return 0.0, lo_v
     if hi_v >= ceiling_lc:
-        return None, None                  # nothing on the segment is under it
+        return None, None  # nothing on the segment is under it
     for _ in range(60):
         mid = (lo + hi) / 2.0
         if lc_at(mid) >= ceiling_lc:
-            lo = mid                       # still too readable: move toward ground
+            lo = mid  # still too readable: move toward ground
         else:
-            hi = mid                       # under the ceiling: this side is feasible
+            hi = mid  # under the ceiling: this side is feasible
     return hi, lc_at(hi)
 
 
@@ -196,8 +198,10 @@ def solve_floor_t(lit, ground, floor_lc):
 
     ⚑ IN APCA, LIKE THE CEILING.  This solved a WCAG floor until 2026-09-20; see
     `cvd_gate.feasible_ghost_floor` (residue) for why one metric is required."""
+
     def ratio_at(t):
         return abs(C.apca_Lc(C._lerp(lit, ground, t), ground))
+
     if ratio_at(0.0) < floor_lc:
         return None
     lo, hi = 0.0, 1.0
@@ -270,12 +274,16 @@ def solve_ghost_alpha(pairs, ceiling_lc=None):
     for vid, lit, ground in pairs:
         a = alpha_min(lit, ground)
         if a is None:
-            raise ValueError(f"{vid}: the lit colour itself cannot clear the ghost "
-                             f"floor — no alpha helps; the palette is the defect")
+            raise ValueError(
+                f"{vid}: the lit colour itself cannot clear the ghost "
+                f"floor — no alpha helps; the palette is the defect"
+            )
         a_c = alpha_ceiling(lit, ground, ceiling_lc)
         if a_c is None:
-            raise ValueError(f"{vid}: no point on lit->ground sits under the ghost "
-                             f"ceiling — the palette is the defect")
+            raise ValueError(
+                f"{vid}: no point on lit->ground sits under the ghost "
+                f"ceiling — the palette is the defect"
+            )
         rows.append((vid, a, a_c))
     if not rows:
         raise ValueError("solve_ghost_alpha: empty population — nothing was solved")
@@ -326,13 +334,17 @@ def solve_ghost_alpha_for_mode(rows, lit_floor):
     Returns (alpha, [(id, a_min, a_max)], infeasible_ids). Refuses on an empty
     population or a floor unreachable at alpha 0."""
     if not rows:
-        raise ValueError("solve_ghost_alpha_for_mode: empty population — nothing was solved")
+        raise ValueError(
+            "solve_ghost_alpha_for_mode: empty population — nothing was solved"
+        )
     per = []
     for vid, lit, ground, ghost, a_min in rows:
         a_max = alpha_max_vs_lit(lit, ground, ghost, lit_floor)
         if a_max is None:
-            raise ValueError(f"{vid}: lit/ground span cannot reach a {lit_floor}:1 "
-                             f"lit-vs-ghost floor at any alpha; the palette is the defect")
+            raise ValueError(
+                f"{vid}: lit/ground span cannot reach a {lit_floor}:1 "
+                f"lit-vs-ghost floor at any alpha; the palette is the defect"
+            )
         per.append((vid, a_min, a_max))
     alpha = min(a for _v, _lo, a in per)
     infeasible = [v for v, lo, _hi in per if alpha < lo]
@@ -364,10 +376,10 @@ def derive_ghost_through_alpha(lit, ground, alpha, ceiling_lc=None):
         ceiling_lc = C.GHOST_READABLE_LC
     t_c, _lc = solve_ceiling_t(lit, ground, ceiling_lc)
     if t_c is None:
-        t_c = 0.5                              # the scan's own fallback, kept
+        t_c = 0.5  # the scan's own fallback, kept
     t_screen = max(t_c, 1.0 - alpha)
     t_declared = 1.0 - (1.0 - t_screen) / alpha
-    t_declared = min(1.0, max(0.0, t_declared))   # 1e-16 noise, never a real clamp
+    t_declared = min(1.0, max(0.0, t_declared))  # 1e-16 noise, never a real clamp
     # ⚑ THE STRICT BOUND IS CHECKED ON THE QUANTISED PIPELINE, NOT THE REAL ONE.
     # The boundary was found in continuous t, but the declared colour is 8-bit and
     # the renderer composites 8-bit — two roundings that can land the seen ghost a
@@ -375,6 +387,7 @@ def derive_ghost_through_alpha(lit, ground, alpha, ceiling_lc=None):
     # Step the declaration toward ground until the composite of the ROUNDED colour
     # is strictly under; each step is one part in 4096 of the segment.
     import palette_graph as _pg
+
     colour = C._lerp(lit, ground, t_declared)
     for _ in range(64):
         seen = _pg.composite(colour, ground, alpha)

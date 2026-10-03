@@ -31,18 +31,24 @@ current with the schemes as emitted, not with a re-solve nobody ran. The
 gallery links pictures by their declared name; whether each picture exists and
 is current is @SCREENS' and @CURRENCY's question, not this one's.
 """
+
 import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "catalog", "readme")
-for p in (ROOT, os.path.join(ROOT, "scripts"), os.path.join(ROOT, "catalog", "library")):
+for p in (
+    ROOT,
+    os.path.join(ROOT, "scripts"),
+    os.path.join(ROOT, "catalog", "library"),
+):
     if p not in sys.path:
         sys.path.insert(0, p)
 
 
 def roster_tsv():
     import emitters as E
+
     why = dict(E.ORDER)
     rows = ["module\trole\tstep"]
     for role in ("authority", "emitter", "colourless", "packager"):
@@ -62,6 +68,7 @@ def palette_tsv():
     import variant_roster as VR
 
     import make_preview as MP
+
     vs = VR.ordered()
     schemes = {v: MP.parse_scheme(v) for v in vs}
     roles = [k for k, val in schemes[vs[0]].items() if isinstance(val, str)]
@@ -73,6 +80,7 @@ def palette_tsv():
 
 def capabilities_tsv():
     import check_symbol as CS
+
     rows = ["symbol\tcapability (as its witness states it)"]
     for s in sorted(CS.CLOSED):
         rows.append(f"{s}\t{CS.CLOSED[s][0]}")
@@ -82,19 +90,27 @@ def capabilities_tsv():
 def gallery_md():
     import render_screens as RS
     import variant_roster as VR
+
     d = os.path.relpath(RS.SCREENS, ROOT)
     outs = RS.plan_all()
     lines = [f"![all six variants, every still surface]({d}/strip.png)", ""]
-    for v in VR.ordered():              # one section per DECLARED variant, in GRID's order
+    for v in VR.ordered():  # one section per DECLARED variant, in GRID's order
         mine = [fn for fn, var, _how in outs if var == v]
         sheet = [fn for fn in mine if fn.startswith("sheet-")]
-        anims = [fn for fn, var, how in outs if var == v and how[0] in ("marquee", "aperture-text") and fn in
-                 {a for a, _v, _h in RS.plan_animations()}]
+        anims = [
+            fn
+            for fn, var, how in outs
+            if var == v
+            and how[0] in ("marquee", "aperture-text")
+            and fn in {a for a, _v, _h in RS.plan_animations()}
+        ]
         stills = [fn for fn, var, _h in RS.plan() if var == v]
         lines += [f"### {v}", ""]
         lines += [f"![{v}]({d}/{fn})" for fn in sheet] + [""]
         lines += [f"![{v}: {fn[:-4]}]({d}/{fn})" for fn in anims] + [""]
-        lines.append("Stills: " + ", ".join(f"[{fn[:-4]}]({d}/{fn})" for fn in stills) + ".")
+        lines.append(
+            "Stills: " + ", ".join(f"[{fn[:-4]}]({d}/{fn})" for fn in stills) + "."
+        )
         lines.append("")
     rest = [fn for fn, var, _h in outs if var is None and fn != "strip.png"]
     lines.append("Index: " + ", ".join(f"[{fn}]({d}/{fn})" for fn in rest) + ".")
@@ -133,8 +149,10 @@ def main(argv):
         for name, text in gen.items():
             with open(os.path.join(OUT, name), "w", encoding="utf-8") as fh:
                 fh.write(text)
-        print(f"readme_fragments: wrote {len(gen)} of {len(FRAGMENTS)} fragment(s) -> "
-              f"{os.path.relpath(OUT, ROOT)}")
+        print(
+            f"readme_fragments: wrote {len(gen)} of {len(FRAGMENTS)} fragment(s) -> "
+            f"{os.path.relpath(OUT, ROOT)}"
+        )
         return 0
     if "--list" in argv:
         stale = 0
@@ -142,7 +160,9 @@ def main(argv):
             ok = committed(name) == gen[name]
             stale += not ok
             print(f"{name:18s} {auth:28s} {'current' if ok else 'STALE'}")
-        print(f"\nreadme_fragments: {len(FRAGMENTS) - stale} of {len(FRAGMENTS)} current")
+        print(
+            f"\nreadme_fragments: {len(FRAGMENTS) - stale} of {len(FRAGMENTS)} current"
+        )
         return 0
     print("usage: readme_fragments.py --write | --list | --selftest", file=sys.stderr)
     return 2
@@ -155,22 +175,45 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     import check_symbol as CS
     import render_screens as RS
 
     import emitters as E
+
     gen = generate()
-    chk("every roster module is a row", all(f"\n{m}\t" in gen["roster.tsv"] for m in E.ROLES), True)
+    chk(
+        "every roster module is a row",
+        all(f"\n{m}\t" in gen["roster.tsv"] for m in E.ROLES),
+        True,
+    )
     import variant_roster as VR
-    chk("the palette columns are the roster, in GRID's order",
-        gen["palette.tsv"].splitlines()[0].split("\t")[1:], VR.ordered())
-    chk("every declared variant is a gallery section",
-        all(f"### {v}\n" in gen["gallery.md"] for v in VR.ordered()), True)
-    chk("every closed symbol is a capability row", all(f"\n{s}\t" in gen["capabilities.tsv"] for s in CS.CLOSED), True)
-    chk("every declared picture is linked", all(f"/{fn})" in gen["gallery.md"] for fn, _v, _h in RS.plan_all()), True)
+
+    chk(
+        "the palette columns are the roster, in GRID's order",
+        gen["palette.tsv"].splitlines()[0].split("\t")[1:],
+        VR.ordered(),
+    )
+    chk(
+        "every declared variant is a gallery section",
+        all(f"### {v}\n" in gen["gallery.md"] for v in VR.ordered()),
+        True,
+    )
+    chk(
+        "every closed symbol is a capability row",
+        all(f"\n{s}\t" in gen["capabilities.tsv"] for s in CS.CLOSED),
+        True,
+    )
+    chk(
+        "every declared picture is linked",
+        all(f"/{fn})" in gen["gallery.md"] for fn, _v, _h in RS.plan_all()),
+        True,
+    )
     print("readme_fragments selftest:", "PASS" if ok else "FAIL")
     return ok
 

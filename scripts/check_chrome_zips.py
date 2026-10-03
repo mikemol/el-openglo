@@ -15,6 +15,7 @@ not run here, and the policy withholds rather than denies.
 
 WEAKNESS: this reads the zips; it does not ask the Web Store to validate them.
 """
+
 import json
 import os
 import sys
@@ -31,8 +32,13 @@ def measure(out=DEFAULT_OUT, variants=VARIANTS):
     cases = []
     for v in variants:
         p = os.path.join(d, f"{v}.zip")
-        c = {"variant": v, "exists": os.path.isfile(p), "root_manifest": None,
-             "parses": None, "manifest_version": None}
+        c = {
+            "variant": v,
+            "exists": os.path.isfile(p),
+            "root_manifest": None,
+            "parses": None,
+            "manifest_version": None,
+        }
         if c["exists"]:
             try:
                 z = zipfile.ZipFile(p)
@@ -62,6 +68,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("chrome_zips")
 
 
@@ -78,11 +85,26 @@ def _selftest():
             z.writestr("good/manifest.json", '{"manifest_version": 3}')
         with open(os.path.join(cd, "junk.zip"), "wb") as fh:
             fh.write(b"not a zip")
-        got = {c["variant"]: c for c in measure(td, ("good", "nested", "junk", "absent"))["cases"]}
-        for label, want in (("a good zip reads root manifest v3", (got["good"]["root_manifest"], got["good"]["manifest_version"]) == (True, 3)),
-                            ("a nested manifest is SEEN as not at the root", got["nested"]["root_manifest"] is False),
-                            ("a non-zip is SEEN, not crashed on", got["junk"]["root_manifest"] is False),
-                            ("a missing zip is SEEN as absent", got["absent"]["exists"] is False)):
+        got = {
+            c["variant"]: c
+            for c in measure(td, ("good", "nested", "junk", "absent"))["cases"]
+        }
+        for label, want in (
+            (
+                "a good zip reads root manifest v3",
+                (got["good"]["root_manifest"], got["good"]["manifest_version"])
+                == (True, 3),
+            ),
+            (
+                "a nested manifest is SEEN as not at the root",
+                got["nested"]["root_manifest"] is False,
+            ),
+            (
+                "a non-zip is SEEN, not crashed on",
+                got["junk"]["root_manifest"] is False,
+            ),
+            ("a missing zip is SEEN as absent", got["absent"]["exists"] is False),
+        ):
             print(f"  {'ok  ' if want else 'FAIL'} {label}")
             ok = ok and want
     print("check_chrome_zips selftest:", "PASS" if ok else "FAIL")

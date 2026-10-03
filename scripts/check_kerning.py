@@ -24,6 +24,7 @@ runs are per COLUMN over all rows, so a letter pair whose ink never shares a col
 cannot merge in this measure even if a diagonal bleed would read as touching; the
 first and last runs are dropped as possibly clipped by the board's edges.
 """
+
 import json
 import os
 import sys
@@ -39,6 +40,7 @@ VARIANT = "EL-Openglo"
 def glyph_cols():
     import display_types as DT
     import make_notify_marquee as MNM
+
     return DT.DISPLAYS[MNM.MATRIX_DISPLAY].cols
 
 
@@ -49,23 +51,36 @@ def interior(runs):
 
 def measure(variant):
     import check_urgency_cues as UC
+
     with tempfile.TemporaryDirectory() as td:
         f = UC.bold_facts(variant, td)
     if "withheld" in f:
-        return {"cases": [], "withheld": [{"variant": variant, "reason": f["withheld"]}]}
+        return {
+            "cases": [],
+            "withheld": [{"variant": variant, "reason": f["withheld"]}],
+        }
     cols = glyph_cols()
     cases = []
     for view, v in sorted(f["views"].items()):
         for style in ("regular", "bold"):
             runs = v[f"runs_{style}"]
-            cases.append({"variant": variant, "view": view, "style": style, "glyph_cols": cols,
-                          "runs": runs, "interior_runs": interior(runs)})
+            cases.append(
+                {
+                    "variant": variant,
+                    "view": view,
+                    "style": style,
+                    "glyph_cols": cols,
+                    "runs": runs,
+                    "interior_runs": interior(runs),
+                }
+            )
     return {"cases": cases, "withheld": []}
 
 
 def _selftest():
     import check_urgency_cues as UC
     import numpy as np
+
     ok = True
 
     def chk(label, got, want):

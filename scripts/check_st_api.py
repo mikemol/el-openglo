@@ -22,6 +22,7 @@ WEAKNESS. Both sides are read TEXTUALLY: a reference is `ST.<name>` in a file
 that imports segment_topology as ST, and an export is a column-0 assignment,
 def or class. A name re-exported by `from x import *` is invisible.
 """
+
 import os
 import re
 import sys
@@ -33,6 +34,7 @@ def referenced():
     """{symbol: [files]} for every ST.<sym> in the tree (the module aliased as ST)."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import git_tracked  # the tree is what git tracks, not the disk
+
     used = {}
     for fn in git_tracked.files(":(glob)*.py", root=ROOT):
         if fn == "segment_topology.py":
@@ -60,7 +62,7 @@ def exported():
     return names
 
 
-_READ = object()      # "read the tree" — distinct from None, which means module absent
+_READ = object()  # "read the tree" — distinct from None, which means module absent
 
 
 def measure(used=_READ, have=_READ):
@@ -69,9 +71,17 @@ def measure(used=_READ, have=_READ):
     exports it. An empty population and an absent module are the policy's to refuse."""
     used = referenced() if used is _READ else used
     have = exported() if have is _READ else have
-    return {"module_present": have is not None,
-            "cases": [{"symbol": s, "files": sorted(set(f)), "exported": have is not None and s in have}
-                      for s, f in sorted(used.items())]}
+    return {
+        "module_present": have is not None,
+        "cases": [
+            {
+                "symbol": s,
+                "files": sorted(set(f)),
+                "exported": have is not None and s in have,
+            }
+            for s, f in sorted(used.items())
+        ],
+    }
 
 
 def main(argv):
@@ -82,21 +92,28 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     if "--used" in argv or "--missing" in argv:
         # listings of the measured facts; `!` / --missing is `exported: false`
         m = measure()
         if not m["module_present"]:
-            print("check_st_api: segment_topology.py is absent — nothing is exported", file=sys.stderr)
+            print(
+                "check_st_api: segment_topology.py is absent — nothing is exported",
+                file=sys.stderr,
+            )
             return 2
         for c in m["cases"]:
             if "--used" in argv:
-                print(f"{' ' if c['exported'] else '!'} {c['symbol']}\t{', '.join(c['files'])}")
+                print(
+                    f"{' ' if c['exported'] else '!'} {c['symbol']}\t{', '.join(c['files'])}"
+                )
             elif not c["exported"]:
                 print(c["symbol"])
         return 0
     import opa_gate
+
     return opa_gate.gate("st_api")
 
 
@@ -121,9 +138,16 @@ def _selftest():
     # (the recovery's gap: 22-segment geometry referenced, not defined). The
     # verdict is policy/st_api.rego's, refused and admitted in st_api_test.rego.
     m = measure({"GEOM22": ["make_x.py"], "GEOM16": ["make_x.py"]}, {"GEOM16"})
-    check("a referenced, unexported symbol is seen", m["cases"][1],
-          {"symbol": "GEOM22", "files": ["make_x.py"], "exported": False})
-    check("an absent module is seen", measure({"GEOM16": ["a.py"]}, None)["module_present"], False)
+    check(
+        "a referenced, unexported symbol is seen",
+        m["cases"][1],
+        {"symbol": "GEOM22", "files": ["make_x.py"], "exported": False},
+    )
+    check(
+        "an absent module is seen",
+        measure({"GEOM16": ["a.py"]}, None)["module_present"],
+        False,
+    )
     print("check_st_api selftest:", "PASS" if ok else "FAIL")
     return ok
 

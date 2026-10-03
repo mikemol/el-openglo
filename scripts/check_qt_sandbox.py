@@ -31,6 +31,7 @@ another function and passed in, or a tool path read from a file, is invisible
 Python script that itself spawns qml is counted at the inner site, not the outer.
 qt_sandbox.py itself is excluded — its own subprocess.run IS the routing.
 """
+
 import ast
 import glob
 import json
@@ -39,20 +40,37 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-QT_TOOLS = frozenset({
-    "qml", "qmlscene", "qmltestrunner", "qmllint", "qmlformat", "qmlplugindump",
-    "qmlpreview", "plasmoidviewer", "plasmawindowed", "sddm-greeter", "sddm-greeter-qt6",
-    "kwin_wayland", "kwin_x11", "plasmashell", "xvfb", "xvfb-run",
-})
+QT_TOOLS = frozenset(
+    {
+        "qml",
+        "qmlscene",
+        "qmltestrunner",
+        "qmllint",
+        "qmlformat",
+        "qmlplugindump",
+        "qmlpreview",
+        "plasmoidviewer",
+        "plasmawindowed",
+        "sddm-greeter",
+        "sddm-greeter-qt6",
+        "kwin_wayland",
+        "kwin_x11",
+        "plasmashell",
+        "xvfb",
+        "xvfb-run",
+    }
+)
 SPAWN_ATTRS = frozenset({"run", "Popen", "call", "check_call", "check_output"})
 OS_SPAWN_PREFIX = ("system", "exec", "spawn", "posix_spawn")
 EXCLUDE = frozenset({"qt_sandbox.py"})
 
 
 def population_files(root=ROOT):
-    files = (glob.glob(os.path.join(root, "*.py"))
-             + glob.glob(os.path.join(root, "scripts", "*.py"))
-             + glob.glob(os.path.join(root, "catalog", "library", "*.py")))
+    files = (
+        glob.glob(os.path.join(root, "*.py"))
+        + glob.glob(os.path.join(root, "scripts", "*.py"))
+        + glob.glob(os.path.join(root, "catalog", "library", "*.py"))
+    )
     return sorted(f for f in files if os.path.basename(f) not in EXCLUDE)
 
 
@@ -65,8 +83,8 @@ def _tool_token(text):
 class _Module:
     def __init__(self, tree):
         self.tree = tree
-        self.consts = {}              # module-level NAME -> value node
-        self.qt_aliases = set()       # names bound to the qt_sandbox module
+        self.consts = {}  # module-level NAME -> value node
+        self.qt_aliases = set()  # names bound to the qt_sandbox module
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 for a in node.names:
@@ -81,7 +99,7 @@ class _Module:
         for fn in ast.walk(tree):
             if isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
                 for n in ast.walk(fn):
-                    self.parent_fn[n] = fn     # innermost wins: ast.walk is outer-first
+                    self.parent_fn[n] = fn  # innermost wins: ast.walk is outer-first
 
     def _local(self, fn, name):
         if fn is None:
@@ -155,16 +173,29 @@ def measure_source(src, rel):
         kind = m.spawn_kind(node)
         if kind is None:
             continue
-        argv = node.args[0] if node.args else next(
-            (k.value for k in node.keywords if k.arg in ("args", "cmd")), None)
+        argv = (
+            node.args[0]
+            if node.args
+            else next(
+                (k.value for k in node.keywords if k.arg in ("args", "cmd")), None
+            )
+        )
         if kind == "os" and node.func.attr.startswith(("exec", "spawn", "posix_spawn")):
             argv = node.args[1] if len(node.args) > 1 else argv
         tool = m.resolve(argv, m.parent_fn.get(node))
         if kind != "qt_sandbox" and tool not in QT_TOOLS:
             continue
-        cases.append({"id": f"{rel}:{node.lineno}", "file": rel, "line": node.lineno,
-                      "tool": tool, "via": kind, "routed": kind == "qt_sandbox",
-                      "gpu": _gpu_fact(node) if kind == "qt_sandbox" else None})
+        cases.append(
+            {
+                "id": f"{rel}:{node.lineno}",
+                "file": rel,
+                "line": node.lineno,
+                "tool": tool,
+                "via": kind,
+                "routed": kind == "qt_sandbox",
+                "gpu": _gpu_fact(node) if kind == "qt_sandbox" else None,
+            }
+        )
     return cases
 
 
@@ -187,11 +218,14 @@ def _selftest():
 
     def check(label, got, want):
         nonlocal ok
-        print(("  ok   " if got == want else "  FAIL ") + label +
-              ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            ("  ok   " if got == want else "  FAIL ")
+            + label
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
-    fixture = '''
+    fixture = """
 import subprocess
 import qt_sandbox as QT
 QML = "/usr/lib64/qt6/bin/qml"
@@ -205,13 +239,19 @@ def routed(h):
     return QT.run([QML, h], gpu=True)
 def not_qt():
     return subprocess.run(["git", "status"])
-'''
+"""
     cs = {c["line"]: c for c in measure_source(fixture, "fixture.py")}
     check("an unrouted qml spawn is SEEN", (cs.get(6) or {}).get("routed"), False)
-    check("...an unrouted qmllint spawn through two assignments is SEEN",
-          ((cs.get(10) or {}).get("tool"), (cs.get(10) or {}).get("routed")), ("qmllint", False))
-    check("a routed spawn is seen as routed, gpu recorded",
-          ((cs.get(12) or {}).get("routed"), (cs.get(12) or {}).get("gpu")), (True, True))
+    check(
+        "...an unrouted qmllint spawn through two assignments is SEEN",
+        ((cs.get(10) or {}).get("tool"), (cs.get(10) or {}).get("routed")),
+        ("qmllint", False),
+    )
+    check(
+        "a routed spawn is seen as routed, gpu recorded",
+        ((cs.get(12) or {}).get("routed"), (cs.get(12) or {}).get("gpu")),
+        (True, True),
+    )
     check("a non-Qt spawn is not in the population", 14 in cs, False)
     check("the population is exactly the three Qt sites", sorted(cs), [6, 10, 12])
     doc = measure()
@@ -243,29 +283,41 @@ def main(argv):
     cases = [c for c in doc["cases"] if "withheld" not in c]
     if "--list" in argv:
         for c in cases:
-            print(f"{c['id']:44s} {c['tool']:10s} {'routed' if c['routed'] else 'UNROUTED'}"
-                  + (f"  gpu={c['gpu']}" if c["routed"] else ""))
+            print(
+                f"{c['id']:44s} {c['tool']:10s} {'routed' if c['routed'] else 'UNROUTED'}"
+                + (f"  gpu={c['gpu']}" if c["routed"] else "")
+            )
         return 0
     if not cases:
-        print(f"check_qt_sandbox: REFUSED — 0 Qt spawn sites over {doc['files_scanned']} files; "
-              "the search is broken, not the tree clean", file=sys.stderr)
+        print(
+            f"check_qt_sandbox: REFUSED — 0 Qt spawn sites over {doc['files_scanned']} files; "
+            "the search is broken, not the tree clean",
+            file=sys.stderr,
+        )
         return 1
     bad = [c for c in cases if not c["routed"]]
     gpu = [c for c in cases if c["routed"] and c["gpu"]]
     if bad:
-        print(f"check_qt_sandbox: REFUSED — {len(bad)} of {len(cases)} Qt spawn sites bypass qt_sandbox:",
-              file=sys.stderr)
+        print(
+            f"check_qt_sandbox: REFUSED — {len(bad)} of {len(cases)} Qt spawn sites bypass qt_sandbox:",
+            file=sys.stderr,
+        )
         for c in bad:
             print(f"    {c['id']} ({c['tool']})", file=sys.stderr)
         return 1
     if gpu:
         # W158: the GPU path is gone (policy Q2); a site still asking for it is a defect
-        print(f"check_qt_sandbox: REFUSED — {len(gpu)} of {len(cases)} sites still ask for the GPU, "
-              "which qt_sandbox no longer offers (use mesa=True): " + ", ".join(c["id"] for c in gpu),
-              file=sys.stderr)
+        print(
+            f"check_qt_sandbox: REFUSED — {len(gpu)} of {len(cases)} sites still ask for the GPU, "
+            "which qt_sandbox no longer offers (use mesa=True): "
+            + ", ".join(c["id"] for c in gpu),
+            file=sys.stderr,
+        )
         return 1
-    print(f"check_qt_sandbox: {len(cases)} of {len(cases)} Qt spawn sites routed through qt_sandbox "
-          f"over {doc['files_scanned']} files; 0 ask for the GPU")
+    print(
+        f"check_qt_sandbox: {len(cases)} of {len(cases)} Qt spawn sites routed through qt_sandbox "
+        f"over {doc['files_scanned']} files; 0 ask for the GPU"
+    )
     return 0
 
 

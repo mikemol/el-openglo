@@ -58,6 +58,7 @@ know — a key assembled at run time, a licence in a template file — is outsid
 the population; templates/ carries none today (read, 2026-09-22), and a
 generator that grows one in a new shape is invisible until this learns it.
 """
+
 import ast
 import configparser
 import json
@@ -83,8 +84,11 @@ DEP5_FORMAT = "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0
 def third_party():
     """emitters.THIRD_PARTY — the one declaration make_deb's copyright file also reads."""
     import emitters as E
-    return [{"what": t["what"], "spdx": t["spdx"], "files": list(t["files"])}
-            for t in getattr(E, "THIRD_PARTY", ())]
+
+    return [
+        {"what": t["what"], "spdx": t["spdx"], "files": list(t["files"])}
+        for t in getattr(E, "THIRD_PARTY", ())
+    ]
 
 
 def dep5_parse(text):
@@ -112,8 +116,13 @@ def dep5_parse(text):
         lid, _, body = lic.partition("\n")
         lid = lid.split()[0] if lid.split() else ""
         if "Files" in p:
-            files.append({"files": p["Files"].split(), "license": lid,
-                          "copyright": bool(p.get("Copyright", "").strip())})
+            files.append(
+                {
+                    "files": p["Files"].split(),
+                    "license": lid,
+                    "copyright": bool(p.get("Copyright", "").strip()),
+                }
+            )
             if body.strip():
                 licences[lid] = True
         elif lid:
@@ -124,15 +133,19 @@ def dep5_parse(text):
 def debian_copyright():
     """make_deb.copyright_text(), parsed; `absent` when make_deb emits none."""
     import make_deb
+
     fn = getattr(make_deb, "copyright_text", None)
     if fn is None:
-        return {"absent": "make_deb has no copyright_text(): the .deb ships no /usr/share/doc copyright"}
+        return {
+            "absent": "make_deb has no copyright_text(): the .deb ships no /usr/share/doc copyright"
+        }
     return dep5_parse(fn())
 
 
 def _names_constant(node):
-    return (isinstance(node, ast.Name) and node.id == CONSTANT) or \
-           (isinstance(node, ast.Attribute) and node.attr == CONSTANT)
+    return (isinstance(node, ast.Name) and node.id == CONSTANT) or (
+        isinstance(node, ast.Attribute) and node.attr == CONSTANT
+    )
 
 
 def generator_sites(source, spdx):
@@ -147,11 +160,13 @@ def generator_sites(source, spdx):
                     continue
                 inside_fstring.add(id(part))
                 for m in LINE.finditer(part.value):
-                    if m.group(1):                       # literal id inside an f-string
+                    if m.group(1):  # literal id inside an f-string
                         out.append((node.lineno, m.group(1), "literal"))
-                    else:                                # `License=` then a hole
+                    else:  # `License=` then a hole
                         nxt = parts[i + 1] if i + 1 < len(parts) else None
-                        if isinstance(nxt, ast.FormattedValue) and _names_constant(nxt.value):
+                        if isinstance(nxt, ast.FormattedValue) and _names_constant(
+                            nxt.value
+                        ):
                             out.append((node.lineno, spdx, CONSTANT))
                         else:
                             out.append((node.lineno, None, "unresolved"))
@@ -165,8 +180,11 @@ def generator_sites(source, spdx):
                     else:
                         out.append((k.lineno, None, "unresolved"))
     for node in ast.walk(tree):
-        if isinstance(node, ast.Constant) and isinstance(node.value, str) \
-                and id(node) not in inside_fstring:
+        if (
+            isinstance(node, ast.Constant)
+            and isinstance(node.value, str)
+            and id(node) not in inside_fstring
+        ):
             for m in LINE.finditer(node.value):
                 out.append((node.lineno, m.group(1) or None, "literal"))
     return sorted(out, key=lambda s: s[0])
@@ -200,8 +218,14 @@ def tracked_files(root):
     paperkit's Δ sandbox (a copy with no .git) it died with git's exit 128, so @LICENSE
     graded `broken` there and could never be graded at all. git_tracked answers from git
     where there is one and from a bounded walk where there is not."""
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"))
+    sys.path.insert(
+        0,
+        os.path.join(
+            os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "scripts"
+        ),
+    )
     import git_tracked
+
     return git_tracked.files(root=root)
 
 
@@ -236,37 +260,56 @@ def emitted_sites(root, paths):
             with open(full, encoding="utf-8") as fh:
                 text = fh.read()
             if rel.endswith(".json"):
-                found = [(f"{rel} {k}", v, "json") for k, v in _json_licences(json.loads(text))]
+                found = [
+                    (f"{rel} {k}", v, "json")
+                    for k, v in _json_licences(json.loads(text))
+                ]
             else:
                 cp = configparser.ConfigParser(interpolation=None, strict=False)
                 cp.optionxform = str
                 cp.read_string(text)
-                found = [(f"{rel} [{s}] {k}=", cp[s][k], "desktop")
-                         for s in cp.sections() for k in DESKTOP_KEYS if k in cp[s]]
+                found = [
+                    (f"{rel} [{s}] {k}=", cp[s][k], "desktop")
+                    for s in cp.sections()
+                    for k in DESKTOP_KEYS
+                    if k in cp[s]
+                ]
         except (ValueError, configparser.Error, UnicodeDecodeError):
             unparsed.append(rel)
             continue
-        cases += [{"kind": "emitted", "where": w, "id": i, "via": via} for w, i, via in found]
+        cases += [
+            {"kind": "emitted", "where": w, "id": i, "via": via} for w, i, via in found
+        ]
     return cases, scanned, unparsed
 
 
 def measure(root=None):
     root = os.path.abspath(root or ROOT)
-    sys.path.insert(0, root)                             # this tree's emitters, not ours
+    sys.path.insert(0, root)  # this tree's emitters, not ours
     import emitters as E
+
     spdx = getattr(E, CONSTANT, None)
-    cases = [{"kind": "authority", "where": f"emitters.{CONSTANT}", "id": spdx, "via": "constant"}]
+    cases = [
+        {
+            "kind": "authority",
+            "where": f"emitters.{CONSTANT}",
+            "id": spdx,
+            "via": "constant",
+        }
+    ]
     roster = sorted(E.ROLES)
     declaring = 0
     for mod in roster:
         path = os.path.join(root, mod + ".py")
         if not os.path.isfile(path):
-            continue                                     # emitters --drift owns absence
+            continue  # emitters --drift owns absence
         with open(path, encoding="utf-8") as fh:
             sites = generator_sites(fh.read(), spdx)
         declaring += bool(sites)
-        cases += [{"kind": "generator", "where": f"{mod}.py:{ln}", "id": i, "via": via}
-                  for ln, i, via in sites]
+        cases += [
+            {"kind": "generator", "where": f"{mod}.py:{ln}", "id": i, "via": via}
+            for ln, i, via in sites
+        ]
     lic = os.path.join(root, "LICENSE")
     lic_id = None
     if os.path.isfile(lic):
@@ -275,24 +318,46 @@ def measure(root=None):
     cases.append({"kind": "file", "where": "LICENSE", "via": "text", "id": lic_id})
     pp = os.path.join(root, "pyproject.toml")
     with open(pp, "rb") as fh:
-        cases.append({"kind": "file", "where": "pyproject.toml [project].license", "via": "toml",
-                      "id": tomllib.load(fh).get("project", {}).get("license")})
+        cases.append(
+            {
+                "kind": "file",
+                "where": "pyproject.toml [project].license",
+                "via": "toml",
+                "id": tomllib.load(fh).get("project", {}).get("license"),
+            }
+        )
     ed = os.path.join(root, EBUILD_DIR)
     for fn in sorted(os.listdir(ed)) if os.path.isdir(ed) else []:
         if fn.endswith(".ebuild"):
             with open(os.path.join(ed, fn), encoding="utf-8") as fh:
                 eb_id = ebuild_id(fh.read())
-            cases.append({"kind": "file", "where": f"{EBUILD_DIR}/{fn} LICENSE=", "via": "ebuild",
-                          "id": eb_id})
+            cases.append(
+                {
+                    "kind": "file",
+                    "where": f"{EBUILD_DIR}/{fn} LICENSE=",
+                    "via": "ebuild",
+                    "id": eb_id,
+                }
+            )
     tracked = tracked_files(root)
     emitted, scanned, unparsed = emitted_sites(root, tracked)
     cases += emitted
     notice = notice_facts(root, E)
-    return {"root": root, "cases": cases, "roster": len(roster), "roster_declaring": declaring,
-            "emitted_scanned": scanned, "emitted_unparsed": unparsed,
-            "third_party": third_party(), "debian_copyright": debian_copyright(),
-            "dep5_format": DEP5_FORMAT, "notice": notice,
-            "headers": header_facts(root, spdx, tracked, getattr(E, "COPYRIGHT_HOLDER", None))}
+    return {
+        "root": root,
+        "cases": cases,
+        "roster": len(roster),
+        "roster_declaring": declaring,
+        "emitted_scanned": scanned,
+        "emitted_unparsed": unparsed,
+        "third_party": third_party(),
+        "debian_copyright": debian_copyright(),
+        "dep5_format": DEP5_FORMAT,
+        "notice": notice,
+        "headers": header_facts(
+            root, spdx, tracked, getattr(E, "COPYRIGHT_HOLDER", None)
+        ),
+    }
 
 
 def notice_facts(root, E):
@@ -302,12 +367,22 @@ def notice_facts(root, E):
     p = os.path.join(root, "NOTICE")
     gen = getattr(E, "notice_text", None)
     if not os.path.isfile(p):
-        return {"present": False, "generator": gen is not None, "matches_generated": None, "missing": None}
+        return {
+            "present": False,
+            "generator": gen is not None,
+            "matches_generated": None,
+            "missing": None,
+        }
     with open(p, encoding="utf-8") as fh:
         text = fh.read()
-    return {"present": True, "generator": gen is not None,
-            "matches_generated": (text == gen()) if gen else None,
-            "missing": [t["what"] for t in getattr(E, "THIRD_PARTY", ()) if t["what"] not in text]}
+    return {
+        "present": True,
+        "generator": gen is not None,
+        "matches_generated": (text == gen()) if gen else None,
+        "missing": [
+            t["what"] for t in getattr(E, "THIRD_PARTY", ()) if t["what"] not in text
+        ],
+    }
 
 
 HEADER_KEY = "SPDX-License-Identifier:"
@@ -321,10 +396,14 @@ def authored_sources(root, paths):
     """The authored Python source under `root` (W119): every TRACKED *.py that is a
     regular file, not a symlink (scripts/ borrows some from ../substrate — their
     header is their owner's) and not a third-party path."""
-    return sorted(rel for rel in paths
-                  if rel.endswith(".py") and not _third_party(rel)
-                  and os.path.isfile(os.path.join(root, rel))
-                  and not os.path.islink(os.path.join(root, rel)))
+    return sorted(
+        rel
+        for rel in paths
+        if rel.endswith(".py")
+        and not _third_party(rel)
+        and os.path.isfile(os.path.join(root, rel))
+        and not os.path.islink(os.path.join(root, rel))
+    )
 
 
 def header_id(text):
@@ -338,7 +417,9 @@ def header_id(text):
     return None
 
 
-COPYRIGHT_RE = re.compile(r"^#\s*Copyright\s*\(c\)\s*(\d{4})(?:\s*-\s*\d{4})?\s+(.+?)\s*$", re.IGNORECASE)
+COPYRIGHT_RE = re.compile(
+    r"^#\s*Copyright\s*\(c\)\s*(\d{4})(?:\s*-\s*\d{4})?\s+(.+?)\s*$", re.IGNORECASE
+)
 
 
 def copyright_holder(text):
@@ -374,8 +455,12 @@ def header_facts(root, spdx, paths, holder=None):
                 no_copy.append(rel)
             elif h != holder:
                 wrong_holder.append({"file": rel, "holder": h})
-    out = {"population": len(pop), "carrying": len(pop) - len(missing) - len(wrong),
-           "missing": missing, "wrong": wrong}
+    out = {
+        "population": len(pop),
+        "carrying": len(pop) - len(missing) - len(wrong),
+        "missing": missing,
+        "wrong": wrong,
+    }
     if holder is not None:
         out.update(holder=holder, no_copyright=no_copy, wrong_holder=wrong_holder)
     return out
@@ -388,9 +473,19 @@ def header_argv(root, E, files, write=True):
     """The shared header mode's argv (mtools:W306), from the ONE declared licence,
     holder and year. The writer is mtools'; choosing the population stays ours."""
     tool = os.path.join(os.path.dirname(sys.executable), HEADER_TOOL)
-    argv = [tool, "header", "--spdx", getattr(E, CONSTANT),
-            "--year", str(E.COPYRIGHT_YEAR), "--holder", E.COPYRIGHT_HOLDER]
-    return argv + (["--write"] if write else []) + [os.path.join(root, f) for f in files]
+    argv = [
+        tool,
+        "header",
+        "--spdx",
+        getattr(E, CONSTANT),
+        "--year",
+        str(E.COPYRIGHT_YEAR),
+        "--holder",
+        E.COPYRIGHT_HOLDER,
+    ]
+    return (
+        argv + (["--write"] if write else []) + [os.path.join(root, f) for f in files]
+    )
 
 
 def write_headers(root=None):
@@ -399,12 +494,18 @@ def write_headers(root=None):
     REFUSES a wrong id; our own with_header is retired). Exit is the tool's."""
     root = os.path.abspath(root or ROOT)
     import emitters as E
+
     files = authored_sources(root, tracked_files(root))
     if not files:
-        print("check_license: REFUSED — 0 authored sources; the search is broken", file=sys.stderr)
+        print(
+            "check_license: REFUSED — 0 authored sources; the search is broken",
+            file=sys.stderr,
+        )
         return 1
     r = subprocess.run(header_argv(root, E, files), check=False)
-    print(f"check_license: {HEADER_TOOL} header over {len(files)} authored source(s), exit {r.returncode}")
+    print(
+        f"check_license: {HEADER_TOOL} header over {len(files)} authored source(s), exit {r.returncode}"
+    )
     return r.returncode
 
 
@@ -417,7 +518,7 @@ def main(argv):
             print("check_license: --root needs an existing directory", file=sys.stderr)
             return 2
         root = args[i + 1]
-        del args[i:i + 2]
+        del args[i : i + 2]
     for a in args:
         if a not in known:
             print(f"check_license: unknown flag {a!r}", file=sys.stderr)
@@ -429,14 +530,17 @@ def main(argv):
     if "--json" in args:
         print(json.dumps(measure(root), indent=1))
         return 0
-    if "--gate" in args:                                 # opa_gate's verdict, on --root's tree
+    if "--gate" in args:  # opa_gate's verdict, on --root's tree
         import opa_gate  # OURS: imported before --root joins sys.path (scripts/ leads sys.path as the entry dir)
+
         sets = opa_gate.evaluate("license", measure(root))
         for kind in ("deny", "withheld"):
             for msg in sets.get(kind, []):
                 print(f"check_license: {kind.upper()} {msg}")
         rc = opa_gate.verdict(sets)
-        print(f"check_license: {root or ROOT}: {['ADMITTED', 'DENIED', '', 'WITHHELD'][rc]}")
+        print(
+            f"check_license: {root or ROOT}: {['ADMITTED', 'DENIED', '', 'WITHHELD'][rc]}"
+        )
         return rc
     if "--list" in args:
         m = measure(root)
@@ -445,40 +549,51 @@ def main(argv):
         print(f"\ncheck_license: root {m['root']}")
         for kind in ("authority", "generator", "file", "emitted"):
             ks = [c for c in m["cases"] if c["kind"] == kind]
-            print(f"  {kind:9s} {sum(c['id'] == 'Apache-2.0' for c in ks)} of {len(ks)} "
-                  "declaration(s) are Apache-2.0")
-        print(f"  {m['roster_declaring']} of {m['roster']} roster module(s) declare one; "
-              f"{m['emitted_scanned']} tracked *.json/*.desktop scanned, "
-              f"{len(m['emitted_unparsed'])} unparsed; "
-              f"{len(m['third_party'])} third-party licence(s) excluded (--json lists them)")
+            print(
+                f"  {kind:9s} {sum(c['id'] == 'Apache-2.0' for c in ks)} of {len(ks)} "
+                "declaration(s) are Apache-2.0"
+            )
+        print(
+            f"  {m['roster_declaring']} of {m['roster']} roster module(s) declare one; "
+            f"{m['emitted_scanned']} tracked *.json/*.desktop scanned, "
+            f"{len(m['emitted_unparsed'])} unparsed; "
+            f"{len(m['third_party'])} third-party licence(s) excluded (--json lists them)"
+        )
         d = m["debian_copyright"]
         if "absent" in d:
             print(f"debian copyright: ABSENT — {d['absent']}")
         else:
-            print(f"debian copyright: {len(d['files'])} Files stanza(s) "
-                  + ", ".join(f"{' '.join(f['files'])} -> {f['license']}" for f in d["files"])
-                  + f"; {sum(d['licenses'].values())} of {len(d['licenses'])} licence id(s) carry text")
+            print(
+                f"debian copyright: {len(d['files'])} Files stanza(s) "
+                + ", ".join(
+                    f"{' '.join(f['files'])} -> {f['license']}" for f in d["files"]
+                )
+                + f"; {sum(d['licenses'].values())} of {len(d['licenses'])} licence id(s) carry text"
+            )
         return 0
-    print("usage: check_license.py [--root DIR] --json | --list | --selftest  "
-          "(the verdict: scripts/opa_gate.py license)", file=sys.stderr)
+    print(
+        "usage: check_license.py [--root DIR] --json | --list | --selftest  "
+        "(the verdict: scripts/opa_gate.py license)",
+        file=sys.stderr,
+    )
     return 2
 
 
-GPL_FIXTURE = '''
+GPL_FIXTURE = """
 def meta():
     return {"KPlugin": {"License": "GPLv3"}}
 def desk():
     return "[Desktop Entry]\\nX-KDE-PluginInfo-License=GPLv3\\n"
 def sddm(v):
     return (f"Name={v}\\n" "License=GPL-3\\n")
-'''
-GOOD_FIXTURE = '''
+"""
+GOOD_FIXTURE = """
 from emitters import LICENSE_SPDX
 def meta():
     return {"KPlugin": {"License": LICENSE_SPDX}}
 def sddm(v):
     return f"Name={v}\\nLicense={LICENSE_SPDX}\\n"
-'''
+"""
 
 
 def _selftest():
@@ -489,19 +604,36 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     bad = generator_sites(GPL_FIXTURE, "Apache-2.0")
-    chk("a GPL fixture: three literal GPL sites seen",
-        [(i, v) for _l, i, v in bad], [("GPLv3", "literal"), ("GPLv3", "literal"), ("GPL-3", "literal")])
+    chk(
+        "a GPL fixture: three literal GPL sites seen",
+        [(i, v) for _l, i, v in bad],
+        [("GPLv3", "literal"), ("GPLv3", "literal"), ("GPL-3", "literal")],
+    )
     good = generator_sites(GOOD_FIXTURE, "Apache-2.0")
-    chk("the constant form resolves to the authority",
-        [(i, v) for _l, i, v in good], [("Apache-2.0", CONSTANT)] * 2)
-    chk("a GPL-3 LICENSE text is GPL-3.0",
-        licence_text_id("                    GNU GENERAL PUBLIC LICENSE\n  Version 3, 29 June 2007\n"), "GPL-3.0")
-    chk("an Apache LICENSE text is Apache-2.0",
-        licence_text_id("  Apache License\n  Version 2.0, January 2004\n"), "Apache-2.0")
+    chk(
+        "the constant form resolves to the authority",
+        [(i, v) for _l, i, v in good],
+        [("Apache-2.0", CONSTANT)] * 2,
+    )
+    chk(
+        "a GPL-3 LICENSE text is GPL-3.0",
+        licence_text_id(
+            "                    GNU GENERAL PUBLIC LICENSE\n  Version 3, 29 June 2007\n"
+        ),
+        "GPL-3.0",
+    )
+    chk(
+        "an Apache LICENSE text is Apache-2.0",
+        licence_text_id("  Apache License\n  Version 2.0, January 2004\n"),
+        "Apache-2.0",
+    )
     chk("an ebuild LICENSE= is read", ebuild_id('EAPI=8\nLICENSE="GPL-3"\n'), "GPL-3")
     with tempfile.TemporaryDirectory() as d:
         pkg = os.path.join(d, "plasma-clock", "org.x")
@@ -519,38 +651,67 @@ def _selftest():
         subprocess.run(["git", "-C", d, "init", "-q"], check=True)
         subprocess.run(["git", "-C", d, "add", "plasma-clock", "overlay"], check=True)
         seen, scanned, unparsed = emitted_sites(d, tracked_files(d))
-        chk("a tracked GPLv3 metadata.json and .desktop are SEEN; third-party and "
+        chk(
+            "a tracked GPLv3 metadata.json and .desktop are SEEN; third-party and "
             "untracked are not",
             [(c["where"], c["id"]) for c in seen],
-            [("plasma-clock/org.x/metadata.desktop [Desktop Entry] X-KDE-PluginInfo-License=", "GPL-3"),
-             ("plasma-clock/org.x/metadata.json KPlugin.License", "GPLv3")])
-        chk("2 of 2 tracked emitted candidates scanned, none unparsed", (scanned, unparsed), (2, []))
-    d = dep5_parse(f"Format: {DEP5_FORMAT}\n\nFiles: *\nCopyright: me\nLicense: Apache-2.0\n\n"
-                   "Files: a/*\nCopyright: them\nLicense: OFL-1.1\n\nLicense: OFL-1.1\n text\n .\n more\n")
-    chk("a DEP-5 file: header, two Files stanzas, licence text seen",
+            [
+                (
+                    "plasma-clock/org.x/metadata.desktop [Desktop Entry] X-KDE-PluginInfo-License=",
+                    "GPL-3",
+                ),
+                ("plasma-clock/org.x/metadata.json KPlugin.License", "GPLv3"),
+            ],
+        )
+        chk(
+            "2 of 2 tracked emitted candidates scanned, none unparsed",
+            (scanned, unparsed),
+            (2, []),
+        )
+    d = dep5_parse(
+        f"Format: {DEP5_FORMAT}\n\nFiles: *\nCopyright: me\nLicense: Apache-2.0\n\n"
+        "Files: a/*\nCopyright: them\nLicense: OFL-1.1\n\nLicense: OFL-1.1\n text\n .\n more\n"
+    )
+    chk(
+        "a DEP-5 file: header, two Files stanzas, licence text seen",
         (d["format"], [(f["files"], f["license"]) for f in d["files"]], d["licenses"]),
-        (DEP5_FORMAT, [(["*"], "Apache-2.0"), (["a/*"], "OFL-1.1")], {"OFL-1.1": True}))
-    chk("a DEP-5 file with no header Format is seen as such",
-        dep5_parse("Files: *\nLicense: X\n")["format"], None)
+        (DEP5_FORMAT, [(["*"], "Apache-2.0"), (["a/*"], "OFL-1.1")], {"OFL-1.1": True}),
+    )
+    chk(
+        "a DEP-5 file with no header Format is seen as such",
+        dep5_parse("Files: *\nLicense: X\n")["format"],
+        None,
+    )
     # W118: the NOTICE measurement SEES a missing part and a hand edit, and an absent file
     import emitters as E
+
     with tempfile.TemporaryDirectory() as d:
         drop = E.THIRD_PARTY[0]["what"]
         text = E.notice_text().replace(f"* {drop}\n", "")
         with open(os.path.join(d, "NOTICE"), "w", encoding="utf-8") as fh:
             fh.write(text)
         n = notice_facts(d, E)
-        chk("a NOTICE with one part removed is seen as drifted and missing that part",
-            (n["matches_generated"], n["missing"]), (False, [drop]))
+        chk(
+            "a NOTICE with one part removed is seen as drifted and missing that part",
+            (n["matches_generated"], n["missing"]),
+            (False, [drop]),
+        )
     with tempfile.TemporaryDirectory() as d:
         chk("an absent NOTICE is seen", notice_facts(d, E)["present"], False)
-    chk("the real NOTICE matches its generator",
-        notice_facts(ROOT, E)["matches_generated"], True)
+    chk(
+        "the real NOTICE matches its generator",
+        notice_facts(ROOT, E)["matches_generated"],
+        True,
+    )
     # W119: the header measurement SEES a missing and a wrong header
     src = '#!/usr/bin/env python3\n"""doc."""\nx = 1\n'
     chk("a file with no SPDX header reads as None", header_id(src), None)
     put = '#!/usr/bin/env python3\n# SPDX-License-Identifier: Apache-2.0\n"""doc."""\nx = 1\n'
-    chk("a GPL header reads as GPL", header_id("# SPDX-License-Identifier: GPL-3.0\n"), "GPL-3.0")
+    chk(
+        "a GPL header reads as GPL",
+        header_id("# SPDX-License-Identifier: GPL-3.0\n"),
+        "GPL-3.0",
+    )
     # W170: the WRITER is mtools' shared header mode; it can SEE a bare file and fix it
     tool = os.path.join(os.path.dirname(sys.executable), HEADER_TOOL)
     if not os.path.isfile(tool):
@@ -559,48 +720,85 @@ def _selftest():
         with tempfile.TemporaryDirectory() as d:
             with open(os.path.join(d, "t.py"), "w") as fh:
                 fh.write(src)
-            rc = subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True, check=False).returncode
+            rc = subprocess.run(
+                header_argv(d, E, ["t.py"]), capture_output=True, check=False
+            ).returncode
             with open(os.path.join(d, "t.py"), encoding="utf-8") as fh:
                 out = fh.read()
             head = out.split("\n")[:3]
             chk("the shared writer exits 0 on a bare file", rc, 0)
-            chk("...shebang first, then SPDX and the holder's copyright line",
-                (head[0], header_id(out), any(E.COPYRIGHT_HOLDER in ln and "Copyright" in ln for ln in head)),
-                ("#!/usr/bin/env python3", E.LICENSE_SPDX, True))
-            chk("...the docstring stays the module's", ast.get_docstring(ast.parse(out)), "doc.")
-            subprocess.run(header_argv(d, E, ["t.py"]), capture_output=True, check=False)
+            chk(
+                "...shebang first, then SPDX and the holder's copyright line",
+                (
+                    head[0],
+                    header_id(out),
+                    any(E.COPYRIGHT_HOLDER in ln and "Copyright" in ln for ln in head),
+                ),
+                ("#!/usr/bin/env python3", E.LICENSE_SPDX, True),
+            )
+            chk(
+                "...the docstring stays the module's",
+                ast.get_docstring(ast.parse(out)),
+                "doc.",
+            )
+            subprocess.run(
+                header_argv(d, E, ["t.py"]), capture_output=True, check=False
+            )
             with open(os.path.join(d, "t.py"), encoding="utf-8") as fh:
                 twice = fh.read()
             chk("...and writing twice is a no-op", twice, out)
     with tempfile.TemporaryDirectory() as d:
-        for fn, body in (("a.py", put), ("b.py", src), ("c.py", "# SPDX-License-Identifier: MIT\n")):
+        for fn, body in (
+            ("a.py", put),
+            ("b.py", src),
+            ("c.py", "# SPDX-License-Identifier: MIT\n"),
+        ):
             with open(os.path.join(d, fn), "w") as fh:
                 fh.write(body)
         os.symlink(os.path.join(d, "b.py"), os.path.join(d, "s.py"))
         h = header_facts(d, "Apache-2.0", ["a.py", "b.py", "c.py", "s.py", "x.txt"])
-        chk("1 of 3 authored carry it; b missing, c wrong, the symlink is not authored",
+        chk(
+            "1 of 3 authored carry it; b missing, c wrong, the symlink is not authored",
             (h["population"], h["carrying"], h["missing"], h["wrong"]),
-            (3, 1, ["b.py"], [{"file": "c.py", "id": "MIT"}]))
+            (3, 1, ["b.py"], [{"file": "c.py", "id": "MIT"}]),
+        )
     # W169: the copyright measurement SEES the right holder, another holder, and none
     spdx = "# SPDX-License-Identifier: Apache-2.0\n"
     with tempfile.TemporaryDirectory() as d:
-        for fn, body in (("ok.py", spdx + "# Copyright (c) 2026 Mike Mol\n"),
-                         ("other.py", spdx + "# Copyright (c) 2026 Someone Else\n"),
-                         ("none.py", spdx)):
+        for fn, body in (
+            ("ok.py", spdx + "# Copyright (c) 2026 Mike Mol\n"),
+            ("other.py", spdx + "# Copyright (c) 2026 Someone Else\n"),
+            ("none.py", spdx),
+        ):
             with open(os.path.join(d, fn), "w") as fh:
                 fh.write(body)
         h = header_facts(d, "Apache-2.0", ["ok.py", "other.py", "none.py"], "Mike Mol")
-        chk("a missing copyright line and another holder are SEEN; the right one is not flagged",
+        chk(
+            "a missing copyright line and another holder are SEEN; the right one is not flagged",
             (h["no_copyright"], h["wrong_holder"]),
-            (["none.py"], [{"file": "other.py", "holder": "Someone Else"}]))
-    chk("a header with no holder declared carries no copyright facts",
-        "no_copyright" in header_facts(tempfile.gettempdir(), "Apache-2.0", []), False)
+            (["none.py"], [{"file": "other.py", "holder": "Someone Else"}]),
+        )
+    chk(
+        "a header with no holder declared carries no copyright facts",
+        "no_copyright" in header_facts(tempfile.gettempdir(), "Apache-2.0", []),
+        False,
+    )
     m = measure()
-    chk("the real tree's authored-source population is non-empty", m["headers"]["population"] > 0, True)
-    chk("the real tree: every authored source names the declared holder",
-        (m["headers"].get("no_copyright"), m["headers"].get("wrong_holder")), ([], []))
-    chk("every population kind is non-empty",
-        sorted({c["kind"] for c in m["cases"]}), ["authority", "emitted", "file", "generator"])
+    chk(
+        "the real tree's authored-source population is non-empty",
+        m["headers"]["population"] > 0,
+        True,
+    )
+    chk(
+        "the real tree: every authored source names the declared holder",
+        (m["headers"].get("no_copyright"), m["headers"].get("wrong_holder")),
+        ([], []),
+    )
+    chk(
+        "every population kind is non-empty",
+        sorted({c["kind"] for c in m["cases"]}),
+        ["authority", "emitted", "file", "generator"],
+    )
     print("check_license selftest:", "PASS" if ok else "FAIL")
     return ok
 

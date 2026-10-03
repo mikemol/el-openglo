@@ -22,6 +22,7 @@ Everything else is solved/derived:
   accent= the hue at full usable chroma
   ...then ~34 UI tokens derived by fixed transforms off those primitives.
 """
+
 import colorsys
 import random as _random
 
@@ -29,15 +30,15 @@ import cvd_gate as C
 import ghost_solve as _GS
 
 # ---- the two non-derivable inputs -----------------------------------------
-HUE_SEEDS = {          # base hue (HSV degrees) — the identity, chosen not solved
+HUE_SEEDS = {  # base hue (HSV degrees) — the identity, chosen not solved
     "openglo": 168.0,  # teal-green electroluminescent
-    "azure":   210.0,  # blue backlight
-    "amber":   35.0,   # classic LCD amber
+    "azure": 210.0,  # blue backlight
+    "amber": 35.0,  # classic LCD amber
 }
 
 THRESHOLDS = {
-    "void_max_lum": C.OLED_VOID_MAX_LUM,   # 2% — ground reads as OLED void
-    "chroma_floor": 40,                    # keep the phosphor hue (not grey/black)
+    "void_max_lum": C.OLED_VOID_MAX_LUM,  # 2% — ground reads as OLED void
+    "chroma_floor": 40,  # keep the phosphor hue (not grey/black)
     "ghost_ceiling_lc": C.GHOST_READABLE_LC,  # 30 — ghost must FAIL readability
 }
 
@@ -57,8 +58,8 @@ def solve_void(hue, thr):
     best = None
     # walk value up from black; keep the darkest that is void AND has some chroma
     for k in range(2, 40):
-        v = k / 500.0                      # very low values
-        cand = _hsv(hue, 0.62, v)          # saturated so a little chroma survives
+        v = k / 500.0  # very low values
+        cand = _hsv(hue, 0.62, v)  # saturated so a little chroma survives
         L = C._wcag_L(cand)
         if L <= thr["void_max_lum"] and _chroma(cand) >= 3:
             best = cand
@@ -77,8 +78,8 @@ def solve_void(hue, thr):
 # and stays legible, and nothing a sender says can put an unreadable colour on
 # the display. Nothing in a widget does this arithmetic: it is solved here at
 # build time into a hue table the widget looks up.
-LIT_FLOOR_LC = 60.0          # APCA body-text level; fg itself clears it on every variant
-HUE_BUCKETS = 12             # the table's resolution: one entry per 30 degrees
+LIT_FLOOR_LC = 60.0  # APCA body-text level; fg itself clears it on every variant
+HUE_BUCKETS = 12  # the table's resolution: one entry per 30 degrees
 
 
 def rehue(fg, hue_deg, ground, ghost):
@@ -96,8 +97,10 @@ def rehue(fg, hue_deg, ground, ghost):
 
 def hue_table(fg, ground, ghost, buckets=HUE_BUCKETS):
     """[(hue_deg, colour, ok)] over the bucket centres — what the marquee ships."""
-    return [(h, *rehue(fg, h, ground, ghost))
-            for h in (i * 360.0 / buckets for i in range(buckets))]
+    return [
+        (h, *rehue(fg, h, ground, ghost))
+        for h in (i * 360.0 / buckets for i in range(buckets))
+    ]
 
 
 def solve_lit(hue, ground, thr):
@@ -106,7 +109,7 @@ def solve_lit(hue, ground, thr):
     dark_ground = C._wcag_L(ground) < 0.4
     best = None
     best_lc = -1
-    for si in range(4, 11):                 # saturation 0.4..1.0
+    for si in range(4, 11):  # saturation 0.4..1.0
         s = si / 10.0
         vs = range(55, 101) if dark_ground else range(8, 46)
         for vi in vs:
@@ -138,8 +141,9 @@ def solve_ghost(lit, ground, thr, alpha):
     says nothing about whether the optimum lies between two samples, so its answer
     cannot be shown wrong. This one can be checked against the condition it claims
     to satisfy, which is what scripts/check_ghost_balance.py does."""
-    colour, _t, _ts = _GS.derive_ghost_through_alpha(lit, ground, alpha,
-                                                     thr["ghost_ceiling_lc"])
+    colour, _t, _ts = _GS.derive_ghost_through_alpha(
+        lit, ground, alpha, thr["ghost_ceiling_lc"]
+    )
     return colour
 
 
@@ -173,6 +177,7 @@ def solve_ghost_alpha(thr=THRESHOLDS):
     # EXACTLY on its floor by construction; rounding to nearest can land it a
     # thousandth under, which the gate reads as a miss. Up keeps the bound.
     import math
+
     return math.ceil(alpha * 1000) / 1000
 
 
@@ -288,6 +293,8 @@ def _candidates(sector, ground, min_contrast, hot, contrast_fn=None):
 
 
 _DE_CACHE: dict[tuple[tuple[int, ...], tuple[int, ...]], float] = {}
+
+
 def _cached_dE(a, b):
     key = (a, b) if a <= b else (b, a)
     v = _DE_CACHE.get(key)
@@ -304,8 +311,16 @@ def solve_semantic_set(*args, **kw):
     return chosen, score
 
 
-def solve_semantic_set_checked(sectors, ground, hot, min_contrast=4.6, anchors=(),
-                               contrast_fn=None, relax_min=3.0, relax_step=0.3):
+def solve_semantic_set_checked(
+    sectors,
+    ground,
+    hot,
+    min_contrast=4.6,
+    anchors=(),
+    contrast_fn=None,
+    relax_min=3.0,
+    relax_step=0.3,
+):
     """JOINT solve of the semantic-accent constellation. Each slot draws from its
     in-sector, contrast-clearing, hot-distinct candidates; we choose one per slot
     to MAXIMIZE THE MINIMUM pairwise separation across the whole set (the binding
@@ -350,8 +365,12 @@ def solve_semantic_set_checked(sectors, ground, hot, min_contrast=4.6, anchors=(
                 # bright green at 1.77:1 (W10). Offer both tones and the darkest,
                 # and take the one that contrasts MOST with this ground.
                 h = _sector_hue(sectors[k])
-                cands[k] = [max((_hsv(h, 0.85, v) for v in (0.85, 0.4, 0.2)),
-                                key=lambda c: fn(c, ground))]
+                cands[k] = [
+                    max(
+                        (_hsv(h, 0.85, v) for v in (0.85, 0.4, 0.2)),
+                        key=lambda c: fn(c, ground),
+                    )
+                ]
                 fallback.add(k)
 
     _floors = C.reference_floors()
@@ -391,7 +410,7 @@ def solve_semantic_set_checked(sectors, ground, hot, min_contrast=4.6, anchors=(
     # … then deterministic random restarts, because greedy alone oscillated under
     # the floor.  Stop early once the gate is satisfied (q >= 1 in every view).
     if best_score < 1.0:
-        rng = _random.Random(20260804)          # fixed: the solve must reproduce
+        rng = _random.Random(20260804)  # fixed: the solve must reproduce
         for _ in range(8):
             seed = {k: rng.choice(cands[k]) for k in slots}
             cand_chosen, cand_score = _hillclimb(seed)
@@ -399,17 +418,25 @@ def solve_semantic_set_checked(sectors, ground, hot, min_contrast=4.6, anchors=(
                 chosen, best_score = cand_chosen, cand_score
             if best_score >= 1.0:
                 break
-    infeasible = [k for k in slots if k in fallback and (
-        fn(chosen[k], ground) < relax_min
-        or (hot is not None and C._worst_normalized(chosen[k], hot, _floors)[0] < 1.0))]
+    infeasible = [
+        k
+        for k in slots
+        if k in fallback
+        and (
+            fn(chosen[k], ground) < relax_min
+            or (
+                hot is not None
+                and C._worst_normalized(chosen[k], hot, _floors)[0] < 1.0
+            )
+        )
+    ]
     return chosen, best_score, infeasible
 
 
-
-
 # ---- derived transforms (no search) ---------------------------------------
-def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6,
-                      fg=(), fg_floor=None, fg_fn=None):
+def solve_state_steps(
+    accent, ground, floor=3.0, step=0.01, max_d=0.6, fg=(), fg_floor=None, fg_fn=None
+):
     """The decoration states as SOLVED luminance offsets of the accent (⊕SOLVER-UI-TOKENS, W10).
 
     focus = accent; sel_bg = accent nudged d toward the ground; hover = nudged 2d.
@@ -429,18 +456,22 @@ def solve_state_steps(accent, ground, floor=3.0, step=0.01, max_d=0.6,
     `fg_floor` in `fg_fn` - a step whose field the text cannot read on is skipped,
     not taken. None (the default) is the shipped solve."""
     floors = C.reference_floors()
-    toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0   # toward the ground: darker on dark
+    toward = (
+        -1.0 if C._wcag_L(ground) < 0.4 else 1.0
+    )  # toward the ground: darker on dark
     best_d, best_q = None, -1.0
     n = int(max_d / step)
     for i in range(1, n + 1):
         d = i * step
         sel, hov = _lum_nudge(accent, toward * d), _lum_nudge(accent, toward * 2 * d)
         if min(C.wcag_ratio(c, ground) for c in (accent, sel, hov)) < floor:
-            break                        # further steps only lose the ground floor
+            break  # further steps only lose the ground floor
         if fg_floor is not None and min(fg_fn(f, sel) for f in fg) < fg_floor:
             continue
-        q = min(C._worst_normalized(a, b, floors)[0]
-                for a, b in ((accent, sel), (sel, hov), (accent, hov)))
+        q = min(
+            C._worst_normalized(a, b, floors)[0]
+            for a, b in ((accent, sel), (sel, hov), (accent, hov))
+        )
         if q >= 1.0:
             return d, True
         if q > best_q:
@@ -511,7 +542,8 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
     # reader takes for a polarity decision. It is one floor for both polarities.
     _min_c = 4.6
     _sem, _sem_score, _sem_bad = solve_semantic_set_checked(
-        _sem_sectors, ground, accent, _min_c, anchors=[lit])
+        _sem_sectors, ground, accent, _min_c, anchors=[lit]
+    )
 
     # the selection field and the semantic set drawn ON it — solved over that
     # field exactly as the window's set is solved over the ground (W10)
@@ -521,8 +553,9 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
     P = sel_policy
     _fn = sel_contrast_fn(P["metric"]) if P else None
     if P and P["normal"] is not None:
-        _d, _states_ok = solve_state_steps(accent, ground, fg=[ground],
-                                           fg_floor=P["normal"], fg_fn=_fn)
+        _d, _states_ok = solve_state_steps(
+            accent, ground, fg=[ground], fg_floor=P["normal"], fg_fn=_fn
+        )
     else:
         _d, _states_ok = solve_state_steps(accent, ground)
     _toward = -1.0 if C._wcag_L(ground) < 0.4 else 1.0
@@ -534,12 +567,22 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
         sel_act = _lum_nudge(ground, _k)
     if P:
         _sel_sem, _sel_score, _sel_bad = solve_semantic_set_checked(
-            {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent,
-            P["sem"], anchors=[sel_fg, sel_act], contrast_fn=_fn, relax_min=P["sem"])
+            {k: _sem_sectors[k] for k in ("neg", "neu", "pos")},
+            sel_bg,
+            accent,
+            P["sem"],
+            anchors=[sel_fg, sel_act],
+            contrast_fn=_fn,
+            relax_min=P["sem"],
+        )
     else:
         _sel_sem, _sel_score, _sel_bad = solve_semantic_set_checked(
-            {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent, _min_c,
-            anchors=[sel_fg, sel_act])
+            {k: _sem_sectors[k] for k in ("neg", "neu", "pos")},
+            sel_bg,
+            accent,
+            _min_c,
+            anchors=[sel_fg, sel_act],
+        )
 
     # panel ladder: ground raised by small fixed steps (derived, no search)
     window = _lum_nudge(ground, 0.03 * up)
@@ -552,16 +595,26 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
     vid = "EL-" + seed_name.capitalize() + ("" if polarity == "off" else "-Lit")
 
     t = {
-        "name": name, "id": vid,
-        "view": _s(ground), "view_alt": _s(_lum_nudge(ground, 0.015 * up)),
-        "window": _s(window), "window_alt": _s(_lum_nudge(window, 0.01 * up)),
-        "button": _s(button), "button_alt": _s(_lum_nudge(button, 0.01 * up)),
-        "header": _s(header), "header_alt": _s(_lum_nudge(header, 0.01 * up)),
-        "hdr_in_bg": _s(header), "hdr_in_alt": _s(_lum_nudge(header, 0.01 * up)),
-        "comp": _s(comp), "comp_alt": _s(_lum_nudge(comp, 0.01 * up)),
-        "tt_bg": _s(tt_bg), "tt_alt": _s(_lum_nudge(tt_bg, 0.01 * up)),
+        "name": name,
+        "id": vid,
+        "view": _s(ground),
+        "view_alt": _s(_lum_nudge(ground, 0.015 * up)),
+        "window": _s(window),
+        "window_alt": _s(_lum_nudge(window, 0.01 * up)),
+        "button": _s(button),
+        "button_alt": _s(_lum_nudge(button, 0.01 * up)),
+        "header": _s(header),
+        "header_alt": _s(_lum_nudge(header, 0.01 * up)),
+        "hdr_in_bg": _s(header),
+        "hdr_in_alt": _s(_lum_nudge(header, 0.01 * up)),
+        "comp": _s(comp),
+        "comp_alt": _s(_lum_nudge(comp, 0.01 * up)),
+        "tt_bg": _s(tt_bg),
+        "tt_alt": _s(_lum_nudge(tt_bg, 0.01 * up)),
         # phosphor foregrounds = the solved lit / ghost primitives
-        "fg": _s(lit), "fg_act": _s(accent), "fg_in": _s(ghost),
+        "fg": _s(lit),
+        "fg_act": _s(accent),
+        "fg_in": _s(ghost),
         # ⚑ THE FOCUS RING IS THE ACCENT, NOT THE BODY TEXT.  `focus` read
         # `_s(lit)` — the same value as `fg` — so DecorationFocus and
         # View/ForegroundNormal emitted byte-identically in all six variants, and
@@ -583,7 +636,7 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
         # accent stepped toward the ground, which keeps the hue and separates the
         # state.
         "focus": _s(accent),
-        "hover": _s(hover),                      # solved step (solve_state_steps), not ±0.12
+        "hover": _s(hover),  # solved step (solve_state_steps), not ±0.12
         "state_step": f"{_d:.2f}",
         "state_sep_infeasible": "false" if _states_ok else "true",
         # semantic accents — from the JOINT constellation solve (mutually distinct)
@@ -615,8 +668,10 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
         "sel_bg": _s(sel_bg),
         "sel_act": _s(sel_act),
         "sel_alt": _s(_lum_nudge(accent, -0.05)),
-        "sel_fg": _s(sel_fg), "sel_in": _s(_mix(accent, ground, 0.5)),
-        "sel_link": _s(ground), "sel_vis": _s(_mix(ground, accent, 0.3)),
+        "sel_fg": _s(sel_fg),
+        "sel_in": _s(_mix(accent, ground, 0.5)),
+        "sel_link": _s(ground),
+        "sel_vis": _s(_mix(ground, accent, 0.3)),
         # ⚑ THESE WERE THREE LITERALS — "45,10,10" / "45,30,8" / "10,40,20" — the
         # same bytes in every variant, never solved, never checked (W10,
         # 2026-09-21: check_selection_contrast --semantic read 1.46:1 to 3.05:1
@@ -625,9 +680,11 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
         # bright). The selection field is a GROUND like any other, so its
         # semantic set is the same joint constellation solve, over sel_bg,
         # anchored to the selection's own text.
-        "sel_neg": _s(_sel_sem["neg"]), "sel_neu": _s(_sel_sem["neu"]),
+        "sel_neg": _s(_sel_sem["neg"]),
+        "sel_neu": _s(_sel_sem["neu"]),
         "sel_pos": _s(_sel_sem["pos"]),
-        "fx_dis": _s(ghost), "fx_in": _s(ghost),
+        "fx_dis": _s(ghost),
+        "fx_in": _s(ghost),
         "tt_is_sel": "false",
         # ⚑ THE GHOST'S RENDER ALPHA TRAVELS WITH THE GHOST.  `fg_in` was solved
         # to be seen THROUGH this number, so a consumer that draws it at any other
@@ -642,12 +699,19 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
     if _bad:
         t["sem_infeasible"] = ",".join(_bad)
     if P:
-        floors = {"sel_fg": P["normal"], "sel_act": P["active"], "sel_neg": P["sem"],
-                  "sel_neu": P["sem"], "sel_pos": P["sem"]}
+        floors = {
+            "sel_fg": P["normal"],
+            "sel_act": P["active"],
+            "sel_neg": P["sem"],
+            "sel_neu": P["sem"],
+            "sel_pos": P["sem"],
+        }
         t["sel_metric"] = P["metric"]
         t["sel_floor_infeasible"] = ",".join(
-            k for k, f in floors.items()
-            if f is not None and _fn(C.rgb(t[k]), sel_bg) < f)
+            k
+            for k, f in floors.items()
+            if f is not None and _fn(C.rgb(t[k]), sel_bg) < f
+        )
     return t
 
 
@@ -657,7 +721,7 @@ def build_grid(sel_policy=None):
     the Complementary color group — matching the authored GRID's shape, NOT a
     bool. Off-variant is its own counterpart; lit uses the off scheme."""
     grid = {}
-    alpha = solve_ghost_alpha()                 # once: it is one number for the grid
+    alpha = solve_ghost_alpha()  # once: it is one number for the grid
     for seed in HUE_SEEDS:
         off = solve_scheme(seed, "off", alpha=alpha, sel_policy=sel_policy)
         lit = solve_scheme(seed, "lit", alpha=alpha, sel_policy=sel_policy)
@@ -671,21 +735,33 @@ def build_grid(sel_policy=None):
     # variant's a_min. A variant that cannot satisfy both is NAMED on the token
     # (`ghost_alpha_glanced_infeasible`), not clamped.
     import glance_audit as _ga
+
     rows = []
     for key, (t, _d) in grid.items():
         rgb = lambda s: tuple(int(x) for x in s.split(","))
         lit_c, ground_c, ghost_c = rgb(t["fg"]), rgb(t["view"]), rgb(t["fg_in"])
         # the ground-side minimum for THIS mode's floor (glanced: "recedes to
         # texture", cvd_gate.GHOST_VISIBLE_LC_GLANCED), not the looked-at one
-        a_min = _GS.alpha_min(lit_c, ground_c,
-                              C.feasible_ghost_floor_lc(lit_c, ground_c, "glanced_at")) or 0.0
+        a_min = (
+            _GS.alpha_min(
+                lit_c,
+                ground_c,
+                C.feasible_ghost_floor_lc(lit_c, ground_c, "glanced_at"),
+            )
+            or 0.0
+        )
         rows.append(("-".join(key), lit_c, ground_c, ghost_c, a_min))
-    g_alpha, _per, infeasible = _GS.solve_ghost_alpha_for_mode(rows, _ga.MODE_FLOOR[_ga.GLANCED_AT])
+    g_alpha, _per, infeasible = _GS.solve_ghost_alpha_for_mode(
+        rows, _ga.MODE_FLOOR[_ga.GLANCED_AT]
+    )
     import math
-    g_alpha = math.floor(g_alpha * 1000) / 1000        # DOWN: it is an upper bound
+
+    g_alpha = math.floor(g_alpha * 1000) / 1000  # DOWN: it is an upper bound
     for key, (t, _d) in grid.items():
         t["ghost_alpha_glanced"] = str(g_alpha)
-        t["ghost_alpha_glanced_infeasible"] = "true" if "-".join(key) in infeasible else "false"
+        t["ghost_alpha_glanced_infeasible"] = (
+            "true" if "-".join(key) in infeasible else "false"
+        )
     return grid
 
 
@@ -696,6 +772,8 @@ if __name__ == "__main__":
             g = tuple(int(x) for x in t["view"].split(","))
             l = tuple(int(x) for x in t["focus"].split(","))
             gh = tuple(int(x) for x in t["fg_in"].split(","))
-            print(f"{t['id']:<16} void={t['view']:<12} lit={t['focus']:<12} "
-                  f"ghost={t['fg_in']:<12} lit/void={C.wcag_ratio(l,g):.1f} "
-                  f"ghostLc={abs(C.apca_Lc(gh,g)):.0f}")
+            print(
+                f"{t['id']:<16} void={t['view']:<12} lit={t['focus']:<12} "
+                f"ghost={t['fg_in']:<12} lit/void={C.wcag_ratio(l, g):.1f} "
+                f"ghostLc={abs(C.apca_Lc(gh, g)):.0f}"
+            )

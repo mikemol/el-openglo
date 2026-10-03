@@ -32,6 +32,7 @@ READS that key (e.g. Alacritty's `dim` bank is optional) is the consumer's
 schema, checked here only by key name. And the roster is only as complete as
 make_konsole's declaration: a sixth target nobody declares is not seen.
 """
+
 import configparser
 import json
 import os
@@ -63,7 +64,10 @@ def _read_konsole(text):
     cp.read_string(text)
 
     def col(sec):
-        return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in cp[sec]["Color"].split(",")))
+        return "#{:02x}{:02x}{:02x}".format(
+            *(int(x) for x in cp[sec]["Color"].split(","))
+        )
+
     out = {"ground": col("Background"), "foreground": col("Foreground")}
     for i in range(8):
         out[f"n{i}"], out[f"b{i}"] = col(f"Color{i}"), col(f"Color{i}Intense")
@@ -72,7 +76,10 @@ def _read_konsole(text):
 
 def _read_alacritty(text):
     d = tomllib.loads(text)["colors"]
-    out = {"ground": d["primary"]["background"], "foreground": d["primary"]["foreground"]}
+    out = {
+        "ground": d["primary"]["background"],
+        "foreground": d["primary"]["foreground"],
+    }
     for i, n in enumerate(NAMES):
         out[f"n{i}"], out[f"b{i}"] = d["normal"][n], d["bright"][n]
     return out
@@ -89,11 +96,17 @@ def _read_foot(text):
 
 
 def _read_kitty(text):
-    kv = dict(line.split(None, 1) for line in text.splitlines()
-              if line.strip() and not line.startswith("#"))
+    kv = dict(
+        line.split(None, 1)
+        for line in text.splitlines()
+        if line.strip() and not line.startswith("#")
+    )
     out = {"ground": kv["background"].strip(), "foreground": kv["foreground"].strip()}
     for i in range(8):
-        out[f"n{i}"], out[f"b{i}"] = kv[f"color{i}"].strip(), kv[f"color{i + 8}"].strip()
+        out[f"n{i}"], out[f"b{i}"] = (
+            kv[f"color{i}"].strip(),
+            kv[f"color{i + 8}"].strip(),
+        )
     return out
 
 
@@ -107,8 +120,11 @@ def _read_windows_terminal(text):
 
 
 def _read_termux(text):
-    kv = dict(line.split("=", 1) for line in text.splitlines()
-              if line and not line.startswith("#"))
+    kv = dict(
+        line.split("=", 1)
+        for line in text.splitlines()
+        if line and not line.startswith("#")
+    )
     out = {"ground": kv["background"], "foreground": kv["foreground"]}
     for i in range(8):
         out[f"n{i}"], out[f"b{i}"] = kv[f"color{i}"], kv[f"color{i + 8}"]
@@ -137,32 +153,39 @@ def read_back(fmt, text):
 def variants():
     """The variant ids this tree DECLARES — scripts/variant_roster.py (W61 B2)."""
     import variant_roster
+
     return variant_roster.ids()
 
 
 def formats():
     """The formats the EMITTER declares it emits (make_konsole.TERMINAL_FORMATS)."""
     import make_konsole as K
+
     return sorted(K.TERMINAL_FORMATS)
 
 
 def drift():
     """[(format, why)] — emitter roster vs reader roster, in BOTH directions."""
     emitted, read = set(formats()), set(READERS)
-    return ([(f, "emitted by make_konsole but this check has no reader for it")
-             for f in sorted(emitted - read)] +
-            [(f, "this check reads it but make_konsole no longer declares it")
-             for f in sorted(read - emitted)])
+    return [
+        (f, "emitted by make_konsole but this check has no reader for it")
+        for f in sorted(emitted - read)
+    ] + [
+        (f, "this check reads it but make_konsole no longer declares it")
+        for f in sorted(read - emitted)
+    ]
 
 
 def emit(fmt, variant):
     import make_konsole as K
+
     return K.TERMINAL_FORMATS[fmt](variant)
 
 
 def compare(fmt, variant, text=None):
     """[(role, expected, got)] mismatches for one format/variant; [] when faithful."""
     import make_konsole as K
+
     exp = _expected(K.ansi_table(variant))
     got = read_back(fmt, text if text is not None else emit(fmt, variant))
     return [(k, exp[k], got.get(k)) for k in exp if got.get(k) != exp[k]]
@@ -187,14 +210,26 @@ def measure():
     cells, _missing = population()
     cases = []
     for v, fmt in cells:
-        c = {"id": f"{fmt} {v}", "variant": v, "format": fmt, "parse_error": None, "mismatches": None}
+        c = {
+            "id": f"{fmt} {v}",
+            "variant": v,
+            "format": fmt,
+            "parse_error": None,
+            "mismatches": None,
+        }
         try:
-            c["mismatches"] = [{"role": r, "want": e, "got": g} for r, e, g in compare(fmt, v)]
-        except Exception as e:                       # noqa: BLE001
+            c["mismatches"] = [
+                {"role": r, "want": e, "got": g} for r, e, g in compare(fmt, v)
+            ]
+        except Exception as e:  # noqa: BLE001
             c["parse_error"] = f"{type(e).__name__}: {e}"
         cases.append(c)
-    return {"variants": list(variants()), "formats": formats(),
-            "drift": [{"format": f, "why": why} for f, why in drift()], "cases": cases}
+    return {
+        "variants": list(variants()),
+        "formats": formats(),
+        "drift": [{"format": f, "why": why} for f, why in drift()],
+        "cases": cases,
+    }
 
 
 def main(argv):
@@ -219,6 +254,7 @@ def main(argv):
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("terminals")
 
 
@@ -237,51 +273,98 @@ def _selftest():
         check(f"{fmt} emission is faithful", compare(fmt, "EL-Openglo"), [])
     # ⚑ THE LIVENESS CONJUNCT: complete AND not vacuously complete.
     cells, missing = population()
-    check("the declared population is complete on a clean tree",
-          (missing, len(cells) == len(variants()) * len(formats())), ([], True))
+    check(
+        "the declared population is complete on a clean tree",
+        (missing, len(cells) == len(variants()) * len(formats())),
+        ([], True),
+    )
     check("and it is not vacuously complete", len(cells) > 0, True)
     # ⚑ DRIFT MUST BE SEEN IN BOTH DIRECTIONS (synthetic: a reader removed/added)
     saved = dict(READERS)
     try:
         del READERS["foot"]
-        check("an emitted format with no reader is missing",
-              [f for _v, f, _w in population()[1]], ["foot"])
+        check(
+            "an emitted format with no reader is missing",
+            [f for _v, f, _w in population()[1]],
+            ["foot"],
+        )
         m = measure()
-        check("...and the measurement reports the drift, and drops no cell silently",
-              ([d["format"] for d in m["drift"]], any(c["format"] == "foot" for c in m["cases"])),
-              (["foot"], False))
+        check(
+            "...and the measurement reports the drift, and drops no cell silently",
+            (
+                [d["format"] for d in m["drift"]],
+                any(c["format"] == "foot" for c in m["cases"]),
+            ),
+            (["foot"], False),
+        )
         READERS.clear()
         READERS.update(saved)
         READERS["wezterm"] = _read_foot
-        check("a reader for a format not emitted is missing",
-              [f for _v, f, _w in population()[1]], ["wezterm"])
+        check(
+            "a reader for a format not emitted is missing",
+            [f for _v, f, _w in population()[1]],
+            ["wezterm"],
+        )
     finally:
         READERS.clear()
         READERS.update(saved)
     # ⚑ EACH READER MUST SEE A SWAPPED COLOUR — plant one in every format.
     good = emit("alacritty", "EL-Openglo")
     swapped = good.replace('red = "', 'red = "#ff00ff" # ', 1)
-    check("alacritty: a swapped colour is seen", compare("alacritty", "EL-Openglo", swapped) != [], True)
+    check(
+        "alacritty: a swapped colour is seen",
+        compare("alacritty", "EL-Openglo", swapped) != [],
+        True,
+    )
     good = emit("windows-terminal", "EL-Openglo")
     d = json.loads(good)
     d["brightRed"], d["brightGreen"] = d["brightGreen"], d["brightRed"]
-    check("windows-terminal: swapped brights are seen",
-          compare("windows-terminal", "EL-Openglo", json.dumps(d)) != [], True)
+    check(
+        "windows-terminal: swapped brights are seen",
+        compare("windows-terminal", "EL-Openglo", json.dumps(d)) != [],
+        True,
+    )
     good = emit("foot", "EL-Openglo")
-    check("foot: a dropped key is a parse failure", _raises(lambda: compare(
-        "foot", "EL-Openglo", good.replace("regular3=", "regular3x="))), True)
+    check(
+        "foot: a dropped key is a parse failure",
+        _raises(
+            lambda: compare(
+                "foot", "EL-Openglo", good.replace("regular3=", "regular3x=")
+            )
+        ),
+        True,
+    )
     good = emit("kitty", "EL-Openglo")
-    check("kitty: a swapped colour is seen", compare(
-        "kitty", "EL-Openglo", good.replace("color9 ", "color9 #000000\n#", 1)) != [], True)
+    check(
+        "kitty: a swapped colour is seen",
+        compare("kitty", "EL-Openglo", good.replace("color9 ", "color9 #000000\n#", 1))
+        != [],
+        True,
+    )
     good = emit("termux", "EL-Openglo")
-    check("termux: a swapped colour is seen", compare(
-        "termux", "EL-Openglo", good.replace("color1=", "color1=#000000 ")) != [], True)
+    check(
+        "termux: a swapped colour is seen",
+        compare("termux", "EL-Openglo", good.replace("color1=", "color1=#000000 "))
+        != [],
+        True,
+    )
     good = emit("konsole", "EL-Openglo")
     # the original value line becomes a comment; the planted one is read
-    check("konsole: a changed Intense bank is seen", compare(
-        "konsole", "EL-Openglo", good.replace("[Color1Intense]\nColor=", "[Color1Intense]\nColor=0,0,0\n#")) != [],
-          True)
-    check("a malformed TOML does not pass", _raises(lambda: compare("alacritty", "EL-Openglo", "[colors\n")), True)
+    check(
+        "konsole: a changed Intense bank is seen",
+        compare(
+            "konsole",
+            "EL-Openglo",
+            good.replace("[Color1Intense]\nColor=", "[Color1Intense]\nColor=0,0,0\n#"),
+        )
+        != [],
+        True,
+    )
+    check(
+        "a malformed TOML does not pass",
+        _raises(lambda: compare("alacritty", "EL-Openglo", "[colors\n")),
+        True,
+    )
     print("check_terminals selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -290,7 +373,7 @@ def _raises(fn):
     try:
         fn()
         return False
-    except Exception:                                    # noqa: BLE001
+    except Exception:  # noqa: BLE001
         return True
 
 

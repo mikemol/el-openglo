@@ -24,6 +24,7 @@ sees the SKIP on stderr.
 here delegates to it for the two surfaces it can render, so make_deb runs both
 "parses" and "draws" as the closure at :4545 said it would.
 """
+
 import os
 import shutil
 import sys
@@ -37,8 +38,16 @@ IMPORTS = ("/usr/lib64/qt6/qml",)
 # diagnostic ids that are ERRORS for a shipped document (qmllint's own ids);
 # `unqualified`, `unused-imports`, `import` and `missing-property` are context
 # qmllint cannot see (Plasma injects `plasmoid`/`wallpaper`) and are not gated
-ERROR_IDS = frozenset({"syntax", "duplicate-property-binding", "duplicate-bindings",
-                       "top-level-component", "uncreatable-type", "inheritance-cycle"})
+ERROR_IDS = frozenset(
+    {
+        "syntax",
+        "duplicate-property-binding",
+        "duplicate-bindings",
+        "top-level-component",
+        "uncreatable-type",
+        "inheritance-cycle",
+    }
+)
 
 
 def _qmllint():
@@ -52,7 +61,9 @@ def check_qml(text, label="<qml>"):
         print(f"qml_sanity: SKIP {label} — qmllint not installed", file=sys.stderr)
         return []
     with tempfile.TemporaryDirectory() as td:
-        p = os.path.join(td, os.path.basename(label) if label.endswith(".qml") else "subject.qml")
+        p = os.path.join(
+            td, os.path.basename(label) if label.endswith(".qml") else "subject.qml"
+        )
         with open(p, "w", encoding="utf-8") as fh:
             fh.write(text)
         cmd = [exe, "--json", "-"]
@@ -63,6 +74,7 @@ def check_qml(text, label="<qml>"):
     errs = []
     try:
         import json
+
         rep = json.loads(r.stdout)
         # ⚑ qmllint's per-file `success` flips on ANY diagnostic, and a Plasma
         # surface always carries some: `wallpaper` and `plasmoid` are context
@@ -73,13 +85,17 @@ def check_qml(text, label="<qml>"):
         for f in rep.get("files", []):
             for w in f.get("warnings", []):
                 if w.get("id") in ERROR_IDS or w.get("type") == "critical":
-                    errs.append(f"{label}:{w.get('line')}:{w.get('column')}: "
-                                f"[{w.get('id')}] {w.get('message')}")
+                    errs.append(
+                        f"{label}:{w.get('line')}:{w.get('column')}: "
+                        f"[{w.get('id')}] {w.get('message')}"
+                    )
     except (ValueError, KeyError):
         # no JSON at all is a tooling fault, and a tooling fault must be loud:
         # a linter that silently said nothing is the string-presence proxy again
-        errs.append(f"{label}: qmllint produced no JSON (rc={r.returncode}): "
-                    f"{(r.stderr or r.stdout).strip()[:300]}")
+        errs.append(
+            f"{label}: qmllint produced no JSON (rc={r.returncode}): "
+            f"{(r.stderr or r.stdout).strip()[:300]}"
+        )
     return errs
 
 
@@ -87,6 +103,7 @@ def render_nonempty(surface, variant="EL-Openglo", min_lit=20):
     """(ok, detail): the emitted surface draws lit pixels headless (scripts/render_qml)."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import render_qml as RQ
+
     if not os.path.exists(RQ.QML):
         return True, f"SKIP render — {RQ.QML} not installed"
     if os.environ.get("SANDBOX_ON") == "1":
@@ -95,16 +112,24 @@ def render_nonempty(surface, variant="EL-Openglo", min_lit=20):
         # the whole staging (measured 2026-09-21: open_wr /dev/nvidiactl). A
         # build sandbox is where this gate cannot run; it runs everywhere else
         # (the pre-commit selftests, check_ebuild's caller, a developer's stage).
-        return True, f"SKIP {surface}: a build sandbox forbids the GPU device the qml runner opens"
+        return (
+            True,
+            f"SKIP {surface}: a build sandbox forbids the GPU device the qml runner opens",
+        )
     with tempfile.TemporaryDirectory() as td:
         out = os.path.join(td, "r.png")
-        rc, err = RQ.render(surface, variant, 400, 48 if surface == "clock" else 200, out)
+        rc, err = RQ.render(
+            surface, variant, 400, 48 if surface == "clock" else 200, out
+        )
         if not os.path.exists(out):
             # ⚑ NO PICTURE AT ALL is the RUNNER failing (no scene graph under a
             # build sandbox, no GL) — a fact about the machine, so a SKIP, printed.
             # A picture with no lit pixels is the DEFECT, and fails below.
-            print(f"qml_sanity: SKIP render-gate {surface} — the qml runner produced no "
-                  f"image (rc={rc}): {err[-160:]}", file=sys.stderr)
+            print(
+                f"qml_sanity: SKIP render-gate {surface} — the qml runner produced no "
+                f"image (rc={rc}): {err[-160:]}",
+                file=sys.stderr,
+            )
             return True, f"SKIP {surface}: no image from the runner"
         n = RQ.pixels(out, variant)
     return n["lit"] >= min_lit, f"{surface}: {n['lit']} lit px (min {min_lit})"
@@ -124,15 +149,35 @@ def _selftest():
     if not _qmllint():
         print("  SKIP qmllint arms — not installed")
     else:
-        chk("a clean document has no errors", check_qml("import QtQuick\nItem { width: 10 }\n", "ok.qml"), [])
-        chk("a syntax error is an error", check_qml("import QtQuick\nItem { width: }\n", "bad.qml") != [], True)
-        chk("a doubled-quote colour is an error (1.23.0's defect)",
-            check_qml('import QtQuick\nRectangle { color: ""#000"" }\n', "quote.qml") != [], True)
-        chk("a style warning is NOT an error",
-            check_qml("import QtQuick\nimport QtQuick.Layouts\nItem { }\n", "warn.qml"), [])
-        chk("a Plasma context property (wallpaper/plasmoid) is NOT an error",
-            check_qml("import QtQuick\nItem { property bool b: wallpaper.configuration.breathe }\n",
-                      "ctx.qml"), [])
+        chk(
+            "a clean document has no errors",
+            check_qml("import QtQuick\nItem { width: 10 }\n", "ok.qml"),
+            [],
+        )
+        chk(
+            "a syntax error is an error",
+            check_qml("import QtQuick\nItem { width: }\n", "bad.qml") != [],
+            True,
+        )
+        chk(
+            "a doubled-quote colour is an error (1.23.0's defect)",
+            check_qml('import QtQuick\nRectangle { color: ""#000"" }\n', "quote.qml")
+            != [],
+            True,
+        )
+        chk(
+            "a style warning is NOT an error",
+            check_qml("import QtQuick\nimport QtQuick.Layouts\nItem { }\n", "warn.qml"),
+            [],
+        )
+        chk(
+            "a Plasma context property (wallpaper/plasmoid) is NOT an error",
+            check_qml(
+                "import QtQuick\nItem { property bool b: wallpaper.configuration.breathe }\n",
+                "ctx.qml",
+            ),
+            [],
+        )
     ok_r, detail = render_nonempty("clock")
     chk(f"the clock renders non-empty ({detail})", ok_r, True)
     print("qml_sanity selftest:", "PASS" if ok else "FAIL")

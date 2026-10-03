@@ -19,6 +19,7 @@ fragment select exactly these names, and (d) does every parent EXIST under
     scripts/check_inherit.py --map      # variant -> icon parents / cursor parent
     scripts/check_inherit.py --selftest
 """
+
 import configparser
 import os
 import sys
@@ -47,6 +48,7 @@ def variants():
     now a thing MEASURED against the authority, not the population itself.
     Read through scripts/variant_roster.py (W61 B2): one roster, one reader."""
     import variant_roster
+
     return variant_roster.ids()
 
 
@@ -58,22 +60,43 @@ def rows():
     does not declare, or one whose index.theme does not parse."""
     out, missing = [], []
     declared, emitted = variants(), set(MI.VARIANTS)
-    missing += [(v, "make_inherit emits it but the palette authority does not declare it")
-                for v in sorted(emitted - set(declared))]
+    missing += [
+        (v, "make_inherit emits it but the palette authority does not declare it")
+        for v in sorted(emitted - set(declared))
+    ]
     for v in declared:
         if v not in emitted:
-            missing.append((v, "declared by make_schemes.GRID but make_inherit.VARIANTS does not emit it"))
+            missing.append(
+                (
+                    v,
+                    "declared by make_schemes.GRID but make_inherit.VARIANTS does not emit it",
+                )
+            )
             continue
         try:
             ic = _ini(MI.icon_index(v))["Icon Theme"]
             cu = _ini(MI.cursor_index(v))["Icon Theme"]
             d = _ini(MI.defaults_fragment(v))
-            defaults_ok = (d["kdeglobals][Icons"]["Theme"] == ic["Name"] and
-                           d["kcminputrc][Mouse"]["cursorTheme"] == cu["Name"])
-            out.append((v, ic["Inherits"].split(","), cu["Inherits"],
-                        [s for s in ic.get("Directories", "").split(",") if s], defaults_ok))
+            defaults_ok = (
+                d["kdeglobals][Icons"]["Theme"] == ic["Name"]
+                and d["kcminputrc][Mouse"]["cursorTheme"] == cu["Name"]
+            )
+            out.append(
+                (
+                    v,
+                    ic["Inherits"].split(","),
+                    cu["Inherits"],
+                    [s for s in ic.get("Directories", "").split(",") if s],
+                    defaults_ok,
+                )
+            )
         except (KeyError, configparser.Error) as e:
-            missing.append((v, f"an emitted index/fragment does not parse: {type(e).__name__}: {e}"))
+            missing.append(
+                (
+                    v,
+                    f"an emitted index/fragment does not parse: {type(e).__name__}: {e}",
+                )
+            )
     return out, missing
 
 
@@ -90,10 +113,18 @@ def measure(roots=ICON_ROOTS):
     a chain without hicolor, no Directories, no cursor parent or mismatched
     defaults are defects by the policy's ruling, not here."""
     rs, missing = rows()
-    cases = [{"id": v, "icon_parents": ip, "cursor_parent": cp, "icon_dirs": dirs,
-              "defaults_ok": dflt, "missing": None,
-              "installed": {p: parent_exists(p, roots) for p in ip[:-1] + [cp] if p}}
-             for v, ip, cp, dirs, dflt in rs]
+    cases = [
+        {
+            "id": v,
+            "icon_parents": ip,
+            "cursor_parent": cp,
+            "icon_dirs": dirs,
+            "defaults_ok": dflt,
+            "missing": None,
+            "installed": {p: parent_exists(p, roots) for p in ip[:-1] + [cp] if p},
+        }
+        for v, ip, cp, dirs, dflt in rs
+    ]
     cases += [{"id": v, "missing": why} for v, why in missing]
     return {"roster": list(variants()), "cases": cases}
 
@@ -106,16 +137,20 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     if "--map" in argv:
         rs, missing = rows()
         for v, ip, cp, dirs, dflt in rs:
-            print(f"{v:16s}  icons -> {','.join(ip):28s}  cursors -> {cp:16s}  dirs {dirs}  defaults {'ok' if dflt else 'MISMATCH'}")
+            print(
+                f"{v:16s}  icons -> {','.join(ip):28s}  cursors -> {cp:16s}  dirs {dirs}  defaults {'ok' if dflt else 'MISMATCH'}"
+            )
         for v, why in missing:
             print(f"{v:16s}  MISSING — {why}")
         return 0
     import opa_gate
+
     return opa_gate.gate("inherit")
 
 
@@ -124,34 +159,53 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     rs, missing = rows()
     # ⚑ THE LIVENESS CONJUNCT (replaces a typed "six variants"): complete against
     # the authority, AND not vacuously complete.
-    chk("the declared population is complete on a clean tree",
-        (missing, len(rs) == len(variants())), ([], True))
+    chk(
+        "the declared population is complete on a clean tree",
+        (missing, len(rs) == len(variants())),
+        ([], True),
+    )
     chk("and it is not vacuously complete", len(rs) > 0, True)
     saved = MI.VARIANTS
     try:
         MI.VARIANTS = saved[:-1]
-        chk("an emitter roster short one variant is a missing member",
-            [c["id"] for c in measure()["cases"] if c["missing"]], [saved[-1]])
+        chk(
+            "an emitter roster short one variant is a missing member",
+            [c["id"] for c in measure()["cases"] if c["missing"]],
+            [saved[-1]],
+        )
     finally:
         MI.VARIANTS = saved
-    chk("the emitted icon index parses as INI with FollowsColorScheme",
-        _ini(MI.icon_index("EL-Azure"))["Icon Theme"]["FollowsColorScheme"], "true")
+    chk(
+        "the emitted icon index parses as INI with FollowsColorScheme",
+        _ini(MI.icon_index("EL-Azure"))["Icon Theme"]["FollowsColorScheme"],
+        "true",
+    )
     # ⚑ THE MEASUREMENT MUST SEE AN UNINSTALLED PARENT (synthetic: an empty root).
     # That it is WITHHELD, and that a broken chain / no Directories / mismatched
     # defaults are DENIED, is policy/inherit_test.rego's ruling (W50).
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         m = measure(roots=(td,))
-        chk("an empty icon root measures every parent as not installed",
-            [p for c in m["cases"] for p, ok in c["installed"].items() if ok], [])
-    chk("the real host's parents are measured (the lookup is not vacuous)",
-        sum(len(c["installed"]) for c in measure()["cases"]) > 0, True)
+        chk(
+            "an empty icon root measures every parent as not installed",
+            [p for c in m["cases"] for p, ok in c["installed"].items() if ok],
+            [],
+        )
+    chk(
+        "the real host's parents are measured (the lookup is not vacuous)",
+        sum(len(c["installed"]) for c in measure()["cases"]) > 0,
+        True,
+    )
     print("check_inherit selftest:", "PASS" if ok else "FAIL")
     return ok
 

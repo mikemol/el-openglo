@@ -32,6 +32,7 @@ the point there, and a caveat for the GLYPH scope; and a region is attributed to
 the segment whose rectangle it most overlaps, which for a corner defect names one
 of the two segments that meet there, not both.
 """
+
 import json
 import os
 import sys
@@ -41,13 +42,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 VARIANT = "EL-Openglo"
-NOISE = 12          # a channel delta at or under this is the toolkit's antialiasing
+NOISE = 12  # a channel delta at or under this is the toolkit's antialiasing
 
 
 def mirror_points(im, axis):
     """[(x, y, delta)] where the picture disagrees with its mirror by more than
     the antialiasing noise. The mirror is about the picture's own centre."""
     from PIL import ImageOps
+
     m = ImageOps.mirror(im) if axis == "h" else ImageOps.flip(im)
     a, b = im.load(), m.load()
     out = []
@@ -82,8 +84,13 @@ def regions(points, gap=3):
         xs = [p[0] for p in seen]
         ys = [p[1] for p in seen]
         worst = max(d for (x, y, d) in points if (x, y) in set(seen))
-        out.append({"box": [min(xs), min(ys), max(xs) + 1, max(ys) + 1],
-                    "pixels": len(seen), "worst": worst})
+        out.append(
+            {
+                "box": [min(xs), min(ys), max(xs) + 1, max(ys) + 1],
+                "pixels": len(seen),
+                "worst": worst,
+            }
+        )
     return sorted(out, key=lambda r: -r["pixels"])
 
 
@@ -115,16 +122,25 @@ def render_face(text, out_png, w=420, h=120, variant=VARIANT):
     import make_clock as MC
     import make_taskswitch as TS
     import templates.loader as TL
-    qml = TL.render("clock-main.qml", tables=MC.qml_tables(), ghostAlpha=TS.ghost_alpha(),
-                    **MC._metrics_holes())
+
+    qml = TL.render(
+        "clock-main.qml",
+        tables=MC.qml_tables(),
+        ghostAlpha=TS.ghost_alpha(),
+        **MC._metrics_holes(),
+    )
     qml, n = re.subn(r"root\.timeStr = s;", f'root.timeStr = "{text}";', qml)
     if n != 1:
-        raise RuntimeError("the clock's time assignment moved; the symmetry probe cannot pin it")
+        raise RuntimeError(
+            "the clock's time assignment moved; the symmetry probe cannot pin it"
+        )
     for pat, rep in RQ.SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
     cfg = RQ._kcfg_defaults(MC.CONFIG_XML)
-    cfg["blinkColon"] = False          # a blinking colon is not an asymmetry
-    return RQ.render_document(qml, variant, w, h, out_png, cfg, None, True, RQ.companions("clock"))
+    cfg["blinkColon"] = False  # a blinking colon is not an asymmetry
+    return RQ.render_document(
+        qml, variant, w, h, out_png, cfg, None, True, RQ.companions("clock")
+    )
 
 
 CASES = (
@@ -162,7 +178,11 @@ def grid_regularity(im, ground=None):
     # ⚑ NO `regular` HERE (W50): it was `len(set(widths)) <= 1 and len(set(gaps)) <= 1`,
     # which a BLANK board satisfies (no columns, no widths, no gaps). policy/symmetry.rego
     # judges the distinct widths and gaps, and refuses a board with too few columns.
-    return {"pip_widths": sorted(set(body)), "gaps": sorted(set(gaps)), "columns": len(runs)}
+    return {
+        "pip_widths": sorted(set(body)),
+        "gaps": sorted(set(gaps)),
+        "columns": len(runs),
+    }
 
 
 def _cell_box(im):
@@ -185,20 +205,27 @@ def _cell_box(im):
     return (x0, min(ys), x1, max(ys) + 1)
 
 
-FIT_TOL = 1.0       # px: a segment whose centroid misses the fit by more is the offender
+FIT_TOL = 1.0  # px: a segment whose centroid misses the fit by more is the offender
 
 
 def _unit_centres(segs):
     """{seg: (a, b)} — each segment's centre in segLen units, from (kind, ux, uy)."""
-    return {s: ((ux + 0.5, uy) if k == "h" else (ux, uy + 0.5)) for s, (k, ux, uy) in segs.items()}
+    return {
+        s: ((ux + 0.5, uy) if k == "h" else (ux, uy + 0.5))
+        for s, (k, ux, uy) in segs.items()
+    }
 
 
 def _solve3(m, v):
     """Solve the 3x3 system m x = v by Cramer's rule (no numpy dependency)."""
+
     def det(a):
-        return (a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
-                - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
-                + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0]))
+        return (
+            a[0][0] * (a[1][1] * a[2][2] - a[1][2] * a[2][1])
+            - a[0][1] * (a[1][0] * a[2][2] - a[1][2] * a[2][0])
+            + a[0][2] * (a[1][0] * a[2][1] - a[1][1] * a[2][0])
+        )
+
     d = det(m)
     if abs(d) < 1e-12:
         return None
@@ -226,7 +253,12 @@ def segment_fit(im, segs, iters=4):
     px = im.load()
     lum = [[sum(px[x, y][:3]) for x in range(im.width)] for y in range(im.height)]
     peak = max(max(r) for r in lum)
-    core = [(x, y) for y in range(im.height) for x in range(im.width) if lum[y][x] * 2 >= peak]
+    core = [
+        (x, y)
+        for y in range(im.height)
+        for x in range(im.width)
+        if lum[y][x] * 2 >= peak
+    ]
     if not core:
         return None
     uc = _unit_centres(segs)
@@ -247,7 +279,9 @@ def segment_fit(im, segs, iters=4):
                 if bd is None or d < bd:
                     best, bd = s, d
             a = acc[best]
-            a[0] += x; a[1] += y; a[2] += 1
+            a[0] += x
+            a[1] += y
+            a[2] += 1
         cent = {s: (a[0] / a[2], a[1] / a[2]) for s, a in acc.items() if a[2]}
         # normal equations for [ox, oy, L]
         m = [[0.0] * 3 for _ in range(3)]
@@ -263,14 +297,28 @@ def segment_fit(im, segs, iters=4):
         if sol is None:
             break
         ox, oy, L = sol
-    resid = {s: round(((cx - (ox + L * uc[s][0])) ** 2 + (cy - (oy + L * uc[s][1])) ** 2) ** 0.5, 2)
-             for s, (cx, cy) in cent.items()}
-    return {"fit": {"ox": round(ox, 2), "oy": round(oy, 2), "segLen": round(L, 2)},
-            "residuals": resid, "absent": sorted(set(segs) - set(cent)),
-            "offenders": sorted(s for s, r in resid.items() if r > FIT_TOL)}
+    resid = {
+        s: round(
+            ((cx - (ox + L * uc[s][0])) ** 2 + (cy - (oy + L * uc[s][1])) ** 2) ** 0.5,
+            2,
+        )
+        for s, (cx, cy) in cent.items()
+    }
+    return {
+        "fit": {"ox": round(ox, 2), "oy": round(oy, 2), "segLen": round(L, 2)},
+        "residuals": resid,
+        "absent": sorted(set(segs) - set(cent)),
+        "offenders": sorted(s for s, r in resid.items() if r > FIT_TOL),
+    }
 
 
-DEPTHS = (0.0, 0.2, 0.4, 0.5, 0.9)   # boundaryDepth values the profile is evaluated at (W216)
+DEPTHS = (
+    0.0,
+    0.2,
+    0.4,
+    0.5,
+    0.9,
+)  # boundaryDepth values the profile is evaluated at (W216)
 
 
 def gradient_profile(qml, depth):
@@ -283,27 +331,39 @@ def gradient_profile(qml, depth):
     WEAKNESS: evaluates Math.min / numbers / + - only; it reads the stops' positions
     and fade class, not the rendered pixels (the glyph mirror cases do that)."""
     import re
+
     out = []
-    for m in re.finditer(r"GradientStop\s*\{\s*position:\s*([^;]+);\s*color:\s*([^}]+)\}", qml):
+    for m in re.finditer(
+        r"GradientStop\s*\{\s*position:\s*([^;]+);\s*color:\s*([^}]+)\}", qml
+    ):
         expr = m.group(1).strip().replace("sc.boundaryDepth", repr(float(depth)))
         expr = expr.replace("Math.min", "min")
         if not re.fullmatch(r"[0-9.+\-*/(), min]*", expr):
             return None
-        out.append({"pos": round(float(eval(expr, {"__builtins__": {}}, {"min": min})), 6),
-                    "lit": m.group(2).strip() == "sc.litColor"})
+        out.append(
+            {
+                "pos": round(float(eval(expr, {"__builtins__": {}}, {"min": min})), 6),
+                "lit": m.group(2).strip() == "sc.litColor",
+            }
+        )
     return out or None
 
 
 def gradient_cases(depths=DEPTHS):
     """W216: the lit segment's fade profile at each depth, for policy Y5 to mirror."""
     import make_segment_display as SD
+
     qml = SD.segment_char_component()
-    return [{"label": f"gradient-d{d}", "depth": d, "stops": gradient_profile(qml, d)} for d in depths]
+    return [
+        {"label": f"gradient-d{d}", "depth": d, "stops": gradient_profile(qml, d)}
+        for d in depths
+    ]
 
 
 def measure(cases=CASES, variant=VARIANT):
     import render_qml as RQ
     from PIL import Image
+
     rows = []
     for label, scope, text, planes in cases:
         row = {"label": label, "scope": scope, "text": text, "variant": variant}
@@ -321,8 +381,9 @@ def measure(cases=CASES, variant=VARIANT):
             im = Image.open(png).convert("RGB")
             if scope == "glyph":
                 im = im.crop(_cell_box(im))
-                if text[0] == "8":                   # every segment lit: the fit sees all seven
+                if text[0] == "8":  # every segment lit: the fit sees all seven
                     import make_clock as MC
+
                     row["segment_fit"] = segment_fit(im, MC.SEGS)
             row["size"] = [im.width, im.height]
             row["planes"] = {}
@@ -335,8 +396,12 @@ def measure(cases=CASES, variant=VARIANT):
         rows.append(row)
     # W166: the matrix glyph cases, wired once W168 made their crop real (19x27 px =
     # 5 pips, at the frame nearest a whole-pip phase on the scrolling run)
-    return {"cases": rows + matrix_cases(), "grids": grid_cases(), "gradients": gradient_cases(),
-            "noise": NOISE}
+    return {
+        "cases": rows + matrix_cases(),
+        "grids": grid_cases(),
+        "gradients": gradient_cases(),
+        "noise": NOISE,
+    }
 
 
 # W166: the matrix's MIRROR, per glyph. A self-mirror glyph is the app name of one
@@ -346,7 +411,9 @@ def measure(cases=CASES, variant=VARIANT):
 # board, whose mirror is only grid_regularity's translation symmetry again.
 MATRIX_GLYPHS = (("matrix-H", "H", ("h", "v")), ("matrix-O", "O", ("h",)))
 MATRIX_VARIANT = "EL-Amber"
-MATRIX_PITCH = 4    # px per pip column: grid_regularity measures pip 3 + gap 1 on this board
+MATRIX_PITCH = (
+    4  # px per pip column: grid_regularity measures pip 3 + gap 1 on this board
+)
 
 
 def _runs(flags, max_gap):
@@ -393,19 +460,27 @@ def first_glyph_box(im, max_gap=2, ring=False):
     # is the ring, so only the interior is grouped.
     if ring:
         rbands = _runs([any(r) for r in core], 0)
-        cbands = _runs([any(core[y][x] for y in range(im.height)) for x in range(im.width)], 0)
+        cbands = _runs(
+            [any(core[y][x] for y in range(im.height)) for x in range(im.width)], 0
+        )
         if len(rbands) < 3 or len(cbands) < 3:
             return None
         iy0, iy1 = rbands[1][0], rbands[-2][1]
         ix0, ix1 = cbands[1][0], cbands[-2][1]
     else:
         iy0, iy1, ix0, ix1 = 0, im.height, 0, im.width
-    cols = [ix0 <= x < ix1 and any(core[y][x] for y in range(iy0, iy1)) for x in range(im.width)]
+    cols = [
+        ix0 <= x < ix1 and any(core[y][x] for y in range(iy0, iy1))
+        for x in range(im.width)
+    ]
     runs = _runs(cols, max_gap)
     if not runs:
         return None
     x0, x1 = runs[0]
-    rows = [iy0 <= y < iy1 and any(core[y][x] for x in range(x0, x1)) for y in range(im.height)]
+    rows = [
+        iy0 <= y < iy1 and any(core[y][x] for x in range(x0, x1))
+        for y in range(im.height)
+    ]
     ys = [y for y, on in enumerate(rows) if on]
     return (x0, min(ys), x1, max(ys) + 1)
 
@@ -414,6 +489,7 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
     """One mirror case per injected glyph, through the marquee's own harness."""
     import check_marquee_live as ML
     from PIL import Image
+
     out = []
     for label, ch, planes in glyphs:
         row = {"label": label, "scope": "matrix", "text": ch, "variant": variant}
@@ -432,10 +508,14 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
             probe = matrix_probe(td, ch, variant)
             full = [f for f in probe["frames"] if f["crop_w"] and f["crop_w"] < 100]
             if not full:
-                row["withheld"] = f"no frame of {probe['frame_count']} showed the glyph alone"
+                row["withheld"] = (
+                    f"no frame of {probe['frame_count']} showed the glyph alone"
+                )
                 out.append(row)
                 continue
-            dims = [(f["crop"][2] - f["crop"][0], f["crop"][3] - f["crop"][1]) for f in full]
+            dims = [
+                (f["crop"][2] - f["crop"][0], f["crop"][3] - f["crop"][1]) for f in full
+            ]
             tall = max(h for _w, h in dims)
             sizes = [d for d in dims if d[1] == tall]
             best = max(set(sizes), key=sizes.count)
@@ -448,10 +528,15 @@ def matrix_cases(glyphs=MATRIX_GLYPHS, variant=MATRIX_VARIANT):
             def off(f, pitch=pitch):
                 r = f["x"] % pitch
                 return min(r, pitch - r)
+
             pick = min(at, key=off)
             row["glyph_size"], row["frames_at_size"] = list(best), sizes.count(best)
             row["phase_off_px"] = round(off(pick), 2)
-            im = Image.open(os.path.join(td, pick["frame"])).convert("RGB").crop(tuple(pick["crop"]))
+            im = (
+                Image.open(os.path.join(td, pick["frame"]))
+                .convert("RGB")
+                .crop(tuple(pick["crop"]))
+            )
             row["frame"], row["x"] = pick["frame"], pick["x"]
             row["size"] = [im.width, im.height]
             row["planes"] = {}
@@ -472,7 +557,16 @@ def matrix_probe(out_dir, ch="H", variant=MATRIX_VARIANT):
     whose crop is about one glyph wide, at a whole-pip x, is the one to mirror."""
     import check_marquee_live as ML
     from PIL import Image
-    tl = [(300, "arrive", 1, {"summary": "x", "body": "", "applicationName": ch}, f"{ch}: x")]
+
+    tl = [
+        (
+            300,
+            "arrive",
+            1,
+            {"summary": "x", "body": "", "applicationName": ch},
+            f"{ch}: x",
+        )
+    ]
     res = ML.run(variant=variant, end_ms=4000, frames=out_dir, timeline=tl) or {}
     names = sorted(n for n in os.listdir(out_dir) if n.startswith("frame-"))
     fx = res.get("frames", [])
@@ -481,9 +575,15 @@ def matrix_probe(out_dir, ch="H", variant=MATRIX_VARIANT):
         im = Image.open(os.path.join(out_dir, n)).convert("RGB")
         box = first_glyph_box(im)
         f = fx[i] if i < len(fx) else {}
-        rows.append({"frame": n, "t": f.get("t"), "x": f.get("x"),
-                     "crop": list(box) if box else None,
-                     "crop_w": (box[2] - box[0]) if box else None})
+        rows.append(
+            {
+                "frame": n,
+                "t": f.get("t"),
+                "x": f.get("x"),
+                "crop": list(box) if box else None,
+                "crop_w": (box[2] - box[0]) if box else None,
+            }
+        )
     return {"frames": rows, "frame_count": len(names), "listed": len(fx)}
 
 
@@ -491,6 +591,7 @@ def grid_cases(grids=GRIDS):
     """The matrix board's grid regularity, per variant, through its own renderer."""
     import check_marquee_live as ML
     from PIL import Image
+
     out = []
     for label, variant in grids:
         row = {"label": label, "variant": variant}
@@ -511,10 +612,13 @@ def grid_cases(grids=GRIDS):
 def main(argv):
     known = {"--json", "--selftest", "--list", "--matrix", "--matrix-probe"}
     args = list(argv[1:])
-    if "--matrix-probe" in args:                # W168: --matrix-probe DIR
+    if "--matrix-probe" in args:  # W168: --matrix-probe DIR
         i = args.index("--matrix-probe")
         if i + 1 >= len(args) or not os.path.isdir(args[i + 1]):
-            print("check_symmetry: --matrix-probe needs an existing directory", file=sys.stderr)
+            print(
+                "check_symmetry: --matrix-probe needs an existing directory",
+                file=sys.stderr,
+            )
             return 2
         print(json.dumps(matrix_probe(args[i + 1]), indent=1))
         return 0
@@ -525,11 +629,12 @@ def main(argv):
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
-    if "--matrix" in argv:                      # the matrix glyph cases alone (W166)
+    if "--matrix" in argv:  # the matrix glyph cases alone (W166)
         print(json.dumps(matrix_cases(), indent=1))
         return 0
     if "--list" not in argv:
         import opa_gate
+
         return opa_gate.gate("symmetry")
     # --list: the DIAGNOSTIC report — every located mirror asymmetry, and the grids
     m = measure()
@@ -540,12 +645,18 @@ def main(argv):
             continue
         for p, d in r["planes"].items():
             if not d["regions"]:
-                print(f"  {r['label']:12s} {p}: symmetric (nothing over the {m['noise']} noise floor)")
+                print(
+                    f"  {r['label']:12s} {p}: symmetric (nothing over the {m['noise']} noise floor)"
+                )
                 continue
-            print(f"  {r['label']:12s} {p}: {len(d['regions'])} asymmetric region(s), {d['pixels']} px")
+            print(
+                f"  {r['label']:12s} {p}: {len(d['regions'])} asymmetric region(s), {d['pixels']} px"
+            )
             for reg in d["regions"][:6]:
                 found += 1
-                print(f"        {reg['where']:13s} box {reg['box']}  {reg['pixels']} px  worst {reg['worst']}")
+                print(
+                    f"        {reg['where']:13s} box {reg['box']}  {reg['pixels']} px  worst {reg['worst']}"
+                )
     # ⚑ TWO KINDS OF FINDING, AND ONLY ONE IS A VERDICT. The mirror regions are
     # DIAGNOSTIC — the operator: "we don't expect it to match exactly, we expect
     # it to fix defects" — so they are reported and never fail the run. The GRID
@@ -555,10 +666,14 @@ def main(argv):
         if g.get("withheld"):
             print(f"  {g['label']:12s} WITHHELD {g['withheld']}")
             continue
-        print(f"  {g['label']:12s} grid: {g['columns']} columns, "
-              f"pip widths {g['pip_widths']}, gaps {g['gaps']}")
-    print(f"check_symmetry: {found} located asymmetr{'y' if found == 1 else 'ies'} to fix "
-          f"(diagnostic); the grid verdict is `opa_gate.py symmetry`")
+        print(
+            f"  {g['label']:12s} grid: {g['columns']} columns, "
+            f"pip widths {g['pip_widths']}, gaps {g['gaps']}"
+        )
+    print(
+        f"check_symmetry: {found} located asymmetr{'y' if found == 1 else 'ies'} to fix "
+        f"(diagnostic); the grid verdict is `opa_gate.py symmetry`"
+    )
     return 0
 
 
@@ -567,18 +682,26 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     from PIL import Image
+
     im = Image.new("RGB", (21, 21), (0, 0, 0))
     for x in range(6, 15):
         for y in range(6, 15):
             im.putpixel((x, y), (255, 255, 255))
-    chk("a symmetric block has no asymmetry over the noise floor", mirror_points(im, "h"), [])
+    chk(
+        "a symmetric block has no asymmetry over the noise floor",
+        mirror_points(im, "h"),
+        [],
+    )
     chk("...in either plane", mirror_points(im, "v"), [])
     # ⚑ THE LOCATOR CAN SEE: a planted notch reports ITS OWN place, not a count
-    im.putpixel((6, 6), (0, 0, 0))                  # bite the top-left corner
+    im.putpixel((6, 6), (0, 0, 0))  # bite the top-left corner
     regs = regions(mirror_points(im, "h"))
     # ⚑ A MIRROR DIFFERENCE ALWAYS APPEARS TWICE — at the defect and at the place
     # it should have matched. That pair IS the report: one box is the notch, the
@@ -586,15 +709,24 @@ def _selftest():
     chk("a planted corner notch reports the notch AND its mirror", len(regs), 2)
     chk("...one of them at the notch", [6, 6, 7, 7] in [r["box"] for r in regs], True)
     chk("...the other at its mirror", [14, 6, 15, 7] in [r["box"] for r in regs], True)
-    chk("a difference at or under the noise floor is not reported",
-        mirror_points(Image.new("RGB", (4, 4), (10, 10, 10)), "h"), [])
+    chk(
+        "a difference at or under the noise floor is not reported",
+        mirror_points(Image.new("RGB", (4, 4), (10, 10, 10)), "h"),
+        [],
+    )
     im2 = Image.new("RGB", (40, 10), (0, 0, 0))
     for x in list(range(4, 10)) + list(range(20, 26)):
         im2.putpixel((x, 5), (255, 255, 255))
-    chk("the glyph box is the FIRST cell, not the whole face", _cell_box(im2), (4, 5, 10, 6))
-    chk("a region names where it sits, from its own coordinates",
+    chk(
+        "the glyph box is the FIRST cell, not the whole face",
+        _cell_box(im2),
+        (4, 5, 10, 6),
+    )
+    chk(
+        "a region names where it sits, from its own coordinates",
         (place_of([0, 0, 10, 10], 90, 90), place_of([80, 80, 90, 90], 90, 90)),
-        ("upper-left", "lower-right"))
+        ("upper-left", "lower-right"),
+    )
     # ⚑ THE GRID CHECK CAN SEE WHAT THE OPERATOR SAW: an integer pitch is regular,
     # a fractional one rounded per-pip alternates its gaps
     even = Image.new("RGB", (40, 8), (0, 0, 0))
@@ -602,7 +734,11 @@ def _selftest():
         for dx in range(3):
             even.putpixel((c * 4 + dx, 4), (255, 255, 255))
     ge = grid_regularity(even)
-    chk("an integer pitch measures one width and one gap", (ge["pip_widths"], ge["gaps"]), ([3], [1]))
+    chk(
+        "an integer pitch measures one width and one gap",
+        (ge["pip_widths"], ge["gaps"]),
+        ([3], [1]),
+    )
     odd = Image.new("RGB", (40, 8), (0, 0, 0))
     for c in range(8):
         x = round(c * 4.5)
@@ -611,8 +747,13 @@ def _selftest():
                 odd.putpixel((x + dx, 4), (255, 255, 255))
     g = grid_regularity(odd)
     chk("a fractional pitch measures more than one gap", len(g["gaps"]) > 1, True)
-    chk("a blank board measures NO columns (the policy refuses it)",
-        grid_regularity(Image.new("RGB", (40, 8), (0, 0, 0)), ground=(0, 0, 0))["columns"], 0)
+    chk(
+        "a blank board measures NO columns (the policy refuses it)",
+        grid_regularity(Image.new("RGB", (40, 8), (0, 0, 0)), ground=(0, 0, 0))[
+            "columns"
+        ],
+        0,
+    )
     # ⚑ THE FIT CAN NAME A SEGMENT (W165): seven synthetic bars on the substrate's own
     # coordinates fit clean; shift ONE by 3 px and the fit names exactly that one
     import make_clock as MC
@@ -630,6 +771,7 @@ def _selftest():
                 for y in range(int(box[1]), int(box[3])):
                     img.putpixel((x, y), (255, 255, 255))
         return img
+
     clean = segment_fit(eight(), MC.SEGS)
     chk("a clean synthetic 8 fits with no offender", clean["offenders"], [])
     chk("...and recovers its segLen", abs(clean["fit"]["segLen"] - 40) < 1, True)
@@ -641,22 +783,37 @@ def _selftest():
     H = ["X...X", "X...X", "X...X", "XXXXX", "X...X", "X...X", "X...X"]
 
     def board(drop=None):
-        img = Image.new("RGB", (60, 40), (20, 20, 20))         # the ghost-pip ground
-        for gx in (2, 30):                                      # two glyphs, a blank column apart
+        img = Image.new("RGB", (60, 40), (20, 20, 20))  # the ghost-pip ground
+        for gx in (2, 30):  # two glyphs, a blank column apart
             for r, line in enumerate(H):
                 for c, ch in enumerate(line):
                     if ch == "X" and not (gx == 2 and (r, c) == drop):
                         for dx in range(3):
                             for dy in range(3):
-                                img.putpixel((gx + c * 4 + dx, 2 + r * 4 + dy), (255, 200, 0))
+                                img.putpixel(
+                                    (gx + c * 4 + dx, 2 + r * 4 + dy), (255, 200, 0)
+                                )
         return img
+
     b = board()
     box = first_glyph_box(b)
-    chk("the first glyph is cropped alone (5 pips wide, the second glyph excluded)", box, (2, 2, 21, 29))
+    chk(
+        "the first glyph is cropped alone (5 pips wide, the second glyph excluded)",
+        box,
+        (2, 2, 21, 29),
+    )
     g = b.crop(box)
-    chk("a clean pip H mirrors in both planes", (mirror_points(g, "h"), mirror_points(g, "v")), ([], []))
+    chk(
+        "a clean pip H mirrors in both planes",
+        (mirror_points(g, "h"), mirror_points(g, "v")),
+        ([], []),
+    )
     notched = board(drop=(0, 0)).crop(box)
-    chk("a removed pip is located by the mirror", len(regions(mirror_points(notched, "h"))) > 0, True)
+    chk(
+        "a removed pip is located by the mirror",
+        len(regions(mirror_points(notched, "h"))) > 0,
+        True,
+    )
     # ...and WITH the W51 ring lit around the board, the crop is still the first glyph
     # (the real board's first crop was the whole board: the ring had swallowed it)
     ringed = Image.new("RGB", (68, 44), (20, 20, 20))
@@ -672,8 +829,16 @@ def _selftest():
                     ringed.putpixel((x + dx, y + dy), (255, 200, 0))
     ringed.paste(b, (4, 4))
     rbox = first_glyph_box(ringed, ring=True)
-    chk("with the hover ring lit, the crop is still the first glyph alone", rbox, (6, 6, 25, 33))
-    chk("...and without ring exclusion it would not be", first_glyph_box(ringed) != rbox, True)
+    chk(
+        "with the hover ring lit, the crop is still the first glyph alone",
+        rbox,
+        (6, 6, 25, 33),
+    )
+    chk(
+        "...and without ring exclusion it would not be",
+        first_glyph_box(ringed) != rbox,
+        True,
+    )
     # ...and on a board whose GHOST pips sit above half the peak (the real board,
     # W168), the glyph is still told apart from them
     ghosted = Image.new("RGB", (64, 40), (20, 20, 20))
@@ -688,20 +853,44 @@ def _selftest():
                 if ch == "X":
                     for dx in range(3):
                         for dy in range(3):
-                            ghosted.putpixel((gx + c * 4 + dx, 2 + r * 4 + dy), (255, 210, 0))
-    chk("with ghost pips above half the peak, the crop is still the first glyph",
-        first_glyph_box(ghosted), (2, 2, 21, 29))
+                            ghosted.putpixel(
+                                (gx + c * 4 + dx, 2 + r * 4 + dy), (255, 210, 0)
+                            )
+    chk(
+        "with ghost pips above half the peak, the crop is still the first glyph",
+        first_glyph_box(ghosted),
+        (2, 2, 21, 29),
+    )
     # ...the gradient profile reads the template's own stops (W216): centre-fed at every depth
     import make_segment_display as SD
+
     prof = gradient_profile(SD.segment_char_component(), 0.2)
-    chk("the profile has four stops at depth 0.2", [s["pos"] for s in (prof or [])], [0.0, 0.2, 0.8, 1.0])
-    chk("...faded at the tips, lit between", [s["lit"] for s in (prof or [])], [False, True, True, False])
-    one_sided = ("GradientStop { position: 0.0; color: Qt.rgba(1,1,1,0.5) }"
-                 " GradientStop { position: 0.3; color: sc.litColor }")
-    chk("a one-sided template reads as two stops (policy refuses it)",
-        [s["pos"] for s in gradient_profile(one_sided, 0.2) or []], [0.0, 0.3])
-    chk("an expression that is not arithmetic is not evaluated",
-        gradient_profile("GradientStop { position: __import__('os'); color: sc.litColor }", 0.2), None)
+    chk(
+        "the profile has four stops at depth 0.2",
+        [s["pos"] for s in (prof or [])],
+        [0.0, 0.2, 0.8, 1.0],
+    )
+    chk(
+        "...faded at the tips, lit between",
+        [s["lit"] for s in (prof or [])],
+        [False, True, True, False],
+    )
+    one_sided = (
+        "GradientStop { position: 0.0; color: Qt.rgba(1,1,1,0.5) }"
+        " GradientStop { position: 0.3; color: sc.litColor }"
+    )
+    chk(
+        "a one-sided template reads as two stops (policy refuses it)",
+        [s["pos"] for s in gradient_profile(one_sided, 0.2) or []],
+        [0.0, 0.3],
+    )
+    chk(
+        "an expression that is not arithmetic is not evaluated",
+        gradient_profile(
+            "GradientStop { position: __import__('os'); color: sc.litColor }", 0.2
+        ),
+        None,
+    )
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -39,6 +39,7 @@ hexes with extra steps.  `solve_roles` takes the consumer's declared roles, and
 the emitted artifact CARRIES the role list it solved so a reader can see what was
 assumed rather than infer it.
 """
+
 from __future__ import annotations
 
 import itertools
@@ -186,16 +187,20 @@ def solve_roles(roles, pinned=None, members=None, ground=None, ground_floor=3.0)
                 f"The pool covers the roles for SEPARATION and not for LEGIBILITY on "
                 f"this ground, and a best-effort assignment would place "
                 f"{len(free) - len(members)} role(s) below the floor while still "
-                f"scoring well. Drop a role, widen the pool, or declare no ground.")
+                f"scoring well. Drop a role, widen the pool, or declare no ground."
+            )
         raise ValueError(
             f"{len(free)} free role(s) over {len(members)} palette member(s): the "
             f"pool cannot cover them, and an assignment reusing a colour would make "
-            f"two roles indistinguishable rather than merely close")
+            f"two roles indistinguishable rather than merely close"
+        )
     for role, target in pinned.items():
         if target not in roles:
             raise ValueError(f"{role!r} is pinned to {target!r}, which is not a role")
         if target in pinned:
-            raise ValueError(f"{role!r} is pinned to {target!r}, which is itself pinned")
+            raise ValueError(
+                f"{role!r} is pinned to {target!r}, which is itself pinned"
+            )
 
     names = sorted(members)
     floors = C.reference_floors()
@@ -217,11 +222,12 @@ def solve_roles(roles, pinned=None, members=None, ground=None, ground_floor=3.0)
     # that look identical as a role->hex table.
     ground_contrast = None
     if ground is not None:
-        ground_contrast = {r: round(C.wcag_ratio(c, tuple(ground)), 2)
-                           for r, c in colours.items()}
+        ground_contrast = {
+            r: round(C.wcag_ratio(c, tuple(ground)), 2) for r, c in colours.items()
+        }
     return {
         "roles": list(roles),
-        "assignment": out,                       # role -> member NAME
+        "assignment": out,  # role -> member NAME
         "colours": colours,
         "worst_q": q,
         "binding_pair": list(binding) if binding else None,
@@ -246,31 +252,40 @@ def as_json(solved, indent=2):
     measured palette AT ALL — substrate's `--palette` reports 'built-in fallback'
     rather than the measured source for exactly that reason.  A data file is
     readable where a live module is not."""
-    return json.dumps({
-        "roles": solved["roles"],
-        "assignment": {r: _hex(c) for r, c in solved["colours"].items()},
-        "member": solved["assignment"],
-        "worst_q": round(solved["worst_q"], 4),
-        "binding_pair": solved["binding_pair"],
-        "pinned": solved["pinned"],
-        "floor_dE": round(solved["floor_dE"], 2),
-        "palette": "Okabe & Ito (2008) Color Universal Design, chromatic members",
-        "metric": "worst_view_dE under Machado(2009) protan/deutan/tritan, "
-                  "normalised by the Okabe-Ito reference floor",
-        # ⚑ NULL HERE MEANS "NO GROUND WAS DECLARED", NOT "IT PASSES ON ANY GROUND".
-        # Stated in the artifact because the difference is invisible in a role->hex
-        # table and cost substrate three near-invisible edges.
-        "ground": solved.get("ground"),
-        "ground_floor": solved.get("ground_floor"),
-        "ground_contrast": solved.get("ground_contrast"),
-        "ground_note": ("solved for mutual distinctness ONLY — no ground was "
-                        "declared, so these may be illegible as strokes on a "
-                        "particular background; pass ground= to constrain that"
-                        if solved.get("ground") is None else
-                        f"every role also clears {solved['ground_floor']}:1 "
-                        f"against {solved['ground']}"),
-        "solved_exhaustively": solved["solved_exhaustively"],
-    }, indent=indent, sort_keys=True) + "\n"
+    return (
+        json.dumps(
+            {
+                "roles": solved["roles"],
+                "assignment": {r: _hex(c) for r, c in solved["colours"].items()},
+                "member": solved["assignment"],
+                "worst_q": round(solved["worst_q"], 4),
+                "binding_pair": solved["binding_pair"],
+                "pinned": solved["pinned"],
+                "floor_dE": round(solved["floor_dE"], 2),
+                "palette": "Okabe & Ito (2008) Color Universal Design, chromatic members",
+                "metric": "worst_view_dE under Machado(2009) protan/deutan/tritan, "
+                "normalised by the Okabe-Ito reference floor",
+                # ⚑ NULL HERE MEANS "NO GROUND WAS DECLARED", NOT "IT PASSES ON ANY GROUND".
+                # Stated in the artifact because the difference is invisible in a role->hex
+                # table and cost substrate three near-invisible edges.
+                "ground": solved.get("ground"),
+                "ground_floor": solved.get("ground_floor"),
+                "ground_contrast": solved.get("ground_contrast"),
+                "ground_note": (
+                    "solved for mutual distinctness ONLY — no ground was "
+                    "declared, so these may be illegible as strokes on a "
+                    "particular background; pass ground= to constrain that"
+                    if solved.get("ground") is None
+                    else f"every role also clears {solved['ground_floor']}:1 "
+                    f"against {solved['ground']}"
+                ),
+                "solved_exhaustively": solved["solved_exhaustively"],
+            },
+            indent=indent,
+            sort_keys=True,
+        )
+        + "\n"
+    )
 
 
 def as_dot(solved):
@@ -291,11 +306,16 @@ def as_dot(solved):
         "// role -> colour, SOLVED rather than listed.",
         "// palette: Okabe & Ito (2008), chromatic members.",
         "// metric:  worst_view_dE under Machado(2009) protan/deutan/tritan,",
-        ("//          normalised by the Okabe-Ito reference floor "
-         f"(dE {solved['floor_dE']:.1f})."),
+        (
+            "//          normalised by the Okabe-Ito reference floor "
+            f"(dE {solved['floor_dE']:.1f})."
+        ),
         f"// worst pair: q={solved['worst_q']:.3f}"
-        + (f" at {solved['binding_pair'][0]}~{solved['binding_pair'][1]}"
-           if solved["binding_pair"] else "")
+        + (
+            f" at {solved['binding_pair'][0]}~{solved['binding_pair'][1]}"
+            if solved["binding_pair"]
+            else ""
+        )
         + "  (>= 1.0 clears the gate)",
         "// exhaustive over the pool: the optimum is FOUND, not approached.",
     ]
@@ -304,21 +324,29 @@ def as_dot(solved):
     # variants are byte-different files that look interchangeable — the same
     # absent-vs-empty confusion the null `ground` note exists to prevent.
     if solved.get("ground"):
-        lines.append(f"// ground: every role also clears "
-                     f"{solved['ground_floor']}:1 against {solved['ground']}, so "
-                     f"these are legible AS STROKES on it.")
+        lines.append(
+            f"// ground: every role also clears "
+            f"{solved['ground_floor']}:1 against {solved['ground']}, so "
+            f"these are legible AS STROKES on it."
+        )
         if solved.get("ground_contrast"):
             worst = min(solved["ground_contrast"].items(), key=lambda kv: kv[1])
             lines.append(f"//         tightest: {worst[0]} at {worst[1]}:1.")
     else:
-        lines.append("// ground: NONE DECLARED — solved for mutual distinctness "
-                     "only. These may be")
-        lines.append("//         illegible as strokes on a particular background; "
-                     "see role-theme-on-white.dot.")
+        lines.append(
+            "// ground: NONE DECLARED — solved for mutual distinctness "
+            "only. These may be"
+        )
+        lines.append(
+            "//         illegible as strokes on a particular background; "
+            "see role-theme-on-white.dot."
+        )
     if solved["pinned"]:
         for role, target in sorted(solved["pinned"].items()):
-            lines.append(f"// {role} is PINNED to {target} — a declared constraint, "
-                         f"not a free slot.")
+            lines.append(
+                f"// {role} is PINNED to {target} — a declared constraint, "
+                f"not a free slot."
+            )
     lines += ["", "graph role_theme {"]
     for role in solved["roles"]:
         member = solved["assignment"][role]
@@ -347,13 +375,20 @@ def _selftest():
     s = solve_roles(roles)
     check("every role is assigned", sorted(s["assignment"]), sorted(roles))
     check("the assignment clears the floor", s["worst_q"] >= 1.0, True)
-    check("no two roles share a colour",
-          len({tuple(c) for c in s["colours"].values()}), len(roles))
+    check(
+        "no two roles share a colour",
+        len({tuple(c) for c in s["colours"].values()}),
+        len(roles),
+    )
 
     # ⚑ THE SOLVE MUST BEAT AN ARBITRARY ADMISSIBLE ASSIGNMENT, or it is decoration.
     # substrate's live one is the honest comparison: it clears, and it is not best.
-    live = {"read": p["blue"], "write": p["bluegreen"],
-            "pywrite": p["purple"], "flow": p["vermillion"]}
+    live = {
+        "read": p["blue"],
+        "write": p["bluegreen"],
+        "pywrite": p["purple"],
+        "flow": p["vermillion"],
+    }
     lq, _ = worst_pair(live)
     check("substrate's live assignment clears", lq >= 1.0, True)
     check("the solve strictly beats it", s["worst_q"] > lq, True)
@@ -361,25 +396,38 @@ def _selftest():
     # ⚑ AND NO ASSIGNMENT MAY BEAT THE SOLVED ONE — exhaustive means exhaustive.
     floors = C.reference_floors()
     names = sorted(p)
-    better = [c for c in itertools.permutations(names, len(roles))
-              if worst_pair({r: p[n] for r, n in zip(roles, c)}, floors)[0]
-              > s["worst_q"] + 1e-12]
+    better = [
+        c
+        for c in itertools.permutations(names, len(roles))
+        if worst_pair({r: p[n] for r, n in zip(roles, c)}, floors)[0]
+        > s["worst_q"] + 1e-12
+    ]
     check("nothing in the pool beats the solved assignment", better, [])
 
     # pinning is a constraint, and it must hold
-    sp = solve_roles(["read", "write", "flow", "roundtrip"],
-                     pinned={"roundtrip": "flow"})
-    check("a pinned role shares its target's colour",
-          sp["colours"]["roundtrip"], sp["colours"]["flow"])
-    check("a pinned role still appears in the assignment",
-          "roundtrip" in sp["assignment"], True)
+    sp = solve_roles(
+        ["read", "write", "flow", "roundtrip"], pinned={"roundtrip": "flow"}
+    )
+    check(
+        "a pinned role shares its target's colour",
+        sp["colours"]["roundtrip"],
+        sp["colours"]["flow"],
+    )
+    check(
+        "a pinned role still appears in the assignment",
+        "roundtrip" in sp["assignment"],
+        True,
+    )
 
     # refusals, each for a stated reason
     for label, args, kwargs in (
-            ("more free roles than members", (["a"] * 8,), {}),
-            ("a role pinned to a non-role", (["a", "b"],), {"pinned": {"b": "zz"}}),
-            ("a role pinned to a pinned role",
-             (["a", "b", "c"],), {"pinned": {"b": "c", "c": "b"}}),
+        ("more free roles than members", (["a"] * 8,), {}),
+        ("a role pinned to a non-role", (["a", "b"],), {"pinned": {"b": "zz"}}),
+        (
+            "a role pinned to a pinned role",
+            (["a", "b", "c"],),
+            {"pinned": {"b": "c", "c": "b"}},
+        ),
     ):
         try:
             solve_roles(*args, **kwargs)
@@ -396,29 +444,42 @@ def _selftest():
     check("4 of 7 members clear 3:1 on white", len(el), 4)
     check("no ground means every member is eligible", len(eligible(None)), 7)
     try:
-        solve_roles(["read", "write", "pywrite", "flow", "roundtrip", "returns"],
-                    ground=WHITE)
+        solve_roles(
+            ["read", "write", "pywrite", "flow", "roundtrip", "returns"], ground=WHITE
+        )
         check("six roles on white REFUSE", "passed", "raised")
     except ValueError as e:
         check("six roles on white REFUSE", "raised", "raised")
         check("...and the refusal names the eligible set", "eligible:" in str(e), True)
-        check("...and distinguishes separation from legibility",
-              "LEGIBILITY" in str(e), True)
+        check(
+            "...and distinguishes separation from legibility",
+            "LEGIBILITY" in str(e),
+            True,
+        )
 
     # four roles on white IS feasible, and every one must clear the ground floor
     g4 = solve_roles(["read", "write", "pywrite", "flow"], ground=WHITE)
     check("four roles on white solve", len(g4["assignment"]), 4)
-    check("every role clears the ground floor",
-          all(v >= 3.0 for v in g4["ground_contrast"].values()), True)
+    check(
+        "every role clears the ground floor",
+        all(v >= 3.0 for v in g4["ground_contrast"].values()),
+        True,
+    )
     check("the ground travels with the answer", g4["ground"], "#ffffff")
     # ⚑ AND THE UNGROUNDED SOLVE MUST *FAIL* THAT SAME TEST, or the constraint is
     # decoration — this is the exact defect substrate measured.
     u4 = solve_roles(["read", "write", "pywrite", "flow"])
     ung = {r: C.wcag_ratio(c, WHITE) for r, c in u4["colours"].items()}
-    check("the ungrounded solve does NOT clear white",
-          any(v < 3.0 for v in ung.values()), True)
-    check("an ungrounded answer says so rather than implying safety",
-          json.loads(as_json(u4))["ground"], None)
+    check(
+        "the ungrounded solve does NOT clear white",
+        any(v < 3.0 for v in ung.values()),
+        True,
+    )
+    check(
+        "an ungrounded answer says so rather than implying safety",
+        json.loads(as_json(u4))["ground"],
+        None,
+    )
 
     # the emitted forms must be parseable without this module
     doc = json.loads(as_json(s))
@@ -435,9 +496,11 @@ def _selftest():
 
 if __name__ == "__main__":
     import sys
+
     if "--selftest" in sys.argv:
         raise SystemExit(0 if _selftest() else 1)
-    s = solve_roles(["read", "write", "pywrite", "flow", "roundtrip"],
-                    pinned={"roundtrip": "flow"})
+    s = solve_roles(
+        ["read", "write", "pywrite", "flow", "roundtrip"], pinned={"roundtrip": "flow"}
+    )
     print(as_dot(s))
     print(as_json(s))

@@ -23,6 +23,7 @@ local skill present, and which rows does the hook itself report.
 
 Weakness: it counts rows; it does not check a row names a tool that exists.
 """
+
 import json
 import os
 import sys
@@ -50,9 +51,13 @@ def routes(hook=HOOK, skill=SKILL):
 
 
 def measure(hook=HOOK, skill=SKILL):
-    return {"hook": os.path.relpath(hook, ROOT), "hook_present": os.path.exists(hook),
-            "skill": os.path.relpath(skill, ROOT), "skill_present": os.path.exists(skill),
-            "cases": [{"row": r} for r in (routes(hook, skill) or [])]}
+    return {
+        "hook": os.path.relpath(hook, ROOT),
+        "hook_present": os.path.exists(hook),
+        "skill": os.path.relpath(skill, ROOT),
+        "skill_present": os.path.exists(skill),
+        "cases": [{"row": r} for r in (routes(hook, skill) or [])],
+    }
 
 
 def main(argv):
@@ -68,6 +73,7 @@ def main(argv):
         print("\n".join(routes() or []))
         return 0
     import opa_gate
+
     return opa_gate.gate("routes")
 
 
@@ -77,15 +83,23 @@ def _selftest():
 
     def check(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     check("SKILL path is repo-local", SKILL.startswith(ROOT), True)
     check("HOOK path is repo-local", HOOK.startswith(ROOT), True)
-    gone = measure(hook=os.path.join(ROOT, ".venv", "bin", "mikemol-hook-no-such"),
-                   skill=os.path.join(ROOT, "no_such_skill.md"))
-    check("an absent hook is SEEN, with no rows", (gone["hook_present"], gone["skill_present"], gone["cases"]),
-          (False, False, []))
+    gone = measure(
+        hook=os.path.join(ROOT, ".venv", "bin", "mikemol-hook-no-such"),
+        skill=os.path.join(ROOT, "no_such_skill.md"),
+    )
+    check(
+        "an absent hook is SEEN, with no rows",
+        (gone["hook_present"], gone["skill_present"], gone["cases"]),
+        (False, False, []),
+    )
     check("the live hook reports rows", len(measure()["cases"]) > 0, True)
     print("check_routes selftest:", "PASS" if ok else "FAIL")
     return ok

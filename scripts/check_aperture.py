@@ -20,6 +20,7 @@ read. A missing qml runner is a withheld fact per variant, not a failure. Render
 under the software scene graph on purpose (EL_RENDER_SOFTWARE): the field must
 be seen where the ebuild sandbox sees it.
 """
+
 import json
 import os
 import sys
@@ -28,11 +29,11 @@ import tempfile
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-U, ROWS, EDGE_COL = 4, 8, 10          # the probe's pitch, rows and edge column
+U, ROWS, EDGE_COL = 4, 8, 10  # the probe's pitch, rows and edge column
 
 
 def _hex(s):
-    return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))
+    return tuple(int(s[i : i + 2], 16) for i in (1, 3, 5))
 
 
 def expected(variant):
@@ -41,33 +42,53 @@ def expected(variant):
     ghost layer plus half the lit layer, and lit."""
     import make_preview as MP
     import make_wallpaper_live as WL
+
     s = MP.parse_scheme(variant)
-    ground = _hex(s["ground"])        # the harness window's ground (render_qml), not the View one
+    ground = _hex(
+        s["ground"]
+    )  # the harness window's ground (render_qml), not the View one
     ghost, lit = _hex(s["ghost"]), _hex(s["phosphor"])
     a = WL.global_alpha("looked_at")
 
     def over(base, top, alpha):
         return tuple(round(b + (t - b) * alpha) for b, t in zip(base, top))
+
     clear = over(ground, ghost, a)
-    return {"ground": ground, "ghost": ghost, "lit": lit, "alpha": a,
-            "pips": {"clear": clear, "half": over(clear, lit, 0.5), "covered": lit}}
+    return {
+        "ground": ground,
+        "ghost": ghost,
+        "lit": lit,
+        "alpha": a,
+        "pips": {"clear": clear, "half": over(clear, lit, 0.5), "covered": lit},
+    }
 
 
 def read_pips(png, height=40):
     from PIL import Image
+
     im = Image.open(png).convert("RGB")
-    y = (height - ROWS * U) // 2 + 4 * U + U // 2      # row 4's centre
-    return {name: im.getpixel((col * U + U // 2, y))
-            for name, col in (("clear", EDGE_COL - 1), ("half", EDGE_COL), ("covered", EDGE_COL + 1))}
+    y = (height - ROWS * U) // 2 + 4 * U + U // 2  # row 4's centre
+    return {
+        name: im.getpixel((col * U + U // 2, y))
+        for name, col in (
+            ("clear", EDGE_COL - 1),
+            ("half", EDGE_COL),
+            ("covered", EDGE_COL + 1),
+        )
+    }
 
 
 def measure(variants=None):
     import render_qml as RQ
     import variant_roster  # the declared roster (W61 B2), not a typed tuple
+
     rows = []
     variants = variant_roster.ids() if variants is None else variants
     for v in variants:
-        row = {"variant": v, "expected": {k: list(p) for k, p in expected(v)["pips"].items()}}
+        row = {
+            "variant": v,
+            "expected": {k: list(p) for k, p in expected(v)["pips"].items()},
+        }
         if not os.path.exists(RQ.QML):
             row["withheld"] = f"{RQ.QML} is not installed"
             rows.append(row)
@@ -80,7 +101,10 @@ def measure(variants=None):
             else:
                 seen = read_pips(out)
                 row["seen"] = {k: list(p) for k, p in seen.items()}
-                row["error"] = {k: max(abs(a - b) for a, b in zip(seen[k], expected(v)["pips"][k])) for k in seen}
+                row["error"] = {
+                    k: max(abs(a - b) for a, b in zip(seen[k], expected(v)["pips"][k]))
+                    for k in seen
+                }
         rows.append(row)
     return {"variants": rows}
 
@@ -100,7 +124,9 @@ def main(argv):
             print(f"  {r['variant']}: WITHHELD {r['withheld']}")
         else:
             print(f"  {r['variant']}: clear/half/covered max error {r['error']}")
-    print(f"check_aperture: {len(m['variants'])} variant(s) measured; the verdict is `opa_gate.py aperture`")
+    print(
+        f"check_aperture: {len(m['variants'])} variant(s) measured; the verdict is `opa_gate.py aperture`"
+    )
     return 0
 
 
@@ -109,25 +135,46 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     from PIL import Image
+
     e = expected("EL-Amber")
-    chk("the half pip is between the floor and the lit token",
-        all(e["pips"]["clear"][i] <= e["pips"]["half"][i] <= e["pips"]["covered"][i] for i in range(3)), True)
+    chk(
+        "the half pip is between the floor and the lit token",
+        all(
+            e["pips"]["clear"][i] <= e["pips"]["half"][i] <= e["pips"]["covered"][i]
+            for i in range(3)
+        ),
+        True,
+    )
     # ⚑ THE MEASUREMENT CAN SEE: a picture where every pip is the ghost floor (no
     # lit layer at all — a field that ignored its backdrop) reads a wrong half and
     # a wrong covered pip
     with tempfile.TemporaryDirectory() as td:
         im = Image.new("RGB", (420, 40), e["ground"])
         for c in range(105):
-            im.putpixel((c * U + U // 2, (40 - ROWS * U) // 2 + 4 * U + U // 2), e["pips"]["clear"])
+            im.putpixel(
+                (c * U + U // 2, (40 - ROWS * U) // 2 + 4 * U + U // 2),
+                e["pips"]["clear"],
+            )
         p = os.path.join(td, "flat.png")
         im.save(p)
         seen = read_pips(p)
-        chk("a field that ignored its backdrop is seen (covered pip is not lit)", seen["covered"] == e["pips"]["covered"], False)
-        chk("...and its clear pip still reads the floor", seen["clear"], e["pips"]["clear"])
+        chk(
+            "a field that ignored its backdrop is seen (covered pip is not lit)",
+            seen["covered"] == e["pips"]["covered"],
+            False,
+        )
+        chk(
+            "...and its clear pip still reads the floor",
+            seen["clear"],
+            e["pips"]["clear"],
+        )
     print("check_aperture selftest:", "PASS" if ok else "FAIL")
     return ok
 

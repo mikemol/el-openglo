@@ -21,6 +21,7 @@ baked as a constant; ghost_alpha() refuses if a future solve makes it differ.
 
     make_taskswitch.py            # print main.qml
 """
+
 import json
 import os
 import sys
@@ -32,8 +33,14 @@ from emitters import (
 )
 
 # the variants whose solved alpha must agree for the constant to be honest
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-            "EL-Amber", "EL-Amber-Lit")
+VARIANTS = (
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+)
 PACKAGE_ID = "org.el.taskswitch"
 
 
@@ -63,6 +70,7 @@ def metadata():
 
 def main_qml():
     import templates.loader as TL
+
     return TL.render("taskswitch-main.qml", ghostAlpha=ghost_alpha())
 
 

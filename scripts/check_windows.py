@@ -25,6 +25,7 @@ requirements, not the Personalization panel's behaviour; and under Aero the
 [Control Panel\\Colors] section is ignored by design, so its correctness is a
 High Contrast user's benefit, not a desktop-wide one.
 """
+
 import configparser
 import json
 import os
@@ -33,13 +34,13 @@ import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling checks
 from check_selection_contrast import schemes
 
 
 def _rgb(hexs):
     hexs = hexs.lstrip("#")
-    return tuple(int(hexs[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(hexs[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def facts(variant, text, folder=None):
@@ -49,9 +50,19 @@ def facts(variant, text, folder=None):
         sys.path.insert(0, ROOT)
     import make_preview as MP
     import make_windows as MWn
-    out = {"id": variant, "missing": None, "parse_error": None, "sections": [], "mtsm": None,
-           "colors": [], "colorization": None, "accent": None,
-           "wallpaper": None, "wallpaper_exists": None}
+
+    out = {
+        "id": variant,
+        "missing": None,
+        "parse_error": None,
+        "sections": [],
+        "mtsm": None,
+        "colors": [],
+        "colorization": None,
+        "accent": None,
+        "wallpaper": None,
+        "wallpaper_exists": None,
+    }
     cp = configparser.ConfigParser(interpolation=None)
     cp.optionxform = str
     try:
@@ -63,16 +74,27 @@ def facts(variant, text, folder=None):
     if "MasterThemeSelector" in cp:
         out["mtsm"] = cp["MasterThemeSelector"].get("MTSM")
     c = MP.parse_scheme(variant)
-    colors = cp["Control Panel\\Colors"] if cp.has_section("Control Panel\\Colors") else {}
-    out["colors"] = [{"key": key, "role": role, "got": colors.get(key),
-                      "want": "{} {} {}".format(*_rgb(c[role]))} for key, role in MWn.COLOR_KEYS]
+    colors = (
+        cp["Control Panel\\Colors"] if cp.has_section("Control Panel\\Colors") else {}
+    )
+    out["colors"] = [
+        {
+            "key": key,
+            "role": role,
+            "got": colors.get(key),
+            "want": "{} {} {}".format(*_rgb(c[role])),
+        }
+        for key, role in MWn.COLOR_KEYS
+    ]
     out["accent"] = "{:02X}{:02X}{:02X}".format(*_rgb(c["accent"]))
     if "VisualStyles" in cp:
         out["colorization"] = cp["VisualStyles"].get("ColorizationColor")
     if folder is not None and "Control Panel\\Desktop" in cp:
         wp = cp["Control Panel\\Desktop"].get("Wallpaper", "") or None
         out["wallpaper"] = wp
-        out["wallpaper_exists"] = bool(wp) and os.path.isfile(os.path.join(folder, *wp.split("\\")))
+        out["wallpaper_exists"] = bool(wp) and os.path.isfile(
+            os.path.join(folder, *wp.split("\\"))
+        )
     return out
 
 
@@ -87,15 +109,20 @@ def measure():
     import variant_roster as VR
 
     import make_windows as MWn
+
     roster = schemes()
     cases = []
     with tempfile.TemporaryDirectory() as td:
         outs = {v: os.path.join(td, v) for v in roster}
         try:
             MWn.render_all(roster, outs)
-        except Exception as e:                           # noqa: BLE001
-            return {"roster": roster, "roster_drift": [], "cases": [],
-                    "error": f"render_all: {type(e).__name__}: {e}"}
+        except Exception as e:  # noqa: BLE001
+            return {
+                "roster": roster,
+                "roster_drift": [],
+                "cases": [],
+                "error": f"render_all: {type(e).__name__}: {e}",
+            }
         for v in roster:
             p = os.path.join(outs[v], f"{v}.theme")
             if not os.path.isfile(p):
@@ -104,8 +131,12 @@ def measure():
             with open(p, encoding="utf-8") as fh:
                 theme_text = fh.read()
             cases.append(facts(v, theme_text, outs[v]))
-    return {"roster": roster, "error": None, "cases": cases,
-            "roster_drift": VR.drift_facts({"make_windows": MWn.VARIANTS}, roster)}
+    return {
+        "roster": roster,
+        "error": None,
+        "cases": cases,
+        "roster_drift": VR.drift_facts({"make_windows": MWn.VARIANTS}, roster),
+    }
 
 
 def main(argv):
@@ -121,10 +152,12 @@ def main(argv):
         return 0
     if "--map" in argv:
         import make_windows as MWn
+
         for key, role in MWn.COLOR_KEYS:
             print(f"{key:20} <- {role}")
         return 0
     import opa_gate
+
     return opa_gate.gate("windows")
 
 
@@ -142,35 +175,72 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_windows as MWn
+
     good = MWn.theme_ini("EL-Openglo", "DesktopBackground\\EL-Openglo.png")
     f = facts("EL-Openglo", good)
-    check("the real emission parses and carries MTSM", (f["parse_error"], f["mtsm"]), (None, "DABJDKT"))
+    check(
+        "the real emission parses and carries MTSM",
+        (f["parse_error"], f["mtsm"]),
+        (None, "DABJDKT"),
+    )
     check("every colour key is read", len(f["colors"]), len(MWn.COLOR_KEYS))
     # ⚑ EACH DEFECT MUST BE MEASURED (that it is DENIED is policy/windows_test.rego's ruling).
-    check("a wrong MTSM tag is measured",
-          facts("EL-Openglo", good.replace("MTSM=DABJDKT", "MTSM=NOPE"))["mtsm"], "NOPE")
-    check("a missing required section is measured",
-          "VisualStyles" in facts("EL-Openglo", good.replace("[VisualStyles]", "[VisualStyle]"))["sections"], False)
+    check(
+        "a wrong MTSM tag is measured",
+        facts("EL-Openglo", good.replace("MTSM=DABJDKT", "MTSM=NOPE"))["mtsm"],
+        "NOPE",
+    )
+    check(
+        "a missing required section is measured",
+        "VisualStyles"
+        in facts("EL-Openglo", good.replace("[VisualStyles]", "[VisualStyle]"))[
+            "sections"
+        ],
+        False,
+    )
     bent = facts("EL-Openglo", good.replace("WindowText=", "WindowText=1 2 3 ;"))
     wt = next(c for c in bent["colors"] if c["key"] == "WindowText")
-    check("an authored colour is measured beside the palette's", wt["got"] != wt["want"], True)
-    check("a wrong accent is measured",
-          facts("EL-Openglo", good.replace("ColorizationColor=0x", "ColorizationColor=0x00"))["colorization"][:4],
-          "0x00")
-    check("an unparsable file is measured",
-          facts("EL-Openglo", "[Theme\nDisplayName=x")["parse_error"] is not None, True)
+    check(
+        "an authored colour is measured beside the palette's",
+        wt["got"] != wt["want"],
+        True,
+    )
+    check(
+        "a wrong accent is measured",
+        facts(
+            "EL-Openglo", good.replace("ColorizationColor=0x", "ColorizationColor=0x00")
+        )["colorization"][:4],
+        "0x00",
+    )
+    check(
+        "an unparsable file is measured",
+        facts("EL-Openglo", "[Theme\nDisplayName=x")["parse_error"] is not None,
+        True,
+    )
     with tempfile.TemporaryDirectory() as td:
-        check("a wallpaper that is not there is measured",
-              facts("EL-Openglo", good, td)["wallpaper_exists"], False)
+        check(
+            "a wallpaper that is not there is measured",
+            facts("EL-Openglo", good, td)["wallpaper_exists"],
+            False,
+        )
     m = measure()
-    check("every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"])
+    check(
+        "every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"]
+    )
     check("and the population is not empty", len(m["cases"]) > 0, True)
-    check("the real wallpapers are there", all(c.get("wallpaper_exists") for c in m["cases"]), True)
+    check(
+        "the real wallpapers are there",
+        all(c.get("wallpaper_exists") for c in m["cases"]),
+        True,
+    )
     saved = list(MWn.VARIANTS)
     try:
         MWn.VARIANTS[:] = saved[:-1]
-        check("an emitter that drops a GRID variant is measured as drift",
-              [d["variant"] for d in measure()["roster_drift"]], [saved[-1]])
+        check(
+            "an emitter that drops a GRID variant is measured as drift",
+            [d["variant"] for d in measure()["roster_drift"]],
+            [saved[-1]],
+        )
     finally:
         MWn.VARIANTS[:] = saved
     print("check_windows selftest:", "PASS" if ok else "FAIL")

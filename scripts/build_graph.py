@@ -40,6 +40,7 @@ screens plan) plus a conservative scan for file reads. It does NOT trace runtime
 behaviour, so a file opened through a computed path is INDETERMINATE rather than
 silently absent. That is the fail-closed direction.
 """
+
 import ast
 import json
 import os
@@ -55,7 +56,8 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 # bump serves a stale verdict (luthen pins each by sha256 at the host's version
 # precisely so a drift is a finding).
 HOST_TOOLS = re.compile(
-    r'"(/usr/[^"]+|opa|qmllint|qml|tesseract|pandoc|fc-match|fc-list|journalctl|pgrep|plasmashell)"')
+    r'"(/usr/[^"]+|opa|qmllint|qml|tesseract|pandoc|fc-match|fc-list|journalctl|pgrep|plasmashell)"'
+)
 
 
 # ⚑ NOT THIS TREE'S FILES, even though they sit under it. `worktrees` is where
@@ -65,8 +67,14 @@ HOST_TOOLS = re.compile(
 # symlinks do not resolve from that depth. That is this tool's own self-flagged
 # undeclared-domain walk (it lists itself first in --undetermined) demonstrating
 # exactly why the flag is there: a population nobody declared grew under it.
-_NOT_THE_TREE = {".git", "__pycache__", ".ebuild-witness", ".venv", "node_modules",
-                 "worktrees"}
+_NOT_THE_TREE = {
+    ".git",
+    "__pycache__",
+    ".ebuild-witness",
+    ".venv",
+    "node_modules",
+    "worktrees",
+}
 
 
 # ⚑ AND THE SKIP-LIST ABOVE WAS THE WRONG FIX (2026-09-23): it is the scratch dirs
@@ -80,8 +88,13 @@ def py_files():
     return [p.replace("/", os.sep) for p in git_tracked.files("*.py", root=ROOT)]
 
 
-def tree_files(exts=(".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".colors", ".png", ".svg")):
-    return [p.replace("/", os.sep) for p in git_tracked.files(*("*" + e for e in exts), root=ROOT)]
+def tree_files(
+    exts=(".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".colors", ".png", ".svg"),
+):
+    return [
+        p.replace("/", os.sep)
+        for p in git_tracked.files(*("*" + e for e in exts), root=ROOT)
+    ]
 
 
 def _slurp(path):
@@ -102,9 +115,15 @@ def written_paths(path):
         return []
     out = []
     for node in ast.walk(tree):
-        if not (isinstance(node, ast.Call) and getattr(node.func, "id", None) == "open"):
+        if not (
+            isinstance(node, ast.Call) and getattr(node.func, "id", None) == "open"
+        ):
             continue
-        mode = node.args[1].value if len(node.args) > 1 and isinstance(node.args[1], ast.Constant) else ""
+        mode = (
+            node.args[1].value
+            if len(node.args) > 1 and isinstance(node.args[1], ast.Constant)
+            else ""
+        )
         if "w" not in str(mode):
             continue
         out.append(_target_of(node.args[0]) if node.args else None)
@@ -121,7 +140,7 @@ def _target_of(expr):
         last = expr.args[-1] if expr.args else None
         if isinstance(last, ast.Constant) and isinstance(last.value, str):
             return os.path.basename(last.value)
-    if isinstance(expr, ast.JoinedStr):          # an f-string: a computed name
+    if isinstance(expr, ast.JoinedStr):  # an f-string: a computed name
         return None
     return None
 
@@ -162,19 +181,34 @@ def computed_edges(path):
         # printing a bare count over a population it never established. This tool
         # walks too; its own walks are in this population and it says so.
         if fn in ("glob", "iglob", "walk", "listdir", "scandir", "rglob"):
-            out.append((node.lineno, "domain", f"{fn}(): the population is not declared"))
+            out.append(
+                (node.lineno, "domain", f"{fn}(): the population is not declared")
+            )
             continue
-        if fn not in ("open", "copy", "copy2", "copytree", "copyfile", "rename", "replace"):
+        if fn not in (
+            "open",
+            "copy",
+            "copy2",
+            "copytree",
+            "copyfile",
+            "rename",
+            "replace",
+        ):
             continue
         if fn != "open":
             args = [a for a in node.args if not isinstance(a, ast.Constant)]
             if args:
-                out.append((node.lineno, "write", f"{fn}(<expr>): the target is computed"))
+                out.append(
+                    (node.lineno, "write", f"{fn}(<expr>): the target is computed")
+                )
             continue
         if not node.args:
             continue
-        mode = (node.args[1].value
-                if len(node.args) > 1 and isinstance(node.args[1], ast.Constant) else "r")
+        mode = (
+            node.args[1].value
+            if len(node.args) > 1 and isinstance(node.args[1], ast.Constant)
+            else "r"
+        )
         for kw in node.keywords:
             if kw.arg == "mode" and isinstance(kw.value, ast.Constant):
                 mode = kw.value.value
@@ -187,9 +221,17 @@ def computed_edges(path):
         elif isinstance(a, ast.Call) and getattr(a.func, "attr", None) == "join":
             last = a.args[-1] if a.args else None
             if not isinstance(last, ast.Constant):
-                out.append((node.lineno, direction, "open(join(..., <expr>)): the name is computed"))
+                out.append(
+                    (
+                        node.lineno,
+                        direction,
+                        "open(join(..., <expr>)): the name is computed",
+                    )
+                )
         elif isinstance(a, ast.Name):
-            out.append((node.lineno, direction, "open(<variable>): the name is computed"))
+            out.append(
+                (node.lineno, direction, "open(<variable>): the name is computed")
+            )
     return out
 
 
@@ -204,7 +246,10 @@ def literal_paths(path):
     for node in ast.walk(tree):
         if isinstance(node, ast.Constant) and isinstance(node.value, str):
             v = node.value
-            if v and ("/" in v or v.endswith((".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".png"))):
+            if v and (
+                "/" in v
+                or v.endswith((".qml", ".js", ".kcfg", ".rego", ".bib", ".md", ".png"))
+            ):
                 out.append(v)
     return out
 
@@ -245,14 +290,23 @@ def graph():
         nodes.setdefault(path, {"kind": kind, "producers": [], "consumers": []})
 
     for p in tree_files():
-        kind = ("template" if p.startswith("templates/") else
-                "baseline" if p.startswith("catalog/baselines/") else
-                "policy" if p.startswith("policy/") else
-                "picture" if p.startswith("catalog/library/screens/") else
-                "document" if p.endswith(".md") else
-                "scheme" if p.endswith(".colors") else
-                "package" if p.startswith(("plasma-clock/", "plasma-", "chrome/", "firefox/")) else
-                "artifact")
+        kind = (
+            "template"
+            if p.startswith("templates/")
+            else "baseline"
+            if p.startswith("catalog/baselines/")
+            else "policy"
+            if p.startswith("policy/")
+            else "picture"
+            if p.startswith("catalog/library/screens/")
+            else "document"
+            if p.endswith(".md")
+            else "scheme"
+            if p.endswith(".colors")
+            else "package"
+            if p.startswith(("plasma-clock/", "plasma-", "chrome/", "firefox/"))
+            else "artifact"
+        )
         touch(p, kind)
     for p in py_files():
         touch(p, "tool")
@@ -281,7 +335,9 @@ def graph():
     for p in py_files():
         for base in written_paths(p):
             for target in by_base.get(base, []):
-                nodes[target]["producers"] = sorted(set(nodes[target]["producers"]) | {p})
+                nodes[target]["producers"] = sorted(
+                    set(nodes[target]["producers"]) | {p}
+                )
 
     # a policy's check is its consumer, and the pairing is a declared edge
     for pol, chk in policy_pairs().items():
@@ -293,8 +349,9 @@ def graph():
         else:
             indeterminate.append(f"{pol}: names {chk}, which is not in the tree")
 
-    host = sorted({m.group(1) for p in py_files()
-                   for m in HOST_TOOLS.finditer(_slurp(p))})
+    host = sorted(
+        {m.group(1) for p in py_files() for m in HOST_TOOLS.finditer(_slurp(p))}
+    )
 
     # ⚑ ∂∂: BOTH BOUNDARIES, AND THE DOMAIN UNDER THEM. Every edge this tool
     # cannot resolve is collected in the direction it runs, so an unresolved
@@ -306,8 +363,12 @@ def graph():
     for p in py_files():
         for line, direction, why in computed_edges(p):
             undet[direction].append(f"{p}:{line}: {why}")
-    return {"nodes": nodes, "host": host, "indeterminate": indeterminate,
-            "undetermined": undet}
+    return {
+        "nodes": nodes,
+        "host": host,
+        "indeterminate": indeterminate,
+        "undetermined": undet,
+    }
 
 
 def findings(g):
@@ -318,8 +379,10 @@ def findings(g):
     consumer of record — or it is dead output, and the two look identical until
     the staging edge is drawn. So four buckets, not two."""
     nodes = {p: n for p, n in g["nodes"].items() if n["kind"] != "tool"}
+
     def has(p, k):
         return bool(nodes[p][k])
+
     u = g["undetermined"]
     # ⚑ AN UNDETERMINED BOUNDARY IS NOT AN ABSENT ONE. While any read is computed,
     # "nothing consumes this" is a statement about the SCAN; while any write is,
@@ -329,17 +392,28 @@ def findings(g):
     # error it was built to find.
     bounded = bool(u["read"] or u["write"] or u["domain"])
     return {
-        "bounded": bounded, "undetermined": u,
+        "bounded": bounded,
+        "undetermined": u,
         "live": sorted(p for p in nodes if has(p, "producers") and has(p, "consumers")),
         # generated, and nothing in the tree reads it back
-        "unconsumed": sorted(p for p in nodes if has(p, "producers") and not has(p, "consumers")),
+        "unconsumed": sorted(
+            p for p in nodes if has(p, "producers") and not has(p, "consumers")
+        ),
         # read, but nothing here makes it: a source file, or an undeclared input
-        "unproduced": sorted(p for p in nodes if not has(p, "producers") and has(p, "consumers")),
+        "unproduced": sorted(
+            p for p in nodes if not has(p, "producers") and has(p, "consumers")
+        ),
         # neither end attached
-        "orphans": sorted(p for p in nodes if not has(p, "producers") and not has(p, "consumers")),
-        "host_unbuilt": g["host"], "indeterminate": g["indeterminate"],
-        "counts": {k: sum(1 for n in nodes.values() if n["kind"] == k)
-                   for k in sorted({n["kind"] for n in nodes.values()})}}
+        "orphans": sorted(
+            p for p in nodes if not has(p, "producers") and not has(p, "consumers")
+        ),
+        "host_unbuilt": g["host"],
+        "indeterminate": g["indeterminate"],
+        "counts": {
+            k: sum(1 for n in nodes.values() if n["kind"] == k)
+            for k in sorted({n["kind"] for n in nodes.values()})
+        },
+    }
 
 
 def undetermined_census(g):
@@ -377,17 +451,22 @@ def main(argv):
         census = undetermined_census(g)
         total = sum(len(v) for v in census.values())
         if not total:
-            print("build_graph: REFUSED — the undetermined population is EMPTY, which "
-                  "means the scan found nothing to grade, not that the graph is closed",
-                  file=sys.stderr)
+            print(
+                "build_graph: REFUSED — the undetermined population is EMPTY, which "
+                "means the scan found nothing to grade, not that the graph is closed",
+                file=sys.stderr,
+            )
             return 1
         for idiom, sites in sorted(census.items(), key=lambda kv: -len(kv[1])):
             files = sorted(set(sites))
             print(f"  {len(sites):4d}  {idiom}")
-            print(f"        across {len(files)} file(s): {', '.join(files[:4])}"
-                  + (f", +{len(files) - 4} more" if len(files) > 4 else ""))
-        print(f"\nbuild_graph: {total} undetermined relation(s) in "
-              f"{len(census)} idiom(s)")
+            print(
+                f"        across {len(files)} file(s): {', '.join(files[:4])}"
+                + (f", +{len(files) - 4} more" if len(files) > 4 else "")
+            )
+        print(
+            f"\nbuild_graph: {total} undetermined relation(s) in {len(census)} idiom(s)"
+        )
         return 0
     if "--nodes" in argv:
         for p, n in sorted(g["nodes"].items()):
@@ -398,11 +477,15 @@ def main(argv):
     print(f"nodes by kind: {f['counts']}")
     u = f["undetermined"]
     if f["bounded"]:
-        print(f"\n⚑ UPPER BOUNDS ONLY — {len(u['read'])} read / {len(u['write'])} write edge(s)"
-              f" computed, {len(u['domain'])} undeclared domain(s).")
+        print(
+            f"\n⚑ UPPER BOUNDS ONLY — {len(u['read'])} read / {len(u['write'])} write edge(s)"
+            f" computed, {len(u['domain'])} undeclared domain(s)."
+        )
         print("  Every bucket below is an OVER-report by exactly what these hide.")
     print(f"\nLIVE — produced here and read here: {len(f['live'])}")
-    print(f"\nUNCONSUMED — generated, and NOTHING in the tree reads it back ({len(f['unconsumed'])}).")
+    print(
+        f"\nUNCONSUMED — generated, and NOTHING in the tree reads it back ({len(f['unconsumed'])})."
+    )
     print("  ⚑ Either a DELIVERABLE whose staging edge is not drawn, or dead output.")
     by_kind = {}
     for p in f["unconsumed"]:
@@ -417,7 +500,9 @@ def main(argv):
     for k in sorted(by_kind):
         ps = by_kind[k]
         print(f"    {k:10s} {len(ps):3d}  e.g. {', '.join(ps[:3])}")
-    print(f"\nUNBUILT — reached but produced by nothing, i.e. the UNDECLARED INPUTS ({len(f['host_unbuilt'])}):")
+    print(
+        f"\nUNBUILT — reached but produced by nothing, i.e. the UNDECLARED INPUTS ({len(f['host_unbuilt'])}):"
+    )
     for h in f["host_unbuilt"]:
         print(f"    {h}")
     if f["bounded"]:
@@ -429,8 +514,11 @@ def main(argv):
                 print(f"    {d:6s} ... and {len(u[d]) - 6} more")
     if f["indeterminate"] or f["bounded"]:
         n = len(f["indeterminate"]) + sum(len(v) for v in u.values())
-        print(f"\nbuild_graph: REFUSED — {n} relation(s) INDETERMINATE; "
-              f"the buckets above are upper bounds, not findings", file=sys.stderr)
+        print(
+            f"\nbuild_graph: REFUSED — {n} relation(s) INDETERMINATE; "
+            f"the buckets above are upper bounds, not findings",
+            file=sys.stderr,
+        )
         for i in f["indeterminate"]:
             print(f"    {i}", file=sys.stderr)
         return 1
@@ -443,7 +531,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     g = graph()
@@ -458,8 +549,11 @@ def _selftest():
     # PARTITION holds at any population size, including zero, so it stays on
     # production: a census whose buckets do not sum to the population is broken
     # whatever the tree looks like.
-    chk("the census partitions the undetermined population",
-        sum(len(v) for v in census.values()), total_sites)
+    chk(
+        "the census partitions the undetermined population",
+        sum(len(v) for v in census.values()),
+        total_sites,
+    )
     # ⚑ POPULATION OVER A FIXTURE, RETIREMENT OVER PRODUCTION (linux-sources-99,
     # 2026-09-22). This used to assert, over PRODUCTION, that the census "is not a
     # single bucket" and that every site names a line — so the day the binding
@@ -469,33 +563,53 @@ def _selftest():
     # retired. Both are claims about whether the SCANNER can see, and they belong
     # on a fixture that cannot be resolved by construction.
     import tempfile
+
     with tempfile.TemporaryDirectory() as d:
         fx = os.path.join(d, "fixture_undetermined.py")
         with open(fx, "w", encoding="utf-8") as fh:
-            fh.write("import os, shutil\n"
-                     "def f(a, b, c):\n"
-                     "    open(a).read()\n"                 # computed read
-                     "    open(b, 'w').write('x')\n"        # computed write
-                     "    shutil.copy(c, a)\n"              # computed write, another idiom
-                     "    return os.listdir(c)\n")          # undeclared domain
+            fh.write(
+                "import os, shutil\n"
+                "def f(a, b, c):\n"
+                "    open(a).read()\n"  # computed read
+                "    open(b, 'w').write('x')\n"  # computed write
+                "    shutil.copy(c, a)\n"  # computed write, another idiom
+                "    return os.listdir(c)\n"
+            )  # undeclared domain
         edges = computed_edges(fx)
         fixture_census = {}
         for line, direction, why in edges:
             fixture_census.setdefault(f"{direction}: {why}", []).append(f"{fx}:{line}")
-    chk("the census SEES more than one idiom in a fixture", len(fixture_census) > 1, True)
-    chk("...and every fixture site names a file and a line",
+    chk(
+        "the census SEES more than one idiom in a fixture",
+        len(fixture_census) > 1,
+        True,
+    )
+    chk(
+        "...and every fixture site names a file and a line",
         (len(edges) > 0, all(":" in s for v in fixture_census.values() for s in v)),
-        (True, True))
+        (True, True),
+    )
     # ⚑ THE MEASUREMENT CAN SEE: a template the loader renders has its emitter as a
     # consumer, and a host tool is in the unbuilt set
     tpl = g["nodes"].get("templates/SegmentChar.qml", {})
-    chk("a rendered template names its emitter",
-        any("make_segment_display" in c for c in tpl.get("consumers", [])), True)
-    chk("a host tool is reported as unbuilt", any("opa" in h or "/usr/" in h for h in g["host"]), True)
-    chk("a policy names its check",
-        "scripts/check_symmetry.py" in g["nodes"].get("policy/aperture.rego", {}).get("consumers", [])
-        or "scripts/check_aperture.py" in g["nodes"].get("policy/aperture.rego", {}).get("consumers", []),
-        True)
+    chk(
+        "a rendered template names its emitter",
+        any("make_segment_display" in c for c in tpl.get("consumers", [])),
+        True,
+    )
+    chk(
+        "a host tool is reported as unbuilt",
+        any("opa" in h or "/usr/" in h for h in g["host"]),
+        True,
+    )
+    chk(
+        "a policy names its check",
+        "scripts/check_symmetry.py"
+        in g["nodes"].get("policy/aperture.rego", {}).get("consumers", [])
+        or "scripts/check_aperture.py"
+        in g["nodes"].get("policy/aperture.rego", {}).get("consumers", []),
+        True,
+    )
     print("build_graph selftest:", "PASS" if ok else "FAIL")
     return ok
 

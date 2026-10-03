@@ -27,6 +27,7 @@ hot-separation prune is not applied to the sweep, so a reachable side may still
 be unusable against the accent; the measurement records the candidate count per
 side so that case reads as "covered by nothing" rather than silently passing.
 """
+
 import json
 import os
 import sys
@@ -34,8 +35,8 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
-FLOOR = 4.6                       # make_palette.solve_scheme's _min_c
-SWEEP_H = 2                       # degrees
+FLOOR = 4.6  # make_palette.solve_scheme's _min_c
+SWEEP_H = 2  # degrees
 SWEEP_S = [i / 10 for i in range(1, 11)]
 SWEEP_V = [i / 50 for i in range(1, 51)]
 
@@ -52,9 +53,16 @@ def sector_hues(sector):
 
 def measure_slot(sector, bg, hot, mp, C):
     """{side: {reachable, candidate, n_candidates}} for one slot on one field."""
-    out = {s: {"reachable": 0.0, "candidate": None, "n_candidates": 0,
-               "n_unpruned": 0, "reachable_sat_min": None}
-           for s in ("lighter", "darker")}
+    out = {
+        s: {
+            "reachable": 0.0,
+            "candidate": None,
+            "n_candidates": 0,
+            "n_unpruned": 0,
+            "reachable_sat_min": None,
+        }
+        for s in ("lighter", "darker")
+    }
     for h in sector_hues(sector):
         for s in SWEEP_S:
             for v in SWEEP_V:
@@ -62,15 +70,21 @@ def measure_slot(sector, bg, hot, mp, C):
                 side = out[side_of(c, bg, C)]
                 r = C.wcag_ratio(c, bg)
                 side["reachable"] = max(side["reachable"], r)
-                if r >= FLOOR and (side["reachable_sat_min"] is None or s > side["reachable_sat_min"]):
-                    side["reachable_sat_min"] = s     # the most saturated colour that still clears
+                if r >= FLOOR and (
+                    side["reachable_sat_min"] is None or s > side["reachable_sat_min"]
+                ):
+                    side["reachable_sat_min"] = (
+                        s  # the most saturated colour that still clears
+                    )
     # candidates WITHOUT the hot prune: tells a grid gap from a separation prune
     for c in mp._candidates(sector, bg, FLOOR, None):
         out[side_of(c, bg, C)]["n_unpruned"] += 1
     for c in mp._candidates(sector, bg, FLOOR, hot):
         side = out[side_of(c, bg, C)]
         r = C.wcag_ratio(c, bg)
-        side["candidate"] = r if side["candidate"] is None else max(side["candidate"], r)
+        side["candidate"] = (
+            r if side["candidate"] is None else max(side["candidate"], r)
+        )
         side["n_candidates"] += 1
     return out
 
@@ -78,48 +92,75 @@ def measure_slot(sector, bg, hot, mp, C):
 def measure():
     import cvd_gate as C
     import make_palette as mp
+
     grid = mp.build_grid()
     cases = []
-    for (t, _d) in grid.values():
+    for t, _d in grid.values():
         vid = t["id"]
         hot = C.rgb(t["focus"])
-        fields = (("view", C.rgb(t["view"]), ("neg", "neu", "pos", "link", "visited")),
-                  ("selection", C.rgb(t["sel_bg"]), ("neg", "neu", "pos")))
+        fields = (
+            ("view", C.rgb(t["view"]), ("neg", "neu", "pos", "link", "visited")),
+            ("selection", C.rgb(t["sel_bg"]), ("neg", "neu", "pos")),
+        )
         for field, bg, slots in fields:
             for slot in slots:
                 sides = measure_slot(mp._sect(slot, vid), bg, hot, mp, C)
                 for side, m in sides.items():
-                    cases.append({"id": f"{vid}/{field}/{slot}/{side}", "variant": vid,
-                                  "field": field, "slot": slot, "side": side, **m})
+                    cases.append(
+                        {
+                            "id": f"{vid}/{field}/{slot}/{side}",
+                            "variant": vid,
+                            "field": field,
+                            "slot": slot,
+                            "side": side,
+                            **m,
+                        }
+                    )
     return {"floor": FLOOR, "cases": cases}
 
 
 def _selftest():
     import cvd_gate as C
     import make_palette as mp
+
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     grey = (128, 128, 128)
-    check("white is lighter than mid grey", side_of((255, 255, 255), grey, C), "lighter")
+    check(
+        "white is lighter than mid grey", side_of((255, 255, 255), grey, C), "lighter"
+    )
     check("black is darker than mid grey", side_of((0, 0, 0), grey, C), "darker")
     m = measure_slot((340, 20), grey, None, mp, C)
-    check("on mid grey, red reaches some contrast on both sides",
-          (m["lighter"]["reachable"] > 1.0, m["darker"]["reachable"] > 1.0), (True, True))
+    check(
+        "on mid grey, red reaches some contrast on both sides",
+        (m["lighter"]["reachable"] > 1.0, m["darker"]["reachable"] > 1.0),
+        (True, True),
+    )
     saved = mp._candidates
     try:
+
         def _one_sided(sector, ground, mc, hot) -> list[tuple[int, int, int]]:
             return [(255, 200, 200)]
 
         mp._candidates = _one_sided
         m = measure_slot((340, 20), grey, None, mp, C)
-        check("a one-sided candidate set is SEEN as covering one side only",
-              (m["lighter"]["n_candidates"], m["darker"]["n_candidates"], m["darker"]["candidate"]),
-              (1, 0, None))
+        check(
+            "a one-sided candidate set is SEEN as covering one side only",
+            (
+                m["lighter"]["n_candidates"],
+                m["darker"]["n_candidates"],
+                m["darker"]["candidate"],
+            ),
+            (1, 0, None),
+        )
     finally:
         mp._candidates = saved
     print("check_solver_roots selftest:", "PASS" if ok else "FAIL")
@@ -137,6 +178,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("solver_roots")
 
 

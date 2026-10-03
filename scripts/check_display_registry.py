@@ -43,6 +43,7 @@ WEAKNESS. The font-structure rule (D3) cannot certify a glyph CORRECT — only
 that it does not contradict its own font; a letter wrong in the way every other
 letter is wrong passes. Rendering and looking remains the only witness for that.
 """
+
 import json
 import os
 import sys
@@ -86,17 +87,39 @@ def measure():
         rt.update(parsed=False, error=str(e))
         got = {}
     for key in sorted(set(r) | set(got)):
-        rt["keys"].append({"key": key, "emitted": key in got, "registry": key in r,
-                           "equal": key in got and key in r and
-                           json.loads(json.dumps(r[key], sort_keys=True)) == got[key]})
-    cases = [{"kind": "stroke", "id": sid, "in_substrate": sid in ST.GEOM22}
-             for sid in sorted(r["segGeom"])]
+        rt["keys"].append(
+            {
+                "key": key,
+                "emitted": key in got,
+                "registry": key in r,
+                "equal": key in got
+                and key in r
+                and json.loads(json.dumps(r[key], sort_keys=True)) == got[key],
+            }
+        )
+    cases = [
+        {"kind": "stroke", "id": sid, "in_substrate": sid in ST.GEOM22}
+        for sid in sorted(r["segGeom"])
+    ]
     for fmt, table in sorted(r["segGlyphs"].items()):
-        cases.append({"kind": "format", "id": fmt, "glyphs": [
-            {"ch": ch, "emitted": list(segs), "substrate": _substrate_source(fmt, ch)}
-            for ch, segs in sorted(table.items())]})
-    cases += [{"kind": "matrix", "id": ch, "cols": list(cols)}
-              for ch, cols in sorted(r["font5x7"].items())]
+        cases.append(
+            {
+                "kind": "format",
+                "id": fmt,
+                "glyphs": [
+                    {
+                        "ch": ch,
+                        "emitted": list(segs),
+                        "substrate": _substrate_source(fmt, ch),
+                    }
+                    for ch, segs in sorted(table.items())
+                ],
+            }
+        )
+    cases += [
+        {"kind": "matrix", "id": ch, "cols": list(cols)}
+        for ch, cols in sorted(r["font5x7"].items())
+    ]
     cases += [{"kind": "display", "id": key} for key in sorted(r["displays"])]
     return {"roundtrip": rt, "cases": cases}
 
@@ -127,8 +150,7 @@ def main(argv):
         # the turn. Printing the bitmap makes it a one-command question.
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if not rest:
-            print("check_display_registry: --glyph needs a character",
-                  file=sys.stderr)
+            print("check_display_registry: --glyph needs a character", file=sys.stderr)
             return 2
         r = DT.registry()
         font, shown = r["font5x7"], 0
@@ -140,8 +162,7 @@ def main(argv):
             shown += 1
             print(f"{ch!r}  {', '.join(f'0x{c:02x}' for c in cols)}")
             for row in range(7):
-                print("  " + "".join("#" if c & (1 << row) else "."
-                                     for c in cols))
+                print("  " + "".join("#" if c & (1 << row) else "." for c in cols))
         print(f"glyph: {shown} of {len(rest[0])} character(s) in the font")
         return 0 if shown else 1
 
@@ -158,6 +179,7 @@ def main(argv):
         return 0
 
     import opa_gate
+
     return opa_gate.gate("display_registry")
 
 
@@ -177,35 +199,63 @@ def _selftest():
 
     m0 = measure()
     kinds = {c["kind"] for c in m0["cases"]}
-    check("the real registry is measured, every kind present", kinds,
-          {"stroke", "format", "matrix", "display"})
-    check("the population is the registry's shape",
-          len(m0["cases"]), sum(counts().values()))
-    check("the real round trip parses and every key is equal",
-          m0["roundtrip"]["parsed"] and all(k["equal"] for k in m0["roundtrip"]["keys"]), True)
+    check(
+        "the real registry is measured, every kind present",
+        kinds,
+        {"stroke", "format", "matrix", "display"},
+    )
+    check(
+        "the population is the registry's shape",
+        len(m0["cases"]),
+        sum(counts().values()),
+    )
+    check(
+        "the real round trip parses and every key is equal",
+        m0["roundtrip"]["parsed"] and all(k["equal"] for k in m0["roundtrip"]["keys"]),
+        True,
+    )
     r0 = DT.registry()
     check("the 22 table carries the lowercase", "g" in r0["segGlyphs"]["22"], True)
-    check("...and no coarser table does", all("g" not in r0["segGlyphs"][f] for f in ("7", "14", "16")), True)
-    check("a lowercase at 22 is glyph22's set", r0["segGlyphs"]["22"]["g"], sorted(ST.glyph22("g")))
+    check(
+        "...and no coarser table does",
+        all("g" not in r0["segGlyphs"][f] for f in ("7", "14", "16")),
+        True,
+    )
+    check(
+        "a lowercase at 22 is glyph22's set",
+        r0["segGlyphs"]["22"]["g"],
+        sorted(ST.glyph22("g")),
+    )
 
     # ⚑ THE EXACT BYTES THAT SHIPPED WRONG reach the measurement verbatim, and the
     # round trip stays clean — which is WHY the structural rule (D3) exists.
     saved_font = DT.FONT5x7["A"]
     try:
-        DT.FONT5x7["A"] = [0x7e, 0x11, 0x11, 0x11, 0x7e]
+        DT.FONT5x7["A"] = [0x7E, 0x11, 0x11, 0x11, 0x7E]
         m = measure()
         a = next(c for c in m["cases"] if c["kind"] == "matrix" and c["id"] == "A")
-        check("sees the 'A' that shipped (its column bytes)", a["cols"], [0x7e, 0x11, 0x11, 0x11, 0x7e])
-        check("...while the round trip stays clean", all(k["equal"] for k in m["roundtrip"]["keys"]), True)
+        check(
+            "sees the 'A' that shipped (its column bytes)",
+            a["cols"],
+            [0x7E, 0x11, 0x11, 0x11, 0x7E],
+        )
+        check(
+            "...while the round trip stays clean",
+            all(k["equal"] for k in m["roundtrip"]["keys"]),
+            True,
+        )
     finally:
         DT.FONT5x7["A"] = saved_font
 
     # 1. a serialisation that DROPS a table
     saved = DT.as_qml_js
     try:
+
         def _dropped(*keys, indent=None, font_path=None):
             return json.dumps(
-                {k: v for k, v in DT.registry().items() if k != "font5x7"})
+                {k: v for k, v in DT.registry().items() if k != "font5x7"}
+            )
+
         DT.as_qml_js = _dropped
         keys = {k["key"]: k for k in measure()["roundtrip"]["keys"]}
         check("sees a dropped table", keys["font5x7"]["emitted"], False)
@@ -214,10 +264,12 @@ def _selftest():
 
     # 2. a serialisation that MANGLES a value
     try:
+
         def _mangled(indent=None):
             r = DT.registry()
             r["segGeom"] = {k: [0, 0, 0, 0] for k in r["segGeom"]}
             return json.dumps(r)
+
         DT.as_qml_js = _mangled
         keys = {k["key"]: k for k in measure()["roundtrip"]["keys"]}
         check("sees a mangled table", keys["segGeom"]["equal"], False)
@@ -226,8 +278,10 @@ def _selftest():
 
     # 3. an unparseable emission
     try:
+
         def _unparseable(*keys, indent=None, font_path=None):
             return "{not json"
+
         DT.as_qml_js = _unparseable
         check("sees an unparseable emission", measure()["roundtrip"]["parsed"], False)
     finally:
@@ -240,41 +294,72 @@ def _selftest():
     # would restore that defect while every byte-count looked plausible.
     matrix_only = DT.registry_for("5x7")
     check("a matrix-only subset carries the font", "font5x7" in matrix_only, True)
-    check("a matrix-only subset drops segment glyphs",
-          "segGlyphs" not in matrix_only, True)
-    check("a matrix-only subset drops segment geometry",
-          "segGeom" not in matrix_only, True)
+    check(
+        "a matrix-only subset drops segment glyphs",
+        "segGlyphs" not in matrix_only,
+        True,
+    )
+    check(
+        "a matrix-only subset drops segment geometry",
+        "segGeom" not in matrix_only,
+        True,
+    )
     check("a matrix-only subset names one display", len(matrix_only["displays"]), 1)
 
     seg_only = DT.registry_for("7")
     check("a segment-only subset carries geometry", "segGeom" in seg_only, True)
-    check("a segment-only subset drops the matrix font",
-          "font5x7" not in seg_only, True)
-    check("a segment-only subset carries ONLY its format",
-          sorted(seg_only["segGlyphs"]), ["7"])
+    check(
+        "a segment-only subset drops the matrix font", "font5x7" not in seg_only, True
+    )
+    check(
+        "a segment-only subset carries ONLY its format",
+        sorted(seg_only["segGlyphs"]),
+        ["7"],
+    )
 
     both = DT.registry_for("7", "5x7")
-    check("a mixed subset carries both",
-          "segGeom" in both and "font5x7" in both, True)
+    check("a mixed subset carries both", "segGeom" in both and "font5x7" in both, True)
 
     # ⚑ ⊕MATRIX-FONT-INPUT: the 5x8 display names the 5x8 font, and a font path
     # EXTENDS that table without touching an authored glyph.
     m8 = DT.registry_for("5x8")
-    check("a 5x8 subset carries font5x8, not font5x7",
-          "font5x8" in m8 and "font5x7" not in m8, True)
+    check(
+        "a 5x8 subset carries font5x8, not font5x7",
+        "font5x8" in m8 and "font5x7" not in m8,
+        True,
+    )
     check("the 5x8 display names its font", m8["displays"]["5x8"]["font"], "5x8")
-    check("the 5x8 display carries its baseline", m8["displays"]["5x8"].get("baseline"), DT.FONT5x8_BASELINE)
+    check(
+        "the 5x8 display carries its baseline",
+        m8["displays"]["5x8"].get("baseline"),
+        DT.FONT5x8_BASELINE,
+    )
     from check_projection import find_font
+
     font = find_font()
     if font:
         ext = DT.registry_for("5x8", font_path=font)
-        check("a font extends the 5x8 table", len(ext["font5x8"]) > len(m8["font5x8"]), True)
-        check("the extension is reported", ext.get("fontExtension", {}).get("glyphs", 0) > 0, True)
-        check("authored glyphs win over the font",
-              all(ext["font5x8"][ch] == list(DT.FONT5x8[ch]) for ch in DT.FONT5x8), True)
+        check(
+            "a font extends the 5x8 table",
+            len(ext["font5x8"]) > len(m8["font5x8"]),
+            True,
+        )
+        check(
+            "the extension is reported",
+            ext.get("fontExtension", {}).get("glyphs", 0) > 0,
+            True,
+        )
+        check(
+            "authored glyphs win over the font",
+            all(ext["font5x8"][ch] == list(DT.FONT5x8[ch]) for ch in DT.FONT5x8),
+            True,
+        )
         check("the extension reaches Latin-1 ('é')", "é" in ext["font5x8"], True)
-        check("no extension glyph is blank",
-              all(any(cb) for ch, cb in ext["font5x8"].items() if ch != " "), True)
+        check(
+            "no extension glyph is blank",
+            all(any(cb) for ch, cb in ext["font5x8"].items() if ch != " "),
+            True,
+        )
     else:
         print("  SKIP the font-extension arms — no TTF on this host")
 
@@ -288,22 +373,30 @@ def _selftest():
     whole = DT.registry()
     for key in ("7", "5x7"):
         sub = DT.registry_for(key)
-        check(f"subset {key} agrees with the whole on its display",
-              sub["displays"][key], whole["displays"][key])
+        check(
+            f"subset {key} agrees with the whole on its display",
+            sub["displays"][key],
+            whole["displays"][key],
+        )
 
     # 4. a registry that disagrees with the SUBSTRATE while round-tripping fine
     saved_reg = DT.registry
     try:
+
         def _wrong():
             r = saved_reg()
             fmt = min(r["segGlyphs"])
             ch = min(r["segGlyphs"][fmt])
             r["segGlyphs"][fmt][ch] = ["zz"]
             return r
+
         DT.registry = _wrong
         g = next(c for c in measure()["cases"] if c["kind"] == "format")["glyphs"][0]
-        check("sees a substrate disagreement (emitted beside the projection)",
-              g["emitted"] == ["zz"] and g["substrate"] != ["zz"], True)
+        check(
+            "sees a substrate disagreement (emitted beside the projection)",
+            g["emitted"] == ["zz"] and g["substrate"] != ["zz"],
+            True,
+        )
     finally:
         DT.registry = saved_reg
 

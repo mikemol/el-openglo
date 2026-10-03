@@ -20,6 +20,7 @@ tool knowing what one is.
 baseline that drifts to match the code — exactly the staleness this repo keeps
 finding. Delete it deliberately if the output is MEANT to change.
 """
+
 import importlib
 import os
 import sys
@@ -59,20 +60,27 @@ def main(argv):
             print(f"capture_baseline: unknown flag {a!r}", file=sys.stderr)
             return 2
     if len(args) < 3:
-        print("usage: capture_baseline.py <module> <accessor> <name> [arg...]",
-              file=sys.stderr)
+        print(
+            "usage: capture_baseline.py <module> <accessor> <name> [arg...]",
+            file=sys.stderr,
+        )
         return 2
     module, accessor, name = args[0], args[1], args[2]
     try:
         path, n = capture(module, accessor, name, args[3:])
     except FileExistsError as e:
-        print(f"capture_baseline: REFUSED — {os.path.basename(str(e))} already "
-              f"exists. A baseline is not re-recorded; delete it deliberately if "
-              f"the output is MEANT to change.", file=sys.stderr)
+        print(
+            f"capture_baseline: REFUSED — {os.path.basename(str(e))} already "
+            f"exists. A baseline is not re-recorded; delete it deliberately if "
+            f"the output is MEANT to change.",
+            file=sys.stderr,
+        )
         return 1
-    except Exception as e:                       # noqa: BLE001
-        print(f"capture_baseline: REFUSED — {module}.{accessor}: "
-              f"{type(e).__name__}: {e}", file=sys.stderr)
+    except Exception as e:  # noqa: BLE001
+        print(
+            f"capture_baseline: REFUSED — {module}.{accessor}: {type(e).__name__}: {e}",
+            file=sys.stderr,
+        )
         return 2
     print(f"capture_baseline: wrote {os.path.relpath(path, ROOT)} ({n} bytes)")
     return 0
@@ -92,14 +100,17 @@ def _selftest():
     check("baselines live under the repo", BASELINES.startswith(ROOT), True)
     # ⚑ REFUSING TO OVERWRITE IS THE POINT, so it is asserted.
     import tempfile
+
     saved = globals()["BASELINES"]
     try:
         with tempfile.TemporaryDirectory() as td:
             globals()["BASELINES"] = td
             capture("templates.loader", "names", "first.txt")
-            check("a second capture refuses",
-                  main(["capture_baseline", "templates.loader", "names",
-                        "first.txt"]), 1)
+            check(
+                "a second capture refuses",
+                main(["capture_baseline", "templates.loader", "names", "first.txt"]),
+                1,
+            )
     except TypeError:
         # names() returns a list, not a str — that refusal is also correct
         check("a non-string accessor refuses", True, True)

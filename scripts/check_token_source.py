@@ -28,6 +28,7 @@ literal would force noisy exemptions and would still miss the real defect, which
 is a target that computes its palette independently.  So this asks the structural
 question (does it read an authority?) and lets literals be.
 """
+
 import os
 import re
 import sys
@@ -43,16 +44,16 @@ AUTHORITIES = ("make_preview", "make_schemes")
 
 # Generators that legitimately do NOT read the palette, with the reason.
 NON_EMITTER = {
-    "make_palette.py":  "SOLVES the palette; it is upstream of every token consumer",
-    "make_schemes.py":  "IS an authority (owns GRID and emits the scheme files)",
-    "make_preview.py":  "IS an authority (owns parse_scheme)",
-    "make_font.py":     "emits glyph outlines; carries no colour",
+    "make_palette.py": "SOLVES the palette; it is upstream of every token consumer",
+    "make_schemes.py": "IS an authority (owns GRID and emits the scheme files)",
+    "make_preview.py": "IS an authority (owns parse_scheme)",
+    "make_font.py": "emits glyph outlines; carries no colour",
     "make_glyph_ink.py": "emits an ink field from font winding; carries no colour",
     "make_segment_display.py": "emits QML geometry; colour is bound by the caller",
-    "make_deb.py":      "packages what the emitters produced; reads no token itself",
-    "make_inherit.py":  "emits icon/cursor themes that INHERIT Breeze and draw nothing; "
-                        "the palette reaches the icons through FollowsColorScheme, not "
-                        "through this file (W31)",
+    "make_deb.py": "packages what the emitters produced; reads no token itself",
+    "make_inherit.py": "emits icon/cursor themes that INHERIT Breeze and draw nothing; "
+    "the palette reaches the icons through FollowsColorScheme, not "
+    "through this file (W31)",
 }
 
 
@@ -73,12 +74,13 @@ def emitters():
     it. The local NON_EMITTER dict kept its REASONS, which the roles do not
     carry, so it stays as prose beside them rather than as a second population."""
     import emitters as ROSTER
+
     out = []
     for mod in ROSTER.declared("emitter"):
         fn = mod + ".py"
         path = os.path.join(ROOT, fn)
         if not os.path.isfile(path):
-            out.append((fn, None))          # declared and absent — main() refuses
+            out.append((fn, None))  # declared and absent — main() refuses
             continue
         with open(path, encoding="utf-8", errors="replace") as fh:
             text = fh.read()
@@ -95,7 +97,9 @@ def emitters():
             for other in ROSTER.declared():
                 if other.startswith("make_") and other + ".py" != fn:
                     mod = other
-                    if re.search(rf"\b(?:import\s+{mod}\b|from\s+{mod}\s+import)", text):
+                    if re.search(
+                        rf"\b(?:import\s+{mod}\b|from\s+{mod}\s+import)", text
+                    ):
                         reads.append(f"via {mod}")
                         break
         out.append((fn, reads))
@@ -110,14 +114,19 @@ def measure(em=None, drift=None, declared=None):
     That drift, an absent file, an empty roster and an emitter reading nothing
     are defects by the policy's ruling, not here."""
     import emitters as ROSTER
+
     em = emitters() if em is None else em
     undeclared, absent = ROSTER.drift(ROOT) if drift is None else drift
-    return {"authorities": list(AUTHORITIES),
-            "declared": len(ROSTER.ROLES) if declared is None else declared,
-            "undeclared": [f"{m}.py" for m in undeclared],
-            "absent": [f"{m}.py" for m in absent],
-            "cases": [{"file": fn, "present": reads is not None, "reads": reads or []}
-                      for fn, reads in em]}
+    return {
+        "authorities": list(AUTHORITIES),
+        "declared": len(ROSTER.ROLES) if declared is None else declared,
+        "undeclared": [f"{m}.py" for m in undeclared],
+        "absent": [f"{m}.py" for m in absent],
+        "cases": [
+            {"file": fn, "present": reads is not None, "reads": reads or []}
+            for fn, reads in em
+        ],
+    }
 
 
 def main(argv):
@@ -128,13 +137,17 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     if "--map" in argv:
         for fn, reads in emitters():
-            print(f"{fn}\t{'ABSENT' if reads is None else (', '.join(reads) or '(NONE)')}")
+            print(
+                f"{fn}\t{'ABSENT' if reads is None else (', '.join(reads) or '(NONE)')}"
+            )
         return 0
     import opa_gate
+
     return opa_gate.gate("token_source")
 
 
@@ -158,11 +171,22 @@ def _selftest():
     # ⚑ THE MEASUREMENT CAN SEE (W50) the three shapes the policy refuses —
     # make_wallpaper computing its own colours (reads nothing), a declared file
     # deleted (the W65 shrink), an undeclared generator — as facts.
-    m = measure([("make_wallpaper.py", []), ("make_css.py", None)], (["make_new"], ["make_css"]), 2)
-    check("an emitter reading no authority is seen", m["cases"][0],
-          {"file": "make_wallpaper.py", "present": True, "reads": []})
+    m = measure(
+        [("make_wallpaper.py", []), ("make_css.py", None)],
+        (["make_new"], ["make_css"]),
+        2,
+    )
+    check(
+        "an emitter reading no authority is seen",
+        m["cases"][0],
+        {"file": "make_wallpaper.py", "present": True, "reads": []},
+    )
     check("a declared, absent emitter is seen", m["cases"][1]["present"], False)
-    check("roster drift is seen", (m["undeclared"], m["absent"]), (["make_new.py"], ["make_css.py"]))
+    check(
+        "roster drift is seen",
+        (m["undeclared"], m["absent"]),
+        (["make_new.py"], ["make_css.py"]),
+    )
     print("check_token_source selftest:", "PASS" if ok else "FAIL")
     return ok
 

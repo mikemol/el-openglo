@@ -30,6 +30,7 @@ Union's cascade applies a later :root, and whether it resolves var() lazily,
 needs the engine (USE=tools ruleinspector, or the desktop) — a SKIP here, an
 ⊕VER there.
 """
+
 import json
 import os
 import re
@@ -43,7 +44,11 @@ def breeze_variables(path=BREEZE_VARS):
     """The set of --names Breeze's variables.css defines, or None if absent."""
     if not os.path.isfile(path):
         return None
-    return set(re.findall(r"^\s*(--[a-z0-9-]+)\s*:", open(path, encoding="utf-8").read(), re.MULTILINE))
+    return set(
+        re.findall(
+            r"^\s*(--[a-z0-9-]+)\s*:", open(path, encoding="utf-8").read(), re.MULTILINE
+        )
+    )
 
 
 def overridden(css_text):
@@ -55,7 +60,10 @@ def overridden(css_text):
 
 
 def _numbers(value):
-    return [float(x) for x in re.findall(r"(?<![\w.])(\d?\.\d+|\d+\.\d*|\d+)(?![\w.])", value)]
+    return [
+        float(x)
+        for x in re.findall(r"(?<![\w.])(\d?\.\d+|\d+\.\d*|\d+)(?![\w.])", value)
+    ]
 
 
 def parse_errors(css_text):
@@ -64,14 +72,21 @@ def parse_errors(css_text):
         import tinycss2
     except ImportError:
         return None
-    rules = tinycss2.parse_stylesheet(css_text, skip_comments=True, skip_whitespace=True)
+    rules = tinycss2.parse_stylesheet(
+        css_text, skip_comments=True, skip_whitespace=True
+    )
     errs = [r for r in rules if r.type == "error"]
     # tinycss2 is lenient at the top level; the declarations are where a
     # broken emission shows (a missing colon, a bare token)
     for r in rules:
         if r.type == "qualified-rule":
-            errs += [d for d in tinycss2.parse_declaration_list(
-                r.content, skip_comments=True, skip_whitespace=True) if d.type == "error"]
+            errs += [
+                d
+                for d in tinycss2.parse_declaration_list(
+                    r.content, skip_comments=True, skip_whitespace=True
+                )
+                if d.type == "error"
+            ]
     return len(errs)
 
 
@@ -80,11 +95,19 @@ def facts(variant, css_text):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_union as MU
-    return {"id": variant, "parse_errors": parse_errors(css_text),
-            "overrides": [{"name": k, "numbers": _numbers(v)}
-                          for k, v in sorted(overridden(css_text).items())],
-            "solved": [{"var": var, "alpha": a}
-                       for var, (a, _fg, _gnd, _floor, _breeze) in MU.alphas(variant).items()]}
+
+    return {
+        "id": variant,
+        "parse_errors": parse_errors(css_text),
+        "overrides": [
+            {"name": k, "numbers": _numbers(v)}
+            for k, v in sorted(overridden(css_text).items())
+        ],
+        "solved": [
+            {"var": var, "alpha": a}
+            for var, (a, _fg, _gnd, _floor, _breeze) in MU.alphas(variant).items()
+        ],
+    }
 
 
 def measure(breeze_path=BREEZE_VARS):
@@ -95,11 +118,15 @@ def measure(breeze_path=BREEZE_VARS):
     import variant_roster as VR
 
     import make_union as MU
+
     roster = VR.ids()
     breeze = breeze_variables(breeze_path)
-    return {"roster": roster, "breeze": sorted(breeze) if breeze is not None else None,
-            "roster_drift": VR.drift_facts({"make_union": MU.VARIANTS}, roster),
-            "cases": [facts(v, MU.overrides_css(v)) for v in roster]}
+    return {
+        "roster": roster,
+        "breeze": sorted(breeze) if breeze is not None else None,
+        "roster_drift": VR.drift_facts({"make_union": MU.VARIANTS}, roster),
+        "cases": [facts(v, MU.overrides_css(v)) for v in roster],
+    }
 
 
 def main(argv):
@@ -117,13 +144,17 @@ def main(argv):
         import variant_roster as VR
 
         import make_union as MU
+
         for v in VR.ids():
             print(v)
             for var, (a, fg, gnd, floor, breeze) in MU.alphas(v).items():
-                print(f"  {var:26} {a!s:>6}  Breeze {breeze}  ({fg} over {gnd}, Lc>={floor})")
+                print(
+                    f"  {var:26} {a!s:>6}  Breeze {breeze}  ({fg} over {gnd}, Lc>={floor})"
+                )
         return 0
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import opa_gate
+
     return opa_gate.gate("union")
 
 
@@ -141,33 +172,50 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_union as MU
+
     good = MU.overrides_css("EL-Openglo")
     f = facts("EL-Openglo", good)
     check("the real emission's overrides are read", len(f["overrides"]) > 0, True)
     check("and its solve", any(s["alpha"] is not None for s in f["solved"]), True)
     # ⚑ EACH DEFECT MUST BE MEASURED (that it is DENIED is policy/union_test.rego's ruling).
-    unknown = facts("EL-Openglo", good.replace("--indicator-color", "--indicator-colour"))
-    check("an override under a name Breeze does not define is measured",
-          "--indicator-colour" in {o["name"] for o in unknown["overrides"]}, True)
+    unknown = facts(
+        "EL-Openglo", good.replace("--indicator-color", "--indicator-colour")
+    )
+    check(
+        "an override under a name Breeze does not define is measured",
+        "--indicator-colour" in {o["name"] for o in unknown["overrides"]},
+        True,
+    )
     authored = re.sub(r"set-alpha 0\.\d+\)", "set-alpha 0.4)", good, count=1)
-    check("an authored alpha is measured",
-          any(0.4 in o["numbers"] for o in facts("EL-Openglo", authored)["overrides"]), True)
+    check(
+        "an authored alpha is measured",
+        any(0.4 in o["numbers"] for o in facts("EL-Openglo", authored)["overrides"]),
+        True,
+    )
     n = parse_errors(":root { indicator red; --focus-outline-alpha 0.3 }")
     if n is None:
         print("  SKIP parse arm — tinycss2 not installed")
     else:
         check("a malformed stylesheet is measured", n > 0, True)
         check("...and the real one is not", f["parse_errors"], 0)
-    check("an absent Breeze is measured as null, not as empty",
-          measure("/nonexistent/variables.css")["breeze"], None)
+    check(
+        "an absent Breeze is measured as null, not as empty",
+        measure("/nonexistent/variables.css")["breeze"],
+        None,
+    )
     m = measure()
-    check("every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"])
+    check(
+        "every declared variant is measured", [c["id"] for c in m["cases"]], m["roster"]
+    )
     check("and the population is not empty", len(m["cases"]) > 0, True)
     kept = MU.VARIANTS
     try:
-        MU.VARIANTS = [x for x in kept if x != "EL-Amber"]     # a planted drop
-        check("an emitter that drops a variant is measured as drift",
-              [d["variant"] for d in measure()["roster_drift"]], ["EL-Amber"])
+        MU.VARIANTS = [x for x in kept if x != "EL-Amber"]  # a planted drop
+        check(
+            "an emitter that drops a variant is measured as drift",
+            [d["variant"] for d in measure()["roster_drift"]],
+            ["EL-Amber"],
+        )
     finally:
         MU.VARIANTS = kept
     print("check_union selftest:", "PASS" if ok else "FAIL")

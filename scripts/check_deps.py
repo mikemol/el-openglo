@@ -23,6 +23,7 @@ that way and is absent from the archive's own recovery notes.
 `import fontTools` as `fonttools`.  The mapping is data below, because guessing
 it (lowercase and hope) silently mis-reports both directions.
 """
+
 import ast
 import os
 import sys
@@ -33,8 +34,12 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 import git_tracked
 
 # import-name -> distribution-name, where they differ.
-DIST = {"PIL": "pillow", "fontTools": "fonttools", "PySide6": "pyside6",
-        "material_color_utilities": "material-color-utilities"}
+DIST = {
+    "PIL": "pillow",
+    "fontTools": "fonttools",
+    "PySide6": "pyside6",
+    "material_color_utilities": "material-color-utilities",
+}
 
 
 # ⚑ THE SCAN WAS ROOT-ONLY, AND THAT WAS A BLIND SPOT IN THE DEPENDENCY CHECKER
@@ -50,7 +55,9 @@ def _python_files():
     """[(relpath, abspath)] for every TRACKED .py directly in the scanned directories
     (scripts/git_tracked.py — the tree is what git tracks, not what the disk holds)."""
     specs = [":(glob)*.py" if d == "." else f":(glob){d}/*.py" for d in SCAN_DIRS]
-    return [(rel, os.path.join(ROOT, rel)) for rel in git_tracked.files(*specs, root=ROOT)]
+    return [
+        (rel, os.path.join(ROOT, rel)) for rel in git_tracked.files(*specs, root=ROOT)
+    ]
 
 
 def _tracked_top():
@@ -99,8 +106,9 @@ def imports(files=None):
     # — made `import magic` look local and vanish from the census. The
     # discriminator is an __init__.py or a like-named module, not a name that
     # happens to match.
-    local |= {d for d, members in top_dirs.items()
-              if "__init__.py" in members or d in local}
+    local |= {
+        d for d, members in top_dirs.items() if "__init__.py" in members or d in local
+    }
     # a module in a scanned subdir is local to a sibling importing it
     local |= {os.path.basename(rel)[:-3] for rel, _ in _python_files()}
     # ⚑ A SYMLINKED TOOL'S SIBLINGS ARE ITS OWN REPO'S, NOT OURS.  Several
@@ -111,7 +119,7 @@ def imports(files=None):
     # LIVES rather than about this tree's dependencies.
     local |= _symlink_siblings()
     found = {}
-    for fn, path in (files if files is not None else _python_files()):
+    for fn, path in files if files is not None else _python_files():
         try:
             with open(path, encoding="utf-8", errors="replace") as fh:
                 tree = ast.parse(fh.read())
@@ -139,6 +147,7 @@ def _dist_name(spec):
     the word appeared somewhere in the file (the "recorded" fallback). A pass for
     the wrong reason is a check that would not have caught its absence."""
     import re
+
     m = re.match(r"\s*([A-Za-z0-9][A-Za-z0-9._-]*)", spec)
     return m.group(1).lower() if m else spec.strip().lower()
 
@@ -170,15 +179,23 @@ def measure(planted=()):
     catalog/fixtures/deps/undeclared.py goes through this same walk, so
     `opa_gate.py deps <it> --expect denied:D1` proves the whole path denies."""
     decl, raw = declared()
-    found = imports(files=_python_files() + [(os.path.relpath(p, ROOT), p) for p in planted]
-                    if planted else None)
+    found = imports(
+        files=_python_files() + [(os.path.relpath(p, ROOT), p) for p in planted]
+        if planted
+        else None
+    )
     return {
         "manifest": decl is not None,
-        "cases": [{"id": mod, "dist": DIST.get(mod, mod).lower(),
-                   "files": sorted(files),
-                   "declared": decl is not None and DIST.get(mod, mod).lower() in decl,
-                   "recorded": mod in raw}
-                  for mod, files in sorted(found.items())],
+        "cases": [
+            {
+                "id": mod,
+                "dist": DIST.get(mod, mod).lower(),
+                "files": sorted(files),
+                "declared": decl is not None and DIST.get(mod, mod).lower() in decl,
+                "recorded": mod in raw,
+            }
+            for mod, files in sorted(found.items())
+        ],
     }
 
 
@@ -194,11 +211,16 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
-        ops = [os.path.join(ROOT, a) if not os.path.isabs(a) else a
-               for a in argv[1:] if not a.startswith("--")]
+
+        ops = [
+            os.path.join(ROOT, a) if not os.path.isabs(a) else a
+            for a in argv[1:]
+            if not a.startswith("--")
+        ]
         print(json.dumps(measure(planted=ops), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("deps")
 
 
@@ -222,33 +244,56 @@ def _selftest():
     # pinned to the tree's damage is a fixture that breaks on repair. Synthetic:
     # a planted module with a body-level import of a name nothing provides.
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         with open(os.path.join(td, "planted.py"), "w") as fh:
-            fh.write("def f():\n    import el_openglo_selftest_absent_dep\n    return 1\n")
+            fh.write(
+                "def f():\n    import el_openglo_selftest_absent_dep\n    return 1\n"
+            )
         planted = imports(files=[("planted.py", os.path.join(td, "planted.py"))])
-        check("the walk sees a function-body import (planted)",
-              "el_openglo_selftest_absent_dep" in planted, True)
+        check(
+            "the walk sees a function-body import (planted)",
+            "el_openglo_selftest_absent_dep" in planted,
+            True,
+        )
     check("stdlib is excluded", "os" not in found and "sys" not in found, True)
     # ⚑ THE SCAN REACHES THE TOOLS, NOT ONLY THE ROOT.  It was root-only, so a
     # dependency introduced by a checker was invisible to the dependency
     # checker — it reported "8 of 8 accounted for" while scripts/identify.py
     # imported an undeclared `magic`.
-    check("the scan reaches scripts/",
-          any(f.startswith("scripts/") for fs in found.values() for f in fs), True)
+    check(
+        "the scan reaches scripts/",
+        any(f.startswith("scripts/") for fs in found.values() for f in fs),
+        True,
+    )
     # ⚑ AND A DATA DIRECTORY IS NOT A PACKAGE.  Every top-level DIRECTORY was
     # treated as an importable local module, so creating `magic/` (libmagic
     # signatures, no Python) made `import magic` look local and disappear.
-    check("a data directory does not shadow a package",
-          "magic" in found or not os.path.isdir(os.path.join(ROOT, "magic")), True)
+    check(
+        "a data directory does not shadow a package",
+        "magic" in found or not os.path.isdir(os.path.join(ROOT, "magic")),
+        True,
+    )
     # ⚑ A DIRECT REFERENCE IS DECLARED BY ITS NAME, not found by mention
-    check("a PEP 508 direct reference parses to its name",
-          _dist_name("paperkit @ git+https://github.com/mikemol/paperkit.git@7081cd1"), "paperkit")
-    check("an extra and a marker do not leak into the name",
-          (_dist_name("pillow[webp]>=12 ; python_version >= '3.11'"), _dist_name("numpy")),
-          ("pillow", "numpy"))
+    check(
+        "a PEP 508 direct reference parses to its name",
+        _dist_name("paperkit @ git+https://github.com/mikemol/paperkit.git@7081cd1"),
+        "paperkit",
+    )
+    check(
+        "an extra and a marker do not leak into the name",
+        (
+            _dist_name("pillow[webp]>=12 ; python_version >= '3.11'"),
+            _dist_name("numpy"),
+        ),
+        ("pillow", "numpy"),
+    )
     by = {c["id"]: c for c in measure()["cases"]}
-    check("paperkit is measured DECLARED, not merely mentioned",
-          by.get("paperkit", {}).get("declared"), True)
+    check(
+        "paperkit is measured DECLARED, not merely mentioned",
+        by.get("paperkit", {}).get("declared"),
+        True,
+    )
     print("check_deps selftest:", "PASS" if ok else "FAIL")
     return ok
 

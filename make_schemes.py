@@ -12,6 +12,7 @@ Run: python3 make_schemes.py [--verify]
 --verify additionally diffs regenerated output against the original hand-made
 .colors files (must be byte-identical) and runs a WCAG contrast audit.
 """
+
 import sys
 
 from emitters import atomic_write
@@ -22,111 +23,260 @@ from emitters import atomic_write
 # hue/value when they'd collide with the phosphor field (amber) or lose
 # contrast against it (lit modes).
 
-Tokens = dict[str, str | bool | None]   # colour "r,g,b" strings, plus the tt_is_sel flag and None slots
+Tokens = dict[
+    str, str | bool | None
+]  # colour "r,g,b" strings, plus the tt_is_sel flag and None slots
 
 IND_OFF: Tokens = {
-  "name": "EL Openglo", "id": "EL-Openglo",
-  "view": "6,11,13", "view_alt": "10,18,20", "window": "12,21,23", "window_alt": "10,19,21",
-  "button": "18,34,37", "button_alt": "16,30,33", "header": "8,16,18", "header_alt": "10,18,20",
-  "hdr_in_bg": "6,11,13", "hdr_in_alt": "8,14,16", "comp": "6,11,13", "comp_alt": "8,14,16",
-  "tt_bg": "10,18,20", "tt_alt": "8,14,16",
-  "fg": "140,232,218", "fg_act": "168,255,242", "fg_in": "61,102,96",
-  "link": "69,216,240", "visited": "58,151,166",
-  "neg": "255,110,99", "neu": "255,180,84", "pos": "85,240,160",
-  "focus": "0,224,194", "hover": "26,165,147",
-  "sel_bg": "0,205,176", "sel_alt": "0,180,155", "sel_fg": "4,33,29", "sel_in": "10,64,56",
-  "sel_link": "6,58,84", "sel_vis": "12,66,74",
-  "sel_neg": "120,26,20", "sel_neu": "110,66,8", "sel_pos": "8,74,40",
-  "fx_dis": "6,11,13", "fx_in": "8,14,16",
-  "tt_is_sel": False,
+    "name": "EL Openglo",
+    "id": "EL-Openglo",
+    "view": "6,11,13",
+    "view_alt": "10,18,20",
+    "window": "12,21,23",
+    "window_alt": "10,19,21",
+    "button": "18,34,37",
+    "button_alt": "16,30,33",
+    "header": "8,16,18",
+    "header_alt": "10,18,20",
+    "hdr_in_bg": "6,11,13",
+    "hdr_in_alt": "8,14,16",
+    "comp": "6,11,13",
+    "comp_alt": "8,14,16",
+    "tt_bg": "10,18,20",
+    "tt_alt": "8,14,16",
+    "fg": "140,232,218",
+    "fg_act": "168,255,242",
+    "fg_in": "61,102,96",
+    "link": "69,216,240",
+    "visited": "58,151,166",
+    "neg": "255,110,99",
+    "neu": "255,180,84",
+    "pos": "85,240,160",
+    "focus": "0,224,194",
+    "hover": "26,165,147",
+    "sel_bg": "0,205,176",
+    "sel_alt": "0,180,155",
+    "sel_fg": "4,33,29",
+    "sel_in": "10,64,56",
+    "sel_link": "6,58,84",
+    "sel_vis": "12,66,74",
+    "sel_neg": "120,26,20",
+    "sel_neu": "110,66,8",
+    "sel_pos": "8,74,40",
+    "fx_dis": "6,11,13",
+    "fx_in": "8,14,16",
+    "tt_is_sel": False,
 }
 
 AZR_OFF: Tokens = {
-  "name": "EL Azure", "id": "EL-Azure",
-  "view": "5,9,14", "view_alt": "9,16,24", "window": "11,19,27", "window_alt": "9,17,25",
-  "button": "18,28,42", "button_alt": "16,26,38", "header": "7,14,22", "header_alt": "9,16,24",
-  "hdr_in_bg": "5,9,14", "hdr_in_alt": "7,12,19", "comp": "5,9,14", "comp_alt": "7,12,19",
-  "tt_bg": "9,16,24", "tt_alt": "7,12,19",
-  "fg": "138,196,242", "fg_act": "169,220,255", "fg_in": "61,85,102",
-  "link": "79,227,232", "visited": "58,127,166",
-  "neg": "255,110,99", "neu": "255,180,84", "pos": "85,240,160",
-  "focus": "79,168,255", "hover": "42,111,184",
-  "sel_bg": "61,155,240", "sel_alt": "52,133,210", "sel_fg": "4,20,35", "sel_in": "10,44,70",
-  "sel_link": "12,52,92", "sel_vis": "14,54,88",
-  "sel_neg": "120,26,20", "sel_neu": "110,66,8", "sel_pos": "8,74,40",
-  "fx_dis": "5,9,14", "fx_in": "7,12,19",
-  "tt_is_sel": False,
+    "name": "EL Azure",
+    "id": "EL-Azure",
+    "view": "5,9,14",
+    "view_alt": "9,16,24",
+    "window": "11,19,27",
+    "window_alt": "9,17,25",
+    "button": "18,28,42",
+    "button_alt": "16,26,38",
+    "header": "7,14,22",
+    "header_alt": "9,16,24",
+    "hdr_in_bg": "5,9,14",
+    "hdr_in_alt": "7,12,19",
+    "comp": "5,9,14",
+    "comp_alt": "7,12,19",
+    "tt_bg": "9,16,24",
+    "tt_alt": "7,12,19",
+    "fg": "138,196,242",
+    "fg_act": "169,220,255",
+    "fg_in": "61,85,102",
+    "link": "79,227,232",
+    "visited": "58,127,166",
+    "neg": "255,110,99",
+    "neu": "255,180,84",
+    "pos": "85,240,160",
+    "focus": "79,168,255",
+    "hover": "42,111,184",
+    "sel_bg": "61,155,240",
+    "sel_alt": "52,133,210",
+    "sel_fg": "4,20,35",
+    "sel_in": "10,44,70",
+    "sel_link": "12,52,92",
+    "sel_vis": "14,54,88",
+    "sel_neg": "120,26,20",
+    "sel_neu": "110,66,8",
+    "sel_pos": "8,74,40",
+    "fx_dis": "5,9,14",
+    "fx_in": "7,12,19",
+    "tt_is_sel": False,
 }
 
 AMB_OFF: Tokens = {
-  "name": "EL Amber", "id": "EL-Amber",
-  "view": "10,7,4", "view_alt": "20,16,9", "window": "23,18,11", "window_alt": "21,17,10",
-  "button": "37,29,16", "button_alt": "33,26,15", "header": "18,14,8", "header_alt": "20,16,9",
-  "hdr_in_bg": "10,7,4", "hdr_in_alt": "16,12,7", "comp": "10,7,4", "comp_alt": "16,12,7",
-  "tt_bg": "20,16,9", "tt_alt": "16,12,7",
-  "fg": "232,196,140", "fg_act": "255,226,168", "fg_in": "102,87,61",
-  "link": "111,216,232", "visited": "90,150,160",          # functional cold color
-  "neg": "255,110,99", "neu": "255,235,110", "pos": "85,240,160",  # neutral de-collided
-  "focus": "255,162,61", "hover": "184,116,40",
-  "sel_bg": "217,154,40", "sel_alt": "190,133,32", "sel_fg": "33,23,6", "sel_in": "70,50,14",
-  "sel_link": "10,70,84", "sel_vis": "20,60,66",
-  "sel_neg": "120,26,20", "sel_neu": "92,74,6", "sel_pos": "8,74,40",
-  "fx_dis": "10,7,4", "fx_in": "16,12,7",
-  "tt_is_sel": False,
+    "name": "EL Amber",
+    "id": "EL-Amber",
+    "view": "10,7,4",
+    "view_alt": "20,16,9",
+    "window": "23,18,11",
+    "window_alt": "21,17,10",
+    "button": "37,29,16",
+    "button_alt": "33,26,15",
+    "header": "18,14,8",
+    "header_alt": "20,16,9",
+    "hdr_in_bg": "10,7,4",
+    "hdr_in_alt": "16,12,7",
+    "comp": "10,7,4",
+    "comp_alt": "16,12,7",
+    "tt_bg": "20,16,9",
+    "tt_alt": "16,12,7",
+    "fg": "232,196,140",
+    "fg_act": "255,226,168",
+    "fg_in": "102,87,61",
+    "link": "111,216,232",
+    "visited": "90,150,160",  # functional cold color
+    "neg": "255,110,99",
+    "neu": "255,235,110",
+    "pos": "85,240,160",  # neutral de-collided
+    "focus": "255,162,61",
+    "hover": "184,116,40",
+    "sel_bg": "217,154,40",
+    "sel_alt": "190,133,32",
+    "sel_fg": "33,23,6",
+    "sel_in": "70,50,14",
+    "sel_link": "10,70,84",
+    "sel_vis": "20,60,66",
+    "sel_neg": "120,26,20",
+    "sel_neu": "92,74,6",
+    "sel_pos": "8,74,40",
+    "fx_dis": "10,7,4",
+    "fx_in": "16,12,7",
+    "tt_is_sel": False,
 }
 
 IND_LIT: Tokens = {
-  "name": "EL Openglo Lit", "id": "EL-Openglo-Lit",
-  "view": "175,242,226", "view_alt": "160,235,218", "window": "157,230,213", "window_alt": "147,222,204",
-  "button": "138,218,203", "button_alt": "126,208,192", "header": "147,222,204", "header_alt": "160,235,218",
-  "hdr_in_bg": "196,237,228", "hdr_in_alt": "196,237,228", "comp": None, "comp_alt": None,
-  "tt_bg": "11,31,28", "tt_alt": "8,24,21",
-  "fg": "10,38,34", "fg_act": "3,27,23", "fg_in": "78,138,128",
-  "link": "6,106,138", "visited": "42,106,116",
-  "neg": "166,35,24", "neu": "138,90,10", "pos": "7,102,53",
-  "focus": "0,112,95", "hover": "14,138,118",
-  "sel_bg": "11,31,28", "sel_alt": "8,24,21", "sel_fg": "124,243,223", "sel_in": "78,138,128",
-  "sel_link": "124,232,255", "sel_vis": "140,200,210",
-  "sel_neg": "255,154,140", "sel_neu": "255,204,133", "sel_pos": "140,247,190",
-  "sel_focus": "0,224,194", "sel_hover": "26,165,147",     # dark-mode glow on the sel panel
-  "fx_dis": "175,242,226", "fx_in": "196,237,228",
-  "tt_is_sel": True,
+    "name": "EL Openglo Lit",
+    "id": "EL-Openglo-Lit",
+    "view": "175,242,226",
+    "view_alt": "160,235,218",
+    "window": "157,230,213",
+    "window_alt": "147,222,204",
+    "button": "138,218,203",
+    "button_alt": "126,208,192",
+    "header": "147,222,204",
+    "header_alt": "160,235,218",
+    "hdr_in_bg": "196,237,228",
+    "hdr_in_alt": "196,237,228",
+    "comp": None,
+    "comp_alt": None,
+    "tt_bg": "11,31,28",
+    "tt_alt": "8,24,21",
+    "fg": "10,38,34",
+    "fg_act": "3,27,23",
+    "fg_in": "78,138,128",
+    "link": "6,106,138",
+    "visited": "42,106,116",
+    "neg": "166,35,24",
+    "neu": "138,90,10",
+    "pos": "7,102,53",
+    "focus": "0,112,95",
+    "hover": "14,138,118",
+    "sel_bg": "11,31,28",
+    "sel_alt": "8,24,21",
+    "sel_fg": "124,243,223",
+    "sel_in": "78,138,128",
+    "sel_link": "124,232,255",
+    "sel_vis": "140,200,210",
+    "sel_neg": "255,154,140",
+    "sel_neu": "255,204,133",
+    "sel_pos": "140,247,190",
+    "sel_focus": "0,224,194",
+    "sel_hover": "26,165,147",  # dark-mode glow on the sel panel
+    "fx_dis": "175,242,226",
+    "fx_in": "196,237,228",
+    "tt_is_sel": True,
 }
 
 AZR_LIT: Tokens = {
-  "name": "EL Azure Lit", "id": "EL-Azure-Lit",
-  "view": "178,220,250", "view_alt": "165,210,244", "window": "160,206,240", "window_alt": "150,196,232",
-  "button": "140,188,226", "button_alt": "128,176,216", "header": "150,196,232", "header_alt": "165,210,244",
-  "hdr_in_bg": "198,228,248", "hdr_in_alt": "198,228,248", "comp": None, "comp_alt": None,
-  "tt_bg": "8,18,30", "tt_alt": "6,14,24",
-  "fg": "10,26,42", "fg_act": "3,17,31", "fg_in": "74,110,140",
-  "link": "6,120,138", "visited": "42,96,120",
-  "neg": "166,35,24", "neu": "138,90,10", "pos": "7,102,53",
-  "focus": "20,90,170", "hover": "28,110,190",
-  "sel_bg": "8,18,30", "sel_alt": "6,14,24", "sel_fg": "133,203,255", "sel_in": "74,110,140",
-  "sel_link": "124,240,255", "sel_vis": "150,196,220",
-  "sel_neg": "255,154,140", "sel_neu": "255,204,133", "sel_pos": "140,247,190",
-  "sel_focus": "79,168,255", "sel_hover": "42,111,184",
-  "fx_dis": "178,220,250", "fx_in": "198,228,248",
-  "tt_is_sel": True,
+    "name": "EL Azure Lit",
+    "id": "EL-Azure-Lit",
+    "view": "178,220,250",
+    "view_alt": "165,210,244",
+    "window": "160,206,240",
+    "window_alt": "150,196,232",
+    "button": "140,188,226",
+    "button_alt": "128,176,216",
+    "header": "150,196,232",
+    "header_alt": "165,210,244",
+    "hdr_in_bg": "198,228,248",
+    "hdr_in_alt": "198,228,248",
+    "comp": None,
+    "comp_alt": None,
+    "tt_bg": "8,18,30",
+    "tt_alt": "6,14,24",
+    "fg": "10,26,42",
+    "fg_act": "3,17,31",
+    "fg_in": "74,110,140",
+    "link": "6,120,138",
+    "visited": "42,96,120",
+    "neg": "166,35,24",
+    "neu": "138,90,10",
+    "pos": "7,102,53",
+    "focus": "20,90,170",
+    "hover": "28,110,190",
+    "sel_bg": "8,18,30",
+    "sel_alt": "6,14,24",
+    "sel_fg": "133,203,255",
+    "sel_in": "74,110,140",
+    "sel_link": "124,240,255",
+    "sel_vis": "150,196,220",
+    "sel_neg": "255,154,140",
+    "sel_neu": "255,204,133",
+    "sel_pos": "140,247,190",
+    "sel_focus": "79,168,255",
+    "sel_hover": "42,111,184",
+    "fx_dis": "178,220,250",
+    "fx_in": "198,228,248",
+    "tt_is_sel": True,
 }
 
 AMB_LIT: Tokens = {
-  "name": "EL Amber Lit", "id": "EL-Amber-Lit",
-  "view": "250,220,160", "view_alt": "242,208,142", "window": "238,204,138", "window_alt": "228,192,124",
-  "button": "218,182,116", "button_alt": "205,170,105", "header": "228,192,124", "header_alt": "242,208,142",
-  "hdr_in_bg": "250,232,196", "hdr_in_alt": "250,232,196", "comp": None, "comp_alt": None,
-  "tt_bg": "33,23,6", "tt_alt": "26,18,5",
-  "fg": "42,30,8", "fg_act": "30,20,4", "fg_in": "140,114,70",
-  "link": "8,105,120", "visited": "50,95,105",
-  "neg": "150,30,20", "neu": "108,86,6", "pos": "6,95,48",
-  "focus": "150,92,10", "hover": "176,110,16",
-  "sel_bg": "33,23,6", "sel_alt": "26,18,5", "sel_fg": "255,206,117", "sel_in": "140,114,70",
-  "sel_link": "140,235,250", "sel_vis": "200,180,140",
-  "sel_neg": "255,154,140", "sel_neu": "255,240,150", "sel_pos": "140,247,190",
-  "sel_focus": "255,162,61", "sel_hover": "184,116,40",
-  "fx_dis": "250,220,160", "fx_in": "250,232,196",
-  "tt_is_sel": True,
+    "name": "EL Amber Lit",
+    "id": "EL-Amber-Lit",
+    "view": "250,220,160",
+    "view_alt": "242,208,142",
+    "window": "238,204,138",
+    "window_alt": "228,192,124",
+    "button": "218,182,116",
+    "button_alt": "205,170,105",
+    "header": "228,192,124",
+    "header_alt": "242,208,142",
+    "hdr_in_bg": "250,232,196",
+    "hdr_in_alt": "250,232,196",
+    "comp": None,
+    "comp_alt": None,
+    "tt_bg": "33,23,6",
+    "tt_alt": "26,18,5",
+    "fg": "42,30,8",
+    "fg_act": "30,20,4",
+    "fg_in": "140,114,70",
+    "link": "8,105,120",
+    "visited": "50,95,105",
+    "neg": "150,30,20",
+    "neu": "108,86,6",
+    "pos": "6,95,48",
+    "focus": "150,92,10",
+    "hover": "176,110,16",
+    "sel_bg": "33,23,6",
+    "sel_alt": "26,18,5",
+    "sel_fg": "255,206,117",
+    "sel_in": "140,114,70",
+    "sel_link": "140,235,250",
+    "sel_vis": "200,180,140",
+    "sel_neg": "255,154,140",
+    "sel_neu": "255,240,150",
+    "sel_pos": "140,247,190",
+    "sel_focus": "255,162,61",
+    "sel_hover": "184,116,40",
+    "fx_dis": "250,220,160",
+    "fx_in": "250,232,196",
+    "tt_is_sel": True,
 }
 
 import os as _os
@@ -154,11 +304,17 @@ import os as _os
 # (the name is valid) and fails at import, which is why compiling is too weak a
 # witness for a partial file.  The three reference sites all say `_AUTHORED_GRID`,
 # so the intended name is unambiguous.
-_AUTHORED_GRID: dict[tuple[str, ...], tuple[Tokens, Tokens]] = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
-  ("openglo","off"): (IND_OFF, IND_OFF), ("openglo","lit"): (IND_LIT, IND_OFF),
-  ("azure","off"):   (AZR_OFF, AZR_OFF), ("azure","lit"):   (AZR_LIT, AZR_OFF),
-  ("amber","off"):   (AMB_OFF, AMB_OFF), ("amber","lit"):   (AMB_LIT, AMB_OFF),
+_AUTHORED_GRID: dict[
+    tuple[str, ...], tuple[Tokens, Tokens]
+] = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
+    ("openglo", "off"): (IND_OFF, IND_OFF),
+    ("openglo", "lit"): (IND_LIT, IND_OFF),
+    ("azure", "off"): (AZR_OFF, AZR_OFF),
+    ("azure", "lit"): (AZR_LIT, AZR_OFF),
+    ("amber", "off"): (AMB_OFF, AMB_OFF),
+    ("amber", "lit"): (AMB_LIT, AMB_OFF),
 }
+
 
 # ⊕PARAMETRIC-PALETTE / ⊕SOLVER-DEFAULT — UNBLOCKED, and the default is SOLVED.
 #
@@ -208,8 +364,9 @@ def _solved_grid():
 
     import make_palette as _mp
 
-    cache = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
-                          ".palette-cache.json")
+    cache = _os.path.join(
+        _os.path.dirname(_os.path.abspath(__file__)), ".palette-cache.json"
+    )
     key = hashlib.sha256()
     for dep in ("make_palette.py", "cvd_gate.py", "ghost_solve.py", "glance_audit.py"):
         p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), dep)
@@ -219,13 +376,18 @@ def _solved_grid():
         except OSError:
             key.update(b"<absent>")
     stamp = key.hexdigest()
-    return _cached_solve(cache, stamp, _mp.build_grid,
-                         use_cache=_os.environ.get("EL_NO_PALETTE_CACHE") != "1")
+    return _cached_solve(
+        cache,
+        stamp,
+        _mp.build_grid,
+        use_cache=_os.environ.get("EL_NO_PALETTE_CACHE") != "1",
+    )
 
 
 def _read_cache(cache, stamp):
     """The cached grid if `cache` holds one stamped `stamp`, else None."""
     import json
+
     try:
         with open(cache, encoding="utf-8") as fh:
             blob = json.load(fh)
@@ -272,21 +434,25 @@ def _cached_solve(cache, stamp, solve, use_cache=True):
     if use_cache:
         grid = _read_cache(cache, stamp)
         if grid is not None:
-            return grid                        # fast path: no lock taken
+            return grid  # fast path: no lock taken
 
     lock_fh = None
     try:
         import fcntl
+
         # atomic-write: exempt — an empty flock sidecar, opened for its fd, never written
-        lock_fh = _os.fdopen(_os.open(cache + ".lock", _os.O_WRONLY | _os.O_APPEND | _os.O_CREAT, 0o666), "a")
-        fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX)   # blocks; sleeping, not CPU
+        lock_fh = _os.fdopen(
+            _os.open(cache + ".lock", _os.O_WRONLY | _os.O_APPEND | _os.O_CREAT, 0o666),
+            "a",
+        )
+        fcntl.flock(lock_fh.fileno(), fcntl.LOCK_EX)  # blocks; sleeping, not CPU
     except (OSError, ImportError):
         if lock_fh is not None:
             lock_fh.close()
-        lock_fh = None                         # weakness (3): proceed unlocked
+        lock_fh = None  # weakness (3): proceed unlocked
     try:
         if use_cache:
-            grid = _read_cache(cache, stamp)   # double-check: a winner may have solved
+            grid = _read_cache(cache, stamp)  # double-check: a winner may have solved
             if grid is not None:
                 return grid
         grid = solve()
@@ -294,11 +460,12 @@ def _cached_solve(cache, stamp, solve, use_cache=True):
         return grid
     finally:
         if lock_fh is not None:
-            lock_fh.close()                    # closing the fd releases the flock
+            lock_fh.close()  # closing the fd releases the flock
 
 
 def _write_cache(cache, stamp, grid):
     import json
+
     # ⚑ THE CACHE IS REPLACED, NEVER TRUNCATED IN PLACE (W68, 2026-09-22). The
     # previous form was `json.dump(..., open(cache, "w"))`, which TRUNCATES the
     # file and then writes it — so a concurrent reader sees a partial document.
@@ -322,20 +489,27 @@ def _write_cache(cache, stamp, grid):
     # That fix (mode from the umask) now lives in emitters.atomic_write, which this
     # write and every generator's output share (W68, 2026-09-23).
     try:
-        atomic_write(cache, json.dumps({"stamp": stamp,
-                                        "grid": {"\t".join(k): v for k, v in grid.items()}}))
+        atomic_write(
+            cache,
+            json.dumps(
+                {"stamp": stamp, "grid": {"\t".join(k): v for k, v in grid.items()}}
+            ),
+        )
     except OSError:
-        pass                                    # a cache we cannot write is not an error
+        pass  # a cache we cannot write is not an error
 
 
 def _selftest_worker(cache, stamp, counter, delay):
     """One contender: a stub solve that records it ran and sleeps `delay` s."""
     import time
+
     def stub():
-        with open(counter, "a") as fh:  # atomic-write: exempt — selftest counter in a private tempdir
+        # atomic-write: exempt — selftest counter in a private tempdir
+        with open(counter, "a") as fh:
             fh.write(f"{_os.getpid()}\n")
         time.sleep(delay)
         return {("stub", "off"): [{"view": "0,0,0"}, {"view": "0,0,0"}]}
+
     grid = _cached_solve(cache, stamp, stub)
     assert ("stub", "off") in grid
 
@@ -346,6 +520,7 @@ def _selftest():
     so the locked arm's 1 is a measurement and not the only possible output."""
     import multiprocessing
     import tempfile
+
     ctx = multiprocessing.get_context("fork")
     n = 4
     results = []
@@ -353,19 +528,26 @@ def _selftest():
         with tempfile.TemporaryDirectory() as d:
             cache = _os.path.join(d, "cache.json")
             counter = _os.path.join(d, "solves")
-            open(counter, "w").close()  # atomic-write: exempt — selftest fixture in a private tempdir
+            # atomic-write: exempt — selftest fixture in a private tempdir
+            open(counter, "w").close()
             if arm == "unlocked":
-                _os.mkdir(cache + ".lock")     # open(..., "a") on a dir -> OSError
-            procs = [ctx.Process(target=_selftest_worker,
-                                 args=(cache, "S", counter, 0.5)) for _ in range(n)]
-            for p in procs: p.start()
-            for p in procs: p.join()
+                _os.mkdir(cache + ".lock")  # open(..., "a") on a dir -> OSError
+            procs = [
+                ctx.Process(target=_selftest_worker, args=(cache, "S", counter, 0.5))
+                for _ in range(n)
+            ]
+            for p in procs:
+                p.start()
+            for p in procs:
+                p.join()
             with open(counter) as fh:
                 solves = len(fh.read().split())
             ok_exit = sum(p.exitcode == 0 for p in procs)
             results.append((arm, solves, ok_exit))
-            print(f"  {arm:8s}: {solves} solve(s) over {n} contenders, "
-                  f"{ok_exit} of {n} exited 0")
+            print(
+                f"  {arm:8s}: {solves} solve(s) over {n} contenders, "
+                f"{ok_exit} of {n} exited 0"
+            )
     (_, s_l, e_l), (_, s_u, e_u) = results
     good = s_l == 1 and e_l == n and s_u > 1 and e_u == n
     print("make_schemes selftest:", "PASS" if good else "FAIL")
@@ -403,27 +585,43 @@ def _ghost_alpha():
         if isinstance(t, dict) and "view" in t:
             seen.add(t.get("ghost_alpha", "0.45"))
     if len(seen) != 1:
-        raise ValueError(f"GRID carries {len(seen)} distinct ghost_alpha values "
-                         f"{sorted(seen)}; the grid-wide solve did not happen")
+        raise ValueError(
+            f"GRID carries {len(seen)} distinct ghost_alpha values "
+            f"{sorted(seen)}; the grid-wide solve did not happen"
+        )
     return float(seen.pop())
 
 
 GHOST_ALPHA = _ghost_alpha()
 
+
 # ---------------------------------------------------------------- .colors emit
 def fgset(t):
-    return (t["fg_act"], t["fg_in"], t["link"], t["neg"], t["neu"],
-            t["fg"], t["pos"], t["visited"])
+    return (
+        t["fg_act"],
+        t["fg_in"],
+        t["link"],
+        t["neg"],
+        t["neu"],
+        t["fg"],
+        t["pos"],
+        t["visited"],
+    )
+
 
 def section(title, bg_alt, bg, focus, hover, fgs, fg_normal_override=None):
     a, i, l, n, u, f, p, v = fgs
-    if fg_normal_override: f = fg_normal_override
-    return (f"[{title}]\n"
-            f"BackgroundAlternate={bg_alt}\nBackgroundNormal={bg}\n"
-            f"DecorationFocus={focus}\nDecorationHover={hover}\n"
-            f"ForegroundActive={a}\nForegroundInactive={i}\nForegroundLink={l}\n"
-            f"ForegroundNegative={n}\nForegroundNeutral={u}\nForegroundNormal={f}\n"
-            f"ForegroundPositive={p}\nForegroundVisited={v}\n")
+    if fg_normal_override:
+        f = fg_normal_override
+    return (
+        f"[{title}]\n"
+        f"BackgroundAlternate={bg_alt}\nBackgroundNormal={bg}\n"
+        f"DecorationFocus={focus}\nDecorationHover={hover}\n"
+        f"ForegroundActive={a}\nForegroundInactive={i}\nForegroundLink={l}\n"
+        f"ForegroundNegative={n}\nForegroundNeutral={u}\nForegroundNormal={f}\n"
+        f"ForegroundPositive={p}\nForegroundVisited={v}\n"
+    )
+
 
 def emit_colors(t, dark):
     # ⚑ THE SELECTION GROUP IS THE ONE PLACE THE PALETTE INVERTS, so it is the one
@@ -438,110 +636,252 @@ def emit_colors(t, dark):
     # does not distinguish active-vs-normal in the inverted group stays readable
     # rather than invisible.
     sel_act = t.get("sel_act", t["sel_fg"])
-    selfgs = (sel_act, t["sel_in"], t["sel_link"], t["sel_neg"],
-              t["sel_neu"], t["sel_fg"], t["sel_pos"], t["sel_vis"])
-    sf = t.get("sel_focus", t["focus"]); sh = t.get("sel_hover", t["hover"])
+    selfgs = (
+        sel_act,
+        t["sel_in"],
+        t["sel_link"],
+        t["sel_neg"],
+        t["sel_neu"],
+        t["sel_fg"],
+        t["sel_pos"],
+        t["sel_vis"],
+    )
+    sf = t.get("sel_focus", t["focus"])
+    sh = t.get("sel_hover", t["hover"])
     ttfgs = selfgs if t["tt_is_sel"] else fgset(t)
     ttf, tth = (sf, sh) if t["tt_is_sel"] else (t["focus"], t["hover"])
     comp, comp_alt = (t["comp"] or dark["comp"]), (t["comp_alt"] or dark["comp_alt"])
     parts = [
-      ("[ColorEffects:Disabled]\n"
-       f"Color={t['fx_dis']}\nColorAmount=0.35\nColorEffect=2\nContrastAmount=0.6\n"
-       "ContrastEffect=1\nIntensityAmount=-1\nIntensityEffect=0\n"),
-      ("[ColorEffects:Inactive]\nChangeSelectionColor=true\n"
-       f"Color={t['fx_in']}\nColorAmount=0.2\nColorEffect=2\nContrastAmount=0.25\n"
-       "ContrastEffect=2\nEnable=true\nIntensityAmount=0\nIntensityEffect=0\n"),
-      section("Colors:Button", t["button_alt"], t["button"], t["focus"], t["hover"], fgset(t)),
-      section("Colors:Complementary", comp_alt, comp, dark["focus"], dark["hover"], fgset(dark)),
-      section("Colors:Header", t["header_alt"], t["header"], t["focus"], t["hover"], fgset(t)),
-      section("Colors:Header][Inactive", t["hdr_in_alt"], t["hdr_in_bg"], t["focus"],
-              t["hover"], fgset(t), fg_normal_override=t["fg_in"]),
-      section("Colors:Selection", t["sel_alt"], t["sel_bg"], sf, sh, selfgs),
-      section("Colors:Tooltip", t["tt_alt"], t["tt_bg"], ttf, tth, ttfgs),
-      section("Colors:View", t["view_alt"], t["view"], t["focus"], t["hover"], fgset(t)),
-      section("Colors:Window", t["window_alt"], t["window"], t["focus"], t["hover"], fgset(t)),
-      f"[General]\nColorScheme={t['id']}\nName={t['name']}\nshadeSortColumn=true\n",
-      "[KDE]\ncontrast=4\n",
-      (f"[WM]\nactiveBackground={t['window']}\nactiveBlend={t['focus']}\n"
-       f"activeForeground={t['fg_act']}\n"
-       f"inactiveBackground={t['hdr_in_bg'] if t['tt_is_sel'] else t['view']}\n"
-       f"inactiveBlend={t['fg_in']}\ninactiveForeground={t['fg_in']}\n"),
-      # ⚑ THE GHOST'S RENDER ALPHA TRAVELS WITH THE SCHEME.  KDE ignores an
-      # unknown section, so this costs nothing there; make_preview.parse_scheme
-      # reads it, which is how the surfaces that source from the .colors file
-      # (plymouth) draw the ghost the palette solved — fg_in was solved to be
-      # seen THROUGH this number, and a .colors file without it carries a colour
-      # whose meaning depends on a value it does not state.
-      # Two alphas since W12: looked-at (the clock) and glanced-at (surfaces you
-      # only glance at — wallpaper, splash, plymouth — where the ghost must sit
-      # further from lit). A variant that cannot satisfy both floors says so.
-      (f"[EL]\nGhostAlpha={t.get('ghost_alpha', '0.45')}\n"
-       f"GhostAlphaGlanced={t.get('ghost_alpha_glanced', t.get('ghost_alpha', '0.45'))}\n"
-       f"GhostAlphaGlancedInfeasible={t.get('ghost_alpha_glanced_infeasible', 'false')}\n"),
+        (
+            "[ColorEffects:Disabled]\n"
+            f"Color={t['fx_dis']}\nColorAmount=0.35\nColorEffect=2\nContrastAmount=0.6\n"
+            "ContrastEffect=1\nIntensityAmount=-1\nIntensityEffect=0\n"
+        ),
+        (
+            "[ColorEffects:Inactive]\nChangeSelectionColor=true\n"
+            f"Color={t['fx_in']}\nColorAmount=0.2\nColorEffect=2\nContrastAmount=0.25\n"
+            "ContrastEffect=2\nEnable=true\nIntensityAmount=0\nIntensityEffect=0\n"
+        ),
+        section(
+            "Colors:Button",
+            t["button_alt"],
+            t["button"],
+            t["focus"],
+            t["hover"],
+            fgset(t),
+        ),
+        section(
+            "Colors:Complementary",
+            comp_alt,
+            comp,
+            dark["focus"],
+            dark["hover"],
+            fgset(dark),
+        ),
+        section(
+            "Colors:Header",
+            t["header_alt"],
+            t["header"],
+            t["focus"],
+            t["hover"],
+            fgset(t),
+        ),
+        section(
+            "Colors:Header][Inactive",
+            t["hdr_in_alt"],
+            t["hdr_in_bg"],
+            t["focus"],
+            t["hover"],
+            fgset(t),
+            fg_normal_override=t["fg_in"],
+        ),
+        section("Colors:Selection", t["sel_alt"], t["sel_bg"], sf, sh, selfgs),
+        section("Colors:Tooltip", t["tt_alt"], t["tt_bg"], ttf, tth, ttfgs),
+        section(
+            "Colors:View", t["view_alt"], t["view"], t["focus"], t["hover"], fgset(t)
+        ),
+        section(
+            "Colors:Window",
+            t["window_alt"],
+            t["window"],
+            t["focus"],
+            t["hover"],
+            fgset(t),
+        ),
+        f"[General]\nColorScheme={t['id']}\nName={t['name']}\nshadeSortColumn=true\n",
+        "[KDE]\ncontrast=4\n",
+        (
+            f"[WM]\nactiveBackground={t['window']}\nactiveBlend={t['focus']}\n"
+            f"activeForeground={t['fg_act']}\n"
+            f"inactiveBackground={t['hdr_in_bg'] if t['tt_is_sel'] else t['view']}\n"
+            f"inactiveBlend={t['fg_in']}\ninactiveForeground={t['fg_in']}\n"
+        ),
+        # ⚑ THE GHOST'S RENDER ALPHA TRAVELS WITH THE SCHEME.  KDE ignores an
+        # unknown section, so this costs nothing there; make_preview.parse_scheme
+        # reads it, which is how the surfaces that source from the .colors file
+        # (plymouth) draw the ghost the palette solved — fg_in was solved to be
+        # seen THROUGH this number, and a .colors file without it carries a colour
+        # whose meaning depends on a value it does not state.
+        # Two alphas since W12: looked-at (the clock) and glanced-at (surfaces you
+        # only glance at — wallpaper, splash, plymouth — where the ghost must sit
+        # further from lit). A variant that cannot satisfy both floors says so.
+        (
+            f"[EL]\nGhostAlpha={t.get('ghost_alpha', '0.45')}\n"
+            f"GhostAlphaGlanced={t.get('ghost_alpha_glanced', t.get('ghost_alpha', '0.45'))}\n"
+            f"GhostAlphaGlancedInfeasible={t.get('ghost_alpha_glanced_infeasible', 'false')}\n"
+        ),
     ]
     return "\n".join(parts)
 
+
 # ------------------------------------------------------------- konsole emit
-def rgb(s): return tuple(int(x) for x in s.split(","))
-def mix(a, b, k): return tuple(round(x + (y - x) * k) for x, y in zip(rgb(a) if isinstance(a,str) else a, rgb(b) if isinstance(b,str) else b))
-def s3(c): return ",".join(map(str, c))
+def rgb(s):
+    return tuple(int(x) for x in s.split(","))
+
+
+def mix(a, b, k):
+    return tuple(
+        round(x + (y - x) * k)
+        for x, y in zip(
+            rgb(a) if isinstance(a, str) else a, rgb(b) if isinstance(b, str) else b
+        )
+    )
+
+
+def s3(c):
+    return ",".join(map(str, c))
+
 
 ANSI = {  # variant id -> (c0, c1..c7 bases); fg/bg pulled from token table
-  "EL-Openglo":    ("10,18,20","255,110,99","85,240,160","255,180,84","79,168,232","176,140,232","0,224,194","140,232,218"),
-  "EL-Azure":      ("9,16,24","255,110,99","85,240,160","255,180,84","79,168,255","176,140,232","79,227,232","138,196,242"),
-  "EL-Amber":      ("20,16,9","255,110,99","85,240,160","255,235,110","100,170,235","176,140,232","111,216,232","232,196,140"),
-  "EL-Openglo-Lit":("11,31,28","166,35,24","10,122,66","138,90,10","10,90,154","106,58,154","0,112,95","96,160,150"),
-  "EL-Azure-Lit":  ("8,18,30","166,35,24","10,122,66","138,90,10","20,90,170","106,58,154","6,120,138","90,140,170"),
-  "EL-Amber-Lit":  ("33,23,6","150,30,20","6,95,48","108,86,6","20,80,150","100,55,145","8,105,120","150,120,80"),
+    "EL-Openglo": (
+        "10,18,20",
+        "255,110,99",
+        "85,240,160",
+        "255,180,84",
+        "79,168,232",
+        "176,140,232",
+        "0,224,194",
+        "140,232,218",
+    ),
+    "EL-Azure": (
+        "9,16,24",
+        "255,110,99",
+        "85,240,160",
+        "255,180,84",
+        "79,168,255",
+        "176,140,232",
+        "79,227,232",
+        "138,196,242",
+    ),
+    "EL-Amber": (
+        "20,16,9",
+        "255,110,99",
+        "85,240,160",
+        "255,235,110",
+        "100,170,235",
+        "176,140,232",
+        "111,216,232",
+        "232,196,140",
+    ),
+    "EL-Openglo-Lit": (
+        "11,31,28",
+        "166,35,24",
+        "10,122,66",
+        "138,90,10",
+        "10,90,154",
+        "106,58,154",
+        "0,112,95",
+        "96,160,150",
+    ),
+    "EL-Azure-Lit": (
+        "8,18,30",
+        "166,35,24",
+        "10,122,66",
+        "138,90,10",
+        "20,90,170",
+        "106,58,154",
+        "6,120,138",
+        "90,140,170",
+    ),
+    "EL-Amber-Lit": (
+        "33,23,6",
+        "150,30,20",
+        "6,95,48",
+        "108,86,6",
+        "20,80,150",
+        "100,55,145",
+        "8,105,120",
+        "150,120,80",
+    ),
 }
+
 
 def emit_konsole(t):
     lit = t["tt_is_sel"]
     bg, fg = t["view"], t["fg"]
     cols = ANSI[t["id"]]
-    out = [f"[Background]\nColor={bg}\n", f"[BackgroundFaint]\nColor={bg}\n",
-           f"[BackgroundIntense]\nColor={t['view_alt']}\n"]
+    out = [
+        f"[Background]\nColor={bg}\n",
+        f"[BackgroundFaint]\nColor={bg}\n",
+        f"[BackgroundIntense]\nColor={t['view_alt']}\n",
+    ]
     for i, base in enumerate(cols):
         if i == 0:
-            faint = s3(mix(base, bg, 0.35)); intense = t["fg_act"] if lit else s3(mix(base, "255,255,255", 0.12))
+            faint = s3(mix(base, bg, 0.35))
+            intense = t["fg_act"] if lit else s3(mix(base, "255,255,255", 0.12))
         else:
             faint = s3(mix(base, bg, 0.45 if lit else 0.48))
             intense = s3(mix(base, "255,255,255", 0.18 if lit else 0.35))
         out.append(f"[Color{i}]\nColor={base}\n")
         out.append(f"[Color{i}Faint]\nColor={faint}\n")
         out.append(f"[Color{i}Intense]\nColor={intense}\n")
-    out += [f"[Foreground]\nColor={fg}\n",
-            f"[ForegroundFaint]\nColor={s3(mix(fg, bg, 0.35))}\n",
-            f"[ForegroundIntense]\nColor={t['fg_act']}\n",
-            ("[General]\nAnchors=0.5,0.5\nBlur=false\nColorRandomization=false\n"
-             f"Description={t['name']}\nFillStyle=Tile\nOpacity=1\nWallpaper=\n"
-             "WallpaperFlipType=NoFlip\nWallpaperOpacity=1\n")]
+    out += [
+        f"[Foreground]\nColor={fg}\n",
+        f"[ForegroundFaint]\nColor={s3(mix(fg, bg, 0.35))}\n",
+        f"[ForegroundIntense]\nColor={t['fg_act']}\n",
+        (
+            "[General]\nAnchors=0.5,0.5\nBlur=false\nColorRandomization=false\n"
+            f"Description={t['name']}\nFillStyle=Tile\nOpacity=1\nWallpaper=\n"
+            "WallpaperFlipType=NoFlip\nWallpaperOpacity=1\n"
+        ),
+    ]
     return "\n".join(out)
+
 
 # ------------------------------------------------------------------ audit
 def lum(c):
     def f(v):
         v /= 255
-        return v/12.92 if v <= 0.03928 else ((v+0.055)/1.055)**2.4
+        return v / 12.92 if v <= 0.03928 else ((v + 0.055) / 1.055) ** 2.4
+
     r, g, b = c
-    return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b)
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b)
+
 
 def ratio(a, b):
     la, lb = sorted((lum(rgb(a)), lum(rgb(b))), reverse=True)
-    return (la+0.05)/(lb+0.05)
+    return (la + 0.05) / (lb + 0.05)
+
 
 def audit(t):
-    rows = [("body/view", t["fg"], t["view"]), ("body/button", t["fg"], t["button"]),
-            ("link/view", t["link"], t["view"]), ("neg/view", t["neg"], t["view"]),
-            ("neu/view", t["neu"], t["view"]), ("pos/view", t["pos"], t["view"]),
-            ("sel", t["sel_fg"], t["sel_bg"])]
+    rows = [
+        ("body/view", t["fg"], t["view"]),
+        ("body/button", t["fg"], t["button"]),
+        ("link/view", t["link"], t["view"]),
+        ("neg/view", t["neg"], t["view"]),
+        ("neu/view", t["neu"], t["view"]),
+        ("pos/view", t["pos"], t["view"]),
+        ("sel", t["sel_fg"], t["sel_bg"]),
+    ]
     bad = []
     for name, f, b in rows:
         r = ratio(f, b)
         flag = "" if r >= 4.5 else (" *" if r >= 3 else " FAIL")
-        if r < 4.5: bad.append((name, round(r, 2)))
+        if r < 4.5:
+            bad.append((name, round(r, 2)))
         print(f"  {t['id']:16s} {name:12s} {r:5.2f}:1{flag}")
     return bad
+
 
 # -------------------------------------------------------------------- main
 if __name__ == "__main__":
@@ -550,10 +890,15 @@ if __name__ == "__main__":
     # ignored both and EMITTED — so @CURRENCY rewrote the tracked EL-*.colors
     # twice per gate run, under every check reading them. check_tree_writes
     # found it on its first full run.
-    _unknown = [a for a in sys.argv[1:] if a not in ("--selftest", "--warm", "--verify")]
+    _unknown = [
+        a for a in sys.argv[1:] if a not in ("--selftest", "--warm", "--verify")
+    ]
     if _unknown:
-        print(f"make_schemes: unknown flag(s) {_unknown} (modes: --selftest, --warm, "
-              f"--verify, or none to emit)", file=sys.stderr)
+        print(
+            f"make_schemes: unknown flag(s) {_unknown} (modes: --selftest, --warm, "
+            f"--verify, or none to emit)",
+            file=sys.stderr,
+        )
         sys.exit(2)
     if "--selftest" in sys.argv:
         sys.exit(_selftest())
@@ -565,21 +910,28 @@ if __name__ == "__main__":
         # the pre-commit hook refused a green tree — three times on 2026-09-20,
         # each passing on the warm retry. The hook now runs THIS first. The
         # solve happened at import; there is nothing left to do but say so.
-        print(f"make_schemes: palette cache warm ({len(GRID)} variants, "
-              f"ghost alpha {GHOST_ALPHA})")
+        print(
+            f"make_schemes: palette cache warm ({len(GRID)} variants, "
+            f"ghost alpha {GHOST_ALPHA})"
+        )
         sys.exit(0)
     verify = "--verify" in sys.argv
-    for (t, dark) in GRID.values():
+    for t, dark in GRID.values():
         atomic_write(f"{t['id']}.colors", emit_colors(t, dark))
         atomic_write(f"{t['id']}.colorscheme", emit_konsole(t))
         print("wrote", t["id"])
     if verify:
         print("\n-- byte-exact check vs hand-made .colors --")
         import subprocess
+
         for f in ["EL-Openglo.colors", "EL-Azure.colors", "EL-Openglo-Lit.colors"]:
-            r = subprocess.run(["git", "diff", "--no-index", "--stat", f"/tmp/hand/{f}", f],
-                               capture_output=True, text=True, check=False)
+            r = subprocess.run(
+                ["git", "diff", "--no-index", "--stat", f"/tmp/hand/{f}", f],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
             print(f, "IDENTICAL" if r.returncode == 0 else "DIFFERS")
         print("\n-- WCAG audit --")
-        for (t, d) in GRID.values():
+        for t, d in GRID.values():
             audit(t)

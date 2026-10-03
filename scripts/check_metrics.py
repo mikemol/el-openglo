@@ -30,6 +30,7 @@ WEAKNESS: the stub replays luthen's contract as written on 2026-10-02 (exit code
 the "answered" document); a change to that contract on luthen's side is not seen
 here. The live answer is a separate read (endpoints_query.py on this host).
 """
+
 import http.server
 import json
 import os
@@ -89,7 +90,13 @@ Window {
 
 # scenario -> (tool reply builder, http status the stub serves)
 # tool-missing: the executable engine reports the shell's 127 when the binary is absent
-SCENARIOS = ("tool-missing", "tool-refused", "tool-unreadable", "query-failed", "query-ok")
+SCENARIOS = (
+    "tool-missing",
+    "tool-refused",
+    "tool-unreadable",
+    "query-failed",
+    "query-ok",
+)
 
 
 def _reply(scenario, port):
@@ -99,7 +106,10 @@ def _reply(scenario, port):
         return {"exit code": 1, "stdout": json.dumps({"state": "refused"})}
     if scenario == "tool-unreadable":
         return {"exit code": 2, "stdout": ""}
-    return {"exit code": 0, "stdout": json.dumps({"state": "answered", "host": "127.0.0.1", "port": port})}
+    return {
+        "exit code": 0,
+        "stdout": json.dumps({"state": "answered", "host": "127.0.0.1", "port": port}),
+    }
 
 
 class _Handler(http.server.BaseHTTPRequestHandler):
@@ -110,7 +120,9 @@ class _Handler(http.server.BaseHTTPRequestHandler):
             self.send_response(500)
             self.end_headers()
             return
-        body = json.dumps({"status": "success", "data": {"result": [{"value": [0, "1.5"]}]}}).encode()
+        body = json.dumps(
+            {"status": "success", "data": {"result": [{"value": [0, "1.5"]}]}}
+        ).encode()
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
         self.end_headers()
@@ -124,10 +136,17 @@ def subject_qml():
     import plasma_rewrite as PR
 
     import make_metrics as MM
-    q, n = re.subn(r"^import org\.kde\.plasma\.plasma5support as P5Support$", "import elstub.p5 as P5Support",
-                   MM.main_qml(), flags=re.MULTILINE)
+
+    q, n = re.subn(
+        r"^import org\.kde\.plasma\.plasma5support as P5Support$",
+        "import elstub.p5 as P5Support",
+        MM.main_qml(),
+        flags=re.MULTILINE,
+    )
     if n != 1:
-        raise RuntimeError("check_metrics: the plasma5support import was not found to redirect")
+        raise RuntimeError(
+            "check_metrics: the plasma5support import was not found to redirect"
+        )
     for pat, rep in PR.SUBSTITUTIONS:
         q = re.sub(pat, rep, q, flags=re.MULTILINE)
     return q
@@ -135,6 +154,7 @@ def subject_qml():
 
 def run_scenario(scenario):
     import qt_sandbox as QT
+
     handler = type("H", (_Handler,), {"ok": scenario != "query-failed"})
     srv = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
     threading.Thread(target=srv.serve_forever, daemon=True).start()
@@ -142,31 +162,52 @@ def run_scenario(scenario):
         with tempfile.TemporaryDirectory() as td:
             stub = os.path.join(td, "stub", "elstub", "p5")
             os.makedirs(stub)
-            for name, text in (("qmldir", STUB_QMLDIR), ("P5Registry.qml", STUB_REGISTRY),
-                               ("DataSource.qml", STUB_DATASOURCE)):
+            for name, text in (
+                ("qmldir", STUB_QMLDIR),
+                ("P5Registry.qml", STUB_REGISTRY),
+                ("DataSource.qml", STUB_DATASOURCE),
+            ):
                 with open(os.path.join(stub, name), "w") as f:
                     f.write(text)
             with open(os.path.join(td, "subject.qml"), "w") as f:
                 f.write(subject_qml())
             with open(os.path.join(td, "harness.qml"), "w") as f:
-                f.write(HARNESS % {"reply": json.dumps(_reply(scenario, srv.server_port))})
+                f.write(
+                    HARNESS % {"reply": json.dumps(_reply(scenario, srv.server_port))}
+                )
             env = QT.env(dict(os.environ, QML2_IMPORT_PATH=os.path.join(td, "stub")))
-            r = QT.run([QT.QML, "--apptype", "widget", os.path.join(td, "harness.qml")],
-                       env=env, capture_output=True, text=True, timeout=60)
+            r = QT.run(
+                [QT.QML, "--apptype", "widget", os.path.join(td, "harness.qml")],
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=60,
+            )
             out = (r.stdout or "") + (r.stderr or "")
             line = next((ln for ln in out.splitlines() if "RESULT " in ln), None)
             if line is None:
-                return {"scenario": scenario, "withheld": f"no RESULT line (exit {r.returncode}): {out[-300:]}"}
+                return {
+                    "scenario": scenario,
+                    "withheld": f"no RESULT line (exit {r.returncode}): {out[-300:]}",
+                }
             doc = json.loads(line.split("RESULT ", 1)[1])
             if "error" in doc:
-                return {"scenario": scenario, "withheld": f"harness {doc['error']}: {out[-300:]}"}
-            return {"scenario": scenario, "face": doc.get("face"), "text": doc.get("faceText")}
+                return {
+                    "scenario": scenario,
+                    "withheld": f"harness {doc['error']}: {out[-300:]}",
+                }
+            return {
+                "scenario": scenario,
+                "face": doc.get("face"),
+                "text": doc.get("faceText"),
+            }
     finally:
         srv.shutdown()
 
 
 def measure():
     import make_metrics as MM
+
     cases, withheld = [], []
     for s in SCENARIOS:
         c = run_scenario(s)
@@ -174,7 +215,11 @@ def measure():
             withheld.append(f"{s}: {c['withheld']}")
         else:
             cases.append(c)
-    return {"cases": cases, "withheld": withheld, "address_literals": MM.address_literals(MM.main_qml())}
+    return {
+        "cases": cases,
+        "withheld": withheld,
+        "address_literals": MM.address_literals(MM.main_qml()),
+    }
 
 
 def _selftest():
@@ -182,22 +227,40 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     q = subject_qml()
-    chk("the plasma5support import is redirected to the stub", "import elstub.p5 as P5Support" in q, True)
-    chk("no org.kde.plasma import survives the rewrite", "import org.kde.plasma" in q, False)
+    chk(
+        "the plasma5support import is redirected to the stub",
+        "import elstub.p5 as P5Support" in q,
+        True,
+    )
+    chk(
+        "no org.kde.plasma import survives the rewrite",
+        "import org.kde.plasma" in q,
+        False,
+    )
     # the measurement can SEE a wrong face: query-failed against a server that answers
     # must NOT read as unreachable
     c = run_scenario("query-ok")
     if "withheld" in c:
         print(f"  SKIP the harness could not run here: {c['withheld'][:160]}")
     else:
-        chk("a working endpoint reads as values, with text", (c["face"], bool(c["text"])), ("values", True))
+        chk(
+            "a working endpoint reads as values, with text",
+            (c["face"], bool(c["text"])),
+            ("values", True),
+        )
         c2 = run_scenario("query-failed")
-        chk("a failing endpoint reads as unreachable - the two are told apart",
-            c2.get("face") != c["face"], True)
+        chk(
+            "a failing endpoint reads as unreachable - the two are told apart",
+            c2.get("face") != c["face"],
+            True,
+        )
     print("check_metrics selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -213,6 +276,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("metrics")
 
 

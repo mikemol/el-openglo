@@ -29,6 +29,7 @@ TabBoxSwitcher cannot load headless); a binding whose value depends on the
 surface's own hierarchy (colorSet inheritance from a parent) resolves here as
 it would at the root. ~0.6 s wall of qml per variant.
 """
+
 import json
 import os
 import re
@@ -50,7 +51,11 @@ def scheme_path(variant):
     ⚑ "The tree's emission" is the `schemes` ARTIFACT (W75), not the working-tree file:
     the kdeglobals a probe hands Qt is the same snapshot parse_scheme reads."""
     import schemes_artifact
-    for p in (schemes_artifact.path(variant), os.path.join(SCHEMES, f"{variant}.colors")):
+
+    for p in (
+        schemes_artifact.path(variant),
+        os.path.join(SCHEMES, f"{variant}.colors"),
+    ):
         if os.path.isfile(p):
             return p
     return None
@@ -58,12 +63,20 @@ def scheme_path(variant):
 
 def env_for(variant, xdg):
     """The environment under which the real Kirigami.Theme reads `variant`."""
-    with (open(scheme_path(variant), encoding="utf-8") as f,
-          open(os.path.join(xdg, "kdeglobals"), "w", encoding="utf-8") as out):
+    with (
+        open(scheme_path(variant), encoding="utf-8") as f,
+        open(os.path.join(xdg, "kdeglobals"), "w", encoding="utf-8") as out,
+    ):
         out.write(f.read())
-    return dict(os.environ, QT_QPA_PLATFORM="offscreen", QT_QPA_PLATFORMTHEME="kde",
-                QT_QUICK_CONTROLS_STYLE="org.kde.desktop", XDG_CURRENT_DESKTOP="KDE",
-                XDG_CONFIG_HOME=xdg, QT_LOGGING_RULES="kf.kirigami.platform=false")
+    return dict(
+        os.environ,
+        QT_QPA_PLATFORM="offscreen",
+        QT_QPA_PLATFORMTHEME="kde",
+        QT_QUICK_CONTROLS_STYLE="org.kde.desktop",
+        XDG_CURRENT_DESKTOP="KDE",
+        XDG_CONFIG_HOME=xdg,
+        QT_LOGGING_RULES="kf.kirigami.platform=false",
+    )
 
 
 def resolve(variant, bindings, names):
@@ -73,6 +86,7 @@ def resolve(variant, bindings, names):
         return None
     reads = ", ".join(f'"{n}": String(probe.{n})' for n in names)
     import templates.loader as TL
+
     doc = TL.render("theme-probe.qml", bindings=bindings, reads=reads)
     with tempfile.TemporaryDirectory() as td:
         xdg = os.path.join(td, "xdg")
@@ -80,12 +94,19 @@ def resolve(variant, bindings, names):
         p = os.path.join(td, "probe.qml")
         with open(p, "w", encoding="utf-8") as fh:
             fh.write(doc)
-        r = QT.run([QML, "--apptype", "widget", p], env=env_for(variant, xdg),
-                   capture_output=True, text=True, timeout=60)
+        r = QT.run(
+            [QML, "--apptype", "widget", p],
+            env=env_for(variant, xdg),
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
-    raise RuntimeError(f"theme_probe: no RESULT for {variant} (rc={r.returncode}): {(r.stderr or r.stdout)[-400:]}")
+    raise RuntimeError(
+        f"theme_probe: no RESULT for {variant} (rc={r.returncode}): {(r.stderr or r.stdout)[-400:]}"
+    )
 
 
 def binding_block(qml, names):
@@ -93,16 +114,20 @@ def binding_block(qml, names):
     keep = []
     for line in qml.splitlines():
         s = line.strip()
-        if s.startswith(("Kirigami.Theme.colorSet:", "Kirigami.Theme.inherit:")) or any(re.match(rf"property color {n}\b", s) for n in names):
+        if s.startswith(("Kirigami.Theme.colorSet:", "Kirigami.Theme.inherit:")) or any(
+            re.match(rf"property color {n}\b", s) for n in names
+        ):
             keep.append("    " + s)
     return "\n".join(keep)
 
 
 if __name__ == "__main__":
     v = sys.argv[1] if len(sys.argv) > 1 else "EL-Amber"
-    block = ("    Kirigami.Theme.colorSet: Kirigami.Theme.View\n    Kirigami.Theme.inherit: false\n"
-             "    property color lit: Kirigami.Theme.textColor\n"
-             "    property color ghost: Kirigami.Theme.disabledTextColor\n"
-             "    property color ground: Kirigami.Theme.backgroundColor\n"
-             "    property color hot: Kirigami.Theme.activeTextColor\n")
+    block = (
+        "    Kirigami.Theme.colorSet: Kirigami.Theme.View\n    Kirigami.Theme.inherit: false\n"
+        "    property color lit: Kirigami.Theme.textColor\n"
+        "    property color ghost: Kirigami.Theme.disabledTextColor\n"
+        "    property color ground: Kirigami.Theme.backgroundColor\n"
+        "    property color hot: Kirigami.Theme.activeTextColor\n"
+    )
     print(json.dumps(resolve(v, block, ["lit", "ghost", "ground", "hot"]), indent=1))

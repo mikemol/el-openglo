@@ -27,6 +27,7 @@ keeps the SET honest so the uncertainty stays visible instead of decaying into
 an assumption that everything recovered cleanly.  Weakness: "named" is a
 substring test on the notes, so a name mentioned in passing counts.
 """
+
 import json
 import os
 import sys
@@ -56,9 +57,18 @@ def measure(root=ROOT, roster=PARTIAL):
     if os.path.exists(notes):
         with open(notes, encoding="utf-8", errors="replace") as fh:
             text = fh.read()
-    return {"notes": NOTES, "notes_present": text is not None,
-            "cases": [{"file": f, "exists": os.path.exists(os.path.join(root, f)),
-                       "named": text is not None and f in text} for f in roster]}
+    return {
+        "notes": NOTES,
+        "notes_present": text is not None,
+        "cases": [
+            {
+                "file": f,
+                "exists": os.path.exists(os.path.join(root, f)),
+                "named": text is not None and f in text,
+            }
+            for f in roster
+        ],
+    }
 
 
 def main(argv):
@@ -74,17 +84,22 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("partial")
 
 
 def _selftest():
     """The measurement can SEE a vanished file and an unnamed one."""
     import tempfile
+
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     check("roster is non-empty", len(PARTIAL) > 0, True)
@@ -96,8 +111,16 @@ def _selftest():
         with open(os.path.join(td, NOTES), "w") as fh:
             fh.write("a.py is partial\n")
         m = measure(td, ("a.py", "b.py"))
-        check("a present, named file is seen as such", m["cases"][0], {"file": "a.py", "exists": True, "named": True})
-        check("a vanished, unnamed file is SEEN", m["cases"][1], {"file": "b.py", "exists": False, "named": False})
+        check(
+            "a present, named file is seen as such",
+            m["cases"][0],
+            {"file": "a.py", "exists": True, "named": True},
+        )
+        check(
+            "a vanished, unnamed file is SEEN",
+            m["cases"][1],
+            {"file": "b.py", "exists": False, "named": False},
+        )
     print("check_partial selftest:", "PASS" if ok else "FAIL")
     return ok
 

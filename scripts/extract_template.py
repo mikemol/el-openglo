@@ -16,6 +16,7 @@ from the module and writing those bytes cannot drift.
 that matters after the source is rewritten to READ the template: it proves the
 rewrite did not change the artifact.
 """
+
 import importlib
 import os
 import sys
@@ -56,8 +57,11 @@ def main(argv):
             print(f"extract_template: unknown flag {a!r}", file=sys.stderr)
             return 2
     if len(args) not in (3, 4):
-        print("usage: extract_template.py [--verify] <module> <accessor> <name> "
-              "[<arg-name>]", file=sys.stderr)
+        print(
+            "usage: extract_template.py [--verify] <module> <accessor> <name> "
+            "[<arg-name>]",
+            file=sys.stderr,
+        )
         return 2
     arg = None
     if len(args) == 4:
@@ -66,13 +70,19 @@ def main(argv):
         module, accessor, name = args
     try:
         text = value_of(module, accessor, arg)
-    except Exception as e:                       # noqa: BLE001
-        print(f"extract_template: REFUSED — cannot read {module}.{accessor}: "
-              f"{type(e).__name__}: {e}", file=sys.stderr)
+    except Exception as e:  # noqa: BLE001
+        print(
+            f"extract_template: REFUSED — cannot read {module}.{accessor}: "
+            f"{type(e).__name__}: {e}",
+            file=sys.stderr,
+        )
         return 2
     if not isinstance(text, str):
-        print(f"extract_template: REFUSED — {module}.{accessor} is "
-              f"{type(text).__name__}, not a string", file=sys.stderr)
+        print(
+            f"extract_template: REFUSED — {module}.{accessor} is "
+            f"{type(text).__name__}, not a string",
+            file=sys.stderr,
+        )
         return 2
 
     path = os.path.join(TEMPLATES, name)
@@ -83,19 +93,23 @@ def main(argv):
         with open(path, encoding="utf-8") as fh:
             on_disk = fh.read()
         if on_disk != text:
-            print(f"extract_template: DIFFERS — {module}.{accessor} and {name} "
-                  f"no longer agree ({len(text)} vs {len(on_disk)} bytes)",
-                  file=sys.stderr)
+            print(
+                f"extract_template: DIFFERS — {module}.{accessor} and {name} "
+                f"no longer agree ({len(text)} vs {len(on_disk)} bytes)",
+                file=sys.stderr,
+            )
             return 1
-        print(f"extract_template: {name} matches {module}.{accessor} "
-              f"({len(text)} bytes)")
+        print(
+            f"extract_template: {name} matches {module}.{accessor} ({len(text)} bytes)"
+        )
         return 0
 
     os.makedirs(TEMPLATES, exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(text)
-    print(f"extract_template: wrote {name} ({len(text)} bytes) "
-          f"from {module}.{accessor}")
+    print(
+        f"extract_template: wrote {name} ({len(text)} bytes) from {module}.{accessor}"
+    )
     return 0
 
 
@@ -110,8 +124,11 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("a callable accessor is called",
-          value_of("templates.loader", "names").__class__ is list, True)
+    check(
+        "a callable accessor is called",
+        value_of("templates.loader", "names").__class__ is list,
+        True,
+    )
     check("templates dir is under the repo", TEMPLATES.startswith(ROOT), True)
     print("extract_template selftest:", "PASS" if ok else "FAIL")
     return ok

@@ -31,12 +31,13 @@ and it is computable from the edge set alone, before any colour is chosen.
 undetectably.  This check measures the graph's CAPACITY for undetectable failure, never the
 presence of one.  A run that reports 19 cycles has found no bug and is not claiming to.
 """
+
 import importlib
 import os
 import sys
 from types import ModuleType
 
-ROOT =os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 import palette_graph as PG
@@ -50,7 +51,7 @@ try:
     if os.path.isdir(_GCALC):
         sys.path.insert(0, _GCALC)
     SOLVER = importlib.import_module("gcalc.solver")
-except ImportError:                                               # pragma: no cover
+except ImportError:  # pragma: no cover
     SOLVER = None
 
 
@@ -79,7 +80,7 @@ def _emitted_keys(grid, _depth=0):
     if isinstance(grid, dict):
         vals = list(grid.values())
         if vals and all(isinstance(v, str) for v in vals):
-            return set(grid)                      # a token dict: names -> "r,g,b"
+            return set(grid)  # a token dict: names -> "r,g,b"
         out = set()
         for v in vals:
             out |= _emitted_keys(v, _depth + 1)
@@ -106,7 +107,7 @@ def components(ns, raw):
     (`sel_bg`, `sel_fg`, `sel_act`) are judged only against each other, so they form a
     SECOND component with no edge to the body/semantic constellation."""
     adj = {}
-    for (u, v) in raw:
+    for u, v in raw:
         adj.setdefault(u, set()).add(v)
         adj.setdefault(v, set()).add(u)
     seen, comps = set(), []
@@ -148,7 +149,7 @@ def cycles():
     out = []
     for comp in components(ns, raw):
         sub = {k: g for k, g in raw.items() if k[0] in comp and k[1] in comp}
-        if len(sub) < len(comp):                  # a tree or a forest: no cycle to find
+        if len(sub) < len(comp):  # a tree or a forest: no cycle to find
             continue
         out.extend(SOLVER.cycle_basis(comp, sub))
     return len(out), out
@@ -162,6 +163,7 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
 
@@ -172,15 +174,21 @@ def main(argv):
         # a program. It reports what it FOUND rather than what it expected, so a third
         # shape change surfaces as a different printout instead of another empty set.
         import make_schemes
+
         grid = getattr(make_schemes, "GRID", None)
         print(f"GRID is {type(grid).__name__} with {len(grid)} entries")
-        for k, v in (grid.items() if isinstance(grid, dict) else enumerate(grid)):
-            kinds = ", ".join(type(x).__name__ for x in v) if isinstance(v, tuple) \
+        for k, v in grid.items() if isinstance(grid, dict) else enumerate(grid):
+            kinds = (
+                ", ".join(type(x).__name__ for x in v)
+                if isinstance(v, tuple)
                 else type(v).__name__
+            )
             print(f"  key={k!r:28s} value=({kinds})")
             break
         keys = _emitted_keys(grid)
-        print(f"{len(keys)} distinct emitted keys: {', '.join(sorted(keys)) or '(NONE)'}")
+        print(
+            f"{len(keys)} distinct emitted keys: {', '.join(sorted(keys)) or '(NONE)'}"
+        )
         return 0
 
     if "--edges" in argv:
@@ -201,8 +209,10 @@ def main(argv):
     if "--b1" in argv:
         b1, cyc = cycles()
         if b1 is None:
-            print("check_palette_graph: SKIP — gcalc not importable "
-                  f"(looked in {_GCALC}); this is a fact about the machine")
+            print(
+                "check_palette_graph: SKIP — gcalc not importable "
+                f"(looked in {_GCALC}); this is a fact about the machine"
+            )
             return 0
         ns = PG.nodes(constraining_only=True)
         es = PG.edges(constraining_only=True)
@@ -212,6 +222,7 @@ def main(argv):
         return 0
 
     import opa_gate
+
     return opa_gate.gate("palette_graph")
 
 
@@ -225,16 +236,23 @@ def measure():
     ruling, not here."""
     import cvd_gate
     import make_schemes
+
     gate_names = set()
     for _, a, b in tuple(cvd_gate.ENFORCED) + tuple(cvd_gate.SURFACED):
         gate_names |= {a, b}
     pairs = {}
     for cls, live in (("enforced", cvd_gate.ENFORCED), ("surfaced", cvd_gate.SURFACED)):
-        pairs[cls] = {"authority": sorted(sorted([a, b]) for _, a, b in PG.gate_pairs(cls)),
-                      "declared": sorted(sorted([a, b]) for _, a, b in live)}
-    return {"cases": [{"id": n.key, "gate": n.gate} for n in PG.NODES],
-            "emitted": sorted(_emitted_keys(getattr(make_schemes, "GRID", None))),
-            "gate_names": sorted(gate_names), "edges": len(PG.EDGES), "pairs": pairs}
+        pairs[cls] = {
+            "authority": sorted(sorted([a, b]) for _, a, b in PG.gate_pairs(cls)),
+            "declared": sorted(sorted([a, b]) for _, a, b in live),
+        }
+    return {
+        "cases": [{"id": n.key, "gate": n.gate} for n in PG.NODES],
+        "emitted": sorted(_emitted_keys(getattr(make_schemes, "GRID", None))),
+        "gate_names": sorted(gate_names),
+        "edges": len(PG.EDGES),
+        "pairs": pairs,
+    }
 
 
 def _selftest():
@@ -257,17 +275,25 @@ def _selftest():
     # ⚑ THE MEASUREMENT MUST SEE each break (W50: that each is a DENY is
     # policy/palette_graph_test.rego's ruling). The walk finds a non-empty key set:
     m = measure()
-    check("the GRID walk finds emitted keys (the vacuous-population defect)",
-          len(m["emitted"]) > 0, True)
+    check(
+        "the GRID walk finds emitted keys (the vacuous-population defect)",
+        len(m["emitted"]) > 0,
+        True,
+    )
 
     # 1. an emitted key nothing emits
     saved = PG.NODES
     try:
         PG.NODES = saved + (PG.Node("no_such_token", None, None),)
         m = measure()
-        check("sees a bogus emitted key",
-              ("no_such_token" in [c["id"] for c in m["cases"]], "no_such_token" in m["emitted"]),
-              (True, False))
+        check(
+            "sees a bogus emitted key",
+            (
+                "no_such_token" in [c["id"] for c in m["cases"]],
+                "no_such_token" in m["emitted"],
+            ),
+            (True, False),
+        )
     finally:
         PG.NODES = saved
 
@@ -275,22 +301,31 @@ def _selftest():
     try:
         PG.NODES = saved + (PG.Node("view", None, "no_such_gate_name"),)
         m = measure()
-        check("sees a bogus gate name",
-              ("no_such_gate_name" in [c["gate"] for c in m["cases"]], "no_such_gate_name" in m["gate_names"]),
-              (True, False))
+        check(
+            "sees a bogus gate name",
+            (
+                "no_such_gate_name" in [c["gate"] for c in m["cases"]],
+                "no_such_gate_name" in m["gate_names"],
+            ),
+            (True, False),
+        )
     finally:
         PG.NODES = saved
 
     # 3. a declared pair the authority does not carry
     import cvd_gate
+
     saved_e = cvd_gate.ENFORCED
     try:
         # focus~fg is no edge (W198 declared every constellation pair, so a constellation
         # pair can no longer play the pair the authority lacks)
         cvd_gate.ENFORCED = tuple(saved_e) + (("bogus~pair", "focus", "fg"),)
         p = measure()["pairs"]["enforced"]
-        check("sees a gate/authority disagreement",
-              (["fg", "focus"] in p["declared"], ["fg", "focus"] in p["authority"]), (True, False))
+        check(
+            "sees a gate/authority disagreement",
+            (["fg", "focus"] in p["declared"], ["fg", "focus"] in p["authority"]),
+            (True, False),
+        )
     finally:
         cvd_gate.ENFORCED = saved_e
 
@@ -299,11 +334,9 @@ def _selftest():
         print("  SKIP cycle detector — gcalc not importable")
     else:
         tri = {("a", "b"): "y1", ("b", "c"): "y2", ("a", "c"): "y3"}
-        check("a triangle has b1=1",
-              len(SOLVER.cycle_basis(["a", "b", "c"], tri)), 1)
+        check("a triangle has b1=1", len(SOLVER.cycle_basis(["a", "b", "c"], tri)), 1)
         path = {("a", "b"): "y1", ("b", "c"): "y2"}
-        check("a path has b1=0",
-              len(SOLVER.cycle_basis(["a", "b", "c"], path)), 0)
+        check("a path has b1=0", len(SOLVER.cycle_basis(["a", "b", "c"], path)), 0)
         # ⚑ THE DISCONNECTED CASE, WHICH THIS CHECK ORIGINALLY GOT WRONG.  A triangle plus
         # a SEPARATE single edge has b1 = 1, not 2: the lone edge is its own component and
         # a tree. Passing the whole thing to `cycle_basis` in one call reports 2, because
@@ -321,7 +354,9 @@ def _selftest():
                 per += len(SOLVER.cycle_basis(comp, sub))
         check("per-component b1 is 1, not 2", per, 1)
         b1, _ = cycles()
-        check("the real graph is measured, not assumed", b1 is not None and b1 > 0, True)
+        check(
+            "the real graph is measured, not assumed", b1 is not None and b1 > 0, True
+        )
 
     print("check_palette_graph selftest:", "PASS" if ok else "FAIL")
     return ok

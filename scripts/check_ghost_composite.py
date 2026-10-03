@@ -46,6 +46,7 @@ a thing this arithmetic can decide.
 
     scripts/check_ghost_composite.py --matrix   # the dot field's ghost beside the stroke's
 """
+
 import os
 import sys
 
@@ -66,6 +67,7 @@ MODE = "looked_at"
 def _alpha():
     """The alpha the renderer is filled with — the palette authority's, not a copy."""
     import make_schemes
+
     if MODE == "looked_at":
         return make_schemes.GHOST_ALPHA
     seen = set()
@@ -74,7 +76,9 @@ def _alpha():
         if isinstance(t, dict) and "view" in t:
             seen.add(t.get("ghost_alpha_glanced", t.get("ghost_alpha", "0.45")))
     if len(seen) != 1:
-        raise ValueError(f"GRID carries {len(seen)} distinct ghost_alpha_glanced values")
+        raise ValueError(
+            f"GRID carries {len(seen)} distinct ghost_alpha_glanced values"
+        )
     return float(seen.pop())
 
 
@@ -86,6 +90,7 @@ def rendered_alpha():
     emitted QML at the old literal while `make_schemes` reports the solved value.
     Returns None if no `ghostAlpha:` property is present."""
     import make_segment_display
+
     for line in make_segment_display.segment_char_component().splitlines():
         s = line.strip()
         if s.startswith("property real ghostAlpha:"):
@@ -96,17 +101,20 @@ def rendered_alpha():
 def variants():
     """[(id, ground, lit, ghost)] for every shipped variant."""
     import make_schemes
+
     grid = getattr(make_schemes, "GRID", None) or {}
     out = []
-    for value in (grid.values() if isinstance(grid, dict) else grid):
-        for scheme in (value if isinstance(value, (list, tuple)) else (value,)):
+    for value in grid.values() if isinstance(grid, dict) else grid:
+        for scheme in value if isinstance(value, (list, tuple)) else (value,):
             if isinstance(scheme, dict) and "view" in scheme:
-                out.append((
-                    scheme.get("id", "?"),
-                    tuple(int(x) for x in scheme["view"].split(",")),
-                    tuple(int(x) for x in scheme["fg"].split(",")),
-                    tuple(int(x) for x in scheme["fg_in"].split(",")),
-                ))
+                out.append(
+                    (
+                        scheme.get("id", "?"),
+                        tuple(int(x) for x in scheme["view"].split(",")),
+                        tuple(int(x) for x in scheme["fg"].split(",")),
+                        tuple(int(x) for x in scheme["fg_in"].split(",")),
+                    )
+                )
                 break
     return out
 
@@ -121,14 +129,16 @@ def measure():
     rows = []
     for vid, ground, lit, ghost in variants():
         comp = PG.composite(ghost, ground, _alpha())
-        rows.append((
-            vid,
-            C.wcag_ratio(ghost, ground),
-            C.wcag_ratio(comp, ground),
-            C.feasible_ghost_floor_lc(lit, ground, MODE),
-            abs(C.apca_Lc(ghost, ground)),
-            abs(C.apca_Lc(comp, ground)),
-        ))
+        rows.append(
+            (
+                vid,
+                C.wcag_ratio(ghost, ground),
+                C.wcag_ratio(comp, ground),
+                C.feasible_ghost_floor_lc(lit, ground, MODE),
+                abs(C.apca_Lc(ghost, ground)),
+                abs(C.apca_Lc(comp, ground)),
+            )
+        )
     return rows
 
 
@@ -164,22 +174,26 @@ def solve_through_alpha(lit, ground, alpha=None, floor=None, ceiling=None):
         ceiling = C.GHOST_READABLE_LC
 
     import ghost_solve as G
-    t_floor = G.solve_floor_t(lit, ground, floor)      # None: even lit fails the floor
+
+    t_floor = G.solve_floor_t(lit, ground, floor)  # None: even lit fails the floor
     t_ceiling, _lc = G.solve_ceiling_t(lit, ground, ceiling)
     # the floor is the binding side (the ceiling is 22 Lc away composited); the
     # honest on-screen point is the floor's boundary, checked against the ceiling.
     t_screen = t_floor
     feasible = t_screen is not None
     if feasible and t_ceiling is not None and t_screen < t_ceiling:
-        feasible = False                     # the floor point would read as text
+        feasible = False  # the floor point would read as text
     t_declared = None
     if feasible:
         t_declared = 1.0 - (1.0 - t_screen) / alpha
         if t_declared < 0.0:
-            feasible = False                 # beyond the lit end: alpha too low
+            feasible = False  # beyond the lit end: alpha too low
     return {
-        "t_floor": t_floor, "t_ceiling": t_ceiling, "t_screen": t_screen,
-        "t_declared": t_declared, "feasible": feasible,
+        "t_floor": t_floor,
+        "t_ceiling": t_ceiling,
+        "t_screen": t_screen,
+        "t_declared": t_declared,
+        "feasible": feasible,
         "fg_in_required": (C._lerp(lit, ground, t_declared) if feasible else None),
         "alpha_min": (1.0 - t_screen) if t_screen is not None else None,
     }
@@ -197,10 +211,12 @@ def solve_through_alpha(lit, ground, alpha=None, floor=None, ceiling=None):
 # question the log left open at s65 (:4519): the same alpha reads as a thinner
 # texture on the matrix than on a stroke, by exactly this factor.
 
+
 def matrix_dot_fill():
     """The field's dotFill, parsed from the EMITTED component (ApertureField; not
     the template hole): None if the property is absent."""
     import make_notify_marquee
+
     for line in make_notify_marquee.aperture_field_component().splitlines():
         s = line.strip()
         if s.startswith("property real dotFill:"):
@@ -212,6 +228,7 @@ def matrix_rendered_alpha(variant_id):
     """The ghostAlpha the EMITTED marquee passes to its field — ONE package since
     W35, so the same baked (measured-global) alpha for every `variant_id`."""
     import make_notify_marquee
+
     for line in make_notify_marquee.main_qml().splitlines():
         s = line.strip()
         if s.startswith("property real ghostAlpha:"):
@@ -227,6 +244,7 @@ def measure_matrix(dot_fill=None):
     ground; alpha_field_equiv is the alpha a STROKE would need to read like the
     dot field does."""
     import math
+
     fill = matrix_dot_fill() if dot_fill is None else dot_fill
     if fill is None:
         return []
@@ -236,9 +254,17 @@ def measure_matrix(dot_fill=None):
         a = _alpha()
         dot = PG.composite(ghost, ground, a)
         field = PG.composite(dot, ground, coverage)
-        rows.append((vid, abs(C.apca_Lc(dot, ground)), abs(C.apca_Lc(dot, ground)),
-                     abs(C.apca_Lc(field, ground)), coverage,
-                     C.feasible_ghost_floor_lc(lit, ground, MODE), a * coverage))
+        rows.append(
+            (
+                vid,
+                abs(C.apca_Lc(dot, ground)),
+                abs(C.apca_Lc(dot, ground)),
+                abs(C.apca_Lc(field, ground)),
+                coverage,
+                C.feasible_ghost_floor_lc(lit, ground, MODE),
+                a * coverage,
+            )
+        )
     return rows
 
 
@@ -251,8 +277,13 @@ def format_coverage(fmt):
 
     import glyph_match as GM
     import segment_topology as ST
+
     sw = ST.metrics(4.0)["stroke"] / 2.0
-    keys = list(ST.SEG22) if fmt == "22" else [k for k in ST.GEOM16 if k in ST.FORMATS[fmt]["mask"]]
+    keys = (
+        list(ST.SEG22)
+        if fmt == "22"
+        else [k for k in ST.GEOM16 if k in ST.FORMATS[fmt]["mask"]]
+    )
     if not keys:
         return None
     field = np.zeros((GM.RES + 1, GM.RES + 1), bool)
@@ -279,39 +310,57 @@ def _matrix_report():
     rows = measure_matrix()
     fmts = measure_formats()
     if fmts:
-        print("segment formats — the unlit FIELD's cell coverage at the module stroke width:")
+        print(
+            "segment formats — the unlit FIELD's cell coverage at the module stroke width:"
+        )
         for f, n, cov, a_eq in fmts:
-            print(f"  {f:>3}-seg  {n:2d} strokes  coverage {cov:.3f}  field alpha {a_eq:.3f}")
+            print(
+                f"  {f:>3}-seg  {n:2d} strokes  coverage {cov:.3f}  field alpha {a_eq:.3f}"
+            )
         print()
     rows = measure_matrix()
     if not rows:
-        print("check_ghost_composite: REFUSED — no variants, or MatrixChar carries no dotFill",
-              file=sys.stderr)
+        print(
+            "check_ghost_composite: REFUSED — no variants, or MatrixChar carries no dotFill",
+            file=sys.stderr,
+        )
         return 2
     fill = matrix_dot_fill()
-    print(f"alpha = {_alpha()}; MatrixChar dotFill = {fill} -> a dot covers "
-          f"{rows[0][4]:.3f} of its cell; the field's effective alpha is {rows[0][6]:.3f}\n")
-    print(f"{'variant':18s} {'Lc stroke':>9s} {'Lc dot':>7s} {'Lc field':>9s} {'floor':>6s}  marquee alpha")
+    print(
+        f"alpha = {_alpha()}; MatrixChar dotFill = {fill} -> a dot covers "
+        f"{rows[0][4]:.3f} of its cell; the field's effective alpha is {rows[0][6]:.3f}\n"
+    )
+    print(
+        f"{'variant':18s} {'Lc stroke':>9s} {'Lc dot':>7s} {'Lc field':>9s} {'floor':>6s}  marquee alpha"
+    )
     agree = 0
     for vid, lc_s, lc_d, lc_f, cov, floor, a_eq in rows:
         ma = matrix_rendered_alpha(vid)
         same = ma is not None and abs(ma - _alpha()) < 1e-9
         agree += same
         flag = "" if lc_f >= floor else "  ⚑ FIELD UNDER FLOOR"
-        print(f"{vid:18s} {lc_s:9.1f} {lc_d:7.1f} {lc_f:9.1f} {floor:6.1f}  "
-              f"{ma}{'' if same else '  ⚑ NOT THE SOLVED ALPHA'}{flag}")
-    print(f"\n{agree} of {len(rows)} marquee emissions carry the solved alpha; per dot the ghost "
-          f"is the stroke ghost, as a FIELD it reads {rows[0][6]/_alpha():.2f}x as dense "
-          f"(reported, not gated: whether the eye judges a dot field per dot or per cell is "
-          f"⊕GLANCE-CALIBRATE's live question)")
+        print(
+            f"{vid:18s} {lc_s:9.1f} {lc_d:7.1f} {lc_f:9.1f} {floor:6.1f}  "
+            f"{ma}{'' if same else '  ⚑ NOT THE SOLVED ALPHA'}{flag}"
+        )
+    print(
+        f"\n{agree} of {len(rows)} marquee emissions carry the solved alpha; per dot the ghost "
+        f"is the stroke ghost, as a FIELD it reads {rows[0][6] / _alpha():.2f}x as dense "
+        f"(reported, not gated: whether the eye judges a dot field per dot or per cell is "
+        f"⊕GLANCE-CALIBRATE's live question)"
+    )
     return 0 if agree == len(rows) else 1
 
 
 def _solve_report():
-    print(f"alpha = {_alpha()}; the on-screen ghost is lerp(lit, ground, 1 - "
-          f"alpha(1 - t)), so fg_in is solved on the SAME segment through alpha.\n")
-    print(f"{'variant':18s} {'declared':>18s} {'required':>18s} {'t_decl':>7s} "
-          f"{'a_min':>6s}  feasible")
+    print(
+        f"alpha = {_alpha()}; the on-screen ghost is lerp(lit, ground, 1 - "
+        f"alpha(1 - t)), so fg_in is solved on the SAME segment through alpha.\n"
+    )
+    print(
+        f"{'variant':18s} {'declared':>18s} {'required':>18s} {'t_decl':>7s} "
+        f"{'a_min':>6s}  feasible"
+    )
     n_ok = 0
     rows = variants()
     for vid, ground, lit, ghost in rows:
@@ -321,27 +370,45 @@ def _solve_report():
         t_s = f"{s['t_declared']:.3f}" if s["t_declared"] is not None else "  <0  "
         a_s = f"{s['alpha_min']:.2f}" if s["alpha_min"] is not None else "  —"
         n_ok += bool(s["feasible"])
-        print(f"{vid:18s} {','.join(map(str, ghost)):>18s} {req_s:>18s} {t_s:>7s} "
-              f"{a_s:>6s}  {'yes' if s['feasible'] else 'NO — alpha too low'}")
-    print(f"\n{n_ok} of {len(rows)} variants can clear the floor at alpha "
-          f"{_alpha()}; a_min is the smallest alpha at which fg_in = lit would.")
+        print(
+            f"{vid:18s} {','.join(map(str, ghost)):>18s} {req_s:>18s} {t_s:>7s} "
+            f"{a_s:>6s}  {'yes' if s['feasible'] else 'NO — alpha too low'}"
+        )
+    print(
+        f"\n{n_ok} of {len(rows)} variants can clear the floor at alpha "
+        f"{_alpha()}; a_min is the smallest alpha at which fg_in = lit would."
+    )
     solved, rendered = _alpha(), rendered_alpha()
     agree = rendered is not None and abs(solved - rendered) < 1e-9
-    print(f"SOLVED global alpha (make_schemes.GHOST_ALPHA) = {solved}; the emitted "
-          f"SegmentChar.qml carries ghostAlpha = {rendered} — "
-          f"{'agree' if agree else 'DISAGREE: the emitted component does not carry the solved value'}")
+    print(
+        f"SOLVED global alpha (make_schemes.GHOST_ALPHA) = {solved}; the emitted "
+        f"SegmentChar.qml carries ghostAlpha = {rendered} — "
+        f"{'agree' if agree else 'DISAGREE: the emitted component does not carry the solved value'}"
+    )
     return 0
 
 
 def main(argv):
     global MODE
-    known = {"--compare", "--selftest", "--solve", "--mode", "looked", "glanced", "--matrix", "--json"}
+    known = {
+        "--compare",
+        "--selftest",
+        "--solve",
+        "--mode",
+        "looked",
+        "glanced",
+        "--matrix",
+        "--json",
+    }
     if "--matrix" in argv:
         return _matrix_report()
     if "--mode" in argv:
         i = argv.index("--mode")
         if i + 1 >= len(argv) or argv[i + 1] not in ("looked", "glanced"):
-            print("check_ghost_composite: --mode needs `looked` or `glanced`", file=sys.stderr)
+            print(
+                "check_ghost_composite: --mode needs `looked` or `glanced`",
+                file=sys.stderr,
+            )
             return 2
         MODE = "looked_at" if argv[i + 1] == "looked" else "glanced_at"
     if "--solve" in argv:
@@ -355,6 +422,7 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measurement(), indent=1))
         return 0
 
@@ -363,21 +431,33 @@ def main(argv):
         if not rows:
             print("check_ghost_composite: REFUSED — no variants", file=sys.stderr)
             return 2
-        print(f"alpha = {_alpha()} (make_schemes.GHOST_ALPHA, filled into "
-              f"SegmentChar.qml's $ghostAlpha), applied at render\n")
-        print(f"{'variant':18s} {'wcag decl':>9s} {'wcag comp':>11s} "
-              f"{'Lc decl':>8s} {'Lc comp':>8s} {'Lc floor':>9s}")
+        print(
+            f"alpha = {_alpha()} (make_schemes.GHOST_ALPHA, filled into "
+            f"SegmentChar.qml's $ghostAlpha), applied at render\n"
+        )
+        print(
+            f"{'variant':18s} {'wcag decl':>9s} {'wcag comp':>11s} "
+            f"{'Lc decl':>8s} {'Lc comp':>8s} {'Lc floor':>9s}"
+        )
         for vid, decl, comp, floor, lc_d, lc_c in rows:
-            flag = ("" if lc_c >= floor else "  ⚑ UNDER") + \
-                   ("" if lc_c < C.GHOST_READABLE_LC else "  ⚑ OVER CEILING")
-            print(f"{vid:18s} {decl:8.2f}: {comp:10.2f}: "
-                  f"{lc_d:8.1f} {lc_c:8.1f} {floor:9.1f}{flag}")
-        print(f"\nfloor and ceiling are both APCA: {C.GHOST_VISIBLE_LC} <= |Lc| < "
-              f"{C.GHOST_READABLE_LC}, judged on the COMPOSITED ghost.")
+            flag = ("" if lc_c >= floor else "  ⚑ UNDER") + (
+                "" if lc_c < C.GHOST_READABLE_LC else "  ⚑ OVER CEILING"
+            )
+            print(
+                f"{vid:18s} {decl:8.2f}: {comp:10.2f}: "
+                f"{lc_d:8.1f} {lc_c:8.1f} {floor:9.1f}{flag}"
+            )
+        print(
+            f"\nfloor and ceiling are both APCA: {C.GHOST_VISIBLE_LC} <= |Lc| < "
+            f"{C.GHOST_READABLE_LC}, judged on the COMPOSITED ghost."
+        )
         return 0
 
     import opa_gate
-    return opa_gate.gate("ghost_composite", ["--mode", "looked" if MODE == "looked_at" else "glanced"])
+
+    return opa_gate.gate(
+        "ghost_composite", ["--mode", "looked" if MODE == "looked_at" else "glanced"]
+    )
 
 
 def measurement():
@@ -389,11 +469,23 @@ def measurement():
     variant the declared and composited WCAG and |Lc| and its APCA floor. The
     band, the W23 target slack and "the screen draws the solved alpha" are the
     policy's ruling, not here."""
-    return {"mode": MODE, "alpha": _alpha(), "ceiling": C.GHOST_READABLE_LC,
-            "rendered_alpha": rendered_alpha() if MODE == "looked_at" else None,
-            "cases": [{"id": vid, "wcag_declared": decl, "wcag_composited": comp,
-                       "floor_lc": floor, "lc_declared": lc_d, "lc_composited": lc_c}
-                      for vid, decl, comp, floor, lc_d, lc_c in measure()]}
+    return {
+        "mode": MODE,
+        "alpha": _alpha(),
+        "ceiling": C.GHOST_READABLE_LC,
+        "rendered_alpha": rendered_alpha() if MODE == "looked_at" else None,
+        "cases": [
+            {
+                "id": vid,
+                "wcag_declared": decl,
+                "wcag_composited": comp,
+                "floor_lc": floor,
+                "lc_declared": lc_d,
+                "lc_composited": lc_c,
+            }
+            for vid, decl, comp, floor, lc_d, lc_c in measure()
+        ],
+    }
 
 
 def _selftest():
@@ -409,12 +501,21 @@ def _selftest():
             print(f"  ok   {label}")
 
     # ⚑ THE COMPOSITE ITSELF, against values chosen so the answer is arithmetic.
-    check("alpha 1.0 is the source unchanged",
-          PG.composite((10, 20, 30), (200, 200, 200), 1.0), (10, 20, 30))
-    check("alpha 0.0 is the ground unchanged",
-          PG.composite((10, 20, 30), (200, 200, 200), 0.0), (200, 200, 200))
-    check("alpha 0.5 is the midpoint",
-          PG.composite((0, 0, 0), (200, 200, 200), 0.5), (100, 100, 100))
+    check(
+        "alpha 1.0 is the source unchanged",
+        PG.composite((10, 20, 30), (200, 200, 200), 1.0),
+        (10, 20, 30),
+    )
+    check(
+        "alpha 0.0 is the ground unchanged",
+        PG.composite((10, 20, 30), (200, 200, 200), 0.0),
+        (200, 200, 200),
+    )
+    check(
+        "alpha 0.5 is the midpoint",
+        PG.composite((0, 0, 0), (200, 200, 200), 0.5),
+        (100, 100, 100),
+    )
 
     # ⚑ THE SOLVE'S PREMISE IS AN IDENTITY, AND IT IS CHECKED HERE, NOT ASSUMED.
     # composite(lerp(l, g, t), g, a) must equal lerp(l, g, 1 - a(1 - t)) to within
@@ -422,62 +523,113 @@ def _selftest():
     lit0, gnd0, a0, t0 = (240, 200, 60), (20, 24, 30), 0.45, 0.3
     lhs = PG.composite(C._lerp(lit0, gnd0, t0), gnd0, a0)
     rhs = C._lerp(lit0, gnd0, 1.0 - a0 * (1.0 - t0))
-    check("composite of a segment point is a segment point",
-          all(abs(x - y) <= 1 for x, y in zip(lhs, rhs)), True)
+    check(
+        "composite of a segment point is a segment point",
+        all(abs(x - y) <= 1 for x, y in zip(lhs, rhs)),
+        True,
+    )
     # ⚑ AND THE INVERSION ROUND-TRIPS: the required fg_in, composited, clears the floor.
-    s = solve_through_alpha(lit0, gnd0, alpha=1.0)          # alpha 1: screen == declared
-    check("at alpha 1 the required ghost IS the on-screen ghost",
-          s["feasible"] and abs(s["t_declared"] - s["t_screen"]) < 1e-9, True)
-    s = solve_through_alpha(lit0, gnd0, alpha=0.05)         # near-invisible: infeasible
-    check("an alpha too low to reach the floor is REFUSED, not rounded",
-          s["feasible"], False)
+    s = solve_through_alpha(lit0, gnd0, alpha=1.0)  # alpha 1: screen == declared
+    check(
+        "at alpha 1 the required ghost IS the on-screen ghost",
+        s["feasible"] and abs(s["t_declared"] - s["t_screen"]) < 1e-9,
+        True,
+    )
+    s = solve_through_alpha(lit0, gnd0, alpha=0.05)  # near-invisible: infeasible
+    check(
+        "an alpha too low to reach the floor is REFUSED, not rounded",
+        s["feasible"],
+        False,
+    )
 
     rows = measure()
     check("population is non-empty", len(rows) > 0, True)
     # ⚑ COMPOSITING MUST LOWER THE CONTRAST, or the model is not modelling.
-    check("compositing lowers contrast on every variant",
-          all(c < d for _v, d, c, _f, _a, _b in rows), True)
+    check(
+        "compositing lowers contrast on every variant",
+        all(c < d for _v, d, c, _f, _a, _b in rows),
+        True,
+    )
 
     # ⚑ THE EMITTED COMPONENT CARRIES THE SOLVED ALPHA — parsed back out of the
     # rendered QML, not read from the hole.  This is the arm that turns "wired"
     # from a claim into a measurement.
-    check("the emitted SegmentChar.qml carries the solved alpha",
-          rendered_alpha() is not None and abs(rendered_alpha() - _alpha()) < 1e-9,
-          True)
+    check(
+        "the emitted SegmentChar.qml carries the solved alpha",
+        rendered_alpha() is not None and abs(rendered_alpha() - _alpha()) < 1e-9,
+        True,
+    )
 
     # ⚑ ⊕GHOST-DENSITY: the dot field is the dot composite thinned by coverage,
     # and the arm must SEE a coverage change. dotFill 1.0 -> coverage pi/4; a
     # field can never be denser than its dots; a full cell (coverage 1) IS the dot.
     import math
+
     m1 = measure_matrix(dot_fill=1.0)
-    check("dotFill 1.0 covers pi/4 of the cell", m1 and abs(m1[0][4] - math.pi / 4) < 1e-9, True)
-    check("a field is never denser than its dots", all(r[3] <= r[2] + 1e-9 for r in m1), True)
-    m_full = measure_matrix(dot_fill=math.sqrt(4 / math.pi))      # coverage exactly 1
-    check("at coverage 1 the field IS the dot", all(abs(r[3] - r[2]) < 0.6 for r in m_full), True)
+    check(
+        "dotFill 1.0 covers pi/4 of the cell",
+        m1 and abs(m1[0][4] - math.pi / 4) < 1e-9,
+        True,
+    )
+    check(
+        "a field is never denser than its dots",
+        all(r[3] <= r[2] + 1e-9 for r in m1),
+        True,
+    )
+    m_full = measure_matrix(dot_fill=math.sqrt(4 / math.pi))  # coverage exactly 1
+    check(
+        "at coverage 1 the field IS the dot",
+        all(abs(r[3] - r[2]) < 0.6 for r in m_full),
+        True,
+    )
     m_small = measure_matrix(dot_fill=0.5)
-    check("a smaller dot thins the field", all(s[3] < b[3] for s, b in zip(m_small, m1)), True)
-    check("the emitted MatrixChar carries a dotFill", matrix_dot_fill() is not None, True)
+    check(
+        "a smaller dot thins the field",
+        all(s[3] < b[3] for s, b in zip(m_small, m1)),
+        True,
+    )
+    check(
+        "the emitted MatrixChar carries a dotFill", matrix_dot_fill() is not None, True
+    )
     # the segment twin: coverage is a fraction, grows with the format, and an
     # unknown format is None rather than a number
     fm = {f: cov for f, _n, cov, _a in measure_formats()}
-    check("every format's coverage is in (0, 1]", all(0 < c <= 1 for c in fm.values()), True)
-    check("22-seg covers at least 16-seg covers at least 7-seg",
-          fm.get("22", 0) >= fm.get("16", 0) >= fm.get("7", 1), True)
-    check("7-seg leaves more than half the cell unlit-and-empty", fm.get("7", 1) < 0.5, True)
+    check(
+        "every format's coverage is in (0, 1]",
+        all(0 < c <= 1 for c in fm.values()),
+        True,
+    )
+    check(
+        "22-seg covers at least 16-seg covers at least 7-seg",
+        fm.get("22", 0) >= fm.get("16", 0) >= fm.get("7", 1),
+        True,
+    )
+    check(
+        "7-seg leaves more than half the cell unlit-and-empty",
+        fm.get("7", 1) < 0.5,
+        True,
+    )
     try:
         format_coverage("99")
         check("an unknown format refuses", False, True)
     except KeyError:
         check("an unknown format refuses", True, True)
-    check("the emitted marquee carries the solved alpha",
-          matrix_rendered_alpha(variants()[0][0]) == _alpha() if variants() else False, True)
+    check(
+        "the emitted marquee carries the solved alpha",
+        matrix_rendered_alpha(variants()[0][0]) == _alpha() if variants() else False,
+        True,
+    )
 
     # ⚑ THE MEASUREMENT CARRIES WHAT THE POLICY JUDGES (W50): the band, the W23
     # target, a stale or absent emitted alpha and an empty population are
     # policy/ghost_composite_test.rego's refusing cases, not arms here.
     m = measurement()
-    check("the measurement carries the emitted alpha in looked-at mode",
-          m["rendered_alpha"] is not None and abs(m["rendered_alpha"] - m["alpha"]) < 1e-9, True)
+    check(
+        "the measurement carries the emitted alpha in looked-at mode",
+        m["rendered_alpha"] is not None
+        and abs(m["rendered_alpha"] - m["alpha"]) < 1e-9,
+        True,
+    )
     check("...one case per variant", len(m["cases"]), len(variants()))
 
     print("check_ghost_composite selftest:", "PASS" if ok else "FAIL")

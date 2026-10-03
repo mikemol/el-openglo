@@ -27,6 +27,7 @@ defaults' job (make_inherit.defaults_fragment), not measured here.
 
 A missing cairosvg/PIL is a SKIP (a `withheld` case), a fact about the host.
 """
+
 import json
 import os
 import sys
@@ -39,7 +40,7 @@ sys.path.insert(0, ROOT)
 
 DOMINANT_SHARE = 0.15
 PROBE_SIZE = 32
-GHOST_TOL = 3       # per-channel slack when matching the ghost composite
+GHOST_TOL = 3  # per-channel slack when matching the ghost composite
 
 
 def dominant(px, share=DOMINANT_SHARE):
@@ -52,7 +53,7 @@ def dominant(px, share=DOMINANT_SHARE):
 
 
 def _hex(c):
-    return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
+    return tuple(int(c[i : i + 2], 16) for i in (1, 3, 5))
 
 
 def ghost_rgb(tokens):
@@ -69,8 +70,9 @@ def ghost_pixels(px, tokens, tol=GHOST_TOL):
     want = ghost_rgb(tokens)
     n = 0
     for p in px:
-        if (p >> 24) == 0xFF and all(abs(((p >> s) & 255) - w) <= tol
-                                     for s, w in zip((16, 8, 0), want)):
+        if (p >> 24) == 0xFF and all(
+            abs(((p >> s) & 255) - w) <= tol for s, w in zip((16, 8, 0), want)
+        ):
             n += 1
     return n
 
@@ -79,26 +81,53 @@ def measure_file(path, tokens=None):
     """`frames` is the probe-size animation: per frame its delay, its lit-token
     pixel count and its ghost pixel count (None when no tokens were given)."""
     import make_cursors as MC
+
     try:
         allf = MC.read_xcursor_frames(path)
     except (OSError, ValueError) as e:
-        return {"readable": False, "error": str(e), "sizes": [], "dominant": [], "frames": []}
+        return {
+            "readable": False,
+            "error": str(e),
+            "sizes": [],
+            "dominant": [],
+            "frames": [],
+        }
     probe = allf.get(PROBE_SIZE)
     frames = []
     for f in probe or []:
         px = f[4]
-        lit = sum(1 for p in px if tokens and (p >> 24) == 0xFF
-                  and "#%06x" % (p & 0xFFFFFF) == tokens["lit"]) if tokens else None
-        frames.append({"delay": f[5], "lit_px": lit,
-                       "ghost_px": ghost_pixels(px, tokens) if tokens else None,
-                       "pixels": hash(tuple(px)) & 0xFFFFFFFF})
-    return {"readable": True, "error": None, "sizes": sorted(allf),
-            "frame_counts": {str(k): len(v) for k, v in sorted(allf.items())},
-            "dominant": dominant(probe[0][4]) if probe else [], "frames": frames}
+        lit = (
+            sum(
+                1
+                for p in px
+                if tokens
+                and (p >> 24) == 0xFF
+                and "#%06x" % (p & 0xFFFFFF) == tokens["lit"]
+            )
+            if tokens
+            else None
+        )
+        frames.append(
+            {
+                "delay": f[5],
+                "lit_px": lit,
+                "ghost_px": ghost_pixels(px, tokens) if tokens else None,
+                "pixels": hash(tuple(px)) & 0xFFFFFFFF,
+            }
+        )
+    return {
+        "readable": True,
+        "error": None,
+        "sizes": sorted(allf),
+        "frame_counts": {str(k): len(v) for k, v in sorted(allf.items())},
+        "dominant": dominant(probe[0][4]) if probe else [],
+        "frames": frames,
+    }
 
 
 def measure_theme(tdir, variant):
     import make_cursors as MC
+
     cdir = os.path.join(tdir, "cursors")
     entries = {}
     toks = MC.tokens(variant)
@@ -108,9 +137,13 @@ def measure_theme(tdir, variant):
         e = measure_file(p, toks)
         e["link"] = os.readlink(p) if os.path.islink(p) else None
         entries[n] = e
-    return {"id": variant, "theme": os.path.basename(tdir),
-            "index_theme": os.path.isfile(os.path.join(tdir, "index.theme")),
-            "tokens": toks, "entries": entries}
+    return {
+        "id": variant,
+        "theme": os.path.basename(tdir),
+        "index_theme": os.path.isfile(os.path.join(tdir, "index.theme")),
+        "tokens": toks,
+        "entries": entries,
+    }
 
 
 def roster_drift():
@@ -120,6 +153,7 @@ def roster_drift():
 
     import make_cursors as MC
     import make_inherit as INH
+
     return VR.drift_facts({"make_cursors": MC.VARIANTS, "make_inherit": INH.VARIANTS})
 
 
@@ -128,15 +162,19 @@ def measure(root=None):
     VARIANTS — so an emitter that drops a variant leaves a theme dir unmeasured-as-empty
     and a `roster_drift` fact, not a quietly shorter "n of n"."""
     import variant_roster as VR
+
     roster = VR.ids()
     try:
         import cairosvg  # noqa: F401
         import PIL  # noqa: F401
     except ImportError as e:
-        return {"cases": [{"id": v, "withheld": f"cannot rasterise: {e}"} for v in roster],
-                "roster_drift": roster_drift()}
+        return {
+            "cases": [{"id": v, "withheld": f"cannot rasterise: {e}"} for v in roster],
+            "roster_drift": roster_drift(),
+        }
     import make_cursors as MC
     import make_inherit as INH
+
     if root is None:
         tmp = tempfile.mkdtemp(prefix="el-cursors-")
         MC.render_all(MC.VARIANTS, tmp)
@@ -145,8 +183,12 @@ def measure(root=None):
     for v in roster:
         tdir = os.path.join(root, INH.cursor_theme_name(v))
         cases.append(measure_theme(tdir, v))
-    return {"probe_size": PROBE_SIZE, "dominant_share": DOMINANT_SHARE, "cases": cases,
-            "roster_drift": roster_drift()}
+    return {
+        "probe_size": PROBE_SIZE,
+        "dominant_share": DOMINANT_SHARE,
+        "cases": cases,
+        "roster_drift": roster_drift(),
+    }
 
 
 def _selftest():
@@ -172,44 +214,80 @@ def _selftest():
             fh.write(MC.cursor_file("default", v))
         bad = os.path.join(d, "bad")
         with open(bad, "wb") as fh:
-            fh.write(MC.cursor_file("default", v, colours={"lit": "#ff0000", "ground": t["ground"]}))
+            fh.write(
+                MC.cursor_file(
+                    "default", v, colours={"lit": "#ff0000", "ground": t["ground"]}
+                )
+            )
         with open(os.path.join(d, "junk"), "wb") as fh:
             fh.write(b"not a cursor")
-        g, b, j = measure_file(good), measure_file(bad), measure_file(os.path.join(d, "junk"))
-        see(f"the emitted glyph's dominant colours are its tokens ({g['dominant']})",
-            bool(g["dominant"]) and set(g["dominant"]) <= {t["lit"], t["ground"]})
-        see(f"a wrong-colour fixture is SEEN: #ff0000 among {b['dominant']}", "#ff0000" in b["dominant"])
+        g, b, j = (
+            measure_file(good),
+            measure_file(bad),
+            measure_file(os.path.join(d, "junk")),
+        )
+        see(
+            f"the emitted glyph's dominant colours are its tokens ({g['dominant']})",
+            bool(g["dominant"]) and set(g["dominant"]) <= {t["lit"], t["ground"]},
+        )
+        see(
+            f"a wrong-colour fixture is SEEN: #ff0000 among {b['dominant']}",
+            "#ff0000" in b["dominant"],
+        )
         see(f"every size is read back ({g['sizes']})", g["sizes"] == list(MC.SIZES))
-        see("a non-XCursor file is unreadable, not silently empty", j["readable"] is False)
+        see(
+            "a non-XCursor file is unreadable, not silently empty",
+            j["readable"] is False,
+        )
         wf = os.path.join(d, "wait")
         with open(wf, "wb") as fh:
             fh.write(MC.cursor_file("wait", v))
-        w =measure_file(wf, t)
-        see(f"wait carries {MC.SEGS} frames per size ({w['frame_counts']})",
-            set(w["frame_counts"].values()) == {MC.SEGS} and len(w["frame_counts"]) == len(MC.SIZES))
-        see(f"every wait frame has delay {MC.FRAME_MS} ms and the frames differ",
+        w = measure_file(wf, t)
+        see(
+            f"wait carries {MC.SEGS} frames per size ({w['frame_counts']})",
+            set(w["frame_counts"].values()) == {MC.SEGS}
+            and len(w["frame_counts"]) == len(MC.SIZES),
+        )
+        see(
+            f"every wait frame has delay {MC.FRAME_MS} ms and the frames differ",
             {f["delay"] for f in w["frames"]} == {MC.FRAME_MS}
-            and len({f["pixels"] for f in w["frames"]}) == MC.SEGS)
-        see(f"every wait frame shows lit AND ghost ink ({[(f['lit_px'], f['ghost_px']) for f in w['frames']]})",
-            all(f["lit_px"] > 0 and f["ghost_px"] > 0 for f in w["frames"]))
+            and len({f["pixels"] for f in w["frames"]}) == MC.SEGS,
+        )
+        see(
+            f"every wait frame shows lit AND ghost ink ({[(f['lit_px'], f['ghost_px']) for f in w['frames']]})",
+            all(f["lit_px"] > 0 and f["ghost_px"] > 0 for f in w["frames"]),
+        )
         with open(wf, "wb") as fh:
             fh.write(MC.cursor_file("wait", v, colours={"ghost": "#ff00ff"}))
         wb = measure_file(wf, t)
-        see(f"a wrong-coloured ghost is SEEN (ghost px {[f['ghost_px'] for f in wb['frames']]} "
+        see(
+            f"a wrong-coloured ghost is SEEN (ghost px {[f['ghost_px'] for f in wb['frames']]} "
             f"vs {[f['ghost_px'] for f in w['frames']]})",
-            max(f["ghost_px"] for f in wb["frames"]) * 4 < min(f["ghost_px"] for f in w["frames"]))
-        see("a static glyph is one frame with no delay",
-            [f["delay"] for f in g["frames"]] == [0] if g.get("frames") is not None else False)
+            max(f["ghost_px"] for f in wb["frames"]) * 4
+            < min(f["ghost_px"] for f in w["frames"]),
+        )
+        see(
+            "a static glyph is one frame with no delay",
+            [f["delay"] for f in g["frames"]] == [0]
+            if g.get("frames") is not None
+            else False,
+        )
     import make_inherit as INH
-    see(f"the live emitters agree with the roster ({roster_drift()})", roster_drift() == [])
+
+    see(
+        f"the live emitters agree with the roster ({roster_drift()})",
+        roster_drift() == [],
+    )
     kept = INH.VARIANTS
     try:
-        INH.VARIANTS = [x for x in kept if x != "EL-Amber"]     # a planted drop
+        INH.VARIANTS = [x for x in kept if x != "EL-Amber"]  # a planted drop
         dropped = roster_drift()
     finally:
         INH.VARIANTS = kept
-    see(f"an emitter that drops a variant is SEEN ({dropped})",
-        [(d["who"], d["variant"]) for d in dropped] == [("make_inherit", "EL-Amber")])
+    see(
+        f"an emitter that drops a variant is SEEN ({dropped})",
+        [(d["who"], d["variant"]) for d in dropped] == [("make_inherit", "EL-Amber")],
+    )
     print("check_cursors selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -243,14 +321,21 @@ def main(argv):
         files = sum(1 for e in c["entries"].values() if e["link"] is None)
         links = len(c["entries"]) - files
         tok = {c["tokens"]["lit"], c["tokens"]["ground"]}
-        off = {n: sorted(set(e["dominant"]) - tok) for n, e in c["entries"].items()
-               if e["link"] is None and set(e["dominant"]) - tok}
-        print(f"  {c['theme']:24s} {files} glyphs + {links} aliases; "
-              f"off-token glyphs: {off or 'none'}")
+        off = {
+            n: sorted(set(e["dominant"]) - tok)
+            for n, e in c["entries"].items()
+            if e["link"] is None and set(e["dominant"]) - tok
+        }
+        print(
+            f"  {c['theme']:24s} {files} glyphs + {links} aliases; "
+            f"off-token glyphs: {off or 'none'}"
+        )
     for d in doc.get("roster_drift", []):
         print(f"  DRIFT {d['variant']}: {d['why']}")
-    print(f"check_cursors: {len(measured)} of {len(cases)} variant(s) measured "
-          f"(the verdict is policy/cursors.rego: scripts/opa_gate.py cursors)")
+    print(
+        f"check_cursors: {len(measured)} of {len(cases)} variant(s) measured "
+        f"(the verdict is policy/cursors.rego: scripts/opa_gate.py cursors)"
+    )
     return 0 if measured else 3
 
 

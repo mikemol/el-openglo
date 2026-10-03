@@ -42,6 +42,7 @@ see it. (2) The walk fallback honours only `.gitignore`'s directory patterns and
 `!`-less ones; it over-counts an ignored FILE pattern (e.g. `*.pyc`) — which a
 caller's own pathspec almost always excludes anyway.
 """
+
 import fnmatch
 import os
 import pathlib
@@ -49,8 +50,15 @@ import subprocess
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-PINS = ("GIT_DIR", "GIT_INDEX_FILE", "GIT_WORK_TREE", "GIT_PREFIX", "GIT_COMMON_DIR",
-        "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES")
+PINS = (
+    "GIT_DIR",
+    "GIT_INDEX_FILE",
+    "GIT_WORK_TREE",
+    "GIT_PREFIX",
+    "GIT_COMMON_DIR",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+)
 SELF = os.path.join("scripts", "git_tracked.py")
 
 
@@ -65,18 +73,27 @@ def _env(root):
 
 def source(root=ROOT):
     """'git' when `root` is a git work-tree TOP, else 'walk' (the Δ sandbox)."""
-    r = subprocess.run(["git", "-C", root, "rev-parse", "--show-toplevel"],
-                       capture_output=True, text=True, env=_env(root), check=False)
+    r = subprocess.run(
+        ["git", "-C", root, "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+        env=_env(root),
+        check=False,
+    )
     top = r.stdout.strip()
-    return "git" if r.returncode == 0 and top and os.path.realpath(top) == os.path.realpath(root) else "walk"
+    return (
+        "git"
+        if r.returncode == 0 and top and os.path.realpath(top) == os.path.realpath(root)
+        else "walk"
+    )
 
 
 def _match(rel, spec):
     """git pathspec semantics, for the forms this tree uses."""
     if spec.startswith(":(glob)"):
-        return pathlib.PurePosixPath(rel).full_match(spec[len(":(glob)"):])
+        return pathlib.PurePosixPath(rel).full_match(spec[len(":(glob)") :])
     if any(c in spec for c in "*?["):
-        return fnmatch.fnmatchcase(rel, spec)          # * crosses '/', as git's default
+        return fnmatch.fnmatchcase(rel, spec)  # * crosses '/', as git's default
     s = spec.rstrip("/")
     return rel == s or rel.startswith(s + "/")
 
@@ -88,8 +105,11 @@ def _ignored_dirs(root):
             lines = fh.read().splitlines()
     except OSError:
         return []
-    return [ln.strip().rstrip("/") for ln in lines
-            if ln.strip().endswith("/") and not ln.startswith(("#", "!"))]
+    return [
+        ln.strip().rstrip("/")
+        for ln in lines
+        if ln.strip().endswith("/") and not ln.startswith(("#", "!"))
+    ]
 
 
 def _walk(root, pathspecs):
@@ -101,10 +121,16 @@ def _walk(root, pathspecs):
         for d in dns:
             full = os.path.join(dp, d)
             rel = os.path.relpath(full, root).replace(os.sep, "/")
-            if os.path.lexists(os.path.join(full, ".git")) or os.path.exists(os.path.join(full, SELF)):
+            if os.path.lexists(os.path.join(full, ".git")) or os.path.exists(
+                os.path.join(full, SELF)
+            ):
                 continue
-            if any(fnmatch.fnmatchcase(rel, p.lstrip("/")) if p.startswith("/") or "/" in p
-                   else fnmatch.fnmatchcase(d, p) for p in pats):
+            if any(
+                fnmatch.fnmatchcase(rel, p.lstrip("/"))
+                if p.startswith("/") or "/" in p
+                else fnmatch.fnmatchcase(d, p)
+                for p in pats
+            ):
                 continue
             keep.append(d)
         dns[:] = keep
@@ -123,8 +149,12 @@ def files(*pathspecs, root=ROOT):
     if source(root) == "walk":
         out = _walk(root, pathspecs)
     else:
-        r = subprocess.run(["git", "-C", root, "ls-files", "-z", "--", *pathspecs],
-                           capture_output=True, check=True, env=_env(root))
+        r = subprocess.run(
+            ["git", "-C", root, "ls-files", "-z", "--", *pathspecs],
+            capture_output=True,
+            check=True,
+            env=_env(root),
+        )
         out = [p for p in r.stdout.decode("utf-8").split("\0") if p]
     return sorted(p for p in out if os.path.lexists(os.path.join(root, p)))
 
@@ -138,21 +168,34 @@ def init_fixture(d, add=None):
     """Make the tempdir `d` a git repo and track `add` (default: everything in it) —
     so a selftest's fixture goes through the SAME population path as the tree."""
     env = scrubbed_env()
-    for args in (["init", "-q"], ["config", "user.email", "t@t"], ["config", "user.name", "t"]):
-        subprocess.run(["git", "-C", d, *args], check=True, capture_output=True, env=env)
-    subprocess.run(["git", "-C", d, "add", "--", *(add or ["."])], check=True,
-                   capture_output=True, env=env)
+    for args in (
+        ["init", "-q"],
+        ["config", "user.email", "t@t"],
+        ["config", "user.name", "t"],
+    ):
+        subprocess.run(
+            ["git", "-C", d, *args], check=True, capture_output=True, env=env
+        )
+    subprocess.run(
+        ["git", "-C", d, "add", "--", *(add or ["."])],
+        check=True,
+        capture_output=True,
+        env=env,
+    )
 
 
 def _plant(d, rels):
     for rel in rels:
         os.makedirs(os.path.dirname(os.path.join(d, rel)), exist_ok=True)
-        with open(os.path.join(d, rel), "w") as fh:  # atomic-write: exempt — private fixture tempdir
+        with open(
+            os.path.join(d, rel), "w"
+        ) as fh:  # atomic-write: exempt — private fixture tempdir
             fh.write("x = 1\n")
 
 
 def _selftest():
     import tempfile
+
     ok = True
 
     def see(label, cond):
@@ -167,24 +210,42 @@ def _selftest():
         see("a git work tree is answered by git", source(d) == "git")
         got = files("*.py", root=d)
         see(f"tracked *.py are seen ({got})", got == ["a.py", "sub/b.py"])
-        see("a scratch-dir file on disk is NOT in the population",
-            not any(p.startswith((".claude/", ".build/", "junk/")) for p in got))
+        see(
+            "a scratch-dir file on disk is NOT in the population",
+            not any(p.startswith((".claude/", ".build/", "junk/")) for p in got),
+        )
         see("`:(glob)*.py` does not recurse", files(":(glob)*.py", root=d) == ["a.py"])
-        see("a directory pathspec takes what is under it", files("sub", root=d) == ["sub/b.py"])
+        see(
+            "a directory pathspec takes what is under it",
+            files("sub", root=d) == ["sub/b.py"],
+        )
+
         # ⚑ A HOOK-LIKE ENV: GIT_DIR / GIT_INDEX_FILE name THIS repo (as pre-commit
         # exports them) while a FOREIGN root is asked about — check_tree_writes'
         # scratch copy, check_emitters_run's fixture. The pins must not leak.
         def gp(*a):
-            return os.path.abspath(os.path.join(ROOT, subprocess.run(
-                ["git", "-C", ROOT, "rev-parse", *a], capture_output=True, text=True,
-                check=True).stdout.strip()))
+            return os.path.abspath(
+                os.path.join(
+                    ROOT,
+                    subprocess.run(
+                        ["git", "-C", ROOT, "rev-parse", *a],
+                        capture_output=True,
+                        text=True,
+                        check=True,
+                    ).stdout.strip(),
+                )
+            )
+
         saved = {k: os.environ.get(k) for k in PINS}
         try:
             os.environ["GIT_DIR"] = gp("--git-dir")
             os.environ["GIT_INDEX_FILE"] = gp("--git-path", "index")
             pinned = files("*.py", root=d)
-            see(f"under GIT_DIR/GIT_INDEX_FILE pinned to this repo, a foreign root still "
-                f"answers ITS tree ({pinned})", pinned == ["a.py", "sub/b.py"])
+            see(
+                f"under GIT_DIR/GIT_INDEX_FILE pinned to this repo, a foreign root still "
+                f"answers ITS tree ({pinned})",
+                pinned == ["a.py", "sub/b.py"],
+            )
         finally:
             for k, v in saved.items():
                 if v is None:
@@ -193,17 +254,34 @@ def _selftest():
                     os.environ[k] = v
     with tempfile.TemporaryDirectory() as d:
         # the Δ sandbox: no .git; a worktree copy whose .git file was dropped; an ignored dir
-        _plant(d, ["a.py", "sub/b.py", "wt/scripts/git_tracked.py", "wt/a.py",
-                   "co/a.py", "out/z.py", "deep/out/y.py"])
+        _plant(
+            d,
+            [
+                "a.py",
+                "sub/b.py",
+                "wt/scripts/git_tracked.py",
+                "wt/a.py",
+                "co/a.py",
+                "out/z.py",
+                "deep/out/y.py",
+            ],
+        )
         _plant(d, ["co/.git"])
-        with open(os.path.join(d, ".gitignore"), "w") as fh:  # atomic-write: exempt — private fixture tempdir
+        with open(
+            os.path.join(d, ".gitignore"), "w"
+        ) as fh:  # atomic-write: exempt — private fixture tempdir
             fh.write("# c\nout/\n!keep/\n")
         see("a tree with no .git is answered by the walk", source(d) == "walk")
         got = files("*.py", root=d)
-        see(f"the walk keeps the tree and drops copies, checkouts and ignored dirs ({got})",
-            got == ["a.py", "sub/b.py"])
+        see(
+            f"the walk keeps the tree and drops copies, checkouts and ignored dirs ({got})",
+            got == ["a.py", "sub/b.py"],
+        )
     live = files("*.py")
-    see(f"the live tree has tracked .py files ({len(live)}, via {source()})", len(live) > 0)
+    see(
+        f"the live tree has tracked .py files ({len(live)}, via {source()})",
+        len(live) > 0,
+    )
     print("git_tracked selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
@@ -217,12 +295,15 @@ def main(argv):
     if argv[1:] == ["--by-dir"]:
         # the population's SHAPE, not its 48k lines: where a walk over-counts shows here
         from collections import Counter
+
         got = files()
         by = Counter(p.split("/", 1)[0] if "/" in p else "(top)" for p in got)
         for d, n in by.most_common():
             print(f"{n:7d}  {d}")
-        print(f"git_tracked: {len(got)} path(s) in {len(by)} top-level entr(ies) (via {source()})",
-              file=sys.stderr)
+        print(
+            f"git_tracked: {len(got)} path(s) in {len(by)} top-level entr(ies) (via {source()})",
+            file=sys.stderr,
+        )
         return 0 if got else 1
     for a in argv[1:]:
         if a.startswith("--"):
@@ -231,8 +312,10 @@ def main(argv):
     got = files(*argv[1:])
     for p in got:
         print(p)
-    print(f"git_tracked: {len(got)} path(s) match {argv[1:] or ['(all)']} (via {source()})",
-          file=sys.stderr)
+    print(
+        f"git_tracked: {len(got)} path(s) match {argv[1:] or ['(all)']} (via {source()})",
+        file=sys.stderr,
+    )
     return 0 if got else 1
 
 

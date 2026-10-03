@@ -22,6 +22,7 @@ change. What must agree is the segment set, in the substrate's own lowercase
 7-seg naming. Which digits must be compared, and that the two sets must be
 equal, is the policy's ruling (W50); this file only reads both tables.
 """
+
 import os
 import sys
 
@@ -36,6 +37,7 @@ def rows():
     os.chdir(ROOT)
     import make_plymouth as MP
     import segment_topology as ST
+
     out = []
     for d in DIGITS:
         want = set(ST.project(ST.glyph16(d), "7"))
@@ -50,10 +52,12 @@ def measure():
     either table cannot be read at all, no cases and the `error` that stopped it."""
     try:
         data = rows()
-    except Exception as e:                       # noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         return {"cases": [], "error": f"{type(e).__name__}: {e}"}
-    return {"error": None,
-            "cases": [{"id": d, "substrate": w, "plymouth": g} for d, w, g in data]}
+    return {
+        "error": None,
+        "cases": [{"id": d, "substrate": w, "plymouth": g} for d, w, g in data],
+    }
 
 
 def main(argv):
@@ -64,18 +68,25 @@ def main(argv):
             return 2
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     if "--table" in argv:
         m = measure()
         if m["error"]:
-            print(f"check_plymouth_digits: cannot read the tables — {m['error']}", file=sys.stderr)
+            print(
+                f"check_plymouth_digits: cannot read the tables — {m['error']}",
+                file=sys.stderr,
+            )
             return 2
         for c in m["cases"]:
             mark = "  " if c["substrate"] == c["plymouth"] else "！"
-            print(f"{mark}{c['id']}\tsubstrate={''.join(c['substrate'])}\tplymouth={''.join(c['plymouth'])}")
+            print(
+                f"{mark}{c['id']}\tsubstrate={''.join(c['substrate'])}\tplymouth={''.join(c['plymouth'])}"
+            )
         return 0
     import opa_gate
+
     return opa_gate.gate("plymouth_digits")
 
 
@@ -93,18 +104,23 @@ def _selftest():
     m = measure()
     check("the tables are read", m["error"], None)
     check("all ten digits are measured", [c["id"] for c in m["cases"]], list(DIGITS))
-    check("the substrate side is non-empty",
-          all(c["substrate"] for c in m["cases"]), True)
+    check(
+        "the substrate side is non-empty", all(c["substrate"] for c in m["cases"]), True
+    )
     # ⚑ THE MEASUREMENT MUST SEE PLYMOUTH'S OWN TABLE, not a second view of the
     # substrate: drop a segment from plymouth's copy and the case must carry it.
     # That a differing digit is DENIED is policy/plymouth_digits_test.rego's ruling.
     import make_plymouth as MP
+
     saved = MP.SEVENSEG
     try:
         MP.SEVENSEG = dict(saved, **{"8": tuple(saved["8"])[1:]})
         c8 = next(c for c in measure()["cases"] if c["id"] == "8")
-        check("a segment dropped from plymouth's table is measured",
-              len(c8["plymouth"]), len(c8["substrate"]) - 1)
+        check(
+            "a segment dropped from plymouth's table is measured",
+            len(c8["plymouth"]),
+            len(c8["substrate"]) - 1,
+        )
     finally:
         MP.SEVENSEG = saved
     print("check_plymouth_digits selftest:", "PASS" if ok else "FAIL")

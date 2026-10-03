@@ -5753,7 +5753,7 @@
     {
       "symbol": "W261",
       "title": "Format the repo to ruff format (pycheck runs ruff format --check beside lint and mypy): one AST-preserving pass, fixtures with byte-pinned content enumerated in extend-exclude",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W253"
       ],
@@ -5769,10 +5769,11 @@
       "issued_at": "2026-10-03T19:01:30Z",
       "minted_during": "interrupt",
       "caused_by": "W253",
-      "last_worked": "2026-10-03T19:01:49Z",
+      "last_worked": "2026-10-03T19:51:43Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     }
   ],
   "residue": [

@@ -41,6 +41,7 @@ the declared dependencies, so this re-execs under `uv run` when a project venv
 exists and it is not already inside one.  Otherwise a red check would report the
 INTERPRETER's missing module as the THEME's defect.
 """
+
 import os
 import re
 import subprocess
@@ -58,13 +59,13 @@ os.environ.setdefault("PAPERKIT_SCRATCH", "/var/tmp/paperkit-sweep")
 # name -> project dir.  Order is the order they run in.
 PROJECTS = {
     "worklist": os.path.join(ROOT, "catalog", "worklist"),
-    "cotype":   os.path.join(ROOT, "catalog", "cotype"),
+    "cotype": os.path.join(ROOT, "catalog", "cotype"),
     # ⚑ README.md IS A PROJECTION (W69). paper.toml sits at the repo ROOT so
     # `out = "README.md"` needs no ../../ and the checks run where the tools
     # live; the claims are catalog/readme/readme.bib.
-    "readme":   ROOT,
+    "readme": ROOT,
 }
-PROJECT = PROJECTS["worklist"]          # kept: the repo's own graph is the default subject
+PROJECT = PROJECTS["worklist"]  # kept: the repo's own graph is the default subject
 
 # Where the engine may live, in order.  The env var wins so a checkout elsewhere
 # needs no edit here.
@@ -74,9 +75,9 @@ CANDIDATES = (
 )
 
 ENTRY = {
-    None:              ("gate.py", "GATE"),
-    "--project":       ("project.py", "PROJECT"),
-    "--discriminate":  ("discriminate.py", "DISCRIMINATE"),
+    None: ("gate.py", "GATE"),
+    "--project": ("project.py", "PROJECT"),
+    "--discriminate": ("discriminate.py", "DISCRIMINATE"),
 }
 
 # ⚑ `--summary` EXISTS BECAUSE ITS ABSENCE WAS BEING PAPERED OVER WITH A PIPE.
@@ -84,8 +85,14 @@ ENTRY = {
 # which is the judgement living in the turn instead of in a program — the exact
 # shape the no-chaining hook refuses. The honest response to "no mode answers
 # this" is to add the mode, so: one line per project, plus the open claims.
-_VERDICT = ("paperkit-gate: check FAILED", "paperkit-gate: PASS",
-            "paperkit-gate: FAIL", "cited/placed/grounded", "coverage complete")
+_VERDICT = (
+    "paperkit-gate: check FAILED",
+    "paperkit-gate: PASS",
+    "paperkit-gate: FAIL",
+    "cited/placed/grounded",
+    "coverage complete",
+)
+
 
 def warrants(bib):
     """{key: record} for one warrants .bib, read by PAPERKIT's own parser, or None.
@@ -106,6 +113,7 @@ def warrants(bib):
         return None
     import tomllib
     from pathlib import Path
+
     toml = os.path.join(os.path.dirname(bib), "paper.toml")
     fields = ()
     if os.path.isfile(toml):
@@ -168,12 +176,17 @@ def cost(key, proj, engine):
     """
     script, _label = ENTRY[None]
     path = os.path.join(engine, "paperkit", script)
-    r = subprocess.run([sys.executable, path, proj],
-                       cwd=os.path.join(engine, "paperkit"),
-                       capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [sys.executable, path, proj],
+        cwd=os.path.join(engine, "paperkit"),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     text = (r.stdout or "") + (r.stderr or "")
-    line = next((l for l in text.splitlines()
-                 if "FAILED" in l and f"[@{key}]" in l), None)
+    line = next(
+        (l for l in text.splitlines() if "FAILED" in l and f"[@{key}]" in l), None
+    )
     if line is None:
         return None
     check = line.split(":", 2)[-1].strip()
@@ -185,8 +198,11 @@ def cost(key, proj, engine):
         argv_ = parts[1].split()
         cmd = [sys.executable, os.path.join(ROOT, "scripts", argv_[0])] + argv_[1:]
     elif parts[0] == "concept":
-        cmd = [sys.executable, os.path.join(ROOT, "catalog", "library", "concepts.py"),
-               parts[1].strip()]
+        cmd = [
+            sys.executable,
+            os.path.join(ROOT, "catalog", "library", "concepts.py"),
+            parts[1].strip(),
+        ]
     else:
         return None
     w = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=False)
@@ -238,7 +254,7 @@ def order(open_keys, bib, costs=None):
     def layer(k):
         if k in depth:
             return depth[k]
-        if k in seen:                      # a cycle is a fact to report, not to crash on
+        if k in seen:  # a cycle is a fact to report, not to crash on
             return 0
         seen.add(k)
         d = 0
@@ -282,8 +298,7 @@ def order(open_keys, bib, costs=None):
         #      leave the thing everything waits on until last.
         # Unknown cost sorts LAST within its tier, not first: an unmeasured item
         # is not a free one.
-        rows.append((depth.get(k, 0), -lev,
-                     c if c is not None else 1 << 30, k, lev, c))
+        rows.append((depth.get(k, 0), -lev, c if c is not None else 1 << 30, k, lev, c))
     rows.sort()
     return [(k, d, lev, c) for d, _n, _c, k, lev, c in rows]
 
@@ -297,9 +312,11 @@ def locate():
         tried.append(cand)
         if os.path.isfile(os.path.join(cand, "paperkit", "gate.py")):
             return cand, None
-    return None, ("paperkit not found (looked for paperkit/gate.py in: "
-                  + ", ".join(tried or ["<nothing: PAPERKIT unset>"])
-                  + "). Set PAPERKIT=/path/to/paperkit.")
+    return None, (
+        "paperkit not found (looked for paperkit/gate.py in: "
+        + ", ".join(tried or ["<nothing: PAPERKIT unset>"])
+        + "). Set PAPERKIT=/path/to/paperkit."
+    )
 
 
 def _reexec_under_uv():
@@ -309,9 +326,12 @@ def _reexec_under_uv():
     if not os.path.isdir(os.path.join(ROOT, ".venv")):
         return None
     env = dict(os.environ, _WORKLIST_IN_UV="1")
-    return subprocess.run(["uv", "run", "--no-sync", "python3",
-                           os.path.abspath(__file__)] + sys.argv[1:],
-                          cwd=ROOT, env=env, check=False).returncode
+    return subprocess.run(
+        ["uv", "run", "--no-sync", "python3", os.path.abspath(__file__)] + sys.argv[1:],
+        cwd=ROOT,
+        env=env,
+        check=False,
+    ).returncode
 
 
 SCHEMES_ACTION = os.path.join(ROOT, "schemes_artifact.py")
@@ -321,18 +341,31 @@ def _materialise_schemes():
     """{PAPERKIT_BUILT_ARTIFACTS: ...} declaring `schemes=<snapshot>`, or None (REFUSED,
     reason printed). A snapshot this run cannot take is a refusal, never a silent
     fall-back to per-check reads of the mutable tree."""
-    r = subprocess.run([sys.executable, SCHEMES_ACTION, "--materialise"],
-                       cwd=ROOT, capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [sys.executable, SCHEMES_ACTION, "--materialise"],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     fields = (r.stdout or "").split()
     if r.returncode != 0 or len(fields) != 2:
-        print(f"worklist_gate: REFUSED — the schemes artifact could not be materialised: "
-              f"{(r.stderr or r.stdout).strip()}", file=sys.stderr)
+        print(
+            f"worklist_gate: REFUSED — the schemes artifact could not be materialised: "
+            f"{(r.stderr or r.stdout).strip()}",
+            file=sys.stderr,
+        )
         return None
     digest, path = fields
-    pairs = [p for p in os.environ.get("PAPERKIT_BUILT_ARTIFACTS", "").split()
-             if p.partition("=")[0] != "schemes"] + [f"schemes={path}"]
-    print(f"worklist_gate: schemes artifact {digest[:16]}… declared to every check",
-          file=sys.stderr)
+    pairs = [
+        p
+        for p in os.environ.get("PAPERKIT_BUILT_ARTIFACTS", "").split()
+        if p.partition("=")[0] != "schemes"
+    ] + [f"schemes={path}"]
+    print(
+        f"worklist_gate: schemes artifact {digest[:16]}… declared to every check",
+        file=sys.stderr,
+    )
     return {"PAPERKIT_BUILT_ARTIFACTS": " ".join(pairs)}
 
 
@@ -366,20 +399,27 @@ def _replay(proj, output):
     toml_path = os.path.join(proj, "paper.toml")
     try:
         import tomllib
+
         with open(toml_path, "rb") as fh:
             decl = tomllib.load(fh).get("checks", {})
     except (OSError, ValueError, ImportError) as e:
-        print(f"\n  replay: WITHHELD — cannot read {toml_path}'s check templates ({e})",
-              file=sys.stderr)
+        print(
+            f"\n  replay: WITHHELD — cannot read {toml_path}'s check templates ({e})",
+            file=sys.stderr,
+        )
         return
-    print(f"\n── replay: {len(keys)} failing check(s), re-run for their account ──",
-          file=sys.stderr)
+    print(
+        f"\n── replay: {len(keys)} failing check(s), re-run for their account ──",
+        file=sys.stderr,
+    )
     flaky, real = [], []
     for key, kind, target in keys:
         tmpl = decl.get(kind, {}).get("cmd")
         if not tmpl:
-            print(f"  @{key}: WITHHELD — paper.toml declares no `{kind}` check type",
-                  file=sys.stderr)
+            print(
+                f"  @{key}: WITHHELD — paper.toml declares no `{kind}` check type",
+                file=sys.stderr,
+            )
             continue
         cmd = tmpl.replace("{target}", target.strip())
         # ⚑ REPLAY UNDER THE GATE'S OWN LIMITS (W68, 2026-09-25). This ran uncapped
@@ -391,9 +431,12 @@ def _replay(proj, output):
         try:
             from paperkit import resolver as PKR
         except ImportError:
-            print(f"  @{key}: WITHHELD — paperkit is not importable under {sys.executable}; "
-                  f"the replay cannot apply the gate's limits, so it does not run "
-                  f"(uv sync --extra tooling)", file=sys.stderr)
+            print(
+                f"  @{key}: WITHHELD — paperkit is not importable under {sys.executable}; "
+                f"the replay cannot apply the gate's limits, so it does not run "
+                f"(uv sync --extra tooling)",
+                file=sys.stderr,
+            )
             continue
         cpu = int(os.environ.get("PAPERKIT_CHECK_CPU", PKR.CHECK_CPU))
         # ⚑ NEVER ASK FOR MORE THAN WE INHERITED (2026-09-26). Run as a CHECK, this
@@ -407,6 +450,7 @@ def _replay(proj, output):
         # live checkout (b593c80: hard = cap). Calling another version's private helper
         # is how this broke; the replay owns keeping its limit inside what it inherited.
         import resource
+
         inherited = resource.getrlimit(resource.RLIMIT_CPU)[1]
         hard = cpu if inherited == resource.RLIM_INFINITY else min(cpu, inherited)
 
@@ -415,19 +459,33 @@ def _replay(proj, output):
         def _cap(soft=soft_cap, hard=hard):
             resource.setrlimit(resource.RLIMIT_CPU, (soft, hard))
             resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
-        r = subprocess.run(cmd, shell=True, cwd=proj, capture_output=True, text=True,
-                           env=PKR.clean_env(), start_new_session=True,
-                           preexec_fn=_cap, check=False)
+
+        r = subprocess.run(
+            cmd,
+            shell=True,
+            cwd=proj,
+            capture_output=True,
+            text=True,
+            env=PKR.clean_env(),
+            start_new_session=True,
+            preexec_fn=_cap,
+            check=False,
+        )
         tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
-        if r.returncode in (-24, -9):          # SIGXCPU at the soft cap, SIGKILL at the hard
-            tail.insert(0, f"FAIL: killed by signal {-r.returncode} — exceeded the gate's "
-                           f"{cpu} s CPU cap (RLIMIT_CPU); a cost, not a flake")
+        if r.returncode in (-24, -9):  # SIGXCPU at the soft cap, SIGKILL at the hard
+            tail.insert(
+                0,
+                f"FAIL: killed by signal {-r.returncode} — exceeded the gate's "
+                f"{cpu} s CPU cap (RLIMIT_CPU); a cost, not a flake",
+            )
         if r.returncode == 0:
             flaky.append(key)
-            print(f"  @{key}: ⚑ PASSED ON REPLAY (exit 0) — the gate's failure was "
-                  f"NOT reproducible on an unchanged tree. That is a FLAKE, which is "
-                  f"a defect in the check or its inputs, not an absence of one.",
-                  file=sys.stderr)
+            print(
+                f"  @{key}: ⚑ PASSED ON REPLAY (exit 0) — the gate's failure was "
+                f"NOT reproducible on an unchanged tree. That is a FLAKE, which is "
+                f"a defect in the check or its inputs, not an absence of one.",
+                file=sys.stderr,
+            )
         else:
             real.append(key)
             print(f"  @{key}: REPRODUCED (exit {r.returncode})", file=sys.stderr)
@@ -437,17 +495,25 @@ def _replay(proj, output):
         # that caused the exit sitting just above the window. An account that
         # omits the finding is the defect this replay was built to cure, reproduced
         # inside the cure.
-        verdicts = [l for l in tail if any(w in l for w in ("DENY", "REFUSED", "FAIL",
-                                                            "Traceback", "Error"))]
+        verdicts = [
+            l
+            for l in tail
+            if any(w in l for w in ("DENY", "REFUSED", "FAIL", "Traceback", "Error"))
+        ]
         shown = verdicts[:6] or []
         rest = [l for l in tail[-6:] if l not in shown]
         for line in shown + rest:
             print(f"      {line}", file=sys.stderr)
         if len(tail) > len(shown) + len(rest):
-            print(f"      … {len(tail) - len(shown) - len(rest)} more line(s)",
-                  file=sys.stderr)
-    print(f"  replay: {len(real)} reproduced, {len(flaky)} flaky of {len(keys)} "
-          f"reported failure(s)", file=sys.stderr)
+            print(
+                f"      … {len(tail) - len(shown) - len(rest)} more line(s)",
+                file=sys.stderr,
+            )
+    print(
+        f"  replay: {len(real)} reproduced, {len(flaky)} flaky of {len(keys)} "
+        f"reported failure(s)",
+        file=sys.stderr,
+    )
 
 
 def main(argv):
@@ -464,11 +530,13 @@ def main(argv):
     if "--only" in args:
         i = args.index("--only")
         if i + 1 >= len(args) or args[i + 1] not in PROJECTS:
-            print(f"worklist_gate: --only needs one of: {', '.join(PROJECTS)}",
-                  file=sys.stderr)
+            print(
+                f"worklist_gate: --only needs one of: {', '.join(PROJECTS)}",
+                file=sys.stderr,
+            )
             return 2
         only = args[i + 1]
-        args = args[:i] + args[i + 2:]
+        args = args[:i] + args[i + 2 :]
     if "--sandbox" in args:
         # ⚑ Δ's SANDBOX, BUILT BY Δ's OWN COPY (R5, 2026-09-25). paperkit deletes its
         # sandbox unconditionally (no keep knob — paperkit W40), so a check that is
@@ -477,7 +545,10 @@ def main(argv):
         # its skip list — so the check can be re-run on it and its population measured.
         i = args.index("--sandbox")
         if i + 1 >= len(args):
-            print("worklist_gate: --sandbox needs a destination directory", file=sys.stderr)
+            print(
+                "worklist_gate: --sandbox needs a destination directory",
+                file=sys.stderr,
+            )
             return 2
         dest = os.path.abspath(args[i + 1])
         if os.path.exists(dest) and os.listdir(dest):
@@ -486,33 +557,44 @@ def main(argv):
         try:
             from paperkit import layout as PKL
         except ImportError:
-            print("worklist_gate: --sandbox needs paperkit importable (uv sync --extra tooling)",
-                  file=sys.stderr)
+            print(
+                "worklist_gate: --sandbox needs paperkit importable (uv sync --extra tooling)",
+                file=sys.stderr,
+            )
             return 3
         from pathlib import Path
+
         PKL._copy_sandbox(Path(ROOT), Path(dest))
         # population: the Δ-shaped COPY just written to `dest` — outside git by construction
         n = sum(len(fs) for _d, _ds, fs in os.walk(dest))
-        print(f"worklist_gate: Δ-shaped sandbox of {ROOT} at {dest} ({n} files; "
-              f"skipped {sorted(PKL.SKIP_DIRS)} + *.pyc, exactly as Δ does)")
+        print(
+            f"worklist_gate: Δ-shaped sandbox of {ROOT} at {dest} ({n} files; "
+            f"skipped {sorted(PKL.SKIP_DIRS)} + *.pyc, exactly as Δ does)"
+        )
         return 0
     for a in args:
         if a == "--where":
             eng, why = locate()
             print(f"engine:  {eng or '(NOT FOUND) ' + why}")
             for name, path in PROJECTS.items():
-                print(f"project: {name:9} {path}"
-                      f"{'' if os.path.isdir(path) else '  (ABSENT)'}")
-            print(f"venv:    {os.path.join(ROOT, '.venv')}"
-                  f"{'' if os.path.isdir(os.path.join(ROOT, '.venv')) else ' (absent)'}")
+                print(
+                    f"project: {name:9} {path}"
+                    f"{'' if os.path.isdir(path) else '  (ABSENT)'}"
+                )
+            print(
+                f"venv:    {os.path.join(ROOT, '.venv')}"
+                f"{'' if os.path.isdir(os.path.join(ROOT, '.venv')) else ' (absent)'}"
+            )
             return 0
         if a in ENTRY:
             mode = a
         else:
-            print(f"worklist_gate: unknown flag {a!r} (known: --project, "
-                  f"--discriminate, --summary, --next, --where, --selftest, "
-                  f"--only <name>)",
-                  file=sys.stderr)
+            print(
+                f"worklist_gate: unknown flag {a!r} (known: --project, "
+                f"--discriminate, --summary, --next, --where, --selftest, "
+                f"--only <name>)",
+                file=sys.stderr,
+            )
             return 2
 
     rc = _reexec_under_uv()
@@ -527,8 +609,11 @@ def main(argv):
     script, _label = ENTRY[mode]
     path = os.path.join(engine, "paperkit", script)
     if not os.path.isfile(path):
-        print(f"worklist_gate: REFUSED — the engine has no {script} "
-              f"(looked in {os.path.dirname(path)})", file=sys.stderr)
+        print(
+            f"worklist_gate: REFUSED — the engine has no {script} "
+            f"(looked in {os.path.dirname(path)})",
+            file=sys.stderr,
+        )
         return 2
 
     # ⚑ THE `schemes` ARTIFACT IS MATERIALISED ONCE, BEFORE ANY CHECK RUNS (W75), and
@@ -557,9 +642,13 @@ def main(argv):
         # twice on 2026-09-22: @MARQUEE-LIVE denied then admitted, and eleven
         # palette checks failed then passed, both on an unchanged tree, and both
         # times the re-run was done BY HAND because the tool could not do it.
-        run = subprocess.run([sys.executable, path, proj],
-                             cwd=os.path.join(engine, "paperkit"),
-                             capture_output=True, text=True, check=False)
+        run = subprocess.run(
+            [sys.executable, path, proj],
+            cwd=os.path.join(engine, "paperkit"),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         if not summary:
             sys.stdout.write(run.stdout or "")
             sys.stderr.write(run.stderr or "")
@@ -567,13 +656,13 @@ def main(argv):
             _replay(proj, (run.stdout or "") + (run.stderr or ""))
         if summary:
             lines = (run.stdout or "").splitlines() + (run.stderr or "").splitlines()
-            verdict = [l.strip() for l in lines
-                       if any(v in l for v in _VERDICT)]
+            verdict = [l.strip() for l in lines if any(v in l for v in _VERDICT)]
             failed = [l.strip() for l in verdict if "FAILED" in l]
             state = "PASS" if run.returncode == 0 else "FAIL"
             counted = next((l for l in verdict if "cited/placed/grounded" in l), "")
-            print(f"{name:9} {state}  {counted.split(': ', 1)[-1] if counted else ''}"
-                  .rstrip())
+            print(
+                f"{name:9} {state}  {counted.split(': ', 1)[-1] if counted else ''}".rstrip()
+            )
             open_keys = []
             for f in failed:
                 tail = f.split("for ", 1)[-1]
@@ -607,12 +696,16 @@ def exit_of(name, rc):
     if rc >= 0:
         return rc
     import signal as _signal
+
     try:
         sig = _signal.Signals(-rc).name
     except ValueError:
         sig = f"signal {-rc}"
-    print(f"worklist_gate: {name}: the engine was KILLED by {sig} before it "
-          f"reported — nothing it printed is a verdict", file=sys.stderr)
+    print(
+        f"worklist_gate: {name}: the engine was KILLED by {sig} before it "
+        f"reported — nothing it printed is a verdict",
+        file=sys.stderr,
+    )
     return 128 - rc
 
 
@@ -641,6 +734,7 @@ def _selftest():
         # "an absent engine REFUSES with exit 2" is tested rather than read.
         import contextlib
         import io
+
         saved_uv = os.environ.get("_WORKLIST_IN_UV")
         os.environ["_WORKLIST_IN_UV"] = "1"
         err = io.StringIO()
@@ -682,8 +776,9 @@ def _selftest():
     try:
         # same layer, differing cost -> cheaper first
         r = order(["base", "leaf"], "x", {"base": 9, "leaf": 1})
-        check("within a layer, cheaper sorts first", [k for k, *_ in r],
-              ["leaf", "base"])
+        check(
+            "within a layer, cheaper sorts first", [k for k, *_ in r], ["leaf", "base"]
+        )
         # deeper layer never outranks a shallower one, however cheap
         r = order(["base", "deep"], "x", {"base": 9, "deep": 1})
         check("cost never beats grounding", [k for k, *_ in r], ["base", "deep"])
@@ -698,11 +793,17 @@ def _selftest():
     # only ever print REPRODUCED has never been shown to differ from its
     # found-something, which is not a measurement.
     proj = PROJECTS["worklist"]
-    check("the project declares check templates",
-          os.path.isfile(os.path.join(proj, "paper.toml")), True)
+    check(
+        "the project declares check templates",
+        os.path.isfile(os.path.join(proj, "paper.toml")),
+        True,
+    )
     line = "paperkit-gate: check FAILED for [@RESIDUE]: tool:check_symbol.py --bucket RESIDUE"
-    check("a failure line parses to (key, kind, target)", _FAILED.findall(line),
-          [("RESIDUE", "tool", "check_symbol.py --bucket RESIDUE")])
+    check(
+        "a failure line parses to (key, kind, target)",
+        _FAILED.findall(line),
+        [("RESIDUE", "tool", "check_symbol.py --bucket RESIDUE")],
+    )
     check("a passing run parses to nothing", _FAILED.findall("paperkit-gate: PASS"), [])
 
     import contextlib
@@ -718,14 +819,21 @@ def _selftest():
     # disagreement rather than swallow it as "fine now"
     try:
         import paperkit.resolver  # noqa: F401  the replay runs under ITS limits
+
         have_pk = True
     except ImportError:
         have_pk = False
     if not have_pk:
         # a fact about the interpreter, not the replay: counted and printed, not failed
-        print(f"  SKIP replay arms (4) — paperkit not importable under {sys.executable}")
+        print(
+            f"  SKIP replay arms (4) — paperkit not importable under {sys.executable}"
+        )
         out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
-        check("...and without it the replay WITHHOLDS rather than crashing", "WITHHELD" in out, True)
+        check(
+            "...and without it the replay WITHHOLDS rather than crashing",
+            "WITHHELD" in out,
+            True,
+        )
     else:
         out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
         check("a check that passes on replay is called a FLAKE", "FLAKE" in out, True)
@@ -742,19 +850,48 @@ def _selftest():
     check("the gate declares a schemes snapshot", bool(decl), True)
     if decl:
         # a CHECK handed that declaration verifies it (digest == name) and reads IT
-        r = subprocess.run([sys.executable, SCHEMES_ACTION, "--where"],
-                           env=dict(os.environ, **decl), capture_output=True, text=True, check=False)
-        check("...which a check reads as DECLARED, digest verified",
-              (r.returncode, "declared" in r.stdout), (0, True))
+        r = subprocess.run(
+            [sys.executable, SCHEMES_ACTION, "--where"],
+            env=dict(os.environ, **decl),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        check(
+            "...which a check reads as DECLARED, digest verified",
+            (r.returncode, "declared" in r.stdout),
+            (0, True),
+        )
 
     # ⚑ A KILLED ENGINE MUST NOT EXIT 0: SIGXCPU (-24) and SIGKILL (-9) fail as 128+N,
     # and a real exit code passes through untouched
-    check("an engine killed by SIGXCPU fails the gate (152), never 0", exit_of("selftest", -24), 152)
-    check("an engine killed by SIGKILL fails the gate (137)", exit_of("selftest", -9), 137)
-    check("a real exit code is passed through", (exit_of("selftest", 0), exit_of("selftest", 1)), (0, 1))
+    check(
+        "an engine killed by SIGXCPU fails the gate (152), never 0",
+        exit_of("selftest", -24),
+        152,
+    )
+    check(
+        "an engine killed by SIGKILL fails the gate (137)", exit_of("selftest", -9), 137
+    )
+    check(
+        "a real exit code is passed through",
+        (exit_of("selftest", 0), exit_of("selftest", 1)),
+        (0, 1),
+    )
     # and a REAL killed child reaches it: python dies of SIGKILL, rc -9
-    r = subprocess.run([sys.executable, "-c", "import os, signal; os.kill(os.getpid(), signal.SIGKILL)"], check=False)
-    check("a child really killed by a signal is seen as one", exit_of("selftest", r.returncode), 137)
+    r = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "import os, signal; os.kill(os.getpid(), signal.SIGKILL)",
+        ],
+        check=False,
+    )
+    check(
+        "a child really killed by a signal is seen as one",
+        exit_of("selftest", r.returncode),
+        137,
+    )
 
     print("worklist_gate selftest:", "PASS" if ok else "FAIL")
     return ok

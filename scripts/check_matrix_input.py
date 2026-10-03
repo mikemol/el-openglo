@@ -21,6 +21,7 @@ missing char is None rather than blank.
 
 SKIP (printed, exit 0) when no TTF is found and none is given.
 """
+
 import os
 import sys
 
@@ -33,6 +34,7 @@ from check_projection import find_font
 def _mods():
     import display_types as DT
     import make_glyph_ink as GI
+
     return GI, DT
 
 
@@ -45,7 +47,10 @@ def render(font, ch):
     auth = DT.FONT5x8.get(ch)
     got = GI.matrix_rows(cb)
     want = GI.matrix_rows(auth) if auth else None
-    print(f"  {ch!r}  raster {cb}" + (f"  authored {auth}" if auth else "  (not in the authored table)"))
+    print(
+        f"  {ch!r}  raster {cb}"
+        + (f"  authored {auth}" if auth else "  (not in the authored table)")
+    )
     for r, g in enumerate(got):
         print(f"    {g}" + (f"    {want[r]}" if want else ""))
     return cb
@@ -61,7 +66,14 @@ def compare(font):
         a = {(c, r) for c, b in enumerate(auth) for r in range(8) if b & (1 << r)}
         g = {(c, r) for c, b in enumerate(cb) for r in range(8) if b & (1 << r)}
         u = a | g
-        rows.append((ch, len(a & g) / len(u) if u else 1.0, cb == list(auth), bool(g) or not GI.contours(font, ch)))
+        rows.append(
+            (
+                ch,
+                len(a & g) / len(u) if u else 1.0,
+                cb == list(auth),
+                bool(g) or not GI.contours(font, ch),
+            )
+        )
     return rows
 
 
@@ -73,7 +85,10 @@ def main(argv):
             return 2
     font = find_font(argv[argv.index("--font") + 1] if "--font" in argv else None)
     if not font:
-        print("check_matrix_input: SKIP — no TTF found (pass --font PATH); 0 glyphs rasterised", file=sys.stderr)
+        print(
+            "check_matrix_input: SKIP — no TTF found (pass --font PATH); 0 glyphs rasterised",
+            file=sys.stderr,
+        )
         return 0
     print(f"font {font}")
     if "--render" in argv:
@@ -81,7 +96,10 @@ def main(argv):
         return 0
     rows = compare(font)
     if not rows:
-        print("check_matrix_input: REFUSED — the authored table is empty or the font has none of it", file=sys.stderr)
+        print(
+            "check_matrix_input: REFUSED — the authored table is empty or the font has none of it",
+            file=sys.stderr,
+        )
         return 2
     blank = [ch for ch, _j, _e, seen in rows if not seen]
     for ch, j, exact, _seen in sorted(rows, key=lambda r: -r[1]):
@@ -90,11 +108,16 @@ def main(argv):
     exact = sum(1 for r in rows if r[2])
     mean = sum(r[1] for r in rows) / n
     if blank:
-        print(f"check_matrix_input: REFUSED — {len(blank)} of {n} glyphs with contours rasterised BLANK: "
-              f"{''.join(blank)}", file=sys.stderr)
+        print(
+            f"check_matrix_input: REFUSED — {len(blank)} of {n} glyphs with contours rasterised BLANK: "
+            f"{''.join(blank)}",
+            file=sys.stderr,
+        )
         return 1
-    print(f"check_matrix_input: {n} of {len(_mods()[1].FONT5x8)} authored glyphs rasterised from the font — "
-          f"mean jaccard {mean:.2f}, {exact} exact; 0 blank (agreement reported, not gated: the table is pixel art)")
+    print(
+        f"check_matrix_input: {n} of {len(_mods()[1].FONT5x8)} authored glyphs rasterised from the font — "
+        f"mean jaccard {mean:.2f}, {exact} exact; 0 blank (agreement reported, not gated: the table is pixel art)"
+    )
     return 0
 
 
@@ -103,7 +126,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     font = find_font()
@@ -125,7 +151,11 @@ def _selftest():
     # lit the same cells at 0.05 and 0.95 would be a centre sample in disguise
     lo = GI.matrix_glyph(font, "A", threshold=0.05)
     hi = GI.matrix_glyph(font, "A", threshold=0.95)
-    chk("threshold 0.05 lights more of 'A' than 0.95", sum(b.bit_count() for b in lo) > sum(b.bit_count() for b in hi), True)
+    chk(
+        "threshold 0.05 lights more of 'A' than 0.95",
+        sum(b.bit_count() for b in lo) > sum(b.bit_count() for b in hi),
+        True,
+    )
     _cap, desc = GI.font_frame(font)
     chk("the frame's descent is below the baseline and above hhea", desc < 0, True)
     print("check_matrix_input selftest:", "PASS" if ok else "FAIL")

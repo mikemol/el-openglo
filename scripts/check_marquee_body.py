@@ -18,6 +18,7 @@ text, a run whose span is wrong, or an entity left encoded is a failure.
 
 SKIP (printed, exit 0) when the qml runner is absent (a fact about the host).
 """
+
 import json
 import os
 import sys
@@ -50,7 +51,11 @@ CASES = [
     # whitespace collapses INSIDE the parser so run offsets are exact
     ("  a \n\n <b>b</b>  c", "a b c", [(2, 3, "bold")]),
     # two links in one body: two link runs, each carrying its own href (W40)
-    ('<a href="http://a/">A</a> and <a href="http://b/">B</a>', "A and B", [(0, 1, "link"), (6, 7, "link")]),
+    (
+        '<a href="http://a/">A</a> and <a href="http://b/">B</a>',
+        "A and B",
+        [(0, 1, "link"), (6, 7, "link")],
+    ),
 ]
 
 # joinItem: (app, summary, body) -> expected text, expected styled runs. The
@@ -60,51 +65,125 @@ JOIN_CASES = [
     (("notify-send", "oh", "<b>hi</b>"), "notify-send: oh — hi", [(18, 20, "bold")]),
     (("", "just a summary", ""), "just a summary", []),
     (("app", "", "<i>only body</i>"), "app: only body", [(5, 14, "italic")]),
-    (("app", "s", "trailing <u>u</u>  "), "app: s — trailing u", [(18, 19, "underline")]),
+    (
+        ("app", "s", "trailing <u>u</u>  "),
+        "app: s — trailing u",
+        [(18, 19, "underline")],
+    ),
 ]
 
 # ⚑ THE TRAVERSAL INVARIANT, stepped. Each scenario is a list of boundaries;
 # at each: arrivals are upserted, then ringNext runs against the live ids.
 # Expected: the ring's ids at each boundary, and the queue's ids after.
 RING_CASES = [
-    ("arrive-and-expire-before-boundary still scrolls once",
-     [{"arrive": ["n1"], "live": [], "max": 12}], [(["n1"], [])]),
-    ("an active item keeps cycling",
-     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": [], "live": ["n1"], "max": 12}],
-     [(["n1"], ["n1"]), (["n1"], ["n1"])]),
-    ("an expired item drops only after its rotation",
-     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": [], "live": [], "max": 12},
-      {"arrive": [], "live": [], "max": 12}],
-     [(["n1"], ["n1"]), ([], []), ([], [])]),
-    ("a mid-rotation arrival waits for the boundary, then leads",
-     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": ["n2"], "live": ["n1", "n2"], "max": 12}],
-     [(["n1"], ["n1"]), (["n2", "n1"], ["n2", "n1"])]),
-    ("a replaced id shows the new text once more",
-     [{"arrive": ["n1"], "live": ["n1"], "max": 12}, {"arrive": ["n1"], "live": ["n1"], "max": 12}],
-     [(["n1"], ["n1"]), (["n1"], ["n1"])]),
-    ("the cap holds an unshown item back, still owed",
-     [{"arrive": ["n1", "n2", "n3"], "live": ["n1", "n2", "n3"], "max": 2},
-      {"arrive": [], "live": [], "max": 2}],
-     [(["n1", "n2"], ["n1", "n2", "n3"]), (["n3"], [])]),
+    (
+        "arrive-and-expire-before-boundary still scrolls once",
+        [{"arrive": ["n1"], "live": [], "max": 12}],
+        [(["n1"], [])],
+    ),
+    (
+        "an active item keeps cycling",
+        [
+            {"arrive": ["n1"], "live": ["n1"], "max": 12},
+            {"arrive": [], "live": ["n1"], "max": 12},
+        ],
+        [(["n1"], ["n1"]), (["n1"], ["n1"])],
+    ),
+    (
+        "an expired item drops only after its rotation",
+        [
+            {"arrive": ["n1"], "live": ["n1"], "max": 12},
+            {"arrive": [], "live": [], "max": 12},
+            {"arrive": [], "live": [], "max": 12},
+        ],
+        [(["n1"], ["n1"]), ([], []), ([], [])],
+    ),
+    (
+        "a mid-rotation arrival waits for the boundary, then leads",
+        [
+            {"arrive": ["n1"], "live": ["n1"], "max": 12},
+            {"arrive": ["n2"], "live": ["n1", "n2"], "max": 12},
+        ],
+        [(["n1"], ["n1"]), (["n2", "n1"], ["n2", "n1"])],
+    ),
+    (
+        "a replaced id shows the new text once more",
+        [
+            {"arrive": ["n1"], "live": ["n1"], "max": 12},
+            {"arrive": ["n1"], "live": ["n1"], "max": 12},
+        ],
+        [(["n1"], ["n1"]), (["n1"], ["n1"])],
+    ),
+    (
+        "the cap holds an unshown item back, still owed",
+        [
+            {"arrive": ["n1", "n2", "n3"], "live": ["n1", "n2", "n3"], "max": 2},
+            {"arrive": [], "live": [], "max": 2},
+        ],
+        [(["n1", "n2"], ["n1", "n2", "n3"]), (["n3"], [])],
+    ),
     # W46: a TRANSIENT item gets exactly one traversal — dropped after it even
     # while the model still holds it; a live non-transient beside it keeps cycling
-    ("a transient item scrolls once and is not re-queued while live",
-     [{"arrive": ["t1", "n1"], "transient": ["t1"], "live": ["t1", "n1"], "max": 12},
-      {"arrive": [], "live": ["t1", "n1"], "max": 12}],
-     [(["t1", "n1"], ["n1"]), (["n1"], ["n1"])]),
+    (
+        "a transient item scrolls once and is not re-queued while live",
+        [
+            {
+                "arrive": ["t1", "n1"],
+                "transient": ["t1"],
+                "live": ["t1", "n1"],
+                "max": 12,
+            },
+            {"arrive": [], "live": ["t1", "n1"], "max": 12},
+        ],
+        [(["t1", "n1"], ["n1"]), (["n1"], ["n1"])],
+    ),
     # W46: an item's actions join as " [Label]" runs after its text
-    ("an item's actions are appended as runs",
-     [{"arrive": ["n1"], "actions": {"n1": [["open", "Open"], ["dismiss", "Dismiss"]]}, "live": ["n1"], "max": 12,
-           "text": "n1#1 [Open] [Dismiss]"}],
-     [(["n1"], ["n1"])]),
+    (
+        "an item's actions are appended as runs",
+        [
+            {
+                "arrive": ["n1"],
+                "actions": {"n1": [["open", "Open"], ["dismiss", "Dismiss"]]},
+                "live": ["n1"],
+                "max": 12,
+                "text": "n1#1 [Open] [Dismiss]",
+            }
+        ],
+        [(["n1"], ["n1"])],
+    ),
     # W46 jobs: three progress replaces (same text, new percentage) keep the item's
     # place and `shown` — the ring is unchanged, the history grows to three samples,
     # and the join carries a series run: text + " " + one placeholder (3 samples ≤ 6 cells)
-    ("a job's progress replaces grow its history without re-owing a rotation",
-     [{"arrive": ["j1"], "progress": {"j1": 10}, "live": ["j1"], "max": 12, "text": "j1#1 ░", "series": {"j1": [10]}},
-      {"arrive": ["j1"], "progress": {"j1": 50}, "live": ["j1"], "max": 12, "text": "j1#1 ░", "series": {"j1": [10, 50]}},
-      {"arrive": ["j1"], "progress": {"j1": 90}, "live": ["j1"], "max": 12, "text": "j1#1 ░", "series": {"j1": [10, 50, 90]}}],
-     [(["j1"], ["j1"]), (["j1"], ["j1"]), (["j1"], ["j1"])]),
+    (
+        "a job's progress replaces grow its history without re-owing a rotation",
+        [
+            {
+                "arrive": ["j1"],
+                "progress": {"j1": 10},
+                "live": ["j1"],
+                "max": 12,
+                "text": "j1#1 ░",
+                "series": {"j1": [10]},
+            },
+            {
+                "arrive": ["j1"],
+                "progress": {"j1": 50},
+                "live": ["j1"],
+                "max": 12,
+                "text": "j1#1 ░",
+                "series": {"j1": [10, 50]},
+            },
+            {
+                "arrive": ["j1"],
+                "progress": {"j1": 90},
+                "live": ["j1"],
+                "max": 12,
+                "text": "j1#1 ░",
+                "series": {"j1": [10, 50, 90]},
+            },
+        ],
+        [(["j1"], ["j1"]), (["j1"], ["j1"]), (["j1"], ["j1"])],
+    ),
 ]
 
 # seriesToColumns (W48): (values, rows, min, max) -> expected column heights
@@ -139,44 +218,99 @@ DISPLAY_CASES = [
 # x 7 rows; s = 4 px, advance = 6 cells = 24 px (5 glyph columns + 1 gap).
 _H = [0x7F, 0x08, 0x08, 0x08, 0x7F]
 KERN_CASES = [
-    ("regular pair keeps the plain advance", ([{"bytes": _H, "grow": 0}, {"bytes": _H, "grow": 0}], 7, 4, 24), "plain"),
-    ("bold pair bleeds, then is pushed apart until a dark column separates it",
-     ([{"bytes": _H, "grow": 2}, {"bytes": _H, "grow": 2}], 7, 4, 24), "separated"),
-    ("a pair that can never separate stops at the cap, not forever",
-     ([{"bytes": _H, "grow": 400}, {"bytes": _H, "grow": 400}], 7, 4, 24), "capped"),
+    (
+        "regular pair keeps the plain advance",
+        ([{"bytes": _H, "grow": 0}, {"bytes": _H, "grow": 0}], 7, 4, 24),
+        "plain",
+    ),
+    (
+        "bold pair bleeds, then is pushed apart until a dark column separates it",
+        ([{"bytes": _H, "grow": 2}, {"bytes": _H, "grow": 2}], 7, 4, 24),
+        "separated",
+    ),
+    (
+        "a pair that can never separate stops at the cap, not forever",
+        ([{"bytes": _H, "grow": 400}, {"bytes": _H, "grow": 400}], 7, 4, 24),
+        "capped",
+    ),
 ]
 
 # replaceSpan (W186, the changed span of a replace for W183's roll): (old, new) ->
 # {p, oldEnd, newEnd}: old[p:oldEnd] leaves, new[p:newEnd] enters
 SPAN_CASES = [
-    ("equal strings change nothing", ("abc", "abc"), {"p": 3, "oldEnd": 3, "newEnd": 3}),
-    ("an append changes only the tail", ("abc", "abcd"), {"p": 3, "oldEnd": 3, "newEnd": 4}),
-    ("a delete changes only the gap", ("abcd", "abd"), {"p": 2, "oldEnd": 3, "newEnd": 2}),
-    ("a middle change keeps both ends", ("50% done", "75% done"), {"p": 0, "oldEnd": 2, "newEnd": 2}),
-    ("a total change replaces everything", ("abc", "xyz"), {"p": 0, "oldEnd": 3, "newEnd": 3}),
+    (
+        "equal strings change nothing",
+        ("abc", "abc"),
+        {"p": 3, "oldEnd": 3, "newEnd": 3},
+    ),
+    (
+        "an append changes only the tail",
+        ("abc", "abcd"),
+        {"p": 3, "oldEnd": 3, "newEnd": 4},
+    ),
+    (
+        "a delete changes only the gap",
+        ("abcd", "abd"),
+        {"p": 2, "oldEnd": 3, "newEnd": 2},
+    ),
+    (
+        "a middle change keeps both ends",
+        ("50% done", "75% done"),
+        {"p": 0, "oldEnd": 2, "newEnd": 2},
+    ),
+    (
+        "a total change replaces everything",
+        ("abc", "xyz"),
+        {"p": 0, "oldEnd": 3, "newEnd": 3},
+    ),
     ("empty to text is all new", ("", "hi"), {"p": 0, "oldEnd": 0, "newEnd": 2}),
-    ("the suffix never overlaps the prefix (aa -> aaa)", ("aa", "aaa"), {"p": 2, "oldEnd": 2, "newEnd": 3}),
-    ("the operator's width change (AABCC -> AABBCC)", ("AABCC", "AABBCC"), {"p": 3, "oldEnd": 3, "newEnd": 4}),
+    (
+        "the suffix never overlaps the prefix (aa -> aaa)",
+        ("aa", "aaa"),
+        {"p": 2, "oldEnd": 2, "newEnd": 3},
+    ),
+    (
+        "the operator's width change (AABCC -> AABBCC)",
+        ("AABCC", "AABBCC"),
+        {"p": 3, "oldEnd": 3, "newEnd": 4},
+    ),
 ]
 
 # rollCells (W188, W183 design (b)): (old, new, progress, rows) -> per span cell, the
 # glyphs it shows as [char-or-None, dy in rows]; old rises UP and out, new rises from
 # below, travel rows+1; an unchanged cell holds one glyph at dy 0
 ROLL_CASES = [
-    ("at the start the old glyph sits and the new waits a full travel below",
-     ("50%", "75%", 0.0, 8), [[["5", 0], ["7", 9]], [["0", 0], ["5", 9]]]),
-    ("half way, old is half a travel up and new half a travel below (both digits changed)",
-     ("50%", "75%", 0.5, 8), [[["5", -4.5], ["7", 4.5]], [["0", -4.5], ["5", 4.5]]]),
-    ("at the end the new glyph sits and the old is a full travel up",
-     ("50%", "75%", 1.0, 8), [[["5", -9], ["7", 0]], [["0", -9], ["5", 0]]]),
-    ("a cell whose glyph did not change holds still (ABCD -> AXCY)",
-     ("ABCD", "AXCY", 0.5, 8), [[["B", -4.5], ["X", 4.5]], [["C", 0]], [["D", -4.5], ["Y", 4.5]]]),
-    ("a lengthening rolls the extra cell up from blank",
-     ("ab", "abc", 0.5, 8), [[["c", 4.5]]]),
-    ("a shortening rolls the lost cell out to blank",
-     ("abc", "ab", 0.5, 8), [[["c", -4.5]]]),
-    ("progress outside [0, 1] is clamped",
-     ("a", "b", 2.0, 8), [[["a", -9], ["b", 0]]]),
+    (
+        "at the start the old glyph sits and the new waits a full travel below",
+        ("50%", "75%", 0.0, 8),
+        [[["5", 0], ["7", 9]], [["0", 0], ["5", 9]]],
+    ),
+    (
+        "half way, old is half a travel up and new half a travel below (both digits changed)",
+        ("50%", "75%", 0.5, 8),
+        [[["5", -4.5], ["7", 4.5]], [["0", -4.5], ["5", 4.5]]],
+    ),
+    (
+        "at the end the new glyph sits and the old is a full travel up",
+        ("50%", "75%", 1.0, 8),
+        [[["5", -9], ["7", 0]], [["0", -9], ["5", 0]]],
+    ),
+    (
+        "a cell whose glyph did not change holds still (ABCD -> AXCY)",
+        ("ABCD", "AXCY", 0.5, 8),
+        [[["B", -4.5], ["X", 4.5]], [["C", 0]], [["D", -4.5], ["Y", 4.5]]],
+    ),
+    (
+        "a lengthening rolls the extra cell up from blank",
+        ("ab", "abc", 0.5, 8),
+        [[["c", 4.5]]],
+    ),
+    (
+        "a shortening rolls the lost cell out to blank",
+        ("abc", "ab", 0.5, 8),
+        [[["c", -4.5]]],
+    ),
+    ("progress outside [0, 1] is clamped", ("a", "b", 2.0, 8), [[["a", -9], ["b", 0]]]),
 ]
 
 # stallOffsets (W241, W183 ruling 4): (old, new) laid out at a plain 24 px advance (no
@@ -187,18 +321,42 @@ ROLL_CASES = [
 STALL_ADVANCE = 24
 STALL_PROGRESS = [0.0, 0.25, 0.5, 0.75, 1.0]
 STALL_CASES = [
-    ("shortened (ABBC -> ABC): the suffix holds, the leading segment lags to level",
-     ("ABBC", "ABC"),
-     {"start": {"neu": [0, 24, 72], "gone": [48]}, "end": {"neu": [24, 48, 72], "gone": [72]}, "frame_shift": 24}),
-    ("lengthened (AABCC -> AABBCC): the leader sits, the trailing suffix arrives",
-     ("AABCC", "AABBCC"),
-     {"start": {"neu": [0, 24, 48, 72, 72, 96], "gone": []}, "end": {"neu": [0, 24, 48, 72, 96, 120], "gone": []}, "frame_shift": 0}),
-    ("equal width (50% -> 75%): nothing moves in the frame",
-     ("50%", "75%"),
-     {"start": {"neu": [0, 24, 48], "gone": []}, "end": {"neu": [0, 24, 48], "gone": []}, "frame_shift": 0}),
-    ("a shortened tail (abc -> ab) has no follower: nothing stalls",
-     ("abc", "ab"),
-     {"start": {"neu": [0, 24], "gone": [48]}, "end": {"neu": [0, 24], "gone": [48]}, "frame_shift": 0}),
+    (
+        "shortened (ABBC -> ABC): the suffix holds, the leading segment lags to level",
+        ("ABBC", "ABC"),
+        {
+            "start": {"neu": [0, 24, 72], "gone": [48]},
+            "end": {"neu": [24, 48, 72], "gone": [72]},
+            "frame_shift": 24,
+        },
+    ),
+    (
+        "lengthened (AABCC -> AABBCC): the leader sits, the trailing suffix arrives",
+        ("AABCC", "AABBCC"),
+        {
+            "start": {"neu": [0, 24, 48, 72, 72, 96], "gone": []},
+            "end": {"neu": [0, 24, 48, 72, 96, 120], "gone": []},
+            "frame_shift": 0,
+        },
+    ),
+    (
+        "equal width (50% -> 75%): nothing moves in the frame",
+        ("50%", "75%"),
+        {
+            "start": {"neu": [0, 24, 48], "gone": []},
+            "end": {"neu": [0, 24, 48], "gone": []},
+            "frame_shift": 0,
+        },
+    ),
+    (
+        "a shortened tail (abc -> ab) has no follower: nothing stalls",
+        ("abc", "ab"),
+        {
+            "start": {"neu": [0, 24], "gone": [48]},
+            "end": {"neu": [0, 24], "gone": [48]},
+            "frame_shift": 0,
+        },
+    ),
 ]
 
 # paintsPlain (W188 follow-up): (old, new) -> for each index 0..max(len)-1, whether the ordinary
@@ -207,14 +365,26 @@ STALL_CASES = [
 # rolling out and MUST still paint (True) - the defect this guards dropped them until the roll
 # ended; past the new text there is no character (False).
 PLAIN_CASES = [
-    ("shortened (ABBC -> ABC): the suffix character at the old cell's index still paints",
-     ("ABBC", "ABC"), [True, True, True, False]),
-    ("lengthened (AABCC -> AABBCC): only the one new-span index is the roll's",
-     ("AABCC", "AABBCC"), [True, True, True, False, True, True]),
-    ("equal width (50% -> 75%): the two span indices are the roll's, the % paints",
-     ("50%", "75%"), [False, False, True]),
-    ("a shortened tail (abc -> ab): nothing paints past the new text",
-     ("abc", "ab"), [True, True, False]),
+    (
+        "shortened (ABBC -> ABC): the suffix character at the old cell's index still paints",
+        ("ABBC", "ABC"),
+        [True, True, True, False],
+    ),
+    (
+        "lengthened (AABCC -> AABBCC): only the one new-span index is the roll's",
+        ("AABCC", "AABBCC"),
+        [True, True, True, False, True, True],
+    ),
+    (
+        "equal width (50% -> 75%): the two span indices are the roll's, the % paints",
+        ("50%", "75%"),
+        [False, False, True],
+    ),
+    (
+        "a shortened tail (abc -> ab): nothing paints past the new text",
+        ("abc", "ab"),
+        [True, True, False],
+    ),
 ]
 
 HARNESS = """import QtQuick
@@ -291,28 +461,39 @@ def run(bodies=None):
     if not os.path.isfile(QML):
         return None
     bodies = [c[0] for c in CASES] if bodies is None else bodies
-    with open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8") as fh:
+    with open(
+        os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8"
+    ) as fh:
         src = fh.read()
     with tempfile.TemporaryDirectory() as td:
         with open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8") as fh:
             fh.write(src)
         h = os.path.join(td, "harness.qml")
         harness_src = HARNESS % (
-            json.dumps(bodies), json.dumps([list(c[0]) for c in JOIN_CASES]),
-            json.dumps([c[1] for c in RING_CASES]), json.dumps([list(c[1]) for c in SERIES_CASES]),
+            json.dumps(bodies),
+            json.dumps([list(c[0]) for c in JOIN_CASES]),
+            json.dumps([c[1] for c in RING_CASES]),
+            json.dumps([list(c[1]) for c in SERIES_CASES]),
             json.dumps([list(c[1]) for c in DISPLAY_CASES]),
             json.dumps([list(c[1]) for c in KERN_CASES]),
             json.dumps([list(c[1]) for c in SPAN_CASES]),
             json.dumps([list(c[1]) for c in ROLL_CASES]),
-            json.dumps([list(c[1]) for c in STALL_CASES]), json.dumps(STALL_PROGRESS), STALL_ADVANCE,
-            json.dumps([list(c[1]) for c in PLAIN_CASES]))
+            json.dumps([list(c[1]) for c in STALL_CASES]),
+            json.dumps(STALL_PROGRESS),
+            STALL_ADVANCE,
+            json.dumps([list(c[1]) for c in PLAIN_CASES]),
+        )
         with open(h, "w", encoding="utf-8") as fh:
             fh.write(harness_src)
-        r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
+        r = QT.run(
+            [QML, h], capture_output=True, text=True, cpu=60, timeout=600
+        )  # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
-    raise RuntimeError(f"no RESULT from the qml harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}")
+    raise RuntimeError(
+        f"no RESULT from the qml harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}"
+    )
 
 
 GLYPH_HARNESS = """import QtQuick
@@ -340,7 +521,9 @@ def glyph_census(font, chars):
     declared flash rate. Run under Qt's qml like run(); None when the runner is absent."""
     if not os.path.isfile(QML):
         return None
-    with open(os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8") as fh:
+    with open(
+        os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8"
+    ) as fh:
         src = fh.read()
     with tempfile.TemporaryDirectory() as td:
         with open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8") as fh:
@@ -348,11 +531,15 @@ def glyph_census(font, chars):
         h = os.path.join(td, "harness.qml")
         with open(h, "w", encoding="utf-8") as fh:
             fh.write(GLYPH_HARNESS % (json.dumps(font), json.dumps(list(chars))))
-        r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
+        r = QT.run(
+            [QML, h], capture_output=True, text=True, cpu=60, timeout=600
+        )  # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
-    raise RuntimeError(f"no RESULT from the glyph harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}")
+    raise RuntimeError(
+        f"no RESULT from the glyph harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}"
+    )
 
 
 def _styled(got):
@@ -378,14 +565,20 @@ def ring_problems(results):
     # the replaced id must carry the NEW text on its second rotation
     rep = results[4]
     if not (rep[0]["text"] == "n1#1" and rep[1]["text"] == "n1#2"):
-        bad.append(f"ring replace: texts {[t['text'] for t in rep]}, expected n1#1 then n1#2")
+        bad.append(
+            f"ring replace: texts {[t['text'] for t in rep]}, expected n1#1 then n1#2"
+        )
     # a step that states its joined text (W46 actions) or its series (W46 jobs) must produce it
     for (label, steps, _want), trace in zip(RING_CASES, results):
         for i, step in enumerate(steps):
             if "text" in step and trace[i]["text"] != step["text"]:
-                bad.append(f"ring {label!r}: boundary {i} text {trace[i]['text']!r}, expected {step['text']!r}")
+                bad.append(
+                    f"ring {label!r}: boundary {i} text {trace[i]['text']!r}, expected {step['text']!r}"
+                )
             if "series" in step and trace[i].get("series") != step["series"]:
-                bad.append(f"ring {label!r}: boundary {i} series {trace[i].get('series')!r}, expected {step['series']!r}")
+                bad.append(
+                    f"ring {label!r}: boundary {i} series {trace[i].get('series')!r}, expected {step['series']!r}"
+                )
     return bad
 
 
@@ -400,19 +593,33 @@ def series_problems(results):
 
 
 def display_problems(results):
-    bad = [f"display {label!r}: {args!r} -> {got!r}, expected {want!r}"
-           for (label, args, want), got in zip(DISPLAY_CASES, results) if got != want]
+    bad = [
+        f"display {label!r}: {args!r} -> {got!r}, expected {want!r}"
+        for (label, args, want), got in zip(DISPLAY_CASES, results)
+        if got != want
+    ]
     if len(results) != len(DISPLAY_CASES):
         bad.append(f"display: {len(results)} of {len(DISPLAY_CASES)} cases returned")
     return bad
 
 
 def all_problems(res):
-    return (problems(res["parse"]) + join_problems(res["join"]) + ring_problems(res["ring"])
-            + series_problems(res.get("series", [])) + display_problems(res.get("display", [])))
+    return (
+        problems(res["parse"])
+        + join_problems(res["join"])
+        + ring_problems(res["ring"])
+        + series_problems(res.get("series", []))
+        + display_problems(res.get("display", []))
+    )
 
 
-N_CASES = len(CASES) + len(JOIN_CASES) + len(RING_CASES) + len(SERIES_CASES) + len(DISPLAY_CASES)
+N_CASES = (
+    len(CASES)
+    + len(JOIN_CASES)
+    + len(RING_CASES)
+    + len(SERIES_CASES)
+    + len(DISPLAY_CASES)
+)
 
 
 def measure(res):
@@ -421,35 +628,104 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": [], "stall": [], "plain": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": [], "stall": [], "plain": []}
+        return {
+            "runner": False,
+            "parse": [],
+            "join": [],
+            "ring": [],
+            "series": [],
+            "display": [],
+            "kern": [],
+            "span": [],
+            "roll": [],
+            "stall": [],
+            "plain": [],
+        }
+    out = {
+        "runner": True,
+        "parse": [],
+        "join": [],
+        "ring": [],
+        "series": [],
+        "display": [],
+        "kern": [],
+        "span": [],
+        "roll": [],
+        "stall": [],
+        "plain": [],
+    }
     for (label, args, want), got in zip(PLAIN_CASES, res.get("plain", [])):
-        out["plain"].append({"label": label, "args": list(args), "expected": want, "paints": got})
+        out["plain"].append(
+            {"label": label, "args": list(args), "expected": want, "paints": got}
+        )
     for (label, args, want), got in zip(STALL_CASES, res.get("stall", [])):
-        out["stall"].append({"label": label, "args": list(args), "expected_start": want["start"],
-                             "expected_end": want["end"], "expected_frame_shift": want["frame_shift"], "samples": got})
+        out["stall"].append(
+            {
+                "label": label,
+                "args": list(args),
+                "expected_start": want["start"],
+                "expected_end": want["end"],
+                "expected_frame_shift": want["frame_shift"],
+                "samples": got,
+            }
+        )
     for (label, args, want), got in zip(SPAN_CASES, res.get("span", [])):
-        out["span"].append({"label": label, "args": list(args), "expected": want, "span": got})
+        out["span"].append(
+            {"label": label, "args": list(args), "expected": want, "span": got}
+        )
     for (label, args, want), got in zip(ROLL_CASES, res.get("roll", [])):
-        out["roll"].append({"label": label, "args": list(args), "expected": want, "cells": got})
+        out["roll"].append(
+            {"label": label, "args": list(args), "expected": want, "cells": got}
+        )
     for (label, args, expect), got in zip(KERN_CASES, res.get("kern", [])):
-        out["kern"].append({"label": label, "expect": expect, "advance": args[3],
-                            "offsets": got.get("offsets"), "bleeds_after": got.get("bleeds_after"),
-                            "bleeds_at_plain": got.get("bleeds_at_plain"), "cap": got.get("cap")})
+        out["kern"].append(
+            {
+                "label": label,
+                "expect": expect,
+                "advance": args[3],
+                "offsets": got.get("offsets"),
+                "bleeds_after": got.get("bleeds_after"),
+                "bleeds_at_plain": got.get("bleeds_at_plain"),
+                "cap": got.get("cap"),
+            }
+        )
     for (label, args, want), got in zip(SERIES_CASES, res.get("series", [])):
-        out["series"].append({"label": label, "args": list(args), "expected": want, "columns": got})
+        out["series"].append(
+            {"label": label, "args": list(args), "expected": want, "columns": got}
+        )
     for (label, args, want), got in zip(DISPLAY_CASES, res.get("display", [])):
-        out["display"].append({"label": label, "args": list(args), "expected": want, "shown": got})
+        out["display"].append(
+            {"label": label, "args": list(args), "expected": want, "shown": got}
+        )
     for (body, text, runs), got in zip(CASES, res["parse"]):
-        out["parse"].append({"body": body, "expected_text": text, "text": got["text"],
-                             "expected_runs": [list(r) for r in runs], "runs": [list(r) for r in _styled(got)]})
+        out["parse"].append(
+            {
+                "body": body,
+                "expected_text": text,
+                "text": got["text"],
+                "expected_runs": [list(r) for r in runs],
+                "runs": [list(r) for r in _styled(got)],
+            }
+        )
     for (args, text, runs), got in zip(JOIN_CASES, res["join"]):
-        out["join"].append({"args": list(args), "expected_text": text, "text": got["text"],
-                            "expected_runs": [list(r) for r in runs], "runs": [list(r) for r in _styled(got)]})
+        out["join"].append(
+            {
+                "args": list(args),
+                "expected_text": text,
+                "text": got["text"],
+                "expected_runs": [list(r) for r in runs],
+                "runs": [list(r) for r in _styled(got)],
+            }
+        )
     for (label, steps, want), trace in zip(RING_CASES, res["ring"]):
-        out["ring"].append({"label": label, "steps": steps,
-                            "expected": [{"ring": r, "queue": q} for r, q in want],
-                            "trace": trace})
+        out["ring"].append(
+            {
+                "label": label,
+                "steps": steps,
+                "expected": [{"ring": r, "queue": q} for r, q in want],
+                "trace": trace,
+            }
+        )
     return out
 
 
@@ -491,11 +767,16 @@ def main(argv):
         print(json.dumps(measure(res), indent=1))
         return 0
     if res is None:
-        print(f"check_marquee_body: SKIP — {QML} not present; 0 of {N_CASES} cases run", file=sys.stderr)
+        print(
+            f"check_marquee_body: SKIP — {QML} not present; 0 of {N_CASES} cases run",
+            file=sys.stderr,
+        )
         return 0
     if "--cases" in argv:
         for (body, _t, _r), got in zip(CASES, res["parse"]):
-            print(f"{body!r:40s} -> {got['text']!r}  runs {[(r['start'], r['end'], _flag(r)) for r in got['runs']]}")
+            print(
+                f"{body!r:40s} -> {got['text']!r}  runs {[(r['start'], r['end'], _flag(r)) for r in got['runs']]}"
+            )
         for (args, _t, _r), got in zip(JOIN_CASES, res["join"]):
             print(f"join{args!r:40} -> {got['text']!r}  runs {_styled(got)}")
         for (label, _s, _w), trace in zip(RING_CASES, res["ring"]):
@@ -505,15 +786,20 @@ def main(argv):
         return 0
     bad = all_problems(res)
     if bad:
-        print(f"check_marquee_body: REFUSED — {len(bad)} of {N_CASES} cases disagree:", file=sys.stderr)
+        print(
+            f"check_marquee_body: REFUSED — {len(bad)} of {N_CASES} cases disagree:",
+            file=sys.stderr,
+        )
         for b in bad:
             print(f"    {b}", file=sys.stderr)
         return 1
-    print(f"check_marquee_body: {N_CASES} of {N_CASES} cases hold — {len(CASES)} body-markup, "
-          f"{len(JOIN_CASES)} joinItem (summary plain, body parsed), {len(RING_CASES)} ring scenarios "
-          f"(every item scrolls once; an expired item drops after its rotation; a replace re-shows), "
-          f"{len(SERIES_CASES)} series (a sparkline's column heights, W48), "
-          f"{len(DISPLAY_CASES)} display (urgency's letterform, W74)")
+    print(
+        f"check_marquee_body: {N_CASES} of {N_CASES} cases hold — {len(CASES)} body-markup, "
+        f"{len(JOIN_CASES)} joinItem (summary plain, body parsed), {len(RING_CASES)} ring scenarios "
+        f"(every item scrolls once; an expired item drops after its rotation; a replace re-shows), "
+        f"{len(SERIES_CASES)} series (a sparkline's column heights, W48), "
+        f"{len(DISPLAY_CASES)} display (urgency's letterform, W74)"
+    )
     return 0
 
 
@@ -522,7 +808,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     res = run()
@@ -531,32 +820,61 @@ def _selftest():
         print("check_marquee_body selftest: SKIP")
         return True
     results = res["parse"]
-    chk("every case returns", (len(results), len(res["join"]), len(res["ring"])),
-        (len(CASES), len(JOIN_CASES), len(RING_CASES)))
+    chk(
+        "every case returns",
+        (len(results), len(res["join"]), len(res["ring"])),
+        (len(CASES), len(JOIN_CASES), len(RING_CASES)),
+    )
     # ⚑ THE MEASUREMENT CAN SEE (W50). Whether a case's result is a DEFECT is
     # policy/marquee_body.rego's ruling (M1 parse, M2 join, M3 trace, M4 every
     # arrival rung), with the refuse/admit pairs in policy/marquee_body_test.rego
     # under `opa test`. Here: the measurement carries expected beside got for
     # every case, and a runner-less host reports withheld, not a pass.
     m = measure(res)
-    chk("every parse case carries expected and got", all("expected_text" in c and "text" in c for c in m["parse"]), True)
-    chk("every ring scenario carries steps, expected and trace",
-        all(len(s["trace"]) == len(s["expected"]) and s["steps"] for s in m["ring"]), True)
+    chk(
+        "every parse case carries expected and got",
+        all("expected_text" in c and "text" in c for c in m["parse"]),
+        True,
+    )
+    chk(
+        "every ring scenario carries steps, expected and trace",
+        all(len(s["trace"]) == len(s["expected"]) and s["steps"] for s in m["ring"]),
+        True,
+    )
     chk("a runner-less host is withheld", measure(None)["runner"], False)
-    chk("every replaceSpan case carries expected and the span returned",
-        len([c for c in m["span"] if "expected" in c and isinstance(c.get("span"), dict)]), len(SPAN_CASES))
-    chk("every stallOffsets case carries its samples at every progress",
-        [len(c["samples"]) for c in m["stall"]], [len(STALL_PROGRESS)] * len(STALL_CASES))
-    chk("every display (letterform) case carries expected and shown",
-        len([c for c in m["display"] if "expected" in c and "shown" in c]), len(DISPLAY_CASES))
+    chk(
+        "every replaceSpan case carries expected and the span returned",
+        len(
+            [
+                c
+                for c in m["span"]
+                if "expected" in c and isinstance(c.get("span"), dict)
+            ]
+        ),
+        len(SPAN_CASES),
+    )
+    chk(
+        "every stallOffsets case carries its samples at every progress",
+        [len(c["samples"]) for c in m["stall"]],
+        [len(STALL_PROGRESS)] * len(STALL_CASES),
+    )
+    chk(
+        "every display (letterform) case carries expected and shown",
+        len([c for c in m["display"] if "expected" in c and "shown" in c]),
+        len(DISPLAY_CASES),
+    )
     g = glyph_census({"a": [1], "A": [2], "?": [3]}, ["a", "b"])
-    chk("the glyph census sees a lowercase glyph used, and a missing one land on '?'",
-        [[f["key"] for f in row["forms"]] for row in g["chars"]], [["a", "A", "A"], ["?", "?", "?"]])
+    chk(
+        "the glyph census sees a lowercase glyph used, and a missing one land on '?'",
+        [[f["key"] for f in row["forms"]] for row in g["chars"]],
+        [["a", "A", "A"], ["?", "?", "?"]],
+    )
     two = results[-1]["runs"]
     links = [r["link"] for r in two if r["link"]]
     chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])
     # the shipped file IS the tested file
     import make_notify_marquee as MM
+
     with open(os.path.join(ROOT, "templates", "marquee-body.js")) as fh:
         shipped = fh.read()
     chk("the package ships the parser this ran", MM.body_parser() == shipped, True)

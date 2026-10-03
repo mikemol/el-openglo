@@ -24,6 +24,7 @@ another role name) passes here and fails live. `sddm-greeter-qt6 --test-mode
 --theme <dir>` is the live arm and needs a display. A missing qml runner is a
 `withheld` fact, per variant.
 """
+
 import json
 import os
 import sys
@@ -39,12 +40,13 @@ def probe_line(stderr):
     for line in stderr.splitlines():
         i = line.find("SDDM-PROBE ")
         if i >= 0:
-            return json.loads(line[i + len("SDDM-PROBE "):])
+            return json.loads(line[i + len("SDDM-PROBE ") :])
     return None
 
 
 def measure_variant(variant, w=800, h=450):
     import render_qml as RQ
+
     if not os.path.exists(RQ.QML):
         return {"id": variant, "withheld": f"{RQ.QML} is not installed"}
     with tempfile.TemporaryDirectory() as td:
@@ -52,15 +54,23 @@ def measure_variant(variant, w=800, h=450):
         rc, err = RQ.render("sddm", variant, w, h, png)
         probe = probe_line(err)
         lit = RQ.pixels(png, variant)["lit"] if os.path.exists(png) else 0
-    return {"id": variant, "rc": rc, "lit_px": lit, "probe": probe,
-            "stderr_tail": None if probe else err[-400:]}
+    return {
+        "id": variant,
+        "rc": rc,
+        "lit_px": lit,
+        "probe": probe,
+        "stderr_tail": None if probe else err[-400:],
+    }
 
 
 def measure(variants=None):
     import variant_roster  # the declared roster (W61 B2), not make_sddm's own
+
     vs = list(variants or variant_roster.ids())
-    return {"cases": [measure_variant(v) for v in vs],
-            "expected": {"user": "bob", "session": 1, "password": "hunter2"}}
+    return {
+        "cases": [measure_variant(v) for v in vs],
+        "expected": {"user": "bob", "session": 1, "password": "hunter2"},
+    }
 
 
 def main(argv):
@@ -77,7 +87,9 @@ def main(argv):
         return 0
     for c in doc["cases"]:
         print(json.dumps(c))
-    print(f"check_sddm: measured {len(doc['cases'])} case(s); the verdict is scripts/opa_gate.py sddm")
+    print(
+        f"check_sddm: measured {len(doc['cases'])} case(s); the verdict is scripts/opa_gate.py sddm"
+    )
     return 0
 
 
@@ -86,15 +98,23 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
+
     chk("the probe line is read", probe_line('x\nqml: SDDM-PROBE {"a": 1}\n'), {"a": 1})
     chk("no probe line is None, not {}", probe_line("qml: nothing"), None)
     m = measure(["EL-Openglo"])["cases"][0]
     if "withheld" in m:
         print(f"  SKIP render arm — {m['withheld']}")
     else:
-        chk("the harness drove the form (a probe came back)", m["probe"] is not None, True)
+        chk(
+            "the harness drove the form (a probe came back)",
+            m["probe"] is not None,
+            True,
+        )
         chk("the render has lit pixels", m["lit_px"] > 0, True)
     print("check_sddm selftest:", "PASS" if ok else "FAIL")
     return ok

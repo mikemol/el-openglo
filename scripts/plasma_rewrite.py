@@ -24,6 +24,7 @@ WEAKNESS: the rewrite is textual (anchored regexes), not a QML parse; a template
 whose root line moves defeats it, and render_qml's switcher rewrite refuses loudly
 on a no-match where this one does not.
 """
+
 import re
 
 # root-type rewrite: the Plasma container becomes a sized Item that instantiates
@@ -32,10 +33,14 @@ SUBSTITUTIONS = (
     (r"^import org\.kde\.plasma\.[^\n]*\n", ""),
     # org.kde.kirigami is KEPT (W35): the real module loads headless, and a bound
     # surface reads Kirigami.Theme — theme_probe.env_for makes it resolve a variant
-    (r"^PlasmoidItem \{",
-     ("Item {\n    property var preferredRepresentation\n"
-      "    property Component fullRepresentation\n"
-      "    Loader { anchors.fill: parent; sourceComponent: parent.fullRepresentation }")),
+    (
+        r"^PlasmoidItem \{",
+        (
+            "Item {\n    property var preferredRepresentation\n"
+            "    property Component fullRepresentation\n"
+            "    Loader { anchors.fill: parent; sourceComponent: parent.fullRepresentation }"
+        ),
+    ),
     (r"^WallpaperItem \{", "Item {"),
 )
 
@@ -43,9 +48,11 @@ SUBSTITUTIONS = (
 def _kcfg_defaults(xml_text):
     """{name: default} from a kcfg, typed."""
     out = {}
-    for m in re.finditer(r'<entry name="(\w+)" type="(\w+)"><default>([^<]*)</default>',
-                         xml_text):
+    for m in re.finditer(
+        r'<entry name="(\w+)" type="(\w+)"><default>([^<]*)</default>', xml_text
+    ):
         name, typ, val = m.groups()
-        out[name] = ({"Bool": lambda v: v == "true", "Double": float, "Int": int}
-                     .get(typ, str))(val)
+        out[name] = (
+            {"Bool": lambda v: v == "true", "Double": float, "Int": int}.get(typ, str)
+        )(val)
     return out

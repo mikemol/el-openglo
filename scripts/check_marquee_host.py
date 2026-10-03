@@ -21,6 +21,7 @@ WEAKNESS: KConfig writes are debounced and the shell may hold changes until it
 syncs; a line printed a second ago may not be on disk yet. And a widget whose
 debugLog is OFF writes nothing — reported as such, never as "no events".
 """
+
 import configparser
 import json
 import os
@@ -28,7 +29,9 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 APPLETSRC = os.path.expanduser("~/.config/plasma-org.kde.plasma.desktop-appletsrc")
-PLUGIN_PREFIX = "org.el.notifymarquee"    # the one package (W35) and the older per-variant ids
+PLUGIN_PREFIX = (
+    "org.el.notifymarquee"  # the one package (W35) and the older per-variant ids
+)
 
 
 def instances(path=APPLETSRC):
@@ -48,12 +51,17 @@ def instances(path=APPLETSRC):
         raw = conf.get("traceLog", "") if conf else ""
         # KConfig escapes newlines in a String entry as \n
         lines = [l for l in raw.replace("\\n", "\n").split("\n") if l.strip()]
-        out.append({
-            "group": section, "plugin": plugin,
-            "debugLog": (conf.get("debugLog", "false") if conf else "false") == "true",
-            "hoverPause": (conf.get("hoverPause", "true") if conf else "true") == "true",
-            "trace": lines,
-        })
+        out.append(
+            {
+                "group": section,
+                "plugin": plugin,
+                "debugLog": (conf.get("debugLog", "false") if conf else "false")
+                == "true",
+                "hoverPause": (conf.get("hoverPause", "true") if conf else "true")
+                == "true",
+                "trace": lines,
+            }
+        )
     return out
 
 
@@ -72,11 +80,26 @@ def containments(path=APPLETSRC):
         parts = section.split("][")
         if len(parts) == 2 and parts[0] == "Containments":
             cid = parts[1]
-            out.setdefault(cid, {"group": section, "plugin": cp[section].get("plugin", ""),
-                                 "wallpaper": cp[section].get("wallpaperplugin", ""), "applets": []})
+            out.setdefault(
+                cid,
+                {
+                    "group": section,
+                    "plugin": cp[section].get("plugin", ""),
+                    "wallpaper": cp[section].get("wallpaperplugin", ""),
+                    "applets": [],
+                },
+            )
         elif len(parts) == 4 and parts[0] == "Containments" and parts[2] == "Applets":
             cid = parts[1]
-            out.setdefault(cid, {"group": f"Containments][{cid}", "plugin": "", "wallpaper": "", "applets": []})
+            out.setdefault(
+                cid,
+                {
+                    "group": f"Containments][{cid}",
+                    "plugin": "",
+                    "wallpaper": "",
+                    "applets": [],
+                },
+            )
             out[cid]["applets"].append((parts[3], cp[section].get("plugin", "")))
     return [out[k] for k in sorted(out, key=lambda s: int(s) if s.isdigit() else 0)]
 
@@ -87,17 +110,40 @@ def journal(since="-2h"):
     Qt itself never writes there. None when journalctl is absent."""
     import shutil
     import subprocess
+
     if not shutil.which("journalctl"):
         return None
-    r = subprocess.run(["journalctl", "--user", "--no-pager", "-o", "cat", "--since", since, "-g", "el-marquee"],
-                       capture_output=True, text=True, timeout=60, check=False)
-    return [l.split("el-marquee ", 1)[1] for l in r.stdout.splitlines() if "el-marquee " in l]
+    r = subprocess.run(
+        [
+            "journalctl",
+            "--user",
+            "--no-pager",
+            "-o",
+            "cat",
+            "--since",
+            since,
+            "-g",
+            "el-marquee",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=60,
+        check=False,
+    )
+    return [
+        l.split("el-marquee ", 1)[1]
+        for l in r.stdout.splitlines()
+        if "el-marquee " in l
+    ]
 
 
 def shell_stderr():
     """Where the running plasmashell's stderr goes (a tty means: unreadable here)."""
     import subprocess
-    r = subprocess.run(["pgrep", "-x", "plasmashell"], capture_output=True, text=True, check=False)
+
+    r = subprocess.run(
+        ["pgrep", "-x", "plasmashell"], capture_output=True, text=True, check=False
+    )
     pids = r.stdout.split()
     if not pids:
         return "plasmashell is not running"
@@ -116,16 +162,22 @@ def main(argv):
     if "--config" in argv:
         # every EL applet's settings as the user has them (operator, 2026-09-22:
         # "take a look at my widget config; decent defaults")
-        cp = configparser.ConfigParser(interpolation=None, strict=False, delimiters=("=",))
+        cp = configparser.ConfigParser(
+            interpolation=None, strict=False, delimiters=("=",)
+        )
         cp.optionxform = str
         cp.read(APPLETSRC, encoding="utf-8")
         shown = 0
         for section in cp.sections():
             parts = section.split("][")
-            if len(parts) == 4 and parts[2] == "Applets" and cp[section].get("plugin", "").startswith("org.el."):
+            if (
+                len(parts) == 4
+                and parts[2] == "Applets"
+                and cp[section].get("plugin", "").startswith("org.el.")
+            ):
                 general = f"{section}][Configuration][General"
                 print(f"{cp[section]['plugin']} [{section}]")
-                for k, v in (cp[general].items() if cp.has_section(general) else []):
+                for k, v in cp[general].items() if cp.has_section(general) else []:
                     if k != "traceLog":
                         print(f"    {k} = {v}")
                 shown += 1
@@ -134,34 +186,62 @@ def main(argv):
     if "--containments" in argv:
         cs = containments()
         if cs is None:
-            print(f"check_marquee_host: SKIP — {APPLETSRC} is not on this host", file=sys.stderr)
+            print(
+                f"check_marquee_host: SKIP — {APPLETSRC} is not on this host",
+                file=sys.stderr,
+            )
             return 0
         for c in cs:
-            print(f"[{c['group']}]  plugin={c['plugin'] or '?'}  wallpaper={c['wallpaper'] or '-'}")
+            print(
+                f"[{c['group']}]  plugin={c['plugin'] or '?'}  wallpaper={c['wallpaper'] or '-'}"
+            )
             for aid, plug in c["applets"]:
                 print(f"    applet {aid}: {plug}")
         print(f"containments: {len(cs)}")
         return 0
     rows = instances()
     if rows is None:
-        print(f"check_marquee_host: SKIP — {APPLETSRC} is not on this host", file=sys.stderr)
+        print(
+            f"check_marquee_host: SKIP — {APPLETSRC} is not on this host",
+            file=sys.stderr,
+        )
         return 0
     jl = journal()
     err = shell_stderr()
     if "--json" in argv:
-        print(json.dumps({"appletsrc": APPLETSRC, "instances": rows, "shell_stderr": err,
-                          "journal": jl if jl is not None else []}, indent=1))
+        print(
+            json.dumps(
+                {
+                    "appletsrc": APPLETSRC,
+                    "instances": rows,
+                    "shell_stderr": err,
+                    "journal": jl if jl is not None else [],
+                },
+                indent=1,
+            )
+        )
         return 0
-    print(f"plasmashell stderr -> {err}" + ("  (a tty: only the appletsrc trace is readable here)" if "/pts/" in err else ""))
-    print(f"journal: {len(jl) if jl is not None else 'no journalctl'} el-marquee line(s) in the last 2h")
+    print(
+        f"plasmashell stderr -> {err}"
+        + (
+            "  (a tty: only the appletsrc trace is readable here)"
+            if "/pts/" in err
+            else ""
+        )
+    )
+    print(
+        f"journal: {len(jl) if jl is not None else 'no journalctl'} el-marquee line(s) in the last 2h"
+    )
     for l in (jl or [])[-40:]:
         print(f"    {l}")
     if not rows:
         print(f"check_marquee_host: 0 marquee applets in {APPLETSRC}")
         return 0
     for r in rows:
-        print(f"{r['plugin']} [{r['group']}]  debugLog={'on' if r['debugLog'] else 'OFF'}  "
-              f"hoverPause={'on' if r['hoverPause'] else 'off'}  {len(r['trace'])} trace line(s)")
+        print(
+            f"{r['plugin']} [{r['group']}]  debugLog={'on' if r['debugLog'] else 'OFF'}  "
+            f"hoverPause={'on' if r['hoverPause'] else 'off'}  {len(r['trace'])} trace line(s)"
+        )
         for l in r["trace"]:
             print(f"    {l}")
     return 0
@@ -172,24 +252,42 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     import tempfile
-    fixture = ("[Containments][1][Applets][7]\nplugin=org.el.notifymarquee.elopenglo\n\n"
-               "[Containments][1][Applets][7][Configuration][General]\ndebugLog=true\n"
-               # the trace carries structure, never content (2026-10-01, luthen-observability)
-               "traceLog=0.10 upsert id=3 app=\"app\" textLen=7\\n0.11 swap live=[3] ring=[3]\\n\n"
-               "[Containments][1][Applets][8]\nplugin=org.kde.plasma.digitalclock\n")
+
+    fixture = (
+        "[Containments][1][Applets][7]\nplugin=org.el.notifymarquee.elopenglo\n\n"
+        "[Containments][1][Applets][7][Configuration][General]\ndebugLog=true\n"
+        # the trace carries structure, never content (2026-10-01, luthen-observability)
+        'traceLog=0.10 upsert id=3 app="app" textLen=7\\n0.11 swap live=[3] ring=[3]\\n\n'
+        "[Containments][1][Applets][8]\nplugin=org.kde.plasma.digitalclock\n"
+    )
     with tempfile.NamedTemporaryFile("w", suffix=".rc", delete=False) as f:
         f.write(fixture)
         p = f.name
     rows = instances(p)
     os.unlink(p)
-    chk("only marquee applets are read", [r["plugin"] for r in rows], ["org.el.notifymarquee.elopenglo"])
+    chk(
+        "only marquee applets are read",
+        [r["plugin"] for r in rows],
+        ["org.el.notifymarquee.elopenglo"],
+    )
     chk("the log switch is read", rows[0]["debugLog"], True)
-    chk("escaped newlines split the trace", rows[0]["trace"], ['0.10 upsert id=3 app="app" textLen=7', "0.11 swap live=[3] ring=[3]"])
-    chk("an absent appletsrc is None, not empty", instances("/nonexistent/appletsrc"), None)
+    chk(
+        "escaped newlines split the trace",
+        rows[0]["trace"],
+        ['0.10 upsert id=3 app="app" textLen=7', "0.11 swap live=[3] ring=[3]"],
+    )
+    chk(
+        "an absent appletsrc is None, not empty",
+        instances("/nonexistent/appletsrc"),
+        None,
+    )
     print("check_marquee_host selftest:", "PASS" if ok else "FAIL")
     return ok
 

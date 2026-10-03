@@ -21,6 +21,7 @@ Emits a reusable QML `SegmentChar` component (declarative PathLine quads — the
 idiom proven to render, unlike a JS function in a path binding) plus the baked
 geometry + glyph tables from the substrate. Surfaces instantiate it.
 """
+
 import json
 
 import segment_topology as ST
@@ -73,11 +74,11 @@ def segment_char_component():
     which is what every caller already expected it to be."""
     import make_schemes
     import templates.loader as TL
+
     # ⚑ THE ONE HOLE IS THE GHOST ALPHA, and it is filled from the palette
     # authority: the value is SOLVED (ghost_solve.solve_ghost_alpha) so that every
     # variant's ghost can clear its floor on screen, not authored in the markup.
     return TL.render("SegmentChar.qml", ghostAlpha=make_schemes.GHOST_ALPHA)
-
 
 
 if __name__ == "__main__":

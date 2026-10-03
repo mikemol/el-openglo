@@ -11,6 +11,7 @@ One MAPPING, two scopes:
 
 All six grid variants ship. Helper defaults to EL-Openglo.
 """
+
 import os
 import shutil
 import subprocess
@@ -23,11 +24,17 @@ from emitters import (
     atomic_write,
 )
 
-VERSION = "1.3.0"   # 1.3: ⊕BLOOM + ⊕STROKE-WEIGHT restored (clock, live wallpaper)
+VERSION = "1.3.0"  # 1.3: ⊕BLOOM + ⊕STROKE-WEIGHT restored (clock, live wallpaper)
 ARCH = "all"
 PKG = "el-openglo-themes"
-VARIANTS = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-            "EL-Amber", "EL-Amber-Lit"]
+VARIANTS = [
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+]
 ROOT = os.path.dirname(os.path.abspath(__file__))
 BUILD = "/tmp/eldeb"
 DEB_ROOT = os.path.join(BUILD, PKG)
@@ -56,16 +63,29 @@ def system_mapping():
         m.append((f"plasma/desktoptheme/{v}", f"usr/share/plasma/desktoptheme/{v}"))
     # the clock plasmoid: ONE package since W35 (bound to the active scheme)
     import make_clock as _mc
-    m.append((f"plasma-clock/{_mc.PACKAGE_ID}", f"usr/share/plasma/plasmoids/{_mc.PACKAGE_ID}"))
+
+    m.append(
+        (
+            f"plasma-clock/{_mc.PACKAGE_ID}",
+            f"usr/share/plasma/plasmoids/{_mc.PACKAGE_ID}",
+        )
+    )
     # the VictoriaMetrics plasmoid (W77): an AVAILABLE widget, not placed on the panel
     # (the layout is the operator's); off-cluster it reads "endpoint unavailable"
     import make_metrics as _mm
-    m.append((f"{_mm.OUT_DIR}/{_mm.PACKAGE_ID}", f"usr/share/plasma/plasmoids/{_mm.PACKAGE_ID}"))
+
+    m.append(
+        (
+            f"{_mm.OUT_DIR}/{_mm.PACKAGE_ID}",
+            f"usr/share/plasma/plasmoids/{_mm.PACKAGE_ID}",
+        )
+    )
     # fonts (system font dir; postinst runs fc-cache). `fonts/` was a recovery
     # gap mapped only if present (2026-09-20..21); make_font is in the STAGE
     # roster again (W24), so the mapping names its outputs and staging refuses
     # a missing one like any other payload — an absent font is a defect now.
     import make_font as _mf
+
     for fn, _make in _mf.OUTPUTS:
         m.append((f"fonts/{fn}", f"usr/share/fonts/truetype/el-openglo/{fn}"))
     # wallpapers: one VALID KDE wallpaper package per variant (metadata.json +
@@ -94,7 +114,7 @@ def system_mapping():
 # and says SKIP. Two routes: Debian's alternative, else plymouth-set-default-theme
 # (Fedora/Arch/Gentoo), which the <name>/<name>.plymouth layout makes possible.
 # EL_OPENGLO_ROOT prefixes every path it reads (scripts/check_root_helpers.py).
-PLYMOUTH_HELPER = r'''#!/bin/sh
+PLYMOUTH_HELPER = r"""#!/bin/sh
 # el-openglo-plymouth — select an EL Openglo boot splash. Run with sudo.
 #   el-openglo-plymouth [--no-initramfs] [VARIANT]
 # Route: update-alternatives (default.plymouth) + update-initramfs -u, or else
@@ -133,7 +153,7 @@ else
 fi
 echo "Boot splash set to EL Openglo ($VARIANT)."
 echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; plymouth --quit"
-'''
+"""
 
 
 # --- root SDDM helper (run with sudo; the Breeze-background route) ----------
@@ -152,7 +172,7 @@ echo "Preview without rebooting:  plymouthd; plymouth --show-splash; sleep 5; pl
 # is the way back (Current=breeze, our Breeze overrides removed), and deleting
 # the drop-in hands the choice back to sddm.conf / the distro.
 # The variant -> theme id table is generated from make_sddm.theme_id (sddm_helper()).
-SDDM_HELPER = r'''#!/bin/sh
+SDDM_HELPER = r"""#!/bin/sh
 # el-openglo-sddm — choose the SDDM login screen. Run with sudo.
 #   el-openglo-sddm [VARIANT]               the EL Openglo greeter theme for VARIANT
 #   el-openglo-sddm --background [VARIANT]  stock Breeze greeter, EL watch-face background
@@ -211,12 +231,13 @@ case "$MODE" in
     echo "SDDM login screen set back to stock Breeze via $DROPIN."
     echo "To let sddm.conf decide instead:  sudo rm $DROPIN" ;;
 esac
-'''
+"""
 
 
 def sddm_helper():
     """SDDM_HELPER with its variant -> greeter-theme table, from make_sddm.theme_id."""
     import make_sddm as _sddm
+
     cases = "\n".join(f"  {v}) TID={_sddm.theme_id(v)} ;;" for v in VARIANTS)
     return SDDM_HELPER.replace("@CASES@", cases)
 
@@ -226,7 +247,7 @@ def sddm_helper():
 # (so the marquee REPLACES them rather than duplicating). Popup suppression via
 # plasmanotifyrc — the feed still flows to the marquee's model; only the toasts
 # are silenced. Reversible.
-NOTIFY_HELPER = r'''#!/bin/sh
+NOTIFY_HELPER = r"""#!/bin/sh
 # el-openglo-notify — add the phosphor notification ticker + silence the popups.
 set -eu
 # ONE widget since W35: its colours are the active colour scheme's, so the
@@ -251,7 +272,7 @@ if command -v qdbus6 >/dev/null 2>&1; then
 fi
 echo "  Popups: minimized (feed still flows to the ticker; critical alerts kept)"
 echo "Tip: for full popup suppression, System Settings > Notifications > Do Not Disturb."
-'''
+"""
 
 
 # --- live-wallpaper helper (opt-in; the living watch face on desktop + lock) --
@@ -259,7 +280,7 @@ echo "Tip: for full popup suppression, System Settings > Notifications > Do Not 
 # (not an image) on the desktop containment (via plasmashell scripting) and the
 # lock screen (via kscreenlockerrc wallpaperPlugin key). Desktop stays cheap
 # (1Hz clock tick); lock enables the breathe animation (the seen+idle surface).
-LIVE_HELPER = r'''#!/bin/sh
+LIVE_HELPER = r"""#!/bin/sh
 # el-openglo-live — set the LIVING phosphor watch face as desktop + lock wallpaper.
 set -eu
 # ONE plugin since W35: its colours are the active colour scheme's (the variant is
@@ -283,11 +304,11 @@ kwriteconfig6 --file kscreenlockerrc --group Greeter --group Wallpaper \
   --group "$PLUGIN" --group General --key breathe true 2>/dev/null || true
 echo "  Lock screen: live watch face set (breathe on)"
 echo "Done. Run 'plasmashell --replace &' or re-login if the desktop doesn't update."
-'''
+"""
 
 
 # --- per-user apply helper (installed to /usr/bin, run by the user) ---------
-APPLY_HELPER = r'''#!/bin/sh
+APPLY_HELPER = r"""#!/bin/sh
 # el-openglo-apply — apply an EL Openglo variant for the CURRENT user.
 # System files were installed by the .deb; this wires the per-user bits
 # (GTK, Kvantum) and applies the live selection. No root needed.
@@ -442,7 +463,8 @@ echo "                     or: sudo el-openglo-sddm $VARIANT  (selects it; --bac
 echo "Boot splash (Plymouth): sudo el-openglo-plymouth $VARIANT  (sets the phosphor boot splash)"
 echo "Living watch face:      el-openglo-live $VARIANT  (animated clock on desktop + lock)"
 echo "Notification ticker:    el-openglo-notify $VARIANT  (marquee subsumes popups)"
-'''
+"""
+
 
 # GTK + Kvantum are shipped read-only under /usr/share/el-openglo for the helper
 def helper_source_mapping():
@@ -470,9 +492,11 @@ import tempfile as _tempfile
 
 LNF_STAGE = _tempfile.mkdtemp(prefix="el-openglo-lnf-")
 
+
 def _decoration_theme(variant):
     # Aurorae decorations are referenced as __aurorae__svg__<ThemeName>
     return f"__aurorae__svg__{variant}"
+
 
 # The ENGINE axis (W37): which widget style and window decoration a flavour
 # selects. Both engines read KColorScheme, so the EL scheme colours either; the
@@ -480,15 +504,25 @@ def _decoration_theme(variant):
 # kdecoration library org.kde.oxygen; measured on the host, Plasma 6.7). The
 # Breeze flavour keeps its unsuffixed id so installed selections do not move.
 ENGINES = {
-    "breeze": {"suffix": "", "label": "", "widget": "Breeze",
-               "deco": lambda v: ("org.kde.kwin.aurorae", _decoration_theme(v))},
-    "oxygen": {"suffix": "oxygen", "label": ", Oxygen", "widget": "oxygen",
-               "deco": lambda v: ("org.kde.oxygen", None)},
+    "breeze": {
+        "suffix": "",
+        "label": "",
+        "widget": "Breeze",
+        "deco": lambda v: ("org.kde.kwin.aurorae", _decoration_theme(v)),
+    },
+    "oxygen": {
+        "suffix": "oxygen",
+        "label": ", Oxygen",
+        "widget": "oxygen",
+        "deco": lambda v: ("org.kde.oxygen", None),
+    },
 }
 
 
 def lnf_id(variant, engine="breeze"):
-    return f"org.el.openglo.{variant.lower().replace('-', '')}{ENGINES[engine]['suffix']}"
+    return (
+        f"org.el.openglo.{variant.lower().replace('-', '')}{ENGINES[engine]['suffix']}"
+    )
 
 
 def build_lnf_packages():
@@ -518,10 +552,13 @@ def build_lnf_packages():
                 "Version": VERSION,
             },
         }
-        atomic_write(os.path.join(pkg_dir, "metadata.json"), _json.dumps(meta, indent=2))
+        atomic_write(
+            os.path.join(pkg_dir, "metadata.json"), _json.dumps(meta, indent=2)
+        )
         # defaults — INI referencing the ALREADY-INSTALLED components by name
         import make_clock as _mc
-        plasmoid_id = _mc.PACKAGE_ID          # ONE clock since W35; the scheme above colours it
+
+        plasmoid_id = _mc.PACKAGE_ID  # ONE clock since W35; the scheme above colours it
         defaults = (
             "[kdeglobals][General]\n"
             f"ColorScheme={v}\n\n"
@@ -538,7 +575,8 @@ def build_lnf_packages():
             f"name={v}\n\n"
             "[kwinrc][org.kde.kdecoration2]\n"
             f"library={deco_lib}\n"
-            + (f"theme={deco_theme}\n" if deco_theme else "") + "\n"
+            + (f"theme={deco_theme}\n" if deco_theme else "")
+            + "\n"
             "[Wallpaper][org.kde.image][General]\n"
             f"Image=file:///usr/share/wallpapers/{v}/contents/images/1920x1080.png\n\n"
             # the inheriting icon + cursor themes (W31): Global Theme selects them
@@ -575,7 +613,9 @@ panel.addWidget("org.kde.plasma.marginsseparator");
 panel.addWidget("org.kde.plasma.systemtray");
 panel.addWidget("{plasmoid_id}");
 '''
-        atomic_write(os.path.join(layouts, "org.kde.plasma.desktop-layout.js"), layout_js)
+        atomic_write(
+            os.path.join(layouts, "org.kde.plasma.desktop-layout.js"), layout_js
+        )
         # preview — KDE shows this on the Global Theme page. Rendered from this
         # variant's own scheme tokens (make_preview), so it can't drift.
         # ⚑ THE PATH IS contents/previews/preview.png — PLURAL DIRECTORY.  This
@@ -585,19 +625,27 @@ panel.addWidget("{plasmoid_id}");
         # The file was installed and never looked at — a valid image of the
         # wrong thing, invisible to every gate that checks presence.
         import make_preview as _mp
+
         cols = _mp.parse_scheme(v)
         import cairosvg as _cs
+
         previews = os.path.join(contents, "previews")
         os.makedirs(previews, exist_ok=True)
         # atomic-write: exempt — into LNF_STAGE, this process's private mkdtemp
-        _cs.svg2png(bytestring=_mp.preview_svg(cols).encode(),
-                    write_to=os.path.join(previews, "preview.png"),
-                    output_width=_mp.W * 2, output_height=_mp.H * 2)
+        _cs.svg2png(
+            bytestring=_mp.preview_svg(cols).encode(),
+            write_to=os.path.join(previews, "preview.png"),
+            output_width=_mp.W * 2,
+            output_height=_mp.H * 2,
+        )
         # the fullscreen preview KDE offers on hover, same render at 2x
         # atomic-write: exempt — into LNF_STAGE, this process's private mkdtemp
-        _cs.svg2png(bytestring=_mp.preview_svg(cols).encode(),
-                    write_to=os.path.join(previews, "fullscreenpreview.jpg"),
-                    output_width=_mp.W * 4, output_height=_mp.H * 4)
+        _cs.svg2png(
+            bytestring=_mp.preview_svg(cols).encode(),
+            write_to=os.path.join(previews, "fullscreenpreview.jpg"),
+            output_width=_mp.W * 4,
+            output_height=_mp.H * 4,
+        )
         # splash (⊕SPLASH): boot-seam phosphor screen that READS PROGRESS —
         # Plasma advances `stage` 1..6 as the session loads; segments light with
         # it. Void ground + phosphor from this variant's tokens (no new palette).
@@ -610,8 +658,12 @@ panel.addWidget("{plasmoid_id}");
         # The scheme carries the palette's ghost and the alpha it was solved
         # through ([EL] GhostAlpha, W8); the splash reads them like every other
         # surface, so check_ghost_surfaces can see it.
-        atomic_write(os.path.join(splash_dir, "Splash.qml"), _splash_qml(gnd_hex, lit_hex, '"' + cols["ghost"] + '"',
-                        cols["ghost_alpha_glanced"]))          # session splash: glanced-at
+        atomic_write(
+            os.path.join(splash_dir, "Splash.qml"),
+            _splash_qml(
+                gnd_hex, lit_hex, '"' + cols["ghost"] + '"', cols["ghost_alpha_glanced"]
+            ),
+        )  # session splash: glanced-at
         mapping.append((pkg_dir, f"usr/share/plasma/look-and-feel/{pid}"))
     return mapping
 
@@ -633,10 +685,14 @@ def _splash_qml(ground_hex, lit_hex, ghost_hex, ghost_alpha):
     the LnF build had been dead since the extraction; nothing ran it here).
     Four holes: ground, lit, and the scheme's ghost + ghost_alpha (W8)."""
     import templates.loader as TL
-    return TL.render("splash.qml", ground=ground_hex, lit=lit_hex,
-                     ghost=ghost_hex, ghostAlpha=ghost_alpha)
 
-
+    return TL.render(
+        "splash.qml",
+        ground=ground_hex,
+        lit=lit_hex,
+        ghost=ghost_hex,
+        ghostAlpha=ghost_alpha,
+    )
 
 
 # ⚑ NO Conflicts/Replaces NAMING THE PREDECESSOR PACKAGE (2026-09-25). The operator's
@@ -664,7 +720,7 @@ Description: EL Openglo — electroluminescent watch-display theme for KDE Plasm
  the look live.
 """
 
-POSTINST = r'''#!/bin/sh
+POSTINST = r"""#!/bin/sh
 set -e
 # refresh font cache for the system font dir we populated
 if command -v fc-cache >/dev/null 2>&1; then
@@ -680,9 +736,9 @@ echo "(variants: EL-Openglo[-Lit], EL-Azure[-Lit], EL-Amber[-Lit])"
 echo "If Global Theme thumbnails still show Breeze, log out and back in (or run"
 echo "kquitapp6 plasmashell && kstart plasmashell) to refresh the preview cache."
 exit 0
-'''
+"""
 
-POSTRM = r'''#!/bin/sh
+POSTRM = r"""#!/bin/sh
 set -e
 if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
   if command -v fc-cache >/dev/null 2>&1; then
@@ -690,20 +746,25 @@ if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
   fi
 fi
 exit 0
-'''
+"""
 
 
 DEP5_FORMAT = "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/"
 # licence id -> where its text lives on a Debian system (common-licenses), or a
 # file in this tree whose text is inlined (not in common-licenses)
-LICENCE_TEXT = {"Apache-2.0": "/usr/share/common-licenses/Apache-2.0",
-                "GPL-3.0-or-later": "/usr/share/common-licenses/GPL-3",
-                "MIT": None, "OFL-1.1": "licenses/OFL-1.1.txt"}
+LICENCE_TEXT = {
+    "Apache-2.0": "/usr/share/common-licenses/Apache-2.0",
+    "GPL-3.0-or-later": "/usr/share/common-licenses/GPL-3",
+    "MIT": None,
+    "OFL-1.1": "licenses/OFL-1.1.txt",
+}
 
 
 def _dep5_text(text):
     """A body as DEP-5 continuation lines: one leading space, blank lines as ` .`."""
-    return "\n".join(" " + ln if ln.strip() else " ." for ln in text.strip("\n").split("\n"))
+    return "\n".join(
+        " " + ln if ln.strip() else " ." for ln in text.strip("\n").split("\n")
+    )
 
 
 def copyright_text():
@@ -716,15 +777,22 @@ def copyright_text():
     /usr/share/common-licenses where Debian ships the text, the full text otherwise.
     scripts/check_license.py parses this; policy/license.rego L3 decides."""
     import emitters as _E
-    out = [(f"Format: {DEP5_FORMAT}\nUpstream-Name: {PKG}\n"
-            "Source: https://github.com/mikemol/el-openglo\n"),
-           f"Files: *\nCopyright: 2026 Mike Mol\nLicense: {LICENSE_SPDX}\n"]
+
+    out = [
+        (
+            f"Format: {DEP5_FORMAT}\nUpstream-Name: {PKG}\n"
+            "Source: https://github.com/mikemol/el-openglo\n"
+        ),
+        f"Files: *\nCopyright: 2026 Mike Mol\nLicense: {LICENSE_SPDX}\n",
+    ]
     used = [LICENSE_SPDX]
     for t in _E.THIRD_PARTY:
         if not t["files"]:
             continue
-        out.append(f"Files: {' '.join(t['files'])}\nCopyright: {t['copyright']}\n"
-                   f"License: {t['spdx']}\nComment:\n{_dep5_text(t['what'] + ': ' + t['note'])}\n")
+        out.append(
+            f"Files: {' '.join(t['files'])}\nCopyright: {t['copyright']}\n"
+            f"License: {t['spdx']}\nComment:\n{_dep5_text(t['what'] + ': ' + t['note'])}\n"
+        )
         if t["spdx"] not in used:
             used.append(t["spdx"])
     for lid in used:
@@ -769,8 +837,11 @@ def legacy_alias_packages(root, specs):
                 meta = _json.loads(fh.read())
             meta["KPlugin"]["Id"] = legacy
             meta["KPlugin"]["Name"] = meta["KPlugin"]["Name"] + f" (legacy id, {v})"
-            meta["KPlugin"]["Description"] = (meta["KPlugin"].get("Description", "")
-                                              + " — a legacy per-variant id; the one package is " + canonical)
+            meta["KPlugin"]["Description"] = (
+                meta["KPlugin"].get("Description", "")
+                + " — a legacy per-variant id; the one package is "
+                + canonical
+            )
             atomic_write(mp, _json.dumps(meta, indent=2))
 
 
@@ -780,6 +851,7 @@ def one_theme_update_js():
     import make_notify_marquee as _nm
     import make_wallpaper_live as _wpl
     import templates.loader as TL
+
     slug = lambda v: v.lower().replace("-", "")
     wallpapers = {f"org.el.openglo.live.{slug(v)}": _wpl.PACKAGE_ID for v in VARIANTS}
     applets = {}
@@ -788,10 +860,17 @@ def one_theme_update_js():
         applets[f"org.el.notifymarquee.{slug(v)}"] = _nm.PACKAGE_ID
     # the settings each widget carries, read from its kcfg — the keys the migration copies
     import re as _re
-    keys = {_mc.PACKAGE_ID: _re.findall(r'<entry name="(\w+)"', _mc.CONFIG_XML),
-            _nm.PACKAGE_ID: _re.findall(r'<entry name="(\w+)"', _nm.config_xml())}
-    return TL.render("one-theme-update.js", wallpaperIds=_json.dumps(wallpapers),
-                     appletIds=_json.dumps(applets), appletKeys=_json.dumps(keys))
+
+    keys = {
+        _mc.PACKAGE_ID: _re.findall(r'<entry name="(\w+)"', _mc.CONFIG_XML),
+        _nm.PACKAGE_ID: _re.findall(r'<entry name="(\w+)"', _nm.config_xml()),
+    }
+    return TL.render(
+        "one-theme-update.js",
+        wallpaperIds=_json.dumps(wallpapers),
+        appletIds=_json.dumps(applets),
+        appletKeys=_json.dumps(keys),
+    )
 
 
 def stage(root):
@@ -819,11 +898,17 @@ def stage(root):
     # Plasma style and no wallpaper (measured 2026-09-21, `qlist`). The roster is
     # emitters.ORDER, the same list the @EMITTERS gate runs.
     import emitters
-    failed = [(m, rc, err) for m, rc, err in emitters.run_all(ROOT, only=emitters.STAGE)
-              if rc != 0]
+
+    failed = [
+        (m, rc, err)
+        for m, rc, err in emitters.run_all(ROOT, only=emitters.STAGE)
+        if rc != 0
+    ]
     if failed:
-        raise SystemExit("make_deb: emitter(s) failed before staging:\n  " +
-                         "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed))
+        raise SystemExit(
+            "make_deb: emitter(s) failed before staging:\n  "
+            + "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed)
+        )
 
     mapping = system_mapping() + helper_source_mapping()
     missing = [s for s, _ in mapping if not os.path.exists(os.path.join(ROOT, s))]
@@ -851,21 +936,27 @@ def stage(root):
 
     import make_clock as _mc
     import make_preview as _mp
+
     icon_assets = os.path.join(DEB_ROOT, "usr/share/el-openglo/icons")
     os.makedirs(icon_assets, exist_ok=True)
     for v in VARIANTS:
         # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
-        _cs.svg2png(bytestring=_mp.icon_svg(_mp.parse_scheme(v)).encode(),
-                    write_to=os.path.join(icon_assets, f"{v}-segclock.png"),
-                    output_width=256, output_height=256)
+        _cs.svg2png(
+            bytestring=_mp.icon_svg(_mp.parse_scheme(v)).encode(),
+            write_to=os.path.join(icon_assets, f"{v}-segclock.png"),
+            output_width=256,
+            output_height=256,
+        )
     pdir = os.path.join(DEB_ROOT, f"usr/share/plasma/plasmoids/{_mc.PACKAGE_ID}")
     meta_p = os.path.join(pdir, "metadata.json")
     if os.path.isfile(meta_p):
         icons_dir = os.path.join(pdir, "contents", "icons")
         os.makedirs(icons_dir, exist_ok=True)
         # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
-        shutil.copyfile(os.path.join(icon_assets, "EL-Openglo-segclock.png"),
-                        os.path.join(icons_dir, "el-segclock.png"))
+        shutil.copyfile(
+            os.path.join(icon_assets, "EL-Openglo-segclock.png"),
+            os.path.join(icons_dir, "el-segclock.png"),
+        )
         with open(meta_p) as fh:
             meta = _json.loads(fh.read())
         meta["KPlugin"]["Icon"] = "el-segclock"
@@ -882,7 +973,9 @@ def stage(root):
                 },
                 "KPackageStructure": "Plasma/Wallpaper",
             }
-            atomic_write(os.path.join(wdir, "metadata.json"), _json.dumps(wmeta, indent=2))
+            atomic_write(
+                os.path.join(wdir, "metadata.json"), _json.dumps(wmeta, indent=2)
+            )
 
     # Inheriting icon + cursor themes (W31, ⊕ICONS-INHERIT / ⊕CURSOR-INHERIT):
     # Breeze recoloured by the scheme (FollowsColorScheme) and light/dark
@@ -892,51 +985,68 @@ def stage(root):
     # every variant's LnF defaults [kwinrc][TabBox].
     _ts.render_all(os.path.join(DEB_ROOT, "usr/share/kwin/tabbox", _ts.package_id()))
 
-    _inh.render_all(VARIANTS, os.path.join(DEB_ROOT, "usr/share/icons"),
-                    icon_png=lambda v: os.path.join(icon_assets, f"{v}-segclock.png"))
+    _inh.render_all(
+        VARIANTS,
+        os.path.join(DEB_ROOT, "usr/share/icons"),
+        icon_png=lambda v: os.path.join(icon_assets, f"{v}-segclock.png"),
+    )
     # Phosphor cursors (W36): the palette's lit rim + ground body as XCursor
     # glyphs, written into the SAME <variant>-cursors theme make_inherit just
     # declared (so the LnF's cursorTheme= already selects them, and every shape
     # not drawn still falls through Inherits= to Breeze).
     import make_cursors as _cur
+
     _cur.render_all(VARIANTS, os.path.join(DEB_ROOT, "usr/share/icons"))
 
     # Chrome/Chromium themes (⊕CHROME-THEME): per-variant manifest.json emitted
     # from the same scheme tokens, loadable unpacked via chrome://extensions.
     import make_chrome as _chrome
-    cdirs = {v: os.path.join(DEB_ROOT, f"usr/share/el-openglo/chrome/{v}")
-             for v in VARIANTS}
+
+    cdirs = {
+        v: os.path.join(DEB_ROOT, f"usr/share/el-openglo/chrome/{v}") for v in VARIANTS
+    }
     _chrome.render_all(VARIANTS, cdirs)
 
     # GTK sheets (⊕GTK, rebuilt W17): el-openglo-apply step 3 copies these to
     # ~/.config/gtk-{3,4}.0/gtk.css — libadwaita reads the :root variables.
     import make_gtk as _gtk
+
     gdirs = {v: os.path.join(DEB_ROOT, "usr/share/el-openglo/gtk", v) for v in VARIANTS}
     _gtk.render_all(VARIANTS, gdirs)
 
     # Firefox themes (W15): Firefox's own theme.colors vocabulary, from the same
     # tokens; installed via AMO signing (unlisted), so shipped as source folders.
     import make_firefox as _ff
-    fdirs = {v: os.path.join(DEB_ROOT, "usr/share/el-openglo/firefox", v) for v in VARIANTS}
+
+    fdirs = {
+        v: os.path.join(DEB_ROOT, "usr/share/el-openglo/firefox", v) for v in VARIANTS
+    }
     _ff.render_all(VARIANTS, fdirs)
 
     # Windows .theme per variant (W16): wallpaper + accent are what Aero honours;
     # the colour table rides along for High Contrast. A folder, not a CAB.
     import make_windows as _win
-    wdirs_ = {v: os.path.join(DEB_ROOT, "usr/share/el-openglo/windows", v) for v in VARIANTS}
+
+    wdirs_ = {
+        v: os.path.join(DEB_ROOT, "usr/share/el-openglo/windows", v) for v in VARIANTS
+    }
     _win.render_all(VARIANTS, wdirs_)
 
     # Union styles (W14): Breeze with its composited alphas solved, one style per
     # variant, rendered straight into the DESTDIR like the other render_all()
     # emitters. Selected per session by UNION_STYLE_NAME (el-openglo-apply).
     import make_union as _union
-    udirs = {v: os.path.join(DEB_ROOT, "usr/share/union/css/styles", _union.style_name(v))
-             for v in VARIANTS}
+
+    udirs = {
+        v: os.path.join(DEB_ROOT, "usr/share/union/css/styles", _union.style_name(v))
+        for v in VARIANTS
+    }
     _union.render_all(VARIANTS, udirs)
 
     # Konsole colorschemes (⊕KONSOLE): 5th palette emitter, into the system
     # Konsole dir (auto-discovered). Plus Alacritty/foot off the same ANSI 16.
     import make_konsole as _kon
+
     kdir = os.path.join(DEB_ROOT, "usr/share/konsole")
     os.makedirs(kdir, exist_ok=True)
     for v in VARIANTS:
@@ -955,11 +1065,17 @@ def stage(root):
         atomic_write(os.path.join(tdir, f"{v}.alacritty.toml"), _kon.alacritty_toml(v))
         atomic_write(os.path.join(tdir, f"{v}.foot.ini"), _kon.foot_ini(v))
         atomic_write(os.path.join(tdir, f"{v}.kitty.conf"), _kon.kitty_conf(v))
-        atomic_write(os.path.join(tdir, f"{v}.windows-terminal.json"), _kon.windows_terminal_json(v))
-        atomic_write(os.path.join(tdir, f"{v}.termux.properties"), _kon.termux_properties(v))
+        atomic_write(
+            os.path.join(tdir, f"{v}.windows-terminal.json"),
+            _kon.windows_terminal_json(v),
+        )
+        atomic_write(
+            os.path.join(tdir, f"{v}.termux.properties"), _kon.termux_properties(v)
+        )
 
     # Plymouth boot-splash themes (⊕PLYMOUTH): 7th emitter, the earliest seam.
     import make_plymouth as _ply
+
     pdirs = {v: os.path.join(DEB_ROOT, _ply.theme_dir(v).lstrip("/")) for v in VARIANTS}
     _ply.render_all(VARIANTS, pdirs)
 
@@ -967,18 +1083,23 @@ def stage(root):
     # sddm-theme per variant (listed by System Settings' login-screen page). The
     # el-openglo-sddm helper below stays: it is the other, lower-risk route.
     import make_sddm as _sddm
+
     _sddm.render_all(os.path.join(DEB_ROOT, "usr/share/sddm/themes"), VARIANTS)
 
     # Live wallpaper plugins (⊕WALLPAPER-LIVE): 8th emitter, mounts on desktop +
     # lock. One Plasma/Wallpaper package per variant.
     # ONE Plasma/Wallpaper package since W35 (⊕ONE-THEME), bound to the scheme.
     import make_wallpaper_live as _wpl
-    _wpl.render_all(os.path.join(DEB_ROOT, "usr/share/plasma/wallpapers", _wpl.PACKAGE_ID))
+
+    _wpl.render_all(
+        os.path.join(DEB_ROOT, "usr/share/plasma/wallpapers", _wpl.PACKAGE_ID)
+    )
 
     # The notification-marquee plasmoid (⊕NOTIFY-MARQUEE): 9th emitter — phosphor
     # ticker that subsumes the occluding popups. ONE Plasma/Applet since W35
     # (⊕ONE-THEME), bound to the active scheme's roles.
     import make_notify_marquee as _nm
+
     _nm.render_all(os.path.join(DEB_ROOT, "usr/share/plasma/plasmoids", _nm.PACKAGE_ID))
 
     # ⚑ LEGACY IDS STAY LOADABLE (operator, 2026-09-22: "My plasma didn't come up
@@ -991,13 +1112,19 @@ def stage(root):
     # canonical ids on the next plasmashell start. The aliases retire once no
     # config can still name them.
     import make_clock as _mc2
-    legacy_alias_packages(DEB_ROOT, [
-        ("usr/share/plasma/wallpapers", _wpl.PACKAGE_ID, "org.el.openglo.live.{v}"),
-        ("usr/share/plasma/plasmoids", _nm.PACKAGE_ID, "org.el.notifymarquee.{v}"),
-        ("usr/share/plasma/plasmoids", _mc2.PACKAGE_ID, "org.el.segclock.{v}"),
-    ])
+
+    legacy_alias_packages(
+        DEB_ROOT,
+        [
+            ("usr/share/plasma/wallpapers", _wpl.PACKAGE_ID, "org.el.openglo.live.{v}"),
+            ("usr/share/plasma/plasmoids", _nm.PACKAGE_ID, "org.el.notifymarquee.{v}"),
+            ("usr/share/plasma/plasmoids", _mc2.PACKAGE_ID, "org.el.segclock.{v}"),
+        ],
+    )
     # the one-shot migration, run once by plasmashell from the shell's updates dir
-    upd = os.path.join(DEB_ROOT, "usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates")
+    upd = os.path.join(
+        DEB_ROOT, "usr/share/plasma/shells/org.kde.plasma.desktop/contents/updates"
+    )
     os.makedirs(upd, exist_ok=True)
     atomic_write(os.path.join(upd, "el-openglo-one-theme.js"), one_theme_update_js())
 
@@ -1006,12 +1133,15 @@ def stage(root):
     # a distinguishing channel (as the live wallpaper once did) fails the BUILD
     # here, before it can ship and have to be noticed.
     import glance_audit as _ga
+
     for _v in VARIANTS:
         _ok, _rows = _ga.run(_v, verbose=False)
         if not _ok:
             _bad = [r for r in _rows if not r[2]]
-            raise SystemExit(f"GLANCE-AUDIT failed for {_v}: "
-                             + "; ".join(f"{n} eff={e:.2f}<floor={f}" for n, m, ok, e, f, d in _bad))
+            raise SystemExit(
+                f"GLANCE-AUDIT failed for {_v}: "
+                + "; ".join(f"{n} eff={e:.2f}<floor={f}" for n, m, ok, e, f, d in _bad)
+            )
 
     # helper binary
     hp = os.path.join(DEB_ROOT, "usr/bin/el-openglo-apply")
@@ -1047,6 +1177,7 @@ def stage(root):
     # qml_sanity.py was a recovery gap (SKIPped until 2026-09-21, W25); rebuilt on
     # the host's qmllint — its absence is now an ImportError, on purpose.
     import qml_sanity as _qs
+
     if _qs is not None:
         _qml_errs = []
         for _r, _d, _fs in os.walk(DEB_ROOT):
@@ -1057,7 +1188,9 @@ def stage(root):
                         _qml_text = _fh.read()
                     _qml_errs += _qs.check_qml(_qml_text, _p.replace(DEB_ROOT, ""))
         if _qml_errs:
-            raise SystemExit("QML-SANITY failed (real qmllint):\n  " + "\n  ".join(_qml_errs[:12]))
+            raise SystemExit(
+                "QML-SANITY failed (real qmllint):\n  " + "\n  ".join(_qml_errs[:12])
+            )
         # ⊕RENDER-GATE: "loads" is not "draws" — the two surfaces render_qml can
         # draw must put lit pixels on screen (the empty-digit bug loaded clean).
         for _surface in ("clock", "live-wallpaper"):
@@ -1100,12 +1233,15 @@ def build(out_dir=None):
     # pack is handed to luthen's checks/deb_pack.py (a pinned Debian image on the host's
     # BuildKit), which runs the same dpkg-deb --build and reports --info / --contents.
     if shutil.which("dpkg-deb") is None:
-        print(f"make_deb: SKIP pack — dpkg-deb is not on this host; the package root is "
-              f"complete at {DEB_ROOT} (pack it with luthen checks/deb_pack.py --stage {DEB_ROOT})")
+        print(
+            f"make_deb: SKIP pack — dpkg-deb is not on this host; the package root is "
+            f"complete at {DEB_ROOT} (pack it with luthen checks/deb_pack.py --stage {DEB_ROOT})"
+        )
         return None, mapping
     tmp_out = f"/tmp/{PKG}_{VERSION}_{ARCH}.deb"
-    subprocess.run(["dpkg-deb", "--build", "--root-owner-group", DEB_ROOT, tmp_out],
-                   check=True)
+    subprocess.run(
+        ["dpkg-deb", "--build", "--root-owner-group", DEB_ROOT, tmp_out], check=True
+    )
     # ⚑ `/mnt/user-data/outputs/` WAS THE CONTAINER THIS TRANSCRIPT WAS REPLAYED
     # FROM, not a path on any machine that builds this. The output lands beside
     # the build unless told otherwise.
@@ -1117,18 +1253,27 @@ def build(out_dir=None):
 
 if __name__ == "__main__":
     import sys as _sys
+
     if "--stage" in _sys.argv:
         # the DESTDIR form: `make_deb.py --stage "${D}"` is the ebuild's src_install
         i = _sys.argv.index("--stage")
         if i + 1 >= len(_sys.argv):
             raise SystemExit("make_deb: --stage needs a directory")
         m = stage(os.path.abspath(_sys.argv[i + 1]))
-        print("staged", len(m), "mapped paths (+ emitted packages) into", _sys.argv[i + 1])
+        print(
+            "staged", len(m), "mapped paths (+ emitted packages) into", _sys.argv[i + 1]
+        )
     elif len(_sys.argv) > 1:
-        raise SystemExit(f"make_deb: unknown flag {_sys.argv[1]!r} (modes: --stage DIR, or none)")
+        raise SystemExit(
+            f"make_deb: unknown flag {_sys.argv[1]!r} (modes: --stage DIR, or none)"
+        )
     else:
         out, mapping = build()
         if out is None:
-            print("assembled", len(mapping), "mapped paths; the .deb itself was not packed (SKIP above)")
+            print(
+                "assembled",
+                len(mapping),
+                "mapped paths; the .deb itself was not packed (SKIP above)",
+            )
         else:
             print("built", out, "with", len(mapping), "mapped paths")

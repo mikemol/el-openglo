@@ -38,6 +38,7 @@ scans all passed), so the root cause is unproven; a pkgcheck that fails to load 
 host repo set is now a fact (`env_error`), WITHHELD by policy/ebuild.rego (a counted
 SKIP, never a pass), and a flake of that shape can no longer redden the gate.
 """
+
 import os
 import re
 import shutil
@@ -53,8 +54,10 @@ REQUIRED_VARS = ("EAPI", "DESCRIPTION", "HOMEPAGE", "LICENSE", "SLOT", "EGIT_REP
 
 def overlay_markers():
     """[(path, present)] for the two files Portage needs to treat a dir as a repo."""
-    return [(p, os.path.isfile(os.path.join(OVERLAY, p)))
-            for p in ("metadata/layout.conf", "profiles/repo_name")]
+    return [
+        (p, os.path.isfile(os.path.join(OVERLAY, p)))
+        for p in ("metadata/layout.conf", "profiles/repo_name")
+    ]
 
 
 def bdepend_atoms(path=EBUILD):
@@ -83,17 +86,32 @@ def deps_resolve(path=EBUILD):
         return True, "SKIP deps-resolve (portageq not installed; not a Gentoo host)"
     atoms = bdepend_atoms(path)
     if not atoms:
-        return False, "deps-resolve: the ebuild declares NO dependency atoms — the arm is vacuous"
+        return (
+            False,
+            "deps-resolve: the ebuild declares NO dependency atoms — the arm is vacuous",
+        )
     env = dict(os.environ, PORTDIR_OVERLAY=OVERLAY)
     unresolved = []
     for a in atoms:
-        r = subprocess.run(["portageq", "best_visible", "/", a], env=env,
-                           capture_output=True, text=True, check=False)
+        r = subprocess.run(
+            ["portageq", "best_visible", "/", a],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         if r.returncode != 0 or not r.stdout.strip():
             unresolved.append(a)
     if unresolved:
-        return False, f"deps-resolve: {len(unresolved)} of {len(atoms)} atom(s) have no visible provider: " + ", ".join(unresolved)
-    return True, f"deps-resolve: {len(atoms)} of {len(atoms)} atoms have a visible provider"
+        return (
+            False,
+            f"deps-resolve: {len(unresolved)} of {len(atoms)} atom(s) have no visible provider: "
+            + ", ".join(unresolved),
+        )
+    return (
+        True,
+        f"deps-resolve: {len(atoms)} of {len(atoms)} atoms have a visible provider",
+    )
 
 
 def pkgcheck_scan(path=EBUILD, isolated=True):
@@ -108,22 +126,44 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
     is COPIED to a private dir (its caches land there) and --cache-dir is private.
     `isolated=False` is the old call, kept so --race can show the difference."""
     if not isolated:
-        r = subprocess.run(["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
-                           capture_output=True, text=True, check=False)
+        r = subprocess.run(
+            ["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         return r.returncode, r.stdout, r.stderr
     with tempfile.TemporaryDirectory(prefix="el-pkgcheck-") as td:
         repo = os.path.join(td, "overlay")
         shutil.copytree(OVERLAY, repo, ignore=shutil.ignore_patterns("md5-cache"))
-        target = os.path.join(repo, os.path.relpath(path, OVERLAY)) \
-            if path.startswith(OVERLAY + os.sep) else path
-        r = subprocess.run(["pkgcheck", "scan", "--cache-dir", os.path.join(td, "cache"),
-                            "--repo", repo, "-k", "error", target],
-                           capture_output=True, text=True, check=False)
+        target = (
+            os.path.join(repo, os.path.relpath(path, OVERLAY))
+            if path.startswith(OVERLAY + os.sep)
+            else path
+        )
+        r = subprocess.run(
+            [
+                "pkgcheck",
+                "scan",
+                "--cache-dir",
+                os.path.join(td, "cache"),
+                "--repo",
+                repo,
+                "-k",
+                "error",
+                target,
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         return r.returncode, r.stdout, r.stderr
 
 
 # pkgcheck could not LOAD the host's repo set: a fact about the machine, not the ebuild
-ENV_ERROR = re.compile(r"repos\.conf|default repo|is undefined or not a Repo|unable to load", re.IGNORECASE)
+ENV_ERROR = re.compile(
+    r"repos\.conf|default repo|is undefined or not a Repo|unable to load", re.IGNORECASE
+)
 
 
 def pkgcheck_env_error(rc, stdout, stderr):
@@ -135,6 +175,7 @@ def race(n, isolated):
     """N concurrent pkgcheck scans of the real ebuild: [(rc, env_error, md5_cache_in_tree)].
     The reproduction of W212 as a mode, not a one-off shell loop."""
     from concurrent.futures import ThreadPoolExecutor
+
     with ThreadPoolExecutor(max_workers=n) as ex:
         res = list(ex.map(lambda _i: pkgcheck_scan(EBUILD, isolated), range(n)))
     leak = os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache"))
@@ -153,11 +194,18 @@ def ebuild_wellformed(path=EBUILD):
     if shutil.which("pkgcheck"):
         rc, out, err = pkgcheck_scan(path)
         if pkgcheck_env_error(rc, out, err):
-            return True, "SKIP pkgcheck (could not load the host repo set: " + err.strip()[:120] + ")"
+            return (
+                True,
+                "SKIP pkgcheck (could not load the host repo set: "
+                + err.strip()[:120]
+                + ")",
+            )
         if rc != 0 or "Error" in out:
             return False, "pkgcheck: " + (out or err).strip()[:400]
         return True, "pkgcheck: no errors"
-    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        ["bash", "-n", path], capture_output=True, text=True, check=False
+    )
     if r.returncode != 0:
         return False, "bash -n: " + r.stderr.strip()[:400]
     return True, "SKIP pkgcheck (not installed); bash parses, required variables set"
@@ -190,11 +238,19 @@ def staged_tree(clean=True):
             os.makedirs(src)
             sys.path.insert(0, os.path.join(ROOT, "scripts"))
             import git_tracked
+
             if git_tracked.source(ROOT) == "git":
-                tree = subprocess.run(["git", "-C", ROOT, "write-tree"],
-                                      capture_output=True, text=True, check=True).stdout.strip()
-                archive = subprocess.run(["git", "-C", ROOT, "archive", "--format=tar", tree],
-                                         capture_output=True, check=True).stdout
+                tree = subprocess.run(
+                    ["git", "-C", ROOT, "write-tree"],
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                ).stdout.strip()
+                archive = subprocess.run(
+                    ["git", "-C", ROOT, "archive", "--format=tar", tree],
+                    capture_output=True,
+                    check=True,
+                ).stdout
                 subprocess.run(["tar", "-x", "-C", src], input=archive, check=True)
             else:
                 # ⚑ NO .git (paperkit's Δ sandbox, R5 2026-09-25): there is no index to
@@ -205,7 +261,9 @@ def staged_tree(clean=True):
                     s, d = os.path.join(ROOT, rel), os.path.join(src, rel)
                     if os.path.isfile(s):
                         os.makedirs(os.path.dirname(d), exist_ok=True)
-                        shutil.copy2(s, d, follow_symlinks=False)  # atomic-write: exempt — into the private copy
+                        shutil.copy2(
+                            s, d, follow_symlinks=False
+                        )  # atomic-write: exempt — into the private copy
             # ⚑ THE PALETTE CACHE RIDES ALONG.  It is gitignored, so the archive
             # has none and staging re-solves cold (~108 s) — over paperkit's
             # per-check budget, which read as a red @EBUILD under the hook while
@@ -237,29 +295,48 @@ def staged_tree(clean=True):
             # (a demo run had left it owned by the user; the build ran as
             # portage), not the sandbox. Either way a build must not write to
             # shared /tmp, and DENY is how this wrapper makes that a refusal.
-            env.update(SANDBOX_WRITE=td, SANDBOX_DENY="/tmp:/var/tmp",
-                       SANDBOX_PREDICT="", SANDBOX_VERBOSE="1")
+            env.update(
+                SANDBOX_WRITE=td,
+                SANDBOX_DENY="/tmp:/var/tmp",
+                SANDBOX_PREDICT="",
+                SANDBOX_VERBOSE="1",
+            )
             cmd = ["sandbox", "--"] + cmd
-        r = subprocess.run(cmd, cwd=src, capture_output=True, text=True, env=env, check=False)
+        r = subprocess.run(
+            cmd, cwd=src, capture_output=True, text=True, env=env, check=False
+        )
         if r.returncode != 0:
-            raise RuntimeError(("make_deb --stage failed in a clean clone under sandbox: "
-                                if sandboxed else "make_deb --stage failed in a clean clone: ")
-                               + (r.stderr or r.stdout).strip()[-600:])
-        globals()["_SANDBOX_NOTE"] = ("sandboxed (sys-apps/sandbox)" if sandboxed
-                                      else "SKIP sandbox (not on PATH) — writes outside the tree unchecked")
+            raise RuntimeError(
+                (
+                    "make_deb --stage failed in a clean clone under sandbox: "
+                    if sandboxed
+                    else "make_deb --stage failed in a clean clone: "
+                )
+                + (r.stderr or r.stdout).strip()[-600:]
+            )
+        globals()["_SANDBOX_NOTE"] = (
+            "sandboxed (sys-apps/sandbox)"
+            if sandboxed
+            else "SKIP sandbox (not on PATH) — writes outside the tree unchecked"
+        )
         files = []
         # population: the staged DESTDIR inside this run's private workdir — build output, untracked by design
         for dp, _dirs, fs in os.walk(dest):
             for f in fs:
                 files.append(os.path.relpath(os.path.join(dp, f), dest))
         if not files:
-            raise RuntimeError("staging produced an EMPTY tree — the packager is broken, "
-                               "not the theme small")
+            raise RuntimeError(
+                "staging produced an EMPTY tree — the packager is broken, "
+                "not the theme small"
+            )
         sys.path.insert(0, src)
         import importlib
+
         make_deb = importlib.import_module("make_deb")
         mapping = make_deb.system_mapping() + make_deb.helper_source_mapping()
-        missing = [dst for _src, dst in mapping if not os.path.exists(os.path.join(dest, dst))]
+        missing = [
+            dst for _src, dst in mapping if not os.path.exists(os.path.join(dest, dst))
+        ]
         return sorted(files), missing
 
 
@@ -270,17 +347,27 @@ def lint_facts(path=EBUILD):
     if os.path.isfile(path):
         with open(path, encoding="utf-8") as fh:
             text = fh.read()
-    out = {"present": os.path.isfile(path),
-           "missing_vars": [v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.MULTILINE)],
-           "pkgcheck": None, "bash_parse": None}
+    out = {
+        "present": os.path.isfile(path),
+        "missing_vars": [
+            v for v in REQUIRED_VARS if not re.search(rf"^{v}=", text, re.MULTILINE)
+        ],
+        "pkgcheck": None,
+        "bash_parse": None,
+    }
     if not out["present"]:
         return out
     if shutil.which("pkgcheck"):
         rc, so, se = pkgcheck_scan(path)
-        out["pkgcheck"] = {"rc": rc, "errors": "Error" in so,
-                           "env_error": pkgcheck_env_error(rc, so, se),
-                           "output": (so or se).strip()[:400]}
-    r = subprocess.run(["bash", "-n", path], capture_output=True, text=True, check=False)
+        out["pkgcheck"] = {
+            "rc": rc,
+            "errors": "Error" in so,
+            "env_error": pkgcheck_env_error(rc, so, se),
+            "output": (so or se).strip()[:400],
+        }
+    r = subprocess.run(
+        ["bash", "-n", path], capture_output=True, text=True, check=False
+    )
     out["bash_parse"] = {"rc": r.returncode, "stderr": r.stderr.strip()[:400]}
     return out
 
@@ -290,13 +377,23 @@ def deps_facts(path=EBUILD):
     when this is not a Gentoo host (the atoms are still listed)."""
     atoms = bdepend_atoms(path) if os.path.isfile(path) else []
     if not shutil.which("portageq"):
-        return {"portageq": False, "atoms": [{"atom": a, "resolves": None} for a in atoms]}
+        return {
+            "portageq": False,
+            "atoms": [{"atom": a, "resolves": None} for a in atoms],
+        }
     env = dict(os.environ, PORTDIR_OVERLAY=OVERLAY)
     res = []
     for a in atoms:
-        r = subprocess.run(["portageq", "best_visible", "/", a], env=env,
-                           capture_output=True, text=True, check=False)
-        res.append({"atom": a, "resolves": r.returncode == 0 and bool(r.stdout.strip())})
+        r = subprocess.run(
+            ["portageq", "best_visible", "/", a],
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        res.append(
+            {"atom": a, "resolves": r.returncode == 0 and bool(r.stdout.strip())}
+        )
     return {"portageq": True, "atoms": res}
 
 
@@ -306,19 +403,31 @@ def staging_facts():
     and whether sys-apps/sandbox confined it (false: writes outside unchecked)."""
     try:
         files, missing = staged_tree()
-        return {"error": None, "files": len(files), "missing_dests": missing,
-                "sandboxed": shutil.which("sandbox") is not None}
-    except Exception as e:                                   # noqa: BLE001
-        return {"error": f"{type(e).__name__}: {e}", "files": None, "missing_dests": None,
-                "sandboxed": shutil.which("sandbox") is not None}
+        return {
+            "error": None,
+            "files": len(files),
+            "missing_dests": missing,
+            "sandboxed": shutil.which("sandbox") is not None,
+        }
+    except Exception as e:  # noqa: BLE001
+        return {
+            "error": f"{type(e).__name__}: {e}",
+            "files": None,
+            "missing_dests": None,
+            "sandboxed": shutil.which("sandbox") is not None,
+        }
 
 
 def measure():
     """The MEASUREMENT policy/ebuild.rego decides (W50). No arm judges itself:
     a missing linter, a non-Gentoo host, an absent sandbox are FACTS here, where
     they used to return (True, "SKIP ...") — an arm that passed by not running."""
-    return {"markers": [{"path": p, "present": ok} for p, ok in overlay_markers()],
-            "ebuild": lint_facts(), "deps": deps_facts(), "staging": staging_facts()}
+    return {
+        "markers": [{"path": p, "present": ok} for p, ok in overlay_markers()],
+        "ebuild": lint_facts(),
+        "deps": deps_facts(),
+        "staging": staging_facts(),
+    }
 
 
 def main(argv):
@@ -329,9 +438,11 @@ def main(argv):
             return 2
     if "--race" in argv:
         res = race(8, "--ambient" not in argv)
-        print(f"check_ebuild --race: {sum(rc == 0 for rc, _e, _l in res)} of {len(res)} scans rc 0; "
-              f"{sum(e for _r, e, _l in res)} host-load error(s); "
-              f"md5-cache in tree: {res[0][2]}  ({'ambient' if '--ambient' in argv else 'isolated'})")
+        print(
+            f"check_ebuild --race: {sum(rc == 0 for rc, _e, _l in res)} of {len(res)} scans rc 0; "
+            f"{sum(e for _r, e, _l in res)} host-load error(s); "
+            f"md5-cache in tree: {res[0][2]}  ({'ambient' if '--ambient' in argv else 'isolated'})"
+        )
         return 0
     if "--deps" in argv:
         for a in bdepend_atoms():
@@ -345,10 +456,12 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("ebuild")
 
 
@@ -363,7 +476,11 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("the overlay markers are both present", all(p for _n, p in overlay_markers()), True)
+    check(
+        "the overlay markers are both present",
+        all(p for _n, p in overlay_markers()),
+        True,
+    )
     # ⚑ THE WELL-FORMEDNESS ARM MUST SEE A BROKEN EBUILD.
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "x-9999.ebuild")
@@ -372,39 +489,62 @@ def _selftest():
         w_ok, _w_detail = ebuild_wellformed(p)
         check("an ebuild missing required variables is seen", w_ok, False)
         with open(p, "w") as fh:
-            fh.write("EAPI=8\nDESCRIPTION=\"x\"\nHOMEPAGE=\"x\"\nLICENSE=\"GPL-3\"\n"
-                     "SLOT=\"0\"\nEGIT_REPO_URI=\"x\"\nsrc_install() {\n")
+            fh.write(
+                'EAPI=8\nDESCRIPTION="x"\nHOMEPAGE="x"\nLICENSE="GPL-3"\n'
+                'SLOT="0"\nEGIT_REPO_URI="x"\nsrc_install() {\n'
+            )
         w_ok, _d = ebuild_wellformed(p)
         check("an ebuild that does not parse is seen (bash -n / pkgcheck)", w_ok, False)
         # the MEASUREMENT sees the same breakage as facts (policy/ebuild.rego rules on them)
-        check("lint_facts reports the unparsable ebuild's bash rc", lint_facts(p)["bash_parse"]["rc"] != 0, True)
+        check(
+            "lint_facts reports the unparsable ebuild's bash rc",
+            lint_facts(p)["bash_parse"]["rc"] != 0,
+            True,
+        )
         with open(p, "w") as fh:
             fh.write('EAPI=8\nDESCRIPTION="x"\n')
-        check("lint_facts names the unset variables",
-              lint_facts(p)["missing_vars"], ["HOMEPAGE", "LICENSE", "SLOT", "EGIT_REPO_URI"])
+        check(
+            "lint_facts names the unset variables",
+            lint_facts(p)["missing_vars"],
+            ["HOMEPAGE", "LICENSE", "SLOT", "EGIT_REPO_URI"],
+        )
     e_ok, e_detail = ebuild_wellformed()
     check(f"the real ebuild is well-formed ({e_detail[:60]})", e_ok, True)
     # ⚑ W212: the host-load failure is SEEN as a fact, a real finding is not mistaken for it,
     # and the scan leaves nothing in the checkout.
-    check("a repos.conf load failure is a host fact",
-          pkgcheck_env_error(2, "", "pkgcheck: error: repos.conf: default repo gentoo"), True)
-    check("an ebuild finding is not a host fact",
-          pkgcheck_env_error(1, "Error: MissingSlotDep", "repos.conf"), False)
+    check(
+        "a repos.conf load failure is a host fact",
+        pkgcheck_env_error(2, "", "pkgcheck: error: repos.conf: default repo gentoo"),
+        True,
+    )
+    check(
+        "an ebuild finding is not a host fact",
+        pkgcheck_env_error(1, "Error: MissingSlotDep", "repos.conf"),
+        False,
+    )
     check("a clean scan is not a host fact", pkgcheck_env_error(0, "", ""), False)
     if shutil.which("pkgcheck"):
         before = os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache"))
         pkgcheck_scan()
-        check("pkgcheck writes no md5-cache into the checkout",
-              os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache")), before)
+        check(
+            "pkgcheck writes no md5-cache into the checkout",
+            os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache")),
+            before,
+        )
     # ⚑ THE DEPS ARM MUST SEE AN ATOM NOBODY PROVIDES, and must refuse an
     # ebuild that declares none (a vacuous all-clear).
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "y-9999.ebuild")
         with open(p, "w") as fh:
-            fh.write('EAPI=8\nBDEPEND="\n\tdev-python/numpy[${PYTHON_USEDEP}]\n'
-                     '\tdev-nonesuch/el-openglo-selftest-absent\n"\n')
-        check("atoms are read with USE-deps stripped", bdepend_atoms(p),
-              ["dev-nonesuch/el-openglo-selftest-absent", "dev-python/numpy"])
+            fh.write(
+                'EAPI=8\nBDEPEND="\n\tdev-python/numpy[${PYTHON_USEDEP}]\n'
+                '\tdev-nonesuch/el-openglo-selftest-absent\n"\n'
+            )
+        check(
+            "atoms are read with USE-deps stripped",
+            bdepend_atoms(p),
+            ["dev-nonesuch/el-openglo-selftest-absent", "dev-python/numpy"],
+        )
         d_ok, d_detail = deps_resolve(p)
         if d_detail.startswith("SKIP"):
             print(f"  SKIP deps arms — {d_detail}")
@@ -412,29 +552,66 @@ def _selftest():
             check("an atom with no provider is seen", d_ok, False)
             check("...and named", "el-openglo-selftest-absent" in d_detail, True)
             with open(p, "w") as fh:
-                fh.write('EAPI=8\n')
-            check("an ebuild with no atoms is refused, not passed", deps_resolve(p)[0], False)
+                fh.write("EAPI=8\n")
+            check(
+                "an ebuild with no atoms is refused, not passed",
+                deps_resolve(p)[0],
+                False,
+            )
             r_ok, r_detail = deps_resolve()
             check(f"the real ebuild's atoms all resolve ({r_detail})", r_ok, True)
             # the carried colorspacious is what makes that true WITHOUT ::guru
-            check("the overlay carries dev-python/colorspacious",
-                  os.path.isfile(os.path.join(OVERLAY, "dev-python", "colorspacious",
-                                              "colorspacious-1.1.2.ebuild")), True)
+            check(
+                "the overlay carries dev-python/colorspacious",
+                os.path.isfile(
+                    os.path.join(
+                        OVERLAY,
+                        "dev-python",
+                        "colorspacious",
+                        "colorspacious-1.1.2.ebuild",
+                    )
+                ),
+                True,
+            )
     # ⚑ THE SANDBOX ARM MUST SEE A WRITE OUTSIDE THE TREE — the defect the second
     # emerge found. Run a planted script under the same wrapper and expect EACCES.
     if shutil.which("sandbox"):
         work = os.path.join(ROOT, ".ebuild-witness")
         os.makedirs(work, exist_ok=True)
         with tempfile.TemporaryDirectory(dir=work) as td:
-            env = dict(os.environ, SANDBOX_WRITE=td, SANDBOX_DENY="/tmp:/var/tmp",
-                       SANDBOX_PREDICT="")
-            r = subprocess.run(["sandbox", "--", sys.executable, "-c",
-                                "open('/tmp/check_ebuild-selftest-leak', 'w').write('x')"],
-                               capture_output=True, text=True, env=env, check=False)
+            env = dict(
+                os.environ,
+                SANDBOX_WRITE=td,
+                SANDBOX_DENY="/tmp:/var/tmp",
+                SANDBOX_PREDICT="",
+            )
+            r = subprocess.run(
+                [
+                    "sandbox",
+                    "--",
+                    sys.executable,
+                    "-c",
+                    "open('/tmp/check_ebuild-selftest-leak', 'w').write('x')",
+                ],
+                capture_output=True,
+                text=True,
+                env=env,
+                check=False,
+            )
             check("sandbox refuses a write to /tmp", r.returncode != 0, True)
-            r = subprocess.run(["sandbox", "--", sys.executable, "-c",
-                                f"open('{td}/ok', 'w').write('x')"],
-                               capture_output=True, text=True, env=env, check=False)
+            r = subprocess.run(
+                [
+                    "sandbox",
+                    "--",
+                    sys.executable,
+                    "-c",
+                    f"open('{td}/ok', 'w').write('x')",
+                ],
+                capture_output=True,
+                text=True,
+                env=env,
+                check=False,
+            )
             check("...and allows a write inside SANDBOX_WRITE", r.returncode, 0)
     else:
         print("  SKIP sandbox arms — sys-apps/sandbox not on PATH")

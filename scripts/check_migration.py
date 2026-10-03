@@ -19,6 +19,7 @@ SKIP when the qml runner is absent. WEAKNESS: the fake API is the subset the
 script uses; a Plasma API difference (e.g. currentConfigGroup semantics) is
 invisible here — that is the live ⊕VER after the emerge.
 """
+
 import json
 import os
 import sys
@@ -33,8 +34,10 @@ QML = QT.QML
 
 def run():
     import make_deb
+
     script = make_deb.one_theme_update_js()
     import templates.loader as TL
+
     harness = TL.render("migration-harness.qml")
     if not os.path.isfile(QML):
         return None
@@ -51,7 +54,9 @@ def run():
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             return json.loads(line.split("RESULT ", 1)[1])
-    raise RuntimeError(f"no RESULT from the migration harness (rc={r.returncode}): {(r.stderr or r.stdout)[-600:]}")
+    raise RuntimeError(
+        f"no RESULT from the migration harness (rc={r.returncode}): {(r.stderr or r.stdout)[-600:]}"
+    )
 
 
 def measure():
@@ -78,6 +83,7 @@ def main(argv):
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("migration")
 
 
@@ -86,7 +92,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     # The MEASUREMENT can see; what is a defect is policy/migration_test.rego's (W50).
@@ -96,12 +105,19 @@ def _selftest():
         print("check_migration selftest: SKIP")
         return True
     chk("the fake shell reports a desktop", len(m["desktops"] or []) > 0, True)
-    chk("the fake shell reports a panel with widgets",
-        len((m["panels"] or [{}])[0].get("widgets", [])) > 0, True)
+    chk(
+        "the fake shell reports a panel with widgets",
+        len((m["panels"] or [{}])[0].get("widgets", [])) > 0,
+        True,
+    )
     types = [w["type"] for w in m["panels"][0]["widgets"]]
     # the harness starts from legacy ids; seeing a non-legacy id proves the script RAN
-    chk("the script changed the shell (a legacy id was rewritten)",
-        "org.el.segclock" in types and m["desktops"][0]["wallpaper"] != "org.el.openglo.live.elazure", True)
+    chk(
+        "the script changed the shell (a legacy id was rewritten)",
+        "org.el.segclock" in types
+        and m["desktops"][0]["wallpaper"] != "org.el.openglo.live.elazure",
+        True,
+    )
     print("check_migration selftest:", "PASS" if ok else "FAIL")
     return ok
 

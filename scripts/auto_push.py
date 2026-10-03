@@ -27,6 +27,7 @@ start auto pushing as a post-commit hook." Before this, every push waited on the
 Weakness: if the push is refused (the tree-writes gate reddens), the commit stays local
 and the log says why — the refusal is visible only there and in `git status` (ahead N).
 """
+
 import fcntl
 import os
 import subprocess
@@ -38,7 +39,9 @@ REMOTE, BRANCH = "origin", "main"
 
 
 def git(*args, check=False):
-    return subprocess.run(["git", "-C", ROOT, *args], capture_output=True, text=True, check=check)
+    return subprocess.run(
+        ["git", "-C", ROOT, *args], capture_output=True, text=True, check=check
+    )
 
 
 def git_dir():
@@ -54,12 +57,17 @@ def decide(branch, local, remote, remote_is_ancestor):
     if local == remote:
         return False, "already pushed (HEAD == origin/main)"
     if not remote_is_ancestor:
-        return False, "DIVERGED: origin/main is not an ancestor of HEAD — left for a human, never forced"
+        return (
+            False,
+            "DIVERGED: origin/main is not an ancestor of HEAD — left for a human, never forced",
+        )
     return True, "fast-forward"
 
 
 def log(line):
-    stamp = time.strftime("%Y-%m-%dT%H:%M:%S")      # naive local time, as the log always wrote it
+    stamp = time.strftime(
+        "%Y-%m-%dT%H:%M:%S"
+    )  # naive local time, as the log always wrote it
     with open(os.path.join(git_dir(), "auto-push.log"), "a", encoding="utf-8") as fh:
         fh.write(f"{stamp}  {line}\n")
 
@@ -103,11 +111,21 @@ def main(argv):
             print("auto_push: idle (no push in flight)")
             return 0
         busy = is_running(lock_path())
-        print(f"auto_push: {'RUNNING (a push holds the lock)' if busy else 'idle (no push in flight)'}")
+        print(
+            f"auto_push: {'RUNNING (a push holds the lock)' if busy else 'idle (no push in flight)'}"
+        )
         return 1 if busy else 0
-    lock = os.fdopen(os.open(os.path.join(git_dir(), "auto-push.lock"),
-                             os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o666), "w")
-    fcntl.flock(lock, fcntl.LOCK_EX)          # serialise; the newest HEAD is read AFTER the lock
+    lock = os.fdopen(
+        os.open(
+            os.path.join(git_dir(), "auto-push.lock"),
+            os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+            0o666,
+        ),
+        "w",
+    )
+    fcntl.flock(
+        lock, fcntl.LOCK_EX
+    )  # serialise; the newest HEAD is read AFTER the lock
     try:
         fetched = git("fetch", "--quiet", REMOTE, BRANCH)
         if fetched.returncode != 0:
@@ -117,7 +135,10 @@ def main(argv):
         local = git("rev-parse", "HEAD").stdout.strip()
         r = git("rev-parse", "--verify", "--quiet", f"{REMOTE}/{BRANCH}")
         remote = r.stdout.strip() or None
-        anc = remote is not None and git("merge-base", "--is-ancestor", remote, local).returncode == 0
+        anc = (
+            remote is not None
+            and git("merge-base", "--is-ancestor", remote, local).returncode == 0
+        )
         push, why = decide(branch, local, remote, anc)
         if not push:
             log(f"not pushed {local[:10]}: {why}")
@@ -125,9 +146,11 @@ def main(argv):
         if "--dry-run" in flags:
             log(f"DRY RUN: would push {local[:10]} ({why})")
             return 0
-        p = git("push", REMOTE, f"HEAD:{BRANCH}")        # hooks run: marker + tree-writes
+        p = git("push", REMOTE, f"HEAD:{BRANCH}")  # hooks run: marker + tree-writes
         if p.returncode != 0:
-            log(f"PUSH REFUSED {local[:10]} (rc {p.returncode}): {(p.stderr or p.stdout).strip()[-400:]}")
+            log(
+                f"PUSH REFUSED {local[:10]} (rc {p.returncode}): {(p.stderr or p.stdout).strip()[-400:]}"
+            )
             return 1
         log(f"pushed {remote[:10]}..{local[:10]} ({why})")
         return 0
@@ -141,26 +164,46 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     a, b = "a" * 40, "b" * 40
     chk("a fast-forward on main pushes", decide("main", a, b, True)[0], True)
     chk("a diverged history is NOT pushed", decide("main", a, b, False)[0], False)
-    chk("...and says it is left for a human", "never forced" in decide("main", a, b, False)[1], True)
+    chk(
+        "...and says it is left for a human",
+        "never forced" in decide("main", a, b, False)[1],
+        True,
+    )
     chk("another branch is not pushed", decide("feature", a, b, True)[0], False)
     chk("nothing new is not pushed", decide("main", a, a, True)[0], False)
-    chk("no remote-tracking ref is not pushed", decide("main", a, None, False)[0], False)
+    chk(
+        "no remote-tracking ref is not pushed", decide("main", a, None, False)[0], False
+    )
     chk("the git dir resolves", os.path.isdir(git_dir()), True)
     import tempfile
     import threading
+
     with tempfile.TemporaryDirectory() as td:
         lp = os.path.join(td, "auto-push.lock")
         chk("an unheld lock reads idle", is_running(lp), False)
-        holder = subprocess.Popen([sys.executable, "-c",
-            ("import fcntl,sys\nf=open(sys.argv[1],'a')\nfcntl.flock(f,fcntl.LOCK_EX)\n"
-             "print('held',flush=True)\nsys.stdin.readline()"), lp],
-            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        holder = subprocess.Popen(
+            [
+                sys.executable,
+                "-c",
+                (
+                    "import fcntl,sys\nf=open(sys.argv[1],'a')\nfcntl.flock(f,fcntl.LOCK_EX)\n"
+                    "print('held',flush=True)\nsys.stdin.readline()"
+                ),
+                lp,
+            ],
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            text=True,
+        )
         try:
             chk("the holder took the lock", holder.stdout.readline().strip(), "held")
             chk("a held lock reads running", is_running(lp), True)

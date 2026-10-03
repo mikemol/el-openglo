@@ -28,6 +28,7 @@ its template or bakes into its PNG), through the generator's own accessor. It
 does not render. A surface that receives the right colour and then draws it
 wrongly is @GHOSTCOMP's or a render witness's problem, not this one's.
 """
+
 import os
 import re
 import sys
@@ -39,7 +40,7 @@ sys.path.insert(0, ROOT)
 def _rgb(s):
     s = s.strip().strip('"')
     if s.startswith("#"):
-        return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))
+        return tuple(int(s[i : i + 2], 16) for i in (1, 3, 5))
     return tuple(int(x) for x in s.split(","))
 
 
@@ -52,7 +53,9 @@ def _bound(qml, name, role, token_hex):
     """The colour a BOUND surface draws under a variant: the variant's token iff
     `name` is bound to Kirigami.Theme.<role> under colorSet View; else None."""
     m = re.search(rf"(?m)^\s*property color {name}:\s*Kirigami\.Theme\.{role}\s*$", qml)
-    cs = re.search(r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View\s*$", qml)
+    cs = re.search(
+        r"(?m)^\s*Kirigami\.Theme\.colorSet:\s*Kirigami\.Theme\.View\s*$", qml
+    )
     return _rgb(token_hex) if (m and cs) else None
 
 
@@ -76,14 +79,21 @@ SURFACE_MODE = {
 def palette():
     """{variant_id: (lit, ghost, {mode: alpha})} — what the palette SOLVED."""
     import make_schemes
+
     out = {}
     for value in make_schemes.GRID.values():
         t = value[0] if isinstance(value, (list, tuple)) else value
         if isinstance(t, dict) and "fg_in" in t:
-            out[t["id"]] = (_rgb(t["fg"]), _rgb(t["fg_in"]),
-                            {"looked_at": float(t.get("ghost_alpha", 0.45)),
-                             "glanced_at": float(t.get("ghost_alpha_glanced",
-                                                       t.get("ghost_alpha", 0.45)))})
+            out[t["id"]] = (
+                _rgb(t["fg"]),
+                _rgb(t["fg_in"]),
+                {
+                    "looked_at": float(t.get("ghost_alpha", 0.45)),
+                    "glanced_at": float(
+                        t.get("ghost_alpha_glanced", t.get("ghost_alpha", 0.45))
+                    ),
+                },
+            )
     return out
 
 
@@ -91,23 +101,41 @@ def surfaces(variant_id):
     """[(surface, lit, ghost, alpha)] — what each surface EMITS for this variant."""
     os.chdir(ROOT)
     import make_schemes
-    tok = next(v[0] for v in make_schemes.GRID.values()
-               if isinstance(v[0], dict) and v[0].get("id") == variant_id)
+
+    tok = next(
+        v[0]
+        for v in make_schemes.GRID.values()
+        if isinstance(v[0], dict) and v[0].get("id") == variant_id
+    )
     out = []
 
     # bound since W35 (one package): what the wallpaper draws under this variant is
     # the token the scheme writes into the role each colour is bound to
     import make_wallpaper_live as WL
+
     qml = WL.main_qml()
-    out.append(("make_wallpaper_live", _bound(qml, "litColor", "textColor", tok["fg"]),
-                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]), _alpha(qml)))
+    out.append(
+        (
+            "make_wallpaper_live",
+            _bound(qml, "litColor", "textColor", tok["fg"]),
+            _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]),
+            _alpha(qml),
+        )
+    )
 
     # bound since W35 (one package): what it draws under this variant is the token
     # the scheme writes into the role each colour is bound to
     import make_notify_marquee as NM
+
     qml = NM.main_qml()
-    out.append(("make_notify_marquee", _bound(qml, "litColor", "textColor", tok["fg"]),
-                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]), _alpha(qml)))
+    out.append(
+        (
+            "make_notify_marquee",
+            _bound(qml, "litColor", "textColor", tok["fg"]),
+            _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]),
+            _alpha(qml),
+        )
+    )
 
     # ⚑ A BOUND SURFACE (⊕ONE-THEME, W35): the switcher is ONE package whose
     # colours are Kirigami.Theme roles of the ACTIVE scheme, so "what it draws
@@ -117,26 +145,46 @@ def surfaces(variant_id):
     # to None here and fails the comparison, which is the assertion this check
     # makes of a live surface (catalog/one-theme.md, Gates).
     import make_taskswitch as TS
+
     qml = TS.main_qml()
-    out.append(("make_taskswitch", _bound(qml, "litColor", "textColor", tok["fg"]),
-                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]), _alpha(qml)))
+    out.append(
+        (
+            "make_taskswitch",
+            _bound(qml, "litColor", "textColor", tok["fg"]),
+            _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]),
+            _alpha(qml),
+        )
+    )
 
     # bound since W35 (one package): the clock draws the token the scheme writes
     # into the role each colour is bound to
     import make_clock as MC
+
     qml = MC.main_qml()
-    out.append(("make_clock", _bound(qml, "litColor", "textColor", tok["fg"]),
-                _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]),
-                _alpha(qml) if _alpha(qml) is not None else 1.0))
+    out.append(
+        (
+            "make_clock",
+            _bound(qml, "litColor", "textColor", tok["fg"]),
+            _bound(qml, "ghostColor", "disabledTextColor", tok["fg_in"]),
+            _alpha(qml) if _alpha(qml) is not None else 1.0,
+        )
+    )
 
     import make_plymouth as MP
     import make_preview
+
     c = make_preview.parse_scheme(variant_id)
     # what render_assets hands render_digit: the scheme's phosphor, its
     # ForegroundInactive, and [EL] GhostAlpha (parse_scheme defaults 0.45 when
     # the .colors predates the solve — which this check then reports as a miss)
-    out.append(("make_plymouth", MP._rgb(c["phosphor"]), MP._rgb(c["ghost"]),
-                float(c["ghost_alpha_glanced"])))            # what render_assets passes
+    out.append(
+        (
+            "make_plymouth",
+            MP._rgb(c["phosphor"]),
+            MP._rgb(c["ghost"]),
+            float(c["ghost_alpha_glanced"]),
+        )
+    )  # what render_assets passes
     return out
 
 
@@ -148,9 +196,17 @@ def measure():
     for vid, (lit, ghost, alphas) in palette().items():
         for name, s_lit, s_ghost, s_alpha in surfaces(vid):
             alpha = alphas[SURFACE_MODE[name]]
-            rows.append((vid, name, s_lit == lit, s_ghost == ghost,
-                         s_alpha is not None and abs(s_alpha - alpha) < 1e-9,
-                         (s_lit, s_ghost, s_alpha), (lit, ghost, alpha)))
+            rows.append(
+                (
+                    vid,
+                    name,
+                    s_lit == lit,
+                    s_ghost == ghost,
+                    s_alpha is not None and abs(s_alpha - alpha) < 1e-9,
+                    (s_lit, s_ghost, s_alpha),
+                    (lit, ghost, alpha),
+                )
+            )
     return rows
 
 
@@ -162,28 +218,47 @@ def main(argv):
             return 2
     rows = measure()
     if not rows:
-        print("check_ghost_surfaces: REFUSED — no variants or no surfaces; the "
-              "population is empty, not the surfaces faithful", file=sys.stderr)
+        print(
+            "check_ghost_surfaces: REFUSED — no variants or no surfaces; the "
+            "population is empty, not the surfaces faithful",
+            file=sys.stderr,
+        )
         return 2
     if "--map" in argv:
-        print(f"{'variant':16s} {'surface':22s} {'lit':>13s} {'ghost':>13s} {'alpha':>6s}   vs palette")
+        print(
+            f"{'variant':16s} {'surface':22s} {'lit':>13s} {'ghost':>13s} {'alpha':>6s}   vs palette"
+        )
         for vid, name, lo, go, ao, (sl, sg, sa), (pl, pg, pa) in rows:
-            flags = ("" if lo else " LIT≠") + ("" if go else " GHOST≠") + ("" if ao else " ALPHA≠")
-            print(f"{vid:16s} {name:22s} {sl!s:>13s} {sg!s:>13s} {sa!s:>6s}   "
-                  f"{pl} {pg} {pa}{flags}")
+            flags = (
+                ("" if lo else " LIT≠")
+                + ("" if go else " GHOST≠")
+                + ("" if ao else " ALPHA≠")
+            )
+            print(
+                f"{vid:16s} {name:22s} {sl!s:>13s} {sg!s:>13s} {sa!s:>6s}   "
+                f"{pl} {pg} {pa}{flags}"
+            )
         return 0
     bad = [r for r in rows if not (r[3] and r[4])]
     if bad:
         by = {}
         for vid, name, lo, go, ao, em, so in bad:
             by.setdefault(name, []).append(vid)
-        print(f"check_ghost_surfaces: REFUSED — {len(bad)} of {len(rows)} surface×variant "
-              f"emissions draw a ghost the palette did not solve:", file=sys.stderr)
+        print(
+            f"check_ghost_surfaces: REFUSED — {len(bad)} of {len(rows)} surface×variant "
+            f"emissions draw a ghost the palette did not solve:",
+            file=sys.stderr,
+        )
         for name, vids in by.items():
-            print(f"    {name}: {len(vids)} of 6 variants (derives its own ghost)", file=sys.stderr)
+            print(
+                f"    {name}: {len(vids)} of 6 variants (derives its own ghost)",
+                file=sys.stderr,
+            )
         return 1
-    print(f"check_ghost_surfaces: {len(rows)} of {len(rows)} surface×variant emissions "
-          f"draw the palette's ghost at the palette's alpha")
+    print(
+        f"check_ghost_surfaces: {len(rows)} of {len(rows)} surface×variant emissions "
+        f"draw the palette's ghost at the palette's alpha"
+    )
     return 0
 
 
@@ -199,30 +274,72 @@ def _selftest():
             print(f"  ok   {label}")
 
     rows = measure()
-    check(f"population: 6 variants × {len(SURFACE_MODE)} surfaces", len(rows), 6 * len(SURFACE_MODE))
-    check("every surface enumerated is one that surfaces() emits",
-          sorted({r[1] for r in rows}), sorted(SURFACE_MODE))
+    check(
+        f"population: 6 variants × {len(SURFACE_MODE)} surfaces",
+        len(rows),
+        6 * len(SURFACE_MODE),
+    )
+    check(
+        "every surface enumerated is one that surfaces() emits",
+        sorted({r[1] for r in rows}),
+        sorted(SURFACE_MODE),
+    )
     check("the palette solved a ghost for every variant", len(palette()), 6)
     # ⚑ A BOUND SURFACE (W35): the right role under View resolves to the token; a
     # baked hex, the wrong role, or a missing colorSet resolves to None
-    good = ("Kirigami.Theme.colorSet: Kirigami.Theme.View\n"
-            "    property color ghostColor: Kirigami.Theme.disabledTextColor\n")
-    check("a role-bound colour resolves to the variant's token",
-          _bound(good, "ghostColor", "disabledTextColor", "#7ed3c3"), _rgb("#7ed3c3"))
-    check("a baked hex does not", _bound(good.replace("Kirigami.Theme.disabledTextColor", '"#7ed3c3"'),
-                                         "ghostColor", "disabledTextColor", "#7ed3c3"), None)
-    check("the wrong role does not", _bound(good.replace("disabledTextColor", "textColor"),
-                                            "ghostColor", "disabledTextColor", "#7ed3c3"), None)
-    check("a missing colorSet does not", _bound(good.replace("Kirigami.Theme.colorSet: Kirigami.Theme.View", ""),
-                                                "ghostColor", "disabledTextColor", "#7ed3c3"), None)
+    good = (
+        "Kirigami.Theme.colorSet: Kirigami.Theme.View\n"
+        "    property color ghostColor: Kirigami.Theme.disabledTextColor\n"
+    )
+    check(
+        "a role-bound colour resolves to the variant's token",
+        _bound(good, "ghostColor", "disabledTextColor", "#7ed3c3"),
+        _rgb("#7ed3c3"),
+    )
+    check(
+        "a baked hex does not",
+        _bound(
+            good.replace("Kirigami.Theme.disabledTextColor", '"#7ed3c3"'),
+            "ghostColor",
+            "disabledTextColor",
+            "#7ed3c3",
+        ),
+        None,
+    )
+    check(
+        "the wrong role does not",
+        _bound(
+            good.replace("disabledTextColor", "textColor"),
+            "ghostColor",
+            "disabledTextColor",
+            "#7ed3c3",
+        ),
+        None,
+    )
+    check(
+        "a missing colorSet does not",
+        _bound(
+            good.replace("Kirigami.Theme.colorSet: Kirigami.Theme.View", ""),
+            "ghostColor",
+            "disabledTextColor",
+            "#7ed3c3",
+        ),
+        None,
+    )
     # ⚑ THE CHECK MUST SEE A FAITHFUL SURFACE AND AN UNFAITHFUL ONE.
     saved = globals()["measure"]
     try:
-        globals()["measure"] = lambda: [("V", "s", True, True, True, (0, 0, 0), (0, 0, 0))]
+        globals()["measure"] = lambda: [
+            ("V", "s", True, True, True, (0, 0, 0), (0, 0, 0))
+        ]
         check("a faithful surface passes", main(["x"]), 0)
-        globals()["measure"] = lambda: [("V", "s", True, False, True, (0, 0, 0), (0, 0, 0))]
+        globals()["measure"] = lambda: [
+            ("V", "s", True, False, True, (0, 0, 0), (0, 0, 0))
+        ]
         check("a surface drawing its own ghost is seen", main(["x"]), 1)
-        globals()["measure"] = lambda: [("V", "s", True, True, False, (0, 0, 0), (0, 0, 0))]
+        globals()["measure"] = lambda: [
+            ("V", "s", True, True, False, (0, 0, 0), (0, 0, 0))
+        ]
         check("a surface drawing at its own alpha is seen", main(["x"]), 1)
         globals()["measure"] = list
         check("an empty population REFUSES", main(["x"]), 2)

@@ -9,6 +9,7 @@ theme identity, so we render it deterministically from the SAME color tokens the
 scheme carries. The preview reads EL-<variant>.colors; it cannot drift from the
 theme because it has no palette of its own.
 """
+
 import os
 
 import cairosvg
@@ -25,6 +26,7 @@ def parse_scheme(variant):
     or one this process froze on first use — so every read in a run sees ONE palette
     even while something rewrites the tracked EL-*.colors."""
     import schemes_artifact
+
     path = schemes_artifact.path(variant)
     with open(path) as fh:
         text = fh.read()
@@ -37,42 +39,48 @@ def parse_scheme(variant):
         elif "=" in line and cur:
             k, v = line.split("=", 1)
             section[(cur, k)] = v
+
     def rgb(sect, key):
         v = section.get((sect, key))
         if not v:
             raise KeyError(f"{variant}: missing {sect} {key}")
         return "#{:02x}{:02x}{:02x}".format(*(int(x) for x in v.split(",")))
+
     # window bg (ground), foreground (phosphor text), accent (lit segment)
     return {
         "ground": rgb("[Colors:Window]", "BackgroundNormal")
-                  if ("[Colors:Window]", "BackgroundNormal") in section
-                  else rgb("[Colors:Complementary]", "BackgroundNormal"),
-        "panel":  rgb("[Colors:Header]", "BackgroundNormal"),
+        if ("[Colors:Window]", "BackgroundNormal") in section
+        else rgb("[Colors:Complementary]", "BackgroundNormal"),
+        "panel": rgb("[Colors:Header]", "BackgroundNormal"),
         "phosphor": rgb("[Colors:View]", "ForegroundNormal")
-                    if ("[Colors:View]", "ForegroundNormal") in section
-                    else rgb("[Colors:Button]", "ForegroundNormal"),
+        if ("[Colors:View]", "ForegroundNormal") in section
+        else rgb("[Colors:Button]", "ForegroundNormal"),
         "accent": rgb("[Colors:Button]", "DecorationFocus"),
-        "sel":    rgb("[Colors:Selection]", "BackgroundNormal"),
+        "sel": rgb("[Colors:Selection]", "BackgroundNormal"),
         # the window's own text and focus decoration, and the view ground —
         # the pairs Union's variables.css composes alphas over (W14)
         "window_fg": rgb("[Colors:Window]", "ForegroundNormal")
-                     if ("[Colors:Window]", "ForegroundNormal") in section
-                     else rgb("[Colors:View]", "ForegroundNormal"),
-        "focus":  rgb("[Colors:Window]", "DecorationFocus")
-                  if ("[Colors:Window]", "DecorationFocus") in section
-                  else rgb("[Colors:Button]", "DecorationFocus"),
+        if ("[Colors:Window]", "ForegroundNormal") in section
+        else rgb("[Colors:View]", "ForegroundNormal"),
+        "focus": rgb("[Colors:Window]", "DecorationFocus")
+        if ("[Colors:Window]", "DecorationFocus") in section
+        else rgb("[Colors:Button]", "DecorationFocus"),
         "view_bg": rgb("[Colors:View]", "BackgroundNormal"),
         "sel_fg": rgb("[Colors:Selection]", "ForegroundNormal"),
         # the ghost as the palette solved it, and the alpha it was solved THROUGH
         # (make_schemes emits [EL] GhostAlpha; a scheme without it predates the
         # solve and is read at the 0.45 its ghost was drawn at)
-        "ghost":  rgb("[Colors:View]", "ForegroundInactive"),
+        "ghost": rgb("[Colors:View]", "ForegroundInactive"),
         "ghost_alpha": float(section.get(("[EL]", "GhostAlpha"), "0.45")),
         # the glanced-at alpha (W12); a scheme without it falls back to the
         # looked-at one, and a surface reading that is then reported by
         # check_ghost_surfaces as drawing the wrong mode's alpha
-        "ghost_alpha_glanced": float(section.get(("[EL]", "GhostAlphaGlanced"),
-                                                 section.get(("[EL]", "GhostAlpha"), "0.45"))),
+        "ghost_alpha_glanced": float(
+            section.get(
+                ("[EL]", "GhostAlphaGlanced"),
+                section.get(("[EL]", "GhostAlpha"), "0.45"),
+            )
+        ),
     }
 
 
@@ -95,15 +103,16 @@ def parse_scheme(variant):
 CLOCK_TEXT = "12:00"
 CLOCK_FONT_PX = 30
 CLOCK_TRACKING = 2
-CLOCK_PAD = 10                      # breathing room between glyphs and bezel
+CLOCK_PAD = 10  # breathing room between glyphs and bezel
 # A monospace advance is ~0.6em. This is an ESTIMATE and is named as one: SVG has
 # no measurable text without a rasteriser, so the honest move is a conservative
 # constant plus padding, not a false precision.
 CLOCK_ADVANCE_EM = 0.6
 
 
-def clock_geometry(text=CLOCK_TEXT, font_px=CLOCK_FONT_PX,
-                   tracking=CLOCK_TRACKING, pad=CLOCK_PAD):
+def clock_geometry(
+    text=CLOCK_TEXT, font_px=CLOCK_FONT_PX, tracking=CLOCK_TRACKING, pad=CLOCK_PAD
+):
     """(text_width, bezel_x, bezel_width) — the bezel sized to hold `text`.
 
     The text is centred on the bezel, so the box is the text plus padding on
@@ -125,9 +134,10 @@ def icon_svg(c, size=256):
     so the icon is a true sample of the variant, not a picture of one."""
     import make_wallpaper as MW
     import segment_topology as ST
-    m = ST.metrics(2.0)                  # digit is L wide, 2L tall -> lengths in L
-    n = 2                                 # "12": an 8 would light every segment and hide the ghost
-    span = (n - 1) * m["pitch"] + 1.0     # first box to last box, in L
+
+    m = ST.metrics(2.0)  # digit is L wide, 2L tall -> lengths in L
+    n = 2  # "12": an 8 would light every segment and hide the ghost
+    span = (n - 1) * m["pitch"] + 1.0  # first box to last box, in L
     L = size * 0.78 / max(span, 2 * 1.0)  # fit the pair with a margin
     t = L * m["stroke"]
     x0 = (size - span * L) / 2
@@ -135,13 +145,26 @@ def icon_svg(c, size=256):
     parts = []
     for i, ch in enumerate("12"):
         x = x0 + i * m["pitch"] * L
-        parts.append(MW.digit_svg(ch, x, y, L, t, c["ghost"], segs="ABCDEFG",
-                                  opacity=float(c["ghost_alpha"])))
+        parts.append(
+            MW.digit_svg(
+                ch,
+                x,
+                y,
+                L,
+                t,
+                c["ghost"],
+                segs="ABCDEFG",
+                opacity=float(c["ghost_alpha"]),
+            )
+        )
         parts.append(MW.digit_svg(ch, x, y, L, t, c["phosphor"]))
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
-            f'viewBox="0 0 {size} {size}">'
-            f'<rect width="{size}" height="{size}" rx="{size * 0.18:.0f}" fill="{c["ground"]}"/>'
-            + "".join(parts) + "</svg>")
+    return (
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{size}" height="{size}" '
+        f'viewBox="0 0 {size} {size}">'
+        f'<rect width="{size}" height="{size}" rx="{size * 0.18:.0f}" fill="{c["ground"]}"/>'
+        + "".join(parts)
+        + "</svg>"
+    )
 
 
 def preview_svg(c):
@@ -149,29 +172,29 @@ def preview_svg(c):
     and a segment-style clock reading the accent — unmistakably THIS variant."""
     _tw, _bx, _bw = clock_geometry()
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
-  <rect width="{W}" height="{H}" fill="{c['ground']}"/>
+  <rect width="{W}" height="{H}" fill="{c["ground"]}"/>
   <!-- window -->
-  <rect x="42" y="40" width="230" height="150" rx="6" fill="{c['panel']}"
-        stroke="{c['accent']}" stroke-width="1.5"/>
-  <rect x="42" y="40" width="230" height="22" rx="6" fill="{c['sel']}"/>
-  <circle cx="56" cy="51" r="4" fill="{c['phosphor']}"/>
-  <circle cx="70" cy="51" r="4" fill="{c['accent']}"/>
+  <rect x="42" y="40" width="230" height="150" rx="6" fill="{c["panel"]}"
+        stroke="{c["accent"]}" stroke-width="1.5"/>
+  <rect x="42" y="40" width="230" height="22" rx="6" fill="{c["sel"]}"/>
+  <circle cx="56" cy="51" r="4" fill="{c["phosphor"]}"/>
+  <circle cx="70" cy="51" r="4" fill="{c["accent"]}"/>
   <!-- phosphor text lines -->
-  <rect x="58" y="80"  width="140" height="7" rx="2" fill="{c['phosphor']}"/>
-  <rect x="58" y="98"  width="180" height="7" rx="2" fill="{c['phosphor']}" opacity="0.75"/>
-  <rect x="58" y="116" width="110" height="7" rx="2" fill="{c['phosphor']}" opacity="0.55"/>
-  <rect x="58" y="150" width="70"  height="20" rx="3" fill="{c['accent']}"/>
+  <rect x="58" y="80"  width="140" height="7" rx="2" fill="{c["phosphor"]}"/>
+  <rect x="58" y="98"  width="180" height="7" rx="2" fill="{c["phosphor"]}" opacity="0.75"/>
+  <rect x="58" y="116" width="110" height="7" rx="2" fill="{c["phosphor"]}" opacity="0.55"/>
+  <rect x="58" y="150" width="70"  height="20" rx="3" fill="{c["accent"]}"/>
   <!-- segment clock motif -->
   <g transform="translate(322,150)" font-family="monospace" font-weight="bold">
-    <rect x="{_bx:.1f}" y="-26" width="{_bw:.1f}" height="44" rx="4" fill="{c['ground']}"
-          stroke="{c['accent']}" stroke-width="1"/>
-    <text x="0" y="7" font-size="{CLOCK_FONT_PX}" fill="{c['accent']}" text-anchor="middle"
+    <rect x="{_bx:.1f}" y="-26" width="{_bw:.1f}" height="44" rx="4" fill="{c["ground"]}"
+          stroke="{c["accent"]}" stroke-width="1"/>
+    <text x="0" y="7" font-size="{CLOCK_FONT_PX}" fill="{c["accent"]}" text-anchor="middle"
           letter-spacing="{CLOCK_TRACKING}">{CLOCK_TEXT}</text>
   </g>
   <!-- panel -->
-  <rect x="0" y="{H-26}" width="{W}" height="26" fill="{c['panel']}"/>
-  <rect x="8" y="{H-19}" width="40" height="12" rx="3" fill="{c['accent']}"/>
-  <rect x="{W-70}" y="{H-19}" width="60" height="12" rx="3" fill="{c['phosphor']}" opacity="0.7"/>
+  <rect x="0" y="{H - 26}" width="{W}" height="26" fill="{c["panel"]}"/>
+  <rect x="8" y="{H - 19}" width="40" height="12" rx="3" fill="{c["accent"]}"/>
+  <rect x="{W - 70}" y="{H - 19}" width="60" height="12" rx="3" fill="{c["phosphor"]}" opacity="0.7"/>
 </svg>'''
 
 
@@ -183,15 +206,26 @@ def render_all(variants, out_map):
         out = out_map[v]
         os.makedirs(os.path.dirname(out), exist_ok=True)
         from emitters import atomic_path
+
         with atomic_path(out) as tmp:
-            cairosvg.svg2png(bytestring=svg.encode(), write_to=tmp, output_width=W*2,
-                             output_height=H*2)
+            cairosvg.svg2png(
+                bytestring=svg.encode(),
+                write_to=tmp,
+                output_width=W * 2,
+                output_height=H * 2,
+            )
     return list(out_map.values())
 
 
 if __name__ == "__main__":
-    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-                "EL-Amber", "EL-Amber-Lit"]
+    variants = [
+        "EL-Openglo",
+        "EL-Openglo-Lit",
+        "EL-Azure",
+        "EL-Azure-Lit",
+        "EL-Amber",
+        "EL-Amber-Lit",
+    ]
     outs = {v: f"/tmp/preview-{v}.png" for v in variants}
     render_all(variants, outs)
     print("rendered", len(outs), "previews")

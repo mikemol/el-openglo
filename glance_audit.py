@@ -25,6 +25,7 @@ and stroke-weight (lit drawn wider = more integrated area = perceived brighter).
 The color+subordination part is exact; the bloom/stroke parts are honest
 perceptual weightings, flagged as such.
 """
+
 import cvd_gate as C
 
 LOOKED_AT = "looked_at"
@@ -45,16 +46,17 @@ MODE_FLOOR = {
 }
 
 # labeled HEURISTIC perceptual bonuses (not WCAG quantities)
-BLOOM_BONUS = 1.30      # lit-only glow halo raises figure/ground pop
-WEIGHT_BONUS = 1.15     # lit stroke wider -> more integrated area -> perceived brighter
+BLOOM_BONUS = 1.30  # lit-only glow halo raises figure/ground pop
+WEIGHT_BONUS = 1.15  # lit stroke wider -> more integrated area -> perceived brighter
 
 
 def _composite(fg, bg, a):
     return tuple(round(fg[i] * a + bg[i] * (1 - a)) for i in range(3))
 
 
-def effective_separation(lit, ghost, ground, ghost_alpha=1.0,
-                         bloom=False, stroke_weight=False):
+def effective_separation(
+    lit, ghost, ground, ghost_alpha=1.0, bloom=False, stroke_weight=False
+):
     """The measurable lit/ghost separation as actually perceived on the surface.
     Exact part: color ratio vs the (possibly subordinated) ghost. Heuristic part:
     bloom/stroke bonuses (flagged)."""
@@ -67,8 +69,17 @@ def effective_separation(lit, ghost, ground, ghost_alpha=1.0,
     return ratio
 
 
-def audit_surface(name, mode, lit, ghost, ground, ghost_alpha=1.0,
-                  bloom=False, stroke_weight=False, has_ghost=True):
+def audit_surface(
+    name,
+    mode,
+    lit,
+    ghost,
+    ground,
+    ghost_alpha=1.0,
+    bloom=False,
+    stroke_weight=False,
+    has_ghost=True,
+):
     """Returns (ok, eff, floor, detail). Surfaces with no ghost distinction
     (e.g. lit-text-on-void marquee) are EXEMPT."""
     if not has_ghost:
@@ -98,33 +109,82 @@ def surface_registry(variant="EL-Azure"):
     # instrument that models the world separately from the world is the
     # INSTRUMENT-VS-WORLD entry the log has banked nine times.
     import make_wallpaper_live as WL
+
     ground, lit, ghost, alpha_looked = WL.colors_for(variant, parsing="looked_at")
     _g, _l, _gh, alpha_glanced = WL.colors_for(variant, parsing="glanced_at")
-    wq = WL.main_qml()            # one package since W35; the idiom flags below are variant-free
+    wq = WL.main_qml()  # one package since W35; the idiom flags below are variant-free
     reg = []
 
     # clock plasmoid — LOOKED-AT; color + subordinated ghost + stroke-weight + bloom
-    reg.append({"name": "clock", "mode": LOOKED_AT, "lit": lit, "ghost": ghost, "ground": ground,
-                    "ghost_alpha": alpha_looked, "bloom": True, "stroke_weight": True})
+    reg.append(
+        {
+            "name": "clock",
+            "mode": LOOKED_AT,
+            "lit": lit,
+            "ghost": ghost,
+            "ground": ground,
+            "ghost_alpha": alpha_looked,
+            "bloom": True,
+            "stroke_weight": True,
+        }
+    )
 
     # live wallpaper — GLANCED-AT; the bloom and stroke-weight channels are still
     # detected from the emitted Canvas idiom (a dropped channel is what this audit
     # was written to catch); the alpha is the palette's GLANCED one (W12 §3c).
-    reg.append({"name": "wallpaper-live", "mode": GLANCED_AT, "lit": lit, "ghost": ghost,
-                    "ground": ground, "ghost_alpha": alpha_glanced,
-                    "bloom": (("T*2.1" in wq and "T*1.5" in wq) or "U*0.84" in wq),
-                    "stroke_weight": (("U * 0.40" in wq and "U * 0.26" in wq)
-                                   or ("U*0.40" in wq and "U*0.26" in wq))})
+    reg.append(
+        {
+            "name": "wallpaper-live",
+            "mode": GLANCED_AT,
+            "lit": lit,
+            "ghost": ghost,
+            "ground": ground,
+            "ghost_alpha": alpha_glanced,
+            "bloom": (("T*2.1" in wq and "T*1.5" in wq) or "U*0.84" in wq),
+            "stroke_weight": (
+                ("U * 0.40" in wq and "U * 0.26" in wq)
+                or ("U*0.40" in wq and "U*0.26" in wq)
+            ),
+        }
+    )
 
     # KDE splash & plymouth — GLANCED-AT; the palette's ghost at the glanced alpha
-    reg.append({"name": "kde-splash", "mode": GLANCED_AT, "lit": lit, "ghost": ghost,
-                    "ground": ground, "ghost_alpha": alpha_glanced, "bloom": False, "stroke_weight": False})
-    reg.append({"name": "plymouth", "mode": GLANCED_AT, "lit": lit, "ghost": ghost,
-                    "ground": ground, "ghost_alpha": alpha_glanced, "bloom": False, "stroke_weight": False})
+    reg.append(
+        {
+            "name": "kde-splash",
+            "mode": GLANCED_AT,
+            "lit": lit,
+            "ghost": ghost,
+            "ground": ground,
+            "ghost_alpha": alpha_glanced,
+            "bloom": False,
+            "stroke_weight": False,
+        }
+    )
+    reg.append(
+        {
+            "name": "plymouth",
+            "mode": GLANCED_AT,
+            "lit": lit,
+            "ghost": ghost,
+            "ground": ground,
+            "ghost_alpha": alpha_glanced,
+            "bloom": False,
+            "stroke_weight": False,
+        }
+    )
 
     # notify marquee — lit text on void, no ghost -> exempt
-    reg.append({"name": "notify-marquee", "mode": LOOKED_AT, "lit": lit, "ghost": ghost,
-                    "ground": ground, "has_ghost": False})
+    reg.append(
+        {
+            "name": "notify-marquee",
+            "mode": LOOKED_AT,
+            "lit": lit,
+            "ghost": ghost,
+            "ground": ground,
+            "has_ghost": False,
+        }
+    )
 
     return reg
 
@@ -134,9 +194,16 @@ def run(variant="EL-Azure", verbose=True):
     allok = True
     for s in surface_registry(variant):
         ok, eff, floor, detail = audit_surface(
-            s["name"], s.get("mode", GLANCED_AT), s["lit"], s["ghost"], s["ground"],
-            s.get("ghost_alpha", 1.0), s.get("bloom", False),
-            s.get("stroke_weight", False), s.get("has_ghost", True))
+            s["name"],
+            s.get("mode", GLANCED_AT),
+            s["lit"],
+            s["ghost"],
+            s["ground"],
+            s.get("ghost_alpha", 1.0),
+            s.get("bloom", False),
+            s.get("stroke_weight", False),
+            s.get("has_ghost", True),
+        )
         rows.append((s["name"], s.get("mode"), ok, eff, floor, detail))
         if not ok:
             allok = False
@@ -145,8 +212,10 @@ def run(variant="EL-Azure", verbose=True):
         for name, mode, ok, eff, floor, detail in rows:
             e = f"{eff:.2f}" if eff is not None else "  -"
             f = f"{floor:.1f}" if floor is not None else " - "
-            print(f"  {name:<16} {mode:<11} eff={e:>5} floor={f:>4} "
-                  f"[{detail}] {'OK' if ok else 'FAIL'}")
+            print(
+                f"  {name:<16} {mode:<11} eff={e:>5} floor={f:>4} "
+                f"[{detail}] {'OK' if ok else 'FAIL'}"
+            )
     return allok, rows
 
 

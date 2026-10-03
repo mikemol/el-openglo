@@ -12,6 +12,7 @@ Weakness: the jq mirror is kept in step by review, not by construction; what
 IS by construction is the table both sides read. No --selftest of its own:
 read_serial.py --selftest and el_serial_emit.py --selftest exercise every arm.
 """
+
 import json
 import os
 import re
@@ -23,7 +24,9 @@ _PATTERNS = {
     "blob_id": re.compile(r"b(0|[1-9][0-9]*)"),
     "b64": re.compile(r"[A-Za-z0-9+/=]*"),
     "sha256": re.compile(r"[0-9a-f]{64}"),
-    "boot_id": re.compile(r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"),
+    "boot_id": re.compile(
+        r"[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}"
+    ),
 }
 
 
@@ -50,7 +53,11 @@ def type_ok(spec, t, v):
     if t in ("blob", "blob_id"):
         return isinstance(v, str) and _PATTERNS["blob_id"].fullmatch(v) is not None
     if t == "b64":
-        return isinstance(v, str) and len(v) <= spec["part_b64_chars"] and _PATTERNS["b64"].fullmatch(v) is not None
+        return (
+            isinstance(v, str)
+            and len(v) <= spec["part_b64_chars"]
+            and _PATTERNS["b64"].fullmatch(v) is not None
+        )
     if t in ("sha256", "boot_id"):
         return isinstance(v, str) and _PATTERNS[t].fullmatch(v) is not None
     raise ValueError(f"el-serial spec names unknown type {t!r}")

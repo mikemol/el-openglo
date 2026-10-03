@@ -28,6 +28,7 @@ the operator-blocked ones are named as such.
 open set and red on an unreadable one. Wanting it to measure progress instead is
 wanting a number that would drop when someone deleted a line.
 """
+
 import json
 import os
 import subprocess
@@ -45,8 +46,13 @@ OPERATOR_BLOCKED = {"LIVE"}
 
 
 def index():
-    r = subprocess.run([sys.executable, INDEX, "--json"],
-                       capture_output=True, text=True, cwd=ROOT, check=False)
+    r = subprocess.run(
+        [sys.executable, INDEX, "--json"],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        check=False,
+    )
     if r.returncode != 0:
         return None
     return json.loads(r.stdout)
@@ -77,8 +83,11 @@ def main(argv):
 
     total = sum(len(v) for v in opn.values())
     if not opn or total == 0:
-        print("check_cotype_open: REFUSED — the open set is EMPTY; the ledger is "
-              "unreadable, not the work finished", file=sys.stderr)
+        print(
+            "check_cotype_open: REFUSED — the open set is EMPTY; the ledger is "
+            "unreadable, not the work finished",
+            file=sys.stderr,
+        )
         return 2
 
     problems = []
@@ -92,22 +101,30 @@ def main(argv):
             seen.setdefault(s, []).append(b)
     doubled = {s: bs for s, bs in seen.items() if len(bs) > 1}
     if doubled:
-        problems.append("symbol(s) in more than one bucket: "
-                        + ", ".join(f"{s} ({'/'.join(bs)})" for s, bs in sorted(doubled.items())))
+        problems.append(
+            "symbol(s) in more than one bucket: "
+            + ", ".join(f"{s} ({'/'.join(bs)})" for s, bs in sorted(doubled.items()))
+        )
     if not any(b in opn for b in OPERATOR_BLOCKED):
-        problems.append("no operator-blocked bucket found — the LIVE distinction "
-                        "has been lost, and operator work now reads as closable")
+        problems.append(
+            "no operator-blocked bucket found — the LIVE distinction "
+            "has been lost, and operator work now reads as closable"
+        )
 
     if problems:
-        print("check_cotype_open: REFUSED — the open set is not well-formed:",
-              file=sys.stderr)
+        print(
+            "check_cotype_open: REFUSED — the open set is not well-formed:",
+            file=sys.stderr,
+        )
         for p in problems:
             print(f"    {p}", file=sys.stderr)
         return 1
 
     live = sum(len(opn.get(b, [])) for b in OPERATOR_BLOCKED)
-    print(f"check_cotype_open: {total} open across {len(opn)} bucket(s); "
-          f"{live} operator-blocked (no check can discharge these)")
+    print(
+        f"check_cotype_open: {total} open across {len(opn)} bucket(s); "
+        f"{live} operator-blocked (no check can discharge these)"
+    )
     return 0
 
 

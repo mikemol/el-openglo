@@ -24,6 +24,7 @@ That also makes a palette change VISIBLE in review: the diff shows the picture.
 rendered, never hand-listed — a hand-maintained index of images is a list that
 silently outlives the files it names.
 """
+
 import os
 import sys
 
@@ -46,6 +47,7 @@ def variants():
     concepts.palette_roles_are_distinct reads its roster through here."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import variant_roster
+
     return variant_roster.ids()
 
 
@@ -58,6 +60,7 @@ def _preview(variant, path):
     render_all calls cairosvg.svg2png). Taking preview_svg() directly skips a
     lossy step to reach a file that diffs as text."""
     import make_preview as MP
+
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(MP.preview_svg(MP.parse_scheme(variant)))
 
@@ -79,6 +82,7 @@ def _swatch(variant, path):
     It also drops the Pillow dependency from this path — one fewer reason a
     sample fails to render on a machine that has not run `uv sync`."""
     import make_preview as MP
+
     c = MP.parse_scheme(variant)
     order = [k for k in ("ground", "panel", "phosphor", "accent", "sel") if k in c]
     sw, sh, pad, top = 220, 96, 12, 34
@@ -91,16 +95,21 @@ def _swatch(variant, path):
     # measured with cvd_gate's WCAG function rather than a fresh one, so the
     # sample and the gates agree on what "readable" means.
     import cvd_gate as C
+
     cells = []
     for i, k in enumerate(order):
         x = pad + i * (sw + pad)
         bg = _rgb(c[k])
-        ink = "#000000" if C.wcag_ratio(bg, (0, 0, 0)) >= C.wcag_ratio(bg, (255, 255, 255)) \
-              else "#ffffff"
+        ink = (
+            "#000000"
+            if C.wcag_ratio(bg, (0, 0, 0)) >= C.wcag_ratio(bg, (255, 255, 255))
+            else "#ffffff"
+        )
         cells.append(
             f'  <rect x="{x}" y="{top}" width="{sw}" height="{sh}" fill="{c[k]}"/>\n'
             f'  <text x="{x + 8}" y="{top + sh - 10}" font-family="monospace"'
-            f' font-size="13" fill="{ink}">{k} {c[k]}</text>')
+            f' font-size="13" fill="{ink}">{k} {c[k]}</text>'
+        )
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(
             f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}"'
@@ -108,12 +117,14 @@ def _swatch(variant, path):
             f'  <rect width="{W}" height="{H}" fill="{c["ground"]}"/>\n'
             f'  <text x="{pad}" y="22" font-family="monospace" font-size="14"'
             f' fill="{c["phosphor"]}">{variant}</text>\n'
-            + "\n".join(cells) + "\n</svg>\n")
+            + "\n".join(cells)
+            + "\n</svg>\n"
+        )
 
 
 def _rgb(hexstr):
     h = hexstr.lstrip("#")
-    return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(h[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def _wallpaper(variant, path):
@@ -126,16 +137,21 @@ def _wallpaper(variant, path):
     for, and saying a human must check by hand while a sample library sits
     unused would be the same evasion twice."""
     import make_wallpaper as MW
+
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(MW.wallpaper_svg())
 
 
 SURFACES = (
-    ("swatch", "{v}-swatch.svg", _swatch,
-     "the palette itself — every scheme token, labelled"),
-    ("preview", "{v}-preview.svg", _preview,
-     "the scheme rendered as a mock desktop"),
+    (
+        "swatch",
+        "{v}-swatch.svg",
+        _swatch,
+        "the palette itself — every scheme token, labelled",
+    ),
+    ("preview", "{v}-preview.svg", _preview, "the scheme rendered as a mock desktop"),
 )
+
 
 # ⚑ NOT EVERY SURFACE IS PER-VARIANT, and pretending otherwise would emit six
 # identical files. The wallpaper reads module-level colours with a standalone
@@ -155,6 +171,7 @@ def _splash_digits(variant, path):
 
     import make_plymouth as MPL
     import make_preview as MP
+
     c = MP.parse_scheme(variant)
     ground = MPL._rgb(c["ground"])
     lit = MPL._rgb(c["phosphor"])
@@ -213,13 +230,15 @@ def _marquee(variant, path):
     # glyph in the font appears, and a malformed one is visible on sight. The
     # lowercase row shows the authored descenders; the last group is the font
     # EXTENSION (Latin-1, rasterised) and one char outside it, drawn as '?'.
-    text = ("ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*? "
-            "abcdefghijklm nopqrstuvwxyz éèüñç {}[]@#% ☃")
+    text = (
+        "ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*? "
+        "abcdefghijklm nopqrstuvwxyz éèüñç {}[]@#% ☃"
+    )
 
-    u = 9.0                       # dot pitch, px
-    fill = 0.82                   # matches MatrixChar.dotFill
+    u = 9.0  # dot pitch, px
+    fill = 0.82  # matches MatrixChar.dotFill
     pad = u * 2
-    adv = cols * u + u            # cell plus one blank column, as the Row spacing does
+    adv = cols * u + u  # cell plus one blank column, as the Row spacing does
     W = pad * 2 + adv * len(text) - u
     H = pad * 2 + rows * u
 
@@ -236,7 +255,8 @@ def _marquee(variant, path):
         for r in range(rows):
             dots.append(
                 f'  <circle cx="{c * u + u / 2:.1f}" cy="{pad + r * u + u / 2:.1f}"'
-                f' r="{u * fill / 2:.2f}" fill="{_h(ghost)}" opacity="{_alpha:.3f}"/>')
+                f' r="{u * fill / 2:.2f}" fill="{_h(ghost)}" opacity="{_alpha:.3f}"/>'
+            )
     for i, ch in enumerate(text):
         # the same fallback chain drawBackdrop walks: char, uppercase, '?'
         colbytes = font.get(ch) or font.get(ch.upper()) or font.get("?") or []
@@ -245,29 +265,43 @@ def _marquee(variant, path):
             byte = colbytes[c] if c < len(colbytes) else 0
             for r in range(rows):
                 if not (byte & (1 << r)):
-                    continue                      # unlit: the field's dot shows
+                    continue  # unlit: the field's dot shows
                 cx = ox + c * u + u / 2
                 cy = pad + r * u + u / 2
                 dots.append(
                     f'  <circle cx="{cx:.1f}" cy="{cy:.1f}" r="{u * fill / 2:.2f}"'
-                    f' fill="{_h(lit)}"/>')
+                    f' fill="{_h(lit)}"/>'
+                )
 
     with open(path, "w", encoding="utf-8") as fh:
         fh.write(
             f'<svg xmlns="http://www.w3.org/2000/svg" width="{W:.0f}" height="{H:.0f}"'
             f' viewBox="0 0 {W:.0f} {H:.0f}">\n'
             f'  <rect width="{W:.0f}" height="{H:.0f}" fill="{_h(ground)}"/>\n'
-            + "\n".join(dots) + "\n</svg>\n")
+            + "\n".join(dots)
+            + "\n</svg>\n"
+        )
 
 
 SINGLETONS = (
-    ("wallpaper", "wallpaper.svg", _wallpaper,
-     "the desktop wallpaper — the clock face ⊕SEGMENT-SUBSTRATE rewires"),
-    ("splash-digits", "splash-digits.png", lambda _v, p:
-     _splash_digits("EL-Openglo", p),
-     "the boot splash's 0-9, rendered in PIL from the shared geometry"),
-    ("marquee", "marquee.svg", lambda _v, p: _marquee("EL-Openglo", p),
-     "the notification ticker's 5x7 matrix face, mirrored from the shipped registry"),
+    (
+        "wallpaper",
+        "wallpaper.svg",
+        _wallpaper,
+        "the desktop wallpaper — the clock face ⊕SEGMENT-SUBSTRATE rewires",
+    ),
+    (
+        "splash-digits",
+        "splash-digits.png",
+        lambda _v, p: _splash_digits("EL-Openglo", p),
+        "the boot splash's 0-9, rendered in PIL from the shared geometry",
+    ),
+    (
+        "marquee",
+        "marquee.svg",
+        lambda _v, p: _marquee("EL-Openglo", p),
+        "the notification ticker's 5x7 matrix face, mirrored from the shipped registry",
+    ),
 )
 
 
@@ -284,12 +318,23 @@ def targets():
 
 def write_index(rendered, failed):
     """library.md — generated from what ACTUALLY rendered."""
-    lines = ["# EL Openglo — sample library", "",
-             ("*Generated by `catalog/library/render_samples.py`. Do not hand-edit:"
-              " a hand-maintained index outlives the files it names.*"), ""]
+    lines = [
+        "# EL Openglo — sample library",
+        "",
+        (
+            "*Generated by `catalog/library/render_samples.py`. Do not hand-edit:"
+            " a hand-maintained index outlives the files it names.*"
+        ),
+        "",
+    ]
     if failed:
-        lines += [(f"> **Incomplete.** {len(failed)} sample(s) did not render; they are named"
-                   " at the bottom rather than silently omitted."), ""]
+        lines += [
+            (
+                f"> **Incomplete.** {len(failed)} sample(s) did not render; they are named"
+                " at the bottom rather than silently omitted."
+            ),
+            "",
+        ]
     by_variant = {}
     for v, surface, path, desc, _ in rendered:
         by_variant.setdefault(v, []).append((surface, path, desc))
@@ -315,8 +360,11 @@ def main(argv):
             return 2
     tgts = targets()
     if not tgts:
-        print("render_samples: REFUSED — no variants found; the scheme files are "
-              "missing, not the theme empty", file=sys.stderr)
+        print(
+            "render_samples: REFUSED — no variants found; the scheme files are "
+            "missing, not the theme empty",
+            file=sys.stderr,
+        )
         return 2
 
     if "--list" in argv:
@@ -326,15 +374,23 @@ def main(argv):
 
     if "--check" in argv:
         missing = [(v, s, p) for v, s, p, _d, _f in tgts if not os.path.isfile(p)]
-        empty = [(v, s, p) for v, s, p, _d, _f in tgts
-                 if os.path.isfile(p) and os.path.getsize(p) < 128]
+        empty = [
+            (v, s, p)
+            for v, s, p, _d, _f in tgts
+            if os.path.isfile(p) and os.path.getsize(p) < 128
+        ]
         if missing or empty:
-            print(f"render_samples: REFUSED — {len(missing)} missing, {len(empty)} "
-                  f"empty of {len(tgts)} sample(s):", file=sys.stderr)
+            print(
+                f"render_samples: REFUSED — {len(missing)} missing, {len(empty)} "
+                f"empty of {len(tgts)} sample(s):",
+                file=sys.stderr,
+            )
             for v, s, p in missing + empty:
                 print(f"    {v} {s}: {os.path.relpath(p, ROOT)}", file=sys.stderr)
             return 1
-        print(f"render_samples: {len(tgts)} of {len(tgts)} samples present and non-empty")
+        print(
+            f"render_samples: {len(tgts)} of {len(tgts)} samples present and non-empty"
+        )
         return 0
 
     os.makedirs(SAMPLES, exist_ok=True)
@@ -343,7 +399,7 @@ def main(argv):
         try:
             fn(v, path)
             rendered.append((v, surface, path, desc, fn))
-        except Exception as e:                       # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
             # ⚑ A FAILED SAMPLE IS NAMED, NEVER SKIPPED. An index that quietly
             # omits what would not render shows a complete-looking theme with a
             # hole in it.
@@ -368,11 +424,19 @@ def _selftest():
 
     check("variants are discovered", len(variants()) > 0, True)
     check("every surface has a describer", all(d for _n, _t, _f, d in SURFACES), True)
-    check("targets cover variants x surfaces, plus the singletons",
-          len(targets()), len(variants()) * len(SURFACES) + len(SINGLETONS))
-    check("every singleton has a describer", all(d for _n, _f, _r, d in SINGLETONS), True)
-    check("singleton filenames carry no variant slot",
-          [f for _n, f, _r, _d in SINGLETONS if "{v}" in f], [])
+    check(
+        "targets cover variants x surfaces, plus the singletons",
+        len(targets()),
+        len(variants()) * len(SURFACES) + len(SINGLETONS),
+    )
+    check(
+        "every singleton has a describer", all(d for _n, _f, _r, d in SINGLETONS), True
+    )
+    check(
+        "singleton filenames carry no variant slot",
+        [f for _n, f, _r, _d in SINGLETONS if "{v}" in f],
+        [],
+    )
     check("_rgb parses a hex triple", _rgb("#0c1517"), (12, 21, 23))
     print("render_samples selftest:", "PASS" if ok else "FAIL")
     return ok

@@ -21,6 +21,7 @@ WEAKNESS. Firefox is not run here; this proves the manifest, not the render.
 Whether Firefox honours every key it documents is Firefox's, and two keys MDN
 marks unsupported since 89 are deliberately not emitted.
 """
+
 import json
 import os
 import shutil
@@ -29,7 +30,7 @@ import sys
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))     # sibling checks
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))  # sibling checks
 from check_selection_contrast import (
     roster_drift,
     schemes,
@@ -44,25 +45,37 @@ def facts(variant, text):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+
     try:
         m = json.loads(text)
     except json.JSONDecodeError as e:
-        return {"id": variant, "parse_error": str(e), "missing_required": None,
-                "wrong_colours": None, "unmapped_keys": None, "color_scheme": None,
-                "want_scheme": "light" if variant.endswith("-Lit") else "dark",
-                "gecko_id": None}
+        return {
+            "id": variant,
+            "parse_error": str(e),
+            "missing_required": None,
+            "wrong_colours": None,
+            "unmapped_keys": None,
+            "color_scheme": None,
+            "want_scheme": "light" if variant.endswith("-Lit") else "dark",
+            "gecko_id": None,
+        }
     colors = m.get("theme", {}).get("colors", {})
     r = MF.roles(variant)
     return {
         "id": variant,
         "parse_error": None,
         "missing_required": [k for k in MF.REQUIRED if k not in colors],
-        "wrong_colours": [{"key": k, "role": role, "got": colors.get(k), "want": r[role]}
-                          for k, role in MF.KEYS if colors.get(k) != r[role]],
+        "wrong_colours": [
+            {"key": k, "role": role, "got": colors.get(k), "want": r[role]}
+            for k, role in MF.KEYS
+            if colors.get(k) != r[role]
+        ],
         "unmapped_keys": sorted(set(colors) - {k for k, _ in MF.KEYS}),
         "color_scheme": m.get("theme", {}).get("properties", {}).get("color_scheme"),
         "want_scheme": "light" if variant.endswith("-Lit") else "dark",
-        "gecko_id": m.get("browser_specific_settings", {}).get("gecko", {}).get("id", ""),
+        "gecko_id": m.get("browser_specific_settings", {})
+        .get("gecko", {})
+        .get("id", ""),
     }
 
 
@@ -79,14 +92,22 @@ def _lint_run(folder):
     exe = pinned if os.access(pinned, os.X_OK) else shutil.which("web-ext")
     if not exe:
         return None, None
-    r = subprocess.run([exe, "lint", "--source-dir", folder, "--output", "json", "--no-input"],
-                       capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [exe, "lint", "--source-dir", folder, "--output", "json", "--no-input"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     try:
         report = json.loads(r.stdout)
     except json.JSONDecodeError:
-        return ([] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]), None
-    return ([e.get("message", "") for e in report.get("errors", [])],
-            sorted({w.get("code", "") for w in report.get("warnings", [])}))
+        return (
+            [] if r.returncode == 0 else [f"web-ext rc={r.returncode}, output not JSON"]
+        ), None
+    return (
+        [e.get("message", "") for e in report.get("errors", [])],
+        sorted({w.get("code", "") for w in report.get("warnings", [])}),
+    )
 
 
 def _text(path):
@@ -113,6 +134,7 @@ def dynamic_facts(roster):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+
     with tempfile.TemporaryDirectory() as td:
         MF.render_dynamic(td, list(roster))
         return dynamic_facts_in(td, roster)
@@ -125,6 +147,7 @@ def dynamic_facts_in(folder, roster):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+
     m = _load_json(os.path.join(folder, "manifest.json"))
     themes = _load_json(os.path.join(folder, "themes.json"))
     page = m.get("options_ui", {}).get("page")
@@ -133,10 +156,13 @@ def dynamic_facts_in(folder, roster):
         "id": "dynamic",
         "missing_variants": sorted(set(roster) - set(themes)),
         "extra_variants": sorted(set(themes) - set(roster)),
-        "drifted": sorted(v for v in themes if v in roster and themes[v] != MF.manifest(v)["theme"]),
+        "drifted": sorted(
+            v for v in themes if v in roster and themes[v] != MF.manifest(v)["theme"]
+        ),
         "permissions": sorted(m.get("permissions", [])),
         "options_page": page,
-        "options_page_shipped": bool(page) and os.path.isfile(os.path.join(folder, page)),
+        "options_page_shipped": bool(page)
+        and os.path.isfile(os.path.join(folder, page)),
         "lint_errors": errors,
         "lint_warnings": warnings,
     }
@@ -151,6 +177,7 @@ def measure():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+
     roster = schemes()
     cases = []
     with tempfile.TemporaryDirectory() as td:
@@ -159,12 +186,18 @@ def measure():
         for v in roster:
             text = _text(os.path.join(outs[v], "manifest.json"))
             errors, warnings = _lint_run(outs[v])
-            cases.append(dict(facts(v, text), lint_errors=errors, lint_warnings=warnings))
-    return {"roster": list(roster),
-            "roster_drift": [{"variant": v, "why": why}
-                             for v, why in roster_drift(MF.VARIANTS, "make_firefox")],
-            "cases": cases,
-            "dynamic": dynamic_facts(roster)}
+            cases.append(
+                dict(facts(v, text), lint_errors=errors, lint_warnings=warnings)
+            )
+    return {
+        "roster": list(roster),
+        "roster_drift": [
+            {"variant": v, "why": why}
+            for v, why in roster_drift(MF.VARIANTS, "make_firefox")
+        ],
+        "cases": cases,
+        "dynamic": dynamic_facts(roster),
+    }
 
 
 def main(argv):
@@ -176,6 +209,7 @@ def main(argv):
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+
     if "--map" in argv:
         for k, role in MF.KEYS:
             print(f"{k:30} <- {role}")
@@ -184,6 +218,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("firefox")
 
 
@@ -201,48 +236,97 @@ def _selftest():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_firefox as MF
+
     # The MEASUREMENT can see; what is a defect is policy/firefox_test.rego's (W50).
     good = json.dumps(MF.manifest("EL-Openglo"))
     f = facts("EL-Openglo", good)
-    check("the real emission measures clean",
-          (f["parse_error"], f["missing_required"], f["wrong_colours"], f["unmapped_keys"],
-           f["color_scheme"] == f["want_scheme"]), (None, [], [], [], True))
+    check(
+        "the real emission measures clean",
+        (
+            f["parse_error"],
+            f["missing_required"],
+            f["wrong_colours"],
+            f["unmapped_keys"],
+            f["color_scheme"] == f["want_scheme"],
+        ),
+        (None, [], [], [], True),
+    )
     m = json.loads(good)
     del m["theme"]["colors"]["frame"]
-    check("a missing required key is seen",
-          "frame" in facts("EL-Openglo", json.dumps(m))["missing_required"], True)
+    check(
+        "a missing required key is seen",
+        "frame" in facts("EL-Openglo", json.dumps(m))["missing_required"],
+        True,
+    )
     m = json.loads(good)
     m["theme"]["colors"]["toolbar"] = [1, 2, 3]
-    check("an authored colour is seen",
-          [w["key"] for w in facts("EL-Openglo", json.dumps(m))["wrong_colours"]], ["toolbar"])
+    check(
+        "an authored colour is seen",
+        [w["key"] for w in facts("EL-Openglo", json.dumps(m))["wrong_colours"]],
+        ["toolbar"],
+    )
     m = json.loads(good)
     m["theme"]["colors"]["accentcolor"] = [1, 2, 3]
-    check("an unmapped key is seen", facts("EL-Openglo", json.dumps(m))["unmapped_keys"], ["accentcolor"])
+    check(
+        "an unmapped key is seen",
+        facts("EL-Openglo", json.dumps(m))["unmapped_keys"],
+        ["accentcolor"],
+    )
     m = json.loads(good)
     m["theme"]["properties"]["color_scheme"] = "light"
-    check("a wrong colour scheme is seen", facts("EL-Openglo", json.dumps(m))["color_scheme"], "light")
+    check(
+        "a wrong colour scheme is seen",
+        facts("EL-Openglo", json.dumps(m))["color_scheme"],
+        "light",
+    )
     bad = facts("EL-Openglo", "{not json")
-    check("unparsable JSON is seen, and nothing else is claimed",
-          (bad["parse_error"] is not None, bad["missing_required"]), (True, None))
-    check("hover fill is fainter than active fill (glanced < looked alpha)",
-          MF.roles("EL-Openglo")["_alphas"]["hover"] < MF.roles("EL-Openglo")["_alphas"]["active"], True)
+    check(
+        "unparsable JSON is seen, and nothing else is claimed",
+        (bad["parse_error"] is not None, bad["missing_required"]),
+        (True, None),
+    )
+    check(
+        "hover fill is fainter than active fill (glanced < looked alpha)",
+        MF.roles("EL-Openglo")["_alphas"]["hover"]
+        < MF.roles("EL-Openglo")["_alphas"]["active"],
+        True,
+    )
     # W135: the dynamic extension's measurement SEES drift and a missing variant
     d = dynamic_facts(MF.VARIANTS)
-    check("the real dynamic extension measures clean",
-          (d["missing_variants"], d["extra_variants"], d["drifted"], d["options_page_shipped"]),
-          ([], [], [], True))
+    check(
+        "the real dynamic extension measures clean",
+        (
+            d["missing_variants"],
+            d["extra_variants"],
+            d["drifted"],
+            d["options_page_shipped"],
+        ),
+        ([], [], [], True),
+    )
     with tempfile.TemporaryDirectory() as td:
         MF.render_dynamic(td, list(MF.VARIANTS))
         tp = os.path.join(td, "themes.json")
         themes = _load_json(tp)
-        themes["EL-Amber"]["colors"]["frame"] = [1, 2, 3]      # a hand-edited colour
-        del themes["EL-Azure"]                                  # a dropped variant
+        themes["EL-Amber"]["colors"]["frame"] = [1, 2, 3]  # a hand-edited colour
+        del themes["EL-Azure"]  # a dropped variant
         _dump_json(themes, tp)
-        os.remove(os.path.join(td, "options.html"))             # an options page not shipped
+        os.remove(os.path.join(td, "options.html"))  # an options page not shipped
         t = dynamic_facts_in(td, MF.VARIANTS)
-    check("a hand-edited colour in themes.json is seen as drift", t["drifted"], ["EL-Amber"])
-    check("a variant the extension drops is seen as missing", t["missing_variants"], ["EL-Azure"])
-    check("an options page named but not shipped is seen", t["options_page_shipped"], False)
+    check(
+        "a hand-edited colour in themes.json is seen as drift",
+        t["drifted"],
+        ["EL-Amber"],
+    )
+    check(
+        "a variant the extension drops is seen as missing",
+        t["missing_variants"],
+        ["EL-Azure"],
+    )
+    check(
+        "an options page named but not shipped is seen",
+        t["options_page_shipped"],
+        False,
+    )
     # W143: the lint's WARNING codes are seen (the defect that X6 alone let through)
     with tempfile.TemporaryDirectory() as td:
         MF.render_dynamic(td, list(MF.VARIANTS))
@@ -254,18 +338,27 @@ def _selftest():
     if warnings is None:
         print("  SKIP lint-warning arm: web-ext is not installed here")
     else:
-        check("a missing data_collection_permissions is seen as a lint warning",
-              "MISSING_DATA_COLLECTION_PERMISSIONS" in warnings, True)
+        check(
+            "a missing data_collection_permissions is seen as a lint warning",
+            "MISSING_DATA_COLLECTION_PERMISSIONS" in warnings,
+            True,
+        )
     # ⚑ THE LIVENESS CONJUNCT: every declared variant measured, and not vacuously
     got = measure()
-    check("every declared variant is measured",
-          sorted(c["id"] for c in got["cases"]), sorted(got["roster"]))
+    check(
+        "every declared variant is measured",
+        sorted(c["id"] for c in got["cases"]),
+        sorted(got["roster"]),
+    )
     check("and it is not vacuously complete", len(got["cases"]) > 0, True)
     saved = list(MF.VARIANTS)
     try:
         MF.VARIANTS[:] = saved[:-1]
-        check("an emitter that drops a GRID variant is reported as drift",
-              len(measure()["roster_drift"]) > 0, True)
+        check(
+            "an emitter that drops a GRID variant is reported as drift",
+            len(measure()["roster_drift"]) > 0,
+            True,
+        )
     finally:
         MF.VARIANTS[:] = saved
     print("check_firefox selftest:", "PASS" if ok else "FAIL")

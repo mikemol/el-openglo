@@ -29,13 +29,20 @@ dark desktop); the Lit variants inherit breeze icons and breeze_cursors.
 
     make_inherit.py               # print every variant's index.theme
 """
+
 import os
 import sys
 
 from emitters import atomic_write
 
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-            "EL-Amber", "EL-Amber-Lit")
+VARIANTS = (
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+)
 
 
 def is_lit(variant):
@@ -43,7 +50,7 @@ def is_lit(variant):
 
 
 def icon_theme_name(variant):
-    return variant                       # the variant name already carries EL-
+    return variant  # the variant name already carries EL-
 
 
 def cursor_theme_name(variant):
@@ -52,7 +59,11 @@ def cursor_theme_name(variant):
 
 def icon_parents(variant):
     """The Inherits chain for the icon theme, hicolor last (the spec's fallback)."""
-    return ["breeze", "hicolor"] if is_lit(variant) else ["breeze-dark", "breeze", "hicolor"]
+    return (
+        ["breeze", "hicolor"]
+        if is_lit(variant)
+        else ["breeze-dark", "breeze", "hicolor"]
+    )
 
 
 def cursor_parent(variant):
@@ -121,7 +132,10 @@ def render_all(variants, icons_root, icon_png=None):
                 import shutil
 
                 from emitters import atomic_path
-                with atomic_path(os.path.join(idir, ICON_DIR, "el-segclock.png")) as tmp:
+
+                with atomic_path(
+                    os.path.join(idir, ICON_DIR, "el-segclock.png")
+                ) as tmp:
                     shutil.copyfile(src, tmp)
         cdir = os.path.join(icons_root, cursor_theme_name(v))
         os.makedirs(cdir, exist_ok=True)

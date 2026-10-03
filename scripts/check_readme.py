@@ -29,13 +29,18 @@ each claim's own check. And the populations are read from their authorities, so
 an item deleted from BOTH the authority and the README reads clean (it is no
 longer declared); that is @EMITTERS / @SCREENS / @REGRESSIONS' question.
 """
+
 import json
 import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 README = os.path.join(ROOT, "README.md")
-for p in (ROOT, os.path.join(ROOT, "scripts"), os.path.join(ROOT, "catalog", "library")):
+for p in (
+    ROOT,
+    os.path.join(ROOT, "scripts"),
+    os.path.join(ROOT, "catalog", "library"),
+):
     if p not in sys.path:
         sys.path.insert(0, p)
 
@@ -47,6 +52,7 @@ def populations():
     import variant_roster as VR
 
     import emitters as E
+
     d = os.path.relpath(RS.SCREENS, ROOT)
     out = [("emitter", m, m) for m in sorted(E.ROLES)]
     out += [("variant", v, v) for v in VR.ordered()]
@@ -57,21 +63,31 @@ def populations():
 
 def measure(readme_text=None, fragments=None):
     import readme_fragments as RF
+
     if readme_text is None:
         if os.path.isfile(README):
             with open(README, encoding="utf-8") as fh:
                 readme_text = fh.read()
         else:
             readme_text = None
-    items = [{"kind": k, "name": n, "named": readme_text is not None and tok in readme_text}
-             for k, n, tok in populations()]
+    items = [
+        {"kind": k, "name": n, "named": readme_text is not None and tok in readme_text}
+        for k, n, tok in populations()
+    ]
     gen = RF.generate()
-    frags = [{"name": n, "current": (fragments or {}).get(n, RF.committed(n)) == gen[n]}
-             for n in sorted(RF.FRAGMENTS)]
+    frags = [
+        {"name": n, "current": (fragments or {}).get(n, RF.committed(n)) == gen[n]}
+        for n in sorted(RF.FRAGMENTS)
+    ]
     import render_screens as RS
     import variant_roster as VR
-    return {"readme": readme_text is not None, "items": items, "fragments": frags,
-            "roster_drift": VR.drift_facts({"render_screens": RS.VARIANTS})}
+
+    return {
+        "readme": readme_text is not None,
+        "items": items,
+        "fragments": frags,
+        "roster_drift": VR.drift_facts({"render_screens": RS.VARIANTS}),
+    }
 
 
 def main(argv):
@@ -85,8 +101,10 @@ def main(argv):
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
-    print("usage: check_readme.py --json | --selftest  (the verdict: scripts/opa_gate.py readme)",
-          file=sys.stderr)
+    print(
+        "usage: check_readme.py --json | --selftest  (the verdict: scripts/opa_gate.py readme)",
+        file=sys.stderr,
+    )
     return 2
 
 
@@ -97,29 +115,46 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     pops = populations()
-    chk("every population kind is non-empty",
-        sorted({k for k, _n, _t in pops}), ["emitter", "picture", "symbol", "variant"])
+    chk(
+        "every population kind is non-empty",
+        sorted({k for k, _n, _t in pops}),
+        ["emitter", "picture", "symbol", "variant"],
+    )
     empty = measure(readme_text="")
     chk("an empty README names nothing", any(i["named"] for i in empty["items"]), False)
     full = measure(readme_text="\n".join(t for _k, _n, t in pops))
-    chk("a README naming every token names all", all(i["named"] for i in full["items"]), True)
+    chk(
+        "a README naming every token names all",
+        all(i["named"] for i in full["items"]),
+        True,
+    )
     stale = measure(readme_text="", fragments={"gallery.md": "stale"})
-    chk("a differing fragment is not current",
-        [f["current"] for f in stale["fragments"] if f["name"] == "gallery.md"], [False])
+    chk(
+        "a differing fragment is not current",
+        [f["current"] for f in stale["fragments"] if f["name"] == "gallery.md"],
+        [False],
+    )
     import render_screens as RS
+
     chk("the live render_screens.VARIANTS is the roster", full["roster_drift"], [])
     kept = RS.VARIANTS
     try:
-        RS.VARIANTS = [x for x in kept if x != "EL-Amber"]      # a planted drop
+        RS.VARIANTS = [x for x in kept if x != "EL-Amber"]  # a planted drop
         dropped = measure(readme_text="")["roster_drift"]
     finally:
         RS.VARIANTS = kept
-    chk("a screen renderer that drops a variant is a fact", [(d["who"], d["variant"]) for d in dropped],
-        [("render_screens", "EL-Amber")])
+    chk(
+        "a screen renderer that drops a variant is a fact",
+        [(d["who"], d["variant"]) for d in dropped],
+        [("render_screens", "EL-Amber")],
+    )
     print("check_readme selftest:", "PASS" if ok else "FAIL")
     return ok
 

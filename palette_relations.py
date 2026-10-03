@@ -27,6 +27,7 @@ eliminating the interior node leaves ONE edge carrying `y1·y2/(y1+y2)`, which i
 hand, which is a REIMPLEMENTATION of what the solver returns as a term — recorded
 here as a defect of the encoding, not defended.
 """
+
 from __future__ import annotations
 
 import palette_graph as _PG
@@ -61,6 +62,7 @@ class Relation:
         balance     the two sides are equal — a fixed point of the involution
         arrow       b is computed FROM a; no floor, not a constraint
     """
+
     __slots__ = ("bound", "kind", "quantity", "u", "v", "why")
 
     def __init__(self, u, v, kind, quantity, bound=None, why=""):
@@ -106,8 +108,16 @@ def relations():
     # say lit~ghost and ghost~ground each clear; they do NOT say the ghost BALANCES
     # them, which is the relation that DETERMINES it. It is the composite, and it
     # is why the ghost needs no search.
-    out.append(Relation("fg", "view", "balance", "series_through_fg_in",
-                        None, "AND(y(fg,fg_in), y(fg_in,view)) — the divider"))
+    out.append(
+        Relation(
+            "fg",
+            "view",
+            "balance",
+            "series_through_fg_in",
+            None,
+            "AND(y(fg,fg_in), y(fg_in,view)) — the divider",
+        )
+    )
     return tuple(out)
 
 
@@ -123,7 +133,7 @@ def netlist_input(constraining_only=True):
         if constraining_only and r.kind == "arrow":
             continue
         if r.kind == "balance":
-            continue                    # a composite, not an edge
+            continue  # a composite, not an edge
         a, b = (r.u, r.v) if r.u <= r.v else (r.v, r.u)
         out[(a, b)] = r.generator
     return out
@@ -147,53 +157,77 @@ def open_questions():
     ⚑ RECORDED AS RESIDUE, NOT OMITTED.  An explanation is a place defects hide,
     and a relation set that quietly covered its gaps would read as complete."""
     return (
-        ("discrete-occupancy", (
-         "A nodal solve gives continuous potentials; slot occupancy is a DISCRETE "
-         "choice among ~40 candidates. Voronoi cells over the candidate sites under "
-         "the gate's metric are the regions where the answer's SHAPE is constant, "
-         "with the Delaunay dual naming which candidate can displace which. The "
-         "machinery exists (spanning_tree/cycle_basis) and NOTHING HERE HAS "
-         "MEASURED IT.")),
-        ("series-composition-witness", (
-         "That two distinguishing axes chain in SERIES as strains is one "
-         "proposition about the DOMAIN, not an assumption about how margins add. "
-         "It still needs a witness; it is now the kind of thing a witness could "
-         "refute.")),
-        ("bias-as-conjunct", (
-         "The stride cap in _candidates and every _lum_nudge are biases that are "
-         "not expressible as constraints, so none can be checked, removed or "
-         "compared. The fix is to move them INTO the satisfactory set, not to add "
-         "a bias mechanism.")),
-        ("geometry-is-the-same-netlist", (
-         "⚑ GEOMETRY IS NOT A SECOND NETWORK — it is unstated edges of THIS one, "
-         "and carrying it as separate work was an error corrected by measurement. "
-         "Every geometry quantity here is already a fraction of the cell unit "
-         "(litHalf u*0.20, ghostHalf u*0.13, endGap u*0.10, dotFill 0.82) — never "
-         "an absolute length — so each is dimensionless with 1.0 as its pass "
-         "threshold, which is exactly the carrier the colour relations use. "
-         "Nothing had to be made compatible; they already were. BUILT: the "
-         "geometry family is now 5 edges over 8 nodes in the ONE authority, and "
-         "the unified netlist (21 nodes, 40 edges) hands to the solver and "
-         "eliminates to the same 3 terms at 62 Q.")),
-        ("geometry-and-colour-now-TOUCH", (
-         "⚑ CLOSED, AND THE EDGE FOUND A LIVE DEFECT. The halves were disjoint — "
-         "5 components, none mixing colour and geometry — until fg_in~ghost_stroke "
-         "was written. Now 4 components with the main one MIXED (14 nodes, b1=24), "
-         "and the solve cost moved 62 Q -> 68 Q with `fg ~ view` growing from 7 "
-         "parts to 9, so the edge composes into the surviving terms rather than "
-         "sitting inert. THE DEFECT: SegmentChar.qml:73 draws the unlit core at "
-         "opacity 0.45, so ghost subordination is carried by COLOUR and ALPHA and "
-         "WIDTH (0.65x) multiplying into one perceived quantity — and the "
-         "composited ghost is UNDER feasible_ghost_floor on all six variants "
-         "(EL-Openglo gated at 4.16:1, renders at 1.79:1, floor 3.00). @GHOSTCOMP "
-         "is RED and must be.")),
-        ("the-solve-optimises-the-bound-not-in-danger", (
-         "The ghost has a CEILING (must not read as text) and a FLOOR (must still "
-         "read as shape), and alpha makes the ceiling SAFER while making the floor "
-         "HARDER. Measured |Lc|: 29.8 declared, 7.7 composited, against a limit of "
-         "30 — derive_ghost_ceiling pushes to within 0.2 of a bound carrying a "
-         "22-point margin, while nothing models the one being missed. The fix is "
-         "NOT to lower alpha or widen the stroke by hand: it is to give the ghost "
-         "solve a floor term in the composited quantity, so the three knobs are "
-         "solved together instead of traded blind. NOT YET BUILT.")),
+        (
+            "discrete-occupancy",
+            (
+                "A nodal solve gives continuous potentials; slot occupancy is a DISCRETE "
+                "choice among ~40 candidates. Voronoi cells over the candidate sites under "
+                "the gate's metric are the regions where the answer's SHAPE is constant, "
+                "with the Delaunay dual naming which candidate can displace which. The "
+                "machinery exists (spanning_tree/cycle_basis) and NOTHING HERE HAS "
+                "MEASURED IT."
+            ),
+        ),
+        (
+            "series-composition-witness",
+            (
+                "That two distinguishing axes chain in SERIES as strains is one "
+                "proposition about the DOMAIN, not an assumption about how margins add. "
+                "It still needs a witness; it is now the kind of thing a witness could "
+                "refute."
+            ),
+        ),
+        (
+            "bias-as-conjunct",
+            (
+                "The stride cap in _candidates and every _lum_nudge are biases that are "
+                "not expressible as constraints, so none can be checked, removed or "
+                "compared. The fix is to move them INTO the satisfactory set, not to add "
+                "a bias mechanism."
+            ),
+        ),
+        (
+            "geometry-is-the-same-netlist",
+            (
+                "⚑ GEOMETRY IS NOT A SECOND NETWORK — it is unstated edges of THIS one, "
+                "and carrying it as separate work was an error corrected by measurement. "
+                "Every geometry quantity here is already a fraction of the cell unit "
+                "(litHalf u*0.20, ghostHalf u*0.13, endGap u*0.10, dotFill 0.82) — never "
+                "an absolute length — so each is dimensionless with 1.0 as its pass "
+                "threshold, which is exactly the carrier the colour relations use. "
+                "Nothing had to be made compatible; they already were. BUILT: the "
+                "geometry family is now 5 edges over 8 nodes in the ONE authority, and "
+                "the unified netlist (21 nodes, 40 edges) hands to the solver and "
+                "eliminates to the same 3 terms at 62 Q."
+            ),
+        ),
+        (
+            "geometry-and-colour-now-TOUCH",
+            (
+                "⚑ CLOSED, AND THE EDGE FOUND A LIVE DEFECT. The halves were disjoint — "
+                "5 components, none mixing colour and geometry — until fg_in~ghost_stroke "
+                "was written. Now 4 components with the main one MIXED (14 nodes, b1=24), "
+                "and the solve cost moved 62 Q -> 68 Q with `fg ~ view` growing from 7 "
+                "parts to 9, so the edge composes into the surviving terms rather than "
+                "sitting inert. THE DEFECT: SegmentChar.qml:73 draws the unlit core at "
+                "opacity 0.45, so ghost subordination is carried by COLOUR and ALPHA and "
+                "WIDTH (0.65x) multiplying into one perceived quantity — and the "
+                "composited ghost is UNDER feasible_ghost_floor on all six variants "
+                "(EL-Openglo gated at 4.16:1, renders at 1.79:1, floor 3.00). @GHOSTCOMP "
+                "is RED and must be."
+            ),
+        ),
+        (
+            "the-solve-optimises-the-bound-not-in-danger",
+            (
+                "The ghost has a CEILING (must not read as text) and a FLOOR (must still "
+                "read as shape), and alpha makes the ceiling SAFER while making the floor "
+                "HARDER. Measured |Lc|: 29.8 declared, 7.7 composited, against a limit of "
+                "30 — derive_ghost_ceiling pushes to within 0.2 of a bound carrying a "
+                "22-point margin, while nothing models the one being missed. The fix is "
+                "NOT to lower alpha or widen the stroke by hand: it is to give the ghost "
+                "solve a floor term in the composited quantity, so the three knobs are "
+                "solved together instead of traded blind. NOT YET BUILT."
+            ),
+        ),
     )

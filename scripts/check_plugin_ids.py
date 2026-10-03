@@ -31,6 +31,7 @@ comment naming an old id) is counted as a reference — the second errs toward
 refusing, which is the safe side. Ids outside org.el.* (KDE's own) are not in the
 population: this checks our ids only.
 """
+
 import json
 import os
 import re
@@ -63,11 +64,17 @@ def shipped_ids(stage):
             with open(os.path.join(dp, "metadata.json"), encoding="utf-8") as fh:
                 pid = json.load(fh)["KPlugin"]["Id"]
         except (ValueError, KeyError, TypeError, OSError):
-            continue                      # not a KPackage metadata file
+            continue  # not a KPackage metadata file
         d = os.path.basename(dp)
-        out.append({"id": pid, "kind": os.path.relpath(os.path.dirname(dp), base), "dir": d,
-                    "dir_matches": pid == d})
-        dirs[:] = []                      # a package's own subtree holds no further packages
+        out.append(
+            {
+                "id": pid,
+                "kind": os.path.relpath(os.path.dirname(dp), base),
+                "dir": d,
+                "dir_matches": pid == d,
+            }
+        )
+        dirs[:] = []  # a package's own subtree holds no further packages
     return sorted(out, key=lambda x: (x["kind"], x["dir"]))
 
 
@@ -90,22 +97,33 @@ def referenced_ids(stage):
             except (UnicodeDecodeError, OSError):
                 continue
             for m in ID_RE.finditer(text):
-                refs.add((m.group(1), "/" + os.path.relpath(p, stage), bool(m.group(2))))
+                refs.add(
+                    (m.group(1), "/" + os.path.relpath(p, stage), bool(m.group(2)))
+                )
     return [{"id": i, "file": f, "prefix": pre} for i, f, pre in sorted(refs)]
 
 
 def measure(stage):
     if not os.path.isdir(os.path.join(stage, PLASMA)):
-        return {"stage": stage, "shipped": [], "referenced": [],
-                "withheld": f"{stage} has no {PLASMA}: not a staged install tree"}
-    return {"stage": stage, "shipped": shipped_ids(stage), "referenced": referenced_ids(stage),
-            "withheld": None}
+        return {
+            "stage": stage,
+            "shipped": [],
+            "referenced": [],
+            "withheld": f"{stage} has no {PLASMA}: not a staged install tree",
+        }
+    return {
+        "stage": stage,
+        "shipped": shipped_ids(stage),
+        "referenced": referenced_ids(stage),
+        "withheld": None,
+    }
 
 
 def staged_measure(stage=None):
     if stage:
         return measure(stage)
     import make_deb
+
     with tempfile.TemporaryDirectory() as td:
         make_deb.stage(td)
         return measure(td)
@@ -116,8 +134,11 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(("  ok   " if got == want else "  FAIL ") + label
-              + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            ("  ok   " if got == want else "  FAIL ")
+            + label
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     def pkg(stage, kind, d, pid):
@@ -128,21 +149,33 @@ def _selftest():
 
     with tempfile.TemporaryDirectory() as s:
         pkg(s, "wallpapers", "org.el.openglo.live", "org.el.openglo.live")
-        pkg(s, "plasmoids", "org.el.segclock", "org.el.renamed")          # a renamed package
+        pkg(s, "plasmoids", "org.el.segclock", "org.el.renamed")  # a renamed package
         lf = os.path.join(s, PLASMA, "look-and-feel", "x", "contents", "layouts")
         os.makedirs(lf)
         with open(os.path.join(lf, "org.kde.plasma.desktop-layout.js"), "w") as fh:
             fh.write(
                 'd.wallpaperPlugin = "org.el.openglo.live";\n'
-                'd.addWidget("org.el.openglo.live.elazure");\n'            # the f521e6f dangling id
-                'p.addWidget("org.kde.plasma.digitalclock");\n')
+                'd.addWidget("org.el.openglo.live.elazure");\n'  # the f521e6f dangling id
+                'p.addWidget("org.kde.plasma.digitalclock");\n'
+            )
         m = measure(s)
         ship = {x["id"]: x["dir_matches"] for x in m["shipped"]}
-        chk("a package whose Id is not its directory is SEEN", ship.get("org.el.renamed"), False)
-        chk("...and a matching one is not flagged", ship.get("org.el.openglo.live"), True)
+        chk(
+            "a package whose Id is not its directory is SEEN",
+            ship.get("org.el.renamed"),
+            False,
+        )
+        chk(
+            "...and a matching one is not flagged",
+            ship.get("org.el.openglo.live"),
+            True,
+        )
         refd = sorted({r["id"] for r in m["referenced"]})
-        chk("org.el.* references are read; KDE's own ids are not in the population",
-            refd, ["org.el.openglo.live", "org.el.openglo.live.elazure"])
+        chk(
+            "org.el.* references are read; KDE's own ids are not in the population",
+            refd,
+            ["org.el.openglo.live", "org.el.openglo.live.elazure"],
+        )
     with tempfile.TemporaryDirectory() as s:
         pkg(s, "wallpapers", "org.el.openglo.live", "org.el.openglo.live")
         tb = os.path.join(s, SHARE, "kwin", "tabbox", "org.el.taskswitch")
@@ -153,12 +186,21 @@ def _selftest():
         with open(os.path.join(s, "usr", "bin", "apply"), "w") as fh:
             fh.write('PID="org.el.openglo.$(echo "$V" | tr A-Z a-z)"\n')
         m = measure(s)
-        chk("a kwin task switcher outside usr/share/plasma is SHIPPED",
-            "org.el.taskswitch" in {x["id"] for x in m["shipped"]}, True)
-        chk("an id completed at run time (`org.el.openglo.$(...)`) reads as a PREFIX",
-            [(r["id"], r["prefix"]) for r in m["referenced"]], [("org.el.openglo", True)])
-    chk("a tree with no usr/share/plasma is withheld, not empty-and-fine",
-        measure(tempfile.gettempdir())["withheld"] is not None, True)
+        chk(
+            "a kwin task switcher outside usr/share/plasma is SHIPPED",
+            "org.el.taskswitch" in {x["id"] for x in m["shipped"]},
+            True,
+        )
+        chk(
+            "an id completed at run time (`org.el.openglo.$(...)`) reads as a PREFIX",
+            [(r["id"], r["prefix"]) for r in m["referenced"]],
+            [("org.el.openglo", True)],
+        )
+    chk(
+        "a tree with no usr/share/plasma is withheld, not empty-and-fine",
+        measure(tempfile.gettempdir())["withheld"] is not None,
+        True,
+    )
     print("check_plugin_ids selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -169,10 +211,12 @@ def main(argv):
     if "--stage" in args:
         i = args.index("--stage")
         if i + 1 >= len(args) or not os.path.isdir(args[i + 1]):
-            print("check_plugin_ids: --stage needs an existing directory", file=sys.stderr)
+            print(
+                "check_plugin_ids: --stage needs an existing directory", file=sys.stderr
+            )
             return 2
         stage = args[i + 1]
-        del args[i:i + 2]
+        del args[i : i + 2]
     for a in args:
         if a not in ("--json", "--list", "--selftest"):
             print(f"check_plugin_ids: unknown flag {a!r}", file=sys.stderr)
@@ -187,17 +231,28 @@ def main(argv):
         shipped = {x["id"] for x in m["shipped"]}
 
         def found(rid, pre):
-            return any(s.startswith(rid + ".") for s in shipped) if pre else rid in shipped
+            return (
+                any(s.startswith(rid + ".") for s in shipped) if pre else rid in shipped
+            )
+
         refs = sorted({(r["id"], r["prefix"]) for r in m["referenced"]})
         for x in m["shipped"]:
-            print(f"  shipped  {x['kind']:20} {x['dir']:40} {'' if x['dir_matches'] else 'ID=' + str(x['id'])}")
+            print(
+                f"  shipped  {x['kind']:20} {x['dir']:40} {'' if x['dir_matches'] else 'ID=' + str(x['id'])}"
+            )
         for rid, pre in refs:
-            print(f"  ref      {'shipped' if found(rid, pre) else 'DANGLING':9} {rid}{'.* (prefix)' if pre else ''}")
-        print(f"check_plugin_ids: {sum(found(r, p) for r, p in refs)} of {len(refs)} referenced id(s) shipped; "
-              f"{sum(x['dir_matches'] for x in m['shipped'])} of {len(m['shipped'])} package Id(s) match their directory")
+            print(
+                f"  ref      {'shipped' if found(rid, pre) else 'DANGLING':9} {rid}{'.* (prefix)' if pre else ''}"
+            )
+        print(
+            f"check_plugin_ids: {sum(found(r, p) for r, p in refs)} of {len(refs)} referenced id(s) shipped; "
+            f"{sum(x['dir_matches'] for x in m['shipped'])} of {len(m['shipped'])} package Id(s) match their directory"
+        )
         return 0
-    print("usage: check_plugin_ids.py --json | --list | --selftest [--stage DIR]  (verdict: opa_gate plugin_ids)",
-          file=sys.stderr)
+    print(
+        "usage: check_plugin_ids.py --json | --list | --selftest [--stage DIR]  (verdict: opa_gate plugin_ids)",
+        file=sys.stderr,
+    )
     return 2
 
 

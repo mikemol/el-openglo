@@ -25,6 +25,7 @@ WEAKNESS. A cited id that EXISTS is not a cited id that is RIGHT for the
 artifact; the display name is printed beside each so a reader can judge, and
 the choice between 114 and 717 is [MEM] until someone uploads.
 """
+
 import json
 import os
 import re
@@ -49,9 +50,11 @@ def categories(path=CACHE):
     for cat in root.iter("category"):
         cid = (cat.findtext("id") or "").strip()
         if cid:
-            out[cid] = ((cat.findtext("name") or "").strip(),
-                        (cat.findtext("display_name") or "").strip(),
-                        (cat.findtext("xdg_type") or "").strip())
+            out[cid] = (
+                (cat.findtext("name") or "").strip(),
+                (cat.findtext("display_name") or "").strip(),
+                (cat.findtext("xdg_type") or "").strip(),
+            )
     return out
 
 
@@ -72,8 +75,11 @@ def emitters():
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import emitters as E
+
     names = [m for m, _w in E.ORDER] + list(DIRECT)
-    return sorted(set(names) - {"make_preview"})        # preview is an input to others, not a target
+    return sorted(
+        set(names) - {"make_preview"}
+    )  # preview is an input to others, not a target
 
 
 def cited_ids(route):
@@ -91,10 +97,19 @@ def measure(table_rows, cats, emitter_names):
     return {
         "listing": cats is not None,
         "cases": [{"emitter": e, "rows": keys.count(e)} for e in emitter_names],
-        "rows": [{"emitter": e, "venue": v, "route": r, "guessed": "?" in r,
-                  "ids": [{"id": cid, "listed": cats is not None and cid in cats}
-                          for cid in cited_ids(r)]}
-                 for e, v, r in table_rows],
+        "rows": [
+            {
+                "emitter": e,
+                "venue": v,
+                "route": r,
+                "guessed": "?" in r,
+                "ids": [
+                    {"id": cid, "listed": cats is not None and cid in cats}
+                    for cid in cited_ids(r)
+                ],
+            }
+            for e, v, r in table_rows
+        ],
     }
 
 
@@ -108,11 +123,15 @@ def main(argv):
             return 2
     if "--refresh" in args:
         import urllib.request
+
         try:
             data = urllib.request.urlopen(OCS_URL, timeout=30).read()
-        except Exception as e:                            # noqa: BLE001
-            print(f"check_publishing: SKIP refresh — offline or refused ({type(e).__name__}); "
-                  f"the cached listing stands", file=sys.stderr)
+        except Exception as e:  # noqa: BLE001
+            print(
+                f"check_publishing: SKIP refresh — offline or refused ({type(e).__name__}); "
+                f"the cached listing stands",
+                file=sys.stderr,
+            )
             return 0
         with open(CACHE, "wb") as fh:
             fh.write(data)
@@ -121,7 +140,9 @@ def main(argv):
     if "--categories" in args:
         cats = categories()
         if cats is None:
-            print("check_publishing: no cached listing; --refresh first", file=sys.stderr)
+            print(
+                "check_publishing: no cached listing; --refresh first", file=sys.stderr
+            )
             return 2
         sub = rest[0].lower() if rest else ""
         shown = 0
@@ -140,6 +161,7 @@ def main(argv):
         print(json.dumps(measure(table_rows, categories(), emitters()), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("publishing")
 
 
@@ -156,20 +178,50 @@ def _selftest():
 
     # ⚑ THE MEASUREMENT CAN SEE (W50). Whether what it sees is a defect is
     # policy/publishing.rego's ruling, refused and admitted in publishing_test.rego.
-    cats = {"112": ("x", "Plasma Color Schemes", "plasma_color_schemes"), "722": ("y", "Global Themes", "")}
-    good = [("make_schemes", "KDE Store", "id 112 [OCS]"), ("make_deb", "KDE Store", "id 722"),
-            ("make_css", "the operator's site", "direct")]
+    cats = {
+        "112": ("x", "Plasma Color Schemes", "plasma_color_schemes"),
+        "722": ("y", "Global Themes", ""),
+    }
+    good = [
+        ("make_schemes", "KDE Store", "id 112 [OCS]"),
+        ("make_deb", "KDE Store", "id 722"),
+        ("make_css", "the operator's site", "direct"),
+    ]
     m = measure(good, cats, ["make_schemes", "make_deb", "make_css", "make_new"])
-    chk("an emitter without a row is seen (0 rows)", m["cases"][-1], {"emitter": "make_new", "rows": 0})
-    chk("a covered emitter is seen", m["cases"][0], {"emitter": "make_schemes", "rows": 1})
-    m = measure(good + [("make_x", "KDE Store", "id 999"), ("make_y", "KDE Store", "id 723?")], cats, ["make_x"])
-    chk("an id not in the listing is seen", m["rows"][3]["ids"], [{"id": "999", "listed": False}])
+    chk(
+        "an emitter without a row is seen (0 rows)",
+        m["cases"][-1],
+        {"emitter": "make_new", "rows": 0},
+    )
+    chk(
+        "a covered emitter is seen",
+        m["cases"][0],
+        {"emitter": "make_schemes", "rows": 1},
+    )
+    m = measure(
+        good + [("make_x", "KDE Store", "id 999"), ("make_y", "KDE Store", "id 723?")],
+        cats,
+        ["make_x"],
+    )
+    chk(
+        "an id not in the listing is seen",
+        m["rows"][3]["ids"],
+        [{"id": "999", "listed": False}],
+    )
     chk("a listed id is seen", m["rows"][0]["ids"], [{"id": "112", "listed": True}])
     chk("a guessed id (?) is seen", m["rows"][4]["guessed"], True)
-    chk("no cached listing is seen", measure(good, None, ["make_schemes"])["listing"], False)
+    chk(
+        "no cached listing is seen",
+        measure(good, None, ["make_schemes"])["listing"],
+        False,
+    )
     chk("cited_ids reads several", cited_ids("id 114 or id 717"), ["114", "717"])
     real = categories()
-    chk("the cached listing parses to many categories", real is not None and len(real) > 100, True)
+    chk(
+        "the cached listing parses to many categories",
+        real is not None and len(real) > 100,
+        True,
+    )
     print("check_publishing selftest:", "PASS" if ok else "FAIL")
     return ok
 

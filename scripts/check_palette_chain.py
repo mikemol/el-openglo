@@ -34,6 +34,7 @@ WEAKNESS: SHIPPED asks the module's own state (identity with the fallback), not
 the emitted files; re-running build_grid() would take minutes and answer a
 different question (can it solve?).
 """
+
 import ast
 import json
 import os
@@ -46,6 +47,7 @@ def referenced():
     """{attr: {files}} — every `C.<attr>` on the cvd_gate module, from the AST."""
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import git_tracked  # the tree is what git tracks, not the disk
+
     out = {}
     for fn in git_tracked.files(":(glob)*.py", root=ROOT):
         if fn == "cvd_gate.py":
@@ -71,16 +73,20 @@ def _attrs(tree):
                     alias = a.asname or a.name
     if not alias:
         return set()
-    return {n.attr for n in ast.walk(tree)
-            if isinstance(n, ast.Attribute) and isinstance(n.value, ast.Name)
-            and n.value.id == alias}
+    return {
+        n.attr
+        for n in ast.walk(tree)
+        if isinstance(n, ast.Attribute)
+        and isinstance(n.value, ast.Name)
+        and n.value.id == alias
+    }
 
 
 def _import(name):
     """(module, None) or (None, 'Type: message')."""
     try:
         return __import__(name), None
-    except Exception as e:                       # noqa: BLE001
+    except Exception as e:  # noqa: BLE001
         return None, f"{type(e).__name__}: {e}"
 
 
@@ -92,11 +98,18 @@ def measure():
     refs = referenced()
     C, cvd_err = _import("cvd_gate")
     have = {a for a in dir(C) if not a.startswith("__")} if C else set()
-    out = {"cvd_gate_error": cvd_err, "make_palette_error": None, "make_schemes_error": None,
-           "authored_env": os.environ.get("EL_AUTHORED_PALETTE") == "1",
-           "grid_is_authored": None, "grid_count": None,
-           "cases": [{"id": a, "files": sorted(f), "present": a in have}
-                     for a, f in sorted(refs.items())]}
+    out = {
+        "cvd_gate_error": cvd_err,
+        "make_palette_error": None,
+        "make_schemes_error": None,
+        "authored_env": os.environ.get("EL_AUTHORED_PALETTE") == "1",
+        "grid_is_authored": None,
+        "grid_count": None,
+        "cases": [
+            {"id": a, "files": sorted(f), "present": a in have}
+            for a, f in sorted(refs.items())
+        ],
+    }
     _P, out["make_palette_error"] = _import("make_palette")
     S, out["make_schemes_error"] = _import("make_schemes")
     if S is not None:
@@ -117,14 +130,19 @@ def main(argv):
     if "--api" in argv:
         m = measure()
         if m["cvd_gate_error"]:
-            print(f"check_palette_chain: cvd_gate will not import — {m['cvd_gate_error']}",
-                  file=sys.stderr)
+            print(
+                f"check_palette_chain: cvd_gate will not import — {m['cvd_gate_error']}",
+                file=sys.stderr,
+            )
             return 2
         for c in m["cases"]:
-            print(f"{'ok  ' if c['present'] else 'MISS'} {c['id']}\t{', '.join(c['files'])}")
+            print(
+                f"{'ok  ' if c['present'] else 'MISS'} {c['id']}\t{', '.join(c['files'])}"
+            )
         return 0
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import opa_gate
+
     return opa_gate.gate("palette_chain")
 
 
@@ -154,27 +172,37 @@ def _selftest():
     ids = {c["id"] for c in m["cases"]}
     for needed in ("apca_Lc", "wcag_ratio"):
         check(f"walk sees C.{needed}", needed in ids, True)
-    seen = _attrs(ast.parse("import cvd_gate as C\nx = C.derive_ghost\ny = C.nothing_here\n"))
+    seen = _attrs(
+        ast.parse("import cvd_gate as C\nx = C.derive_ghost\ny = C.nothing_here\n")
+    )
     check("walk sees a planted C.derive_ghost", "derive_ghost" in seen, True)
     check("...and a planted attribute cvd_gate lacks", "nothing_here" in seen, True)
     # ⚑ THE MEASUREMENT MUST SEE EACH DEFECT (that it is DENIED is
     # policy/palette_chain_test.rego's ruling). The recovery's break: an attribute
     # the tree calls is gone from cvd_gate.
     import cvd_gate as C
+
     saved = C.wcag_ratio
     try:
         del C.wcag_ratio
         c = next(c for c in measure()["cases"] if c["id"] == "wcag_ratio")
-        check("an attribute removed from cvd_gate is measured absent", c["present"], False)
+        check(
+            "an attribute removed from cvd_gate is measured absent", c["present"], False
+        )
     finally:
         C.wcag_ratio = saved
     # the second half of the break: make_schemes emitting its authored fallback
     import make_schemes as S
+
     if hasattr(S, "_AUTHORED_GRID"):
         grid = S.GRID
         try:
             S.GRID = S._AUTHORED_GRID
-            check("a grid that IS the authored fallback is measured", measure()["grid_is_authored"], True)
+            check(
+                "a grid that IS the authored fallback is measured",
+                measure()["grid_is_authored"],
+                True,
+            )
         finally:
             S.GRID = grid
     else:

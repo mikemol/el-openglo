@@ -29,6 +29,7 @@ in plasma_rewrite.SUBSTITUTIONS so a reader can see the whole gap between harnes
 one on this host; where it does not, the halo is absent from the render and
 --pixels reports `effects: unavailable` — a SKIP, not a pass.
 """
+
 import json
 import os
 import re
@@ -57,23 +58,29 @@ from plasma_rewrite import SUBSTITUTIONS, _kcfg_defaults
 # KWin is legible; nothing else in the emitted document is touched.
 SWITCHER_SUBSTITUTIONS = (
     (r"^import org\.kde\.kwin as KWin\n", ""),
-    (r"^KWin\.TabBoxSwitcher \{",
-     ("Item {\n"
-      "    property var model: stubModel\n"
-      "    property int currentIndex\n"
-      "    property rect screenGeometry: Qt.rect(0, 0, width, height)\n"
-      "    function i18ndc(d, c, s) { return s }\n"
-      "    ListModel {\n"
-      "        id: stubModel\n"
-      "        ListElement { caption: \"Konsole\"; icon: \"utilities-terminal\"; minimized: false }\n"
-      "        ListElement { caption: \"Dolphin — Home\"; icon: \"system-file-manager\"; minimized: false }\n"
-      "        ListElement { caption: \"Firefox\"; icon: \"firefox\"; minimized: true }\n"
-      "        function longestCaption() { return \"Dolphin — Home\" }\n"
-      "        function activate(i) {}\n"
-      "    }\n"
-      "    Component.onCompleted: list.currentIndex = 1")),
-    (r"^    PlasmaCore\.Dialog \{\n        id: dialog\n        location:[^\n]*\n        visible:[^\n]*\n        flags:[^\n]*\n        x:[^\n]*\n        y:[^\n]*\n",
-     "    Item {\n        id: dialog\n        anchors.fill: parent\n"),
+    (
+        r"^KWin\.TabBoxSwitcher \{",
+        (
+            "Item {\n"
+            "    property var model: stubModel\n"
+            "    property int currentIndex\n"
+            "    property rect screenGeometry: Qt.rect(0, 0, width, height)\n"
+            "    function i18ndc(d, c, s) { return s }\n"
+            "    ListModel {\n"
+            "        id: stubModel\n"
+            '        ListElement { caption: "Konsole"; icon: "utilities-terminal"; minimized: false }\n'
+            '        ListElement { caption: "Dolphin — Home"; icon: "system-file-manager"; minimized: false }\n'
+            '        ListElement { caption: "Firefox"; icon: "firefox"; minimized: true }\n'
+            '        function longestCaption() { return "Dolphin — Home" }\n'
+            "        function activate(i) {}\n"
+            "    }\n"
+            "    Component.onCompleted: list.currentIndex = 1"
+        ),
+    ),
+    (
+        r"^    PlasmaCore\.Dialog \{\n        id: dialog\n        location:[^\n]*\n        visible:[^\n]*\n        flags:[^\n]*\n        x:[^\n]*\n        y:[^\n]*\n",
+        "    Item {\n        id: dialog\n        anchors.fill: parent\n",
+    ),
     (r"mainItem: Item \{", "Item {\n            anchors.centerIn: parent"),
     (r"PlasmaComponents3\.Label", "Text"),
     (r"\n        onSceneGraphError: \(\) => \{\n[^\n]*\n        \}\n", "\n"),
@@ -211,6 +218,7 @@ def subject(surface, variant):
         sys.path.insert(0, ROOT)
     os.chdir(ROOT)
     import make_preview
+
     cols = make_preview.parse_scheme(variant)
     memo = (surface, variant if surface == "sddm" else None)
     if memo not in _EMITTED:
@@ -223,43 +231,66 @@ def _emit(surface, variant):
     """(harness-rewritten QML, kcfg text) for `surface` — the emitters' half of a job."""
     if surface == "clock":
         import make_clock
+
         # ONE package since W35: the emission has no variant; the variant is the
         # scheme it is rendered under (theme_probe.env_for, in render())
         qml, kcfg = make_clock.main_qml(), make_clock.CONFIG_XML
     elif surface == "live-wallpaper":
         import make_wallpaper_live
-        qml = make_wallpaper_live.main_qml()      # one package since W35
+
+        qml = make_wallpaper_live.main_qml()  # one package since W35
         kcfg = make_wallpaper_live.config_main_xml()
     elif surface == "switcher":
         import make_taskswitch
+
         qml, kcfg = make_taskswitch.main_qml(), ""
         for pat, rep in SWITCHER_SUBSTITUTIONS:
             qml, n = re.subn(pat, rep, qml, flags=re.MULTILINE)
             if n == 0:
-                raise ValueError(f"switcher rewrite: {pat[:40]!r} matched nothing — the template moved under the harness")
+                raise ValueError(
+                    f"switcher rewrite: {pat[:40]!r} matched nothing — the template moved under the harness"
+                )
     elif surface == "aperture":
         # W54's probe: the aperture field over a synthetic edge block, bound to the
         # theme like a shipped surface; ApertureField.qml is imported from templates/
         import make_notify_marquee
-        qml = make_notify_marquee.aperture_probe_qml("file:" + os.path.join(ROOT, "templates"))
+
+        qml = make_notify_marquee.aperture_probe_qml(
+            "file:" + os.path.join(ROOT, "templates")
+        )
         kcfg = ""
     elif surface == "aperture-text":
         import make_notify_marquee
-        qml = make_notify_marquee.aperture_text_probe_qml("file:" + os.path.join(ROOT, "templates"))
+
+        qml = make_notify_marquee.aperture_text_probe_qml(
+            "file:" + os.path.join(ROOT, "templates")
+        )
         kcfg = ""
     elif surface == "sddm":
         # W66: the greeter is BAKED per variant (no Kirigami in a greeter), and its
         # runtime objects are SDDM_HARNESS's stubs, not a rewrite of the document
         import make_sddm
+
         qml, kcfg = make_sddm.main_qml(variant), ""
     else:
-        raise ValueError(f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture, aperture-text or sddm")
+        raise ValueError(
+            f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture, aperture-text or sddm"
+        )
     for pat, rep in SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
     return qml, kcfg
 
 
-def render_stager(surface, variant, w, h, out_png, config_override=None, software=False, component_patches=None):
+def render_stager(
+    surface,
+    variant,
+    w,
+    h,
+    out_png,
+    config_override=None,
+    software=False,
+    component_patches=None,
+):
     """The JOB render() runs, as a stager: `stage(td) -> (argv, env, gpu)` writes
     every file the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS:
     render() runs it, and catalog/library/render_screens.output_keys digests it
@@ -276,22 +307,47 @@ def render_stager(surface, variant, w, h, out_png, config_override=None, softwar
     comp = companions(surface)
     for name, patches in (component_patches or {}).items():
         if name not in comp:
-            raise ValueError(f"render_qml: component_patches names {name!r}, not a companion of {surface!r}")
+            raise ValueError(
+                f"render_qml: component_patches names {name!r}, not a companion of {surface!r}"
+            )
         for pat, rep in patches:
             comp[name], n = re.subn(pat, rep, comp[name])
             if n == 0:
-                raise ValueError(f"render_qml: patch {pat[:40]!r} matched nothing in {name}")
+                raise ValueError(
+                    f"render_qml: patch {pat[:40]!r} matched nothing in {name}"
+                )
     harness = SDDM_HARNESS if surface == "sddm" else HARNESS
-    return lambda td: stage_document(td, qml, variant, w, h, out_png, config, ground, software, comp,
-                                     harness=harness)
+    return lambda td: stage_document(
+        td, qml, variant, w, h, out_png, config, ground, software, comp, harness=harness
+    )
 
 
-def render(surface, variant, w, h, out_png, config_override=None, software=False, component_patches=None):
+def render(
+    surface,
+    variant,
+    w,
+    h,
+    out_png,
+    config_override=None,
+    software=False,
+    component_patches=None,
+):
     """Render to out_png; returns (rc, stderr). `software` asks for the software
     scene graph explicitly (what the ebuild sandbox gets anyway) — an argument, not
     an environment mutation: render_screens once set EL_RENDER_SOFTWARE in its own
     process for one animation and every later still rendered under it (s125)."""
-    return run_stager(render_stager(surface, variant, w, h, out_png, config_override, software, component_patches))
+    return run_stager(
+        render_stager(
+            surface,
+            variant,
+            w,
+            h,
+            out_png,
+            config_override,
+            software,
+            component_patches,
+        )
+    )
 
 
 def companions(surface):
@@ -301,6 +357,7 @@ def companions(surface):
     out = {}
     if surface in ("clock", "live-wallpaper", "sddm"):
         import make_segment_display as SD
+
         out["SegmentChar.qml"] = SD.segment_char_component()
     return out
 
@@ -365,10 +422,26 @@ def frames_stager(surface, variant, w, h, out_dir, key, steps, probe, software=F
     grab per step of config `key`."""
     qml, config, ground = subject(surface, variant)
     comp = companions(surface)
-    extra = {"steps": json.dumps(list(steps)), "key": json.dumps(key),
-             "probe": json.dumps(probe), "out": json.dumps(os.path.abspath(out_dir))}
-    return lambda td: stage_document(td, qml, variant, w, h, out_dir, config, ground, software, comp,
-                                     harness=FRAMES_HARNESS, extra=extra)
+    extra = {
+        "steps": json.dumps(list(steps)),
+        "key": json.dumps(key),
+        "probe": json.dumps(probe),
+        "out": json.dumps(os.path.abspath(out_dir)),
+    }
+    return lambda td: stage_document(
+        td,
+        qml,
+        variant,
+        w,
+        h,
+        out_dir,
+        config,
+        ground,
+        software,
+        comp,
+        harness=FRAMES_HARNESS,
+        extra=extra,
+    )
 
 
 def render_frames(surface, variant, w, h, out_dir, key, steps, probe, software=False):
@@ -379,7 +452,10 @@ def render_frames(surface, variant, w, h, out_dir, key, steps, probe, software=F
     where the harness never reached that frame. WEAKNESS: the probe lookup is by
     property name; a subject with no such item yields seen full of None, which the
     caller must refuse rather than trust the frames."""
-    rc, err = run_stager(frames_stager(surface, variant, w, h, out_dir, key, steps, probe, software), timeout=120)
+    rc, err = run_stager(
+        frames_stager(surface, variant, w, h, out_dir, key, steps, probe, software),
+        timeout=120,
+    )
     seen = None
     for line in err.splitlines():
         if "FRAMES " in line:
@@ -387,34 +463,80 @@ def render_frames(surface, variant, w, h, out_dir, key, steps, probe, software=F
     return rc, err, seen
 
 
-def render_document(qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None,
-                    harness=HARNESS, extra=None):
+def render_document(
+    qml,
+    variant,
+    w,
+    h,
+    out_png,
+    config=None,
+    ground=None,
+    software=False,
+    companions=None,
+    harness=HARNESS,
+    extra=None,
+):
     """Render an already-rewritten QML document under `variant`'s scheme (the probe
     with its own holes — check_legibility renders the text probe per case). The
     harness, environment and backend rules are render()'s. `extra` adds to (or
     overrides) the harness's format keys — FRAMES_HARNESS's steps and key."""
-    return run_stager(lambda td: stage_document(td, qml, variant, w, h, out_png, config, ground, software,
-                                                companions, harness, extra),
-                      timeout=120 if extra else 60)
+    return run_stager(
+        lambda td: stage_document(
+            td,
+            qml,
+            variant,
+            w,
+            h,
+            out_png,
+            config,
+            ground,
+            software,
+            companions,
+            harness,
+            extra,
+        ),
+        timeout=120 if extra else 60,
+    )
 
 
 def run_stager(stage, timeout=60):
     """Stage a job into a fresh directory and run it under qt_sandbox; (rc, detail)."""
-    with tempfile.TemporaryDirectory(dir=os.path.join(ROOT, ".ebuild-witness")
-                                     if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
-                                     else None) as td:
+    with tempfile.TemporaryDirectory(
+        dir=os.path.join(ROOT, ".ebuild-witness")
+        if os.path.isdir(os.path.join(ROOT, ".ebuild-witness"))
+        else None
+    ) as td:
         argv, env, rhi = stage(td)
         # W108 (operator 2026-09-28): the RHI is drawn on Mesa llvmpipe under a private,
         # SIGKILLed kwin (qt_sandbox mesa=True), never on the GPU driver (W73)
-        r = QT.run(argv, env=env, mesa=rhi, capture_output=True, text=True, timeout=timeout)
-    backend = "rhi" if "Creating QRhi" in r.stderr else (
-        "software" if "backend software" in r.stderr else "unknown")
-    err = "\n".join(l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph"))
+        r = QT.run(
+            argv, env=env, mesa=rhi, capture_output=True, text=True, timeout=timeout
+        )
+    backend = (
+        "rhi"
+        if "Creating QRhi" in r.stderr
+        else ("software" if "backend software" in r.stderr else "unknown")
+    )
+    err = "\n".join(
+        l for l in r.stderr.splitlines() if not l.startswith("qt.scenegraph")
+    )
     return r.returncode, f"backend={backend}" + (f"\n{err}" if err.strip() else "")
 
 
-def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, software=False, companions=None,
-                   harness=HARNESS, extra=None):
+def stage_document(
+    td,
+    qml,
+    variant,
+    w,
+    h,
+    out_png,
+    config=None,
+    ground=None,
+    software=False,
+    companions=None,
+    harness=HARNESS,
+    extra=None,
+):
     """Write everything the qml process reads into `td`; return (argv, env, gpu).
 
     ⚑ THIS IS THE JOB, AND IT IS THE ONLY PLACE ONE IS BUILT (W61). Running it
@@ -424,15 +546,23 @@ def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, so
         config = {}
     if ground is None:
         import make_preview
+
         ground = make_preview.parse_scheme(variant)["ground"]
     with open(os.path.join(td, "subject.qml"), "w") as fh:
         fh.write(qml)
     for name, text in (companions or {}).items():
         with open(os.path.join(td, name), "w") as fh:
             fh.write(text)
-    harness_src = harness % dict({
-        "w": w, "h": h, "ground": ground, "config": json.dumps(config),
-        "out": os.path.abspath(out_png)}, **(extra or {}))
+    harness_src = harness % dict(
+        {
+            "w": w,
+            "h": h,
+            "ground": ground,
+            "config": json.dumps(config),
+            "out": os.path.abspath(out_png),
+        },
+        **(extra or {}),
+    )
     with open(os.path.join(td, "harness.qml"), "w") as fh:
         fh.write(harness_src)
     # ⚑ THE OFFSCREEN PLATFORM DEFAULTS TO THE SOFTWARE SCENE GRAPH, which has
@@ -444,11 +574,16 @@ def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, so
     # theme on a private kdeglobals that IS the variant's .colors — as a
     # widgets app. An unbound surface is unaffected by it.
     import theme_probe as TP
+
     xdg = os.path.join(td, "xdg")
     os.makedirs(xdg)
     env = TP.env_for(variant, xdg)
-    env.update(QT_LOGGING_RULES="*.debug=false;kf.kirigami.platform=false",
-               QT_QUICK_BACKEND="rhi", QSG_RHI_BACKEND="opengl", QSG_INFO="1")
+    env.update(
+        QT_LOGGING_RULES="*.debug=false;kf.kirigami.platform=false",
+        QT_QUICK_BACKEND="rhi",
+        QSG_RHI_BACKEND="opengl",
+        QSG_INFO="1",
+    )
     # ⚑ UNDER A BUILD SANDBOX THE GPU IS A VIOLATION, NOT A RESOURCE.  Opening
     # /dev/nvidiactl under sys-apps/sandbox failed the whole staging (measured
     # 2026-09-21, check_ebuild). Portage's sandbox sets SANDBOX_ON; there the
@@ -460,8 +595,11 @@ def stage_document(td, qml, variant, w, h, out_png, config=None, ground=None, so
     # on Mesa llvmpipe (qt_sandbox mesa=True: private kwin, no DISPLAY, no GPU
     # driver) — the halo renders WITHOUT the GPU, and no EL_QT_GPU opt-in exists
     # on this path. The build sandbox still gets the software scene graph.
-    rhi = not (software or os.environ.get("SANDBOX_ON") == "1"
-               or os.environ.get("EL_RENDER_SOFTWARE") == "1")
+    rhi = not (
+        software
+        or os.environ.get("SANDBOX_ON") == "1"
+        or os.environ.get("EL_RENDER_SOFTWARE") == "1"
+    )
     return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, rhi
 
 
@@ -472,22 +610,31 @@ def _near(a, b, tol=28):
 def pixels(png, variant):
     """Census: how many pixels are the lit colour, the ghost colour, the ground."""
     from PIL import Image
+
     if ROOT not in sys.path:
         sys.path.insert(0, ROOT)
     import make_preview
+
     cols = make_preview.parse_scheme(variant)
 
     def rgb(hexs):
         hexs = hexs.lstrip("#")
-        return tuple(int(hexs[i:i + 2], 16) for i in (0, 2, 4))
-    lit, ghost_in, ground = rgb(cols["phosphor"]), rgb(cols["ghost"]), rgb(cols["ground"])
+        return tuple(int(hexs[i : i + 2], 16) for i in (0, 2, 4))
+
+    lit, ghost_in, ground = (
+        rgb(cols["phosphor"]),
+        rgb(cols["ghost"]),
+        rgb(cols["ground"]),
+    )
     # the SEEN ghost is the declared ghost composited over ground at the solved
     # alpha (relations.md §3b) — what the screen shows, not the token
     a = float(cols["ghost_alpha"])
     ghost = tuple(round(a * g + (1 - a) * b) for g, b in zip(ghost_in, ground))
     im = Image.open(png).convert("RGB")
     n = {"lit": 0, "ghost-ish": 0, "ground": 0, "other": 0}
-    data = list(im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata())
+    data = list(
+        im.get_flattened_data() if hasattr(im, "get_flattened_data") else im.getdata()
+    )
     for p in data:
         if _near(p, lit):
             n["lit"] += 1
@@ -500,9 +647,13 @@ def pixels(png, variant):
     n["total"] = im.width * im.height
     # the modal colour, so a large "other" names itself instead of being argued with
     from collections import Counter
+
     mode, count = Counter(data).most_common(1)[0]
-    n["modal"] = "#{:02x}{:02x}{:02x} ({:d} px; expected ground #{:02x}{:02x}{:02x})".format(
-        *mode, count, *ground)
+    n["modal"] = (
+        "#{:02x}{:02x}{:02x} ({:d} px; expected ground #{:02x}{:02x}{:02x})".format(
+            *mode, count, *ground
+        )
+    )
     return n
 
 
@@ -518,15 +669,24 @@ def edges(png, variant):
     from PIL import Image
 
     import make_preview
-    lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
+
+    lit = tuple(
+        int(make_preview.parse_scheme(variant)["phosphor"][i : i + 2], 16)
+        for i in (1, 3, 5)
+    )
     im = Image.open(png).convert("RGB")
     colours = im.getcolors(im.width * im.height) or []
     ground = max(colours)[1] if colours else (0, 0, 0)
     lg = [l - g for l, g in zip(lit, ground)]
     norm = sum(v * v for v in lg) or 1
     px = im.load()
-    L = [[sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
-          for x in range(im.width)] for y in range(im.height)]
+    L = [
+        [
+            sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
+            for x in range(im.width)
+        ]
+        for y in range(im.height)
+    ]
     # ⚑ ONLY A PIXEL TOUCHING A LIT ONE IS AN EDGE (measured s132: counting every
     # intermediate pixel made the wallpaper read 0.829 "softer" than the clock's
     # 0.143 — it was counting the GHOST segments, a flat band at the ghost alpha,
@@ -538,13 +698,21 @@ def edges(png, variant):
             v = L[y][x]
             if v >= 0.85:
                 on += 1
-            elif v > 0.15 and any(L[y + dy][x + dx] >= 0.85
-                                  for dy in (-1, 0, 1) for dx in (-1, 0, 1)
-                                  if 0 <= y + dy < im.height and 0 <= x + dx < im.width):
+            elif v > 0.15 and any(
+                L[y + dy][x + dx] >= 0.85
+                for dy in (-1, 0, 1)
+                for dx in (-1, 0, 1)
+                if 0 <= y + dy < im.height and 0 <= x + dx < im.width
+            ):
                 trans += 1
-    return {"png": os.path.basename(png), "variant": variant, "ground": "#{:02x}{:02x}{:02x}".format(*ground),
-            "lit_px": on, "edge_px": trans,
-            "softness": round(trans / on, 3) if on else None}
+    return {
+        "png": os.path.basename(png),
+        "variant": variant,
+        "ground": "#{:02x}{:02x}{:02x}".format(*ground),
+        "lit_px": on,
+        "edge_px": trans,
+        "softness": round(trans / on, 3) if on else None,
+    }
 
 
 def texture(png, variant):
@@ -566,54 +734,121 @@ def texture(png, variant):
     from PIL import Image
 
     import make_preview
-    lit = tuple(int(make_preview.parse_scheme(variant)["phosphor"][i:i + 2], 16) for i in (1, 3, 5))
+
+    lit = tuple(
+        int(make_preview.parse_scheme(variant)["phosphor"][i : i + 2], 16)
+        for i in (1, 3, 5)
+    )
     im = Image.open(png).convert("RGB")
     colours = im.getcolors(im.width * im.height) or []
     ground = max(colours)[1] if colours else (0, 0, 0)
     lg = [l - g for l, g in zip(lit, ground)]
     norm = sum(v * v for v in lg) or 1
     px = im.load()
-    L = [[sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
-          for x in range(im.width)] for y in range(im.height)]
-    interior = [L[y][x] for y in range(im.height) for x in range(im.width) if L[y][x] >= 0.5]
+    L = [
+        [
+            sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
+            for x in range(im.width)
+        ]
+        for y in range(im.height)
+    ]
+    interior = [
+        L[y][x] for y in range(im.height) for x in range(im.width) if L[y][x] >= 0.5
+    ]
     n = len(interior)
     if n == 0:
-        return {"png": os.path.basename(png), "variant": variant, "interior_px": 0, "texture": None}
+        return {
+            "png": os.path.basename(png),
+            "variant": variant,
+            "interior_px": 0,
+            "texture": None,
+        }
     mean = sum(interior) / n
     var = sum((v - mean) ** 2 for v in interior) / n
-    return {"png": os.path.basename(png), "variant": variant, "interior_px": n,
-            "mean": round(mean, 4), "texture": round(var, 6)}
+    return {
+        "png": os.path.basename(png),
+        "variant": variant,
+        "interior_px": n,
+        "mean": round(mean, 4),
+        "texture": round(var, 6),
+    }
 
 
 def main(argv):
-    known = {"--variant", "--width", "--height", "--png", "--pixels", "--edges", "--texture", "--set"}
+    known = {
+        "--variant",
+        "--width",
+        "--height",
+        "--png",
+        "--pixels",
+        "--edges",
+        "--texture",
+        "--set",
+    }
     args = argv[1:]
     for a in args:
         if a.startswith("--") and a not in known:
             print(f"render_qml: unknown flag {a!r}", file=sys.stderr)
             return 2
     if not os.path.exists(QML):
-        print(f"render_qml: SKIP — {QML} is not installed (qtdeclarative tools)", file=sys.stderr)
+        print(
+            f"render_qml: SKIP — {QML} is not installed (qtdeclarative tools)",
+            file=sys.stderr,
+        )
         return 0
 
     def opt(name, default):
         return args[args.index(name) + 1] if name in args else default
-    surface = next((a for a in args if not a.startswith("--") and a in ("clock", "live-wallpaper", "switcher", "aperture", "aperture-text", "sddm")), None)
+
+    surface = next(
+        (
+            a
+            for a in args
+            if not a.startswith("--")
+            and a
+            in (
+                "clock",
+                "live-wallpaper",
+                "switcher",
+                "aperture",
+                "aperture-text",
+                "sddm",
+            )
+        ),
+        None,
+    )
     if surface is None:
-        print("render_qml: name a surface: clock | live-wallpaper | switcher | aperture | aperture-text | sddm", file=sys.stderr)
+        print(
+            "render_qml: name a surface: clock | live-wallpaper | switcher | aperture | aperture-text | sddm",
+            file=sys.stderr,
+        )
         return 2
     variant = opt("--variant", "EL-Openglo")
-    default_h = {"clock": 48, "switcher": 200, "aperture": 40, "aperture-text": 40, "sddm": 450}.get(surface, 400)
-    w, h = int(opt("--width", 800 if surface == "sddm" else 400)), int(opt("--height", default_h))
+    default_h = {
+        "clock": 48,
+        "switcher": 200,
+        "aperture": 40,
+        "aperture-text": 40,
+        "sddm": 450,
+    }.get(surface, 400)
+    w, h = (
+        int(opt("--width", 800 if surface == "sddm" else 400)),
+        int(opt("--height", default_h)),
+    )
     override = {}
     for i, a in enumerate(args):
         if a == "--set":
             k, v = args[i + 1].split("=", 1)
             override[k] = json.loads(v)
-    out = opt("--png", os.path.join(tempfile.gettempdir(), f"render-{surface}-{variant}.png"))
+    out = opt(
+        "--png", os.path.join(tempfile.gettempdir(), f"render-{surface}-{variant}.png")
+    )
     rc, err = render(surface, variant, w, h, out, override)
     if rc != 0 or not os.path.exists(out):
-        print(f"render_qml: REFUSED — {surface} did not render (rc={rc}):\n{err}", file=sys.stderr)
+        print(
+            f"render_qml: REFUSED — {surface} did not render (rc={rc}):\n{err}",
+            file=sys.stderr,
+        )
         return 1
     if err:
         print(err, file=sys.stderr)
@@ -627,11 +862,17 @@ def main(argv):
         print(f"  ground    {e['ground']} (the picture's own modal colour)")
         print(f"  lit       {e['lit_px']} px")
         print(f"  edge      {e['edge_px']} px (intermediate AND touching a lit pixel)")
-        print(f"  softness  {e['softness']} (edge per lit pixel; a hard polygon edge is near 0)")
+        print(
+            f"  softness  {e['softness']} (edge per lit pixel; a hard polygon edge is near 0)"
+        )
     if "--texture" in args:
         t = texture(out, variant)
-        print(f"  interior  {t['interior_px']} px (lit, not touching a sub-threshold neighbour)")
-        print(f"  texture   {t['texture']} (variance of litness over the interior; flat=0)")
+        print(
+            f"  interior  {t['interior_px']} px (lit, not touching a sub-threshold neighbour)"
+        )
+        print(
+            f"  texture   {t['texture']} (variance of litness over the interior; flat=0)"
+        )
     return 0
 
 
@@ -646,21 +887,33 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("kcfg defaults are typed",
-          _kcfg_defaults('<entry name="a" type="Bool"><default>true</default></entry>'
-                         '<entry name="b" type="Double"><default>1.5</default></entry>'),
-          {"a": True, "b": 1.5})
+    check(
+        "kcfg defaults are typed",
+        _kcfg_defaults(
+            '<entry name="a" type="Bool"><default>true</default></entry>'
+            '<entry name="b" type="Double"><default>1.5</default></entry>'
+        ),
+        {"a": True, "b": 1.5},
+    )
     qml, cfg, _ground = subject("clock", "EL-Openglo")
     check("the Plasma root type is rewritten", "PlasmoidItem" in qml, False)
     check("no org.kde.plasma import survives", "org.kde.plasma" in qml, False)
-    check("the config carries the kcfg keys", {"bloom", "weight", "showGhost"} <= set(cfg), True)
+    check(
+        "the config carries the kcfg keys",
+        {"bloom", "weight", "showGhost"} <= set(cfg),
+        True,
+    )
     if not os.path.exists(QML):
         print("  SKIP render arms — qml runner not installed")
     else:
         with tempfile.TemporaryDirectory() as td:
             out = os.path.join(td, "c.png")
             rc, err = render("clock", "EL-Openglo", 400, 48, out)
-            check(f"the clock renders headless ({err[-200:]})", rc == 0 and os.path.exists(out), True)
+            check(
+                f"the clock renders headless ({err[-200:]})",
+                rc == 0 and os.path.exists(out),
+                True,
+            )
             if rc == 0:
                 n = pixels(out, "EL-Openglo")
                 check("a rendered clock has lit pixels", n["lit"] > 20, True)
@@ -675,32 +928,50 @@ def _selftest():
                     same_w = fa.read() == fb.read()
                 check("weight=0 renders differently", same_w, False)
             if "backend=rhi" not in err:
-                print(f"  SKIP bloom arm — scene graph is not the RHI ({err.splitlines()[0]})")
+                print(
+                    f"  SKIP bloom arm — scene graph is not the RHI ({err.splitlines()[0]})"
+                )
             else:
                 out_b = os.path.join(td, "b0.png")
                 rc_b, _ = render("clock", "EL-Openglo", 400, 48, out_b, {"bloom": 0})
                 if rc_b == 0:
                     with open(out, "rb") as fa, open(out_b, "rb") as fb:
                         same_b = fa.read() == fb.read()
-                    check("bloom=0 renders differently (the halo is drawn)", same_b, False)
+                    check(
+                        "bloom=0 renders differently (the halo is drawn)", same_b, False
+                    )
             # ⚑ texture() MUST DISTINGUISH A FLAT STROKE FROM A GRADED ONE, per
             # channel, the same discipline as the weight/bloom arms above:
             # litGradient=0 is today's flat stroke and must read texture~0;
             # litGradient=0.35 (the shipped first pass) must read > that.
             out_flat = os.path.join(td, "g0.png")
-            flat_patch = {"SegmentChar.qml": [(r"property real litGradient: [\d.]+",
-                                               "property real litGradient: 0")]}
-            rc_flat, _ = render("clock", "EL-Openglo", 400, 48, out_flat, None, False, flat_patch)
+            flat_patch = {
+                "SegmentChar.qml": [
+                    (
+                        r"property real litGradient: [\d.]+",
+                        "property real litGradient: 0",
+                    )
+                ]
+            }
+            rc_flat, _ = render(
+                "clock", "EL-Openglo", 400, 48, out_flat, None, False, flat_patch
+            )
             if rc == 0 and rc_flat == 0:
                 t_shipped = texture(out, "EL-Openglo")
                 t_flat = texture(out_flat, "EL-Openglo")
                 if t_flat["texture"] is None or t_shipped["texture"] is None:
                     print("  SKIP texture arm — no interior lit pixels at this size")
                 else:
-                    check("litGradient=0 measures near-flat interior texture",
-                          t_flat["texture"] < 0.01, True)
-                    check("litGradient=0.35 measures MORE interior texture than flat",
-                          t_shipped["texture"] > t_flat["texture"], True)
+                    check(
+                        "litGradient=0 measures near-flat interior texture",
+                        t_flat["texture"] < 0.01,
+                        True,
+                    )
+                    check(
+                        "litGradient=0.35 measures MORE interior texture than flat",
+                        t_shipped["texture"] > t_flat["texture"],
+                        True,
+                    )
     print("render_qml selftest:", "PASS" if ok else "FAIL")
     return ok
 

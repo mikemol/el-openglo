@@ -23,6 +23,7 @@ A missing screens/ directory is reported as every still absent (the policy
 denies), because the pictures are checked in: an emitter change without a
 regeneration is exactly what this catches.
 """
+
 import json
 import os
 import sys
@@ -34,6 +35,7 @@ sys.path.insert(0, os.path.join(ROOT, "catalog", "library"))
 
 def measure():
     import render_screens as RS
+
     return RS.measure()
 
 
@@ -41,6 +43,7 @@ def logged_steps(path):
     """The widget's own per-frame steps (W208) - ONE reader, render_screens.logged_steps,
     which the measurement also uses (W209); this delegates rather than keep a second copy."""
     import render_screens as RS
+
     return RS.logged_steps(path)
 
 
@@ -65,6 +68,7 @@ def frame_pairs(path, lit_hex, ground_hex, tolerance=0.5):
     pair (nothing above the floor) is reported as such, not skipped silently."""
     import render_screens as RS
     from PIL import Image, ImageSequence
+
     lit, ground = RS._hex(lit_hex), RS._hex(ground_hex)
     profiles, centres, floor = [], None, 0.0
     for fr in ImageSequence.Iterator(Image.open(path)):
@@ -81,8 +85,12 @@ def frame_pairs(path, lit_hex, ground_hex, tolerance=0.5):
         if total < 0.5:
             rows.append((i + 1, None, None, round(total, 2), False))
             continue
-        k, f, mism = RS.best_pip_shift(prev, cur, max(1, len(centres) // 4), both_ways=False)
-        rows.append((i + 1, k + f, round(mism, 2), round(total, 2), mism > tolerance * total))
+        k, f, mism = RS.best_pip_shift(
+            prev, cur, max(1, len(centres) // 4), both_ways=False
+        )
+        rows.append(
+            (i + 1, k + f, round(mism, 2), round(total, 2), mism > tolerance * total)
+        )
     return rows
 
 
@@ -98,37 +106,59 @@ def main(argv):
         # what the harness did, not an image fit of what it drew
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if len(rest) != 1:
-            print("check_screens: --logged takes one animation file (e.g. marquee-anim-EL-Amber.png)", file=sys.stderr)
+            print(
+                "check_screens: --logged takes one animation file (e.g. marquee-anim-EL-Amber.png)",
+                file=sys.stderr,
+            )
             return 2
-        path = rest[0] if os.path.isfile(rest[0]) else os.path.join(measure()["dir"], os.path.basename(rest[0]))
+        path = (
+            rest[0]
+            if os.path.isfile(rest[0])
+            else os.path.join(measure()["dir"], os.path.basename(rest[0]))
+        )
         if not os.path.isfile(path):
             print(f"check_screens: {path} does not exist", file=sys.stderr)
             return 1
         steps = logged_steps(path)
         if steps is None:
-            print(f"check_screens: {os.path.basename(path)} carries no el-frames log (rendered before W208, or not "
-                  f"harness-driven); only the image fit can describe it", file=sys.stderr)
+            print(
+                f"check_screens: {os.path.basename(path)} carries no el-frames log (rendered before W208, or not "
+                f"harness-driven); only the image fit can describe it",
+                file=sys.stderr,
+            )
             return 3
         for i, s in enumerate(steps, 2):
             print(f"  frame {i:3d}: step {s:+9.4f} pip")
-        print(f"check_screens --logged: {len(steps)} step(s) in {os.path.basename(path)}; "
-              f"min {min(steps):+.4f}, max {max(steps):+.4f}")
+        print(
+            f"check_screens --logged: {len(steps)} step(s) in {os.path.basename(path)}; "
+            f"min {min(steps):+.4f}, max {max(steps):+.4f}"
+        )
         return 0
     if "--frames" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if len(rest) != 1:
-            print("check_screens: --frames takes one animation file (e.g. marquee-anim-EL-Amber.png)", file=sys.stderr)
+            print(
+                "check_screens: --frames takes one animation file (e.g. marquee-anim-EL-Amber.png)",
+                file=sys.stderr,
+            )
             return 2
         import render_screens as RS
+
         name = os.path.basename(rest[0])
         # the variant, axis and colours from the SAME plan and authorities measure() uses
         plan = {fn: (v, how) for fn, v, how in RS.plan_animations()}
         if name not in plan:
-            print(f"check_screens: {name} is not a planned animation ({len(plan)} planned)", file=sys.stderr)
+            print(
+                f"check_screens: {name} is not a planned animation ({len(plan)} planned)",
+                file=sys.stderr,
+            )
             return 1
         variant, how = plan[name]
         if how[2] != "x":
-            print(f"check_screens: --frames reads x-axis animations; {name} scrolls along {how[2]}", file=sys.stderr)
+            print(
+                f"check_screens: --frames reads x-axis animations; {name} scrolls along {how[2]}",
+                file=sys.stderr,
+            )
             return 2
         path = os.path.join(measure()["dir"], name)
         if not os.path.isfile(path):
@@ -136,33 +166,56 @@ def main(argv):
             return 1
         import make_preview as MP  # the same two authorities render_screens.measure reads
         import make_wallpaper_live as WL
-        rows = frame_pairs(path, MP.parse_scheme(variant)["phosphor"], "#{:02x}{:02x}{:02x}".format(*WL.colors_for(variant)[0]))
+
+        rows = frame_pairs(
+            path,
+            MP.parse_scheme(variant)["phosphor"],
+            "#{:02x}{:02x}{:02x}".format(*WL.colors_for(variant)[0]),
+        )
         for fr, shift, mism, total, tear in rows:
-            print(f"  frame {fr:3d}: " + ("empty pair" if shift is None else
-                  f"shift {shift:+7.3f}  mismatch {mism:6.2f} of {total:6.2f}{'  TEAR' if tear else ''}"))
-        print(f"check_screens --frames: {len(rows)} pair(s), {sum(1 for r in rows if r[4])} tear(s) in {name}")
+            print(
+                f"  frame {fr:3d}: "
+                + (
+                    "empty pair"
+                    if shift is None
+                    else f"shift {shift:+7.3f}  mismatch {mism:6.2f} of {total:6.2f}{'  TEAR' if tear else ''}"
+                )
+            )
+        print(
+            f"check_screens --frames: {len(rows)} pair(s), {sum(1 for r in rows if r[4])} tear(s) in {name}"
+        )
         return 0
     m = measure()
     if "--motion" in argv:
         anims = m.get("animations") or []
         if not anims:
-            print("check_screens: REFUSED - no animations measured; the search is broken, not the motion clean",
-                  file=sys.stderr)
+            print(
+                "check_screens: REFUSED - no animations measured; the search is broken, not the motion clean",
+                file=sys.stderr,
+            )
             return 1
         for a in anims:
-            steps = logged_steps(os.path.join(m["dir"], a["file"])) if a.get("exists") else None
+            steps = (
+                logged_steps(os.path.join(m["dir"], a["file"]))
+                if a.get("exists")
+                else None
+            )
             n, f = logged_motion(steps) if steps is not None else motion(a)
             source = "logged offsets" if steps is not None else "image fit"
             share = f"{f / n:.2f}" if n else "WITHHELD (no moving step)"
-            print(f"  {a.get('file')}: {f} of {n} moving steps fractional = {share} ({source}); "
-                  f"period2_share {a.get('period2_share')}")
+            print(
+                f"  {a.get('file')}: {f} of {n} moving steps fractional = {share} ({source}); "
+                f"period2_share {a.get('period2_share')}"
+            )
         print(f"check_screens --motion: {len(anims)} animation(s)")
         return 0
     if "--json" in argv:
         print(json.dumps(m, indent=1))
         return 0
-    print(f"check_screens: {sum(1 for r in m['screens'] if r['exists'])} of {len(m['screens'])} stills present; "
-          f"the verdict is `opa_gate.py screens`")
+    print(
+        f"check_screens: {sum(1 for r in m['screens'] if r['exists'])} of {len(m['screens'])} stills present; "
+        f"the verdict is `opa_gate.py screens`"
+    )
     return 0
 
 
@@ -171,24 +224,34 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     import tempfile
 
     import render_screens as RS
     from PIL import Image
+
     m = measure()
     chk("the plan is 6 stills x 6 variants", len(m["screens"]), 36)
     # ⚑ THE MEASUREMENT CAN SEE: a blank picture has one distinct colour; a picture
     # on the wrong ground has a modal colour that is neither of the variant's
     with tempfile.TemporaryDirectory() as td:
-        Image.new("RGB", (40, 20), (255, 0, 0)).save(os.path.join(td, "clock-EL-Amber.png"))
+        Image.new("RGB", (40, 20), (255, 0, 0)).save(
+            os.path.join(td, "clock-EL-Amber.png")
+        )
         rows = RS.measure(td)["screens"]
         r = next(x for x in rows if x["file"] == "clock-EL-Amber.png")
         chk("a blank still is a fact (1 distinct colour)", r["distinct"], 1)
         chk("a wrong ground is a fact", r["modal"] in r["grounds"], False)
-        chk("an absent still is a fact", next(x for x in rows if x["file"] == "switcher-EL-Amber.png")["exists"], False)
+        chk(
+            "an absent still is a fact",
+            next(x for x in rows if x["file"] == "switcher-EL-Amber.png")["exists"],
+            False,
+        )
         # an animation the measurement can see TEAR: a FIELD of ghost pips (one
         # column every 4 px) with three lit pips that shift left by one pip, then
         # move RIGHT by twelve (a restart — no left shift explains it), then shift
@@ -203,17 +266,44 @@ def _selftest():
                     f.putpixel((4 * c + 2, y), litc if on else ghost)
             frames.append(f)
         ap = os.path.join(td, "marquee-anim-EL-Amber.png")
-        frames[0].save(ap, format="PNG", save_all=True, append_images=frames[1:], duration=40, loop=0)
+        frames[0].save(
+            ap,
+            format="PNG",
+            save_all=True,
+            append_images=frames[1:],
+            duration=40,
+            loop=0,
+        )
         a = RS.animation_facts(ap, "#ffd499", "#140f08")
         chk("the frames are counted", a["frames"], 5)
         chk("the pips are found from the empty board", a["pips"], 100)
-        chk("a rightward move is a tear, the one-pip shifts are not", [t["frame"] for t in a["tears"]], [3])
-        chk("the one-pip shifts are read", [k for k in a["shifts"] if k == 1.0], [1.0, 1.0])
-        chk("an open loop is a fact (first and last frames differ)", a["seamless"], False)
+        chk(
+            "a rightward move is a tear, the one-pip shifts are not",
+            [t["frame"] for t in a["tears"]],
+            [3],
+        )
+        chk(
+            "the one-pip shifts are read",
+            [k for k in a["shifts"] if k == 1.0],
+            [1.0, 1.0],
+        )
+        chk(
+            "an open loop is a fact (first and last frames differ)",
+            a["seamless"],
+            False,
+        )
         # W203: --frames keeps the frame index animation_facts drops, and sees the same tear
         fr = frame_pairs(ap, "#ffd499", "#140f08")
-        chk("--frames sees the tear at frame 3 and only there", [r[0] for r in fr if r[4]], [3])
-        chk("--frames reports the empty first pair, not skips it", fr[0][1] is None or fr[0][0] == 1, True)
+        chk(
+            "--frames sees the tear at frame 3 and only there",
+            [r[0] for r in fr if r[4]],
+            [3],
+        )
+        chk(
+            "--frames reports the empty first pair, not skips it",
+            fr[0][1] is None or fr[0][0] == 1,
+            True,
+        )
         # along y (the viewport): a field of pip ROWS with one lit row stepping down
         # one pip per frame, then up — a ping-pong is admitted on the y axis
         frames = []
@@ -223,15 +313,29 @@ def _selftest():
                 for c in range(15):
                     for dx in range(4):
                         for dy in (1, 2):
-                            f.putpixel((4 * c + dx, 4 * r + dy), litc if r == lit_row else ghost)
+                            f.putpixel(
+                                (4 * c + dx, 4 * r + dy),
+                                litc if r == lit_row else ghost,
+                            )
             frames.append(f)
         ap = os.path.join(td, "pinholes-anim-EL-Amber.png")
-        frames[0].save(ap, format="PNG", save_all=True, append_images=frames[1:], duration=40, loop=0)
+        frames[0].save(
+            ap,
+            format="PNG",
+            save_all=True,
+            append_images=frames[1:],
+            duration=40,
+            loop=0,
+        )
         a = RS.animation_facts(ap, "#ffd499", "#140f08", axis="y")
         chk("the pip rows are found along y", a["pips"], 10)
         # content moving DOWN the field is a shift of -1 (the viewport's band moving
         # down the backdrop moves content UP: +1); a ping-pong is admitted on y
-        chk("a ping-pong along y is shifts of -1 then +1, no tear", (a["shifts"], a["tears"]), ([-1.0, -1.0, 1.0, 1.0], []))
+        chk(
+            "a ping-pong along y is shifts of -1 then +1, no tear",
+            (a["shifts"], a["tears"]),
+            ([-1.0, -1.0, 1.0, 1.0], []),
+        )
         chk("...and it loops", a["seamless"], True)
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok

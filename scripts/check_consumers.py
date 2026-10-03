@@ -19,6 +19,7 @@ not failure — a missing optional dependency is a fact about this machine, not
 about the recovery.  ⚑ Skips are COUNTED and PRINTED: `n ok, m skipped of k` is
 the honest report, because "everything that ran, ran" is not "everything ran".
 """
+
 import importlib
 import os
 import sys
@@ -40,11 +41,18 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # gate, not merely a compile gate.
 MODULES = (
     # segment pipeline
-    "segment_topology", "glyph_match", "render_showcase",
-    "project_font", "make_glyph_ink", "display_types",
+    "segment_topology",
+    "glyph_match",
+    "render_showcase",
+    "project_font",
+    "make_glyph_ink",
+    "display_types",
     # colour chain — cvd_gate is the authority, make_palette the solver,
     # make_schemes the emitter that every other target reads
-    "cvd_gate", "make_palette", "make_schemes", "make_preview",
+    "cvd_gate",
+    "make_palette",
+    "make_schemes",
+    "make_preview",
 )
 
 
@@ -58,17 +66,27 @@ def measure(root=ROOT, modules=MODULES):
         sys.path.insert(0, root)
     cases = []
     for m in modules:
-        c = {"id": m, "present": os.path.exists(os.path.join(root, m + ".py")),
-             "imported": None, "error": None, "missing": None, "missing_is_ours": None}
+        c = {
+            "id": m,
+            "present": os.path.exists(os.path.join(root, m + ".py")),
+            "imported": None,
+            "error": None,
+            "missing": None,
+            "missing_is_ours": None,
+        }
         if c["present"]:
             try:
                 importlib.import_module(m)
                 c["imported"] = True
             except ModuleNotFoundError as e:
-                c.update(imported=False, error=f"ModuleNotFoundError: {e}", missing=e.name,
-                         missing_is_ours=e.name is None
-                         or os.path.exists(os.path.join(root, str(e.name) + ".py")))
-            except Exception as e:                  # noqa: BLE001 - any import-time error
+                c.update(
+                    imported=False,
+                    error=f"ModuleNotFoundError: {e}",
+                    missing=e.name,
+                    missing_is_ours=e.name is None
+                    or os.path.exists(os.path.join(root, str(e.name) + ".py")),
+                )
+            except Exception as e:  # noqa: BLE001 - any import-time error
                 c.update(imported=False, error=f"{type(e).__name__}: {e}")
         cases.append(c)
     return {"cases": cases}
@@ -85,15 +103,19 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
+
         doc = measure()
         # W75: .py operands are PLANTED — imported by the same routine, beside the roster
         for a in (x for x in argv[1:] if not x.startswith("--")):
             p = a if os.path.isabs(a) else os.path.join(ROOT, a)
-            doc["cases"] += measure(os.path.dirname(p), (os.path.basename(p)[:-3],))["cases"]
+            doc["cases"] += measure(os.path.dirname(p), (os.path.basename(p)[:-3],))[
+                "cases"
+            ]
         print(json.dumps(doc, indent=1))
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("consumers")
 
 
@@ -115,22 +137,38 @@ def _selftest():
     # ⚑ PLANTED MODULES, because the old selftest never showed an import FAILURE
     # could be seen — only that the roster's files existed.
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
-        for name, body in (("pk_boom", "raise ValueError('top-level failure')\n"),
-                           ("pk_theirs", "import no_such_thirdparty_pkg_x\n"),
-                           ("pk_fine", "X = 1\n")):
+        for name, body in (
+            ("pk_boom", "raise ValueError('top-level failure')\n"),
+            ("pk_theirs", "import no_such_thirdparty_pkg_x\n"),
+            ("pk_fine", "X = 1\n"),
+        ):
             with open(os.path.join(td, name + ".py"), "w") as fh:
                 fh.write(body)
-        got = {c["id"]: c for c in measure(td, ("pk_boom", "pk_theirs", "pk_fine", "pk_absent"))["cases"]}
+        got = {
+            c["id"]: c
+            for c in measure(td, ("pk_boom", "pk_theirs", "pk_fine", "pk_absent"))[
+                "cases"
+            ]
+        }
         sys.path.remove(td)
-    check("a top-level exception is seen", (got["pk_boom"]["imported"], got["pk_boom"]["error"]),
-          (False, "ValueError: top-level failure"))
-    check("a missing third-party module is seen as not ours",
-          (got["pk_theirs"]["missing"], got["pk_theirs"]["missing_is_ours"]),
-          ("no_such_thirdparty_pkg_x", False))
+    check(
+        "a top-level exception is seen",
+        (got["pk_boom"]["imported"], got["pk_boom"]["error"]),
+        (False, "ValueError: top-level failure"),
+    )
+    check(
+        "a missing third-party module is seen as not ours",
+        (got["pk_theirs"]["missing"], got["pk_theirs"]["missing_is_ours"]),
+        ("no_such_thirdparty_pkg_x", False),
+    )
     check("a clean module imports", got["pk_fine"]["imported"], True)
-    check("an absent module file is seen", (got["pk_absent"]["present"], got["pk_absent"]["imported"]),
-          (False, None))
+    check(
+        "an absent module file is seen",
+        (got["pk_absent"]["present"], got["pk_absent"]["imported"]),
+        (False, None),
+    )
     print("check_consumers selftest:", "PASS" if ok else "FAIL")
     return ok
 

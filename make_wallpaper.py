@@ -20,12 +20,23 @@ W, H = 3840, 2160
 # The literals remain as the FALLBACK, so the wallpaper still renders standalone
 # (no scheme file, no cairosvg install) — and they are exactly the values this
 # file used before, so sourcing is appearance-neutral by construction.
-_FALLBACK = {"ground": "#04080A", "panel": "#081114", "ghost": "#152826",
-             "lit": "#66F5DF", "accent": "#00E0C2"}
+_FALLBACK = {
+    "ground": "#04080A",
+    "panel": "#081114",
+    "ghost": "#152826",
+    "lit": "#66F5DF",
+    "accent": "#00E0C2",
+}
 
 
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-            "EL-Amber", "EL-Amber-Lit")
+VARIANTS = (
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+)
 
 
 def _tokens(variant="EL-Openglo"):
@@ -40,11 +51,17 @@ def _tokens(variant="EL-Openglo"):
     `exists` guard."""
     try:
         import make_preview as MP
+
         c = MP.parse_scheme(variant)
-        return {"ground": c["ground"], "panel": c.get("panel", c["ground"]),
-                "ghost": c["ghost"], "ghost_alpha": c["ghost_alpha_glanced"],
-                "lit": c["phosphor"], "accent": c["accent"]}
-    except Exception:                              # noqa: BLE001 - any absence
+        return {
+            "ground": c["ground"],
+            "panel": c.get("panel", c["ground"]),
+            "ghost": c["ghost"],
+            "ghost_alpha": c["ghost_alpha_glanced"],
+            "lit": c["phosphor"],
+            "accent": c["accent"],
+        }
+    except Exception:  # noqa: BLE001 - any absence
         return dict(_FALLBACK, ghost_alpha=1.0)
 
 
@@ -52,6 +69,7 @@ def output_name(variant):
     """`<Base>-wallpaper.png` / `<Base>-lit-wallpaper.png` — the names make_deb maps."""
     base = variant.removesuffix("-Lit")
     return f"{base}{'-lit' if variant.endswith('-Lit') else ''}-wallpaper"
+
 
 # seven-segment geometry -----------------------------------------------------
 # ⚑ DERIVED FROM THE SUBSTRATE, NOT OWNED HERE (⊕SEGMENT-SUBSTRATE).
@@ -77,6 +95,7 @@ from emitters import atomic_path, atomic_write
 SEGS = _ST.seg7_svg_grid()
 DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
 
+
 def seg_poly(kind, L, t, gap):
     h = t / 2.0
     a, b = gap, L - gap
@@ -84,6 +103,7 @@ def seg_poly(kind, L, t, gap):
     if kind == "v":
         pts = [(y, x) for (x, y) in pts]
     return pts
+
 
 def digit_svg(ch, x, y, L, t, on_color, segs=None, opacity=1.0):
     """One digit at (x,y); segs overrides which segments to draw."""
@@ -94,9 +114,10 @@ def digit_svg(ch, x, y, L, t, on_color, segs=None, opacity=1.0):
         kind, ux, uy = SEGS[name]
         pts = seg_poly(kind, L, t, t * 0.62)
         px, py = x + ux * L, y + uy * L
-        p = " ".join(f"{px+dx:.1f},{py+dy:.1f}" for dx, dy in pts)
+        p = " ".join(f"{px + dx:.1f},{py + dy:.1f}" for dx, dy in pts)
         out.append(f'<polygon points="{p}" fill="{on_color}"{op}/>')
     return "".join(out)
+
 
 def clock(text, x, y, L, t, color, ghost_all=False, opacity=1.0):
     """Render a HH:MM string; ':' becomes dots, digits advance the cursor."""
@@ -113,8 +134,10 @@ def clock(text, x, y, L, t, color, ghost_all=False, opacity=1.0):
             # centred in the gap the previous digit left, plus any colon advance
             dx = -(adv - L) / 2 + L * m["colon_advance"] / 2
             for dy in (L * 0.62, L * 1.38):
-                out.append(f'<rect x="{cx+dx-r:.1f}" y="{y+dy-r:.1f}" '
-                           f'width="{2*r:.1f}" height="{2*r:.1f}" fill="{color}"{op}/>')
+                out.append(
+                    f'<rect x="{cx + dx - r:.1f}" y="{y + dy - r:.1f}" '
+                    f'width="{2 * r:.1f}" height="{2 * r:.1f}" fill="{color}"{op}/>'
+                )
             cx += L * m["colon_advance"]
         else:
             segs = "ABCDEFG" if ghost_all else None
@@ -122,8 +145,11 @@ def clock(text, x, y, L, t, color, ghost_all=False, opacity=1.0):
             cx += adv
     return "".join(out), cx - x
 
-L, T = 340, 62                       # segment length / thickness (big digits)
-Ls, Ts = 150, 30                     # seconds digits
+
+L, T = 340, 62  # segment length / thickness (big digits)
+Ls, Ts = 150, 30  # seconds digits
+
+
 def wallpaper_svg(variant="EL-Openglo"):
     """The wallpaper for `variant` as an SVG string — no file written, nothing printed.
 
@@ -142,8 +168,13 @@ def wallpaper_svg(variant="EL-Openglo"):
     through fill-opacity — the same seen-ghost the other surfaces draw.
     """
     c = _tokens(variant)
-    BG_EDGE, BG_MID, GHOST, LIT, GLOW = (c["ground"], c["panel"], c["ghost"],
-                                         c["lit"], c["accent"])
+    BG_EDGE, BG_MID, GHOST, LIT, GLOW = (
+        c["ground"],
+        c["panel"],
+        c["ghost"],
+        c["lit"],
+        c["accent"],
+    )
     ga = float(c["ghost_alpha"])
     ghost_big, wb = clock("88:88", 0, 0, L, T, GHOST, ghost_all=True, opacity=ga)
     lit_big, _ = clock("12:00", 0, 0, L, T, LIT)
@@ -176,10 +207,11 @@ def wallpaper_svg(variant="EL-Openglo"):
 <g transform="translate({ox:.0f},{oy:.0f}) skewX(-5)" filter="url(#glow)">{lit_big}</g>
 <g transform="translate({sec_x:.0f},{sec_y:.0f}) skewX(-5)" filter="url(#glow)">{lit_sec}</g>
 <g font-family="monospace" font-size="54" letter-spacing="14">
-  <text x="{ox:.0f}" y="{oy-80:.0f}" fill="{GHOST}">ALARM  CHIME  24HR</text>
-  <text x="{ox:.0f}" y="{oy-80:.0f}" fill="{LIT}" filter="url(#glow)">AL</text>
+  <text x="{ox:.0f}" y="{oy - 80:.0f}" fill="{GHOST}">ALARM  CHIME  24HR</text>
+  <text x="{ox:.0f}" y="{oy - 80:.0f}" fill="{LIT}" filter="url(#glow)">AL</text>
 </g>
 </svg>'''
+
 
 if __name__ == "__main__":
     # ⚑ THE SIDE EFFECTS LIVE HERE NOW, NOT AT IMPORT.  A module that writes
@@ -189,14 +221,18 @@ if __name__ == "__main__":
     # ⚑ AN UNKNOWN FLAG IS REFUSED (W68): check_action_key's `--keys` / `--outputs`
     # probes ran this emission in the real tree because every flag was ignored.
     import sys
+
     if sys.argv[1:]:
-        print(f"make_wallpaper: unknown flag(s) {sys.argv[1:]} (no modes; run bare to emit)",
-              file=sys.stderr)
+        print(
+            f"make_wallpaper: unknown flag(s) {sys.argv[1:]} (no modes; run bare to emit)",
+            file=sys.stderr,
+        )
         sys.exit(2)
     try:
         import cairosvg
+
         have_png = True
-    except ImportError:                             # the SVGs still land
+    except ImportError:  # the SVGs still land
         have_png = False
         print("make_wallpaper: SKIP PNG — cairosvg not importable; SVGs written")
     for v in VARIANTS:
@@ -205,10 +241,18 @@ if __name__ == "__main__":
         atomic_write(f"{name}.svg", svg)
         if have_png:
             with atomic_path(f"{name}.png") as tmp:
-                cairosvg.svg2png(url=f"{name}.svg", write_to=tmp,
-                                 output_width=2560, output_height=1440)
+                cairosvg.svg2png(
+                    url=f"{name}.svg",
+                    write_to=tmp,
+                    output_width=2560,
+                    output_height=1440,
+                )
         print("wrote", name)
-    if have_png:                                    # the legacy preview, EL-Openglo
+    if have_png:  # the legacy preview, EL-Openglo
         with atomic_path("preview.png") as tmp:
-            cairosvg.svg2png(url="EL-Openglo-wallpaper.svg", write_to=tmp,
-                             output_width=1280, output_height=720)
+            cairosvg.svg2png(
+                url="EL-Openglo-wallpaper.svg",
+                write_to=tmp,
+                output_width=1280,
+                output_height=720,
+            )

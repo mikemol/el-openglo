@@ -29,6 +29,7 @@ WEAKNESS, STATED.  This emits colours and alphas. It emits no geometry, no bloom
 no stroke weight — the three lit/ghost channels the segment surfaces carry are
 not expressible as custom properties without a consumer to define them.
 """
+
 import os
 import sys
 
@@ -50,6 +51,7 @@ def tokens():
     """{variant_id: token dict} — read from make_schemes.GRID, the emitted authority."""
     sys.path.insert(0, ROOT)
     import make_schemes
+
     out = {}
     for value in make_schemes.GRID.values():
         t = value[0] if isinstance(value, (list, tuple)) else value
@@ -73,10 +75,14 @@ def block(t):
         # name/id and other prose tokens are not CSS values; they are omitted, not
         # coerced — the witness counts colour + alpha keys, which is the contract
     # the SEEN ghost, per parsing mode — the §3b identity as one expression
-    lines.append("  --el-fg-in-seen: color-mix(in srgb, var(--el-fg-in) "
-                 "calc(var(--el-ghost-alpha) * 100%), var(--el-view));")
-    lines.append("  --el-fg-in-seen-glanced: color-mix(in srgb, var(--el-fg-in) "
-                 "calc(var(--el-ghost-alpha-glanced) * 100%), var(--el-view));")
+    lines.append(
+        "  --el-fg-in-seen: color-mix(in srgb, var(--el-fg-in) "
+        "calc(var(--el-ghost-alpha) * 100%), var(--el-view));"
+    )
+    lines.append(
+        "  --el-fg-in-seen-glanced: color-mix(in srgb, var(--el-fg-in) "
+        "calc(var(--el-ghost-alpha-glanced) * 100%), var(--el-view));"
+    )
     return "\n".join(lines)
 
 
@@ -116,6 +122,7 @@ def main(argv):
         return 0
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     from emitters import atomic_write
+
     atomic_write(OUT, css)
     print(f"make_css: wrote {os.path.relpath(OUT, ROOT)} ({len(tokens())} variants)")
     return 0

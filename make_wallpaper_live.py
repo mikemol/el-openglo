@@ -17,6 +17,7 @@ FETCHED silent-fail traps (honored):
 Config: wallpaper.configuration.<key>. `breathe` gates the continuous backlight
 animation (rich on the lock mount, off/cheap on the desktop mount).
 """
+
 import json
 import os
 
@@ -46,13 +47,15 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 # `seg7_strokes()`'s own a..g, so the two must be the same projection read at the
 # same case or a digit silently lights nothing.
 SEGS = _ST.seg7_strokes()
-DIGIT = {ch: "".join(sorted(_ST.project(_ST.glyph16(ch, strict=True), "7")))
-         for ch in "0123456789"}                  # strict: a missing digit is a defect
+DIGIT = {
+    ch: "".join(sorted(_ST.project(_ST.glyph16(ch, strict=True), "7")))
+    for ch in "0123456789"
+}  # strict: a missing digit is a defect
 
 
 def _rgb(css):
     css = css.strip().strip('"').lstrip("#")
-    return tuple(int(css[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(css[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def _hex(rgb):
@@ -78,6 +81,7 @@ def colors_for(variant, parsing="looked_at"):
     The token dict is the authority; this function is a READ of it, shared by the
     live wallpaper and the marquee."""
     from make_schemes import GRID
+
     ph, mode = _variant_key(variant)
     tok = next(tt for (p, m), (tt, d) in GRID.items() if p == ph and m == mode)
     ground = tuple(int(x) for x in tok["view"].split(","))
@@ -90,8 +94,14 @@ def colors_for(variant, parsing="looked_at"):
     return ground, lit, ghost, alpha
 
 
-ALL_VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-                "EL-Amber", "EL-Amber-Lit")
+ALL_VARIANTS = (
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+)
 
 
 def global_alpha(parsing="looked_at"):
@@ -102,8 +112,10 @@ def global_alpha(parsing="looked_at"):
     six-row-lookup fallback in catalog/one-theme.md applies."""
     alphas = {v: colors_for(v, parsing)[3] for v in ALL_VARIANTS}
     if len(set(alphas.values())) != 1:
-        raise ValueError(f"the {parsing} ghost alpha is per variant ({alphas}); a single "
-                         f"package cannot bake it — see catalog/one-theme.md, Residue")
+        raise ValueError(
+            f"the {parsing} ghost alpha is per variant ({alphas}); a single "
+            f"package cannot bake it — see catalog/one-theme.md, Residue"
+        )
     return next(iter(alphas.values()))
 
 
@@ -162,6 +174,7 @@ def main_qml():
     # the lit stroke at weight=1 is 1.25x the base
     import segment_topology as _ST
     import templates.loader as TL
+
     m = _ST.metrics(4.0)
     # ⚑ THE TABLES ARE THE DISPLAY'S NOW (W33, s133). This surface used to carry
     # `seg` (a glyph map) and `stroke` (a geometry table) in ITS OWN spelling,
@@ -169,11 +182,16 @@ def main_qml():
     # display's tables — the SAME ones make_clock emits, from the same substrate
     # call — so the two mounts cannot drift in geometry even by accident.
     import make_clock as _MC
-    return TL.render("live-wallpaper-main.qml",
-                     ghostAlpha=global_alpha("glanced_at"),     # ambient: glanced
-                     tables=_MC.qml_tables(),
-                     pitch=f"{m['pitch']:.3f}", strokeBase=f"{m['stroke'] / 1.25:.3f}",
-                     dotR=f"{m['dot'] / 2:.3f}", colonAdvance=f"{m['colon_advance']:.3f}")
+
+    return TL.render(
+        "live-wallpaper-main.qml",
+        ghostAlpha=global_alpha("glanced_at"),  # ambient: glanced
+        tables=_MC.qml_tables(),
+        pitch=f"{m['pitch']:.3f}",
+        strokeBase=f"{m['stroke'] / 1.25:.3f}",
+        dotR=f"{m['dot'] / 2:.3f}",
+        colonAdvance=f"{m['colon_advance']:.3f}",
+    )
 
 
 def config_main_xml():
@@ -186,8 +204,11 @@ def config_main_xml():
     schema validator sees it at all."""
     import display_params as DP  # the DISPLAY rows, declared once (W59)
     import templates.loader as TL
-    return TL.render("live-wallpaper-config.kcfg",
-                     displayEntries=DP.kcfg_entries("wallpaper", indent="    "))
+
+    return TL.render(
+        "live-wallpaper-config.kcfg",
+        displayEntries=DP.kcfg_entries("wallpaper", indent="    "),
+    )
 
 
 def config_qml():
@@ -195,8 +216,12 @@ def config_qml():
     no page, so its display parameters were unreachable)."""
     import display_params as DP
     import templates.loader as TL
-    return TL.render("live-wallpaper-config.qml", displayDecls=DP.qml_decls("wallpaper"),
-                     displayControls=DP.qml_controls("wallpaper", indent="    "))
+
+    return TL.render(
+        "live-wallpaper-config.qml",
+        displayDecls=DP.qml_decls("wallpaper"),
+        displayControls=DP.qml_controls("wallpaper", indent="    "),
+    )
 
 
 def render_all(d):
@@ -214,6 +239,7 @@ def render_all(d):
     # added this line to make_clock and not here, and the emitters' own gates
     # could not see it because they read the emitted TEXT, never the directory.
     import make_segment_display as SD
+
     atomic_write(os.path.join(ui, "SegmentChar.qml"), SD.segment_char_component())
     atomic_write(os.path.join(cfg, "main.xml"), config_main_xml())
     atomic_write(os.path.join(ui, "config.qml"), config_qml())
@@ -223,4 +249,6 @@ def render_all(d):
 if __name__ == "__main__":
     out = "/tmp/wplive-el"
     render_all(out)
-    print(f"rendered the live wallpaper ({PACKAGE_ID}) into {out}; glanced alpha={global_alpha('glanced_at')}")
+    print(
+        f"rendered the live wallpaper ({PACKAGE_ID}) into {out}; glanced alpha={global_alpha('glanced_at')}"
+    )

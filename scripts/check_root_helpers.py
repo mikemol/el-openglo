@@ -34,6 +34,7 @@ not model dpkg's alternatives database, dracut, or initramfs contents. A helper
 that passes here selects the right path; whether plymouth then DRAWS it at boot is
 P3's question (guest-image.md), and needs the VM.
 """
+
 import json
 import os
 import shutil
@@ -47,24 +48,26 @@ if ROOT not in sys.path:
 
 SEAM = 'R="${EL_OPENGLO_ROOT:-}"'
 COREUTILS = ["cp", "cat", "mkdir", "rm", "readlink", "ln"]
-APPLY_UTILS = ["cp", "mkdir", "tr", "find"]     # what el-openglo-apply calls, nothing else
-CACHE_EL = "k1-org.el.notifymarquee.qmlc"      # an entry of OURS in plasmashell's qmlcache
-CACHE_FOREIGN = "k2-org.kde.other.qmlc"        # a foreign one, which must survive
+APPLY_UTILS = ["cp", "mkdir", "tr", "find"]  # what el-openglo-apply calls, nothing else
+CACHE_EL = "k1-org.el.notifymarquee.qmlc"  # an entry of OURS in plasmashell's qmlcache
+CACHE_FOREIGN = "k2-org.kde.other.qmlc"  # a foreign one, which must survive
 # (scenario, argv, systemctl says the shell unit is active)
-RELOAD_SCENARIOS = [("reload_active", ["EL-Openglo"], True),
-                    ("reload_inactive", ["EL-Openglo"], False),
-                    ("no_reload", ["--no-reload", "EL-Openglo"], True)]
-SYSTEMCTL_STUB = r'''#!/bin/sh
+RELOAD_SCENARIOS = [
+    ("reload_active", ["EL-Openglo"], True),
+    ("reload_inactive", ["EL-Openglo"], False),
+    ("no_reload", ["--no-reload", "EL-Openglo"], True),
+]
+SYSTEMCTL_STUB = r"""#!/bin/sh
 echo "systemctl $*" >> "$HOME/systemctl.log"
 case "$*" in
   *is-active*) [ -n "${STUB_ACTIVE:-}" ] && exit 0; exit 3 ;;
 esac
 exit 0
-'''
+"""
 
 STUBS = {
-    "id": '#!/bin/sh\necho 0\n',
-    "update-alternatives": r'''#!/bin/sh
+    "id": "#!/bin/sh\necho 0\n",
+    "update-alternatives": r"""#!/bin/sh
 echo "update-alternatives $*" >> "$EL_OPENGLO_ROOT/tool.log"
 [ -n "${STUB_UA_FAIL:-}" ] && exit 2
 if [ "$1" = "--set" ]; then
@@ -72,7 +75,7 @@ if [ "$1" = "--set" ]; then
   ln -sfn "$3" "$EL_OPENGLO_ROOT/etc/alternatives/$2"
 fi
 exit 0
-''',
+""",
     "update-initramfs": '#!/bin/sh\necho "update-initramfs $*" >> "$EL_OPENGLO_ROOT/tool.log"\n',
     "plymouth-set-default-theme": '#!/bin/sh\necho "plymouth-set-default-theme $*" >> "$EL_OPENGLO_ROOT/tool.log"\n',
 }
@@ -81,10 +84,34 @@ exit 0
 PLY_ALL = ["update-alternatives", "update-initramfs", "plymouth-set-default-theme"]
 SCENARIOS = [
     ("el-openglo-plymouth", "happy", ["EL-Openglo"], PLY_ALL, {}),
-    ("el-openglo-plymouth", "alternatives_fail", ["EL-Openglo"], PLY_ALL, {"STUB_UA_FAIL": "1"}),
-    ("el-openglo-plymouth", "no_update_initramfs", ["EL-Openglo"], ["update-alternatives"], {}),
-    ("el-openglo-plymouth", "no_initramfs_flag", ["--no-initramfs", "EL-Openglo"], ["update-alternatives"], {}),
-    ("el-openglo-plymouth", "set_default_theme_route", ["EL-Openglo"], ["plymouth-set-default-theme"], {}),
+    (
+        "el-openglo-plymouth",
+        "alternatives_fail",
+        ["EL-Openglo"],
+        PLY_ALL,
+        {"STUB_UA_FAIL": "1"},
+    ),
+    (
+        "el-openglo-plymouth",
+        "no_update_initramfs",
+        ["EL-Openglo"],
+        ["update-alternatives"],
+        {},
+    ),
+    (
+        "el-openglo-plymouth",
+        "no_initramfs_flag",
+        ["--no-initramfs", "EL-Openglo"],
+        ["update-alternatives"],
+        {},
+    ),
+    (
+        "el-openglo-plymouth",
+        "set_default_theme_route",
+        ["EL-Openglo"],
+        ["plymouth-set-default-theme"],
+        {},
+    ),
     ("el-openglo-plymouth", "no_route", ["EL-Openglo"], [], {}),
     ("el-openglo-sddm", "theme", ["EL-Azure-Lit"], [], {}),
     ("el-openglo-sddm", "unknown_variant", ["EL-Nope"], [], {}),
@@ -96,6 +123,7 @@ def _variants():
     """The ROSTER (make_schemes.GRID), never make_deb.VARIANTS (W61 R1): the package's
     own list is compared to it in roster_drift(), so a dropped variant DENIES."""
     import variant_roster as VR
+
     return VR.ids()
 
 
@@ -103,12 +131,14 @@ def roster_drift():
     import variant_roster as VR
 
     import make_deb
+
     return VR.drift_facts({"make_deb": make_deb.VARIANTS})
 
 
 def plymouth_name(v):
     """The theme's directory name, from make_plymouth's authority when it has one."""
     import make_plymouth as MP
+
     return MP.theme_name(v) if hasattr(MP, "theme_name") else f"el-openglo-{v}"
 
 
@@ -116,6 +146,7 @@ def build_root(root):
     """Render the real plymouth + SDDM themes into root, plus a stock-breeze stand-in."""
     import make_plymouth as MP
     import make_sddm as SD
+
     vs = _variants()
     pthemes = os.path.join(root, "usr/share/plymouth/themes")
     MP.render_all(vs, {v: os.path.join(pthemes, plymouth_name(v)) for v in vs})
@@ -131,20 +162,37 @@ def build_root(root):
 def plymouth_layout(root):
     """Per variant: the dir, its .plymouth files, and whether the config's refs resolve."""
     import configparser
+
     out = []
     for v in _variants():
         name = plymouth_name(v)
         d = os.path.join(root, "usr/share/plymouth/themes", name)
-        files = sorted(f for f in os.listdir(d) if f.endswith(".plymouth")) if os.path.isdir(d) else []
+        files = (
+            sorted(f for f in os.listdir(d) if f.endswith(".plymouth"))
+            if os.path.isdir(d)
+            else []
+        )
         refs = {}
         for f in files:
             cp = configparser.ConfigParser()
             cp.read(os.path.join(d, f))
             sf = cp.get("script", "ScriptFile", fallback="")
             idir = cp.get("script", "ImageDir", fallback="")
-            refs[f] = {"script_file": sf, "script_exists": bool(sf) and os.path.isfile(root + sf),
-                       "image_dir": idir, "image_dir_exists": bool(idir) and os.path.isdir(root + idir)}
-        out.append({"kind": "layout", "variant": v, "dir": name, "plymouth_files": files, "refs": refs})
+            refs[f] = {
+                "script_file": sf,
+                "script_exists": bool(sf) and os.path.isfile(root + sf),
+                "image_dir": idir,
+                "image_dir_exists": bool(idir) and os.path.isdir(root + idir),
+            }
+        out.append(
+            {
+                "kind": "layout",
+                "variant": v,
+                "dir": name,
+                "plymouth_files": files,
+                "refs": refs,
+            }
+        )
     return out
 
 
@@ -173,11 +221,19 @@ def _read_tree(root, rel):
 
 def run_case(helper, scenario, argv, tools, env, scripts, work):
     import make_sddm as SD
+
     body = scripts[helper]
-    case = {"kind": "run", "helper": helper, "scenario": scenario, "argv": argv,
-            "tools": tools}
+    case = {
+        "kind": "run",
+        "helper": helper,
+        "scenario": scenario,
+        "argv": argv,
+        "tools": tools,
+    }
     if SEAM not in body:
-        case["withheld"] = f"{helper} has no EL_OPENGLO_ROOT seam; not executed (it would write /)"
+        case["withheld"] = (
+            f"{helper} has no EL_OPENGLO_ROOT seam; not executed (it would write /)"
+        )
         return case
     scratch = tempfile.mkdtemp(prefix=f"{scenario}-", dir=work)
     root = os.path.join(scratch, "root")
@@ -190,9 +246,15 @@ def run_case(helper, scenario, argv, tools, env, scripts, work):
     e = {"PATH": b, "EL_OPENGLO_ROOT": root, **env}
 
     def go(args):
-        return subprocess.run(["/bin/sh", helper_p, *args], env=e, capture_output=True, text=True, check=False)
+        return subprocess.run(
+            ["/bin/sh", helper_p, *args],
+            env=e,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
 
-    if scenario == "breeze_after_theme":            # select the greeter first, then undo
+    if scenario == "breeze_after_theme":  # select the greeter first, then undo
         pre = go(["EL-Openglo"])
         case["pre_exit"] = pre.returncode
     r = go(argv)
@@ -201,13 +263,17 @@ def run_case(helper, scenario, argv, tools, env, scripts, work):
     if os.path.isfile(log):
         with open(log) as fh:
             tool_log = fh.read().splitlines()
-    case.update({
-        "exit": r.returncode, "stdout": r.stdout, "stderr": r.stderr,
-        "tool_log": tool_log,
-        "alternative": _read_tree(root, "etc/alternatives/default.plymouth"),
-        "dropin": _read_tree(root, "etc/sddm.conf.d/el-openglo.conf"),
-        "sddm_conf_written": os.path.exists(os.path.join(root, "etc/sddm.conf")),
-    })
+    case.update(
+        {
+            "exit": r.returncode,
+            "stdout": r.stdout,
+            "stderr": r.stderr,
+            "tool_log": tool_log,
+            "alternative": _read_tree(root, "etc/alternatives/default.plymouth"),
+            "dropin": _read_tree(root, "etc/sddm.conf.d/el-openglo.conf"),
+            "sddm_conf_written": os.path.exists(os.path.join(root, "etc/sddm.conf")),
+        }
+    )
     if helper == "el-openglo-plymouth":
         n = plymouth_name(argv[-1])
         case["want_theme"] = f"/usr/share/plymouth/themes/{n}/{n}.plymouth"
@@ -216,7 +282,10 @@ def run_case(helper, scenario, argv, tools, env, scripts, work):
         v = argv[-1] if not argv[-1].startswith("--") else None
         case["want_current"] = SD.theme_id(v) if v and v in _variants() else None
         case["want_theme_dir_exists"] = bool(v) and os.path.isfile(
-            os.path.join(root, "usr/share/sddm/themes", SD.theme_id(v), "metadata.desktop"))
+            os.path.join(
+                root, "usr/share/sddm/themes", SD.theme_id(v), "metadata.desktop"
+            )
+        )
     return case
 
 
@@ -244,19 +313,32 @@ def run_reload(scenario, argv, active, body, work):
         fh.write(body)
     os.chmod(helper_p, 0o755)
     e = {"HOME": home, "PATH": b, **({"STUB_ACTIVE": "1"} if active else {})}
-    r = subprocess.run(["/bin/sh", helper_p, *argv], env=e, capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        ["/bin/sh", helper_p, *argv], env=e, capture_output=True, text=True, check=False
+    )
     log = os.path.join(home, "systemctl.log")
-    return {"kind": "reload", "helper": "el-openglo-apply", "scenario": scenario, "argv": argv,
-            "active": active, "exit": r.returncode, "stdout": r.stdout, "stderr": r.stderr,
-            "systemctl_log": open(log).read().splitlines() if os.path.isfile(log) else [],
-            "cache_el_present": os.path.exists(os.path.join(qc, CACHE_EL)),
-            "cache_foreign_present": os.path.exists(os.path.join(qc, CACHE_FOREIGN))}
+    return {
+        "kind": "reload",
+        "helper": "el-openglo-apply",
+        "scenario": scenario,
+        "argv": argv,
+        "active": active,
+        "exit": r.returncode,
+        "stdout": r.stdout,
+        "stderr": r.stderr,
+        "systemctl_log": open(log).read().splitlines() if os.path.isfile(log) else [],
+        "cache_el_present": os.path.exists(os.path.join(qc, CACHE_EL)),
+        "cache_foreign_present": os.path.exists(os.path.join(qc, CACHE_FOREIGN)),
+    }
 
 
 def measure():
     import make_deb
-    scripts = {"el-openglo-plymouth": make_deb.PLYMOUTH_HELPER,
-               "el-openglo-sddm": make_deb.sddm_helper()}   # the table filled, as stage() writes it
+
+    scripts = {
+        "el-openglo-plymouth": make_deb.PLYMOUTH_HELPER,
+        "el-openglo-sddm": make_deb.sddm_helper(),
+    }  # the table filled, as stage() writes it
     work = tempfile.mkdtemp(prefix="el-root-helpers-")
     try:
         themes = os.path.join(work, "_themes")
@@ -288,17 +370,30 @@ def main(argv):
             if c["kind"] == "layout":
                 print(f"  layout  {c['dir']:28s} {c['plymouth_files']}")
             elif c["kind"] == "reload":
-                print(f"  reload  {c['helper']:20s} {c['scenario']:24s} exit {c['exit']}")
+                print(
+                    f"  reload  {c['helper']:20s} {c['scenario']:24s} exit {c['exit']}"
+                )
             else:
-                print(f"  run     {c['helper']:20s} {c['scenario']:24s} "
-                      + (f"WITHHELD {c['withheld']}" if "withheld" in c else f"exit {c['exit']}"))
+                print(
+                    f"  run     {c['helper']:20s} {c['scenario']:24s} "
+                    + (
+                        f"WITHHELD {c['withheld']}"
+                        if "withheld" in c
+                        else f"exit {c['exit']}"
+                    )
+                )
         runs = [c for c in m["cases"] if c["kind"] == "run"]
-        print(f"\ncheck_root_helpers: {sum('withheld' not in c for c in runs)} of {len(runs)} "
-              f"run(s) executed; {sum(c['kind'] == 'layout' for c in m['cases'])} layout(s) "
-              "(the verdict: scripts/opa_gate.py root_helpers)")
+        print(
+            f"\ncheck_root_helpers: {sum('withheld' not in c for c in runs)} of {len(runs)} "
+            f"run(s) executed; {sum(c['kind'] == 'layout' for c in m['cases'])} layout(s) "
+            "(the verdict: scripts/opa_gate.py root_helpers)"
+        )
         return 0
-    print("usage: check_root_helpers.py --json | --list | --selftest  "
-          "(the verdict: scripts/opa_gate.py root_helpers)", file=sys.stderr)
+    print(
+        "usage: check_root_helpers.py --json | --list | --selftest  "
+        "(the verdict: scripts/opa_gate.py root_helpers)",
+        file=sys.stderr,
+    )
     return 2
 
 
@@ -309,36 +404,66 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     work = tempfile.mkdtemp(prefix="el-root-helpers-st-")
     try:
         os.makedirs(os.path.join(work, "_themes"))
-        bad = {"el-openglo-plymouth": f'#!/bin/sh\n{SEAM}\nupdate-initramfs -u\necho boom >&2\nexit 3\n',
-               "el-openglo-sddm": '#!/bin/sh\nexit 0\n'}
-        c = run_case("el-openglo-plymouth", "happy", ["EL-Openglo"], ["update-initramfs"], {}, bad, work)
+        bad = {
+            "el-openglo-plymouth": f"#!/bin/sh\n{SEAM}\nupdate-initramfs -u\necho boom >&2\nexit 3\n",
+            "el-openglo-sddm": "#!/bin/sh\nexit 0\n",
+        }
+        c = run_case(
+            "el-openglo-plymouth",
+            "happy",
+            ["EL-Openglo"],
+            ["update-initramfs"],
+            {},
+            bad,
+            work,
+        )
         chk("a failing helper's exit is seen", c.get("exit"), 3)
         chk("its stderr is seen", c.get("stderr"), "boom\n")
         chk("a stub's argv reaches the log", c.get("tool_log"), ["update-initramfs -u"])
         s = run_case("el-openglo-sddm", "theme", ["EL-Azure-Lit"], [], {}, bad, work)
-        chk("a helper with no seam is withheld, never run", "withheld" in s and "exit" not in s, True)
+        chk(
+            "a helper with no seam is withheld, never run",
+            "withheld" in s and "exit" not in s,
+            True,
+        )
         import make_deb
-        probe = ('#!/bin/sh\nsystemctl --user restart x\n'
-                 'find "$HOME/.cache/plasmashell/qmlcache" -name "*org.el.*" -delete\n')
+
+        probe = (
+            "#!/bin/sh\nsystemctl --user restart x\n"
+            'find "$HOME/.cache/plasmashell/qmlcache" -name "*org.el.*" -delete\n'
+        )
         rc = run_reload("reload_active", ["EL-Openglo"], True, probe, work)
-        chk("a stub systemctl call reaches its log", rc["systemctl_log"], ["systemctl --user restart x"])
-        chk("the cache sweep is seen: ours gone, foreign kept",
-            (rc["cache_el_present"], rc["cache_foreign_present"]), (False, True))
+        chk(
+            "a stub systemctl call reaches its log",
+            rc["systemctl_log"],
+            ["systemctl --user restart x"],
+        )
+        chk(
+            "the cache sweep is seen: ours gone, foreign kept",
+            (rc["cache_el_present"], rc["cache_foreign_present"]),
+            (False, True),
+        )
         chk("the live make_deb.VARIANTS is the roster", roster_drift(), [])
         kept = make_deb.VARIANTS
         try:
-            make_deb.VARIANTS = [x for x in kept if x != "EL-Amber"]   # a planted drop
+            make_deb.VARIANTS = [x for x in kept if x != "EL-Amber"]  # a planted drop
             dropped = roster_drift()
         finally:
             make_deb.VARIANTS = kept
-        chk("a package that drops a variant is a fact", [(d["who"], d["variant"]) for d in dropped],
-            [("make_deb", "EL-Amber")])
+        chk(
+            "a package that drops a variant is a fact",
+            [(d["who"], d["variant"]) for d in dropped],
+            [("make_deb", "EL-Amber")],
+        )
     finally:
         shutil.rmtree(work, ignore_errors=True)
     print("check_root_helpers selftest:", "PASS" if ok else "FAIL")

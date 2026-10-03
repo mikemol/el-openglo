@@ -23,6 +23,7 @@ WEAKNESS: the gate here is structural (metadata, balance, no address literal). T
 the widget shows the right face per scenario is scripts/check_metrics.py's
 (not yet built) and policy/metrics.rego's to judge, offscreen.
 """
+
 import json
 import os
 import re
@@ -37,46 +38,74 @@ OUT_DIR = "plasma-metrics"
 
 # luthen's query tool, by absolute path (their contract: runs from any cwd)
 LUTHEN = os.path.join(os.path.expanduser("~"), "github", "luthen-observability")
-TOOL = [os.path.join(LUTHEN, ".venv", "bin", "python"),
-        os.path.join(LUTHEN, "checks", "endpoints_query.py"), "vmsingle-http", "--side", "host"]
+TOOL = [
+    os.path.join(LUTHEN, ".venv", "bin", "python"),
+    os.path.join(LUTHEN, "checks", "endpoints_query.py"),
+    "vmsingle-http",
+    "--side",
+    "host",
+]
 
 # what the widget shows: label, MetricsQL expression, decimals. Metric names are
 # ones luthen ingests (policy/alerts/*.rego there); a query that returns no series
 # reads as unreachable, never as a blank.
 QUERIES = (
-    {"label": "CPU", "expr": "sum(rate(container_cpu_usage_seconds_total[5m]))", "digits": 2},
-    {"label": "OOM", "expr": "sum(increase(container_oom_events_total[1h]))", "digits": 0},
+    {
+        "label": "CPU",
+        "expr": "sum(rate(container_cpu_usage_seconds_total[5m]))",
+        "digits": 2,
+    },
+    {
+        "label": "OOM",
+        "expr": "sum(increase(container_oom_events_total[1h]))",
+        "digits": 0,
+    },
 )
 
 RETRY_MS = 30000
 
 # an address literal: host:port, or a cluster service name
-_ADDRESS = re.compile(r"(?:\b[a-z0-9-]+(?:\.[a-z0-9-]+)+:\d{2,5}\b)|(?:\bsvc\.cluster\.local\b)")
+_ADDRESS = re.compile(
+    r"(?:\b[a-z0-9-]+(?:\.[a-z0-9-]+)+:\d{2,5}\b)|(?:\bsvc\.cluster\.local\b)"
+)
 
 
 def metadata():
-    return json.dumps({
-        "KPlugin": {
-            "Authors": [{"Name": "EL watch themes"}],
-            "Category": "System Information",
-            "Description": "The operator's VictoriaMetrics on the panel, coloured by the active scheme",
-            "Icon": "utilities-system-monitor", "Id": PACKAGE_ID,
-            "Name": "EL Metrics", "Version": "1.0",
-            "License": LICENSE_SPDX},
-        "KPackageStructure": "Plasma/Applet",
-        "X-Plasma-API-Minimum-Version": "6.0"}, indent=2)
+    return json.dumps(
+        {
+            "KPlugin": {
+                "Authors": [{"Name": "EL watch themes"}],
+                "Category": "System Information",
+                "Description": "The operator's VictoriaMetrics on the panel, coloured by the active scheme",
+                "Icon": "utilities-system-monitor",
+                "Id": PACKAGE_ID,
+                "Name": "EL Metrics",
+                "Version": "1.0",
+                "License": LICENSE_SPDX,
+            },
+            "KPackageStructure": "Plasma/Applet",
+            "X-Plasma-API-Minimum-Version": "6.0",
+        },
+        indent=2,
+    )
 
 
 def tool_command():
     """The executable DataSource source string: the tool, its arguments, shell-quoted."""
     import shlex
+
     return " ".join(shlex.quote(p) for p in TOOL)
 
 
 def main_qml():
     import templates.loader as TL
-    return TL.render("metrics-main.qml", toolCommand=tool_command().replace('"', '\\"'),
-                     queries=json.dumps(list(QUERIES)), retryMs=str(RETRY_MS))
+
+    return TL.render(
+        "metrics-main.qml",
+        toolCommand=tool_command().replace('"', '\\"'),
+        queries=json.dumps(list(QUERIES)),
+        retryMs=str(RETRY_MS),
+    )
 
 
 def address_literals(text):
@@ -126,19 +155,42 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
-    chk("an address literal is seen", address_literals("x = 'vmsingle.buildbuddy.svc.cluster.local:8428'") != [], True)
-    chk("a bare cluster name is seen", address_literals("svc.cluster.local") != [], True)
-    chk("a path is not an address", address_literals("/home/u/github/luthen-observability/checks/endpoints_query.py"), [])
+    chk(
+        "an address literal is seen",
+        address_literals("x = 'vmsingle.buildbuddy.svc.cluster.local:8428'") != [],
+        True,
+    )
+    chk(
+        "a bare cluster name is seen", address_literals("svc.cluster.local") != [], True
+    )
+    chk(
+        "a path is not an address",
+        address_literals(
+            "/home/u/github/luthen-observability/checks/endpoints_query.py"
+        ),
+        [],
+    )
     with tempfile.TemporaryDirectory() as td:
         p = render_all(os.path.join(td, PACKAGE_ID))
         chk("the emitted package passes its gate", check(p), [])
         with open(os.path.join(p, "contents", "ui", "main.qml")) as fh:
             q = fh.read()
-        chk("the query set is emitted as data", all(x["expr"] in q for x in QUERIES), True)
-        chk("the endpoint tool is emitted, not an address", ("endpoints_query.py" in q, address_literals(q)), (True, []))
+        chk(
+            "the query set is emitted as data",
+            all(x["expr"] in q for x in QUERIES),
+            True,
+        )
+        chk(
+            "the endpoint tool is emitted, not an address",
+            ("endpoints_query.py" in q, address_literals(q)),
+            (True, []),
+        )
     print("make_metrics selftest:", "PASS" if ok else "FAIL")
     return ok
 

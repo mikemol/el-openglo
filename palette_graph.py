@@ -36,6 +36,7 @@ scatter it replaces — which is why the check is not optional decoration.
 nothing from the solver.  It is the SHAPE of the problem, available before any colour is
 chosen — which is exactly what makes `b1` computable in advance of a solve.
 """
+
 from __future__ import annotations
 
 # ── the roles, one namespace, stated once ────────────────────────────────────
@@ -45,6 +46,7 @@ from __future__ import annotations
 # sector table and in the emitted keys but in NO gate pair, and the honest record of that is
 # a hole, not a silently-dropped row.
 
+
 class Node:
     """One palette role, under every name it answers to.
 
@@ -53,6 +55,7 @@ class Node:
     them here would erase exactly the distinction whose absence WAS the @ROLES bug — a
     focus ring the colour of the text it surrounds passed every check because no check
     asked whether two ROLES differ.  Aliasing is recorded (`same_as`) and never merged."""
+
     __slots__ = ("gate", "key", "local", "same_as")
 
     def __init__(self, key, local=None, gate=None, same_as=None):
@@ -64,20 +67,20 @@ class Node:
 
 NODES = (
     # emitted key   solver local   gate name    alias-of
-    Node("view",    "ground",      None),
-    Node("fg",      "lit",         "fg"),
-    Node("fg_in",   "ghost",       None),
-    Node("fg_act",  "accent",      None),
-    Node("focus",   "accent",      "focus",     same_as="fg_act"),
-    Node("hover",   None,          None),
-    Node("neg",     None,          "neg"),
-    Node("neu",     None,          "neu"),
-    Node("pos",     None,          "pos"),
-    Node("link",    None,          "link"),
-    Node("visited", None,          "visited"),   # W198: its 5 pairs are gated now
-    Node("sel_bg",  None,          None),
-    Node("sel_fg",  None,          None),
-    Node("sel_act", None,          None),
+    Node("view", "ground", None),
+    Node("fg", "lit", "fg"),
+    Node("fg_in", "ghost", None),
+    Node("fg_act", "accent", None),
+    Node("focus", "accent", "focus", same_as="fg_act"),
+    Node("hover", None, None),
+    Node("neg", None, "neg"),
+    Node("neu", None, "neu"),
+    Node("pos", None, "pos"),
+    Node("link", None, "link"),
+    Node("visited", None, "visited"),  # W198: its 5 pairs are gated now
+    Node("sel_bg", None, None),
+    Node("sel_fg", None, None),
+    Node("sel_act", None, None),
 )
 
 # ⚑ THE GEOMETRY NODES ARE THE SAME GRAPH, NOT A SECOND ONE.  They are kept in
@@ -87,14 +90,14 @@ NODES = (
 # cannot have.  `nodes()` unions both, and `check_palette_graph` skips the
 # emitted-key arm for these while still requiring every edge to name a real node.
 GEOMETRY_NODES = (
-    Node("cell"),           # the 2u x 4u digit box every fraction is taken of
-    Node("lit_stroke"),     # litHalf
-    Node("ghost_stroke"),   # ghostHalf
-    Node("end_gap"),        # endGap
-    Node("aperture"),       # the open counter a glyph needs to stay legible
-    Node("collinear_join"), # the b~c / e~f vertical stacks endGap governs
-    Node("dot_fill"),       # dotFill
-    Node("dot_gap"),        # the space between adjacent matrix dots
+    Node("cell"),  # the 2u x 4u digit box every fraction is taken of
+    Node("lit_stroke"),  # litHalf
+    Node("ghost_stroke"),  # ghostHalf
+    Node("end_gap"),  # endGap
+    Node("aperture"),  # the open counter a glyph needs to stay legible
+    Node("collinear_join"),  # the b~c / e~f vertical stacks endGap governs
+    Node("dot_fill"),  # dotFill
+    Node("dot_gap"),  # the space between adjacent matrix dots
 )
 
 BY_KEY = {n.key: n for n in NODES}
@@ -113,10 +116,10 @@ def declared_nodes():
 
 # ── the edge families ────────────────────────────────────────────────────────
 
-LEGIBILITY = "legibility"        # wcag_ratio(fg, bg) >= floor
-SEPARATION = "separation"        # worst_view_dE(a, b) / need >= 1
-DERIVATION = "derivation"        # b is computed FROM a; no floor, a forward arrow
-GEOMETRY = "geometry"            # a ratio of lengths in the cell >= floor
+LEGIBILITY = "legibility"  # wcag_ratio(fg, bg) >= floor
+SEPARATION = "separation"  # worst_view_dE(a, b) / need >= 1
+DERIVATION = "derivation"  # b is computed FROM a; no floor, a forward arrow
+GEOMETRY = "geometry"  # a ratio of lengths in the cell >= floor
 
 # ── the geometry quantities, as fractions of the cell unit ───────────────────
 #
@@ -130,12 +133,12 @@ GEOMETRY = "geometry"            # a ratio of lengths in the cell >= floor
 # compose."  Both are ratios.
 #
 # Read from templates/SegmentChar.qml and MatrixChar.qml rather than remembered.
-LIT_HALF = 0.20        # SegmentChar: lit stroke half-width, u*0.20
-GHOST_HALF = 0.13      # SegmentChar: ghost half-width, u*0.13
-END_GAP = 0.10         # SegmentChar: ends pulled in, u*0.10
-DOT_FILL = 0.82        # MatrixChar: dot diameter as a fraction of the pitch
-CELL_W = 2.0           # GEOM16's digit box: 2u wide
-CELL_H = 4.0           # ... 4u tall (5u with the descender band)
+LIT_HALF = 0.20  # SegmentChar: lit stroke half-width, u*0.20
+GHOST_HALF = 0.13  # SegmentChar: ghost half-width, u*0.13
+END_GAP = 0.10  # SegmentChar: ends pulled in, u*0.10
+DOT_FILL = 0.82  # MatrixChar: dot diameter as a fraction of the pitch
+CELL_W = 2.0  # GEOM16's digit box: 2u wide
+CELL_H = 4.0  # ... 4u tall (5u with the descender band)
 
 # ⚑ THE GHOST'S ALPHA IS THE EDGE THAT COUPLES SHAPE TO COLOUR — AND IT NO LONGER
 # LIVES HERE.  SegmentChar.qml drew the unlit core at a literal `opacity: 0.45`,
@@ -158,8 +161,8 @@ def composite(fg, bg, alpha):
     `make_schemes.GHOST_ALPHA`, the value the template is filled with.  Measured
     on the shipped palette at the old 0.45: declared ghost contrast 4.16:1 on
     EL-Openglo, composited 1.79:1 — a 2.37 drop between the gate and the screen."""
-    return tuple(round(f * alpha + b * (1 - alpha))
-                 for f, b in zip(fg, bg))
+    return tuple(round(f * alpha + b * (1 - alpha)) for f, b in zip(fg, bg))
+
 
 # ⚑ A CONSTRAINT IN THE WRONG METRIC, NAMED SO IT CAN BE ARGUED WITH.
 # `_candidates` prunes each semantic candidate against `hot` (the accent) with a
@@ -190,6 +193,7 @@ class Edge:
     ENFORCED floor.  That is invisible today only because `reference_floors()` happens to
     return the same number twice; the day those diverge, four pairs change class without
     anything changing in the code.  Carrying the class on the edge makes the read take it."""
+
     __slots__ = ("cls", "family", "floor", "u", "v", "why")
 
     def __init__(self, u, v, family, cls=None, floor=None, why=""):
@@ -213,21 +217,30 @@ CONSTELLATION = SEMANTIC + ("fg",)
 # Which of those pairs cvd_gate additionally declares, and at which class.  Everything in
 # CONSTELLATION is already an edge; these rows say what CLASS each declared pair carries.
 _DECLARED_CLASS = {
-    ("neg", "pos"): ENFORCED_CLS, ("neg", "neu"): ENFORCED_CLS,
-    ("neu", "pos"): ENFORCED_CLS, ("fg", "link"): ENFORCED_CLS,
+    ("neg", "pos"): ENFORCED_CLS,
+    ("neg", "neu"): ENFORCED_CLS,
+    ("neu", "pos"): ENFORCED_CLS,
+    ("fg", "link"): ENFORCED_CLS,
     # W196: focus IS the accent; make_palette._candidates now prunes the semantic slots
     # against it on the gate's metric, so these pairs are solved for and ENFORCED.
-    ("focus", "neu"): ENFORCED_CLS, ("focus", "link"): ENFORCED_CLS,
-    ("focus", "neg"): ENFORCED_CLS, ("focus", "pos"): ENFORCED_CLS,
+    ("focus", "neu"): ENFORCED_CLS,
+    ("focus", "link"): ENFORCED_CLS,
+    ("focus", "neg"): ENFORCED_CLS,
+    ("focus", "pos"): ENFORCED_CLS,
     # W198: the other 11 constellation pairs min_pair optimises. Measured on all six
     # shipped variants (worst-view CAM02-UCS dE, floor 10.97 x 0.8 = 8.78): the tightest
     # is link~visited 11.8, so every one clears. Colour is the sole carrier of a link vs
     # a visited link, a status vs body text, so they are ENFORCED, not surfaced.
-    ("link", "neg"): ENFORCED_CLS, ("neg", "visited"): ENFORCED_CLS,
-    ("fg", "neg"): ENFORCED_CLS, ("link", "neu"): ENFORCED_CLS,
-    ("neu", "visited"): ENFORCED_CLS, ("fg", "neu"): ENFORCED_CLS,
-    ("link", "pos"): ENFORCED_CLS, ("pos", "visited"): ENFORCED_CLS,
-    ("fg", "pos"): ENFORCED_CLS, ("link", "visited"): ENFORCED_CLS,
+    ("link", "neg"): ENFORCED_CLS,
+    ("neg", "visited"): ENFORCED_CLS,
+    ("fg", "neg"): ENFORCED_CLS,
+    ("link", "neu"): ENFORCED_CLS,
+    ("neu", "visited"): ENFORCED_CLS,
+    ("fg", "neu"): ENFORCED_CLS,
+    ("link", "pos"): ENFORCED_CLS,
+    ("pos", "visited"): ENFORCED_CLS,
+    ("fg", "pos"): ENFORCED_CLS,
+    ("link", "visited"): ENFORCED_CLS,
     ("fg", "visited"): ENFORCED_CLS,
 }
 
@@ -245,12 +258,28 @@ def _separation_edges():
         for j in range(i + 1, n):
             u, v = CONSTELLATION[i], CONSTELLATION[j]
             k = (u, v) if u <= v else (v, u)
-            out.append(Edge(u, v, SEPARATION, cls=_DECLARED_CLASS.get(k),
-                            floor="reference_floors", why="solve_semantic_set.min_pair"))
+            out.append(
+                Edge(
+                    u,
+                    v,
+                    SEPARATION,
+                    cls=_DECLARED_CLASS.get(k),
+                    floor="reference_floors",
+                    why="solve_semantic_set.min_pair",
+                )
+            )
     for (u, v), cls in _DECLARED_CLASS.items():
         if "focus" in (u, v):
-            out.append(Edge(u, v, SEPARATION, cls=cls, floor="reference_floors",
-                            why="cvd_gate.SURFACED"))
+            out.append(
+                Edge(
+                    u,
+                    v,
+                    SEPARATION,
+                    cls=cls,
+                    floor="reference_floors",
+                    why="cvd_gate.SURFACED",
+                )
+            )
     return tuple(out)
 
 
@@ -263,23 +292,59 @@ def _legibility_edges():
     filter.  It is recorded here as what it is, so the repair is a floor swap rather than
     an archaeology of why 5.0."""
     out = [
-        Edge("fg", "view", LEGIBILITY, floor="solve_lit/apca-argmax",
-             why="argmax |Lc|, no floor; chroma_floor=40 is the only gate"),
-        Edge("fg_in", "view", LEGIBILITY, floor="GHOST_READABLE_LC",
-             why="an UPPER ceiling, not a floor: derive_ghost_ceiling"),
-        Edge("fg_in", "fg", LEGIBILITY, floor="feasible_ghost_floor",
-             why="the {lit, ghost, ground} series chain"),
-        Edge("fg_act", "view", LEGIBILITY, floor="4.6", why="solve_accent min_contrast"),
-        Edge("sel_fg", "sel_bg", LEGIBILITY, floor="3.0",
-             why="check_selection_contrast FLOOR"),
-        Edge("sel_act", "sel_bg", LEGIBILITY, floor="3.0",
-             why="check_selection_contrast FLOOR"),
+        Edge(
+            "fg",
+            "view",
+            LEGIBILITY,
+            floor="solve_lit/apca-argmax",
+            why="argmax |Lc|, no floor; chroma_floor=40 is the only gate",
+        ),
+        Edge(
+            "fg_in",
+            "view",
+            LEGIBILITY,
+            floor="GHOST_READABLE_LC",
+            why="an UPPER ceiling, not a floor: derive_ghost_ceiling",
+        ),
+        Edge(
+            "fg_in",
+            "fg",
+            LEGIBILITY,
+            floor="feasible_ghost_floor",
+            why="the {lit, ghost, ground} series chain",
+        ),
+        Edge(
+            "fg_act", "view", LEGIBILITY, floor="4.6", why="solve_accent min_contrast"
+        ),
+        Edge(
+            "sel_fg",
+            "sel_bg",
+            LEGIBILITY,
+            floor="3.0",
+            why="check_selection_contrast FLOOR",
+        ),
+        Edge(
+            "sel_act",
+            "sel_bg",
+            LEGIBILITY,
+            floor="3.0",
+            why="check_selection_contrast FLOOR",
+        ),
     ]
     for s in SEMANTIC:
-        out.append(Edge(s, "view", LEGIBILITY, floor="4.6",
-                        why="_candidates min_contrast"))
-        out.append(Edge(s, "fg_act", SEPARATION, cls=None, floor=HOT_PRUNE_DE,
-                        why="_candidates hot-prune — RAW dE, not the gate's metric"))
+        out.append(
+            Edge(s, "view", LEGIBILITY, floor="4.6", why="_candidates min_contrast")
+        )
+        out.append(
+            Edge(
+                s,
+                "fg_act",
+                SEPARATION,
+                cls=None,
+                floor=HOT_PRUNE_DE,
+                why="_candidates hot-prune — RAW dE, not the gate's metric",
+            )
+        )
     return tuple(out)
 
 
@@ -308,34 +373,54 @@ def _geometry_edges():
         # design log names: the unlit field recedes to texture rather than
         # competing with the lit glyph.  Same relation as the colour ghost's
         # readability CEILING, one axis over.
-        Edge("lit_stroke", "ghost_stroke", GEOMETRY, floor="ghost_subordinate",
-             why=f"litHalf/ghostHalf = {LIT_HALF / GHOST_HALF:.3f}; the unlit field "
-                 f"must read as texture, not as a second glyph"),
-
+        Edge(
+            "lit_stroke",
+            "ghost_stroke",
+            GEOMETRY,
+            floor="ghost_subordinate",
+            why=f"litHalf/ghostHalf = {LIT_HALF / GHOST_HALF:.3f}; the unlit field "
+            f"must read as texture, not as a second glyph",
+        ),
         # The aperture: two parallel strokes bounding a counter must leave a gap.
         # At litHalf=0.20 a 1u span between stroke CENTRES leaves 1 - 2*0.20 = 0.60u
         # of open counter. Below zero the glyph closes into a blob.
-        Edge("lit_stroke", "aperture", GEOMETRY, floor="aperture_open",
-             why=f"(1 - 2*litHalf) = {1 - 2 * LIT_HALF:.2f}u of counter across a 1u "
-                 f"span; at 0 the glyph closes up"),
-
+        Edge(
+            "lit_stroke",
+            "aperture",
+            GEOMETRY,
+            floor="aperture_open",
+            why=f"(1 - 2*litHalf) = {1 - 2 * LIT_HALF:.2f}u of counter across a 1u "
+            f"span; at 0 the glyph closes up",
+        ),
         # ⚑ COLLINEAR ONLY — the case endGap actually governs, measured.
-        Edge("end_gap", "collinear_join", GEOMETRY, floor="ends_separate",
-             why=f"2*endGap = {2 * END_GAP:.2f}u between the drawn ends of b~c and "
-                 f"e~f, the only two collinear shared-vertex pairs of the 10"),
-
+        Edge(
+            "end_gap",
+            "collinear_join",
+            GEOMETRY,
+            floor="ends_separate",
+            why=f"2*endGap = {2 * END_GAP:.2f}u between the drawn ends of b~c and "
+            f"e~f, the only two collinear shared-vertex pairs of the 10",
+        ),
         # The matrix dot must not touch its neighbour, or the field becomes a blob.
-        Edge("dot_fill", "dot_gap", GEOMETRY, floor="dots_separate",
-             why=f"(1 - dotFill) = {1 - DOT_FILL:.2f} of the pitch between adjacent "
-                 f"dots; at 0 the matrix reads as filled area"),
-
+        Edge(
+            "dot_fill",
+            "dot_gap",
+            GEOMETRY,
+            floor="dots_separate",
+            why=f"(1 - dotFill) = {1 - DOT_FILL:.2f} of the pitch between adjacent "
+            f"dots; at 0 the matrix reads as filled area",
+        ),
         # ⚑ THE CELL IS THE GROUND EVERY SHAPE QUANTITY IS A FRACTION OF, which is
         # what makes them commensurable at all — the same role `view` plays for the
         # colour edges.
-        Edge("cell", "lit_stroke", GEOMETRY, floor="stroke_fits",
-             why=f"litHalf = {LIT_HALF}u against a {CELL_W}x{CELL_H}u cell; a stroke "
-                 f"wider than the cell's own features cannot render"),
-
+        Edge(
+            "cell",
+            "lit_stroke",
+            GEOMETRY,
+            floor="stroke_fits",
+            why=f"litHalf = {LIT_HALF}u against a {CELL_W}x{CELL_H}u cell; a stroke "
+            f"wider than the cell's own features cannot render",
+        ),
         # ⚑⚑ THE EDGE THAT CROSSES. Everything above is shape-to-shape and
         # everything in the colour families is colour-to-colour; this one joins
         # them, and until it existed the graph was one graph with two disjoint
@@ -358,11 +443,16 @@ def _geometry_edges():
         # (`make_schemes.GHOST_ALPHA` -> SegmentChar.qml's `$ghostAlpha`); the
         # value is not quoted here because this graph holds relations, not
         # solver output — `check_ghost_composite` reads the emitted number.
-        Edge("fg_in", "ghost_stroke", GEOMETRY, floor="ghost_visible_as_shape",
-             why=f"the ghost's SUBORDINATION is carried by colour AND alpha "
-                 f"(solved: make_schemes.GHOST_ALPHA) AND width "
-                 f"({GHOST_HALF / LIT_HALF:.2f}x) multiplying into one perceived "
-                 f"quantity; the composited ghost must clear feasible_ghost_floor"),
+        Edge(
+            "fg_in",
+            "ghost_stroke",
+            GEOMETRY,
+            floor="ghost_visible_as_shape",
+            why=f"the ghost's SUBORDINATION is carried by colour AND alpha "
+            f"(solved: make_schemes.GHOST_ALPHA) AND width "
+            f"({GHOST_HALF / LIT_HALF:.2f}x) multiplying into one perceived "
+            f"quantity; the composited ghost must clear feasible_ghost_floor",
+        ),
     ]
     return tuple(out)
 
@@ -385,13 +475,15 @@ def _derivation_edges():
     )
 
 
-EDGES = (_separation_edges() + _legibility_edges() + _geometry_edges()
-         + _derivation_edges())
+EDGES = (
+    _separation_edges() + _legibility_edges() + _geometry_edges() + _derivation_edges()
+)
 
 BY_KEY.update({n.key: n for n in GEOMETRY_NODES})
 
 
 # ── reads ────────────────────────────────────────────────────────────────────
+
 
 def edges(family=None, cls=None, constraining_only=False):
     """The edge set, filtered.  ⟡PARAMETRIC: a caller takes what it needs as an argument.

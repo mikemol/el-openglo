@@ -31,6 +31,7 @@ here, so the page is loaded as a Loader child, not as plasmashell parents it; a 
 that depends on that parenting cannot appear. kwin_wayland (qt_sandbox mesa) missing,
 a timeout, or a crash is a withheld fact. Page loading proves instantiation, not draw.
 """
+
 import json
 import os
 import sys
@@ -40,16 +41,22 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 LINE = "Created graphical object was not placed in the graphics scene"
-WRAP = ('import QtQuick\nItem {\n    width: 600; height: 400\n'
-        '    Loader { id: l; anchors.fill: parent; source: "%s"\n'
-        '        onStatusChanged: console.log("LOADSTATUS", status) }\n'
-        '    Timer { interval: 2500; running: true; onTriggered: Qt.quit() }\n}\n')
-CONTROL = ('import QtQuick\nItem {\n    width: 100; height: 100\n'
-           '    Component { id: c; Item {} }\n'
-           '    Component.onCompleted: c.createObject(null)\n'
-           '    Timer { interval: 1500; running: true; onTriggered: Qt.quit() }\n}\n')
-PAGES = (("clock-config.qml", "make_clock", "CONFIG_QML"),
-         ("marquee-config.qml", "make_notify_marquee", "config_qml"))
+WRAP = (
+    "import QtQuick\nItem {\n    width: 600; height: 400\n"
+    '    Loader { id: l; anchors.fill: parent; source: "%s"\n'
+    '        onStatusChanged: console.log("LOADSTATUS", status) }\n'
+    "    Timer { interval: 2500; running: true; onTriggered: Qt.quit() }\n}\n"
+)
+CONTROL = (
+    "import QtQuick\nItem {\n    width: 100; height: 100\n"
+    "    Component { id: c; Item {} }\n"
+    "    Component.onCompleted: c.createObject(null)\n"
+    "    Timer { interval: 1500; running: true; onTriggered: Qt.quit() }\n}\n"
+)
+PAGES = (
+    ("clock-config.qml", "make_clock", "CONFIG_QML"),
+    ("marquee-config.qml", "make_notify_marquee", "config_qml"),
+)
 
 
 def read_stderr(text):
@@ -63,19 +70,30 @@ def read_stderr(text):
             status = int(ln.split()[-1])
         elif not ln.startswith("qml: "):
             others.append(ln[:200])
-    return {"unplaced": sum(1 for ln in lines if LINE in ln), "load_status": status, "other_stderr": others}
+    return {
+        "unplaced": sum(1 for ln in lines if LINE in ln),
+        "load_status": status,
+        "other_stderr": others,
+    }
 
 
 def run_doc(qml_text, name, runner=None):
     """(fact dict) for one document run headless; a could-not-run is a `withheld`."""
     import qt_sandbox as QT
+
     with tempfile.TemporaryDirectory() as d:
         with open(os.path.join(d, name), "w") as fh:
             fh.write(qml_text)
         try:
-            r = (runner or QT.run)([QT.QML, os.path.join(d, name)], mesa=True, capture_output=True,
-                                   text=True, timeout=90, cpu=60)
-        except Exception as e:                   # noqa: BLE001
+            r = (runner or QT.run)(
+                [QT.QML, os.path.join(d, name)],
+                mesa=True,
+                capture_output=True,
+                text=True,
+                timeout=90,
+                cpu=60,
+            )
+        except Exception as e:  # noqa: BLE001
             return {"withheld": f"{type(e).__name__}: {str(e)[:160]}"}
     if r.returncode != 0:
         return {"withheld": f"qml exited {r.returncode}", **read_stderr(r.stderr)}
@@ -84,14 +102,20 @@ def run_doc(qml_text, name, runner=None):
 
 def measure(runner=None, pages=PAGES):
     import check_template_parity as CTP
+
     out = {"control_provokes_unplaced": None, "pages": []}
     c = run_doc(CONTROL, "control.qml", runner)
     out["control_provokes_unplaced"] = None if "withheld" in c else c["unplaced"] > 0
     for label, mod, acc in pages:
         try:
             page = CTP._value(mod, acc, None)
-        except Exception as e:                   # noqa: BLE001
-            out["pages"].append({"page": label, "withheld": f"{mod}.{acc} raised {type(e).__name__}: {e}"})
+        except Exception as e:  # noqa: BLE001
+            out["pages"].append(
+                {
+                    "page": label,
+                    "withheld": f"{mod}.{acc} raised {type(e).__name__}: {e}",
+                }
+            )
             continue
         with tempfile.TemporaryDirectory() as d:
             with open(os.path.join(d, label), "w") as fh:
@@ -99,11 +123,20 @@ def measure(runner=None, pages=PAGES):
             with open(os.path.join(d, "wrap.qml"), "w") as fh:
                 fh.write(WRAP % label)
             import qt_sandbox as QT
+
             try:
-                r = (runner or QT.run)([QT.QML, os.path.join(d, "wrap.qml")], mesa=True, capture_output=True,
-                                       text=True, timeout=90, cpu=60)
-            except Exception as e:               # noqa: BLE001
-                out["pages"].append({"page": label, "withheld": f"{type(e).__name__}: {str(e)[:160]}"})
+                r = (runner or QT.run)(
+                    [QT.QML, os.path.join(d, "wrap.qml")],
+                    mesa=True,
+                    capture_output=True,
+                    text=True,
+                    timeout=90,
+                    cpu=60,
+                )
+            except Exception as e:  # noqa: BLE001
+                out["pages"].append(
+                    {"page": label, "withheld": f"{type(e).__name__}: {str(e)[:160]}"}
+                )
                 continue
         fact = {"page": label, **read_stderr(r.stderr)}
         if r.returncode != 0:
@@ -120,20 +153,29 @@ class _R:
 def _selftest():
     ok_line = read_stderr(f"qml: LOADSTATUS 1\nQQuickItem: {LINE}.\n")
     clean = read_stderr("qml: LOADSTATUS 1\n")
-    err = read_stderr("qml: LOADSTATUS 3\nfile:///x.qml:3: module \"org.kde.kcm\" is not installed\n")
+    err = read_stderr(
+        'qml: LOADSTATUS 3\nfile:///x.qml:3: module "org.kde.kcm" is not installed\n'
+    )
     seen = {
         "the unplaced line is counted": ok_line["unplaced"] == 1,
-        "a clean run counts none and reads status": clean["unplaced"] == 0 and clean["load_status"] == 1,
-        "an error status and its Qt line are seen": err["load_status"] == 3 and len(err["other_stderr"]) == 1,
+        "a clean run counts none and reads status": clean["unplaced"] == 0
+        and clean["load_status"] == 1,
+        "an error status and its Qt line are seen": err["load_status"] == 3
+        and len(err["other_stderr"]) == 1,
     }
-    m = measure(runner=lambda *a, **k: _R(0, f"qml: LOADSTATUS 1\nW: {LINE}\n"),
-                pages=(("clock-config.qml", "make_clock", "CONFIG_QML"),))
+    m = measure(
+        runner=lambda *a, **k: _R(0, f"qml: LOADSTATUS 1\nW: {LINE}\n"),
+        pages=(("clock-config.qml", "make_clock", "CONFIG_QML"),),
+    )
     seen["a provoking control is seen"] = m["control_provokes_unplaced"] is True
     seen["a provoked page is seen"] = m["pages"][0]["unplaced"] == 1
-    m = measure(runner=lambda *a, **k: (_ for _ in ()).throw(OSError("no kwin")),
-                pages=(("clock-config.qml", "make_clock", "CONFIG_QML"),))
-    seen["a spawn failure is withheld, not clean"] = ("withheld" in m["pages"][0]
-                                                      and m["control_provokes_unplaced"] is None)
+    m = measure(
+        runner=lambda *a, **k: (_ for _ in ()).throw(OSError("no kwin")),
+        pages=(("clock-config.qml", "make_clock", "CONFIG_QML"),),
+    )
+    seen["a spawn failure is withheld, not clean"] = (
+        "withheld" in m["pages"][0] and m["control_provokes_unplaced"] is None
+    )
     for label, ok in seen.items():
         print(f"  {'ok  ' if ok else 'FAIL'} {label}")
     print("check_config_load selftest:", "PASS" if all(seen.values()) else "FAIL")
@@ -152,10 +194,14 @@ def main(argv):
         print(json.dumps(m, indent=1))
         return 0
     n = len(m["pages"])
-    ready = sum(1 for p in m["pages"] if p.get("load_status") == 1 and "withheld" not in p)
+    ready = sum(
+        1 for p in m["pages"] if p.get("load_status") == 1 and "withheld" not in p
+    )
     hit = sum(p.get("unplaced", 0) > 0 for p in m["pages"])
-    print(f"check_config_load: {ready} of {n} page(s) loaded Ready; {hit} of {n} showed the unplaced line; "
-          f"control provokes it: {m['control_provokes_unplaced']}; the verdict is `opa_gate.py config_load`")
+    print(
+        f"check_config_load: {ready} of {n} page(s) loaded Ready; {hit} of {n} showed the unplaced line; "
+        f"control provokes it: {m['control_provokes_unplaced']}; the verdict is `opa_gate.py config_load`"
+    )
     return 0
 
 

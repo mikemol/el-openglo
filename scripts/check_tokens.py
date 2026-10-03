@@ -19,6 +19,7 @@ of its own $type; the case reports which material slots exist.
 WEAKNESS: it checks the DTCG SHAPE this emitter uses (two types), not the whole DTCG
 format; and it proves the file matches the emitter, not that a design tool imports it.
 """
+
 import json
 import os
 import re
@@ -54,11 +55,22 @@ def bad_leaves(group, prefix="", doc=None):
             m = ALIAS.match(val) if isinstance(val, str) else None
             if m:
                 target = resolve(doc or {}, m.group(1))
-                ok = target is not None and target.get("$type") == t and \
-                    not (isinstance(target["$value"], str) and ALIAS.match(target["$value"]))
+                ok = (
+                    target is not None
+                    and target.get("$type") == t
+                    and not (
+                        isinstance(target["$value"], str)
+                        and ALIAS.match(target["$value"])
+                    )
+                )
             else:
-                ok = (t == "color" and isinstance(val, str) and bool(HEX.match(val))) or \
-                     (t == "number" and isinstance(val, (int, float)) and not isinstance(val, bool))
+                ok = (
+                    t == "color" and isinstance(val, str) and bool(HEX.match(val))
+                ) or (
+                    t == "number"
+                    and isinstance(val, (int, float))
+                    and not isinstance(val, bool)
+                )
             if not ok:
                 out.append(path)
         elif isinstance(v, dict):
@@ -72,60 +84,114 @@ def measure(path=None):
     import variant_roster
 
     import make_tokens as MT
+
     path = path or MT.OUT
     roster = list(variant_roster.ids())
     try:
         with open(path, encoding="utf-8") as fh:
             doc = json.load(fh)
     except (OSError, ValueError) as e:
-        return {"roster": roster, "cases": [], "current": None, "withheld": [f"token file unreadable: {e}"]}
+        return {
+            "roster": roster,
+            "cases": [],
+            "current": None,
+            "withheld": [f"token file unreadable: {e}"],
+        }
     cases = []
     for v in roster:
         g = doc.get(v)
         if not isinstance(g, dict):
             cases.append({"variant": v, "present": False})
             continue
-        cases.append({"variant": v, "present": True, "colors": len(g.get("color", {})),
-                      "alphas": len(g.get("alpha", {})), "materials": sorted(g.get("material", {})),
-                      "bad": bad_leaves(g, v, doc)})
-    return {"roster": roster, "cases": cases, "current": doc == MT.document(), "withheld": []}
+        cases.append(
+            {
+                "variant": v,
+                "present": True,
+                "colors": len(g.get("color", {})),
+                "alphas": len(g.get("alpha", {})),
+                "materials": sorted(g.get("material", {})),
+                "bad": bad_leaves(g, v, doc),
+            }
+        )
+    return {
+        "roster": roster,
+        "cases": cases,
+        "current": doc == MT.document(),
+        "withheld": [],
+    }
 
 
 def _selftest():
     import tempfile
+
     ok = True
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
-    chk("a good group has no bad leaf",
-        bad_leaves({"color": {"fg": {"$type": "color", "$value": "#00ff00"}}, "alpha": {"a": {"$type": "number", "$value": 0.4}}}), [])
-    chk("a non-hex colour is seen", bad_leaves({"color": {"fg": {"$type": "color", "$value": "0,255,0"}}}), ["color.fg"])
-    chk("a string number is seen", bad_leaves({"alpha": {"a": {"$type": "number", "$value": "0.4"}}}), ["alpha.a"])
-    d = {"V": {"color": {"fg": {"$type": "color", "$value": "#00ff00"}},
-               "material": {"e": {"$type": "color", "$value": "{V.color.fg}"},
-                            "x": {"$type": "color", "$value": "{V.color.nope}"},
-                            "n": {"$type": "number", "$value": "{V.color.fg}"}}}}
-    chk("an alias resolves; a dangling or type-mismatched alias is seen",
-        bad_leaves(d["V"], "V", d), ["V.material.n", "V.material.x"])
+    chk(
+        "a good group has no bad leaf",
+        bad_leaves(
+            {
+                "color": {"fg": {"$type": "color", "$value": "#00ff00"}},
+                "alpha": {"a": {"$type": "number", "$value": 0.4}},
+            }
+        ),
+        [],
+    )
+    chk(
+        "a non-hex colour is seen",
+        bad_leaves({"color": {"fg": {"$type": "color", "$value": "0,255,0"}}}),
+        ["color.fg"],
+    )
+    chk(
+        "a string number is seen",
+        bad_leaves({"alpha": {"a": {"$type": "number", "$value": "0.4"}}}),
+        ["alpha.a"],
+    )
+    d = {
+        "V": {
+            "color": {"fg": {"$type": "color", "$value": "#00ff00"}},
+            "material": {
+                "e": {"$type": "color", "$value": "{V.color.fg}"},
+                "x": {"$type": "color", "$value": "{V.color.nope}"},
+                "n": {"$type": "number", "$value": "{V.color.fg}"},
+            },
+        }
+    }
+    chk(
+        "an alias resolves; a dangling or type-mismatched alias is seen",
+        bad_leaves(d["V"], "V", d),
+        ["V.material.n", "V.material.x"],
+    )
     import make_tokens as MT
+
     doc = MT.document()
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "t.json")
         with open(p, "w") as fh:
             json.dump(doc, fh)
         m = measure(p)
-        chk("a fresh document is current with every variant present",
-            (m["current"], all(c["present"] for c in m["cases"])), (True, True))
+        chk(
+            "a fresh document is current with every variant present",
+            (m["current"], all(c["present"] for c in m["cases"])),
+            (True, True),
+        )
         first = min(k for k in doc if not k.startswith("$"))
         del doc[first]
         with open(p, "w") as fh:
             json.dump(doc, fh)
         m = measure(p)
-        chk("a dropped variant is seen absent, and the file reads stale",
-            ([c["variant"] for c in m["cases"] if not c["present"]], m["current"]), ([first], False))
+        chk(
+            "a dropped variant is seen absent, and the file reads stale",
+            ([c["variant"] for c in m["cases"] if not c["present"]], m["current"]),
+            ([first], False),
+        )
     print("check_tokens selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -141,6 +207,7 @@ def main(argv):
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("tokens")
 
 

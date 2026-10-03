@@ -25,6 +25,7 @@ an element recoloured by CSS the regex does not know (inline style on a class-le
 element is covered, an external stylesheet is not), or a ColorScheme class that no
 element uses, would be mis-seen. A host without the theme is withheld, not clean.
 """
+
 import gzip
 import json
 import os
@@ -34,19 +35,26 @@ import sys
 BASE = "/usr/share/plasma/desktoptheme"
 STYLE = re.compile(r"<style\b.*?</style>", re.DOTALL | re.IGNORECASE)
 SCHEME = re.compile(r"""class\s*=\s*["'][^"']*ColorScheme-""")
-BAKED = re.compile(r"""(?:fill|stroke|stop-color|flood-color)\s*[:=]\s*["']?\s*(?:#[0-9a-fA-F]{3,8}\b|rgba?\()""")
+BAKED = re.compile(
+    r"""(?:fill|stroke|stop-color|flood-color)\s*[:=]\s*["']?\s*(?:#[0-9a-fA-F]{3,8}\b|rgba?\()"""
+)
 SECTION = re.compile(r"^\[(Colors:\w+)\]", re.MULTILINE)
 
 
 def read_svg(path):
     with open(path, "rb") as fh:
         raw = fh.read()
-    return (gzip.decompress(raw) if path.endswith("z") else raw).decode("utf-8", "replace")
+    return (gzip.decompress(raw) if path.endswith("z") else raw).decode(
+        "utf-8", "replace"
+    )
 
 
 def measure_svg(text):
     body = STYLE.sub("", text)
-    return {"scheme_classed": len(SCHEME.findall(body)), "baked": len(BAKED.findall(body))}
+    return {
+        "scheme_classed": len(SCHEME.findall(body)),
+        "baked": len(BAKED.findall(body)),
+    }
 
 
 def measure_theme(base, tid):
@@ -65,7 +73,12 @@ def measure_theme(base, tid):
             if fn.endswith((".svg", ".svgz")):
                 p = os.path.join(dp, fn)
                 svgs.append({"path": os.path.relpath(p, d), **measure_svg(read_svg(p))})
-    return {"id": tid, "has_colors_file": os.path.exists(colors), "colors_sections": sections, "svgs": svgs}
+    return {
+        "id": tid,
+        "has_colors_file": os.path.exists(colors),
+        "colors_sections": sections,
+        "svgs": svgs,
+    }
 
 
 def measure(base=BASE, tid="air"):
@@ -74,12 +87,20 @@ def measure(base=BASE, tid="air"):
 
 def _selftest():
     import tempfile
+
     seen = {
-        "a literal fill is baked": measure_svg('<rect fill="#ff0000"/>') == {"scheme_classed": 0, "baked": 1},
-        "a classed element is scheme-driven": measure_svg('<path class="ColorScheme-Text"/>')["scheme_classed"] == 1,
-        "stylesheet fallback hexes are not baked":
-            measure_svg('<style>.ColorScheme-Text{color:#232629}</style><path class="ColorScheme-Text"/>')["baked"] == 0,
-        "inline style fill is baked": measure_svg('<g style="fill:#fff"/>')["baked"] == 1,
+        "a literal fill is baked": measure_svg('<rect fill="#ff0000"/>')
+        == {"scheme_classed": 0, "baked": 1},
+        "a classed element is scheme-driven": measure_svg(
+            '<path class="ColorScheme-Text"/>'
+        )["scheme_classed"]
+        == 1,
+        "stylesheet fallback hexes are not baked": measure_svg(
+            '<style>.ColorScheme-Text{color:#232629}</style><path class="ColorScheme-Text"/>'
+        )["baked"]
+        == 0,
+        "inline style fill is baked": measure_svg('<g style="fill:#fff"/>')["baked"]
+        == 1,
     }
     with tempfile.TemporaryDirectory() as t:
         os.makedirs(os.path.join(t, "x", "widgets"))
@@ -88,9 +109,14 @@ def _selftest():
         with gzip.open(os.path.join(t, "x", "widgets", "a.svgz"), "wb") as f:
             f.write(b'<svg><rect fill="#abc"/></svg>')
         m = measure_theme(t, "x")
-        seen["a svgz is read and a colors file seen"] = (m["has_colors_file"] and m["colors_sections"] == ["Colors:View"]
-                                                         and m["svgs"][0]["baked"] == 1)
-        seen["an absent theme is withheld, not clean"] = "withheld" in measure_theme(t, "nope")
+        seen["a svgz is read and a colors file seen"] = (
+            m["has_colors_file"]
+            and m["colors_sections"] == ["Colors:View"]
+            and m["svgs"][0]["baked"] == 1
+        )
+        seen["an absent theme is withheld, not clean"] = "withheld" in measure_theme(
+            t, "nope"
+        )
     for label, ok in seen.items():
         print(f"  {'ok  ' if ok else 'FAIL'} {label}")
     print("check_plasma_air selftest:", "PASS" if all(seen.values()) else "FAIL")
@@ -124,8 +150,10 @@ def main(argv):
         n = len(t["svgs"])
         sc = sum(1 for s in t["svgs"] if s["scheme_classed"])
         bk = sum(1 for s in t["svgs"] if s["baked"])
-        print(f"  {t['id']}: colors file {'present' if t['has_colors_file'] else 'absent'}; "
-              f"{sc} of {n} svgs use ColorScheme classes; {bk} of {n} carry literal colours; verdict is `opa_gate.py plasma_air`")
+        print(
+            f"  {t['id']}: colors file {'present' if t['has_colors_file'] else 'absent'}; "
+            f"{sc} of {n} svgs use ColorScheme classes; {bk} of {n} carry literal colours; verdict is `opa_gate.py plasma_air`"
+        )
     return 0
 
 

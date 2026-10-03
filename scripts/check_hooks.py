@@ -27,6 +27,7 @@ the count falling rather than as a claim. WEAKNESS: one directory level only.
 upstream file moved, the honest report is red: a check that quietly passes when
 its subject is absent measures nothing.
 """
+
 import os
 import subprocess
 import sys
@@ -48,6 +49,7 @@ def roster(settings=SETTINGS):
     $CLAUDE_PROJECT_DIR expands to this repo."""
     import json
     import shlex
+
     with open(settings, encoding="utf-8") as fh:
         doc = json.load(fh)
     out = []
@@ -55,7 +57,9 @@ def roster(settings=SETTINGS):
         if block.get("matcher") != "Bash":
             continue
         for h in block.get("hooks", []):
-            words = shlex.split(h.get("command", "").replace("$CLAUDE_PROJECT_DIR", ROOT))
+            words = shlex.split(
+                h.get("command", "").replace("$CLAUDE_PROJECT_DIR", ROOT)
+            )
             env = {}
             while words and "=" in words[0] and not words[0].startswith(("/", ".")):
                 k, v = words.pop(0).split("=", 1)
@@ -68,11 +72,25 @@ def roster(settings=SETTINGS):
 def _decision(argv, env, command):
     """'deny' or 'allow' for one sample PreToolUse event, as the hook answers it."""
     import json
-    event = json.dumps({"tool_name": "Bash", "tool_input": {"command": command}, "cwd": ROOT})
-    r = subprocess.run(argv, input=event, capture_output=True, text=True, cwd=ROOT,
-                       env=dict(os.environ, **env), check=False)
+
+    event = json.dumps(
+        {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": ROOT}
+    )
+    r = subprocess.run(
+        argv,
+        input=event,
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        env=dict(os.environ, **env),
+        check=False,
+    )
     try:
-        d = json.loads(r.stdout or "{}").get("hookSpecificOutput", {}).get("permissionDecision")
+        d = (
+            json.loads(r.stdout or "{}")
+            .get("hookSpecificOutput", {})
+            .get("permissionDecision")
+        )
     except ValueError:
         d = None
     return d or ("deny" if r.returncode == 2 else "allow")
@@ -84,19 +102,41 @@ def measure(hooks=None):
     admitted its good one, run FROM THIS REPO (tail says which probe misbehaved).
     An absent hook and a misbehaving one are defects by the policy (H1, H2)."""
     cases = []
-    for name, argv, env in (hooks if hooks is not None else roster()):
+    for name, argv, env in hooks if hooks is not None else roster():
         if not os.path.isfile(argv[0]):
-            cases.append({"hook": name, "present": False, "resolves": None, "rc": None, "tail": ""})
+            cases.append(
+                {
+                    "hook": name,
+                    "present": False,
+                    "resolves": None,
+                    "rc": None,
+                    "tail": "",
+                }
+            )
             continue
         bad, good = PROBES.get(name, (None, None))
         if bad is None:
-            cases.append({"hook": name, "present": True, "resolves": argv[0], "rc": None,
-                          "tail": "no probe declared for this hook"})
+            cases.append(
+                {
+                    "hook": name,
+                    "present": True,
+                    "resolves": argv[0],
+                    "rc": None,
+                    "tail": "no probe declared for this hook",
+                }
+            )
             continue
         got = (_decision(argv, env, bad), _decision(argv, env, good))
         ok = got == ("deny", "allow")
-        cases.append({"hook": name, "present": True, "resolves": argv[0], "rc": 0 if ok else 1,
-                      "tail": f"bad probe -> {got[0]}, good probe -> {got[1]}"})
+        cases.append(
+            {
+                "hook": name,
+                "present": True,
+                "resolves": argv[0],
+                "rc": 0 if ok else 1,
+                "tail": f"bad probe -> {got[0]}, good probe -> {got[1]}",
+            }
+        )
     return {"cases": cases}
 
 
@@ -128,17 +168,24 @@ def main(argv):
             print(f"{name}\t{where}")
         names, out = borrowed()
         if not names:
-            print("check_hooks: REFUSED — scripts/ lists 0 entries; the census is broken", file=sys.stderr)
+            print(
+                "check_hooks: REFUSED — scripts/ lists 0 entries; the census is broken",
+                file=sys.stderr,
+            )
             return 1
-        print(f"borrowed: {len(out)} of {len(names)} scripts/ entries are symlinks out of the tree")
+        print(
+            f"borrowed: {len(out)} of {len(names)} scripts/ entries are symlinks out of the tree"
+        )
         for n, t in out:
             print(f"  {n}\t{t}")
         return 0
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     import opa_gate
+
     return opa_gate.gate("hooks")
 
 
@@ -147,25 +194,40 @@ def _selftest():
     docstring names); policy/hooks_test.rego holds that it is a defect (W50)."""
     ok = len(roster()) > 0
     print(f"  {'ok  ' if ok else 'FAIL'} the settings.json roster is non-empty")
-    seen = measure([("ghost", ["/nonexistent/mikemol-hook-ghost"], {})])["cases"][0]["present"] is False
+    seen = (
+        measure([("ghost", ["/nonexistent/mikemol-hook-ghost"], {})])["cases"][0][
+            "present"
+        ]
+        is False
+    )
     print(f"  {'ok  ' if seen else 'FAIL'} an absent hook is measured as absent")
     ok = ok and seen
     # the probe can SEE a hook that admits everything: /bin/true never denies
     lax = measure([("mikemol-hook-no-chaining", ["/bin/true"], {})])["cases"][0]["rc"]
-    print(f"  {'ok  ' if lax == 1 else 'FAIL'} a hook that never denies is measured as misbehaving (rc {lax})")
+    print(
+        f"  {'ok  ' if lax == 1 else 'FAIL'} a hook that never denies is measured as misbehaving (rc {lax})"
+    )
     ok = ok and lax == 1
     # the census can SEE a borrow: plant one symlink out of a fake tree, one inside
     import tempfile
+
     with tempfile.TemporaryDirectory() as tree, tempfile.TemporaryDirectory() as away:
         os.makedirs(os.path.join(tree, "scripts"))
         open(os.path.join(tree, "scripts", "own.py"), "w").close()
         open(os.path.join(away, "far.py"), "w").close()
-        os.symlink(os.path.join(away, "far.py"), os.path.join(tree, "scripts", "far.py"))
-        os.symlink(os.path.join(tree, "scripts", "own.py"), os.path.join(tree, "scripts", "near.py"))
+        os.symlink(
+            os.path.join(away, "far.py"), os.path.join(tree, "scripts", "far.py")
+        )
+        os.symlink(
+            os.path.join(tree, "scripts", "own.py"),
+            os.path.join(tree, "scripts", "near.py"),
+        )
         names, out = borrowed(tree)
         got = (len(names), [n for n, _ in out])
     planted = got == (3, ["far.py"])
-    print(f"  {'ok  ' if planted else 'FAIL'} a planted out-of-tree symlink is counted, an in-tree one is not (got {got})")
+    print(
+        f"  {'ok  ' if planted else 'FAIL'} a planted out-of-tree symlink is counted, an in-tree one is not (got {got})"
+    )
     ok = ok and planted
     print("check_hooks selftest:", "PASS" if ok else "FAIL")
     return ok

@@ -32,6 +32,7 @@ an undeclared, unreasoned, unknown-class or outgrown declaration, but it cannot
 tell a true display convention from a compiler defect wearing one's name — the
 reasons are what a reviewer reads. A missing font is `withheld`.
 """
+
 import json
 import os
 import sys
@@ -51,9 +52,14 @@ def measure(font, compiled=None):
     import font_compiler as FC
     import glyph_match as GM
     import segment_topology as ST
+
     if not font:
-        return {"font": None, "withheld": "no TTF found on this host (pass one to find_font)",
-                "cases": [], "declarations": []}
+        return {
+            "font": None,
+            "withheld": "no TTF found on this host (pass one to find_font)",
+            "cases": [],
+            "declarations": [],
+        }
     doc = FC.compile_font(font)
     seg = dict(doc["segment"]["22"]["glyphs"])
     seg.update(compiled or {})
@@ -62,21 +68,44 @@ def measure(font, compiled=None):
     for fmt in FORMATS:
         for ch, auth in sorted(reg[fmt].items()):
             if not auth:
-                continue                      # a known blank has nothing to agree with
+                continue  # a known blank has nothing to agree with
             raw = seg.get(ch)
             got = None if raw is None else sorted(ST.project(set(raw), fmt))
             cls, why = FC.DECLARED.get(ch, (None, None))
-            cases.append({"fmt": fmt, "ch": ch, "authored": list(auth), "compiled": got,
-                          "agree": got == list(auth), "declared": ch in FC.DECLARED,
-                          "class": cls, "reason": why})
+            cases.append(
+                {
+                    "fmt": fmt,
+                    "ch": ch,
+                    "authored": list(auth),
+                    "compiled": got,
+                    "agree": got == list(auth),
+                    "declared": ch in FC.DECLARED,
+                    "class": cls,
+                    "reason": why,
+                }
+            )
     agree22 = {c["ch"]: c["agree"] for c in cases if c["fmt"] == "22"}
-    decls = [{"ch": ch, "class": cls, "reason": why, "authored": ch in agree22,
-              "agree22": agree22.get(ch, False)} for ch, (cls, why) in sorted(FC.DECLARED.items())]
-    return {"font": os.path.basename(font), "withheld": None,
-            "font_sha256": FC.font_sha256(font), "font_sha256_in_doc": doc["font"]["sha256"],
-            "method": doc["segment"]["22"]["method"], "classes": list(FC.DECLARED_CLASSES),
-            "known_convention": sorted(GM.KNOWN_CONVENTION),
-            "cases": cases, "declarations": decls}
+    decls = [
+        {
+            "ch": ch,
+            "class": cls,
+            "reason": why,
+            "authored": ch in agree22,
+            "agree22": agree22.get(ch, False),
+        }
+        for ch, (cls, why) in sorted(FC.DECLARED.items())
+    ]
+    return {
+        "font": os.path.basename(font),
+        "withheld": None,
+        "font_sha256": FC.font_sha256(font),
+        "font_sha256_in_doc": doc["font"]["sha256"],
+        "method": doc["segment"]["22"]["method"],
+        "classes": list(FC.DECLARED_CLASSES),
+        "known_convention": sorted(GM.KNOWN_CONVENTION),
+        "cases": cases,
+        "declarations": decls,
+    }
 
 
 def _fixture(path):
@@ -88,21 +117,29 @@ def _table(doc):
     if doc.get("withheld"):
         print(f"check_font_compiler: SKIP — {doc['withheld']}", file=sys.stderr)
         return 0
-    print(f"font {doc['font']}  sha256 {doc['font_sha256'][:16]}  method {doc['method'][:16]}")
+    print(
+        f"font {doc['font']}  sha256 {doc['font_sha256'][:16]}  method {doc['method'][:16]}"
+    )
     for fmt in FORMATS:
         cs = [c for c in doc["cases"] if c["fmt"] == fmt]
         ok = sum(c["agree"] for c in cs)
         dec = [c["ch"] for c in cs if not c["agree"] and c["declared"]]
         bad = [c["ch"] for c in cs if not c["agree"] and not c["declared"]]
-        print(f"  {fmt:>2}-seg: {ok} of {len(cs)} authored glyphs reproduced; "
-              f"{len(dec)} of {len(cs)} declared convention {''.join(dec)!r}; "
-              f"{len(bad)} of {len(cs)} undeclared {''.join(bad)!r}")
+        print(
+            f"  {fmt:>2}-seg: {ok} of {len(cs)} authored glyphs reproduced; "
+            f"{len(dec)} of {len(cs)} declared convention {''.join(dec)!r}; "
+            f"{len(bad)} of {len(cs)} undeclared {''.join(bad)!r}"
+        )
     for d in doc["declarations"]:
-        print(f"  declared {d['ch']!r:5s} {d['class']:13s} {'OUTGROWN ' if d['agree22'] else ''}{d['reason']}")
+        print(
+            f"  declared {d['ch']!r:5s} {d['class']:13s} {'OUTGROWN ' if d['agree22'] else ''}{d['reason']}"
+        )
     seeds = doc["known_convention"]
     outgrown = [ch for ch in seeds if ch not in {d["ch"] for d in doc["declarations"]}]
-    print(f"  glyph_match.KNOWN_CONVENTION: {len(seeds) - len(outgrown)} of {len(seeds)} declared; "
-          f"reproduced by the compiler, so not declared: {''.join(outgrown)!r}")
+    print(
+        f"  glyph_match.KNOWN_CONVENTION: {len(seeds) - len(outgrown)} of {len(seeds)} declared; "
+        f"reproduced by the compiler, so not declared: {''.join(outgrown)!r}"
+    )
     return 0
 
 
@@ -115,6 +152,7 @@ def compare_png(chars, out, font=None, cell=220):
 
     import font_compiler as FC
     import segment_topology as ST
+
     font = font or find_font()
     comp = dict(FC.compile_font(font)["segment"]["22"]["glyphs"]) if font else {}
     geo = ST.geom22()
@@ -123,16 +161,21 @@ def compare_png(chars, out, font=None, cell=220):
     pad, s = cell * 0.18, (cell * 0.64) / max(xmax, ymax / 2)
     w, h = int(xmax * s + 2 * pad), int(ymax * s + 2 * pad)
     gap, top = 40, 60
-    img = Image.new("RGB", (len(chars) * 2 * (w + gap) + gap, h + top + 20), (8, 20, 17))
+    img = Image.new(
+        "RGB", (len(chars) * 2 * (w + gap) + gap, h + top + 20), (8, 20, 17)
+    )
     d = ImageDraw.Draw(img)
 
     def draw(x0, lit, label, sub):
         for k in geo:
             ax, ay, bx, by = ST.endpoints(k)
             on = k in lit
-            p, q = (x0 + pad + ax * s, top + pad + ay * s), (x0 + pad + bx * s, top + pad + by * s)
+            p, q = (
+                (x0 + pad + ax * s, top + pad + ay * s),
+                (x0 + pad + bx * s, top + pad + by * s),
+            )
             col = (75, 250, 215) if on else (30, 70, 60)
-            if p == q:                      # a DOT segment (p1, p2): a line of length 0 draws nothing
+            if p == q:  # a DOT segment (p1, p2): a line of length 0 draws nothing
                 r = 9 if on else 5
                 d.ellipse([p[0] - r, p[1] - r, p[0] + r, p[1] + r], fill=col)
             else:
@@ -144,7 +187,12 @@ def compare_png(chars, out, font=None, cell=220):
     for ch in chars:
         draw(x, ST.glyph22(ch), f"'{ch}'  AUTHORED", "what ships now")
         x += w + gap
-        draw(x, set(comp.get(ch) or ()), f"'{ch}'  FROM THE FONT", "Liberation Mono, compiled")
+        draw(
+            x,
+            set(comp.get(ch) or ()),
+            f"'{ch}'  FROM THE FONT",
+            "Liberation Mono, compiled",
+        )
         x += w + gap
     img.save(out)
     return out
@@ -171,6 +219,7 @@ def main(argv):
     if "--table" in flags:
         return _table(measure(find_font()))
     import opa_gate
+
     return opa_gate.gate("font_compiler")
 
 
@@ -181,7 +230,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     chk("no font is withheld, with an empty population", measure(None)["cases"], [])
@@ -191,18 +243,38 @@ def _selftest():
         print("check_font_compiler selftest: SKIP")
         return ok
     import segment_topology as ST
+
     auth8 = sorted(ST.glyph16("8"))
     by = lambda d: {(c["fmt"], c["ch"]): c for c in d["cases"]}
     good = by(measure(font, {"8": auth8}))
-    chk("an '8' equal to the authored set is seen as reproduced at 22", good[("22", "8")]["agree"], True)
+    chk(
+        "an '8' equal to the authored set is seen as reproduced at 22",
+        good[("22", "8")]["agree"],
+        True,
+    )
     chk("... and at 7", good[("7", "8")]["agree"], True)
     wrong = by(measure(font, {"8": [s for s in auth8 if s != "g2"]}))
-    chk("an '8' missing g2 is SEEN as a disagreement at 22", wrong[("22", "8")]["agree"], False)
-    chk("... and NOT at 7 (g1 still lights the coarse g: the projection is honest)",
-        wrong[("7", "8")]["agree"], True)
+    chk(
+        "an '8' missing g2 is SEEN as a disagreement at 22",
+        wrong[("22", "8")]["agree"],
+        False,
+    )
+    chk(
+        "... and NOT at 7 (g1 still lights the coarse g: the projection is honest)",
+        wrong[("7", "8")]["agree"],
+        True,
+    )
     wrong7 = by(measure(font, {"8": [s for s in auth8 if s not in ("g1", "g2")]}))
-    chk("an '8' missing its whole middle bar is SEEN at 7", wrong7[("7", "8")]["agree"], False)
-    chk("'8' is not declared (a disagreement there is undeclared)", wrong[("22", "8")]["declared"], False)
+    chk(
+        "an '8' missing its whole middle bar is SEEN at 7",
+        wrong7[("7", "8")]["agree"],
+        False,
+    )
+    chk(
+        "'8' is not declared (a disagreement there is undeclared)",
+        wrong[("22", "8")]["declared"],
+        False,
+    )
     print("check_font_compiler selftest:", "PASS" if ok else "FAIL")
     return ok
 

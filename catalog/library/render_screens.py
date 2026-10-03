@@ -24,6 +24,7 @@ emitters. The README references them through the projection, never by hand.
 WEAKNESS: ~2 s wall of qml per still on an idle host; the marquee stills add
 a hovered run each. A missing qml runner is a printed SKIP.
 """
+
 import json
 import os
 import sys
@@ -32,7 +33,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 SCREENS = os.path.join(ROOT, "catalog", "library", "screens")
-VARIANTS = ("EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit", "EL-Amber", "EL-Amber-Lit")
+VARIANTS = (
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+)
 
 # (name, how) — how: ("render_qml", surface, w, h) or ("marquee", which)
 STILLS = (
@@ -51,8 +59,10 @@ STILLS = (
 # W54's viewport: the 8-row field scrolling DOWN a 16-row Unifont backdrop and
 # back — one grab per band, all in one qml process (render_qml.render_frames), ping-pong so the
 # loop closes (S6), the scroll invariant measured along y (S5)
-ANIMATIONS = (("marquee-anim", ("marquee", "animate", "x")),
-              ("pinholes-anim", ("aperture-text", "scroll-y", "y")))
+ANIMATIONS = (
+    ("marquee-anim", ("marquee", "animate", "x")),
+    ("pinholes-anim", ("aperture-text", "scroll-y", "y")),
+)
 # ⚑ THE GLYPH MOVES, THEN IT IS PIXELATED — NOT THE OTHER WAY (operator,
 # 2026-09-22, seeing pinholes-anim: "it looks like the pixelation of the glyphs is
 # calculated, and then the pixelated glyphs are moved up and down the grid. What we
@@ -62,9 +72,10 @@ ANIMATIONS = (("marquee-anim", ("marquee", "animate", "x")),
 # pattern. The backdrop carries `scale` pixels per pip, so a step of 1/scale is a
 # real re-sampling — and it is also the Nyquist bound: the backdrop pixel is the
 # finest feature the aperture can resolve, so a finer step adds nothing.
-VIEWPORT_SUBSTEPS = 4                                          # = ApertureField.scale
-VIEWPORT_STEPS = ([i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS + 1)]
-                  + [i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS - 1, -1, -1)])
+VIEWPORT_SUBSTEPS = 4  # = ApertureField.scale
+VIEWPORT_STEPS = [i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS + 1)] + [
+    i / VIEWPORT_SUBSTEPS for i in range(8 * VIEWPORT_SUBSTEPS - 1, -1, -1)
+]
 VIEWPORT_FRAME_MS = 40
 
 
@@ -115,6 +126,7 @@ def stagers(v, how, out):
     output would go; the key passes a sentinel so no output is read as an input."""
     import check_marquee_live as ML
     import render_qml as RQ
+
     if how[0] == "render_qml":
         _k, surface, w, h = how
         return [RQ.render_stager(surface, v, w, h, out)]
@@ -137,7 +149,9 @@ _LIB = os.path.relpath(os.path.dirname(os.path.abspath(__file__)), ROOT)
 # marquee animation's frames are assembled by its own stager module (`seed`); the
 # viewport's by screens_viewport.
 POST_CODE = {
-    ("aperture-text", "scroll-y"): lambda seed: [os.path.join(_LIB, "screens_viewport.py")],
+    ("aperture-text", "scroll-y"): lambda seed: [
+        os.path.join(_LIB, "screens_viewport.py")
+    ],
     ("marquee", "animate"): lambda seed: [seed],
 }
 
@@ -183,6 +197,7 @@ def output_keys():
     its dispatch that matters changes the staged job, which is keyed as bytes; a
     change that does not (a comment, plan bookkeeping) moves nothing."""
     import check_action_key as AK
+
     sentinel = "/@OUT@"
     host, missing = AK.host_inputs()
     keys, code_files = {}, set()
@@ -208,8 +223,10 @@ def output_keys():
             # qt_sandbox.backend_facts), not as a file — a comment or a selftest edit
             # in it re-rendered 55 of 56 outputs (W158).
             if f"job{i}:backend" not in inputs:
-                raise RuntimeError(f"render_screens: {fn}: job {i} has no backend fact — "
-                                   "the key would omit the scene-graph route")
+                raise RuntimeError(
+                    f"render_screens: {fn}: job {i} has no backend fact — "
+                    "the key would omit the scene-graph route"
+                )
             # ⚑ PER KIND, NOT THIS FILE (W61, 2026-10-02): keyed whole, this file moved
             # 55 of 56 keys for one comment. A still's pixels are its job bytes (already
             # keyed); an animation adds only the module that assembles its frames.
@@ -222,8 +239,10 @@ def output_keys():
         inputs.update(host)
         keys[fn] = {"key": AK.key_over(inputs), "inputs": inputs}
     # a derived output runs only the sheet module over tiles already keyed
-    sheets_rel = os.path.relpath(os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                                              "screens_sheets.py"), ROOT)
+    sheets_rel = os.path.relpath(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "screens_sheets.py"),
+        ROOT,
+    )
     code_files.add(sheets_rel)
     code_inputs = {f"code:{sheets_rel}": AK.digest_rel(sheets_rel)}
     for fn, v, how in plan_derived():
@@ -239,6 +258,7 @@ def output_keys():
 def recorded_keys():
     """{file: key} as recorded at the last build of each output (catalog/actions.json)."""
     import check_action_key as AK
+
     return AK.recorded_outputs("screens")
 
 
@@ -247,22 +267,29 @@ def stale(keys=None):
     or is declared and absent from disk — the outputs a build must (re)produce."""
     keys = keys or output_keys()["outputs"]
     rec = recorded_keys()
-    return [fn for fn in (f for f, _v, _h in plan_all())
-            if rec.get(fn) != keys[fn]["key"] or not os.path.isfile(os.path.join(SCREENS, fn))]
+    return [
+        fn
+        for fn in (f for f, _v, _h in plan_all())
+        if rec.get(fn) != keys[fn]["key"]
+        or not os.path.isfile(os.path.join(SCREENS, fn))
+    ]
 
 
 def animate_viewport(variant, out_apng):
     """The pinholes-anim APNG (offsetRows 0..8..0, offsetY read back per frame);
     the assembly lives in screens_viewport so it keys only these outputs (W61)."""
     import screens_viewport as SV
-    return SV.animate_viewport(variant, out_apng, VIEWPORT_JOB,
-                               [s * VIEWPORT_SUBSTEPS for s in VIEWPORT_STEPS])
+
+    return SV.animate_viewport(
+        variant, out_apng, VIEWPORT_JOB, [s * VIEWPORT_SUBSTEPS for s in VIEWPORT_STEPS]
+    )
 
 
 def render_one(v, how, out):
     """Produce one planned still or animation at `out`; its jobs are stagers()'s."""
     import check_marquee_live as ML
     import render_qml as RQ
+
     try:
         if how[0] == "render_qml":
             _k, surface, w, h = how
@@ -275,7 +302,7 @@ def render_one(v, how, out):
             ML.animate(v, out)
         elif how[:2] == ("aperture-text", "scroll-y"):
             animate_viewport(v, out)
-    except RuntimeError as e:          # a harness that reported no RESULT: a hole, named
+    except RuntimeError as e:  # a harness that reported no RESULT: a hole, named
         print(f"render_screens: {os.path.basename(out)} REFUSED — {e}", file=sys.stderr)
     return os.path.isfile(out)
 
@@ -304,24 +331,33 @@ def render_all(out_dir=SCREENS, only=None, keys=None, jobs=1):
     # of them run side by side. Safe for the animations only since R9's capture
     # hold: a frame grab no longer races the scroll on a loaded host.
     from concurrent.futures import ThreadPoolExecutor
+
     todo = [(fn, v, how) for fn, v, how in plan() + plan_animations() if fn in want]
     with ThreadPoolExecutor(max_workers=max(1, jobs)) as ex:
-        done_ok = list(ex.map(lambda t: render_one(t[1], t[2], os.path.join(out_dir, t[0])), todo))
-    written += [os.path.join(out_dir, fn) for (fn, _v, _h), ok in zip(todo, done_ok) if ok]
+        done_ok = list(
+            ex.map(lambda t: render_one(t[1], t[2], os.path.join(out_dir, t[0])), todo)
+        )
+    written += [
+        os.path.join(out_dir, fn) for (fn, _v, _h), ok in zip(todo, done_ok) if ok
+    ]
     sheets = contact_sheets(out_dir, only=want)
     if "README.md" in want:
         with open(os.path.join(out_dir, "README.md"), "w", encoding="utf-8") as fh:
             fh.write(index_md())
     if keys is not None:
         import check_action_key as AK
+
         done = {os.path.basename(p) for p in written}
         # ⚑ A DERIVED OUTPUT IS RECORDED ONLY WHEN EVERY INPUT IT STACKS EXISTS: a
         # sheet built around a failed tile would otherwise carry a key that says the
         # tile was in it, and read current after the tile is repaired.
         for fn, v, how in plan_derived():
             src = derived_inputs(fn, v, how) or []
-            if fn in want and os.path.isfile(os.path.join(out_dir, fn)) and all(
-                    os.path.isfile(os.path.join(out_dir, s)) for s in src):
+            if (
+                fn in want
+                and os.path.isfile(os.path.join(out_dir, fn))
+                and all(os.path.isfile(os.path.join(out_dir, s)) for s in src)
+            ):
                 done.add(fn)
         AK.record_outputs("screens", {fn: keys[fn]["key"] for fn in done})
     return written, sheets
@@ -329,22 +365,38 @@ def render_all(out_dir=SCREENS, only=None, keys=None, jobs=1):
 
 def index_md():
     """The screens directory's own README — generated with the pictures, never edited."""
-    lines = ["# Screens — every surface, every variant, through the theme", "",
-             "GENERATED by `catalog/library/render_screens.py`; do not edit. Each picture is the",
-             "emitted surface rendered by Qt under the KDE platform theme with that variant's",
-             "colour scheme applied in a private kdeglobals — what the desktop draws, not a mock-up.",
-             "`scripts/opa_gate.py screens` holds every still to exist, be non-blank and sit on its",
-             "variant's ground.", "",
-             "![all six variants](strip.png)", ""]
+    lines = [
+        "# Screens — every surface, every variant, through the theme",
+        "",
+        "GENERATED by `catalog/library/render_screens.py`; do not edit. Each picture is the",
+        "emitted surface rendered by Qt under the KDE platform theme with that variant's",
+        "colour scheme applied in a private kdeglobals — what the desktop draws, not a mock-up.",
+        "`scripts/opa_gate.py screens` holds every still to exist, be non-blank and sit on its",
+        "variant's ground.",
+        "",
+        "![all six variants](strip.png)",
+        "",
+    ]
     for v in VARIANTS:
         lines += [f"## {v}", "", f"![{v}](sheet-{v}.png)", ""]
         for name, _how in STILLS:
             lines.append(f"- `{name}-{v}.png`")
         for name, how in ANIMATIONS:
-            what = "the widget scrolling" if how[1] == "animate" else "the field scrolling down a 16-row Unifont cell and back (the viewport)"
-            lines.append(f"- `{name}-{v}.png` — APNG, {what} (S5: never tears; S6: loops)")
+            what = (
+                "the widget scrolling"
+                if how[1] == "animate"
+                else "the field scrolling down a 16-row Unifont cell and back (the viewport)"
+            )
+            lines.append(
+                f"- `{name}-{v}.png` — APNG, {what} (S5: never tears; S6: loops)"
+            )
         lines.append("")
-        lines += [f"![{v} scrolling](marquee-anim-{v}.png)", "", f"![{v} viewport](pinholes-anim-{v}.png)", ""]
+        lines += [
+            f"![{v} scrolling](marquee-anim-{v}.png)",
+            "",
+            f"![{v} viewport](pinholes-anim-{v}.png)",
+            "",
+        ]
     return "\n".join(lines)
 
 
@@ -352,6 +404,7 @@ def contact_sheets(out_dir=SCREENS, only=None):
     """One sheet per variant and the strip; the drawing lives in screens_sheets so it
     keys only the derived outputs (W61)."""
     import screens_sheets as SS
+
     return SS.contact_sheets(out_dir, VARIANTS, sheet_tiles, only=only)
 
 
@@ -362,35 +415,55 @@ def measure(out_dir=SCREENS):
 
     import make_preview as MP
     import make_wallpaper_live as WL
+
     rows = []
     for fn, v, _how in plan():
         p = os.path.join(out_dir, fn)
         # two honest grounds per variant: the harness window's (parse_scheme's
         # "ground", the Window background) and the View background a bound
         # surface draws as its own void
-        row = {"file": fn, "variant": v, "exists": os.path.isfile(p),
-               "grounds": [MP.parse_scheme(v)["ground"], "#{:02x}{:02x}{:02x}".format(*WL.colors_for(v)[0])]}
+        row = {
+            "file": fn,
+            "variant": v,
+            "exists": os.path.isfile(p),
+            "grounds": [
+                MP.parse_scheme(v)["ground"],
+                "#{:02x}{:02x}{:02x}".format(*WL.colors_for(v)[0]),
+            ],
+        }
         if row["exists"]:
             im = Image.open(p).convert("RGB")
             colours = im.getcolors(im.width * im.height)
             _n, modal = max(colours)
-            row.update(width=im.width, height=im.height, modal="#{:02x}{:02x}{:02x}".format(*modal),
-                       distinct=len(colours))
+            row.update(
+                width=im.width,
+                height=im.height,
+                modal="#{:02x}{:02x}{:02x}".format(*modal),
+                distinct=len(colours),
+            )
         rows.append(row)
     anims = []
     for fn, v, how in plan_animations():
         p = os.path.join(out_dir, fn)
         row = {"file": fn, "variant": v, "exists": os.path.isfile(p)}
         if row["exists"]:
-            row.update(animation_facts(p, MP.parse_scheme(v)["phosphor"], "#{:02x}{:02x}{:02x}".format(*WL.colors_for(v)[0]),
-                                       axis=how[2]))
-            row["logged_steps"] = logged_steps(p)    # null: no harness log, the policy uses the image fit
+            row.update(
+                animation_facts(
+                    p,
+                    MP.parse_scheme(v)["phosphor"],
+                    "#{:02x}{:02x}{:02x}".format(*WL.colors_for(v)[0]),
+                    axis=how[2],
+                )
+            )
+            row["logged_steps"] = logged_steps(
+                p
+            )  # null: no harness log, the policy uses the image fit
         anims.append(row)
     return {"screens": rows, "animations": anims, "dir": out_dir}
 
 
 def _hex(s):
-    return tuple(int(s[i:i + 2], 16) for i in (1, 3, 5))
+    return tuple(int(s[i : i + 2], 16) for i in (1, 3, 5))
 
 
 def lit_columns(frame, lit, ground):
@@ -430,8 +503,18 @@ def _litness(frame, lit, ground):
     px = frame.load()
     lg = [l - g for l, g in zip(lit, ground)]
     norm = sum(v * v for v in lg) or 1
-    return [[max(0.0, min(1.0, sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm))
-             for x in range(frame.width)] for y in range(frame.height)]
+    return [
+        [
+            max(
+                0.0,
+                min(
+                    1.0, sum((px[x, y][i] - ground[i]) * lg[i] for i in range(3)) / norm
+                ),
+            )
+            for x in range(frame.width)
+        ]
+        for y in range(frame.height)
+    ]
 
 
 def pip_centres(frame, lit, ground, axis="x"):
@@ -443,8 +526,11 @@ def pip_centres(frame, lit, ground, axis="x"):
         prof = [sum(L[y][x] for y in range(frame.height)) for x in range(frame.width)]
     else:
         prof = [sum(L[y]) for y in range(frame.height)]
-    return [i for i in range(1, len(prof) - 1)
-            if prof[i] > 0 and prof[i] >= prof[i - 1] and prof[i] > prof[i + 1]]
+    return [
+        i
+        for i in range(1, len(prof) - 1)
+        if prof[i] > 0 and prof[i] >= prof[i - 1] and prof[i] > prof[i + 1]
+    ]
 
 
 def pip_profile(frame, centres, lit, ground, floor, axis="x"):
@@ -473,11 +559,12 @@ def spectral_lines(profiles):
     at period 2.
     WEAKNESS: a run of fewer than 4 frames has no spectrum (None, None, 0)."""
     import numpy as np
+
     if len(profiles) < 4 or not profiles[0]:
         return None, None, 0.0, None
-    series = np.array(profiles, dtype=float)            # frames x pips
+    series = np.array(profiles, dtype=float)  # frames x pips
     series = series - series.mean(axis=0)
-    power = (np.abs(np.fft.rfft(series, axis=0)) ** 2).sum(axis=1)[1:]   # drop DC
+    power = (np.abs(np.fft.rfft(series, axis=0)) ** 2).sum(axis=1)[1:]  # drop DC
     total = float(power.sum())
     if total <= 0:
         return None, None, 0.0, None
@@ -488,7 +575,11 @@ def spectral_lines(profiles):
     # once, ~1/3 of the power), which says nothing about a whole/half alternation.
     # That alternation lives at period 2 frames: the highest bin of the rfft.
     n = len(profiles)
-    p2 = round(float(power[n // 2 - 1]) / total, 4) if n % 2 == 0 else round(float(power[-1]) / total, 4)
+    p2 = (
+        round(float(power[n // 2 - 1]) / total, 4)
+        if n % 2 == 0
+        else round(float(power[-1]) / total, 4)
+    )
     return round(period, 3), round(float(power[i]) / total, 4), round(total, 3), p2
 
 
@@ -524,6 +615,7 @@ def logged_steps(path):
     marquee-anim log is 60 steps of exactly +2.75 pip, while the linear-blend image fit (below)
     reported tears on the same run - the fit mis-reads the coverage-graded aperture (W207)."""
     from PIL import Image
+
     raw = getattr(Image.open(path), "text", {}).get("el-frames")
     if not raw:
         return None
@@ -550,6 +642,7 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
     Before W54 this compared pixel columns under a whole-pixel shift, which is the
     f = 0 special case a snapping field satisfies."""
     from PIL import Image, ImageSequence
+
     lit, ground = _hex(lit_hex), _hex(ground_hex)
     im = Image.open(path)
     width = im.width
@@ -572,20 +665,39 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
         total = max(sum(prev), sum(cur))
         if total < 0.5:
             continue
-        k, f, mism = best_pip_shift(prev, cur, max(1, len(centres) // 4), both_ways=(axis == "y"))
+        k, f, mism = best_pip_shift(
+            prev, cur, max(1, len(centres) // 4), both_ways=(axis == "y")
+        )
         shifts.append(k + f)
         if mism > tolerance * total:
-            tears.append({"frame": i + 1, "shift": k + f, "mismatch": round(mism, 2), "total": round(total, 2)})
+            tears.append(
+                {
+                    "frame": i + 1,
+                    "shift": k + f,
+                    "mismatch": round(mism, 2),
+                    "total": round(total, 2),
+                }
+            )
     # a seamless loop: the run starts and ends on the same picture (the empty board).
     # Compared from the one forward pass — re-seeking an APNG in PIL re-composites.
     seamless = rgb_first is not None and rgb_first.tobytes() == rgb_last.tobytes()
     frac = [s for s in shifts if s != int(s)]
     period, line_share, power, p2 = spectral_lines(profiles)
-    return {"frames": len(profiles), "width": width, "axis": axis, "pips": len(centres), "floor": round(floor, 3),
-            "shifts": shifts, "tears": tears, "seamless": seamless,
-            "fractional_share": round(len(frac) / len(shifts), 4) if shifts else None,
-            "dominant_period": period, "dominant_line_share": line_share, "spectral_power": power,
-            "period2_share": p2}
+    return {
+        "frames": len(profiles),
+        "width": width,
+        "axis": axis,
+        "pips": len(centres),
+        "floor": round(floor, 3),
+        "shifts": shifts,
+        "tears": tears,
+        "seamless": seamless,
+        "fractional_share": round(len(frac) / len(shifts), 4) if shifts else None,
+        "dominant_period": period,
+        "dominant_line_share": line_share,
+        "spectral_power": power,
+        "period2_share": p2,
+    }
 
 
 def selftest():
@@ -606,11 +718,14 @@ def selftest():
     WEAKNESS: arm (2) checks that the input is NAMED, not that its digest moves
     the key; key_over over a named input is what makes that follow."""
     import check_action_key as AK
+
     real = AK.digest_rel
     base = output_keys()["outputs"]
 
     def perturbed(target):
-        AK.digest_rel = lambda rel: ("perturbed:" + real(rel)) if rel == target else real(rel)
+        AK.digest_rel = lambda rel: (
+            ("perturbed:" + real(rel)) if rel == target else real(rel)
+        )
         try:
             return output_keys()["outputs"]
         finally:
@@ -622,27 +737,41 @@ def selftest():
     moved = [fn for fn in stills if rq[fn]["key"] != base[fn]["key"]]
     n += 1
     ok += not moved
-    print(f"  {'ok  ' if not moved else 'FAIL'} (1) render_qml.py edit: {len(moved)} of {len(stills)} "
-          f"render_qml still key(s) moved (want 0)")
+    print(
+        f"  {'ok  ' if not moved else 'FAIL'} (1) render_qml.py edit: {len(moved)} of {len(stills)} "
+        f"render_qml still key(s) moved (want 0)"
+    )
     seg = [fn for fn in stills if fn.startswith(("clock-", "wallpaper-live-"))]
     named = [fn for fn in seg if any("SegmentChar" in k for k in base[fn]["inputs"])]
     n += 1
     ok += bool(seg) and len(named) == len(seg)
-    print(f"  {'ok  ' if seg and len(named) == len(seg) else 'FAIL'} (2) SegmentChar named in "
-          f"{len(named)} of {len(seg)} clock/live-wallpaper still(s)' job inputs (want all, >0)")
+    print(
+        f"  {'ok  ' if seg and len(named) == len(seg) else 'FAIL'} (2) SegmentChar named in "
+        f"{len(named)} of {len(seg)} clock/live-wallpaper still(s)' job inputs (want all, >0)"
+    )
     ml = perturbed("scripts/check_marquee_live.py")
     anims = [fn for fn, _v, how in plan_animations() if how[0] == "marquee"]
     moved = [fn for fn in anims if ml[fn]["key"] != base[fn]["key"]]
     n += 1
     ok += bool(anims) and len(moved) == len(anims)
-    print(f"  {'ok  ' if anims and len(moved) == len(anims) else 'FAIL'} (3) check_marquee_live.py edit: "
-          f"{len(moved)} of {len(anims)} marquee-anim key(s) moved (want all, >0)")
+    print(
+        f"  {'ok  ' if anims and len(moved) == len(anims) else 'FAIL'} (3) check_marquee_live.py edit: "
+        f"{len(moved)} of {len(anims)} marquee-anim key(s) moved (want all, >0)"
+    )
     print(f"render_screens selftest: {ok}/{n}")
     return 0 if ok == n else 1
 
 
 def main(argv):
-    known = {"--list", "--json", "--outputs", "--keys", "--stale", "--all", "--selftest"}
+    known = {
+        "--list",
+        "--json",
+        "--outputs",
+        "--keys",
+        "--stale",
+        "--all",
+        "--selftest",
+    }
     jobs = 1
     for a in argv[1:]:
         if a.startswith("--jobs=") and a[7:].isdigit() and int(a[7:]) > 0:
@@ -665,32 +794,49 @@ def main(argv):
     if "--stale" in argv:
         k = output_keys()
         if k["missing_host"]:
-            print(f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}", file=sys.stderr)
+            print(
+                f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}",
+                file=sys.stderr,
+            )
             return 3
         st = stale(k["outputs"])
         for fn in st:
             print(f"  stale  {fn}")
-        print(f"render_screens: {len(st)} of {len(plan_all())} declared output(s) stale")
+        print(
+            f"render_screens: {len(st)} of {len(plan_all())} declared output(s) stale"
+        )
         return 0
     if "--list" in argv:
         for fn, _v, how in plan_all():
             print(f"{fn:36s} {how}")
-        print(f"\nrender_screens: {len(plan_all())} declared output(s) — "
-              f"{len(plan())} still(s), {len(plan_animations())} animation(s), "
-              f"{len(plan_derived())} derived")
+        print(
+            f"\nrender_screens: {len(plan_all())} declared output(s) — "
+            f"{len(plan())} still(s), {len(plan_animations())} animation(s), "
+            f"{len(plan_derived())} derived"
+        )
         return 0
     if "--outputs" in argv:
         # ⚑ THE DECLARATION, AS DATA. A consumer asking "what does this action
         # produce" must not parse --list's columns: a reader keyed on a column
         # width reports its own blind spot as a fact about the plan.
-        print(json.dumps({"dir": os.path.relpath(SCREENS, ROOT),
-                          "outputs": [{"file": fn, "variant": v, "how": list(how)}
-                                      for fn, v, how in plan_all()]}, indent=1))
+        print(
+            json.dumps(
+                {
+                    "dir": os.path.relpath(SCREENS, ROOT),
+                    "outputs": [
+                        {"file": fn, "variant": v, "how": list(how)}
+                        for fn, v, how in plan_all()
+                    ],
+                },
+                indent=1,
+            )
+        )
         return 0
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
         return 0
     import render_qml as RQ
+
     if not os.path.exists(RQ.QML):
         print(f"render_screens: SKIP — {RQ.QML} is not installed", file=sys.stderr)
         return 0
@@ -698,14 +844,21 @@ def main(argv):
     # absent, or were never recorded) are rendered. --all renders every one.
     k = output_keys()
     if k["missing_host"]:
-        print(f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}", file=sys.stderr)
+        print(
+            f"render_screens: WITHHELD — host identity uncomputable: {k['missing_host']}",
+            file=sys.stderr,
+        )
         return 3
     only = None if "--all" in argv else stale(k["outputs"])
     written, sheets = render_all(only=only, keys=k["outputs"], jobs=jobs)
-    rendered = [fn for fn, _v, _h in plan() + plan_animations() if only is None or fn in only]
-    print(f"render_screens: {len(written)} of {len(rendered)} stale stills + animations rendered "
-          f"({len(plan()) + len(plan_animations()) - len(rendered)} current, skipped), "
-          f"{len(sheets)} sheets -> {SCREENS}")
+    rendered = [
+        fn for fn, _v, _h in plan() + plan_animations() if only is None or fn in only
+    ]
+    print(
+        f"render_screens: {len(written)} of {len(rendered)} stale stills + animations rendered "
+        f"({len(plan()) + len(plan_animations()) - len(rendered)} current, skipped), "
+        f"{len(sheets)} sheets -> {SCREENS}"
+    )
     return 0 if len(written) == len(rendered) else 1
 
 

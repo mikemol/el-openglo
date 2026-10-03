@@ -23,6 +23,7 @@ the variant's fg hex and picks the row from the live lit colour (hue_tables_js).
 Degrades gracefully: if the model is empty or the import is unavailable, the
 widget shows an idle phosphor face rather than crashing.
 """
+
 import functools
 import json
 import os
@@ -91,12 +92,19 @@ def matrix_font():
     if env:
         return env if os.path.isfile(env) else None
     import sys
-    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts"))
+
+    sys.path.insert(
+        0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "scripts")
+    )
     from check_projection import find_font
+
     p = find_font()
     if not p:
-        print("make_notify_marquee: SKIP — no outline font for the matrix extension "
-              "(set EL_MATRIX_FONT); the ticker carries the authored glyphs only", file=sys.stderr)
+        print(
+            "make_notify_marquee: SKIP — no outline font for the matrix extension "
+            "(set EL_MATRIX_FONT); the ticker carries the authored glyphs only",
+            file=sys.stderr,
+        )
     return p
 
 
@@ -124,10 +132,14 @@ def main_qml(font_path=None):
 @functools.cache
 def _main_qml(font_path):
     import templates.loader as TL
-    return TL.render("marquee-main.qml", ghostAlpha=TS.ghost_alpha(),
-                     hueTables=hue_tables_js(), fallbackFg=_hex(WL.colors_for(FALLBACK_VARIANT)[1]),
-                     registry=DT.as_qml_js(MATRIX_DISPLAY,
-                                           font_path=font_path))
+
+    return TL.render(
+        "marquee-main.qml",
+        ghostAlpha=TS.ghost_alpha(),
+        hueTables=hue_tables_js(),
+        fallbackFg=_hex(WL.colors_for(FALLBACK_VARIANT)[1]),
+        registry=DT.as_qml_js(MATRIX_DISPLAY, font_path=font_path),
+    )
 
 
 def hue_table(variant):
@@ -135,6 +147,7 @@ def hue_table(variant):
     SOLVED by make_palette.hue_table at build time — a fallback bucket already
     holds fg, so the widget only ever looks up (relations.md §5a; check_rehue)."""
     import make_palette as MP
+
     ground, lit, ghost, _alpha = WL.colors_for(variant)
     return [_hex(col) for _h, col, _ok in MP.hue_table(lit, ground, ghost)]
 
@@ -161,6 +174,7 @@ def aperture_field_component():
     graded by a supersampled backdrop's coverage under each aperture, the scroll a
     number, no rebuild. The marquee's board since s120 (the port)."""
     import templates.loader as TL
+
     return TL.render("ApertureField.qml")
 
 
@@ -170,8 +184,12 @@ def aperture_probe_qml(templates_url="."):
     harness finds ApertureField.qml. The ghost alpha is the palette's global one."""
     import make_wallpaper_live as WL
     import templates.loader as TL
-    return TL.render("aperture-probe.qml", templates=templates_url,
-                     ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
+
+    return TL.render(
+        "aperture-probe.qml",
+        templates=templates_url,
+        ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}",
+    )
 
 
 # ⚑ Unifont (operator: "plain Unifont behind the mask") — installed 2026-09-22; before
@@ -180,7 +198,7 @@ def aperture_probe_qml(templates_url="."):
 # two backdrop pixels per Unifont pixel, i.e. HALF a pip — a 2:1 downsample through
 # the aperture; the 16-row viewport (W47's fold) is the 1:1 reading.
 APERTURE_TEXT_FONT = "Unifont"
-APERTURE_TEXT = "Hello 世界 42 ñ 🔔"   # + emoji (operator): colour glyphs are ink by ALPHA — the silhouette lights
+APERTURE_TEXT = "Hello 世界 42 ñ 🔔"  # + emoji (operator): colour glyphs are ink by ALPHA — the silhouette lights
 
 
 # the transfer curve for text read at 2:1 (operator: the pinholes sheet entry was
@@ -196,21 +214,35 @@ APERTURE_BACKDROP_ROWS = 16
 APERTURE_OFFSET_ROWS = 6
 
 
-def aperture_text_probe_qml(templates_url=".", font=APERTURE_TEXT_FONT, text=APERTURE_TEXT,
-                            gamma=APERTURE_TEXT_GAMMA, backdrop_rows=APERTURE_BACKDROP_ROWS,
-                            offset_rows=APERTURE_OFFSET_ROWS):
+def aperture_text_probe_qml(
+    templates_url=".",
+    font=APERTURE_TEXT_FONT,
+    text=APERTURE_TEXT,
+    gamma=APERTURE_TEXT_GAMMA,
+    backdrop_rows=APERTURE_BACKDROP_ROWS,
+    offset_rows=APERTURE_OFFSET_ROWS,
+):
     """templates/aperture-text-probe.qml — a Qt Text item as the backdrop (W54 step 3):
     the font Qt shapes, read 1:1 through the pinholes via the viewport (W47)."""
     import make_wallpaper_live as WL
     import templates.loader as TL
-    return TL.render("aperture-text-probe.qml", templates=templates_url, font=font, text=text,
-                     gamma=f"{gamma:.3f}", backdropRows=str(backdrop_rows), offsetRows=str(offset_rows),
-                     ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}")
+
+    return TL.render(
+        "aperture-text-probe.qml",
+        templates=templates_url,
+        font=font,
+        text=text,
+        gamma=f"{gamma:.3f}",
+        backdropRows=str(backdrop_rows),
+        offsetRows=str(offset_rows),
+        ghostAlpha=f"{WL.global_alpha('looked_at'):.3f}",
+    )
 
 
 def body_parser():
     """templates/marquee-body.js — notification body markup -> text + style runs."""
     import templates.loader as TL
+
     return TL.render("marquee-body.js")
 
 
@@ -220,21 +252,32 @@ def config_xml():
     so an unconfigured widget draws exactly what check_ghost_surfaces measured."""
     import display_params as DP  # the DISPLAY rows, declared once (W59)
     import templates.loader as TL
-    return TL.render("marquee-config.kcfg", displayEntries=DP.kcfg_entries(
-        "marquee", {"ghostAlpha": TS.ghost_alpha()}, "  "))
+
+    return TL.render(
+        "marquee-config.kcfg",
+        displayEntries=DP.kcfg_entries(
+            "marquee", {"ghostAlpha": TS.ghost_alpha()}, "  "
+        ),
+    )
 
 
 def config_qml():
     """contents/ui/configGeneral.qml — the settings page (clock pattern, W34 c)."""
     import display_params as DP
     import templates.loader as TL
-    return TL.render("marquee-config.qml", displayDecls=DP.qml_decls("marquee"),
-                     displayControls=DP.qml_controls("marquee"))
+
+    return TL.render(
+        "marquee-config.qml",
+        displayDecls=DP.qml_decls("marquee"),
+        displayControls=DP.qml_controls("marquee"),
+    )
 
 
-CONFIG_MODEL = ('import org.kde.plasma.configuration\n\nConfigModel {\n'
-                '    ConfigCategory {\n        name: "General"\n        icon: "view-list-text"\n'
-                '        source: "configGeneral.qml"\n    }\n}\n')
+CONFIG_MODEL = (
+    "import org.kde.plasma.configuration\n\nConfigModel {\n"
+    '    ConfigCategory {\n        name: "General"\n        icon: "view-list-text"\n'
+    '        source: "configGeneral.qml"\n    }\n}\n'
+)
 
 
 def render_all(d):
@@ -262,6 +305,8 @@ def render_all(d):
 if __name__ == "__main__":
     out = "/tmp/nm-el"
     render_all(out)
-    print(f"rendered the notification-marquee plasmoid ({PACKAGE_ID}) into {out}; alpha={TS.ghost_alpha()}")
+    print(
+        f"rendered the notification-marquee plasmoid ({PACKAGE_ID}) into {out}; alpha={TS.ghost_alpha()}"
+    )
     for v in VARIANTS:
         print(f"  hue row for fg {_hex(WL.colors_for(v)[1])}: {v}")

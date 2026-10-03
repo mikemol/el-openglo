@@ -27,12 +27,13 @@ and @MARGIN do — and it emphatically does not claim the relations are COMPLETE
 they do not determine is recorded in `open_questions()` and printed by --list, because
 a relation set that hid its gaps would read as finished.
 """
+
 import importlib
 import os
 import sys
 from types import ModuleType
 
-ROOT =os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 import palette_graph as PG
@@ -46,7 +47,7 @@ try:
         sys.path.insert(0, _GCALC)
     CARRIER = importlib.import_module("gcalc.carrier")
     SOLVER = importlib.import_module("gcalc.solver")
-except ImportError:                                               # pragma: no cover
+except ImportError:  # pragma: no cover
     SOLVER = CARRIER = None
 
 KINDS = ("floor", "ceiling", "balance", "arrow")
@@ -73,12 +74,24 @@ def measure():
         "free": list(PR.INTERIOR + PR.DISCRETE),
         "derived": list(PR.DERIVED),
         "open_questions": len(PR.open_questions()),
-        "netlist": [{"key": "~".join(map(str, k)) if isinstance(k, tuple) else repr(k),
-                     "pair": isinstance(k, tuple) and len(k) == 2,
-                     "generator": gen if isinstance(gen, str) else ""}
-                    for k, gen in raw.items()],
-        "cases": [{"u": r.u, "v": r.v, "kind": r.kind, "quantity": r.quantity or "",
-                   "bound": r.bound if r.bound else None} for r in PR.relations()],
+        "netlist": [
+            {
+                "key": "~".join(map(str, k)) if isinstance(k, tuple) else repr(k),
+                "pair": isinstance(k, tuple) and len(k) == 2,
+                "generator": gen if isinstance(gen, str) else "",
+            }
+            for k, gen in raw.items()
+        ],
+        "cases": [
+            {
+                "u": r.u,
+                "v": r.v,
+                "kind": r.kind,
+                "quantity": r.quantity or "",
+                "bound": r.bound if r.bound else None,
+            }
+            for r in PR.relations()
+        ],
     }
 
 
@@ -93,6 +106,7 @@ def main(argv):
 
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
 
@@ -113,26 +127,35 @@ def main(argv):
 
     if "--solve" in argv:
         if SOLVER is None:
-            print(f"check_relations: SKIP — gcalc not importable (looked in {_GCALC}); "
-                  f"a fact about the machine, not the relations")
+            print(
+                f"check_relations: SKIP — gcalc not importable (looked in {_GCALC}); "
+                f"a fact about the machine, not the relations"
+            )
             return 0
         raw = PR.netlist_input()
         nodes = sorted({n for k in raw for n in k})
         edges = SOLVER.netlist(raw)
         keep = tuple(PR.terminals())
         interior = [n for n in nodes if n not in keep]
-        sec, out_edges, _gauge = SOLVER.frontier_solve(nodes, edges, interior, keep=keep)
+        sec, out_edges, _gauge = SOLVER.frontier_solve(
+            nodes, edges, interior, keep=keep
+        )
         print(f"nodes={len(nodes)} edges={len(raw)} pinned={len(keep)}")
-        print(f"eliminating {len(interior)} interior node(s) -> "
-              f"{len(out_edges)} surviving edge(s), {SOLVER.total_cost(sec)} Q, "
-              f"verdict={SOLVER.verdict(sec)}")
+        print(
+            f"eliminating {len(interior)} interior node(s) -> "
+            f"{len(out_edges)} surviving edge(s), {SOLVER.total_cost(sec)} Q, "
+            f"verdict={SOLVER.verdict(sec)}"
+        )
         for k in sorted(out_edges):
             t = out_edges[k]
-            print(f"    {k[0]} ~ {k[1]}: {len(tuple(CARRIER.parts_of(t)))} part(s), "
-                  f"support={sorted(CARRIER.support(t))[:4]}")
+            print(
+                f"    {k[0]} ~ {k[1]}: {len(tuple(CARRIER.parts_of(t)))} part(s), "
+                f"support={sorted(CARRIER.support(t))[:4]}"
+            )
         return 0
 
     import opa_gate
+
     return opa_gate.gate("relations")
 
 
@@ -152,19 +175,29 @@ def _selftest():
     m = measure()
     check("the real relations are measured", len(m["cases"]) > 0, True)
     # ⚑ open-question PROSE is not a policy fact; the count is (R6)
-    check("every open question explains itself",
-          all(len(w) > 40 for _k, w in PR.open_questions()), True)
+    check(
+        "every open question explains itself",
+        all(len(w) > 40 for _k, w in PR.open_questions()),
+        True,
+    )
 
     saved = PR.relations
     try:
-        PR.relations = lambda: (PR.Relation("view", "no_such_role", "floor",
-                                            "wcag_ratio", "4.6"),)
-        check("an invented role is measured as named",
-              measure()["cases"][0]["v"] == "no_such_role"
-              and "no_such_role" not in measure()["known"], True)
+        PR.relations = lambda: (
+            PR.Relation("view", "no_such_role", "floor", "wcag_ratio", "4.6"),
+        )
+        check(
+            "an invented role is measured as named",
+            measure()["cases"][0]["v"] == "no_such_role"
+            and "no_such_role" not in measure()["known"],
+            True,
+        )
         PR.relations = lambda: (PR.Relation("view", "fg", "floor", "wcag_ratio", None),)
-        check("a floor with no bound is measured as bound null",
-              measure()["cases"][0]["bound"], None)
+        check(
+            "a floor with no bound is measured as bound null",
+            measure()["cases"][0]["bound"],
+            None,
+        )
         PR.relations = lambda: ()
         check("an empty relation set measures as empty", measure()["cases"], [])
     finally:
@@ -188,10 +221,16 @@ def _selftest():
         raw = PR.netlist_input()
         nodes = {n for k in raw for n in k}
         edges = SOLVER.netlist(raw)
-        check("the handoff is accepted by gcalc.solver.netlist",
-              len(edges) == len(raw) and len(raw) > 0, True)
-        check("every pinned terminal is a node of the handoff",
-              sorted(set(PR.terminals()) - nodes), [])
+        check(
+            "the handoff is accepted by gcalc.solver.netlist",
+            len(edges) == len(raw) and len(raw) > 0,
+            True,
+        )
+        check(
+            "every pinned terminal is a node of the handoff",
+            sorted(set(PR.terminals()) - nodes),
+            [],
+        )
     else:
         print("  SKIP solver handoff — gcalc not importable")
 

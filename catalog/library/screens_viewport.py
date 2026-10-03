@@ -6,6 +6,7 @@ Split out of render_screens.py so that this assembly code keys only the outputs 
 shapes (pinholes-anim-*), not every screen: keyed whole in render_screens, a comment
 anywhere in that file moved 55 of 56 output keys (measured 2026-10-02).
 """
+
 import os
 import sys
 
@@ -26,6 +27,7 @@ def animate_viewport(variant, out_apng, job, want):
 
     import render_qml as RQ
     from PIL import Image
+
     s, w, h, key, steps, probe = job
     with tempfile.TemporaryDirectory() as td:
         # the same backend as the stills (rhi where the host has it): the frames
@@ -33,9 +35,19 @@ def animate_viewport(variant, out_apng, job, want):
         rc, err, seen = RQ.render_frames(s, variant, w, h, td, key, steps, probe)
         names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
         if rc != 0 or seen != want or len(names) != len(steps):
-            print(f"render_screens: pinholes-anim {variant} REFUSED — rc={rc}, {len(names)} of "
-                  f"{len(steps)} frames, read back {seen!r}\n{err[-400:]}", file=sys.stderr)
+            print(
+                f"render_screens: pinholes-anim {variant} REFUSED — rc={rc}, {len(names)} of "
+                f"{len(steps)} frames, read back {seen!r}\n{err[-400:]}",
+                file=sys.stderr,
+            )
             return 0
         ims = [Image.open(os.path.join(td, n)).convert("RGB") for n in names]
-    ims[0].save(out_apng, format="PNG", save_all=True, append_images=ims[1:], duration=FRAME_MS, loop=0)
+    ims[0].save(
+        out_apng,
+        format="PNG",
+        save_all=True,
+        append_images=ims[1:],
+        duration=FRAME_MS,
+        loop=0,
+    )
     return len(ims)

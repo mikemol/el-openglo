@@ -8,9 +8,22 @@ from typing import Literal
 
 class _Plain:
     type: Literal[
-        "literal", "ident", "at-keyword", "hash", "string", "url", "unicode-range",
-        "number", "percentage", "dimension", "whitespace", "comment", "function",
-        "() block", "[] block", "{} block",
+        "literal",
+        "ident",
+        "at-keyword",
+        "hash",
+        "string",
+        "url",
+        "unicode-range",
+        "number",
+        "percentage",
+        "dimension",
+        "whitespace",
+        "comment",
+        "function",
+        "() block",
+        "[] block",
+        "{} block",
     ]
 
 class ParseError:
@@ -38,12 +51,18 @@ class Declaration:
 type Node = _Plain | ParseError | QualifiedRule | AtRule | Declaration
 
 def parse_stylesheet(
-    input: str | Iterable[Node], skip_comments: bool = False, skip_whitespace: bool = False
+    input: str | Iterable[Node],
+    skip_comments: bool = False,
+    skip_whitespace: bool = False,
 ) -> list[Node]: ...
 def parse_rule_list(
-    input: str | Iterable[Node], skip_comments: bool = False, skip_whitespace: bool = False
+    input: str | Iterable[Node],
+    skip_comments: bool = False,
+    skip_whitespace: bool = False,
 ) -> list[Node]: ...
 def parse_declaration_list(
-    input: str | Iterable[Node], skip_comments: bool = False, skip_whitespace: bool = False
+    input: str | Iterable[Node],
+    skip_comments: bool = False,
+    skip_whitespace: bool = False,
 ) -> list[Node]: ...
 def serialize(nodes: Iterable[Node]) -> str: ...

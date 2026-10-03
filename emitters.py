@@ -13,6 +13,7 @@ system_mapping skipped them in silence (measured 2026-09-21, `qlist`).
 
     emitters.run_all(root)   # run every generator in order; returns [(module, rc)]
 """
+
 import os
 import subprocess
 import sys
@@ -41,18 +42,34 @@ COPYRIGHT_YEAR = 2026
 # KvFlat: Kvantum's source headers read "GPL ... version 3 of the License, or (at
 # your option) any later version" (tsujan/Kvantum, read 2026-09-23).
 THIRD_PARTY = (
-    {"what": "overlay/dev-python/colorspacious", "spdx": "MIT", "files": (),
-     "copyright": "Nathaniel J. Smith", "note": "upstream's ebuild; overlay only, not in the package"},
-    {"what": "KvFlat, recoloured by make_kvantum", "spdx": "GPL-3.0-or-later",
-     "files": ("usr/share/el-openglo/kvantum/*",),
-     "copyright": "Pedram Pourang (tsujan), the Kvantum authors",
-     "note": "a recolour of KvFlat from https://github.com/tsujan/Kvantum is a derived work and keeps upstream's licence"},
-    {"what": "DSEG fonts, named in make_font.DSEG_NOTE", "spdx": "OFL-1.1", "files": (),
-     "copyright": "keshikan", "note": "named only; not shipped"},
-    {"what": "Liberation Mono, rasterised by make_notify_marquee", "spdx": "OFL-1.1",
-     "files": ("usr/share/plasma/plasmoids/org.el.notifymarquee*",),
-     "copyright": "Red Hat, Inc. (Liberation fonts)",
-     "note": "the marquee's dot-matrix glyphs are rasterised from Liberation Mono at build time"},
+    {
+        "what": "overlay/dev-python/colorspacious",
+        "spdx": "MIT",
+        "files": (),
+        "copyright": "Nathaniel J. Smith",
+        "note": "upstream's ebuild; overlay only, not in the package",
+    },
+    {
+        "what": "KvFlat, recoloured by make_kvantum",
+        "spdx": "GPL-3.0-or-later",
+        "files": ("usr/share/el-openglo/kvantum/*",),
+        "copyright": "Pedram Pourang (tsujan), the Kvantum authors",
+        "note": "a recolour of KvFlat from https://github.com/tsujan/Kvantum is a derived work and keeps upstream's licence",
+    },
+    {
+        "what": "DSEG fonts, named in make_font.DSEG_NOTE",
+        "spdx": "OFL-1.1",
+        "files": (),
+        "copyright": "keshikan",
+        "note": "named only; not shipped",
+    },
+    {
+        "what": "Liberation Mono, rasterised by make_notify_marquee",
+        "spdx": "OFL-1.1",
+        "files": ("usr/share/plasma/plasmoids/org.el.notifymarquee*",),
+        "copyright": "Red Hat, Inc. (Liberation fonts)",
+        "note": "the marquee's dot-matrix glyphs are rasterised from Liberation Mono at build time",
+    },
 )
 
 # ⚑ NOTICE IS GENERATED FROM THIRD_PARTY (W118, nothing bespoke): the Apache-2.0
@@ -76,11 +93,13 @@ def notice_text():
     blocks = []
     for t in THIRD_PARTY:
         where = ", ".join(t["files"]) if t["files"] else "not shipped in the package"
-        blocks.append(f"\n* {t['what']}\n"
-                      f"  Licence: {t['spdx']}\n"
-                      f"  Copyright: {t['copyright']}\n"
-                      f"  Where: {where}\n"
-                      f"  Note: {t['note']}\n")
+        blocks.append(
+            f"\n* {t['what']}\n"
+            f"  Licence: {t['spdx']}\n"
+            f"  Copyright: {t['copyright']}\n"
+            f"  Where: {where}\n"
+            f"  Note: {t['note']}\n"
+        )
     return NOTICE_HEAD + "".join(blocks)
 
 
@@ -90,33 +109,60 @@ def write_notice(root):
     atomic_write(p, notice_text())
     return p
 
+
 # (module, why it sits here) — dependency order, not alphabetical.
 ORDER = (
-    ("make_schemes",   "writes the .colors files every other emitter reads"),
-    ("make_preview",   "owns parse_scheme; renders the previews"),
-    ("make_chrome",    "browser manifests, from the scheme tokens"),
-    ("make_konsole",   "terminal scheme, from the scheme tokens"),
-    ("make_aurorae",   "window decoration, from GRID"),
-    ("make_plasma",    "Plasma theme SVGs, from GRID"),
+    ("make_schemes", "writes the .colors files every other emitter reads"),
+    ("make_preview", "owns parse_scheme; renders the previews"),
+    ("make_chrome", "browser manifests, from the scheme tokens"),
+    ("make_konsole", "terminal scheme, from the scheme tokens"),
+    ("make_aurorae", "window decoration, from GRID"),
+    ("make_plasma", "Plasma theme SVGs, from GRID"),
     ("make_wallpaper", "wallpaper; sources tokens with a standalone fallback"),
-    ("make_clock",     "the segment-clock plasmoid packages (plasma-clock/), from GRID"),
-    ("make_metrics",   "the VictoriaMetrics plasmoid (plasma-metrics/); endpoint asked of luthen at runtime (W77)"),
-    ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
-    ("make_tokens",    "the palette as W3C DTCG design tokens, from GRID (W160)"),
-    ("make_glb",       "the segment and matrix displays as glTF meshes, named nodes per segment (W152)"),
-    ("make_vscode",    "VS Code colour themes per variant, roles table and ANSI bank (W161)"),
-    ("make_android_clock", "the segment clock as per-variant JSON (palette, geometry, glyph tables) for Android (W193)"),
-    ("make_union",     "Union styles: Breeze with its alphas solved, from the schemes (W14)"),
-    ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),
-    ("make_firefox",   "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
-    ("make_gtk",       "GTK4/libadwaita :root variables + GTK3 @define-color (⊕GTK, rebuilt W17)"),
-    ("make_font",      "the segment and matrix fonts, TTF + SVG, from the substrate (⊕SEG-FONT family, rebuilt W24)"),
+    ("make_clock", "the segment-clock plasmoid packages (plasma-clock/), from GRID"),
+    (
+        "make_metrics",
+        "the VictoriaMetrics plasmoid (plasma-metrics/); endpoint asked of luthen at runtime (W77)",
+    ),
+    ("make_css", "the palette as CSS custom properties, from GRID (W19)"),
+    ("make_tokens", "the palette as W3C DTCG design tokens, from GRID (W160)"),
+    (
+        "make_glb",
+        "the segment and matrix displays as glTF meshes, named nodes per segment (W152)",
+    ),
+    (
+        "make_vscode",
+        "VS Code colour themes per variant, roles table and ANSI bank (W161)",
+    ),
+    (
+        "make_android_clock",
+        "the segment clock as per-variant JSON (palette, geometry, glyph tables) for Android (W193)",
+    ),
+    (
+        "make_union",
+        "Union styles: Breeze with its alphas solved, from the schemes (W14)",
+    ),
+    (
+        "make_windows",
+        "Windows .theme per variant: wallpaper + accent + colour table (W16)",
+    ),
+    ("make_firefox", "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
+    (
+        "make_gtk",
+        "GTK4/libadwaita :root variables + GTK3 @define-color (⊕GTK, rebuilt W17)",
+    ),
+    (
+        "make_font",
+        "the segment and matrix fonts, TTF + SVG, from the substrate (⊕SEG-FONT family, rebuilt W24)",
+    ),
 )
 
 # Emitters that need an input this machine may not have.  Absent -> SKIP, named.
 EXTERNAL = {
-    "make_kvantum": ("/tmp/KvFlat.kvconfig",
-                     "recolours the upstream KvFlat theme; stage it to run this"),
+    "make_kvantum": (
+        "/tmp/KvFlat.kvconfig",
+        "recolours the upstream KvFlat theme; stage it to run this",
+    ),
 }
 
 
@@ -135,45 +181,45 @@ EXTERNAL = {
 # so does a declared one that vanishes — drift is visible in both directions.
 ROLES = {
     # authorities — every other target reads its tokens through these
-    "make_palette":         "authority",   # SOLVES the palette, upstream of all
-    "make_schemes":         "authority",   # owns GRID, emits the .colors files
-    "make_preview":         "authority",   # owns parse_scheme
+    "make_palette": "authority",  # SOLVES the palette, upstream of all
+    "make_schemes": "authority",  # owns GRID, emits the .colors files
+    "make_preview": "authority",  # owns parse_scheme
     # colour emitters — each MUST read an authority (@TOKENS)
-    "make_aurorae":         "emitter",
-    "make_chrome":          "emitter",
-    "make_clock":           "emitter",
-    "make_android_clock":   "emitter",     # the segment clock as per-variant JSON for an Android renderer (W193)
-    "make_css":             "emitter",
-    "make_tokens":          "emitter",     # W3C DTCG design tokens from GRID (W160)
-    "make_vscode":          "emitter",     # VS Code colour themes + .vsix from the roles table (W161)
-    "make_cursors":         "emitter",     # phosphor XCursor glyphs per variant (W36)
-    "make_firefox":         "emitter",
-    "make_gtk":             "emitter",
-    "make_konsole":         "emitter",
-    "make_kvantum":         "emitter",
-    "make_notify_marquee":  "emitter",
-    "make_plasma":          "emitter",
-    "make_plymouth":        "emitter",
-    "make_sddm":            "emitter",     # the greeter: baked per variant (W66)
-    "make_taskswitch":      "emitter",
-    "make_union":           "emitter",
-    "make_wallpaper":       "emitter",
-    "make_wallpaper_live":  "emitter",
-    "make_windows":         "emitter",
+    "make_aurorae": "emitter",
+    "make_chrome": "emitter",
+    "make_clock": "emitter",
+    "make_android_clock": "emitter",  # the segment clock as per-variant JSON for an Android renderer (W193)
+    "make_css": "emitter",
+    "make_tokens": "emitter",  # W3C DTCG design tokens from GRID (W160)
+    "make_vscode": "emitter",  # VS Code colour themes + .vsix from the roles table (W161)
+    "make_cursors": "emitter",  # phosphor XCursor glyphs per variant (W36)
+    "make_firefox": "emitter",
+    "make_gtk": "emitter",
+    "make_konsole": "emitter",
+    "make_kvantum": "emitter",
+    "make_notify_marquee": "emitter",
+    "make_plasma": "emitter",
+    "make_plymouth": "emitter",
+    "make_sddm": "emitter",  # the greeter: baked per variant (W66)
+    "make_taskswitch": "emitter",
+    "make_union": "emitter",
+    "make_wallpaper": "emitter",
+    "make_wallpaper_live": "emitter",
+    "make_windows": "emitter",
     # generators that carry NO colour, each with the reason it is exempt
-    "make_font":            "colourless",  # glyph outlines only
-    "make_glyph_ink":       "colourless",  # an ink field from font winding
-    "make_glb":             "colourless",  # glTF segment/matrix meshes; colour is the
-                                           # W151 material group in the token file
+    "make_font": "colourless",  # glyph outlines only
+    "make_glyph_ink": "colourless",  # an ink field from font winding
+    "make_glb": "colourless",  # glTF segment/matrix meshes; colour is the
+    # W151 material group in the token file
     "make_segment_display": "colourless",  # QML geometry; colour bound by caller
-    "make_metrics":         "colourless",  # the VM metrics plasmoid (W77): colour is the
-                                           # active scheme's Kirigami View roles, bound
-                                           # at runtime; no token is read or emitted
-    "make_inherit":         "colourless",  # icon/cursor themes that INHERIT Breeze;
-                                           # the palette reaches icons through
-                                           # FollowsColorScheme, not this file (W31),
-                                           # and cursors through make_cursors (W36)
-    "make_deb":             "packager",    # stages what the emitters produced
+    "make_metrics": "colourless",  # the VM metrics plasmoid (W77): colour is the
+    # active scheme's Kirigami View roles, bound
+    # at runtime; no token is read or emitted
+    "make_inherit": "colourless",  # icon/cursor themes that INHERIT Breeze;
+    # the palette reaches icons through
+    # FollowsColorScheme, not this file (W31),
+    # and cursors through make_cursors (W36)
+    "make_deb": "packager",  # stages what the emitters produced
 }
 
 
@@ -207,8 +253,10 @@ def atomic_write(path, data, fsync=False):
 
     Stdlib only, and it lives here because every generator already may import
     this module without a cycle (it imports nothing of ours)."""
-    with atomic_path(path, fsync=fsync) as tmp, \
-            open(tmp, "wb") as fh:  # atomic-write: exempt — the helper's own temp file
+    with (
+        atomic_path(path, fsync=fsync) as tmp,
+        open(tmp, "wb") as fh,
+    ):  # atomic-write: exempt — the helper's own temp file
         fh.write(data.encode("utf-8") if isinstance(data, str) else data)
 
 
@@ -226,10 +274,12 @@ class atomic_path:
 
     def __enter__(self):
         import tempfile
+
         d = os.path.dirname(os.path.abspath(self.path))
         base = os.path.basename(self.path)
-        fd, self.tmp = tempfile.mkstemp(dir=d, prefix="." + base + ".",
-                                        suffix=os.path.splitext(base)[1])
+        fd, self.tmp = tempfile.mkstemp(
+            dir=d, prefix="." + base + ".", suffix=os.path.splitext(base)[1]
+        )
         os.close(fd)
         return self.tmp
 
@@ -250,7 +300,7 @@ class atomic_path:
         except BaseException:
             self._discard()
             raise
-        self._discard()                      # never leave a partial beside the real one
+        self._discard()  # never leave a partial beside the real one
         return False
 
     def _discard(self):
@@ -273,8 +323,11 @@ def drift(root):
     unseen, which is the exact defect check_token_source exists to catch and the
     one make_wallpaper was committing. An ABSENT declared module is a deletion
     that every n-of-n check would otherwise absorb silently."""
-    found = {f[:-len(".py")] for f in os.listdir(root)
-             if f.startswith("make_") and f.endswith(".py")}
+    found = {
+        f[: -len(".py")]
+        for f in os.listdir(root)
+        if f.startswith("make_") and f.endswith(".py")
+    }
     return sorted(found - set(ROLES)), sorted(set(ROLES) - found)
 
 
@@ -285,7 +338,14 @@ def drift(root):
 # sandbox died with EACCES on /tmp/EL-Openglo.colorscheme and a cairo write
 # error (emerge, 2026-09-21) — the first thing the sandbox proved that
 # check_ebuild's stated weakness said it could not. Staging runs THIS subset.
-STAGE = ("make_schemes", "make_aurorae", "make_plasma", "make_wallpaper", "make_clock", "make_font")
+STAGE = (
+    "make_schemes",
+    "make_aurorae",
+    "make_plasma",
+    "make_wallpaper",
+    "make_clock",
+    "make_font",
+)
 
 
 def run_all(root, python=None, quiet=True, only=None):
@@ -297,8 +357,13 @@ def run_all(root, python=None, quiet=True, only=None):
     for mod, _why in ORDER:
         if only is not None and mod not in only:
             continue
-        r = subprocess.run([python or sys.executable, os.path.join(root, mod + ".py")],
-                           cwd=root, capture_output=True, text=True, check=False)
+        r = subprocess.run(
+            [python or sys.executable, os.path.join(root, mod + ".py")],
+            cwd=root,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
         out.append((mod, r.returncode, r.stderr.strip()[-400:]))
     return out
 
@@ -322,21 +387,34 @@ def main(argv):
         for role in ("authority", "emitter", "colourless", "packager"):
             names = declared(role)
             print(f"  {role:11s} {len(names):2d}  {', '.join(names)}")
-        print(f"\nemitters: {len(ROLES)} declared module(s); "
-              f"{len(ORDER)} run in order, {len(STAGE)} staged, {len(EXTERNAL)} external")
+        print(
+            f"\nemitters: {len(ROLES)} declared module(s); "
+            f"{len(ORDER)} run in order, {len(STAGE)} staged, {len(EXTERNAL)} external"
+        )
         return 0
     if undeclared or absent:
-        print(f"emitters: REFUSED — the tree and the roster disagree "
-              f"({len(undeclared)} undeclared, {len(absent)} absent of "
-              f"{len(ROLES)} declared):", file=sys.stderr)
+        print(
+            f"emitters: REFUSED — the tree and the roster disagree "
+            f"({len(undeclared)} undeclared, {len(absent)} absent of "
+            f"{len(ROLES)} declared):",
+            file=sys.stderr,
+        )
         for m in undeclared:
-            print(f"    undeclared  {m}.py — a generator no gate ranges over; "
-                  f"give it a role in emitters.ROLES", file=sys.stderr)
+            print(
+                f"    undeclared  {m}.py — a generator no gate ranges over; "
+                f"give it a role in emitters.ROLES",
+                file=sys.stderr,
+            )
         for m in absent:
-            print(f"    absent      {m}.py — declared and not in the tree", file=sys.stderr)
+            print(
+                f"    absent      {m}.py — declared and not in the tree",
+                file=sys.stderr,
+            )
         return 1
-    print(f"emitters: {len(ROLES)} of {len(ROLES)} declared module(s) present, "
-          f"and the tree adds none")
+    print(
+        f"emitters: {len(ROLES)} of {len(ROLES)} declared module(s) present, "
+        f"and the tree adds none"
+    )
     return 0
 
 

@@ -22,6 +22,7 @@ ANSI-16 formats in make_konsole; this file is the desktop side. A
 .deskthemepack is a CAB and is not built here (no cabinet tool on this host);
 the folder is the pack's contents, copied as-is.
 """
+
 import os
 import shutil
 import sys
@@ -29,41 +30,48 @@ import sys
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
-VARIANTS = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-            "EL-Amber", "EL-Amber-Lit"]
+VARIANTS = [
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+]
 
 # [Control Panel\Colors] key -> palette role (make_preview.parse_scheme keys)
 COLOR_KEYS = (
-    ("Background",   "ground"),      # desktop behind the wallpaper
-    ("Window",       "view_bg"),
-    ("WindowText",   "phosphor"),
-    ("Hilight",      "sel"),
-    ("HilightText",  "ground"),
-    ("ActiveTitle",  "panel"),
-    ("TitleText",    "phosphor"),
+    ("Background", "ground"),  # desktop behind the wallpaper
+    ("Window", "view_bg"),
+    ("WindowText", "phosphor"),
+    ("Hilight", "sel"),
+    ("HilightText", "ground"),
+    ("ActiveTitle", "panel"),
+    ("TitleText", "phosphor"),
     ("InactiveTitle", "ground"),
     ("InactiveTitleText", "ghost"),
-    ("Menu",         "panel"),
-    ("MenuText",     "phosphor"),
-    ("ButtonFace",   "panel"),
-    ("ButtonText",   "phosphor"),
-    ("GrayText",     "ghost"),
-    ("WindowFrame",  "accent"),
-    ("InfoWindow",   "panel"),
-    ("InfoText",     "phosphor"),
-    ("Scrollbar",    "ground"),
+    ("Menu", "panel"),
+    ("MenuText", "phosphor"),
+    ("ButtonFace", "panel"),
+    ("ButtonText", "phosphor"),
+    ("GrayText", "ghost"),
+    ("WindowFrame", "accent"),
+    ("InfoWindow", "panel"),
+    ("InfoText", "phosphor"),
+    ("Scrollbar", "ground"),
     ("AppWorkspace", "ground"),
 )
 
 
 def _rgb(hexs):
     hexs = hexs.lstrip("#")
-    return tuple(int(hexs[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(hexs[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def theme_ini(variant, wallpaper_rel):
     """The .theme text for `variant`; `wallpaper_rel` is the path the .theme references."""
     import make_preview as MP
+
     c = MP.parse_scheme(variant)
     r, g, b = _rgb(c["accent"])
     lines = [
@@ -88,7 +96,7 @@ def theme_ini(variant, wallpaper_rel):
         "Path=%SystemRoot%\\resources\\Themes\\Aero\\Aero.msstyles",
         "ColorStyle=NormalColor",
         "Size=NormalSize",
-        f"ColorizationColor=0x{0xC4:02X}{r:02X}{g:02X}{b:02X}",   # alpha as Windows' own default
+        f"ColorizationColor=0x{0xC4:02X}{r:02X}{g:02X}{b:02X}",  # alpha as Windows' own default
         "Transparency=1",
         "",
         "[MasterThemeSelector]",
@@ -101,25 +109,32 @@ def theme_ini(variant, wallpaper_rel):
 def render_all(variants, out_map):
     """Write EL-<variant>.theme + DesktopBackground/<variant>.png into out_map[variant]."""
     import make_wallpaper as MW
+
     written = []
     for v in variants:
         d = out_map[v]
         bg = os.path.join(d, "DesktopBackground")
         os.makedirs(bg, exist_ok=True)
         png_name = f"{v}.png"
-        src = os.path.join(ROOT, MW.output_name(v) + ".png")   # the emitted wallpaper PNG
+        src = os.path.join(
+            ROOT, MW.output_name(v) + ".png"
+        )  # the emitted wallpaper PNG
         dst = os.path.join(bg, png_name)
         from emitters import atomic_path, atomic_write
+
         with atomic_path(dst) as tmp:
             if os.path.isfile(src):
                 shutil.copyfile(src, tmp)
             else:
                 # render it: make_wallpaper is the authority for the picture
                 import cairosvg
+
                 cairosvg.svg2png(bytestring=MW.wallpaper_svg(v).encode(), write_to=tmp)
         p = os.path.join(d, f"{v}.theme")
         # newline="\r\n" as the open() this replaced did: Windows reads CRLF
-        atomic_write(p, theme_ini(v, f"DesktopBackground\\{png_name}").replace("\n", "\r\n"))
+        atomic_write(
+            p, theme_ini(v, f"DesktopBackground\\{png_name}").replace("\n", "\r\n")
+        )
         written += [p, dst]
     return written
 
@@ -129,8 +144,12 @@ if __name__ == "__main__":
         for key, role in COLOR_KEYS:
             print(f"{key:20} <- {role}")
         print("ColorizationColor    <- accent (0xAARRGGBB)")
-        print("Wallpaper            <- make_wallpaper (DesktopBackground\\<variant>.png)")
+        print(
+            "Wallpaper            <- make_wallpaper (DesktopBackground\\<variant>.png)"
+        )
         sys.exit(0)
     outs = {v: os.path.join(ROOT, "windows", v) for v in VARIANTS}
     w = render_all(VARIANTS, outs)
-    print(f"make_windows: wrote {len(w)} files for {len(VARIANTS)} themes under windows/")
+    print(
+        f"make_windows: wrote {len(w)} files for {len(VARIANTS)} themes under windows/"
+    )

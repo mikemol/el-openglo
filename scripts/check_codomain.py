@@ -24,6 +24,7 @@ down is absent, not refused — the census bounds what was THOUGHT OF. Gap targe
 are matched against emitted ones by name (`make_<target>`), so a gap spelled
 differently from the emitter that already covers it is not caught.
 """
+
 import json
 import os
 import sys
@@ -41,43 +42,79 @@ def rank(g):
 
 def measure(gaps_path=GAPS):
     import check_publishing as P
+
     pub = P.measure(P.rows(), P.categories(), P.emitters())
     venues = {}
     for r in pub["rows"]:
         venues.setdefault(r["emitter"].split(" ")[0], []).append(r["venue"])
-    emitted = [{"target": c["emitter"].removeprefix("make_"), "emitter": c["emitter"],
-                "venues": venues.get(c["emitter"], [])} for c in pub["cases"]]
+    emitted = [
+        {
+            "target": c["emitter"].removeprefix("make_"),
+            "emitter": c["emitter"],
+            "venues": venues.get(c["emitter"], []),
+        }
+        for c in pub["cases"]
+    ]
     try:
         with open(gaps_path, encoding="utf-8") as fh:
             gaps = json.load(fh)["gaps"]
         withheld = None
     except (OSError, ValueError, KeyError) as e:
         gaps, withheld = [], f"{type(e).__name__}: {e}"
-    cases = [{**{k: g.get(k) for k in FIELDS},
-              "missing": [k for k in FIELDS if g.get(k) in (None, "")],
-              "rank": rank(g)} for g in gaps]
+    cases = [
+        {
+            **{k: g.get(k) for k in FIELDS},
+            "missing": [k for k in FIELDS if g.get(k) in (None, "")],
+            "rank": rank(g),
+        }
+        for g in gaps
+    ]
     return {"emitted": emitted, "gaps": cases, "gaps_withheld": withheld}
 
 
 def _selftest():
     import tempfile
+
     ok = True
 
     def chk(label, got, want):
         nonlocal ok
-        print(("  ok   " if got == want else "  FAIL ") + label
-              + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            ("  ok   " if got == want else "  FAIL ")
+            + label
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as fh:
-        json.dump({"gaps": [{"target": "x", "family": "f", "venue": "v", "licence": "Apache-2.0",
-                             "reach": 5, "cost": 1}]}, fh)
+        json.dump(
+            {
+                "gaps": [
+                    {
+                        "target": "x",
+                        "family": "f",
+                        "venue": "v",
+                        "licence": "Apache-2.0",
+                        "reach": 5,
+                        "cost": 1,
+                    }
+                ]
+            },
+            fh,
+        )
     m = measure(fh.name)
     os.unlink(fh.name)
-    chk("a gap without a contract is SEEN as missing it", m["gaps"][0]["missing"], ["contract"])
+    chk(
+        "a gap without a contract is SEEN as missing it",
+        m["gaps"][0]["missing"],
+        ["contract"],
+    )
     chk("...and ranked reach x (6 - cost)", m["gaps"][0]["rank"], 25)
-    chk("an unreadable gaps file is withheld, not empty-and-fine",
-        measure("/nonexistent.json")["gaps_withheld"] is not None, True)
+    chk(
+        "an unreadable gaps file is withheld, not empty-and-fine",
+        measure("/nonexistent.json")["gaps_withheld"] is not None,
+        True,
+    )
     real = measure()
     chk("the real emitted half is non-empty", len(real["emitted"]) > 0, True)
     chk("the real gaps file reads", real["gaps_withheld"], None)
@@ -99,12 +136,16 @@ def main(argv):
         return 0
     if "--list" in argv:
         n = len(m["emitted"]) + len(m["gaps"])
-        print(f"check_codomain: {len(m['emitted'])} of {n} surfaces emitted; {len(m['gaps'])} gap(s), ranked:")
+        print(
+            f"check_codomain: {len(m['emitted'])} of {n} surfaces emitted; {len(m['gaps'])} gap(s), ranked:"
+        )
         for g in sorted(m["gaps"], key=lambda g: -(g["rank"] or 0)):
             print(f"  {g['rank']!s:>3}  {g['target']:24} {g['family']:20} {g['venue']}")
         return 0
-    print("usage: check_codomain.py --json | --list | --selftest  (verdict: scripts/opa_gate.py codomain)",
-          file=sys.stderr)
+    print(
+        "usage: check_codomain.py --json | --list | --selftest  (verdict: scripts/opa_gate.py codomain)",
+        file=sys.stderr,
+    )
     return 2
 
 

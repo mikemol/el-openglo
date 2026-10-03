@@ -35,6 +35,7 @@ join is by NAME (check_<name>.py ↔ policy/<name>.rego ↔ package el.<name>); 
 policy whose package does not match its file name evaluates to nothing, which
 `--selftest` checks for every policy present.
 """
+
 import json
 import os
 import re
@@ -49,7 +50,11 @@ OPA = shutil.which("opa")
 
 def policies():
     """[name] for every policy/<name>.rego that is not a _test."""
-    return sorted(f[:-5] for f in os.listdir(POLICY) if f.endswith(".rego") and not f.endswith("_test.rego"))
+    return sorted(
+        f[:-5]
+        for f in os.listdir(POLICY)
+        if f.endswith(".rego") and not f.endswith("_test.rego")
+    )
 
 
 # A policy whose measurement is not check_<name>.py. read_serial.py is a READER of
@@ -67,13 +72,23 @@ def measure(name, operands=(), script=None):
     (paths, resolved against the repo root) are passed after --json. `script`
     overrides the measurer (the --expect selftest's raising/garbage fixtures)."""
     script = script or measurer(name)
-    r = subprocess.run([sys.executable, script, "--json", *operands],
-                       capture_output=True, text=True, cwd=ROOT, timeout=600, check=False)
+    r = subprocess.run(
+        [sys.executable, script, "--json", *operands],
+        capture_output=True,
+        text=True,
+        cwd=ROOT,
+        timeout=600,
+        check=False,
+    )
     if r.returncode == 2:
-        raise UsageRefusal(f"{os.path.basename(script)} refused its arguments (exit 2): "
-                           f"{r.stderr.strip()[-300:]}")
+        raise UsageRefusal(
+            f"{os.path.basename(script)} refused its arguments (exit 2): "
+            f"{r.stderr.strip()[-300:]}"
+        )
     if r.returncode != 0:
-        raise RuntimeError(f"{os.path.basename(script)} --json exited {r.returncode}: {r.stderr[-300:]}")
+        raise RuntimeError(
+            f"{os.path.basename(script)} --json exited {r.returncode}: {r.stderr[-300:]}"
+        )
     return json.loads(r.stdout)
 
 
@@ -86,13 +101,21 @@ def value(name, doc):
     """The whole of data.el.<name> over the measurement — every rule the policy
     defines, for a check whose listing mode shows what the POLICY derived (e.g.
     check_mark --files reads `offending`) rather than re-deriving it in Python."""
-    r = subprocess.run([OPA, "eval", "-f", "json", "-I", "-d", POLICY, f"data.el.{name}"],
-                       input=json.dumps(doc), capture_output=True, text=True, timeout=120, check=False)
+    r = subprocess.run(
+        [OPA, "eval", "-f", "json", "-I", "-d", POLICY, f"data.el.{name}"],
+        input=json.dumps(doc),
+        capture_output=True,
+        text=True,
+        timeout=120,
+        check=False,
+    )
     if r.returncode != 0:
         raise RuntimeError(f"opa eval exited {r.returncode}: {r.stderr[-300:]}")
     res = json.loads(r.stdout)["result"]
     if not res:
-        raise RuntimeError(f"data.el.{name} is undefined — no package el.{name} in policy/")
+        raise RuntimeError(
+            f"data.el.{name} is undefined — no package el.{name} in policy/"
+        )
     return res[0]["expressions"][0]["value"]
 
 
@@ -102,8 +125,11 @@ def evaluate(name, doc):
     # `admitted` is OPTIONAL: a policy that judges a population case by case
     # declares what it admitted, so a withheld case beside admitted ones is a
     # SKIP (a fact about the host) rather than "nothing was judged" (s131)
-    return {"deny": sorted(v.get("deny", [])), "withheld": sorted(v.get("withheld", [])),
-            "admitted": sorted(v["admitted"]) if "admitted" in v else None}
+    return {
+        "deny": sorted(v.get("deny", [])),
+        "withheld": sorted(v.get("withheld", [])),
+        "admitted": sorted(v["admitted"]) if "admitted" in v else None,
+    }
 
 
 def verdict(sets):
@@ -127,13 +153,18 @@ def census():
     measurement's own can-it-see test, which stays Python by the rule — and is not
     counted in either. Weakness: a claim citing some other tool is outside both."""
     import check_tree_writes
+
     out = {"gate": [], "direct": []}
     for key, check in check_tree_writes.claims(ROOT):
         kind, _, rest = check.partition(":")
         argv_ = rest.split()
         if kind != "tool" or not argv_:
             continue
-        if argv_[0] == "opa_gate.py" and len(argv_) > 1 and not argv_[1].startswith("--"):
+        if (
+            argv_[0] == "opa_gate.py"
+            and len(argv_) > 1
+            and not argv_[1].startswith("--")
+        ):
             out["gate"].append((key, argv_[1]))
         elif argv_[0].startswith("check_") and len(argv_) == 1:
             out["direct"].append((key, argv_[0], argv_[1:]))
@@ -151,11 +182,17 @@ def denies_census():
     fixture operand (its measurement reads the tree, not a file) cannot take one
     this way; the census reports it all the same, as work, not as an exemption."""
     import check_tree_writes
+
     out = {}
     for key, check in check_tree_writes.claims(ROOT):
         kind, _, rest = check.partition(":")
         argv_ = rest.split()
-        if kind != "tool" or len(argv_) < 2 or argv_[0] != "opa_gate.py" or argv_[1].startswith("--"):
+        if (
+            kind != "tool"
+            or len(argv_) < 2
+            or argv_[0] != "opa_gate.py"
+            or argv_[1].startswith("--")
+        ):
             continue
         out.setdefault(argv_[1], [])
         if any(a == "--expect" or a.startswith("--expect=") for a in argv_):
@@ -167,11 +204,19 @@ def cpu_of(script):
     """(rc, user+sys CPU seconds) of one run of scripts/<script> — its own CPU, never
     wall (the box is shared and loaded)."""
     import resource
+
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
-    r = subprocess.run([sys.executable, os.path.join(ROOT, "scripts", script)],
-                       capture_output=True, cwd=ROOT, timeout=900, check=False)
+    r = subprocess.run(
+        [sys.executable, os.path.join(ROOT, "scripts", script)],
+        capture_output=True,
+        cwd=ROOT,
+        timeout=900,
+        check=False,
+    )
     after = resource.getrusage(resource.RUSAGE_CHILDREN)
-    return r.returncode, (after.ru_utime - before.ru_utime) + (after.ru_stime - before.ru_stime)
+    return r.returncode, (after.ru_utime - before.ru_utime) + (
+        after.ru_stime - before.ru_stime
+    )
 
 
 def main(argv):
@@ -181,17 +226,27 @@ def main(argv):
     # lifted out before the flag/operand split so the value is not read as an operand
     for i, a in enumerate(rest):
         if a == "--expect" or a.startswith("--expect="):
-            val = a.partition("=")[2] if "=" in a else (rest[i + 1] if i + 1 < len(rest) else "")
-            del rest[i:i + (1 if "=" in a else 2)]
+            val = (
+                a.partition("=")[2]
+                if "=" in a
+                else (rest[i + 1] if i + 1 < len(rest) else "")
+            )
+            del rest[i : i + (1 if "=" in a else 2)]
             expect = parse_expect(val)
             if expect is None:
-                print(f"opa_gate: --expect wants denied:<RULE>[,<RULE>...], got {val!r}", file=sys.stderr)
+                print(
+                    f"opa_gate: --expect wants denied:<RULE>[,<RULE>...], got {val!r}",
+                    file=sys.stderr,
+                )
                 return 2
             break
     args = [a for a in rest if a.startswith("--")]
     names = [a for a in rest if not a.startswith("--")]
     if expect is not None and (args or not names):
-        print("opa_gate: --expect qualifies `<name> [OPERAND...]` and nothing else", file=sys.stderr)
+        print(
+            "opa_gate: --expect qualifies `<name> [OPERAND...]` and nothing else",
+            file=sys.stderr,
+        )
         return 2
     if expect is not None:
         return expect_gate(names[0], names[1:], expect)
@@ -211,18 +266,28 @@ def main(argv):
             else:
                 print(f"  python  @{key:20s} {script}")
         n, m = len(c["gate"]), len(c["gate"]) + len(c["direct"])
-        print(f"opa_gate census: {n} of {m} gate claims decided in rego; "
-              f"{len(c['direct'])} claims ({len(scripts)} scripts) still decide in Python")
+        print(
+            f"opa_gate census: {n} of {m} gate claims decided in rego; "
+            f"{len(c['direct'])} claims ({len(scripts)} scripts) still decide in Python"
+        )
         return 0 if m else 2
     if "--denies" in args:
         d = denies_census()
         for name in sorted(d):
             keys = d[name]
-            print(f"  {'fails' if keys else 'NONE ':5s}  {name:22s} " +
-                  (", ".join(f"@{k}" for k in keys) if keys else "no end-to-end negative claim"))
+            print(
+                f"  {'fails' if keys else 'NONE ':5s}  {name:22s} "
+                + (
+                    ", ".join(f"@{k}" for k in keys)
+                    if keys
+                    else "no end-to-end negative claim"
+                )
+            )
         n = sum(1 for k in d.values() if k)
-        print(f"opa_gate denies: {n} of {len(d)} gated policies carry a claim that the gate "
-              f"DENIES a known-bad fixture (W75)")
+        print(
+            f"opa_gate denies: {n} of {len(d)} gated policies carry a claim that the gate "
+            f"DENIES a known-bad fixture (W75)"
+        )
         return 0 if d else 2
     if "--cpu" in args:
         print("opa_gate: --cpu only qualifies --census", file=sys.stderr)
@@ -233,14 +298,21 @@ def main(argv):
     if "--list" in args:
         for n in policies():
             m = measurer(n)
-            print(f"{n:24s} policy/{n}.rego  {os.path.basename(m)} {'--json' if os.path.isfile(m) else 'ABSENT'}")
+            print(
+                f"{n:24s} policy/{n}.rego  {os.path.basename(m)} {'--json' if os.path.isfile(m) else 'ABSENT'}"
+            )
         return 0
     if "--test" in args:
-        r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True, check=False)
+        r = subprocess.run(
+            [OPA, "test", POLICY], capture_output=True, text=True, check=False
+        )
         print(r.stdout.strip() or r.stderr.strip())
         return r.returncode
     if not names:
-        print("usage: opa_gate.py <name> [OPERAND...] | --list | --test | --selftest", file=sys.stderr)
+        print(
+            "usage: opa_gate.py <name> [OPERAND...] | --list | --test | --selftest",
+            file=sys.stderr,
+        )
         return 2
     return gate(names[0], names[1:])
 
@@ -249,7 +321,10 @@ def gate(name, operands=()):
     """Measure, decide, print the verdict; the exit code. A migrated check's bare mode
     is exactly this call — it prints what the policy decided and decides nothing."""
     if not OPA:
-        print(f"opa_gate: {name}: SKIP — opa is not installed on this host", file=sys.stderr)
+        print(
+            f"opa_gate: {name}: SKIP — opa is not installed on this host",
+            file=sys.stderr,
+        )
         return 0
     try:
         doc = measure(name, operands)
@@ -262,9 +337,15 @@ def gate(name, operands=()):
     for m in sets["withheld"]:
         print(f"opa_gate: WITHHELD {m}", file=sys.stderr)
     rc = verdict(sets)
-    adm = f", {len(sets['admitted'])} admitted" if sets.get("admitted") is not None else ""
-    print(f"opa_gate: {name}: {'admitted' if rc == 0 else 'DENIED' if rc == 1 else 'withheld'} — "
-          f"{len(sets['deny'])} deny, {len(sets['withheld'])} withheld{adm}")
+    adm = (
+        f", {len(sets['admitted'])} admitted"
+        if sets.get("admitted") is not None
+        else ""
+    )
+    print(
+        f"opa_gate: {name}: {'admitted' if rc == 0 else 'DENIED' if rc == 1 else 'withheld'} — "
+        f"{len(sets['deny'])} deny, {len(sets['withheld'])} withheld{adm}"
+    )
     return rc
 
 
@@ -309,17 +390,26 @@ def expect_gate(name, operands, rules, script=None, opa=None):
     want = ",".join(sorted(rules))
     opa = OPA if opa is None else opa
     if not opa:
-        print(f"opa_gate: {name}: COULD NOT RUN — opa is not installed on this host", file=sys.stderr)
+        print(
+            f"opa_gate: {name}: COULD NOT RUN — opa is not installed on this host",
+            file=sys.stderr,
+        )
         return 3
     missing = [op for op in operands if not os.path.exists(op)]
     if missing:
-        print(f"opa_gate: {name}: COULD NOT RUN — operand(s) absent: {', '.join(missing)}", file=sys.stderr)
+        print(
+            f"opa_gate: {name}: COULD NOT RUN — operand(s) absent: {', '.join(missing)}",
+            file=sys.stderr,
+        )
         return 3
     try:
         sets = evaluate(name, measure(name, operands, script))
     except Exception as e:  # noqa: BLE001 — every crash class is the SAME verdict: fail
-        print(f"opa_gate: {name}: FAIL — expected a {want} denial, the gate did not decide: "
-              f"{type(e).__name__}: {e}", file=sys.stderr)
+        print(
+            f"opa_gate: {name}: FAIL — expected a {want} denial, the gate did not decide: "
+            f"{type(e).__name__}: {e}",
+            file=sys.stderr,
+        )
         return 1
     for m in sets["deny"]:
         print(f"opa_gate: DENY {m}", file=sys.stderr)
@@ -331,11 +421,15 @@ def expect_gate(name, operands, rules, script=None, opa=None):
         return 1
     fired = {rule_of(m) or "<no rule id>" for m in sets["deny"]}
     if fired != set(rules):
-        print(f"opa_gate: {name}: FAIL — expected a {want} denial, got {','.join(sorted(fired))} "
-              f"({len(sets['deny'])} deny)")
+        print(
+            f"opa_gate: {name}: FAIL — expected a {want} denial, got {','.join(sorted(fired))} "
+            f"({len(sets['deny'])} deny)"
+        )
         return 1
-    print(f"opa_gate: {name}: expected denial — {want} fired ({len(sets['deny'])} deny, "
-          f"{len(sets['withheld'])} withheld)")
+    print(
+        f"opa_gate: {name}: expected denial — {want} fired ({len(sets['deny'])} deny, "
+        f"{len(sets['withheld'])} withheld)"
+    )
     return 0
 
 
@@ -344,7 +438,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     if not OPA:
@@ -363,23 +460,53 @@ def _selftest():
     chk("verdict maps deny to 1", verdict({"deny": ["x"], "withheld": []}), 1)
     chk("verdict maps withheld-only to 3", verdict({"deny": [], "withheld": ["x"]}), 3)
     chk("verdict maps empty sets to 0", verdict({"deny": [], "withheld": []}), 0)
-    chk("a withheld case beside admitted ones is a SKIP (0)", verdict({"deny": [], "withheld": ["x"], "admitted": ["a"]}), 0)
-    chk("a withheld case with nothing admitted is 3", verdict({"deny": [], "withheld": ["x"], "admitted": []}), 3)
-    chk("a deny outranks admitted", verdict({"deny": ["d"], "withheld": [], "admitted": ["a"]}), 1)
-    r = subprocess.run([OPA, "test", POLICY], capture_output=True, text=True, check=False)
+    chk(
+        "a withheld case beside admitted ones is a SKIP (0)",
+        verdict({"deny": [], "withheld": ["x"], "admitted": ["a"]}),
+        0,
+    )
+    chk(
+        "a withheld case with nothing admitted is 3",
+        verdict({"deny": [], "withheld": ["x"], "admitted": []}),
+        3,
+    )
+    chk(
+        "a deny outranks admitted",
+        verdict({"deny": ["d"], "withheld": [], "admitted": ["a"]}),
+        1,
+    )
+    r = subprocess.run(
+        [OPA, "test", POLICY], capture_output=True, text=True, check=False
+    )
     chk("opa test policy/ passes", r.returncode, 0)
     # W75 --expect: one arm per outcome, over the real serial reader and fixtures
     import tempfile
+
     fx = os.path.join("catalog", "fixtures", "serial")
     noise, clean = os.path.join(fx, "noise-only.log"), os.path.join(fx, "clean.log")
     s0 = parse_expect("denied:S0")
     chk("--expect parses denied:S0", s0, frozenset({"S0"}))
-    chk("--expect refuses admitted:S0 / denied: / denied:s0",
-        [parse_expect(v) for v in ("admitted:S0", "denied:", "denied:s0")], [None, None, None])
-    chk("--expect: the expected denial passes (0)", expect_gate("serial", [noise], s0), 0)
+    chk(
+        "--expect refuses admitted:S0 / denied: / denied:s0",
+        [parse_expect(v) for v in ("admitted:S0", "denied:", "denied:s0")],
+        [None, None, None],
+    )
+    chk(
+        "--expect: the expected denial passes (0)",
+        expect_gate("serial", [noise], s0),
+        0,
+    )
     chk("--expect: admitted fails (1)", expect_gate("serial", [clean], s0), 1)
-    chk("--expect: a different rule fails (1)", expect_gate("serial", [noise], parse_expect("denied:S1")), 1)
-    chk("--expect: a superset expectation fails (1)", expect_gate("serial", [noise], parse_expect("denied:S0,S1")), 1)
+    chk(
+        "--expect: a different rule fails (1)",
+        expect_gate("serial", [noise], parse_expect("denied:S1")),
+        1,
+    )
+    chk(
+        "--expect: a superset expectation fails (1)",
+        expect_gate("serial", [noise], parse_expect("denied:S0,S1")),
+        1,
+    )
     with tempfile.TemporaryDirectory() as td:
         raising = os.path.join(td, "raising.py")
         garbage = os.path.join(td, "garbage.py")
@@ -387,8 +514,16 @@ def _selftest():
             f.write("raise ImportError('fixture: the reader does not import')\n")
         with open(garbage, "w") as f:
             f.write("print('this is not json')\n")
-        chk("--expect: a raising measurer FAILS (1), never 0", expect_gate("serial", [noise], s0, script=raising), 1)
-        chk("--expect: unparseable JSON FAILS (1)", expect_gate("serial", [noise], s0, script=garbage), 1)
+        chk(
+            "--expect: a raising measurer FAILS (1), never 0",
+            expect_gate("serial", [noise], s0, script=raising),
+            1,
+        )
+        chk(
+            "--expect: unparseable JSON FAILS (1)",
+            expect_gate("serial", [noise], s0, script=garbage),
+            1,
+        )
         try:
             measure("serial", [], raising)
             crash = "no exception"
@@ -396,17 +531,40 @@ def _selftest():
             crash = "UsageRefusal"
         except RuntimeError:
             crash = "RuntimeError"
-        chk("a crashing measurer (exit 1) is a RuntimeError, not a usage refusal", crash, "RuntimeError")
-    chk("--expect: an absent fixture could not run (3)", expect_gate("serial", [os.path.join(fx, "absent.log")], s0), 3)
-    chk("--expect: opa absent could not run (3)", expect_gate("serial", [noise], s0, opa=""), 3)
-    chk("--expect: an undefined package FAILS (1)", expect_gate("no_such_policy", [noise], s0, script=measurer("serial")), 1)
+        chk(
+            "a crashing measurer (exit 1) is a RuntimeError, not a usage refusal",
+            crash,
+            "RuntimeError",
+        )
+    chk(
+        "--expect: an absent fixture could not run (3)",
+        expect_gate("serial", [os.path.join(fx, "absent.log")], s0),
+        3,
+    )
+    chk(
+        "--expect: opa absent could not run (3)",
+        expect_gate("serial", [noise], s0, opa=""),
+        3,
+    )
+    chk(
+        "--expect: an undefined package FAILS (1)",
+        expect_gate("no_such_policy", [noise], s0, script=measurer("serial")),
+        1,
+    )
     # W182: a measurer's usage refusal (exit 2) is a usage refusal, not a traceback
     chk("gate: serial with no LOG operand exits 2", gate("serial", []), 2)
     # W75 --denies: the census SEES a negative claim where one exists, and its absence
     d = denies_census()
-    chk("--denies sees SERIAL-DENIES on serial", "SERIAL-DENIES" in d.get("serial", []), True)
-    chk("--denies reports a gated policy with no negative claim as [] (not absent)",
-        any(v == [] for v in d.values()), True)
+    chk(
+        "--denies sees SERIAL-DENIES on serial",
+        "SERIAL-DENIES" in d.get("serial", []),
+        True,
+    )
+    chk(
+        "--denies reports a gated policy with no negative claim as [] (not absent)",
+        any(v == [] for v in d.values()),
+        True,
+    )
     print("opa_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 

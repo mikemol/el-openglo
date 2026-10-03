@@ -40,6 +40,7 @@ takes in wall seconds but never what it samples. Before this it was
 wall-clock Timers, and the pre-commit gate's load refused commits with
 arrivals that "never reached the board".
 """
+
 import json
 import os
 import re
@@ -57,7 +58,9 @@ VARIANT = "EL-Openglo"
 
 # the role ints the widget reads, from notificationmanager.qmltypes (Qt::UserRole + 0…)
 STUB_QMLDIR = "module org.kde.notificationmanager\nNotifications 1.0 Notifications.qml\nsingleton StubRegistry 1.0 StubRegistry.qml\n"
-STUB_REGISTRY = "pragma Singleton\nimport QtQuick\nQtObject { property var models: [] }\n"
+STUB_REGISTRY = (
+    "pragma Singleton\nimport QtQuick\nQtObject { property var models: [] }\n"
+)
 STUB_MODEL = """import QtQuick
 // ⚑ NOT A ListModel (measured 2026-09-22 against the operator's trace): ListModel
 // emits countChanged synchronously inside append(), so a widget reading rows on
@@ -119,47 +122,159 @@ QtObject {
 # 420 px board is ~1.5 s, so each phase spans at least one full rotation.
 TIMELINE = [
     # (t ms, op, id, model fields, the text the board must show afterwards)
-    (300, "arrive", 1, {"summary": "hello", "body": "", "applicationName": "app"}, "app: hello"),
+    (
+        300,
+        "arrive",
+        1,
+        {"summary": "hello", "body": "", "applicationName": "app"},
+        "app: hello",
+    ),
     (2600, "expire", 1, {}, ""),
     # ⚑ THE LIVE HOST'S CASE (operator's trace, 2026-09-22): the real model inserted
     # the row and removed it within the SAME turn — every single notify-send logged
     # `rebuild count=0`. A flash arrives and vanishes in one step; it is still owed
     # a rotation.
-    (3900, "flash", 9, {"summary": "flash", "body": "", "applicationName": "app"}, "app: flash"),
+    (
+        3900,
+        "flash",
+        9,
+        {"summary": "flash", "body": "", "applicationName": "app"},
+        "app: flash",
+    ),
     # the host trace's lone notification: never signalled in, removed ~5 s later
-    (4300, "silent", 11, {"summary": "silent", "body": "", "applicationName": "app"}, ""),
+    (
+        4300,
+        "silent",
+        11,
+        {"summary": "silent", "body": "", "applicationName": "app"},
+        "",
+    ),
     (4700, "expire", 11, {}, "app: silent"),
-    (5200, "arrive", 2, {"summary": "second", "body": "<b>bold</b>", "applicationName": "app"}, "app: second — bold"),
-    (5600, "replace", 2, {"summary": "second", "body": "changed", "applicationName": "app"}, "app: second — changed"),
+    (
+        5200,
+        "arrive",
+        2,
+        {"summary": "second", "body": "<b>bold</b>", "applicationName": "app"},
+        "app: second — bold",
+    ),
+    (
+        5600,
+        "replace",
+        2,
+        {"summary": "second", "body": "changed", "applicationName": "app"},
+        "app: second — changed",
+    ),
     (8200, "expire", 2, {}, ""),
     # W46: a CRITICAL arrival (painted in the hot token; L9) and a LOW one (light dots, W72);
     # both expire together, after their rotation
-    (9000, "arrive", 20, {"summary": "alarm", "body": "", "applicationName": "app", "urgency": 2}, "app: alarm"),
-    (9400, "arrive", 21, {"summary": "quiet", "body": "", "applicationName": "app", "urgency": 0}, "app: quiet"),
+    (
+        9000,
+        "arrive",
+        20,
+        {"summary": "alarm", "body": "", "applicationName": "app", "urgency": 2},
+        "app: alarm",
+    ),
+    (
+        9400,
+        "arrive",
+        21,
+        {"summary": "quiet", "body": "", "applicationName": "app", "urgency": 0},
+        "app: quiet",
+    ),
     (13000, "expire", 20, {}, ""),
     (13100, "expire", 21, {}, ""),
     # W46 actions: an arrival with two actions joins as "app: act [Open] [Later]";
     # a tap on the Open run reaches the model's invokeAction (L10)
-    (14500, "arrive", 30, {"summary": "act", "body": "", "applicationName": "app",
-                           "actionNames": ["open", "later"], "actionLabels": ["Open", "Later"]}, "app: act [Open] [Later]"),
+    (
+        14500,
+        "arrive",
+        30,
+        {
+            "summary": "act",
+            "body": "",
+            "applicationName": "app",
+            "actionNames": ["open", "later"],
+            "actionLabels": ["Open", "Later"],
+        },
+        "app: act [Open] [Later]",
+    ),
     (15600, "tap", 30, {"text": "[Open]"}, "app: act [Open] [Later]"),
     (17500, "expire", 30, {}, ""),
     # W46 jobs: a Job-type arrival at 10 %, then two progress replaces (same text,
     # new percentage) — the gauge grows to three samples on the board (L11)
-    (18500, "arrive", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 10, "jobState": 1}, "kio: copying"),
-    (19200, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 50, "jobState": 1}, "kio: copying"),
-    (19900, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 90, "jobState": 1}, "kio: copying"),
-    (26500, "expire", 40, {}, ""),   # air for two rotations under load before the gauge is dropped
+    (
+        18500,
+        "arrive",
+        40,
+        {
+            "summary": "copying",
+            "body": "",
+            "applicationName": "kio",
+            "type": 2,
+            "percentage": 10,
+            "jobState": 1,
+        },
+        "kio: copying",
+    ),
+    (
+        19200,
+        "replace",
+        40,
+        {
+            "summary": "copying",
+            "body": "",
+            "applicationName": "kio",
+            "type": 2,
+            "percentage": 50,
+            "jobState": 1,
+        },
+        "kio: copying",
+    ),
+    (
+        19900,
+        "replace",
+        40,
+        {
+            "summary": "copying",
+            "body": "",
+            "applicationName": "kio",
+            "type": 2,
+            "percentage": 90,
+            "jobState": 1,
+        },
+        "kio: copying",
+    ),
+    (
+        26500,
+        "expire",
+        40,
+        {},
+        "",
+    ),  # air for two rotations under load before the gauge is dropped
     # W189 (W183 rulings 1 and 3): a replace of an item ON the board rolls its changed span in place and
     # the run ends on the new text - no swap boundary between. replace_visible WAITS for the item to be
     # on the board. The change is MID-text ("alpha beta" -> "alpha gamma beta"), so a suffix follows the
     # widened span and the width-change stall (W241) runs too.
-    (27500, "arrive", 50, {"summary": "alpha beta", "body": "", "applicationName": "app"}, "app: alpha beta"),
-    (27600, "replace_visible", 50, {"summary": "alpha gamma beta", "body": "", "applicationName": "app"}, "app: alpha gamma beta"),
+    (
+        27500,
+        "arrive",
+        50,
+        {"summary": "alpha beta", "body": "", "applicationName": "app"},
+        "app: alpha beta",
+    ),
+    (
+        27600,
+        "replace_visible",
+        50,
+        {"summary": "alpha gamma beta", "body": "", "applicationName": "app"},
+        "app: alpha gamma beta",
+    ),
     (32000, "expire", 50, {}, ""),
 ]
-END_MS = 40000            # the CAP; the main run ends when every event has fired and the board drained
-SAMPLE_MS = 40            # VIRTUAL ms: the animation driver's clock, not the wall's (W63)
+END_MS = (
+    40000  # the CAP; the main run ends when every event has fired and the board drained
+)
+SAMPLE_MS = 40  # VIRTUAL ms: the animation driver's clock, not the wall's (W63)
 # WALL bounds, for a WEDGED process only. Virtual time costs wall in proportion to
 # load (the main run: ~50 s wall idle, measured >120 s under 32 busy loops, which
 # the old 120 s cap killed), so these sit far past any honest run and under
@@ -365,8 +480,10 @@ def subject(hover_pause=False, variant=VARIANT):
     the widget. `variant` selects the scheme the run resolves under (the emission is
     one package; the variant is the theme it is run in)."""
     import make_preview
+
     qml, kcfg, files = _emitted()
     import plasma_rewrite as PR
+
     config = PR._kcfg_defaults(kcfg)
     # W178: speed is the WHOLE pips per frame (the widget adds 1/phi). The TIMELINE was
     # built around a ~1.5 s rotation, so the harness runs 4 (4.618 pips/frame): a faster
@@ -374,7 +491,7 @@ def subject(hover_pause=False, variant=VARIANT):
     # (It once forced 8.0, a duration factor, when the motion was duration-based.)
     config["speed"] = 4
     config["hoverPause"] = hover_pause
-    config["debugLog"] = True         # the widget's own trace lines ride on stderr
+    config["debugLog"] = True  # the widget's own trace lines ride on stderr
     return qml, config, make_preview.parse_scheme(variant)["ground"], dict(files)
 
 
@@ -392,29 +509,46 @@ def _emitted():
         import plasma_rewrite as PR
 
         import make_notify_marquee as NM
+
         qml = NM.main_qml()
         for pat, rep in PR.SUBSTITUTIONS:
             qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
-        _EMITTED.append((qml, NM.config_xml(), {
-            "ApertureField.qml": NM.aperture_field_component(),
-            "marquee-body.js": NM.body_parser(),
-        }))
+        _EMITTED.append(
+            (
+                qml,
+                NM.config_xml(),
+                {
+                    "ApertureField.qml": NM.aperture_field_component(),
+                    "marquee-body.js": NM.body_parser(),
+                },
+            )
+        )
     return _EMITTED[0]
 
 
-HOVER_STOP_SAMPLES = 20   # the hovered run ends once this many paused samples are seen
-HOVER_CAP_MS = 12000      # ...or here, on a host too slow to reach the pointer
+HOVER_STOP_SAMPLES = 20  # the hovered run ends once this many paused samples are seen
+HOVER_CAP_MS = 12000  # ...or here, on a host too slow to reach the pointer
 
 
-CAPTURE_STEPS = 60        # R9: a frame series moves the run in this many equal offsets (≤ FRAME_CAP - 2)
-FRAME_CAP = 120          # an animation's frames, at most (one per SAMPLE_MS sample); a traversal is ~60
+CAPTURE_STEPS = (
+    60  # R9: a frame series moves the run in this many equal offsets (≤ FRAME_CAP - 2)
+)
+FRAME_CAP = (
+    120  # an animation's frames, at most (one per SAMPLE_MS sample); a traversal is ~60
+)
 
 
 # one item, once: the periodic content a seamless loop needs (empty -> enters -> leaves -> empty)
 LOOP_TIMELINE = [
     # the arrival sits well after the first sample (measured s123: the first sample
     # of the ported board lands ~260 ms after Ready under the software backend)
-    (700, "arrive", 1, {"summary": "hello", "body": "", "applicationName": "app"}, "app: hello"),
+    (
+        700,
+        "arrive",
+        1,
+        {"summary": "hello", "body": "", "applicationName": "app"},
+        "app: hello",
+    ),
     (1300, "expire", 1, {}, ""),
 ]
 
@@ -430,10 +564,13 @@ def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
     seconds) bounds a wedge BEFORE RESULT; hitting it yields no RESULT, which
     run() reports as a failure to measure."""
     import threading
+
     # W73: streamed, so it cannot be QT.run — QT.popen is the same sandbox
     # W158: no GPU path exists; the marquee runs on the software scene graph until W121
     # gives popen the mesa route (then the halo renders here too)
-    proc = QT.popen(cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    proc = QT.popen(
+        cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+    )
     cap = threading.Timer(wall_cap, proc.kill)
     cap.start()
     lines = []
@@ -458,16 +595,28 @@ def _put(path, text):
         fh.write(text)
 
 
-def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None,
-           frames=None, timeline=None):
+def stager(
+    hover_pause=False,
+    end_ms=None,
+    stop_paused=0,
+    variant=VARIANT,
+    grab=None,
+    grab_paused=None,
+    frames=None,
+    timeline=None,
+):
     """run()'s JOB as a stager: `stage(td) -> (argv, env, gpu)` writes every file
     the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS (W61): run()
     executes it and render_screens.output_keys digests it, so the screens key is
     over what the process is handed rather than a list of what it was believed to
     read."""
     import theme_probe as TP
+
     qml, config, ground, files = subject(hover_pause, variant)
-    timeline = [{"t": t, "op": op, "id": i, "fields": f, "shows": s} for t, op, i, f, s in (timeline or TIMELINE)]
+    timeline = [
+        {"t": t, "op": op, "id": i, "fields": f, "shows": s}
+        for t, op, i, f, s in (timeline or TIMELINE)
+    ]
 
     def stage(td):
         stub = os.path.join(td, "stub", "org", "kde", "notificationmanager")
@@ -480,12 +629,26 @@ def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=
         _put(os.path.join(td, "subject.qml"), qml)
         for name, text in files.items():
             _put(os.path.join(td, name), text)
-        _put(os.path.join(td, "harness.qml"), HARNESS % {
-            "ground": ground, "config": json.dumps(config), "timeline": json.dumps(timeline),
-            "sample": SAMPLE_MS, "end": end_ms or END_MS, "watchdog": WATCHDOG_MS, "stop_paused": stop_paused,
-            "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
-            "grab_paused": json.dumps(os.path.abspath(grab_paused)) if grab_paused else "null",
-            "frames": json.dumps(os.path.abspath(frames)) if frames else "null", "frame_cap": FRAME_CAP, "capture_steps": CAPTURE_STEPS})
+        _put(
+            os.path.join(td, "harness.qml"),
+            HARNESS
+            % {
+                "ground": ground,
+                "config": json.dumps(config),
+                "timeline": json.dumps(timeline),
+                "sample": SAMPLE_MS,
+                "end": end_ms or END_MS,
+                "watchdog": WATCHDOG_MS,
+                "stop_paused": stop_paused,
+                "grab": json.dumps(os.path.abspath(grab)) if grab else "null",
+                "grab_paused": json.dumps(os.path.abspath(grab_paused))
+                if grab_paused
+                else "null",
+                "frames": json.dumps(os.path.abspath(frames)) if frames else "null",
+                "frame_cap": FRAME_CAP,
+                "capture_steps": CAPTURE_STEPS,
+            },
+        )
         # theme_probe's environment (the real theme on the variant's scheme) plus the
         # notification stub on the import path. console.log IS a debug message and
         # the RESULT line rides on it, so only kirigami's own category is quieted.
@@ -496,14 +659,28 @@ def stager(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=
         # under EL_QT_GPU=1) is gone; the RHI without a GPU driver is qt_sandbox's
         # mesa route, which popen will offer for the marquee in W121. The third value
         # keeps the stager's (argv, env, rhi) shape that render_screens keys over.
-        env.update(QSG_FIXED_ANIMATION_STEP="1", QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"))
-        env.update(QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND="software")
+        env.update(
+            QSG_FIXED_ANIMATION_STEP="1",
+            QSG_RENDER_LOOP=os.environ.get("EL_RENDER_LOOP", "threaded"),
+        )
+        env.update(
+            QML2_IMPORT_PATH=os.path.join(td, "stub"), QT_QUICK_BACKEND="software"
+        )
         return [QML, "--apptype", "widget", os.path.join(td, "harness.qml")], env, False
+
     return stage
 
 
-def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=None, grab_paused=None, frames=None,
-        timeline=None):
+def run(
+    hover_pause=False,
+    end_ms=None,
+    stop_paused=0,
+    variant=VARIANT,
+    grab=None,
+    grab_paused=None,
+    frames=None,
+    timeline=None,
+):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
     ⚑ THE HOVERED RUN ENDS ON ITS CONDITION, NOT THE CLOCK (measured 2026-09-22:
@@ -520,27 +697,43 @@ def run(hover_pause=False, end_ms=None, stop_paused=0, variant=VARIANT, grab=Non
         return None
     os.chdir(ROOT)
     import theme_probe as TP
+
     if TP.scheme_path(variant) is None:
         return None
-    stage = stager(hover_pause, end_ms, stop_paused, variant, grab, grab_paused, frames, timeline)
+    stage = stager(
+        hover_pause, end_ms, stop_paused, variant, grab, grab_paused, frames, timeline
+    )
     with tempfile.TemporaryDirectory() as td:
         argv, env, _rhi = stage(td)
         r = _run_until_result(argv, env)
-    log = [l.split("el-marquee ", 1)[1] for l in (r.stdout + r.stderr).splitlines() if "el-marquee " in l]
+    log = [
+        l.split("el-marquee ", 1)[1]
+        for l in (r.stdout + r.stderr).splitlines()
+        if "el-marquee " in l
+    ]
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
             res = json.loads(line.split("RESULT ", 1)[1])
             if "error" in res:
-                raise RuntimeError(f"marquee harness: {res['error']}: {(r.stderr or r.stdout)[-800:]}")
+                raise RuntimeError(
+                    f"marquee harness: {res['error']}: {(r.stderr or r.stdout)[-800:]}"
+                )
             res["log"] = log
             return res
-    raise RuntimeError(f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}")
+    raise RuntimeError(
+        f"no RESULT from the marquee harness (rc={r.returncode}): {(r.stderr or r.stdout)[-800:]}"
+    )
 
 
 def hovered_args(variant=VARIANT, grab_paused=None):
     """run()'s arguments for the hovered run — one spelling for run and key (W61)."""
-    return {"hover_pause": True, "end_ms": HOVER_CAP_MS, "stop_paused": HOVER_STOP_SAMPLES, "variant": variant,
-                "grab_paused": grab_paused}
+    return {
+        "hover_pause": True,
+        "end_ms": HOVER_CAP_MS,
+        "stop_paused": HOVER_STOP_SAMPLES,
+        "variant": variant,
+        "grab_paused": grab_paused,
+    }
 
 
 def run_hovered(variant=VARIANT, grab_paused=None):
@@ -554,7 +747,12 @@ def scroll_still_args(variant, out_scroll):
 
 def animate_args(variant, frames_dir):
     """run()'s arguments for the one-item loop animate() grabs — one spelling for run and key."""
-    return {"variant": variant, "end_ms": 8000, "frames": frames_dir, "timeline": LOOP_TIMELINE}
+    return {
+        "variant": variant,
+        "end_ms": 8000,
+        "frames": frames_dir,
+        "timeline": LOOP_TIMELINE,
+    }
 
 
 def screenshot(variant, out_scroll, out_paused):
@@ -574,22 +772,33 @@ def motion(samples):
     alternating Δx between 40 ms samples is the sampler aliasing 16.7 ms animation
     ticks — an artifact of the measurement, present in every subject."""
     import statistics
+
     s = [x for x in samples if x.get("running") and x.get("text")]
     out = {"samples": len(s)}
     for key in ("x", "raw"):
-        v = [abs(s[i + 1][key] - s[i][key]) / (s[i + 1]["t"] - s[i]["t"])
-             for i in range(len(s) - 1) if s[i + 1]["t"] > s[i]["t"]]
+        v = [
+            abs(s[i + 1][key] - s[i][key]) / (s[i + 1]["t"] - s[i]["t"])
+            for i in range(len(s) - 1)
+            if s[i + 1]["t"] > s[i]["t"]
+        ]
         v = [a for a in v if a > 0]
         if v:
             med = statistics.median(v)
-            run_v = [a for a in v if 0.2 * med <= a <= 5 * med]      # the run proper: startRun's set-from-zero is not motion
-            out[key] = {"median": round(med, 3), "cv": round(statistics.pstdev(run_v) / statistics.mean(run_v), 3),
-                        "outliers": len(v) - len(run_v)}
+            run_v = [
+                a for a in v if 0.2 * med <= a <= 5 * med
+            ]  # the run proper: startRun's set-from-zero is not motion
+            out[key] = {
+                "median": round(med, 3),
+                "cv": round(statistics.pstdev(run_v) / statistics.mean(run_v), 3),
+                "outliers": len(v) - len(run_v),
+            }
         else:
             out[key] = None
     xs = [abs(x["x"]) for x in s if x["x"]]
     # the quantum: the smallest positive step between distinct snapped positions
-    steps = sorted({round(abs(a - b), 3) for a in xs[:40] for b in xs[:40] if abs(a - b) > 0.01})
+    steps = sorted(
+        {round(abs(a - b), 3) for a in xs[:40] for b in xs[:40] if abs(a - b) > 0.01}
+    )
     out["quantum"] = steps[0] if steps else None
     return out
 
@@ -607,21 +816,27 @@ def animate(variant, out_apng):
     WEAKNESS: a loaded host yields fewer, longer frames; policy/screens.rego
     measures the pictures (S5 never-tear), not this count."""
     from PIL import Image
+
     with tempfile.TemporaryDirectory() as td:
         res = run(**animate_args(variant, td))
         names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
         if not names:
             return 0
         ims = [Image.open(os.path.join(td, n)).convert("RGB") for n in names]
-        fx = res.get("frames", [])[:len(ims)]
+        fx = res.get("frames", [])[: len(ims)]
         # frame 0 is the empty board (the bookend); the run's frames follow. The run
         # ends drained (the harness's own end condition), so the same empty board
         # closes the loop: first frame == last frame, held for a beat at each end.
         hold = 400
         run_x, run_t = [f["x"] for f in fx[1:]], [f["t"] for f in fx[1:]]
         if len(run_x) > 1 and run_t[-1] > run_t[0] and run_x[0] != run_x[-1]:
-            v = abs(run_x[-1] - run_x[0]) / (run_t[-1] - run_t[0])          # px per ms over the run
-            run_delays = [max(1, round(abs(run_x[i + 1] - run_x[i]) / v)) for i in range(len(run_x) - 1)]
+            v = abs(run_x[-1] - run_x[0]) / (
+                run_t[-1] - run_t[0]
+            )  # px per ms over the run
+            run_delays = [
+                max(1, round(abs(run_x[i + 1] - run_x[i]) / v))
+                for i in range(len(run_x) - 1)
+            ]
         else:
             run_delays = [SAMPLE_MS] * max(0, len(run_x) - 1)
         run_delays.append(SAMPLE_MS)
@@ -634,19 +849,36 @@ def animate(variant, out_apng):
         # per frame and the px-per-pip are written into the APNG as a text chunk, so
         # check_screens reads the step the widget TOOK, beside the picture it drew.
         from PIL.PngImagePlugin import PngInfo
+
         info = PngInfo()
-        info.add_text("el-frames", json.dumps({"pitch": res.get("pitch"), "frames": fx}, separators=(",", ":")))
-        frames_out[0].save(out_apng, format="PNG", save_all=True, append_images=frames_out[1:], duration=delays, loop=0,
-                           pnginfo=info)
+        info.add_text(
+            "el-frames",
+            json.dumps(
+                {"pitch": res.get("pitch"), "frames": fx}, separators=(",", ":")
+            ),
+        )
+        frames_out[0].save(
+            out_apng,
+            format="PNG",
+            save_all=True,
+            append_images=frames_out[1:],
+            duration=delays,
+            loop=0,
+            pnginfo=info,
+        )
         return len(frames_out)
 
 
 def expected_colors(variant):
     """The variant's solved tokens as the widget's bound colours must resolve (W35)."""
     import make_wallpaper_live as WL
+
     ground, lit, ghost, _a = WL.colors_for(variant)
-    return {"lit": "#{:02x}{:02x}{:02x}".format(*lit), "ghost": "#{:02x}{:02x}{:02x}".format(*ghost),
-            "ground": "#{:02x}{:02x}{:02x}".format(*ground)}
+    return {
+        "lit": "#{:02x}{:02x}{:02x}".format(*lit),
+        "ghost": "#{:02x}{:02x}{:02x}".format(*ghost),
+        "ground": "#{:02x}{:02x}{:02x}".format(*ground),
+    }
 
 
 def mark_boundaries(samples):
@@ -692,20 +924,43 @@ def measure(res, hovered=None, variant=VARIANT):
     paused trace to range over. Both are the real widget, run under `variant`'s
     scheme (W35); `expected` carries that variant's tokens for the binding rule."""
     if res is None:
-        return {"runner": False, "variant": variant, "expected": expected_colors(variant),
-                "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}, "expects_roll": False}
-    return {"runner": True, "variant": variant, "expected": expected_colors(variant),
-            # W189 (L13): the timeline holds a replace of a visible item, so one MUST be measured on the board
-            "expects_roll": any(step[1] == "replace_visible" for step in TIMELINE),
-            "events": res["events"], "samples": mark_boundaries(res["samples"]),
-            "width": res["width"],
-            "log": res.get("log", []),
-            "taps": res.get("taps", []),
-            "hovered": {"samples": hovered["samples"] if hovered else []}}
+        return {
+            "runner": False,
+            "variant": variant,
+            "expected": expected_colors(variant),
+            "events": [],
+            "samples": [],
+            "width": 0,
+            "log": [],
+            "hovered": {"samples": []},
+            "expects_roll": False,
+        }
+    return {
+        "runner": True,
+        "variant": variant,
+        "expected": expected_colors(variant),
+        # W189 (L13): the timeline holds a replace of a visible item, so one MUST be measured on the board
+        "expects_roll": any(step[1] == "replace_visible" for step in TIMELINE),
+        "events": res["events"],
+        "samples": mark_boundaries(res["samples"]),
+        "width": res["width"],
+        "log": res.get("log", []),
+        "taps": res.get("taps", []),
+        "hovered": {"samples": hovered["samples"] if hovered else []},
+    }
 
 
 def main(argv):
-    known = {"--json", "--trace", "--hovered", "--motion", "--variant", "--selftest", "--event", "--frames"}
+    known = {
+        "--json",
+        "--trace",
+        "--hovered",
+        "--motion",
+        "--variant",
+        "--selftest",
+        "--event",
+        "--frames",
+    }
     variant = VARIANT
     args = list(argv[1:])
     event_id = None
@@ -715,14 +970,14 @@ def main(argv):
             print("check_marquee_live: --event needs an id", file=sys.stderr)
             return 2
         event_id = args[i + 1]
-        del args[i:i + 2]
+        del args[i : i + 2]
     if "--variant" in args:
         i = args.index("--variant")
         if i + 1 >= len(args):
             print("check_marquee_live: --variant needs a name", file=sys.stderr)
             return 2
         variant = args[i + 1]
-        del args[i:i + 2]
+        del args[i : i + 2]
     for a in args:
         if a not in known:
             print(f"check_marquee_live: unknown flag {a!r}", file=sys.stderr)
@@ -734,11 +989,23 @@ def main(argv):
             r = run(**animate_args(variant, td))
             names = sorted(n for n in os.listdir(td) if n.startswith("frame-"))
         xs = [f["x"] for f in r.get("frames", [])]
-        print(json.dumps({"variant": variant, "files": len(names), "frames": len(xs),
-                          "first_x": xs[1] if len(xs) > 1 else None, "last_x": xs[-1] if xs else None,
-                          # the run's steps, frame 1 on (frame 0 is the empty bookend): stepped
-                          # capture makes this ONE value; a clock-driven series spreads it
-                          "dx": sorted({round(xs[i + 1] - xs[i], 2) for i in range(1, len(xs) - 1)})}, indent=1))
+        print(
+            json.dumps(
+                {
+                    "variant": variant,
+                    "files": len(names),
+                    "frames": len(xs),
+                    "first_x": xs[1] if len(xs) > 1 else None,
+                    "last_x": xs[-1] if xs else None,
+                    # the run's steps, frame 1 on (frame 0 is the empty bookend): stepped
+                    # capture makes this ONE value; a clock-driven series spreads it
+                    "dx": sorted(
+                        {round(xs[i + 1] - xs[i], 2) for i in range(1, len(xs) - 1)}
+                    ),
+                },
+                indent=1,
+            )
+        )
         return 0
     if "--motion" in args:
         # how the board moves: one item's run, the snapped x against the raw x
@@ -747,9 +1014,11 @@ def main(argv):
         if "--json" in argv:
             print(json.dumps(mo, indent=1))
             return 0
-        print(f"check_marquee_live --motion ({variant}): {mo['samples']} running samples; "
-              f"snapped x velocity median {mo['x']['median']} px/ms cv {mo['x']['cv']}, "
-              f"raw x median {mo['raw']['median']} cv {mo['raw']['cv']}; snapped x quantum {mo['quantum']} px")
+        print(
+            f"check_marquee_live --motion ({variant}): {mo['samples']} running samples; "
+            f"snapped x velocity median {mo['x']['median']} px/ms cv {mo['x']['cv']}, "
+            f"raw x median {mo['raw']['median']} cv {mo['raw']['cv']}; snapped x quantum {mo['quantum']} px"
+        )
         return 0
     if "--hovered" in args:
         # the pointer explanation, shown: with hover-pause ON the run halts at x≈0.
@@ -762,9 +1031,11 @@ def main(argv):
             return 0
         held = [s for s in m["samples"] if s["running"] and abs(s["x"]) < 20]
         pulsing = len({round(s["ring"], 2) for s in m["samples"] if s["paused"]})
-        print(f"check_marquee_live --hovered: {len(held)} of {len(m['samples'])} samples held at x≈0 "
-              f"while running (the offscreen pointer at (0,0) hovers the Row); "
-              f"the ring took {pulsing} distinct opacities while paused")
+        print(
+            f"check_marquee_live --hovered: {len(held)} of {len(m['samples'])} samples held at x≈0 "
+            f"while running (the offscreen pointer at (0,0) hovers the Row); "
+            f"the ring took {pulsing} distinct opacities while paused"
+        )
         return 0
     m = measure(run(variant=variant), run_hovered(variant), variant)
     if event_id is not None:
@@ -775,36 +1046,56 @@ def main(argv):
         evs = [e for e in m["events"] if str(e["id"]) == str(event_id)]
         if not evs:
             have = sorted({str(e["id"]) for e in m["events"]})
-            print(f"check_marquee_live --event {event_id!r}: no such event; "
-                  f"the run carried ids {', '.join(have)}", file=sys.stderr)
+            print(
+                f"check_marquee_live --event {event_id!r}: no such event; "
+                f"the run carried ids {', '.join(have)}",
+                file=sys.stderr,
+            )
             return 2
         for e in evs:
             before = [s for s in m["samples"] if s["t"] < e["t"]]
             after = [s for s in m["samples"] if s["t"] >= e["t"]]
             b, a = (before[-1] if before else None), (after[0] if after else None)
-            print(f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']}  expects {e['shows']!r}")
+            print(
+                f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']}  expects {e['shows']!r}"
+            )
             for tag, s in (("before", b), ("after ", a)):
                 if s is None:
-                    print(f"  {tag}  (no sample — the event is outside the sampled window)")
+                    print(
+                        f"  {tag}  (no sample — the event is outside the sampled window)"
+                    )
                     continue
-                print(f"  {tag} t={s['t']:6.0f} x={s['x']:7.1f} running={s['running']!s:5s} "
-                      f"count={s['count']}  {s['text']!r}")
+                print(
+                    f"  {tag} t={s['t']:6.0f} x={s['x']:7.1f} running={s['running']!s:5s} "
+                    f"count={s['count']}  {s['text']!r}"
+                )
             if b and a:
-                verdict = ("TORE — the board changed at the event, not at the rotation boundary"
-                           if b["text"] != a["text"] else "held — the change waited for the boundary")
+                verdict = (
+                    "TORE — the board changed at the event, not at the rotation boundary"
+                    if b["text"] != a["text"]
+                    else "held — the change waited for the boundary"
+                )
                 print(f"  {verdict}")
         return 0
     if "--trace" in argv:
-        print(f"variant {variant}: expected lit {m['expected']['lit']} ghost {m['expected']['ghost']} ground {m['expected']['ground']}")
+        print(
+            f"variant {variant}: expected lit {m['expected']['lit']} ghost {m['expected']['ghost']} ground {m['expected']['ground']}"
+        )
         for l in m["log"]:
             print(f"widget {l}")
         for e in m["events"]:
-            print(f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']} shows {e['shows']!r}")
+            print(
+                f"event  t={e['t']:6.0f}  {e['op']:8s} id={e['id']} shows {e['shows']!r}"
+            )
         for s in m["samples"]:
-            print(f"sample t={s['t']:6.0f}  x={s['x']:7.1f} raw={s['raw']:7.1f} w={s['w']:6.1f}  running={s['running']!s:5s} "
-                  f"paused={s['paused']!s:5s} ring={s['ring']:.2f} lit={s['lit']}  count={s['count']}  {s['text']!r}")
+            print(
+                f"sample t={s['t']:6.0f}  x={s['x']:7.1f} raw={s['raw']:7.1f} w={s['w']:6.1f}  running={s['running']!s:5s} "
+                f"paused={s['paused']!s:5s} ring={s['ring']:.2f} lit={s['lit']}  count={s['count']}  {s['text']!r}"
+            )
         for s in m["hovered"]["samples"]:
-            print(f"hovered t={s['t']:6.0f}  x={s['x']:7.1f}  running={s['running']!s:5s} paused={s['paused']!s:5s} ring={s['ring']:.2f}  {s['text']!r}")
+            print(
+                f"hovered t={s['t']:6.0f}  x={s['x']:7.1f}  running={s['running']!s:5s} paused={s['paused']!s:5s} ring={s['ring']:.2f}  {s['text']!r}"
+            )
         return 0
     print(json.dumps(m, indent=1))
     return 0
@@ -815,7 +1106,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     res = run()
@@ -828,45 +1122,130 @@ def _selftest():
     # board was sampled across the whole run, the samples carry the observables,
     # and the hovered run has paused samples for the pulse rule to range over.
     # Whether the traces SATISFY the invariant is policy/marquee_live.rego's ruling.
-    chk("every timeline step became an event", [e["op"] for e in m["events"]],
-        ["replace" if s[1] == "replace_visible" else s[1] for s in TIMELINE])
+    chk(
+        "every timeline step became an event",
+        [e["op"] for e in m["events"]],
+        ["replace" if s[1] == "replace_visible" else s[1] for s in TIMELINE],
+    )
     last = m["samples"][-1]
-    chk("the run ended with every event fired and the board drained",
-        (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
+    chk(
+        "the run ended with every event fired and the board drained",
+        (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]),
+        (True, "", False),
+    )
     # ⚑ `boundary` JOINED THE ROSTER (s140) — the rotation WRAP, which L3 needs to
     # tell a deferral landing correctly from a tear. This assertion caught the new
     # field the moment it appeared, which is the point of enumerating keys rather
     # than spot-checking a few: a sample that silently grows a field is a sample
     # whose consumers were never told.
-    chk("a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74)",
+    chk(
+        "a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74)",
         sorted(m["samples"][0].keys()),
-        ["boundary", "count", "flash", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "roll", "running", "series", "t", "tap", "text", "w", "x"])
+        [
+            "boundary",
+            "count",
+            "flash",
+            "ghost",
+            "ground",
+            "hot",
+            "ink",
+            "invoked",
+            "lit",
+            "painted",
+            "paused",
+            "raw",
+            "ring",
+            "roll",
+            "running",
+            "series",
+            "t",
+            "tap",
+            "text",
+            "w",
+            "x",
+        ],
+    )
     # W189: the replace of a visible item was taken on the board, and its roll was SEEN
-    rolled = [e for e in m["events"] if e["op"] == "replace" and e.get("where") == "on" and e.get("textChanged")]
-    chk("a replace of an item on the board was measured as on the board (not a vacuous population)", len(rolled), 1)
-    chk("...and some sample caught the roll mid-way", any(s.get("roll") is not None and 0 < s["roll"] < 1 for s in m["samples"]), True)
+    rolled = [
+        e
+        for e in m["events"]
+        if e["op"] == "replace" and e.get("where") == "on" and e.get("textChanged")
+    ]
+    chk(
+        "a replace of an item on the board was measured as on the board (not a vacuous population)",
+        len(rolled),
+        1,
+    )
+    chk(
+        "...and some sample caught the roll mid-way",
+        any(s.get("roll") is not None and 0 < s["roll"] < 1 for s in m["samples"]),
+        True,
+    )
     # ⚑ AND THE BOUNDARY FLAG MUST DISCRIMINATE: a run in which NOTHING is a
     # boundary, or EVERYTHING is, tells L3 nothing and would let the repair pass
     # by disarming the rule instead of correcting it.
     bounds = [s["boundary"] for s in m["samples"]]
-    chk("some samples are rotation boundaries and some are not",
-        (any(bounds), not all(bounds)), (True, True))
-    chk("the job's gauge grew to three columns", any(len(ser) == 3 for s in m["samples"] for ser in (s.get("series") or [])), True)
-    chk("the tap on the action run reached the stub's invokeAction",
-        any(i.get("action") == "open" for s in m["samples"] for i in (s.get("invoked") or [])), True)
+    chk(
+        "some samples are rotation boundaries and some are not",
+        (any(bounds), not all(bounds)),
+        (True, True),
+    )
+    chk(
+        "the job's gauge grew to three columns",
+        any(len(ser) == 3 for s in m["samples"] for ser in (s.get("series") or [])),
+        True,
+    )
+    chk(
+        "the tap on the action run reached the stub's invokeAction",
+        any(
+            i.get("action") == "open"
+            for s in m["samples"]
+            for i in (s.get("invoked") or [])
+        ),
+        True,
+    )
     # ⚑ THE THEME CAN SEE (W35): run under another variant, the bound colours change
     amber = measure(run(variant="EL-Amber", end_ms=1500), None, "EL-Amber")
-    chk("under EL-Amber the sampled lit is EL-Amber's fg", amber["samples"][-1]["lit"], amber["expected"]["lit"])
-    chk("...and differs from EL-Openglo's", amber["samples"][-1]["lit"] != m["expected"]["lit"], True)
-    chk("the hovered run has paused samples", any(s["paused"] for s in m["hovered"]["samples"]), True)
-    chk("the stub reported its rows to the board (some sample saw text)", any(s["text"] for s in m["samples"]), True)
+    chk(
+        "under EL-Amber the sampled lit is EL-Amber's fg",
+        amber["samples"][-1]["lit"],
+        amber["expected"]["lit"],
+    )
+    chk(
+        "...and differs from EL-Openglo's",
+        amber["samples"][-1]["lit"] != m["expected"]["lit"],
+        True,
+    )
+    chk(
+        "the hovered run has paused samples",
+        any(s["paused"] for s in m["hovered"]["samples"]),
+        True,
+    )
+    chk(
+        "the stub reported its rows to the board (some sample saw text)",
+        any(s["text"] for s in m["samples"]),
+        True,
+    )
     chk("a runner-less host is withheld", measure(None)["runner"], False)
     # ⚑ motion() CAN SEE a snap: synthetic samples whose x is quantised to 4 px over a
     # smooth raw x report the quantum and a larger velocity cv than the raw
-    synth = [{"t": 40 * i, "x": 4 * round((400 - 17.3 * i) / 4), "raw": 400 - 17.3 * i, "running": True, "text": "t"} for i in range(30)]
+    synth = [
+        {
+            "t": 40 * i,
+            "x": 4 * round((400 - 17.3 * i) / 4),
+            "raw": 400 - 17.3 * i,
+            "running": True,
+            "text": "t",
+        }
+        for i in range(30)
+    ]
     mo = motion(synth)
     chk("a pitch-snapped x reports its quantum", mo["quantum"], 4.0)
-    chk("...and more velocity jitter than the raw x", mo["x"]["cv"] > mo["raw"]["cv"], True)
+    chk(
+        "...and more velocity jitter than the raw x",
+        mo["x"]["cv"] > mo["raw"]["cv"],
+        True,
+    )
     print("check_marquee_live selftest:", "PASS" if ok else "FAIL")
     return ok
 

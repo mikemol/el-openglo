@@ -22,6 +22,7 @@ answers the set question only; it reports the count of marks whose position
 moved, so a caller can decide whether occlusion is in play rather than being told
 "identical" about a z-order change.
 """
+
 import os
 import re
 import sys
@@ -64,8 +65,11 @@ def main(argv):
     same, only_a, only_b, moved = compare(*args)
     na, nb = len(marks(args[0])), len(marks(args[1]))
     if not na or not nb:
-        print(f"svg_setdiff: REFUSED — {na} and {nb} marks; the scan found "
-              f"nothing to compare", file=sys.stderr)
+        print(
+            f"svg_setdiff: REFUSED — {na} and {nb} marks; the scan found "
+            f"nothing to compare",
+            file=sys.stderr,
+        )
         return 2
     if "--marks" in argv[1:]:
         for m in only_a:
@@ -74,14 +78,19 @@ def main(argv):
             print(f"+ {m[0]} {m[1][:100]}")
         return 0
     if not same:
-        print(f"svg_setdiff: DIFFERENT — {len(only_a)} only in {os.path.basename(args[0])}, "
-              f"{len(only_b)} only in {os.path.basename(args[1])} "
-              f"(of {na} and {nb} marks)", file=sys.stderr)
+        print(
+            f"svg_setdiff: DIFFERENT — {len(only_a)} only in {os.path.basename(args[0])}, "
+            f"{len(only_b)} only in {os.path.basename(args[1])} "
+            f"(of {na} and {nb} marks)",
+            file=sys.stderr,
+        )
         return 1
     if moved:
-        print(f"svg_setdiff: SAME MARKS, {moved} of {na} REORDERED. Identical "
-              f"picture unless marks overlap — SVG paints in document order, so "
-              f"check occlusion before calling this cosmetic.")
+        print(
+            f"svg_setdiff: SAME MARKS, {moved} of {na} REORDERED. Identical "
+            f"picture unless marks overlap — SVG paints in document order, so "
+            f"check occlusion before calling this cosmetic."
+        )
         return 0
     print(f"svg_setdiff: identical — {na} marks, same order")
     return 0
@@ -99,6 +108,7 @@ def _selftest():
             print(f"  ok   {label}")
 
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         a = os.path.join(td, "a.svg")
         b = os.path.join(td, "b.svg")
@@ -106,9 +116,9 @@ def _selftest():
         with open(a, "w") as fh:
             fh.write('<svg><rect x="1"/><rect x="2"/></svg>')
         with open(b, "w") as fh:
-            fh.write('<svg><rect x="2"/><rect x="1"/></svg>')   # reordered
+            fh.write('<svg><rect x="2"/><rect x="1"/></svg>')  # reordered
         with open(c, "w") as fh:
-            fh.write('<svg><rect x="1"/><rect x="3"/></svg>')   # changed
+            fh.write('<svg><rect x="1"/><rect x="3"/></svg>')  # changed
         same, _oa, _obb, moved = compare(a, b)
         check("a reordering has the same mark set", same, True)
         check("and reports how many moved", moved, 2)

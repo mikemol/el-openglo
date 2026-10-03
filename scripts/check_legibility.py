@@ -25,6 +25,7 @@ tessdata is WITHHELD (eng / enm / osd here — chi_sim / jpn are the operator's)
 the score is character-level, so a dropped space costs as much as a dropped
 letter.
 """
+
 import json
 import os
 import shutil
@@ -43,7 +44,7 @@ CASES = (
     ("latin-liberation", "Liberation Mono", "Hello world 42", "eng", 8, 0),
     ("cjk-unifont-1to1", "Unifont", "世界", "chi_sim", 16, 4),
 )
-PITCH_PX = 4          # the probe's pitch (u: 4)
+PITCH_PX = 4  # the probe's pitch (u: 4)
 # ⚑ RE-MEASURED (s134, --sweep, after the pip grid was snapped to the device grid):
 # 1.5 pitch now beats 1.0 on both cases (1:1 0.643 vs 0.429; 2:1 at γ 0.5 0.812 vs
 # 0.765) — the opposite of s131's fit, because the rendering changed under it.
@@ -69,7 +70,9 @@ def similarity(source, read):
     return max(0.0, 1.0 - levenshtein(s, r) / max(len(s), len(r), 1))
 
 
-TESSERACT = shutil.which("tesseract") or ("/usr/bin/tesseract" if os.path.isfile("/usr/bin/tesseract") else None)
+TESSERACT = shutil.which("tesseract") or (
+    "/usr/bin/tesseract" if os.path.isfile("/usr/bin/tesseract") else None
+)
 
 
 def languages():
@@ -78,7 +81,9 @@ def languages():
     under paperkit, one alone), so the absolute path is the fallback."""
     if not TESSERACT:
         return None
-    r = subprocess.run([TESSERACT, "--list-langs"], capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [TESSERACT, "--list-langs"], capture_output=True, text=True, check=False
+    )
     return [l.strip() for l in r.stdout.splitlines()[1:] if l.strip()]
 
 
@@ -86,9 +91,12 @@ def preprocess(png, out, blur_pitches=LOWPASS_PITCHES, upscale=UPSCALE):
     """Upscale, low-pass at `blur_pitches` x the pitch, invert (dark text on light),
     threshold at the midpoint — the picture tesseract reads. Returns the path."""
     from PIL import Image, ImageFilter
+
     im = Image.open(png).convert("L")
     im = im.resize((im.width * upscale, im.height * upscale), Image.BICUBIC)
-    im = im.filter(ImageFilter.GaussianBlur(blur_pitches * PITCH_PX * upscale / 4 * 1.0))
+    im = im.filter(
+        ImageFilter.GaussianBlur(blur_pitches * PITCH_PX * upscale / 4 * 1.0)
+    )
     im = Image.eval(im, lambda v: 255 - v)
     lo, hi = im.getextrema()
     im = im.point(lambda v: 255 if v > (lo + hi) / 2 else 0)
@@ -97,7 +105,12 @@ def preprocess(png, out, blur_pitches=LOWPASS_PITCHES, upscale=UPSCALE):
 
 
 def ocr(png, lang):
-    r = subprocess.run([TESSERACT, png, "-", "--psm", "7", "-l", lang], capture_output=True, text=True, check=False)
+    r = subprocess.run(
+        [TESSERACT, png, "-", "--psm", "7", "-l", lang],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     return r.stdout.strip()
 
 
@@ -105,6 +118,7 @@ def render_case(font, text, rows, offset_rows, out_png, gamma=None, width=420):
     import render_qml as RQ
 
     import make_notify_marquee as NM
+
     kw = {"font": font, "text": text, "backdrop_rows": rows, "offset_rows": offset_rows}
     if gamma is not None:
         kw["gamma"] = gamma
@@ -117,6 +131,7 @@ def render_case(font, text, rows, offset_rows, out_png, gamma=None, width=420):
 
 def measure(cases=CASES, blur=LOWPASS_PITCHES, gamma=None):
     import render_qml as RQ
+
     langs = languages()
     rows = []
     for label, font, text, lang, nrows, off in cases:
@@ -124,7 +139,9 @@ def measure(cases=CASES, blur=LOWPASS_PITCHES, gamma=None):
         if langs is None:
             row["withheld"] = "tesseract is not on this host"
         elif lang not in langs:
-            row["withheld"] = f"tessdata for {lang} is not installed (have {', '.join(langs)})"
+            row["withheld"] = (
+                f"tessdata for {lang} is not installed (have {', '.join(langs)})"
+            )
         elif not os.path.exists(RQ.QML):
             row["withheld"] = f"{RQ.QML} is not installed"
         else:
@@ -147,12 +164,22 @@ def sweep():
     coverage^γ moves nothing on {0, 1}; only the 2:1 case, where a stroke half-fills
     an aperture, can be moved by it."""
     grid = []
-    for case in [c for c in CASES if c[0] in ("latin-unifont-1to1", "latin-unifont-2to1")]:
+    for case in [
+        c for c in CASES if c[0] in ("latin-unifont-1to1", "latin-unifont-2to1")
+    ]:
         for gamma in (1.0, 0.7, 0.5, 0.35):
             for blur in (1.0, 1.5, 2.0):
                 m = measure([case], blur=blur, gamma=gamma)["cases"][0]
-                grid.append({"case": case[0], "gamma": gamma, "blur": blur, "score": m.get("score"),
-                             "read": m.get("read"), "withheld": m.get("withheld")})
+                grid.append(
+                    {
+                        "case": case[0],
+                        "gamma": gamma,
+                        "blur": blur,
+                        "score": m.get("score"),
+                        "read": m.get("read"),
+                        "withheld": m.get("withheld"),
+                    }
+                )
     return grid
 
 
@@ -165,15 +192,22 @@ def main(argv):
     if "--sweep" in argv:
         grid = sweep()
         for g in grid:
-            print(f"  {g['case']:20s} gamma {g['gamma']:.2f} blur {g['blur']:.1f}  score {g['score']}  read {g['read']!r}" if g["score"] is not None
-                  else f"  {g['case']:20s} gamma {g['gamma']:.2f} blur {g['blur']:.1f}  WITHHELD {g['withheld']}")
+            print(
+                f"  {g['case']:20s} gamma {g['gamma']:.2f} blur {g['blur']:.1f}  score {g['score']}  read {g['read']!r}"
+                if g["score"] is not None
+                else f"  {g['case']:20s} gamma {g['gamma']:.2f} blur {g['blur']:.1f}  WITHHELD {g['withheld']}"
+            )
         for case in sorted({g["case"] for g in grid}):
             scored = [g for g in grid if g["case"] == case and g["score"] is not None]
             if scored:
                 b = max(scored, key=lambda g: g["score"])
-                spread = max(g["score"] for g in scored) - min(g["score"] for g in scored)
-                print(f"check_legibility --sweep {case}: best gamma {b['gamma']} blur {b['blur']} score {b['score']} "
-                      f"(spread {spread:.3f}) over {len(scored)} of {len([g for g in grid if g['case'] == case])} points")
+                spread = max(g["score"] for g in scored) - min(
+                    g["score"] for g in scored
+                )
+                print(
+                    f"check_legibility --sweep {case}: best gamma {b['gamma']} blur {b['blur']} score {b['score']} "
+                    f"(spread {spread:.3f}) over {len(scored)} of {len([g for g in grid if g['case'] == case])} points"
+                )
         return 0
     m = measure()
     if "--json" in argv:
@@ -183,8 +217,12 @@ def main(argv):
         if "withheld" in r:
             print(f"  {r['label']:22s} WITHHELD {r['withheld']}")
         else:
-            print(f"  {r['label']:22s} score {r['score']:.3f}  read {r['read']!r}  for {r['text']!r}")
-    print(f"check_legibility: {sum(1 for r in m['cases'] if 'score' in r)} of {len(m['cases'])} cases scored; the verdict is `opa_gate.py legibility`")
+            print(
+                f"  {r['label']:22s} score {r['score']:.3f}  read {r['read']!r}  for {r['text']!r}"
+            )
+    print(
+        f"check_legibility: {sum(1 for r in m['cases'] if 'score' in r)} of {len(m['cases'])} cases scored; the verdict is `opa_gate.py legibility`"
+    )
     return 0
 
 
@@ -193,7 +231,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     chk("an exact read scores 1", similarity("Hello world", "Hello world"), 1.0)
@@ -205,6 +246,7 @@ def _selftest():
     import tempfile
 
     from PIL import Image
+
     with tempfile.TemporaryDirectory() as td:
         im = Image.new("L", (80, 20), 20)
         for c in range(5, 15):
@@ -217,9 +259,16 @@ def _selftest():
         # along the bar's row (upscaled), the dark run is continuous: no light gap between dots
         y = 9 * UPSCALE
         row = [out.getpixel((x, y)) for x in range(5 * 4 * UPSCALE, 15 * 4 * UPSCALE)]
-        chk("the low-pass connects the dots into one stroke", all(v == 0 for v in row[UPSCALE * 2:-UPSCALE * 2]), True)
-    chk("a missing tessdata is withheld, not scored",
-        "withheld" in measure((("x", "Unifont", "a", "xx_nolang", 8, 0),))["cases"][0], True)
+        chk(
+            "the low-pass connects the dots into one stroke",
+            all(v == 0 for v in row[UPSCALE * 2 : -UPSCALE * 2]),
+            True,
+        )
+    chk(
+        "a missing tessdata is withheld, not scored",
+        "withheld" in measure((("x", "Unifont", "a", "xx_nolang", 8, 0),))["cases"][0],
+        True,
+    )
     print("check_legibility selftest:", "PASS" if ok else "FAIL")
     return ok
 

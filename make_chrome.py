@@ -9,6 +9,7 @@ tokens via make_preview.parse_scheme, so it cannot drift from the theme. Output
 is a manifest.json per variant (manifest v3, `theme.colors` RGB triples) —
 loadable unpacked via chrome://extensions, independent of GTK.
 """
+
 import json
 import os
 
@@ -21,13 +22,13 @@ VERSION = "1.0"
 
 def _rgb(hexstr):
     h = hexstr.lstrip("#")
-    return [int(h[i:i + 2], 16) for i in (0, 2, 4)]
+    return [int(h[i : i + 2], 16) for i in (0, 2, 4)]
 
 
 def manifest(variant):
     """Build the Chrome theme manifest for a variant from its scheme tokens.
     ground -> frame/ntp background; phosphor -> text; accent -> toolbar/links."""
-    c = MP.parse_scheme(variant)          # {ground, panel, phosphor, accent, sel}
+    c = MP.parse_scheme(variant)  # {ground, panel, phosphor, accent, sel}
     ground = _rgb(c["ground"])
     panel = _rgb(c["panel"])
     phosphor = _rgb(c["phosphor"])
@@ -75,12 +76,24 @@ def render_all(variants, out_dir_map):
 
 
 if __name__ == "__main__":
-    variants = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-                "EL-Amber", "EL-Amber-Lit"]
+    variants = [
+        "EL-Openglo",
+        "EL-Openglo-Lit",
+        "EL-Azure",
+        "EL-Azure-Lit",
+        "EL-Amber",
+        "EL-Amber-Lit",
+    ]
     outs = {v: f"/tmp/chrome-{v}" for v in variants}
     render_all(variants, outs)
     print("rendered", len(outs), "Chrome themes")
     for v in variants:
         m = manifest(v)
-        print(" ", v, "frame", m["theme"]["colors"]["frame"],
-              "text", m["theme"]["colors"]["ntp_text"])
+        print(
+            " ",
+            v,
+            "frame",
+            m["theme"]["colors"]["frame"],
+            "text",
+            m["theme"]["colors"]["ntp_text"],
+        )

@@ -17,6 +17,7 @@ PlasmoidItem, entry contents/ui/main.qml, config schema contents/config/main.xml
 Emits plasma-clock/<id>/ per grid cell. Gate: metadata JSON parse + required
 keys, QML brace/paren balance, config XML parse, SEG/DIG byte-parity with
 make_wallpaper, sabotage. Live render (plasmoidviewer) = ⊕VER."""
+
 import json
 import os
 import shutil
@@ -39,14 +40,17 @@ from emitters import LICENSE_SPDX, atomic_write
 SEGS = _ST.seg7_svg_grid()
 DIGIT = {ch: _ST.glyph7_letters(ch) for ch in "0123456789"}
 
+
 def qml_tables():
     segs = ", ".join(f'"{k}": ["{v[0]}", {v[1]}, {v[2]}]' for k, v in SEGS.items())
     digs = ", ".join(f'"{k}": "{v}"' for k, v in DIGIT.items())
     return f"    property var segGeom: ({{ {segs} }})\n    property var digSegs: ({{ {digs} }})\n"
 
+
 def rgbcss(t, k):
     r, g, b = t[k].split(",")
     return f'"#{int(r):02x}{int(g):02x}{int(b):02x}"'
+
 
 # ⚑ ONE PACKAGE, THE VARIANT IS THE ACTIVE COLOUR SCHEME (⊕ONE-THEME, W35;
 # catalog/one-theme.md): lit / ghost / hot are Kirigami.Theme's textColor /
@@ -57,16 +61,24 @@ PACKAGE_ID = "org.el.segclock"
 
 
 def metadata():
-    return json.dumps({
-        "KPlugin": {
-            "Authors": [{"Name": "EL watch themes"}],
-            "Category": "Date and Time",
-            "Description": "Seven-segment EL clock matching the watch wallpaper, coloured by the active scheme",
-            "Icon": "clock", "Id": PACKAGE_ID,
-            "Name": "EL Segment Clock", "Version": "1.0",
-            "License": LICENSE_SPDX},
-        "KPackageStructure": "Plasma/Applet",
-        "X-Plasma-API-Minimum-Version": "6.0"}, indent=2)
+    return json.dumps(
+        {
+            "KPlugin": {
+                "Authors": [{"Name": "EL watch themes"}],
+                "Category": "Date and Time",
+                "Description": "Seven-segment EL clock matching the watch wallpaper, coloured by the active scheme",
+                "Icon": "clock",
+                "Id": PACKAGE_ID,
+                "Name": "EL Segment Clock",
+                "Version": "1.0",
+                "License": LICENSE_SPDX,
+            },
+            "KPackageStructure": "Plasma/Applet",
+            "X-Plasma-API-Minimum-Version": "6.0",
+        },
+        indent=2,
+    )
+
 
 # ⚑ THE ARTIFACTS ARE FILES: templates/clock-config.kcfg and clock-config.qml.
 # Both were plain `\"\"\"...\"\"\"` constants — no substitution at all — so holding
@@ -74,6 +86,7 @@ def metadata():
 # could reach, and the config page is QML qmllint could not lint.
 def _t(name, **holes):
     import templates.loader as TL
+
     return TL.render(name, **holes)
 
 
@@ -90,21 +103,30 @@ DIGIT_GAP_SCALE = 1.5
 
 
 def _metrics_holes():
-    m = _ST.metrics(2.0)                      # H = 2 segLen -> lengths in segLen
-    return {"digitGap": f"{(m['pitch'] - 1.0) * DIGIT_GAP_SCALE:.3f}",
-            "digitGapMin": f"{m['pitch'] - 1.0:.3f}",     # the slider's floor: the module pitch itself
-            "strokeBase": f"{m['stroke'] / 1.25:.3f}",
-            "dot": f"{m['dot']:.3f}",
-            "colonAdvance": f"{m['colon_advance']:.3f}"}
+    m = _ST.metrics(2.0)  # H = 2 segLen -> lengths in segLen
+    return {
+        "digitGap": f"{(m['pitch'] - 1.0) * DIGIT_GAP_SCALE:.3f}",
+        "digitGapMin": f"{m['pitch'] - 1.0:.3f}",  # the slider's floor: the module pitch itself
+        "strokeBase": f"{m['stroke'] / 1.25:.3f}",
+        "dot": f"{m['dot']:.3f}",
+        "colonAdvance": f"{m['colon_advance']:.3f}",
+    }
 
 
 # ⚑ THE DISPLAY ROWS ARE INCLUDED, NOT WRITTEN HERE (W59): display_params declares
 # them once for every mount; the templates carry only this clock's mount rows.
 import display_params as _DP
 
-CONFIG_XML = _t("clock-config.kcfg", displayEntries=_DP.kcfg_entries("clock", _metrics_holes(), "  "))
-CONFIG_QML = _t("clock-config.qml", displayDecls=_DP.qml_decls("clock"),
-                displayControls=_DP.qml_controls("clock", _metrics_holes()))
+CONFIG_XML = _t(
+    "clock-config.kcfg",
+    displayEntries=_DP.kcfg_entries("clock", _metrics_holes(), "  "),
+)
+CONFIG_QML = _t(
+    "clock-config.qml",
+    displayDecls=_DP.qml_decls("clock"),
+    displayControls=_DP.qml_controls("clock", _metrics_holes()),
+)
+
 
 def main_qml():
     # ⚑ THE COLOURS WERE READ FROM THE TOKEN DICT, NOT RE-DERIVED HERE (W8's
@@ -123,18 +145,27 @@ def main_qml():
     # for. As a template it is the document verbatim: qmllint can read it, an
     # editor can open it, and a diff shows which binding moved.
     import templates.loader as TL
-    return TL.render("clock-main.qml", tables=qml_tables(), ghostAlpha=TS.ghost_alpha(),
-                     **_metrics_holes())
+
+    return TL.render(
+        "clock-main.qml",
+        tables=qml_tables(),
+        ghostAlpha=TS.ghost_alpha(),
+        **_metrics_holes(),
+    )
+
 
 # ------------------------------------------------------------------ gate
 def balanced(s, o, c):
     d = 0
     for ch in s:
-        if ch == o: d += 1
+        if ch == o:
+            d += 1
         elif ch == c:
             d -= 1
-            if d < 0: return False
+            if d < 0:
+                return False
     return d == 0
+
 
 def render_all(path):
     """Write the ONE package into path."""
@@ -147,12 +178,18 @@ def render_all(path):
     # resolves from the same directory. The live wallpaper emits the SAME
     # component from the same accessor — one display, two mounts.
     import make_segment_display as SD
-    atomic_write(os.path.join(path, "contents/ui/SegmentChar.qml"), SD.segment_char_component())
+
+    atomic_write(
+        os.path.join(path, "contents/ui/SegmentChar.qml"), SD.segment_char_component()
+    )
     atomic_write(os.path.join(path, "contents/ui/configGeneral.qml"), CONFIG_QML)
     atomic_write(os.path.join(path, "contents/config/main.xml"), CONFIG_XML)
-    atomic_write(os.path.join(path, "contents/config/config.qml"), 'import org.kde.plasma.configuration\n\nConfigModel {\n'
+    atomic_write(
+        os.path.join(path, "contents/config/config.qml"),
+        "import org.kde.plasma.configuration\n\nConfigModel {\n"
         '    ConfigCategory {\n        name: "General"\n        icon: "clock"\n'
-        '        source: "configGeneral.qml"\n    }\n}\n')
+        '        source: "configGeneral.qml"\n    }\n}\n',
+    )
     return path
 
 
@@ -164,15 +201,22 @@ def check(path):
         errs.append("KPackageStructure != Plasma/Applet")
     if md.get("X-Plasma-API-Minimum-Version") != "6.0":
         errs.append("missing X-Plasma-API-Minimum-Version 6.0")
-    if not md["KPlugin"].get("Id"): errs.append("missing KPlugin.Id")
+    if not md["KPlugin"].get("Id"):
+        errs.append("missing KPlugin.Id")
     with open(os.path.join(path, "contents/ui/main.qml")) as fh:
         q = fh.read()
-    if "PlasmoidItem" not in q.split("\n")[0:12].__str__() and "PlasmoidItem {" not in q:
+    if (
+        "PlasmoidItem" not in q.split("\n")[0:12].__str__()
+        and "PlasmoidItem {" not in q
+    ):
         errs.append("root is not PlasmoidItem")
     for o, c in [("{", "}"), ("(", ")"), ("[", "]")]:
-        if not balanced(q, o, c): errs.append(f"main.qml unbalanced {o}{c}")
-    try: ET.parse(os.path.join(path, "contents/config/main.xml"))
-    except (ET.ParseError, OSError) as e: errs.append(f"config xml: {e}")
+        if not balanced(q, o, c):
+            errs.append(f"main.qml unbalanced {o}{c}")
+    try:
+        ET.parse(os.path.join(path, "contents/config/main.xml"))
+    except (ET.ParseError, OSError) as e:
+        errs.append(f"config xml: {e}")
     # geometry parity: the tables in the QML must equal the wallpaper's
     for k, v in SEGS.items():
         if f'"{k}": ["{v[0]}", {v[1]}, {v[2]}]' not in q:
@@ -181,6 +225,7 @@ def check(path):
         if f'"{k}": "{v}"' not in q:
             errs.append(f"DIGIT {k} drifted from wallpaper geometry")
     return errs
+
 
 if __name__ == "__main__":
     shutil.rmtree("plasma-clock", ignore_errors=True)

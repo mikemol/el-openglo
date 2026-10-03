@@ -66,6 +66,7 @@ painters in PAINTERS; census rows the source cannot decide (delegated to a consu
 drawn by a style) are listed in WITHHELD by hand from catalog/use-of-colour.md, not
 measured — they are reported so the exclusion is visible, never admitted.
 """
+
 import json
 import os
 import re
@@ -73,7 +74,12 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-SINKS = {"ctx.fillStyle": "hue", "ctx.globalAlpha": "opacity", "ctx.fillRect": "weight", "on": "shape"}
+SINKS = {
+    "ctx.fillStyle": "hue",
+    "ctx.globalAlpha": "opacity",
+    "ctx.fillRect": "weight",
+    "on": "shape",
+}
 COLOUR_CHANNELS = {"hue", "opacity"}
 ALIAS_SOURCES = {"root.urgencyAt": "urgency"}
 
@@ -89,25 +95,56 @@ CONDITIONS = [
 ]
 
 PAINTERS = [
-    {"surface": "marquee", "file": "templates/marquee-main.qml", "function": "drawBackdrop"},
+    {
+        "surface": "marquee",
+        "file": "templates/marquee-main.qml",
+        "function": "drawBackdrop",
+    },
 ]
 
 WITHHELD = [
-    {"id": "C5", "file": "templates/sddm-main.qml", "reason": "focus cue drawn by the Controls style; needs a render"},
-    {"id": "C12", "file": "templates/marquee-main.qml", "reason": "sender's coloured run: meaning delegated to the sender"},
-    {"id": "C14", "file": "templates/taskswitch-main.qml", "reason": "minimised caption drawn by itemCaption; needs a read and a render"},
-    {"id": "C15", "file": "make_schemes.py", "reason": "consumer-owned role (KDE negative/neutral/positive)"},
-    {"id": "C16", "file": "make_gtk.py", "reason": "consumer-owned role (GTK error/warning/success)"},
-    {"id": "C17", "file": "make_konsole.py", "reason": "consumer-owned role (program-chosen ANSI colour)"},
+    {
+        "id": "C5",
+        "file": "templates/sddm-main.qml",
+        "reason": "focus cue drawn by the Controls style; needs a render",
+    },
+    {
+        "id": "C12",
+        "file": "templates/marquee-main.qml",
+        "reason": "sender's coloured run: meaning delegated to the sender",
+    },
+    {
+        "id": "C14",
+        "file": "templates/taskswitch-main.qml",
+        "reason": "minimised caption drawn by itemCaption; needs a read and a render",
+    },
+    {
+        "id": "C15",
+        "file": "make_schemes.py",
+        "reason": "consumer-owned role (KDE negative/neutral/positive)",
+    },
+    {
+        "id": "C16",
+        "file": "make_gtk.py",
+        "reason": "consumer-owned role (GTK error/warning/success)",
+    },
+    {
+        "id": "C17",
+        "file": "make_konsole.py",
+        "reason": "consumer-owned role (program-chosen ANSI colour)",
+    },
 ]
 
-TOKEN = re.compile(r"""
+TOKEN = re.compile(
+    r"""
     (?P<ws>\s+) | (?P<lc>//[^\n]*) | (?P<bc>/\*.*?\*/) |
     (?P<str>"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*') |
     (?P<id>[A-Za-z_$][\w$]*(?:\.[A-Za-z_$][\w$]*)*) |
     (?P<num>\d+(?:\.\d+)?) |
     (?P<op>===|!==|==|!=|<=|>=|&&|\|\||<<|>>|\+=|-=|\*=|/=|[-+*/%<>=!?:,;(){}\[\].&|^~@#])
-""", re.VERBOSE | re.DOTALL)
+""",
+    re.VERBOSE | re.DOTALL,
+)
 
 
 def lex(src):
@@ -115,7 +152,7 @@ def lex(src):
     out, pos, line = [], 0, 1
     while pos < len(src):
         m = TOKEN.match(src, pos)
-        if not m:                                        # an unknown byte: a token of its own
+        if not m:  # an unknown byte: a token of its own
             out.append(("op", src[pos], line))
             line += src[pos] == "\n"
             pos += 1
@@ -163,7 +200,12 @@ def statements(body):
         chunks.append(cur)
     out = []
     for ch in chunks:
-        while ch and ch[0][1] in ("if", "for", "while", "else"):    # strip a control header
+        while ch and ch[0][1] in (
+            "if",
+            "for",
+            "while",
+            "else",
+        ):  # strip a control header
             if ch[0][1] == "else":
                 ch = ch[1:]
                 continue
@@ -172,14 +214,18 @@ def statements(body):
                 d += {"(": 1, ")": -1}.get(ch[k][1], 0)
                 if d == 0:
                     break
-            ch = ch[k + 1:]
+            ch = ch[k + 1 :]
         if not ch:
             continue
         if ch[0][1] == "var":
             for decl in _split_top(ch[1:], ","):
                 if len(decl) >= 2 and decl[1][1] == "=":
                     out.append((decl[0][1], decl[2:], decl[0][2]))
-        elif len(ch) >= 2 and ch[0][0] == "id" and ch[1][1] in ("=", "+=", "-=", "*=", "/="):
+        elif (
+            len(ch) >= 2
+            and ch[0][0] == "id"
+            and ch[1][1] in ("=", "+=", "-=", "*=", "/=")
+        ):
             out.append((ch[0][1], ch[2:], ch[0][2]))
         elif len(ch) >= 2 and ch[0][0] == "id" and ch[1][1] == "(":
             out.append((ch[0][1], ch[2:-1], ch[0][2]))
@@ -208,7 +254,11 @@ def _mentions(rhs, subjects, test, tainted):
             continue
         if test[0] == "truthy":
             return True
-        if i + 2 < len(words) and words[i + 1] in ("===", "==") and words[i + 2] == test[1]:
+        if (
+            i + 2 < len(words)
+            and words[i + 1] in ("===", "==")
+            and words[i + 2] == test[1]
+        ):
             return True
     return False
 
@@ -219,7 +269,9 @@ def aperture_components(sources):
     out = set()
     for name, src in sources.items():
         w = [t[1] for t in lex(src)]
-        if any(w[i:i + 3] == ["property", "alias", "backdrop"] for i in range(len(w) - 2)):
+        if any(
+            w[i : i + 3] == ["property", "alias", "backdrop"] for i in range(len(w) - 2)
+        ):
             out.add(name)
     return out
 
@@ -240,21 +292,36 @@ def aperture_feed(toks, body, components):
                     break
     for t in body:
         head = t[1].split(".")
-        if t[0] == "id" and len(head) >= 3 and head[1:3] == ["backdrop", "getContext"] and head[0] in ids:
+        if (
+            t[0] == "id"
+            and len(head) >= 3
+            and head[1:3] == ["backdrop", "getContext"]
+            and head[0] in ids
+        ):
             return {"instance": head[0], "component": ids[head[0]], "line": t[2]}
     return None
 
 
 CASE_METHODS = ("toLowerCase", "toUpperCase", "toLocaleLowerCase", "toLocaleUpperCase")
-ANIMATIONS = {"PropertyAction", "NumberAnimation", "PropertyAnimation", "SmoothedAnimation",
-              "SpringAnimation", "ColorAnimation"}
+ANIMATIONS = {
+    "PropertyAction",
+    "NumberAnimation",
+    "PropertyAnimation",
+    "SmoothedAnimation",
+    "SpringAnimation",
+    "ColorAnimation",
+}
 
 
 def _functions(toks):
     """{name: (params, body tokens)} for every `function name(params) { ... }`."""
     out = {}
     for i in range(len(toks) - 2):
-        if toks[i][1] == "function" and toks[i + 1][0] == "id" and toks[i + 2][1] == "(":
+        if (
+            toks[i][1] == "function"
+            and toks[i + 1][0] == "id"
+            and toks[i + 2][1] == "("
+        ):
             j = i + 3
             params = []
             while j < len(toks) and toks[j][1] != ")":
@@ -275,7 +342,7 @@ def _call_args(toks, k):
     for m in range(k + 1, len(toks)):
         d += {"(": 1, ")": -1}.get(toks[m][1], 0)
         if d == 0:
-            return _split_top(toks[k + 2:m], ",")
+            return _split_top(toks[k + 2 : m], ",")
     return None
 
 
@@ -294,18 +361,28 @@ def case_helpers(js_src):
     for name, (params, body) in fns.items():
         words = [t[1] for t in body]
         cases[name] = any(w.split(".")[-1] in CASE_METHODS for w in words)
-        direct[name] = {p: {words[i + 2] for i, w in enumerate(words[:-2])
-                            if w == p and words[i + 1] in ("===", "==") and re.fullmatch(r"\d+", words[i + 2])}
-                        for p in params}
-        calls[name] = []                      # (callee, callee param index, our param)
+        direct[name] = {
+            p: {
+                words[i + 2]
+                for i, w in enumerate(words[:-2])
+                if w == p
+                and words[i + 1] in ("===", "==")
+                and re.fullmatch(r"\d+", words[i + 2])
+            }
+            for p in params
+        }
+        calls[name] = []  # (callee, callee param index, our param)
         for k, t in enumerate(body):
             if t[0] == "id" and t[1] in fns and t[1] != name:
                 for ai, arg in enumerate(_call_args(body, k) or []):
                     if len(arg) == 1 and arg[0][1] in params:
                         calls[name].append((t[1], ai, arg[0][1]))
-    tests = {n: {params.index(p): set(v) for p, v in direct[n].items()} for n, (params, _) in fns.items()}
+    tests = {
+        n: {params.index(p): set(v) for p, v in direct[n].items()}
+        for n, (params, _) in fns.items()
+    }
     changed = True
-    while changed:                            # fixed point: tests and case flow up the calls
+    while changed:  # fixed point: tests and case flow up the calls
         changed = False
         for name, (params, _) in fns.items():
             for callee, ai, p in calls[name]:
@@ -323,7 +400,11 @@ def js_imports(toks):
     """{alias: file} for every `import "file.js" as Alias` in a QML token stream."""
     out = {}
     for i in range(len(toks) - 3):
-        if toks[i][1] == "import" and toks[i + 1][0] == "str" and toks[i + 2][1] == "as":
+        if (
+            toks[i][1] == "import"
+            and toks[i + 1][0] == "str"
+            and toks[i + 2][1] == "as"
+        ):
             f = toks[i + 1][1][1:-1]
             if f.endswith(".js"):
                 out[toks[i + 3][1]] = f
@@ -345,7 +426,11 @@ def animated_properties(toks):
                     d += {"{": 1, "}": -1}.get(toks[k][1], 0)
                     if d == 0:
                         break
-                    if toks[k][1] == "property" and toks[k + 1][1] == ":" and toks[k + 2][0] == "str":
+                    if (
+                        toks[k][1] == "property"
+                        and toks[k + 1][1] == ":"
+                        and toks[k + 2][0] == "str"
+                    ):
                         out.add(toks[k + 2][1][1:-1])
     return out
 
@@ -409,10 +494,14 @@ def measure_painter(src, fn, surface, file, components=frozenset(), companions=N
         if not present:
             continue
         tainted, changed = set(), True
-        while changed:                                   # fixed point over variables
+        while changed:  # fixed point over variables
             changed = False
             for target, rhs, _ in stmts:
-                if target not in SINKS and target not in tainted and _mentions(rhs, subjects, test, tainted):
+                if (
+                    target not in SINKS
+                    and target not in tainted
+                    and _mentions(rhs, subjects, test, tainted)
+                ):
                     tainted.add(target)
                     changed = True
         channels = []
@@ -430,33 +519,67 @@ def measure_painter(src, fn, surface, file, components=frozenset(), companions=N
             for k, t in enumerate(rhs):
                 if t[1] in helpers and test[0] == "==":
                     for ai, arg in enumerate(_call_args(rhs, k) or []):
-                        if len(arg) == 1 and arg[0][1] in subjects and test[1] in helpers[t[1]].get(ai, set()):
+                        if (
+                            len(arg) == 1
+                            and arg[0][1] in subjects
+                            and test[1] in helpers[t[1]].get(ai, set())
+                        ):
                             channels.append({"kind": "text", "line": line, "via": t[1]})
             # the predicate gating a read of an ANIMATED property: it varies in time
             if _mentions(rhs, subjects, test, set()) and any(
-                    t[0] == "id" and t[1].startswith("root.") and t[1].split(".", 1)[1] in animated for t in rhs):
-                channels.append({"kind": "animation", "line": line,
-                                 "via": next(t[1] for t in rhs if t[0] == "id" and t[1].startswith("root.")
-                                             and t[1].split(".", 1)[1] in animated)})
+                t[0] == "id"
+                and t[1].startswith("root.")
+                and t[1].split(".", 1)[1] in animated
+                for t in rhs
+            ):
+                channels.append(
+                    {
+                        "kind": "animation",
+                        "line": line,
+                        "via": next(
+                            t[1]
+                            for t in rhs
+                            if t[0] == "id"
+                            and t[1].startswith("root.")
+                            and t[1].split(".", 1)[1] in animated
+                        ),
+                    }
+                )
         lines = [ln for _, rhs, ln in stmts if any(t[1] in subjects for t in rhs)]
-        cases.append({"id": cid, "surface": surface, "file": file, "line": min(lines),
-                      "meaning": meaning, "predicate": sorted(subjects), "tainted": sorted(tainted),
-                      "sampled_by": feed,
-                      "colour": [c for c in channels if c["kind"] in COLOUR_CHANNELS],
-                      "cues": [c for c in channels if c["kind"] not in COLOUR_CHANNELS]})
+        cases.append(
+            {
+                "id": cid,
+                "surface": surface,
+                "file": file,
+                "line": min(lines),
+                "meaning": meaning,
+                "predicate": sorted(subjects),
+                "tainted": sorted(tainted),
+                "sampled_by": feed,
+                "colour": [c for c in channels if c["kind"] in COLOUR_CHANNELS],
+                "cues": [c for c in channels if c["kind"] not in COLOUR_CHANNELS],
+            }
+        )
     return cases
 
 
 def template_sources():
     d = os.path.join(ROOT, "templates")
-    return {f[:-4]: open(os.path.join(d, f), encoding="utf-8").read()
-            for f in sorted(os.listdir(d)) if f.endswith(".qml")}
+    return {
+        f[:-4]: open(os.path.join(d, f), encoding="utf-8").read()
+        for f in sorted(os.listdir(d))
+        if f.endswith(".qml")
+    }
 
 
 def companion_sources():
     """{file name: source} for the JS a template may import beside it (templates/*.js)."""
     d = os.path.join(ROOT, "templates")
-    return {f: open(os.path.join(d, f), encoding="utf-8").read() for f in sorted(os.listdir(d)) if f.endswith(".js")}
+    return {
+        f: open(os.path.join(d, f), encoding="utf-8").read()
+        for f in sorted(os.listdir(d))
+        if f.endswith(".js")
+    }
 
 
 def measure():
@@ -468,16 +591,33 @@ def measure():
         got = None
         if os.path.isfile(path):
             with open(path, encoding="utf-8") as fh:
-                got = measure_painter(fh.read(), p["function"], p["surface"], p["file"],
-                                      components, companions)
+                got = measure_painter(
+                    fh.read(),
+                    p["function"],
+                    p["surface"],
+                    p["file"],
+                    components,
+                    companions,
+                )
         if got is None:
-            withheld.append({"id": p["surface"], "file": p["file"], "line": 0,
-                             "reason": f"painter function {p['function']} not found"})
+            withheld.append(
+                {
+                    "id": p["surface"],
+                    "file": p["file"],
+                    "line": 0,
+                    "reason": f"painter function {p['function']} not found",
+                }
+            )
         else:
             cases += got
     withheld += [dict(w, line=0) for w in WITHHELD]
-    return {"cases": cases, "withheld": withheld, "painters": len(PAINTERS),
-            "conditions": len(CONDITIONS), "aperture_components": sorted(components)}
+    return {
+        "cases": cases,
+        "withheld": withheld,
+        "painters": len(PAINTERS),
+        "conditions": len(CONDITIONS),
+        "aperture_components": sorted(components),
+    }
 
 
 def main(argv):
@@ -496,18 +636,28 @@ def main(argv):
         for c in m["cases"]:
             col = ",".join(sorted({x["kind"] for x in c["colour"]})) or "-"
             cue = ",".join(sorted({x["kind"] for x in c["cues"]})) or "NONE"
-            via = f"  [sampled by {c['sampled_by']['instance']} ({c['sampled_by']['component']})]" \
-                if c.get("sampled_by") else ""
-            print(f"  {c['id']:4s} {c['file']}:{c['line']:<4d} colour={col:12s} cues={cue:14s} {c['meaning']}{via}")
+            via = (
+                f"  [sampled by {c['sampled_by']['instance']} ({c['sampled_by']['component']})]"
+                if c.get("sampled_by")
+                else ""
+            )
+            print(
+                f"  {c['id']:4s} {c['file']}:{c['line']:<4d} colour={col:12s} cues={cue:14s} {c['meaning']}{via}"
+            )
         for w in m["withheld"]:
             print(f"  {w['id']:4s} {w['file']}  withheld: {w['reason']}")
         good = sum(bool(c["cues"]) for c in m["cases"])
-        print(f"\ncheck_use_of_colour: {good} of {len(m['cases'])} condition(s) carry a non-colour cue "
-              f"({len(m['cases'])} of {m['conditions']} conditions found over {m['painters']} painter(s)); "
-              f"{len(m['withheld'])} withheld")
+        print(
+            f"\ncheck_use_of_colour: {good} of {len(m['cases'])} condition(s) carry a non-colour cue "
+            f"({len(m['cases'])} of {m['conditions']} conditions found over {m['painters']} painter(s)); "
+            f"{len(m['withheld'])} withheld"
+        )
         return 0
-    print("usage: check_use_of_colour.py --json | --list | --selftest  "
-          "(the verdict: scripts/opa_gate.py use_of_colour)", file=sys.stderr)
+    print(
+        "usage: check_use_of_colour.py --json | --list | --selftest  "
+        "(the verdict: scripts/opa_gate.py use_of_colour)",
+        file=sys.stderr,
+    )
     return 2
 
 
@@ -535,12 +685,16 @@ function paint() {
 """
 # the SAME painter, drawing into an aperture's backdrop: its size changes become opacity
 APERTURE_COMPONENT = "Item { property alias backdrop: bd\n Canvas { id: bd } }"
-APERTURE_FED = """
+APERTURE_FED = (
+    """
 Item {
     Pinholes { id: fld; rows: 8 }
     function paint() {
         var ctx = fld.backdrop.getContext("2d");
-""" + WITH_CUES.split("function paint() {", 1)[1] + "}\n"
+"""
+    + WITH_CUES.split("function paint() {", 1)[1]
+    + "}\n"
+)
 
 
 LETTERFORM_JS = """
@@ -581,52 +735,127 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     def kinds(cases, cid, key):
         return sorted({x["kind"] for c in cases if c["id"] == cid for x in c[key]})
 
     bad = measure_painter(COLOUR_ONLY, "paint", "fixture", "fixture.qml")
-    chk("colour-only: critical is hue, no cue", (kinds(bad, "C6", "colour"), kinds(bad, "C6", "cues")), (["hue"], []))
-    chk("colour-only: low is opacity, no cue", (kinds(bad, "C7", "colour"), kinds(bad, "C7", "cues")), (["opacity"], []))
+    chk(
+        "colour-only: critical is hue, no cue",
+        (kinds(bad, "C6", "colour"), kinds(bad, "C6", "cues")),
+        (["hue"], []),
+    )
+    chk(
+        "colour-only: low is opacity, no cue",
+        (kinds(bad, "C7", "colour"), kinds(bad, "C7", "cues")),
+        (["opacity"], []),
+    )
     chk("colour-only: bold is still weight", kinds(bad, "C10", "cues"), ["weight"])
     good = measure_painter(WITH_CUES, "paint", "fixture", "fixture.qml")
-    chk("with cues: critical is weight + shape", kinds(good, "C6", "cues"), ["shape", "weight"])
-    chk("with cues: low is weight, no opacity", (kinds(good, "C7", "colour"), kinds(good, "C7", "cues")), ([], ["weight"]))
-    chk("an absent painter is None", measure_painter(COLOUR_ONLY, "nope", "f", "f"), None)
-    comps = aperture_components({"Pinholes": APERTURE_COMPONENT, "Plain": "Item { Canvas { id: c } }"})
+    chk(
+        "with cues: critical is weight + shape",
+        kinds(good, "C6", "cues"),
+        ["shape", "weight"],
+    )
+    chk(
+        "with cues: low is weight, no opacity",
+        (kinds(good, "C7", "colour"), kinds(good, "C7", "cues")),
+        ([], ["weight"]),
+    )
+    chk(
+        "an absent painter is None",
+        measure_painter(COLOUR_ONLY, "nope", "f", "f"),
+        None,
+    )
+    comps = aperture_components(
+        {"Pinholes": APERTURE_COMPONENT, "Plain": "Item { Canvas { id: c } }"}
+    )
     chk("an aperture component is found by its backdrop alias", comps, {"Pinholes"})
     fed = measure_painter(APERTURE_FED, "paint", "fixture", "fixture.qml", comps)
-    chk("behind an aperture: the feed is derived", fed[0]["sampled_by"]["instance"], "fld")
-    chk("behind an aperture: low's shrink is opacity, no cue",
-        (kinds(fed, "C7", "colour"), kinds(fed, "C7", "cues")), (["opacity"], []))
+    chk(
+        "behind an aperture: the feed is derived",
+        fed[0]["sampled_by"]["instance"],
+        "fld",
+    )
+    chk(
+        "behind an aperture: low's shrink is opacity, no cue",
+        (kinds(fed, "C7", "colour"), kinds(fed, "C7", "cues")),
+        (["opacity"], []),
+    )
     # ⟐W72.f: the SAME grow expression, other sign — bold's +s/2 overhangs into neighbours
-    chk("behind an aperture: bold's GROWTH is shape, not opacity (⟐W72.f)",
-        (kinds(fed, "C10", "colour"), kinds(fed, "C10", "cues")), ([], ["shape"]))
-    chk("behind an aperture: critical keeps the lit row (shape), weight gone",
-        kinds(fed, "C6", "cues"), ["shape"])
-    chk("without the component known, the same painter is not aperture-fed",
-        kinds(measure_painter(APERTURE_FED, "paint", "f", "f"), "C7", "cues"), ["weight"])
+    chk(
+        "behind an aperture: bold's GROWTH is shape, not opacity (⟐W72.f)",
+        (kinds(fed, "C10", "colour"), kinds(fed, "C10", "cues")),
+        ([], ["shape"]),
+    )
+    chk(
+        "behind an aperture: critical keeps the lit row (shape), weight gone",
+        kinds(fed, "C6", "cues"),
+        ["shape"],
+    )
+    chk(
+        "without the component known, the same painter is not aperture-fed",
+        kinds(measure_painter(APERTURE_FED, "paint", "f", "f"), "C7", "cues"),
+        ["weight"],
+    )
     # W74: a case transform behind a helper in an imported JS, and a flash
-    lf = measure_painter(LETTERFORM, "paint", "fixture", "fixture.qml", comps, {"lf.js": LETTERFORM_JS})
-    chk("a case helper handed the urgency is TEXT for low, normal and critical",
-        [kinds(lf, cid, "cues") for cid in ("C7", "C18", "C6")], [["text"], ["text"], ["animation", "shape", "text"]])   # the dark phase gates `on`: shape too
-    flat = measure_painter(LETTERFORM, "paint", "fixture", "fixture.qml", comps,
-                           {"lf.js": LETTERFORM_JS.replace("ch.toLowerCase()", "ch").replace("ch.toUpperCase()", "ch")})
-    chk("...the same helper WITHOUT a case change is no cue (low and normal)",
-        (kinds(flat, "C7", "cues"), kinds(flat, "C18", "cues")), ([], []))
-    chk("...and the helper is found only through the import (no companions: no cue)",
-        kinds(measure_painter(LETTERFORM, "paint", "f", "f", comps), "C7", "cues"), [])
-    chk("the flash is found from the PropertyAction that writes the property",
-        animated_properties(lex(LETTERFORM)), {"flashLit"})
-    chk("helper tests flow up the call chain (outer(font, ch, u) -> shown(ch, u))",
-        case_helpers(LETTERFORM_JS)["outer"], {2: {"0", "1", "2"}})
+    lf = measure_painter(
+        LETTERFORM, "paint", "fixture", "fixture.qml", comps, {"lf.js": LETTERFORM_JS}
+    )
+    chk(
+        "a case helper handed the urgency is TEXT for low, normal and critical",
+        [kinds(lf, cid, "cues") for cid in ("C7", "C18", "C6")],
+        [["text"], ["text"], ["animation", "shape", "text"]],
+    )  # the dark phase gates `on`: shape too
+    flat = measure_painter(
+        LETTERFORM,
+        "paint",
+        "fixture",
+        "fixture.qml",
+        comps,
+        {
+            "lf.js": LETTERFORM_JS.replace("ch.toLowerCase()", "ch").replace(
+                "ch.toUpperCase()", "ch"
+            )
+        },
+    )
+    chk(
+        "...the same helper WITHOUT a case change is no cue (low and normal)",
+        (kinds(flat, "C7", "cues"), kinds(flat, "C18", "cues")),
+        ([], []),
+    )
+    chk(
+        "...and the helper is found only through the import (no companions: no cue)",
+        kinds(measure_painter(LETTERFORM, "paint", "f", "f", comps), "C7", "cues"),
+        [],
+    )
+    chk(
+        "the flash is found from the PropertyAction that writes the property",
+        animated_properties(lex(LETTERFORM)),
+        {"flashLit"},
+    )
+    chk(
+        "helper tests flow up the call chain (outer(font, ch, u) -> shown(ch, u))",
+        case_helpers(LETTERFORM_JS)["outer"],
+        {2: {"0", "1", "2"}},
+    )
     m = measure()
     chk("the real tree measures every condition", len(m["cases"]), len(CONDITIONS))
-    chk("the real tree finds ApertureField as an aperture", "ApertureField" in m["aperture_components"], True)
-    chk("the real marquee painter is derived as aperture-fed",
-        {(c["sampled_by"] or {}).get("component") for c in m["cases"]}, {"ApertureField"})
+    chk(
+        "the real tree finds ApertureField as an aperture",
+        "ApertureField" in m["aperture_components"],
+        True,
+    )
+    chk(
+        "the real marquee painter is derived as aperture-fed",
+        {(c["sampled_by"] or {}).get("component") for c in m["cases"]},
+        {"ApertureField"},
+    )
     print("check_use_of_colour selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -30,6 +30,7 @@ it), TUNE, TIER 3, and RESIDUE.  A LIVE item CANNOT be discharged by any check
 this repo could write, so any claim over it must say so rather than pretend a
 machine could close it.
 """
+
 import json
 import os
 import re
@@ -104,7 +105,7 @@ def ledger_blocks(text=None):
     for i, line in enumerate(lines):
         if line.startswith("## Symbol ledger"):
             body = []
-            for nxt in lines[i + 1:]:
+            for nxt in lines[i + 1 :]:
                 if nxt.startswith(("## ", "# ")):
                     break
                 body.append(nxt)
@@ -203,7 +204,7 @@ def ledger_closed(text=None):
             if m:
                 # Only the symbol the qualifier attaches to is excluded — the
                 # nearest one before it. The rest of the entry still ticks.
-                head = entry[:m.start()]
+                head = entry[: m.start()]
                 syms = SYMBOL.findall(head)
                 got |= set(syms[:-1])
                 continue
@@ -239,30 +240,47 @@ def symbols(text=None):
             where.setdefault(s, []).append(bucket)
     out = {}
     for s in sorted(set(SYMBOL.findall(text))):
-        out[s] = {"closed": s in clo or s in tick,
-                  "by": ("closure" if s in clo else ("ledger-tick" if s in tick
-                                                     else None)),
-                  "gates": gts.get(s, 0),
-                  "buckets": sorted(where.get(s, []))}
+        out[s] = {
+            "closed": s in clo or s in tick,
+            "by": ("closure" if s in clo else ("ledger-tick" if s in tick else None)),
+            "gates": gts.get(s, 0),
+            "buckets": sorted(where.get(s, [])),
+        }
     return out
 
 
 def main(argv):
-    known = {"--symbols", "--open", "--closures", "--gates", "--sessions",
-             "--json", "--ledger-count"}
+    known = {
+        "--symbols",
+        "--open",
+        "--closures",
+        "--gates",
+        "--sessions",
+        "--json",
+        "--ledger-count",
+    }
     for a in argv[1:]:
         if a not in known:
-            print(f"cotype_index: unknown flag {a!r} "
-                  f"(known: {', '.join(sorted(known))})", file=sys.stderr)
+            print(
+                f"cotype_index: unknown flag {a!r} (known: {', '.join(sorted(known))})",
+                file=sys.stderr,
+            )
             return 2
     text = _text()
     if text is None:
-        print(f"cotype_index: REFUSED — {os.path.basename(COTYPE)} is absent",
-              file=sys.stderr)
+        print(
+            f"cotype_index: REFUSED — {os.path.basename(COTYPE)} is absent",
+            file=sys.stderr,
+        )
         return 2
 
-    sess, clo, gts, opn, syms = (sessions(text), closures(text), gates(text),
-                                 open_set(text), symbols(text))
+    sess, clo, gts, opn, syms = (
+        sessions(text),
+        closures(text),
+        gates(text),
+        open_set(text),
+        symbols(text),
+    )
     blocks = ledger_blocks(text)
 
     if "--ledger-count" in argv:
@@ -287,24 +305,43 @@ def main(argv):
         return 0
     if "--symbols" in argv:
         for s, d in sorted(syms.items()):
-            state = "closed" if d["closed"] else ("open:" + ",".join(d["buckets"])
-                                                  if d["buckets"] else "unlisted")
+            state = (
+                "closed"
+                if d["closed"]
+                else ("open:" + ",".join(d["buckets"]) if d["buckets"] else "unlisted")
+            )
             print(f"{s}\t{state}\tgates={d['gates']}")
         return 0
     if "--json" in argv:
-        print(json.dumps({"sessions": len(sess), "ledger_blocks": len(blocks),
-                          "closures": {k: v for k, v in clo.items()},
-                          "gates": gts, "open": opn, "symbols": syms}, indent=2))
+        print(
+            json.dumps(
+                {
+                    "sessions": len(sess),
+                    "ledger_blocks": len(blocks),
+                    "closures": {k: v for k, v in clo.items()},
+                    "gates": gts,
+                    "open": opn,
+                    "symbols": syms,
+                },
+                indent=2,
+            )
+        )
         return 0
 
     n_open = sum(len(v) for v in opn.values())
-    print(f"cotype_index: {len(sess)} sessions, {len(syms)} symbols, "
-          f"{len(clo)} closed, {n_open} open across {len(opn)} operator bucket(s)")
-    print(f"    ledger blocks: {len(blocks)} (the LAST is current; earlier are snapshots)")
+    print(
+        f"cotype_index: {len(sess)} sessions, {len(syms)} symbols, "
+        f"{len(clo)} closed, {n_open} open across {len(opn)} operator bucket(s)"
+    )
+    print(
+        f"    ledger blocks: {len(blocks)} (the LAST is current; earlier are snapshots)"
+    )
     for b in BUCKETS:
         if b in opn:
-            print(f"    {b:9} {len(opn[b]):3}  {' '.join(opn[b][:6])}"
-                  f"{' …' if len(opn[b]) > 6 else ''}")
+            print(
+                f"    {b:9} {len(opn[b]):3}  {' '.join(opn[b][:6])}"
+                f"{' …' if len(opn[b]) > 6 else ''}"
+            )
     return 0
 
 
@@ -333,8 +370,7 @@ def _selftest():
     check("the ledger series actually moves", first_body != last_body, True)
     opn = open_set(text)
     check("the open set is non-empty", sum(len(v) for v in opn.values()) > 0, True)
-    check("open symbols are bucketed by operator", all(
-        b in BUCKETS for b in opn), True)
+    check("open symbols are bucketed by operator", all(b in BUCKETS for b in opn), True)
     # A symbol with a closure must be reported closed.
     clo = closures(text)
     if clo:
@@ -346,15 +382,24 @@ def _selftest():
     open_all = {s for v in opn.values() for s in v}
     tick = ledger_closed(text)
     # 1. a ✓ on a WRAPPED entry still closes the symbols above it
-    check("a wrapped tick closes its entry (⊕SOLVER-SEMANTIC)",
-          "⊕SOLVER-SEMANTIC" in tick, True)
+    check(
+        "a wrapped tick closes its entry (⊕SOLVER-SEMANTIC)",
+        "⊕SOLVER-SEMANTIC" in tick,
+        True,
+    )
     # 2. a QUALIFIED tick (`✓PoC`) does not close
-    check("a qualified tick does not close (⊕SEG-FONT-PROJECT)",
-          "⊕SEG-FONT-PROJECT" not in tick, True)
+    check(
+        "a qualified tick does not close (⊕SEG-FONT-PROJECT)",
+        "⊕SEG-FONT-PROJECT" not in tick,
+        True,
+    )
     # 3. a symbol named inside an open item's numbered sub-steps is a DEPENDENCY,
     #    not itself open
-    check("a sub-step dependency is not listed open (⊕RENDER-GATE)",
-          "⊕RENDER-GATE" not in open_all, True)
+    check(
+        "a sub-step dependency is not listed open (⊕RENDER-GATE)",
+        "⊕RENDER-GATE" not in open_all,
+        True,
+    )
     # 4. the current open list overrides an earlier ledger's tick (work reopens)
     # ⚑ ON A SYNTHETIC DOCUMENT, NOT ON THIS ONE.  This arm was pinned to
     # ⊕SEGMENT-SUBSTRATE as the log's live example of reopened work, and the day
@@ -362,14 +407,19 @@ def _selftest():
     # about the fixture as a fact about the parser. A rule about REOPENING must
     # be exercised on a document where something is reopened, whatever the real
     # log currently holds.
-    synthetic = ("## Session 1 — ⊕X invoked\n- built\n\n## Symbol ledger (current)\n"
-                 "- ⊕X ✓\n\n## Session 2 — ⊕X rollout\n- more to do\n\n"
-                 "## Symbol ledger (current)\n- ...prior... + ⊕Y ✓\n"
-                 "- OPEN — BUILD: ⊕X rollout\n")
+    synthetic = (
+        "## Session 1 — ⊕X invoked\n- built\n\n## Symbol ledger (current)\n"
+        "- ⊕X ✓\n\n## Session 2 — ⊕X rollout\n- more to do\n\n"
+        "## Symbol ledger (current)\n- ...prior... + ⊕Y ✓\n"
+        "- OPEN — BUILD: ⊕X rollout\n"
+    )
     s_open = {s for v in open_set(synthetic).values() for s in v}
     s_tick = ledger_closed(synthetic)
-    check("reopened work is not also closed (synthetic ⊕X)",
-          "⊕X" in s_open and "⊕X" not in s_tick and "⊕Y" in s_tick, True)
+    check(
+        "reopened work is not also closed (synthetic ⊕X)",
+        "⊕X" in s_open and "⊕X" not in s_tick and "⊕Y" in s_tick,
+        True,
+    )
     # and no symbol may be both at once
     both = sorted(s for s in syms if syms[s]["closed"] and s in open_all)
     check(f"nothing is closed AND open ({both})", both, [])
@@ -383,10 +433,16 @@ def _selftest():
     # they cannot be silently swallowed.
     headings = [l for l in text.splitlines() if l.startswith("###") and "closure" in l]
     audits = [l for l in headings if not SYMBOL.search(l)]
-    check("symbol closures all name a symbol",
-          all(SYMBOL.search(l) for l in headings if l not in audits), True)
-    check(f"meta-audit headings are accounted for ({len(audits)})",
-          all("audit" in l.lower() for l in audits), True)
+    check(
+        "symbol closures all name a symbol",
+        all(SYMBOL.search(l) for l in headings if l not in audits),
+        True,
+    )
+    check(
+        f"meta-audit headings are accounted for ({len(audits)})",
+        all("audit" in l.lower() for l in audits),
+        True,
+    )
     print("cotype_index selftest:", "PASS" if ok else "FAIL")
     return ok
 

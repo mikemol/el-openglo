@@ -27,6 +27,7 @@ are the point of the library — a place to LOOK — and these are the checks th
 keep what you look at honest: that it rendered at all, that its palette has as
 many distinct colours as it has roles, that the index names what exists.
 """
+
 import os
 import sys
 
@@ -44,11 +45,17 @@ def samples_exist(targets=None, min_bytes=128):
     if targets is None:
         sys.path.insert(0, HERE)
         import render_samples as RS
+
         targets = RS.targets()
     assert targets, "no sample targets — the scheme files are missing"
-    bad = [(v, s) for v, s, p, _d, _f in targets
-           if not os.path.isfile(p) or os.path.getsize(p) < min_bytes]
-    assert not bad, f"{len(bad)} of {len(targets)} sample(s) missing or empty: {bad[:4]}"
+    bad = [
+        (v, s)
+        for v, s, p, _d, _f in targets
+        if not os.path.isfile(p) or os.path.getsize(p) < min_bytes
+    ]
+    assert not bad, (
+        f"{len(bad)} of {len(targets)} sample(s) missing or empty: {bad[:4]}"
+    )
 
 
 def index_is_generated():
@@ -91,19 +98,32 @@ def marquee_sample_covers_the_font(text=None, font=None):
     hand it a deliberately short string and prove it fails."""
     if font is None:
         import display_types as DT
+
         font = DT.FONT5x7
     if text is None:
         sys.path.insert(0, HERE)
         import inspect
 
         import render_samples as RS
+
         src = inspect.getsource(RS._marquee)
         # the sample's own string, read from the renderer that draws it — so the
         # witness cannot drift from what is actually rendered
-        for line in src.splitlines():
-            s = line.strip()
-            if s.startswith("text = "):
-                text = s.split("=", 1)[1].strip().strip('"')
+        import ast
+        import textwrap
+
+        # the AST, not the lines: a formatter may wrap the literal, and a wrapped
+        # (implicitly concatenated) string is still ONE Constant
+        for node in ast.walk(ast.parse(textwrap.dedent(src))):
+            if (
+                isinstance(node, ast.Assign)
+                and len(node.targets) == 1
+                and isinstance(node.targets[0], ast.Name)
+                and node.targets[0].id == "text"
+                and isinstance(node.value, ast.Constant)
+                and isinstance(node.value.value, str)
+            ):
+                text = node.value.value
                 break
     assert text, "could not determine the marquee sample's text"
     assert font, "the font is empty"
@@ -111,7 +131,8 @@ def marquee_sample_covers_the_font(text=None, font=None):
     missing = sorted(ch for ch in font if ch != " " and ch not in shown)
     assert not missing, (
         f"{len(missing)} of {len(font)} declared glyph(s) never appear in the "
-        f"marquee sample, so a defect in them is invisible to it: {missing[:12]}")
+        f"marquee sample, so a defect in them is invisible to it: {missing[:12]}"
+    )
 
 
 def palette_roles_are_distinct():
@@ -129,9 +150,13 @@ def palette_roles_are_distinct():
     A palette needs as many distinct colours as it has roles, and that is a
     different question from whether each one is readable."""
     import make_preview as MP
+
     sys.path.insert(0, HERE)
     import render_samples as RS
-    variants = RS.variants()          # THE roster: declared (scripts/variant_roster.py), not listed
+
+    variants = (
+        RS.variants()
+    )  # THE roster: declared (scripts/variant_roster.py), not listed
     assert variants, "no scheme files"
     collisions = []
     for v in variants:
@@ -146,12 +171,15 @@ def palette_roles_are_distinct():
     # solver. A consumer that counted the failures would size this as six times
     # the work it is, so the witness says which number it means rather than
     # leaving a reader to infer it from the prose.
-    kinds = {tuple(sorted(x.split(": ", 1)[-1].split(" (")[0].split("==")))
-             for x in collisions}
+    kinds = {
+        tuple(sorted(x.split(": ", 1)[-1].split(" (")[0].split("==")))
+        for x in collisions
+    }
     assert not collisions, (
         f"{len(collisions)} role collision(s) of {len(kinds)} kind(s); a role "
         f"sharing another's colour cannot be distinguished from it: "
-        f"{collisions[:4]}\n  fixes: {len(kinds)}")
+        f"{collisions[:4]}\n  fixes: {len(kinds)}"
+    )
 
 
 def ghost_registers_with_lit(svg_path=None):
@@ -176,13 +204,16 @@ def ghost_registers_with_lit(svg_path=None):
     the same origin. Move the clock and this still holds; offset one layer and it
     does not."""
     import re
+
     path = svg_path or os.path.join(SAMPLES, "wallpaper.svg")
     assert os.path.isfile(path), f"no wallpaper sample at {path}"
     with open(path, encoding="utf-8") as fh:
         text = fh.read()
     # (transform, is_lit) per group; the lit layers are the filtered ones.
-    groups = [(m.group(1), "filter=" in m.group(0))
-              for m in re.finditer(r'<g transform="(translate\([^)]*\)[^"]*)"[^>]*>', text)]
+    groups = [
+        (m.group(1), "filter=" in m.group(0))
+        for m in re.finditer(r'<g transform="(translate\([^)]*\)[^"]*)"[^>]*>', text)
+    ]
     lit = {t for t, is_lit in groups if is_lit}
     ghost = {t for t, is_lit in groups if not is_lit}
     assert lit, "no lit (filtered) groups found — the scan is broken, not the art flat"
@@ -192,7 +223,8 @@ def ghost_registers_with_lit(svg_path=None):
         f"{len(unregistered)} lit group(s) have no ghost at the same origin — the "
         f"layers are offset, so the ghost reads as a second display rather than "
         f"as the unlit field behind this one: {unregistered}\n"
-        f"  fixes: {len(unregistered)}")
+        f"  fixes: {len(unregistered)}"
+    )
 
 
 def preview_clock_fits():
@@ -213,7 +245,8 @@ def preview_clock_fits():
         "the clock text is placed without measuring it against its bezel — the "
         "digits overflow on the right in every rendered sample. Measure the text "
         "(textlength/textbbox) and size or shift the bezel to contain it, then "
-        "mark the fix with a CLOCK_FIT reference so this witness can see it.")
+        "mark the fix with a CLOCK_FIT reference so this witness can see it."
+    )
 
 
 CONCEPTS = {
@@ -237,9 +270,11 @@ def main(argv):
         # library. Saying WHERE this library is matters: a downstream reader whose
         # own library is missing otherwise sees keys they never wrote and reads it
         # as a bug in their bib rather than as resolution landing elsewhere.
-        print(f"usage: concepts.py <{'|'.join(sorted(CONCEPTS))}>\n"
-              f"  this library: {os.path.abspath(__file__)}",
-              file=sys.stderr)
+        print(
+            f"usage: concepts.py <{'|'.join(sorted(CONCEPTS))}>\n"
+            f"  this library: {os.path.abspath(__file__)}",
+            file=sys.stderr,
+        )
         return 2
     try:
         CONCEPTS[argv[0]]()
@@ -261,9 +296,14 @@ def _selftest():
         else:
             print(f"  ok   {label}")
 
-    check("every concept has a witness", all(callable(f) for f in CONCEPTS.values()), True)
-    check("every concept documents itself",
-          all((f.__doc__ or "").strip() for f in CONCEPTS.values()), True)
+    check(
+        "every concept has a witness", all(callable(f) for f in CONCEPTS.values()), True
+    )
+    check(
+        "every concept documents itself",
+        all((f.__doc__ or "").strip() for f in CONCEPTS.values()),
+        True,
+    )
     # ⚑ THE "NOT MINE" CONTRACT IS THE ONE A DOWNSTREAM CONSUMER DEPENDS ON.
     check("an unknown key exits 2, not 1", main(["no-such-concept"]), 2)
 
@@ -273,12 +313,16 @@ def _selftest():
     # file that happens to be on disk. A witness that cannot be shown to fail is
     # the thing my own eyes were: unfalsifiable.
     import tempfile
-    aligned = ('<svg xmlns="http://www.w3.org/2000/svg">'
-               '<g transform="translate(10,20) skewX(-5)"><rect/></g>'
-               '<g transform="translate(10,20) skewX(-5)" filter="url(#glow)"><rect/></g>'
-               '</svg>')
-    offset = aligned.replace('translate(10,20) skewX(-5)" filter',
-                             'translate(10,99) skewX(-5)" filter')
+
+    aligned = (
+        '<svg xmlns="http://www.w3.org/2000/svg">'
+        '<g transform="translate(10,20) skewX(-5)"><rect/></g>'
+        '<g transform="translate(10,20) skewX(-5)" filter="url(#glow)"><rect/></g>'
+        "</svg>"
+    )
+    offset = aligned.replace(
+        'translate(10,20) skewX(-5)" filter', 'translate(10,99) skewX(-5)" filter'
+    )
     with tempfile.TemporaryDirectory() as td:
         ok_p = os.path.join(td, "ok.svg")
         bad_p = os.path.join(td, "bad.svg")
@@ -301,6 +345,7 @@ def _selftest():
     # invisible to the very picture added to catch it. If this case does not fail,
     # the coverage witness is decoration.
     import display_types as _DT
+
     try:
         marquee_sample_covers_the_font("EL OPENGLO 13:37", _DT.FONT5x7)
         check("a sample missing glyphs FAILS coverage", "passed", "raised")
@@ -308,7 +353,8 @@ def _selftest():
         check("a sample missing glyphs FAILS coverage", "raised", "raised")
     try:
         marquee_sample_covers_the_font(
-            "ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*?", _DT.FONT5x7)
+            "ABCDEFGHIJKLM NOPQRSTUVWXYZ 0123456789 -:./+*?", _DT.FONT5x7
+        )
         check("the full-alphabet sample passes coverage", True, True)
     except AssertionError as e:
         check("the full-alphabet sample passes coverage", f"raised {e}", True)

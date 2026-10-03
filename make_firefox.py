@@ -31,6 +31,7 @@ plain roles are the ghost relation on three pairs (relations.md §3b/§3d):
   button_background_active:           highlight over panel at the LOOKED-AT floor
 — the same solve make_union applies to Breeze's hover and indicator alphas.
 """
+
 import json
 import os
 import sys
@@ -40,37 +41,64 @@ from emitters import atomic_write
 ROOT = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, ROOT)
 
-VARIANTS = ["EL-Openglo", "EL-Openglo-Lit", "EL-Azure", "EL-Azure-Lit",
-            "EL-Amber", "EL-Amber-Lit"]
+VARIANTS = [
+    "EL-Openglo",
+    "EL-Openglo-Lit",
+    "EL-Azure",
+    "EL-Azure-Lit",
+    "EL-Amber",
+    "EL-Amber-Lit",
+]
 VERSION = "1.0"
 
 # theme.colors key -> palette role. Roles are parse_scheme keys, or one of the
 # three composites named in the docstring.
 KEYS = (
-    ("frame", "ground"), ("frame_inactive", "ground"),
-    ("ntp_background", "ground"), ("ntp_card_background", "panel"), ("ntp_text", "phosphor"),
-    ("toolbar", "panel"), ("toolbar_text", "phosphor"), ("bookmark_text", "phosphor"),
-    ("tab_background_text", "phosphor"), ("tab_text", "phosphor"),
-    ("tab_selected", "panel"), ("tab_line", "accent"), ("tab_loading", "accent"),
-    ("icons", "phosphor"), ("icons_attention", "accent"),
-    ("toolbar_field", "view_bg"), ("toolbar_field_text", "phosphor"),
-    ("toolbar_field_focus", "view_bg"), ("toolbar_field_text_focus", "phosphor"),
-    ("toolbar_field_border", "ghost_seen"), ("toolbar_field_border_focus", "focus"),
-    ("toolbar_field_highlight", "sel"), ("toolbar_field_highlight_text", "sel_fg"),
-    ("toolbar_top_separator", "ghost_seen"), ("toolbar_bottom_separator", "ghost_seen"),
+    ("frame", "ground"),
+    ("frame_inactive", "ground"),
+    ("ntp_background", "ground"),
+    ("ntp_card_background", "panel"),
+    ("ntp_text", "phosphor"),
+    ("toolbar", "panel"),
+    ("toolbar_text", "phosphor"),
+    ("bookmark_text", "phosphor"),
+    ("tab_background_text", "phosphor"),
+    ("tab_text", "phosphor"),
+    ("tab_selected", "panel"),
+    ("tab_line", "accent"),
+    ("tab_loading", "accent"),
+    ("icons", "phosphor"),
+    ("icons_attention", "accent"),
+    ("toolbar_field", "view_bg"),
+    ("toolbar_field_text", "phosphor"),
+    ("toolbar_field_focus", "view_bg"),
+    ("toolbar_field_text_focus", "phosphor"),
+    ("toolbar_field_border", "ghost_seen"),
+    ("toolbar_field_border_focus", "focus"),
+    ("toolbar_field_highlight", "sel"),
+    ("toolbar_field_highlight_text", "sel_fg"),
+    ("toolbar_top_separator", "ghost_seen"),
+    ("toolbar_bottom_separator", "ghost_seen"),
     ("toolbar_vertical_separator", "ghost_seen"),
-    ("popup", "panel"), ("popup_text", "phosphor"), ("popup_border", "ghost_seen"),
-    ("popup_highlight", "sel"), ("popup_highlight_text", "sel_fg"),
-    ("sidebar", "ground"), ("sidebar_text", "phosphor"), ("sidebar_border", "ghost_seen"),
-    ("sidebar_highlight", "sel"), ("sidebar_highlight_text", "sel_fg"),
-    ("button_background_hover", "hover_fill"), ("button_background_active", "active_fill"),
+    ("popup", "panel"),
+    ("popup_text", "phosphor"),
+    ("popup_border", "ghost_seen"),
+    ("popup_highlight", "sel"),
+    ("popup_highlight_text", "sel_fg"),
+    ("sidebar", "ground"),
+    ("sidebar_text", "phosphor"),
+    ("sidebar_border", "ghost_seen"),
+    ("sidebar_highlight", "sel"),
+    ("sidebar_highlight_text", "sel_fg"),
+    ("button_background_hover", "hover_fill"),
+    ("button_background_active", "active_fill"),
 )
 REQUIRED = ("frame", "tab_background_text")
 
 
 def _rgb(hexs):
     hexs = hexs.lstrip("#")
-    return [int(hexs[i:i + 2], 16) for i in (0, 2, 4)]
+    return [int(hexs[i : i + 2], 16) for i in (0, 2, 4)]
 
 
 def roles(variant):
@@ -79,10 +107,13 @@ def roles(variant):
     import ghost_solve as GS
     import make_preview as MP
     import palette_graph as PG
+
     c = MP.parse_scheme(variant)
     out = {k: _rgb(v) for k, v in c.items() if isinstance(v, str) and v.startswith("#")}
     ground, panel, sel = tuple(out["ground"]), tuple(out["panel"]), tuple(out["sel"])
-    out["ghost_seen"] = list(PG.composite(tuple(out["ghost"]), ground, float(c["ghost_alpha"])))
+    out["ghost_seen"] = list(
+        PG.composite(tuple(out["ghost"]), ground, float(c["ghost_alpha"]))
+    )
     a_h = GS.alpha_min(sel, panel, C.GHOST_VISIBLE_LC_GLANCED)
     a_a = GS.alpha_min(sel, panel, C.GHOST_VISIBLE_LC)
     out["hover_fill"] = list(PG.composite(sel, panel, a_h if a_h is not None else 1.0))
@@ -100,7 +131,8 @@ def manifest(variant):
         "version": VERSION,
         "description": f"Electroluminescent watch display — {variant}",
         "browser_specific_settings": {
-            "gecko": {"id": f"el-openglo-{variant.lower()}@el-openglo.theme"}},
+            "gecko": {"id": f"el-openglo-{variant.lower()}@el-openglo.theme"}
+        },
         "theme": {
             "colors": {key: r[role] for key, role in KEYS},
             "properties": {"color_scheme": "light" if lit else "dark"},
@@ -159,19 +191,27 @@ def dynamic_files(variants=VARIANTS, default="EL-Openglo"):
     themes = {v: manifest(v)["theme"] for v in variants}
     d = json.dumps(default)
     return {
-        "manifest.json": json.dumps({
-            "manifest_version": 2,
-            "name": "EL Openglo",
-            "version": VERSION,
-            "description": "Electroluminescent watch display: six phosphor palettes, chosen in the add-on's options",
-            # AMO requires data_collection_permissions on every NEW extension (web-ext lint
-            # MISSING_DATA_COLLECTION_PERMISSIONS, measured W142); this one collects nothing
-            "browser_specific_settings": {"gecko": {
-                "id": DYNAMIC_ID, "data_collection_permissions": {"required": ["none"]}}},
-            "permissions": ["theme", "storage"],
-            "background": {"scripts": ["background.js"]},
-            "options_ui": {"page": "options.html"},
-        }, indent=2) + "\n",
+        "manifest.json": json.dumps(
+            {
+                "manifest_version": 2,
+                "name": "EL Openglo",
+                "version": VERSION,
+                "description": "Electroluminescent watch display: six phosphor palettes, chosen in the add-on's options",
+                # AMO requires data_collection_permissions on every NEW extension (web-ext lint
+                # MISSING_DATA_COLLECTION_PERMISSIONS, measured W142); this one collects nothing
+                "browser_specific_settings": {
+                    "gecko": {
+                        "id": DYNAMIC_ID,
+                        "data_collection_permissions": {"required": ["none"]},
+                    }
+                },
+                "permissions": ["theme", "storage"],
+                "background": {"scripts": ["background.js"]},
+                "options_ui": {"page": "options.html"},
+            },
+            indent=2,
+        )
+        + "\n",
         "themes.json": json.dumps(themes, indent=2) + "\n",
         "background.js": BACKGROUND_JS % {"default": d},
         "options.html": OPTIONS_HTML,
@@ -192,7 +232,9 @@ def render_dynamic(out_dir=DYNAMIC_OUT, variants=VARIANTS):
 if __name__ == "__main__":
     if "--dynamic" in sys.argv:
         w = render_dynamic()
-        print(f"make_firefox: wrote {len(w)} files of the dynamic extension under {DYNAMIC_OUT}")
+        print(
+            f"make_firefox: wrote {len(w)} files of the dynamic extension under {DYNAMIC_OUT}"
+        )
         sys.exit(0)
     if "--map" in sys.argv:
         for key, role in KEYS:

@@ -23,6 +23,7 @@ Honest ceiling (COTYPE session 83): straight-segment templates vs ROUND glyph wa
 phi at partial overlap; round-glyph margins stay slightly negative until curvature-aware
 templates exist (⊕SEG-DOTPRODUCT-TEMPLATES). L (all-straight) already recovers 4/4.
 """
+
 import itertools
 import math
 
@@ -36,7 +37,9 @@ SEG = {k: ST.endpoints(k) for k in ST.SEG22}
 RES = 64
 # every char the authored 16-seg tables know — the log's "all 44" (:4644): 10
 # digits, 26 letters, 8 symbols (two of which, ' ' and ':', are known blanks)
-AUTHORED_CHARS = "".join(dict.fromkeys(list(ST.DIGITS16) + list(ST.LETTERS16) + list(ST.SYMBOLS16)))
+AUTHORED_CHARS = "".join(
+    dict.fromkeys(list(ST.DIGITS16) + list(ST.LETTERS16) + list(ST.SYMBOLS16))
+)
 # ⚑ PINNED BY NAME, NOT SMOOTHED (session 82). These score Jaccard 0 under every
 # frame because the authored table follows DISPLAY convention and the face
 # follows TYPE convention: '1' is b c on a display and centred in a font; the
@@ -46,14 +49,16 @@ AUTHORED_CHARS = "".join(dict.fromkeys(list(ST.DIGITS16) + list(ST.LETTERS16) + 
 # where the face put it. An entry that starts scoring must LEAVE this set — the
 # selftest refuses a pin that has been outgrown.
 KNOWN_CONVENTION = frozenset("1-_='!")
-LOWER_CHARS = "".join(sorted(ST.LETTERS22))     # 22-seg only
+LOWER_CHARS = "".join(sorted(ST.LETTERS22))  # 22-seg only
 # the ingest frame for lowercase: "lowercase" maps the face's x-height to the
 # lattice mid-bar (measured 0.31 -> see session 84 under "metrics", which keeps
 # the face's 0.8-cap x-height and misses g1 g2 on every glyph)
 LOWER_FRAME = "lowercase"
 
 
-CELL_H = 4.0    # the body cell; a 22-seg cell with descenders is 6.0 (BODY + DESCENDER_DEPTH)
+CELL_H = (
+    4.0  # the body cell; a 22-seg cell with descenders is 6.0 (BODY + DESCENDER_DEPTH)
+)
 
 
 def _rows(H):
@@ -65,8 +70,13 @@ def ink_grid(G, res=RES, H=CELL_H):
     """Sample a two-valued ink field to a boolean presence grid over a 2 x H cell
     at RES samples per 2 units across and per 4 units down."""
     rows = round(res * H / CELL_H)
-    return np.array([[G(i/res*2.0, j/res*4.0) > 0 for i in range(res+1)]
-                     for j in range(rows+1)], dtype=bool)
+    return np.array(
+        [
+            [G(i / res * 2.0, j / res * 4.0) > 0 for i in range(res + 1)]
+            for j in range(rows + 1)
+        ],
+        dtype=bool,
+    )
 
 
 def _cell_height(pres):
@@ -92,8 +102,12 @@ def strata(pres):
     core = ndimage.binary_erosion(pres, iterations=2)
     mantle = (ndimage.binary_dilation(core) & pres) & ~core
     rim = (pres & ~core) & ~mantle
-    return {"core": core, "mantle": mantle, "rim": rim,
-            "rim_frac": round(rim.sum()/max(1, pres.sum()), 3)}
+    return {
+        "core": core,
+        "mantle": mantle,
+        "rim": rim,
+        "rim_frac": round(rim.sum() / max(1, pres.sum()), 3),
+    }
 
 
 # Template half-width as a fraction of the measured stroke width. SOLVED by
@@ -104,11 +118,16 @@ SW_BAND = 0.85
 
 
 def _min_run(row):
-    runs = []; r = 0
+    runs = []
+    r = 0
     for v in row:
-        if v: r += 1
-        elif r: runs.append(r); r = 0
-    if r: runs.append(r)
+        if v:
+            r += 1
+        elif r:
+            runs.append(r)
+            r = 0
+    if r:
+        runs.append(r)
     return min(runs) if runs else None
 
 
@@ -123,10 +142,15 @@ def _ink_bbox_sw(pres, band=SW_BAND):
     ys, xs = np.where(pres)
     if len(xs) == 0:
         return (0, 2, 0, 4), 0.2
-    bb = (xs.min()/RES*2, xs.max()/RES*2, ys.min()/RES*4, ys.max()/RES*4)
-    mins = [m for m in (_min_run(pres[y]) for y in range(ys.min(), ys.max()+1)) if m]
-    sw = (float(np.median(mins))/RES*2) if mins else 0.2
-    return bb, max(0.12, sw*band)
+    bb = (
+        xs.min() / RES * 2,
+        xs.max() / RES * 2,
+        ys.min() / RES * 4,
+        ys.max() / RES * 4,
+    )
+    mins = [m for m in (_min_run(pres[y]) for y in range(ys.min(), ys.max() + 1)) if m]
+    sw = (float(np.median(mins)) / RES * 2) if mins else 0.2
+    return bb, max(0.12, sw * band)
 
 
 _GRIDS: dict[int, tuple[np.ndarray, np.ndarray]] = {}
@@ -136,7 +160,9 @@ def _grid(H):
     """(GX, GY) sample coordinates for a 2 x H cell, memoised per height."""
     if H not in _GRIDS:
         rows = _rows(H)
-        _GRIDS[H] = np.meshgrid(np.arange(RES+1)/RES*2.0, np.arange(rows+1)/RES*4.0)
+        _GRIDS[H] = np.meshgrid(
+            np.arange(RES + 1) / RES * 2.0, np.arange(rows + 1) / RES * 4.0
+        )
     return _GRIDS[H]
 
 
@@ -147,9 +173,10 @@ def _band(pts, sw, H=CELL_H):
     GX, GY = _grid(H)
     S = np.zeros(GX.shape, bool)
     for (qx, qy), (rx, ry) in itertools.pairwise(pts):
-        ex, ey = rx-qx, ry-qy; L2 = ex*ex+ey*ey or 1e-9
-        t = np.clip(((GX-qx)*ex + (GY-qy)*ey)/L2, 0.0, 1.0)
-        S |= np.hypot(GX-(qx+t*ex), GY-(qy+t*ey)) < sw
+        ex, ey = rx - qx, ry - qy
+        L2 = ex * ex + ey * ey or 1e-9
+        t = np.clip(((GX - qx) * ex + (GY - qy) * ey) / L2, 0.0, 1.0)
+        S |= np.hypot(GX - (qx + t * ex), GY - (qy + t * ey)) < sw
     return S
 
 
@@ -157,9 +184,10 @@ def _seg_field(seg, bb, sw, H=CELL_H):
     """`bb` maps LATTICE coordinates (x/2, y/4 of the body cell) into the
     field; `H` is the sampled grid's height — a 22-seg descender bar at
     lattice y 4..6 lands below a 4-tall grid (empty band) and inside a 6-tall one."""
-    x0, x1, y0, y1 = bb; ax, ay, bx, by = seg
-    sax, say = x0+(x1-x0)*ax/2, y0+(y1-y0)*ay/4
-    sbx, sby = x0+(x1-x0)*bx/2, y0+(y1-y0)*by/4
+    x0, x1, y0, y1 = bb
+    ax, ay, bx, by = seg
+    sax, say = x0 + (x1 - x0) * ax / 2, y0 + (y1 - y0) * ay / 4
+    sbx, sby = x0 + (x1 - x0) * bx / 2, y0 + (y1 - y0) * by / 4
     return _band([(sax, say), (sbx, sby)], sw, H)
 
 
@@ -179,28 +207,40 @@ def _arc_field(seg, bb, sw, sagitta, H=CELL_H):
     in the field when it lies within `sw` of any piece."""
     if sagitta == 0:
         return _seg_field(seg, bb, sw, H)
-    x0, x1, y0, y1 = bb; ax, ay, bx, by = seg
-    sax, say = x0+(x1-x0)*ax/2, y0+(y1-y0)*ay/4
-    sbx, sby = x0+(x1-x0)*bx/2, y0+(y1-y0)*by/4
-    dx, dy = sbx-sax, sby-say; L = math.hypot(dx, dy) or 1e-9
-    nx, ny = -dy/L, dx/L
-    mx, my = (sax+sbx)/2, (say+sby)/2
-    cx, cy = (x0+x1)/2, (y0+y1)/2
-    if (mx-cx)*nx + (my-cy)*ny < 0:          # make the normal point away from the centre
+    x0, x1, y0, y1 = bb
+    ax, ay, bx, by = seg
+    sax, say = x0 + (x1 - x0) * ax / 2, y0 + (y1 - y0) * ay / 4
+    sbx, sby = x0 + (x1 - x0) * bx / 2, y0 + (y1 - y0) * by / 4
+    dx, dy = sbx - sax, sby - say
+    L = math.hypot(dx, dy) or 1e-9
+    nx, ny = -dy / L, dx / L
+    mx, my = (sax + sbx) / 2, (say + sby) / 2
+    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    if (mx - cx) * nx + (
+        my - cy
+    ) * ny < 0:  # make the normal point away from the centre
         nx, ny = -nx, -ny
     s = sagitta * L
-    px_, py_ = mx + 2*s*nx, my + 2*s*ny     # Bezier control: apex lands at s
-    pts = [((1-t)**2*sax + 2*(1-t)*t*px_ + t*t*sbx,
-            (1-t)**2*say + 2*(1-t)*t*py_ + t*t*sby) for t in (i/ARC_N for i in range(ARC_N+1))]
+    px_, py_ = mx + 2 * s * nx, my + 2 * s * ny  # Bezier control: apex lands at s
+    pts = [
+        (
+            (1 - t) ** 2 * sax + 2 * (1 - t) * t * px_ + t * t * sbx,
+            (1 - t) ** 2 * say + 2 * (1 - t) * t * py_ + t * t * sby,
+        )
+        for t in (i / ARC_N for i in range(ARC_N + 1))
+    ]
     return _band(pts, sw, H)
 
 
 def _phi(S, G):
     """⊕CONGRUENCE-MATCH: Matthews phi over the full 2x2 (seg{+,-} x ink{+,-}).
     Symmetric in both objects and both polarities; class-imbalance corrected."""
-    a = np.sum(S & G); b = np.sum(S & ~G); c = np.sum(~S & G); d = np.sum(~S & ~G)
-    den = math.sqrt((a+b)*(a+c)*(d+b)*(d+c))
-    return (a*d - b*c)/den if den > 0 else 0.0
+    a = np.sum(S & G)
+    b = np.sum(S & ~G)
+    c = np.sum(~S & G)
+    d = np.sum(~S & ~G)
+    den = math.sqrt((a + b) * (a + c) * (d + b) * (d + c))
+    return (a * d - b * c) / den if den > 0 else 0.0
 
 
 # The arc bow of ARC_SEGS as a fraction of segment length, NEGATIVE = inward.
@@ -221,10 +261,14 @@ def match(pres, top=None, tau=None, band=SW_BAND, sagitta=SAGITTA):
     # frame the ink of a narrow glyph does not fill the cell, and stretching the
     # template into its bbox would put the frame defect back.
     _bb, sw = _ink_bbox_sw(pres, band)
-    cell = (0.0, 2.0, 0.0, 4.0)          # the lattice map; the grid may be taller
+    cell = (0.0, 2.0, 0.0, 4.0)  # the lattice map; the grid may be taller
     H = _cell_height(pres)
-    scores = {k: _phi(_arc_field(SEG[k], cell, sw, sagitta if k in ARC_SEGS else 0.0, H), pres)
-              for k in ST.SEG22}
+    scores = {
+        k: _phi(
+            _arc_field(SEG[k], cell, sw, sagitta if k in ARC_SEGS else 0.0, H), pres
+        )
+        for k in ST.SEG22
+    }
     if top is not None:
         lit = set(sorted(ST.SEG22, key=lambda k: -scores[k])[:top])
     elif tau is not None:
@@ -246,8 +290,15 @@ def project_glyph(path, ch, kind="outline", top=None, tau=None, frame="stretch")
     return match(pres, top=top, tau=tau)
 
 
-def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stretch",
-                        band=SW_BAND, sagitta=SAGITTA):
+def validate_projection(
+    path,
+    chars=None,
+    fmt="16",
+    kind="outline",
+    frame="stretch",
+    band=SW_BAND,
+    sagitta=SAGITTA,
+):
     """⊕SEG-TABLE-VALIDATE: cross-check the PROJECTION against the AUTHORED table,
     per glyph, and REPORT — a routine, not a comment (the first witness for this
     symbol matched the word "cross-check" in a docstring; session 69).
@@ -270,7 +321,7 @@ def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stret
         table = ST.glyph22(ch) if fmt == "22" else ST.glyph16(ch)
         authored = set(ST.project(table, fmt))
         if not authored:
-            continue          # a KNOWN blank (' ', ':') has nothing to agree with
+            continue  # a KNOWN blank (' ', ':') has nothing to agree with
         if fmt == "22" and ch in ST.LETTERS22:
             # a lowercase glyph is placed by the font's metrics on the 2x6 cell,
             # so its descender can reach the descent row (session 83)
@@ -282,8 +333,17 @@ def validate_projection(path, chars=None, fmt="16", kind="outline", frame="stret
         projected = set(ST.project(lit22, fmt))
         hits = authored & projected
         union = authored | projected
-        rows.append((ch, authored, projected, hits, authored - projected,
-                     projected - authored, len(hits) / len(union) if union else 1.0))
+        rows.append(
+            (
+                ch,
+                authored,
+                projected,
+                hits,
+                authored - projected,
+                projected - authored,
+                len(hits) / len(union) if union else 1.0,
+            )
+        )
     return sorted(rows, key=lambda r: -r[6])
 
 
@@ -297,8 +357,15 @@ FRAMES = ("stretch", "fit", "metrics")
 SAGITTA_GRID = (-0.2, -0.15, -0.1, -0.075, -0.05, -0.025, 0.0, 0.05, 0.1, 0.2)
 
 
-def calibrate_projection(path, chars=None, fmt="16", kind="outline",
-                         bands=BAND_GRID, frames=FRAMES, sagittas=(SAGITTA,)):
+def calibrate_projection(
+    path,
+    chars=None,
+    fmt="16",
+    kind="outline",
+    bands=BAND_GRID,
+    frames=FRAMES,
+    sagittas=(SAGITTA,),
+):
     """⊕SEG-PROJECT-CALIBRATE: solve the matcher's free parameters — the ingest
     frame, the template band fraction and (⊕SEG-DOTPRODUCT-TEMPLATES) the arc
     sagitta — by mean Jaccard against the authored table over the whole glyph
@@ -313,16 +380,21 @@ def calibrate_projection(path, chars=None, fmt="16", kind="outline",
     for frame in frames:
         for band in bands:
             for sag in sagittas:
-                rows = validate_projection(path, chars, fmt=fmt, kind=kind, frame=frame,
-                                           band=band, sagitta=sag)
+                rows = validate_projection(
+                    path, chars, fmt=fmt, kind=kind, frame=frame, band=band, sagitta=sag
+                )
                 table[(frame, band, sag)] = agreement_summary(rows)
     best = max(table, key=lambda k: (table[k][0], table[k][1]))
-    return {"frame": best[0], "band": best[1], "sagitta": best[2]}, table[best][0], table
+    return (
+        {"frame": best[0], "band": best[1], "sagitta": best[2]},
+        table[best][0],
+        table,
+    )
 
 
-CLASS_CURVE = 0.35      # curve length fraction above which a glyph is "round"
-CLASS_DIAG = 0.20       # diagonal length fraction above which it is "diagonal"
-CLASS_NARROW = 0.40     # bbox width/height below which it is "narrow"
+CLASS_CURVE = 0.35  # curve length fraction above which a glyph is "round"
+CLASS_DIAG = 0.20  # diagonal length fraction above which it is "diagonal"
+CLASS_NARROW = 0.40  # bbox width/height below which it is "narrow"
 
 
 def glyph_class(path, ch):
@@ -330,6 +402,7 @@ def glyph_class(path, ch):
     outline (make_glyph_ink.outline_stats), in that precedence — so a narrow
     round glyph is narrow (its frame is the problem before its walls are)."""
     import make_glyph_ink as GI
+
     st = GI.outline_stats(path, ch)
     if not st or not st["bbox"]:
         return "unknown"
@@ -390,8 +463,12 @@ if __name__ == "__main__":
     LIB = "/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"
     for ch in "OE8L":
         tbl = ST.DIGITS16 if ch.isdigit() else ST.LETTERS16
-        G = PF.winding_ink(LIB, ch); pres = ink_grid(G)
-        rg = region_graph(pres); st = strata(pres)
+        G = PF.winding_ink(LIB, ch)
+        pres = ink_grid(G)
+        rg = region_graph(pres)
+        st = strata(pres)
         _, lit = match(pres, top=len(tbl[ch].split()))
-        print(f"{ch}: holes={rg['holes']} rim_frac={st['rim_frac']} "
-              f"lit@22={sorted(lit)} derez@7={sorted(ST.project(lit,'7'))}")
+        print(
+            f"{ch}: holes={rg['holes']} rim_frac={st['rim_frac']} "
+            f"lit@22={sorted(lit)} derez@7={sorted(ST.project(lit, '7'))}"
+        )

@@ -28,6 +28,7 @@ concern).
 it goes red — which is what makes it a claim rather than a comment.  Weakness: the
 test is words co-occurring in a 7-line window, not that the paragraph says why.
 """
+
 import json
 import os
 import sys
@@ -58,16 +59,23 @@ def found(root=ROOT):
     for i, line in enumerate(lines, 1):
         # a window around this line, so a rationale spanning a wrapped
         # paragraph counts as the single statement it reads as
-        window = " ".join(lines[max(0, i - 4):i + 3]).lower()
+        window = " ".join(lines[max(0, i - 4) : i + 3]).lower()
         if all(n in window for n in NEEDLES) and any(d in window for d in DECISION):
-            return [(i, line.rstrip())]                 # one witness is enough
+            return [(i, line.rstrip())]  # one witness is enough
     return []
 
 
 def measure(root=ROOT):
     ev = found(root)
-    return {"cases": [{"record": RECORD, "present": ev is not None,
-                       "evidence": [{"line": i, "text": t} for i, t in (ev or [])]}]}
+    return {
+        "cases": [
+            {
+                "record": RECORD,
+                "present": ev is not None,
+                "evidence": [{"line": i, "text": t} for i, t in (ev or [])],
+            }
+        ]
+    }
 
 
 def main(argv):
@@ -84,17 +92,22 @@ def main(argv):
             print(f"{RECORD}:{i}: {text}")
         return 0
     import opa_gate
+
     return opa_gate.gate("scope_recorded")
 
 
 def _selftest():
     """The measurement can SEE a recorded rationale, a missing one, and a missing record."""
     import tempfile
+
     ok = True
 
     def check(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     check("needles are non-empty", all(NEEDLES), True)
@@ -103,11 +116,19 @@ def _selftest():
         p = os.path.join(td, RECORD)
         with open(p, "w") as fh:
             fh.write("# notes\nnothing about it\n")
-        check("a record without the rationale has no evidence", measure(td)["cases"][0]["evidence"], [])
+        check(
+            "a record without the rationale has no evidence",
+            measure(td)["cases"][0]["evidence"],
+            [],
+        )
         # the wrapped paragraph that the one-line version reported absent
         with open(p, "w") as fh:
-            fh.write("The rename was about a\ntrademark; the prior mark was\nretired everywhere.\n")
-        check("a WRAPPED rationale is seen", len(measure(td)["cases"][0]["evidence"]), 1)
+            fh.write(
+                "The rename was about a\ntrademark; the prior mark was\nretired everywhere.\n"
+            )
+        check(
+            "a WRAPPED rationale is seen", len(measure(td)["cases"][0]["evidence"]), 1
+        )
     print("check_scope_recorded selftest:", "PASS" if ok else "FAIL")
     return ok
 

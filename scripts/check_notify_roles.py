@@ -24,6 +24,7 @@ reads 0 here and is 257 live. The widget reads every role SYMBOLICALLY
 (NotificationManager.Notifications.IdRole), which is why the numbers never
 matter to it — and why nothing here may be compared to a literal.
 """
+
 import json
 import os
 import re
@@ -43,12 +44,12 @@ def _blocks(text, kind):
         while i < len(text) and depth:
             depth += {"{": 1, "}": -1}.get(text[i], 0)
             i += 1
-        out.append(text[m.end():i - 1])
+        out.append(text[m.end() : i - 1])
     return out
 
 
 def _field(body, name):
-    m = re.search(r'(?m)^\s*' + name + r':\s*"([^"]*)"', body)
+    m = re.search(r"(?m)^\s*" + name + r':\s*"([^"]*)"', body)
     return m.group(1) if m else None
 
 
@@ -71,22 +72,48 @@ def parse(text):
                     enums[en][k] = int(v)
         methods = [_field(mb, "name") for mb in _blocks(body, "Method")]
         props = [_field(pb, "name") for pb in _blocks(body, "Property")]
-        comps[name] = {"enums": enums, "methods": [m for m in methods if m], "properties": [p for p in props if p],
-                       "exports": re.findall(r'"([^"]+)"', (re.search(r"exports:\s*\[([^\]]*)\]", body) or re.search(r"()", "")).group(1))}
+        comps[name] = {
+            "enums": enums,
+            "methods": [m for m in methods if m],
+            "properties": [p for p in props if p],
+            "exports": re.findall(
+                r'"([^"]+)"',
+                (
+                    re.search(r"exports:\s*\[([^\]]*)\]", body) or re.search(r"()", "")
+                ).group(1),
+            ),
+        }
     return {"components": comps}
 
 
 # the roles W46's capabilities read (catalog/notify-capabilities.md): identity and
 # text (today), urgency, expiry, actions, job progress and state, type, transient,
 # category, hints — every one must be declared by the host AND modelled by the stub
-NEEDED = ("IdRole", "SummaryRole", "BodyRole", "ApplicationNameRole", "UrgencyRole", "ExpiredRole",
-          "ActionNamesRole", "ActionLabelsRole", "PercentageRole", "JobStateRole", "TypeRole",
-          "TransientRole", "CategoryRole", "HintsRole")
+NEEDED = (
+    "IdRole",
+    "SummaryRole",
+    "BodyRole",
+    "ApplicationNameRole",
+    "UrgencyRole",
+    "ExpiredRole",
+    "ActionNamesRole",
+    "ActionLabelsRole",
+    "PercentageRole",
+    "JobStateRole",
+    "TypeRole",
+    "TransientRole",
+    "CategoryRole",
+    "HintsRole",
+)
 
 
 def measure(path=QMLTYPES):
     if not os.path.isfile(path):
-        return {"withheld": f"{path} is not on this host", "roles": {}, "needed": list(NEEDED)}
+        return {
+            "withheld": f"{path} is not on this host",
+            "roles": {},
+            "needed": list(NEEDED),
+        }
     with open(path, encoding="utf-8") as fh:
         p = parse(fh.read())
     model = p["components"].get("NotificationManager::Notifications", {})
@@ -97,12 +124,26 @@ def measure(path=QMLTYPES):
         ML = None
     stub_text = ML.STUB_MODEL if ML is not None else ""
     stub_roles = set(re.findall(r"\b(\w+Role)\b", stub_text))
-    return {"path": path, "roles": roles, "needed": list(NEEDED),
-            "enums": {k: v for k, v in model.get("enums", {}).items() if k != "Roles"},
-            "methods": model.get("methods", []),
-            "stub_roles": sorted(stub_roles),
-            "urgency": p["components"].get("NotificationManager::Notifications", {}).get("enums", {}).get("Urgency")
-                       or next((c["enums"]["Urgency"] for c in p["components"].values() if "Urgency" in c["enums"]), None)}
+    return {
+        "path": path,
+        "roles": roles,
+        "needed": list(NEEDED),
+        "enums": {k: v for k, v in model.get("enums", {}).items() if k != "Roles"},
+        "methods": model.get("methods", []),
+        "stub_roles": sorted(stub_roles),
+        "urgency": p["components"]
+        .get("NotificationManager::Notifications", {})
+        .get("enums", {})
+        .get("Urgency")
+        or next(
+            (
+                c["enums"]["Urgency"]
+                for c in p["components"].values()
+                if "Urgency" in c["enums"]
+            ),
+            None,
+        ),
+    }
 
 
 def main(argv):
@@ -118,15 +159,22 @@ def main(argv):
     if "withheld" in m:
         print(f"check_notify_roles: WITHHELD — {m['withheld']}")
         return 0
-    print(f"Notifications.Roles ({len(m['roles'])}; the number is the declaration ORDINAL, not the runtime value):")
+    print(
+        f"Notifications.Roles ({len(m['roles'])}; the number is the declaration ORDINAL, not the runtime value):"
+    )
     for k, v in m["roles"].items():
-        print(f"    {k:28s} {v:2d}{'   (stub has it)' if k in m['stub_roles'] else '   STUB LACKS IT'}")
+        print(
+            f"    {k:28s} {v:2d}{'   (stub has it)' if k in m['stub_roles'] else '   STUB LACKS IT'}"
+        )
     for en, vals in m["enums"].items():
         print(f"enum {en}: {vals}")
     print(f"methods: {', '.join(m['methods'])}")
     missing = [r for r in NEEDED if r not in m["roles"]]
-    print(f"check_notify_roles: {len(NEEDED) - len(missing)} of {len(NEEDED)} roles W46 needs are declared"
-          + (f"; missing {missing}" if missing else "") + "; the verdict is `opa_gate.py notify_roles`")
+    print(
+        f"check_notify_roles: {len(NEEDED) - len(missing)} of {len(NEEDED)} roles W46 needs are declared"
+        + (f"; missing {missing}" if missing else "")
+        + "; the verdict is `opa_gate.py notify_roles`"
+    )
     return 0
 
 
@@ -135,18 +183,31 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
-    fixture = ('Module {\n  Component {\n    name: "NotificationManager::Notifications"\n'
-               '    Enum {\n      name: "Roles"\n      values: ["IdRole", "UrgencyRole"]\n    }\n'
-               '    Enum {\n      name: "Urgency"\n      values: ["LowUrgency", "NormalUrgency", "CriticalUrgency"]\n    }\n'
-               '    Method { name: "invokeAction" }\n    Property { name: "count" }\n  }\n}\n')
+    fixture = (
+        'Module {\n  Component {\n    name: "NotificationManager::Notifications"\n'
+        '    Enum {\n      name: "Roles"\n      values: ["IdRole", "UrgencyRole"]\n    }\n'
+        '    Enum {\n      name: "Urgency"\n      values: ["LowUrgency", "NormalUrgency", "CriticalUrgency"]\n    }\n'
+        '    Method { name: "invokeAction" }\n    Property { name: "count" }\n  }\n}\n'
+    )
     p = parse(fixture)["components"]["NotificationManager::Notifications"]
-    chk("roles are read as an ordered enum", p["enums"]["Roles"], {"IdRole": 0, "UrgencyRole": 1})
+    chk(
+        "roles are read as an ordered enum",
+        p["enums"]["Roles"],
+        {"IdRole": 0, "UrgencyRole": 1},
+    )
     chk("a second enum is read", p["enums"]["Urgency"]["CriticalUrgency"], 2)
     chk("methods are read", p["methods"], ["invokeAction"])
-    chk("an absent file is withheld", "withheld" in measure("/nonexistent.qmltypes"), True)
+    chk(
+        "an absent file is withheld",
+        "withheld" in measure("/nonexistent.qmltypes"),
+        True,
+    )
     print("check_notify_roles selftest:", "PASS" if ok else "FAIL")
     return ok
 

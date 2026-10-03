@@ -24,6 +24,7 @@ beside a newer stage reads as missing files, not as staleness; the verdict's epo
 is reported so a caller can compare it to the stage's commit. contents.txt is
 parsed by dpkg-deb's fixed `tar -tv` column layout (the path is the 6th field on).
 """
+
 import json
 import os
 import sys
@@ -73,7 +74,9 @@ def measure(outdir, stage, verdict_path=None):
     status = os.path.join(outdir, "status")
     contents = os.path.join(outdir, "contents.txt")
     if not os.path.isfile(status) or not os.path.isfile(contents):
-        facts["withheld"].append(f"no deb_pack output at {outdir} (status/contents.txt absent)")
+        facts["withheld"].append(
+            f"no deb_pack output at {outdir} (status/contents.txt absent)"
+        )
         return facts
     if not os.path.isfile(os.path.join(stage, "DEBIAN", "control")):
         facts["withheld"].append(f"{stage} is not a package root (no DEBIAN/control)")
@@ -98,12 +101,23 @@ def _selftest():
         ok &= good
         print(f"  {'ok  ' if good else 'FAIL'} {label}: got {got!r}")
 
-    chk("status lines parse to codes", parse_status("clamp 0\nbuild 2\n"), {"clamp": 0, "build": 2})
-    listing = ("drwxr-xr-x root/root 0 2026-09-25 21:12 ./usr/\n"
-               "-rw-r--r-- root/root 12 2026-09-25 21:12 ./usr/share/a b.txt\n"
-               "lrwxrwxrwx root/root 0 2026-09-25 21:12 ./usr/bin/x -> y\n")
-    chk("only regular files are packed paths (spaces kept)", parse_contents(listing), ["/usr/share/a b.txt"])
+    chk(
+        "status lines parse to codes",
+        parse_status("clamp 0\nbuild 2\n"),
+        {"clamp": 0, "build": 2},
+    )
+    listing = (
+        "drwxr-xr-x root/root 0 2026-09-25 21:12 ./usr/\n"
+        "-rw-r--r-- root/root 12 2026-09-25 21:12 ./usr/share/a b.txt\n"
+        "lrwxrwxrwx root/root 0 2026-09-25 21:12 ./usr/bin/x -> y\n"
+    )
+    chk(
+        "only regular files are packed paths (spaces kept)",
+        parse_contents(listing),
+        ["/usr/share/a b.txt"],
+    )
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         os.makedirs(os.path.join(td, "DEBIAN"))
         os.makedirs(os.path.join(td, "usr", "share"))
@@ -112,7 +126,11 @@ def _selftest():
         with open(os.path.join(td, "usr", "share", "f"), "w") as fh:
             fh.write("x")
         chk("the stage excludes DEBIAN/", staged_files(td), ["/usr/share/f"])
-        chk("an absent pack output is WITHHELD", bool(measure(os.path.join(td, "none"), td)["withheld"]), True)
+        chk(
+            "an absent pack output is WITHHELD",
+            bool(measure(os.path.join(td, "none"), td)["withheld"]),
+            True,
+        )
     print(f"check_deb selftest: {'PASS' if ok else 'FAIL'}")
     return ok
 
@@ -129,9 +147,16 @@ def main(argv):
         return 0 if _selftest() else 1
     rest = [a for a in args if not a.startswith("--")]
     if "--json" not in args or len(rest) not in (2, 3):
-        print("usage: check_deb.py --json OUTDIR STAGE [VERDICT] | --selftest", file=sys.stderr)
+        print(
+            "usage: check_deb.py --json OUTDIR STAGE [VERDICT] | --selftest",
+            file=sys.stderr,
+        )
         return 2
-    print(json.dumps(measure(rest[0], rest[1], rest[2] if len(rest) == 3 else None), indent=1))
+    print(
+        json.dumps(
+            measure(rest[0], rest[1], rest[2] if len(rest) == 3 else None), indent=1
+        )
+    )
     return 0
 
 

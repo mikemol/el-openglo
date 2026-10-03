@@ -23,13 +23,22 @@ Each segment -> a polygon (list of (x,y) in units of L, where a digit cell is
 # horizontal bars: (kind 'h', x0, x1, y)   vertical bars: (kind 'v', x, y0, y1)
 # diagonals: (kind 'd', (x0,y0), (x1,y1))
 GEOM16 = {
-    "a1": ("h", 0, 1, 0), "a2": ("h", 1, 2, 0),
-    "f":  ("v", 0, 0, 2), "j": ("v", 1, 0, 2), "b": ("v", 2, 0, 2),
-    "h":  ("d", (0, 0), (1, 2)), "k": ("d", (2, 0), (1, 2)),
-    "g1": ("h", 0, 1, 2), "g2": ("h", 1, 2, 2),
-    "e":  ("v", 0, 2, 4), "m": ("v", 1, 2, 4), "c": ("v", 2, 2, 4),
-    "i":  ("d", (0, 4), (1, 2)), "l": ("d", (2, 4), (1, 2)),
-    "d1": ("d", (0, 4), (1, 4)) if False else ("h", 0, 1, 4), "d2": ("h", 1, 2, 4),
+    "a1": ("h", 0, 1, 0),
+    "a2": ("h", 1, 2, 0),
+    "f": ("v", 0, 0, 2),
+    "j": ("v", 1, 0, 2),
+    "b": ("v", 2, 0, 2),
+    "h": ("d", (0, 0), (1, 2)),
+    "k": ("d", (2, 0), (1, 2)),
+    "g1": ("h", 0, 1, 2),
+    "g2": ("h", 1, 2, 2),
+    "e": ("v", 0, 2, 4),
+    "m": ("v", 1, 2, 4),
+    "c": ("v", 2, 2, 4),
+    "i": ("d", (0, 4), (1, 2)),
+    "l": ("d", (2, 4), (1, 2)),
+    "d1": ("d", (0, 4), (1, 4)) if False else ("h", 0, 1, 4),
+    "d2": ("h", 1, 2, 4),
 }
 SEG16 = list(GEOM16.keys())
 
@@ -39,11 +48,16 @@ SEG16 = list(GEOM16.keys())
 FORMATS = {
     "16": {"mask": set(SEG16), "merge": {}},
     "14": {"mask": set(SEG16), "merge": {"a1": "a", "a2": "a", "d1": "d", "d2": "d"}},
-    "9":  {"mask": {"a1","a2","b","c","d1","d2","e","f","g1","g2","j","m"},
-           "merge": {"a1":"a","a2":"a","d1":"d","d2":"d","g1":"g","g2":"g"}},
-    "7":  {"mask": {"a1","a2","b","c","d1","d2","e","f","g1","g2"},
-           "merge": {"a1":"a","a2":"a","d1":"d","d2":"d","g1":"g","g2":"g"}},
+    "9": {
+        "mask": {"a1", "a2", "b", "c", "d1", "d2", "e", "f", "g1", "g2", "j", "m"},
+        "merge": {"a1": "a", "a2": "a", "d1": "d", "d2": "d", "g1": "g", "g2": "g"},
+    },
+    "7": {
+        "mask": {"a1", "a2", "b", "c", "d1", "d2", "e", "f", "g1", "g2"},
+        "merge": {"a1": "a", "a2": "a", "d1": "d", "d2": "d", "g1": "g", "g2": "g"},
+    },
 }
+
 
 def project(seg_set, fmt):
     """Project a 16-seg glyph (set of ids) onto a coarser format.
@@ -58,6 +72,7 @@ def project(seg_set, fmt):
             continue
         out.add(f["merge"].get(s, s))
     return out
+
 
 # --- glyph tables: 16-seg segment sets, pinned from fetched references --------
 # digits (English), from arXiv 1009.4977 Table 1 cross-checked w/ fandom:
@@ -110,13 +125,14 @@ SYMBOLS16 = {
     "\\": "h l",
     "=": "d1 d2 g1 g2",
     " ": "",
-    ":": "",     # colon handled as separate dots by the renderer
+    ":": "",  # colon handled as separate dots by the renderer
     "'": "f",
     "?": "a1 a2 b g2 m",
     "!": "j m",  # approximation
     "_": "d1 d2",
     "0": DIGITS16["0"],
 }
+
 
 def has_glyph(ch):
     """Whether the tables carry `ch` (case-folded). A KNOWN blank — " " — is True."""
@@ -139,18 +155,26 @@ def glyph16(ch, strict=False):
     `has_glyph()` lets a caller ask first.  A KNOWN blank (" ", in SYMBOLS16)
     is a glyph and is never refused."""
     ch = ch.upper()
-    if ch in DIGITS16: return set(DIGITS16[ch].split())
-    if ch in LETTERS16: return set(LETTERS16[ch].split())
-    if ch in SYMBOLS16: return set(SYMBOLS16[ch].split()) if SYMBOLS16[ch] else set()
+    if ch in DIGITS16:
+        return set(DIGITS16[ch].split())
+    if ch in LETTERS16:
+        return set(LETTERS16[ch].split())
+    if ch in SYMBOLS16:
+        return set(SYMBOLS16[ch].split()) if SYMBOLS16[ch] else set()
     if strict:
-        raise KeyError(f"no 16-seg glyph for {ch!r}; the tables carry "
-                       f"{len(DIGITS16)} digits, {len(LETTERS16)} letters, "
-                       f"{len(SYMBOLS16)} symbols")
+        raise KeyError(
+            f"no 16-seg glyph for {ch!r}; the tables carry "
+            f"{len(DIGITS16)} digits, {len(LETTERS16)} letters, "
+            f"{len(SYMBOLS16)} symbols"
+        )
     return set()  # unknown -> blank: the RENDER contract, by choice, see above
+
 
 # 7-seg glyph via projection, in the OLD naming (A..G) so it can be proven
 # byte-equal to make_wallpaper's DIGIT table.
 SEG7_RENAME = {"a": "A", "b": "B", "c": "C", "d": "D", "e": "E", "f": "F", "g": "G"}
+
+
 def glyph7_letters(ch):
     """Project to 7-seg and rename to A..G for parity with the wallpaper table.
 
@@ -174,8 +198,13 @@ def glyph7_letters(ch):
 # it today. The old literal is kept in the selftest as the expected value the
 # derivation must reproduce, so the change is provably output-neutral.
 _SEG7_GRID_EXPECTED = {
-    "A": ("h", 0, 0), "G": ("h", 0, 1), "D": ("h", 0, 2),
-    "F": ("v", 0, 0), "B": ("v", 1, 0), "E": ("v", 0, 1), "C": ("v", 1, 1),
+    "A": ("h", 0, 0),
+    "G": ("h", 0, 1),
+    "D": ("h", 0, 2),
+    "F": ("v", 0, 0),
+    "B": ("v", 1, 0),
+    "E": ("v", 0, 1),
+    "C": ("v", 1, 1),
 }
 
 
@@ -191,8 +220,11 @@ def seg7_strokes():
 
     Verticals are unsplit in both formats, so they pass through unchanged."""
     merged = {}
-    for coarse, parts in (("a", ("a1", "a2")), ("g", ("g1", "g2")),
-                          ("d", ("d1", "d2"))):
+    for coarse, parts in (
+        ("a", ("a1", "a2")),
+        ("g", ("g1", "g2")),
+        ("d", ("d1", "d2")),
+    ):
         xs = [GEOM16[p][1] for p in parts] + [GEOM16[p][2] for p in parts]
         y = GEOM16[parts[0]][3]
         merged[coarse] = ("h", min(xs), max(xs), y)
@@ -225,14 +257,19 @@ def seg7_svg_grid():
         if spec[0] == "h":
             _k, x0, x1, y = spec
             if (x0, x1) != (0, 2) or y % 2:
-                raise ValueError(f"7-seg bar {coarse!r} does not span the cell on a row: {spec}")
+                raise ValueError(
+                    f"7-seg bar {coarse!r} does not span the cell on a row: {spec}"
+                )
             out[key] = ("h", 0, y // 2)
         else:
             _k, x, y0, y1 = spec
             if y1 - y0 != 2 or x % 2 or y0 % 2:
-                raise ValueError(f"7-seg vertical {coarse!r} is not one coarse row tall: {spec}")
+                raise ValueError(
+                    f"7-seg vertical {coarse!r} is not one coarse row tall: {spec}"
+                )
             out[key] = ("v", x // 2, y0 // 2)
     return out
+
 
 # --- module metrics: PITCH, stroke, dot, slant — from published packages -----
 # ⚑ THE CELL WAS SUBSTRATE; THE ADVANCE WAS NOT.  Every surface read the 2x4
@@ -256,14 +293,14 @@ def seg7_svg_grid():
 # whose unit is a half-height (the clock's segLen, H = 2·segLen) or a quarter
 # (the wallpaper's U, H = 4·U) reads the same number through `metrics(H)`.
 MODULE_METRICS = {
-    "pitch":      12.7 / 14.22,     # 0.893 H — digit centre to digit centre; the FLOOR
-    "char_width": 8.0 / 14.22,      # 0.563 H — outer width of the lit character
-    "stroke":     1.5 / 14.22,      # 0.105 H — segment width (SA56/CC56; DA56 gives 0.091)
-    "dot":        1.5 / 14.22,      # 0.105 H — DP / colon dot diameter (HDSP: 0.120)
-    "colon_advance": 0.0,           # the colon adds NO pitch (HDSP-B0xG: 12.7 x 3 for 88:88)
-    "slant_deg":  8.0,              # Kingbright 8°, Avago 10°
+    "pitch": 12.7 / 14.22,  # 0.893 H — digit centre to digit centre; the FLOOR
+    "char_width": 8.0 / 14.22,  # 0.563 H — outer width of the lit character
+    "stroke": 1.5 / 14.22,  # 0.105 H — segment width (SA56/CC56; DA56 gives 0.091)
+    "dot": 1.5 / 14.22,  # 0.105 H — DP / colon dot diameter (HDSP: 0.120)
+    "colon_advance": 0.0,  # the colon adds NO pitch (HDSP-B0xG: 12.7 x 3 for 88:88)
+    "slant_deg": 8.0,  # Kingbright 8°, Avago 10°
     "source": "Kingbright SA56-11 / DA56-11 / CC56-12 and Avago HDSP-B0xG package "
-              "dimension drawings, 14.22 mm digits, read 2026-09-21",
+    "dimension drawings, 14.22 mm digits, read 2026-09-21",
 }
 
 
@@ -306,7 +343,7 @@ def metrics(H):
 # region below y=4, mirroring the 5x7->5x8 body+descender move the log names).
 # A future pin against the original artifact should treat the coordinates as the
 # soft part and the identifiers, roles, and the 22->16 invariant as the hard part.
-DESCENDER_DEPTH = 2                      # the sub-cell below the baseline, in L
+DESCENDER_DEPTH = 2  # the sub-cell below the baseline, in L
 
 # The six additions, placed relative to the body cell.  Stated once; GEOM22 is
 # the lattice plus these, DERIVED by `geom22()` so that a GEOM16 edit reaches
@@ -416,9 +453,12 @@ def endpoints(key_or_spec):
     h -> (x0,y,x1,y); v -> (x,y0,x,y1); d -> (p0x,p0y,p1x,p1y)."""
     spec = GEOM22[key_or_spec] if isinstance(key_or_spec, str) else key_or_spec
     k = spec[0]
-    if k == "h": return (spec[1], spec[3], spec[2], spec[3])
-    if k == "v": return (spec[1], spec[2], spec[1], spec[3])
-    if k == "d": return (spec[1][0], spec[1][1], spec[2][0], spec[2][1])
+    if k == "h":
+        return (spec[1], spec[3], spec[2], spec[3])
+    if k == "v":
+        return (spec[1], spec[2], spec[1], spec[3])
+    if k == "d":
+        return (spec[1][0], spec[1][1], spec[2][0], spec[2][1])
     raise ValueError(f"bad segment spec kind: {k!r}")
 
 
@@ -455,12 +495,18 @@ def _selftest():
 
     check("22 is a superset of 16", set(SEG16) <= set(SEG22), True)
     check("22 adds exactly 6 segments", len(SEG22) - len(SEG16), 6)
-    check("the extras are the 6 added", sorted(set(SEG22) - set(SEG16)),
-          sorted(SEG22_EXTRAS))
+    check(
+        "the extras are the 6 added",
+        sorted(set(SEG22) - set(SEG16)),
+        sorted(SEG22_EXTRAS),
+    )
     # THE GATE FROM THE LOG: dropping the extras from a 22-seg glyph must give
     # back native 16 for every uppercase and digit.
-    drift = [ch for ch in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-             if (project(glyph16(ch), "22") - set(SEG22_EXTRAS)) != glyph16(ch)]
+    drift = [
+        ch
+        for ch in "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        if (project(glyph16(ch), "22") - set(SEG22_EXTRAS)) != glyph16(ch)
+    ]
     check(f"22->16 byte-equal to native 16 ({drift[:5]})", drift, [])
     # every segment must have well-formed endpoints
     bad = [k for k in SEG22 if len(endpoints(k)) != 4]
@@ -469,11 +515,17 @@ def _selftest():
     # ⚑ THE LOWERCASE TABLE (⊕SEG22-DESCENDERS): 26 glyphs, every segment a real
     # 22-seg id, the descender glyphs EXACTLY the ones that hang below the
     # baseline, no two lowercase alike, and the uppercase path untouched.
-    check("LETTERS22 covers a-z", "".join(sorted(LETTERS22)), "abcdefghijklmnopqrstuvwxyz")
+    check(
+        "LETTERS22 covers a-z", "".join(sorted(LETTERS22)), "abcdefghijklmnopqrstuvwxyz"
+    )
     unknown = sorted({s for v in LETTERS22.values() for s in v.split()} - set(SEG22))
     check(f"every lowercase segment is a 22-seg id ({unknown})", unknown, [])
     hangs = frozenset(ch for ch in LETTERS22 if glyph22(ch) & {"dl", "dc", "dr"})
-    check("the glyphs that hang below the baseline are DESCENDER_GLYPHS", hangs, DESCENDER_GLYPHS)
+    check(
+        "the glyphs that hang below the baseline are DESCENDER_GLYPHS",
+        hangs,
+        DESCENDER_GLYPHS,
+    )
     dup = {}
     for ch in LETTERS22:
         dup.setdefault(frozenset(glyph22(ch)), []).append(ch)
@@ -492,17 +544,38 @@ def _selftest():
     # are independent drawings; the ratio is only a floor if both say so.
     single_pkg, dual_pitch, quad_pitch, clock_pitch = 12.7, 12.7, 12.7, 38.10 / 3
     char, margin = 8.0, 2.35
-    check("single package = character + 2 margins", round(char + 2 * margin, 2), single_pkg)
-    check("single package width = dual = quad = clock-module pitch",
-          len({single_pkg, dual_pitch, quad_pitch, round(clock_pitch, 2)}), 1)
-    check("MODULE_METRICS pitch is that ratio", round(MODULE_METRICS["pitch"] * 14.22, 2), 12.7)
-    check("the colon takes no advance (88:88 keeps 12.7 x 3)", MODULE_METRICS["colon_advance"], 0.0)
-    check("pitch exceeds character width (a gap exists)",
-          MODULE_METRICS["pitch"] > MODULE_METRICS["char_width"], True)
+    check(
+        "single package = character + 2 margins",
+        round(char + 2 * margin, 2),
+        single_pkg,
+    )
+    check(
+        "single package width = dual = quad = clock-module pitch",
+        len({single_pkg, dual_pitch, quad_pitch, round(clock_pitch, 2)}),
+        1,
+    )
+    check(
+        "MODULE_METRICS pitch is that ratio",
+        round(MODULE_METRICS["pitch"] * 14.22, 2),
+        12.7,
+    )
+    check(
+        "the colon takes no advance (88:88 keeps 12.7 x 3)",
+        MODULE_METRICS["colon_advance"],
+        0.0,
+    )
+    check(
+        "pitch exceeds character width (a gap exists)",
+        MODULE_METRICS["pitch"] > MODULE_METRICS["char_width"],
+        True,
+    )
     m2, m4 = metrics(2.0), metrics(4.0)
     check("metrics() scales with H", round(m4["pitch"] / m2["pitch"], 6), 2.0)
-    check("metrics() carries every key", sorted(m2),
-          ["char_width", "colon_advance", "dot", "pitch", "slant_deg", "stroke"])
+    check(
+        "metrics() carries every key",
+        sorted(m2),
+        ["char_width", "colon_advance", "dot", "pitch", "slant_deg", "stroke"],
+    )
 
     # ⚑ THE COARSE 7-SEG CELL IS A PROJECTION, NOT A FORK.  seg7_svg_grid names
     # the 2x3 cell the SVG/QML surfaces draw in. If its key set ever diverged
@@ -510,32 +583,44 @@ def _selftest():
     # wearing a projection's name — which is the silo this replaced.
     # ⚑ THE DERIVATION REPRODUCES THE TABLE IT REPLACED, byte for byte — so
     # moving from a literal to a function changed no surface's output.
-    check("seg7_svg_grid() reproduces the retired literal",
-          seg7_svg_grid(), _SEG7_GRID_EXPECTED)
+    check(
+        "seg7_svg_grid() reproduces the retired literal",
+        seg7_svg_grid(),
+        _SEG7_GRID_EXPECTED,
+    )
     # ⚑ AND IT IS LIVE: a lattice edit reaches the coarse cell without a re-import.
     _saved = GEOM16["g1"], GEOM16["g2"]
     try:
-        GEOM16["g1"] = ("h", 0, 1, 2.0); GEOM16["g2"] = ("h", 1, 2, 2.0)  # same row, float form
-        check("the coarse cell is read from GEOM16 at call time",
-              seg7_svg_grid()["G"], ("h", 0, 1))
-        check("geom22() is read from GEOM16 at call time",
-              geom22()["g1"], ("h", 0, 1, 2.0))
+        GEOM16["g1"] = ("h", 0, 1, 2.0)
+        GEOM16["g2"] = ("h", 1, 2, 2.0)  # same row, float form
+        check(
+            "the coarse cell is read from GEOM16 at call time",
+            seg7_svg_grid()["G"],
+            ("h", 0, 1),
+        )
+        check(
+            "geom22() is read from GEOM16 at call time",
+            geom22()["g1"],
+            ("h", 0, 1, 2.0),
+        )
     finally:
         GEOM16["g1"], GEOM16["g2"] = _saved
     grid = set(seg7_svg_grid())
     emitted = set()
     for ch in "0123456789":
         emitted |= set(glyph7_letters(ch))
-    check(f"the 7-seg grid covers what project() emits ({sorted(emitted - grid)})",
-          sorted(emitted - grid), [])
+    check(
+        f"the 7-seg grid covers what project() emits ({sorted(emitted - grid)})",
+        sorted(emitted - grid),
+        [],
+    )
     check("the 7-seg grid has exactly seven strokes", len(grid), 7)
 
     # ⚑ THE COARSE BARS SPAN THE WHOLE CELL, which is what taking one half-bar
     # got wrong — and got wrong INVISIBLY, as a valid image of a clipped glyph.
     st = seg7_strokes()
     check("seg7_strokes has seven strokes", len(st), 7)
-    wide = [k for k in ("a", "g", "d")
-            if not (st[k][1] == 0 and st[k][2] == 2)]
+    wide = [k for k in ("a", "g", "d") if not (st[k][1] == 0 and st[k][2] == 2)]
     check(f"the horizontals span the full 2-wide cell ({wide})", wide, [])
     tall = [k for k in ("f", "b", "e", "c") if st[k][0] != "v"]
     check(f"the verticals stay vertical ({tall})", tall, [])
@@ -551,13 +636,15 @@ def _selftest():
 
 if __name__ == "__main__":
     import sys
+
     if "--selftest" in sys.argv:
         sys.exit(0 if _selftest() else 1)
     # self-report: the family lattice and a parity check vs the wallpaper 7-seg
     import re
+
     with open("make_wallpaper.py") as fh:
         wp = fh.read()
-    digit_match = re.search(r'DIGIT = (\{.*?\})', wp, re.DOTALL)
+    digit_match = re.search(r"DIGIT = (\{.*?\})", wp, re.DOTALL)
     if digit_match is None:
         raise SystemExit("segment_topology: no DIGIT table found in make_wallpaper.py")
     DIGIT7 = eval(digit_match.group(1))

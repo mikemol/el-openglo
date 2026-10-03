@@ -21,6 +21,7 @@ BEFORE the rewrite, and this asserts the generator still reproduces it.
 ⚑ A MISSING BASELINE IS A REFUSAL, NOT A PASS.  An absent baseline means nobody
 captured the before-state, so parity is unverified rather than confirmed.
 """
+
 import os
 import sys
 
@@ -61,11 +62,21 @@ PAIRS = (
     # segment_topology's projection. So this pair proves TWO things at once — that
     # the 120 lines transcribed correctly, and that the substrate's tables are
     # byte-identical to the ones this file used to author.
-    ("make_wallpaper_live", "main_qml", None, "live-wallpaper-main.qml"),   # one package since W35
+    (
+        "make_wallpaper_live",
+        "main_qml",
+        None,
+        "live-wallpaper-main.qml",
+    ),  # one package since W35
     # the ONE switcher package (⊕ONE-THEME, W35): one hole, the global ghost alpha
     ("make_taskswitch", "main_qml", None, "taskswitch-main.qml"),
     # four holes since W8: ground, lit, and the scheme's ghost + ghost_alpha
-    ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"), "splash.qml"),
+    (
+        "make_deb",
+        "_splash_qml",
+        ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"),
+        "splash.qml",
+    ),
 )
 
 
@@ -83,6 +94,7 @@ def _value(module, accessor, argsrc):
     os.chdir(ROOT)
     sys.path.insert(0, ROOT)
     import importlib
+
     mod = importlib.import_module(module)
     obj = getattr(mod, accessor)
     if not callable(obj):
@@ -130,12 +142,13 @@ def shared_inodes():
 def unlink_shared():
     """Give every shared-inode baseline its own inode (same bytes, same mode)."""
     import shutil
+
     done = []
     for name, n in shared_inodes():
         p = os.path.join(BASELINES, name)
         tmp = p + ".unlink"
         shutil.copy2(p, tmp)
-        os.replace(tmp, p)               # a new inode under the old name
+        os.replace(tmp, p)  # a new inode under the old name
         done.append((name, n))
     return done
 
@@ -149,10 +162,17 @@ def measure():
     cases = []
     for module, accessor, argsrc, name in PAIRS:
         path = os.path.join(BASELINES, name)
-        c = {"id": f"{module}.{accessor}", "baseline": name,
-             "baseline_present": os.path.isfile(path),
-             "links": os.stat(path).st_nlink if os.path.isfile(path) else None,
-             "skip": None, "raised": None, "equal": None, "got_bytes": None, "want_bytes": None}
+        c = {
+            "id": f"{module}.{accessor}",
+            "baseline": name,
+            "baseline_present": os.path.isfile(path),
+            "links": os.stat(path).st_nlink if os.path.isfile(path) else None,
+            "skip": None,
+            "raised": None,
+            "equal": None,
+            "got_bytes": None,
+            "want_bytes": None,
+        }
         if c["baseline_present"]:
             try:
                 got = _value(module, accessor, argsrc)
@@ -161,7 +181,7 @@ def measure():
                 c.update(equal=got == want, got_bytes=len(got), want_bytes=len(want))
             except _Skip as e:
                 c["skip"] = str(e)
-            except Exception as e:                   # noqa: BLE001
+            except Exception as e:  # noqa: BLE001
                 c["raised"] = f"{type(e).__name__}: {e}"
         cases.append(c)
     return {"cases": cases}
@@ -194,6 +214,7 @@ def diff(match):
     regenerated file — which is the judgement living outside a program. The pair
     is declared HERE, so the comparison belongs here too."""
     import difflib
+
     shown = 0
     for module, accessor, argsrc, name in PAIRS:
         label = f"{module}.{accessor}"
@@ -208,15 +229,20 @@ def diff(match):
             want = fh.read()
         try:
             got = _value(module, accessor, argsrc)
-        except Exception as e:                   # noqa: BLE001
+        except Exception as e:  # noqa: BLE001
             print(f"{label}: RAISED {type(e).__name__}: {e}")
             continue
         if got == want:
             print(f"{label}: ok (byte-identical)")
             continue
         for line in difflib.unified_diff(
-                want.splitlines(), got.splitlines(),
-                fromfile=f"baseline/{name}", tofile=f"{label}()", lineterm="", n=2):
+            want.splitlines(),
+            got.splitlines(),
+            fromfile=f"baseline/{name}",
+            tofile=f"{label}()",
+            lineterm="",
+            n=2,
+        ):
             print(line)
     print(f"diff: {shown} of {len(PAIRS)} pair(s) matched {match!r}")
     return 0 if shown else 2
@@ -237,24 +263,32 @@ def record(match):
     new baseline is where that claim is made and reviewed."""
     hits = [p for p in PAIRS if match in f"{p[0]}.{p[1]}" or match in p[3]]
     if len(hits) != 1:
-        print(f"check_template_parity: --record needs exactly ONE pair; {match!r} "
-              f"matched {len(hits)} (see --pairs)", file=sys.stderr)
+        print(
+            f"check_template_parity: --record needs exactly ONE pair; {match!r} "
+            f"matched {len(hits)} (see --pairs)",
+            file=sys.stderr,
+        )
         return 2
     module, accessor, argsrc, name = hits[0]
     label = f"{module}.{accessor}"
     path = os.path.join(BASELINES, name)
     try:
         got = _value(module, accessor, argsrc)
-    except Exception as e:                       # noqa: BLE001
-        print(f"check_template_parity: {label}: RAISED {type(e).__name__}: {e} — "
-              f"nothing recorded", file=sys.stderr)
+    except Exception as e:  # noqa: BLE001
+        print(
+            f"check_template_parity: {label}: RAISED {type(e).__name__}: {e} — "
+            f"nothing recorded",
+            file=sys.stderr,
+        )
         return 1
     on_disk = None
     if os.path.isfile(path):
         with open(path, encoding="utf-8") as fh:
             on_disk = fh.read()
     if on_disk is not None and on_disk == got:
-        print(f"record: {label} already matches catalog/baselines/{name}; nothing written")
+        print(
+            f"record: {label} already matches catalog/baselines/{name}; nothing written"
+        )
         return 0
     diff(match)
     with open(path, "w", encoding="utf-8") as f:
@@ -284,6 +318,7 @@ def installed():
     the TREE's emission (not the baseline: the baseline is what the tree emitted at
     capture, and here the question is what the host runs)."""
     import difflib
+
     out = []
     by_name = {name: (m, a, s) for m, a, s, name in PAIRS}
     for name, path in INSTALLED.items():
@@ -301,14 +336,36 @@ def installed():
         if host == tree:
             out.append((name, "current", "byte-identical to the tree's emission"))
             continue
-        first = next((l for l in difflib.unified_diff(host.splitlines(), tree.splitlines(), lineterm="", n=0)
-                      if l.startswith(("+", "-")) and not l.startswith(("+++", "---"))), "?")
-        out.append((name, "STALE", f"{len(host)} vs {len(tree)} bytes; first change: {first[:90]}"))
+        first = next(
+            (
+                l
+                for l in difflib.unified_diff(
+                    host.splitlines(), tree.splitlines(), lineterm="", n=0
+                )
+                if l.startswith(("+", "-")) and not l.startswith(("+++", "---"))
+            ),
+            "?",
+        )
+        out.append(
+            (
+                name,
+                "STALE",
+                f"{len(host)} vs {len(tree)} bytes; first change: {first[:90]}",
+            )
+        )
     return out
 
 
 def main(argv):
-    known = {"--pairs", "--diff", "--unlink", "--links", "--installed", "--record", "--json"}
+    known = {
+        "--pairs",
+        "--diff",
+        "--unlink",
+        "--links",
+        "--installed",
+        "--record",
+        "--json",
+    }
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
         if a not in known:
@@ -319,7 +376,9 @@ def main(argv):
         for name, verdict, detail in rows:
             print(f"{verdict:14s} {name:36s} {detail}")
         stale = sum(1 for _n, v, _d in rows if v == "STALE")
-        print(f"installed: {stale} of {len(rows)} installed emission(s) differ from the tree")
+        print(
+            f"installed: {stale} of {len(rows)} installed emission(s) differ from the tree"
+        )
         return 0
     if "--links" in argv:
         shared = shared_inodes()
@@ -336,15 +395,21 @@ def main(argv):
     if "--record" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if not rest:
-            print("check_template_parity: --record needs ONE pair to match "
-                  "(read --diff first)", file=sys.stderr)
+            print(
+                "check_template_parity: --record needs ONE pair to match "
+                "(read --diff first)",
+                file=sys.stderr,
+            )
             return 2
         return record(rest[0])
     if "--diff" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if not rest:
-            print("check_template_parity: --diff needs a pair to match "
-                  "(a module, accessor or baseline name)", file=sys.stderr)
+            print(
+                "check_template_parity: --diff needs a pair to match "
+                "(a module, accessor or baseline name)",
+                file=sys.stderr,
+            )
             return 2
         return diff(rest[0])
     if "--pairs" in argv:
@@ -353,10 +418,12 @@ def main(argv):
         return 0
     if "--json" in argv:
         import json
+
         print(json.dumps(measure(), indent=1))
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("template_parity")
 
 
@@ -384,6 +451,7 @@ def _selftest():
     # ⚑ A SHARED INODE MUST BE SEEN, AND --unlink MUST END IT.  Plant a baseline
     # dir where one file is a hard link of another, in a tempdir.
     import tempfile
+
     with tempfile.TemporaryDirectory() as td:
         a = os.path.join(td, "a.txt")
         with open(a, "w") as fh:
@@ -391,10 +459,15 @@ def _selftest():
         os.link(a, os.path.join(td, "b.txt"))
         try:
             globals()["BASELINES"] = td
-            check("a hard-linked baseline is seen", [n for n, _ in shared_inodes()],
-                  ["a.txt", "b.txt"])
+            check(
+                "a hard-linked baseline is seen",
+                [n for n, _ in shared_inodes()],
+                ["a.txt", "b.txt"],
+            )
             unlink_shared()
-            check("--unlink leaves every baseline on its own inode", shared_inodes(), [])
+            check(
+                "--unlink leaves every baseline on its own inode", shared_inodes(), []
+            )
             with open(os.path.join(td, "b.txt")) as fh:
                 b_text = fh.read()
             check("...with the same bytes", b_text, "same bytes\n")
@@ -406,11 +479,16 @@ def _selftest():
     # exist and the verdict must say SKIP and name the attribute.
     sys.path.insert(0, ROOT)
     import make_notify_marquee as MM
+
     saved_font = MM.PARITY_FONT
     try:
         MM.PARITY_FONT = "/nonexistent/font.ttf"
         v = dict(compare()).get("make_notify_marquee.main_qml", "")
-        check("an absent pinned font SKIPs the pair", v.startswith("SKIP") and "PARITY_FONT" in v, True)
+        check(
+            "an absent pinned font SKIPs the pair",
+            v.startswith("SKIP") and "PARITY_FONT" in v,
+            True,
+        )
     finally:
         MM.PARITY_FONT = saved_font
     print("check_template_parity selftest:", "PASS" if ok else "FAIL")

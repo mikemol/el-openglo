@@ -39,6 +39,7 @@ still fail at runtime (a binding loop, a missing config key, the plugin-id
 mismatch that broke the desktop the FIRST time — W58 carries that half). This
 says only that every type the QML names can be found where the package puts it.
 """
+
 import json
 import os
 import re
@@ -55,29 +56,43 @@ PACKAGES = (
     ("org.el.notifymarquee", "make_notify_marquee", "render_all"),
 )
 
-QMLLINT = "/usr/lib64/qt6/bin/qmllint"    # = qt_sandbox.QMLLINT; spawned only through it
+QMLLINT = "/usr/lib64/qt6/bin/qmllint"  # = qt_sandbox.QMLLINT; spawned only through it
 # "X was not found. Did you add all imports and dependencies?" — the [import]
 # category, which is what an unresolvable bare-name type reports as
-UNRESOLVED = re.compile(r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[import\]", re.MULTILINE)
+UNRESOLVED = re.compile(
+    r"^Warning: (\S+):(\d+):(\d+): (\w+) was not found\..*\[import\]", re.MULTILINE
+)
 
 
 def lint_tree(ui_dir, docs):
     """[{type, file, line}] for every type qmllint cannot resolve, with the tree's
     own ui directory on the import path — the resolution Plasma does."""
     import qt_sandbox as QT
+
     out = []
     for name in sorted(docs):
-        r = QT.run([QMLLINT, "-I", ui_dir, os.path.join(ui_dir, name)],
-                           capture_output=True, text=True, cwd=ui_dir, timeout=120)
+        r = QT.run(
+            [QMLLINT, "-I", ui_dir, os.path.join(ui_dir, name)],
+            capture_output=True,
+            text=True,
+            cwd=ui_dir,
+            timeout=120,
+        )
         for m in UNRESOLVED.finditer(r.stdout + r.stderr):
-            out.append({"type": m.group(4), "file": os.path.basename(m.group(1)),
-                        "line": int(m.group(2))})
+            out.append(
+                {
+                    "type": m.group(4),
+                    "file": os.path.basename(m.group(1)),
+                    "line": int(m.group(2)),
+                }
+            )
     return out
 
 
 def package_facts(label, module_name, attr):
     """{label, files, missing} — rendered the way the emitter does, then linted."""
     import importlib
+
     mod = importlib.import_module(module_name)
     if not os.path.isfile(QMLLINT):
         return {"package": label, "withheld": f"{QMLLINT} is not on this host"}
@@ -86,9 +101,18 @@ def package_facts(label, module_name, attr):
         ui = os.path.join(td, "contents", "ui")
         # population: the package the emitter just rendered into this private tempdir
         files = sorted(n for base, _d, ns in os.walk(td) for n in ns)
-        docs = [n for n in os.listdir(ui) if n.endswith(".qml")] if os.path.isdir(ui) else []
+        docs = (
+            [n for n in os.listdir(ui) if n.endswith(".qml")]
+            if os.path.isdir(ui)
+            else []
+        )
         missing = lint_tree(ui, docs) if docs else []
-    return {"package": label, "files": files, "documents": sorted(docs), "missing": missing}
+    return {
+        "package": label,
+        "files": files,
+        "documents": sorted(docs),
+        "missing": missing,
+    }
 
 
 def measure(packages=PACKAGES):
@@ -106,6 +130,7 @@ def main(argv):
         return 0
     sys.path.insert(0, os.path.join(ROOT, "scripts"))
     import opa_gate
+
     return opa_gate.gate("package_imports")
 
 
@@ -114,7 +139,10 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     # ⚑ THE MEASUREMENT CAN SEE: a package whose emitter writes the mount and not
@@ -130,6 +158,7 @@ def _selftest():
             fh.write("import QtQuick\nItem { }\n")
 
     import types
+
     fake = types.ModuleType("_fake_pkg")
     fake.render_broken, fake.render_whole = render_broken, render_whole
     sys.modules["_fake_pkg"] = fake
@@ -138,14 +167,23 @@ def _selftest():
     if broken.get("withheld"):
         print(f"  SKIP — {broken['withheld']}; the resolution arms did not run")
     else:
-        chk("a mount without its display is seen",
-            [u["type"] for u in broken["missing"]], ["SegmentChar"])
-        chk("...and it names where", (broken["missing"][0]["file"], broken["missing"][0]["line"]),
-            ("main.qml", 2))
+        chk(
+            "a mount without its display is seen",
+            [u["type"] for u in broken["missing"]],
+            ["SegmentChar"],
+        )
+        chk(
+            "...and it names where",
+            (broken["missing"][0]["file"], broken["missing"][0]["line"]),
+            ("main.qml", 2),
+        )
         chk("...and a whole package is clean", whole["missing"], [])
         # ⚑ a module type is resolved BY QMLLINT, not by a list this file keeps
-        chk("a module-provided type needs no file beside the document",
-            any(u["type"] == "Rectangle" for u in whole["missing"]), False)
+        chk(
+            "a module-provided type needs no file beside the document",
+            any(u["type"] == "Rectangle" for u in whole["missing"]),
+            False,
+        )
     print("check_package_imports selftest:", "PASS" if ok else "FAIL")
     return ok
 

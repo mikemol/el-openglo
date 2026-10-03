@@ -16,13 +16,14 @@ available for a full-alphabet font.
 SVG-font coords are y-UP with baseline at 0; GEOM16 is y-DOWN in a 2x4 cell —
 the emitter flips y and scales to the font em square.
 """
+
 import segment_topology as _seg
 from emitters import atomic_write
 
-EM = 1000            # units per em
+EM = 1000  # units per em
 CELL_W, CELL_H = 2.0, 4.0
 SCALE = EM / CELL_H  # 4 cell-units tall -> full em
-THICK = 0.34         # segment half-thickness in cell units (matches renderers)
+THICK = 0.34  # segment half-thickness in cell units (matches renderers)
 
 
 def _seg_path(spec):
@@ -31,16 +32,23 @@ def _seg_path(spec):
     g = T * 0.6
     if spec[0] == "h":
         _, a, b, y = spec
-        pts = [(a + g, y - T / 2), (b - g, y - T / 2),
-               (b - g, y + T / 2), (a + g, y + T / 2)]
+        pts = [
+            (a + g, y - T / 2),
+            (b - g, y - T / 2),
+            (b - g, y + T / 2),
+            (a + g, y + T / 2),
+        ]
     elif spec[0] == "v":
         _, x, y0, y1 = spec
-        pts = [(x - T / 2, y0 + g), (x + T / 2, y0 + g),
-               (x + T / 2, y1 - g), (x - T / 2, y1 - g)]
+        pts = [
+            (x - T / 2, y0 + g),
+            (x + T / 2, y0 + g),
+            (x + T / 2, y1 - g),
+            (x - T / 2, y1 - g),
+        ]
     else:  # diagonal
         _, (ax, ay), (bx, by) = spec
-        pts = [(ax - T / 2, ay), (ax + T / 2, ay),
-               (bx + T / 2, by), (bx - T / 2, by)]
+        pts = [(ax - T / 2, ay), (ax + T / 2, ay), (bx + T / 2, by), (bx - T / 2, by)]
     # flip y (cell y-down -> font y-up) and scale
     out = []
     for i, (x, y) in enumerate(pts):
@@ -56,10 +64,20 @@ def _seg_points(spec):
     g = T * 0.6
     if spec[0] == "h":
         _, a, b, y = spec
-        return [(a + g, y - T / 2), (b - g, y - T / 2), (b - g, y + T / 2), (a + g, y + T / 2)]
+        return [
+            (a + g, y - T / 2),
+            (b - g, y - T / 2),
+            (b - g, y + T / 2),
+            (a + g, y + T / 2),
+        ]
     if spec[0] == "v":
         _, x, y0, y1 = spec
-        return [(x - T / 2, y0 + g), (x + T / 2, y0 + g), (x + T / 2, y1 - g), (x - T / 2, y1 - g)]
+        return [
+            (x - T / 2, y0 + g),
+            (x + T / 2, y0 + g),
+            (x + T / 2, y1 - g),
+            (x - T / 2, y1 - g),
+        ]
     _, (ax, ay), (bx, by) = spec
     return [(ax - T / 2, ay), (ax + T / 2, ay), (bx + T / 2, by), (bx - T / 2, by)]
 
@@ -85,10 +103,11 @@ def matrix_contours(ch, cols=5, rows=7, dot=0.86):
     (display_types.DISPLAYS['5x7' | '5x8']), cell units, y-down. Square, not
     round: crisp at small TTF sizes (⊕DOT-FONT-TTF); the plasmoid's dots stay round."""
     import display_types as DT
+
     d = DT.DISPLAYS.get(f"{cols}x{rows}") or DT.MatrixDisplay(cols, rows)
     pad = (1.0 - dot) / 2
     out = []
-    for (c, r) in sorted(d.glyph(ch)):
+    for c, r in sorted(d.glyph(ch)):
         x0, y0 = c + pad, r + pad
         out.append([(x0, y0), (x0 + dot, y0), (x0 + dot, y0 + dot), (x0, y0 + dot)])
     return out
@@ -108,21 +127,24 @@ def glyph_path(ch, fmt="7"):
 
 
 def _xml_char(ch):
-    return {"<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;",
-            "'": "&apos;"}.get(ch, ch)
+    return {"<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&apos;"}.get(
+        ch, ch
+    )
 
 
 def emit_svg_font(fmt="7", family="EL Segment"):
     advance = round(CELL_W * SCALE) + 120  # cell width + inter-char gap
-    charset = SEG_CHARSET[fmt]                 # 7-seg: the legible letters only
+    charset = SEG_CHARSET[fmt]  # 7-seg: the legible letters only
     glyphs = []
     # space
     glyphs.append(f'<glyph unicode=" " glyph-name="space" horiz-adv-x="{advance}"/>')
     for ch in charset:
         d = glyph_path(ch, fmt)
         name = f"u{ord(ch):04X}"
-        glyphs.append(f'<glyph unicode="{_xml_char(ch)}" glyph-name="{name}" '
-                      f'horiz-adv-x="{advance}" d="{d}"/>')
+        glyphs.append(
+            f'<glyph unicode="{_xml_char(ch)}" glyph-name="{name}" '
+            f'horiz-adv-x="{advance}" d="{d}"/>'
+        )
     glyphs_xml = "\n".join(glyphs)
     return f'''<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg">
@@ -138,11 +160,13 @@ def emit_svg_font(fmt="7", family="EL Segment"):
 '''
 
 
-SEG_CHARSET = {"7": "0123456789ABCDEFHJLPU",
-               "16": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"}
+SEG_CHARSET = {
+    "7": "0123456789ABCDEFHJLPU",
+    "16": "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+}
 MATRIX_CHARSET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 LOWER_CHARSET = "abcdefghijklmnopqrstuvwxyz"
-_MARGIN = 0.15          # cell units of side bearing, both sides
+_MARGIN = 0.15  # cell units of side bearing, both sides
 
 
 def _cell_to_font(cell_w, cell_h, em=EM, baseline=None):
@@ -159,10 +183,14 @@ def _cell_to_font(cell_w, cell_h, em=EM, baseline=None):
 
 
 def _shoelace(pts):
-    return sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1])) / 2
+    return (
+        sum(x0 * y1 - x1 * y0 for (x0, y0), (x1, y1) in zip(pts, pts[1:] + pts[:1])) / 2
+    )
 
 
-def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular", baseline=None):
+def build_ttf(
+    contours_of, charset, cell_w, cell_h, family, style="Regular", baseline=None
+):
     """A fontTools TTFont from a CONTOUR SOURCE (ch -> [[(x, y)...]] in cell
     units, y-down) — display-agnostic (⊕DOT-FONT-TTF lifted it). TrueType wants
     clockwise outer contours; every contour here is a solid, so each is wound CW
@@ -170,6 +198,7 @@ def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular", bas
     descent metrics; None is top-aligned with descent 0."""
     from fontTools.fontBuilder import FontBuilder
     from fontTools.pens.ttGlyphPen import TTGlyphPen
+
     scale, x_pad, y_of = _cell_to_font(cell_w, cell_h, baseline=baseline)
     ascent = EM if baseline is None else round(baseline * scale)
     descent = 0 if baseline is None else -round((cell_h - baseline) * scale)
@@ -189,7 +218,7 @@ def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular", bas
         pen = TTGlyphPen(None)
         for pts in contours_of(ch):
             fpts = [(round(x * scale + x_pad), y_of(y)) for x, y in pts]
-            if _shoelace(fpts) > 0:              # CCW after the flip -> reverse to CW
+            if _shoelace(fpts) > 0:  # CCW after the flip -> reverse to CW
                 fpts = fpts[::-1]
             pen.moveTo(fpts[0])
             for p in fpts[1:]:
@@ -201,25 +230,47 @@ def build_ttf(contours_of, charset, cell_w, cell_h, family, style="Regular", bas
     fb.setupHorizontalMetrics(metrics)
     fb.setupHorizontalHeader(ascent=ascent, descent=descent)
     fb.setupNameTable({"familyName": family, "styleName": style})
-    fb.setupOS2(sTypoAscender=ascent, sTypoDescender=descent, usWinAscent=ascent, usWinDescent=-descent)
+    fb.setupOS2(
+        sTypoAscender=ascent,
+        sTypoDescender=descent,
+        usWinAscent=ascent,
+        usWinDescent=-descent,
+    )
     fb.setupPost(isFixedPitch=1)
     return fb.font
 
 
 def build_segment_ttf(fmt="7"):
-    return build_ttf(lambda ch: glyph_contours(ch, fmt), SEG_CHARSET[fmt],
-                     CELL_W, CELL_H, f"EL Segment {fmt}")
+    return build_ttf(
+        lambda ch: glyph_contours(ch, fmt),
+        SEG_CHARSET[fmt],
+        CELL_W,
+        CELL_H,
+        f"EL Segment {fmt}",
+    )
 
 
 def build_matrix_ttf(cols=5, rows=7):
     """5x7: uppercase+digits, top-aligned. 5x8: adds lowercase with real descent —
     the baseline LINE is the bottom of the last body row (FONT5x8_BASELINE + 1)."""
     import display_types as DT
+
     if (cols, rows) == (5, 8):
-        return build_ttf(lambda ch: matrix_contours(ch, 5, 8), MATRIX_CHARSET + LOWER_CHARSET,
-                         5.0, 8.0, "EL Matrix 5x8", baseline=DT.FONT5x8_BASELINE + 1)
-    return build_ttf(lambda ch: matrix_contours(ch, cols, rows), MATRIX_CHARSET,
-                     float(cols), float(rows), f"EL Matrix {cols}x{rows}")
+        return build_ttf(
+            lambda ch: matrix_contours(ch, 5, 8),
+            MATRIX_CHARSET + LOWER_CHARSET,
+            5.0,
+            8.0,
+            "EL Matrix 5x8",
+            baseline=DT.FONT5x8_BASELINE + 1,
+        )
+    return build_ttf(
+        lambda ch: matrix_contours(ch, cols, rows),
+        MATRIX_CHARSET,
+        float(cols),
+        float(rows),
+        f"EL Matrix {cols}x{rows}",
+    )
 
 
 def ttf_glyph_centroid_side(font, ch):
@@ -266,12 +317,14 @@ def gate_ttf_orientation(font, contours_of, cell_h, chars):
     return bad
 
 
-OUTPUTS = (("EL-Segment-7.ttf", lambda: build_segment_ttf("7")),
-           ("EL-Segment-16.ttf", lambda: build_segment_ttf("16")),
-           ("EL-Matrix-5x7.ttf", lambda: build_matrix_ttf(5, 7)),
-           ("EL-Matrix-5x8.ttf", lambda: build_matrix_ttf(5, 8)),
-           ("EL-Segment-7.svg", lambda: emit_svg_font("7")),
-           ("EL-Segment-16.svg", lambda: emit_svg_font("16")))
+OUTPUTS = (
+    ("EL-Segment-7.ttf", lambda: build_segment_ttf("7")),
+    ("EL-Segment-16.ttf", lambda: build_segment_ttf("16")),
+    ("EL-Matrix-5x7.ttf", lambda: build_matrix_ttf(5, 7)),
+    ("EL-Matrix-5x8.ttf", lambda: build_matrix_ttf(5, 8)),
+    ("EL-Segment-7.svg", lambda: emit_svg_font("7")),
+    ("EL-Segment-16.svg", lambda: emit_svg_font("16")),
+)
 
 
 def spec_for(name):
@@ -288,6 +341,7 @@ def spec_for(name):
 def render_all(out_dir):
     """Write every font under out_dir; returns the paths."""
     import os
+
     os.makedirs(out_dir, exist_ok=True)
     written = []
     for name, make in OUTPUTS:
@@ -297,6 +351,7 @@ def render_all(out_dir):
             atomic_write(p, obj)
         else:
             from emitters import atomic_path
+
             with atomic_path(p) as tmp:
                 obj.save(tmp)
         written.append(p)
@@ -324,6 +379,7 @@ geometry is installable system-wide, sharing the one topology source.
 if __name__ == "__main__":
     import os
     import sys
+
     here = os.path.dirname(os.path.abspath(__file__))
     out = render_all(os.path.join(here, "fonts"))
     atomic_write(os.path.join(here, "fonts", "README-DSEG.txt"), DSEG_NOTE)
@@ -333,7 +389,9 @@ if __name__ == "__main__":
             f = make()
             src, chars, cell_h = spec_for(name)
             bad = gate_ttf_orientation(f, src, cell_h, chars)
-            print(f"  {name}: {len(f.getGlyphOrder())} glyphs; orientation gate: "
-                  f"{'ok' if not bad else bad}")
+            print(
+                f"  {name}: {len(f.getGlyphOrder())} glyphs; orientation gate: "
+                f"{'ok' if not bad else bad}"
+            )
             if bad:
                 sys.exit(1)

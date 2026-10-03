@@ -81,6 +81,7 @@ the harness's theme has animations on. The grid is found from the ghost field, s
 variant run with the field hidden has no grid and is withheld. `withheld` when the qml
 runner is absent.
 """
+
 import json
 import os
 import sys
@@ -94,9 +95,9 @@ sys.path.insert(0, os.path.join(ROOT, "catalog", "library"))
 
 URGENCIES = (("low", 0), ("normal", 1), ("critical", 2))
 VIEWS = ("gray", "protanomaly", "deuteranomaly", "tritanomaly")
-LIT_FRACTION = 0.5            # a cell is lit at >= half its still's peak
-SHIFT = 2                     # the shape metric's column alignment search, in cells
-DARK_FRACTION = 0.2           # a frame is dark below this fraction of the series' max lit mass
+LIT_FRACTION = 0.5  # a cell is lit at >= half its still's peak
+SHIFT = 2  # the shape metric's column alignment search, in cells
+DARK_FRACTION = 0.2  # a frame is dark below this fraction of the series' max lit mass
 # mixed case on purpose: the letterform arm must see real letters change case, and
 # the text is longer than the board so the temporal arm has frames it covers end to end.
 # No descender letters (g j p q y) in the summary, so the bottom row is the underline's.
@@ -110,23 +111,36 @@ def variants():
     """The declared roster (scripts/variant_roster.py, W61 B2) — not render_screens'
     own typed VARIANTS, which is a producer's list and would shrink the check with it."""
     import variant_roster
+
     return variant_roster.ids()
 
 
 def timeline(u):
-    return [(300, "arrive", 1, {"summary": SUMMARY, "body": "", "applicationName": APP, "urgency": u},
-             f"{APP}: {SUMMARY}")]
+    return [
+        (
+            300,
+            "arrive",
+            1,
+            {"summary": SUMMARY, "body": "", "applicationName": APP, "urgency": u},
+            f"{APP}: {SUMMARY}",
+        )
+    ]
 
 
 def still(variant, u, out, frames):
     """Grab the real widget mid-scroll with one arrival of urgency `u`, and its frame
     series into `frames`. The harness result, or None when the runner is absent."""
     import check_marquee_live as ML
+
     os.makedirs(frames, exist_ok=True)
-    res = ML.run(variant=variant, end_ms=END_MS, grab=out, frames=frames, timeline=timeline(u))
-    if res is not None:          # kept beside the frames, so --replay can re-read them
+    res = ML.run(
+        variant=variant, end_ms=END_MS, grab=out, frames=frames, timeline=timeline(u)
+    )
+    if res is not None:  # kept beside the frames, so --replay can re-read them
         with open(os.path.join(frames, "result.json"), "w") as fh:
-            json.dump({k: res[k] for k in ("width", "samples", "frames") if k in res}, fh)
+            json.dump(
+                {k: res[k] for k in ("width", "samples", "frames") if k in res}, fh
+            )
     return res
 
 
@@ -148,25 +162,44 @@ def bold_facts(variant, out_dir):
     W45), plain vs <b>…</b>, normal urgency. Per view: lit cells (binarised to each
     still's OWN peak, so brightness drops out), mass, and 1-IoU of the lit sets."""
     import check_marquee_live as ML
+
     body = " ".join(["Hello World"] * 9)
     got = {}
     for name, b in (("regular", body), ("bold", f"<b>{body}</b>")):
         png = os.path.join(out_dir, f"{variant}-{name}.png")
-        tl = [(300, "arrive", 1, {"summary": "", "body": b, "applicationName": APP, "urgency": 1},
-               f"{APP}: {body}")]
+        tl = [
+            (
+                300,
+                "arrive",
+                1,
+                {"summary": "", "body": b, "applicationName": APP, "urgency": 1},
+                f"{APP}: {body}",
+            )
+        ]
         if ML.run(variant=variant, end_ms=END_MS, grab=png, timeline=tl) is None:
-            return {"variant": variant, "withheld": "the qml runner is not on this host"}
+            return {
+                "variant": variant,
+                "withheld": "the qml runner is not on this host",
+            }
         got[name] = read_still(png, ground_of(variant))
         if got[name] is None:
-            return {"variant": variant, "withheld": f"no pip grid found in the {name} still"}
+            return {
+                "variant": variant,
+                "withheld": f"no pip grid found in the {name} still",
+            }
     views = {}
     for v in VIEWS:
         r, bd = got["regular"][v], got["bold"][v]
         lr, lb = lit_set(r), lit_set(bd)
-        views[v] = {"lit_regular": int(lr.sum()), "lit_bold": int(lb.sum()),
-                    "mass_regular": round(float(r.sum()), 3), "mass_bold": round(float(bd.sum()), 3),
-                    "shape": shape_difference(lr, lb)[0],
-                    "runs_regular": lit_runs(lr), "runs_bold": lit_runs(lb)}
+        views[v] = {
+            "lit_regular": int(lr.sum()),
+            "lit_bold": int(lb.sum()),
+            "mass_regular": round(float(r.sum()), 3),
+            "mass_bold": round(float(bd.sum()), 3),
+            "shape": shape_difference(lr, lb)[0],
+            "runs_regular": lit_runs(lr),
+            "runs_bold": lit_runs(lb),
+        }
     return {"variant": variant, "views": views}
 
 
@@ -194,11 +227,18 @@ def lit_runs(lit):
 def paused(variant):
     """A critical arrival with the hover-pause ON: the samples while the board is held."""
     import check_marquee_live as ML
-    return ML.run(hover_pause=True, stop_paused=HOVER_STOP_SAMPLES, variant=variant,
-                  end_ms=ML.HOVER_CAP_MS, timeline=timeline(2))
+
+    return ML.run(
+        hover_pause=True,
+        stop_paused=HOVER_STOP_SAMPLES,
+        variant=variant,
+        end_ms=ML.HOVER_CAP_MS,
+        timeline=timeline(2),
+    )
 
 
 # ── the pixels ──────────────────────────────────────────────────────────────────
+
 
 def _lin(c):
     c = c / 255.0
@@ -212,6 +252,7 @@ def view_image(rgb, view):
         lin = _lin(rgb)
         return 0.2126 * lin[..., 0] + 0.7152 * lin[..., 1] + 0.0722 * lin[..., 2]
     import cvd_gate
+
     return cvd_gate._ucs(rgb.reshape(-1, 3), view)[:, 0].reshape(rgb.shape[:2])
 
 
@@ -239,21 +280,28 @@ def grid(img_gray, ground_gray):
     x0 = int(np.argmin([colp[k::pitch].mean() for k in range(pitch)]))
     y0 = int(np.argmin([rowp[k::pitch].mean() for k in range(pitch)]))
     starts = list(range(y0, img_gray.shape[0] - pitch + 1, pitch))
-    sums = [float(ink[y:y + pitch].sum()) for y in starts]
+    sums = [float(ink[y : y + pitch].sum()) for y in starts]
     top = max(sums) if sums else 0.0
     floor = min(sums) if sums else 0.0
-    bands = [y for y, s in zip(starts, sums) if top > floor and s > floor + 0.01 * (top - floor)]
+    bands = [
+        y
+        for y, s in zip(starts, sums)
+        if top > floor and s > floor + 0.01 * (top - floor)
+    ]
     return pitch, x0, bands
 
 
 def cells(img, pitch, x0, bands):
     """[rows x cols] cell means of a scalar image."""
     cols = list(range(x0, img.shape[1] - pitch + 1, pitch))
-    return np.array([[img[y:y + pitch, x:x + pitch].mean() for x in cols] for y in bands])
+    return np.array(
+        [[img[y : y + pitch, x : x + pitch].mean() for x in cols] for y in bands]
+    )
 
 
 def _rgb(path):
     from PIL import Image
+
     return np.asarray(Image.open(path).convert("RGB"), dtype=float)
 
 
@@ -289,8 +337,8 @@ def shape_difference(a, b, shift=SHIFT):
     best = (1.0, 0) if (a.any() or b.any()) else (0.0, 0)
     n = a.shape[1]
     for dx in range(-shift, shift + 1):
-        aa = a[:, max(0, dx):n + min(0, dx)]
-        bb = b[:, max(0, -dx):n - max(0, dx)]
+        aa = a[:, max(0, dx) : n + min(0, dx)]
+        bb = b[:, max(0, -dx) : n - max(0, dx)]
         union = int((aa | bb).sum())
         if union == 0:
             continue
@@ -311,16 +359,25 @@ def still_facts(ink, ref_peak):
         anyink = c >= 0.1 * ref_peak[v]
         colsw = np.where(anyink.any(axis=0))[0]
         if peak <= 0 or len(colsw) == 0:
-            out[v] = {"mass": 0.0, "footprint": 0.0, "underline": 0.0, "lit_cells": 0, "span_cells": 0}
+            out[v] = {
+                "mass": 0.0,
+                "footprint": 0.0,
+                "underline": 0.0,
+                "lit_cells": 0,
+                "span_cells": 0,
+            }
             continue
         a, b = int(colsw[0]), int(colsw[-1]) + 1
         span = c[:, a:b]
         spanlit = lit[:, a:b]
         inked = span[anyink[:, a:b]]
-        out[v] = {"mass": round(float(inked.mean() / ref_peak[v]), 4),
-                  "footprint": round(float(span.sum() / peak / span.size), 4),
-                  "underline": round(float(spanlit[-1].mean()), 4),
-                  "lit_cells": int(spanlit.sum()), "span_cells": int(spanlit.size)}
+        out[v] = {
+            "mass": round(float(inked.mean() / ref_peak[v]), 4),
+            "footprint": round(float(span.sum() / peak / span.size), 4),
+            "underline": round(float(spanlit[-1].mean()), 4),
+            "lit_cells": int(spanlit.sum()),
+            "span_cells": int(spanlit.size),
+        }
     return out
 
 
@@ -342,14 +399,26 @@ def judge_variant(variant, inks):
                 ma, mb = facts[a][v]["mass"], facts[b][v]["mass"]
                 mr = (max(ma, mb) / min(ma, mb)) if min(ma, mb) > 0 else 0.0
                 if worst is None or d < worst["shape"]:
-                    worst = {"a": a, "b": b, "view": v, "shape": d, "shift": dx,
-                             "footprint_ratio": round(fr, 3), "mass_ratio": round(mr, 3)}
+                    worst = {
+                        "a": a,
+                        "b": b,
+                        "view": v,
+                        "shape": d,
+                        "shift": dx,
+                        "footprint_ratio": round(fr, 3),
+                        "mass_ratio": round(mr, 3),
+                    }
             pairs.append(worst)
-    return {"variant": variant, "grid": {k: v for k, v in inks["normal"]["_grid"].items() if k != "bands"},
-            "urgencies": facts, "pairs": pairs}
+    return {
+        "variant": variant,
+        "grid": {k: v for k, v in inks["normal"]["_grid"].items() if k != "bands"},
+        "urgencies": facts,
+        "pairs": pairs,
+    }
 
 
 # ── the frame series ────────────────────────────────────────────────────────────
+
 
 def temporal_facts(res, frames_dir, ground, grid_):
     """Over the frames in which text covers the board end to end: per-frame lit mass
@@ -386,8 +455,17 @@ def temporal_facts(res, frames_dir, ground, grid_):
     runs = [r[1:-1] for r in runs if len(r) > 2]
     series = [p for r in runs for p in r]
     if not series:
-        return {"frames": len(fx), "covered": 0, "runs": 0, "dark": 0, "edges": 0, "span_ms": 0, "hz": 0.0,
-                "steady_min": 0.0, "series": []}
+        return {
+            "frames": len(fx),
+            "covered": 0,
+            "runs": 0,
+            "dark": 0,
+            "edges": 0,
+            "span_ms": 0,
+            "hz": 0.0,
+            "steady_min": 0.0,
+            "series": [],
+        }
     top = max(m for _, m in series) or 1.0
     edges, half_periods, span, dark_n, lit = 0, 0, 0.0, 0, []
     for r in runs:
@@ -401,25 +479,36 @@ def temporal_facts(res, frames_dir, ground, grid_):
             half_periods += len(edge_t) - 1
             span += edge_t[-1] - edge_t[0]
     hz = round(half_periods / 2 / (span / 1000.0), 3) if span > 0 else 0.0
-    return {"frames": len(fx), "covered": len(series), "runs": len(runs), "dark": int(dark_n), "edges": edges,
-            "span_ms": round(span, 1), "hz": hz,
-            # the steadiest reading of the lit frames: min over max (1.0 = perfectly steady)
-            "steady_min": round(min(lit), 4) if lit else 0.0,
-            "series": [[round(t, 1), round(m / top, 3)] for t, m in series]}
+    return {
+        "frames": len(fx),
+        "covered": len(series),
+        "runs": len(runs),
+        "dark": int(dark_n),
+        "edges": edges,
+        "span_ms": round(span, 1),
+        "hz": hz,
+        # the steadiest reading of the lit frames: min over max (1.0 = perfectly steady)
+        "steady_min": round(min(lit), 4) if lit else 0.0,
+        "series": [[round(t, 1), round(m / top, 3)] for t, m in series],
+    }
 
 
 def pause_facts(res):
     ss = res.get("samples", []) if res else []
     held = [s for s in ss if s.get("paused")]
     before = [s for s in ss if not s.get("paused") and s.get("running")]
-    return {"paused_samples": len(held), "paused_dark": sum(1 for s in held if s.get("flash") is False),
-            # how long the pause held, in virtual ms: an ungated flash toggles within a
-            # half-cycle, so a hold shorter than one cycle could not have caught it
-            "paused_ms": round(held[-1]["t"] - held[0]["t"], 1) if held else 0,
-            "running_dark": sum(1 for s in before if s.get("flash") is False)}
+    return {
+        "paused_samples": len(held),
+        "paused_dark": sum(1 for s in held if s.get("flash") is False),
+        # how long the pause held, in virtual ms: an ungated flash toggles within a
+        # half-cycle, so a hold shorter than one cycle could not have caught it
+        "paused_ms": round(held[-1]["t"] - held[0]["t"], 1) if held else 0,
+        "running_dark": sum(1 for s in before if s.get("flash") is False),
+    }
 
 
 # ── the charset ─────────────────────────────────────────────────────────────────
+
 
 def charset_facts():
     """The registry the marquee ships, and per LETTER of the declared charset what the
@@ -428,6 +517,7 @@ def charset_facts():
 
     import display_types as DT
     import make_notify_marquee as NM
+
     font_path = NM.matrix_font()
     reg = json.loads(DT.as_qml_js(NM.MATRIX_DISPLAY, font_path=font_path))
     font = reg["font" + reg["displays"][NM.MATRIX_DISPLAY]["font"]]
@@ -443,9 +533,15 @@ def charset_facts():
             f["partner_in_charset"] = f["shown"] in charset
             f["case_applied"] = f["key"] == f["shown"]
         cases.append(row)
-    return {"font": os.path.basename(font_path) if font_path else None, "glyphs": len(font),
-            "declared": len(DT.MATRIX_CHARSET), "letters": len(letters), "cases": cases,
-            "flash_hz": got["flash_hz"], "flash_ms": got["flash_ms"]}
+    return {
+        "font": os.path.basename(font_path) if font_path else None,
+        "glyphs": len(font),
+        "declared": len(DT.MATRIX_CHARSET),
+        "letters": len(letters),
+        "cases": cases,
+        "flash_hz": got["flash_hz"],
+        "flash_ms": got["flash_ms"],
+    }
 
 
 def measure(only=None, stills_dir=None):
@@ -454,23 +550,44 @@ def measure(only=None, stills_dir=None):
     import check_marquee_live as ML
 
     import make_preview
+
     if not os.path.isfile(ML.QML):
-        return {"cases": [], "withheld": [{"variant": "*", "reason": "no qml runner on this host"}],
-                "views": list(VIEWS), "charset": None}
-    ML._emitted()                                     # once, before the pool
+        return {
+            "cases": [],
+            "withheld": [{"variant": "*", "reason": "no qml runner on this host"}],
+            "views": list(VIEWS),
+            "charset": None,
+        }
+    ML._emitted()  # once, before the pool
     todo = [v for v in variants() if only in (None, v)]
     keep = stills_dir or tempfile.mkdtemp(prefix="urgency-cues-")
     os.makedirs(keep, exist_ok=True)
-    jobs = [(v, n, u, os.path.join(keep, f"urgency-{n}-{v}.png"), os.path.join(keep, f"frames-{n}-{v}"))
-            for v in todo for n, u in URGENCIES]
+    jobs = [
+        (
+            v,
+            n,
+            u,
+            os.path.join(keep, f"urgency-{n}-{v}.png"),
+            os.path.join(keep, f"frames-{n}-{v}"),
+        )
+        for v in todo
+        for n, u in URGENCIES
+    ]
     from concurrent.futures import ThreadPoolExecutor
-    with ThreadPoolExecutor(max_workers=int(os.environ.get("EL_URGENCY_JOBS", "3"))) as pool:
+
+    with ThreadPoolExecutor(
+        max_workers=int(os.environ.get("EL_URGENCY_JOBS", "3"))
+    ) as pool:
         results = list(pool.map(lambda j: (j, still(j[0], j[2], j[3], j[4])), jobs))
         held = dict(zip(todo, pool.map(paused, todo)))
     cases, withheld = [], []
     for v in todo:
         ground = make_preview.parse_scheme(v)["ground"]
-        ground = tuple(int(ground[i:i + 2], 16) for i in (1, 3, 5)) if isinstance(ground, str) else tuple(ground)
+        ground = (
+            tuple(int(ground[i : i + 2], 16) for i in (1, 3, 5))
+            if isinstance(ground, str)
+            else tuple(ground)
+        )
         inks, temporal, why = {}, {}, None
         for (vv, n, u, path, frames), res in results:
             if vv != v:
@@ -490,15 +607,27 @@ def measure(only=None, stills_dir=None):
         c = judge_variant(v, inks)
         c["temporal"] = temporal
         c["pause"] = pause_facts(held.get(v))
-        c["stills"] = {n: os.path.join(keep, f"urgency-{n}-{v}.png") for n, _ in URGENCIES}
+        c["stills"] = {
+            n: os.path.join(keep, f"urgency-{n}-{v}.png") for n, _ in URGENCIES
+        }
         cases.append(c)
-    return {"cases": cases, "withheld": withheld, "views": list(VIEWS), "charset": charset_facts()}
+    return {
+        "cases": cases,
+        "withheld": withheld,
+        "views": list(VIEWS),
+        "charset": charset_facts(),
+    }
 
 
 def ground_of(variant):
     import make_preview
+
     g = make_preview.parse_scheme(variant)["ground"]
-    return tuple(int(g[i:i + 2], 16) for i in (1, 3, 5)) if isinstance(g, str) else tuple(g)
+    return (
+        tuple(int(g[i : i + 2], 16) for i in (1, 3, 5))
+        if isinstance(g, str)
+        else tuple(g)
+    )
 
 
 def cells_report(path, variant):
@@ -523,46 +652,86 @@ def charset_listing(cs):
     if cs is None:
         print("check_urgency_cues: charset withheld — no qml runner")
         return
-    print(f"registry: {cs['glyphs']} glyphs (font extension: {cs['font']}); declared charset {cs['declared']} chars, "
-          f"{cs['letters']} letters; declared flash {cs['flash_hz']} Hz")
-    for u, name in ((0, "low (lowercase)"), (1, "normal (UPPER)"), (2, "critical (UPPER)")):
+    print(
+        f"registry: {cs['glyphs']} glyphs (font extension: {cs['font']}); declared charset {cs['declared']} chars, "
+        f"{cs['letters']} letters; declared flash {cs['flash_hz']} Hz"
+    )
+    for u, name in (
+        (0, "low (lowercase)"),
+        (1, "normal (UPPER)"),
+        (2, "critical (UPPER)"),
+    ):
         forms = [f for row in cs["cases"] for f in row["forms"] if f["urgency"] == u]
         paired = [f for f in forms if f["partner_in_charset"]]
         ok = [f for f in paired if f["case_applied"]]
         q = [f for f in forms if f["key"] == "?"]
-        lost = sorted({row["ch"] for row in cs["cases"] for f in row["forms"]
-                       if f["urgency"] == u and f["partner_in_charset"] and not f["case_applied"]})
-        unpaired = sorted({row["ch"] for row in cs["cases"] for f in row["forms"]
-                           if f["urgency"] == u and not f["partner_in_charset"]})
-        print(f"  {name:18s} {len(ok)} of {len(paired)} letters rasterise in their displayed case; "
-              f"{len(q)} render '?'; case lost: {''.join(lost) or '-'}; partner outside the charset: {''.join(unpaired) or '-'}")
-    for rng, u in (("abcdefghijklmnopqrstuvwxyz", 0), ("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1)):
-        have = [row["ch"] for row in cs["cases"] if row["ch"] in rng
-                for f in row["forms"] if f["urgency"] == u and f["case_applied"]]
+        lost = sorted(
+            {
+                row["ch"]
+                for row in cs["cases"]
+                for f in row["forms"]
+                if f["urgency"] == u
+                and f["partner_in_charset"]
+                and not f["case_applied"]
+            }
+        )
+        unpaired = sorted(
+            {
+                row["ch"]
+                for row in cs["cases"]
+                for f in row["forms"]
+                if f["urgency"] == u and not f["partner_in_charset"]
+            }
+        )
+        print(
+            f"  {name:18s} {len(ok)} of {len(paired)} letters rasterise in their displayed case; "
+            f"{len(q)} render '?'; case lost: {''.join(lost) or '-'}; partner outside the charset: {''.join(unpaired) or '-'}"
+        )
+    for rng, u in (
+        ("abcdefghijklmnopqrstuvwxyz", 0),
+        ("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 1),
+    ):
+        have = [
+            row["ch"]
+            for row in cs["cases"]
+            if row["ch"] in rng
+            for f in row["forms"]
+            if f["urgency"] == u and f["case_applied"]
+        ]
         print(f"  {rng[0]}-{rng[-1]}: {len(have)} of {len(rng)} have their own glyph")
 
 
 def listing(m):
     for c in m["cases"]:
-        print(f"{c['variant']}  grid pitch={c['grid']['pitch']} rows={c['grid']['rows']}")
+        print(
+            f"{c['variant']}  grid pitch={c['grid']['pitch']} rows={c['grid']['rows']}"
+        )
         for n, _ in URGENCIES:
             f = c["urgencies"][n]
             t = c["temporal"][n]
-            print(f"  {n:9s} gray: lit {f['gray']['lit_cells']:4d} mass {f['gray']['mass']:.2f} "
-                  f"foot {f['gray']['footprint']:.3f} ul {f['gray']['underline']:.2f} | frames covered "
-                  f"{t['covered']:3d} dark {t['dark']:3d} edges {t['edges']:2d} -> {t['hz']:.2f} Hz, "
-                  f"steady_min {t['steady_min']:.2f}")
+            print(
+                f"  {n:9s} gray: lit {f['gray']['lit_cells']:4d} mass {f['gray']['mass']:.2f} "
+                f"foot {f['gray']['footprint']:.3f} ul {f['gray']['underline']:.2f} | frames covered "
+                f"{t['covered']:3d} dark {t['dark']:3d} edges {t['edges']:2d} -> {t['hz']:.2f} Hz, "
+                f"steady_min {t['steady_min']:.2f}"
+            )
         for p in c["pairs"]:
-            print(f"  {p['a']}~{p['b']}: shape {p['shape']:.3f} (worst view {p['view']}, shift {p['shift']}); "
-                  f"footprint ratio {p['footprint_ratio']}, mass ratio {p['mass_ratio']}")
+            print(
+                f"  {p['a']}~{p['b']}: shape {p['shape']:.3f} (worst view {p['view']}, shift {p['shift']}); "
+                f"footprint ratio {p['footprint_ratio']}, mass ratio {p['mass_ratio']}"
+            )
         pz = c["pause"]
-        print(f"  paused: {pz['paused_dark']} of {pz['paused_samples']} held samples dark "
-              f"({pz['running_dark']} dark while running)")
+        print(
+            f"  paused: {pz['paused_dark']} of {pz['paused_samples']} held samples dark "
+            f"({pz['running_dark']} dark while running)"
+        )
     for w in m["withheld"]:
         print(f"  withheld {w['variant']}: {w['reason']}")
     charset_listing(m.get("charset"))
-    print(f"\ncheck_urgency_cues: {len(m['cases'])} variant(s) measured, {len(m['withheld'])} withheld "
-          f"(the verdict: scripts/opa_gate.py urgency_cues)")
+    print(
+        f"\ncheck_urgency_cues: {len(m['cases'])} variant(s) measured, {len(m['withheld'])} withheld "
+        f"(the verdict: scripts/opa_gate.py urgency_cues)"
+    )
 
 
 def main(argv):
@@ -575,7 +744,7 @@ def main(argv):
                 print(f"check_urgency_cues: {flag} needs a value", file=sys.stderr)
                 return 2
             opts[flag] = args[i + 1]
-            del args[i:i + 2]
+            del args[i : i + 2]
     if "--cells" in args:
         i = args.index("--cells")
         if i + 2 >= len(args):
@@ -585,7 +754,10 @@ def main(argv):
     if "--replay" in args:
         i = args.index("--replay")
         if i + 3 >= len(args):
-            print("check_urgency_cues: --replay needs FRAMES_DIR STILL_PNG VARIANT", file=sys.stderr)
+            print(
+                "check_urgency_cues: --replay needs FRAMES_DIR STILL_PNG VARIANT",
+                file=sys.stderr,
+            )
             return 2
         print(json.dumps(replay(args[i + 1], args[i + 2], args[i + 3])))
         return 0
@@ -596,7 +768,11 @@ def main(argv):
             print("check_urgency_cues: --bold needs OUT_DIR", file=sys.stderr)
             return 2
         os.makedirs(args[i + 1], exist_ok=True)
-        print(json.dumps(bold_facts(opts.get("--variant") or "EL-Openglo", args[i + 1]), indent=1))
+        print(
+            json.dumps(
+                bold_facts(opts.get("--variant") or "EL-Openglo", args[i + 1]), indent=1
+            )
+        )
         return 0
     # a bare VARIANT operand narrows --json to one variant — how opa_gate passes it
     # (it forwards operands, never flags): the GATED arm, under paperkit's 60 s CPU
@@ -604,7 +780,10 @@ def main(argv):
     bare = [a for a in args if not a.startswith("--")]
     for a in bare:
         if a not in variants():
-            print(f"check_urgency_cues: {a!r} is not a declared variant {list(variants())}", file=sys.stderr)
+            print(
+                f"check_urgency_cues: {a!r} is not a declared variant {list(variants())}",
+                file=sys.stderr,
+            )
             return 2
         opts["--variant"] = a
         args.remove(a)
@@ -624,19 +803,32 @@ def main(argv):
         else:
             listing(m)
         return 0
-    print("usage: check_urgency_cues.py --json | --list [--stills DIR] [--variant NAME] | --charset | "
-          "--cells PNG VARIANT | --selftest  (the verdict: scripts/opa_gate.py urgency_cues)", file=sys.stderr)
+    print(
+        "usage: check_urgency_cues.py --json | --list [--stills DIR] [--variant NAME] | --charset | "
+        "--cells PNG VARIANT | --selftest  (the verdict: scripts/opa_gate.py urgency_cues)",
+        file=sys.stderr,
+    )
     return 2
 
 
 # ── the selftest: synthetic boards drawn the way ApertureField draws them ─────────
 
-H_GLYPH = [0x7F, 0x08, 0x08, 0x08, 0x7F]      # an 'H', 5 columns x 7 rows
-h_GLYPH = [0x7F, 0x08, 0x04, 0x04, 0x78]      # an 'h'
+H_GLYPH = [0x7F, 0x08, 0x08, 0x08, 0x7F]  # an 'H', 5 columns x 7 rows
+h_GLYPH = [0x7F, 0x08, 0x04, 0x04, 0x78]  # an 'h'
 
 
-def synth_board(coverage, ground=(6, 11, 13), ghost=(40, 60, 60), lit=(140, 232, 218), pitch=4, d=3,
-                rows=8, width=420, height=40, ghost_alpha=0.28):
+def synth_board(
+    coverage,
+    ground=(6, 11, 13),
+    ghost=(40, 60, 60),
+    lit=(140, 232, 218),
+    pitch=4,
+    d=3,
+    rows=8,
+    width=420,
+    height=40,
+    ghost_alpha=0.28,
+):
     """An RGB board: each cell a d x d pip, ghost at ghost_alpha, lit composited at the
     cell's coverage (ApertureField's `opacity: cov`)."""
     img = np.zeros((height, width, 3)) + np.array(ground, float)
@@ -645,14 +837,19 @@ def synth_board(coverage, ground=(6, 11, 13), ghost=(40, 60, 60), lit=(140, 232,
     for r in range(rows):
         for c in range(width // pitch):
             x, y = c * pitch + off, y0 + r * pitch + off
-            px = np.array(ground, float) * (1 - ghost_alpha) + np.array(ghost, float) * ghost_alpha
+            px = (
+                np.array(ground, float) * (1 - ghost_alpha)
+                + np.array(ghost, float) * ghost_alpha
+            )
             cov = coverage[r][c] if c < len(coverage[r]) else 0.0
             px = px * (1 - cov) + np.array(lit, float) * cov
-            img[y:y + d, x:x + d] = px
+            img[y : y + d, x : x + d] = px
     return img
 
 
-def synth_coverage(glyph=H_GLYPH, level=1.0, n=8, start=20, underline=False, cols=105, rows=8):
+def synth_coverage(
+    glyph=H_GLYPH, level=1.0, n=8, start=20, underline=False, cols=105, rows=8
+):
     """Backdrop coverage of n glyphs at `level` (0.25 = the same dots as the aperture
     renders a shrunk one: an opacity-only cue)."""
     cov = [[0.0] * cols for _ in range(rows)]
@@ -675,35 +872,74 @@ def _selftest():
 
     def chk(label, got, want):
         nonlocal ok
-        print(f"  {'ok  ' if got == want else 'FAIL'} {label}" + ("" if got == want else f": got {got!r} want {want!r}"))
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
         ok = ok and got == want
 
     ground = (6, 11, 13)
     normal = ink_views(synth_board(synth_coverage()), ground)
     dim = ink_views(synth_board(synth_coverage(level=0.25)), ground)
     lower = ink_views(synth_board(synth_coverage(h_GLYPH)), ground)
-    crit = ink_views(synth_board(synth_coverage(underline=True), lit=(240, 90, 60)), ground)
+    crit = ink_views(
+        synth_board(synth_coverage(underline=True), lit=(240, 90, 60)), ground
+    )
     hot = ink_views(synth_board(synth_coverage(), lit=(240, 90, 60)), ground)
-    chk("the grid is found from the pixels (pitch 4, 8 rows)",
-        (normal["_grid"]["pitch"], normal["_grid"]["rows"]), (4, 8))
+    chk(
+        "the grid is found from the pixels (pitch 4, 8 rows)",
+        (normal["_grid"]["pitch"], normal["_grid"]["rows"]),
+        (4, 8),
+    )
     c = judge_variant("fixture", {"low": dim, "normal": normal, "critical": crit})
     pr = {(p["a"], p["b"]): p for p in c["pairs"]}
-    chk("an opacity-only low is INDISTINGUISHABLE by shape (0 lit pips differ)", pr[("low", "normal")]["shape"], 0.0)
-    chk("...while its brightness differs (the cue is there, but it is opacity)",
-        float(dim["gray"].max()) < 0.5 * float(normal["gray"].max()), True)
-    chk("an underlined critical IS distinguishable from normal by shape", pr[("normal", "critical")]["shape"] > 0.2, True)
-    chk("the critical still's underline row is lit, the normal one's is not",
-        (c["urgencies"]["critical"]["gray"]["underline"] > 0.5, c["urgencies"]["normal"]["gray"]["underline"]), (True, 0.0))
+    chk(
+        "an opacity-only low is INDISTINGUISHABLE by shape (0 lit pips differ)",
+        pr[("low", "normal")]["shape"],
+        0.0,
+    )
+    chk(
+        "...while its brightness differs (the cue is there, but it is opacity)",
+        float(dim["gray"].max()) < 0.5 * float(normal["gray"].max()),
+        True,
+    )
+    chk(
+        "an underlined critical IS distinguishable from normal by shape",
+        pr[("normal", "critical")]["shape"] > 0.2,
+        True,
+    )
+    chk(
+        "the critical still's underline row is lit, the normal one's is not",
+        (
+            c["urgencies"]["critical"]["gray"]["underline"] > 0.5,
+            c["urgencies"]["normal"]["gray"]["underline"],
+        ),
+        (True, 0.0),
+    )
     c2 = judge_variant("fixture-hue", {"low": lower, "normal": normal, "critical": hot})
     pr2 = {(p["a"], p["b"]): p for p in c2["pairs"]}
-    chk("a hue-only critical is INDISTINGUISHABLE by shape", pr2[("normal", "critical")]["shape"], 0.0)
-    chk("a lowercase low IS distinguishable from upper case by shape", pr2[("low", "normal")]["shape"] > 0.2, True)
-    chk("a one-cell slip between stills is not credited as shape",
-        shape_difference(lit_set(normal["gray"]), np.roll(lit_set(normal["gray"]), 1, axis=1))[0], 0.0)
+    chk(
+        "a hue-only critical is INDISTINGUISHABLE by shape",
+        pr2[("normal", "critical")]["shape"],
+        0.0,
+    )
+    chk(
+        "a lowercase low IS distinguishable from upper case by shape",
+        pr2[("low", "normal")]["shape"] > 0.2,
+        True,
+    )
+    chk(
+        "a one-cell slip between stills is not credited as shape",
+        shape_difference(
+            lit_set(normal["gray"]), np.roll(lit_set(normal["gray"]), 1, axis=1)
+        )[0],
+        0.0,
+    )
     # the frame arm, on a synthetic series: 4 Hz edges over 40 ms samples (2 Hz flash)
     import tempfile
 
     from PIL import Image
+
     with tempfile.TemporaryDirectory() as td:
         lit_img = synth_board(synth_coverage(n=17, start=0))
         dark_img = synth_board(synth_coverage(n=17, start=0, level=0.0))
@@ -711,7 +947,9 @@ def _selftest():
         for k in range(50):
             t = k * 40
             img = lit_img if (t // 250) % 2 == 0 else dark_img
-            Image.fromarray(img.astype(np.uint8)).save(os.path.join(td, f"frame-{k:03d}.png"))
+            Image.fromarray(img.astype(np.uint8)).save(
+                os.path.join(td, f"frame-{k:03d}.png")
+            )
             frames.append({"t": t, "x": -10})
         res = {"width": 420, "samples": [{"w": 1000}], "frames": frames}
         g = ink_views(lit_img, ground)["_grid"]
@@ -719,11 +957,20 @@ def _selftest():
         chk("a 2 Hz flash is seen as 2 Hz (+-0.25)", abs(tf["hz"] - 2.0) <= 0.25, True)
         chk("...with dark frames", tf["dark"] > 10, True)
         for k in range(50):
-            Image.fromarray(lit_img.astype(np.uint8)).save(os.path.join(td, f"frame-{k:03d}.png"))
+            Image.fromarray(lit_img.astype(np.uint8)).save(
+                os.path.join(td, f"frame-{k:03d}.png")
+            )
         steady = temporal_facts(res, td, ground, g)
-        chk("a steady series has no edges and no dark frame", (steady["edges"], steady["dark"]), (0, 0))
-        chk("an uncovered series (text never spans the board) is 0 covered frames",
-            temporal_facts(dict(res, samples=[{"w": 100}]), td, ground, g)["covered"], 0)
+        chk(
+            "a steady series has no edges and no dark frame",
+            (steady["edges"], steady["dark"]),
+            (0, 0),
+        )
+        chk(
+            "an uncovered series (text never spans the board) is 0 covered frames",
+            temporal_facts(dict(res, samples=[{"w": 100}]), td, ground, g)["covered"],
+            0,
+        )
     chk("the population is the six variants", len(variants()), 6)
     print("check_urgency_cues selftest:", "PASS" if ok else "FAIL")
     return ok
