@@ -202,7 +202,7 @@ Window {
 # precondition for per-output keying (W61): computing 55 keys runs the Python half
 # of every job, and must not pay the emitters 55 times. WEAKNESS: a template edited
 # DURING one process is not re-read — a process is one build.
-_EMITTED = {}
+_EMITTED: dict[tuple[str, str | None], tuple[str, str]] = {}
 
 
 def subject(surface, variant):

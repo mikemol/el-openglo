@@ -1,7 +1,7 @@
 {
  "actions": {
   "schemes": {
-   "key": "a257ec1897aab137b0c2e282dcb7a0c1769f9f4bb266b23dfe7158771aed8559",
+   "key": "d1b3da446c96a6181ff57e61014841328087aaf953f02575296c658a439f5dc4",
    "n_inputs": 38,
    "n_outputs": 6,
    "n_undeclared_domains": 0,
@@ -9,7 +9,7 @@
    "schema": 2
   },
   "screens": {
-   "key": "5212f11d796d4d0156ba4b4f841b00f456a49612905e9dedd1864ee64e6492f8",
+   "key": "cbf232b8950e40fb6c137589a0fb0e69acc8b662547fe991ac2424f1bde3437c",
    "n_inputs": 1028,
    "n_outputs": 55,
    "n_undeclared_domains": 0,
@@ -34,12 +34,12 @@
     "marquee-EL-Azure.png": "67ad484b9e2867102af1e97ca767a8dab78dd1240a01f75163a6071406b4ca57",
     "marquee-EL-Openglo-Lit.png": "9fff9b9d1e4b3677ab6a0a1e47cb0f2d1049e5b9f45fb883c2ab52635441fffa",
     "marquee-EL-Openglo.png": "9ace80cc83e98686f44abf8117c0862059f824b42f62c14742fd63f5ba7d686d",
-    "marquee-anim-EL-Amber-Lit.png": "b2f8419ae27bdc220d75b1fa5b20de7be7a71b3cf7182612a15d746fc0fce9c4",
-    "marquee-anim-EL-Amber.png": "2fc48c373fafaef234752e9111850a41c2078ef11e9c0e61732a7787cafb5c7d",
-    "marquee-anim-EL-Azure-Lit.png": "0b6a67896770e19c21c2aaafa5f2c06d623a5c0bf5618cbf0ff0533b21358f8e",
-    "marquee-anim-EL-Azure.png": "d965e476b0c974806e4db8a55eb578ab485a5a4eb383c3447f1b2e2e4c4f1296",
-    "marquee-anim-EL-Openglo-Lit.png": "69c4206a8874a179dce578ad8199d826279f766534f246e96be3c3f558a01d5e",
-    "marquee-anim-EL-Openglo.png": "1fca61bfcef67452a40e74080da38d0a4f6b3d6b51139729d28063f6a8d0f3c9",
+    "marquee-anim-EL-Amber-Lit.png": "9d27728ccb22a1953d3cb4c734246fac50806aacacb9877967d71d0010d3af04",
+    "marquee-anim-EL-Amber.png": "047821f8f3f4cbf449b3a8745623a768f3b6e454dfc8e1bfe6cc018aa6d473df",
+    "marquee-anim-EL-Azure-Lit.png": "88ccee6d761990771139a51b95193ccc226c2dfbfe249454f347bfae5abba82c",
+    "marquee-anim-EL-Azure.png": "999b57f24a32417e41e5ac029a082fbb27f4d57127252b89e805631879ccc2ea",
+    "marquee-anim-EL-Openglo-Lit.png": "775ccf2c57ed49acacdbcc1033174376b7ce05830112151469728a9a2fc5dd8c",
+    "marquee-anim-EL-Openglo.png": "e8ee4ac3bc1c0e78f1d4206c25b40213ac0b403c0105e033d1da40db6979d5e2",
     "marquee-paused-EL-Amber-Lit.png": "9eaac35963f5777d8d9a073621410559980e21f98d6239c072135151c1048a6d",
     "marquee-paused-EL-Amber.png": "5f450ffdc4b759c0d677defa1967bc3ba839bc4d32cc323edb67636815476fb7",
     "marquee-paused-EL-Azure-Lit.png": "442fd4fc2dbb701d5af572fc2196457555e85591d4e57dff402b497362e09550",
@@ -75,7 +75,7 @@
    "schema": 5
   },
   "wallpapers": {
-   "key": "40f2fd49d5f935f794d013156f7a1ae6b8a28b2ee9e48edc5045a90a3e1573a6",
+   "key": "67db27b3b349936fb92b75f03efcacaaa0e7da39611578daa8befce625f4810d",
    "n_inputs": 36,
    "n_outputs": 12,
    "n_undeclared_domains": 0,

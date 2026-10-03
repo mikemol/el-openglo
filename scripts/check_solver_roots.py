@@ -112,7 +112,10 @@ def _selftest():
           (m["lighter"]["reachable"] > 1.0, m["darker"]["reachable"] > 1.0), (True, True))
     saved = mp._candidates
     try:
-        mp._candidates = lambda sector, ground, mc, hot: [(255, 200, 200)]
+        def _one_sided(sector, ground, mc, hot) -> list[tuple[int, int, int]]:
+            return [(255, 200, 200)]
+
+        mp._candidates = _one_sided
         m = measure_slot((340, 20), grey, None, mp, C)
         check("a one-sided candidate set is SEEN as covering one side only",
               (m["lighter"]["n_candidates"], m["darker"]["n_candidates"], m["darker"]["candidate"]),

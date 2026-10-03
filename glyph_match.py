@@ -129,7 +129,7 @@ def _ink_bbox_sw(pres, band=SW_BAND):
     return bb, max(0.12, sw*band)
 
 
-_GRIDS = {}
+_GRIDS: dict[int, tuple[np.ndarray, np.ndarray]] = {}
 
 
 def _grid(H):

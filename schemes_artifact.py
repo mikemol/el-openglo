@@ -65,7 +65,7 @@ SUFFIX = ".colors"                           # check_action_key.ACTIONS "schemes
 STORE = os.path.join(ROOT, ".build", "schemes")
 STABLE_TRIES = 5
 
-_RESOLVED = {}                               # per-process memo: {"dir", "digest", "how"}
+_RESOLVED: dict[str, str] = {}                             # per-process memo: {"dir", "digest", "how"}
 
 
 class SnapshotError(RuntimeError):

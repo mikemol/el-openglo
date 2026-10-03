@@ -557,7 +557,10 @@ if __name__ == "__main__":
     import re
     with open("make_wallpaper.py") as fh:
         wp = fh.read()
-    DIGIT7 = eval(re.search(r'DIGIT = (\{.*?\})', wp, re.DOTALL).group(1))
+    digit_match = re.search(r'DIGIT = (\{.*?\})', wp, re.DOTALL)
+    if digit_match is None:
+        raise SystemExit("segment_topology: no DIGIT table found in make_wallpaper.py")
+    DIGIT7 = eval(digit_match.group(1))
     print("format masks:", {k: len(v["mask"]) for k, v in FORMATS.items()})
     ok = True
     for d, segs in DIGIT7.items():

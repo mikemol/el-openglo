@@ -52,6 +52,7 @@ import os
 import re
 import subprocess
 import sys
+from collections.abc import Callable
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = os.path.join(ROOT, "scripts", "cotype_index.py")
@@ -767,7 +768,7 @@ NO_ARTIFACT = frozenset({
 # nowhere, and a LOST entry whose build returns — because the next recovery,
 # or the next quiet deletion, will need it. The eight entries this held on
 # 2026-09-21 are in git history (075d096).
-LOST = {}
+LOST: dict[str, tuple[str, Callable[[], bool], str]] = {}
 
 
 def open_symbols():

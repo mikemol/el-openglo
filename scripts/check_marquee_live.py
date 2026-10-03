@@ -378,7 +378,7 @@ def subject(hover_pause=False, variant=VARIANT):
     return qml, config, make_preview.parse_scheme(variant)["ground"], dict(files)
 
 
-_EMITTED = []
+_EMITTED: list[tuple[str, str, dict[str, str]]] = []
 
 
 def _emitted():

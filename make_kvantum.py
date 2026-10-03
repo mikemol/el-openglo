@@ -115,6 +115,8 @@ if __name__ == "__main__":
     shutil.rmtree("kvantum", ignore_errors=True)
     failures = {}
     for t, _dark in GRID.values():
+        if not isinstance(t, dict):
+            raise TypeError(f"GRID token set is not a dict: {type(t).__name__}")
         lit = t["tt_is_sel"]
         cfg, svg = build(t, lit)
         errs = check(cfg, svg, t)

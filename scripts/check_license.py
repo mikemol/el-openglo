@@ -430,7 +430,7 @@ def main(argv):
         print(json.dumps(measure(root), indent=1))
         return 0
     if "--gate" in args:                                 # opa_gate's verdict, on --root's tree
-        from scripts import opa_gate  # OURS: imported before --root joins sys.path
+        import opa_gate  # OURS: imported before --root joins sys.path (scripts/ leads sys.path as the entry dir)
         sets = opa_gate.evaluate("license", measure(root))
         for kind in ("deny", "withheld"):
             for msg in sets.get(kind, []):

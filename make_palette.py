@@ -287,7 +287,7 @@ def _candidates(sector, ground, min_contrast, hot, contrast_fn=None):
     return out
 
 
-_DE_CACHE = {}
+_DE_CACHE: dict[tuple[tuple[int, ...], tuple[int, ...]], float] = {}
 def _cached_dE(a, b):
     key = (a, b) if a <= b else (b, a)
     v = _DE_CACHE.get(key)

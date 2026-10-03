@@ -57,7 +57,7 @@ def pool():
     return dict(C.OKABE_ITO)
 
 
-_Q_CACHE = {}
+_Q_CACHE: dict[tuple[tuple[int, int, int], tuple[int, int, int]], float] = {}
 
 
 def _q(a, b, floors):

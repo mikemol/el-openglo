@@ -27,21 +27,25 @@ and @MARGIN do — and it emphatically does not claim the relations are COMPLETE
 they do not determine is recorded in `open_questions()` and printed by --list, because
 a relation set that hid its gaps would read as finished.
 """
+import importlib
 import os
 import sys
+from types import ModuleType
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT =os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 import palette_graph as PG
 import palette_relations as PR
 
 _GCALC = os.path.expanduser("~/github/gcalculus")
+SOLVER: ModuleType | None
+CARRIER: ModuleType | None
 try:
     if os.path.isdir(_GCALC):
         sys.path.insert(0, _GCALC)
-    from gcalc import carrier as CARRIER
-    from gcalc import solver as SOLVER
+    CARRIER = importlib.import_module("gcalc.carrier")
+    SOLVER = importlib.import_module("gcalc.solver")
 except ImportError:                                               # pragma: no cover
     SOLVER = CARRIER = None
 

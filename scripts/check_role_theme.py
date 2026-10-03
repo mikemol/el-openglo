@@ -64,7 +64,7 @@ import role_theme as RT
 #
 # A source read cannot recover intent. The roles are the consumer's to declare.
 ROLES = ("read", "write", "pywrite", "flow", "roundtrip", "returns")
-PINNED = {}
+PINNED: dict[str, str] = {}
 
 # The same consumer's LIVE assignment, for the comparison arm. Not a target — a
 # measured starting point that clears the floor and is not optimal. `returns` is

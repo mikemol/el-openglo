@@ -348,7 +348,10 @@ def _selftest():
         # whose metrics() ignores MODULE_METRICS (an authored pitch in disguise).
         ST.seg7_svg_grid = lambda: {"A": ("h", 0, 0)}          # a literal: does not move
         MSD.geometry_js = lambda: "{}"                          # a literal: does not move
-        ST.glyph16 = lambda ch: set()                           # no strict form, blank
+        def _blank_glyph(ch) -> set[str]:                       # no strict form, blank
+            return set()
+
+        ST.glyph16 = _blank_glyph
         ST.metrics = lambda H: {k: (v * H if k != "slant_deg" else v)
                                 for k, v in frozen.items()}   # frozen: does not move
         rows = coverable()

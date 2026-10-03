@@ -115,6 +115,18 @@ tooling = [
 #   (W25) on the system qmllint; kept as the record that the archive's own
 #   notes never listed it as missing.
 
+[tool.mypy]
+# ⚑ THE LAYOUT IS DECLARED, NOT SUPPRESSED (W255). The scripts reach one another by short
+# module name through sys.path.insert (`import opa_gate`, `import variant_roster`), which no
+# type checker can see; mypy_path states the same search path. mikemol-hook-pycheck runs mypy
+# on every edited .py with this file as its config, imports followed (mtools
+# hooks/src/mikemol/hooks/checkers.py): relief lives on the ENUMERABLE side, so there is no
+# [[tool.mypy.overrides]] and no ignore_missing_imports here. Third-party packages that ship
+# no stubs are declared as stub files under stubs/ (also on this path), never ignored.
+mypy_path = ["scripts", "catalog/library", "templates", "stubs"]
+python_version = "3.13"
+explicit_package_bases = true
+
 [tool.uv]
 # Environment is uv-managed: `uv sync` for the base, `uv sync --extra research`
 # to add the pipeline.  Never `pip install` into an ambient interpreter.

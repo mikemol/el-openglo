@@ -133,8 +133,8 @@ def main(argv):
         return 0
     table_rows = rows()
     if "--rows" in args:
-        for e, v, r in table_rows:
-            print(f"{e:22} {v:28} {r}")
+        for emitter, v, r in table_rows:
+            print(f"{emitter:22} {v:28} {r}")
         return 0
     if "--json" in args:
         print(json.dumps(measure(table_rows, categories(), emitters()), indent=1))

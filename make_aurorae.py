@@ -144,7 +144,10 @@ if __name__ == "__main__":
     shutil.rmtree("aurorae", ignore_errors=True)
     failures = {}
     for (t, dark) in GRID.values():
-        path = os.path.join(out, t["id"]); os.makedirs(path, exist_ok=True)
+        tid = t["id"]
+        if not isinstance(tid, str):
+            raise TypeError(f"GRID cell id must be a str, got {type(tid).__name__}")
+        path = os.path.join(out, tid); os.makedirs(path, exist_ok=True)
         atomic_write(os.path.join(path, "decoration.svg"), decoration_svg(t))
         for b in GLYPHS:
             atomic_write(os.path.join(path, f"{b}.svg"), button_svg(b, t))

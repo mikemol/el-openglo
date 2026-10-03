@@ -22,7 +22,9 @@ from emitters import atomic_write
 # hue/value when they'd collide with the phosphor field (amber) or lose
 # contrast against it (lit modes).
 
-IND_OFF = {
+Tokens = dict[str, str | bool | None]   # colour "r,g,b" strings, plus the tt_is_sel flag and None slots
+
+IND_OFF: Tokens = {
   "name": "EL Openglo", "id": "EL-Openglo",
   "view": "6,11,13", "view_alt": "10,18,20", "window": "12,21,23", "window_alt": "10,19,21",
   "button": "18,34,37", "button_alt": "16,30,33", "header": "8,16,18", "header_alt": "10,18,20",
@@ -39,7 +41,7 @@ IND_OFF = {
   "tt_is_sel": False,
 }
 
-AZR_OFF = {
+AZR_OFF: Tokens = {
   "name": "EL Azure", "id": "EL-Azure",
   "view": "5,9,14", "view_alt": "9,16,24", "window": "11,19,27", "window_alt": "9,17,25",
   "button": "18,28,42", "button_alt": "16,26,38", "header": "7,14,22", "header_alt": "9,16,24",
@@ -56,7 +58,7 @@ AZR_OFF = {
   "tt_is_sel": False,
 }
 
-AMB_OFF = {
+AMB_OFF: Tokens = {
   "name": "EL Amber", "id": "EL-Amber",
   "view": "10,7,4", "view_alt": "20,16,9", "window": "23,18,11", "window_alt": "21,17,10",
   "button": "37,29,16", "button_alt": "33,26,15", "header": "18,14,8", "header_alt": "20,16,9",
@@ -73,7 +75,7 @@ AMB_OFF = {
   "tt_is_sel": False,
 }
 
-IND_LIT = {
+IND_LIT: Tokens = {
   "name": "EL Openglo Lit", "id": "EL-Openglo-Lit",
   "view": "175,242,226", "view_alt": "160,235,218", "window": "157,230,213", "window_alt": "147,222,204",
   "button": "138,218,203", "button_alt": "126,208,192", "header": "147,222,204", "header_alt": "160,235,218",
@@ -91,7 +93,7 @@ IND_LIT = {
   "tt_is_sel": True,
 }
 
-AZR_LIT = {
+AZR_LIT: Tokens = {
   "name": "EL Azure Lit", "id": "EL-Azure-Lit",
   "view": "178,220,250", "view_alt": "165,210,244", "window": "160,206,240", "window_alt": "150,196,232",
   "button": "140,188,226", "button_alt": "128,176,216", "header": "150,196,232", "header_alt": "165,210,244",
@@ -109,7 +111,7 @@ AZR_LIT = {
   "tt_is_sel": True,
 }
 
-AMB_LIT = {
+AMB_LIT: Tokens = {
   "name": "EL Amber Lit", "id": "EL-Amber-Lit",
   "view": "250,220,160", "view_alt": "242,208,142", "window": "238,204,138", "window_alt": "228,192,124",
   "button": "218,182,116", "button_alt": "205,170,105", "header": "228,192,124", "header_alt": "242,208,142",
@@ -152,7 +154,7 @@ import os as _os
 # (the name is valid) and fails at import, which is why compiling is too weak a
 # witness for a partial file.  The three reference sites all say `_AUTHORED_GRID`,
 # so the intended name is unambiguous.
-_AUTHORED_GRID = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
+_AUTHORED_GRID: dict[tuple[str, ...], tuple[Tokens, Tokens]] = {  # (phosphor, mode) -> (tokens, dark-counterpart for Complementary)
   ("openglo","off"): (IND_OFF, IND_OFF), ("openglo","lit"): (IND_LIT, IND_OFF),
   ("azure","off"):   (AZR_OFF, AZR_OFF), ("azure","lit"):   (AZR_LIT, AZR_OFF),
   ("amber","off"):   (AMB_OFF, AMB_OFF), ("amber","lit"):   (AMB_LIT, AMB_OFF),
@@ -370,6 +372,7 @@ def _selftest():
     return 0 if good else 1
 
 
+GRID: dict[tuple[str, ...], tuple[Tokens, Tokens]]
 if _os.environ.get("EL_AUTHORED_PALETTE") == "1":
     GRID = _AUTHORED_GRID
 else:

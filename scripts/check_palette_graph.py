@@ -31,10 +31,12 @@ and it is computable from the edge set alone, before any colour is chosen.
 undetectably.  This check measures the graph's CAPACITY for undetectable failure, never the
 presence of one.  A run that reports 19 cycles has found no bug and is not claiming to.
 """
+import importlib
 import os
 import sys
+from types import ModuleType
 
-ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT =os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
 import palette_graph as PG
@@ -43,10 +45,11 @@ import palette_graph as PG
 # A missing optional dependency is a SKIP, counted and printed: a fact about the machine,
 # not about the artifact.  NOT CONFIRMED IS NOT FAILED.
 _GCALC = os.path.expanduser("~/github/gcalculus")
+SOLVER: ModuleType | None
 try:
     if os.path.isdir(_GCALC):
         sys.path.insert(0, _GCALC)
-    from gcalc import solver as SOLVER
+    SOLVER = importlib.import_module("gcalc.solver")
 except ImportError:                                               # pragma: no cover
     SOLVER = None
 

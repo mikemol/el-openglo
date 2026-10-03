@@ -42,7 +42,7 @@ ENGINE = "^1.60.0"
 
 # workbench colour key -> palette role. Roles: make_firefox.roles keys (parse_scheme roles and
 # the composites ghost_seen / hover_fill / active_fill), text_faint, and ansi.<name>/ansi.bright<Name>.
-KEYS = (
+KEYS: tuple[tuple[str, str], ...] = (
     ("editor.background", "view_bg"), ("editor.foreground", "phosphor"),
     ("editor.selectionBackground", "sel"), ("editor.selectionForeground", "sel_fg"),
     ("editor.lineHighlightBackground", "panel"),

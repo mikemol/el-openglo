@@ -86,6 +86,11 @@ import json
 import math
 import os
 import sys
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:        # numpy stays a lazy import at run time; this is for the checker only
+    import numpy as np
+    import numpy.typing as npt
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 CACHE_DIR = os.path.join(ROOT, ".font-cache")
@@ -394,7 +399,13 @@ def _lattice(mask=None):
     return nodes, edges, dots
 
 
-_SG = {}
+_SG: dict[
+    frozenset[str] | None,
+    tuple[
+        "npt.NDArray[np.float64]", list[str | None], "npt.NDArray[np.intp]",
+        "npt.NDArray[np.intp]", dict[tuple[float, float], int], "npt.NDArray[np.float64]",
+    ],
+] = {}
 
 
 def _sample_graph(mask=None):
@@ -534,7 +545,7 @@ def _pin(P, ends, snapped):
 
 # ── the frame: font units -> lattice cell ────────────────────────────────────
 
-_FRAMES = {}
+_FRAMES: dict[str, tuple[float, float, float, float, float, float]] = {}
 
 
 def _frame(path):
@@ -732,7 +743,7 @@ def compile_segments(path, charset=SEG_CHARSET):
 
 # ── the cached, keyed entry point ────────────────────────────────────────────
 
-_MEMO = {}
+_MEMO: dict[tuple[str, str], dict[str, object]] = {}
 
 
 def _half(path, half, params, build):

@@ -59,7 +59,7 @@ ARTIFACT_MIMES = (
 )
 
 # Embeddings accepted with a stated reason. path -> why.
-WAIVERS = {}
+WAIVERS: dict[str, str] = {}
 
 
 def sources(root=None):

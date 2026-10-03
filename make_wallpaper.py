@@ -195,19 +195,20 @@ if __name__ == "__main__":
         sys.exit(2)
     try:
         import cairosvg
+        have_png = True
     except ImportError:                             # the SVGs still land
-        cairosvg = None
+        have_png = False
         print("make_wallpaper: SKIP PNG — cairosvg not importable; SVGs written")
     for v in VARIANTS:
         name = output_name(v)
         svg = wallpaper_svg(v)
         atomic_write(f"{name}.svg", svg)
-        if cairosvg is not None:
+        if have_png:
             with atomic_path(f"{name}.png") as tmp:
                 cairosvg.svg2png(url=f"{name}.svg", write_to=tmp,
                                  output_width=2560, output_height=1440)
         print("wrote", name)
-    if cairosvg is not None:                        # the legacy preview, EL-Openglo
+    if have_png:                                    # the legacy preview, EL-Openglo
         with atomic_path("preview.png") as tmp:
             cairosvg.svg2png(url="EL-Openglo-wallpaper.svg", write_to=tmp,
                              output_width=1280, output_height=720)

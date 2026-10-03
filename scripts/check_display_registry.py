@@ -203,8 +203,10 @@ def _selftest():
     # 1. a serialisation that DROPS a table
     saved = DT.as_qml_js
     try:
-        DT.as_qml_js = lambda indent=None: json.dumps(
-            {k: v for k, v in DT.registry().items() if k != "font5x7"})
+        def _dropped(*keys, indent=None, font_path=None):
+            return json.dumps(
+                {k: v for k, v in DT.registry().items() if k != "font5x7"})
+        DT.as_qml_js = _dropped
         keys = {k["key"]: k for k in measure()["roundtrip"]["keys"]}
         check("sees a dropped table", keys["font5x7"]["emitted"], False)
     finally:
@@ -224,7 +226,9 @@ def _selftest():
 
     # 3. an unparseable emission
     try:
-        DT.as_qml_js = lambda indent=None: "{not json"
+        def _unparseable(*keys, indent=None, font_path=None):
+            return "{not json"
+        DT.as_qml_js = _unparseable
         check("sees an unparseable emission", measure()["roundtrip"]["parsed"], False)
     finally:
         DT.as_qml_js = saved

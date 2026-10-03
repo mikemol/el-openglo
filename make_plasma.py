@@ -120,7 +120,9 @@ if __name__ == "__main__":
     shutil.rmtree("plasma", ignore_errors=True)
     failures = {}
     for (t, dark) in GRID.values():
-        path = f"plasma/desktoptheme/{t['id']}"
+        if not isinstance(t, dict):
+            raise TypeError(f"GRID cell scheme must be a token dict, got {type(t).__name__}")
+        path =f"plasma/desktoptheme/{t['id']}"
         for rel, builder in FILES.items():
             os.makedirs(os.path.dirname(os.path.join(path, rel)), exist_ok=True)
             atomic_write(os.path.join(path, rel), builder(t))

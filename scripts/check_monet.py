@@ -221,7 +221,9 @@ def _selftest():
     # ⚑ A VARIANT compare() CANNOT MEASURE IS MISSING, NOT DROPPED (synthetic)
     kept = compare
     try:
-        compare = lambda v: None if v == "EL-Amber" else kept(v)
+        def _amber_unmeasurable(variant, roles=None):
+            return None if variant == "EL-Amber" else kept(variant)
+        compare = _amber_unmeasurable
         chk("an unmeasurable variant is a case with a reason",
             [c["id"] for c in measure()["cases"] if c["missing"]], ["EL-Amber"])
     finally:
