@@ -107,7 +107,9 @@ Item {
         model: ["A", "B", "C", "D", "E", "F", "G"]
         Segment {
             seg: modelData
-            visible: sc.showGhost && !sc.isOn(modelData)
+            // a ghost weight of 0 is OFF: Segment snaps every stroke to an even integer of at least 2 px,
+            // so without this the slider's zero end still drew a 2 px ghost (W263, measured at 48 px)
+            visible: sc.showGhost && !sc.isOn(modelData) && sc.strokeGhost > 0
             color: sc.ghostColor
             opacity: sc.ghostAlpha * sc.glow
             thick: sc.strokeGhost
