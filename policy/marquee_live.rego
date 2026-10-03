@@ -105,9 +105,21 @@ earlier_after(e, i) if {
 	input.samples[j].t >= e.t
 }
 
+# ⚑ A REPLACE TAKEN IN PLACE IS NOT A TEAR (W189; W183 operator ruling 1: the vertical roll
+# REPLACES L3 for an on-board replace). A text-changing replace of an item the board holds
+# ("on") or has not yet reached ("ahead") is applied under the live run; L13 judges the roll.
+# One scrolled past or not in the ring ("past" / "none", or an event that does not say) still
+# waits for the rotation boundary, and L3 still judges it.
+in_place(e) if {
+	e.op == "replace"
+	e.where in {"on", "ahead"}
+	e.textChanged == true
+}
+
 deny contains msg if {
 	some e in input.events
 	e.op in {"expire", "replace"}
+	not in_place(e)
 	b := before(e)
 	a := after(e)
 	b.text != a.text
@@ -428,6 +440,67 @@ falls(ser) if {
 	some i, h in ser
 	i > 0
 	h < ser[i - 1]
+}
+
+# METADATA
+# title: "L13 — a replace of the visible item rolls, and ends on the new text (W189)"
+# description: |
+#   W183 operator rulings 1 and 3. A text-changing replace of an item ON the board is
+#   shown as a roll of its changed span: (a) some sampled frame at or after the event has
+#   0 < roll < 1 (the roll was SEEN mid-way, not skipped); (b) the run then ends on the new
+#   text - some later sample shows it with no roll live - with NO swap boundary between the
+#   event and that sample (the replace was taken in place, not deferred to the wrap).
+#   `expects_roll` is the measurement's own statement that its timeline holds such a replace:
+#   when it does and none was measured on the board, the population is empty and that is
+#   denied, never read as the widget right.
+rolled_events contains e if {
+	some e in object.get(input, "events", [])
+	e.op == "replace"
+	e.where == "on"
+	e.textChanged == true
+}
+
+mid_roll(e) if {
+	some s in input.samples
+	s.t >= e.t
+	r := object.get(s, "roll", null)
+	is_number(r)
+	r > 0
+	r < 1
+}
+
+boundary_between(e, s) if {
+	some x in input.samples
+	x.t >= e.t
+	x.t <= s.t
+	object.get(x, "boundary", false) == true
+}
+
+ends_on_new_text(e) if {
+	some s in input.samples
+	s.t >= e.t
+	contains(s.text, e.shows)
+	object.get(s, "roll", null) == null
+	not boundary_between(e, s)
+}
+
+deny contains msg if {
+	some e in rolled_events
+	not mid_roll(e)
+	msg := sprintf("L13: replace of id %v at t=%v was on the board and no frame showed the roll (0 < roll < 1)", [e.id, e.t])
+}
+
+deny contains msg if {
+	some e in rolled_events
+	not ends_on_new_text(e)
+	msg := sprintf("L13: replace of id %v at t=%v never ended on %q without a swap boundary between", [e.id, e.t, e.shows])
+}
+
+deny contains msg if {
+	input.runner == true
+	object.get(input, "expects_roll", false) == true
+	count(rolled_events) == 0
+	msg := "L13: the timeline holds a replace of a visible item and none was measured on the board; nothing was judged"
 }
 
 # METADATA

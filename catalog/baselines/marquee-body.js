@@ -436,3 +436,45 @@ function rollCells(old, neu, span, progress, rows) {
     }
     return out;
 }
+
+// ⚑ THE WIDTH-CHANGE STALL (W241; W183 operator ruling (4)). A replace whose span changes
+// width moves the glyphs after it by d = (new suffix start) - (old suffix start), in backdrop
+// px. NO SEGMENT EVER OUTRUNS THE PAN: in the text's own frame (the pan carries the whole
+// text left at one speed) an x may only hold or move RIGHT, which on the board is a stall.
+// A SHORTENED replace (d < 0, ABBC -> ABC): the SUFFIX holds at its old place and the leading
+// segment (prefix and span cells) lags, sliding right by |d| until the follower is level; the
+// settled layout is the new layout shifted +|d| (the caller restores the frame by lowering
+// field.offset by frameShift when the roll ends). A LENGTHENED one (d > 0, AABCC -> AABBCC):
+// the prefix and span cells sit at their new places and the SUFFIX is the trailing segment
+// that stalls, sliding right by d as the leader folds in. Pure; oldOffs and newOffs are
+// kernOffsets of the old and new text, advance the plain advance (for a gone cell past the
+// last glyph). A change with NO suffix (the tail) has no follower: d is 0. Returns {frameShift, d, neu[i] = x of each NEW text index, gone[j] =
+// x of each OLD span cell past the new span (it rolls out and is gone)}.
+function stallOffsets(oldOffs, newOffs, span, progress, advance) {
+    var t = Math.max(0, Math.min(1, progress));
+    function at(offs, i) {
+        return i < offs.length ? offs[i] : (offs.length ? offs[offs.length - 1] : 0) + (i - offs.length + 1) * advance;
+    }
+    // no suffix, no follower: a change at the tail has nothing to catch up with or stall
+    var hasSuffix = span.oldEnd < oldOffs.length && span.newEnd < newOffs.length;
+    var d = hasSuffix ? at(newOffs, span.newEnd) - at(oldOffs, span.oldEnd) : 0;
+    var lag = d < 0 ? t * (-d) : 0;                   // the leading segment's slide (shortened)
+    var tail = d < 0 ? -d : -d * (1 - t);            // the suffix: held (shortened) or arriving (lengthened)
+    var neu = [];
+    for (var i = 0; i < newOffs.length; i++)
+        neu.push(i < span.newEnd ? newOffs[i] + lag : newOffs[i] + tail);
+    var gone = [];
+    for (var k = span.newEnd - span.p; k < span.oldEnd - span.p; k++)
+        gone.push(at(oldOffs, span.p + k) + lag);
+    return { frameShift: d < 0 ? -d : 0, d: d, neu: neu, gone: gone };
+}
+
+// ⚑ DOES THE ORDINARY GLYPH PAINT AT INDEX i DURING A ROLL (W188 follow-up). Inside the new
+// span [p, newEnd) the roll cell IS the glyph (it carries the new character rising in), so the
+// ordinary glyph must not paint over it. Everywhere else a character of the NEW text paints as
+// always - including the SUFFIX characters that share their indices with the OLD cells of a
+// SHORTENED replace rolling out (indices newEnd..oldEnd-1): painting only the rolling-out cell
+// there dropped the suffix until the roll ended. Past the new text there is no character.
+function paintsPlain(i, textLen, span) {
+    return i < textLen && !(i >= span.p && i < span.newEnd);
+}

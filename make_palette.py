@@ -297,8 +297,15 @@ def _cached_dE(a, b):
     return v
 
 
-def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
-                       contrast_fn=None, relax_min=3.0, relax_step=0.3):
+def solve_semantic_set(*args, **kw):
+    """(chosen, score) — the shipped surface; see solve_semantic_set_checked for
+    the slots no candidate could honestly fill (W199)."""
+    chosen, score, _infeasible = solve_semantic_set_checked(*args, **kw)
+    return chosen, score
+
+
+def solve_semantic_set_checked(sectors, ground, hot, min_contrast=4.6, anchors=(),
+                               contrast_fn=None, relax_min=3.0, relax_step=0.3):
     """JOINT solve of the semantic-accent constellation. Each slot draws from its
     in-sector, contrast-clearing, hot-distinct candidates; we choose one per slot
     to MAXIMIZE THE MINIMUM pairwise separation across the whole set (the binding
@@ -317,8 +324,17 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
     ⚑ MULTI-RESTART, NOT SINGLE GREEDY.  Greedy local optima oscillated under the
     floor; a greedy seed plus deterministic random restarts converges reliably.
     The seed is fixed, so the solve is reproducible — a palette that changed
-    between runs would make every downstream diff meaningless."""
+    between runs would make every downstream diff meaningless.
+
+    Returns (chosen, score, infeasible). ⚑ W199: `infeasible` names the slots filled
+    by the LAST-RESORT fallback (no in-sector candidate cleared contrast down to
+    `relax_min` while staying hot-distinct) whose colour then FAILS the very bounds
+    the candidates are filtered by - contrast below `relax_min`, or q < 1 against
+    `hot` on the gate's metric. The fallback colour is unchanged (output-neutral);
+    what changes is that it is no longer silent, exactly as solve_state_steps
+    returns feasible=False rather than a number that looks solved."""
     slots = list(sectors.keys())
+    fallback = set()
     fn = contrast_fn or C.wcag_ratio
     cands = {k: _candidates(sectors[k], ground, min_contrast, hot, fn) for k in slots}
     # relax contrast if any slot has no candidate (report via fallback)
@@ -336,6 +352,7 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
                 h = _sector_hue(sectors[k])
                 cands[k] = [max((_hsv(h, 0.85, v) for v in (0.85, 0.4, 0.2)),
                                 key=lambda c: fn(c, ground))]
+                fallback.add(k)
 
     _floors = C.reference_floors()
 
@@ -382,7 +399,10 @@ def solve_semantic_set(sectors, ground, hot, min_contrast=4.6, anchors=(),
                 chosen, best_score = cand_chosen, cand_score
             if best_score >= 1.0:
                 break
-    return chosen, best_score
+    infeasible = [k for k in slots if k in fallback and (
+        fn(chosen[k], ground) < relax_min
+        or (hot is not None and C._worst_normalized(chosen[k], hot, _floors)[0] < 1.0))]
+    return chosen, best_score, infeasible
 
 
 
@@ -489,8 +509,8 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
     # ⚑ THIS READ `4.6 if dark else 4.6` — an either/or with one side, which a
     # reader takes for a polarity decision. It is one floor for both polarities.
     _min_c = 4.6
-    _sem, _sem_score = solve_semantic_set(_sem_sectors, ground, accent, _min_c,
-                                          anchors=[lit])
+    _sem, _sem_score, _sem_bad = solve_semantic_set_checked(
+        _sem_sectors, ground, accent, _min_c, anchors=[lit])
 
     # the selection field and the semantic set drawn ON it — solved over that
     # field exactly as the window's set is solved over the ground (W10)
@@ -512,11 +532,11 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
         _k, _ = solve_sel_act(ground, sel_bg, P["active"], _fn)
         sel_act = _lum_nudge(ground, _k)
     if P:
-        _sel_sem, _sel_score = solve_semantic_set(
+        _sel_sem, _sel_score, _sel_bad = solve_semantic_set_checked(
             {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent,
             P["sem"], anchors=[sel_fg, sel_act], contrast_fn=_fn, relax_min=P["sem"])
     else:
-        _sel_sem, _sel_score = solve_semantic_set(
+        _sel_sem, _sel_score, _sel_bad = solve_semantic_set_checked(
             {k: _sem_sectors[k] for k in ("neg", "neu", "pos")}, sel_bg, accent, _min_c,
             anchors=[sel_fg, sel_act])
 
@@ -614,6 +634,12 @@ def solve_scheme(seed_name, polarity, thr=THRESHOLDS, alpha=None, sel_policy=Non
         # carried on every token dict so the emitted scheme is self-describing.
         "ghost_alpha": str(alpha),
     }
+    # W199: a slot the solver could only fill by its last-resort fallback, and whose
+    # colour fails the contrast / accent bound, is NAMED here. Present ONLY when
+    # non-empty, so a fully feasible grid (today's) is byte-identical to before.
+    _bad = [k for k in _sem_bad] + ["sel_" + k for k in _sel_bad]
+    if _bad:
+        t["sem_infeasible"] = ",".join(_bad)
     if P:
         floors = {"sel_fg": P["normal"], "sel_act": P["active"], "sel_neg": P["sem"],
                   "sel_neu": P["sem"], "sel_pos": P["sem"]}

@@ -179,13 +179,65 @@ ROLL_CASES = [
      ("a", "b", 2.0, 8), [[["a", -9], ["b", 0]]]),
 ]
 
+# stallOffsets (W241, W183 ruling 4): (old, new) laid out at a plain 24 px advance (no
+# kerning), sampled at STALL_PROGRESS. expected = x of each NEW index then of each OLD span
+# cell past the new span ("gone"), at the first and the last sample, and the frame shift the
+# caller restores when the roll ends. The M12 rule also denies any x that moves LEFT between
+# samples (a segment outrunning the pan).
+STALL_ADVANCE = 24
+STALL_PROGRESS = [0.0, 0.25, 0.5, 0.75, 1.0]
+STALL_CASES = [
+    ("shortened (ABBC -> ABC): the suffix holds, the leading segment lags to level",
+     ("ABBC", "ABC"),
+     {"start": {"neu": [0, 24, 72], "gone": [48]}, "end": {"neu": [24, 48, 72], "gone": [72]}, "frame_shift": 24}),
+    ("lengthened (AABCC -> AABBCC): the leader sits, the trailing suffix arrives",
+     ("AABCC", "AABBCC"),
+     {"start": {"neu": [0, 24, 48, 72, 72, 96], "gone": []}, "end": {"neu": [0, 24, 48, 72, 96, 120], "gone": []}, "frame_shift": 0}),
+    ("equal width (50% -> 75%): nothing moves in the frame",
+     ("50%", "75%"),
+     {"start": {"neu": [0, 24, 48], "gone": []}, "end": {"neu": [0, 24, 48], "gone": []}, "frame_shift": 0}),
+    ("a shortened tail (abc -> ab) has no follower: nothing stalls",
+     ("abc", "ab"),
+     {"start": {"neu": [0, 24], "gone": [48]}, "end": {"neu": [0, 24], "gone": [48]}, "frame_shift": 0}),
+]
+
+# paintsPlain (W188 follow-up): (old, new) -> for each index 0..max(len)-1, whether the ordinary
+# glyph of the NEW text paints there during the roll. Inside the new span the roll cell is the
+# glyph (False); the SUFFIX characters of a shortened replace share indices with the old cells
+# rolling out and MUST still paint (True) - the defect this guards dropped them until the roll
+# ended; past the new text there is no character (False).
+PLAIN_CASES = [
+    ("shortened (ABBC -> ABC): the suffix character at the old cell's index still paints",
+     ("ABBC", "ABC"), [True, True, True, False]),
+    ("lengthened (AABCC -> AABBCC): only the one new-span index is the roll's",
+     ("AABCC", "AABBCC"), [True, True, True, False, True, True]),
+    ("equal width (50% -> 75%): the two span indices are the roll's, the % paints",
+     ("50%", "75%"), [False, False, True]),
+    ("a shortened tail (abc -> ab): nothing paints past the new text",
+     ("abc", "ab"), [True, True, False]),
+]
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s, rolls = %s;
-        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [], roll: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s, rolls = %s, stalls = %s, stallProgress = %s, stallAdvance = %s, plains = %s;
+        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [], roll: [], stall: [], plain: [] };
+        for (var pl = 0; pl < plains.length; pl++) {
+            var pSpan = Body.replaceSpan(plains[pl][0], plains[pl][1]), pRow = [];
+            for (var pj = 0; pj < Math.max(plains[pl][0].length, plains[pl][1].length); pj++) pRow.push(Body.paintsPlain(pj, plains[pl][1].length, pSpan));
+            out.plain.push(pRow);
+        }
         for (var sp = 0; sp < spans.length; sp++) out.span.push(Body.replaceSpan(spans[sp][0], spans[sp][1]));
+        function plainOffs(n) { var o = []; for (var q = 0; q < n; q++) o.push(q * stallAdvance); return o; }
+        for (sp = 0; sp < stalls.length; sp++) {
+            var sOld = stalls[sp][0], sNew = stalls[sp][1], sSpan = Body.replaceSpan(sOld, sNew), samples = [];
+            for (var pi = 0; pi < stallProgress.length; pi++) {
+                var st = Body.stallOffsets(plainOffs(sOld.length), plainOffs(sNew.length), sSpan, stallProgress[pi], stallAdvance);
+                samples.push({ progress: stallProgress[pi], neu: st.neu, gone: st.gone, frameShift: st.frameShift });
+            }
+            out.stall.push(samples);
+        }
         for (sp = 0; sp < rolls.length; sp++) {
             var rc = Body.rollCells(rolls[sp][0], rolls[sp][1], Body.replaceSpan(rolls[sp][0], rolls[sp][1]), rolls[sp][2], rolls[sp][3]);
             out.roll.push(rc.map(function (c) { return c.glyphs.map(function (g) { return [g.ch, g.dy]; }); }));
@@ -249,7 +301,9 @@ def run(bodies=None):
             json.dumps([list(c[1]) for c in DISPLAY_CASES]),
             json.dumps([list(c[1]) for c in KERN_CASES]),
             json.dumps([list(c[1]) for c in SPAN_CASES]),
-            json.dumps([list(c[1]) for c in ROLL_CASES])))
+            json.dumps([list(c[1]) for c in ROLL_CASES]),
+            json.dumps([list(c[1]) for c in STALL_CASES]), json.dumps(STALL_PROGRESS), STALL_ADVANCE,
+            json.dumps([list(c[1]) for c in PLAIN_CASES])))
         r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)   # CPU budget; wall = hang guard
     for line in (r.stdout + r.stderr).splitlines():
         if "RESULT " in line:
@@ -360,8 +414,13 @@ def measure(res):
     scenario with its steps beside the trace. The comparison is the policy's; the
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
-        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": []}
-    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": []}
+        return {"runner": False, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": [], "stall": [], "plain": []}
+    out = {"runner": True, "parse": [], "join": [], "ring": [], "series": [], "display": [], "kern": [], "span": [], "roll": [], "stall": [], "plain": []}
+    for (label, args, want), got in zip(PLAIN_CASES, res.get("plain", [])):
+        out["plain"].append({"label": label, "args": list(args), "expected": want, "paints": got})
+    for (label, args, want), got in zip(STALL_CASES, res.get("stall", [])):
+        out["stall"].append({"label": label, "args": list(args), "expected_start": want["start"],
+                             "expected_end": want["end"], "expected_frame_shift": want["frame_shift"], "samples": got})
     for (label, args, want), got in zip(SPAN_CASES, res.get("span", [])):
         out["span"].append({"label": label, "args": list(args), "expected": want, "span": got})
     for (label, args, want), got in zip(ROLL_CASES, res.get("roll", [])):
@@ -479,6 +538,8 @@ def _selftest():
     chk("a runner-less host is withheld", measure(None)["runner"], False)
     chk("every replaceSpan case carries expected and the span returned",
         len([c for c in m["span"] if "expected" in c and isinstance(c.get("span"), dict)]), len(SPAN_CASES))
+    chk("every stallOffsets case carries its samples at every progress",
+        [len(c["samples"]) for c in m["stall"]], [len(STALL_PROGRESS)] * len(STALL_CASES))
     chk("every display (letterform) case carries expected and shown",
         len([c for c in m["display"] if "expected" in c and "shown" in c]), len(DISPLAY_CASES))
     g = glyph_census({"a": [1], "A": [2], "?": [3]}, ["a", "b"])

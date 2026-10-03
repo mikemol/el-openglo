@@ -3,13 +3,20 @@ package el.cursors_test
 import data.el.cursors as c
 import rego.v1
 
-tok := {"lit": "#99ffeb", "ground": "#0c1f1a"}
+tok := {"lit": "#99ffeb", "ground": "#0c1f1a", "ghost": "#3a5a52", "ghost_alpha": 0.45}
 
-good := {"readable": true, "error": null, "link": null, "sizes": [24, 32, 48], "dominant": ["#0c1f1a", "#99ffeb"]}
+good := {"readable": true, "error": null, "link": null, "sizes": [24, 32, 48], "dominant": ["#0c1f1a", "#99ffeb"], "frames": [{"delay": 0, "lit_px": 90, "ghost_px": 0, "pixels": 1}], "frame_counts": {"24": 1, "32": 1, "48": 1}}
+
+frame(i) := {"delay": 120, "lit_px": 40, "ghost_px": 30, "pixels": i}
+
+anim := object.union(good, {"frames": [frame(i) | some i in [1, 2, 3, 4, 5, 6]], "frame_counts": {"24": 6, "32": 6, "48": 6}})
 
 all_names := c.core_shapes | c.core_aliases
 
-entries := {n: good | some n in all_names}
+entries := {n: e |
+	some n in all_names
+	e := object.get({"wait": anim, "progress": anim}, n, good)
+}
 
 case_with(es) := {"id": "EL-Openglo", "theme": "EL-Openglo-cursors", "index_theme": true, "tokens": tok, "entries": es}
 
@@ -67,6 +74,40 @@ test_c3_checks_extra_names_too if {
 test_c4_refuses_missing_size if {
 	some msg in c.deny with input as with_entry("move", object.union(good, {"sizes": [32]}))
 	startswith(msg, "C4: EL-Openglo move lacks size(s)")
+}
+
+test_c8_refuses_stilled_wait if {
+	some msg in c.deny with input as with_entry("wait", good)
+	startswith(msg, "C8: EL-Openglo wait has 1 frame(s) at 24 px")
+}
+
+test_c8_refuses_animated_static_shape if {
+	some msg in c.deny with input as with_entry("default", anim)
+	startswith(msg, "C8: EL-Openglo default is static")
+}
+
+test_c9_refuses_zero_delay if {
+	e := object.union(anim, {"frames": [object.union(frame(1), {"delay": 0})]})
+	some msg in c.deny with input as with_entry("wait", e)
+	startswith(msg, "C9: EL-Openglo wait frame 0")
+}
+
+test_c10_refuses_identical_frames if {
+	e := object.union(anim, {"frames": [frame(1), frame(1)]})
+	some msg in c.deny with input as with_entry("progress", e)
+	startswith(msg, "C10: EL-Openglo progress has 1 distinct")
+}
+
+test_c11_refuses_ghostless_frame if {
+	e := object.union(anim, {"frames": [object.union(frame(1), {"ghost_px": 0})]})
+	some msg in c.deny with input as with_entry("wait", e)
+	startswith(msg, "C11: EL-Openglo wait frame 0 shows no ghost")
+}
+
+test_c11_refuses_unlit_frame if {
+	e := object.union(anim, {"frames": [object.union(frame(1), {"lit_px": 0})]})
+	some msg in c.deny with input as with_entry("wait", e)
+	startswith(msg, "C11: EL-Openglo wait frame 0 shows no lit")
 }
 
 test_c5_refuses_no_index if {

@@ -43,7 +43,7 @@ the emitters agree on one palette); they are not general readers and do not repl
 |---|---|---|---|
 | Python — structure of any module; subcommands, not flags, each with its own `--help` (`calls --target NAME PATHS`; a bare `calls PATHS` lists EVERY call); the cleanroom `mikemol-pycodemod` from mtools, installed by `uv sync --extra tooling` (W144) | `mikemol-pycodemod` | `uv run --no-sync mikemol-pycodemod --help` | `.py` `.pyi` |
 | markdown — headers, tables, cells; `append-section`/`replace-section --apply` WRITE (the published `mikemol-mdstruct`, installed by `uv sync --extra tooling`; substrate's scratch copy is retired) | `mdstruct` | `uv run --no-sync mdstruct` | `.md` |
-| BibTeX — the claim-DAG, not its text | `../substrate/scratch/bibstruct.py` | `python3 ../substrate/scratch/bibstruct.py` | `.bib` |
+| BibTeX — the claim-DAG, not its text (paperkit's own reader, which imports under the repo venv; give the bib as an ABSOLUTE path, a relative one resolves against the venv; substrate's copy fails on import, W234) | `../paperkit/tools/bibstruct.py` | `.venv/bin/python ../paperkit/tools/bibstruct.py` | `.bib` |
 | this repo's Python: does it compile / import (compile: `--json` is what policy/compiles.rego decides) | `scripts/check_compiles.py` + `scripts/check_consumers.py` | `python3 scripts/check_compiles.py --list` | `opa_gate.py compiles` |
 | the claim graph's STATUS (are claims discharged) | `scripts/worklist_gate.py` | `python3 scripts/worklist_gate.py --summary` | — |
 | **what to work on next** | `scripts/worklist_gate.py --next` | `python3 scripts/worklist_gate.py --next` | — |

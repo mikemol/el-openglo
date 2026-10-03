@@ -281,3 +281,92 @@ selects(c, want) if {
 	c.exit == 0
 	contains(object.get(c, ["dropin", "text"], ""), sprintf("[Theme]\nCurrent=%s\n", [want]))
 }
+
+# METADATA
+# title: "R1 — el-openglo-apply holds its reload step (W92/W215)"
+# description: |
+#   Run with HOME = a scratch dir and a PATH of a logging systemctl stub plus
+#   cp/mkdir/tr/find. Reload clears plasmashell's qmlcache for org.el.* ONLY (a
+#   foreign entry survives), restarts the shell unit when it is active, prints the
+#   instruction when it is not, and under --no-reload does nothing at all: no
+#   systemctl call, no cache entry removed.
+reload_fields := ["exit", "stdout", "systemctl_log", "cache_el_present", "cache_foreign_present"]
+
+reload_cases := [c | some c in object.get(input, "cases", []); object.get(c, "kind", null) == "reload"]
+
+withheld contains msg if {
+	some c in reload_cases
+	some f in missing(c, reload_fields)
+	msg := sprintf("H2: el-openglo-apply/%s: %s was not measured", [object.get(c, "scenario", "?"), f])
+}
+
+reload_runs := [c |
+	some c in reload_cases
+	count(missing(c, reload_fields)) == 0
+]
+
+reload(scenario) := c if {
+	some c in reload_runs
+	c.scenario == scenario
+}
+
+deny contains msg if {
+	count(object.get(input, "cases", [])) > 0
+	count(reload_cases) == 0
+	msg := "R1: no el-openglo-apply reload case was measured"
+}
+
+deny contains msg if {
+	some c in reload_runs
+	c.exit != 0
+	msg := sprintf("R1: el-openglo-apply/%s exited %v: %s", [c.scenario, c.exit, object.get(c, "stderr", "")])
+}
+
+deny contains msg if {
+	c := reload("reload_active")
+	c.cache_el_present == true
+	msg := "R1: el-openglo-apply/reload_active left an org.el.* entry in the qmlcache"
+}
+
+deny contains msg if {
+	c := reload("reload_active")
+	c.cache_foreign_present == false
+	msg := "R1: el-openglo-apply/reload_active deleted a foreign qmlcache entry"
+}
+
+deny contains msg if {
+	c := reload("reload_active")
+	not "systemctl --user restart plasma-plasmashell.service" in c.systemctl_log
+	msg := "R1: el-openglo-apply/reload_active did not restart plasma-plasmashell.service"
+}
+
+deny contains msg if {
+	c := reload("reload_inactive")
+	some l in c.systemctl_log
+	contains(l, "restart")
+	msg := "R1: el-openglo-apply/reload_inactive restarted a unit that is not active"
+}
+
+deny contains msg if {
+	c := reload("reload_inactive")
+	not contains(c.stdout, "plasmashell --replace")
+	msg := "R1: el-openglo-apply/reload_inactive did not print the plasmashell --replace instruction"
+}
+
+deny contains msg if {
+	c := reload("no_reload")
+	count(c.systemctl_log) > 0
+	msg := "R1: el-openglo-apply/no_reload called systemctl"
+}
+
+deny contains msg if {
+	c := reload("no_reload")
+	c.cache_el_present == false
+	msg := "R1: el-openglo-apply/no_reload removed an org.el.* qmlcache entry"
+}
+
+deny contains msg if {
+	c := reload("no_reload")
+	contains(c.stdout, "Reload:")
+	msg := "R1: el-openglo-apply/no_reload printed a Reload line"
+}

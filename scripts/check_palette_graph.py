@@ -282,10 +282,12 @@ def _selftest():
     import cvd_gate
     saved_e = cvd_gate.ENFORCED
     try:
-        cvd_gate.ENFORCED = tuple(saved_e) + (("bogus~pair", "neg", "visited"),)
+        # focus~fg is no edge (W198 declared every constellation pair, so a constellation
+        # pair can no longer play the pair the authority lacks)
+        cvd_gate.ENFORCED = tuple(saved_e) + (("bogus~pair", "focus", "fg"),)
         p = measure()["pairs"]["enforced"]
         check("sees a gate/authority disagreement",
-              (["neg", "visited"] in p["declared"], ["neg", "visited"] in p["authority"]), (True, False))
+              (["fg", "focus"] in p["declared"], ["fg", "focus"] in p["authority"]), (True, False))
     finally:
         cvd_gate.ENFORCED = saved_e
 

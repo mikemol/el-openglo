@@ -29,6 +29,14 @@ exists, which is the structural half of that. Staging is ~2 min cold (the
 palette solve; the cache rides along) and seconds warm.
 
     scripts/check_ebuild.py --deps     # the declared atoms and whether each resolves
+    scripts/check_ebuild.py --race [--ambient]   # 8 concurrent pkgcheck scans (W212)
+
+W212, STATED. pkgcheck runs against a PRIVATE COPY of the overlay with a private
+--cache-dir (it used to write overlay/metadata/md5-cache into the checkout). The
+`repos.conf: default repo gentoo` flake was NOT reproduced (8 concurrent ambient
+scans all passed), so the root cause is unproven; a pkgcheck that fails to load the
+host repo set is now a fact (`env_error`), WITHHELD by policy/ebuild.rego (a counted
+SKIP, never a pass), and a flake of that shape can no longer redden the gate.
 """
 import os
 import re
@@ -87,6 +95,51 @@ def deps_resolve(path=EBUILD):
     return True, f"deps-resolve: {len(atoms)} of {len(atoms)} atoms have a visible provider"
 
 
+def pkgcheck_scan(path=EBUILD, isolated=True):
+    """Run pkgcheck on the ebuild and return (rc, stdout, stderr).
+
+    ⚑ ISOLATED BY DEFAULT (W212).  A bare `pkgcheck scan --repo overlay/` (a) makes
+    pkgcore write the overlay's metadata cache INTO the checkout
+    (overlay/metadata/md5-cache/ appeared untracked after a gated run, which W68
+    forbids), and (b) shares ~/.cache/pkgcheck and the host's repos.conf with every
+    other pkgcheck on the box, so a concurrent scan or a sync can fail it with
+    `repos.conf: default repo gentoo` and the replay passes.  Isolated: the overlay
+    is COPIED to a private dir (its caches land there) and --cache-dir is private.
+    `isolated=False` is the old call, kept so --race can show the difference."""
+    if not isolated:
+        r = subprocess.run(["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
+                           capture_output=True, text=True)
+        return r.returncode, r.stdout, r.stderr
+    with tempfile.TemporaryDirectory(prefix="el-pkgcheck-") as td:
+        repo = os.path.join(td, "overlay")
+        shutil.copytree(OVERLAY, repo, ignore=shutil.ignore_patterns("md5-cache"))
+        target = os.path.join(repo, os.path.relpath(path, OVERLAY)) \
+            if path.startswith(OVERLAY + os.sep) else path
+        r = subprocess.run(["pkgcheck", "scan", "--cache-dir", os.path.join(td, "cache"),
+                            "--repo", repo, "-k", "error", target],
+                           capture_output=True, text=True)
+        return r.returncode, r.stdout, r.stderr
+
+
+# pkgcheck could not LOAD the host's repo set: a fact about the machine, not the ebuild
+ENV_ERROR = re.compile(r"repos\.conf|default repo|is undefined or not a Repo|unable to load", re.I)
+
+
+def pkgcheck_env_error(rc, stdout, stderr):
+    """True when pkgcheck failed to start for a host reason (not an ebuild finding)."""
+    return rc != 0 and "Error" not in stdout and bool(ENV_ERROR.search(stderr or ""))
+
+
+def race(n, isolated):
+    """N concurrent pkgcheck scans of the real ebuild: [(rc, env_error, md5_cache_in_tree)].
+    The reproduction of W212 as a mode, not a one-off shell loop."""
+    from concurrent.futures import ThreadPoolExecutor
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        res = list(ex.map(lambda _i: pkgcheck_scan(EBUILD, isolated), range(n)))
+    leak = os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache"))
+    return [(rc, pkgcheck_env_error(rc, o, e), leak) for rc, o, e in res]
+
+
 def ebuild_wellformed(path=EBUILD):
     """(ok, detail). pkgcheck if present; else a bash parse + required variables."""
     if not os.path.isfile(path):
@@ -96,10 +149,11 @@ def ebuild_wellformed(path=EBUILD):
     if missing:
         return False, f"required variable(s) unset: {', '.join(missing)}"
     if shutil.which("pkgcheck"):
-        r = subprocess.run(["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
-                           capture_output=True, text=True)
-        if r.returncode != 0 or "Error" in r.stdout:
-            return False, "pkgcheck: " + (r.stdout or r.stderr).strip()[:400]
+        rc, out, err = pkgcheck_scan(path)
+        if pkgcheck_env_error(rc, out, err):
+            return True, "SKIP pkgcheck (could not load the host repo set: " + err.strip()[:120] + ")"
+        if rc != 0 or "Error" in out:
+            return False, "pkgcheck: " + (out or err).strip()[:400]
         return True, "pkgcheck: no errors"
     r = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
     if r.returncode != 0:
@@ -217,10 +271,10 @@ def lint_facts(path=EBUILD):
     if not out["present"]:
         return out
     if shutil.which("pkgcheck"):
-        r = subprocess.run(["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
-                           capture_output=True, text=True)
-        out["pkgcheck"] = {"rc": r.returncode, "errors": "Error" in r.stdout,
-                           "output": (r.stdout or r.stderr).strip()[:400]}
+        rc, so, se = pkgcheck_scan(path)
+        out["pkgcheck"] = {"rc": rc, "errors": "Error" in so,
+                           "env_error": pkgcheck_env_error(rc, so, se),
+                           "output": (so or se).strip()[:400]}
     r = subprocess.run(["bash", "-n", path], capture_output=True, text=True)
     out["bash_parse"] = {"rc": r.returncode, "stderr": r.stderr.strip()[:400]}
     return out
@@ -263,11 +317,17 @@ def measure():
 
 
 def main(argv):
-    known = {"--tree", "--selftest", "--deps", "--json"}
+    known = {"--tree", "--selftest", "--deps", "--json", "--race", "--ambient"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_ebuild: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--race" in argv:
+        res = race(8, "--ambient" not in argv)
+        print(f"check_ebuild --race: {sum(rc == 0 for rc, _e, _l in res)} of {len(res)} scans rc 0; "
+              f"{sum(e for _r, e, _l in res)} host-load error(s); "
+              f"md5-cache in tree: {res[0][2]}  ({'ambient' if '--ambient' in argv else 'isolated'})")
+        return 0
     if "--deps" in argv:
         for a in bdepend_atoms():
             print(a)
@@ -316,6 +376,18 @@ def _selftest():
               lint_facts(p)["missing_vars"], ["HOMEPAGE", "LICENSE", "SLOT", "EGIT_REPO_URI"])
     e_ok, e_detail = ebuild_wellformed()
     check(f"the real ebuild is well-formed ({e_detail[:60]})", e_ok, True)
+    # ⚑ W212: the host-load failure is SEEN as a fact, a real finding is not mistaken for it,
+    # and the scan leaves nothing in the checkout.
+    check("a repos.conf load failure is a host fact",
+          pkgcheck_env_error(2, "", "pkgcheck: error: repos.conf: default repo gentoo"), True)
+    check("an ebuild finding is not a host fact",
+          pkgcheck_env_error(1, "Error: MissingSlotDep", "repos.conf"), False)
+    check("a clean scan is not a host fact", pkgcheck_env_error(0, "", ""), False)
+    if shutil.which("pkgcheck"):
+        before = os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache"))
+        pkgcheck_scan()
+        check("pkgcheck writes no md5-cache into the checkout",
+              os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache")), before)
     # ⚑ THE DEPS ARM MUST SEE AN ATOM NOBODY PROVIDES, and must refuse an
     # ebuild that declares none (a vacuous all-clear).
     with tempfile.TemporaryDirectory() as td:

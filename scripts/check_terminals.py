@@ -88,6 +88,15 @@ def _read_foot(text):
     return out
 
 
+def _read_kitty(text):
+    kv = dict(line.split(None, 1) for line in text.splitlines()
+              if line.strip() and not line.startswith("#"))
+    out = {"ground": kv["background"].strip(), "foreground": kv["foreground"].strip()}
+    for i in range(8):
+        out[f"n{i}"], out[f"b{i}"] = kv[f"color{i}"].strip(), kv[f"color{i + 8}"].strip()
+    return out
+
+
 def _read_windows_terminal(text):
     d = json.loads(text)
     wt = ("black", "red", "green", "yellow", "blue", "purple", "cyan", "white")
@@ -112,6 +121,7 @@ READERS = {
     "konsole": _read_konsole,
     "alacritty": _read_alacritty,
     "foot": _read_foot,
+    "kitty": _read_kitty,
     "windows-terminal": _read_windows_terminal,
     "termux": _read_termux,
 }
@@ -242,9 +252,9 @@ def _selftest():
               (["foot"], False))
         READERS.clear()
         READERS.update(saved)
-        READERS["kitty"] = _read_foot
+        READERS["wezterm"] = _read_foot
         check("a reader for a format not emitted is missing",
-              [f for _v, f, _w in population()[1]], ["kitty"])
+              [f for _v, f, _w in population()[1]], ["wezterm"])
     finally:
         READERS.clear()
         READERS.update(saved)
@@ -260,6 +270,9 @@ def _selftest():
     good = emit("foot", "EL-Openglo")
     check("foot: a dropped key is a parse failure", _raises(lambda: compare(
         "foot", "EL-Openglo", good.replace("regular3=", "regular3x="))), True)
+    good = emit("kitty", "EL-Openglo")
+    check("kitty: a swapped colour is seen", compare(
+        "kitty", "EL-Openglo", good.replace("color9 ", "color9 #000000\n#", 1)) != [], True)
     good = emit("termux", "EL-Openglo")
     check("termux: a swapped colour is seen", compare(
         "termux", "EL-Openglo", good.replace("color1=", "color1=#000000 ")) != [], True)

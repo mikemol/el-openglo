@@ -18,7 +18,9 @@ sddm(scenario, exit, current) := {"kind": "run", "helper": "el-openglo-sddm", "s
 	"dropin": {"text": sprintf("[Theme]\nCurrent=%s\n", [current])}, "sddm_conf_written": false,
 	"want_current": "el-openglo-azure-lit", "want_theme_dir_exists": true}
 
-good := [
+good := array.concat(base, reload_good)
+
+base := [
 	layout,
 	ply("happy", 0, {"alternative": {"link": theme}, "tool_log": ["update-alternatives --set", "update-initramfs -u"]}),
 	ply("alternatives_fail", 1, {}),
@@ -30,6 +32,18 @@ good := [
 	sddm("unknown_variant", 1, "x"),
 	sddm("breeze_after_theme", 0, "breeze"),
 ]
+
+rel(scenario, extra) := object.union({"kind": "reload", "helper": "el-openglo-apply", "scenario": scenario,
+	"exit": 0, "stdout": "", "stderr": "", "systemctl_log": [], "cache_el_present": true,
+	"cache_foreign_present": true}, extra)
+
+reload_good := [
+	rel("reload_active", {"cache_el_present": false, "systemctl_log": ["systemctl --user is-active --quiet plasma-plasmashell.service", "systemctl --user restart plasma-plasmashell.service"]}),
+	rel("reload_inactive", {"cache_el_present": false, "systemctl_log": ["systemctl --user is-active --quiet plasma-plasmashell.service"], "stdout": "  Reload: run 'plasmashell --replace &'"}),
+	rel("no_reload", {}),
+]
+
+withrel(c) := array.concat(good, [c])
 
 swap(scenario, c) := array.concat([x | some x in good; object.get(x, "scenario", "") != scenario], [c])
 
@@ -193,4 +207,59 @@ test_a_seamless_helper_is_withheld if {
 	w := {"kind": "run", "helper": "el-openglo-sddm", "scenario": "theme", "withheld": "no seam"}
 	some msg in rh.withheld with input as {"cases": [layout, w]}
 	contains(msg, "no seam")
+}
+
+test_r1_refuses_no_reload_population if {
+	"R1: no el-openglo-apply reload case was measured" in rh.deny with input as {"cases": base}
+}
+
+test_r1_refuses_a_surviving_org_el_entry if {
+	some msg in rh.deny with input as {"cases": swap("reload_active", rel("reload_active", {"systemctl_log": ["systemctl --user restart plasma-plasmashell.service"]}))}
+	contains(msg, "left an org.el.* entry")
+}
+
+test_r1_refuses_a_deleted_foreign_entry if {
+	c := rel("reload_active", {"cache_el_present": false, "cache_foreign_present": false, "systemctl_log": ["systemctl --user restart plasma-plasmashell.service"]})
+	some msg in rh.deny with input as {"cases": swap("reload_active", c)}
+	contains(msg, "deleted a foreign qmlcache entry")
+}
+
+test_r1_refuses_no_restart_when_active if {
+	c := rel("reload_active", {"cache_el_present": false})
+	some msg in rh.deny with input as {"cases": swap("reload_active", c)}
+	contains(msg, "did not restart")
+}
+
+test_r1_refuses_a_restart_when_inactive if {
+	c := rel("reload_inactive", {"cache_el_present": false, "stdout": "plasmashell --replace", "systemctl_log": ["systemctl --user restart plasma-plasmashell.service"]})
+	some msg in rh.deny with input as {"cases": swap("reload_inactive", c)}
+	contains(msg, "restarted a unit that is not active")
+}
+
+test_r1_refuses_a_silent_inactive if {
+	c := rel("reload_inactive", {"cache_el_present": false})
+	some msg in rh.deny with input as {"cases": swap("reload_inactive", c)}
+	contains(msg, "did not print")
+}
+
+test_r1_refuses_a_live_no_reload if {
+	c := rel("no_reload", {"systemctl_log": ["systemctl --user restart plasma-plasmashell.service"]})
+	some msg in rh.deny with input as {"cases": swap("no_reload", c)}
+	contains(msg, "no_reload called systemctl")
+}
+
+test_r1_refuses_a_no_reload_that_sweeps if {
+	c := rel("no_reload", {"cache_el_present": false})
+	some msg in rh.deny with input as {"cases": swap("no_reload", c)}
+	contains(msg, "no_reload removed")
+}
+
+test_r1_unmeasured_fact_is_withheld_not_denied if {
+	c := rel("no_reload", {"cache_el_present": null})
+	inp := {"cases": swap("no_reload", c)}
+	"H2: el-openglo-apply/no_reload: cache_el_present was not measured" in rh.withheld with input as inp
+	d := rh.deny with input as inp
+	every msg in d {
+		not contains(msg, "no_reload")
+	}
 }

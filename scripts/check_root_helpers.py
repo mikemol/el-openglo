@@ -20,6 +20,12 @@ This runs both, as shipped in make_deb, against a throwaway root:
     scripts/check_root_helpers.py --list      # one line per case
     scripts/check_root_helpers.py --selftest  # the measurement can SEE a failed run
 
+  * el-openglo-apply (W215) is the per-user helper; it has no root seam (it writes
+    only under $HOME). It runs with HOME = scratch and a PATH of a logging systemctl
+    stub plus cp/mkdir/tr/find, so its reload step (step 8) is measured: qmlcache
+    cleared for org.el.* only, unit restart when active, an instruction when not,
+    nothing at all under --no-reload.
+
 ⚑ A HELPER WITHOUT THE SEAM IS NEVER EXECUTED. It would write the real /etc; its
 cases are WITHHELD, naming why.
 
@@ -41,6 +47,20 @@ if ROOT not in sys.path:
 
 SEAM = 'R="${EL_OPENGLO_ROOT:-}"'
 COREUTILS = ["cp", "cat", "mkdir", "rm", "readlink", "ln"]
+APPLY_UTILS = ["cp", "mkdir", "tr", "find"]     # what el-openglo-apply calls, nothing else
+CACHE_EL = "k1-org.el.notifymarquee.qmlc"      # an entry of OURS in plasmashell's qmlcache
+CACHE_FOREIGN = "k2-org.kde.other.qmlc"        # a foreign one, which must survive
+# (scenario, argv, systemctl says the shell unit is active)
+RELOAD_SCENARIOS = [("reload_active", ["EL-Openglo"], True),
+                    ("reload_inactive", ["EL-Openglo"], False),
+                    ("no_reload", ["--no-reload", "EL-Openglo"], True)]
+SYSTEMCTL_STUB = r'''#!/bin/sh
+echo "systemctl $*" >> "$HOME/systemctl.log"
+case "$*" in
+  *is-active*) [ -n "${STUB_ACTIVE:-}" ] && exit 0; exit 3 ;;
+esac
+exit 0
+'''
 
 STUBS = {
     "id": '#!/bin/sh\necho 0\n',
@@ -191,6 +211,36 @@ def run_case(helper, scenario, argv, tools, env, scripts, work):
     return case
 
 
+def run_reload(scenario, argv, active, body, work):
+    """el-openglo-apply with the env dict as the WHOLE environment (env -i): HOME = a
+    scratch dir, PATH = a logging systemctl stub + four coreutils, so the live session
+    (qdbus6, plasma-apply-*, kwriteconfig6) is unreachable by construction."""
+    scratch = tempfile.mkdtemp(prefix=f"{scenario}-", dir=work)
+    home = os.path.join(scratch, "home")
+    qc = os.path.join(home, ".cache/plasmashell/qmlcache")
+    os.makedirs(qc)
+    for n in (CACHE_EL, CACHE_FOREIGN):
+        open(os.path.join(qc, n), "w").write("x")
+    b = os.path.join(scratch, "bin")
+    os.makedirs(b)
+    for c in APPLY_UTILS:
+        os.symlink(shutil.which(c), os.path.join(b, c))
+    sc = os.path.join(b, "systemctl")
+    open(sc, "w").write(SYSTEMCTL_STUB)
+    os.chmod(sc, 0o755)
+    helper_p = os.path.join(scratch, "el-openglo-apply")
+    open(helper_p, "w").write(body)
+    os.chmod(helper_p, 0o755)
+    e = {"HOME": home, "PATH": b, **({"STUB_ACTIVE": "1"} if active else {})}
+    r = subprocess.run(["/bin/sh", helper_p, *argv], env=e, capture_output=True, text=True)
+    log = os.path.join(home, "systemctl.log")
+    return {"kind": "reload", "helper": "el-openglo-apply", "scenario": scenario, "argv": argv,
+            "active": active, "exit": r.returncode, "stdout": r.stdout, "stderr": r.stderr,
+            "systemctl_log": open(log).read().splitlines() if os.path.isfile(log) else [],
+            "cache_el_present": os.path.exists(os.path.join(qc, CACHE_EL)),
+            "cache_foreign_present": os.path.exists(os.path.join(qc, CACHE_FOREIGN))}
+
+
 def measure():
     import make_deb
     scripts = {"el-openglo-plymouth": make_deb.PLYMOUTH_HELPER,
@@ -202,6 +252,8 @@ def measure():
         cases = plymouth_layout(themes)
         for sc in SCENARIOS:
             cases.append(run_case(*sc, scripts, work))
+        for name, av, act in RELOAD_SCENARIOS:
+            cases.append(run_reload(name, av, act, make_deb.APPLY_HELPER, work))
     finally:
         shutil.rmtree(work, ignore_errors=True)
     return {"cases": cases, "roster_drift": roster_drift()}
@@ -223,6 +275,8 @@ def main(argv):
         for c in m["cases"]:
             if c["kind"] == "layout":
                 print(f"  layout  {c['dir']:28s} {c['plymouth_files']}")
+            elif c["kind"] == "reload":
+                print(f"  reload  {c['helper']:20s} {c['scenario']:24s} exit {c['exit']}")
             else:
                 print(f"  run     {c['helper']:20s} {c['scenario']:24s} "
                       + (f"WITHHELD {c['withheld']}" if "withheld" in c else f"exit {c['exit']}"))
@@ -258,6 +312,12 @@ def _selftest():
         s = run_case("el-openglo-sddm", "theme", ["EL-Azure-Lit"], [], {}, bad, work)
         chk("a helper with no seam is withheld, never run", "withheld" in s and "exit" not in s, True)
         import make_deb
+        probe = ('#!/bin/sh\nsystemctl --user restart x\n'
+                 'find "$HOME/.cache/plasmashell/qmlcache" -name "*org.el.*" -delete\n')
+        rc = run_reload("reload_active", ["EL-Openglo"], True, probe, work)
+        chk("a stub systemctl call reaches its log", rc["systemctl_log"], ["systemctl --user restart x"])
+        chk("the cache sweep is seen: ours gone, foreign kept",
+            (rc["cache_el_present"], rc["cache_foreign_present"]), (False, True))
         chk("the live make_deb.VARIANTS is the roster", roster_drift(), [])
         kept = make_deb.VARIANTS
         try:

@@ -69,9 +69,17 @@ def measure(name, operands=(), script=None):
     script = script or measurer(name)
     r = subprocess.run([sys.executable, script, "--json", *operands],
                        capture_output=True, text=True, cwd=ROOT, timeout=600)
+    if r.returncode == 2:
+        raise UsageRefusal(f"{os.path.basename(script)} refused its arguments (exit 2): "
+                           f"{r.stderr.strip()[-300:]}")
     if r.returncode != 0:
         raise RuntimeError(f"{os.path.basename(script)} --json exited {r.returncode}: {r.stderr[-300:]}")
     return json.loads(r.stdout)
+
+
+class UsageRefusal(RuntimeError):
+    """The measurer exited 2 (usage): the operands are wrong, which is not a crash.
+    gate() reports it and exits 2; expect_gate still counts it a failed claim."""
 
 
 def value(name, doc):
@@ -243,7 +251,12 @@ def gate(name, operands=()):
     if not OPA:
         print(f"opa_gate: {name}: SKIP — opa is not installed on this host", file=sys.stderr)
         return 0
-    sets = evaluate(name, measure(name, operands))
+    try:
+        doc = measure(name, operands)
+    except UsageRefusal as e:
+        print(f"opa_gate: {name}: usage — {e}", file=sys.stderr)
+        return 2
+    sets = evaluate(name, doc)
     for m in sets["deny"]:
         print(f"opa_gate: DENY {m}", file=sys.stderr)
     for m in sets["withheld"]:
@@ -376,9 +389,19 @@ def _selftest():
             f.write("print('this is not json')\n")
         chk("--expect: a raising measurer FAILS (1), never 0", expect_gate("serial", [noise], s0, script=raising), 1)
         chk("--expect: unparseable JSON FAILS (1)", expect_gate("serial", [noise], s0, script=garbage), 1)
+        try:
+            measure("serial", [], raising)
+            crash = "no exception"
+        except UsageRefusal:
+            crash = "UsageRefusal"
+        except RuntimeError:
+            crash = "RuntimeError"
+        chk("a crashing measurer (exit 1) is a RuntimeError, not a usage refusal", crash, "RuntimeError")
     chk("--expect: an absent fixture could not run (3)", expect_gate("serial", [os.path.join(fx, "absent.log")], s0), 3)
     chk("--expect: opa absent could not run (3)", expect_gate("serial", [noise], s0, opa=""), 3)
     chk("--expect: an undefined package FAILS (1)", expect_gate("no_such_policy", [noise], s0, script=measurer("serial")), 1)
+    # W182: a measurer's usage refusal (exit 2) is a usage refusal, not a traceback
+    chk("gate: serial with no LOG operand exits 2", gate("serial", []), 2)
     # W75 --denies: the census SEES a negative claim where one exists, and its absence
     d = denies_census()
     chk("--denies sees SERIAL-DENIES on serial", "SERIAL-DENIES" in d.get("serial", []), True)

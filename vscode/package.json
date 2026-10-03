@@ -1,0 +1,48 @@
+{
+  "name": "el-openglo",
+  "displayName": "EL Openglo",
+  "publisher": "el-openglo",
+  "version": "1.0.0",
+  "description": "Electroluminescent watch display: six phosphor colour themes, generated from one solved palette",
+  "license": "Apache-2.0",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "contributes": {
+    "themes": [
+      {
+        "label": "EL Openglo (EL-Amber)",
+        "uiTheme": "vs-dark",
+        "path": "./themes/EL-Amber-color-theme.json"
+      },
+      {
+        "label": "EL Openglo (EL-Amber-Lit)",
+        "uiTheme": "vs",
+        "path": "./themes/EL-Amber-Lit-color-theme.json"
+      },
+      {
+        "label": "EL Openglo (EL-Azure)",
+        "uiTheme": "vs-dark",
+        "path": "./themes/EL-Azure-color-theme.json"
+      },
+      {
+        "label": "EL Openglo (EL-Azure-Lit)",
+        "uiTheme": "vs",
+        "path": "./themes/EL-Azure-Lit-color-theme.json"
+      },
+      {
+        "label": "EL Openglo (EL-Openglo)",
+        "uiTheme": "vs-dark",
+        "path": "./themes/EL-Openglo-color-theme.json"
+      },
+      {
+        "label": "EL Openglo (EL-Openglo-Lit)",
+        "uiTheme": "vs",
+        "path": "./themes/EL-Openglo-Lit-color-theme.json"
+      }
+    ]
+  }
+}

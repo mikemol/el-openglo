@@ -39,9 +39,24 @@ deny contains msg if {
 	msg := sprintf("B1: pkgcheck: %s", [input.ebuild.pkgcheck.output])
 }
 
-pkgcheck_failed if input.ebuild.pkgcheck.rc != 0
+# ⚑ W212: pkgcheck that could not LOAD the host repo set (`repos.conf: default repo
+# gentoo`) says nothing about the ebuild: withheld (counted), never a pass, never a deny.
+pkgcheck_env if input.ebuild.pkgcheck.env_error == true
 
-pkgcheck_failed if input.ebuild.pkgcheck.errors == true
+pkgcheck_failed if {
+	not pkgcheck_env
+	input.ebuild.pkgcheck.rc != 0
+}
+
+pkgcheck_failed if {
+	not pkgcheck_env
+	input.ebuild.pkgcheck.errors == true
+}
+
+withheld contains msg if {
+	pkgcheck_env
+	msg := sprintf("B1: pkgcheck could not load the host repo set; the ebuild is bash-parsed only: %s", [input.ebuild.pkgcheck.output])
+}
 
 deny contains msg if {
 	is_object(input.ebuild.bash_parse)

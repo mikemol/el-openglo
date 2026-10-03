@@ -41,7 +41,7 @@ entries(c) := e if {
 } else := {}
 
 unmeasured(c) := (((({"index_theme" | not is_boolean(object.get(c, "index_theme", null))} | {"entries" | not is_object(object.get(c, "entries", null))}) | {sprintf("tokens.%s", [t]) |
-	some t in ["lit", "ground"]
+	some t in ["lit", "ground", "ghost"]
 	not is_string(object.get(tokens(c), t, null))
 }) | {sprintf("%s.readable", [n]) |
 	some n, e in entries(c)
@@ -49,7 +49,7 @@ unmeasured(c) := (((({"index_theme" | not is_boolean(object.get(c, "index_theme"
 }) | {sprintf("%s.%s", [n, f]) |
 	some n, e in entries(c)
 	object.get(e, "readable", null) == true
-	some f in ["sizes", "dominant"]
+	some f in ["sizes", "dominant", "frames"]
 	not is_array(object.get(e, f, null))
 })
 
@@ -132,6 +132,76 @@ deny contains msg if {
 	missing := required_sizes - {z | some z in c.entries[s].sizes}
 	count(missing) > 0
 	msg := sprintf("C4: %s %s lacks size(s) %v", [c.id, s, missing])
+}
+
+# W218 — the shapes that animate, and how many frames each carries per size
+animated_shapes := {"wait", "progress"}
+
+animated_frames := 6
+
+# C8 — an animated shape carries its frames at every size (one chunk per frame)
+deny contains msg if {
+	some c in measured
+	some s in animated_shapes
+	usable(c, s)
+	some z in required_sizes
+	n := object.get(object.get(c.entries[s], "frame_counts", {}), sprintf("%d", [z]), 0)
+	n != animated_frames
+	msg := sprintf("C8: %s %s has %d frame(s) at %d px, wants %d", [c.id, s, n, z, animated_frames])
+}
+
+# C8 — a static shape is one frame
+deny contains msg if {
+	some c in measured
+	some name, e in c.entries
+	truth.py(e.readable)
+	not name in animated_shapes
+	object.get(e, "link", null) == null
+	some z, n in object.get(e, "frame_counts", {})
+	n != 1
+	msg := sprintf("C8: %s %s is static but carries %d frames at %s px", [c.id, name, n, z])
+}
+
+# C9 — every frame of an animation has a positive delay
+deny contains msg if {
+	some c in measured
+	some s in animated_shapes
+	usable(c, s)
+	some i, f in c.entries[s].frames
+	not f.delay > 0
+	msg := sprintf("C9: %s %s frame %d has no delay", [c.id, s, i])
+}
+
+# C10 — the frames DIFFER (a spinner of identical frames is a still)
+deny contains msg if {
+	some c in measured
+	some s in animated_shapes
+	usable(c, s)
+	frames := c.entries[s].frames
+	distinct := {f.pixels | some f in frames}
+	count(distinct) != count(frames)
+	msg := sprintf("C10: %s %s has %d distinct frame(s) of %d", [c.id, s, count(distinct), count(frames)])
+}
+
+# C11 (W219) — THE GHOST DECISION, measured. A glyph carries the ghost token exactly
+# where a frame leaves a segment unlit: every frame of an animated shape shows ghost
+# ink (composite of the ghost token at its solved alpha over the ground) AND lit ink.
+deny contains msg if {
+	some c in measured
+	some s in animated_shapes
+	usable(c, s)
+	some i, f in c.entries[s].frames
+	not f.ghost_px > 0
+	msg := sprintf("C11: %s %s frame %d shows no ghost ink (unlit segments undrawn)", [c.id, s, i])
+}
+
+deny contains msg if {
+	some c in measured
+	some s in animated_shapes
+	usable(c, s)
+	some i, f in c.entries[s].frames
+	not f.lit_px > 0
+	msg := sprintf("C11: %s %s frame %d shows no lit ink", [c.id, s, i])
 }
 
 # C5 — the theme has its index.theme (the name and the Inherits= fallback)

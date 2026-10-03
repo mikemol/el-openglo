@@ -299,6 +299,87 @@ withheld contains msg if {
 }
 
 # METADATA
+# title: "M12 — a width-changing replace only stalls; no segment outruns the pan (W241)"
+# description: |
+#   stallOffsets(oldOffs, newOffs, span, progress): each case is sampled at rising
+#   progress. In the text's own frame a glyph's x may hold or move RIGHT (a stall on the
+#   board) but never LEFT: a left move is a segment outrunning the pan (W183 ruling 4).
+#   The first sample is the old layout and the last the settled one, as the case states.
+stall_x_cells(s) := array.concat(object.get(s, "neu", []), object.get(s, "gone", []))
+
+deny contains msg if {
+	some c in object.get(input, "stall", [])
+	some i, s in c.samples
+	i > 0
+	prev := c.samples[i - 1]
+	some j, x in stall_x_cells(s)
+	x < stall_x_cells(prev)[j]
+	msg := sprintf("M12: %s: cell %d outruns the pan going from progress %v to %v (x %v < %v)", [c.label, j, prev.progress, s.progress, x, stall_x_cells(prev)[j]])
+}
+
+deny contains msg if {
+	some c in object.get(input, "stall", [])
+	count(c.samples) > 0
+	stall_x_cells(c.samples[0]) != array.concat(c.expected_start.neu, c.expected_start.gone)
+	msg := sprintf("M12: %s: the first sample is %v, expected the old layout %v", [c.label, stall_x_cells(c.samples[0]), array.concat(c.expected_start.neu, c.expected_start.gone)])
+}
+
+deny contains msg if {
+	some c in object.get(input, "stall", [])
+	count(c.samples) > 0
+	last := c.samples[count(c.samples) - 1]
+	stall_x_cells(last) != array.concat(c.expected_end.neu, c.expected_end.gone)
+	msg := sprintf("M12: %s: the last sample is %v, expected the settled layout %v", [c.label, stall_x_cells(last), array.concat(c.expected_end.neu, c.expected_end.gone)])
+}
+
+deny contains msg if {
+	some c in object.get(input, "stall", [])
+	count(c.samples) > 0
+	got := c.samples[0].frameShift
+	got != c.expected_frame_shift
+	msg := sprintf("M12: %s: frameShift %v, expected %v", [c.label, got, c.expected_frame_shift])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "stall", [])) == 0
+	msg := "M12: no stallOffsets cases were measured"
+}
+
+withheld contains msg if {
+	some c in object.get(input, "stall", [])
+	not is_array(object.get(c, "samples", null))
+	msg := sprintf("W: stall %v: samples were not measured", [object.get(c, "label", null)])
+}
+
+# METADATA
+# title: "M13 — during a roll the ordinary glyph paints at every index outside the new span (W188)"
+# description: |
+#   paintsPlain(i, textLen, span): inside the new span the roll cell is the glyph, so the
+#   ordinary one must not paint over it; everywhere else a character of the NEW text paints
+#   as always, including the SUFFIX characters of a shortened replace, whose indices coincide
+#   with the old cells rolling out. Painting only the rolling-out cell there dropped the
+#   suffix until the roll ended: a glyph missing mid-run.
+deny contains msg if {
+	some c in object.get(input, "plain", [])
+	is_array(object.get(c, "paints", null))
+	c.paints != c.expected
+	msg := sprintf("M13: %s: paintsPlain%v gave %v, expected %v", [c.label, c.args, c.paints, c.expected])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "plain", [])) == 0
+	msg := "M13: no paintsPlain cases were measured"
+}
+
+withheld contains msg if {
+	some c in object.get(input, "plain", [])
+	not is_array(object.get(c, "paints", null))
+	msg := sprintf("W: plain %v: paints were not measured", [object.get(c, "label", null)])
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 # description: |
 #   The measurement always emits `runner` as a bool. `false` is the host fact;

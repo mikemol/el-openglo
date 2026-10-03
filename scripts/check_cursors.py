@@ -39,6 +39,7 @@ sys.path.insert(0, ROOT)
 
 DOMINANT_SHARE = 0.15
 PROBE_SIZE = 32
+GHOST_TOL = 3       # per-channel slack when matching the ghost composite
 
 
 def dominant(px, share=DOMINANT_SHARE):
@@ -50,30 +51,66 @@ def dominant(px, share=DOMINANT_SHARE):
     return [c for c, n in opaque.most_common() if n / total >= share]
 
 
-def measure_file(path):
+def _hex(c):
+    return tuple(int(c[i:i + 2], 16) for i in (1, 3, 5))
+
+
+def ghost_rgb(tokens):
+    """The ghost token composited at its solved alpha over the ground — the colour
+    an unlit segment lands on in the pixels (a measurement of what is expected)."""
+    a = float(tokens["ghost_alpha"])
+    g, b = _hex(tokens["ghost"]), _hex(tokens["ground"])
+    return tuple(round(a * x + (1 - a) * y) for x, y in zip(g, b))
+
+
+def ghost_pixels(px, tokens, tol=GHOST_TOL):
+    """How many fully opaque pixels sit within `tol` per channel of the ghost
+    composite — the unlit segments, as drawn."""
+    want = ghost_rgb(tokens)
+    n = 0
+    for p in px:
+        if (p >> 24) == 0xFF and all(abs(((p >> s) & 255) - w) <= tol
+                                     for s, w in zip((16, 8, 0), want)):
+            n += 1
+    return n
+
+
+def measure_file(path, tokens=None):
+    """`frames` is the probe-size animation: per frame its delay, its lit-token
+    pixel count and its ghost pixel count (None when no tokens were given)."""
     import make_cursors as MC
     try:
-        imgs = MC.read_xcursor(path)
+        allf = MC.read_xcursor_frames(path)
     except (OSError, ValueError) as e:
-        return {"readable": False, "error": str(e), "sizes": [], "dominant": []}
-    probe = imgs.get(PROBE_SIZE)
-    return {"readable": True, "error": None, "sizes": sorted(imgs),
-            "dominant": dominant(probe[4]) if probe else []}
+        return {"readable": False, "error": str(e), "sizes": [], "dominant": [], "frames": []}
+    probe = allf.get(PROBE_SIZE)
+    frames = []
+    for f in probe or []:
+        px = f[4]
+        lit = sum(1 for p in px if tokens and (p >> 24) == 0xFF
+                  and "#%06x" % (p & 0xFFFFFF) == tokens["lit"]) if tokens else None
+        frames.append({"delay": f[5], "lit_px": lit,
+                       "ghost_px": ghost_pixels(px, tokens) if tokens else None,
+                       "pixels": hash(tuple(px)) & 0xFFFFFFFF})
+    return {"readable": True, "error": None, "sizes": sorted(allf),
+            "frame_counts": {str(k): len(v) for k, v in sorted(allf.items())},
+            "dominant": dominant(probe[0][4]) if probe else [], "frames": frames}
 
 
 def measure_theme(tdir, variant):
     import make_cursors as MC
     cdir = os.path.join(tdir, "cursors")
     entries = {}
+    toks = MC.tokens(variant)
     names = sorted(os.listdir(cdir)) if os.path.isdir(cdir) else []
     for n in names:
         p = os.path.join(cdir, n)
-        e = measure_file(p)
+        e = measure_file(p, toks)
         e["link"] = os.readlink(p) if os.path.islink(p) else None
         entries[n] = e
     return {"id": variant, "theme": os.path.basename(tdir),
             "index_theme": os.path.isfile(os.path.join(tdir, "index.theme")),
-            "tokens": MC.tokens(variant), "entries": entries}
+            "tokens": toks, "entries": entries}
 
 
 def roster_drift():
@@ -139,6 +176,23 @@ def _selftest():
         see(f"a wrong-colour fixture is SEEN: #ff0000 among {b['dominant']}", "#ff0000" in b["dominant"])
         see(f"every size is read back ({g['sizes']})", g["sizes"] == list(MC.SIZES))
         see("a non-XCursor file is unreadable, not silently empty", j["readable"] is False)
+        wf = os.path.join(d, "wait")
+        open(wf, "wb").write(MC.cursor_file("wait", v))
+        w = measure_file(wf, t)
+        see(f"wait carries {MC.SEGS} frames per size ({w['frame_counts']})",
+            set(w["frame_counts"].values()) == {MC.SEGS} and len(w["frame_counts"]) == len(MC.SIZES))
+        see(f"every wait frame has delay {MC.FRAME_MS} ms and the frames differ",
+            {f["delay"] for f in w["frames"]} == {MC.FRAME_MS}
+            and len({f["pixels"] for f in w["frames"]}) == MC.SEGS)
+        see(f"every wait frame shows lit AND ghost ink ({[(f['lit_px'], f['ghost_px']) for f in w['frames']]})",
+            all(f["lit_px"] > 0 and f["ghost_px"] > 0 for f in w["frames"]))
+        open(wf, "wb").write(MC.cursor_file("wait", v, colours={"ghost": "#ff00ff"}))
+        wb = measure_file(wf, t)
+        see(f"a wrong-coloured ghost is SEEN (ghost px {[f['ghost_px'] for f in wb['frames']]} "
+            f"vs {[f['ghost_px'] for f in w['frames']]})",
+            max(f["ghost_px"] for f in wb["frames"]) * 4 < min(f["ghost_px"] for f in w["frames"]))
+        see("a static glyph is one frame with no delay",
+            [f["delay"] for f in g["frames"]] == [0] if g.get("frames") is not None else False)
     import make_inherit as INH
     see(f"the live emitters agree with the roster ({roster_drift()})", roster_drift() == [])
     kept = INH.VARIANTS

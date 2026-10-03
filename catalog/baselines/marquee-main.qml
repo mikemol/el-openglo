@@ -170,6 +170,7 @@ PlasmoidItem {
         // ⚑ NO CONTENT IN THE TRACE (luthen-observability, 2026-10-01: the journal is shipped
         // to VictoriaLogs; ticker text there is senders, subjects and bodies). Structure only:
         // ids, counts and lengths — never the text, a summary, a body, a label or a link.
+        root.ringItems = next.ring;
         root.trace("swap live=" + JSON.stringify(live) + " ring=" + JSON.stringify(next.ring.map(function (i) { return i.id; }))
                    + " queue=" + JSON.stringify(next.queue.map(function (i) { return [i.id, i.shown]; }))
                    + " textLen=" + joined.text.length);
@@ -184,6 +185,64 @@ PlasmoidItem {
     }
     signal ringSwapped()
     property var tickerSpans: []
+    property var ringItems: []            // the queue entries the board is scrolling now (W189)
+    property real viewWidth: 0            // the board's width in px, set by the representation
+
+    // ⚑ WHERE AN ITEM IS RIGHT NOW (W189; W183 ruling 3): "none" when it is not in the ring,
+    // "ahead" when it has not yet entered (its left edge is at or past the board's right),
+    // "past" when it has fully scrolled off the left, else "on" - on the board. From the
+    // kerned layout the board paints (charLeft, board px from the text's left edge) and the
+    // text's left edge on screen (boardRawX).
+    function spanWhere(id) {
+        var ss = root.tickerSpans;
+        for (var k = 0; k < ss.length; k++) {
+            if (ss[k].id !== id) continue;
+            if (root.charLeft.length === 0 || root.charAdvance <= 0 || !root.boardRunning) return "none";
+            var last = Math.min(ss[k].end, root.charLeft.length) - 1;
+            if (last < ss[k].start) return "none";
+            var left = root.boardRawX + root.charLeft[ss[k].start];
+            var right = root.boardRawX + root.charLeft[last] + root.charAdvance;
+            return left >= root.viewWidth ? "ahead" : (right <= 0 ? "past" : "on");
+        }
+        return "none";
+    }
+
+    // ⚑ A REPLACE OF AN ITEM THE BOARD HOLDS (W189; W183 rulings 1 and 3). `before` and
+    // `after` are the queue either side of an upsert. An id whose text changed and which
+    // is in the ring is taken IN PLACE when it is on the board (its changed characters
+    // roll, startRoll) or still ahead of it (applied, nothing to see), and counts as
+    // shown - this rotation is its one. One scrolled past, or not in the ring, stays
+    // owed a fresh rotation, as before (W185 queues the second pass). A job's progress
+    // replace keeps its text, so it never gets here and keeps its gauge path.
+    function replaceInPlace(before, after) {
+        var items = root.ringItems.slice(), changed = false, rolls = false, keep = after.slice();
+        for (var q = 0; q < after.length; q++) {
+            var was = null;
+            for (var b = 0; b < before.length; b++) if (before[b].id === after[q].id) was = before[b];
+            if (!was || was.text === after[q].text) continue;
+            var where = root.spanWhere(after[q].id);
+            if (where !== "on" && where !== "ahead") continue;
+            for (var r = 0; r < items.length; r++) {
+                if (items[r].id !== after[q].id) continue;
+                items[r] = Body.queueItem(after[q], true, after[q].history);
+                keep[q] = items[r];
+                changed = true;
+                rolls = rolls || where === "on";
+            }
+        }
+        if (!changed) return after;
+        var oldText = root.tickerText;
+        var joined = Body.ringJoin(items, "     •     ");
+        root.ringItems = items;
+        root.tickerRuns = joined.runs;
+        root.tickerSpans = joined.spans;
+        root.tickerText = joined.text;
+        root.trace("replace in place rolls=" + rolls + " textLen=" + joined.text.length);
+        // the roll takes the OLD layout before the repaint lays out the new text
+        if (rolls) root.startRoll(oldText, joined.text);
+        root.ringSwapped();
+        return keep;
+    }
     // the urgency of the item character i belongs to: 0 low, 1 normal, 2 critical
     function urgencyAt(i) {
         var ss = root.tickerSpans;
@@ -401,6 +460,7 @@ PlasmoidItem {
     function rebuild() {
         var q = root.queue;
         for (var i = 0; i < notifModel.count; i++) q = root.upsertRow(q, i);
+        q = root.replaceInPlace(root.queue, q);
         root.queue = q;
         root.trace("rebuild count=" + notifModel.count + " queue=" + q.length + " tickerLen=" + root.tickerText.length);
         // nothing is scrolling: start this rotation now rather than at a boundary
@@ -423,9 +483,15 @@ PlasmoidItem {
     property var roll: null
     property real rollProgress: 0
     readonly property int rollMs: 400
+    // ⚑ THE LAYOUT THE BOARD HOLDS NOW, in backdrop px (rep.layout writes it): startRoll
+    // takes a copy as the OLD layout, so it must run BEFORE the new text is laid out (W241)
+    property var layoutOffs: []
     function startRoll(oldText, newText) {
-        root.roll = { oldText: oldText, span: Body.replaceSpan(oldText, newText) };
-        rollAnim.restart();
+        // a roll still running ends first: its onStopped clears root.roll, so it must come
+        // BEFORE the new roll is set, never after
+        rollAnim.stop();
+        root.roll = { oldText: oldText, span: Body.replaceSpan(oldText, newText), oldOffs: root.layoutOffs.slice() };
+        rollAnim.start();
     }
     NumberAnimation {
         id: rollAnim
@@ -443,6 +509,7 @@ PlasmoidItem {
         Layout.minimumWidth: 200
         Layout.preferredWidth: 420
         clip: true
+        Binding { target: root; property: "viewWidth"; value: rep.width }
 
         // dot pitch from the panel height: the cell is `rows` dots tall, and we
         // leave a little vertical air so the glyph does not touch the bezel.
@@ -507,6 +574,7 @@ PlasmoidItem {
         // the gauge, the backdrop size, the scroll length and tapAt all read THESE offsets,
         // so a kerned pair moves its glyphs, its taps and the end of the run together.
         property var offs: []                 // backdrop px, per character
+        property real rollShift: 0            // the live roll's stall frame shift, backdrop px (W241)
         property int textCells: 0             // the text's width in backdrop cells
         readonly property real textWidth: textCells * pitch
         function layout(text, idle) {
@@ -520,6 +588,7 @@ PlasmoidItem {
             }
             var adv = rep.advanceCells * s;
             rep.offs = Body.kernOffsets(glyphs, root.matrix.rows, s, adv);
+            root.layoutOffs = rep.offs;
             var n = rep.offs.length;
             rep.textCells = n ? Math.ceil((rep.offs[n - 1] + adv) / s) : 0;
             // board px, for the hit-test and the harness (backdrop px x pitch/scale)
@@ -538,7 +607,10 @@ PlasmoidItem {
             var idle = root.tickerText.length === 0;
             var text = idle ? root.cfgIdleText : root.tickerText;
             rep.layout(text, idle);
-            field.sizeBackdrop((idle ? field.cols : field.cols + rep.textCells) * field.scale);
+            // a shortened replace settles at the new layout shifted right by the stall (W241),
+            // so the backdrop keeps that much more room to the right while a roll is live
+            var room = (!idle && root.roll) ? Body.stallOffsets(root.roll.oldOffs, rep.offs, root.roll.span, 0, rep.advanceCells * field.scale).frameShift : 0;
+            field.sizeBackdrop((idle ? field.cols : field.cols + rep.textCells) * field.scale + room);
         }
         function drawBackdrop() {
             var s = field.scale, cols = field.cols;
@@ -558,9 +630,19 @@ PlasmoidItem {
             // span does not cover paint as always. Rows outside [0, rows) fall off the
             // backdrop's edge, which is the odometer window.
             var rollAt = {};
+            // ⚑ THE STALL (W241; W183 ruling 4): while the roll is live every glyph's x comes
+            // from Body.stallOffsets, not rep.offs - a width change never moves a segment
+            // faster than the pan, the leading or trailing segment stalls instead. xo[i] is the
+            // x of NEW index i, goneX[j] the x of the old span cell j past the new span.
+            var xo = rep.offs, goneX = [];
+            rep.rollShift = 0;
             if (!idle && root.roll) {
                 var rcs = Body.rollCells(root.roll.oldText, text, root.roll.span, root.rollProgress, root.matrix.rows);
                 for (var rk = 0; rk < rcs.length; rk++) rollAt[root.roll.span.p + rcs[rk].k] = rcs[rk].glyphs;
+                var stall = Body.stallOffsets(root.roll.oldOffs, rep.offs, root.roll.span, root.rollProgress, rep.advanceCells * s);
+                xo = stall.neu;
+                goneX = stall.gone;
+                rep.rollShift = stall.frameShift;
             }
             function paintGlyph(gBytes, xpx, dyRows, grow, underline, dark) {
                 for (var gc = 0; gc < root.matrix.cols; gc++) {
@@ -578,13 +660,17 @@ PlasmoidItem {
                     var rUrg = idle ? 1 : root.urgencyAt(Math.min(i, text.length - 1));
                     ctx.fillStyle = rUrg === 2 ? String(root.hotColor) : String(root.litColor);
                     inks[ctx.fillStyle] = true;
-                    // a cell past the new text's end (a shortening) sits one advance on
-                    var rx = i < rep.offs.length ? rep.offs[i]
-                           : (rep.offs.length ? rep.offs[rep.offs.length - 1] : 0) + (i - rep.offs.length + 1) * rep.advanceCells * s;
+                    // a cell past the new span (a shortening) is an OLD cell rolling out: its
+                    // stalled x comes from the stall's `gone` list
+                    var rx = i < root.roll.span.newEnd ? xo[i] : goneX[i - root.roll.span.newEnd];
                     var rgs = rollAt[i];
                     for (var rg = 0; rg < rgs.length; rg++)
                         paintGlyph(Body.glyphFor(root.matrixFont, rgs[rg].ch, rUrg), rx, rgs[rg].dy, 0, false, false);
-                    continue;
+                    // a span cell is the whole story at an index inside the new span, or past
+                    // the new text. But a SHORTENED replace's rolling-out old cells share their
+                    // indices with the new text's SUFFIX characters: those still need painting
+                    // below, or the suffix is missing until the roll ends.
+                    if (!Body.paintsPlain(i, text.length, root.roll.span)) continue;
                 }
                 var ch = text.charAt(i);
                 var run = idle ? null : root.runAt(i);
@@ -610,7 +696,7 @@ PlasmoidItem {
                             for (var rr = top; rr < root.matrix.rows; rr++) {
                                 var on = !(stipple && (rr - top) % 2 === 1);
                                 if (!on) continue;
-                                ctx.fillRect((x0 + sc) * s + rep.offs[run.start], rr * s, s, s);
+                                ctx.fillRect((x0 + sc) * s + xo[run.start], rr * s, s, s);
                                 onCells += 1;
                             }
                         }
@@ -644,7 +730,7 @@ PlasmoidItem {
                         var on = !dark && (((colBits & (1 << r)) !== 0) || (underline && r === root.matrix.rows - 1));
                         if (!on) continue;
                         onCells += 1;
-                        var cx = (x0 + c) * s + rep.offs[i], cy = r * s;
+                        var cx = (x0 + c) * s + xo[i], cy = r * s;
                         ctx.fillRect(cx - grow, cy - grow, s + 2 * grow, s + 2 * grow);
                     }
                 }
@@ -667,10 +753,20 @@ PlasmoidItem {
         // backdrop and start its run
         Connections {
             target: root
-            function onRingSwapped() { if (field.backdrop.available) rep.paintBackdrop(); Qt.callLater(rep.startRun); }
+            function onRingSwapped() {
+                if (field.backdrop.available) rep.paintBackdrop();
+                // an in-place replace (W189) changes the text under a LIVE run: the run's end follows
+                if (rotation.running) rotation.to = (field.cols + rep.textCells) * field.scale;
+                Qt.callLater(rep.startRun);
+            }
             // the roll advances per frame: repaint its span cells (W188)
             function onRollProgressChanged() { if (root.roll && field.backdrop.available) rep.drawBackdrop(); }
-            function onRollChanged() { if (field.backdrop.available) rep.drawBackdrop(); }
+            // the roll ended: the settled layout was the new one shifted right by the stall,
+            // so the frame is handed back by lowering the offset by that shift (W241)
+            function onRollChanged() {
+                if (!root.roll && rep.rollShift > 0) { field.offset -= rep.rollShift; rep.rollShift = 0; }
+                if (field.backdrop.available) rep.drawBackdrop();
+            }
             function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
             // the flash toggled: the backdrop is already sized for this text, so redraw only
             function onFlashLitChanged() { if (field.backdrop.available) rep.drawBackdrop(); }
@@ -699,15 +795,25 @@ PlasmoidItem {
             if (root.captureSteps > 0) { root.captureStep = 0; rotation.pause(); }
         }
         Component.onCompleted: { root.charAdvance = advanceCells * pitch; Qt.callLater(startRun); }
+        // ⚑ ONE ADVANCE (W200): the live FrameAnimation and the stepped capture both move the run
+        // by this - stepPips pips (field.scale backdrop px each) - or end it at `to`. A capture
+        // used to move by (to - from) / captureSteps instead, so what a frame series showed was
+        // not the step the board takes live, and the step fraction S8 grades was unobservable.
+        function advanceFrame() {
+            var next = field.offset + root.stepPips * field.scale;
+            if (next >= rotation.to) { rotation.complete(); return; }
+            field.offset = next;
+        }
         // R9 stepped capture (see root.captureSteps)
         Connections {
             target: root
             function onCaptureStepsChanged() { if (rotation.running) rotation.paused = root.captureSteps > 0 || boardHover.hovered; }
             function onCaptureAdvance() {
                 if (!rotation.running) return;
-                if (root.captureStep >= root.captureSteps) { root.captureRuns += 1; rotation.complete(); return; }
+                // the cap: a harness that asked for N steps gets a run of at most N (complete() marks the run end)
+                if (root.captureStep >= root.captureSteps) { rotation.complete(); return; }
                 root.captureStep += 1;
-                field.offset = rotation.from + (rotation.to - rotation.from) * root.captureStep / root.captureSteps;
+                rep.advanceFrame();                          // the SAME step the live clock takes (W200)
             }
         }
 
@@ -738,12 +844,13 @@ PlasmoidItem {
             running: false
             onTriggered: {
                 if (root.captureSteps > 0) return;           // R9: the harness steps the run
-                var next = field.offset + root.stepPips * field.scale;
-                if (next >= rotation.to) { rotation.complete(); return; }
-                field.offset = next;
+                rep.advanceFrame();
             }
-            // the run's end: the offset at `to`, the animation stopped, the ring swapped
+            // the run's end: the offset at `to`, the animation stopped, the ring swapped.
+            // A stepped capture's series is exactly ONE run: it ends here, on EVERY path
+            // that ends a run (W200), and the harness stops on captureRuns > 0.
             function complete() {
+                if (root.captureSteps > 0) root.captureRuns += 1;
                 field.offset = rotation.to;
                 rotation.stop();
                 root.trace("finished x=" + root.boardRawX);

@@ -48,6 +48,20 @@ test_b1_withholds_without_pkgcheck if {
 	count(p.deny) == 0 with input as inp
 }
 
+# W212: a pkgcheck that could not load the host repo set is a counted SKIP, not a deny, not a pass
+test_b1_withholds_a_host_load_failure if {
+	inp := object.union(good, {"ebuild": {"pkgcheck": {"rc": 2, "errors": false, "env_error": true, "output": "pkgcheck: error: repos.conf: default repo gentoo"}}})
+	count(p.deny) == 0 with input as inp
+	some m in p.withheld with input as inp
+	startswith(m, "B1: pkgcheck could not load the host repo set")
+}
+
+test_b1_still_refuses_a_real_error_beside_env_false if {
+	inp := object.union(good, {"ebuild": {"pkgcheck": {"rc": 1, "errors": true, "env_error": false, "output": "Error: X"}}})
+	"B1: pkgcheck: Error: X" in p.deny with input as inp
+	count(p.withheld) == 0 with input as inp
+}
+
 test_b2_refuses_an_atom_nobody_provides if {
 	inp := object.union(good, {"deps": {"portageq": true, "atoms": [{"atom": "dev-nonesuch/absent", "resolves": false}]}})
 	"B2: dev-nonesuch/absent has no visible provider" in p.deny with input as inp

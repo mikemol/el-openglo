@@ -104,6 +104,8 @@ ORDER = (
     ("make_css",       "the palette as CSS custom properties, from GRID (W19)"),
     ("make_tokens",    "the palette as W3C DTCG design tokens, from GRID (W160)"),
     ("make_glb",       "the segment and matrix displays as glTF meshes, named nodes per segment (W152)"),
+    ("make_vscode",    "VS Code colour themes per variant, roles table and ANSI bank (W161)"),
+    ("make_android_clock", "the segment clock as per-variant JSON (palette, geometry, glyph tables) for Android (W193)"),
     ("make_union",     "Union styles: Breeze with its alphas solved, from the schemes (W14)"),
     ("make_windows",   "Windows .theme per variant: wallpaper + accent + colour table (W16)"),
     ("make_firefox",   "Firefox theme manifests, Firefox's own key vocabulary (W15)"),
@@ -140,8 +142,10 @@ ROLES = {
     "make_aurorae":         "emitter",
     "make_chrome":          "emitter",
     "make_clock":           "emitter",
+    "make_android_clock":   "emitter",     # the segment clock as per-variant JSON for an Android renderer (W193)
     "make_css":             "emitter",
     "make_tokens":          "emitter",     # W3C DTCG design tokens from GRID (W160)
+    "make_vscode":          "emitter",     # VS Code colour themes + .vsix from the roles table (W161)
     "make_cursors":         "emitter",     # phosphor XCursor glyphs per variant (W36)
     "make_firefox":         "emitter",
     "make_gtk":             "emitter",

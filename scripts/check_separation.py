@@ -28,10 +28,11 @@ than gated.  That is a claim about the DESIGN, not about the arithmetic — whic
 why it must be recorded per-edge and not inferred from a floor.
 
 ⚑ THE WEAKNESS, STATED.  This gates the pairs the authority declares.  It cannot tell you
-that the RIGHT pairs are declared — 11 of the 15 constellation pairs are optimised by
-`solve_semantic_set` and gated by nobody, and `check_palette_graph.py --edges` is where
-that shows up.  A green run here means "every declared pair clears", never "every pair
-that matters clears".
+that the RIGHT pairs are declared.  W198: all 15 constellation pairs `solve_semantic_set`
+optimises are now ENFORCED (the 11 once ungated were measured: tightest link~visited
+dE 11.8 against need 8.78), so the remaining gap is non-constellation pairs, which
+`check_palette_graph.py --edges` shows.  A green run here means "every declared pair
+clears", never "every pair that matters clears".
 """
 import os
 import sys
@@ -78,7 +79,12 @@ def measure(vs=None, enforced=None):
             except KeyError as e:
                 case.update(dE=None, view=None, why=f"the variant carries no token {e}")
             cases.append(case)
+    # W199: slots the solver filled by its unchecked last-resort fallback, as the token
+    # names them (make_palette.solve_scheme `sem_infeasible`, present only when non-empty)
+    infeasible = [{"variant": vid, "slots": t["sem_infeasible"].split(",")}
+                  for vid, t in vs if t.get("sem_infeasible")]
     return {"variants": [v for v, _t in vs], "enforced": [n for n, _a, _b in enforced],
+            "infeasible": infeasible,
             "surfaced": [n for n, _a, _b in C.SURFACED],
             "floor": round(C.reference_floor()[0], 4), "cases": cases}
 
@@ -100,6 +106,12 @@ def main(argv):
         return 0
     import opa_gate
     return opa_gate.gate("separation")
+
+
+def broken_fixture():
+    """A token dict carrying every gated key, all one grey (the selftest's fixture)."""
+    keys = {k for _, a, b in tuple(C.ENFORCED) + tuple(C.SURFACED) for k in (a, b)}
+    return dict({"id": "SELFTEST-BAD"}, **{k: "128,128,128" for k in keys})
 
 
 def _selftest():
@@ -125,6 +137,28 @@ def _selftest():
           (len(m["cases"]) == len(m["variants"]) * len(m["enforced"]) > 0,
            [c["id"] for c in m["cases"] if c["dE"] is None]), (True, []))
     check("the authority declares enforced pairs", len(C.ENFORCED) > 0, True)
+    # W199: a variant whose token names an infeasible slot is REPORTED, not skipped
+    flagged = dict(broken_fixture(), sem_infeasible="neu,sel_pos")
+    check("an infeasible fallback slot is measured",
+          measure(vs=[("SELFTEST-INF", flagged)])["infeasible"],
+          [{"variant": "SELFTEST-INF", "slots": ["neu", "sel_pos"]}])
+    # the SOLVER names its fallback: a floor of 21:1 (white on black) no in-sector colour
+    # on a mid grey can reach, relaxed no lower than 20, forces the last resort
+    import make_palette as MP
+    _c, _s, bad = MP.solve_semantic_set_checked(
+        {"neg": C.SECTORS["neg"]}, (128, 128, 128), (255, 255, 255), 21.0, relax_min=20.0)
+    check("the solver reports a fallback slot infeasible", bad, ["neg"])
+    _c, _s, ok_bad = MP.solve_semantic_set_checked(
+        {"neg": C.SECTORS["neg"]}, (6, 11, 13), (0, 200, 200), 4.6)
+    check("a satisfiable slot is not reported", ok_bad, [])
+    check("a fully feasible palette reports no infeasible slot",
+          measure()["infeasible"], [])
+    # W198: every pair min_pair optimises is gated (15 = K6 on the constellation)
+    con = PG.CONSTELLATION
+    gated = {tuple(sorted((a, b))) for _n, a, b in C.ENFORCED}
+    check("every constellation pair is enforced",
+          sorted(tuple(sorted((u, v))) for i, u in enumerate(con) for v in con[i + 1:]
+                 if tuple(sorted((u, v))) not in gated), [])
     # W196: focus~semantic were the only SURFACED pairs and are now ENFORCED, so an empty
     # surfaced class is a correct state, not a broken read. What must hold is the WIRING:
     # SURFACED is the authority's projection, whatever its size (falsifiable either way).

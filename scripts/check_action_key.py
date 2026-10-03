@@ -174,6 +174,85 @@ ACTIONS = (
      False,
      ".", ("-wallpaper.png", "-wallpaper.svg")),
 )
+ACTIONS_BY_NAME = {a[0]: a for a in ACTIONS}
+
+
+# ⚑ AN UNDECLARED DOMAIN IS DECLARED HERE, PER SITE (W229). build_graph finds each
+# glob/walk/listdir in an action's code closure; a site is covered when this table
+# names it by (file, enclosing function) - NOT a line, which drifts - and says how the
+# action's key sees the population it lists, per action ("*" = every action):
+#   names    the key digests the sorted NAMES the pathspecs match (a listing that
+#            reads only names is keyed exactly by them: an added or removed file moves it)
+#   files    the key digests the CONTENT of every file the pathspecs match
+#   covered  the pathspec is already one of the action's own data domains (asserted)
+#   output   the population is this action's own OUTPUT: not an input, so not keyed
+#   job      the population is written into the job's scratch dir by the run itself;
+#            the job's staged bytes are what key it (job_inputs)
+# WEAKNESS: a declaration says the site's population is keyed, it does not prove the
+# site reads only that population (listdir(src) with a computed src is taken at its
+# word); a declaration naming no site in any closure is REFUSED by the selftest, so a
+# stale entry cannot pass as coverage.
+SITE_DOMAINS = {
+    ("emitters.py", "drift"): {"*": ("names", (":(glob)make_*.py",))},
+    ("schemes_artifact.py", "members"): {"schemes": ("output", ()),
+                                         "wallpapers": ("files", (":(glob)*.colors",))},
+    ("templates/loader.py", "names"): {"*": ("covered", ("templates",))},
+    ("catalog/library/screens_viewport.py", "*"): {"screens": ("job", ())},
+    ("scripts/check_marquee_live.py", "*"): {"screens": ("job", ())},
+}
+
+
+def _site_function(rel, line):
+    """The innermost def enclosing `rel:line`, or None at module level."""
+    tree = ast.parse(open(os.path.join(ROOT, rel), encoding="utf-8").read())
+    best = None
+    for n in ast.walk(tree):
+        if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)) and n.lineno <= line <= n.end_lineno:
+            if best is None or n.lineno >= best.lineno:
+                best = n
+    return best.name if best else None
+
+
+def site_declaration(action, rel, line, domains=None):
+    """(kind, pathspecs) declaring the undeclared-domain site, or None."""
+    fn = _site_function(rel, line)
+    for key in ((rel, fn), (rel, "*")):
+        decl = SITE_DOMAINS.get(key, {})
+        got = decl.get(action) or decl.get("*")
+        if got:
+            if got[0] == "covered" and not set(got[1]) <= set(domains if domains is not None else ACTIONS_BY_NAME[action][2]):
+                return None            # claims coverage the action does not have
+            return got
+    return None
+
+
+def _split_sites(action, sites, domains=None):
+    """([still-undeclared 'rel:line: why'], {pathspec: kind}) for `sites`."""
+    left, pops = [], {}
+    for s in sites:
+        rel, line, _why = s.split(":", 2)
+        d = site_declaration(action, rel, int(line), domains)
+        if d is None:
+            left.append(s)
+        else:
+            for ps in d[1]:
+                if d[0] in ("names", "files"):
+                    pops[ps] = d[0]
+    return left, pops
+
+
+def population_inputs(pops):
+    """{name: digest} for the declared populations a site lists."""
+    import git_tracked
+    out = {}
+    for ps, kind in sorted(pops.items()):
+        found = git_tracked.files(ps, root=ROOT)
+        if kind == "names":
+            out[f"population:{ps}"] = digest_text("\0".join(sorted(found)))
+        else:
+            for rel in found:
+                out[rel] = digest_rel(rel)
+    return out
 
 
 def host_identity():
@@ -561,6 +640,8 @@ def key_of(action):
         for line, direction, why in build_graph.computed_edges(rel):
             site = f"{rel}:{line}: {why}"
             (undeclared if direction == "domain" else unresolved).append(site)
+    undeclared, pops = _split_sites(_name, undeclared, domains)
+    inputs.update(population_inputs(pops))
     if sees_host:
         kind, hid, detail = host_identity()
         if kind == "unmeasurable":
@@ -627,7 +708,11 @@ def per_output_key(action):
         for line, direction, why in build_graph.computed_edges(rel):
             site = f"{rel}:{line}: {why}"
             (undeclared if direction == "domain" else unresolved).append(site)
-    return Key(key_over(per), inputs, po["missing_host"], sorted(unresolved), sorted(undeclared)), per
+    undeclared, pops = _split_sites(action[0], undeclared, action[2])
+    pop = population_inputs(pops)
+    inputs.update({f"|{n}": d for n, d in pop.items()})
+    key = key_over({**per, **{f"population|{n}": d for n, d in pop.items()}})
+    return Key(key, inputs, po["missing_host"], sorted(unresolved), sorted(undeclared)), per
 
 
 def measure():
@@ -728,6 +813,40 @@ def write():
     return out
 
 
+# ⚑ THE PIPELINE'S ORDER, A FACT NOT A PREFERENCE: wallpapers and screens are rendered FROM
+# the schemes' .colors, so a stale schemes action is rebuilt first. ACTIONS lists them
+# screens-first; --rebuild must not follow that order.
+REBUILD_ORDER = ("schemes", "wallpapers", "screens")
+
+
+def rebuild_plan(cases):
+    """[entry module, ...] for every STALE action, in REBUILD_ORDER. Pure: the plan a
+    --rebuild runs, so a test can see it without running a builder. An action recorded
+    under an older key FORMULA ("reformulated") or never recorded is not stale - its
+    outputs were not shown to be out of date - and --write alone re-records it."""
+    stale = {c["action"] for c in cases if c["state"] == "stale"}
+    return [ACTIONS_BY_NAME[n][1] for n in REBUILD_ORDER if n in stale]
+
+
+def rebuild():
+    """Run each stale action's entry module (cwd = the repo root), then record the keys.
+    Returns (ran, failed). NOTHING IS RECORDED if any builder failed: a key recorded over
+    a half-built tree would read as current. HEAVY (screens renders under Qt): run it as a
+    systemd-run --user service with MemoryMax set, like any render."""
+    plan = rebuild_plan(measure()["cases"])
+    ran = []
+    for entry in plan:
+        print(f"action_key: rebuilding {entry}", flush=True)
+        r = subprocess.run([sys.executable, os.path.join(ROOT, entry)], cwd=ROOT)
+        if r.returncode != 0:
+            print(f"action_key: {entry} exited {r.returncode}; nothing recorded", file=sys.stderr)
+            return ran, entry
+        ran.append(entry)
+    if ran:
+        write()
+    return ran, None
+
+
 _COMMENT = {".py": b"\n# check_action_key --impact probe\n",
             ".qml": b"\n// check_action_key --impact probe\n",
             ".js": b"\n// check_action_key --impact probe\n"}
@@ -813,6 +932,18 @@ def _selftest():
         ok = ok and got == want
 
     print("action_key selftest:")
+    # ⚑ --rebuild's PLAN (pure): only STALE actions, in the PIPELINE's order - schemes before
+    # wallpapers before screens - never ACTIONS' screens-first order; a recorded-under-an-
+    # older-formula or never-recorded action is not stale, so it is not rebuilt
+    st = lambda *pairs: [{"action": n, "state": s} for n, s in pairs]
+    chk("rebuild plan: nothing stale -> nothing to run",
+        rebuild_plan(st(("screens", "current"), ("schemes", "current"), ("wallpapers", "current"))), [])
+    chk("rebuild plan: stale actions run in pipeline order, not ACTIONS order",
+        rebuild_plan(st(("screens", "stale"), ("schemes", "stale"), ("wallpapers", "stale"))),
+        ["make_schemes.py", "make_wallpaper.py", "catalog/library/render_screens.py"])
+    chk("rebuild plan: reformulated and unrecorded are not rebuilt",
+        rebuild_plan(st(("screens", "reformulated"), ("schemes", "unrecorded"), ("wallpapers", "stale"))),
+        ["make_wallpaper.py"])
     # ⚑ THE POPULATION IS NOT EMPTY — a key over nothing is a constant, and three
     # actions all keyed on an empty domain would agree with each other forever.
     for a in ACTIONS:
@@ -958,17 +1089,68 @@ def _selftest():
     print(f"  note  host is {kind} — "
           + ("a cache hit is transportable" if kind == "pinned"
              else "staleness is detectable HERE; cross-host reuse is NOT licensed"))
+    # ⚑ W229: A DECLARED DOMAIN IS IN THE KEY, AND A DECLARATION IS NOT DECORATION.
+    # Every undeclared-domain site in every action's scan is covered, every
+    # declaration names a site some scan actually found, and the declared populations
+    # move the key: a NAME for the listing that reads names, a BYTE for one that reads
+    # content.
+    raw, used = [], set()
+    for x in ACTIONS:
+        po = output_keys(x)           # the code a per-output action actually runs
+        for rel in (po["code"] if po else import_closure(x[1])):
+            for line, direction, _w in build_graph.computed_edges(rel):
+                if direction == "domain":
+                    raw.append((x[0], rel, line))
+                    fn = _site_function(rel, line)
+                    for k in ((rel, fn), (rel, "*")):
+                        if k in SITE_DOMAINS:
+                            used.add(k)
+    chk(f"the raw scan finds undeclared domains to cover ({len(raw)} site(s) over {len(ACTIONS)} action(s))",
+        len(raw) > 0, True)
+    chk("...and every one is declared in SITE_DOMAINS (the undeclared residue reads 0)",
+        [r for r in raw if site_declaration(r[0], r[1], r[2]) is None], [])
+    chk("...every SITE_DOMAINS entry names a site a scan found (none stale)",
+        sorted(set(SITE_DOMAINS) - used), [])
+    sch = ACTIONS_BY_NAME["schemes"]
+    chk("a declared NAMES population is in the schemes key",
+        any(k.startswith("population:") for k in key_of(sch).inputs), True)
+    chk("a names listing keys NAMES, not bytes: make_font.py is not itself a schemes input",
+        ("make_font.py" in key_of(sch).inputs), False)
+    wall = ACTIONS_BY_NAME["wallpapers"]
+    chk("a declared FILES population (the .colors the wallpapers read) is in their key",
+        "EL-Amber.colors" in key_of(wall).inputs, True)
+    victim = os.path.join(ROOT, "EL-Amber.colors")
+    base = key_of(wall).key
+    original = open(victim, "rb").read()
+    try:
+        with open(victim, "ab") as fh:
+            fh.write(b"\n")
+        chk("a byte in a declared FILES population moves the wallpapers key",
+            key_of(wall).key != base, True)
+    finally:
+        with open(victim, "wb") as fh:
+            fh.write(original)
     # distinct actions must not collide
-    keys = {x[0]: key_of(x).key for x in ACTIONS}
+    keys ={x[0]: key_of(x).key for x in ACTIONS}
     chk("distinct actions have distinct keys", len(set(keys.values())), len(ACTIONS))
     print("action_key selftest:", "PASS" if ok else "FAIL")
     return 0 if ok else 1
 
 
 def main(argv):
-    known = {"--list", "--write", "--check", "--json", "--selftest", "--impact"}
+    known = {"--list", "--write", "--check", "--json", "--selftest", "--impact", "--rebuild"}
     args = list(argv[1:])
     target = None
+    if args[:1] == ["--rebuild"]:
+        if len(args) != 1:
+            print("action_key: --rebuild takes no other flag", file=sys.stderr)
+            return 2
+        ran, failed = rebuild()
+        if failed:
+            return 1
+        print(f"action_key: --rebuild ran {len(ran)} of {len(ACTIONS)} action builder(s)"
+              + (f" ({', '.join(ran)}) and re-recorded every key" if ran else ": nothing was stale"))
+        return 0
     if args[:1] == ["--impact-census"]:
         names = [a[0] for a in ACTIONS if per_output_key(a)[1] is not None]
         if len(args) != 2 or args[1] not in names:

@@ -75,7 +75,7 @@ NODES = (
     Node("neu",     None,          "neu"),
     Node("pos",     None,          "pos"),
     Node("link",    None,          "link"),
-    Node("visited", None,          None),
+    Node("visited", None,          "visited"),   # W198: its 5 pairs are gated now
     Node("sel_bg",  None,          None),
     Node("sel_fg",  None,          None),
     Node("sel_act", None,          None),
@@ -220,6 +220,16 @@ _DECLARED_CLASS = {
     # against it on the gate's metric, so these pairs are solved for and ENFORCED.
     ("focus", "neu"): ENFORCED_CLS, ("focus", "link"): ENFORCED_CLS,
     ("focus", "neg"): ENFORCED_CLS, ("focus", "pos"): ENFORCED_CLS,
+    # W198: the other 11 constellation pairs min_pair optimises. Measured on all six
+    # shipped variants (worst-view CAM02-UCS dE, floor 10.97 x 0.8 = 8.78): the tightest
+    # is link~visited 11.8, so every one clears. Colour is the sole carrier of a link vs
+    # a visited link, a status vs body text, so they are ENFORCED, not surfaced.
+    ("link", "neg"): ENFORCED_CLS, ("neg", "visited"): ENFORCED_CLS,
+    ("fg", "neg"): ENFORCED_CLS, ("link", "neu"): ENFORCED_CLS,
+    ("neu", "visited"): ENFORCED_CLS, ("fg", "neu"): ENFORCED_CLS,
+    ("link", "pos"): ENFORCED_CLS, ("pos", "visited"): ENFORCED_CLS,
+    ("fg", "pos"): ENFORCED_CLS, ("link", "visited"): ENFORCED_CLS,
+    ("fg", "visited"): ENFORCED_CLS,
 }
 
 

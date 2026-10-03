@@ -59,6 +59,9 @@ DOCS = (
     # the VictoriaMetrics plasmoid (W77): outside this population when emitted, so
     # the first lint run admitted 12 before and after it existed
     ("make_metrics", "main_qml", None, "metrics-main.qml"),
+    # the look-and-feel splash (W217): staged QML the operator sees at login, outside
+    # the population until now. Holes pinned as check_template_parity pins them.
+    ("make_deb", "_splash_qml", ('"#081411"', '"#4bfad7"', '"#2d8f7a"', "0.503"), "splash.qml"),
 )
 
 ANIMATIONS = ("NumberAnimation", "PropertyAnimation", "ColorAnimation", "RotationAnimation",

@@ -73,6 +73,37 @@ deny contains msg if {
 	msg := sprintf("Y4: %s: segment(s) %v absent from an all-lit render", [c.label, f.absent])
 }
 
+# METADATA
+# title: "Y5 — the lit segment's fade is centre-fed at every boundary depth"
+# description: |
+#   W216: SegmentChar's lit gradient is read from the emitted document at several
+#   boundaryDepth values. A segment's own mirror maps position p to 1-p, so every
+#   stop must have a stop at 1-p with the same fade. A one-sided profile would read
+#   differently under the digit's own flip (W57) - a fresh asymmetry by construction.
+deny contains "Y5: no gradient profile was measured; the roster is empty, not the fade symmetric" if {
+	count(object.get(input, "gradients", [])) == 0
+}
+
+deny contains msg if {
+	some g in object.get(input, "gradients", [])
+	is_array(object.get(g, "stops", null))
+	some s in g.stops
+	not mirrored(g.stops, s)
+	msg := sprintf("Y5: %s: the stop at %v (lit %v) has no mirror at 1-pos with the same fade", [g.label, s.pos, s.lit])
+}
+
+mirrored(stops, s) if {
+	some t in stops
+	abs(t.pos - (1 - s.pos)) < 0.000001
+	t.lit == s.lit
+}
+
+withheld contains msg if {
+	some g in object.get(input, "gradients", [])
+	not is_array(object.get(g, "stops", null))
+	msg := sprintf("W: %s: the gradient stops were not measured", [g.label])
+}
+
 withheld contains msg if {
 	some g in input.grids
 	is_string(object.get(g, "withheld", null))

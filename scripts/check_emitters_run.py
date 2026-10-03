@@ -34,6 +34,17 @@ a deny, so "does not write the tree" is measured, not asserted.
     scripts/check_emitters_run.py --json       # the measurement, for policy/emitters_run.rego
     scripts/check_emitters_run.py --list       # the order they run in, and why
     scripts/check_emitters_run.py --selftest   # the comparison can SEE drift and a tree write
+    scripts/check_emitters_run.py --apply      # adopt every drifted TRACKED file from the run, atomically
+
+⚑ --apply IS THE MECHANICAL ANSWER TO "WHAT MUST I REBUILD" (2026-10-03). A template
+edit moves every tracked output that bundles it (the clock plasmoid's SegmentChar.qml
+drifted when SegmentChar changed, and a hand-run of make_schemes and make_wallpaper had
+not covered it). Instead of reasoning about the emitters' dependencies, run the whole
+pipeline in the private copy and ADOPT what drifted: the run IS the dependency tree. It
+refuses when any emitter failed (a half-run pipeline is not the pipeline), refuses a
+path the run deleted or relinked, writes through emitters.atomic_write, and lists every
+adopted path with its diff for review. It does NOT adopt untracked outputs (stated below),
+and it is the integrator's explicit act: the gate itself still never writes the tree.
 
 ⚑ ORDER IS A FACT ABOUT THE PIPELINE, NOT A PREFERENCE.  make_schemes writes the
 `.colors` files every token-reading emitter then parses, so it goes first.
@@ -145,11 +156,35 @@ def run_in(copy, mod, timeout=600):
     return r.returncode, (tail[-1] if tail else f"exit {r.returncode}")
 
 
-def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None):
-    """The --json document. `mutate(copy)` runs after the emitters (selftest hook)."""
+def adopt_drift(root, copy, drift, cases):
+    """Adopt each drifted tracked file from the private `copy` into the real tree, atomically.
+    Returns (adopted paths, refusals). REFUSES the whole adoption when any emitter failed
+    (a half-run pipeline's output is not the pipeline's), and refuses a path the run
+    DELETED or turned into a symlink (a rebuild must not remove or relink tracked files)."""
+    from emitters import atomic_write
+    failed = [c["module"] for c in cases if c["rc"] != 0]
+    if failed:
+        return [], [f"an emitter failed ({', '.join(failed)}): nothing adopted"]
+    adopted, refused = [], []
+    for d in drift:
+        src = os.path.join(copy, d["path"])
+        if not os.path.isfile(src) or os.path.islink(src):
+            refused.append(f"{d['path']}: the run deleted it or made it a link; not adopted")
+            continue
+        with open(src, "rb") as fh:
+            atomic_write(os.path.join(root, d["path"]), fh.read())
+        adopted.append(d["path"])
+    return adopted, refused
+
+
+def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None, adopt=False):
+    """The --json document. `mutate(copy)` runs after the emitters (selftest hook).
+    `adopt` (the --apply mode) writes each drifted tracked file into the real tree
+    after the comparison; those writes are intended and not reported as tree_touched."""
     paths = tracked(root)
     before = fingerprint(root, paths)
     cases, withheld, drift, untracked_new = [], [], [], 0
+    adopted, refused = [], []
     with tempfile.TemporaryDirectory(prefix="el-emitters-") as copy:
         copy_tree(root, copy, paths)
         for mod, _why in order:
@@ -171,6 +206,8 @@ def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None):
             if a != b:
                 drift.append({"path": p, "summary": diff_summary(a, b, p) if b is not None
                               else "deleted by the run"})
+        if adopt:
+            adopted, refused = adopt_drift(root, copy, drift, cases)
         seen = set(paths)
         # population: the private tempdir copy — counting what the emitters wrote there that is NOT tracked is the point
         for dp, _dn, fs in os.walk(copy):
@@ -178,18 +215,37 @@ def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None):
                 if os.path.relpath(os.path.join(dp, f), copy) not in seen:
                     untracked_new += 1
     after = fingerprint(root, paths)
-    touched = sorted(p for p in paths if before[p] != after[p])
+    touched = sorted(p for p in paths if before[p] != after[p] and p not in adopted)
     return {"cases": cases, "withheld": withheld, "drift": drift,
             "tree_touched": touched, "tracked": len(paths),
-            "untracked_emitted": untracked_new}
+            "untracked_emitted": untracked_new, "adopted": adopted, "refused": refused}
 
 
 def main(argv):
-    known = {"--list", "--json"}
+    known = {"--list", "--json", "--apply"}
     for a in argv[1:]:
         if a not in known:
             print(f"check_emitters_run: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--apply" in argv:
+        if len(argv) != 2:
+            print("check_emitters_run: --apply takes no other flag", file=sys.stderr)
+            return 2
+        doc = measure(adopt=True)
+        failed = [c for c in doc["cases"] if c["rc"] != 0]
+        for c in failed:
+            print(f"    FAILED {c['module']}: {c['detail']}", file=sys.stderr)
+        for r in doc["refused"]:
+            print(f"    REFUSED {r}", file=sys.stderr)
+        by_path = {d["path"]: d["summary"] for d in doc["drift"]}
+        for p in doc["adopted"]:
+            print(f"    ADOPTED {p}:\n{by_path[p]}")
+        bad = failed or doc["refused"] or doc["tree_touched"] or not doc["cases"]
+        print(f"check_emitters_run --apply: {len(doc['adopted'])} of {len(doc['drift'])} drifted "
+              f"tracked file(s) adopted; {len(doc['cases']) - len(failed)} emitter(s) ran, "
+              f"{len(failed)} failed; review with git diff, then re-run without --apply to confirm 0 drift",
+              file=sys.stderr if bad else sys.stdout)
+        return 1 if bad else 0
     if "--list" in argv:
         for i, (m, why) in enumerate(ORDER, 1):
             print(f"{i}. {m}\t{why}")
@@ -255,6 +311,19 @@ def _selftest():
                 fh.write("A=1\n")
         t = measure(repo, order, {}, mutate=write_tree)
         see("a same-bytes write into the REAL tree is SEEN", t["tree_touched"] == ["out.colors"])
+        # --apply: refuses when an emitter FAILED (nothing adopted, file untouched) ...
+        with open(os.path.join(repo, "make_bad.py"), "w") as fh:  # atomic-write: exempt — selftest fixture
+            fh.write("import sys\nsys.exit(1)\n")
+        subprocess.run(["git", "-C", repo, "add", "make_bad.py"], check=True)
+        bad = measure(repo, (("make_bad", "bad"),), {}, mutate=drifted, adopt=True)
+        see("--apply adopts NOTHING when an emitter failed, and says so",
+            bad["adopted"] == [] and bool(bad["refused"])
+            and open(os.path.join(repo, "out.colors")).read() == "A=1\n")
+        # ... and adopts a drifted tracked file when every emitter ran, without calling it a tree write
+        ap = measure(repo, order, {}, mutate=drifted, adopt=True)
+        see("--apply adopts the drifted file into the real tree, listed, not a tree write",
+            ap["adopted"] == ["out.colors"] and not ap["refused"] and not ap["tree_touched"]
+            and open(os.path.join(repo, "out.colors")).read() == "A=2\n")
     print("check_emitters_run selftest:", "PASS" if ok else "FAIL")
     return ok
 

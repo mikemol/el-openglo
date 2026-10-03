@@ -20,6 +20,8 @@ start auto pushing as a post-commit hook." Before this, every push waited on the
 
     scripts/auto_push.py              # fetch, check fast-forward, push (logs to .git/auto-push.log)
     scripts/auto_push.py --dry-run    # decide and log, but do not push
+    scripts/auto_push.py --running    # exit 0 idle / 1 a push holds the lock (W110; no pgrep)
+    scripts/auto_push.py --wait       # block until no push is in flight, then exit 0
     scripts/auto_push.py --selftest
 
 Weakness: if the push is refused (the tree-writes gate reddens), the commit stays local
@@ -62,12 +64,47 @@ def log(line):
         fh.write(f"{stamp}  {line}\n")
 
 
+def lock_path():
+    return os.path.join(git_dir(), "auto-push.lock")
+
+
+def is_running(path):
+    """True when some process holds the push lock — a push, its tree-writes gate, or a
+    push queued behind one. Measured by trying the SAME flock main() takes, never by
+    process name, so no wrapper shell can be mistaken for the push."""
+    with open(path, "a") as fh:
+        try:
+            fcntl.flock(fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            return True
+        fcntl.flock(fh, fcntl.LOCK_UN)
+        return False
+
+
+def wait_idle(path):
+    """Block until the lock is free, then release it at once."""
+    with open(path, "a") as fh:
+        fcntl.flock(fh, fcntl.LOCK_EX)
+        fcntl.flock(fh, fcntl.LOCK_UN)
+
+
 def main(argv):
     flags = [a for a in argv[1:] if a.startswith("--")]
     for a in flags:
-        if a not in ("--dry-run", "--selftest"):
+        if a not in ("--dry-run", "--selftest", "--running", "--wait"):
             print(f"auto_push: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--running" in flags or "--wait" in flags:
+        if len(flags) != 1:
+            print("auto_push: --running and --wait stand alone", file=sys.stderr)
+            return 2
+        if "--wait" in flags:
+            wait_idle(lock_path())
+            print("auto_push: idle (no push in flight)")
+            return 0
+        busy = is_running(lock_path())
+        print(f"auto_push: {'RUNNING (a push holds the lock)' if busy else 'idle (no push in flight)'}")
+        return 1 if busy else 0
     lock = open(os.path.join(git_dir(), "auto-push.lock"), "w")
     fcntl.flock(lock, fcntl.LOCK_EX)          # serialise; the newest HEAD is read AFTER the lock
     try:
@@ -114,6 +151,32 @@ def _selftest():
     chk("nothing new is not pushed", decide("main", a, a, True)[0], False)
     chk("no remote-tracking ref is not pushed", decide("main", a, None, False)[0], False)
     chk("the git dir resolves", os.path.isdir(git_dir()), True)
+    import tempfile
+    import threading
+    with tempfile.TemporaryDirectory() as td:
+        lp = os.path.join(td, "auto-push.lock")
+        chk("an unheld lock reads idle", is_running(lp), False)
+        holder = subprocess.Popen([sys.executable, "-c",
+            "import fcntl,sys\nf=open(sys.argv[1],'a')\nfcntl.flock(f,fcntl.LOCK_EX)\n"
+            "print('held',flush=True)\nsys.stdin.readline()", lp],
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+        try:
+            chk("the holder took the lock", holder.stdout.readline().strip(), "held")
+            chk("a held lock reads running", is_running(lp), True)
+            waiter = threading.Thread(target=wait_idle, args=(lp,), daemon=True)
+            waiter.start()
+            waiter.join(0.5)
+            chk("wait_idle blocks while the lock is held", waiter.is_alive(), True)
+            holder.stdin.write("go\n")
+            holder.stdin.flush()
+            holder.wait(timeout=10)
+            waiter.join(10)
+            chk("wait_idle returns once the holder lets go", waiter.is_alive(), False)
+        finally:
+            if holder.poll() is None:
+                holder.kill()
+                holder.wait()
+        chk("a released lock reads idle again", is_running(lp), False)
     print("auto_push selftest:", "PASS" if ok else "FAIL")
     return ok
 

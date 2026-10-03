@@ -25,6 +25,7 @@ The generator roster as `emitters.py` declares it — every module, its role, an
 | make_palette | authority |  |
 | make_preview | authority | owns parse_scheme; renders the previews |
 | make_schemes | authority | writes the .colors files every other emitter reads |
+| make_android_clock | emitter | the segment clock as per-variant JSON (palette, geometry, glyph tables) for Android (W193) |
 | make_aurorae | emitter | window decoration, from GRID |
 | make_chrome | emitter | browser manifests, from the scheme tokens |
 | make_clock | emitter | the segment-clock plasmoid packages (plasma-clock/), from GRID |
@@ -41,6 +42,7 @@ The generator roster as `emitters.py` declares it — every module, its role, an
 | make_taskswitch | emitter |  |
 | make_tokens | emitter | the palette as W3C DTCG design tokens, from GRID (W160) |
 | make_union | emitter | Union styles: Breeze with its alphas solved, from the schemes (W14) |
+| make_vscode | emitter | VS Code colour themes per variant, roles table and ANSI bank (W161) |
 | make_wallpaper | emitter | wallpaper; sources tokens with a standalone fallback |
 | make_wallpaper_live | emitter |  |
 | make_windows | emitter | Windows .theme per variant: wallpaper + accent + colour table (W16) |

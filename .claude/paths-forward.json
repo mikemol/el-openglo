@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 241,
+  "counter": 252,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-02T15:57:02Z",
   "job_id": "86bfa067",
@@ -2075,7 +2075,7 @@
     {
       "symbol": "W106",
       "title": "Ask mtools for an allow-list of ledger outcomes, and report the missing minted lines",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "mtools",
@@ -2083,16 +2083,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mtools pathsforward: (a) --ledger accepts any OUTCOME word, and atomize counts every word not in _NOT_AN_ADVANCE (deny-list), so a hand-written filed on W98 read as an advance (false ATOMIZE W98); ask for an allow-list of advance outcomes refused at write time; (b) --add at 6ecf767 wrote NO minted line for W99-W105 though atomize.py docstring says it does; confirm and report. Send as an mtools inbox letter.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mtools pathsforward: (a) --ledger accepts any OUTCOME word, and atomize counts every word not in _NOT_AN_ADVANCE (deny-list), so a hand-written filed on W98 read as an advance (false ATOMIZE W98); ask for an allow-list of advance outcomes refused at write time; (b) --add at 6ecf767 wrote NO minted line for W99-W105 though atomize.py docstring says it does; confirm and report. Send as an mtools inbox letter. | 2026-10-03: 2026-10-03 (swarm): letter filed - mtools/inbox/2026-10-03-el-openglo-pathsforward-ledger-allowlist-and-unlinked-mode.md. MEASURED: mtools atomize.py still uses a DENY-list, _NOT_AN_ADVANCE = (minted, atomized): any other outcome word on a tick or interrupt line counts as an advance, which is how the hand-written filed line for W98 (ledger line 296) produced a false ATOMIZE W98; ops.add() in mtools HEAD never writes a ledger line (the word minted appears only in refusal messages and the docstring); this ledger has no minted line for W99-W105 and the minted lines that exist (W54, W57, W59, W112, W122, W139, W144) were written by hand. ASK: an allow-list of outcomes refused at write time, and either --add writes the minted line or the docstring is corrected; the recipient is asked to mint a waypoint citing el-openglo:W106 and reply.",
       "issued_at": "2026-09-27T17:22:25Z",
       "minted_during": "interrupt",
       "caused_by": "W98",
-      "last_worked": "2026-10-01T04:33:56Z",
+      "last_worked": "2026-10-03T17:53:22Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 6
+      "weight": 6,
+      "completed": "20261003T175322Z"
     },
     {
       "symbol": "W107",
@@ -2163,7 +2164,7 @@
     {
       "symbol": "W110",
       "title": "An auto_push mode that says whether a push is running, and can wait for it",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "auto_push",
@@ -2171,38 +2172,42 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): auto_push --running mode: one command that answers is a push (and its tree-writes gate) in flight, exiting 0 idle / 1 running, with --selftest; replaces pgrep -af plus discounting the wrapper line by eye (preamble rule no tree writes while it runs), and --wait so a tick can block on it without a shell until-loop (refused by no-chaining 2026-09-27).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): auto_push --running mode: one command that answers is a push (and its tree-writes gate) in flight, exiting 0 idle / 1 running, with --selftest; replaces pgrep -af plus discounting the wrapper line by eye (preamble rule no tree writes while it runs), and --wait so a tick can block on it without a shell until-loop (refused by no-chaining 2026-09-27). | 2026-10-03: 2026-10-03 (swarm): scripts/auto_push.py --running (exit 0 idle, 1 in flight) and --wait (blocks until idle) read the SAME flock on .git/auto-push.lock that main() takes - no process names, so the pgrep wrapper-line self-match is gone; both refuse combination with other flags; selftest holds a real lock in a subprocess and sees an unheld lock idle, a held lock running, wait_idle blocking while held and returning on release; PASS. Used at integration: --running read idle.",
       "issued_at": "2026-09-27T18:20:42Z",
       "minted_during": "interrupt",
       "caused_by": "W107",
-      "last_worked": "2026-10-01T04:33:56Z",
+      "last_worked": "2026-10-03T17:50:36Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175036Z"
     },
     {
       "symbol": "W111",
       "title": "A paths-forward mode that counts how many live waypoints are linked",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "mtools",
         "queue-structure"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "mtools"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mikemol-paths-forward --unlinked mode (mtools): n of m live waypoints with >=1 edge, counting INCOMING enables/blocked_on as well as outgoing, naming the unlinked; with --selftest. Replaces scratchpad edge_census.py (one-off, re-derived per session; its incoming-edge blindness was already fixed once by hand, W93). Route via the W106 mtools letter.",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): mikemol-paths-forward --unlinked mode (mtools): n of m live waypoints with >=1 edge, counting INCOMING enables/blocked_on as well as outgoing, naming the unlinked; with --selftest. Replaces scratchpad edge_census.py (one-off, re-derived per session; its incoming-edge blindness was already fixed once by hand, W93). Route via the W106 mtools letter. | 2026-10-03: 2026-10-03 (swarm): the WORK is mtools (a --unlinked mode of mikemol-paths-forward), so this card now waits on them. Letter filed: mtools/inbox/2026-10-03-el-openglo-pathsforward-ledger-allowlist-and-unlinked-mode.md (shared with W106) - ask: --unlinked prints n of m live waypoints linked and names the unlinked ones, counts incoming edges, refuses an empty queue. Motivating measurement: W105 count of 36 of 49 linked, 13 unlinked; --help today lists no link mode; the scratchpad edge_census.py is still the only counter. Bare repo block until mtools mint a waypoint: replace with mtools:W<n> on their reply (nemik flags a bare repo block until then).",
       "issued_at": "2026-09-27T20:23:00Z",
       "minted_during": "interrupt",
       "caused_by": "W105",
-      "last_worked": "2026-10-01T04:33:57Z",
+      "last_worked": "2026-10-03T17:53:43Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": null
     },
     {
       "symbol": "W112",
@@ -2282,7 +2287,7 @@
     {
       "symbol": "W115",
       "title": "Offer the codomain census check on summit as a shared capability",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "aeternum:W62"
       ],
@@ -2292,16 +2297,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): SUMMIT: offer the codomain census check (check_codomain --json + policy/codomain.rego via opa_gate, mdstruct table read) as a shared capability once W42 lands it; cite aeternum:W61 as origin of the three rules and second consumer (aeternum asked el-openglo to lead, 2026-09-28).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): SUMMIT: offer the codomain census check (check_codomain --json + policy/codomain.rego via opa_gate, mdstruct table read) as a shared capability once W42 lands it; cite aeternum:W61 as origin of the three rules and second consumer (aeternum asked el-openglo to lead, 2026-09-28). | 2026-10-03: 2026-10-03 (swarm): the offer is filed on summit as a bib-ready file, summit/floor/inbox/2026-10-03-el-openglo-codomain-census-offered-as-a-capability.bib (kind=use-case by=el-openglo; check concept:report/provenance/<key>; nothing written into summit floor files, per the summit skill). summit capability codomain returned no entry for that spelling among 75 capabilities, so the claim lists alternate spellings for the registry; it cites aeternum:W61 as the origin of the three rules and aeternum as the second consumer, and states the check stated weakness. scripts/opa_gate.py codomain admitted 0 deny 0 withheld; check_codomain --selftest PASS; --list 20 of 25 surfaces emitted and 5 gaps ranked; summit bibstruct --edges 0 over 1 entry (correct: no rests-on parent). On placement by the summit curator: confirm with summit floor usecase-el-openglo-codomain-census and summit capability codomain, then tell aeternum:W62 owner by letter (W115 enables aeternum:W62).",
       "issued_at": "2026-09-28T18:16:37Z",
       "minted_during": "interrupt",
       "caused_by": "aeternum:W62",
-      "last_worked": "2026-10-01T04:33:57Z",
+      "last_worked": "2026-10-03T17:53:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 4
+      "weight": 4,
+      "completed": "20261003T175332Z"
     },
     {
       "symbol": "W116",
@@ -2445,7 +2451,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 6
     },
     {
       "symbol": "W122",
@@ -2856,24 +2862,27 @@
     {
       "symbol": "W138",
       "title": "Struct-tool queries over the repo root skip .claude/worktrees and .tree-writes checkouts by default",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "worktrees",
         "pycodemod"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "mtools"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Make the struct tools this repo routes to (mikemol-pycodemod, mdstruct) exclude registered worktrees from a repo-root walk - an mtools change, so a letter or waypoint there citing el-openglo:W138 - with a positive control (a planted importer inside a worktree is skipped, one outside is found).",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default | 2026-10-02: 2026-10-02: narrowed in the W95/W138/W233 collapse audit: worktree retirement itself is W233; this keeps the distinct part (pycodemod --importers make_chrome counted 108 sites, 2 real, because worktrees were walked).",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default | 2026-10-02: 2026-10-02: narrowed in the W95/W138/W233 collapse audit: worktree retirement itself is W233; this keeps the distinct part (pycodemod --importers make_chrome counted 108 sites, 2 real, because worktrees were walked). | 2026-10-03: 2026-10-03 (swarm): the WORK is mtools (struct tools skip registered worktrees), so this card waits on them; W233 retires the checkouts themselves. Letter filed: mtools/inbox/2026-10-03-el-openglo-struct-tools-skip-worktrees.md. RE-MEASURED today (bash globstar over the repo **/*.py, because pycodemod importers refuses a directory): importers make_chrome finds 4 sites in 3 real files (make_deb.py, scripts/check_chrome.py twice, scripts/publish_browsers.py) and ~105 more in the 49 .claude/worktrees and 2 .tree-writes checkouts: ~109 against 4. The old 108-vs-2 is STALE on the real side (publish_browsers.py now imports make_chrome, W134). The scan also reported 12 unreadable files (broken links) among 7041 of 7053. ASK: default skip of registered worktrees with a printed skipped count and an include flag, plus a positive control. Bare repo block until mtools mint a waypoint.",
       "issued_at": "2026-09-28T21:21:47Z",
       "minted_during": "interrupt",
       "caused_by": "W134",
-      "last_worked": "2026-10-02T16:58:06Z",
+      "last_worked": "2026-10-03T17:53:43Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 1
+      "weight": 1,
+      "completed": null
     },
     {
       "symbol": "W139",
@@ -3225,7 +3234,7 @@
     {
       "symbol": "W154",
       "title": "Blender add-on built on the engine core, for the Blender Extensions platform",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
@@ -3233,23 +3242,26 @@
         "engines",
         "blender"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Python add-on: segment_topology + make_palette drive a one-click display mesh and material with a variant chooser. Read the Blender Extensions manifest contract before emitting.",
-      "evidence": "",
+      "blocked_on": [
+        "luthen-observability:W328"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Keep oci/engines/Containerfile ready (blender + godot headless packages, snapshot-pinned like oci/guest/recipe.json) so the first W328 run is a one-step check; when W328 lands run the add-on checks through it.",
+      "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built, no files touched: no blender binary on this machine (command -v / find over /usr/bin /usr/local/bin /opt ~/.local/bin found none; no flatpak or mise shims), so the add-on cannot be imported or checked against the GLBs; a file-exists check would pass whether or not it works and was refused as a measurement. Waiting on a luthen container runner with blender (same request as W155). | 2026-10-03: 2026-10-03: luthen minted luthen-observability:W328 --enables el-openglo:W154 and W155, queued behind W286. It is the GENERIC runner, not a Blender/Godot job. Operator ruling (2026-10-03), relayed by luthen: container and VM loadout are SELF-SERVE - the caller supplies its own Containerfile or initrd; luthen supplies only the build+run seam, the CPU bound and the ok / refused (rc) / cannot-run verdict, shaped like checks.serial_writer and the W286 guest-image builder. So the Blender and Godot packages belong in a Containerfile in THIS repo (oci/engines/Containerfile), and the first W328 run is --src, --script and that Containerfile.",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-01T04:05:42Z",
+      "last_worked": "2026-10-03T18:17:48Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 3
+      "weight": 3,
+      "completed": null
     },
     {
       "symbol": "W155",
       "title": "Godot add-on built on the engine core",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
@@ -3257,23 +3269,26 @@
         "engines",
         "godot"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "A .gdshader port of the core shader plus a Display node. Read the Godot Asset Library contract first.",
-      "evidence": "",
+      "blocked_on": [
+        "luthen-observability:W328"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "When Godot can run headless (a container image from luthen or the operator): port catalog/engines/el-segment.glsl to a .gdshader and a Display node reading el-glyphs.json and the token file material group; check it loads and renders a named glyph.",
+      "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built, no files touched. command -v for godot, godot4, blender, dotnet, mono, csc, g++, clang++ found only /usr/bin/g++ and /usr/lib/llvm/23/bin/clang++; find over /usr/bin /usr/local/bin /opt ~/.local/bin for godot, blender, dotnet, unity, unreal found nothing; no flatpak or mise shims. The agent did NOT produce a layout-only package with a file-exists check: it would pass whether or not the add-on loads. A manifest check is at most the counted SKIP beside the engine run, which is the real measurement. The Godot Asset Library contract is also unread. | 2026-10-03: 2026-10-03 (integration): re-filed the block from an operator ask to luthen-observability: Godot and Blender both have headless Debian packages, so a container runner (serial_writer/guest-image-builder shaped) is an AGENT route and needs no operator act. Asked luthen for a runner image with blender and godot; bare repo block until they mint a waypoint --enables el-openglo:W154/W155 - then replace with luthen-observability:W<n>. | 2026-10-03: 2026-10-03: block cited to luthen-observability:W328 (generic self-serve runner; see W154 evidence): the Godot packages go in the same oci/engines/Containerfile, supplied by us.",
       "issued_at": "2026-10-01T04:04:29Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-01T04:05:42Z",
+      "last_worked": "2026-10-03T18:17:48Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 3
+      "weight": 3,
+      "completed": null
     },
     {
       "symbol": "W156",
       "title": "Unity package built on the engine core",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
@@ -3281,23 +3296,26 @@
         "engines",
         "unity"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "A UPM package with a ShaderGraph or HLSL port of the core shader. Read the Unity Asset Store contract first.",
-      "evidence": "",
+      "blocked_on": [
+        "operator: act install the Unity Editor (licence) and a C# toolchain on a test machine, or say Unity is out of scope; there is no Unity, dotnet, mono or csc here"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "On an editor + toolchain: a UPM package generated from the core (catalog/engines/*.glb, el-glyphs.json, the token material group), compiled and imported headless by Unity batchmode, listing the named segments.",
+      "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built: no Unity Editor and no C# toolchain (no dotnet, mono, csc) on this machine, so a UPM package could not be compiled or imported; Unity needs a licence and an editor install only the operator can supply. A file-exists check was refused as a measurement.",
       "issued_at": "2026-10-01T04:04:30Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-01T04:05:42Z",
+      "last_worked": "2026-10-03T17:55:28Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 3
+      "weight": 3,
+      "completed": null
     },
     {
       "symbol": "W157",
       "title": "Unreal plugin built on the engine core, for Fab",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
@@ -3305,18 +3323,21 @@
         "engines",
         "unreal"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "A plugin with a material graph port of the core shader. Read the Fab contract first.",
-      "evidence": "",
+      "blocked_on": [
+        "operator: act install Unreal Engine (Epic launcher account) and say which account would publish on Fab, or say Unreal is out of scope; there is no Unreal Engine or Unreal Build Tool here"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "On an engine install: a plugin generated from the core (the .glb meshes, el-glyphs.json, the token material group) that builds with UBT and loads in a headless editor commandlet, listing the named segments.",
+      "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built: no Unreal Engine and no Unreal Build Tool on this machine; g++ and clang++ exist but cannot build a UE plugin without the UE headers; Unreal needs an Epic launcher account and an engine install only the operator can supply. A file-exists check was refused as a measurement.",
       "issued_at": "2026-10-01T04:04:30Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-01T04:05:42Z",
+      "last_worked": "2026-10-03T17:55:28Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 3
+      "weight": 3,
+      "completed": null
     },
     {
       "symbol": "W158",
@@ -3389,7 +3410,7 @@
     {
       "symbol": "W161",
       "title": "Emit a VS Code colour theme (.vsix) from the roles table",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "catalog/codomain.json",
@@ -3397,21 +3418,22 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "make_vscode.py: workbench colors + tokenColors from the roles table via the authorities; package.json theme contribution; ROLES + publishing row; drop the vscode gap; contrast checked by the existing contrast gates",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): make_vscode.py emits one extension with all six themes (vscode/package.json, vscode/themes/<variant>-color-theme.json) and packs a deterministic .vsix (sorted entries, fixed timestamp; dist/el-openglo.vsix, gitignored build output). Workbench colours come from the roles table (make_firefox.roles, which already carries the seen-ghost and hover/active composites); syntax and integrated-terminal colours from the make_konsole.ansi_table ANSI bank. check_vscode holds every colour to its role with the WCAG floors read from the files and the .vsix layout; opa vscode 28/28, selftest PASS (9), opa_gate vscode admitted 6; publishing 22/22, token_source 21/21, codomain, deps 13/13, license admitted; the vscode codomain gap is removed. CONTRAST FINDING: the first run DENIED 17 - syntax hues on the three LIT grounds sat at 1.4-2.6:1 against the 3:1 floor. Fix: _legible() pulls a syntax colour toward the variant own text colour (make_konsole._tint) only as far as the floor; Off variants are unchanged; terminal ANSI untouched. A derivation, not a typed hex - but a visible departure of editor syntax colours from the terminal bank on the Lit variants (operator may veto: record those hues as a known gap instead). Weakness stated: vsce is not run; the Marketplace/Open VSX venue facts in publishing.md are [MEM], unverified.",
       "issued_at": "2026-10-01T06:43:11Z",
       "minted_during": "interrupt",
       "caused_by": "W42",
-      "last_worked": "2026-10-01T06:43:40Z",
+      "last_worked": "2026-10-03T17:53:13Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175313Z"
     },
     {
       "symbol": "W162",
       "title": "Emit alacritty, kitty and foot colour configs from make_konsole tokens",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "catalog/codomain.json",
@@ -3419,38 +3441,42 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "make_terminals.py: one 16-colour + fg/bg table from the same source make_konsole reads, rendered as alacritty TOML, kitty .conf, foot .ini; ROLES + publishing row; drop the alacritty-kitty-foot gap; parse each output back",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): NARROWER THAN THE CARD - alacritty and foot were already emitted by make_konsole (alacritty_toml and foot_ini in TERMINAL_FORMATS, gated by check_terminals and policy/terminals); only kitty was missing, so kitty_conf() and a kitty entry went into make_konsole.TERMINAL_FORMATS rather than a duplicate make_terminals.py. scripts/check_terminals.py gained _read_kitty and a swapped-colour selftest arm (the unemitted-format probe moved kitty -> wezterm); make_deb.stage() ships <v>.kitty.conf under usr/share/el-openglo/terminals/; publishing.md terminals row lists kitty; codomain.json lost the alacritty-kitty-foot gap. opa_gate terminals admitted 36 (6 variants x 6 formats); codomain and publishing admitted. make_deb.py changed: integration re-keyed (schemes/wallpapers keys re-recorded).",
       "issued_at": "2026-10-01T06:43:11Z",
       "minted_during": "interrupt",
       "caused_by": "W42",
-      "last_worked": "2026-10-01T06:43:40Z",
+      "last_worked": "2026-10-03T17:52:54Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175254Z"
     },
     {
       "symbol": "W163",
       "title": "Rule the graphics-object-unplaced warning: reproduce it headless on the config page, then gate it",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "catalog/runtime-warnings.json",
         "config_page"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Render the fixed clock and marquee config pages under qt_sandbox (render_qml, mesa route) and capture stderr; if the line is gone with the cfg Default fix, cite policy/config_page.rego in its row (same class); if it recurs, find its cause and add a qml_lint/config_page rule that trips it, then cite that",
-      "evidence": "",
+      "blocked_on": [
+        "W239"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "When W239 gives a running Plasma guest: capture the unplaced line there, make that the positive control in check_config_load, then re-add the CONFIG-LOAD warrant (check = tool:opa_gate.py config_load) with the control cited.",
+      "evidence": "2026-10-03: 2026-10-03 (swarm): loaded the emitted clock and marquee config pages headless (qt_sandbox mesa: kwin_wayland --virtual + qml with a wrapper Loader): both reached Loader Ready with zero stderr lines, so the warning does not appear on the fixed pages. A POSITIVE CONTROL (Component.createObject(null) of an Item, same route) did NOT produce the line either, and the string \"not placed in the graphics scene\" is in no library under /usr/lib64 or /usr/lib: it appears to come from plasmashell config-loader path. So this host has NO headless reproducer and a clean load is WITHHELD, not admitted. New scripts/check_config_load.py + policy/config_load.rego (9/9): L2 denies any page where the line appears; opa_gate config_load exit 3 (withheld-only, 0 admitted). catalog/runtime-warnings.json graphics-object-unplaced row now cites config_load.rego L2. | 2026-10-03: 2026-10-03 (integration): re-filed the block from an operator ask to W239 - a live Plasma session in luthen VM (the W71 guest image, probe P2) is the reproducer route and needs no operator act; the operator is only needed if that route cannot show the warning. Next step once W239 gives a running Plasma guest: open the emitted clock and marquee config dialogs there, capture the el.journal for the unplaced line, and give check_config_load a control that provokes it so a clean load can be ADMITTED. | 2026-10-03: 2026-10-03 (integration): THE WARRANT CONFIG-LOAD WAS REMOVED. The worklist gate reported check UNRESOLVABLE for CONFIG-LOAD (opa_gate config_load: withheld, 0 admitted, NOT a refutation) and fails the commit on it: a claim whose only possible verdict on this host is withheld cannot be carried as a cited claim (related: W75, a claim citing a gate that must deny). The gate (scripts/check_config_load.py, policy/config_load.rego with L2 denying any page where the unplaced line appears, 9/9) stays runnable and catalog/runtime-warnings.json still cites config_load.rego L2; only the worklist claim is gone, because the property it states (a clean load is meaningful) is NOT established until a control can provoke the line. The card stays OPEN, blocked on the VM Plasma guest (W239). When a reproducer exists, restore the warrant: it is in git history of warrants.bib at the swarm commit. | 2026-10-03: CORRECTION: the warrant never reached git history (the swarm commit had not landed), so it is NOT recoverable from history; its text, to restore verbatim: @misc{CONFIG-LOAD, section = {tooling}, claim = {Each emitted config page (clock, marquee) loads Ready headless and plasmashell graphics-object-unplaced line is refused where a harness can provoke it (policy/config_load.rego L2); on this host the harness cannot provoke it (measured control), so a clean load is WITHHELD, a counted SKIP, never an admission (W163)}, check = {tool:opa_gate.py config_load}}. Restore it only once a control provokes the line.",
       "issued_at": "2026-10-01T07:05:35Z",
       "minted_during": "interrupt",
       "caused_by": "W53",
-      "last_worked": "2026-10-01T07:05:47Z",
+      "last_worked": "2026-10-03T18:28:30Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": null
     },
     {
       "symbol": "W164",
@@ -3860,7 +3886,7 @@
     {
       "symbol": "W182",
       "title": "opa_gate serial with no LOG operand crashes with a traceback instead of a usage refusal",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "opa_gate",
@@ -3868,14 +3894,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "In scripts/opa_gate.py gate(): when the check exits 2 (usage) report a usage refusal naming the missing operand and exit 2, not a RuntimeError traceback; add a selftest arm.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): opa_gate measure() raises UsageRefusal when the measurer exits 2; gate() prints opa_gate: serial: usage - read_serial.py refused its arguments (exit 2) and exits 2; a measurer crash (exit 1) stays a RuntimeError, and expect_gate counts both as a failed claim. opa_gate --selftest PASS (2 new arms: gate(serial, []) is 2; a crashing measurer is a RuntimeError, not a UsageRefusal).",
       "issued_at": "2026-10-01T18:37:44Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T18:37:50Z",
+      "last_worked": "2026-10-03T17:50:29Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175029Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 2
@@ -3892,8 +3918,7 @@
         "check_marquee_live"
       ],
       "blocked_on": [
-        "W189",
-        "W241"
+        "W242"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella: done when W186-W189 land.",
@@ -3901,8 +3926,8 @@
       "issued_at": "2026-10-01T18:53:11Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T17:50:34Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-03T17:49:06Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4029,7 +4054,7 @@
     {
       "symbol": "W189",
       "title": "check_marquee_live L-rule: a replace of the visible item shows mid-roll frames and ends on the new text",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W183"
       ],
@@ -4039,14 +4064,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Expose root.rollProgress; add a TIMELINE replace of the visible item; L-rule: some sampled frame has 0 < rollProgress < 1 and the run ends on the new text with no swap boundary between.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): a replace of the visible item rolls in place: spanWhere(id) none/ahead/on/past, replaceInPlace(before, after) from rebuild() - on rolls, ahead is applied silently, past or not-in-ring stays queued (W185 second pass). Harness op replace_visible (id 50, alpha beta -> alpha gamma beta); events carry where/textChanged, samples carry roll. Policy L3 exempts an in-place text-changing replace (operator ruling 1), L13 requires a mid-roll frame (0<roll<1) and an end on the new text; live run sampled roll 0..0.92 over ~400 ms while x kept panning smoothly, deny []; opa marquee_live 62/62, selftest PASS. NOT covered live: a SHORTENED replace (the stall and the suffix are held by the body harness M12/M13, not by a live case) - W242.",
       "issued_at": "2026-10-01T19:05:18Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T19:05:30Z",
+      "last_worked": "2026-10-03T17:48:43Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T174843Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 5
@@ -4133,7 +4158,7 @@
     {
       "symbol": "W193",
       "title": "Emit the segment clock as per-variant JSON (geometry, palette, glyph tables) from the core, gated like every emitter",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W122"
       ],
@@ -4144,14 +4169,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Reuse-search first: name the existing authority each field comes from (segment_topology geometry, make_preview.parse_scheme palette, display registry glyph tables) - no colour or geometry computed here. Then make_android_clock.py --json per variant, a parity baseline, and a check that every value traces to its authority.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): make_android_clock.py emits catalog/android/clock/<variant>.json (6 files): palette (roles lit/ghost/hot/ground = fg/fg_in/fg_act/view plus the two solved ghost alphas, from make_tokens.tokens() which reads make_schemes.GRID), 7-segment geometry (segment_topology.seg7_svg_grid, glyph7_letters, metrics(1.0)), digit masks and display tables (display_types.registry_for 7); each file carries a sources table naming its authorities and no colour or geometry is computed in the emitter. scripts/check_android_clock.py traces every value to its authority and re-reads make_schemes.GRID directly (an independent path from the emitter); policy android_clock D0-D6 incl. byte-equal-to-fresh (D6, the drift guard); selftest PASS (4), opa 11/11, opa_gate android_clock admitted 6, token_source 21/21. Registered: ROLES emitter, ORDER, publishing.md row, warrant ANDROID-CLOCK. The card parity baseline is not recorded (baselines are for templates; D6 is the drift guard). Unblocks W122 data-wise.",
       "issued_at": "2026-10-01T20:59:12Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T20:59:26Z",
+      "last_worked": "2026-10-03T17:53:04Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175304Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 5
@@ -4262,7 +4287,7 @@
     {
       "symbol": "W198",
       "title": "Gate the 11 status-colour pairs the solver already optimises but nothing judges",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W133"
       ],
@@ -4273,14 +4298,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "After W196: the 5 raw-dE accent prunes are now W196 (same relation as focus). Remaining: the 11 constellation pairs that min_pair optimises with class None - decide whether each gets a gated class (enforced/surfaced) at a stated floor, or stays optimised-only with that written down.",
-      "evidence": "2026-10-01: 2026-10-01 narrowed: the *~fg_act raw-dE half collapsed into W196 (focus = accent); the 11 pairs are optimised by min_pair, just not gated.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 narrowed: the *~fg_act raw-dE half collapsed into W196 (focus = accent); the 11 pairs are optimised by min_pair, just not gated. | 2026-10-03: 2026-10-03 (swarm): all 15 constellation pairs are now ENFORCED. The 11 once optimised-only were measured on all six variants (worst-view CAM02-UCS dE floor 10.97, requirement 8.78 = floor x 0.8; all clear, tightest link~visited 11.8) and declared enforced in palette_graph._DECLARED_CLASS. ALSO found: the node visited had gate=None, so gate_pairs() silently dropped every pair involving it - a second reason those pairs were never judged; it now has gate name visited. Separation population 48 -> 114 cases (19 pairs x 6 variants); check_palette_graph fixture moved neg~visited -> focus~fg (now declared). opa_gate separation admitted 114; opa 8/8; check_separation, check_palette_graph, cvd_gate selftests PASS. GRID byte-identical: make_schemes at integration changed no .colors file. Unblocks W133 on this side.",
       "issued_at": "2026-10-01T21:24:47Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T21:39:52Z",
+      "last_worked": "2026-10-03T17:51:08Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175108Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 3
@@ -4288,7 +4313,7 @@
     {
       "symbol": "W199",
       "title": "The palette solver fallback must report infeasible, not pick an unchecked colour, when no candidate clears the accent",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "make_palette",
@@ -4296,14 +4321,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "In make_palette.solve_semantic_set, the final fallback (after relaxing contrast to 3.0) picks max-contrast _hsv(h,0.85,v) without checking it against the accent; make it return the slot with feasible=False on the token (as solve_state_steps does) and have check_separation/opa withhold that variant rather than admit it.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): solve_semantic_set_checked returns (chosen, score, infeasible): a slot is infeasible when the last-resort fallback filled it and the colour fails contrast at relax_min or q<1 against the accent. The fallback colour is unchanged and solve_semantic_set stays a 2-tuple wrapper. solve_scheme writes a sem_infeasible token naming the bad slots (sel_ prefix for the selection set) only when non-empty, so GRID is byte-identical (verified at integration: no .colors change). check_separation --json carries infeasible; policy/separation.rego W1 withholds a variant with an infeasible fallback slot and excludes its cases from admitted; 2 new rego tests; the selftest drives the solver into the fallback (an impossible 21:1 floor reports [neg], a satisfiable slot []). No variant needs the fallback today.",
       "issued_at": "2026-10-01T22:12:24Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T22:12:35Z",
+      "last_worked": "2026-10-03T17:51:15Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175115Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 2
@@ -4311,7 +4336,7 @@
     {
       "symbol": "W200",
       "title": "One advanceFrame for the marquee: live FrameAnimation and stepped capture advance by the same stepPips step",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W173"
       ],
@@ -4321,14 +4346,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Per W206 (operator: a hypothesis marks model/implementation ambiguity): the unsettled question is what a capture series contains at a run boundary. Refine BOTH: (model) an S-rule in policy/screens.rego - a capture series is exactly one run whose last frame is the run end; (implementation) re-apply scratchpad/w200-attempt2.diff and make captureRuns mark the run end on EVERY completion path, reading check_screens --frames around frame 18 to see which path the frame-18 run took; then check the new rule edges (a series with no complete run).",
-      "evidence": "2026-10-01: 2026-10-01 ATTEMPT 1 (reverted, patch kept at scratchpad/w200-advanceframe.diff): one advanceFrame() for FrameAnimation.onTriggered and onCaptureAdvance. qml_lint 12/12. Result: marquee moving-fractional 0.60-0.64 -> 0.69-0.74 (the witness now sees stepPips), but S5 DENIED 6 marquee-anims, tears at frames [18, 54] - the run ends mid-capture and the restart was grabbed. Fix 2: a capture-completed run increments captureRuns (the harness stops on captureRuns > 0, its stated intent: one run = one seamless loop) -> frame 54 gone, frame 18 remains on all 6 (35 frames, 24-26 fractional). Tree restored to green (opa_gate screens admitted) rather than commit red. NOTE: 0.69-0.74 not ~1.0 also needs explaining - the measurement is on an eighth-pip grid; check render_screens FRACTIONS before raising S8. | 2026-10-01: 2026-10-01 ATTEMPT 2 (reverted, patch at scratchpad/w200-attempt2.diff): harness sets captureSteps at Loader.Ready (before the deferred first startRun). HYPOTHESIS FALSIFIED: identical result - S5 tear at frame 18 on all 6 marquee-anims, 35 frames, 24-26 fractional (0.69-0.74). So the first run is NOT starting on the live clock, or that is not why frame 18 tears. Two guesses spent; the next step is a measurement mode, not a third guess. Tree restored to green. | 2026-10-01: 2026-10-01 --frames read of attempt 2: the frame-18 TEAR is mid-run (shift +4.375, board full), not a restart; the W200 code is innocent and the tear is the measurement grid (W207). Reverted to green again; patch scratchpad/w200-attempt2.diff stays valid.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 ATTEMPT 1 (reverted, patch kept at scratchpad/w200-advanceframe.diff): one advanceFrame() for FrameAnimation.onTriggered and onCaptureAdvance. qml_lint 12/12. Result: marquee moving-fractional 0.60-0.64 -> 0.69-0.74 (the witness now sees stepPips), but S5 DENIED 6 marquee-anims, tears at frames [18, 54] - the run ends mid-capture and the restart was grabbed. Fix 2: a capture-completed run increments captureRuns (the harness stops on captureRuns > 0, its stated intent: one run = one seamless loop) -> frame 54 gone, frame 18 remains on all 6 (35 frames, 24-26 fractional). Tree restored to green (opa_gate screens admitted) rather than commit red. NOTE: 0.69-0.74 not ~1.0 also needs explaining - the measurement is on an eighth-pip grid; check render_screens FRACTIONS before raising S8. | 2026-10-01: 2026-10-01 ATTEMPT 2 (reverted, patch at scratchpad/w200-attempt2.diff): harness sets captureSteps at Loader.Ready (before the deferred first startRun). HYPOTHESIS FALSIFIED: identical result - S5 tear at frame 18 on all 6 marquee-anims, 35 frames, 24-26 fractional (0.69-0.74). So the first run is NOT starting on the live clock, or that is not why frame 18 tears. Two guesses spent; the next step is a measurement mode, not a third guess. Tree restored to green. | 2026-10-01: 2026-10-01 --frames read of attempt 2: the frame-18 TEAR is mid-run (shift +4.375, board full), not a restart; the W200 code is innocent and the tear is the measurement grid (W207). Reverted to green again; patch scratchpad/w200-attempt2.diff stays valid. | 2026-10-03: 2026-10-03 (swarm): rep.advanceFrame() is the one step - stepPips x field.scale, or rotation.complete() at to - used by FrameAnimation.onTriggered AND onCaptureAdvance (a capture used to move by (to-from)/captureSteps, so the step fraction S8 grades was unobservable); complete() increments captureRuns when captureSteps>0 so a stepped series ends on every completion path; the captureSteps cap remains. check_marquee_live --frames: 37 frames, dx = [-16.62], one value, the live step. Integration: marquee screens (30 stale re-rendered) and sheets, screens gate admitted 48 of 48 with S5 and S8 on the new bytes, so the W200 hunks stay. The card S-rule \"a capture series is exactly one run\" is NOT in policy/screens.rego: W206 / a new screens rule.",
       "issued_at": "2026-10-01T22:54:54Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T17:51:12Z",
+      "last_worked": "2026-10-03T17:50:22Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175022Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 7
@@ -4411,7 +4436,7 @@
     {
       "symbol": "W204",
       "title": "Rego contracts for guaranteed information: each measurement record and authority surface declares the fields it always carries, and consumers are checked against the declaration",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W205"
       ],
@@ -4420,14 +4445,19 @@
         "scripts",
         "check_st_api"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Reuse-search first: scripts/check_st_api.py already holds segment_topology exported API against its consumers - generalise its shape, do not start a second mechanism. Then: policy/contracts.rego over a measurement (scripts/check_contracts.py --json) that lists, per producer (every check_*.py --json record type, and authority modules like make_preview / make_schemes.GRID / render_screens.measure), the fields it declares guaranteed, and per consumer the fields it reads (pycodemod key-reads / attr-reads); deny a read of an undeclared field and an empty population. Pilot: render_screens.measure animation records (file, variant, exists, shifts, tears, ...) read by check_screens.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR (prompted by W203: I assumed make_preview.VARIANTS existed; it does not, found only at run time): \"we could use some opa around managing what kinds of information are guaranteed to be present, to provide uniformity around design.\"",
+      "blocked_on": [
+        "W246",
+        "W247",
+        "W248",
+        "W249"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Umbrella: the first slice landed (render_screens.animation declared, consumer check, K0-K3); closes when W246-W249 land.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR (prompted by W203: I assumed make_preview.VARIANTS existed; it does not, found only at run time): \"we could use some opa around managing what kinds of information are guaranteed to be present, to provide uniformity around design.\" | 2026-10-03: 2026-10-03 (swarm): FIRST SLICE LANDED - scripts/check_contracts.py (--json, --selftest, refuses unknown flags, default runs opa_gate contracts), policy/contracts.rego, policy/contracts_test.rego (opa 17/17), warrants CONTRACTS and CONTRACTS-SEES. The declaration for render_screens.animation lives in policy/contracts.rego as always (file, variant, exists) and when_exists (the 14 animation fields). The measurement reads the producer keys from the AST of catalog/library/render_screens.py measure() (the row literal, the row[...]= stores, the merged animation_facts return keys) and the fields scripts/check_screens.py consumes through the receivers a and anim. K0 denies an empty population; K1 a surface with no declaration; K2 a read of an undeclared field; K3 a declared field the producer does not emit; an unreadable producer or consumer is withheld; admitted is declared. opa_gate contracts admitted 1; selftest PASS. Specialises check_st_api.py (producer exports vs consumer references) from module names to record keys. Re-derived: AST key-read and attr-read extraction by RECEIVER (pycodemod key-reads is per key) - candidate mtools pycodemod mode. Remaining as W246-W249 (Rego consumers, more surfaces, producer-side flip, when_exists guards).",
       "issued_at": "2026-10-01T23:41:26Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-01T23:41:47Z",
+      "last_worked": "2026-10-03T17:54:51Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
@@ -4600,12 +4630,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Re-pin all five mtools specs to one sha at or after cec108a (contains ac59711 W380 and cec108a W381); uv sync --extra tooling --extra research (BOTH extras); add pytest config with pytestspec_data = policy/lib and testpaths; write policy/qml_lint.cases.json porting all 17 tests (admitting plain, refusing expect.deny, withholding expect.withheld); run pytest under systemd-run MemoryMax; the differential line admitted/refused/withheld-expected must account for all 17; keep opa test until shown.",
-      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld). | 2026-10-02: 2026-10-02 mtools:W381 LANDED as cec108a: expect.withheld beside deny, exact id sets, omitted key = empty; failures name DENY MISMATCH / WITHHELD MISMATCH; differential line gains withheld-expected after refused; malformed expect is a collection error. API: spec.expected_denies -> spec.expectation (el-openglo imports neither). W211 unblocked.",
+      "next_bounded_step": "After the swarm commit: find the mtools sha at or after cec108a, re-pin the five specs in pyproject.toml, uv sync --extra tooling --extra research, rerun every selftest that touches mtools tools, THEN: pytestspec_data = policy/lib and testpaths, policy/qml_lint.cases.json for the 17 tests (4 expect.deny, 13 expect.withheld or admitted), and check the differential line accounts for 17.",
+      "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld). | 2026-10-02: 2026-10-02 mtools:W381 LANDED as cec108a: expect.withheld beside deny, exact id sets, omitted key = empty; failures name DENY MISMATCH / WITHHELD MISMATCH; differential line gains withheld-expected after refused; malformed expect is a collection error. API: spec.expected_denies -> spec.expectation (el-openglo imports neither). W211 unblocked. | 2026-10-03: 2026-10-03 (swarm): the port is blocked on THIS repo pyproject, not on mtools: the installed mikemol-pytestspec is 0.1.0 and has neither pytestspec_data (W380) nor expect.withheld (W381) - plugin.py in site-packages only knows expected_denies and has no withheld column in the differential line. Without them data.el.truth does not resolve and 13 of the 17 qml_lint tests cannot be expressed. Needs: re-pin ALL FIVE mtools specs in pyproject.toml to ONE sha at or after cec108a (mtools INSTALL.md: one sha across every spec), then uv sync --extra tooling --extra research (BOTH extras). Deferred to AFTER the swarm commit so the tools in use do not change mid-integration.",
       "issued_at": "2026-10-02T00:56:02Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:59:25Z",
+      "last_worked": "2026-10-03T17:55:08Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
@@ -4622,12 +4652,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Reproduce under load (run check_ebuild --selftest while another heavy check runs): if pkgcheck reads repos.conf from a racing or unset PORTAGE_CONFIGROOT, pin it in the check environment; a flake is a defect in the check inputs, not luck (worklist replay said so).",
-      "evidence": "2026-10-02: 2026-10-02 seen once in the W210 pre-commit: \"pkgcheck: error: repos.conf: default repo gentoo\"; @EBUILD PASSED ON REPLAY on the unchanged tree. | 2026-10-02: 2026-10-02 ALSO: after the refused W210 pre-commit an UNTRACKED overlay/metadata/md5-cache/ appeared - pkgcheck (run by check_ebuild selftest) writes its metadata cache into the tree, which W68 forbids for a gated check; likely the same root as the flake (a first run builds the cache, a later run reads it). Not staged; point pkgcheck cache at a scratch dir.",
+      "next_bounded_step": "Capture the FIRST failure output: make opa_gate ebuild (or check_ebuild) write the failing measurement and stderr to a file in the scratch/results dir when it returns non-admitted, then run the full gate (scripts/worklist_gate.py --only readme) a few times under load and read what the failure says before changing code. Hypothesis to test, not assume: the private overlay copy or private --cache-dir collides when several ebuild-citing claims run concurrently (a shared tempdir name, or a lock), the --race mode runs 8 scans in ONE process family but the gate runs the claims as separate processes.",
+      "evidence": "2026-10-02: 2026-10-02 seen once in the W210 pre-commit: \"pkgcheck: error: repos.conf: default repo gentoo\"; @EBUILD PASSED ON REPLAY on the unchanged tree. | 2026-10-02: 2026-10-02 ALSO: after the refused W210 pre-commit an UNTRACKED overlay/metadata/md5-cache/ appeared - pkgcheck (run by check_ebuild selftest) writes its metadata cache into the tree, which W68 forbids for a gated check; likely the same root as the flake (a first run builds the cache, a later run reads it). Not staged; point pkgcheck cache at a scratch dir. | 2026-10-03: 2026-10-03 (swarm): FOUND AND FIXED A REAL LEAK - a bare pkgcheck scan --repo overlay/ made pkgcore write its metadata cache into the checkout (the untracked overlay/metadata/md5-cache/ that sat in git status all of 2026-10-02; confirmed by --race --ambient recreating it). check_ebuild.pkgcheck_scan() now scans a PRIVATE COPY of the overlay with a private --cache-dir, backing both ebuild_wellformed and lint_facts; pkgcheck_env_error() classifies a host-repo-load failure -> lint_facts emits pkgcheck.env_error, ebuild_wellformed reports it as a SKIP, policy B1 withholds it (neither deny nor pass). New --race [--ambient] mode: 8 concurrent scans, isolated 8 of 8 rc 0, 0 host-load errors, md5-cache in tree False. selftest PASS (20 arms, 4 new); opa ebuild 17/17. THE FLAKE ITSELF (repos.conf: default repo gentoo) DID NOT REPRODUCE in 8 concurrent ambient scans: ROOT CAUSE UNPROVEN; PORTAGE_CONFIGROOT not pinned (not shown to be involved). | 2026-10-03: 2026-10-03 (integration): THE FLAKE RECURRED UNDER THE PRE-COMMIT LOAD and is NOT the host-load path the swarm fix classified. In the swarm commit first gate run the readme section reported check FAILED for @COMMANDS, @LICENCE and @OVERLAY (all tool:opa_gate.py ebuild), each PASSED ON REPLAY (opa_gate: ebuild admitted 0 deny 0 withheld 1 admitted). The new env_error SKIP did not catch it: either pkgcheck failed another way or the failure is outside pkgcheck_scan. Three claims failed in one run (same cause, one run), replay clean: a load-dependent race. Good news: it is now reproducible on demand - it happens during a full pre-commit gate.",
       "issued_at": "2026-10-02T01:06:13Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T01:06:33Z",
+      "last_worked": "2026-10-03T18:18:37Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
@@ -4689,7 +4719,7 @@
     {
       "symbol": "W215",
       "title": "check_root_helpers runs el-openglo-apply against a scratch home and stubbed PATH and holds its reload step (cache cleared for org.el.* only, unit restart or instruction, --no-reload inert)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "check_root_helpers",
@@ -4697,14 +4727,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Extend scripts/check_root_helpers.py (it already runs el-openglo-plymouth/-sddm against a scratch root with a stubbed PATH): stage el-openglo-apply, run it under env -i with HOME=scratch and a PATH of a logging systemctl stub plus the coreutils it needs (no qdbus6/plasma-apply-*, so the live session is never touched), seed qmlcache with one org.el.* and one foreign entry; facts: org.el entry gone, foreign kept, restart called when active, instruction printed when inactive, no systemctl call under --no-reload; policy/root_helpers.rego rules + tests.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): check_root_helpers runs the shipped make_deb.APPLY_HELPER (el-openglo-apply) in three scenarios - reload_active, reload_inactive, no_reload - with HOME in a scratch dir and a PATH of only a logging systemctl stub plus cp/mkdir/tr/find (qdbus6 and plasma-apply-* unreachable, so the live session is never touched); the scratch qmlcache is seeded with one org.el.* and one foreign entry. Rules R1: the org.el entry is gone and the foreign kept; the unit is restarted when active; the plasmashell --replace instruction is printed when inactive; no systemctl call and no cache removal under --no-reload; an unmeasured fact is withheld; an empty reload population is denied. opa_gate root_helpers admitted 15; opa 41/41. Integration fixed 3 rego_lint findings in the new rules (truthiness on null: now explicit == true/false); rego_lint admitted 0 deny.",
       "issued_at": "2026-10-02T02:20:31Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:20:31Z",
+      "last_worked": "2026-10-03T17:51:23Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175123Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 2
@@ -4721,12 +4751,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Before tuning, check W98 (renders on the RHI with bloom) is still the render path, since a shaderless render drops the halo the cap fade interacts with. Add SegmentChar boundaryDepth (emission axis, centre-fed like litGradient so it is mirror-invariant by construction), render the clock at 4x before/after, run opa_gate symmetry (must stay admitted) and render_qml --texture; record the picked depth and why (no external target - a stated amplitude, not a solved one), then make_clock + parity + screens.",
-      "evidence": "2026-10-02: 2026-10-02 split out of W33, whose titled port landed in f41874c; axis 1 (litGradient 0.35, centre-fed, texture() fixed) is recorded in W33 evidence.",
+      "next_bounded_step": "CALIBRATE (visual, operator-visible): render the clock at 4x with boundaryDepth 0.5 vs 0.4 (and 0.3), render_qml --texture, look; record the chosen depth and why, change the one default, re-record parity, and re-render clock/live-wallpaper/sddm screens. Also confirm W98 (RHI render with bloom) is still the render path the card named.",
+      "evidence": "2026-10-02: 2026-10-02 split out of W33, whose titled port landed in f41874c; axis 1 (litGradient 0.35, centre-fed, texture() fixed) is recorded in W33 evidence. | 2026-10-03: 2026-10-03 (swarm): templates/SegmentChar.qml gained boundaryDepth - the lit gradient is now four stops 0, d, 1-d, 1 with d clamped to 0.5 (0.5 is the old straight ramp), centre-fed and mirror-invariant for every d by construction; scripts/check_symmetry.py gradient_profile/gradient_cases read the stops from the EMITTED SegmentChar and evaluate depths 0, 0.2, 0.4, 0.5, 0.9 (4 new selftest arms); policy symmetry Y5 denies an empty gradient population and any stop with no mirror at 1-pos carrying the same fade, plus a withheld rule for unreadable stops; opa symmetry 16/16; opa_gate symmetry admitted 1. INTEGRATION DECISION: the agent set the default to 0.4, an amplitude with no external target that nobody had looked at - it would have restyled the clock, the live wallpaper and the SDDM themes unreviewed. The shipped default is 0.5 (= today render, byte-identical: schemes/wallpapers rebuilt, no output moved); the property and its gate are in, no restyle is. Parity baseline SegmentChar.qml recorded after reading the diff.",
       "issued_at": "2026-10-02T02:36:18Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:36:38Z",
+      "last_worked": "2026-10-03T17:54:01Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:U/W:Y",
@@ -4736,7 +4766,7 @@
     {
       "symbol": "W217",
       "title": "The look-and-feel splash is outside check_qml_lint population: measure whether it draws segments and, if so, mount SegmentChar",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "templates",
@@ -4745,14 +4775,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Find the splash emitter and template (look-and-feel contents/splash/Splash.qml); add it to check_qml_lint population (it is staged QML the operator sees at login); read whether it draws segment digits in its own idiom; if yes, mount SegmentChar like the clock/wallpaper/sddm and hold it with check_qml_lint --uses SegmentChar.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): MEASURED - the look-and-feel splash does NOT draw segments: templates/splash.qml (emitted by make_deb._splash_qml) draws 12:00 as monospace Text glyphs, so check_qml_lint --uses SegmentChar gives 0 on splash.qml, and per the card (if yes, mount) nothing was mounted. The splash was outside the check_qml_lint population: scripts/check_qml_lint.py now lints it (the make_deb._splash_qml row in DOCS, with the same pinned holes check_template_parity uses); qml_lint admitted 14 of 14 (was 13), selftest PASS, --uses SegmentChar 3 of 14 (clock, live wallpaper, sddm). Whether the splash SHOULD draw segments is a design change, not a measurement: W244.",
       "issued_at": "2026-10-02T02:36:18Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T02:36:38Z",
+      "last_worked": "2026-10-03T17:51:45Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T175145Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 2
@@ -4760,40 +4790,42 @@
     {
       "symbol": "W218",
       "title": "Animated wait cursor: XCursor multi-frame chunks with delays in make_cursors, the spinner drawn in the phosphor idiom",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read make_cursors XCursor writer (TOC of image chunks); XCursor carries per-frame delay in each image chunk - add a frames list per shape, draw wait/progress as N rotated phosphor frames, write them; witness by parsing the written file back (frame count, delays) in --selftest; view via --sheet.",
-      "evidence": "2026-10-02: Split from W36 (2026-10-02): W36 title landed in make_cursors.py (lit rim around ground body, 24/32/48 px, pure-Python XCursor writer, fills make_inherit cursor theme).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-02: Split from W36 (2026-10-02): W36 title landed in make_cursors.py (lit rim around ground body, 24/32/48 px, pure-Python XCursor writer, fills make_inherit cursor theme). | 2026-10-03: 2026-10-03 (swarm): wait and progress are 6-frame XCursors, one chunk per frame per size (24/32/48), 120 ms delay each; the spinner is a two-segment lit chase round the six-segment ring (unlit segments drawn as ghost, W219); the aliases (watch, left_ptr_watch, half-busy and the two hash names) pick it up through the existing symlinks. read_xcursor still returns the first frame per size; the new read_xcursor_frames reads every frame with its delay; the writer takes an optional per-image delay. Policy C8-C11 (frame count, delay, distinct frames, lit and ghost ink); ghost is a required token and frames a required per-entry field; opa cursors 35/35; opa_gate cursors admitted 6 of 6; check_cursors --selftest PASS (6 frames per size parsed back, 120 ms, frames differ, a wrong ghost seen, a static glyph is one frame). The gate caught the agent own bug on its first run (the static-shape frame rule hit the alias symlinks of animated shapes): fixed. NOT RENDERED as a sheet for the operator: cursors are generated at theme-build time.",
       "issued_at": "2026-10-02T03:03:27Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T03:03:36Z",
+      "last_worked": "2026-10-03T17:52:09Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175209Z"
     },
     {
       "symbol": "W219",
       "title": "Cursor ghost layer: decide whether glyphs carry the ghost token (the unlit-segment idiom) and draw it if so",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Render make_cursors --sheet with a ghost underlay variant (ghost token at the solved ghost_alpha) beside today; put both to the operator as samples (generative, per W197 precedent); implement the chosen one.",
-      "evidence": "2026-10-02: Split from W36 (2026-10-02); the ghost layer was listed as optional in W36 next step.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-02: Split from W36 (2026-10-02); the ghost layer was listed as optional in W36 next step. | 2026-10-03: 2026-10-03 (swarm): DECIDED BY MEASUREMENT (the card suggested operator samples; the agent measured instead - overrule with a --sheet render if wanted): glyphs carry the ghost token exactly where a frame leaves a segment unlit, drawn as the palette ghost at its solved ghost_alpha; a static glyph has no unlit segment so carries no ghost. Each wait frame shows lit ink ~35 px and ghost ink 21-24 px at 32 px; a planted magenta ghost drops the ghost ink to 0-2 px, so the measurement can see a wrong ghost. Policy C11 requires lit and ghost ink in every frame of an animated shape. Weakness stated: the ghost-ink count is a pixel match with tolerance 3 per channel (antialiased edges can match by chance); separation 21-24 vs 0-2 is large.",
       "issued_at": "2026-10-02T03:03:28Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T03:03:36Z",
+      "last_worked": "2026-10-03T17:52:01Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175201Z"
     },
     {
       "symbol": "W220",
@@ -4866,21 +4898,22 @@
     {
       "symbol": "W223",
       "title": "Air Plasma Style: measure whether it follows the colour scheme or bakes its own colours",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read the host Air Plasma Style (/usr/share/plasma/desktoptheme/air: metadata, colors file, whether its SVGs use the ColorScheme stylesheet classes) and record whether it follows the scheme or bakes colours; a check mode, not a by-hand read (standing rule). If it follows, an EL flavour is a defaults choice like W37; if it bakes, it needs a recolour emitter like make_plasma.",
-      "evidence": "2026-10-02: Split from W37 (2026-10-02, ATOMIZE): the Air half of W37 title. W37 evidence a4e7b59 already noted the oxygen/air Plasma Styles carry fixed colors files.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-02: Split from W37 (2026-10-02, ATOMIZE): the Air half of W37 title. W37 evidence a4e7b59 already noted the oxygen/air Plasma Styles carry fixed colors files. | 2026-10-03: 2026-10-03 (swarm): VERDICT - host Air (/usr/share/plasma/desktoptheme/air) BAKES its colours: it ships a fixed colors file with 10 [Colors:*] sections, 49 of 50 SVGZ carry literal fills, strokes or stop-colors outside the stylesheet, and only 2 of 50 use ColorScheme-* classes on elements. An EL flavour of Air is therefore NOT a W37-style defaults choice: it needs a recolour emitter like make_plasma (make_plasma.py itself needed no change). scripts/check_plasma_air.py (--json, --theme ID, --selftest, refuses unknown flags) measures it; policy/plasma_air.rego derives the verdict itself and denies a recorded air=bakes (P1) if the host stops showing it; opa 8/8, selftest PASS, opa_gate plasma_air admitted 1; warrant PLASMA-AIR. Re-derived: svgz decompression and colour counting (nothing in the repo offered it).",
       "issued_at": "2026-10-02T04:04:27Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T04:04:42Z",
+      "last_worked": "2026-10-03T17:52:19Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175219Z"
     },
     {
       "symbol": "W224",
@@ -5001,12 +5034,12 @@
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "check_action_key --list names the residue per action (screens 5 unresolved / 3 undeclared, schemes 13 / 3, wallpapers 8 / 2). For each undeclared domain (a glob/walk/listdir the scan found), declare it in ACTIONS (domains=...) or replace the computed read with a declared population; each declaration must move the action key when a file in that domain changes (an impact arm per domain). Unresolved edges second: record which are genuinely computed and which a literal can replace.",
-      "evidence": "2026-10-02: Minted from W61 close (2026-10-02): the residue is the declared bound on what an action key cannot see (check_action_key docstring); with per-output keying settled, it is the remaining gap in the build graph.",
+      "next_bounded_step": "Classify the 26 unresolved edges (schemes 13, wallpapers 8, screens 5): genuinely computed vs replaceable by a literal; extend a SITE_EDGES table the same way, with a refusing case for a stale entry. Then add a falsifiability arm for output and job (a site declared output that is in fact read as input must fail).",
+      "evidence": "2026-10-02: Minted from W61 close (2026-10-02): the residue is the declared bound on what an action key cannot see (check_action_key docstring); with per-output keying settled, it is the remaining gap in the build graph. | 2026-10-03: 2026-10-03 (swarm): HALF DONE - all 8 undeclared domains (screens 3, schemes 3, wallpapers 2) are declared in code: check_action_key.SITE_DOMAINS, keyed by (file, enclosing function) because catalog/actions.json is rewritten wholesale by --write and a declaration kept there would be lost. Kinds: names (the key digests the sorted file NAMES a pathspec matches: emitters.drift, :(glob)make_*.py), files (content digest: schemes_artifact.members under wallpapers = the root *.colors), covered (the pathspec is one of the action own data domains - CHECKED against the action real domains, a claim it does not have returns undeclared), output (the action own output, not an input), job (frames the render writes to its scratch dir, keyed by the staged job). selftest PASS with 6 new arms (8 sites over 3 actions found; every site declared; no stale SITE_DOMAINS entry; a names population is in the schemes key; a files population is in the wallpapers key; a byte in EL-Amber.colors moves the wallpapers key and is restored). opa_gate action_key no longer prints any UNDECLARED-domain withheld line (4 withheld remain: unresolved edges schemes 13, screens 5, wallpapers 8, and the unpinned screens host). Keys moved (schemes 41 inputs, wallpapers 36): re-recorded at integration. WEAKNESS stated in the module: output and job declarations are taken at their word (only covered is checked against the domains); a declaration naming no site is refused by the selftest. Re-derived: _site_function/site_declaration (build_graph.computed_edges gives only a line and a reason).",
       "issued_at": "2026-10-02T07:41:04Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T07:41:18Z",
+      "last_worked": "2026-10-03T17:54:14Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -5098,7 +5131,7 @@
     {
       "symbol": "W234",
       "title": "Route .bib queries to a working reader: substrate bibstruct.py fails on import (no mikemol.witness)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "tooling",
@@ -5106,16 +5139,17 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "2026-10-02: 2026-10-02: running substrate/scratch/bibstruct.py under the venv raised ModuleNotFoundError mikemol.witness; the hook routes .bib to it, so a .bib question has no working tool here",
+      "next_bounded_step": null,
+      "evidence": "2026-10-02: 2026-10-02: running substrate/scratch/bibstruct.py under the venv raised ModuleNotFoundError mikemol.witness; the hook routes .bib to it, so a .bib question has no working tool here | 2026-10-03: 2026-10-03 (swarm): the struct-tools BibTeX row now routes to ../paperkit/tools/bibstruct.py (run: .venv/bin/python ../paperkit/tools/bibstruct.py, ABSOLUTE bib path - a relative one resolves against the venv). It answered --field check over 98 of 98 entries of warrants.bib; check_routes admitted 71 of 71, check_hooks 2 of 2. Substrate copy still fails (bib_handlers imports mikemol.witness). CAVEAT: the reader lives in the SIBLING paperkit repo, not the installed package; if paperkit moves the row breaks and check_routes does not notice - W243.",
       "issued_at": "2026-10-02T14:25:37Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-02T14:25:42Z",
+      "last_worked": "2026-10-03T17:50:43Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 2
+      "weight": 2,
+      "completed": "20261003T175043Z"
     },
     {
       "symbol": "W235",
@@ -5277,7 +5311,7 @@
     {
       "symbol": "W241",
       "title": "Marquee replace width change: the leading or trailing segment stalls until the resized span folds in, never outrunning the pan (W183 ruling 4)",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W183"
       ],
@@ -5287,16 +5321,273 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "A pure Body.stallOffsets(oldOffs, newOffs, span, progress) - shortened (ABBC->ABC): the leading segment holds while the follower catches up; lengthened (AABCC->AABBCC): the trailing segment holds while the leader folds in; no x ever moves faster than the pan - with refusing cases in check_marquee_body (a segment that outruns is denied), then drawBackdrop reads it during a roll.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (swarm): Body.stallOffsets pure - a shortened replace holds the suffix while the leading segment lags by |d|; a lengthened one holds the leader while the suffix arrives by d; a tail change has no follower; no x ever moves left in the text frame, so nothing outruns the pan. drawBackdrop reads it during a roll; startRoll captures the old layout; policy M12, opa marquee_body admitted. Integration found and fixed a W188 painter defect: a SHORTENED replace dropped its suffix glyphs until the roll ended (the rolling-out cell shared the suffix index and the loop continued); Body.paintsPlain + 4 PLAIN_CASES + policy M13 (56/56) now hold it.",
       "issued_at": "2026-10-02T17:50:21Z",
       "minted_during": "interrupt",
       "caused_by": "W183",
-      "last_worked": "2026-10-02T17:50:34Z",
+      "last_worked": "2026-10-03T17:48:35Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
-      "weight": 5
+      "weight": 5,
+      "completed": "20261003T174835Z"
+    },
+    {
+      "symbol": "W242",
+      "title": "check_marquee_live: a SHORTENED visible replace (suffix present) shows its suffix glyphs on every mid-roll frame",
+      "status": "working",
+      "enables": [
+        "W183"
+      ],
+      "touches": [
+        "check_marquee_live",
+        "marquee-main.qml"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add a replace_visible timeline op that SHORTENS (e.g. alpha gamma beta -> alpha beta) with a suffix, expose the backdrop cell count per sample (root.paintedCells beside paintedInk), and a policy L-rule: on every mid-roll frame the painted cells include the suffix characters. Refusing case: the pre-fix painter (continue after the rolling-out cell) must fail it.",
+      "evidence": "2026-10-03: 2026-10-03: minted at integration. The painter defect (shortened replace dropped its suffix mid-roll) was found by reading the diff, not by a live measurement: the live harness has only a lengthened case and samples no cell counts. Body.paintsPlain + M13 hold the decision in the body harness; this card holds the PAINTED result.",
+      "issued_at": "2026-10-03T17:48:50Z",
+      "minted_during": "interrupt",
+      "caused_by": "W189",
+      "last_worked": "2026-10-03T17:57:03Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 5,
+      "completed": null
+    },
+    {
+      "symbol": "W243",
+      "title": "check_routes refuses a struct-tools row whose tool path does not exist on this machine (the paperkit bib reader moved would not be noticed today)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_routes",
+        "struct-tools",
+        "paperkit"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Measure, per row of routing_table.routes(), whether the first path-like token of the tool column resolves (a file, or a console script on .venv/bin) - report n of m, SKIP counted for a row that names no path - and add a refusing case: a planted row naming ../nonesuch/x.py is denied. If paperkit would rather publish the reader as a console script, a letter to paperkit citing el-openglo:W243 retires the sibling path.",
+      "evidence": "2026-10-03: 2026-10-03: minted at integration from W234 caveat. The BibTeX row points at ../paperkit/tools/bibstruct.py in a SIBLING repo. check_routes (71 of 71 admitted) reads the table through mikemol.hooks.routing_table, which proves a row parses, not that its tool exists. A route naming a tool that cannot start is exactly the failure the pyproject tooling-extra comment records (the table named a capability the machine lacked).",
+      "issued_at": "2026-10-03T17:50:52Z",
+      "minted_during": "interrupt",
+      "caused_by": "W234",
+      "last_worked": "2026-10-03T17:51:00Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 2
+    },
+    {
+      "symbol": "W244",
+      "title": "Splash digits: mount SegmentChar on the look-and-feel splash (templates/splash.qml, make_deb._splash_qml) in place of the monospace font digits",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        "splash.qml",
+        "make_deb",
+        "SegmentChar"
+      ],
+      "blocked_on": [
+        "operator: decide whether the look-and-feel splash 12:00 becomes SegmentChar segment glyphs (the theme idiom, consistent with the clock, live wallpaper and SDDM) or stays monospace font digits (a plain readable splash)"
+      ],
+      "blocked_kind": "human",
+      "next_bounded_step": "On a yes: mount SegmentChar in splash.qml (make_deb._splash_qml), stage SegmentChar.qml in the splash package, re-record the splash baseline, render the splash. On a no: drop this card with the reason.",
+      "evidence": "2026-10-03: 2026-10-03: minted from W217. The measurement is in (font digits, 0 SegmentChar uses). It is a visible design change to a surface the operator sees at every login, so it is asked, not applied. The bundled SegmentChar would also need the splash to load SegmentChar.qml (a make_deb stage change) and the splash screenshot/baseline re-recorded.",
+      "issued_at": "2026-10-03T17:51:45Z",
+      "minted_during": "interrupt",
+      "caused_by": "W217",
+      "last_worked": "2026-10-03T17:51:53Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W245",
+      "title": "Recolour emitter for the host Air Plasma Style: its 49 of 50 baked SVGZ rewritten from the palette, as make_plasma does for Breeze",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "make_plasma",
+        "plasma-air"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Read make_plasma.py and the Air layout (check_plasma_air --theme air --json lists the SVGZ and their literal colours); map each literal colour in Air to the nearest palette role, emit el-openglo-air-<variant> through make_plasma machinery with the colors file from the scheme, register it (ROLES emitter, ORDER, publishing.md row, warrant), and gate it with check_plasma_air --theme on the emitted flavour: follows, 0 literals.",
+      "evidence": "2026-10-03: 2026-10-03: minted at integration from W223. Air ships a colors file plus 50 SVGZ, 49 with literal colours. make_plasma already recolours Breeze SVGs from the palette (and check_plasma_air is the measurement that said Air bakes): the new emitter SPECIALISES make_plasma (reuse-search first: read make_plasma, name what Air adds), it does not compute colours of its own (check_token_source holds that).",
+      "issued_at": "2026-10-03T17:52:19Z",
+      "minted_during": "interrupt",
+      "caused_by": "W223",
+      "last_worked": "2026-10-03T17:52:32Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 2
+    },
+    {
+      "symbol": "W246",
+      "title": "check_contracts reads Rego consumers: policy/screens.rego reads the same animation rows invisibly today; parse it with opa parse --format json into K2",
+      "status": "ready",
+      "enables": [
+        "W204"
+      ],
+      "touches": [
+        "contracts",
+        "screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "policy/screens.rego reads a.frames, a.tears, a.seamless, a.shifts, a.logged_steps off the same render_screens animation rows: parse it with opa parse --format json (the Rego AST, not text), extract the field reads by receiver, and feed them into K2 beside check_screens reads; a refusing case: a Rego read of a field the declaration lacks is denied. Positive control: the five known reads are found.",
+      "evidence": "2026-10-03: 2026-10-03: minted from the W204 slice (scripts/check_contracts.py reads the producer keys and check_screens reads by AST; policy/screens.rego is invisible to it).",
+      "issued_at": "2026-10-03T17:54:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W204",
+      "last_worked": "2026-10-03T17:54:41Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 4
+    },
+    {
+      "symbol": "W247",
+      "title": "Declare more surfaces in policy/contracts.rego: screens still rows, make_preview.parse_scheme, make_schemes.GRID, and each check --json record",
+      "status": "ready",
+      "enables": [
+        "W204"
+      ],
+      "touches": [
+        "contracts"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add declarations (always / when_exists) to policy/contracts.rego for: the screens still rows (distinct, modal, grounds), make_preview.parse_scheme, make_schemes.GRID, and the --json record of each check; each with its producer and consumers read the same way as render_screens.animation; K1 already denies a surface with no declaration.",
+      "evidence": "2026-10-03: 2026-10-03: minted from the W204 slice: one surface (render_screens.animation) is declared.",
+      "issued_at": "2026-10-03T17:54:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W204",
+      "last_worked": "2026-10-03T17:54:42Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 4
+    },
+    {
+      "symbol": "W248",
+      "title": "Contracts flip to the producer: a producer-side test fails when a record omits a declared always field, covering producers K3 cannot read statically (W203 make_preview.VARIANTS)",
+      "status": "ready",
+      "enables": [
+        "W204"
+      ],
+      "touches": [
+        "contracts"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Make the declaration the source: a producer-side test (in the producer own selftest, importing the declaration) fails when a produced record omits a declared always field, so K3 also covers producers that are not statically readable - the W203 make_preview.VARIANTS case, where a key was dropped and every consumer was green. Refusing case: a producer that drops a declared field is denied.",
+      "evidence": "2026-10-03: 2026-10-03: minted from the W204 slice: K3 reads the producer keys statically (AST) and cannot see a producer that builds its record dynamically.",
+      "issued_at": "2026-10-03T17:54:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W204",
+      "last_worked": "2026-10-03T17:54:42Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 4
+    },
+    {
+      "symbol": "W249",
+      "title": "Contracts: deny a consumer read of a when_exists field that is not guarded by the exists field",
+      "status": "ready",
+      "enables": [
+        "W204"
+      ],
+      "touches": [
+        "contracts"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "In check_contracts, for a declared when_exists field (the 14 animation fields exist only when the animation exists), deny a consumer read that is not dominated by a check of the declared exists field; refusing case: an unguarded read is denied; admitting: a guarded one. The guard shape is the consumer own (an if on the exists key); read it from the AST.",
+      "evidence": "2026-10-03: 2026-10-03: minted from the W204 slice: when_exists is declared but a consumer read of such a field is not yet checked to be guarded.",
+      "issued_at": "2026-10-03T17:54:26Z",
+      "minted_during": "interrupt",
+      "caused_by": "W204",
+      "last_worked": "2026-10-03T17:54:42Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 4
+    },
+    {
+      "symbol": "W250",
+      "title": "policy/screens.rego: a stepped marquee capture series is exactly one run (the S-rule W200 named but could not own)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "screens",
+        "render_screens"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Make render_screens log the run count of each marquee-anim series (it already logs the steps: W209 logged S5) and add an S-rule in policy/screens.rego: runs == 1 per series, refusing case runs == 2 (a series that wrapped) and runs == 0 (a series that never ended); positive control the 18 current marquee-anims.",
+      "evidence": "2026-10-03: 2026-10-03: minted from W200. The card rule - a capture series is exactly one run - is now true by construction in the widget (complete() increments captureRuns on every path that ends a run, and the harness stops on captureRuns > 0), but nothing in policy/screens.rego JUDGES it: the property is held by the code, not by a gate.",
+      "issued_at": "2026-10-03T17:55:54Z",
+      "minted_during": "interrupt",
+      "caused_by": "W200",
+      "last_worked": "2026-10-03T17:56:02Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent",
+      "weight": 2
+    },
+    {
+      "symbol": "W251",
+      "title": "Rebuild is mechanical: check_emitters_run --apply adopts every drifted tracked file, check_action_key --rebuild runs the stale actions in pipeline order",
+      "status": "done",
+      "enables": [],
+      "touches": [
+        "check_emitters_run",
+        "check_action_key",
+        "emitters"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 (operator: \"sounds like a dependency tree that needs to be more mechanical\"): the swarm integration was walked by hand and the pre-commit gate caught what I missed - a SegmentChar edit moved the clock plasmoid tracked copy (plasma-clock/.../SegmentChar.qml), which a hand-run make_schemes + make_wallpaper does not cover. TWO TOOLS NOW ANSWER IT: (1) check_emitters_run --apply runs the whole emitter pipeline in the private copy and ADOPTS every drifted TRACKED file atomically (emitters.atomic_write), refusing when any emitter failed (a half-run pipeline is not the pipeline), refusing a path the run deleted or relinked, listing each adopted path with its diff; the run IS the dependency tree. selftest +2 arms (adopts nothing when an emitter failed; adopts a drifted file, not reported as a tree write), PASS; run for real: 0 of 0 drifted after a hand make_clock (the tool agrees). (2) check_action_key --rebuild runs the STALE actions entry modules in PIPELINE order (REBUILD_ORDER schemes, wallpapers, screens - not ACTIONS screens-first), records the keys only if every builder succeeded; rebuild_plan is pure and selftested (3 arms: nothing stale -> []; pipeline order; reformulated/unrecorded not rebuilt); run for real as a systemd-run service it rebuilt schemes and wallpapers (screens was not stale) and re-recorded; action_key gate admitted, no output bytes moved. Not yet one command: W252.",
+      "issued_at": "2026-10-03T18:18:11Z",
+      "minted_during": "interrupt",
+      "caused_by": "W229",
+      "last_worked": "2026-10-03T18:18:26Z",
+      "ticks_blocked": 0,
+      "completed": "20261003T181826Z",
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W252",
+      "title": "One rebuild sequencer: emitters --apply, action_key --rebuild, template parity status and the README/WORKLIST projection, in order, printing what each moved",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_emitters_run",
+        "check_action_key",
+        "check_template_parity",
+        "worklist_gate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/rebuild.py: run in order (1) check_emitters_run --apply, (2) check_action_key --rebuild (as the caller wraps it in systemd-run), (3) check_template_parity listing every template that differs from its baseline WITH its diff - it records NOTHING (recording stays the reader act), then (4) readme_fragments --write and worklist_gate --project; print what each moved, n of m, stop at the first failure; selftest over a fixture; refuse unknown flags.",
+      "evidence": "2026-10-03: 2026-10-03: minted from W251. After the two tools the integration is still FOUR commands in a hand-remembered order (emitters --apply; action_key --rebuild; check_template_parity per template; readme_fragments --write + worklist_gate --project), and the parity step has a judgement (read the diff before --record) that no tool can make but a tool CAN gate: it can print every template whose baseline is out of date with the diff and refuse to record unread.",
+      "issued_at": "2026-10-03T18:18:11Z",
+      "minted_during": "interrupt",
+      "caused_by": "W251",
+      "last_worked": "2026-10-03T18:18:26Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent"
     }
   ],
   "residue": [

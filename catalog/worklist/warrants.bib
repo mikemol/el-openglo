@@ -916,3 +916,34 @@
   claim    = {make_glb emits the 7-, 16- and 22-segment displays and the 5x7 matrix as glTF 2.0 binaries in catalog/engines/, each segment (or dot) a named node with a solid mesh, the names exactly the format's segment_topology ids after projection, and every file current against a fresh emission (W152)},
   check    = {tool:check_glb.py}
 }
+
+@misc{CONTRACTS,
+  section  = {tooling},
+  claim    = {A surface declares the fields it always carries in policy/contracts.rego and its consumers are checked against the declaration (W204): render_screens.animation rows are read by scripts/check_screens.py only through declared fields, and every declared field is one the producer emits; a read of an undeclared field or a declared field the producer does not stamp is denied},
+  check    = {tool:opa_gate.py contracts}
+}
+
+@misc{CONTRACTS-SEES,
+  section  = {tooling},
+  rests-on = {CONTRACTS},
+  claim    = {The contracts measurement can SEE: the AST reader finds a producer's literal, merged and stored keys and a consumer's subscript and .get reads, and reports an unreadable producer as null rather than empty},
+  check    = {tool:check_contracts.py --selftest}
+}
+
+@misc{ANDROID-CLOCK,
+  section  = {emitters},
+  claim    = {make_android_clock emits the segment clock as one JSON file per variant in catalog/android/clock/, and every value traces to its authority: the palette roles to make_schemes.GRID, the 7-segment geometry, digit masks and module metrics to segment_topology, the display tables to display_types, with each file current against a fresh emission and no orphan files (W193)},
+  check    = {tool:check_android_clock.py}
+}
+
+@misc{PLASMA-AIR,
+  section  = {tooling},
+  claim    = {The host Air Plasma Style BAKES its colours rather than following the session scheme: it ships a fixed colors file and nearly every SVGZ carries literal fills outside the ColorScheme stylesheet, so an EL flavour of it needs a recolour emitter like make_plasma, not a defaults choice (W223); the recorded verdict is denied when the host stops showing it},
+  check    = {tool:opa_gate.py plasma_air}
+}
+
+@misc{VSCODE,
+  section  = {emitters},
+  claim    = {make_vscode emits one VS Code colour theme per variant and a package.json contributing exactly the roster (and a .vsix packed from it with the documented layout), every workbench and token colour the palette role it names (make_firefox.roles and the make_konsole ANSI bank), the theme type matching the variant polarity, each declared text pair and syntax colour read from the file clearing its WCAG floor, and every file current against a fresh emission (W161)},
+  check    = {tool:check_vscode.py}
+}

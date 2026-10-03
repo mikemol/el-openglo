@@ -944,6 +944,7 @@ def stage(root):
     for v in VARIANTS:
         atomic_write(os.path.join(tdir, f"{v}.alacritty.toml"), _kon.alacritty_toml(v))
         atomic_write(os.path.join(tdir, f"{v}.foot.ini"), _kon.foot_ini(v))
+        atomic_write(os.path.join(tdir, f"{v}.kitty.conf"), _kon.kitty_conf(v))
         atomic_write(os.path.join(tdir, f"{v}.windows-terminal.json"), _kon.windows_terminal_json(v))
         atomic_write(os.path.join(tdir, f"{v}.termux.properties"), _kon.termux_properties(v))
 

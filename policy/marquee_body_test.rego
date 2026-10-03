@@ -5,7 +5,29 @@ package el.marquee_body_test
 import data.el.marquee_body as mb
 import rego.v1
 
-roll_ok := {"label": "a shortening rolls the lost cell out", "args": ["abc", "ab", 0.5, 8], "expected": [[["c", -4.5]]], "cells": [[["c", -4.5]]]}
+plain_ok := {"label": "shortened (ABBC -> ABC): the suffix paints", "args": ["ABBC", "ABC"], "expected": [true, true, true, false], "paints": [true, true, true, false]}
+
+test_m13_admits_a_correct_plain_row if {
+	count([m | some m in mb.deny with input as clean; startswith(m, "M13:")]) == 0
+}
+
+# the defect itself: the suffix character at a rolling-out cell's index not painted
+test_m13_refuses_a_dropped_suffix if {
+	c := object.union(plain_ok, {"paints": [true, true, false, false]})
+	some m in mb.deny with input as object.union(clean, {"plain": [c]})
+	startswith(m, "M13: shortened (ABBC -> ABC)")
+}
+
+test_m13_refuses_an_empty_population if {
+	"M13: no paintsPlain cases were measured" in mb.deny with input as object.union(clean, {"plain": []})
+}
+
+test_m13_withholds_an_unmeasured_row if {
+	c := object.union(plain_ok, {"paints": null})
+	"W: plain shortened (ABBC -> ABC): the suffix paints: paints were not measured" in mb.withheld with input as object.union(clean, {"plain": [c]})
+}
+
+roll_ok := {"label": "a shortening rolls the lost cell out","args": ["abc", "ab", 0.5, 8], "expected": [[["c", -4.5]]], "cells": [[["c", -4.5]]]}
 
 test_m11_refuses_a_wrong_roll_cell if {
 	inp := object.union(clean, {"roll": [{"label": "x", "args": ["a", "b", 0.5, 8], "expected": [[["a", -4.5], ["b", 4.5]]], "cells": [[["a", 0], ["b", 4.5]]]}]})
@@ -15,6 +37,64 @@ test_m11_refuses_a_wrong_roll_cell if {
 
 test_m11_refuses_an_empty_roll_population if {
 	"M11: no rollCells cases were measured" in mb.deny with input as object.union(clean, {"roll": []})
+}
+
+stall_samples_ok := [
+	{"progress": 0, "neu": [0, 24, 72], "gone": [48], "frameShift": 24},
+	{"progress": 0.5, "neu": [12, 36, 72], "gone": [60], "frameShift": 24},
+	{"progress": 1, "neu": [24, 48, 72], "gone": [72], "frameShift": 24},
+]
+
+stall_ok := {
+	"label": "shortened",
+	"args": ["ABBC", "ABC"],
+	"expected_start": {"neu": [0, 24, 72], "gone": [48]},
+	"expected_end": {"neu": [24, 48, 72], "gone": [72]},
+	"expected_frame_shift": 24,
+	"samples": stall_samples_ok,
+}
+
+test_m12_admits_a_stall if {
+	count([m | some m in mb.deny with input as object.union(clean, {"stall": [stall_ok]}); startswith(m, "M12:")]) == 0
+}
+
+# a segment that moves LEFT between samples outruns the pan
+test_m12_refuses_a_segment_that_outruns if {
+	bad := [
+		{"progress": 0, "neu": [0, 24, 72], "gone": [48], "frameShift": 24},
+		{"progress": 0.5, "neu": [12, 36, 60], "gone": [60], "frameShift": 24},
+		{"progress": 1, "neu": [24, 48, 72], "gone": [72], "frameShift": 24},
+	]
+	c := object.union(stall_ok, {"samples": bad})
+	some m in mb.deny with input as object.union(clean, {"stall": [c]})
+	contains(m, "outruns the pan")
+}
+
+test_m12_refuses_a_wrong_start if {
+	c := object.union(stall_ok, {"expected_start": {"neu": [0, 24, 48], "gone": [48]}})
+	some m in mb.deny with input as object.union(clean, {"stall": [c]})
+	contains(m, "expected the old layout")
+}
+
+test_m12_refuses_a_wrong_settled_layout if {
+	c := object.union(stall_ok, {"expected_end": {"neu": [0, 24, 48], "gone": [48]}})
+	some m in mb.deny with input as object.union(clean, {"stall": [c]})
+	contains(m, "expected the settled layout")
+}
+
+test_m12_refuses_a_wrong_frame_shift if {
+	c := object.union(stall_ok, {"expected_frame_shift": 0})
+	some m in mb.deny with input as object.union(clean, {"stall": [c]})
+	contains(m, "frameShift")
+}
+
+test_m12_refuses_an_empty_population if {
+	"M12: no stallOffsets cases were measured" in mb.deny with input as object.union(clean, {"stall": []})
+}
+
+test_m12_withholds_unmeasured_samples if {
+	c := object.union(stall_ok, {"samples": null})
+	"W: stall shortened: samples were not measured" in mb.withheld with input as object.union(clean, {"stall": [c]})
 }
 
 parse_ok := {"body": "<b>hi</b>", "expected_text": "hi", "text": "hi", "expected_runs": [[0, 2, "bold"]], "runs": [[0, 2, "bold"]]}
@@ -40,7 +120,7 @@ kern_cap := {"label": "never separates", "expect": "capped", "advance": 24, "off
 
 span_ok := {"label": "a delete changes only the gap", "args": ["abcd", "abd"], "expected": {"p": 2, "oldEnd": 3, "newEnd": 2}, "span": {"p": 2, "oldEnd": 3, "newEnd": 2}}
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok], "roll": [roll_ok]}
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok], "roll": [roll_ok], "stall": [stall_ok], "plain": [plain_ok]}
 
 # M10 (W186): a replace's changed span
 test_m10_refuses_a_wrong_span if {
@@ -158,7 +238,9 @@ test_m0_refuses_empty if {
 		"M8: no display (letterform) cases were measured",
 		"M9: no kerning cases were measured",
 		"M10: no replaceSpan cases were measured",
-		"M11: no rollCells cases were measured"}
+		"M11: no rollCells cases were measured",
+		"M12: no stallOffsets cases were measured",
+		"M13: no paintsPlain cases were measured"}
 }
 
 test_m1_refuses_wrong_text if {
@@ -235,7 +317,9 @@ test_all_null_case_withheld_only if {
 	k := object.union(kern_sep, {"offsets": null, "bleeds_after": null, "bleeds_at_plain": null})
 	sp := object.union(span_ok, {"span": null})
 	rl := object.union(roll_ok, {"cells": null})
-	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp], "roll": [rl]}
+	st := object.union(stall_ok, {"samples": null})
+	pn := object.union(plain_ok, {"paints": null})
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp], "roll": [rl], "stall": [st], "plain": [pn]}
 	w := mb.withheld with input as inp
 	"W: kern bold pair: bleeds_after was not measured" in w
 	"W: parse <b>hi</b>: text was not measured" in w

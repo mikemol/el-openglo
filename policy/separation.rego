@@ -46,8 +46,25 @@ deny contains msg if {
 	msg := sprintf("D1: %s: dE %s < %s (%s)", [c.id, fmt.fixed(c.dE, 1), fmt.fixed(input.floor * factor, 1), c.view])
 }
 
+# METADATA
+# title: "W1 — a variant the solver could only fill by its unchecked fallback is withheld"
+# description: |
+#   make_palette.solve_semantic_set falls back to a max-contrast colour when no
+#   in-sector candidate clears contrast and the accent. That colour is not checked
+#   against either, so the variant carrying it is not JUDGED, it is withheld (W199):
+#   "not confirmed" is not "passed". Its cases are not admitted.
+withheld contains msg if {
+	some v in object.get(input, "infeasible", [])
+	msg := sprintf("W1: %s: slot(s) %s filled by the unchecked solver fallback", [v.variant, concat(",", v.slots)])
+}
+
+infeasible_variants contains v.variant if {
+	some v in object.get(input, "infeasible", [])
+}
+
 admitted contains c.id if {
 	some c in input.cases
 	c.dE != null
 	c.dE >= input.floor * factor
+	not c.variant in infeasible_variants
 }

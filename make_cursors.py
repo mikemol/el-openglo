@@ -20,6 +20,12 @@ what the Look-and-Feel defaults select ([kcminputrc][Mouse] cursorTheme). This
 emitter fills its `cursors/`; every shape NOT drawn here still resolves through
 the inheritance, so the set can grow without ever leaving a hole.
 
+⚑ GHOST (W219) AND ANIMATION (W218): `wait` and `progress` are six-frame XCursors
+(one chunk per frame per size, FRAME_MS apart): a chase of lit segments, the unlit
+ones drawn as the ghost token at its solved alpha — the segment display's unlit
+idiom. Static glyphs have no unlit segment, so they carry no ghost; the decision is
+measured by check_cursors (C11: every frame shows lit AND ghost ink).
+
 The writer is pure Python (the XCursor file format: "Xcur", a TOC of image
 chunks, premultiplied ARGB little-endian) — xcursorgen is not installed on this
 host and is not needed. cairosvg rasterises; it is already a dependency of
@@ -44,9 +50,12 @@ OUTLINE = 3.0       # the stroke that becomes the lit rim (half of it shows)
 
 
 def tokens(variant):
-    """{'lit', 'ground'} — the two glyph colours, from the solved scheme."""
+    """{'lit', 'ground', 'ghost', 'ghost_alpha'} — the glyph colours, from the solved
+    scheme. The ghost (W219) is the unlit-segment idiom: the palette's ghost token at
+    its solved alpha, drawn ONLY under segments a frame leaves unlit."""
     c = _mp.parse_scheme(variant)
-    return {"lit": c["phosphor"], "ground": c["ground"]}
+    return {"lit": c["phosphor"], "ground": c["ground"],
+            "ghost": c["ghost"], "ghost_alpha": c["ghost_alpha"]}
 
 
 # --- the glyphs: path data on a 32-unit grid, and the hotspot on that grid ----
@@ -70,12 +79,33 @@ def _paths(*ds, rotate=0):
     return draw
 
 
-def _ring(lit, ground, cx=16, cy=16, r=10.5):
-    """The wait glyph: a ground disc with a lit rim, and six lit SEGMENTS round it
-    (a segment display's ring, not a spinner's arc)."""
-    segs = "".join(
-        f'<rect x="{cx - 1.3}" y="{cy - r + 2.6}" width="2.6" height="5" rx="1.2" fill="{lit}" '
-        f'transform="rotate({a} {cx} {cy})"/>' for a in range(0, 360, 60))
+SEGS = 6            # segments round the wait ring
+FRAME_MS = 120      # XCursor per-frame delay (ms)
+TRAIL = 2           # lit segments per frame: the head and one behind it
+
+
+def _lit_set(i):
+    """The segments frame i lights: a chase, head at i, the rest UNLIT (ghost)."""
+    return {(i - k) % SEGS for k in range(TRAIL)}
+
+
+def _ring(lit, ground, cx=16, cy=16, r=10.5, frame=None, ghost=None, ghost_alpha=0.45):
+    """The wait glyph: a ground disc with a lit rim, and six SEGMENTS round it (a
+    segment display's ring, not a spinner's arc). `frame` None lights all six; an
+    int lights that frame's chase and draws the rest as the GHOST token at its
+    solved alpha (the unlit-segment idiom, W219) — or leaves them out if no ghost."""
+    on = set(range(SEGS)) if frame is None else _lit_set(frame)
+    parts = []
+    for k in range(SEGS):
+        if k in on:
+            fill = f'fill="{lit}"'
+        elif ghost:
+            fill = f'fill="{ghost}" fill-opacity="{ghost_alpha}"'
+        else:
+            continue
+        parts.append(f'<rect x="{cx - 1.3}" y="{cy - r + 2.6}" width="2.6" height="5" rx="1.2" '
+                     f'{fill} transform="rotate({k * 360 // SEGS} {cx} {cy})"/>')
+    segs = "".join(parts)
     return (f'<circle cx="{cx}" cy="{cy}" r="{r}" fill="{ground}" stroke="{lit}" '
             f'stroke-width="{OUTLINE / 2}"/>' + segs)
 
@@ -85,13 +115,14 @@ def _not_allowed(lit, ground):
             f'<line x1="8.5" y1="8.5" x2="23.5" y2="23.5" stroke="{lit}" stroke-width="3"/>')
 
 
-def _progress(lit, ground):
+def _progress(lit, ground, frame=None, ghost=None, ghost_alpha=0.45):
     arrow = _paths("M4,2 L4,19 L8,15.5 L10.8,21.8 L13.6,20.6 L10.8,14.3 L16.4,14.3 Z")(lit, ground)
-    return arrow + _ring(lit, ground, cx=22, cy=22, r=7)
+    return arrow + _ring(lit, ground, cx=22, cy=22, r=7, frame=frame, ghost=ghost,
+                         ghost_alpha=ghost_alpha)
 
 
-def _wait(lit, ground):
-    return _ring(lit, ground)
+def _wait(lit, ground, frame=None, ghost=None, ghost_alpha=0.45):
+    return _ring(lit, ground, frame=frame, ghost=ghost, ghost_alpha=ghost_alpha)
 
 
 # name -> (draw(lit, ground) -> svg body, hotspot (x, y) on the 32 grid, aliases)
@@ -134,13 +165,28 @@ SHAPES = {
 }
 
 
-def svg(shape, variant, colours=None):
+# W218: the shapes that ANIMATE — their draw takes (lit, ground, frame=, ghost=,
+# ghost_alpha=) and the XCursor carries SEGS frames per size, FRAME_MS apart.
+ANIMATED = ("wait", "progress")
+
+
+def frame_count(shape):
+    return SEGS if shape in ANIMATED else 1
+
+
+def svg(shape, variant, colours=None, frame=None):
     """The glyph's SVG document for one variant (`colours` overrides the tokens —
-    for a check's fixture, never for an emission)."""
-    t = colours or tokens(variant)
+    for a check's fixture, never for an emission). `frame` selects an animated
+    shape's frame (None = the static all-lit glyph, what --sheet shows)."""
+    t = {**tokens(variant), **(colours or {})}
     draw = SHAPES[shape][0]
+    if shape in ANIMATED and frame is not None:
+        body = draw(t["lit"], t["ground"], frame=frame, ghost=t["ghost"],
+                    ghost_alpha=t["ghost_alpha"])
+    else:
+        body = draw(t["lit"], t["ground"])
     return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{BOX}" height="{BOX}" '
-            f'viewBox="0 0 {BOX} {BOX}">{draw(t["lit"], t["ground"])}</svg>')
+            f'viewBox="0 0 {BOX} {BOX}">{body}</svg>')
 
 
 # --- XCursor: the file format, both directions ---------------------------------
@@ -194,14 +240,17 @@ def _unpremultiply(px):
 
 
 def xcursor_bytes(images):
-    """images: [(nominal, w, h, xhot, yhot, pixels)] -> the XCursor file."""
+    """images: [(nominal, w, h, xhot, yhot, pixels[, delay_ms])] -> the XCursor file.
+    Frames of an animation are consecutive chunks of one nominal size, each carrying
+    its own delay (W218)."""
     ntoc = len(images)
     head = struct.pack("<4sIII", XC_MAGIC, 16, 0x10000, ntoc)
     pos = 16 + 12 * ntoc
     toc, chunks = b"", b""
-    for nominal, w, h, xh, yh, px in images:
+    for nominal, w, h, xh, yh, px, *rest in images:
+        delay = rest[0] if rest else 0
         toc += struct.pack("<III", XC_IMAGE, nominal, pos)
-        chunk = struct.pack("<IIIIIIIII", 36, XC_IMAGE, nominal, 1, w, h, xh, yh, 0)
+        chunk = struct.pack("<IIIIIIIII", 36, XC_IMAGE, nominal, 1, w, h, xh, yh, delay)
         chunk += struct.pack(f"<{len(px)}I", *px)
         chunks += chunk
         pos += len(chunk)
@@ -209,8 +258,14 @@ def xcursor_bytes(images):
 
 
 def read_xcursor(path):
-    """{nominal: (w, h, xhot, yhot, [ARGB])} — the inverse of xcursor_bytes, for
-    the check. Raises ValueError on a file that is not an XCursor."""
+    """{nominal: (w, h, xhot, yhot, [ARGB])} — the FIRST frame per size; see
+    read_xcursor_frames for the animation. Raises ValueError on a non-XCursor."""
+    return {n: f[0][:5] for n, f in read_xcursor_frames(path).items()}
+
+
+def read_xcursor_frames(path):
+    """{nominal: [(w, h, xhot, yhot, [ARGB], delay_ms), ...]} in TOC order — the
+    inverse of xcursor_bytes, for the check. Raises ValueError on a non-XCursor."""
     data = open(path, "rb").read()
     if data[:4] != XC_MAGIC:
         raise ValueError(f"{path}: not an XCursor file")
@@ -220,20 +275,23 @@ def read_xcursor(path):
         typ, sub, pos = struct.unpack_from("<III", data, hsize + 12 * i)
         if typ != XC_IMAGE:
             continue
-        _h, _t, nominal, _v, w, h, xh, yh, _d = struct.unpack_from("<IIIIIIIII", data, pos)
+        _h, _t, nominal, _v, w, h, xh, yh, delay = struct.unpack_from("<IIIIIIIII", data, pos)
         px = list(struct.unpack_from(f"<{w * h}I", data, pos + 36))
-        out[nominal] = (w, h, xh, yh, px)
+        out.setdefault(nominal, []).append((w, h, xh, yh, px, delay))
     return out
 
 
 def cursor_file(shape, variant, colours=None):
     """The XCursor bytes for one shape: one image per size, hotspot scaled."""
-    doc = svg(shape, variant, colours)
+    n = frame_count(shape)
+    docs = [svg(shape, variant, colours, frame=i if n > 1 else None) for i in range(n)]
     hx, hy = SHAPES[shape][1]
     imgs = []
     for s in SIZES:
-        w, h, px = rasterise(doc, s)
-        imgs.append((s, w, h, min(w - 1, round(hx * s / BOX)), min(h - 1, round(hy * s / BOX)), px))
+        for doc in docs:
+            w, h, px = rasterise(doc, s)
+            imgs.append((s, w, h, min(w - 1, round(hx * s / BOX)), min(h - 1, round(hy * s / BOX)),
+                         px, FRAME_MS if n > 1 else 0))
     return xcursor_bytes(imgs)
 
 

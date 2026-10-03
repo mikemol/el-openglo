@@ -150,6 +150,13 @@ TIMELINE = [
     (19200, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 50, "jobState": 1}, "kio: copying"),
     (19900, "replace", 40, {"summary": "copying", "body": "", "applicationName": "kio", "type": 2, "percentage": 90, "jobState": 1}, "kio: copying"),
     (26500, "expire", 40, {}, ""),   # air for two rotations under load before the gauge is dropped
+    # W189 (W183 rulings 1 and 3): a replace of an item ON the board rolls its changed span in place and
+    # the run ends on the new text - no swap boundary between. replace_visible WAITS for the item to be
+    # on the board. The change is MID-text ("alpha beta" -> "alpha gamma beta"), so a suffix follows the
+    # widened span and the width-change stall (W241) runs too.
+    (27500, "arrive", 50, {"summary": "alpha beta", "body": "", "applicationName": "app"}, "app: alpha beta"),
+    (27600, "replace_visible", 50, {"summary": "alpha gamma beta", "body": "", "applicationName": "app"}, "app: alpha gamma beta"),
+    (32000, "expire", 50, {}, ""),
 ]
 END_MS = 40000            # the CAP; the main run ends when every event has fired and the board drained
 SAMPLE_MS = 40            # VIRTUAL ms: the animation driver's clock, not the wall's (W63)
@@ -189,9 +196,20 @@ Window {
     function rowOf(id) { var m = model(); for (var i = 0; i < m.rows.length; i++) if (m.rows[i].notificationId === id) return i; return -1; }
     function apply(step) {
         var m = model();
+        // W189: where the replaced item sat on the board at the moment of the replace, read
+        // from the widget BEFORE the model changes ("on", "ahead", "past" or "none"), and
+        // whether the replace changed the board's text at all (a job's progress replace does not)
+        var where = null, textChanged = null;
         if (step.op === "arrive") m.append(Object.assign({ notificationId: step.id }, step.fields));
         else if (step.op === "expire") { var r = rowOf(step.id); if (r >= 0) m.remove(r); }
-        else if (step.op === "replace") { var r2 = rowOf(step.id); if (r2 >= 0) m.set(r2, Object.assign({ notificationId: step.id }, step.fields)); }
+        else if (step.op === "replace" || step.op === "replace_visible") {
+            // replace_visible WAITS until the item is on the board, so the roll path is exercised
+            // whatever the host's load does to the timing (as a tap waits for its text)
+            where = subject.item.spanWhere(step.id);
+            if (step.op === "replace_visible" && where !== "on") { harness.pendingReplaces.push(step); return; }
+            textChanged = subject.item.tickerText.indexOf(step.shows) < 0;
+            var r2 = rowOf(step.id); if (r2 >= 0) m.set(r2, Object.assign({ notificationId: step.id }, step.fields));
+        }
         else if (step.op === "flash") { m.append(Object.assign({ notificationId: step.id }, step.fields)); m.remove(rowOf(step.id)); }
         else if (step.op === "silent") m.appendSilently(Object.assign({ notificationId: step.id }, step.fields));
         // W46: tap the board where a run of the given text sits (its first character's
@@ -206,11 +224,23 @@ Window {
             if (pos >= 0 && s0.charCentre(pos) >= 0) harness.tapChar(pos);
             else harness.pendingTaps.push(step);
         }
-        events.push({ t: clock.elapsed(), op: step.op, id: step.id, shows: step.shows, fields: step.fields });
+        events.push({ t: clock.elapsed(), op: step.op === "replace_visible" ? "replace" : step.op, id: step.id, shows: step.shows,
+                      fields: step.fields, where: where, textChanged: textChanged });
     }
     property var timeline: %(timeline)s
     property int next: 0
     property var pendingTaps: []
+    // W189: replaces waiting for their item to be on the board
+    property var pendingReplaces: []
+    function retryReplaces() {
+        var keep = [], todo = harness.pendingReplaces;
+        harness.pendingReplaces = [];
+        for (var i = 0; i < todo.length; i++) {
+            if (subject.item.spanWhere(todo[i].id) === "on") apply(todo[i]);
+            else keep.push(todo[i]);
+        }
+        harness.pendingReplaces = harness.pendingReplaces.concat(keep);
+    }
     function retryTaps() {
         var s0 = subject.item, keep = [];
         for (var i = 0; i < harness.pendingTaps.length; i++) {
@@ -257,6 +287,7 @@ Window {
             var now = clock.elapsed();
             while (harness.next < timeline.length && timeline[harness.next].t <= now) { apply(timeline[harness.next]); harness.next += 1; }
             if (harness.pendingTaps.length) harness.retryTaps();
+            if (harness.pendingReplaces.length) harness.retryReplaces();
             var s = subject.item;
             // R9: a frame series drives the run by steps, never by the clock
             if (%(frames)s && s.captureSteps === 0) s.captureSteps = %(capture_steps)d;
@@ -265,7 +296,9 @@ Window {
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
                            hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText,
                            tap: s.lastTap, invoked: model().invoked, series: s.paintedSeries,
-                           flash: s.flashLit });
+                           flash: s.flashLit,
+                           // W189: the replace roll's progress while one is live, else null
+                           roll: s.roll ? s.rollProgress : null });
             if (s.boardPaused) harness.pausedSeen += 1;
             // W52: a screenshot at the first sample with the text mid-board (its left
             // edge inside the board, still running), and one while the pulse holds it.
@@ -306,7 +339,7 @@ Window {
             // the hovered run once enough paused samples are seen; the main run
             // once every event has fired and the board has drained (text empty,
             // not running) — a loaded host stretches the timeline and a fixed cap lied
-            var drained = harness.next >= timeline.length && s.tickerText === "" && !s.boardRunning && harness.sawText;
+            var drained = harness.next >= timeline.length && harness.pendingReplaces.length === 0 && s.tickerText === "" && !s.boardRunning && harness.sawText;
             if (s.tickerText !== "") harness.sawText = true;
             if ((%(stop_paused)d > 0 && harness.pausedSeen >= %(stop_paused)d) || (%(stop_paused)d === 0 && drained) || now >= %(end)d) {
                 harness.done = true;
@@ -652,8 +685,10 @@ def measure(res, hovered=None, variant=VARIANT):
     scheme (W35); `expected` carries that variant's tokens for the binding rule."""
     if res is None:
         return {"runner": False, "variant": variant, "expected": expected_colors(variant),
-                "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}}
+                "events": [], "samples": [], "width": 0, "log": [], "hovered": {"samples": []}, "expects_roll": False}
     return {"runner": True, "variant": variant, "expected": expected_colors(variant),
+            # W189 (L13): the timeline holds a replace of a visible item, so one MUST be measured on the board
+            "expects_roll": any(step[1] == "replace_visible" for step in TIMELINE),
             "events": res["events"], "samples": mark_boundaries(res["samples"]),
             "width": res["width"],
             "log": res.get("log", []),
@@ -785,7 +820,8 @@ def _selftest():
     # board was sampled across the whole run, the samples carry the observables,
     # and the hovered run has paused samples for the pulse rule to range over.
     # Whether the traces SATISFY the invariant is policy/marquee_live.rego's ruling.
-    chk("every timeline step became an event", [e["op"] for e in m["events"]], [s[1] for s in TIMELINE])
+    chk("every timeline step became an event", [e["op"] for e in m["events"]],
+        ["replace" if s[1] == "replace_visible" else s[1] for s in TIMELINE])
     last = m["samples"][-1]
     chk("the run ended with every event fired and the board drained",
         (m["events"][-1]["t"] <= last["t"], last["text"], last["running"]), (True, "", False))
@@ -796,7 +832,11 @@ def _selftest():
     # whose consumers were never told.
     chk("a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74)",
         sorted(m["samples"][0].keys()),
-        ["boundary", "count", "flash", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "running", "series", "t", "tap", "text", "w", "x"])
+        ["boundary", "count", "flash", "ghost", "ground", "hot", "ink", "invoked", "lit", "painted", "paused", "raw", "ring", "roll", "running", "series", "t", "tap", "text", "w", "x"])
+    # W189: the replace of a visible item was taken on the board, and its roll was SEEN
+    rolled = [e for e in m["events"] if e["op"] == "replace" and e.get("where") == "on" and e.get("textChanged")]
+    chk("a replace of an item on the board was measured as on the board (not a vacuous population)", len(rolled), 1)
+    chk("...and some sample caught the roll mid-way", any(s.get("roll") is not None and 0 < s["roll"] < 1 for s in m["samples"]), True)
     # ⚑ AND THE BOUNDARY FLAG MUST DISCRIMINATE: a run in which NOTHING is a
     # boundary, or EVERYTHING is, tells L3 nothing and would let the repair pass
     # by disarming the rule instead of correcting it.

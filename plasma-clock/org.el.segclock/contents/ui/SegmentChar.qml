@@ -74,6 +74,18 @@ Item {
     // either — that calibration is the next step, not this one. 0 = flat
     // (today's behaviour, unchanged).
     property real litGradient: 0.35
+    // ⊕BOUNDARY-DEPTH (W216, axis 2): how far from each tip, as a fraction of the
+    // segment's length, the fade reaches before it is fully lit. The stops sit at
+    // d and 1-d, so the profile is centre-fed and mirror-invariant for EVERY d (a
+    // plateau of 1-2d in the middle; d = 0.5 is the old straight ramp to the
+    // midpoint, d = 0 a flat segment with a hard tip). Clamped to 0.5 so the
+    // stops stay ordered. DEFAULT 0.5 = TODAY'S RENDER, unchanged: the property
+    // exists and its mirror property is gated, but no depth has been looked at
+    // rendered yet, so none is shipped as a restyle. Calibrating it (render the
+    // clock at 4x at 0.5 against 0.4, render_qml --texture) is W216's open step and
+    // an operator-visible choice. check_symmetry holds the mirror property at
+    // several depths.
+    property real boundaryDepth: 0.5
 
     readonly property real colonSlot: segLen * colonAdvance
     // whole pixels (W164): the colon is the face's mirror-centre, so a fractional dot
@@ -189,7 +201,8 @@ Item {
         readonly property Gradient litGrad: Gradient {
             orientation: horiz ? Gradient.Horizontal : Gradient.Vertical
             GradientStop { position: 0.0; color: Qt.rgba(sc.litColor.r, sc.litColor.g, sc.litColor.b, 1.0 - sc.litGradient) }
-            GradientStop { position: 0.5; color: sc.litColor }
+            GradientStop { position: Math.min(0.5, sc.boundaryDepth); color: sc.litColor }
+            GradientStop { position: 1.0 - Math.min(0.5, sc.boundaryDepth); color: sc.litColor }
             GradientStop { position: 1.0; color: Qt.rgba(sc.litColor.r, sc.litColor.g, sc.litColor.b, 1.0 - sc.litGradient) }
         }
         gradient: lit && sc.litGradient > 0 ? litGrad : null

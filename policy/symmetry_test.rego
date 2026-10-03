@@ -5,7 +5,43 @@ import rego.v1
 
 board := {"label": "marquee-field", "variant": "EL-Amber", "pip_widths": [3], "gaps": [1], "columns": 105}
 
-good := {"cases": [], "grids": [board], "noise": 12}
+grad_ok := {"label": "gradient-d0.2", "depth": 0.2, "stops": [
+	{"pos": 0.0, "lit": false}, {"pos": 0.2, "lit": true}, {"pos": 0.8, "lit": true}, {"pos": 1.0, "lit": false},
+]}
+
+good := {"cases": [], "grids": [board], "gradients": [grad_ok], "noise": 12}
+
+# W216: the lit profile is centre-fed - every stop has its mirror at 1-pos, same fade
+test_y5_admits_a_centre_fed_profile if {
+	count(p.deny) == 0 with input as good
+}
+
+test_y5_refuses_a_one_sided_profile if {
+	one := object.union(grad_ok, {"stops": [{"pos": 0.0, "lit": false}, {"pos": 0.3, "lit": true}, {"pos": 1.0, "lit": true}]})
+	some m in p.deny with input as object.union(good, {"gradients": [one]})
+	startswith(m, "Y5: gradient-d0.2")
+}
+
+test_y5_refuses_a_stop_mirrored_at_the_wrong_fade if {
+	skew := object.union(grad_ok, {"stops": [{"pos": 0.0, "lit": false}, {"pos": 1.0, "lit": true}]})
+	some m in p.deny with input as object.union(good, {"gradients": [skew]})
+	startswith(m, "Y5: gradient-d0.2")
+}
+
+test_y5_refuses_no_profile_population if {
+	some m in p.deny with input as {"cases": [], "grids": [board], "gradients": []}
+	startswith(m, "Y5:")
+	some n in p.deny with input as {"grids": [board]}
+	startswith(n, "Y5:")
+}
+
+test_y5_withholds_an_unreadable_profile if {
+	g := {"label": "gradient-d0.2", "depth": 0.2, "stops": null}
+	inp := object.union(good, {"gradients": [g]})
+	some m in p.withheld with input as inp
+	startswith(m, "W: gradient-d0.2")
+	count(p.deny) == 0 with input as inp
+}
 
 test_admits_a_regular_board if {
 	count(p.deny) == 0 with input as good

@@ -48,6 +48,21 @@ test_d1_refuses_identical_colours if {
 	}
 }
 
+# W199: the fallback colour is unchecked, so its variant is withheld, not admitted;
+# the other variant is still judged and admitted (a SKIP beside admitted cases).
+test_w1_withholds_a_variant_filled_by_the_fallback if {
+	inf := object.union(good, {"infeasible": [{"variant": "EL-Azure", "slots": ["neu", "pos"]}]})
+	msgs := p.withheld with input as inf
+	msgs == {"W1: EL-Azure: slot(s) neu,pos filled by the unchecked solver fallback"}
+	count(p.admitted) == 2 with input as inf
+	count(p.deny) == 0 with input as inf
+}
+
+test_w1_a_feasible_palette_withholds_nothing if {
+	count(p.withheld) == 0 with input as good
+	count(p.withheld) == 0 with input as object.union(good, {"infeasible": []})
+}
+
 test_d1_the_floor_is_inclusive if {
 	at := object.union(good, {"cases": [object.union(c, {"dE": 8.8}) | some c in good.cases]})
 	count(p.deny) == 0 with input as at

@@ -128,6 +128,79 @@ test_l3_still_refuses_a_tear_when_boundaries_exist if {
 	startswith(msg, "L3:")
 }
 
+# W189 / L13: a replace of the visible item rolls and ends on the new text
+roll_events := [
+	{"t": 300, "op": "arrive", "id": 1, "shows": "app: hello"},
+	{"t": 700, "op": "replace", "id": 1, "shows": "app: hallo", "where": "on", "textChanged": true},
+]
+
+roll_ok := {"runner": true, "width": 420, "expects_roll": true, "hovered": {"samples": []}, "events": roll_events, "samples": [
+	{"t": 300, "text": "app: hello", "x": 421, "running": false, "count": 1, "boundary": false, "roll": null},
+	{"t": 340, "text": "app: hello", "x": 400, "running": true, "count": 1, "boundary": false, "roll": null},
+	{"t": 680, "text": "app: hello", "x": 250, "running": true, "count": 1, "boundary": false, "roll": null},
+	{"t": 720, "text": "app: hallo", "x": 240, "running": true, "count": 1, "boundary": false, "roll": 0.1},
+	{"t": 800, "text": "app: hallo", "x": 220, "running": true, "count": 1, "boundary": false, "roll": 0.5},
+	{"t": 1100, "text": "app: hallo", "x": 150, "running": true, "count": 1, "boundary": false, "roll": null},
+]}
+
+test_l13_admits_a_rolled_replace if {
+	count([m | some m in ml.deny with input as roll_ok; startswith(m, "L13:")]) == 0
+	count([m | some m in ml.deny with input as roll_ok; startswith(m, "L3:")]) == 0
+}
+
+# the text changed at the event but no frame was ever mid-roll: an instant swap
+test_l13_refuses_a_replace_with_no_roll_frame if {
+	instant := object.union(roll_ok, {"samples": [
+		{"t": 680, "text": "app: hello", "x": 250, "running": true, "count": 1, "boundary": false, "roll": null},
+		{"t": 720, "text": "app: hallo", "x": 240, "running": true, "count": 1, "boundary": false, "roll": null},
+		{"t": 1100, "text": "app: hallo", "x": 150, "running": true, "count": 1, "boundary": false, "roll": null},
+	]})
+	some msg in ml.deny with input as instant
+	contains(msg, "no frame showed the roll")
+}
+
+# the new text only appears across a swap boundary: the replace was deferred, not taken in place
+test_l13_refuses_a_replace_deferred_to_the_boundary if {
+	deferred := object.union(roll_ok, {"samples": [
+		{"t": 680, "text": "app: hello", "x": 250, "running": true, "count": 1, "boundary": false, "roll": null},
+		{"t": 720, "text": "app: hello", "x": 240, "running": true, "count": 1, "boundary": false, "roll": 0.5},
+		{"t": 900, "text": "app: hallo", "x": 400, "running": true, "count": 1, "boundary": true, "roll": null},
+	]})
+	some msg in ml.deny with input as deferred
+	contains(msg, "without a swap boundary")
+}
+
+# a replace that never ends the roll (roll stuck mid-way) never ends on the new text
+test_l13_refuses_a_roll_that_never_ends if {
+	stuck := object.union(roll_ok, {"samples": [
+		{"t": 680, "text": "app: hello", "x": 250, "running": true, "count": 1, "boundary": false, "roll": null},
+		{"t": 720, "text": "app: hallo", "x": 240, "running": true, "count": 1, "boundary": false, "roll": 0.5},
+		{"t": 1100, "text": "app: hallo", "x": 150, "running": true, "count": 1, "boundary": false, "roll": 0.6},
+	]})
+	some msg in ml.deny with input as stuck
+	contains(msg, "without a swap boundary")
+}
+
+# the timeline expects a roll and the replace never reached the board: nothing was judged
+test_l13_refuses_an_empty_roll_population if {
+	missed := object.union(roll_ok, {"events": [
+		{"t": 300, "op": "arrive", "id": 1, "shows": "app: hello"},
+		{"t": 700, "op": "replace", "id": 1, "shows": "app: hallo", "where": "past", "textChanged": true},
+	]})
+	"L13: the timeline holds a replace of a visible item and none was measured on the board; nothing was judged" in ml.deny with input as missed
+}
+
+# a replace that did NOT roll but changed the board off a boundary is still L3's tear when it
+# was scrolled past (not in place)
+test_l3_still_refuses_a_replace_scrolled_past if {
+	past := object.union(roll_ok, {"events": [
+		{"t": 300, "op": "arrive", "id": 1, "shows": "app: hello"},
+		{"t": 700, "op": "replace", "id": 1, "shows": "app: hallo", "where": "past", "textChanged": true},
+	], "expects_roll": false})
+	some msg in ml.deny with input as past
+	startswith(msg, "L3:")
+}
+
 test_l4_refuses_a_forward_jump if {
 	jumpy := object.union(clean, {"samples": [
 		{"t": 300, "text": "app: hello", "x": 300, "running": true, "count": 1},

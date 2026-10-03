@@ -268,6 +268,37 @@ def segment_fit(im, segs, iters=4):
             "offenders": sorted(s for s, r in resid.items() if r > FIT_TOL)}
 
 
+DEPTHS = (0.0, 0.2, 0.4, 0.5, 0.9)   # boundaryDepth values the profile is evaluated at (W216)
+
+
+def gradient_profile(qml, depth):
+    """The lit segment's GradientStop profile at one boundaryDepth, read from the
+    emitted SegmentChar: [{"pos": float, "lit": bool}] — `lit` true for a stop whose
+    colour is the plain litColor (fully fed), false for a faded one. Positions are
+    the template's own expressions evaluated with sc.boundaryDepth = depth, so the
+    measurement reads the document, not a copy of its intent. None when no
+    GradientStop is found or an expression is not plain arithmetic.
+    WEAKNESS: evaluates Math.min / numbers / + - only; it reads the stops' positions
+    and fade class, not the rendered pixels (the glyph mirror cases do that)."""
+    import re
+    out = []
+    for m in re.finditer(r"GradientStop\s*\{\s*position:\s*([^;]+);\s*color:\s*([^}]+)\}", qml):
+        expr = m.group(1).strip().replace("sc.boundaryDepth", repr(float(depth)))
+        expr = expr.replace("Math.min", "min")
+        if not re.fullmatch(r"[0-9.+\-*/(), min]*", expr):
+            return None
+        out.append({"pos": round(float(eval(expr, {"__builtins__": {}}, {"min": min})), 6),
+                    "lit": m.group(2).strip() == "sc.litColor"})
+    return out or None
+
+
+def gradient_cases(depths=DEPTHS):
+    """W216: the lit segment's fade profile at each depth, for policy Y5 to mirror."""
+    import make_segment_display as SD
+    qml = SD.segment_char_component()
+    return [{"label": f"gradient-d{d}", "depth": d, "stops": gradient_profile(qml, d)} for d in depths]
+
+
 def measure(cases=CASES, variant=VARIANT):
     import render_qml as RQ
     from PIL import Image
@@ -302,7 +333,8 @@ def measure(cases=CASES, variant=VARIANT):
         rows.append(row)
     # W166: the matrix glyph cases, wired once W168 made their crop real (19x27 px =
     # 5 pips, at the frame nearest a whole-pip phase on the scrolling run)
-    return {"cases": rows + matrix_cases(), "grids": grid_cases(), "noise": NOISE}
+    return {"cases": rows + matrix_cases(), "grids": grid_cases(), "gradients": gradient_cases(),
+            "noise": NOISE}
 
 
 # W166: the matrix's MIRROR, per glyph. A self-mirror glyph is the app name of one
@@ -657,6 +689,17 @@ def _selftest():
                             ghosted.putpixel((gx + c * 4 + dx, 2 + r * 4 + dy), (255, 210, 0))
     chk("with ghost pips above half the peak, the crop is still the first glyph",
         first_glyph_box(ghosted), (2, 2, 21, 29))
+    # ...the gradient profile reads the template's own stops (W216): centre-fed at every depth
+    import make_segment_display as SD
+    prof = gradient_profile(SD.segment_char_component(), 0.2)
+    chk("the profile has four stops at depth 0.2", [s["pos"] for s in (prof or [])], [0.0, 0.2, 0.8, 1.0])
+    chk("...faded at the tips, lit between", [s["lit"] for s in (prof or [])], [False, True, True, False])
+    one_sided = ("GradientStop { position: 0.0; color: Qt.rgba(1,1,1,0.5) }"
+                 " GradientStop { position: 0.3; color: sc.litColor }")
+    chk("a one-sided template reads as two stops (policy refuses it)",
+        [s["pos"] for s in gradient_profile(one_sided, 0.2) or []], [0.0, 0.3])
+    chk("an expression that is not arithmetic is not evaluated",
+        gradient_profile("GradientStop { position: __import__('os'); color: sc.litColor }", 0.2), None)
     print("check_symmetry selftest:", "PASS" if ok else "FAIL")
     return ok
 
