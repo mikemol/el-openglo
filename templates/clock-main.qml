@@ -22,9 +22,12 @@ $tables
     // across the variants (W23) and so bakeable in one package. The ghost
     // segments were drawn OPAQUE here, so the seen ghost was the declared
     // colour rather than its composite over the ground the palette solved for.
-    // the unlit opacity: the palette's solved alpha unless the user overrides it (operator 2026-10-03)
-    property real ghostAlpha: (plasmoid.configuration.ghostAlpha === undefined) ? $ghostAlpha
-                              : plasmoid.configuration.ghostAlpha
+    property real ghostAlpha: $ghostAlpha
+    // the unlit opacity actually drawn: the solved alpha above unless the user overrides it (operator
+    // 2026-10-03: "too high and not adjustable"). The baked literal stays a bare number so
+    // check_ghost_surfaces still reads what the palette solved.
+    property real cfgGhostAlpha: (plasmoid.configuration.ghostAlpha === undefined) ? ghostAlpha
+                                 : plasmoid.configuration.ghostAlpha
     property int segLen: Math.max(6, Math.floor(height * 0.42))
     // stroke base in segLen: the substrate's module stroke (0.105 H) at weight=1
     property int segThick: Math.max(2, Math.floor(segLen * $strokeBase))
@@ -125,7 +128,7 @@ $tables
                     cellGap: segRow.spacing
                     litColor: root.litColor
                     ghostColor: root.ghostColor
-                    ghostAlpha: root.ghostAlpha
+                    ghostAlpha: root.cfgGhostAlpha
                     showGhost: plasmoid.configuration.showGhost
                     weight: root.weight
                     ghostWeight: root.ghostWeight
