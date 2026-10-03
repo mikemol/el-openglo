@@ -5800,23 +5800,21 @@
     {
       "symbol": "W263",
       "title": "Clock plasmoid ignores its configuration dialog and renders unreadable (operator saw 88:88-like segments): find why the config keys do not reach SegmentChar",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "clock",
         "SegmentChar",
         "check_config_load"
       ],
-      "blocked_on": [
-        "W265"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "W265 (stroke quantisation) is the substantive fix for readability; W264 witnesses reach; decide the default ghost alpha with the operator after W265 renders.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Remaining after W265: the DEFAULT bloom 4.0 halo radius (strokeLit*2*bloom px, ~24 px at 48 px) lifts the whole face colour; bound the halo in stroke widths and gate it (ground wash fraction); and the DEFAULT ghost alpha 0.566 is a palette-solved relation (operator decision after seeing W265 renders). Reach witness is W264.",
       "evidence": "2026-10-03: Operator report 2026-10-03 (screenshot: EL Segment Clock Settings with lit weight high, unlit weight 0, pitch low, bloom ~65%; the panel clock shows near-88:88 blobs; \"I bet tesseract would say 88:88\"). MEASURED in the render harness (render_qml clock 160x48, RHI/llvmpipe, EL-Openglo): config DOES reach the pixels there (showGhost=false drops ghost-ish 206 -> 6; bloom 0/1/2.5/4 gives other-pixels 762/3559/5439/5960 of 7680, ground 6072/3174/1432/994). So the harness does not reproduce \"ignores\"; it reproduces the UNREADABLE face: the halo is blurMax = round(strokeLit*2*bloom) px (SegmentChar.qml L127), ~24 px at the default bloom 4.0 on a 48 px panel, i.e. half the digit height, and the modal colour of the whole face moves from ground #0c1f1a to #142c26. Past ~2.5 the wash saturates, so moving the dialog slider between 65% and 100% changes nothing visible, which can read as the dialog being ignored. NOT verified: that the real Plasma applet receives the dialog values (no Plasma runtime here; check_config_page proves only that each kcfg entry declares value+default and each mount names its key). tesseract is installed (/usr/bin/tesseract) but read nothing from the raw render (no inversion/scale), so no OCR verdict yet. | 2026-10-03: Operator follow-ups 2026-10-03: (1) even without bloom the face is near-unreadable and the unlit stroke weight is nonresponsive; (2) ghost brightness too high and not adjustable. MEASURED: Segment snaps every stroke to an even integer >= 2 px (SegmentChar t = 2*max(1,round(thick/2))) and segThick floors at 2 at 48 px, so lit (2.5 -> 2 px) and unlit (0.4*2 = 0.8 -> 2 px) are the SAME stroke and the lit/unlit distinction is opacity alone (palette-solved ghost alpha 0.566, high); the unlit slider floor was 0.3, inside the dead zone. SHIPPED: unlit weight 0 = no ghost (slider floor now 0); clock exposes Unlit opacity (default the solved alpha, 0-1; verified 0.05 vs 0.9 differ on screen; baked literal kept as ghostAlpha, override in cfgGhostAlpha). NOT FIXED: the stroke quantisation (W265, operator-visible restyle) and the high DEFAULT ghost alpha (a palette-solved relation: re-solving it is a W-level change, not a dialog fix). Mistake of mine: my first version replaced the baked alpha literal and check_ghost_surfaces refused 6 of 6 clock variants while the commit still passed (cotype is non-blocking): fixed next commit, gate gap minted as W266.",
       "issued_at": "2026-10-03T22:04:32Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-03T23:09:03Z",
+      "last_worked": "2026-10-03T23:32:47Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:N",
@@ -5825,7 +5823,7 @@
     {
       "symbol": "W264",
       "title": "Witness that every clock kcfg key reaches the pixels: render at min and max per key (render_qml --set), fail a key whose two renders are identical unless declared inert",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W263"
       ],
@@ -5836,20 +5834,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Add a --sweep mode to render_qml (or a check_config_reach.py with --json, policy, selftest): per kcfg key of the clock, render at the entry min and max, count differing pixels; a key whose renders are identical and is not declared inert is a defect. Positive control: showGhost and bloom differ. Refusing case: a key the template never reads.",
+      "next_bounded_step": "FIRST freeze time in the render harness: add a documented rewrite of the clock Timer new Date() to a fixed instant in plasma_rewrite.SUBSTITUTIONS (so a clock render no longer varies with the wall minute: today a before/after across runs is confounded). THEN the reach witness: per kcfg key of the clock render at its min and max (render_qml --set), count differing pixels, fail a key that changes nothing unless declared inert; positive control showGhost, ghostAlpha, weight; refusing case a key the template never reads. Use cmp-level equality on the PNG bytes (deterministic once time is frozen).",
       "evidence": "",
       "issued_at": "2026-10-03T22:07:59Z",
       "minted_during": "interrupt",
       "caused_by": "W263",
-      "last_worked": "2026-10-03T22:08:08Z",
+      "last_worked": "2026-10-03T23:32:47Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W265",
       "title": "Clock and wallpaper strokes quantise to even integers of at least 2 px: at panel sizes lit (2.5) and unlit (0.8) both draw 2 px, so the weight sliders are dead; make weights act below the grid",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W263"
       ],
@@ -5859,16 +5858,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Options to put to the operator with before/after renders at H=36/48/64: (A) coverage-by-opacity below the grid (stroke stays 2 px, its alpha scales by thick/2), (B) supersampled layer (render 2x, scale down), (C) odd-width strokes with exact-centre placement if W57 symmetry can hold at half-pixels. Measure each with check_symmetry and an OCR legibility score before asking.",
-      "evidence": "2026-10-03: Computed from the templates (segLen = floor(H*0.42), segThick = max(2, floor(segLen*0.084)), Segment t = 2*max(1, round(thick/2))): panel heights 36/48/64 give segLen 15/20/26, segThick 2/2/2, so lit and unlit are both 2 px at every height below ~95 px (segThick 3 from H=96, 4 from H=115). The weight sliders can only act on a face taller than ~95 px.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: Computed from the templates (segLen = floor(H*0.42), segThick = max(2, floor(segLen*0.084)), Segment t = 2*max(1, round(thick/2))): panel heights 36/48/64 give segLen 15/20/26, segThick 2/2/2, so lit and unlit are both 2 px at every height below ~95 px (segThick 3 from H=96, 4 from H=115). The weight sliders can only act on a face taller than ~95 px. | 2026-10-03: DONE (commits this tick). CORRECTION to my earlier evidence: segThick is 3 at 48 px (strokeBase 0.169, segLen 20), not 2; the ghost 0.4 x 3 = 1.2 px snapped to 2 and the lit 3..3.75 px both snapped to 4, so lit was 2x the ghost by default but the lit weight slider moved nothing (renders byte-identical at weight 0 and 1, same minute). SHIPPED: unlit stroke weight below the grid acts as coverage (opacity x thick/t); lit weight acts via crisp stroke at the grid width at or below the request plus a same-colour underlay one step wider at the fraction reached (litLowT, litExtra); weights 0 and 1 now differ visibly. LESSON, recorded as the missing tool: renders of the clock vary with the wall-clock minute (digits), so a before/after comparison across runs is confounded (my first reading of the pixel counts was); W264 needs a frozen time in the harness (a documented rewrite of new Date() in plasma_rewrite.SUBSTITUTIONS) before a reach witness can compare renders.",
       "issued_at": "2026-10-03T22:49:11Z",
       "minted_during": "interrupt",
       "caused_by": "W263",
-      "last_worked": "2026-10-03T23:09:03Z",
+      "last_worked": "2026-10-03T23:32:39Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null
+      "completed": "20261003T233239Z"
     },
     {
       "symbol": "W266",

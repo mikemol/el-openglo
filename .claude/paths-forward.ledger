@@ -607,3 +607,4 @@
 2026-10-03T22:49:36Z  tick  W265 minted    collapse  "clock strokes quantise to the same 2 px at panel size; W266 gate gap; both minted from the operator clock report"  evidence=W263 evidence
 2026-10-03T22:58:43Z  hash  --   diverged  --        "divergence: payload v2:141d60fcc0ae7039, file v2:eb67579a617946db; the FILE wins"
 2026-10-03T23:08:35Z  tick  W266 done      advanced  "check_ghost_surfaces is now a cited, blocking warrant"  evidence=warrants.bib GHOST-SURFACES
+2026-10-03T23:32:39Z  tick  W265 done      advanced  "stroke weights act below the pixel grid: unlit by coverage, lit by a same-colour underlay"  evidence=weight 0 vs 1 renders differ (cmp)

@@ -770,6 +770,20 @@
   section  = {emitters}
 }
 
+@misc{CONFIG-REACH,
+  claim    = {Every setting of the clock's configuration dialog changes what the clock draws: rendered at the low and at the high end of its control (frozen instant, every other key at its default) the two pictures differ, or the key is declared inert with the reason it cannot show in one still - the lit and unlit stroke weights and the unlit opacity were dead at panel size and every other gate was green (operator, 2026-10-03: does lit stroke weight even do anything), R0-R2},
+  rests-on = {CONFIG-PAGE},
+  check    = {tool:opa_gate.py config_reach},
+  section  = {emitters}
+}
+
+@misc{CONFIG-REACH-SEES,
+  claim    = {The reach measurement is shown to see a key the template reads change the picture and a key it never reads leave it byte-identical, against the same renderer, and policy/config_reach_test.rego holds that a dead setting is refused, an empty population refused and an unmeasured key withheld},
+  rests-on = {CONFIG-REACH},
+  check    = {tool:check_config_reach.py --selftest},
+  section  = {emitters}
+}
+
 @misc{APERTURE,
   claim    = {The aperture field's brightness relation holds on seen pixels under every variant's scheme and the software scene graph: a clear pip reads the ghost floor, a pip half under a backdrop edge reads halfway to lit, a covered pip reads the lit token (A0-A4)},
   check    = {tool:opa_gate.py aperture},

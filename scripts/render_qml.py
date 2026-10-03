@@ -211,6 +211,15 @@ Window {
 # DURING one process is not re-read — a process is one build.
 _EMITTED: dict[tuple[str, str | None], tuple[str, str]] = {}
 
+# ⚑ THE CLOCK READS THE WALL (W264). The clock and the live wallpaper draw `new Date()`, so a render
+# showed whatever minute it ran in, and two renders a minute apart were different pictures: a
+# before/after across runs was confounded by the digits (measured 2026-10-03: a lit-weight
+# comparison read as an effect until the minute was held). The harness freezes the instant, so a
+# render is a function of its inputs. 13:34:56 differs between a 24-hour face (1334) and a 12-hour
+# one (0134), so the 24-hour key reaches the pixels at a single still.
+FROZEN_NOW = "new Date(2026, 0, 1, 13, 34, 56)"
+FROZEN_SURFACES = ("clock", "live-wallpaper")
+
 
 def subject(surface, variant):
     """(emitted QML rewritten for the harness, config defaults, ground colour)."""
@@ -276,6 +285,12 @@ def _emit(surface, variant):
         raise ValueError(
             f"unknown surface {surface!r}; clock, live-wallpaper, switcher, aperture, aperture-text or sddm"
         )
+    if surface in FROZEN_SURFACES:
+        qml, frozen = re.subn(r"new Date\(\)", FROZEN_NOW, qml)
+        if surface == "clock" and frozen == 0:
+            raise ValueError(
+                "clock rewrite: `new Date()` matched nothing — the template moved under the harness"
+            )
     for pat, rep in SUBSTITUTIONS:
         qml = re.sub(pat, rep, qml, flags=re.MULTILINE)
     return qml, kcfg
