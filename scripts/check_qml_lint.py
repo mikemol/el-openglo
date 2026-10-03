@@ -26,6 +26,7 @@ inside a NESTED block of the animation is out of its reach (none exist today).
     scripts/check_qml_lint.py --json     # the measurement the policy decides
     scripts/check_qml_lint.py --list     # the population and each document's measured facts
     scripts/check_qml_lint.py --uses NAME  # which documents instantiate component NAME
+    scripts/check_qml_lint.py --decls FILE.qml  # every property/function/signal, with line bounds
     scripts/check_qml_lint.py --selftest
 
 SKIP (printed, counted) when qmllint is absent — qml_sanity says so per document;
@@ -190,9 +191,66 @@ def uses(name, docs=None):
     ]
 
 
+DECL = re.compile(
+    r"^\s*(?:(?:readonly|default|required)\s+)*"
+    r"(?:(?P<prop>property)\s+(?:\w+(?:<[^>]*>)?\s+)?(?P<pname>\w+)\s*:?"
+    r"|(?P<func>function)\s+(?P<fname>\w+)\s*\("
+    r"|(?P<sig>signal)\s+(?P<sname>\w+))"
+)
+_NOISE = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|//[^\n]*')
+
+
+def decls(text):
+    """[(kind, name, first_line, last_line)] — every property, function and signal
+    declaration of one QML document, 1-based and inclusive. A declaration ends on the
+    line where its brackets close (a function body, a multi-line binding), else on its
+    own line.
+
+    ⚑ WEAKNESS, STATED. A text scan, not Qt's parser: string literals and `//` comments
+    are blanked before brackets are counted, but a `/* … */` block comment or a regex
+    literal holding a bracket would skew an end line, and a declaration whose head is
+    split over two lines is not seen. The first line is always right; the last can be
+    off only in those shapes."""
+    lines = [_NOISE.sub('""', ln) for ln in text.splitlines()]
+    out = []
+    for i, ln in enumerate(lines):
+        m = DECL.match(ln)
+        if not m:
+            continue
+        kind = "property" if m["prop"] else "function" if m["func"] else "signal"
+        name = m["pname"] or m["fname"] or m["sname"]
+        depth, end = 0, i
+        for j in range(i, len(lines)):
+            depth += sum(lines[j].count(c) for c in "{[(")
+            depth -= sum(lines[j].count(c) for c in "}])")
+            end = j
+            if depth <= 0:
+                break
+        out.append((kind, name, i + 1, end + 1))
+    return out
+
+
 def main(argv):
     known = {"--list", "--json", "--uses", "--selftest"}
     args = list(argv[1:])
+    if "--decls" in args:
+        i = args.index("--decls")
+        if i + 1 >= len(args):
+            print("check_qml_lint: --decls needs a .qml file path", file=sys.stderr)
+            return 2
+        path = args[i + 1]
+        with open(path, encoding="utf-8") as fh:
+            rows = decls(fh.read())
+        if not rows:
+            print(
+                f"check_qml_lint --decls: REFUSED — 0 declarations in {path}; the scan is broken or the file is not QML",
+                file=sys.stderr,
+            )
+            return 1
+        for kind, name, a, b in rows:
+            print(f"{kind:9s} {name:32s} L{a}-{b}")
+        print(f"check_qml_lint --decls {path}: {len(rows)} declarations")
+        return 0
     if "--uses" in args:
         i = args.index("--uses")
         if i + 1 >= len(args):
@@ -328,6 +386,33 @@ def _selftest():
         ),
         [("a.qml", 2), ("b.qml", 0), ("c.qml", None)],
     )
+    # --decls SEES a property, a multi-line function and a signal with their line
+    # bounds, and NOT a mention in a comment or a string
+    planted = (
+        "Item {\n"
+        '    // property var ghost: "not a declaration"\n'
+        "    property int alpha: 1\n"
+        "    readonly property var beta: ({\n"
+        "        a: 1\n"
+        "    })\n"
+        "    function gamma(x) {\n"
+        '        var s = "function delta("\n'
+        "        return x\n"
+        "    }\n"
+        "    signal epsilon(int v)\n"
+        "}\n"
+    )
+    chk(
+        "--decls reports kind, name and line bounds",
+        decls(planted),
+        [
+            ("property", "alpha", 3, 3),
+            ("property", "beta", 4, 6),
+            ("function", "gamma", 7, 10),
+            ("signal", "epsilon", 11, 11),
+        ],
+    )
+    chk("--decls over a document with none is empty", decls("Item { }\n"), [])
     print("check_qml_lint selftest:", "PASS" if ok else "FAIL")
     return ok
 
