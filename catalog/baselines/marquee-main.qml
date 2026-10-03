@@ -154,6 +154,12 @@ PlasmoidItem {
     property string paintedText: ""
     // ...and the column heights of every series (gauge) that paint drew (L11)
     property var paintedSeries: []
+    // ...and the NEW-text indices that paint painted through the plain path (W242): during a
+    // shortened replace's roll the suffix characters must be among them on every frame
+    property var paintedPlain: []
+    // ...and where the roll's new span ended in THAT paint (-1: no roll live), so the suffix
+    // [paintedRollEnd, text.length) is nameable from the same paint, never a later one
+    property int paintedRollEnd: -1
 
     function liveIds() {
         var ids = [];
@@ -561,7 +567,10 @@ PlasmoidItem {
             onBackdropSized: rep.drawBackdrop()
             onColsChanged: if (backdrop.available) rep.paintBackdrop()
             // the text's left edge on screen, in px: the observables the harness reads
-            onOffsetChanged: { root.boardRawX = rep.width - (offset / scale) * rep.pitch; root.boardX = root.boardRawX; }
+            // ⚑ boardX is where the TEXT's left edge sits: a shortened replace's leading segment slides right
+            // by progress x rollShift while its suffix holds (W241), so the edge is the raw edge plus that
+            // slide - continuous at the roll's start (0) and at its end (the shift the offset then absorbs) (W242)
+            onOffsetChanged: { root.boardRawX = rep.width - (offset / scale) * rep.pitch; root.boardX = root.boardRawX + (rep.rollShift * (root.roll ? root.rollProgress : 0) / scale) * rep.pitch; }
         }
 
         // one character advance, in backdrop cells: the glyph's columns plus a blank —
@@ -623,6 +632,7 @@ PlasmoidItem {
             var x0 = idle ? Math.round((cols - cells) / 2) : cols;
             var onCells = 0, inks = {};
             var seriesDrawn = [];
+            var plainDrawn = [];
             // ⚑ THE ROLL (W188; W183 design (b)). While root.roll is live, each cell of the
             // replace's span is painted from Body.rollCells at root.rollProgress: the old
             // glyph rising up and out, the new rising from below, in BACKDROP px, so the
@@ -673,6 +683,7 @@ PlasmoidItem {
                     if (!Body.paintsPlain(i, text.length, root.roll.span)) continue;
                 }
                 var ch = text.charAt(i);
+                plainDrawn.push(i);
                 var run = idle ? null : root.runAt(i);
                 // ⚑ THE GAUGE (W46; W48's painter, folded): a series run's characters are
                 // placeholders; at its first one the run's history is painted as COLUMNS —
@@ -739,6 +750,9 @@ PlasmoidItem {
             root.paintedInk = Object.keys(inks);
             root.paintedText = idle ? "" : text;
             root.paintedSeries = seriesDrawn;
+            root.paintedPlain = plainDrawn;
+            root.paintedRollEnd = (!idle && root.roll) ? root.roll.span.newEnd : -1;
+            root.boardX = root.boardRawX + (rep.rollShift * (root.roll ? root.rollProgress : 0) / field.scale) * rep.pitch;   // the text's edge follows the leading segment's slide (W242)
             if (idle) field.offset = 0;              // the idle face sits still, centred
             field.sample();
             var ink = 0;                              // the backdrop's ink, in backdrop pixels
@@ -764,7 +778,9 @@ PlasmoidItem {
             // the roll ended: the settled layout was the new one shifted right by the stall,
             // so the frame is handed back by lowering the offset by that shift (W241)
             function onRollChanged() {
-                if (!root.roll && rep.rollShift > 0) { field.offset -= rep.rollShift; rep.rollShift = 0; }
+                // the roll's slide ended at the full shift, and the offset now absorbs exactly that, so the text's
+                // left edge (raw + slide before, raw alone after) does not jump (W242)
+                if (!root.roll && rep.rollShift > 0) { var handed = rep.rollShift; rep.rollShift = 0; field.offset -= handed; }
                 if (field.backdrop.available) rep.drawBackdrop();
             }
             function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }

@@ -504,6 +504,40 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L14 — a shortened replace paints its suffix on every mid-roll frame (W242)"
+# description: |
+#   A SHORTENED replace's rolling-out old cells share their indices with the new text's
+#   SUFFIX, which the painter must still paint (Body.paintsPlain). `plainRollEnd` is where
+#   the roll's new span ended in the paint a sample's `plain` (the new-text indices painted
+#   plainly) and `painted` (the text drawn) came from, so all three are ONE paint: every
+#   index in [plainRollEnd, len(painted)) must be in `plain`. The pre-fix painter - which
+#   continued after the rolling-out cell - omits them and fails here. `expects_shorten` is
+#   the measurement's statement that its timeline holds such a replace: when it does and no
+#   sample judged a suffix, the population is empty and that is denied.
+suffix_judged(s) if {
+	pre := object.get(s, "plainRollEnd", -1)
+	pre >= 0
+	pre < count(object.get(s, "painted", ""))
+}
+
+deny contains msg if {
+	some s in input.samples
+	suffix_judged(s)
+	pre := s.plainRollEnd
+	plain := object.get(s, "plain", [])
+	missing := [i | some i in numbers.range(pre, count(s.painted) - 1); not i in plain]
+	count(missing) > 0
+	msg := sprintf("L14: at t=%v the roll's suffix characters %v of %q were not painted", [s.t, missing, s.painted])
+}
+
+deny contains msg if {
+	input.runner == true
+	object.get(input, "expects_shorten", false) == true
+	count([s | some s in input.samples; suffix_judged(s)]) == 0
+	msg := "L14: the timeline holds a shortened replace and no mid-roll paint judged its suffix; nothing was judged"
+}
+
+# METADATA
 # title: "W — the qml runner is absent"
 withheld contains msg if {
 	input.runner == false

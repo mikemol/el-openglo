@@ -181,6 +181,44 @@ test_l13_refuses_a_roll_that_never_ends if {
 	contains(msg, "without a swap boundary")
 }
 
+# W242 / L14: "alpha gamma beta" -> "alpha beta" (new text "alpha beta", span ends at index 6, suffix
+# "beta" = indices 6..9). Every mid-roll paint must put the suffix among the plainly painted indices.
+short_text := "app: alpha beta"
+
+short_ok := object.union(roll_ok, {"expects_shorten": true, "samples": [
+	{"t": 680, "text": "app: alpha gamma beta", "x": 250, "running": true, "count": 1, "boundary": false, "roll": null, "painted": "app: alpha gamma beta", "plain": [0, 1, 2], "plainRollEnd": -1},
+	{"t": 720, "text": short_text, "x": 240, "running": true, "count": 1, "boundary": false, "roll": 0.2, "painted": short_text, "plain": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "plainRollEnd": 12},
+	{"t": 800, "text": short_text, "x": 220, "running": true, "count": 1, "boundary": false, "roll": 0.6, "painted": short_text, "plain": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "plainRollEnd": 12},
+	{"t": 1100, "text": short_text, "x": 150, "running": true, "count": 1, "boundary": false, "roll": null, "painted": short_text, "plain": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14], "plainRollEnd": -1},
+]})
+
+test_l14_admits_a_painted_suffix if {
+	count([m | some m in ml.deny with input as short_ok; startswith(m, "L14:")]) == 0
+}
+
+# the pre-fix painter continued after the rolling-out cell: the suffix indices are missing mid-roll
+test_l14_refuses_a_dropped_suffix if {
+	dropped := object.union(short_ok, {"samples": [
+		{"t": 720, "text": short_text, "x": 240, "running": true, "count": 1, "boundary": false, "roll": 0.2, "painted": short_text, "plain": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "plainRollEnd": 12},
+		{"t": 800, "text": short_text, "x": 220, "running": true, "count": 1, "boundary": false, "roll": 0.6, "painted": short_text, "plain": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "plainRollEnd": 12},
+	]})
+	some msg in ml.deny with input as dropped
+	startswith(msg, "L14: at t=720 the roll's suffix characters [12, 13, 14]")
+}
+
+# a shortened replace is in the timeline but no paint judged a suffix: nothing was judged
+test_l14_refuses_an_empty_suffix_population if {
+	unjudged := object.union(short_ok, {"samples": [
+		{"t": 720, "text": short_text, "x": 240, "running": true, "count": 1, "boundary": false, "roll": 0.2},
+	]})
+	"L14: the timeline holds a shortened replace and no mid-roll paint judged its suffix; nothing was judged" in ml.deny with input as unjudged
+}
+
+# an absent plainRollEnd is not a judgement: older traces carry none and are not charged
+test_l14_ignores_samples_without_the_field if {
+	count([m | some m in ml.deny with input as roll_ok; startswith(m, "L14:")]) == 0
+}
+
 # the timeline expects a roll and the replace never reached the board: nothing was judged
 test_l13_refuses_an_empty_roll_population if {
 	missed := object.union(roll_ok, {"events": [

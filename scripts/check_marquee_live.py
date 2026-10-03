@@ -270,6 +270,23 @@ TIMELINE = [
         "app: alpha gamma beta",
     ),
     (32000, "expire", 50, {}, ""),
+    # W242: the SHORTENED replace ("alpha gamma beta" -> "alpha beta"): the rolling-out old cells
+    # share their indices with the new text's SUFFIX, which must still paint on every mid-roll frame
+    (
+        33000,
+        "arrive",
+        51,
+        {"summary": "alpha gamma beta", "body": "", "applicationName": "app"},
+        "app: alpha gamma beta",
+    ),
+    (
+        33100,
+        "replace_visible",
+        51,
+        {"summary": "alpha beta", "body": "", "applicationName": "app"},
+        "app: alpha beta",
+    ),
+    (37500, "expire", 51, {}, ""),
 ]
 END_MS = (
     40000  # the CAP; the main run ends when every event has fired and the board drained
@@ -409,11 +426,13 @@ Window {
             samples.push({ t: now, text: s.tickerText, x: s.boardX, raw: s.boardRawX, w: s.boardWidth, running: s.boardRunning,
                            paused: s.boardPaused, ring: s.ringOpacity, count: model().count,
                            lit: String(s.litColor), ghost: String(s.ghostColor), ground: String(s.voidColor),
-                           hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText,
+                           hot: String(s.hotColor), ink: s.paintedInk, painted: s.paintedText, plain: s.paintedPlain,
                            tap: s.lastTap, invoked: model().invoked, series: s.paintedSeries,
                            flash: s.flashLit,
                            // W189: the replace roll's progress while one is live, else null
-                           roll: s.roll ? s.rollProgress : null });
+                           roll: s.roll ? s.rollProgress : null,
+                           // W242: where the new span ended in the paint `plain` came from (-1: no roll)
+                           plainRollEnd: s.paintedRollEnd });
             if (s.boardPaused) harness.pausedSeen += 1;
             // W52: a screenshot at the first sample with the text mid-board (its left
             // edge inside the board, still running), and one while the pulse holds it.
@@ -918,6 +937,20 @@ def mark_boundaries(samples):
     return out
 
 
+def shortens(timeline):
+    """True iff the timeline holds a visible replace that SHORTENS its item's text (W242):
+    the replace's summary is shorter than the summary the same id arrived or last
+    changed to. That is the case whose suffix the painter once dropped mid-roll."""
+    last = {}
+    for _t, op, nid, fields, _shows in timeline:
+        text = fields.get("summary", "")
+        if op == "replace_visible" and len(text) < len(last.get(nid, text)):
+            return True
+        if op in ("arrive", "replace", "replace_visible"):
+            last[nid] = text
+    return False
+
+
 def measure(res, hovered=None, variant=VARIANT):
     """The measurement: the main run, and (W51) the HOVERED run — hover-pause on,
     the offscreen pointer at (0,0) holding the board — so the pulse rule has a
@@ -941,6 +974,8 @@ def measure(res, hovered=None, variant=VARIANT):
         "expected": expected_colors(variant),
         # W189 (L13): the timeline holds a replace of a visible item, so one MUST be measured on the board
         "expects_roll": any(step[1] == "replace_visible" for step in TIMELINE),
+        # W242 (L14): and one of them SHORTENS its text, so the suffix is judged mid-roll
+        "expects_shorten": shortens(TIMELINE),
         "events": res["events"],
         "samples": mark_boundaries(res["samples"]),
         "width": res["width"],
@@ -1076,6 +1111,15 @@ def main(argv):
                     else "held — the change waited for the boundary"
                 )
                 print(f"  {verdict}")
+            # the samples in the 700 ms after the event: the roll, the boundary flag, the paint's
+            # plain indices and where its roll ended (W242: x and roll beside each other)
+            for s in m["samples"]:
+                if e["t"] <= s["t"] < e["t"] + 700:
+                    print(
+                        f"    t={s['t']:6.0f} x={s['x']:7.1f} roll={s.get('roll')!s:5.5s} "
+                        f"boundary={s['boundary']!s:5s} rollEnd={s.get('plainRollEnd')} "
+                        f"plain={len(s.get('plain') or [])} of {len(s.get('painted') or '')}"
+                    )
         return 0
     if "--trace" in argv:
         print(
@@ -1139,7 +1183,7 @@ def _selftest():
     # than spot-checking a few: a sample that silently grows a field is a sample
     # whose consumers were never told.
     chk(
-        "a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74)",
+        "a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74), the paint's plain indices and roll end (W242)",
         sorted(m["samples"][0].keys()),
         [
             "boundary",
@@ -1153,6 +1197,8 @@ def _selftest():
             "lit",
             "painted",
             "paused",
+            "plain",
+            "plainRollEnd",
             "raw",
             "ring",
             "roll",
@@ -1172,9 +1218,14 @@ def _selftest():
         if e["op"] == "replace" and e.get("where") == "on" and e.get("textChanged")
     ]
     chk(
-        "a replace of an item on the board was measured as on the board (not a vacuous population)",
+        "two replaces of items on the board were measured as on the board, one lengthening and one shortening (not a vacuous population)",
         len(rolled),
-        1,
+        2,
+    )
+    chk(
+        "...and the timeline's shortening is recognised as one (W242)",
+        shortens(TIMELINE),
+        True,
     )
     chk(
         "...and some sample caught the roll mid-way",
