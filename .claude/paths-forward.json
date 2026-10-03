@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 266,
+  "counter": 267,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-03T21:16:17Z",
   "job_id": "a55bdcaa",
@@ -5823,7 +5823,7 @@
     {
       "symbol": "W264",
       "title": "Witness that every clock kcfg key reaches the pixels: render at min and max per key (render_qml --set), fail a key whose two renders are identical unless declared inert",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W263"
       ],
@@ -5834,16 +5834,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "FIRST freeze time in the render harness: add a documented rewrite of the clock Timer new Date() to a fixed instant in plasma_rewrite.SUBSTITUTIONS (so a clock render no longer varies with the wall minute: today a before/after across runs is confounded). THEN the reach witness: per kcfg key of the clock render at its min and max (render_qml --set), count differing pixels, fail a key that changes nothing unless declared inert; positive control showGhost, ghostAlpha, weight; refusing case a key the template never reads. Use cmp-level equality on the PNG bytes (deterministic once time is frozen).",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: DONE: scripts/check_config_reach.py (--json measurement, --selftest with live arms), policy/config_reach.rego + _test (opa test 8/8), warrants CONFIG-REACH and CONFIG-REACH-SEES, render_qml FROZEN_NOW so a clock render is a function of its inputs. Live: 9 clock keys, 8 reach the pixels, blinkColon declared inert (one still holds the colon lit either way). Scope: the CLOCK only; the live wallpaper and marquee have their own kcfg keys and the same blind spot (mint a card per mount if wanted). Weaknesses stated in the docstring (one size, one variant, low/high ends only, byte equality). Not run: paperkit Δ discriminate for the two new claims.",
       "issued_at": "2026-10-03T22:07:59Z",
       "minted_during": "interrupt",
       "caused_by": "W263",
-      "last_worked": "2026-10-03T23:32:47Z",
+      "last_worked": "2026-10-03T23:46:48Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null
+      "completed": "20261003T234648Z"
     },
     {
       "symbol": "W265",
@@ -5890,6 +5890,28 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": "20261003T230835Z"
+    },
+    {
+      "symbol": "W267",
+      "title": "Reach witness for the live wallpaper and the marquee settings (as check_config_reach does for the clock): the same dead-slider blind spot",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_config_reach",
+        "render_qml",
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Generalise check_config_reach over mounts: the wallpaper through render_qml live-wallpaper (frozen time already applies), the marquee through check_marquee_live (its keys act over time, so sample a short run per key end). Declare each unreachable-in-one-still key inert with its reason.",
+      "evidence": "",
+      "issued_at": "2026-10-03T23:46:48Z",
+      "minted_during": "interrupt",
+      "caused_by": "W264",
+      "last_worked": "2026-10-03T23:46:55Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [

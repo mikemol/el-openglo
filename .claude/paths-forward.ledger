@@ -608,3 +608,4 @@
 2026-10-03T22:58:43Z  hash  --   diverged  --        "divergence: payload v2:141d60fcc0ae7039, file v2:eb67579a617946db; the FILE wins"
 2026-10-03T23:08:35Z  tick  W266 done      advanced  "check_ghost_surfaces is now a cited, blocking warrant"  evidence=warrants.bib GHOST-SURFACES
 2026-10-03T23:32:39Z  tick  W265 done      advanced  "stroke weights act below the pixel grid: unlit by coverage, lit by a same-colour underlay"  evidence=weight 0 vs 1 renders differ (cmp)
+2026-10-03T23:46:48Z  tick  W264 done      advanced  "every clock setting measured to reach the pixels; render time frozen"  evidence=opa_gate config_reach admitted 9
