@@ -5562,25 +5562,23 @@
     {
       "symbol": "W253",
       "title": "Adopt mtools hooks: wire no-verify, shellcheck and pycheck in .claude/settings.json with a check_hooks probe each (effective at restart)",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [
         "hooks",
         "settings",
         "check_hooks"
       ],
-      "blocked_on": [
-        "W261"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "After W254 and W255: add no-verify, shellcheck and pycheck PreToolUse entries to .claude/settings.json (switches inline on each command: NOVERIFY_HOOK_BLOCK=1, SHELLCHECK_HOOK_BLOCK=1, PYCHECK_HOOK_BLOCK=1; matchers Bash / Bash|Edit|Write / Edit|Write per the mtools README), add a PROBES row per hook to scripts/check_hooks.py with refusing and admitting payloads, update policy/hooks.rego and its tests, run opa_gate hooks. no-verify and shellcheck may go first if mikemol-shellcheck --check-tree is clean.",
-      "evidence": "2026-10-03: 2026-10-03 OPERATOR: \"straight-up adopt mtools hooks. Trust mtools and nemik tooling\" and \"initial adoption often requires paying down debt\". Installed and NOT wired: mikemol-hook-no-verify, mikemol-hook-shellcheck, mikemol-hook-pycheck (and mikemol-hook-standing / -standing-stop exist in mtools hooks/bin, newer than our sha 03836cc: W256). Wired today: structural-query and no-chaining only. pycheck refuses a .py edit whose RESULT ruff or mypy flags, judged WHOLE-file against the project own bar (ruff default settings here), so a file with any finding refuses EVERY edit to it: 963 ruff findings today (138 EXE001, 235 SIM115, 137 I001, 77 ISC004, 72 PLW1510, ...). Settings are re-read only at restart, so wiring is safe to do before the debt is paid, but it is wired LAST so the next session is not locked out. no-verify and shellcheck cost nothing if the shell tree is clean. check_hooks measures every hook in settings.json by behaviour (PROBES) and needs a probe per new hook.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 OPERATOR: \"straight-up adopt mtools hooks. Trust mtools and nemik tooling\" and \"initial adoption often requires paying down debt\". Installed and NOT wired: mikemol-hook-no-verify, mikemol-hook-shellcheck, mikemol-hook-pycheck (and mikemol-hook-standing / -standing-stop exist in mtools hooks/bin, newer than our sha 03836cc: W256). Wired today: structural-query and no-chaining only. pycheck refuses a .py edit whose RESULT ruff or mypy flags, judged WHOLE-file against the project own bar (ruff default settings here), so a file with any finding refuses EVERY edit to it: 963 ruff findings today (138 EXE001, 235 SIM115, 137 I001, 77 ISC004, 72 PLW1510, ...). Settings are re-read only at restart, so wiring is safe to do before the debt is paid, but it is wired LAST so the next session is not locked out. no-verify and shellcheck cost nothing if the shell tree is clean. check_hooks measures every hook in settings.json by behaviour (PROBES) and needs a probe per new hook. | 2026-10-03: DONE: no-verify, shellcheck and pycheck wired in .claude/settings.json (NOVERIFY/SHELLCHECK/PYCHECK_HOOK_BLOCK=1 inline; matchers Bash, Bash|Edit|Write, Edit|Write). check_hooks PROBES are now (tool, tool_input) events and the roster reads every PreToolUse hook whatever its matcher; scripts/opa_gate.py hooks: 5 admitted (every hook denied its bad probe and admitted its good one, run from this repo). Policy H4 (+3 tests, opa test 11/11): an adopted hook settings.json does not run is a denial; selftest arm sees it (4 of 5 unwired when one is wired). Debt paid first (operator: initial adoption often requires paying down debt): ruff 0 (W254), mypy 178 of 178 (W255), format clean (W261), shellcheck 2 tracked findings (SC2016) fixed in guest/el-serial-emit.sh (jq program as quoted heredoc) and oci/guest/customize.sh (dpkg-query format in double quotes). The settings took effect mid-session: pycheck refused my own first edits to check_hooks.py (format + F841), which is the adoption working, and shellcheck refused my own bare word done in a command. Caveats: the sh writer arm of el_serial_emit --selftest is SKIPPED here (jq absent), so the heredoc change is verified by shellcheck and reading, not by running; mikemol-shellcheck --check-tree also walks .tree-writes/ scratch copies from disk (not tracked; a population-by-disk finding for mtools); standing and standing-stop hooks remain unadopted (need the newer sha: W256).",
       "issued_at": "2026-10-03T18:43:36Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-03T20:17:02Z",
+      "last_worked": "2026-10-03T20:28:55Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261003T202855Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
