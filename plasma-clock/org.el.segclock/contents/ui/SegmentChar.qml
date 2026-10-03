@@ -54,6 +54,11 @@ Item {
     property real weight: 1.0
     property real ghostWeight: 0.81
     readonly property real strokeLit: segThick * (1 + 0.25 * weight)
+    // the lit stroke as DRAWN (W265): the even-integer grid width (W57) at or BELOW the requested stroke,
+    // and the fraction of the next grid step (2 px) the request reaches into it. Rounding to the NEAREST
+    // width made 3 px and 3.75 px both draw 4 px, so the lit weight slider moved nothing at panel size
+    readonly property real litLowT: 2 * Math.max(1, Math.floor(strokeLit / 2))
+    readonly property real litExtra: Math.max(0, Math.min(1, (strokeLit - litLowT) / 2))
     readonly property real strokeGhost: segThick * ghostWeight
     // ⊕BLOOM: the halo is a BLUR of the lit layer only — never the ghost, never a
     // wider opaque copy. 0 disables the layer (crisp fallback).
@@ -150,7 +155,22 @@ Item {
             visible: sc.isOn(modelData)
             color: sc.litColor
             opacity: sc.glow
-            thick: sc.strokeLit
+            thick: sc.litLowT
+            lit: true
+        }
+    }
+    // ⚑ THE LIT WEIGHT BETWEEN GRID WIDTHS (W265). The crisp stroke is drawn at the grid width at or below
+    // the request (litLowT), and the area the request reaches into the next step is an UNDERLAY one
+    // step wider, in the lit colour, at the opacity that fraction stands for (litExtra). A request the
+    // grid holds exactly (litExtra 0) draws no underlay. Even widths, centred: the W57 symmetry holds.
+    Repeater {
+        model: ["A", "B", "C", "D", "E", "F", "G"]
+        Segment {
+            seg: modelData
+            visible: sc.litExtra > 0 && sc.isOn(modelData)
+            color: sc.litColor
+            opacity: sc.glow * sc.litExtra
+            thick: sc.litLowT + 2
             lit: true
         }
     }
