@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 262,
+  "counter": 264,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-03T21:16:17Z",
   "job_id": "a55bdcaa",
@@ -5329,7 +5329,7 @@
     {
       "symbol": "W242",
       "title": "check_marquee_live: a SHORTENED visible replace (suffix present) shows its suffix glyphs on every mid-roll frame",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W183"
       ],
@@ -5338,18 +5338,18 @@
         "marquee-main.qml"
       ],
       "blocked_on": [],
-      "blocked_kind": "agent",
-      "next_bounded_step": "In templates/marquee-main.qml add property paintedCells beside paintedInk (L153), set by drawBackdrop (L615-750); sample it in check_marquee_live.py harness samples; add a SHORTENING replace_visible case with a suffix (alpha gamma beta -> alpha beta); add policy L-rule: each mid-roll frame paints the suffix characters; the pre-fix painter must fail it. Re-record keys after (check_action_key --rebuild).",
-      "evidence": "2026-10-03: 2026-10-03: minted at integration. The painter defect (shortened replace dropped its suffix mid-roll) was found by reading the diff, not by a live measurement: the live harness has only a lengthened case and samples no cell counts. Body.paintsPlain + M13 hold the decision in the body harness; this card holds the PAINTED result. | 2026-10-03: Tick 2026-10-03 (scout): located the live harness ops (check_marquee_live.py replace_visible at 267/943, the harness QML timeline template holds samples with ink/painted/roll) but no tool locates a QML property or function by structure (no .qml reader; text search is refused), so paintedCells cannot be placed without reading a ~1000-line template whole. Minted W262 (a --decls mode on check_qml_lint) as the prerequisite per the standing rule; W242 resumes after it.",
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03: minted at integration. The painter defect (shortened replace dropped its suffix mid-roll) was found by reading the diff, not by a live measurement: the live harness has only a lengthened case and samples no cell counts. Body.paintsPlain + M13 hold the decision in the body harness; this card holds the PAINTED result. | 2026-10-03: Tick 2026-10-03 (scout): located the live harness ops (check_marquee_live.py replace_visible at 267/943, the harness QML timeline template holds samples with ink/painted/roll) but no tool locates a QML property or function by structure (no .qml reader; text search is refused), so paintedCells cannot be placed without reading a ~1000-line template whole. Minted W262 (a --decls mode on check_qml_lint) as the prerequisite per the standing rule; W242 resumes after it. | 2026-10-03: DONE (commit this tick): paintedPlain + paintedRollEnd in marquee-main.qml; check_marquee_live samples plain/plainRollEnd, timeline id 51 shortens alpha gamma beta -> alpha beta, shortens() feeds expects_shorten; policy L14 (+4 tests, opa test 57/57) refuses the dropped suffix, an empty population, and ignores unmarked traces. The live run also found a real observable defect (boardX jumped forward at the roll hand-back, L4): fixed so boardX = raw + progress x rollShift; L4/L13/L14 admit live. check_marquee_live --event now prints the 700 ms of samples after an event. Residue: the refusing arm for L14 is the rego pair, not a live pre-fix painter run; W183 may now proceed.",
       "issued_at": "2026-10-03T17:48:50Z",
       "minted_during": "interrupt",
       "caused_by": "W189",
-      "last_worked": "2026-10-03T21:07:13Z",
+      "last_worked": "2026-10-03T22:04:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 5,
-      "completed": null
+      "completed": "20261003T220432Z"
     },
     {
       "symbol": "W243",
@@ -5796,6 +5796,53 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": "20261003T210713Z"
+    },
+    {
+      "symbol": "W263",
+      "title": "Clock plasmoid ignores its configuration dialog and renders unreadable (operator saw 88:88-like segments): find why the config keys do not reach SegmentChar",
+      "status": "working",
+      "enables": [],
+      "touches": [
+        "clock",
+        "SegmentChar",
+        "check_config_load"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Bound the halo so the DEFAULT is legible: measure a legibility metric per bloom (lit-core vs halo contrast, ground wash fraction) with render_qml, choose the radius law from it (cap in stroke widths, not px x slider), and add a gate that fails when the default face washes the ground; then add W264 (every kcfg key reaches the pixels) for the ignore half.",
+      "evidence": "2026-10-03: Operator report 2026-10-03 (screenshot: EL Segment Clock Settings with lit weight high, unlit weight 0, pitch low, bloom ~65%; the panel clock shows near-88:88 blobs; \"I bet tesseract would say 88:88\"). MEASURED in the render harness (render_qml clock 160x48, RHI/llvmpipe, EL-Openglo): config DOES reach the pixels there (showGhost=false drops ghost-ish 206 -> 6; bloom 0/1/2.5/4 gives other-pixels 762/3559/5439/5960 of 7680, ground 6072/3174/1432/994). So the harness does not reproduce \"ignores\"; it reproduces the UNREADABLE face: the halo is blurMax = round(strokeLit*2*bloom) px (SegmentChar.qml L127), ~24 px at the default bloom 4.0 on a 48 px panel, i.e. half the digit height, and the modal colour of the whole face moves from ground #0c1f1a to #142c26. Past ~2.5 the wash saturates, so moving the dialog slider between 65% and 100% changes nothing visible, which can read as the dialog being ignored. NOT verified: that the real Plasma applet receives the dialog values (no Plasma runtime here; check_config_page proves only that each kcfg entry declares value+default and each mount names its key). tesseract is installed (/usr/bin/tesseract) but read nothing from the raw render (no inversion/scale), so no OCR verdict yet.",
+      "issued_at": "2026-10-03T22:04:32Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-10-03T22:07:59Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:N",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W264",
+      "title": "Witness that every clock kcfg key reaches the pixels: render at min and max per key (render_qml --set), fail a key whose two renders are identical unless declared inert",
+      "status": "ready",
+      "enables": [
+        "W263"
+      ],
+      "touches": [
+        "clock",
+        "check_config_page",
+        "render_qml"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add a --sweep mode to render_qml (or a check_config_reach.py with --json, policy, selftest): per kcfg key of the clock, render at the entry min and max, count differing pixels; a key whose renders are identical and is not declared inert is a defect. Positive control: showGhost and bloom differ. Refusing case: a key the template never reads.",
+      "evidence": "",
+      "issued_at": "2026-10-03T22:07:59Z",
+      "minted_during": "interrupt",
+      "caused_by": "W263",
+      "last_worked": "2026-10-03T22:08:08Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [

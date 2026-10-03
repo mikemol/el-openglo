@@ -602,3 +602,5 @@
 2026-10-03T20:38:04Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:d8f36096b6459fc1; the FILE wins"
 2026-10-03T20:38:48Z  tick  W262 minted    collapse  "W242 needs a QML structural locator; tooling gap minted as W262 before editing"  evidence=W262 enables W242
 2026-10-03T21:07:13Z  tick  W262 done      minted    "check_qml_lint --decls: QML declarations located structurally; W242 unblocked with line-addressed next step"  evidence=marquee-main.qml 98 declarations
+2026-10-03T22:04:32Z  tick  W242 done      advanced  "shortened replace measured live (L14), boardX defect fixed"  evidence=opa_gate marquee_live admitted
+2026-10-03T22:08:08Z  tick  W263 minted    collapse  "operator clock report measured: harness shows config reaches pixels, the default halo washes the face; legibility gate and reach witness (W264) minted"  evidence=render_qml bloom sweep: other px 762/3559/5439/5960
