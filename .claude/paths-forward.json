@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 261,
+  "counter": 262,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-02T15:57:02Z",
-  "job_id": "86bfa067",
+  "heartbeat": "2026-10-03T20:39:16Z",
+  "job_id": "c06960ea",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -5338,13 +5338,13 @@
         "marquee-main.qml"
       ],
       "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Add a replace_visible timeline op that SHORTENS (e.g. alpha gamma beta -> alpha beta) with a suffix, expose the backdrop cell count per sample (root.paintedCells beside paintedInk), and a policy L-rule: on every mid-roll frame the painted cells include the suffix characters. Refusing case: the pre-fix painter (continue after the rolling-out cell) must fail it.",
-      "evidence": "2026-10-03: 2026-10-03: minted at integration. The painter defect (shortened replace dropped its suffix mid-roll) was found by reading the diff, not by a live measurement: the live harness has only a lengthened case and samples no cell counts. Body.paintsPlain + M13 hold the decision in the body harness; this card holds the PAINTED result.",
+      "blocked_kind": "agent",
+      "next_bounded_step": "In templates/marquee-main.qml add property paintedCells beside paintedInk (L153), set by drawBackdrop (L615-750); sample it in check_marquee_live.py harness samples; add a SHORTENING replace_visible case with a suffix (alpha gamma beta -> alpha beta); add policy L-rule: each mid-roll frame paints the suffix characters; the pre-fix painter must fail it. Re-record keys after (check_action_key --rebuild).",
+      "evidence": "2026-10-03: 2026-10-03: minted at integration. The painter defect (shortened replace dropped its suffix mid-roll) was found by reading the diff, not by a live measurement: the live harness has only a lengthened case and samples no cell counts. Body.paintsPlain + M13 hold the decision in the body harness; this card holds the PAINTED result. | 2026-10-03: Tick 2026-10-03 (scout): located the live harness ops (check_marquee_live.py replace_visible at 267/943, the harness QML timeline template holds samples with ink/painted/roll) but no tool locates a QML property or function by structure (no .qml reader; text search is refused), so paintedCells cannot be placed without reading a ~1000-line template whole. Minted W262 (a --decls mode on check_qml_lint) as the prerequisite per the standing rule; W242 resumes after it.",
       "issued_at": "2026-10-03T17:48:50Z",
       "minted_during": "interrupt",
       "caused_by": "W189",
-      "last_worked": "2026-10-03T17:57:03Z",
+      "last_worked": "2026-10-03T21:07:13Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -5772,6 +5772,30 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": "20261003T201657Z"
+    },
+    {
+      "symbol": "W262",
+      "title": "check_qml_lint --decls: list a QML document property, function and signal declarations with line bounds, so a QML edit is located structurally not by search",
+      "status": "done",
+      "enables": [
+        "W242"
+      ],
+      "touches": [
+        "check_qml_lint",
+        "marquee-main.qml"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: DONE: scripts/check_qml_lint.py --decls FILE.qml (commit this tick). templates/marquee-main.qml: 98 declarations; paintedInk L153, paintedText L154, paintedSeries L156, drawBackdrop L615-750, replaceInPlace L217-245, startRoll L489-495. Selftest arms: planted property, multi-line binding, function, signal with bounds; comment/string mentions not seen; empty document empty. Weakness stated in the docstring. struct-tools row added.",
+      "issued_at": "2026-10-03T20:38:35Z",
+      "minted_during": "interrupt",
+      "caused_by": "W242",
+      "last_worked": "2026-10-03T21:07:13Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent",
+      "completed": "20261003T210713Z"
     }
   ],
   "residue": [
@@ -5807,6 +5831,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "49ab01df",
+  "predecessor_job_id": "86bfa067",
   "leases": []
 }

@@ -599,3 +599,6 @@
 2026-10-03T19:42:49Z  tick  W255 done      collapse  "mypy 202 -> 0 over 178 files: layout declared (mypy_path, explicit_package_bases), 8 stub packages, 41 own-code fixes, none suppressed"  evidence=commit 1c58521
 2026-10-03T20:16:58Z  tick  W261 done      sweep     "ruff format over 178 files; four line-sensitive readers fixed in the reader; pycheck format bar met"  evidence=ruff format --check: 224 already formatted
 2026-10-03T20:28:55Z  tick  W253 done      unblock   "mtools hooks adopted: five hooks wired and measured by behaviour, H4 refuses an unwired adopted hook, debt paid first"  evidence=scripts/opa_gate.py hooks: 5 admitted
+2026-10-03T20:38:04Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:d8f36096b6459fc1; the FILE wins"
+2026-10-03T20:38:48Z  tick  W262 minted    collapse  "W242 needs a QML structural locator; tooling gap minted as W262 before editing"  evidence=W262 enables W242
+2026-10-03T21:07:13Z  tick  W262 done      minted    "check_qml_lint --decls: QML declarations located structurally; W242 unblocked with line-addressed next step"  evidence=marquee-main.qml 98 declarations
