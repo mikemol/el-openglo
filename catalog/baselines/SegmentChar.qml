@@ -111,7 +111,7 @@ Item {
             // so without this the slider's zero end still drew a 2 px ghost (W263, measured at 48 px)
             visible: sc.showGhost && !sc.isOn(modelData) && sc.strokeGhost > 0
             color: sc.ghostColor
-            opacity: sc.ghostAlpha * sc.glow
+            opacity: sc.ghostAlpha * sc.glow * coverage
             thick: sc.strokeGhost
         }
     }
@@ -192,6 +192,12 @@ Item {
         // verticals only when the stroke is an EVEN integer and the gap an integer,
         // so both are snapped here; the substrate's ratios stay the target.
         property real t: 2 * Math.max(1, Math.round(thick / 2))
+        // ⚑ A WEIGHT BELOW THE GRID ACTS AS COVERAGE (W265). t is an even integer of at least 2 px, so a
+        // requested stroke thinner than t (the ghost at 0.4 x a 2 px base = 0.8 px) would otherwise draw
+        // at t and the weight would do nothing. Perceived brightness is luminance x AREA, so the thin
+        // stroke is drawn at t with its opacity scaled by thick / t - the area it stands for. Lit
+        // strokes never dim (coverage 1); a stroke at or above the grid is unchanged (thick / t >= 1).
+        property real coverage: lit ? 1.0 : Math.min(1.0, thick / t)
         property real gap: Math.round(sc.segThick * 0.62)
         antialiasing: true
         radius: t / 2
