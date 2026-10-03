@@ -40,7 +40,7 @@ case "${1-}" in
 	*) usage ;;
 esac
 
-TYPE_OK='
+TYPE_OK=$(cat <<'JQ'
 def type_ok($s; $t):
   if $t == "str" then type == "string"
   elif $t == "int" then type == "number" and . == floor and . >= 0
@@ -51,7 +51,8 @@ def type_ok($s; $t):
   elif $t == "sha256" then type == "string" and test("^[0-9a-f]{64}$")
   elif $t == "boot_id" then type == "string" and test("^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
   else error("el-serial spec names unknown type \($t)") end;
-'
+JQ
+)
 
 MARKER=$(jq -r .marker "$SPEC")
 MAXLINE=$(jq -r .max_line_bytes "$SPEC")

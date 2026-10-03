@@ -5562,7 +5562,7 @@
     {
       "symbol": "W253",
       "title": "Adopt mtools hooks: wire no-verify, shellcheck and pycheck in .claude/settings.json with a check_hooks probe each (effective at restart)",
-      "status": "blocked",
+      "status": "working",
       "enables": [],
       "touches": [
         "hooks",
@@ -5578,8 +5578,8 @@
       "issued_at": "2026-10-03T18:43:36Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-03T19:01:59Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-03T20:17:02Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -5753,7 +5753,7 @@
     {
       "symbol": "W261",
       "title": "Format the repo to ruff format (pycheck runs ruff format --check beside lint and mypy): one AST-preserving pass, fixtures with byte-pinned content enumerated in extend-exclude",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W253"
       ],
@@ -5764,16 +5764,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Own commit, after W254 lands. (1) Enumerate files whose BYTES are the point (catalog/fixtures/**, anything a check reads by line) and list them in pyproject [tool.ruff] extend-exclude with the reason beside each (pycheck passes --force-exclude, so the exclusion reaches it; relief on the ENUMERABLE side). (2) ruff format over the rest. (3) rerun every selftest and the full gate: a check that located something by line number will fail and name itself; fix each in the check, not by un-formatting. (4) rebuild/re-key (check_emitters_run --apply, check_action_key --rebuild), review that no generated output moved.",
-      "evidence": "2026-10-03: 2026-10-03 DISCOVERED reading mtools hooks/src/mikemol/hooks/checkers.py checker_argv: mikemol-hook-pycheck runs THREE checkers on every .py edit, not two - ruff check (--config pyproject --force-exclude --stdin-filename), ruff format --check --diff (same config/exclusions) AND mypy (--config-file pyproject --pretty on the tempfile, imports followed, no overrides). The format bar was not in my first reading. Measured: `ruff format --check` over the repo reports almost every file as would-be-reformatted (default format: 88 columns, double quotes, magic trailing commas; this codebase is hand-wrapped at ~100+ with aligned continuation). ruff format is AST-preserving, so the pass is behaviour-neutral by construction, but it is a very large diff and some tools read Python source by LINE (a population comment must sit on its line or the line above; fixtures pinned by content; cotype refs like (:585) point into COTYPE.md not python).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03 DISCOVERED reading mtools hooks/src/mikemol/hooks/checkers.py checker_argv: mikemol-hook-pycheck runs THREE checkers on every .py edit, not two - ruff check (--config pyproject --force-exclude --stdin-filename), ruff format --check --diff (same config/exclusions) AND mypy (--config-file pyproject --pretty on the tempfile, imports followed, no overrides). The format bar was not in my first reading. Measured: `ruff format --check` over the repo reports almost every file as would-be-reformatted (default format: 88 columns, double quotes, magic trailing commas; this codebase is hand-wrapped at ~100+ with aligned continuation). ruff format is AST-preserving, so the pass is behaviour-neutral by construction, but it is a very large diff and some tools read Python source by LINE (a population comment must sit on its line or the line above; fixtures pinned by content; cotype refs like (:585) point into COTYPE.md not python). | 2026-10-03: DONE (commit after 1c58521): ruff format --check: 224 files already formatted; ruff check 0; mypy 178 of 178; emitter drift 0 of 625; stills and sheets byte-identical (only marquee APNGs: W259). The pass broke FOUR line-sensitive readers, each fixed in the reader not by un-formatting: check_atomic_writes (exemption comment must sit on the site line or the one above: two make_schemes sites moved above), check_populations (population marker moved directly above the git ls-files call, check_tree_writes restructured to a named result), check_symbol probe regex (wrapped Exposed( call) and concepts.marquee-covers-font (now reads the sample text from the AST). check_symbol --regressions now prints the first unmet read of a regressed symbol (two selftest arms). Residue: other tools that read source by line may exist; the gate named all four on the first run, so none is known.",
       "issued_at": "2026-10-03T19:01:30Z",
       "minted_during": "interrupt",
       "caused_by": "W253",
-      "last_worked": "2026-10-03T19:51:43Z",
+      "last_worked": "2026-10-03T20:16:57Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null
+      "completed": "20261003T201657Z"
     }
   ],
   "residue": [

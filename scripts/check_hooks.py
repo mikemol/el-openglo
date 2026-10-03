@@ -35,15 +35,42 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SETTINGS = os.path.join(ROOT, ".claude", "settings.json")
 
+# A hook sees a TOOL call, so a probe is a (tool_name, tool_input) event.
+# _PROBE_PY is never written: the pycheck hook lints the payload it is handed.
+_PROBE_PY = os.path.join(ROOT, "scripts", "_hook_probe.py")
+
+
+def _bash(command):
+    return ("Bash", {"command": command})
+
+
+def _write_py(content):
+    return ("Write", {"file_path": _PROBE_PY, "content": content})
+
+
 # hook command basename -> (an event it must DENY, an event it must ADMIT)
 PROBES = {
-    "mikemol-hook-no-chaining": ("ls a && ls b", "ls a"),
-    "mikemol-hook-structural-query": ("grep foo scripts/check_hooks.py", "ls scripts"),
+    "mikemol-hook-no-chaining": (_bash("ls a && ls b"), _bash("ls a")),
+    "mikemol-hook-structural-query": (
+        _bash("grep foo scripts/check_hooks.py"),
+        _bash("ls scripts"),
+    ),
+    "mikemol-hook-no-verify": (
+        _bash("git commit --no-verify -m probe"),
+        _bash("git commit -m probe"),
+    ),
+    "mikemol-hook-shellcheck": (_bash("echo $unquoted"), _bash("ls scripts")),
+    # a ruff finding (F401 unused import) is refused; a clean, formatted module is admitted
+    "mikemol-hook-pycheck": (
+        _write_py("import os\n"),
+        _write_py("x = 1\n"),
+    ),
 }
 
 
 def roster(settings=SETTINGS):
-    """[(name, argv, env)] for every Bash PreToolUse hook command in settings.json.
+    """[(name, argv, env)] for every PreToolUse hook command in settings.json, whatever
+    its matcher (a hook is measured by the probe PROBES declares for it).
 
     A command is `VAR=1 "$CLAUDE_PROJECT_DIR/path"`: leading assignments become env,
     $CLAUDE_PROJECT_DIR expands to this repo."""
@@ -54,8 +81,6 @@ def roster(settings=SETTINGS):
         doc = json.load(fh)
     out = []
     for block in doc.get("hooks", {}).get("PreToolUse", []):
-        if block.get("matcher") != "Bash":
-            continue
         for h in block.get("hooks", []):
             words = shlex.split(
                 h.get("command", "").replace("$CLAUDE_PROJECT_DIR", ROOT)
@@ -69,13 +94,13 @@ def roster(settings=SETTINGS):
     return out
 
 
-def _decision(argv, env, command):
-    """'deny' or 'allow' for one sample PreToolUse event, as the hook answers it."""
+def _decision(argv, env, probe):
+    """'deny' or 'allow' for one sample PreToolUse event (tool_name, tool_input), as the
+    hook answers it."""
     import json
 
-    event = json.dumps(
-        {"tool_name": "Bash", "tool_input": {"command": command}, "cwd": ROOT}
-    )
+    tool, tool_input = probe
+    event = json.dumps({"tool_name": tool, "tool_input": tool_input, "cwd": ROOT})
     r = subprocess.run(
         argv,
         input=event,
@@ -100,7 +125,10 @@ def measure(hooks=None):
     """The MEASUREMENT policy/hooks.rego decides (W50): per hook settings.json runs,
     whether its executable is present, and rc = 0 iff it denied its bad probe and
     admitted its good one, run FROM THIS REPO (tail says which probe misbehaved).
-    An absent hook and a misbehaving one are defects by the policy (H1, H2)."""
+    An absent hook and a misbehaving one are defects by the policy (H1, H2).
+    `unwired` lists every hook PROBES declares (the adopted set) that settings.json
+    does not run: installed-but-not-wired was the adoption gap (W253), so it is a
+    measured fact, not a remembered one (H4)."""
     cases = []
     for name, argv, env in hooks if hooks is not None else roster():
         if not os.path.isfile(argv[0]):
@@ -137,7 +165,8 @@ def measure(hooks=None):
                 "tail": f"bad probe -> {got[0]}, good probe -> {got[1]}",
             }
         )
-    return {"cases": cases}
+    unwired = sorted(set(PROBES) - {c["hook"] for c in cases})
+    return {"cases": cases, "unwired": unwired}
 
 
 def borrowed(root=ROOT):
@@ -208,6 +237,13 @@ def _selftest():
         f"  {'ok  ' if lax == 1 else 'FAIL'} a hook that never denies is measured as misbehaving (rc {lax})"
     )
     ok = ok and lax == 1
+    # the adopted set can SEE an unwired hook: one wired hook leaves the others unwired
+    unwired = measure([("mikemol-hook-no-chaining", ["/bin/true"], {})])["unwired"]
+    seen_unwired = unwired == sorted(set(PROBES) - {"mikemol-hook-no-chaining"})
+    print(
+        f"  {'ok  ' if seen_unwired else 'FAIL'} an adopted hook missing from settings.json is measured as unwired ({len(unwired)} of {len(PROBES)})"
+    )
+    ok = ok and seen_unwired
     # the census can SEE a borrow: plant one symlink out of a fake tree, one inside
     import tempfile
 

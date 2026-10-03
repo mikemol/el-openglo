@@ -6,7 +6,26 @@ import rego.v1
 good := {"cases": [
 	{"hook": "hook_no_chaining.py", "present": true, "resolves": "/x/substrate/scripts/hook_no_chaining.py", "rc": 0, "tail": "PASS"},
 	{"hook": "hook_structural_query.py", "present": true, "resolves": "/x/substrate/scripts/hook_structural_query.py", "rc": 0, "tail": "PASS"},
-]}
+], "unwired": []}
+
+# H4: an adopted hook settings.json does not run is a failure; none unwired admits; an
+# unmeasured `unwired` is withheld, never read as "none"
+test_h4_refuses_an_unwired_adopted_hook if {
+	bad := object.union(good, {"unwired": ["mikemol-hook-pycheck"]})
+	some msg in p.deny with input as bad
+	msg == "H4: mikemol-hook-pycheck: adopted (PROBES declares it) but settings.json does not run it"
+}
+
+test_h4_admits_when_every_adopted_hook_is_wired if {
+	count([m | some m in p.deny with input as good; startswith(m, "H4:")]) == 0
+	count([m | some m in p.withheld with input as good; startswith(m, "H4:")]) == 0
+}
+
+test_h4_withholds_an_unmeasured_unwired if {
+	inp := {"cases": good.cases}
+	"H4: unwired was not measured" in p.withheld with input as inp
+	count([m | some m in p.deny with input as inp; startswith(m, "H4:")]) == 0
+}
 
 test_admits_passing_hooks if {
 	count(p.deny) == 0 with input as good

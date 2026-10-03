@@ -58,6 +58,23 @@ deny contains msg if {
 	msg := sprintf("H2: %s: selftest exited %d: %s", [c.hook, c.rc, c.tail])
 }
 
+# METADATA
+# title: "H4 — an adopted hook that settings.json does not run is a FAILURE"
+# description: |
+#   `unwired` is every hook check_hooks.PROBES declares (the adopted set) minus the
+#   hooks settings.json runs. Installed-but-not-wired was the W253 gap: the hook
+#   existed in .venv/bin and refused nothing. An ABSENT `unwired` is withheld, not
+#   read as "none unwired".
+deny contains msg if {
+	some h in object.get(input, "unwired", [])
+	msg := sprintf("H4: %s: adopted (PROBES declares it) but settings.json does not run it", [h])
+}
+
+withheld contains msg if {
+	not is_array(object.get(input, "unwired", null))
+	msg := "H4: unwired was not measured"
+}
+
 admitted contains c.hook if {
 	some c in input.cases
 	measured(c)

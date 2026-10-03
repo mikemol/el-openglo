@@ -15,6 +15,28 @@
           {
             "type": "command",
             "command": "NOCHAIN_HOOK_BLOCK=1 \"$CLAUDE_PROJECT_DIR/.venv/bin/mikemol-hook-no-chaining\""
+          },
+          {
+            "type": "command",
+            "command": "NOVERIFY_HOOK_BLOCK=1 \"$CLAUDE_PROJECT_DIR/.venv/bin/mikemol-hook-no-verify\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash|Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "SHELLCHECK_HOOK_BLOCK=1 \"$CLAUDE_PROJECT_DIR/.venv/bin/mikemol-hook-shellcheck\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYCHECK_HOOK_BLOCK=1 \"$CLAUDE_PROJECT_DIR/.venv/bin/mikemol-hook-pycheck\""
           }
         ]
       }

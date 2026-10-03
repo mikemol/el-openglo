@@ -51,6 +51,6 @@ chroot "$ROOT" systemctl --global enable el-serial-session.service
 
 # provenance (c) step 3: the reporter emits this as el.ident
 DEB_SHA=$(sha256sum < "$DEB")
-chroot "$ROOT" dpkg-query -W -f '${Package}\t${Version}\n' > "$ROOT/etc/el-openglo-packages.tsv"
+chroot "$ROOT" dpkg-query -W -f "\${Package}\t\${Version}\n" > "$ROOT/etc/el-openglo-packages.tsv"
 jq -n --arg snapshot "$SNAPSHOT" --arg deb "$(basename "$DEB")" --arg sha "${DEB_SHA%% *}" --arg rev "$GIT_REV" \
 	'{snapshot: $snapshot, deb: $deb, deb_sha256: $sha, git_rev: $rev}' > "$ROOT/etc/el-openglo-guest.json"
