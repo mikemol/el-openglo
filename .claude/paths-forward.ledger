@@ -568,3 +568,5 @@
 2026-10-02T17:23:33Z  tick  W236 done      unblock   "guest identity required on every serial boot"  evidence=commit: W236 el.ident identity withheld
 2026-10-02T17:24:26Z  tick  W97  done      sweep     "payload truncation bug re-measured and reported to mtools inbox"
 2026-10-02T17:31:00Z  hash  --   diverged  --        "divergence: payload v2:75927b693b9087ce, file v2:a0badecb8d4ce9e7; the FILE wins"
+2026-10-02T17:50:34Z  tick  W188 done      unblock   "roll painted (rollCells + startRoll + per-frame repaint); stall minted W241"  evidence=commit: W188 paint the roll
+2026-10-02T17:50:46Z  tick  W41  advanced  unblock   "ESCALATED once to the operator at 16 blocked ticks: W123-W132 wait on W41, which waits on operator acts W136 (AMO API key) and W137 (Chrome Web Store developer registration); W12/W70 wait on luthen-observability:W127, which waits on our W235 (luthen W286 builder)"
