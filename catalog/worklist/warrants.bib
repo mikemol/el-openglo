@@ -777,6 +777,20 @@
   section  = {emitters}
 }
 
+@misc{RENDER-CONSTANTS,
+  claim    = {Every property a QML template declares with a literal default is either reached by a configuration key, or classified in catalog/render-constants.json as runtime state, a mount's geometry, or withheld with a stated reason; a render value that should be a setting and is not yet is recorded OPEN with its waypoint and is counted and printed as debt, never admitted (operator, 2026-10-03/04: every value consumed at render time is exposed and effectful in the configuration view, for every widget and wallpaper), C0-C3; three OPEN today (ApertureField gamma and scale, the metrics endpoint)},
+  rests-on = {CONFIG-PAGE},
+  check    = {tool:opa_gate.py render_constants},
+  section  = {emitters}
+}
+
+@misc{RENDER-CONSTANTS-SEES,
+  claim    = {The census is shown to see a literal property, to tell one a mount binds from a key from one nothing binds, to carry a registry disposition onto its property and to report a registry entry naming no property as stale; policy/render_constants_test.rego holds that an undeclared literal, an unknown kind, a reasonless WITHHELD and a stale entry are refused and an OPEN is debt rather than a pass},
+  rests-on = {RENDER-CONSTANTS},
+  check    = {tool:check_render_constants.py --selftest},
+  section  = {emitters}
+}
+
 @misc{CONFIG-REACH-SEES,
   claim    = {The reach measurement is shown to see a key the template reads change the picture and a key it never reads leave it byte-identical, against the same renderer, and policy/config_reach_test.rego holds that a dead setting is refused, an empty population refused and an unmeasured key withheld},
   rests-on = {CONFIG-REACH},

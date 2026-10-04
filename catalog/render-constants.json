@@ -1,0 +1,68 @@
+{
+  "_doc": "The DISPOSITION of every literal-default property of a QML template that no kcfg key reaches (W268; operator rule: every render-time value is exposed and effectful in the configuration view, for every widget and wallpaper). Kinds: STATE (a runtime value or a datum the mount feeds; no setting by nature), MOUNT (a size or geometry the mounting surface decides), WITHHELD:<reason> (a stated reason it is not a setting), OPEN:<waypoint> (a render value that SHOULD be a setting and is not yet: counted and printed as debt, never a pass). A property a kcfg key reaches needs no entry. scripts/check_render_constants.py reads this file; policy/render_constants.rego decides.",
+  "templates/ApertureField.qml": {
+    "rows": "MOUNT",
+    "u": "MOUNT",
+    "scale": "OPEN:W268",
+    "offset": "STATE",
+    "gamma": "OPEN:W268",
+    "colourFromInk": "MOUNT",
+    "ringOpacity": "STATE",
+    "sizing": "STATE",
+    "backdropWidth": "STATE"
+  },
+  "templates/SegmentChar.qml": {
+    "ch": "STATE",
+    "insertColon": "STATE",
+    "segLen": "MOUNT",
+    "colonAdvance": "MOUNT",
+    "colonOn": "STATE",
+    "seg": "STATE",
+    "lit": "STATE"
+  },
+  "templates/clock-main.qml": {
+    "timeStr": "STATE",
+    "colonOn": "STATE"
+  },
+  "templates/live-wallpaper-main.qml": {
+    "timeStr": "STATE",
+    "colonOn": "STATE",
+    "breatheLevel": "STATE"
+  },
+  "templates/marquee-main.qml": {
+    "tickerText": "STATE",
+    "haveModel": "STATE",
+    "boardX": "STATE",
+    "boardRawX": "STATE",
+    "boardWidth": "STATE",
+    "boardRunning": "STATE",
+    "captureSteps": "STATE",
+    "captureStep": "STATE",
+    "captureRuns": "STATE",
+    "boardPaused": "STATE",
+    "ringOpacity": "STATE",
+    "paintedText": "STATE",
+    "paintedRollEnd": "STATE",
+    "viewWidth": "STATE",
+    "flashLit": "STATE",
+    "charAdvance": "STATE",
+    "rollProgress": "STATE",
+    "rollShift": "STATE",
+    "textCells": "STATE",
+    "from": "STATE",
+    "to": "STATE"
+  },
+  "templates/metrics-main.qml": {
+    "face": "STATE",
+    "faceText": "STATE",
+    "endpoint": "OPEN:W268"
+  },
+  "templates/sddm-main.qml": {
+    "failure": "STATE",
+    "timeStr": "STATE",
+    "colonOn": "STATE"
+  },
+  "templates/splash.qml": {
+    "stage": "STATE"
+  }
+}

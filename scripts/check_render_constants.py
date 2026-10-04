@@ -14,8 +14,10 @@ declared with a LITERAL default (a number, a boolean, a quoted string) — the v
 mount or a user could set — and says which ones a kcfg key reaches. `--list` prints each
 template with its literals and their disposition; `--json` is the MEASUREMENT.
 
+    scripts/check_render_constants.py           # the verdict, as opa_gate render_constants decides it
     scripts/check_render_constants.py --list    # per template: n of m literals configurable
-    scripts/check_render_constants.py --json    # the measurement
+    scripts/check_render_constants.py --json    # the measurement (catalog/render-constants.json holds
+                                                # the disposition of every literal no key reaches)
     scripts/check_render_constants.py --selftest
 
 A literal property is CONFIGURABLE when its template reads a configuration key into it
@@ -87,9 +89,23 @@ def bound_by(mount_text, name):
     return False
 
 
-def measure(templates=None):
+REGISTRY = os.path.join(ROOT, "catalog", "render-constants.json")
+
+
+def load_registry():
+    """{template: {property: disposition}} from catalog/render-constants.json."""
+    import json
+
+    with open(REGISTRY, encoding="utf-8") as fh:
+        doc = json.load(fh)
+    return {k: v for k, v in doc.items() if not k.startswith("_")}
+
+
+def measure(templates=None, registry=None):
     """The MEASUREMENT: per template, its literal properties and for each whether a
-    configuration key reaches it. `templates` is {path: text}."""
+    configuration key reaches it, and the DISPOSITION the registry records for one no
+    key reaches (None: undeclared). `registry_stale` lists registry entries that name
+    no property of their template. `templates` is {path: text}."""
     if templates is None:
         import git_tracked
 
@@ -97,8 +113,11 @@ def measure(templates=None):
         for rel in git_tracked.files("templates/*.qml"):
             with open(os.path.join(ROOT, rel), encoding="utf-8") as fh:
                 templates[rel] = fh.read()
+    if registry is None:
+        registry = load_registry()
     mounts = {p: t for p, t in templates.items() if config_reads(t)}
     cases = []
+    seen = set()
     for path, text in sorted(templates.items()):
         own = config_reads(text) != []
         props = []
@@ -111,18 +130,26 @@ def measure(templates=None):
                     text,
                 )
             )
-            by_mount = any(bound_by(t, name) for t in mounts.values())
+            configurable = keyed or any(bound_by(t, name) for t in mounts.values())
+            seen.add((path, name))
             props.append(
                 {
                     "name": name,
                     "type": typ,
                     "literal": lit,
                     "line": line,
-                    "configurable": keyed or by_mount,
+                    "configurable": configurable,
+                    "disposition": registry.get(path, {}).get(name),
                 }
             )
         cases.append({"template": path, "keys": config_reads(text), "props": props})
-    return {"cases": cases}
+    stale = sorted(
+        f"{path}:{name}"
+        for path, entries in registry.items()
+        for name in entries
+        if (path, name) not in seen
+    )
+    return {"cases": cases, "registry_stale": stale}
 
 
 def main(argv):
@@ -143,6 +170,10 @@ def main(argv):
 
         print(json.dumps(m, indent=1))
         return 0
+    if "--list" not in argv:
+        import opa_gate
+
+        return opa_gate.gate("render_constants")
     total = unconfigured = 0
     for c in m["cases"]:
         if not c["props"]:
@@ -155,10 +186,16 @@ def main(argv):
             f"literal properties configurable ({len(c['keys'])} kcfg keys read)"
         )
         for p in un:
-            print(f"    UNCONFIGURED  L{p['line']:<4d} {p['name']} = {p['literal']}")
+            how = p["disposition"] or "UNDECLARED"
+            print(f"    {how:<14s} L{p['line']:<4d} {p['name']} = {p['literal']}")
+    declared = sum(
+        1 for c in m["cases"] for p in c["props"] if p["disposition"] is not None
+    )
     print(
         f"check_render_constants: {total - unconfigured} of {total} literal "
-        f"properties over {len(m['cases'])} templates are configurable"
+        f"properties over {len(m['cases'])} templates are configurable; "
+        f"{declared} more carry a disposition; "
+        f"{unconfigured - declared} UNDECLARED; {len(m['registry_stale'])} stale registry entries"
     )
     return 0
 
@@ -186,7 +223,7 @@ def _selftest():
         "                        : plasmoid.configuration.glow\n"
         "    SegmentChar {\n        glow: root.glow\n    }\n}\n"
     )
-    m = measure({"c.qml": comp, "m.qml": mount})
+    m = measure({"c.qml": comp, "m.qml": mount}, {})
     props = {p["name"]: p["configurable"] for p in m["cases"][0]["props"]}
     chk(
         "a component literal a mount binds from a key is configurable",
@@ -195,7 +232,21 @@ def _selftest():
     )
     chk("one no mount binds is UNCONFIGURED", props["on"], False)
     chk("the mount reads its key", m["cases"][1]["keys"], ["glow"])
-    chk("an empty template set measures nothing", measure({})["cases"], [])
+    chk("an empty template set measures nothing", measure({}, {})["cases"], [])
+    # the registry: a disposition is carried onto its property, an undeclared one is None,
+    # and an entry that names no property of its template is reported stale
+    r = measure(
+        {"c.qml": comp, "m.qml": mount},
+        {"c.qml": {"on": "STATE", "ghost": "STATE"}},
+    )
+    disp = {p["name"]: p["disposition"] for p in r["cases"][0]["props"]}
+    chk("a registered property carries its disposition", disp["on"], "STATE")
+    chk("an unregistered one is undeclared (None)", disp["glow"], None)
+    chk(
+        "a registry entry naming no property is stale",
+        r["registry_stale"],
+        ["c.qml:ghost"],
+    )
     print("check_render_constants selftest:", "PASS" if ok else "FAIL")
     return ok
 
