@@ -89,6 +89,25 @@ DISPLAY = (
     Param(
         "bloom", "Double", "Bloom / glow:", "the emission spread around a lit primitive"
     ),
+    Param(
+        "haloOpacity",
+        "Double",
+        "Halo opacity:",
+        "the opacity of the bloom halo around a lit primitive",
+    ),
+    Param(
+        "litGradient",
+        "Double",
+        "Lit gradient:",
+        "how far a lit stroke dims toward its tips (0 is flat)",
+    ),
+    Param(
+        "boundaryDepth",
+        "Double",
+        "Gradient reach:",
+        "how far from each tip the fade reaches, as a fraction of the stroke (0.5 = to the midpoint)",
+    ),
+    Param("glow", "Double", "Brightness:", "the whole cell's emission level"),
 )
 
 _BAKED_ALPHA = (
@@ -102,6 +121,11 @@ _SEG_FILL = (
 _PIP_ONE_SIZE = (
     "ApertureField draws lit and unlit pips at ONE size (fill); it has no per-layer "
     "stroke, so this key would be a control that moves nothing"
+)
+
+_PIP_NO_STROKE = (
+    "ApertureField draws pips, not strokes: there is no stroke to dim toward its "
+    "tips, so this key would be a control that moves nothing"
 )
 
 MOUNTS = {
@@ -139,6 +163,10 @@ MOUNTS = {
             ("0", "6", "0.5"),
             "4.0: the operator's live tuning promoted to the default (2026-09-22)",
         ),
+        "haloOpacity": Exposed("haloOpacity", "0.75", ("0", "1", "0.05")),
+        "litGradient": Exposed("litGradient", "0.35", ("0", "1", "0.05")),
+        "boundaryDepth": Exposed("boundaryDepth", "0.5", ("0", "0.5", "0.05")),
+        "glow": Exposed("glow", "1.0", ("0", "1", "0.05")),
     },
     "marquee": {
         "ghost": Exposed("showField", "true"),
@@ -168,18 +196,38 @@ MOUNTS = {
             "graph the gates run has no MultiEffect) — a bloom key would be a slider "
             "that moves nothing, the defect the clock once shipped twice"
         ),
+        "haloOpacity": Withheld("ApertureField has no halo layer (see bloom)"),
+        "litGradient": Withheld(_PIP_NO_STROKE),
+        "boundaryDepth": Withheld(_PIP_NO_STROKE),
+        "glow": Withheld(
+            "ApertureField's brightness is the aperture relation over the backdrop "
+            "(ghostAlpha and dotFill carry it); it has no cell-level emission "
+            "multiplier, so a key would be a control that moves nothing"
+        ),
     },
     "wallpaper": {
         "ghost": Exposed("showGhost", "true"),
-        "ghostOpacity": Withheld(_BAKED_ALPHA + " (glanced-at alpha)"),
+        # operator 2026-10-03 (every render-time value is configurable): the DEFAULT is the palette's
+        # SOLVED glanced-at alpha, filled at emit time; the slider is a per-user override
+        "ghostOpacity": Exposed(
+            "ghostAlpha",
+            "$ghostAlpha",
+            ("0.0", "1.0", "0.02"),
+            "the DEFAULT is the palette's SOLVED glanced-at ghost alpha, filled at emit "
+            "time; the slider is a per-user override, never the source",
+        ),
         "litWeight": Exposed("weight", "1.0", ("0", "1", "0.25")),
-        "ghostWeight": Exposed("ghostWeight", "0.81", ("0.3", "1.0", "0.05")),
+        "ghostWeight": Exposed("ghostWeight", "0.81", ("0", "1.0", "0.05")),
         "fill": Withheld(_SEG_FILL),
         "pitch": Withheld(
             "the face is FIT to the frame at the substrate's module pitch (60% of the "
             "width over four cells); a user gap would be a second fit rule, not yet designed"
         ),
         "bloom": Exposed("bloom", "1.5", ("0", "6", "0.5")),
+        "haloOpacity": Exposed("haloOpacity", "0.75", ("0", "1", "0.05")),
+        "litGradient": Exposed("litGradient", "0.35", ("0", "1", "0.05")),
+        "boundaryDepth": Exposed("boundaryDepth", "0.5", ("0", "0.5", "0.05")),
+        "glow": Exposed("glow", "1.0", ("0", "1", "0.05")),
     },
 }
 

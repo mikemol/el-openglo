@@ -46,6 +46,19 @@ WallpaperItem {
     // operator photographed, 2026-09-21). Ghost is never bloomed. 0 = off.
     property real bloom: (wallpaper.configuration.bloom === undefined) ? 1.5
                          : wallpaper.configuration.bloom
+    // every value the face consumes is a setting (operator 2026-10-03): the ghost's opacity (the
+    // palette's glanced-at alpha above is the DEFAULT), the halo's opacity, the lit stroke's
+    // gradient and the reach of its fade, and the cell's base emission level
+    property real cfgGhostAlpha: (wallpaper.configuration.ghostAlpha === undefined) ? ghostAlpha
+                                 : wallpaper.configuration.ghostAlpha
+    property real haloOpacity: (wallpaper.configuration.haloOpacity === undefined) ? 0.75
+                               : wallpaper.configuration.haloOpacity
+    property real litGradient: (wallpaper.configuration.litGradient === undefined) ? 0.35
+                               : wallpaper.configuration.litGradient
+    property real boundaryDepth: (wallpaper.configuration.boundaryDepth === undefined) ? 0.5
+                                 : wallpaper.configuration.boundaryDepth
+    property real cfgGlow: (wallpaper.configuration.glow === undefined) ? 1.0
+                           : wallpaper.configuration.glow
 
     Rectangle { anchors.fill: parent; color: root.voidColor }
 
@@ -68,9 +81,11 @@ $tables
     }
     Timer { interval: 1000; running: true; repeat: true; triggeredOnStart: true; onTriggered: root.tick() }
 
-    // gentle backlight breathe (lock mount); off on desktop (config)
-    property real glow: 1.0
-    SequentialAnimation on glow {
+    // gentle backlight breathe (lock mount); off on desktop (config). The cells get the configured
+    // emission level times the breathing factor.
+    property real breatheLevel: 1.0
+    property real glow: root.cfgGlow * root.breatheLevel
+    SequentialAnimation on breatheLevel {
         running: root.breathe; loops: Animation.Infinite
         NumberAnimation { from: 0.85; to: 1.0; duration: 2200; easing.type: Easing.InOutSine }
         NumberAnimation { from: 1.0; to: 0.85; duration: 2200; easing.type: Easing.InOutSine }
@@ -120,11 +135,14 @@ $tables
                 cellGap: face.spacing
                 litColor: root.litColor
                 ghostColor: root.ghostColor
-                ghostAlpha: root.ghostAlpha
+                ghostAlpha: root.cfgGhostAlpha
                 showGhost: root.showGhost
                 weight: root.weight
                 ghostWeight: root.ghostWeight
                 bloom: root.bloom
+                haloOpacity: root.haloOpacity
+                litGradient: root.litGradient
+                boundaryDepth: root.boundaryDepth
                 glow: root.glow
             }
         }

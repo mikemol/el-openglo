@@ -64,6 +64,7 @@ Item {
     // wider opaque copy. 0 disables the layer (crisp fallback).
     property real bloom: 1.5
     property real glow: 1.0           // a mount may breathe the whole cell
+    property real haloOpacity: 0.75   // the bloom halo's opacity (configurable: every render value is)
     // ⊕STROKE-GRADIENT (W33 physics layer, axis 1): a lit segment brightest at
     // its own MIDPOINT, dimming toward both tips — the profile of a light guide
     // fed by a single point source directly behind its centre (a common real
@@ -134,7 +135,7 @@ Item {
             blurMax: Math.max(2, Math.round(sc.strokeLit * 2 * sc.bloom))
             blurMultiplier: 1.0
         }
-        opacity: 0.75 * sc.glow
+        opacity: sc.haloOpacity * sc.glow
         Repeater {
             model: ["A", "B", "C", "D", "E", "F", "G"]
             Segment {

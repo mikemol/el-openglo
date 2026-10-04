@@ -58,6 +58,16 @@ PlasmoidItem {
     // the operator's live tuning (2026-09-22), up from the authored 1.5.
     property real bloom: (plasmoid.configuration.bloom === undefined) ? 4.0
                          : plasmoid.configuration.bloom
+    // every value the face consumes is a setting (operator 2026-10-03): the halo's opacity, the lit
+    // stroke's gradient and the reach of its fade, and the cell's emission level
+    property real haloOpacity: (plasmoid.configuration.haloOpacity === undefined) ? 0.75
+                               : plasmoid.configuration.haloOpacity
+    property real litGradient: (plasmoid.configuration.litGradient === undefined) ? 0.35
+                               : plasmoid.configuration.litGradient
+    property real boundaryDepth: (plasmoid.configuration.boundaryDepth === undefined) ? 0.5
+                                 : plasmoid.configuration.boundaryDepth
+    property real glow: (plasmoid.configuration.glow === undefined) ? 1.0
+                        : plasmoid.configuration.glow
 
     // ⚑ AN EVEN ROW (W164, 2026-10-01). check_symmetry found every stroke of 00:00
     // paired one pixel off its mirror and the colon off the face centre: the Row's
@@ -135,6 +145,10 @@ PlasmoidItem {
                     weight: root.weight
                     ghostWeight: root.ghostWeight
                     bloom: root.bloom
+                    haloOpacity: root.haloOpacity
+                    litGradient: root.litGradient
+                    boundaryDepth: root.boundaryDepth
+                    glow: root.glow
                 }
             }
         }

@@ -5800,21 +5800,23 @@
     {
       "symbol": "W263",
       "title": "Clock plasmoid ignores its configuration dialog and renders unreadable (operator saw 88:88-like segments): find why the config keys do not reach SegmentChar",
-      "status": "working",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "clock",
         "SegmentChar",
         "check_config_load"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W268"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Remaining after W265: the DEFAULT bloom 4.0 halo radius (strokeLit*2*bloom px, ~24 px at 48 px) lifts the whole face colour; bound the halo in stroke widths and gate it (ground wash fraction); and the DEFAULT ghost alpha 0.566 is a palette-solved relation (operator decision after seeing W265 renders). Reach witness is W264.",
       "evidence": "2026-10-03: Operator report 2026-10-03 (screenshot: EL Segment Clock Settings with lit weight high, unlit weight 0, pitch low, bloom ~65%; the panel clock shows near-88:88 blobs; \"I bet tesseract would say 88:88\"). MEASURED in the render harness (render_qml clock 160x48, RHI/llvmpipe, EL-Openglo): config DOES reach the pixels there (showGhost=false drops ghost-ish 206 -> 6; bloom 0/1/2.5/4 gives other-pixels 762/3559/5439/5960 of 7680, ground 6072/3174/1432/994). So the harness does not reproduce \"ignores\"; it reproduces the UNREADABLE face: the halo is blurMax = round(strokeLit*2*bloom) px (SegmentChar.qml L127), ~24 px at the default bloom 4.0 on a 48 px panel, i.e. half the digit height, and the modal colour of the whole face moves from ground #0c1f1a to #142c26. Past ~2.5 the wash saturates, so moving the dialog slider between 65% and 100% changes nothing visible, which can read as the dialog being ignored. NOT verified: that the real Plasma applet receives the dialog values (no Plasma runtime here; check_config_page proves only that each kcfg entry declares value+default and each mount names its key). tesseract is installed (/usr/bin/tesseract) but read nothing from the raw render (no inversion/scale), so no OCR verdict yet. | 2026-10-03: Operator follow-ups 2026-10-03: (1) even without bloom the face is near-unreadable and the unlit stroke weight is nonresponsive; (2) ghost brightness too high and not adjustable. MEASURED: Segment snaps every stroke to an even integer >= 2 px (SegmentChar t = 2*max(1,round(thick/2))) and segThick floors at 2 at 48 px, so lit (2.5 -> 2 px) and unlit (0.4*2 = 0.8 -> 2 px) are the SAME stroke and the lit/unlit distinction is opacity alone (palette-solved ghost alpha 0.566, high); the unlit slider floor was 0.3, inside the dead zone. SHIPPED: unlit weight 0 = no ghost (slider floor now 0); clock exposes Unlit opacity (default the solved alpha, 0-1; verified 0.05 vs 0.9 differ on screen; baked literal kept as ghostAlpha, override in cfgGhostAlpha). NOT FIXED: the stroke quantisation (W265, operator-visible restyle) and the high DEFAULT ghost alpha (a palette-solved relation: re-solving it is a W-level change, not a dialog fix). Mistake of mine: my first version replaced the baked alpha literal and check_ghost_surfaces refused 6 of 6 clock variants while the commit still passed (cotype is non-blocking): fixed next commit, gate gap minted as W266.",
       "issued_at": "2026-10-03T22:04:32Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-03T23:56:16Z",
+      "last_worked": "2026-10-04T00:15:18Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:N",
@@ -5916,7 +5918,7 @@
     {
       "symbol": "W268",
       "title": "Every render-time value is exposed and effectful in the configuration view (operator rule): census the literals each mount consumes, expose or Withhold each with a reason",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W263"
       ],
@@ -5933,10 +5935,11 @@
       "issued_at": "2026-10-04T00:05:52Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-04T00:06:00Z",
+      "last_worked": "2026-10-04T00:15:18Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     }
   ],
   "residue": [

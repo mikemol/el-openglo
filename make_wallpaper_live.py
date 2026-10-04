@@ -207,7 +207,9 @@ def config_main_xml():
 
     return TL.render(
         "live-wallpaper-config.kcfg",
-        displayEntries=DP.kcfg_entries("wallpaper", indent="    "),
+        displayEntries=DP.kcfg_entries(
+            "wallpaper", {"ghostAlpha": global_alpha("glanced_at")}, indent="    "
+        ),
     )
 
 
@@ -220,7 +222,9 @@ def config_qml():
     return TL.render(
         "live-wallpaper-config.qml",
         displayDecls=DP.qml_decls("wallpaper"),
-        displayControls=DP.qml_controls("wallpaper", indent="    "),
+        displayControls=DP.qml_controls(
+            "wallpaper", {"ghostAlpha": global_alpha("glanced_at")}, indent="    "
+        ),
     )
 
 
