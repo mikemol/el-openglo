@@ -100,7 +100,8 @@ def resolve(ref):
 def mount_inputs(spec):
     """(kcfg text, display-row holes) of a measurable mount: what its emitter hands
     the page."""
-    return resolve(spec.kcfg), resolve(spec.holes)
+    holes = resolve(spec.holes) if spec.holes else {}
+    return resolve(spec.kcfg), holes
 
 
 def measure():

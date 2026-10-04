@@ -56,7 +56,14 @@ class Exposed:
 
 @dataclass(frozen=True)
 class Withheld:
+    """A mount does not expose a display parameter. `kind` says WHY, because the renderer
+    is one (W271, operator): "geometry" - the value is derived from, or meaningless for,
+    this mount's segment geometry; "lift-debt" (the default) - the mechanic is shared and
+    this mount merely lacks it, so the value belongs in the shared renderer and the
+    mount gains it. A lift-debt withholding is counted and printed, never a pass."""
+
     reason: str
+    kind: str = "lift-debt"
 
 
 DISPLAY = (
@@ -149,7 +156,7 @@ MOUNTS = {
             ("0", "1.0", "0.05"),
             "0.4: the operator's live tuning promoted to the default (2026-09-22)",
         ),
-        "fill": Withheld(_SEG_FILL),
+        "fill": Withheld(_SEG_FILL, "geometry"),
         "pitch": Exposed(
             "digitGap",
             "$digitGap",
@@ -177,8 +184,8 @@ MOUNTS = {
             "the DEFAULT is the palette's SOLVED ghost alpha, filled at emit "
             "time; the slider is a per-user override, never the source",
         ),
-        "litWeight": Withheld(_PIP_ONE_SIZE),
-        "ghostWeight": Withheld(_PIP_ONE_SIZE),
+        "litWeight": Withheld(_PIP_ONE_SIZE, "geometry"),
+        "ghostWeight": Withheld(_PIP_ONE_SIZE, "geometry"),
         "fill": Exposed(
             "dotFill",
             "0.82",
@@ -197,8 +204,8 @@ MOUNTS = {
             "that moves nothing, the defect the clock once shipped twice"
         ),
         "haloOpacity": Withheld("ApertureField has no halo layer (see bloom)"),
-        "litGradient": Withheld(_PIP_NO_STROKE),
-        "boundaryDepth": Withheld(_PIP_NO_STROKE),
+        "litGradient": Withheld(_PIP_NO_STROKE, "geometry"),
+        "boundaryDepth": Withheld(_PIP_NO_STROKE, "geometry"),
         "glow": Withheld(
             "ApertureField's brightness is the aperture relation over the backdrop "
             "(ghostAlpha and dotFill carry it); it has no cell-level emission "
@@ -218,7 +225,7 @@ MOUNTS = {
         ),
         "litWeight": Exposed("weight", "1.0", ("0", "1", "0.25")),
         "ghostWeight": Exposed("ghostWeight", "0.81", ("0", "1.0", "0.05")),
-        "fill": Withheld(_SEG_FILL),
+        "fill": Withheld(_SEG_FILL, "geometry"),
         "pitch": Withheld(
             "the face is FIT to the frame at the substrate's module pitch (60% of the "
             "width over four cells); a user gap would be a second fit rule, not yet designed"
@@ -235,37 +242,43 @@ MOUNTS = {
 @dataclass(frozen=True)
 class MountSpec:
     """How the horizontal checks reach a mount (W271): ONE declaration they all read, so no
-    check keeps its own per-mount table. `kcfg` and `holes` are (module, attribute) pairs
-    resolved lazily by the check (a constant text or a callable); `surface` is the
-    render_qml surface and `size` its still, or None with `unmeasured` saying why the
-    mount cannot be rendered as one still."""
+    check keeps its own per-mount table. `kcfg` and `page` are (module, attribute) pairs
+    resolved lazily by the check (a constant text or a callable) and `page_label` names
+    the settings page; `holes` is the provider of the display rows' emit-time holes;
+    `surface` is the render_qml surface and `size` its still, or None with `unmeasured`
+    saying why the mount cannot be rendered as one still."""
 
-    surface: str | None
-    size: tuple[int, int] | None
-    kcfg: tuple[str, str] | None
-    holes: tuple[str, str] | None
+    kcfg: tuple[str, str]
+    page: tuple[str, str]
+    page_label: str
+    surface: str | None = None
+    size: tuple[int, int] | None = None
+    holes: tuple[str, str] | None = None
     unmeasured: str = ""
 
 
 MOUNT_REGISTRY = {
     "clock": MountSpec(
-        "clock",
-        (160, 48),
-        ("make_clock", "CONFIG_XML"),
-        ("make_clock", "_display_holes"),
-    ),
-    "wallpaper": MountSpec(
-        "live-wallpaper",
-        (320, 180),
-        ("make_wallpaper_live", "config_main_xml"),
-        ("make_wallpaper_live", "display_holes"),
+        kcfg=("make_clock", "CONFIG_XML"),
+        page=("make_clock", "CONFIG_QML"),
+        page_label="clock-config.qml",
+        surface="clock",
+        size=(160, 48),
+        holes=("make_clock", "_display_holes"),
     ),
     "marquee": MountSpec(
-        None,
-        None,
-        None,
-        None,
-        "acts over time: needs a sampled run per key end (check_marquee_live), W267",
+        kcfg=("make_notify_marquee", "config_xml"),
+        page=("make_notify_marquee", "config_qml"),
+        page_label="marquee-config.qml",
+        unmeasured="acts over time: needs a sampled run per key end (check_marquee_live), W267",
+    ),
+    "wallpaper": MountSpec(
+        kcfg=("make_wallpaper_live", "config_main_xml"),
+        page=("make_wallpaper_live", "config_qml"),
+        page_label="live-wallpaper-config.qml",
+        surface="live-wallpaper",
+        size=(320, 180),
+        holes=("make_wallpaper_live", "display_holes"),
     ),
 }
 

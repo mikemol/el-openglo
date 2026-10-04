@@ -44,26 +44,13 @@ import xml.etree.ElementTree as ET
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
-# (mount, page label, (module, kcfg accessor), (module, page accessor))
-PAIRS = (
-    (
-        "clock",
-        "clock-config.qml",
-        ("make_clock", "CONFIG_XML"),
-        ("make_clock", "CONFIG_QML"),
-    ),
-    (
-        "marquee",
-        "marquee-config.qml",
-        ("make_notify_marquee", "config_xml"),
-        ("make_notify_marquee", "config_qml"),
-    ),
-    (
-        "wallpaper",
-        "live-wallpaper-config.qml",
-        ("make_wallpaper_live", "config_main_xml"),
-        ("make_wallpaper_live", "config_qml"),
-    ),
+import display_params as _DP
+
+# (mount, page label, (module, kcfg accessor), (module, page accessor)) — read from the ONE
+# mount registry every horizontal check shares (W271), not spelled again here
+PAIRS = tuple(
+    (mount, spec.page_label, spec.kcfg, spec.page)
+    for mount, spec in _DP.MOUNT_REGISTRY.items()
 )
 KCFG_NS = "{http://www.kde.org/standards/kcfg/1.0}"
 # a declaration with or without an initialiser: `property real cfg_xDefault` is one
@@ -120,7 +107,7 @@ def measure_display(mount, kcfg_text, qml_text, display, mounts):
                 on_page=f"cfg_{a.spelling}" in decl,
             )
         elif isinstance(a, Withheld):
-            row.update(declared="withheld", reason=a.reason)
+            row.update(declared="withheld", reason=a.reason, kind=a.kind)
         else:
             row.update(declared="absent")
         rows.append(row)

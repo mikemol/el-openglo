@@ -5896,7 +5896,7 @@
     {
       "symbol": "W267",
       "title": "Reach witness for the live wallpaper and the marquee settings (as check_config_reach does for the clock): the same dead-slider blind spot",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W268"
       ],
@@ -5912,7 +5912,7 @@
       "issued_at": "2026-10-03T23:46:48Z",
       "minted_during": "interrupt",
       "caused_by": "W264",
-      "last_worked": "2026-10-04T01:11:32Z",
+      "last_worked": "2026-10-04T01:37:16Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -5993,7 +5993,7 @@
     {
       "symbol": "W271",
       "title": "One renderer for every surface: lift the shared mechanics (halo, gradient, glow, aperture gamma and scale) into one display component with swappable geometry, and read the mount list for every check from one declared registry",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W268",
         "W267",
@@ -6009,15 +6009,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Finish step 1: make check_config_page and check_render_constants take their mount list from display_params.MOUNT_REGISTRY. Then step 2 (Withheld kinds geometry vs lift-debt in display_params, policy counts lift-debt per mount), step 3 (lift halo, gradient, glow, aperture gamma and scale into the shared renderer), step 4 (converge SegmentChar and ApertureField).",
-      "evidence": "2026-10-04: STEP 1 PARTIAL (commit this tick): display_params.MOUNT_REGISTRY + MountSpec (surface, size, kcfg and holes providers, unmeasured reason) is the one declaration; check_config_reach reads it (its SURFACES and mount_inputs tables are gone), make_wallpaper_live.display_holes() is the single holes provider for the wallpaper kcfg, page and witness; the marquee is a registry member with its unmeasured reason, surfaced by policy U as named withheld debt (opa test 11/11; live: 24 admitted, 1 withheld). STILL TO DO in step 1: check_config_page and check_render_constants read the registry too (they still carry their own mount and template lists), and the marquee gets a sampled-run measurement (W267).",
+      "next_bounded_step": "STEP 3: lift the four debts into the shared renderer. Marquee first: bloom, halo opacity and glow become properties of the SHARED emission model (a halo/emission layer applicable to ApertureField pips as to SegmentChar strokes; W121 is the marquee RHI halo prerequisite), then the wallpaper pitch as a fit rule shared with the clock; each exposure proven by the reach witness (W267 for the marquee sampled run). STEP 4: converge SegmentChar and ApertureField toward one display component with swappable geometry.",
+      "evidence": "2026-10-04: STEP 1 PARTIAL (commit this tick): display_params.MOUNT_REGISTRY + MountSpec (surface, size, kcfg and holes providers, unmeasured reason) is the one declaration; check_config_reach reads it (its SURFACES and mount_inputs tables are gone), make_wallpaper_live.display_holes() is the single holes provider for the wallpaper kcfg, page and witness; the marquee is a registry member with its unmeasured reason, surfaced by policy U as named withheld debt (opa test 11/11; live: 24 admitted, 1 withheld). STILL TO DO in step 1: check_config_page and check_render_constants read the registry too (they still carry their own mount and template lists), and the marquee gets a sampled-run measurement (W267). | 2026-10-04: STEPS 1 AND 2 DONE (commit this tick): check_config_page now reads the mount registry too (MountSpec gained page and page_label; PAIRS derived); display_params.Withheld has a kind, geometry or lift-debt (default lift-debt, conservative); policy D6 denies an unknown kind, D7 counts lift debt per mount as named withheld and never admits it (opa test 34/34). Classification: geometry = fill on clock and wallpaper, lit and unlit weight and lit gradient and gradient reach on the marquee (pips have no stroke); LIFT DEBT today = marquee bloom, halo opacity and glow, wallpaper pitch (a second fit rule not yet designed). Live: config_page admitted 32, 4 withheld debts.",
       "issued_at": "2026-10-04T01:23:30Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-04T01:27:18Z",
+      "last_worked": "2026-10-04T01:39:52Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     }
   ],
   "residue": [

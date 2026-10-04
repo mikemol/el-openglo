@@ -10,7 +10,7 @@ good := {"page": "clock-config.qml", "entries": 2, "declared": ["cfg_bloom", "cf
 
 good_mount := {"mount": "clock", "has_page": true, "stray": [], "params": [
 	{"param": "bloom", "declared": "exposed", "spelling": "bloom", "in_kcfg": true, "on_page": true},
-	{"param": "fill", "declared": "withheld", "reason": "SegmentChar's stroke is the substrate's"},
+	{"param": "fill", "declared": "withheld", "reason": "SegmentChar's stroke is the substrate's", "kind": "geometry"},
 ]}
 
 good_display := {"params": ["bloom", "fill"], "mounts": [good_mount]}
@@ -67,6 +67,32 @@ test_d2_refuses_a_reasonless_withhold if {
 	m := object.union(good_mount, {"params": [{"param": "bloom", "declared": "withheld", "reason": "  "}]})
 	some msg in cp.deny with input as with_mount(m)
 	startswith(msg, "D2:")
+}
+
+# D6/D7 (W271): a withholding is geometry or lift debt; debt is counted and never admitted
+test_d6_refuses_an_unknown_withholding_kind if {
+	m := object.union(good_mount, {"params": [{"param": "bloom", "declared": "withheld", "reason": "no halo", "kind": "later"}]})
+	some msg in cp.deny with input as with_mount(m)
+	startswith(msg, "D6:")
+}
+
+test_d7_lift_debt_is_withheld_debt_not_a_pass if {
+	m := object.union(good_mount, {"params": [{"param": "bloom", "declared": "withheld", "reason": "the field has no halo", "kind": "lift-debt"}]})
+	"D7: clock withholds bloom as LIFT DEBT (the mechanic is shared; the mount lacks it): the field has no halo" in cp.withheld with input as with_mount(m)
+	count(cp.deny) == 0 with input as with_mount(m)
+	not "clock/bloom" in cp.admitted with input as with_mount(m)
+}
+
+# a withholding that names no kind is debt until classified (the conservative default)
+test_d7_a_kindless_withholding_is_debt if {
+	m := object.union(good_mount, {"params": [{"param": "bloom", "declared": "withheld", "reason": "no halo"}]})
+	some msg in cp.withheld with input as with_mount(m)
+	startswith(msg, "D7: clock withholds bloom")
+}
+
+test_d7_geometry_is_admitted_not_debt if {
+	count([m | some m in cp.withheld with input as with_mount(good_mount); startswith(m, "D7:")]) == 0
+	"clock/fill" in cp.admitted with input as with_mount(good_mount)
 }
 
 test_d3_refuses_an_exposed_key_not_in_kcfg if {

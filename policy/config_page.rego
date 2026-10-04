@@ -187,11 +187,42 @@ withheld contains msg if {
 	msg := sprintf("D5: %s/%s: %v was not measured", [mlabel(d), plabel(r), sort(p_unmeasured(r))])
 }
 
+# METADATA
+# title: "D6/D7 — a withholding names WHY: geometry, or lift debt (W271)"
+# description: |
+#   The renderer is one for every surface (operator 2026-10-04), so a mount withholding a
+#   display parameter is either GEOMETRIC (derived from, or meaningless for, its segment
+#   geometry) or LIFT DEBT (the mechanic is shared and the mount merely lacks it). A kind
+#   that is neither is denied (D6); lift debt is counted and printed per mount and is
+#   never admitted (D7).
+kind_of(r) := object.get(r, "kind", "lift-debt")
+
+p_debt(r) if {
+	r.declared == "withheld"
+	kind_of(r) == "lift-debt"
+}
+
+deny contains msg if {
+	some d in mounts
+	some r in mparams(d)
+	r.declared == "withheld"
+	not kind_of(r) in {"geometry", "lift-debt"}
+	msg := sprintf("D6: %s withholds %s with kind %v, which is neither geometry nor lift-debt", [mlabel(d), plabel(r), kind_of(r)])
+}
+
+withheld contains msg if {
+	some d in mounts
+	some r in mparams(d)
+	p_debt(r)
+	msg := sprintf("D7: %s withholds %s as LIFT DEBT (the mechanic is shared; the mount lacks it): %s", [mlabel(d), plabel(r), object.get(r, "reason", "")])
+}
+
 admitted contains sprintf("%s/%s", [mlabel(d), plabel(r)]) if {
 	some d in mounts
 	some r in mparams(d)
 	p_judged(r)
 	not p_bad(r)
+	not p_debt(r)
 }
 
 # METADATA
