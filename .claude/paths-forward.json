@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 270,
+  "counter": 271,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-03T23:56:21Z",
   "job_id": "447f21de",
@@ -5988,6 +5988,35 @@
       "last_worked": "2026-10-04T01:02:00Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W271",
+      "title": "One renderer for every surface: lift the shared mechanics (halo, gradient, glow, aperture gamma and scale) into one display component with swappable geometry, and read the mount list for every check from one declared registry",
+      "status": "ready",
+      "enables": [
+        "W268",
+        "W267",
+        "W269",
+        "W270"
+      ],
+      "touches": [
+        "display_params",
+        "SegmentChar",
+        "ApertureField",
+        "check_config_reach",
+        "check_config_page"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Finish step 1: make check_config_page and check_render_constants take their mount list from display_params.MOUNT_REGISTRY. Then step 2 (Withheld kinds geometry vs lift-debt in display_params, policy counts lift-debt per mount), step 3 (lift halo, gradient, glow, aperture gamma and scale into the shared renderer), step 4 (converge SegmentChar and ApertureField).",
+      "evidence": "2026-10-04: STEP 1 PARTIAL (commit this tick): display_params.MOUNT_REGISTRY + MountSpec (surface, size, kcfg and holes providers, unmeasured reason) is the one declaration; check_config_reach reads it (its SURFACES and mount_inputs tables are gone), make_wallpaper_live.display_holes() is the single holes provider for the wallpaper kcfg, page and witness; the marquee is a registry member with its unmeasured reason, surfaced by policy U as named withheld debt (opa test 11/11; live: 24 admitted, 1 withheld). STILL TO DO in step 1: check_config_page and check_render_constants read the registry too (they still carry their own mount and template lists), and the marquee gets a sampled-run measurement (W267).",
+      "issued_at": "2026-10-04T01:23:30Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-10-04T01:27:18Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     }
   ],

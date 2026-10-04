@@ -41,8 +41,6 @@ sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 VARIANT = "EL-Openglo"
-# mount -> (the render_qml surface, the still's size)
-SURFACES = {"clock": ("clock", (160, 48)), "wallpaper": ("live-wallpaper", (320, 180))}
 
 # (mount, key) that cannot show in ONE still, with the reason; a declaration is data the
 # policy can read, so an exemption is visible rather than a quiet `continue`
@@ -83,17 +81,26 @@ def differs(a, b):
     return a != b
 
 
-def mount_inputs(mount):
-    """(kcfg text, display-row holes) of a mount: what its emitter hands the page."""
-    if mount == "clock":
-        import make_clock
+def specs():
+    """{mount: MountSpec} from the ONE registry every horizontal check reads
+    (display_params.MOUNT_REGISTRY, W271): no per-mount table lives here."""
+    import display_params as DP
 
-        return make_clock.CONFIG_XML, make_clock._display_holes()
-    import make_wallpaper_live
+    return DP.MOUNT_REGISTRY
 
-    return make_wallpaper_live.config_main_xml(), {
-        "ghostAlpha": make_wallpaper_live.global_alpha("glanced_at")
-    }
+
+def resolve(ref):
+    """The value a (module, attribute) pair names, called when it is callable."""
+    import importlib
+
+    value = getattr(importlib.import_module(ref[0]), ref[1])
+    return value() if callable(value) else value
+
+
+def mount_inputs(spec):
+    """(kcfg text, display-row holes) of a measurable mount: what its emitter hands
+    the page."""
+    return resolve(spec.kcfg), resolve(spec.holes)
 
 
 def measure():
@@ -104,11 +111,20 @@ def measure():
     import render_qml
 
     if not os.path.exists(render_qml.QML):
-        return {"cases": [], "withheld": f"{render_qml.QML} is not installed"}
+        return {
+            "cases": [],
+            "unmeasured": [],
+            "withheld": f"{render_qml.QML} is not installed",
+        }
     cases = []
+    unmeasured = []
     with tempfile.TemporaryDirectory() as td:
-        for mount, (surface, size) in SURFACES.items():
-            kcfg, holes = mount_inputs(mount)
+        for mount, spec in specs().items():
+            if spec.surface is None or spec.size is None:
+                unmeasured.append({"mount": mount, "reason": spec.unmeasured})
+                continue
+            surface, size = spec.surface, spec.size
+            kcfg, holes = mount_inputs(spec)
             entries = plasma_rewrite._kcfg_defaults(kcfg)
             for key, typ, lo, hi in ends(entries, holes, mount):
                 shots = []
@@ -119,7 +135,11 @@ def measure():
                     )
                     if rc != 0 or not os.path.exists(png):
                         why = f"{mount}/{key}={value}: rc {rc}: {err}"
-                        return {"cases": cases, "withheld": why}
+                        return {
+                            "cases": cases,
+                            "unmeasured": unmeasured,
+                            "withheld": why,
+                        }
                     with open(png, "rb") as fh:
                         shots.append(fh.read())
                 cases.append(
@@ -133,7 +153,7 @@ def measure():
                         "inert": INERT.get((mount, key)),
                     }
                 )
-    return {"cases": cases, "withheld": None}
+    return {"cases": cases, "unmeasured": unmeasured, "withheld": None}
 
 
 def main(argv):
@@ -183,7 +203,13 @@ def _selftest():
         "ghostAlpha" in wall and "weight" in wall,
         True,
     )
-    chk("every mount has a surface to render", sorted(SURFACES), ["clock", "wallpaper"])
+    measured = {m: s for m, s in specs().items() if s.surface is not None}
+    chk("the registry's measurable mounts", sorted(measured), ["clock", "wallpaper"])
+    chk(
+        "an unmeasurable mount states why",
+        all(s.unmeasured for m, s in specs().items() if m not in measured),
+        True,
+    )
     # the LIVE arms: the measurement sees a key that reaches the pixels, and one that
     # does not (a key the template never reads), against the same renderer
     import render_qml
@@ -201,7 +227,8 @@ def _selftest():
                 with open(png, "rb") as fh:
                     return rc, fh.read()
 
-            for mount, (surface, size) in SURFACES.items():
+            for mount, spec in measured.items():
+                surface, size = spec.surface, spec.size
                 rc0, base = shot(surface, size, {})
                 rc1, ghost = shot(surface, size, {"showGhost": False})
                 rc2, unread = shot(

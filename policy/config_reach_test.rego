@@ -52,6 +52,18 @@ test_r2_refuses_an_inert_declaration_without_a_reason if {
 	startswith(msg, "R2:")
 }
 
+# a mount the witness cannot render as one still is named debt, not a pass and not a denial
+test_unmeasured_mount_is_named_debt if {
+	inp := object.union(good, {"unmeasured": [{"mount": "marquee", "reason": "acts over time"}]})
+	"U: marquee is not measured: acts over time" in p.withheld with input as inp
+	count(p.deny) == 0 with input as inp
+}
+
+test_unmeasured_mount_without_a_reason_is_flagged if {
+	inp := object.union(good, {"unmeasured": [{"mount": "marquee", "reason": ""}]})
+	"U: marquee is unmeasured with no reason" in p.withheld with input as inp
+}
+
 # could not measure: withheld, never read as the settings alive or dead
 test_withheld_when_the_runner_is_absent if {
 	inp := {"cases": [], "withheld": "no qml runner"}

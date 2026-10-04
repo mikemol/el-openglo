@@ -207,10 +207,15 @@ def config_main_xml():
 
     return TL.render(
         "live-wallpaper-config.kcfg",
-        displayEntries=DP.kcfg_entries(
-            "wallpaper", {"ghostAlpha": global_alpha("glanced_at")}, indent="    "
-        ),
+        displayEntries=DP.kcfg_entries("wallpaper", display_holes(), indent="    "),
     )
+
+
+def display_holes():
+    """The holes the display rows may name: the palette's solved GLANCED-AT ghost alpha
+    (the DEFAULT of the unlit-opacity override). One provider for the kcfg, the page and
+    the reach witness, so none of them spells it again."""
+    return {"ghostAlpha": global_alpha("glanced_at")}
 
 
 def config_qml():
@@ -222,9 +227,7 @@ def config_qml():
     return TL.render(
         "live-wallpaper-config.qml",
         displayDecls=DP.qml_decls("wallpaper"),
-        displayControls=DP.qml_controls(
-            "wallpaper", {"ghostAlpha": global_alpha("glanced_at")}, indent="    "
-        ),
+        displayControls=DP.qml_controls("wallpaper", display_holes(), indent="    "),
     )
 
 

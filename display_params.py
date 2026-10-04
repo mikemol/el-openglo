@@ -231,6 +231,44 @@ MOUNTS = {
     },
 }
 
+
+@dataclass(frozen=True)
+class MountSpec:
+    """How the horizontal checks reach a mount (W271): ONE declaration they all read, so no
+    check keeps its own per-mount table. `kcfg` and `holes` are (module, attribute) pairs
+    resolved lazily by the check (a constant text or a callable); `surface` is the
+    render_qml surface and `size` its still, or None with `unmeasured` saying why the
+    mount cannot be rendered as one still."""
+
+    surface: str | None
+    size: tuple[int, int] | None
+    kcfg: tuple[str, str] | None
+    holes: tuple[str, str] | None
+    unmeasured: str = ""
+
+
+MOUNT_REGISTRY = {
+    "clock": MountSpec(
+        "clock",
+        (160, 48),
+        ("make_clock", "CONFIG_XML"),
+        ("make_clock", "_display_holes"),
+    ),
+    "wallpaper": MountSpec(
+        "live-wallpaper",
+        (320, 180),
+        ("make_wallpaper_live", "config_main_xml"),
+        ("make_wallpaper_live", "display_holes"),
+    ),
+    "marquee": MountSpec(
+        None,
+        None,
+        None,
+        None,
+        "acts over time: needs a sampled run per key end (check_marquee_live), W267",
+    ),
+}
+
 _QTYPE = {"Bool": "bool", "Double": "real"}
 
 

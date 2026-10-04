@@ -52,6 +52,23 @@ withheld contains msg if {
 	msg := sprintf("W: %s", [w])
 }
 
+# METADATA
+# title: "U — a mount the witness cannot render as one still is debt, named"
+# description: |
+#   The mount registry (display_params.MOUNT_REGISTRY) lists every mount the horizontal
+#   checks apply to. One that cannot be rendered as a single still is carried as
+#   `unmeasured` with its reason: counted and printed, never silently absent (W267/W271).
+withheld contains msg if {
+	some u in object.get(input, "unmeasured", [])
+	msg := sprintf("U: %s is not measured: %s", [u.mount, u.reason])
+}
+
+withheld contains msg if {
+	some u in object.get(input, "unmeasured", [])
+	count(object.get(u, "reason", "")) == 0
+	msg := sprintf("U: %s is unmeasured with no reason", [u.mount])
+}
+
 withheld contains msg if {
 	some c in input.cases
 	not is_boolean(object.get(c, "differs", null))

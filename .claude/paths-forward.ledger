@@ -612,3 +612,5 @@
 2026-10-04T00:06:00Z  tick  W268 minted    collapse  "operator rule: every render-time value exposed and effectful in the configuration view; census tool first"  evidence=memory every-render-value-is-configurable
 2026-10-04T00:52:15Z  tick  W268 advanced  collapse  "render-constants census, registry and policy: 59 of 61 literal render properties judged, 2 OPEN debts visible"  evidence=opa_gate render_constants admitted 59 withheld 2
 2026-10-04T01:02:01Z  tick  W269 minted    collapse  "operator ruling: greeter and splash need a configuration view under the one display declaration; W269 and W270 minted"  evidence=memory conformity-and-standardization
+2026-10-04T01:23:38Z  tick  W271 minted    collapse  "operator: one renderer for every surface, horizontal checks over a mount registry; per-mount Withheld for a missing mechanic is lift debt"  evidence=memory one-renderer-horizontal-checks
+2026-10-04T01:27:18Z  tick  W271 advanced  collapse  "one mount registry read by the reach witness; marquee named as unmeasured debt"  evidence=opa_gate config_reach admitted 24 withheld 1
