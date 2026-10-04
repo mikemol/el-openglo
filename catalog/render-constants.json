@@ -55,7 +55,7 @@
   "templates/metrics-main.qml": {
     "face": "STATE",
     "faceText": "STATE",
-    "endpoint": "OPEN:W268"
+    "endpoint": "WITHHELD:resolved at run time from luthen's endpoints_query.py by contract (luthen-observability 2026-10-02: asked for, never copied into configuration)"
   },
   "templates/sddm-main.qml": {
     "failure": "STATE",
