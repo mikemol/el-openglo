@@ -186,6 +186,7 @@ def main_qml():
     return TL.render(
         "live-wallpaper-main.qml",
         ghostAlpha=global_alpha("glanced_at"),  # ambient: glanced
+        digitGap=_digit_gap(),
         tables=_MC.qml_tables(),
         pitch=f"{m['pitch']:.3f}",
         strokeBase=f"{m['stroke'] / 1.25:.3f}",
@@ -211,11 +212,26 @@ def config_main_xml():
     )
 
 
+def _digit_gap():
+    """The face's gap between digit boxes in the display's unit (segLen): this surface's
+    metrics are in U (H = 4U) and a length in U halves into segLen, so the module pitch
+    minus the box is pitch / 2 - 1. It is the DEFAULT of the pitch setting and its floor,
+    exactly what the face was fitted with before the gap was a setting (W271)."""
+    import segment_topology as _ST
+
+    return f"{_ST.metrics(4.0)['pitch'] / 2 - 1.0:.3f}"
+
+
 def display_holes():
     """The holes the display rows may name: the palette's solved GLANCED-AT ghost alpha
-    (the DEFAULT of the unlit-opacity override). One provider for the kcfg, the page and
-    the reach witness, so none of them spells it again."""
-    return {"ghostAlpha": global_alpha("glanced_at")}
+    (the DEFAULT of the unlit-opacity override) and the module gap (the default and the
+    floor of the pitch setting). One provider for the kcfg, the page and the reach
+    witness, so none of them spells them again."""
+    return {
+        "ghostAlpha": global_alpha("glanced_at"),
+        "digitGap": _digit_gap(),
+        "digitGapMin": _digit_gap(),
+    }
 
 
 def config_qml():

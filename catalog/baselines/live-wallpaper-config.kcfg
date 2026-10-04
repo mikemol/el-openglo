@@ -8,6 +8,8 @@
     <entry name="ghostAlpha" type="Double"><default>0.309</default></entry>
     <entry name="weight" type="Double"><default>1.0</default></entry>
     <entry name="ghostWeight" type="Double"><default>0.81</default></entry>
+    <!-- pitch: in segLen: the gap between digit boxes; the default and the slider's floor are the module pitch itself, and the face is fitted to the frame with it -->
+    <entry name="digitGap" type="Double"><default>0.786</default></entry>
     <entry name="bloom" type="Double"><default>1.5</default></entry>
     <entry name="haloOpacity" type="Double"><default>0.75</default></entry>
     <entry name="litGradient" type="Double"><default>0.35</default></entry>

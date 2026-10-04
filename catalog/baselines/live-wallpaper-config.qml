@@ -12,6 +12,7 @@ Kirigami.FormLayout {
     property alias cfg_ghostAlpha: ghostAlphaControl.value
     property alias cfg_weight: weightControl.value
     property alias cfg_ghostWeight: ghostWeightControl.value
+    property alias cfg_digitGap: digitGapControl.value
     property alias cfg_bloom: bloomControl.value
     property alias cfg_haloOpacity: haloOpacityControl.value
     property alias cfg_litGradient: litGradientControl.value
@@ -21,6 +22,7 @@ Kirigami.FormLayout {
     property real cfg_ghostAlphaDefault
     property real cfg_weightDefault
     property real cfg_ghostWeightDefault
+    property real cfg_digitGapDefault
     property real cfg_bloomDefault
     property real cfg_haloOpacityDefault
     property real cfg_litGradientDefault
@@ -35,6 +37,7 @@ Kirigami.FormLayout {
     QQC2.Slider { id: ghostAlphaControl; from: 0.0; to: 1.0; stepSize: 0.02; Kirigami.FormData.label: "Unlit opacity:" }
     QQC2.Slider { id: weightControl; from: 0; to: 1; stepSize: 0.25; Kirigami.FormData.label: "Lit stroke weight:" }
     QQC2.Slider { id: ghostWeightControl; from: 0; to: 1.0; stepSize: 0.05; Kirigami.FormData.label: "Unlit stroke weight:" }
+    QQC2.Slider { id: digitGapControl; from: 0.786; to: 2.0; stepSize: 0.05; Kirigami.FormData.label: "Cell pitch:" }
     QQC2.Slider { id: bloomControl; from: 0; to: 6; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
     QQC2.Slider { id: haloOpacityControl; from: 0; to: 1; stepSize: 0.05; Kirigami.FormData.label: "Halo opacity:" }
     QQC2.Slider { id: litGradientControl; from: 0; to: 1; stepSize: 0.05; Kirigami.FormData.label: "Lit gradient:" }

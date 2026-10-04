@@ -59,6 +59,10 @@ WallpaperItem {
                                  : wallpaper.configuration.boundaryDepth
     property real cfgGlow: (wallpaper.configuration.glow === undefined) ? 1.0
                            : wallpaper.configuration.glow
+    // the gap between digit boxes, in segLen (default and floor: the module pitch). It is an input
+    // of the one fit rule below, which sizes the face to the frame with it
+    property real digitGap: (wallpaper.configuration.digitGap === undefined) ? $digitGap
+                            : wallpaper.configuration.digitGap
 
     Rectangle { anchors.fill: parent; color: root.voidColor }
 
@@ -110,7 +114,7 @@ $tables
         // colon slot, and never taller than 60% of the frame.
         // this surface's metrics are in U (H = 4U); the display's cell is segLen
         // (H = 2 segLen), so a length in U halves into the display's unit
-        readonly property real gapRatio: root.pitch / 2 - 1.0
+        readonly property real gapRatio: root.digitGap
         readonly property real colonRatio: root.colonAdvance / 2
         property real cellLen: Math.max(6, Math.floor(Math.min(
             parent.width * 0.6 / (4 + 3 * gapRatio + colonRatio),

@@ -226,9 +226,14 @@ MOUNTS = {
         "litWeight": Exposed("weight", "1.0", ("0", "1", "0.25")),
         "ghostWeight": Exposed("ghostWeight", "0.81", ("0", "1.0", "0.05")),
         "fill": Withheld(_SEG_FILL, "geometry"),
-        "pitch": Withheld(
-            "the face is FIT to the frame at the substrate's module pitch (60% of the "
-            "width over four cells); a user gap would be a second fit rule, not yet designed"
+        # operator rule (every render value is a setting): the face is still FIT to the frame, now
+        # with the user's gap in the fit - one fit rule, the gap an input of it, shared with the clock
+        "pitch": Exposed(
+            "digitGap",
+            "$digitGap",
+            ("$digitGapMin", "2.0", "0.05"),
+            "in segLen: the gap between digit boxes; the default and the slider's floor are "
+            "the module pitch itself, and the face is fitted to the frame with it",
         ),
         "bloom": Exposed("bloom", "1.5", ("0", "6", "0.5")),
         "haloOpacity": Exposed("haloOpacity", "0.75", ("0", "1", "0.05")),

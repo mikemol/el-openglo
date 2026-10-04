@@ -198,7 +198,8 @@ def _selftest():
         True,
     )
     chk("each key appears once", len(keys) == len(set(keys)), True)
-    wall = [r[0] for r in ends({}, {"ghostAlpha": "0.3"}, "wallpaper")]
+    wall_holes = mount_inputs(specs()["wallpaper"])[1]
+    wall = [r[0] for r in ends({}, wall_holes, "wallpaper")]
     chk(
         "the wallpaper's own rows are its population (it exposes the unlit opacity)",
         "ghostAlpha" in wall and "weight" in wall,
