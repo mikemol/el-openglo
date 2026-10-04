@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 267,
+  "counter": 268,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-03T21:16:17Z",
-  "job_id": "a55bdcaa",
+  "heartbeat": "2026-10-03T23:56:21Z",
+  "job_id": "447f21de",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -5800,7 +5800,7 @@
     {
       "symbol": "W263",
       "title": "Clock plasmoid ignores its configuration dialog and renders unreadable (operator saw 88:88-like segments): find why the config keys do not reach SegmentChar",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "clock",
@@ -5814,7 +5814,7 @@
       "issued_at": "2026-10-03T22:04:32Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-03T23:32:47Z",
+      "last_worked": "2026-10-03T23:56:16Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:N",
@@ -5912,6 +5912,31 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
+    },
+    {
+      "symbol": "W268",
+      "title": "Every render-time value is exposed and effectful in the configuration view (operator rule): census the literals each mount consumes, expose or Withhold each with a reason",
+      "status": "ready",
+      "enables": [
+        "W263"
+      ],
+      "touches": [
+        "display_params",
+        "SegmentChar",
+        "clock",
+        "check_config_page"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Census first, as a tool: a mode of check_config_page (or check_render_constants) that lists, per template (SegmentChar.qml, clock-main.qml, live-wallpaper, marquee), every property with a literal default and every numeric literal in a render binding, marked EXPOSED (a kcfg key reaches it), WITHHELD (declared with a reason) or HIDDEN (neither). Known HIDDEN today: SegmentChar litGradient 0.35, boundaryDepth 0.5, glow 1.0, halo opacity 0.75 and blur law, colon blink interval 500 ms, digit height ratio 0.42. Then expose each (display_params Exposed + control) or Withhold it, each proven by check_config_reach; policy: HIDDEN is a denial.",
+      "evidence": "",
+      "issued_at": "2026-10-04T00:05:52Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-10-04T00:06:00Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [
@@ -5947,6 +5972,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "c06960ea",
+  "predecessor_job_id": "a55bdcaa",
   "leases": []
 }
