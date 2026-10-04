@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 268,
+  "counter": 270,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-03T23:56:21Z",
   "job_id": "447f21de",
@@ -5933,15 +5933,59 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "After W267: expose ApertureField gamma and scale on the marquee (display_params rows + marquee-main.qml reads), prove each in the reach witness, delete their OPEN entries. Then census the numeric literals inside render bindings (a second measurement in check_render_constants: number literals in binding expressions per template, each with a disposition), starting with clock-main segLen ratio 0.42, SegmentChar blur law and the Timer intervals.",
-      "evidence": "2026-10-04: Operator 2026-10-04: the rule applies to ALL widgets and the live wallpaper(s). FIRST SLICE DONE (commit this tick): clock and live wallpaper expose halo opacity, lit gradient, gradient reach and brightness (the wallpaper also gains unlit opacity); marquee rows Withheld with reasons; config pages 13/13 and 11/11, reach witness 13 of 13 clock keys alive. REMAINING: the census tool over EVERY template (marquee-main, taskswitch-main, metrics-main, splash, sddm, android clock, ApertureField, the config pages) and the per-mount reach witness (W267); numeric literals inside bindings (digit height ratio 0.42, blink interval 500 ms and 1000 ms, marquee speeds and paddings) are invisible to a property census and need their own pass. | 2026-10-04: CENSUS SLICE 1 (scripts/check_render_constants.py --list, selftested): 12 of 61 literal-default properties over 16 QML templates are reached by a kcfg key. Most of the other 49 are STATE or DATA, not settings (timeStr, colonOn, tickerText, boardX, captureSteps, rollProgress, ...), which the census cannot yet tell from a setting. The ones that look like real unexposed render values: ApertureField gamma 1.0, scale 4, u 4; SegmentChar segLen 20 (mount-owned); metrics-main endpoint (a setting by name); sddm and splash have no config surface at all (greeter and splash screens: whether they need one is an operator question). Inline constants in bindings are not counted yet. | 2026-10-04: REGISTRY AND POLICY DONE (commits this tick): catalog/render-constants.json classifies the 49 literal render properties no key reaches; policy/render_constants.rego C0-C3 (OPEN is debt, never a pass); warrants RENDER-CONSTANTS(+SEES). Live: 59 admitted, 0 denied, 2 OPEN (ApertureField gamma, scale): the metrics endpoint is WITHHELD by contract (luthen-observability: asked for, never copied into configuration). The two OPEN values wait on W267 (a per-mount reach witness) so their exposure can be PROVEN effectful. STILL TO DO: numeric literals inside bindings (digit height ratio 0.42, blink intervals, marquee speeds and paddings, the halo blur law strokeLit*2*bloom) and the SDDM greeter and splash (no config surface; operator question asked).",
+      "evidence": "2026-10-04: Operator 2026-10-04: the rule applies to ALL widgets and the live wallpaper(s). FIRST SLICE DONE (commit this tick): clock and live wallpaper expose halo opacity, lit gradient, gradient reach and brightness (the wallpaper also gains unlit opacity); marquee rows Withheld with reasons; config pages 13/13 and 11/11, reach witness 13 of 13 clock keys alive. REMAINING: the census tool over EVERY template (marquee-main, taskswitch-main, metrics-main, splash, sddm, android clock, ApertureField, the config pages) and the per-mount reach witness (W267); numeric literals inside bindings (digit height ratio 0.42, blink interval 500 ms and 1000 ms, marquee speeds and paddings) are invisible to a property census and need their own pass. | 2026-10-04: CENSUS SLICE 1 (scripts/check_render_constants.py --list, selftested): 12 of 61 literal-default properties over 16 QML templates are reached by a kcfg key. Most of the other 49 are STATE or DATA, not settings (timeStr, colonOn, tickerText, boardX, captureSteps, rollProgress, ...), which the census cannot yet tell from a setting. The ones that look like real unexposed render values: ApertureField gamma 1.0, scale 4, u 4; SegmentChar segLen 20 (mount-owned); metrics-main endpoint (a setting by name); sddm and splash have no config surface at all (greeter and splash screens: whether they need one is an operator question). Inline constants in bindings are not counted yet. | 2026-10-04: REGISTRY AND POLICY DONE (commits this tick): catalog/render-constants.json classifies the 49 literal render properties no key reaches; policy/render_constants.rego C0-C3 (OPEN is debt, never a pass); warrants RENDER-CONSTANTS(+SEES). Live: 59 admitted, 0 denied, 2 OPEN (ApertureField gamma, scale): the metrics endpoint is WITHHELD by contract (luthen-observability: asked for, never copied into configuration). The two OPEN values wait on W267 (a per-mount reach witness) so their exposure can be PROVEN effectful. STILL TO DO: numeric literals inside bindings (digit height ratio 0.42, blink intervals, marquee speeds and paddings, the halo blur law strokeLit*2*bloom) and the SDDM greeter and splash (no config surface; operator question asked). | 2026-10-04: OPERATOR RULING 2026-10-04: the SDDM greeter and the login splash NEED a configuration view; \"the name of the game is conformity and standardization of implementation; that is what lets us lift everything, define interfaces, and project out to everything, and get a consistent product.\" Minted W269 (SDDM) and W270 (splash); both are mounts of the one display declaration, not exceptions. Saved as memory conformity-and-standardization.",
       "issued_at": "2026-10-04T00:05:52Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-04T00:52:14Z",
+      "last_worked": "2026-10-04T01:02:00Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
+    },
+    {
+      "symbol": "W269",
+      "title": "SDDM greeter gets a configuration view from the shared display declaration (operator: conformity, no surface exempt): mount sddm in display_params, theme.conf keys read via config.*, a settings projection",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "display_params",
+        "sddm",
+        "check_sddm"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Design then build: (1) add mount sddm to display_params.MOUNTS (the values the greeter consumes: ghost, ghost opacity, weights, bloom, gradient, glow, pitch where SegmentChar is mounted, plus the greeter own: clock face, user list, background), each Exposed or Withheld with a reason; (2) project to SDDM native config: theme.conf defaults (kcfg_entries analogue) and config.<key> reads in sddm-main.qml (SDDM exposes theme.conf as the config object); (3) a settings VIEW: SDDM has no per-theme dialog, so project a generated page (the same qml_controls) as a Kirigami settings page shipped with the theme and reachable from System Settings, or state precisely what the host allows; prove each key effectful with the reach witness (render_qml sddm). Ask the operator only if the host offers no view at all.",
+      "evidence": "",
+      "issued_at": "2026-10-04T01:01:38Z",
+      "minted_during": "interrupt",
+      "caused_by": "W268",
+      "last_worked": "2026-10-04T01:02:00Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
+    },
+    {
+      "symbol": "W270",
+      "title": "Login splash gets a configuration view from the shared display declaration (operator: conformity, no surface exempt): mount splash in display_params and a settings projection",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "display_params",
+        "splash",
+        "make_deb"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Same shape as W269 for the look-and-feel splash (make_deb._splash_qml, templates/splash.qml): mount splash in display_params (its consumed values: palette ground/lit/ghost today baked as pinned holes, its digits and timings), project to what the splash host reads (the look-and-feel package defaults file, a Plasma KCM page via the same generator), prove effectful with the reach witness. The splash is a standard surface under the one declaration, not an exception.",
+      "evidence": "",
+      "issued_at": "2026-10-04T01:01:39Z",
+      "minted_during": "interrupt",
+      "caused_by": "W268",
+      "last_worked": "2026-10-04T01:02:00Z",
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "agent"
     }
   ],
   "residue": [

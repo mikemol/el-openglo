@@ -611,3 +611,4 @@
 2026-10-03T23:46:48Z  tick  W264 done      advanced  "every clock setting measured to reach the pixels; render time frozen"  evidence=opa_gate config_reach admitted 9
 2026-10-04T00:06:00Z  tick  W268 minted    collapse  "operator rule: every render-time value exposed and effectful in the configuration view; census tool first"  evidence=memory every-render-value-is-configurable
 2026-10-04T00:52:15Z  tick  W268 advanced  collapse  "render-constants census, registry and policy: 59 of 61 literal render properties judged, 2 OPEN debts visible"  evidence=opa_gate render_constants admitted 59 withheld 2
+2026-10-04T01:02:01Z  tick  W269 minted    collapse  "operator ruling: greeter and splash need a configuration view under the one display declaration; W269 and W270 minted"  evidence=memory conformity-and-standardization
