@@ -31,7 +31,7 @@ deny contains msg if {
 	some c in input.cases
 	c.differs == false
 	not inert(c)
-	msg := sprintf("R1: %s: rendering %v and %v gives the same picture; the setting does nothing", [c.key, c.low, c.high])
+	msg := sprintf("R1: %s/%s: rendering %v and %v gives the same picture; the setting does nothing", [object.get(c, "mount", "clock"), c.key, c.low, c.high])
 }
 
 # METADATA
@@ -41,7 +41,7 @@ deny contains msg if {
 	c.differs == false
 	object.get(c, "inert", null) != null
 	count(object.get(c, "inert", "")) == 0
-	msg := sprintf("R2: %s: declared inert with an empty reason", [c.key])
+	msg := sprintf("R2: %s/%s: declared inert with an empty reason", [object.get(c, "mount", "clock"), c.key])
 }
 
 # METADATA
@@ -58,12 +58,12 @@ withheld contains msg if {
 	msg := sprintf("W: %v: differs was not measured", [object.get(c, "key", null)])
 }
 
-admitted contains c.key if {
+admitted contains sprintf("%s/%s", [object.get(c, "mount", "clock"), c.key]) if {
 	some c in input.cases
 	c.differs == true
 }
 
-admitted contains c.key if {
+admitted contains sprintf("%s/%s", [object.get(c, "mount", "clock"), c.key]) if {
 	some c in input.cases
 	c.differs == false
 	inert(c)

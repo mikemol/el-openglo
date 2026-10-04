@@ -29,11 +29,21 @@ test_r0_absent_population_is_empty if {
 # the failure the check exists for: a slider whose two ends draw the same picture
 test_r1_refuses_a_dead_setting if {
 	some msg in p.deny with input as {"cases": [alive, dead], "withheld": null}
-	msg == "R1: weight: rendering 0 and 1 gives the same picture; the setting does nothing"
+	msg == "R1: clock/weight: rendering 0 and 1 gives the same picture; the setting does nothing"
 }
 
 test_r1_a_dead_setting_is_not_admitted if {
-	not "weight" in p.admitted with input as {"cases": [dead], "withheld": null}
+	not "clock/weight" in p.admitted with input as {"cases": [dead], "withheld": null}
+}
+
+# the same key can be alive on one mount and dead on another: the verdict is per mount
+test_r1_is_per_mount if {
+	wall_dead := object.union(dead, {"mount": "wallpaper"})
+	inp := {"cases": [object.union(alive, {"mount": "clock"}), wall_dead], "withheld": null}
+	some msg in p.deny with input as inp
+	startswith(msg, "R1: wallpaper/weight:")
+	"clock/weight" in p.admitted with input as inp
+	not "wallpaper/weight" in p.admitted with input as inp
 }
 
 test_r2_refuses_an_inert_declaration_without_a_reason if {

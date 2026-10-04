@@ -5896,7 +5896,7 @@
     {
       "symbol": "W267",
       "title": "Reach witness for the live wallpaper and the marquee settings (as check_config_reach does for the clock): the same dead-slider blind spot",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W268"
       ],
@@ -5912,15 +5912,16 @@
       "issued_at": "2026-10-03T23:46:48Z",
       "minted_during": "interrupt",
       "caused_by": "W264",
-      "last_worked": "2026-10-04T00:52:00Z",
+      "last_worked": "2026-10-04T01:11:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W268",
       "title": "Every render-time value is exposed and effectful in the configuration view (operator rule): census the literals each mount consumes, expose or Withhold each with a reason",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W263"
       ],
@@ -5930,14 +5931,16 @@
         "clock",
         "check_config_page"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W267"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "After W267: expose ApertureField gamma and scale on the marquee (display_params rows + marquee-main.qml reads), prove each in the reach witness, delete their OPEN entries. Then census the numeric literals inside render bindings (a second measurement in check_render_constants: number literals in binding expressions per template, each with a disposition), starting with clock-main segLen ratio 0.42, SegmentChar blur law and the Timer intervals.",
       "evidence": "2026-10-04: Operator 2026-10-04: the rule applies to ALL widgets and the live wallpaper(s). FIRST SLICE DONE (commit this tick): clock and live wallpaper expose halo opacity, lit gradient, gradient reach and brightness (the wallpaper also gains unlit opacity); marquee rows Withheld with reasons; config pages 13/13 and 11/11, reach witness 13 of 13 clock keys alive. REMAINING: the census tool over EVERY template (marquee-main, taskswitch-main, metrics-main, splash, sddm, android clock, ApertureField, the config pages) and the per-mount reach witness (W267); numeric literals inside bindings (digit height ratio 0.42, blink interval 500 ms and 1000 ms, marquee speeds and paddings) are invisible to a property census and need their own pass. | 2026-10-04: CENSUS SLICE 1 (scripts/check_render_constants.py --list, selftested): 12 of 61 literal-default properties over 16 QML templates are reached by a kcfg key. Most of the other 49 are STATE or DATA, not settings (timeStr, colonOn, tickerText, boardX, captureSteps, rollProgress, ...), which the census cannot yet tell from a setting. The ones that look like real unexposed render values: ApertureField gamma 1.0, scale 4, u 4; SegmentChar segLen 20 (mount-owned); metrics-main endpoint (a setting by name); sddm and splash have no config surface at all (greeter and splash screens: whether they need one is an operator question). Inline constants in bindings are not counted yet. | 2026-10-04: REGISTRY AND POLICY DONE (commits this tick): catalog/render-constants.json classifies the 49 literal render properties no key reaches; policy/render_constants.rego C0-C3 (OPEN is debt, never a pass); warrants RENDER-CONSTANTS(+SEES). Live: 59 admitted, 0 denied, 2 OPEN (ApertureField gamma, scale): the metrics endpoint is WITHHELD by contract (luthen-observability: asked for, never copied into configuration). The two OPEN values wait on W267 (a per-mount reach witness) so their exposure can be PROVEN effectful. STILL TO DO: numeric literals inside bindings (digit height ratio 0.42, blink intervals, marquee speeds and paddings, the halo blur law strokeLit*2*bloom) and the SDDM greeter and splash (no config surface; operator question asked). | 2026-10-04: OPERATOR RULING 2026-10-04: the SDDM greeter and the login splash NEED a configuration view; \"the name of the game is conformity and standardization of implementation; that is what lets us lift everything, define interfaces, and project out to everything, and get a consistent product.\" Minted W269 (SDDM) and W270 (splash); both are mounts of the one display declaration, not exceptions. Saved as memory conformity-and-standardization.",
       "issued_at": "2026-10-04T00:05:52Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-04T01:02:00Z",
+      "last_worked": "2026-10-04T01:11:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
