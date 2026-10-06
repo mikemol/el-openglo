@@ -64,9 +64,33 @@ quiet() {  # run a gate with both streams captured; print them only when it fail
   return "$rc"
 }
 
+# ⚑ A SELFTEST RUNS WITHOUT THE COMMIT'S GIT_* (measured 2026-10-06). Under a partial commit git
+#    exports GIT_INDEX_FILE (relative, `.git/next-index-N.lock`) and GIT_DIR into this hook. A
+#    selftest builds a throwaway repo (`git -C <tmp> init`, `add .`) and those calls inherit it, so
+#    the files were staged into the wrong index file and the throwaway repo's own index stayed
+#    empty: seven selftests read empty populations and failed under the hook and passed from a
+#    shell. A selftest proves its checker can see on fixtures; it has no business with the commit's
+#    index. The gates below keep the environment: they certify what is being committed.
+#    EXCEPT check_ebuild: it certifies the STAGED tree (git write-tree of the commit's index), so
+#    its selftest needs the commit's environment. Without it write-tree reads the REAL index,
+#    which the commit holds locked, and exits 128 (measured on a throwaway repo, 2026-10-06).
+#
+# ⚑ THE COMMIT'S INDEX IS PASSED TO THE GATES UNDER A PAPERKIT_ NAME. paperkit's check sandbox is
+#    default-deny on the environment and drops GIT_INDEX_FILE, so the @EBUILD check's write-tree
+#    hit the locked real index (exit 128, the cause of the long-standing "git write-tree rc 128").
+#    PAPERKIT_* passes the sandbox; check_ebuild restores it for its one call. The general fix is
+#    summit's ask-project-declared-env-passthrough.
+export PAPERKIT_GIT_INDEX_FILE="${GIT_INDEX_FILE:-}"
+
 for t in "$ROOT"/scripts/check_*.py "$ROOT"/scripts/worklist_gate.py; do
   [ -e "$t" ] || continue
-  quiet "selftest:$(basename "$t" .py)" "${RUNNER[@]}" "$t" --selftest
+  name="$(basename "$t" .py)"
+  if [ "$name" = "check_ebuild" ]; then
+    quiet "selftest:$name" "${RUNNER[@]}" "$t" --selftest
+  else
+    quiet "selftest:$name" \
+      env -u GIT_INDEX_FILE -u GIT_DIR -u GIT_WORK_TREE -u GIT_PREFIX "${RUNNER[@]}" "$t" --selftest
+  fi
 done
 
 # 2. (RETIRED, W99 2026-10-02.) The PreToolUse hooks are no longer symlinks into

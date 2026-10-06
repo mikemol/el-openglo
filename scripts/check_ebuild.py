@@ -240,11 +240,26 @@ def staged_tree(clean=True):
             import git_tracked
 
             if git_tracked.source(ROOT) == "git":
+                # ⚑ THE COMMIT'S INDEX ARRIVES UNDER A PAPERKIT_ NAME (measured 2026-10-06).
+                # Under a partial commit git holds the REAL index locked and gives the hook the
+                # tree being committed as GIT_INDEX_FILE=.git/next-index-N.lock. paperkit's
+                # clean_env is default-deny, so a gated check never sees GIT_INDEX_FILE, and a
+                # bare `git write-tree` then hits the locked real index and exits 128. The
+                # PAPERKIT_ prefix passes the sandbox, so the pre-commit hook exports the path as
+                # PAPERKIT_GIT_INDEX_FILE and it is restored here, for this one call. The general
+                # fix is a project-declared passthrough (summit: ask-project-declared-env-
+                # passthrough, filed by paperkit for this repo); this is the local route until it
+                # lands. Outside a hook the variable is absent and write-tree reads the index.
+                env = dict(os.environ)
+                declared = env.get("PAPERKIT_GIT_INDEX_FILE")
+                if declared:
+                    env["GIT_INDEX_FILE"] = declared
                 tree = subprocess.run(
                     ["git", "-C", ROOT, "write-tree"],
                     capture_output=True,
                     text=True,
                     check=True,
+                    env=env,
                 ).stdout.strip()
                 archive = subprocess.run(
                     ["git", "-C", ROOT, "archive", "--format=tar", tree],
