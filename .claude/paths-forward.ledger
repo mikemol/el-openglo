@@ -798,3 +798,4 @@
 2026-10-06T00:18:18Z  interrupt W452 minted    -         "el-openglo commit gate is red: pre-commit selftests fail and the @EBUILD check's git write-tree exits 128"
 2026-10-06T01:00:56Z  tick  W453 minted    -         "el-openglo typing: templates/__init__.py (1 findings)"
 2026-10-06T01:38:45Z  interrupt W454 minted    -         "el-openglo commit gate is red: the @EBUILD check flakes (pkgcheck errors, passes on replay), so the gate is not deterministic"
+2026-10-06T01:51:01Z  interrupt W455 minted    -         "el-openglo precommit is not a bazel build: its hook is a script, not a bazel test"
