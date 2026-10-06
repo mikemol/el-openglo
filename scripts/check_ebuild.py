@@ -114,6 +114,41 @@ def deps_resolve(path=EBUILD):
     )
 
 
+FAILURES = os.path.join(tempfile.gettempdir(), "el-openglo-pkgcheck-failures")
+
+
+def record_failure(argv, r):
+    """Keep what a FAILING pkgcheck scan printed, outside the tree (W212, 2026-10-06).
+
+    The flake's first failure output was never captured: the gate printed
+    `DENY B1: pkgcheck:` with an empty message and the replay passed, so every
+    theory about the cause stayed a theory. One JSON file per failure under
+    FAILURES (the system temp dir, never the checkout: W68), with argv, exit
+    code, both streams and the environment names pkgcheck and git read."""
+    import json
+    import time
+
+    # Under bazel the test's undeclared-outputs directory is what BuildBuddy captures with the
+    # invocation; outside it the system temp dir keeps the file.
+    where = os.environ.get("TEST_UNDECLARED_OUTPUTS_DIR") or FAILURES
+    os.makedirs(where, exist_ok=True)
+    stamp = time.strftime("%Y%m%dT%H%M%S")
+    name = os.path.join(where, f"{stamp}-{os.getpid()}.json")
+    prefixes = ("PORTAGE", "PKGCORE", "PKGCHECK", "XDG", "GIT", "PAPERKIT", "HOME")
+    env = {k: v for k, v in os.environ.items() if k.startswith(prefixes)}
+    doc = {
+        "argv": argv,
+        "rc": r.returncode,
+        "stdout": r.stdout,
+        "stderr": r.stderr,
+        "env": env,
+    }
+    with open(
+        name, "w", encoding="utf-8"
+    ) as fh:  # atomic-write: exempt — a diagnostic outside the tree
+        json.dump(doc, fh, indent=1)
+
+
 def pkgcheck_scan(path=EBUILD, isolated=True):
     """Run pkgcheck on the ebuild and return (rc, stdout, stderr).
 
@@ -126,12 +161,10 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
     is COPIED to a private dir (its caches land there) and --cache-dir is private.
     `isolated=False` is the old call, kept so --race can show the difference."""
     if not isolated:
-        r = subprocess.run(
-            ["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        argv = ["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path]
+        r = subprocess.run(argv, capture_output=True, text=True, check=False)
+        if r.returncode != 0:
+            record_failure(argv, r)
         return r.returncode, r.stdout, r.stderr
     with tempfile.TemporaryDirectory(prefix="el-pkgcheck-") as td:
         repo = os.path.join(td, "overlay")
@@ -141,22 +174,20 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
             if path.startswith(OVERLAY + os.sep)
             else path
         )
-        r = subprocess.run(
-            [
-                "pkgcheck",
-                "scan",
-                "--cache-dir",
-                os.path.join(td, "cache"),
-                "--repo",
-                repo,
-                "-k",
-                "error",
-                target,
-            ],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        argv = [
+            "pkgcheck",
+            "scan",
+            "--cache-dir",
+            os.path.join(td, "cache"),
+            "--repo",
+            repo,
+            "-k",
+            "error",
+            target,
+        ]
+        r = subprocess.run(argv, capture_output=True, text=True, check=False)
+        if r.returncode != 0:
+            record_failure(argv, r)
         return r.returncode, r.stdout, r.stderr
 
 
