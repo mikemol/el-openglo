@@ -56,6 +56,13 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # environment.d entry has none).
 os.environ.setdefault("PAPERKIT_SCRATCH", "/var/tmp/paperkit-sweep")
 
+# ⚑ THE CPU CAP, RAISED FOR THIS BOARD (2026-10-06). paperkit's resolver SIGKILLs any check that
+# uses more than PAPERKIT_CHECK_CPU seconds of CPU (default 60). `opa_gate.py ebuild` measures 76 s
+# of CPU standalone (73 s wall, 1.1 GB), so it was killed inside the gate and passed on replay,
+# where no cap applies: a flake that blocked every commit. 600 matches the resolver's own
+# wall-clock backstop; a caller's own value wins. Per-item caps are paperkit:W294.
+os.environ.setdefault("PAPERKIT_CHECK_CPU", "600")
+
 # name -> project dir.  Order is the order they run in.
 PROJECTS = {
     "worklist": os.path.join(ROOT, "catalog", "worklist"),
@@ -79,6 +86,27 @@ ENTRY = {
     "--project": ("project.py", "PROJECT"),
     "--discriminate": ("discriminate.py", "DISCRIMINATE"),
 }
+
+
+def _engine_argv(script, proj):
+    """⚑ THE ENGINE RUNS AS A PACKAGE, NEVER BY PATH (paperkit:W297): `-m paperkit.gate`."""
+    return [sys.executable, "-m", "paperkit." + script.removesuffix(".py"), proj]
+
+
+def _engine_env(engine):
+    """The environment that makes the package `paperkit` importable from the checkout.
+
+    ⚑ ONLY THE CHECKOUT, NEVER THE PACKAGE DIRECTORY: PYTHONPATH is inherited by every check the
+    engine runs, and the engine's `config`, `layout`, `bib` would then shadow theirs (measured
+    2026-10-06: three claims red in the gate, green on replay). The engine finds its own flat
+    siblings through the working directory, which `-m` puts first, until paperkit:W296.
+    """
+    env = dict(os.environ)
+    env["PYTHONPATH"] = os.pathsep.join(
+        [engine] + [p for p in [env.get("PYTHONPATH")] if p]
+    )
+    return env
+
 
 # ⚑ `--summary` EXISTS BECAUSE ITS ABSENCE WAS BEING PAPERED OVER WITH A PIPE.
 # The verdict lines were repeatedly extracted with `… | grep -E 'FAILED|PASS'`,
@@ -175,10 +203,10 @@ def cost(key, proj, engine):
     not zero, so the caller falls back rather than treating it as free.
     """
     script, _label = ENTRY[None]
-    path = os.path.join(engine, "paperkit", script)
     r = subprocess.run(
-        [sys.executable, path, proj],
+        _engine_argv(script, proj),
         cwd=os.path.join(engine, "paperkit"),
+        env=_engine_env(engine),
         capture_output=True,
         text=True,
         check=False,
@@ -643,8 +671,9 @@ def main(argv):
         # palette checks failed then passed, both on an unchanged tree, and both
         # times the re-run was done BY HAND because the tool could not do it.
         run = subprocess.run(
-            [sys.executable, path, proj],
+            _engine_argv(script, proj),
             cwd=os.path.join(engine, "paperkit"),
+            env=_engine_env(engine),
             capture_output=True,
             text=True,
             check=False,
