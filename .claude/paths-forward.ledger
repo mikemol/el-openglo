@@ -859,3 +859,5 @@
 2026-10-11T18:03:52Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:6d3209de59808d9b; the FILE wins"
 2026-10-11T18:06:34Z  interrupt W505 minted    -         "check_ebuild leaves its .ebuild-witness temp trees behind when killed (17 found, each a full repo copy that every tool scan then reads): sweep stale ones at start"  evidence=W504
 2026-10-11T18:09:44Z  interrupt W506 minted    -         "render_qml.py --selftest fails two litGradient texture arms at HEAD (pre-existing) and no gate stage runs it"  evidence=W504
+2026-10-11T20:06:27Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:875252f4f7f7c05e; the FILE wins"
+2026-10-11T20:19:58Z  interrupt W507 minted    -         "Repin the mtools pins to the fleet par a61069e (repin_behind_par alert), then uv sync both extras and read the uv.lock diff for anything beyond mtools dists"  evidence=github-8f

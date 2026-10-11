@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 506,
+  "counter": 507,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -6080,8 +6080,7 @@
         "W500",
         "W501",
         "W502",
-        "W503",
-        "W504"
+        "W503"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella: W500 (extract the halo from SegmentChar into a shared emission component, clock and wallpaper pixel-identical), W501 (ApertureField mounts it, the marquee passes bloom/haloOpacity/glow), W502 (display_params: the three lift-debt rows become Exposed, kcfg and page), W503 (sampled-run reach witness under the RHI path). The aperture gamma and scale (W268 OPEN) are separate. The software scene graph has no MultiEffect, so the halo is only observable under the RHI (mesa) path.",
@@ -11971,7 +11970,7 @@
     {
       "symbol": "W500",
       "title": "Extract the halo layer from SegmentChar into one shared emission component both displays mount, with the clock and wallpaper pixel-identical",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W272"
       ],
@@ -11980,16 +11979,14 @@
         "SegmentChar",
         "ApertureField"
       ],
-      "blocked_on": [
-        "W504"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "After W504 (the roster): add templates/EmissionHalo.qml (bloom, haloOpacity, glow, radiusUnit; MultiEffect blur layer with blurMax = max(2, round(radiusUnit*2*bloom)); default alias into an inner item), register it in the roster for the mounts that ship SegmentChar, replace SegmentChar halo Item (lines 124-151) by an EmissionHalo{} with radiusUnit: sc.strokeLit holding the same lit Repeater and ColonDots; regenerate tracked outputs (check_emitters_run --apply); prove no pixel change with render_screens/config_reach on clock and wallpaper under the RHI path.",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Commit lands (staged gate); close W500; W501 next: ApertureField mounts EmissionHalo over its lit pips",
+      "evidence": "2026-10-11: templates/EmissionHalo.qml (bloom, haloOpacity, glow, radiusUnit; MultiEffect blur layer, blurMax = max(2, round(radiusUnit x 2 x bloom)), lit primitives mounted as children through a default alias). SegmentChar mounts its lit segments and colon dots in it with radiusUnit = the lit stroke width, and no longer imports QtQuick.Effects. Roster entry (clock, wallpaper, sddm packages and render surfaces), accessor make_segment_display.emission_halo_component, baselines recorded for both. Measured: 12 renders (clock and wallpaper x bloom 0/4/6, haloOpacity 0.3, glow 0.5, defaults) pixel-identical before and after under the settled RHI harness; config_reach admitted 25 (same as before); check_emitters_run 0 drifted of 664 tracked files; qml_lint 15, package_imports 3, template_parity 15 admitted; the 19 stale screens rebuilt to byte-identical PNGs and the screens, schemes and wallpapers keys re-recorded; closures regenerated (new reads of EmissionHalo.qml).",
       "issued_at": "2026-10-11T16:04:42Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-11T17:19:44Z",
+      "last_worked": "2026-10-11T20:51:41Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
@@ -12076,7 +12073,7 @@
     {
       "symbol": "W504",
       "title": "One roster of shared QML components and the mounts that ship each (SegmentChar, ApertureField, later EmissionHalo), read by the emitters, render_qml.companions, template parity and the QML lint",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W500"
       ],
@@ -12090,14 +12087,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands (staged gate); close W504; W500 next",
-      "evidence": "2026-10-11: display_params.COMPONENTS: one roster (file, accessor, packages, render surfaces) for SegmentChar.qml and ApertureField.qml, with components_for, component_text, companions_for and ship_components. Read now by make_clock, make_sddm, make_wallpaper_live and make_notify_marquee (ship_components), render_qml.companions (companions_for), check_template_parity and check_qml_lint (their component rows are derived, the two hand rows removed). Proven: check_emitters_run 0 drifted of 661 tracked files, 0 tree files written; template_parity admitted 14, package_imports admitted 3, qml_lint admitted 14; both selftests pass. render_qml selftest has two litGradient texture arms failing at HEAD too (pre-existing, ungated): W506. Found while scanning: 17 stale .ebuild-witness trees from killed check_ebuild runs (removed; W505 sweeps them at start). | 2026-10-11: First two commit attempts: @CURRENCY (the schemes key moved with the edited sources; outputs unchanged, 0 drift, so check_action_key --write re-recorded it) and the closure witness refusing on an @LICENSE flake inside the closure-only tree (a directory WALK races with sibling checks writing bytecode; 0 of 40 under contention in the real tree). Fix in the witness: the closure-only tree is a git repository (index = the closure) under the home cache (not /var/tmp: portage sandbox denies reads there). Result: check_tree_writes and the readme stage pass outright, check_ebuild too once recorded as a CLONING stage (its clone reads whatever the index holds, so its closure is the whole tree: it was missing templates/), and the worklist stage fails only on @CURRENCY (untracked emitted outputs). WITNESS_EXEMPT is empty; WITNESS_KNOWN keeps one entry.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: display_params.COMPONENTS: one roster (file, accessor, packages, render surfaces) for SegmentChar.qml and ApertureField.qml, with components_for, component_text, companions_for and ship_components. Read now by make_clock, make_sddm, make_wallpaper_live and make_notify_marquee (ship_components), render_qml.companions (companions_for), check_template_parity and check_qml_lint (their component rows are derived, the two hand rows removed). Proven: check_emitters_run 0 drifted of 661 tracked files, 0 tree files written; template_parity admitted 14, package_imports admitted 3, qml_lint admitted 14; both selftests pass. render_qml selftest has two litGradient texture arms failing at HEAD too (pre-existing, ungated): W506. Found while scanning: 17 stale .ebuild-witness trees from killed check_ebuild runs (removed; W505 sweeps them at start). | 2026-10-11: First two commit attempts: @CURRENCY (the schemes key moved with the edited sources; outputs unchanged, 0 drift, so check_action_key --write re-recorded it) and the closure witness refusing on an @LICENSE flake inside the closure-only tree (a directory WALK races with sibling checks writing bytecode; 0 of 40 under contention in the real tree). Fix in the witness: the closure-only tree is a git repository (index = the closure) under the home cache (not /var/tmp: portage sandbox denies reads there). Result: check_tree_writes and the readme stage pass outright, check_ebuild too once recorded as a CLONING stage (its clone reads whatever the index holds, so its closure is the whole tree: it was missing templates/), and the worklist stage fails only on @CURRENCY (untracked emitted outputs). WITNESS_EXEMPT is empty; WITNESS_KNOWN keeps one entry. | 2026-10-11: landed through the staged gate on the third attempt",
       "issued_at": "2026-10-11T17:19:36Z",
       "minted_during": "interrupt",
       "caused_by": "W500",
-      "last_worked": "2026-10-11T19:36:13Z",
+      "last_worked": "2026-10-11T20:05:49Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T200549Z",
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
@@ -12118,7 +12115,10 @@
       "minted_during": "interrupt",
       "caused_by": "W504",
       "last_worked": null,
-      "ticks_blocked": 0
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default",
+      "weight": 2
     },
     {
       "symbol": "W506",
@@ -12136,6 +12136,28 @@
       "issued_at": "2026-10-11T18:09:44Z",
       "minted_during": "interrupt",
       "caused_by": "W504",
+      "last_worked": null,
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default",
+      "weight": 2
+    },
+    {
+      "symbol": "W507",
+      "title": "Repin the mtools pins to the fleet par a61069e (repin_behind_par alert), then uv sync both extras and read the uv.lock diff for anything beyond mtools dists",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "gate",
+        "tooling"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T20:19:58Z",
+      "minted_during": "interrupt",
+      "caused_by": "github-8f",
       "last_worked": null,
       "ticks_blocked": 0
     }

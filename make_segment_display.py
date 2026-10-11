@@ -81,6 +81,15 @@ def segment_char_component():
     return TL.render("SegmentChar.qml", ghostAlpha=make_schemes.GHOST_ALPHA)
 
 
+def emission_halo_component():
+    """The shared emission layer: templates/EmissionHalo.qml (W500, under W272). The blurred lit layer
+    SegmentChar mounts its lit segments in, and ApertureField will (W501): bloom, haloOpacity and glow
+    mean the same on every display that mounts it. No holes: the opacity and radius arrive as properties."""
+    import templates.loader as TL
+
+    return TL.render("EmissionHalo.qml")
+
+
 if __name__ == "__main__":
     print("geometry strokes:", len(json.loads(geometry_js())))
     g7 = json.loads(glyphs_js("7"))

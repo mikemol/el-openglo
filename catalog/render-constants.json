@@ -11,6 +11,9 @@
     "sizing": "STATE",
     "backdropWidth": "STATE"
   },
+  "templates/EmissionHalo.qml": {
+    "radiusUnit": "MOUNT"
+  },
   "templates/SegmentChar.qml": {
     "ch": "STATE",
     "insertColon": "STATE",

@@ -386,7 +386,17 @@ def _closed_bloom():
     bloom setting. Before the merge each surface carried its own layer; requiring
     one in a mount that no longer draws would report the collapse as a loss."""
     surfaces = _emitted_surfaces()
-    if not _bloom_is_blur(surfaces["segment-display"]):
+    # ⚑ THE BLUR LAYER LIVES IN THE SHARED EMISSION COMPONENT (W500): the display MOUNTS it and hands it
+    # the bloom setting, and the component owns the MultiEffect, gated by bloom, over a lit-only layer.
+    # Reading only the display would report a shared fact as lost from it.
+    import make_segment_display
+
+    # (not in _emitted_surfaces: that map is the STROKE surfaces, and the halo draws no stroke)
+    if not _bloom_is_blur(make_segment_display.emission_halo_component()):
+        return False
+    if not re.search(r"(?m)^\s*bloom:\s*\w+\.bloom\b", surfaces["segment-display"]):
+        return False
+    if "EmissionHalo" not in surfaces["segment-display"]:
         return False
     return all(
         re.search(r"(?m)^\s*bloom:\s*\w+\.bloom\b", surfaces[m])

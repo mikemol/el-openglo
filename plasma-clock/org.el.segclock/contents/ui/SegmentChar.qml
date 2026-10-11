@@ -19,7 +19,6 @@
 //   mount     — segLen and where the cell sits: the surface's, passed in
 //   content   — `ch`, and whether a colon follows it
 import QtQuick
-import QtQuick.Effects
 
 Item {
     id: sc
@@ -121,21 +120,16 @@ Item {
             thick: sc.strokeGhost
         }
     }
-    Item {
+    // ⚑ THE HALO IS THE SHARED EMISSION LAYER (W500): EmissionHalo.qml owns the blur, its radius law and its
+    // opacity, so this display and the aperture field draw the same halo. Sized by the lit STROKE, not in
+    // pixels: radiusUnit is the stroke width, scaled by the bloom slider.
+    EmissionHalo {
         id: halo
         anchors.fill: parent
-        visible: sc.bloom > 0
-        layer.enabled: sc.bloom > 0
-        // ⚑ THE HALO IS SIZED BY THE STROKE, NOT IN PIXELS. A fixed blurMax on a
-        // 3 px panel stroke smeared the whole digit into one haze (⊕VER 2026-09-21);
-        // the radius is a few stroke widths, scaled by the slider.
-        layer.effect: MultiEffect {
-            blurEnabled: true
-            blur: 1.0
-            blurMax: Math.max(2, Math.round(sc.strokeLit * 2 * sc.bloom))
-            blurMultiplier: 1.0
-        }
-        opacity: sc.haloOpacity * sc.glow
+        bloom: sc.bloom
+        haloOpacity: sc.haloOpacity
+        glow: sc.glow
+        radiusUnit: sc.strokeLit
         Repeater {
             model: ["A", "B", "C", "D", "E", "F", "G"]
             Segment {
