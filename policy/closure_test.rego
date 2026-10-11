@@ -63,6 +63,14 @@ test_exempt_and_unproven_are_withheld_not_judged if {
 	count([m | some m in p.withheld with input as w]) == 2
 }
 
+# a whole-gate stage that fails only on claims the harness cannot judge (no git, no untracked outputs) is
+# sufficient EXCEPT those: withheld with the reason, never denied and never silently passed
+test_a_known_failure_is_withheld_with_its_reason if {
+	k := object.union(good, {"witness": [{"script": "worklist", "arm1": "known", "arm2": "none", "victim": null, "detail": "@EBUILD: needs a clone"}]})
+	count(p.deny) == 0 with input as k
+	"W: worklist passes its witness except the claims @EBUILD: needs a clone" in p.withheld with input as k
+}
+
 test_l4_refuses_a_closure_for_a_gone_stage if {
 	bad := object.union(good, {"stale": ["scripts/check_gone.py"]})
 	some msg in p.deny with input as bad

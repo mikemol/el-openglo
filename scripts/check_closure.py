@@ -83,8 +83,19 @@ def parse_trace(text, root, tracked):
     return seen
 
 
+# the gate stages that are not one check's selftest, keyed by their gate/stage.sh kind (W496)
+STAGE_KINDS = ("opa-test", "segment-lattice", "worklist", "readme")
+
+
+def stage_args(key):
+    """gate/stage.sh's arguments for a closure key: a script path is that check's selftest, a name in
+    STAGE_KINDS is that stage itself."""
+    return ["selftest", key] if key.endswith(".py") else [key]
+
+
 def observe(script, root=ROOT):
-    """(closure, why): the tracked files `gate/stage.sh selftest SCRIPT` opens, or (None, reason)."""
+    """(closure, why): the tracked files `gate/stage.sh` opens for the stage `script` names (a check's
+    selftest, or one of STAGE_KINDS), or (None, reason)."""
     if shutil.which("strace") is None:
         return None, "strace is not installed"
     import git_tracked
@@ -94,7 +105,7 @@ def observe(script, root=ROOT):
         log = os.path.join(td, "trace.txt")
         r = subprocess.run(
             ["strace", "-f", "-qq", "-e", f"trace={SYSCALLS}", "-o", log]
-            + [os.path.join(root, "gate", "stage.sh"), "selftest", script],
+            + [os.path.join(root, "gate", "stage.sh"), *stage_args(script)],
             cwd=root,
             capture_output=True,
             text=True,
@@ -107,7 +118,7 @@ def observe(script, root=ROOT):
             )
         with open(log, encoding="utf-8", errors="replace") as fh:
             closure = parse_trace(fh.read(), root, tracked)
-    closure.add(script)
+    closure.add(script if script.endswith(".py") else "gate/stage.sh")
     return sorted(closure), ""
 
 
@@ -119,6 +130,20 @@ WITNESS_EXEMPT = {
 }
 
 
+# claims a whole-gate stage is KNOWN to fail in a closure-only tree, each with its reason: the stage is
+# then "sufficient except for" them (arm1 `known`: counted and printed, never a pass and never a deny)
+# while any OTHER failing claim is an incomplete closure. The reasons are about the HARNESS (no git
+# repository, no untracked build outputs), not about the closure.
+_NO_GIT = "certifies a clean git clone of the staged tree: the closure-only tree has no repository"
+WITNESS_KNOWN = {
+    "worklist": {
+        "EBUILD": _NO_GIT,
+        "CURRENCY": "reads the untracked emitted outputs (screens, wallpapers): a closure of TRACKED files cannot hold them",
+        "CLOSURE-SEES": "its live arm observes under strace in a tree with no git index, where the tracked set differs",
+    },
+    "readme": {"COMMANDS": _NO_GIT, "LICENCE": _NO_GIT, "OVERLAY": _NO_GIT},
+}
+
 MAX_VICTIMS = 12
 
 
@@ -126,7 +151,9 @@ def _victims(script, closure, root):
     """The closure .py files the stage's script imports BY NAME (at most MAX_VICTIMS), where a planted
     defect might reach the verdict. A name in an `import` line is a CANDIDATE, not a proof it runs: the
     import may sit in a branch the selftest never takes, so arm 2 tries them until one reaches the
-    verdict (W494)."""
+    verdict (W494). A stage that is not one script (STAGE_KINDS) has no single script to read: none."""
+    if not script.endswith(".py"):
+        return []
     with open(os.path.join(root, script), encoding="utf-8") as fh:
         text = fh.read()
     out = []
@@ -165,14 +192,14 @@ def witness(script, closure, defect_in=None, root=ROOT):
         }
         env.update(TEST_SRCDIR=os.path.dirname(td), TEST_WORKSPACE=os.path.basename(td))
         r = subprocess.run(
-            ["bash", os.path.join(td, "gate", "stage.sh"), "selftest", script],
+            ["bash", os.path.join(td, "gate", "stage.sh"), *stage_args(script)],
             cwd=td,
             env=env,
             capture_output=True,
             text=True,
             check=False,
         )
-    return r.returncode, (r.stderr or r.stdout)[-4000:]
+    return r.returncode, (r.stderr or r.stdout)[-30000:]
 
 
 def judge(script, closure):
@@ -187,14 +214,23 @@ def judge(script, closure):
             "detail": WITNESS_EXEMPT[script],
         }
     rc1, tail1 = witness(script, closure)
+    arm1, detail = "pass" if rc1 == 0 else "fail", "" if rc1 == 0 else tail1
+    if rc1 != 0 and script in WITNESS_KNOWN:
+        # the failing claims, read from the engine's own `check FAILED for [@KEY]` lines: sufficient
+        # EXCEPT the named known ones (each with its harness reason), else the closure is incomplete
+        keys = set(re.findall(r"check FAILED for \[@([^\]]+)\]", tail1))
+        known = WITNESS_KNOWN[script]
+        if keys and keys <= set(known):
+            arm1 = "known"
+            detail = "; ".join(f"@{k}: {known[k]}" for k in sorted(keys))
     case = {
         "script": script,
-        "arm1": "pass" if rc1 == 0 else "fail",
+        "arm1": arm1,
         "arm2": "none",
         "victim": None,
-        "detail": "" if rc1 == 0 else tail1,
+        "detail": detail,
     }
-    if rc1 == 0:
+    if arm1 in ("pass", "known"):
         victims = _victims(script, closure, ROOT)
         # none: no module to plant in; refused: a planted defect reached the verdict (victim names it);
         # unproven: every candidate import survived a defect (each may sit on a path the selftest never
@@ -229,6 +265,11 @@ def stage_scripts(root=ROOT):
             "scripts/check_*.py", "scripts/worklist_gate*.py", root=root
         )
     ]
+
+
+def stage_keys(root=ROOT):
+    """Every closure key: the selftest scripts, then the stages that are not one check's selftest."""
+    return stage_scripts(root) + list(STAGE_KINDS)
 
 
 def render(closures):
@@ -276,7 +317,7 @@ def measure(closures=None, scripts=None, tracked=None, with_witness=False):
             with open(CLOSURES, encoding="utf-8") as fh:
                 closures = load_closures(fh.read())
     if scripts is None:
-        scripts = stage_scripts()
+        scripts = stage_keys()
     if tracked is None:
         tracked = set(git_tracked.files())
     cases = []
@@ -287,7 +328,8 @@ def measure(closures=None, scripts=None, tracked=None, with_witness=False):
                 "script": s,
                 "has_closure": files is not None,
                 "files": 0 if files is None else len(files),
-                "self_listed": files is not None and s in files,
+                "self_listed": files is not None
+                and (s if s.endswith(".py") else "gate/stage.sh") in files,
                 "untracked": sorted(f for f in (files or []) if f not in tracked),
             }
         )
@@ -311,7 +353,7 @@ def main(argv):
     if args[:1] == ["--write"]:
         # `--write` regenerates every closure; `--write SCRIPT...` re-observes only those and keeps the
         # rest (a NEW check needs its closure the commit it is added; the whole sweep takes ~10 min)
-        stages = stage_scripts()
+        stages = stage_keys()
         unknown = [s for s in args[1:] if s not in stages]
         if unknown:
             print(f"check_closure: not a stage: {unknown}", file=sys.stderr)
@@ -426,6 +468,11 @@ def _selftest():
         "an untracked file and a host binary are not inputs",
         sorted(p for p in parse_trace(log, "/r", tracked) if p not in tracked),
         [],
+    )
+    chk(
+        "a script path is that check's selftest, a stage kind is the stage itself",
+        (stage_args("scripts/check_x.py"), stage_args("worklist")),
+        (["selftest", "scripts/check_x.py"], ["worklist"]),
     )
     text = render({"scripts/check_x.py": ["a.py", "scripts/check_x.py"]})
     chk(

@@ -16,6 +16,11 @@ each check's real closure, W459 gates the STAGED tree: each subtracts a tag.
 
 HOST_TIER = ["exclusive", "external", "local", "no-sandbox"]
 
+def closure_data(closures, key):
+    """A stage's data: its observed closure (closures.bzl) plus MODULE.bazel, which locates the checkout,
+    deduplicated and sorted. A key with no closure is a KeyError at analysis: loud, never a quiet gap."""
+    return sorted({p: True for p in closures[key] + ["MODULE.bazel"]}.keys())
+
 def precommit_stage(name, args, data):
     """A gate stage as a host-tier test.
 

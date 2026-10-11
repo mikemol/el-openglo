@@ -74,6 +74,12 @@ withheld contains msg if {
 
 withheld contains msg if {
 	some w in object.get(input, "witness", [])
+	w.arm1 == "known"
+	msg := sprintf("W: %s passes its witness except the claims %s", [w.script, w.detail])
+}
+
+withheld contains msg if {
+	some w in object.get(input, "witness", [])
 	w.arm2 == "unproven"
 	msg := sprintf("W: %s: no import of it carried a planted defect to the verdict (unproven, not failed)", [w.script])
 }

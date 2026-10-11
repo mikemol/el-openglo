@@ -19,7 +19,7 @@
 load("@mikemol_rules_py//:tracked.bzl", "select_tracked")
 load("@tracked//:manifest.bzl", "TRACKED")
 load(":closures.bzl", "CLOSURES")
-load(":stages.bzl", "precommit_stage")
+load(":stages.bzl", "closure_data", "precommit_stage")
 
 ALL = select_tracked(TRACKED)
 
@@ -35,15 +35,16 @@ STAGES = [
     {
         "name": "selftest_" + c[len("scripts/"):-len(".py")],
         "args": ["selftest", c],
-        "data": sorted({p: True for p in CLOSURES[c] + ["MODULE.bazel"]}.keys()),
+        "data": closure_data(CLOSURES, c),
     }
     for c in CHECKS
 ] + [
-    {"name": "opa_test", "args": ["opa-test"], "data": ALL},
-    {"name": "segment_lattice", "args": ["segment-lattice"], "data": ALL},
+    {"name": "opa_test", "args": ["opa-test"], "data": closure_data(CLOSURES, "opa-test")},
+    {"name": "segment_lattice", "args": ["segment-lattice"], "data": closure_data(CLOSURES, "segment-lattice")},
+    # the witness runs every other stage in its own tree and reads their closures: it keeps ALL
     {"name": "closure_witness", "args": ["closure-witness"], "data": ALL},
-    {"name": "worklist", "args": ["worklist"], "data": ALL},
-    {"name": "readme", "args": ["readme"], "data": ALL},
+    {"name": "worklist", "args": ["worklist"], "data": closure_data(CLOSURES, "worklist")},
+    {"name": "readme", "args": ["readme"], "data": closure_data(CLOSURES, "readme")},
 ]
 
 # the union of every stage's inputs, deduplicated (a dict is the set): the census stage's own data
