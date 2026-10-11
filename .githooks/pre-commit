@@ -1,4 +1,6 @@
 #!/bin/sh
 # el-openglo's pre-commit is a bazel build (design mtools:W798): the gate logic is in BUILD.bazel,
-# BuildBuddy captures its logs. The hook only invokes it.
-exec bazel test //:precommit --noshow_progress
+# BuildBuddy captures its logs. It runs over the STAGED tree, not the working tree (W498, under W459): the
+# two diverge exactly when `git add` is partial, so gate/staged.sh materialises the commit's index at a
+# stable path and runs `bazel test //:precommit` there. The hook only invokes it.
+exec "$(git rev-parse --show-toplevel)/gate/staged.sh"

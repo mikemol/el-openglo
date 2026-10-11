@@ -19,7 +19,7 @@
 load("@mikemol_rules_py//:tracked.bzl", "select_tracked")
 load("@tracked//:manifest.bzl", "TRACKED")
 load(":closures.bzl", "CLOSURES", "EXTRA_NAMED")
-load(":stages.bzl", "closure_data", "precommit_stage")
+load(":stages.bzl", "closure_data", "closure_union", "precommit_stage")
 
 ALL = select_tracked(TRACKED)
 
@@ -35,17 +35,17 @@ STAGES = [
     {
         "name": "selftest_" + c[len("scripts/"):-len(".py")],
         "args": ["selftest", c],
-        "data": closure_data(CLOSURES, c),
+        "data": closure_data(CLOSURES, c, ALL),
     }
     for c in CHECKS
 ] + [
-    {"name": "opa_test", "args": ["opa-test"], "data": closure_data(CLOSURES, "opa-test")},
-    {"name": "segment_lattice", "args": ["segment-lattice"], "data": closure_data(CLOSURES, "segment-lattice")},
+    {"name": "opa_test", "args": ["opa-test"], "data": closure_data(CLOSURES, "opa-test", ALL)},
+    {"name": "segment_lattice", "args": ["segment-lattice"], "data": closure_data(CLOSURES, "segment-lattice", ALL)},
     # the witness copies every other stage's closure into its own tree: its data is their union plus
-    # the suite's own files (closures.bzl, BUILD, the stage runner), not every tracked file
-    {"name": "closure_witness", "args": ["closure-witness"], "data": sorted({p: True for c in CLOSURES.values() for p in c + EXTRA_NAMED}.keys())},
-    {"name": "worklist", "args": ["worklist"], "data": closure_data(CLOSURES, "worklist")},
-    {"name": "readme", "args": ["readme"], "data": closure_data(CLOSURES, "readme")},
+    # the suite's own files (closures.bzl, BUILD, the stage runner); a whole-tree stage makes it the tracked list
+    {"name": "closure_witness", "args": ["closure-witness"], "data": closure_union(CLOSURES, EXTRA_NAMED, ALL)},
+    {"name": "worklist", "args": ["worklist"], "data": closure_data(CLOSURES, "worklist", ALL)},
+    {"name": "readme", "args": ["readme"], "data": closure_data(CLOSURES, "readme", ALL)},
 ]
 
 # the union of every stage's inputs, deduplicated (a dict is the set): the census stage's own data

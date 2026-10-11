@@ -153,8 +153,35 @@ EXTRA_NAMED = (
     "closures.bzl",
     "stages.bzl",
     "gate/stage.sh",
+    "gate/staged.sh",
     "gate/census_exempt.tsv",
 )
+
+# ⚑ A STAGE THAT READS (NEARLY) EVERY TRACKED FILE IS RECORDED AS "*", NOT AS AN ENUMERATION. check_license,
+# check_mark, check_deps, the worklist and readme stages each opened 657-671 of 671 tracked files: a stored
+# list of them goes stale the moment ANY commit adds a file, so the closure witness refused the next commit
+# for a file that no stage had even been asked to read (measured: gate/staged.sh, 2026-10-11). "*" means the
+# stage's closure IS the tracked list, so it follows the tree by construction; a narrow closure still has to
+# be re-observed when a file it reads appears (the witness says so, loudly).
+WHOLE = "*"
+WHOLE_TREE = 0.95
+
+
+def compress(closure, tracked):
+    """["*"] when `closure` covers at least WHOLE_TREE of the tracked files, else the closure itself."""
+    if tracked and len(set(closure) & set(tracked)) >= WHOLE_TREE * len(tracked):
+        return [WHOLE]
+    return closure
+
+
+def expand(files, root=ROOT):
+    """The tracked list when `files` is the whole-tree marker, else `files` unchanged."""
+    if files == [WHOLE]:
+        import git_tracked
+
+        return git_tracked.files(root=root)
+    return files
+
 
 MAX_VICTIMS = 12
 
@@ -225,6 +252,7 @@ def judge(script, closure):
             "victim": None,
             "detail": WITNESS_EXEMPT[script],
         }
+    closure = expand(closure, ROOT)
     rc1, tail1 = witness(script, closure)
     arm1, detail = "pass" if rc1 == 0 else "fail", "" if rc1 == 0 else tail1
     if rc1 != 0 and script in WITNESS_KNOWN:
@@ -340,6 +368,9 @@ def measure(closures=None, scripts=None, tracked=None, with_witness=False):
     cases = []
     for s in scripts:
         files = closures.get(s)
+        if files == [WHOLE]:
+            # the whole tracked list, by definition: it lists its own script and nothing untracked
+            files = sorted(tracked)
         cases.append(
             {
                 "script": s,
@@ -381,13 +412,17 @@ def main(argv):
                 closures = {
                     k: v for k, v in load_closures(fh.read()).items() if k in stages
                 }
+        import git_tracked
+
+        every = git_tracked.files()
         for s in args[1:] or stages:
             closure, why = observe(s)
             if closure is None:
                 print(f"check_closure: WITHHELD {s} — {why}", file=sys.stderr)
                 return 3
-            closures[s] = closure
-            print(f"check_closure: {s}: {len(closure)} file(s)")
+            closures[s] = compress(closure, every)
+            note = " (whole tree: recorded as *)" if closures[s] == [WHOLE] else ""
+            print(f"check_closure: {s}: {len(closure)} file(s){note}")
         with open(CLOSURES, "w", encoding="utf-8") as fh:
             fh.write(render(closures))
         print(f"check_closure: wrote {len(closures)} closure(s) to closures.bzl")
@@ -419,12 +454,32 @@ def main(argv):
             f"arm 2 (a planted defect reaches the verdict): {counts}"
         )
         return 1 if bad else 0
+    if args == ["--compress"]:
+        # re-record every closure that covers the whole tracked list as the marker, WITHOUT re-observing:
+        # the fix for a closures.bzl written before the marker existed
+        import git_tracked
+
+        every = git_tracked.files()
+        with open(CLOSURES, encoding="utf-8") as fh:
+            closures = {
+                k: compress(expand(v) if v == [WHOLE] else v, every)
+                for k, v in load_closures(fh.read()).items()
+            }
+        with open(CLOSURES, "w", encoding="utf-8") as fh:
+            fh.write(render(closures))
+        whole = sorted(k for k, v in closures.items() if v == [WHOLE])
+        print(
+            f"check_closure: {len(whole)} of {len(closures)} closure(s) are the whole tree: {whole}"
+        )
+        return 0
     if args == ["--unnamed"]:
         import git_tracked
 
         with open(CLOSURES, encoding="utf-8") as fh:
             closures = load_closures(fh.read())
-        named = {p for files in closures.values() for p in files} | set(EXTRA_NAMED)
+        named = {p for files in closures.values() for p in expand(files)} | set(
+            EXTRA_NAMED
+        )
         tracked = git_tracked.files()
         unnamed = [p for p in tracked if p not in named]
         print("\n".join(unnamed))
@@ -504,6 +559,26 @@ def _selftest():
         "a script path is that check's selftest, a stage kind is the stage itself",
         (stage_args("scripts/check_x.py"), stage_args("worklist")),
         (["selftest", "scripts/check_x.py"], ["worklist"]),
+    )
+    every = [f"f{i}.py" for i in range(20)]
+    chk(
+        "a closure covering 95% of the tracked list is the whole-tree marker, a narrow one is kept",
+        (compress(every[:19], every), compress(every[:10], every)),
+        ([WHOLE], every[:10]),
+    )
+    chk(
+        "the whole-tree marker follows the tree: it expands to the tracked list, a narrow closure to itself",
+        ("scripts/check_closure.py" in expand([WHOLE]), expand(["a.py"])),
+        (True, ["a.py"]),
+    )
+    m_whole = measure({"s.py": [WHOLE]}, ["s.py"], {"s.py", "t.py"})
+    chk(
+        "a whole-tree stage lists its own script and nothing untracked",
+        [
+            (c["has_closure"], c["self_listed"], c["untracked"])
+            for c in m_whole["cases"]
+        ],
+        [(True, True, [])],
     )
     text = render({"scripts/check_x.py": ["a.py", "scripts/check_x.py"]})
     chk(
