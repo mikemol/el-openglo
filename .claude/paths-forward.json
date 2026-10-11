@@ -11545,7 +11545,7 @@
     {
       "symbol": "W454",
       "title": "el-openglo commit gate is red: the @EBUILD check flakes (pkgcheck errors, passes on replay), so the gate is not deterministic",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W455"
       ],
@@ -11555,12 +11555,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Land this as the 3rd consecutive clean gate commit; then watch @EBUILD (W212) via its kept account",
+      "next_bounded_step": "Watch for a third consecutive clean gate commit (W456 commits count); on any tool-check failure read /var/tmp/el-openglo-gate-accounts/ first; then close, or chase @EBUILD (W212) from its kept account",
       "evidence": "2026-10-10: 2026-10-10: two more flakes in one gate run (queue commit): @CONFIG-REACH-SEES (check_config_reach --selftest, renders under load) and @WORKLIST (worklist_gate --selftest) failed in the gate and PASSED ON REPLAY; the replay prints only the replay output, so the first failure account is lost again. The structural remedy is the bazel migration (W456-W459): every target run is a captured log in BuildBuddy. Until then the commit must be retried and a flake that survives two retries becomes its own card. Same run: four REAL failures from the gcalculus solver package split (W485). | 2026-10-11: e47be7e: root causes found from kept accounts - @REGO opa test 5s default per-test timeout (now 300s wedge bound; 32/32 at j=8); @WORKLIST selftest = paperkit version skew, resolver.clean_env moved to checkenv (deterministic in-gate, now _paperkit_clean_env); check_qml_target selftest counted a missing sg/k3s as FAIL (now SKIP). Tool checks run via scripts/keep_account.py: failing account in /var/tmp/el-openglo-gate-accounts/. Unconfirmed: @CONFIG-REACH-SEES (0/24 at j=8), @EBUILD | 2026-10-11: 2026-10-10 23:40: @CONFIG-REACH-SEES root-caused from kept accounts + kept PNG pairs (/var/tmp/el-openglo-gate-accounts/reach-*): (1) differs() compared PNG bytes - same pixels, different bytes (14/200 at j=16) - now decodes; (2) blink colon unpinned - PIN blinkColon off; (3) grab timed from window not subject load - render_qml.HARNESS_SETTLED, 4000 ms after Loader.onLoaded; hunt j=14: 16/90 failed at 1200 ms, 0/165 at 4000 ms. Follow-up W486 (frame-count settle).",
       "issued_at": "2026-10-06T01:38:45Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-11T03:47:49Z",
+      "last_worked": "2026-10-11T04:08:16Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -11596,7 +11596,7 @@
     {
       "symbol": "W456",
       "title": "Bazel skeleton and the precommit as one test target: MODULE.bazel, .bazelrc, BUILD.bazel with //:precommit running the existing gate stages, the hook only runs bazel test",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W455"
       ],
@@ -11607,12 +11607,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "BUILD.bazel with sh_test //:precommit (tags local, no-sandbox, external, exclusive: the host tier) running gate/precommit.sh; bazel test //:precommit once (as a service, memory-capped); katas bazelize el-openglo --hook; verify by a commit landing through it. W457 reduces to select_tracked per stage; do not write gen_bazel.py.",
-      "evidence": "2026-10-10: 2026-10-10: THE FLEET ALREADY MECHANIZES THE SCAFFOLD: /home/mikemol/github/.claude/katas/katas.py bazelize REPO writes .bazelrc and MODULE.bazel from templates (hermetic sandbox flags, disk cache /var/tmp/bazel-disk/<repo>, BuildBuddy by name, a git_override on mtools rules_py at the commit carrying tracked.bzl) and bazelize --hook swaps the hook to exec bazel test //:precommit once //:precommit passes; BUILD.bazel stays per repo with named inputs from @tracked//:manifest.bzl select_tracked (mtools:W799: names from git ls-files, never a glob or a directory, a gone file fails analysis). Used it; my hand-written copies were discarded. The kata also has probe, flush (always keep a commit in flight), tick, gate red/green. paperkit letter 2026-10-10: pin paperkit @ git+https://github.com/mikemol/paperkit@65f118e3e60de8d02c1d514ba8186739a11e5223 in the dev dependency group and build it into the bazel venv from the pip hub (mtools mdstruct pattern; no bazel_dep, never a path or editable install): that is W459 and W458 input.",
+      "next_bounded_step": "Confirm this commit landed through the bazel hook (marker + push); close W456; then W457 select_tracked per stage",
+      "evidence": "2026-10-10: 2026-10-10: THE FLEET ALREADY MECHANIZES THE SCAFFOLD: /home/mikemol/github/.claude/katas/katas.py bazelize REPO writes .bazelrc and MODULE.bazel from templates (hermetic sandbox flags, disk cache /var/tmp/bazel-disk/<repo>, BuildBuddy by name, a git_override on mtools rules_py at the commit carrying tracked.bzl) and bazelize --hook swaps the hook to exec bazel test //:precommit once //:precommit passes; BUILD.bazel stays per repo with named inputs from @tracked//:manifest.bzl select_tracked (mtools:W799: names from git ls-files, never a glob or a directory, a gone file fails analysis). Used it; my hand-written copies were discarded. The kata also has probe, flush (always keep a commit in flight), tick, gate red/green. paperkit letter 2026-10-10: pin paperkit @ git+https://github.com/mikemol/paperkit@65f118e3e60de8d02c1d514ba8186739a11e5223 in the dev dependency group and build it into the bazel venv from the pip hub (mtools mdstruct pattern; no bazel_dep, never a path or editable install): that is W459 and W458 input. | 2026-10-11: bazel test //:precommit passes (katas bazelize run, 1251 s) after three env fixes found by running it: XDG_RUNTIME_DIR (private kwin SIGSEGV), LANG and XDG_CURRENT_DESKTOP (JOB_ENV in the currency keys; @CURRENCY 6/55 stale, 55/55 under env -i). .githooks/pre-commit now execs bazel test //:precommit. This commit is the first through it.",
       "issued_at": "2026-10-10T21:24:41Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-10T21:50:27Z",
+      "last_worked": "2026-10-11T05:25:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",

@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
+
+# ⚑ THE PRE-COMMIT GATE IS THIS TARGET (W455, W456; operator rule 2026-10-06: a repo whose precommit
+# is a script and not a bazel test is blocked). `.githooks/pre-commit` runs `bazel test //:precommit`
+# and nothing else; the gate's stages are gate/precommit.sh, the hook's own text.
+#
+# ⚑⚑ THIS IS THE HOST TIER AND ITS TAGS SAY SO. The stages read the working tree and the host's tools
+# (opa, the qml runner, the paperkit engine, the warm palette cache), none of which is a declared
+# input yet, so the target must neither be sandboxed (`no-sandbox`, `local`) nor have a verdict
+# served from cache (`external` re-runs it every time, `exclusive` keeps two gates from racing on
+# the one working tree and the one ledger). W457 splits the stages into generated targets with every
+# input FILE named, W458 declares each check's real closure, W459 gates the staged tree: each
+# subtracts a tag here, and the target is hermetic when none is left.
+sh_test(
+    name = "precommit",
+    srcs = ["gate/precommit.sh"],
+    # MODULE.bazel locates the checkout from the runfiles tree; @tracked//:tracked.txt is the tracked
+    # population (git ls-files of the index), the census W457 reads instead of walking the disk
+    data = [
+        "MODULE.bazel",
+        "@tracked//:tracked.txt",
+    ],
+    tags = [
+        "exclusive",
+        "external",
+        "local",
+        "no-sandbox",
+    ],
+    # a generous ceiling, not a tight one: wall time is load, never a verdict (operator 2026-09-24)
+    timeout = "eternal",
+    size = "enormous",
+)

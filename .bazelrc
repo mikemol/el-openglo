@@ -1,0 +1,51 @@
+common --enable_bzlmod
+test --test_output=errors --test_summary=terse
+
+# el-openglo's pre-commit is a bazel build (operator rule 2026-10-06, design mtools:W798): the gate logic
+# lives in BUILD.bazel and BuildBuddy captures its logs and outputs. These settings are the fleet's,
+# measured and argued at length in mtools/.bazelrc; the reasons are not restated here.
+
+# The hermetic sandbox is `build`, not a `--config`: its flags are not in the action key, so an opt-in
+# regime is one a cache hit silently bypasses. An action sees its declared inputs and nothing else.
+build --experimental_use_hermetic_linux_sandbox
+build --sandbox_add_mount_pair=/bin
+build --sandbox_add_mount_pair=/usr
+build --sandbox_add_mount_pair=/lib
+build --sandbox_add_mount_pair=/lib64
+build --sandbox_add_mount_pair=/etc
+
+# Output root and disk cache on the zram at /var/tmp, not md0 (operator ruling 2026-09-26, standing
+# for every bazel repo). A literal path: .bazelrc does not expand $USER.
+startup --output_user_root=/var/tmp/bazel-mikemol
+build --disk_cache=/var/tmp/bazel-disk/el-openglo
+build --remote_download_minimal
+
+# The shared cache and the build event stream are unconditional (an opt-in participation is not
+# participation). Services by name, never NodePorts (operator ruling 2026-09-20): the directory is
+# luthen-observability's checks/endpoints_query.py, and its answer, not this file, is the authority.
+build --remote_cache=grpc://buildbuddy-bes.buildbuddy.svc.cluster.local:1985
+build --remote_cache_async=true
+build --bes_backend=grpc://buildbuddy-bes.buildbuddy.svc.cluster.local:1985
+build --bes_results_url=http://buildbuddy-web.buildbuddy.svc.cluster.local:8080/invocation/
+
+# el-openglo's own, past the fleet's template (W456): the HOST TIER's environment is declared, not
+# inherited. bazel scrubs a test's environment, and the gate's stages need the project tools on PATH,
+# the home directory (uv, opa, the paperkit checkout), and the commit's index: paperkit's check sandbox
+# is default-deny on GIT_INDEX_FILE, so the pre-commit's PAPERKIT_ name carries it, and check_ebuild's
+# selftest needs the commit's own GIT_INDEX_FILE and GIT_DIR (a name unset outside a commit is simply
+# not passed). W459 retires these as the stages become hermetic.
+test --test_env=PATH
+test --test_env=HOME
+test --test_env=TMPDIR
+test --test_env=PAPERKIT_GIT_INDEX_FILE
+test --test_env=GIT_INDEX_FILE
+test --test_env=GIT_DIR
+# ⚑ The private kwin every mesa render runs under dies of SIGSEGV with no XDG_RUNTIME_DIR
+# (qt_sandbox's docstring, W114; measured under bazel 2026-10-11: "kwin_wayland exited rc=-11
+# before its socket appeared" on every render check, 16 min into the first //:precommit).
+test --test_env=XDG_RUNTIME_DIR
+# ⚑ And the two variables the CURRENCY keys carry (check_action_key.JOB_ENV: LANG, XDG_CURRENT_DESKTOP):
+# a scrubbed test env drops them, the recorded keys then read STALE (@CURRENCY: 6 of 55 under bazel,
+# 55 of 55 under env -i; admitted once exactly these two were restored, measured 2026-10-11).
+test --test_env=LANG
+test --test_env=XDG_CURRENT_DESKTOP
