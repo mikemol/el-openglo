@@ -11293,16 +11293,14 @@
     {
       "symbol": "W455",
       "title": "el-openglo precommit is not a bazel build: its hook is a script, not a bazel test",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "gate",
         "commit"
       ],
-      "blocked_on": [
-        "W459"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "Make the pre-commit a bazel test target (design mtools:W798, fleet scaffold: katas bazelize): children W456 (skeleton and //:precommit, hook swap), W457 (per-stage targets over select_tracked), W458 (input closures, two-armed witness), W459 (staged tree, hermetic, paperkit wheel pin).",
       "evidence": "",
       "issued_at": "2026-10-06T01:51:01Z",
@@ -11391,7 +11389,7 @@
     {
       "symbol": "W459",
       "title": "The gate certifies the STAGED tree: materialise the index at a stable path, run the targets there under the hermetic sandbox flags, remote cache and BES as the peers do",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W455"
       ],
@@ -11399,18 +11397,16 @@
         "gate",
         "bazel"
       ],
-      "blocked_on": [
-        "W499"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: W498 (gate/staged.sh: git checkout-index --all --prefix at /var/tmp/el-openglo-staged, symlink the real .venv and untracked host caches, GIT_DIR/GIT_INDEX_FILE/GIT_WORK_TREE absolute for check_ebuild, bazel test //:precommit run there), then W499 (hook self-snapshot, refuse-when-cannot-run, GIT scrub). Later: drop host-tier tags per stage as its closure proves out; edit-reruns-the-stage arm once stages are cacheable.",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: W498 (gate/staged.sh: the index materialised at a stable home-cache path as its own repository, host state linked in, bazel test //:precommit run there) and W499 (snapshotting hook, refuse-when-cannot-run) landed: a321e13, 19acf34. The gate certifies the STAGED tree: a probe edit present only in the working tree is absent from what the stages read, and the commit that introduced it was itself gated over its own staged index. Left for later, not this card: dropping host-tier tags per stage (needs hermetic interpreter and tool toolchains) and the edit-reruns-the-stage arm (needs cacheable stages).",
       "issued_at": "2026-10-10T21:24:42Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-11T12:48:44Z",
+      "last_worked": "2026-10-11T15:32:30Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T153230Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -12268,7 +12264,7 @@
     {
       "symbol": "W499",
       "title": "The hook snapshots itself and refuses when a needed tool is absent; stages scrub GIT_* except the commit index passthrough (mtools pre-commit pattern)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W459"
       ],
@@ -12278,14 +12274,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands through the snapshotting hook; close W499 and the W459 umbrella, then W455",
-      "evidence": "2026-10-11: Hook copies gate/staged.sh to a snapshot and execs it (EL_STAGED_SNAPSHOT set); staged.sh unlinks its own snapshot first (proven: a copy run by hand is gone afterwards) and refuses with exit 1 and its reason when bazel, git, uv or .venv/bin/python3 is absent (proven: PATH=/nonexistent gives REFUSED, bazel is not on PATH). A failed snapshot copy reports and runs live, never silently. GIT_* are unset before the stages (W498).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: Hook copies gate/staged.sh to a snapshot and execs it (EL_STAGED_SNAPSHOT set); staged.sh unlinks its own snapshot first (proven: a copy run by hand is gone afterwards) and refuses with exit 1 and its reason when bazel, git, uv or .venv/bin/python3 is absent (proven: PATH=/nonexistent gives REFUSED, bazel is not on PATH). A failed snapshot copy reports and runs live, never silently. GIT_* are unset before the stages (W498). | 2026-10-11: landed 19acf34 through the snapshotting hook",
       "issued_at": "2026-10-11T12:48:37Z",
       "minted_during": "interrupt",
       "caused_by": "W459",
-      "last_worked": "2026-10-11T15:02:20Z",
+      "last_worked": "2026-10-11T15:32:24Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T153224Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     }
