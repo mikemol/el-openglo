@@ -57,6 +57,10 @@ Item {
     // hue-table colour (already gated) into the backdrop for a coloured run; off,
     // ink is alpha only and every lit pip is litColor (the probes draw in black).
     property bool colourFromInk: false
+    // the halo around the lit pips (EmissionHalo): 0 = none
+    property real bloom: 0
+    property real haloOpacity: 0.75
+    property real glow: 1.0
     // the ring (W51): the outermost pips, painted in ringColor at ringOpacity —
     // the hover-pause's pulse; 0 = no ring
     property color ringColor: "white"
@@ -196,6 +200,28 @@ Item {
                 visible: edge && field.ringOpacity > 0
                 anchors.fill: parent; radius: width / 2; antialiasing: true
                 color: field.ringColor; opacity: field.ringOpacity
+            }
+        }
+    }
+
+    // the emission: the lit pips again, blurred under the shared halo component
+    // (W501; the clock and wallpaper mount the same one over their lit segments).
+    // bloom 0 = no halo and no pips built, so the unconfigured field is unchanged.
+    EmissionHalo {
+        anchors.fill: parent
+        bloom: field.bloom
+        haloOpacity: field.haloOpacity
+        glow: field.glow
+        radiusUnit: field.uPx * field.dotFill
+        Repeater {
+            model: field.bloom > 0 ? field.rows * field.cols : 0
+            Rectangle {
+                readonly property int d: Math.max(1, Math.round(field.uPx * field.dotFill))
+                x: (index % field.cols) * field.uPx + Math.round((field.uPx - d) / 2)
+                y: field.y0 + Math.floor(index / field.cols) * field.uPx + Math.round((field.uPx - d) / 2)
+                width: d; height: d; radius: d / 2; antialiasing: true
+                color: field.colourFromInk && field.inkColour.length > index ? field.inkColour[index] : field.litColor
+                opacity: field.coverage[index] || 0
             }
         }
     }

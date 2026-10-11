@@ -527,6 +527,7 @@ def _emitted():
     if not _EMITTED:
         import plasma_rewrite as PR
 
+        import display_params as DP
         import make_notify_marquee as NM
 
         qml = NM.main_qml()
@@ -537,7 +538,8 @@ def _emitted():
                 qml,
                 NM.config_xml(),
                 {
-                    "ApertureField.qml": NM.aperture_field_component(),
+                    # the roster (display_params.COMPONENTS) says what a marquee ships beside main.qml
+                    **DP.companions_for("marquee"),
                     "marquee-body.js": NM.body_parser(),
                 },
             )

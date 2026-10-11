@@ -389,17 +389,18 @@ COMPONENTS = (
         ("clock", "wallpaper", "sddm"),
         ("clock", "live-wallpaper", "sddm"),
     ),
-    # the shared emission layer SegmentChar mounts its lit segments in (W500); the aperture field mounts it too
-    # once W501 lands, and the marquee then ships it as well
+    # the shared emission layer SegmentChar mounts its lit segments in (W500) and the aperture field its lit pips
+    # (W501), so the marquee ships it as well
     Component(
         "EmissionHalo.qml",
         ("make_segment_display", "emission_halo_component"),
-        ("clock", "wallpaper", "sddm"),
-        ("clock", "live-wallpaper", "sddm"),
+        ("clock", "wallpaper", "sddm", "marquee"),
+        ("clock", "live-wallpaper", "sddm", "marquee"),
     ),
     Component(
         "ApertureField.qml",
         ("make_notify_marquee", "aperture_field_component"),
+        ("marquee",),
         ("marquee",),
     ),
 )
