@@ -3,8 +3,8 @@
   "project_root": "/home/mikemol/github/el-openglo",
   "counter": 497,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-11T08:14:09Z",
-  "job_id": "b137a932",
+  "heartbeat": "2026-10-11T12:19:43Z",
+  "job_id": "798b6ad9",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -11300,7 +11300,6 @@
         "commit"
       ],
       "blocked_on": [
-        "W458",
         "W459"
       ],
       "blocked_kind": "agent",
@@ -11310,7 +11309,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-10T21:31:32Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -11367,7 +11366,7 @@
     {
       "symbol": "W458",
       "title": "Declare each check target its real input closure (imports, policies, templates, data it reads) and prove the closure with a two-armed domain witness: a transitive edit reaches the action, a transitive defect reaches the verdict",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W455"
       ],
@@ -11376,18 +11375,16 @@
         "bazel",
         "check_action_key"
       ],
-      "blocked_on": [
-        "W497"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: W495 (narrow selftest stages, closures.bzl), W496 (closures for opa-test, segment-lattice, worklist, readme), W497 (census prefix exemptions; narrow every stage; the census then bites). W493, W494 landed.",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: W493 (closures observed under strace into closures.bzl), W494 (two-armed witness: sufficiency in a closure-only tree as a gate stage, a planted defect reaches the verdict), W495 (selftest stages declare their closure), W496 (closures for the four whole-gate stages, known harness-limited claims named), W497 (census union is the real union) landed: 5e24699, 2ed26bb, 494900b, cdcf46c, 58806bb. Remaining of the original card: the edit-reruns-the-stage arm needs cacheable stages (drop the external tag), which is W459 hermetic territory.",
       "issued_at": "2026-10-10T21:24:42Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-11T10:25:16Z",
+      "last_worked": "2026-10-11T12:19:18Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T121918Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -12222,7 +12219,7 @@
     {
       "symbol": "W497",
       "title": "Census exemptions by prefix with a reason, then narrow every stage so a tracked file no stage reads fails the census",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W458"
       ],
@@ -12232,14 +12229,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands (suite); close W497 and the W458 umbrella",
-      "evidence": "2026-10-11: check_closure.py --unnamed lists the tracked files no stage closure names: 0 of 670, because check_license, check_mark and check_deps each READ every tracked file (their closures are all 670), so every file is honestly some stage input; prefix exemptions in the census are therefore not needed today (the exact-path exempt list stays). closures.bzl now also carries EXTRA_NAMED (the suite own files: BUILD, MODULE, closures.bzl, stages.bzl, stage.sh, census_exempt.tsv; one generated source); the closure_witness stage data is the union of all closures plus EXTRA_NAMED instead of every tracked file, so the census union is the REAL union of what stages read, not a literal ALL: bazel test //:census passes on it.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: check_closure.py --unnamed lists the tracked files no stage closure names: 0 of 670, because check_license, check_mark and check_deps each READ every tracked file (their closures are all 670), so every file is honestly some stage input; prefix exemptions in the census are therefore not needed today (the exact-path exempt list stays). closures.bzl now also carries EXTRA_NAMED (the suite own files: BUILD, MODULE, closures.bzl, stages.bzl, stage.sh, census_exempt.tsv; one generated source); the closure_witness stage data is the union of all closures plus EXTRA_NAMED instead of every tracked file, so the census union is the REAL union of what stages read, not a literal ALL: bazel test //:census passes on it. | 2026-10-11: landed 58806bb through the suite",
       "issued_at": "2026-10-11T10:25:11Z",
       "minted_during": "interrupt",
       "caused_by": "W495",
-      "last_worked": "2026-10-11T11:50:52Z",
+      "last_worked": "2026-10-11T12:19:13Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261011T121913Z"
     }
   ],
   "residue": [
@@ -12275,6 +12272,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "8ad616a7",
+  "predecessor_job_id": "b137a932",
   "leases": []
 }
