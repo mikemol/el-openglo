@@ -845,3 +845,6 @@
 2026-10-11T08:13:57Z  tick  W457 done      collapse  "W457 closed: policy (W487), stage runner (W490), per-stage suite (W491), census (W488) landed; //:precommit is 108 named-input stage tests, 849 s; W458 atomized into W493-W495"
 2026-10-11T10:25:10Z  interrupt W496 minted    -         "Observe and declare closures for the non-selftest stages (opa-test, segment-lattice, worklist, readme), keyed by stage not script"  evidence=W495
 2026-10-11T10:25:11Z  interrupt W497 minted    -         "Census exemptions by prefix with a reason, then narrow every stage so a tracked file no stage reads fails the census"  evidence=W495
+2026-10-11T12:48:37Z  interrupt W498 minted    -         "gate/staged.sh materialises the commit index at a stable path and runs bazel test //:precommit there; the hook execs it"  evidence=W459
+2026-10-11T12:48:37Z  interrupt W499 minted    -         "The hook snapshots itself and refuses when a needed tool is absent; stages scrub GIT_* except the commit index passthrough (mtools pre-commit pattern)"  evidence=W459
+2026-10-11T12:48:50Z  tick  W459 atomized  collapse  "W459 atomized after reading the mtools pre-commit: stable-path index materialisation (W498) and hook hardening (W499); host-tier tag removal and the edit-reruns arm follow once stages are cacheable"
