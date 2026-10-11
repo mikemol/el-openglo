@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 503,
+  "counter": 504,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -6080,7 +6080,8 @@
         "W500",
         "W501",
         "W502",
-        "W503"
+        "W503",
+        "W504"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella: W500 (extract the halo from SegmentChar into a shared emission component, clock and wallpaper pixel-identical), W501 (ApertureField mounts it, the marquee passes bloom/haloOpacity/glow), W502 (display_params: the three lift-debt rows become Exposed, kcfg and page), W503 (sampled-run reach witness under the RHI path). The aperture gamma and scale (W268 OPEN) are separate. The software scene graph has no MultiEffect, so the halo is only observable under the RHI (mesa) path.",
@@ -6088,7 +6089,7 @@
       "issued_at": "2026-10-04T02:19:17Z",
       "minted_during": "interrupt",
       "caused_by": "W271",
-      "last_worked": "2026-10-11T16:04:53Z",
+      "last_worked": "2026-10-11T17:19:45Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -11117,21 +11118,21 @@
     {
       "symbol": "W460",
       "title": "Answer nemik:W285: fold el-openglo inbox letters into waypoints (nemik-check --letters --fold --repo el-openglo)",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "nemik:W285"
       ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: nemik-check --letters --fold --repo el-openglo --older-than 14 (plan): 23 letters addressed, 0 live orphans, 0 stale orphans, 80 letters carry no header (not addressed). The live letters were already minted as W461-W483 (Answer ... cards); nothing to apply. Replied to nemik-71, which had believed nemik:W285 unclaimed: it is claimed by this card.",
       "issued_at": "2026-10-10T21:26:35Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W285",
-      "last_worked": "2026-10-10T21:31:35Z",
+      "last_worked": "2026-10-11T17:18:34Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T171834Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "default",
       "weight": 22
@@ -11970,7 +11971,7 @@
     {
       "symbol": "W500",
       "title": "Extract the halo layer from SegmentChar into one shared emission component both displays mount, with the clock and wallpaper pixel-identical",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W272"
       ],
@@ -11979,14 +11980,16 @@
         "SegmentChar",
         "ApertureField"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Read SegmentChar.qml (the halo: bloom MultiEffect over the lit layer, haloOpacity, glow) and templates/ApertureField.qml; design EmissionHalo.qml with the halo radius law as a property (stroke widths for segments, pips for the aperture); move the halo out of SegmentChar behind it with NO pixel change (check_template_parity baselines, render_screens witness, check_config_reach on clock and wallpaper).",
+      "blocked_on": [
+        "W504"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "After W504 (the roster): add templates/EmissionHalo.qml (bloom, haloOpacity, glow, radiusUnit; MultiEffect blur layer with blurMax = max(2, round(radiusUnit*2*bloom)); default alias into an inner item), register it in the roster for the mounts that ship SegmentChar, replace SegmentChar halo Item (lines 124-151) by an EmissionHalo{} with radiusUnit: sc.strokeLit holding the same lit Repeater and ColonDots; regenerate tracked outputs (check_emitters_run --apply); prove no pixel change with render_screens/config_reach on clock and wallpaper under the RHI path.",
       "evidence": "",
       "issued_at": "2026-10-11T16:04:42Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-11T16:04:53Z",
+      "last_worked": "2026-10-11T17:19:44Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
@@ -12065,6 +12068,34 @@
       "minted_during": "interrupt",
       "caused_by": "W272",
       "last_worked": "2026-10-11T16:04:52Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
+      "vector_source": "default"
+    },
+    {
+      "symbol": "W504",
+      "title": "One roster of shared QML components and the mounts that ship each (SegmentChar, ApertureField, later EmissionHalo), read by the emitters, render_qml.companions, template parity and the QML lint",
+      "status": "working",
+      "enables": [
+        "W500"
+      ],
+      "touches": [
+        "display_params",
+        "render_qml",
+        "make_clock",
+        "make_wallpaper_live",
+        "make_sddm",
+        "make_notify_marquee"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Find every site that names a shared component by hand (make_clock.render_all, make_sddm.render_all, make_wallpaper_live.render_all, make_notify_marquee, render_qml.companions, check_template_parity, check_qml_lint, check_package_imports selftest, make_segment_display.segment_char_component); declare ONE roster (component file -> mounts that ship it) in display_params (the one display declaration), have each site read it; check_package_imports and check_template_parity then guard the roster; no pixel and no emitted-byte change (check_emitters_run shows 0 drift).",
+      "evidence": "",
+      "issued_at": "2026-10-11T17:19:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "W500",
+      "last_worked": "2026-10-11T17:19:45Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
