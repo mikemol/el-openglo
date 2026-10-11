@@ -11994,7 +11994,7 @@
     {
       "symbol": "W501",
       "title": "ApertureField mounts the shared emission component over its lit pips: bloom, haloOpacity and glow properties, the marquee passes its settings",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W272"
       ],
@@ -12003,15 +12003,15 @@
         "marquee-main"
       ],
       "blocked_on": [],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Read ApertureField.qml lit-pip layer; mount EmissionHalo over it with bloom/haloOpacity/glow properties (default bloom 0 so marquee pixels stay identical); marquee-main passes settings; add ApertureField row to display_params.COMPONENTS surfaces; parity baseline + render_screens + reach witness",
-      "evidence": "",
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: Landed: ApertureField mounts EmissionHalo over lit pips (bloom 0 default); marquee harness stages companions from the roster; staged gate passed",
       "issued_at": "2026-10-11T16:04:43Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-11T22:00:04Z",
+      "last_worked": "2026-10-11T23:04:18Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T230418Z",
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
@@ -12142,7 +12142,7 @@
     {
       "symbol": "W507",
       "title": "Repin the mtools pins to the fleet par a61069e (repin_behind_par alert), then uv sync both extras and read the uv.lock diff for anything beyond mtools dists",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "gate",
@@ -12150,13 +12150,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: Repinned mtools dists to f04f0a2; uv.lock diff is the pin only; both extras synced",
       "issued_at": "2026-10-11T20:19:58Z",
       "minted_during": "interrupt",
       "caused_by": "github-8f",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-11T23:04:46Z",
+      "ticks_blocked": 0,
+      "completed": "20261011T230446Z"
     },
     {
       "symbol": "W508",
