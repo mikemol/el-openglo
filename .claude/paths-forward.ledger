@@ -843,3 +843,5 @@
 2026-10-11T08:13:38Z  interrupt W494 minted    -         "Two-armed domain witness for a stage closure: an edit to a transitive input reruns the stage, a planted defect in it makes the stage refuse (mtools domain_witness.sh pattern)"  evidence=W458
 2026-10-11T08:13:41Z  interrupt W495 minted    -         "BUILD narrows each selftest stage data from every tracked file to its closure, so the census bites"  evidence=W458
 2026-10-11T08:13:57Z  tick  W457 done      collapse  "W457 closed: policy (W487), stage runner (W490), per-stage suite (W491), census (W488) landed; //:precommit is 108 named-input stage tests, 849 s; W458 atomized into W493-W495"
+2026-10-11T10:25:10Z  interrupt W496 minted    -         "Observe and declare closures for the non-selftest stages (opa-test, segment-lattice, worklist, readme), keyed by stage not script"  evidence=W495
+2026-10-11T10:25:11Z  interrupt W497 minted    -         "Census exemptions by prefix with a reason, then narrow every stage so a tracked file no stage reads fails the census"  evidence=W495

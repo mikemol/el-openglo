@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 495,
+  "counter": 497,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T08:14:09Z",
   "job_id": "b137a932",
@@ -11377,16 +11377,17 @@
         "check_action_key"
       ],
       "blocked_on": [
-        "W494",
-        "W495"
+        "W495",
+        "W496",
+        "W497"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: W493 (closure generator), then W494 (two-armed witness), then W495 (narrow stage data); a closure is complete only when stage caching (drop the external tag) survives the witness. Hermetic reads need the interpreter and deps declared: that is W459 (pip hub), so this card narrows data and proves the closures while the stages stay host-tier",
+      "next_bounded_step": "Umbrella: W495 (narrow selftest stages, closures.bzl), W496 (closures for opa-test, segment-lattice, worklist, readme), W497 (census prefix exemptions; narrow every stage; the census then bites). W493, W494 landed.",
       "evidence": "",
       "issued_at": "2026-10-10T21:24:42Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-11T08:13:48Z",
+      "last_worked": "2026-10-11T10:25:16Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
@@ -12152,7 +12153,7 @@
     {
       "symbol": "W494",
       "title": "Two-armed domain witness for a stage closure: an edit to a transitive input reruns the stage, a planted defect in it makes the stage refuse (mtools domain_witness.sh pattern)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W458"
       ],
@@ -12162,21 +12163,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands (suite); close W494; then W495 narrows each selftest stage data to its closure (closures.bzl) so the census bites",
-      "evidence": "2026-10-11: check_closure.py --witness: arm 1 runs each selftest stage in a temp tree holding ONLY its closure (+MODULE.bazel, venv symlink, palette cache): 102/104 pass, 2 exempt with reasons (check_ebuild, check_tree_writes need a git repo); arm 2 plants raise SystemExit(99) in a closure module the script imports, trying candidates until one reaches the verdict: ~70 refused, 15 unproven (counted, never denied), 0 contradicted. The witness found two observer gaps: a directory LISTING is an input (emitters --drift counts make_*.py) and a stat of a directory means it exists (worklist_gate project dirs); both fixed in the observer, closures regenerated (most now ~213 files: python lists the repo root and scripts/). New gate stage closure-witness (gate/stage.sh), policy closure.rego L5 + withheld, selftest arms prove the witness can fail. Arm \"an edit to a transitive input reruns the stage\" waits on cacheable stages (W459, external tag).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: check_closure.py --witness: arm 1 runs each selftest stage in a temp tree holding ONLY its closure (+MODULE.bazel, venv symlink, palette cache): 102/104 pass, 2 exempt with reasons (check_ebuild, check_tree_writes need a git repo); arm 2 plants raise SystemExit(99) in a closure module the script imports, trying candidates until one reaches the verdict: ~70 refused, 15 unproven (counted, never denied), 0 contradicted. The witness found two observer gaps: a directory LISTING is an input (emitters --drift counts make_*.py) and a stat of a directory means it exists (worklist_gate project dirs); both fixed in the observer, closures regenerated (most now ~213 files: python lists the repo root and scripts/). New gate stage closure-witness (gate/stage.sh), policy closure.rego L5 + withheld, selftest arms prove the witness can fail. Arm \"an edit to a transitive input reruns the stage\" waits on cacheable stages (W459, external tag). | 2026-10-11: landed 2ed26bb through the suite (closure-witness stage included)",
       "issued_at": "2026-10-11T08:13:38Z",
       "minted_during": "interrupt",
       "caused_by": "W458",
-      "last_worked": "2026-10-11T10:00:01Z",
+      "last_worked": "2026-10-11T10:25:10Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T102510Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
     {
       "symbol": "W495",
       "title": "BUILD narrows each selftest stage data from every tracked file to its closure, so the census bites",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W458"
       ],
@@ -12188,16 +12189,62 @@
         "W494"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "Commit lands (suite); close W495; W496 next (closures for opa-test, segment-lattice, worklist, readme)",
+      "evidence": "2026-10-11: BUILD.bazel loads closures.bzl; each of the 103 selftest stages has data = its observed closure + MODULE.bazel (most ~213 files, a handful 405-670, vs 662 before); bazel build --nobuild analyzes 110 targets; the other four stage kinds stay ALL until W496, so the census is still vacuous (W497).",
       "issued_at": "2026-10-11T08:13:41Z",
       "minted_during": "interrupt",
       "caused_by": "W458",
-      "last_worked": "2026-10-11T08:13:48Z",
+      "last_worked": "2026-10-11T10:25:32Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
+    },
+    {
+      "symbol": "W496",
+      "title": "Observe and declare closures for the non-selftest stages (opa-test, segment-lattice, worklist, readme), keyed by stage not script",
+      "status": "ready",
+      "enables": [
+        "W458"
+      ],
+      "touches": [
+        "gate",
+        "bazel",
+        "check_action_key"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T10:25:10Z",
+      "minted_during": "interrupt",
+      "caused_by": "W495",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W497",
+      "title": "Census exemptions by prefix with a reason, then narrow every stage so a tracked file no stage reads fails the census",
+      "status": "blocked",
+      "enables": [
+        "W458"
+      ],
+      "touches": [
+        "gate",
+        "bazel"
+      ],
+      "blocked_on": [
+        "W496"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T10:25:11Z",
+      "minted_during": "interrupt",
+      "caused_by": "W495",
+      "last_worked": "2026-10-11T10:25:16Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
