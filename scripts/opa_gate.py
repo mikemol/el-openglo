@@ -56,6 +56,11 @@ OPA = shutil.which("opa")
 # so it is generous; the test's own cost is W454's follow-up (the cursors fixtures).
 OPA_TEST_TIMEOUT = "300s"
 
+# ⚑ A MEASUREMENT'S TIMEOUT IS A WEDGE BOUND TOO, NOT A VERDICT (W454's lesson, again: the 600 s here killed
+# the closure witness stage, whose measurement is minutes of CPU that wall-clock load stretched past it,
+# 2026-10-11, and the commit was refused for load). Seconds of wall time are load; two hours is a hang.
+MEASURE_TIMEOUT = 7200
+
 
 def policies():
     """[name] for every policy/<name>.rego that is not a _test."""
@@ -86,7 +91,7 @@ def measure(name, operands=(), script=None):
         capture_output=True,
         text=True,
         cwd=ROOT,
-        timeout=600,
+        timeout=MEASURE_TIMEOUT,
         check=False,
     )
     if r.returncode == 2:
