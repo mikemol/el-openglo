@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 489,
+  "counter": 491,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T02:06:57Z",
   "job_id": "8ad616a7",
@@ -11353,7 +11353,6 @@
         "bazel"
       ],
       "blocked_on": [
-        "W487",
         "W488",
         "W489"
       ],
@@ -11998,7 +11997,7 @@
     {
       "symbol": "W487",
       "title": "check_bazel_build.py parses BUILD.bazel and policy/bazel_build.rego refuses glob() and directory inputs, with refusing and admitting tests",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W457"
       ],
@@ -12008,14 +12007,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands (bazel hook); then close W487 and take W489 (split precommit into per-stage targets)",
-      "evidence": "2026-10-11: scripts/check_bazel_build.py (--json, --selftest; ast over tracked BUILD files: glob(), literal srcs/data resolved to file/directory/absent), policy/bazel_build.rego B0-B3 + _test (6/6), warrants BAZEL-BUILD and BAZEL-BUILD-SEES; opa_gate bazel_build admitted on this tree (2 named inputs, 0 globs). Selftest found two defects in my first cut (ast.walk order; a literal beside a + call skipped). Also: paperkit checkout now needs mikemol-atomicwrite (added to the tooling extra) for --project; CONFIG-REACH-SEES claim updated to pixel-identical.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: scripts/check_bazel_build.py (--json, --selftest; ast over tracked BUILD files: glob(), literal srcs/data resolved to file/directory/absent), policy/bazel_build.rego B0-B3 + _test (6/6), warrants BAZEL-BUILD and BAZEL-BUILD-SEES; opa_gate bazel_build admitted on this tree (2 named inputs, 0 globs). Selftest found two defects in my first cut (ast.walk order; a literal beside a + call skipped). Also: paperkit checkout now needs mikemol-atomicwrite (added to the tooling extra) for --project; CONFIG-REACH-SEES claim updated to pixel-identical. | 2026-10-11: landed through the bazel hook; policy bazel_build admitted on the tree",
       "issued_at": "2026-10-11T05:49:11Z",
       "minted_during": "interrupt",
       "caused_by": "W457",
-      "last_worked": "2026-10-11T05:51:58Z",
+      "last_worked": "2026-10-11T06:20:19Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261011T062019Z"
     },
     {
       "symbol": "W488",
@@ -12053,15 +12052,62 @@
         "bazel"
       ],
       "blocked_on": [
-        "W487"
+        "W490",
+        "W491"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "",
+      "next_bounded_step": "Umbrella: W490 (stage runner), then W491 (macro + test_suite); design: every stage exclusive+local+no-sandbox with data = every tracked file (the fail-safe over-approximation; W458 narrows to closures), stage.sh warms the palette cache itself because bazel orders no tests, //:precommit keeps its name as a test_suite so the hook is unchanged",
       "evidence": "",
       "issued_at": "2026-10-11T05:49:13Z",
       "minted_during": "interrupt",
       "caused_by": "W457",
-      "last_worked": "2026-10-11T05:49:21Z",
+      "last_worked": "2026-10-11T06:20:56Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W490",
+      "title": "gate/stage.sh runs ONE gate stage (selftest of a check, opa-test, segment-lattice, worklist, readme) with the hook env discipline and warms the palette cache first",
+      "status": "working",
+      "enables": [
+        "W489"
+      ],
+      "touches": [
+        "gate",
+        "bazel"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Commit lands (bazel hook); then close W490 and take W491 (gate/stages.bzl macro, //:precommit as a test_suite)",
+      "evidence": "2026-10-11: gate/stage.sh written (shellcheck clean). By hand as capped services with the bazel test env: usage/unknown kind/missing script exit 2; segment-lattice, selftest scripts/check_bazel_build.py, opa-test (4 s), worklist (310 s class), readme pass; selftest of a non-python file (gate/stage.sh) FAILS rc 1 with its output shown, so the stage can fail. Warm step runs first for selftest/worklist/readme.",
+      "issued_at": "2026-10-11T06:20:50Z",
+      "minted_during": "interrupt",
+      "caused_by": "W489",
+      "last_worked": "2026-10-11T06:28:57Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W491",
+      "title": "gate/stages.bzl macro generates one host-tier sh_test per stage from select_tracked names; //:precommit becomes a test_suite over them",
+      "status": "blocked",
+      "enables": [
+        "W489"
+      ],
+      "touches": [
+        "gate",
+        "bazel"
+      ],
+      "blocked_on": [
+        "W490"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T06:20:51Z",
+      "minted_during": "interrupt",
+      "caused_by": "W489",
+      "last_worked": "2026-10-11T06:20:56Z",
       "ticks_blocked": 0,
       "completed": null
     }
