@@ -11353,8 +11353,7 @@
         "bazel"
       ],
       "blocked_on": [
-        "W488",
-        "W489"
+        "W488"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Umbrella: work W487 (policy), then W489 (split), then W488 (census); close when all three are done",
@@ -11363,7 +11362,7 @@
       "minted_during": "interrupt",
       "caused_by": "W455",
       "last_worked": "2026-10-11T05:49:23Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -12019,7 +12018,7 @@
     {
       "symbol": "W488",
       "title": "Census: every tracked file is a named input of some bazel target or on a declared exempt list with a reason; an unnamed one fails the gate",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W457"
       ],
@@ -12027,23 +12026,23 @@
         "gate",
         "bazel"
       ],
-      "blocked_on": [
-        "W489"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Commit lands (bazel hook); then close W488 and W457 (all three children done)",
+      "evidence": "2026-10-11: scripts/check_census.py (--json, --selftest 8 arms), policy/census.rego N0-N4 + _test (8/8), gate/census_exempt.tsv (empty), stage.sh census kind, BUILD.bazel STAGES + UNION + //:census (suite member), warrant CENSUS-SEES. Under real bazel: //:census passes; with make_vscode.py omitted from its data it FAILS naming N1 make_vscode.py (661 admitted), reverted. Vacuous on the real tree until W458 narrows stage data (stated in the check docstring).",
       "issued_at": "2026-10-11T05:49:12Z",
       "minted_during": "interrupt",
       "caused_by": "W457",
-      "last_worked": "2026-10-11T05:49:22Z",
-      "ticks_blocked": 1,
-      "completed": null
+      "last_worked": "2026-10-11T07:36:04Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default"
     },
     {
       "symbol": "W489",
       "title": "Split //:precommit into one sh_test per stage (selftest per check, opa-test, segment-lattice, palette-cache, worklist, readme), inputs named by select_tracked",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W457"
       ],
@@ -12051,18 +12050,16 @@
         "gate",
         "bazel"
       ],
-      "blocked_on": [
-        "W491"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: W490 (stage runner), then W491 (macro + test_suite); design: every stage exclusive+local+no-sandbox with data = every tracked file (the fail-safe over-approximation; W458 narrows to closures), stage.sh warms the palette cache itself because bazel orders no tests, //:precommit keeps its name as a test_suite so the hook is unchanged",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: W490 (gate/stage.sh) and W491 (stages.bzl + BUILD.bazel: per-stage host-tier tests, //:precommit a test_suite, data = every tracked file) landed badf9d3, b0d4d71; W487 policy refuses glob and directories",
       "issued_at": "2026-10-11T05:49:13Z",
       "minted_during": "interrupt",
       "caused_by": "W457",
-      "last_worked": "2026-10-11T06:20:56Z",
-      "ticks_blocked": 1,
-      "completed": null
+      "last_worked": "2026-10-11T07:33:24Z",
+      "ticks_blocked": 0,
+      "completed": "20261011T073324Z"
     },
     {
       "symbol": "W490",
@@ -12089,7 +12086,7 @@
     {
       "symbol": "W491",
       "title": "gate/stages.bzl macro generates one host-tier sh_test per stage from select_tracked names; //:precommit becomes a test_suite over them",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W489"
       ],
@@ -12099,14 +12096,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Retire gate/precommit.sh (git rm), commit through the new suite, then close W491 and W489; W488 census next",
-      "evidence": "2026-10-11: stages.bzl (precommit_stage macro, host-tier tags) + BUILD.bazel: 102 selftest targets (select_tracked over scripts/check_*.py and worklist_gate) + opa_test, segment_lattice, worklist, readme, //:precommit as a test_suite; data = every tracked file (662, fail-safe). bazel build --nobuild analyzed 106 targets; bazel test //:precommit passed as a capped service.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: stages.bzl (precommit_stage macro, host-tier tags) + BUILD.bazel: 102 selftest targets (select_tracked over scripts/check_*.py and worklist_gate) + opa_test, segment_lattice, worklist, readme, //:precommit as a test_suite; data = every tracked file (662, fail-safe). bazel build --nobuild analyzed 106 targets; bazel test //:precommit passed as a capped service. | 2026-10-11: landed b0d4d71 through the new suite itself (106 stage tests passed under the hook); gate/precommit.sh retired; follow-up W492 for the cotype advisory",
       "issued_at": "2026-10-11T06:20:51Z",
       "minted_during": "interrupt",
       "caused_by": "W489",
-      "last_worked": "2026-10-11T07:08:17Z",
+      "last_worked": "2026-10-11T07:33:23Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261011T073323Z"
     },
     {
       "symbol": "W492",
@@ -12125,7 +12122,9 @@
       "minted_during": "interrupt",
       "caused_by": "W491",
       "last_worked": null,
-      "ticks_blocked": 0
+      "ticks_blocked": 0,
+      "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default"
     }
   ],
   "residue": [

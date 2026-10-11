@@ -8,11 +8,14 @@
 #
 # ⚑ EVERY INPUT IS A NAMED FILE: `select_tracked` asks git for the tracked names (the index), never a
 # glob and never a directory, and policy/bazel_build.rego (check_bazel_build) refuses both. A file
-# tracked and gone from the work tree fails analysis naming it.
+# tracked and gone from the work tree fails analysis naming it. A tracked file NO stage names fails the
+# `census` stage (W488): its data is the union of every other stage's, and it asks what its own runfiles
+# hold.
 #
 # ⚑⚑ THE DATA OF EVERY STAGE IS EVERY TRACKED FILE, DELIBERATELY: the fail-safe over-approximation
 # (check_action_key: an over-wide domain costs a re-run, an under-wide one reads stale as current).
-# W458 narrows each stage to its real closure; W459 gates the staged tree hermetically.
+# W458 narrows each stage to its real closure (and the census then bites); W459 gates the staged tree
+# hermetically.
 load("@mikemol_rules_py//:tracked.bzl", "select_tracked")
 load("@tracked//:manifest.bzl", "TRACKED")
 load(":stages.bzl", "precommit_stage")
@@ -23,48 +26,39 @@ ALL = select_tracked(TRACKED)
 # must themselves be sound, so these are the suite's first members
 CHECKS = select_tracked(TRACKED, prefix = "scripts/check_", suffix = ".py") + select_tracked(TRACKED, prefix = "scripts/worklist_gate", suffix = ".py")
 
+STAGES = [
+    {
+        "name": "selftest_" + c[len("scripts/"):-len(".py")],
+        "args": ["selftest", c],
+        "data": ALL,
+    }
+    for c in CHECKS
+] + [
+    {"name": "opa_test", "args": ["opa-test"], "data": ALL},
+    {"name": "segment_lattice", "args": ["segment-lattice"], "data": ALL},
+    {"name": "worklist", "args": ["worklist"], "data": ALL},
+    {"name": "readme", "args": ["readme"], "data": ALL},
+]
+
+# the union of every stage's inputs, deduplicated (a dict is the set): the census stage's own data
+UNION = sorted({p: True for s in STAGES for p in s["data"]}.keys())
+
 [
     precommit_stage(
-        name = "selftest_" + c[len("scripts/"):-len(".py")],
-        args = ["selftest", c],
-        data = ALL,
+        name = s["name"],
+        args = s["args"],
+        data = s["data"],
     )
-    for c in CHECKS
+    for s in STAGES
 ]
 
 precommit_stage(
-    name = "opa_test",
-    args = ["opa-test"],
-    data = ALL,
-)
-
-precommit_stage(
-    name = "segment_lattice",
-    args = ["segment-lattice"],
-    data = ALL,
-)
-
-precommit_stage(
-    name = "worklist",
-    args = ["worklist"],
-    data = ALL,
-)
-
-precommit_stage(
-    name = "readme",
-    args = ["readme"],
-    data = ALL,
+    name = "census",
+    args = ["census"],
+    data = UNION,
 )
 
 test_suite(
     name = "precommit",
-    tests = [
-        ":selftest_" + c[len("scripts/"):-len(".py")]
-        for c in CHECKS
-    ] + [
-        ":opa_test",
-        ":segment_lattice",
-        ":worklist",
-        ":readme",
-    ],
+    tests = [":" + s["name"] for s in STAGES] + [":census"],
 )

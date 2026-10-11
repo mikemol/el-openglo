@@ -1,0 +1,5 @@
+# Tracked files that NO gate stage names as an input, each with the reason (W488; scripts/check_census.py).
+# `path<TAB>reason`, one per line. An exemption with no reason, one for a file a stage DOES name, and one
+# for a file that is not tracked are each refused (policy/census.rego N2-N4): the list is data a reader
+# can judge, never a quiet way to leave a gated file out. Empty today: every stage's data is every
+# tracked file (the fail-safe over-approximation) until W458 narrows each to its closure.

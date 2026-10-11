@@ -1022,3 +1022,10 @@
   claim    = {The BUILD check is shown to see a glob() and a native.glob() with their patterns, a literal on either side of a + (the call half is the generator and is not read), and to tell a file, a directory and an absent path apart while leaving an external and a target label alone; policy/bazel_build_test.rego holds that a glob, a directory, a gone file and an empty population are refused},
   check    = {tool:check_bazel_build.py --selftest}
 }
+
+@misc{CENSUS-SEES,
+  section  = {emitters},
+  rests-on = {BAZEL-BUILD},
+  claim    = {The census (scripts/check_census.py, the gate stage whose data is the union of every stage inputs) is shown to name a tracked file no stage lists as UNNAMED, to accept one exempted with a reason, and to refuse an exemption with no reason, a stale one for a file a stage does name, and one for an untracked file; policy/census_test.rego holds each refusal and that outside bazel the measurement is withheld, never admitted; and under real bazel it denied make_vscode.py when its data omitted that one file (W488, 2026-10-11)},
+  check    = {tool:check_census.py --selftest}
+}

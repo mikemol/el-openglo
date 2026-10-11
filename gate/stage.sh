@@ -6,6 +6,7 @@
 #   gate/stage.sh selftest scripts/check_x.py   a check's --selftest (and worklist_gate's)
 #   gate/stage.sh opa-test                      every policy's refusing and admitting case
 #   gate/stage.sh segment-lattice               segment_topology's own invariants
+#   gate/stage.sh census                        every tracked file is a named input of some stage (W488)
 #   gate/stage.sh worklist                      every cited claim of catalog/worklist is discharged
 #   gate/stage.sh readme                        README.md is the projection and its claims hold
 #
@@ -25,7 +26,7 @@
 set -uo pipefail
 
 usage() {
-  echo "gate/stage.sh: REFUSED — usage: stage.sh selftest SCRIPT | opa-test | segment-lattice | worklist | readme" >&2
+  echo "gate/stage.sh: REFUSED — usage: stage.sh selftest SCRIPT | opa-test | segment-lattice | census | worklist | readme" >&2
   exit 2
 }
 
@@ -34,8 +35,10 @@ KIND="$1"
 SCRIPT="${2:-}"
 
 # THE REPO ROOT IS RESOLVED FROM A DECLARED FILE, NOT FROM THE CWD (a test's cwd is its runfiles dir)
+CENSUS_RF=""
 if [ -n "${TEST_SRCDIR:-}" ] && [ -e "${TEST_SRCDIR}/${TEST_WORKSPACE:-_main}/MODULE.bazel" ]; then
   ROOT="$(dirname "$(readlink -f "${TEST_SRCDIR}/${TEST_WORKSPACE:-_main}/MODULE.bazel")")"
+  CENSUS_RF="${TEST_SRCDIR}/${TEST_WORKSPACE:-_main}"
 else
   ROOT="$(git rev-parse --show-toplevel)"
 fi
@@ -101,6 +104,10 @@ case "$KIND" in
     ;;
   segment-lattice)
     quiet "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest
+    ;;
+  census)
+    # the census asks what THIS test's runfiles hold (its data is the union of every stage's inputs)
+    quiet "census" env CENSUS_RUNFILES="$CENSUS_RF" "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" census
     ;;
   worklist|readme)
     warm || exit 1
