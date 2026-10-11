@@ -1040,6 +1040,6 @@
 @misc{CLOSURE-SEES,
   section  = {emitters},
   rests-on = {CLOSURE},
-  claim    = {The closure observer is shown to keep a tracked file a stage touched (absolute, relative and pid-prefixed lines), to drop a failed open, an untracked file and a host binary, to round-trip closures.bzl, to report a stage with no closure, an untracked listed file and a stale key, and (where strace exists) to list a real check and the module it imports; policy/closure_test.rego holds that each shape defect and an empty population is refused},
+  claim    = {The closure observer is shown to keep a tracked file a stage touched (absolute, relative and pid-prefixed lines), to declare the files inside a directory a stage lists and one file under a directory it only stats, to drop a failed open, an untracked file and a host binary, to round-trip closures.bzl, and to report a stage with no closure, an untracked listed file and a stale key; and the witness is shown to pass a stage in a tree holding ONLY its closure (arm 1), to REFUSE one whose closure omits a module it imports, and to carry a planted defect in a closure module to the verdict (arm 2); policy/closure_test.rego holds that each shape defect, an insufficient closure and an empty population are refused and that an exempt stage or an unproven arm 2 is withheld, never denied (W493, W494)},
   check    = {tool:check_closure.py --selftest}
 }

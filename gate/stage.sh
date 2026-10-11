@@ -26,7 +26,7 @@
 set -uo pipefail
 
 usage() {
-  echo "gate/stage.sh: REFUSED — usage: stage.sh selftest SCRIPT | opa-test | segment-lattice | census | worklist | readme" >&2
+  echo "gate/stage.sh: REFUSED — usage: stage.sh selftest SCRIPT | opa-test | segment-lattice | census | closure-witness | worklist | readme" >&2
   exit 2
 }
 
@@ -104,6 +104,11 @@ case "$KIND" in
     ;;
   segment-lattice)
     quiet "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest
+    ;;
+  closure-witness)
+    # arm 1 of the closure witness over every selftest stage: each runs in a temp tree holding ONLY its
+    # closure (W494); the verdict is opa_gate closure with the witness measurement switched on
+    quiet "closure-witness" env CLOSURE_WITNESS=1 "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" closure
     ;;
   census)
     # the census asks what THIS test's runfiles hold (its data is the union of every stage's inputs)

@@ -42,6 +42,27 @@ test_l3_refuses_an_untracked_listed_file if {
 	startswith(msg, "L3: the closure of scripts/check_a.py lists .palette-cache.json")
 }
 
+test_l5_refuses_an_insufficient_closure if {
+	bad := object.union(good, {"witness": [{"script": "scripts/check_a.py", "arm1": "fail", "arm2": "none", "victim": null, "detail": "ModuleNotFoundError: gone"}]})
+	some msg in p.deny with input as bad
+	startswith(msg, "L5: scripts/check_a.py fails in a tree holding only its closure")
+}
+
+test_a_passing_witness_adds_no_denial if {
+	ok := object.union(good, {"witness": [{"script": "scripts/check_a.py", "arm1": "pass", "arm2": "refused", "victim": "scripts/x.py", "detail": ""}]})
+	count(p.deny) == 0 with input as ok
+}
+
+# not confirmed is not failed: an exempt stage and an unproven arm 2 are counted, never denied or admitted
+test_exempt_and_unproven_are_withheld_not_judged if {
+	w := object.union(good, {"witness": [
+		{"script": "scripts/check_e.py", "arm1": "exempt", "arm2": "none", "victim": null, "detail": "needs a git index"},
+		{"script": "scripts/check_u.py", "arm1": "pass", "arm2": "unproven", "victim": null, "detail": ""},
+	]})
+	count(p.deny) == 0 with input as w
+	count([m | some m in p.withheld with input as w]) == 2
+}
+
 test_l4_refuses_a_closure_for_a_gone_stage if {
 	bad := object.union(good, {"stale": ["scripts/check_gone.py"]})
 	some msg in p.deny with input as bad

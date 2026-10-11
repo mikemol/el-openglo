@@ -36,6 +36,7 @@ STAGES = [
 ] + [
     {"name": "opa_test", "args": ["opa-test"], "data": ALL},
     {"name": "segment_lattice", "args": ["segment-lattice"], "data": ALL},
+    {"name": "closure_witness", "args": ["closure-witness"], "data": ALL},
     {"name": "worklist", "args": ["worklist"], "data": ALL},
     {"name": "readme", "args": ["readme"], "data": ALL},
 ]

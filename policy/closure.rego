@@ -49,6 +49,35 @@ deny contains msg if {
 	msg := sprintf("L4: closures.bzl carries a closure for %s, which is no stage; regenerate", [s])
 }
 
+# METADATA
+# title: "L5 — a closure that is not sufficient (the witness's arm 1)"
+# description: |
+#   Only present when the gate stage ran the witness (CLOSURE_WITNESS=1): the stage was run in a temp
+#   tree holding ONLY its closure, and it did not pass, so the closure omits something it reads.
+deny contains msg if {
+	some w in object.get(input, "witness", [])
+	w.arm1 == "fail"
+	msg := sprintf("L5: %s fails in a tree holding only its closure, so the closure is incomplete: %s", [w.script, w.detail])
+}
+
+# METADATA
+# title: "W — a witness that could not judge"
+# description: |
+#   NOT CONFIRMED IS NOT FAILED: a stage that needs a git work tree is exempt from arm 1 (WITH its
+#   reason), and one whose imported modules all survived a planted defect is unproven on arm 2 (an
+#   import may sit on a path the selftest never takes). Counted and printed, never admitted or denied.
+withheld contains msg if {
+	some w in object.get(input, "witness", [])
+	w.arm1 == "exempt"
+	msg := sprintf("W: %s is exempt from the sufficiency witness: %s", [w.script, w.detail])
+}
+
+withheld contains msg if {
+	some w in object.get(input, "witness", [])
+	w.arm2 == "unproven"
+	msg := sprintf("W: %s: no import of it carried a planted defect to the verdict (unproven, not failed)", [w.script])
+}
+
 admitted contains c.script if {
 	some c in object.get(input, "cases", [])
 	c.has_closure == true

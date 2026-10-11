@@ -11377,7 +11377,6 @@
         "check_action_key"
       ],
       "blocked_on": [
-        "W493",
         "W494",
         "W495"
       ],
@@ -12128,7 +12127,7 @@
     {
       "symbol": "W493",
       "title": "scripts/check_closure.py derives each check input closure (python import closure from check_action_key.runner_code, its rego policy and test, declared data) into gate/closures.bzl, and --check refuses a stale one",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W458"
       ],
@@ -12139,21 +12138,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands (suite); close W493; then W494 (two-armed witness: run a stage with ONLY its closure present, plant a defect in a listed file)",
-      "evidence": "2026-10-11: scripts/check_closure.py (--observe, --write, --json, --selftest 6 arms): the closure of a stage is the tracked files gate/stage.sh opens under strace. closures.bzl generated for all 103 selftest stages (10-20 files for most; 666 for check_deps/license/mark; ~200 for a handful). policy/closure.rego L0-L4 + _test (7/7), opa_gate closure admitted 103; warrants CLOSURE and CLOSURE-SEES. Weakness stated: observed under-approximates; W494 witness tests it.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: scripts/check_closure.py (--observe, --write, --json, --selftest 6 arms): the closure of a stage is the tracked files gate/stage.sh opens under strace. closures.bzl generated for all 103 selftest stages (10-20 files for most; 666 for check_deps/license/mark; ~200 for a handful). policy/closure.rego L0-L4 + _test (7/7), opa_gate closure admitted 103; warrants CLOSURE and CLOSURE-SEES. Weakness stated: observed under-approximates; W494 witness tests it. | 2026-10-11: landed 5e24699 through the suite (the first attempt failed on L1 for check_closure.py itself: a new check needs its closure the commit it lands; --write SCRIPT merges one)",
       "issued_at": "2026-10-11T08:13:37Z",
       "minted_during": "interrupt",
       "caused_by": "W458",
-      "last_worked": "2026-10-11T08:47:33Z",
+      "last_worked": "2026-10-11T09:24:56Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T092456Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
     {
       "symbol": "W494",
       "title": "Two-armed domain witness for a stage closure: an edit to a transitive input reruns the stage, a planted defect in it makes the stage refuse (mtools domain_witness.sh pattern)",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W458"
       ],
@@ -12161,16 +12160,14 @@
         "gate",
         "bazel"
       ],
-      "blocked_on": [
-        "W493"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Commit lands (suite); close W494; then W495 narrows each selftest stage data to its closure (closures.bzl) so the census bites",
+      "evidence": "2026-10-11: check_closure.py --witness: arm 1 runs each selftest stage in a temp tree holding ONLY its closure (+MODULE.bazel, venv symlink, palette cache): 102/104 pass, 2 exempt with reasons (check_ebuild, check_tree_writes need a git repo); arm 2 plants raise SystemExit(99) in a closure module the script imports, trying candidates until one reaches the verdict: ~70 refused, 15 unproven (counted, never denied), 0 contradicted. The witness found two observer gaps: a directory LISTING is an input (emitters --drift counts make_*.py) and a stat of a directory means it exists (worklist_gate project dirs); both fixed in the observer, closures regenerated (most now ~213 files: python lists the repo root and scripts/). New gate stage closure-witness (gate/stage.sh), policy closure.rego L5 + withheld, selftest arms prove the witness can fail. Arm \"an edit to a transitive input reruns the stage\" waits on cacheable stages (W459, external tag).",
       "issued_at": "2026-10-11T08:13:38Z",
       "minted_during": "interrupt",
       "caused_by": "W458",
-      "last_worked": "2026-10-11T08:13:48Z",
+      "last_worked": "2026-10-11T10:00:01Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
@@ -12188,7 +12185,6 @@
         "bazel"
       ],
       "blocked_on": [
-        "W493",
         "W494"
       ],
       "blocked_kind": "agent",

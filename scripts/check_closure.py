@@ -41,6 +41,7 @@ sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
 CLOSURES = os.path.join(ROOT, "closures.bzl")
 SYSCALLS = "openat,open,execve,stat,newfstatat,statx,access,faccessat,faccessat2,readlink,readlinkat"
+_STAT = ("stat", "newfstatat", "statx", "access", "faccessat", "faccessat2")
 # `[pid N] ` or `N ` prefix, the syscall name, the first quoted argument, the return value
 _LINE = re.compile(
     r'^(?:\[pid\s+\d+\]\s+|\d+\s+)?(\w+)\((?:AT_FDCWD,\s*)?"((?:[^"\\]|\\.)*)".*\)\s+=\s+(-?\d+)'
@@ -50,6 +51,16 @@ _LINE = re.compile(
 def parse_trace(text, root, tracked):
     """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0)."""
     seen = set()
+    children = {}
+    first_under = {}
+    for p in sorted(tracked):
+        children.setdefault(os.path.dirname(p) or ".", []).append(p)
+        d = os.path.dirname(p)
+        while True:
+            first_under.setdefault(d or ".", p)
+            if not d:
+                break
+            d = os.path.dirname(d)
     for line in text.splitlines():
         m = _LINE.match(line)
         if not m or int(m.group(3)) < 0:
@@ -59,6 +70,16 @@ def parse_trace(text, root, tracked):
         rel = os.path.relpath(os.path.normpath(full), root)
         if rel in tracked:
             seen.add(rel)
+        elif "O_DIRECTORY" in line:
+            # ⚑ A DIRECTORY LISTING IS AN INPUT: a stage that scans for names (emitters --drift counts the
+            # make_*.py the tree holds) reads the NAMES of what is in it. Declare the tracked files directly
+            # inside (the names are the input; over-approximate on content), or a closure-only tree
+            # silently loses a file the scan would have found (found by the W494 witness, check_discriminates)
+            seen.update(children.get(rel, ()))
+        elif m.group(1) in _STAT and rel in first_under:
+            # a stat of a directory (os.path.isdir) reads that it EXISTS: one tracked file under it
+            # keeps it in a closure-only tree (W494, worklist_gate's "every project dir exists")
+            seen.add(first_under[rel])
     return seen
 
 
@@ -88,6 +109,114 @@ def observe(script, root=ROOT):
             closure = parse_trace(fh.read(), root, tracked)
     closure.add(script)
     return sorted(closure), ""
+
+
+# stages whose selftest needs a real git work tree: a closure-only temp tree has no .git, so the
+# sufficiency witness cannot judge them (a fact about the harness; withheld WITH the reason, never a pass)
+WITNESS_EXEMPT = {
+    "scripts/check_ebuild.py": "certifies the staged tree (git write-tree): needs a git index",
+    "scripts/check_tree_writes.py": "builds scratch git worktrees of the repo: needs a git repository",
+}
+
+
+MAX_VICTIMS = 12
+
+
+def _victims(script, closure, root):
+    """The closure .py files the stage's script imports BY NAME (at most MAX_VICTIMS), where a planted
+    defect might reach the verdict. A name in an `import` line is a CANDIDATE, not a proof it runs: the
+    import may sit in a branch the selftest never takes, so arm 2 tries them until one reaches the
+    verdict (W494)."""
+    with open(os.path.join(root, script), encoding="utf-8") as fh:
+        text = fh.read()
+    out = []
+    for f in sorted(closure):
+        if not f.endswith(".py") or f == script:
+            continue
+        mod = os.path.splitext(os.path.basename(f))[0]
+        if re.search(rf"^\s*(?:import|from)\s+{re.escape(mod)}\b", text, re.MULTILINE):
+            out.append(f)
+    return out[:MAX_VICTIMS]
+
+
+def witness(script, closure, defect_in=None, root=ROOT):
+    """(rc, tail): run `gate/stage.sh selftest SCRIPT` in a temp tree holding ONLY its closure
+    (plus MODULE.bazel, which locates the root, the venv by symlink and the warm palette cache: the
+    host's, declared). Arm 1 (defect_in None): it must pass, or the closure is incomplete and the missing
+    file is in the output. Arm 2: a `raise SystemExit(99)` appended to the closure file `defect_in`
+    must make it fail, or that file does not reach the verdict on the selftest's path."""
+    with tempfile.TemporaryDirectory() as td:
+        for rel in set(closure) | {"MODULE.bazel"}:
+            dst = os.path.join(td, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy2(os.path.join(root, rel), dst)
+        cache = os.path.join(root, ".palette-cache.json")
+        if os.path.isfile(cache):
+            shutil.copy2(cache, os.path.join(td, ".palette-cache.json"))
+        os.symlink(os.path.join(root, ".venv"), os.path.join(td, ".venv"))
+        if defect_in is not None:
+            with open(os.path.join(td, defect_in), "a", encoding="utf-8") as fh:
+                fh.write("\nraise SystemExit(99)\n")
+        # the stage under witness must not inherit the request to run the witness (it would recurse)
+        env = {
+            k: v
+            for k, v in os.environ.items()
+            if not k.startswith("GIT_") and k != "CLOSURE_WITNESS"
+        }
+        env.update(TEST_SRCDIR=os.path.dirname(td), TEST_WORKSPACE=os.path.basename(td))
+        r = subprocess.run(
+            ["bash", os.path.join(td, "gate", "stage.sh"), "selftest", script],
+            cwd=td,
+            env=env,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+    return r.returncode, (r.stderr or r.stdout)[-4000:]
+
+
+def judge(script, closure):
+    """One stage's witness case: {script, arm1, arm2, victim, detail}. arm1 is pass / fail / exempt;
+    arm2 is refused (the planted defect reached the verdict) / survived / none (no module to plant in)."""
+    if script in WITNESS_EXEMPT:
+        return {
+            "script": script,
+            "arm1": "exempt",
+            "arm2": "none",
+            "victim": None,
+            "detail": WITNESS_EXEMPT[script],
+        }
+    rc1, tail1 = witness(script, closure)
+    case = {
+        "script": script,
+        "arm1": "pass" if rc1 == 0 else "fail",
+        "arm2": "none",
+        "victim": None,
+        "detail": "" if rc1 == 0 else tail1,
+    }
+    if rc1 == 0:
+        victims = _victims(script, closure, ROOT)
+        # none: no module to plant in; refused: a planted defect reached the verdict (victim names it);
+        # unproven: every candidate import survived a defect (each may sit on a path the selftest never
+        # takes) - NOT CONFIRMED IS NOT FAILED, so it is counted and printed, never denied
+        case["arm2"] = "unproven" if victims else "none"
+        for v in victims:
+            rc2, _tail2 = witness(script, closure, defect_in=v)
+            if rc2 != 0:
+                case["arm2"] = "refused"
+                case["victim"] = v
+                break
+    return case
+
+
+def witness_all(scripts, closures, jobs=4):
+    """The witness measurement policy/closure_witness.rego decides: judge() per stage, in parallel
+    (each runs in its own temp tree, so they cannot interfere)."""
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=jobs) as ex:
+        cases = list(ex.map(lambda s: judge(s, closures[s]), scripts))
+    return {"cases": cases}
 
 
 def stage_scripts(root=ROOT):
@@ -134,9 +263,11 @@ def load_closures(text):
     return {}
 
 
-def measure(closures=None, scripts=None, tracked=None):
+def measure(closures=None, scripts=None, tracked=None, with_witness=False):
     """The MEASUREMENT policy/closure.rego decides: per stage script whether it has a closure, and
-    which listed files are not tracked; keys no stage uses are stale."""
+    which listed files are not tracked; keys no stage uses are stale. `with_witness` adds the
+    sufficiency witness's cases (minutes of work: only the gate stage that asks for it pays, and an
+    EXPLICIT argument, not the environment, so a fixture call in a selftest cannot start it)."""
     import git_tracked
 
     if closures is None:
@@ -160,7 +291,12 @@ def measure(closures=None, scripts=None, tracked=None):
                 "untracked": sorted(f for f in (files or []) if f not in tracked),
             }
         )
-    return {"cases": cases, "stale": sorted(set(closures) - set(scripts))}
+    result = {"cases": cases, "stale": sorted(set(closures) - set(scripts))}
+    if with_witness:
+        result["witness"] = witness_all(
+            [s for s in scripts if s in closures], closures
+        )["cases"]
+    return result
 
 
 def main(argv):
@@ -197,10 +333,38 @@ def main(argv):
             fh.write(render(closures))
         print(f"check_closure: wrote {len(closures)} closure(s) to closures.bzl")
         return 0
+    if args[:1] in (["--witness"], ["--witness-json"]):
+        with open(CLOSURES, encoding="utf-8") as fh:
+            closures = load_closures(fh.read())
+        scripts = args[1:] or sorted(closures)
+        unknown = [s for s in scripts if s not in closures]
+        if unknown:
+            print(f"check_closure: no closure for {unknown}", file=sys.stderr)
+            return 2
+        result = witness_all(scripts, closures)
+        if args[0] == "--witness-json":
+            import json
+
+            print(json.dumps(result, indent=1))
+            return 0
+        bad = 0
+        for c in result["cases"]:
+            note = f" ({c['detail'][:90]})" if c["detail"] else ""
+            print(f"  {c['script']}: arm1 {c['arm1']}, arm2 {c['arm2']}{note}")
+            bad += c["arm1"] == "fail"
+        counts = {}
+        for c in result["cases"]:
+            counts[c["arm2"]] = counts.get(c["arm2"], 0) + 1
+        print(
+            f"check_closure: {bad} of {len(result['cases'])} stage(s) failed arm 1 (closure sufficient); "
+            f"arm 2 (a planted defect reaches the verdict): {counts}"
+        )
+        return 1 if bad else 0
     if args == ["--json"]:
         import json
 
-        print(json.dumps(measure(), indent=1))
+        asked = os.environ.get("CLOSURE_WITNESS") == "1"
+        print(json.dumps(measure(with_witness=asked), indent=1))
         return 0
     if args == []:
         import opa_gate
@@ -241,6 +405,24 @@ def _selftest():
         False,
     )
     chk(
+        "a directory the stage lists declares the tracked files directly inside it (the names are the input)",
+        parse_trace(
+            '1 openat(AT_FDCWD, "/r/d", O_RDONLY|O_NONBLOCK|O_DIRECTORY) = 5\n',
+            "/r",
+            tracked,
+        ),
+        {"d/b.json"},
+    )
+    chk(
+        "a stat of a directory keeps ONE tracked file under it (the directory exists), not all of them",
+        parse_trace(
+            '1 newfstatat(AT_FDCWD, "/r/d", {st_mode=S_IFDIR|0755}, 0) = 0\n',
+            "/r",
+            tracked | {"d/z.json"},
+        ),
+        {"d/b.json"},
+    )
+    chk(
         "an untracked file and a host binary are not inputs",
         sorted(p for p in parse_trace(log, "/r", tracked) if p not in tracked),
         [],
@@ -276,6 +458,30 @@ def _selftest():
                 "scripts/git_tracked.py" in closure,
             ),
             (True, True),
+        )
+    stage = "scripts/check_bazel_build.py"
+    if os.path.isfile(CLOSURES):
+        with open(CLOSURES, encoding="utf-8") as fh:
+            have = load_closures(fh.read()).get(stage)
+    else:
+        have = None
+    if have is None:
+        print("  SKIP the witness arms: no closure for the sample stage (run --write)")
+    else:
+        chk(
+            "arm 1: the stage passes in a tree holding only its closure",
+            witness(stage, have)[0],
+            0,
+        )
+        chk(
+            "arm 1 CAN FAIL: a closure missing a module the stage imports is refused",
+            witness(stage, [f for f in have if f != "scripts/git_tracked.py"])[0] != 0,
+            True,
+        )
+        chk(
+            "arm 2: a planted defect in a closure module reaches the verdict",
+            witness(stage, have, defect_in="scripts/git_tracked.py")[0] != 0,
+            True,
         )
     print("check_closure selftest:", "PASS" if ok else "FAIL")
     return ok
