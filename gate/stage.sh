@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# ONE GATE STAGE, run as one bazel test target (W490, under W489/W457). gate/precommit.sh is the whole
-# gate as one script; this is the same stages one at a time, so each is its own target with its own
-# log and verdict (BuildBuddy keeps each, a flake names the stage that flaked).
+# ONE GATE STAGE, run as one bazel test target (W490, under W489/W457). This is the old gate/precommit.sh
+# (one script for the whole gate, retired in W491) one stage at a time, so each stage is its own target
+# with its own log and verdict (BuildBuddy keeps each, a flake names the stage that flaked).
 #
 #   gate/stage.sh selftest scripts/check_x.py   a check's --selftest (and worklist_gate's)
 #   gate/stage.sh opa-test                      every policy's refusing and admitting case

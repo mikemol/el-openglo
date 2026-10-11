@@ -838,3 +838,4 @@
 2026-10-11T05:49:13Z  interrupt W489 minted    -         "Split //:precommit into one sh_test per stage (selftest per check, opa-test, segment-lattice, palette-cache, worklist, readme), inputs named by select_tracked"  evidence=W457
 2026-10-11T06:20:50Z  interrupt W490 minted    -         "gate/stage.sh runs ONE gate stage (selftest of a check, opa-test, segment-lattice, worklist, readme) with the hook env discipline and warms the palette cache first"  evidence=W489
 2026-10-11T06:20:51Z  interrupt W491 minted    -         "gate/stages.bzl macro generates one host-tier sh_test per stage from select_tracked names; //:precommit becomes a test_suite over them"  evidence=W489
+2026-10-11T07:08:31Z  interrupt W492 minted    -         "Restore the non-blocking cotype queue report the old precommit.sh printed, as its own gate stage kind"  evidence=W491
