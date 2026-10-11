@@ -11400,7 +11400,6 @@
         "bazel"
       ],
       "blocked_on": [
-        "W498",
         "W499"
       ],
       "blocked_kind": "agent",
@@ -12244,7 +12243,7 @@
     {
       "symbol": "W498",
       "title": "gate/staged.sh materialises the commit index at a stable path and runs bazel test //:precommit there; the hook execs it",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W459"
       ],
@@ -12255,21 +12254,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands through the staged-tree hook; close W498; W499 next",
-      "evidence": "2026-10-11: gate/staged.sh: git checkout-index --all into /home/mikemol/.cache/el-openglo-staged (NOT /var/tmp: portage sandbox DENY covers reads), git init + add -f of the commit index list (staged index == real index, 671 of 671; add -A missed a tracked-but-ignored file), host state symlinked in (venv, palette cache, gitignored emitted outputs, ledger), bazel test //:precommit run there with no GIT_* (the staged repo is self-contained). Proven: an unstaged edit (probe line in NOTICE) is absent from the staged tree; the full suite over the staged tree passed after three fixes found by running it (symlink aliasing from the walk fallback, tracked-but-ignored file, /var/tmp sandbox deny); the three ebuild-affected stages re-ran green at the new path. Hook now execs gate/staged.sh. | 2026-10-11: First commit through the staged-tree hook ran 110 stages (109 passed) and the closure witness REFUSED it, correctly: a new tracked file (gate/staged.sh) was missing from the stored closures of the stages that read every tracked file. Fix: a closure covering at least 95 percent of the tracked list is recorded as the whole-tree marker, so those stages (worklist, readme, check_license, check_mark, check_deps, check_closure) follow the tree; BUILD helpers closure_data and closure_union expand it; check_closure.py --compress rewrites closures.bzl without re-observing.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: gate/staged.sh: git checkout-index --all into /home/mikemol/.cache/el-openglo-staged (NOT /var/tmp: portage sandbox DENY covers reads), git init + add -f of the commit index list (staged index == real index, 671 of 671; add -A missed a tracked-but-ignored file), host state symlinked in (venv, palette cache, gitignored emitted outputs, ledger), bazel test //:precommit run there with no GIT_* (the staged repo is self-contained). Proven: an unstaged edit (probe line in NOTICE) is absent from the staged tree; the full suite over the staged tree passed after three fixes found by running it (symlink aliasing from the walk fallback, tracked-but-ignored file, /var/tmp sandbox deny); the three ebuild-affected stages re-ran green at the new path. Hook now execs gate/staged.sh. | 2026-10-11: First commit through the staged-tree hook ran 110 stages (109 passed) and the closure witness REFUSED it, correctly: a new tracked file (gate/staged.sh) was missing from the stored closures of the stages that read every tracked file. Fix: a closure covering at least 95 percent of the tracked list is recorded as the whole-tree marker, so those stages (worklist, readme, check_license, check_mark, check_deps, check_closure) follow the tree; BUILD helpers closure_data and closure_union expand it; check_closure.py --compress rewrites closures.bzl without re-observing. | 2026-10-11: landed a321e13 through the staged-tree hook (the gate ran over the staged index of its own commit)",
       "issued_at": "2026-10-11T12:48:37Z",
       "minted_during": "interrupt",
       "caused_by": "W459",
-      "last_worked": "2026-10-11T14:33:03Z",
+      "last_worked": "2026-10-11T15:01:46Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T150146Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
     {
       "symbol": "W499",
       "title": "The hook snapshots itself and refuses when a needed tool is absent; stages scrub GIT_* except the commit index passthrough (mtools pre-commit pattern)",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W459"
       ],
@@ -12277,16 +12276,14 @@
         "gate",
         "commit"
       ],
-      "blocked_on": [
-        "W498"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Commit lands through the snapshotting hook; close W499 and the W459 umbrella, then W455",
+      "evidence": "2026-10-11: Hook copies gate/staged.sh to a snapshot and execs it (EL_STAGED_SNAPSHOT set); staged.sh unlinks its own snapshot first (proven: a copy run by hand is gone afterwards) and refuses with exit 1 and its reason when bazel, git, uv or .venv/bin/python3 is absent (proven: PATH=/nonexistent gives REFUSED, bazel is not on PATH). A failed snapshot copy reports and runs live, never silently. GIT_* are unset before the stages (W498).",
       "issued_at": "2026-10-11T12:48:37Z",
       "minted_during": "interrupt",
       "caused_by": "W459",
-      "last_worked": "2026-10-11T12:48:44Z",
+      "last_worked": "2026-10-11T15:02:20Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",

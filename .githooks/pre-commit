@@ -3,4 +3,14 @@
 # BuildBuddy captures its logs. It runs over the STAGED tree, not the working tree (W498, under W459): the
 # two diverge exactly when `git add` is partial, so gate/staged.sh materialises the commit's index at a
 # stable path and runs `bazel test //:precommit` there. The hook only invokes it.
-exec "$(git rev-parse --show-toplevel)/gate/staged.sh"
+#
+# ⚑ AND IT RUNS A SNAPSHOT OF staged.sh (W499): core.hooksPath points into the working tree, so git runs the
+# live file, and an edit to it mid-run would be read mid-write by every commit in flight. A failed copy
+# REPORTS and runs live (refusing would turn a full cache directory into a refused commit), never silently.
+root="$(git rev-parse --show-toplevel)"
+snap="${TMPDIR:-$HOME/.cache}/el-openglo-staged-$$.sh"
+if cp "$root/gate/staged.sh" "$snap" 2>/dev/null; then
+  EL_STAGED_SNAPSHOT=1 exec bash "$snap"
+fi
+printf 'pre-commit: could not snapshot gate/staged.sh to %s - running it LIVE from the tree\n' "$snap" >&2
+exec "$root/gate/staged.sh"

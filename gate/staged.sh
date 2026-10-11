@@ -23,7 +23,28 @@
 # so @CURRENCY compares the staged inputs against the host's outputs, which is the question.
 set -euo pipefail
 
+# ⚑ RUN FROM AN IMMUTABLE SNAPSHOT OF THIS FILE (W499, mtools' pre-commit pattern). `.githooks/pre-commit`
+# copies this script and runs the copy, because core.hooksPath points into the working tree and git runs the
+# live file: an edit to it mid-run would be read mid-write by every commit in flight, and the failure
+# blamed on whoever happened to be committing. The copy removes ITSELF here, in the process that runs it
+# (a trap would fire when exec replaces the shell and delete the file mid-read).
+if [ -n "${EL_STAGED_SNAPSHOT:-}" ]; then
+  rm -f "$0"
+fi
+
+# ⚑ THE GATE REFUSES WHEN IT CANNOT RUN. A missing tool is a refused commit, never a skipped stage: a green
+# row and a gate that did not execute are indistinguishable to every reader downstream (mtools measured a
+# declared gate that "ALWAYS PASSED WITHOUT EXECUTING").
+refuse() {
+  printf 'staged gate: REFUSED - %s\n  a skipped gate reads as a passing one, so this refuses instead\n' "$1" >&2
+  exit 1
+}
+for tool in bazel git uv; do
+  command -v "$tool" >/dev/null 2>&1 || refuse "$tool is not on PATH"
+done
+
 ROOT="$(git rev-parse --show-toplevel)"
+[ -x "$ROOT/.venv/bin/python3" ] || refuse "$ROOT/.venv/bin/python3 is absent (uv sync --extra tooling --extra research)"
 # ⚑ NOT UNDER /tmp OR /var/tmp: check_ebuild stages inside the tree under portage's sandbox with
 # SANDBOX_DENY=/tmp:/var/tmp, and DENY covers READS, so a staged tree there cannot read its own venv
 # ("open_rd deny /var/tmp/el-openglo-staged/.venv/pyvenv.cfg", measured 2026-10-11). The home cache is the
