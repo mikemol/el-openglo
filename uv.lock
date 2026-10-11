@@ -311,6 +311,7 @@ research = [
 ]
 tooling = [
     { name = "libcst" },
+    { name = "mikemol-atomicwrite" },
     { name = "mikemol-hooks" },
     { name = "mikemol-mdstruct" },
     { name = "mikemol-pathsforward" },
@@ -331,6 +332,7 @@ requires-dist = [
     { name = "libcst", marker = "extra == 'tooling'" },
     { name = "material-color-utilities", marker = "extra == 'research'" },
     { name = "matplotlib", marker = "extra == 'research'" },
+    { name = "mikemol-atomicwrite", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=58269d867e7baefd8e09edbd5d60e33851416950" },
     { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=58269d867e7baefd8e09edbd5d60e33851416950" },
     { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=58269d867e7baefd8e09edbd5d60e33851416950" },
     { name = "mikemol-pathsforward", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=58269d867e7baefd8e09edbd5d60e33851416950" },
@@ -654,6 +656,11 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/f6/4a/907ed190ee81a9df581e0ed5456134fc0f7cb55ffcfda2f9e54ca900761c/matplotlib-3.11.1-cp314-cp314t-win_amd64.whl", hash = "sha256:f2912f647f3fbe1ccf085f91e213936f9101bead81a5e670565b1f1b3712f4fb", size = 9540074, upload-time = "2026-07-18T03:39:34.789Z" },
     { url = "https://files.pythonhosted.org/packages/23/d4/97c19b77e0a6e3b48581185bb65088f431cd20186076cc0f650a1757ea46/matplotlib-3.11.1-cp314-cp314t-win_arm64.whl", hash = "sha256:54d47b8ae8b579633a3902ca5b4ad6c1e132a5626d64447b2e22a66394e79987", size = 9213472, upload-time = "2026-07-18T03:39:37.141Z" },
 ]
+
+[[package]]
+name = "mikemol-atomicwrite"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=58269d867e7baefd8e09edbd5d60e33851416950#58269d867e7baefd8e09edbd5d60e33851416950" }
 
 [[package]]
 name = "mikemol-hooks"

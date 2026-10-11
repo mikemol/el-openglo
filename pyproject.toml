@@ -74,6 +74,11 @@ tooling = [
     # cleaner versions"). mikemol-pycodemod is the cleanroom port (libcst REQUIRED, so a missing
     # parser fails at install rather than every mode returning a false zero). W144.
     "mikemol-pycodemod @ git+https://github.com/mikemol/mtools.git@58269d867e7baefd8e09edbd5d60e33851416950#subdirectory=pycodemod",
+    # ⚑ THE LOCATED paperkit CHECKOUT IMPORTS IT (paperkit/project.py: `from
+    # mikemol.atomicwrite.durable import write_atomic`), so `worklist_gate.py --project` died
+    # with ModuleNotFoundError the first time the checkout moved past this venv (W487,
+    # 2026-10-11). The gate only verifies and never imported it; the projector writes.
+    "mikemol-atomicwrite @ git+https://github.com/mikemol/mtools.git@58269d867e7baefd8e09edbd5d60e33851416950#subdirectory=atomicwrite",
     # W139/W210: Rego specs as pytest items (mtools:W372 7b1e381 adds expect.deny, so a
     # refusing case is expressible and the falsifiability pair survives the port)
     "mikemol-pytestspec @ git+https://github.com/mikemol/mtools.git@58269d867e7baefd8e09edbd5d60e33851416950#subdirectory=pytestspec",

@@ -806,7 +806,7 @@
 }
 
 @misc{CONFIG-REACH-SEES,
-  claim    = {The reach measurement is shown to see a key the template reads change the picture and a key it never reads leave it byte-identical, against the same renderer, and policy/config_reach_test.rego holds that a dead setting is refused, an empty population refused and an unmeasured key withheld},
+  claim    = {The reach measurement is shown to see a key the template reads change the picture and a key it never reads leave it pixel-identical (decoded RGBA, not file bytes: one picture encodes to different bytes under load), against the same renderer with the blink pinned off and the grab settled after the subject loads, and policy/config_reach_test.rego holds that a dead setting is refused, an empty population refused and an unmeasured key withheld},
   rests-on = {CONFIG-REACH},
   check    = {tool:check_config_reach.py --selftest},
   section  = {emitters}
@@ -1007,4 +1007,18 @@
   section  = {emitters},
   claim    = {make_vscode emits one VS Code colour theme per variant and a package.json contributing exactly the roster (and a .vsix packed from it with the documented layout), every workbench and token colour the palette role it names (make_firefox.roles and the make_konsole ANSI bank), the theme type matching the variant polarity, each declared text pair and syntax colour read from the file clearing its WCAG floor, and every file current against a fresh emission (W161)},
   check    = {tool:check_vscode.py}
+}
+
+@misc{BAZEL-BUILD,
+  section  = {emitters},
+  rests-on = {CONFIG-PAGE},
+  claim    = {Every input a BUILD file names is a named file (srcs and data literals resolve to files, never a directory, never a file that is gone) and no BUILD file calls glob(): a glob makes the input set whatever the disk holds, so a gated file nobody listed would be absent from the gate (operator rule 2026-10-06; refused by B1, B2, B3, an empty population by B0, W487)},
+  check    = {tool:opa_gate.py bazel_build}
+}
+
+@misc{BAZEL-BUILD-SEES,
+  section  = {emitters},
+  rests-on = {BAZEL-BUILD},
+  claim    = {The BUILD check is shown to see a glob() and a native.glob() with their patterns, a literal on either side of a + (the call half is the generator and is not read), and to tell a file, a directory and an absent path apart while leaving an external and a target label alone; policy/bazel_build_test.rego holds that a glob, a directory, a gone file and an empty population are refused},
+  check    = {tool:check_bazel_build.py --selftest}
 }
