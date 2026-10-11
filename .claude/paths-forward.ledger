@@ -839,3 +839,7 @@
 2026-10-11T06:20:50Z  interrupt W490 minted    -         "gate/stage.sh runs ONE gate stage (selftest of a check, opa-test, segment-lattice, worklist, readme) with the hook env discipline and warms the palette cache first"  evidence=W489
 2026-10-11T06:20:51Z  interrupt W491 minted    -         "gate/stages.bzl macro generates one host-tier sh_test per stage from select_tracked names; //:precommit becomes a test_suite over them"  evidence=W489
 2026-10-11T07:08:31Z  interrupt W492 minted    -         "Restore the non-blocking cotype queue report the old precommit.sh printed, as its own gate stage kind"  evidence=W491
+2026-10-11T08:13:37Z  interrupt W493 minted    -         "scripts/check_closure.py derives each check input closure (python import closure from check_action_key.runner_code, its rego policy and test, declared data) into gate/closures.bzl, and --check refuses a stale one"  evidence=W458
+2026-10-11T08:13:38Z  interrupt W494 minted    -         "Two-armed domain witness for a stage closure: an edit to a transitive input reruns the stage, a planted defect in it makes the stage refuse (mtools domain_witness.sh pattern)"  evidence=W458
+2026-10-11T08:13:41Z  interrupt W495 minted    -         "BUILD narrows each selftest stage data from every tracked file to its closure, so the census bites"  evidence=W458
+2026-10-11T08:13:57Z  tick  W457 done      collapse  "W457 closed: policy (W487), stage runner (W490), per-stage suite (W491), census (W488) landed; //:precommit is 108 named-input stage tests, 849 s; W458 atomized into W493-W495"

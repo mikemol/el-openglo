@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 492,
+  "counter": 495,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-11T02:06:57Z",
-  "job_id": "8ad616a7",
+  "heartbeat": "2026-10-11T08:14:09Z",
+  "job_id": "b137a932",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -11300,7 +11300,6 @@
         "commit"
       ],
       "blocked_on": [
-        "W457",
         "W458",
         "W459"
       ],
@@ -11311,7 +11310,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-10T21:31:32Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -11344,7 +11343,7 @@
     {
       "symbol": "W457",
       "title": "Split the precommit stages into per-stage bazel test targets whose inputs are named files from @tracked select_tracked (no glob, no directory), with a policy that refuses a glob",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W455"
       ],
@@ -11352,18 +11351,16 @@
         "gate",
         "bazel"
       ],
-      "blocked_on": [
-        "W488"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: work W487 (policy), then W489 (split), then W488 (census); close when all three are done",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: W487 policy (glob/directory refused), W489 per-stage targets (W490 stage.sh, W491 stages.bzl + suite), W488 census all landed: 40b89b7, badf9d3, b0d4d71, 65a18b6. //:precommit is a test_suite of 108 host-tier stage tests, inputs named by select_tracked, gate/precommit.sh retired. Gate wall time 849 s.",
       "issued_at": "2026-10-10T21:24:41Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-11T05:49:23Z",
+      "last_worked": "2026-10-11T08:13:07Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T081307Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -11380,16 +11377,18 @@
         "check_action_key"
       ],
       "blocked_on": [
-        "W457"
+        "W493",
+        "W494",
+        "W495"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "Derive each check closure mechanically: Python import closure (the per-output action key already hashes one: check_action_key), plus the data a check names (policy/<n>.rego and its test, templates, catalog files) by a declared per-check data table the generator reads; the two-armed witness (mtools domain_witness.sh pattern): arm 1 edits a transitive input and the target must rerun, arm 2 plants a defect in it and the target must refuse; a check reading an undeclared file fails under the hermetic sandbox, so omissions are loud.",
+      "next_bounded_step": "Umbrella: W493 (closure generator), then W494 (two-armed witness), then W495 (narrow stage data); a closure is complete only when stage caching (drop the external tag) survives the witness. Hermetic reads need the interpreter and deps declared: that is W459 (pip hub), so this card narrows data and proves the closures while the stages stay host-tier",
       "evidence": "",
       "issued_at": "2026-10-10T21:24:42Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-10T21:31:34Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-11T08:13:48Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -12018,7 +12017,7 @@
     {
       "symbol": "W488",
       "title": "Census: every tracked file is a named input of some bazel target or on a declared exempt list with a reason; an unnamed one fails the gate",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W457"
       ],
@@ -12028,14 +12027,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Commit lands (bazel hook); then close W488 and W457 (all three children done)",
-      "evidence": "2026-10-11: scripts/check_census.py (--json, --selftest 8 arms), policy/census.rego N0-N4 + _test (8/8), gate/census_exempt.tsv (empty), stage.sh census kind, BUILD.bazel STAGES + UNION + //:census (suite member), warrant CENSUS-SEES. Under real bazel: //:census passes; with make_vscode.py omitted from its data it FAILS naming N1 make_vscode.py (661 admitted), reverted. Vacuous on the real tree until W458 narrows stage data (stated in the check docstring).",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: scripts/check_census.py (--json, --selftest 8 arms), policy/census.rego N0-N4 + _test (8/8), gate/census_exempt.tsv (empty), stage.sh census kind, BUILD.bazel STAGES + UNION + //:census (suite member), warrant CENSUS-SEES. Under real bazel: //:census passes; with make_vscode.py omitted from its data it FAILS naming N1 make_vscode.py (661 admitted), reverted. Vacuous on the real tree until W458 narrows stage data (stated in the check docstring). | 2026-10-11: landed 65a18b6 through the suite (108 stages incl. census)",
       "issued_at": "2026-10-11T05:49:12Z",
       "minted_during": "interrupt",
       "caused_by": "W457",
-      "last_worked": "2026-10-11T07:36:04Z",
+      "last_worked": "2026-10-11T08:13:07Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T081307Z",
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
@@ -12125,6 +12124,84 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
+    },
+    {
+      "symbol": "W493",
+      "title": "scripts/check_closure.py derives each check input closure (python import closure from check_action_key.runner_code, its rego policy and test, declared data) into gate/closures.bzl, and --check refuses a stale one",
+      "status": "working",
+      "enables": [
+        "W458"
+      ],
+      "touches": [
+        "gate",
+        "bazel",
+        "check_action_key"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Read check_action_key.runner_code(seeds) (import closure pruned at generators) and the per-check rego/test naming (policy/<name>.rego + _test.rego via opa_gate); emit gate/closures.bzl CLOSURES = {\"scripts/check_x.py\": [files]}; --check regenerates and compares (stale = refused); selftest on fixtures; policy/closure.rego; warrant",
+      "evidence": "",
+      "issued_at": "2026-10-11T08:13:37Z",
+      "minted_during": "interrupt",
+      "caused_by": "W458",
+      "last_worked": "2026-10-11T08:13:49Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default"
+    },
+    {
+      "symbol": "W494",
+      "title": "Two-armed domain witness for a stage closure: an edit to a transitive input reruns the stage, a planted defect in it makes the stage refuse (mtools domain_witness.sh pattern)",
+      "status": "blocked",
+      "enables": [
+        "W458"
+      ],
+      "touches": [
+        "gate",
+        "bazel"
+      ],
+      "blocked_on": [
+        "W493"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T08:13:38Z",
+      "minted_during": "interrupt",
+      "caused_by": "W458",
+      "last_worked": "2026-10-11T08:13:48Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default"
+    },
+    {
+      "symbol": "W495",
+      "title": "BUILD narrows each selftest stage data from every tracked file to its closure, so the census bites",
+      "status": "blocked",
+      "enables": [
+        "W458"
+      ],
+      "touches": [
+        "gate",
+        "bazel"
+      ],
+      "blocked_on": [
+        "W493",
+        "W494"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T08:13:41Z",
+      "minted_during": "interrupt",
+      "caused_by": "W458",
+      "last_worked": "2026-10-11T08:13:48Z",
+      "ticks_blocked": 0,
+      "completed": null,
+      "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
+      "vector_source": "default"
     }
   ],
   "residue": [
@@ -12160,6 +12237,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "02439a92",
+  "predecessor_job_id": "8ad616a7",
   "leases": []
 }
