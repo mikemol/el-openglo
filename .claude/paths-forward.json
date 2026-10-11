@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 485,
+  "counter": 486,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-10T21:23:34Z",
-  "job_id": "02439a92",
+  "heartbeat": "2026-10-11T02:06:57Z",
+  "job_id": "8ad616a7",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -11545,22 +11545,22 @@
     {
       "symbol": "W454",
       "title": "el-openglo commit gate is red: the @EBUILD check flakes (pkgcheck errors, passes on replay), so the gate is not deterministic",
-      "status": "blocked",
-      "enables": [],
+      "status": "working",
+      "enables": [
+        "W455"
+      ],
       "touches": [
         "gate",
         "commit"
       ],
-      "blocked_on": [
-        "W455"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Make the check_ebuild real-ebuild arm deterministic (el-openglo:W212). Evidence 2026-10-06: a flushed queue commit failed with opa_gate DENY B1 pkgcheck (empty message) in the worklist gate while the readme gate's replay of the same @EBUILD-citing checks PASSED ON REPLAY: three flakes of three reported failures. The operator's rule: a flake is a blocker until it no longer flakes. Verify with several consecutive passes, not one",
-      "evidence": "2026-10-10: 2026-10-10: two more flakes in one gate run (queue commit): @CONFIG-REACH-SEES (check_config_reach --selftest, renders under load) and @WORKLIST (worklist_gate --selftest) failed in the gate and PASSED ON REPLAY; the replay prints only the replay output, so the first failure account is lost again. The structural remedy is the bazel migration (W456-W459): every target run is a captured log in BuildBuddy. Until then the commit must be retried and a flake that survives two retries becomes its own card. Same run: four REAL failures from the gcalculus solver package split (W485).",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Land this as the 3rd consecutive clean gate commit; then watch @EBUILD (W212) via its kept account",
+      "evidence": "2026-10-10: 2026-10-10: two more flakes in one gate run (queue commit): @CONFIG-REACH-SEES (check_config_reach --selftest, renders under load) and @WORKLIST (worklist_gate --selftest) failed in the gate and PASSED ON REPLAY; the replay prints only the replay output, so the first failure account is lost again. The structural remedy is the bazel migration (W456-W459): every target run is a captured log in BuildBuddy. Until then the commit must be retried and a flake that survives two retries becomes its own card. Same run: four REAL failures from the gcalculus solver package split (W485). | 2026-10-11: e47be7e: root causes found from kept accounts - @REGO opa test 5s default per-test timeout (now 300s wedge bound; 32/32 at j=8); @WORKLIST selftest = paperkit version skew, resolver.clean_env moved to checkenv (deterministic in-gate, now _paperkit_clean_env); check_qml_target selftest counted a missing sg/k3s as FAIL (now SKIP). Tool checks run via scripts/keep_account.py: failing account in /var/tmp/el-openglo-gate-accounts/. Unconfirmed: @CONFIG-REACH-SEES (0/24 at j=8), @EBUILD | 2026-10-11: 2026-10-10 23:40: @CONFIG-REACH-SEES root-caused from kept accounts + kept PNG pairs (/var/tmp/el-openglo-gate-accounts/reach-*): (1) differs() compared PNG bytes - same pixels, different bytes (14/200 at j=16) - now decodes; (2) blink colon unpinned - PIN blinkColon off; (3) grab timed from window not subject load - render_qml.HARNESS_SETTLED, 4000 ms after Loader.onLoaded; hunt j=14: 16/90 failed at 1200 ms, 0/165 at 4000 ms. Follow-up W486 (frame-count settle).",
       "issued_at": "2026-10-06T01:38:45Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-10T21:54:25Z",
+      "last_worked": "2026-10-11T03:47:49Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -12206,28 +12206,26 @@
     {
       "symbol": "W484",
       "title": "Letter to mtools filed: paths-forward bulk --update and the payload budget when one card unblocks hundreds (waiting on mtools to mint its claiming waypoint)",
-      "status": "blocked",
+      "status": "done",
       "enables": [],
       "touches": [],
-      "blocked_on": [
-        "mtools: mint a waypoint for the two gaps in inbox/2026-10-10-el-openglo-pathsforward-bulk-update-and-payload-budget.md"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "On mtools claim: nothing here; until then the loop runs a hand-compact payload.",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: mtools ea0a8a9 (--payload no longer names every blocked card) and b42f908 (--update-many); repinned all five mtools pins to 58269d8 (mikemol-repin --write, uv sync --extra tooling); --payload builds at 7.9k->under budget, --update-many dry run clean",
       "issued_at": "2026-10-10T21:32:52Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-10T21:32:56Z",
+      "last_worked": "2026-10-11T02:07:06Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T020706Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "default"
     },
     {
       "symbol": "W485",
       "title": "The gate is red: gcalculus split gcalc.solver into a package so four checks read moved names; one adapter now reaches the sibling",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W455"
       ],
@@ -12241,16 +12239,36 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "gcalc_api.py at the repo root: the ONE place that locates ~/github/gcalculus and imports each name from the module that defines it (gcalculus W51, 2026-10-09: netlist from gcalc.solver.netlist; freeze, min_degree, frontier_solve, total_cost, verdict from driver; r_eff and laplacian from laplacian; cycle_basis from mesh), AVAILABLE false when the sibling is absent (a SKIP, counted); the four callers import it; stubs/gcalc/solver.pyi becomes the package layout; selftest = the names resolve; a check that FAILS when the adapter names a name the sibling does not define. Then re-run the gate.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: landed e47be7e: gcalc_api adapter + check_gcalc_api (policy/gcalc_api.rego) + stubs/gcalc/solver package; gate green on that commit",
       "issued_at": "2026-10-10T21:50:19Z",
       "minted_during": "interrupt",
       "caused_by": "W455",
-      "last_worked": "2026-10-10T21:50:26Z",
+      "last_worked": "2026-10-11T02:03:01Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261011T020301Z",
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
+    },
+    {
+      "symbol": "W486",
+      "title": "Settle every still render by frames swapped after load, not a delay: replace HARNESS_SETTLED 4000 ms and move all surfaces onto one harness",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "render-qml",
+        "config-reach",
+        "conformity"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T03:47:42Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
@@ -12286,6 +12304,6 @@
     "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
-  "predecessor_job_id": "447f21de",
+  "predecessor_job_id": "02439a92",
   "leases": []
 }

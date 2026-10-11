@@ -831,3 +831,5 @@
 2026-10-10T21:27:14Z  interrupt W483 minted    -         "Answer paperkit: paperkit main is pushed; pin this sha for el-openglo:W455 (paperkit:W289)"  evidence=inbox/2026-10-10-paperkit-main-pushed-pin-this-sha.md
 2026-10-10T21:32:52Z  interrupt W484 minted    -         "Letter to mtools filed: paths-forward bulk --update and the payload budget when one card unblocks hundreds (waiting on mtools to mint its claiming waypoint)"
 2026-10-10T21:50:19Z  interrupt W485 minted    -         "The gate is red: gcalculus split gcalc.solver into a package of namespaces, so four checks read names that moved (netlist, freeze, cycle_basis); one adapter reaches the sibling"
+2026-10-11T02:07:08Z  tick  W454 advanced  collapse  "three gate flakes root-caused from kept accounts (opa timeout, paperkit skew, qml sandbox skip); keep_account.py wraps tool checks; e47be7e; repinned mtools to 58269d8; loop re-armed as 8ad616a7"
+2026-10-11T03:47:42Z  interrupt W486 minted    -         "Settle every still render by frames swapped after load, not a delay: replace HARNESS_SETTLED 4000 ms and move all surfaces onto one harness"

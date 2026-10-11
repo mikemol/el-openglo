@@ -136,8 +136,9 @@ def report(runs, note, jobs):
     for i, (rc, sig, cpu, wall, lines) in failed:
         how = f"signal {signal.Signals(sig).name}" if sig else f"exit {rc}"
         print(f"  run {i + 1}: {how}, cpu {cpu:.1f} s, wall {wall:.1f} s")
-        verdicts = [ln for ln in lines if any(w in ln for w in VERDICT_WORDS)]
-        for ln in verdicts[:8] or lines[-8:]:
+        # the account's own last lines, not only the ones carrying a verdict word: a
+        # failing arm's explanation (how two renders differ) carries none
+        for ln in lines[-10:]:
             print(f"      {ln}")
         print(f"      ({len(lines)} line(s) captured)")
     return 1 if failed else 0

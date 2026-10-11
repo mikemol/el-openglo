@@ -26,8 +26,9 @@ needs a sampled run per key end (check_marquee_live): its keys are not measured 
 that only acts at another size or over time is read as dead: it must be declared INERT
 with its reason, never silently passed. (2) The two ends are the control's ends: a
 setting that acts only between them (a non-monotone one) is seen as alive, and a
-setting alive between but identical at both ends is read as dead. (3) Byte equality of
-the PNG: any visible change, including a one-pixel antialiasing difference, counts as
+setting alive between but identical at both ends is read as dead. (3) Decoded-pixel
+equality of the PNG (not file bytes: the same picture encodes to different bytes under
+load): any visible change, including a one-pixel antialiasing difference, counts as
 reaching; whether the change is LEGIBLE is not measured here. (4) SKIPPED (counted,
 printed, `withheld`) where the qml runner is absent: a fact about the machine.
 """
@@ -49,6 +50,14 @@ INERT = {
     ("clock", "blinkColon"): _BLINK,
     ("wallpaper", "blinkColon"): _BLINK,
 }
+
+# ⚑ EVERY RENDER HOLDS THE COLON STEADY (W454, 2026-10-10: the @CONFIG-REACH-SEES flake).
+# The colon's own 1 Hz timer starts when the subject LOADS while the harness grabs at a fixed
+# 1200 ms after the WINDOW opens, so under load the grab landed either side of the second
+# toggle: two renders of the same inputs differed by 2.5-7.4k px (clock) and the whole frame
+# (wallpaper, the glow), from the kept account of a failed run. A still must be a function of
+# its inputs, so the blink is pinned off beneath every render and a key's own value wins.
+PIN = {"blinkColon": False}
 
 
 def ends(entries, holes, mount="clock"):
@@ -77,8 +86,44 @@ def ends(entries, holes, mount="clock"):
 
 
 def differs(a, b):
-    """True iff two byte strings are different pictures."""
-    return a != b
+    """True iff two PNGs are different PICTURES: same size and RGBA pixels, not same file.
+
+    ⚑ BYTES ARE NOT THE PICTURE (W454, 2026-10-10: @CONFIG-REACH-SEES flaked in the gate
+    on both mounts). scripts/flake_hunt.py reproduced it at 14 of 200 under load, and the
+    two renders of the same inputs had IDENTICAL pixels, the same backend, and different
+    PNG bytes: a dead setting read as alive, and a live one could never read as dead. So
+    the comparison decodes. Bytes that are not a PNG (the selftest's arms) fall back to
+    byte equality, since there is no picture to decode."""
+    import io
+
+    from PIL import Image
+
+    try:
+        with Image.open(io.BytesIO(a)) as ia, Image.open(io.BytesIO(b)) as ib:
+            ra, rb = ia.convert("RGBA"), ib.convert("RGBA")
+            return ra.size != rb.size or ra.tobytes() != rb.tobytes()
+    except OSError:
+        return a != b
+
+
+def how_differ(a, b):
+    """A sentence saying HOW two renders differ (for a failing arm's account): decoded
+    sizes, differing pixels and their bounding box, or why they could not be decoded."""
+    import io
+
+    from PIL import Image, ImageChops
+
+    try:
+        with Image.open(io.BytesIO(a)) as ia, Image.open(io.BytesIO(b)) as ib:
+            ra, rb = ia.convert("RGBA"), ib.convert("RGBA")
+            if ra.size != rb.size:
+                return f"sizes {ra.size} vs {rb.size}"
+            delta = ImageChops.difference(ra, rb)
+            box = delta.convert("RGB").getbbox()
+            n = sum(1 for px in delta.get_flattened_data() if px != (0, 0, 0, 0))
+            return f"{n} px differ within {box}; {len(a)} vs {len(b)} bytes"
+    except OSError as e:
+        return f"could not decode ({type(e).__name__}: {e}); {len(a)} vs {len(b)} bytes"
 
 
 def specs():
@@ -132,7 +177,13 @@ def measure():
                 for tag, value in (("lo", lo), ("hi", hi)):
                     png = os.path.join(td, f"{mount}-{key}-{tag}.png")
                     rc, err = render_qml.render(
-                        surface, VARIANT, size[0], size[1], png, {key: value}
+                        surface,
+                        VARIANT,
+                        size[0],
+                        size[1],
+                        png,
+                        {**PIN, key: value},
+                        harness=render_qml.HARNESS_SETTLED,
                     )
                     if rc != 0 or not os.path.exists(png):
                         why = f"{mount}/{key}={value}: rc {rc}: {err}"
@@ -186,6 +237,23 @@ def _selftest():
 
     chk("identical pictures do not differ", differs(b"png", b"png"), False)
     chk("different pictures differ", differs(b"png", b"pnG"), True)
+    import io
+
+    from PIL import Image
+
+    def png_of(px, level):
+        buf = io.BytesIO()
+        Image.new("RGBA", (4, 4), px).save(buf, "PNG", compress_level=level)
+        return buf.getvalue()
+
+    same_a, same_b = png_of((9, 9, 9, 255), 0), png_of((9, 9, 9, 255), 9)
+    chk("the encodings really differ (the arm is not vacuous)", same_a != same_b, True)
+    chk("one picture in two encodings is NOT different", differs(same_a, same_b), False)
+    chk(
+        "one changed pixel IS different",
+        differs(same_a, png_of((9, 9, 10, 255), 0)),
+        True,
+    )
     rows = ends(
         {"showGhost": True, "use24h": True, "extra": 0.5},
         {"digitGap": "0.786", "digitGapMin": "0.786", "ghostAlpha": "0.5"},
@@ -224,17 +292,23 @@ def _selftest():
             def shot(surface, size, cfg):
                 png = os.path.join(td, "s.png")
                 rc, _err = render_qml.render(
-                    surface, VARIANT, size[0], size[1], png, cfg
+                    surface,
+                    VARIANT,
+                    size[0],
+                    size[1],
+                    png,
+                    cfg,
+                    harness=render_qml.HARNESS_SETTLED,
                 )
                 with open(png, "rb") as fh:
                     return rc, fh.read()
 
             for mount, spec in measured.items():
                 surface, size = spec.surface, spec.size
-                rc0, base = shot(surface, size, {})
-                rc1, ghost = shot(surface, size, {"showGhost": False})
+                rc0, base = shot(surface, size, dict(PIN))
+                rc1, ghost = shot(surface, size, {**PIN, "showGhost": False})
                 rc2, unread = shot(
-                    surface, size, {"noSuchKeyTheTemplateNeverReads": 7.0}
+                    surface, size, {**PIN, "noSuchKeyTheTemplateNeverReads": 7.0}
                 )
                 chk(f"{mount}: the renders ran", (rc0, rc1, rc2), (0, 0, 0))
                 chk(
@@ -247,6 +321,16 @@ def _selftest():
                     differs(base, unread),
                     False,
                 )
+                if differs(base, unread):
+                    import keep_account
+
+                    print(f"       {mount}: base vs unread: {how_differ(base, unread)}")
+                    keep = f"{keep_account.ACCOUNTS}/reach-{os.getpid()}-{mount}"
+                    os.makedirs(keep_account.ACCOUNTS, exist_ok=True)
+                    for tag, blob in (("base", base), ("unread", unread)):
+                        with open(f"{keep}-{tag}.png", "wb") as fh:
+                            fh.write(blob)
+                    print(f"       kept {keep}-base.png and -unread.png")
     print("check_config_reach selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -104,6 +104,26 @@ Window {
 }
 """
 
+# ⚑ THE SETTLED HARNESS: the grab is timed from the subject's LOAD, not from the window
+# (W454, 2026-10-10). HARNESS grabs a fixed 1200 ms after the WINDOW opens, but the subject's
+# own first tick (digits fading from the default 00:00 to the frozen time, the colon's 1 Hz
+# toggle) starts when it LOADS, and under load the load comes late: scripts/check_config_reach.py
+# read two renders of the same inputs as different pictures (lit strokes 25-38 levels apart,
+# from the failed runs' kept PNGs). Derived from HARNESS by two asserted substitutions, so
+# there is one harness text; opt in with `harness=HARNESS_SETTLED` until the rest move over.
+# ⚑ THE DELAY AFTER LOAD IS 4000 ms, MEASURED NOT CHOSEN: at 1200 ms after load the selftest still
+# failed 16 of 90 at 14 in parallel (the clock's 500 ms tick and the bloom layer settle after
+# load); at 4000 ms it passed 165 of 165 under that contention. WEAKNESS: still a delay, so a
+# machine slower than that contention can still capture a transient; the exact form is a
+# frame-count settle (swap N frames after load), not yet built.
+_LOADER = 'Loader { id: subject; anchors.fill: parent; source: "subject.qml" }'
+_GRAB = "Timer {\n        interval: 1200; running: true"
+assert _LOADER in HARNESS and _GRAB in HARNESS
+HARNESS_SETTLED = HARNESS.replace(
+    _LOADER,
+    _LOADER.replace(" }", "; onLoaded: settle.start() }"),
+).replace(_GRAB, "Timer {\n        id: settle; interval: 4000; running: false")
+
 
 # ⚑ THE GREETER'S RUNTIME IS SDDM'S (W66), and these are STUBS of it, measured
 # from the stock breeze theme's use (/usr/share/sddm/themes/breeze/Main.qml):
@@ -305,6 +325,7 @@ def render_stager(
     config_override=None,
     software=False,
     component_patches=None,
+    harness=None,
 ):
     """The JOB render() runs, as a stager: `stage(td) -> (argv, env, gpu)` writes
     every file the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS:
@@ -331,7 +352,7 @@ def render_stager(
                 raise ValueError(
                     f"render_qml: patch {pat[:40]!r} matched nothing in {name}"
                 )
-    harness = SDDM_HARNESS if surface == "sddm" else HARNESS
+    harness = harness or (SDDM_HARNESS if surface == "sddm" else HARNESS)
     return lambda td: stage_document(
         td, qml, variant, w, h, out_png, config, ground, software, comp, harness=harness
     )
@@ -346,8 +367,10 @@ def render(
     config_override=None,
     software=False,
     component_patches=None,
+    harness=None,
 ):
-    """Render to out_png; returns (rc, stderr). `software` asks for the software
+    """Render to out_png; returns (rc, stderr). `harness` overrides the surface's default
+    (HARNESS_SETTLED grabs after the subject has loaded). `software` asks for the software
     scene graph explicitly (what the ebuild sandbox gets anyway) — an argument, not
     an environment mutation: render_screens once set EL_RENDER_SOFTWARE in its own
     process for one animation and every later still rendered under it (s125)."""
@@ -361,6 +384,7 @@ def render(
             config_override,
             software,
             component_patches,
+            harness,
         )
     )
 
