@@ -400,6 +400,22 @@ def _materialise_schemes():
 _FAILED = re.compile(r"check FAILED for \[@([^\]]+)\]:\s*(\S+):(.+?)\s*$", re.MULTILINE)
 
 
+def _paperkit_clean_env(resolver):
+    """paperkit's clean check environment, from whichever paperkit this process imported.
+
+    ⚑ THE "@WORKLIST FLAKE" WAS THIS (W454, 2026-10-10, found from the first account
+    scripts/keep_account.py kept): the live checkout moved `clean_env` into
+    `paperkit.checkenv`, the installed pin still has it on `resolver`, and the selftest's
+    replay arm called `resolver.clean_env()` — an AttributeError only when the gate's check
+    imported the live checkout. It passed outside the gate and on replay, so it read as a
+    flake for a day; it was a version skew, and it was deterministic."""
+    try:
+        from paperkit import checkenv
+    except ImportError:
+        return resolver.clean_env()
+    return checkenv.clean_env()
+
+
 def _replay(proj, output):
     """Re-run each check the gate reported FAILED, and print its account.
 
@@ -494,7 +510,7 @@ def _replay(proj, output):
             cwd=proj,
             capture_output=True,
             text=True,
-            env=PKR.clean_env(),
+            env=_paperkit_clean_env(PKR),
             start_new_session=True,
             preexec_fn=_cap,
             check=False,
@@ -835,14 +851,28 @@ def _selftest():
     )
     check("a passing run parses to nothing", _FAILED.findall("paperkit-gate: PASS"), [])
 
+    import atexit
     import contextlib
     import io
+    import shutil
+    import tempfile
 
-    def replay_of(text):
+    def replay_of(text, where=proj):
         buf = io.StringIO()
         with contextlib.redirect_stderr(buf):
-            _replay(proj, text)
+            _replay(where, text)
         return buf.getvalue()
+
+    # ⚑ THE REPLAY ARMS RUN FIXTURE CHECKS, NOT THE REPO'S (W454, 2026-10-10). They ran
+    # `check_hooks.py --list` (must pass) and `check_symbol.py --bucket RESIDUE` (must
+    # FAIL): the selftest's verdict was then the live tree's and the box's load, so this
+    # selftest flaked inside the gate (@WORKLIST, three times) and goes red the day RESIDUE
+    # closes. A fixture project whose `tool` check is the command itself (`true`, `false`)
+    # tests the replay's FLAKE/REPRODUCED logic and nothing else.
+    fixture = tempfile.mkdtemp(prefix="worklist-replay-")
+    atexit.register(shutil.rmtree, fixture, ignore_errors=True)
+    with open(os.path.join(fixture, "paper.toml"), "w", encoding="utf-8") as fh:
+        fh.write('[checks.tool]\ncmd = "{target}"\n')
 
     # the gate is TOLD a passing check failed; the replay must NAME the
     # disagreement rather than swallow it as "fine now"
@@ -864,10 +894,10 @@ def _selftest():
             True,
         )
     else:
-        out = replay_of("check FAILED for [@X]: tool:check_hooks.py --list")
+        out = replay_of("check FAILED for [@X]: tool:true", fixture)
         check("a check that passes on replay is called a FLAKE", "FLAKE" in out, True)
         check("...and is counted as flaky", "1 flaky" in out, True)
-        out = replay_of("check FAILED for [@X]: tool:check_symbol.py --bucket RESIDUE")
+        out = replay_of("check FAILED for [@X]: tool:false", fixture)
         check("a check that fails on replay is REPRODUCED", "REPRODUCED" in out, True)
         check("...and is counted as reproduced", "1 reproduced" in out, True)
     out = replay_of("check FAILED for [@X]: nosuchtype:whatever")

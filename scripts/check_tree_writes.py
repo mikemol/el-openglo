@@ -337,7 +337,7 @@ def _selftest():
     see(f"the real population is non-empty ({len(got)} claims)", len(got) > 0)
     see(
         "tool: resolves through paper.toml",
-        resolve("tool:x.py --y")[0] == "python3 ../../scripts/x.py --y",
+        (resolve("tool:x.py --y")[0] or "").endswith("python3 ../../scripts/x.py --y"),
     )
     see("an undeclared type is refused", resolve("nosuch:z")[0] is None)
     with tempfile.TemporaryDirectory() as repo:

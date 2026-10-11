@@ -63,3 +63,6 @@ catalog/cotype/.delta-cache.json
 # Pinned Node tooling (W142): package.json + package-lock.json are the pin; npm ci
 # rebuilds node_modules/ from them, so it is never source.
 /node_modules/
+
+# bazel's convenience links into the output base (W456): its own output, never source
+/bazel-*

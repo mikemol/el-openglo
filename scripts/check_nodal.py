@@ -54,11 +54,10 @@ sys.path.insert(0, ROOT)
 
 
 def _gcalc():
-    gc = os.path.expanduser("~/github/gcalculus")
-    if os.path.isdir(gc) and gc not in sys.path:
-        sys.path.insert(0, gc)
-    from gcalc import solver as S
+    import gcalc_api as S
 
+    if not S.AVAILABLE:
+        raise ImportError("gcalc is not importable (see gcalc_api)")
     return S
 
 

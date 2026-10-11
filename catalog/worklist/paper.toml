@@ -47,5 +47,10 @@ cmd = "python3 -c \"import sys; sys.path.insert(0,'../..'); import segment_topol
 # answered YES.  The tool OWNS the question (substrate's standing rule: a
 # judgement in a shell line evaporates when the turn ends), so a claim cites the
 # tool rather than restating its logic in a cmd template.
+#
+# ⚑ RUN THROUGH keep_account.py (W454, 2026-10-10): paperkit sends a check's stdout to
+# DEVNULL and carries only the last stderr line, so a flaking selftest's `FAIL <arm>` was
+# lost and the replay passed. The wrapper keeps the whole failing account in
+# /var/tmp/el-openglo-gate-accounts/ and ends stderr on its path.
 [checks.tool]
-cmd = "python3 ../../scripts/{target}"
+cmd = "python3 ../../scripts/keep_account.py python3 ../../scripts/{target}"

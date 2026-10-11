@@ -64,15 +64,9 @@ def cycle_edges():
     one. Marking them separates 'this constraint can fail alone' from 'this
     constraint can fail in company', which is the distinction every per-edge check
     in this tree is blind to."""
-    try:
-        import os
-        import sys
+    import gcalc_api as S
 
-        gc = os.path.expanduser("~/github/gcalculus")
-        if os.path.isdir(gc) and gc not in sys.path:
-            sys.path.insert(0, gc)
-        from gcalc import solver as S
-    except ImportError:  # pragma: no cover
+    if not S.AVAILABLE:  # a fact about the machine: the sibling is absent
         return None
     raw = PG.netlist_edges(constraining_only=True)
     ns = list(PG.nodes(constraining_only=True))
@@ -107,14 +101,10 @@ def frames(keep=None):
     holds nothing (its docstring: retention is the carrier's job, not the read's).
     A picture needs the state, so this is the read that keeps it — and it keeps
     only what a frame draws."""
-    import os
-    import sys
+    import gcalc_api as S
 
-    gc = os.path.expanduser("~/github/gcalculus")
-    if os.path.isdir(gc) and gc not in sys.path:
-        sys.path.insert(0, gc)
-    from gcalc import solver as S
-
+    if not S.AVAILABLE:
+        raise ImportError("gcalc is not importable (see gcalc_api)")
     keep = tuple(keep or _terminals())
     raw = PG.netlist_edges(constraining_only=True)
     fz = S.freeze(list(PG.nodes(constraining_only=True)), S.netlist(raw), keep=keep)
@@ -230,14 +220,10 @@ def as_dot(step=None, keep=None):
 
 def _basis():
     """The fundamental cycles, for the static view's label."""
-    import os
-    import sys
+    import gcalc_api as S
 
-    gc = os.path.expanduser("~/github/gcalculus")
-    if os.path.isdir(gc) and gc not in sys.path:
-        sys.path.insert(0, gc)
-    from gcalc import solver as S
-
+    if not S.AVAILABLE:
+        raise ImportError("gcalc is not importable (see gcalc_api)")
     raw = PG.netlist_edges(constraining_only=True)
     ns = list(PG.nodes(constraining_only=True))
     adj = {}

@@ -47,6 +47,15 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POLICY = os.path.join(ROOT, "policy")
 OPA = shutil.which("opa")
 
+# ⚑ `opa test` HAS A 5 s WALL-CLOCK TIMEOUT PER TEST BY DEFAULT, AND THAT WAS THE @REGO FLAKE (W454,
+# 2026-10-10). policy/cursors_test.rego's 35 tests cost ~1.3 s each ALONE; beside the gate's other
+# checks (and 8 parallel copies of this one, scripts/flake_hunt.py --key REGO -j 8: 2 of 16 runs)
+# a test crossed 5 s and failed `eval_cancel_error: context deadline exceeded`, and the replay
+# passed because nothing else was running. A wall-clock verdict is a load verdict. The timeout here
+# bounds a WEDGED test, never a slow one (operator 2026-09-24: "I hate wallclock-sensitive things"),
+# so it is generous; the test's own cost is W454's follow-up (the cursors fixtures).
+OPA_TEST_TIMEOUT = "300s"
+
 
 def policies():
     """[name] for every policy/<name>.rego that is not a _test."""
@@ -304,7 +313,10 @@ def main(argv):
         return 0
     if "--test" in args:
         r = subprocess.run(
-            [OPA, "test", POLICY], capture_output=True, text=True, check=False
+            [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, POLICY],
+            capture_output=True,
+            text=True,
+            check=False,
         )
         print(r.stdout.strip() or r.stderr.strip())
         return r.returncode
@@ -476,7 +488,10 @@ def _selftest():
         1,
     )
     r = subprocess.run(
-        [OPA, "test", POLICY], capture_output=True, text=True, check=False
+        [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, POLICY],
+        capture_output=True,
+        text=True,
+        check=False,
     )
     chk("opa test policy/ passes", r.returncode, 0)
     # W75 --expect: one arm per outcome, over the real serial reader and fixtures

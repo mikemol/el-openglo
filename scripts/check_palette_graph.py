@@ -32,7 +32,6 @@ undetectably.  This check measures the graph's CAPACITY for undetectable failure
 presence of one.  A run that reports 19 cycles has found no bug and is not claiming to.
 """
 
-import importlib
 import os
 import sys
 from types import ModuleType
@@ -40,19 +39,14 @@ from types import ModuleType
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+import gcalc_api
 import palette_graph as PG
 
-# gcalc is LOCATED, not vendored — same discipline as paperkit in worklist_gate.py.
-# A missing optional dependency is a SKIP, counted and printed: a fact about the machine,
-# not about the artifact.  NOT CONFIRMED IS NOT FAILED.
-_GCALC = os.path.expanduser("~/github/gcalculus")
-SOLVER: ModuleType | None
-try:
-    if os.path.isdir(_GCALC):
-        sys.path.insert(0, _GCALC)
-    SOLVER = importlib.import_module("gcalc.solver")
-except ImportError:  # pragma: no cover
-    SOLVER = None
+# gcalc is LOCATED, not vendored — same discipline as paperkit in worklist_gate.py, and reached
+# through the ONE adapter gcalc_api (W485). A missing optional dependency is a SKIP, counted and
+# printed: a fact about the machine, not about the artifact.  NOT CONFIRMED IS NOT FAILED.
+_GCALC = gcalc_api.GCALC
+SOLVER: ModuleType | None = gcalc_api if gcalc_api.AVAILABLE else None
 
 
 def _resolve(mod, name):

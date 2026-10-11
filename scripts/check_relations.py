@@ -28,7 +28,6 @@ they do not determine is recorded in `open_questions()` and printed by --list, b
 a relation set that hid its gaps would read as finished.
 """
 
-import importlib
 import os
 import sys
 from types import ModuleType
@@ -36,19 +35,15 @@ from types import ModuleType
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 
+import gcalc_api
 import palette_graph as PG
 import palette_relations as PR
 
-_GCALC = os.path.expanduser("~/github/gcalculus")
-SOLVER: ModuleType | None
-CARRIER: ModuleType | None
-try:
-    if os.path.isdir(_GCALC):
-        sys.path.insert(0, _GCALC)
-    CARRIER = importlib.import_module("gcalc.carrier")
-    SOLVER = importlib.import_module("gcalc.solver")
-except ImportError:  # pragma: no cover
-    SOLVER = CARRIER = None
+# the sibling is reached through the ONE adapter (W485): its solver and its carrier are both names
+# of gcalc_api, and an absent sibling is a SKIP (a fact about the machine)
+_GCALC = gcalc_api.GCALC
+SOLVER: ModuleType | None = gcalc_api if gcalc_api.AVAILABLE else None
+CARRIER: ModuleType | None = SOLVER
 
 KINDS = ("floor", "ceiling", "balance", "arrow")
 

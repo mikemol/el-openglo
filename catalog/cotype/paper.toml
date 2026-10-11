@@ -19,5 +19,6 @@ consumer_fields = ["enables"]
 # repo grades `broken` — a fact about the sandbox read as a fact about the check.
 root = "../.."
 
+# ⚑ Through keep_account.py, as ../worklist/paper.toml's is (W454).
 [checks.tool]
-cmd = "python3 ../../scripts/{target}"
+cmd = "python3 ../../scripts/keep_account.py python3 ../../scripts/{target}"

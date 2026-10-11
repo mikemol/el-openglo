@@ -35,8 +35,10 @@ root = "."
 # Checks run with the project dir — the repo root — as cwd.
 
 # tool:<script> [args] — a repo tool that exits 0 iff its question is answered YES.
+# ⚑ Through keep_account.py, as catalog/worklist/paper.toml's is (W454): a failing check
+# keeps its whole account in /var/tmp/el-openglo-gate-accounts/.
 [checks.tool]
-cmd = "python3 scripts/{target}"
+cmd = "python3 scripts/keep_account.py python3 scripts/{target}"
 
 # module:<file> [args] — a module's own entry point, e.g. its --selftest.
 [checks.module]

@@ -791,6 +791,20 @@
   section  = {emitters}
 }
 
+@misc{GCALC-API,
+  claim    = {Every name this tree reads off the gcalculus sibling is declared once, in gcalc_api.NAMES with the sibling module that defines it, and resolves there: the sibling split its solver into a package of namespaces on 2026-10-09 and four checks died on the removed flat names, so a moved name is now named by this gate (G1) and a caller read the adapter does not declare is refused (G2); the sibling absent is withheld, never a pass (W485)},
+  rests-on = {CONFIG-PAGE},
+  check    = {tool:opa_gate.py gcalc_api},
+  section  = {emitters}
+}
+
+@misc{GCALC-API-SEES,
+  claim    = {The adapter check is shown to see a read through an alias, a derived name and the bare module, to leave a call's result and an unrelated name alone, to name an undeclared caller read, and to measure a name its module does not define; policy/gcalc_api_test.rego holds that a moved name, an undeclared read and an empty population are refused and an absent sibling is withheld},
+  rests-on = {GCALC-API},
+  check    = {tool:check_gcalc_api.py --selftest},
+  section  = {emitters}
+}
+
 @misc{CONFIG-REACH-SEES,
   claim    = {The reach measurement is shown to see a key the template reads change the picture and a key it never reads leave it byte-identical, against the same renderer, and policy/config_reach_test.rego holds that a dead setting is refused, an empty population refused and an unmeasured key withheld},
   rests-on = {CONFIG-REACH},
