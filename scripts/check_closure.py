@@ -144,6 +144,18 @@ WITNESS_KNOWN = {
     "readme": {"COMMANDS": _NO_GIT, "LICENCE": _NO_GIT, "OVERLAY": _NO_GIT},
 }
 
+# files the gate's own machinery reads that no stage's observed closure holds (BUILD analysis, the
+# witness and the census read these; they are inputs of the suite, not of a check)
+EXTRA_NAMED = (
+    "BUILD.bazel",
+    "MODULE.bazel",
+    "MODULE.bazel.lock",
+    "closures.bzl",
+    "stages.bzl",
+    "gate/stage.sh",
+    "gate/census_exempt.tsv",
+)
+
 MAX_VICTIMS = 12
 
 
@@ -288,6 +300,11 @@ def render(closures):
         out += [f'        "{p}",' for p in closures[script]]
         out.append("    ],")
     out.append("}")
+    out += [
+        "",
+        "# files the suite's own machinery reads that no stage's closure holds (BUILD, the witness, the census)",
+    ]
+    out += ["EXTRA_NAMED = ["] + [f'    "{p}",' for p in EXTRA_NAMED] + ["]"]
     return "\n".join(out) + "\n"
 
 
@@ -402,6 +419,20 @@ def main(argv):
             f"arm 2 (a planted defect reaches the verdict): {counts}"
         )
         return 1 if bad else 0
+    if args == ["--unnamed"]:
+        import git_tracked
+
+        with open(CLOSURES, encoding="utf-8") as fh:
+            closures = load_closures(fh.read())
+        named = {p for files in closures.values() for p in files} | set(EXTRA_NAMED)
+        tracked = git_tracked.files()
+        unnamed = [p for p in tracked if p not in named]
+        print("\n".join(unnamed))
+        print(
+            f"check_closure: {len(unnamed)} of {len(tracked)} tracked file(s) are in no stage's closure",
+            file=sys.stderr,
+        )
+        return 0
     if args == ["--json"]:
         import json
 

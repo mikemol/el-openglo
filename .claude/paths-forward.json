@@ -11377,7 +11377,6 @@
         "check_action_key"
       ],
       "blocked_on": [
-        "W496",
         "W497"
       ],
       "blocked_kind": "agent",
@@ -11387,7 +11386,7 @@
       "minted_during": "interrupt",
       "caused_by": "W455",
       "last_worked": "2026-10-11T10:25:16Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:Y/C:L/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -12200,7 +12199,7 @@
     {
       "symbol": "W496",
       "title": "Observe and declare closures for the non-selftest stages (opa-test, segment-lattice, worklist, readme), keyed by stage not script",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W458"
       ],
@@ -12211,19 +12210,19 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "closures.bzl now holds opa-test, segment-lattice, worklist, readme (observed): run the witness over them (arm 1; exempt with a reason if a stage needs git), then BUILD data = CLOSURES[kind] + MODULE.bazel for the four, policy L-rules cover them (stage_keys), commit; the census then sees the union",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-11: landed cdcf46c through the suite. closure keys now include STAGE_KINDS (opa-test, segment-lattice, worklist, readme), observed under strace; arm 1 in a closure-only tree: opa-test and segment-lattice pass, worklist and readme pass except named harness-limited claims (WITNESS_KNOWN with reasons: no git clone, untracked emitted outputs), reported as known and withheld, never a pass or a deny. BUILD: those four stages take closure_data(CLOSURES, kind); closure_witness keeps ALL so the census is vacuous until W497.",
       "issued_at": "2026-10-11T10:25:10Z",
       "minted_during": "interrupt",
       "caused_by": "W495",
-      "last_worked": "2026-10-11T11:01:16Z",
+      "last_worked": "2026-10-11T11:49:55Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261011T114955Z"
     },
     {
       "symbol": "W497",
       "title": "Census exemptions by prefix with a reason, then narrow every stage so a tracked file no stage reads fails the census",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W458"
       ],
@@ -12231,17 +12230,15 @@
         "gate",
         "bazel"
       ],
-      "blocked_on": [
-        "W496"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Commit lands (suite); close W497 and the W458 umbrella",
+      "evidence": "2026-10-11: check_closure.py --unnamed lists the tracked files no stage closure names: 0 of 670, because check_license, check_mark and check_deps each READ every tracked file (their closures are all 670), so every file is honestly some stage input; prefix exemptions in the census are therefore not needed today (the exact-path exempt list stays). closures.bzl now also carries EXTRA_NAMED (the suite own files: BUILD, MODULE, closures.bzl, stages.bzl, stage.sh, census_exempt.tsv; one generated source); the closure_witness stage data is the union of all closures plus EXTRA_NAMED instead of every tracked file, so the census union is the REAL union of what stages read, not a literal ALL: bazel test //:census passes on it.",
       "issued_at": "2026-10-11T10:25:11Z",
       "minted_during": "interrupt",
       "caused_by": "W495",
-      "last_worked": "2026-10-11T10:25:16Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-11T11:50:52Z",
+      "ticks_blocked": 0,
       "completed": null
     }
   ],

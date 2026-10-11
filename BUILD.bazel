@@ -18,7 +18,7 @@
 # hermetically.
 load("@mikemol_rules_py//:tracked.bzl", "select_tracked")
 load("@tracked//:manifest.bzl", "TRACKED")
-load(":closures.bzl", "CLOSURES")
+load(":closures.bzl", "CLOSURES", "EXTRA_NAMED")
 load(":stages.bzl", "closure_data", "precommit_stage")
 
 ALL = select_tracked(TRACKED)
@@ -41,8 +41,9 @@ STAGES = [
 ] + [
     {"name": "opa_test", "args": ["opa-test"], "data": closure_data(CLOSURES, "opa-test")},
     {"name": "segment_lattice", "args": ["segment-lattice"], "data": closure_data(CLOSURES, "segment-lattice")},
-    # the witness runs every other stage in its own tree and reads their closures: it keeps ALL
-    {"name": "closure_witness", "args": ["closure-witness"], "data": ALL},
+    # the witness copies every other stage's closure into its own tree: its data is their union plus
+    # the suite's own files (closures.bzl, BUILD, the stage runner), not every tracked file
+    {"name": "closure_witness", "args": ["closure-witness"], "data": sorted({p: True for c in CLOSURES.values() for p in c + EXTRA_NAMED}.keys())},
     {"name": "worklist", "args": ["worklist"], "data": closure_data(CLOSURES, "worklist")},
     {"name": "readme", "args": ["readme"], "data": closure_data(CLOSURES, "readme")},
 ]

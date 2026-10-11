@@ -27517,3 +27517,14 @@ CLOSURES = {
         "vscode/themes/EL-Openglo-color-theme.json",
     ],
 }
+
+# files the suite's own machinery reads that no stage's closure holds (BUILD, the witness, the census)
+EXTRA_NAMED = [
+    "BUILD.bazel",
+    "MODULE.bazel",
+    "MODULE.bazel.lock",
+    "closures.bzl",
+    "stages.bzl",
+    "gate/stage.sh",
+    "gate/census_exempt.tsv",
+]
