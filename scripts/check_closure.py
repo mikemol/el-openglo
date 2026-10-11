@@ -122,26 +122,21 @@ def observe(script, root=ROOT):
     return sorted(closure), ""
 
 
-# stages whose selftest needs a real git work tree: a closure-only temp tree has no .git, so the
-# sufficiency witness cannot judge them (a fact about the harness; withheld WITH the reason, never a pass)
-WITNESS_EXEMPT = {
-    "scripts/check_ebuild.py": "certifies the staged tree (git write-tree): needs a git index",
-    "scripts/check_tree_writes.py": "builds scratch git worktrees of the repo: needs a git repository",
-}
+# stages the sufficiency witness cannot judge, each with the reason (withheld WITH it, never a pass). EMPTY
+# since the closure-only tree became a git repository under the home cache (W504, 2026-10-11): check_ebuild
+# and check_tree_writes were exempt "for want of a repository" and the readme stage's three ebuild claims
+# were known failures for the same reason; all of them passed once the tree was one.
+WITNESS_EXEMPT: dict = {}
 
 
 # claims a whole-gate stage is KNOWN to fail in a closure-only tree, each with its reason: the stage is
 # then "sufficient except for" them (arm1 `known`: counted and printed, never a pass and never a deny)
-# while any OTHER failing claim is an incomplete closure. The reasons are about the HARNESS (no git
-# repository, no untracked build outputs), not about the closure.
-_NO_GIT = "certifies a clean git clone of the staged tree: the closure-only tree has no repository"
+# while any OTHER failing claim is an incomplete closure. The reasons are about the HARNESS, not about the
+# closure: here, the untracked build outputs a closure of tracked files cannot hold.
 WITNESS_KNOWN = {
     "worklist": {
-        "EBUILD": _NO_GIT,
         "CURRENCY": "reads the untracked emitted outputs (screens, wallpapers): a closure of TRACKED files cannot hold them",
-        "CLOSURE-SEES": "its live arm observes under strace in a tree with no git index, where the tracked set differs",
     },
-    "readme": {"COMMANDS": _NO_GIT, "LICENCE": _NO_GIT, "OVERLAY": _NO_GIT},
 }
 
 # files the gate's own machinery reads that no stage's observed closure holds (BUILD analysis, the
@@ -165,6 +160,13 @@ EXTRA_NAMED = (
 # be re-observed when a file it reads appears (the witness says so, loudly).
 WHOLE = "*"
 WHOLE_TREE = 0.95
+
+# ⚑ STAGES THAT CLONE THE TRACKED TREE ARE THE WHOLE TREE BY CONSTRUCTION (W504, 2026-10-11, found by the
+# witness): check_ebuild archives the index into a clean clone and runs the emitters THERE, so what it reads
+# happens at paths inside the clone, which an observation of the real tree cannot attribute to tracked
+# files. Its observed closure (226) understated it, and in a closure-only tree the clone lacked
+# templates/ ("No module named templates"). What a clone reads is whatever the index holds.
+CLONING = ("scripts/check_ebuild.py",)
 
 
 def compress(closure, tracked):
@@ -205,13 +207,20 @@ def _victims(script, closure, root):
     return out[:MAX_VICTIMS]
 
 
+# ⚑ NOT UNDER /tmp OR /var/tmp: check_ebuild stages inside the tree under portage's sandbox with
+# SANDBOX_DENY=/tmp:/var/tmp, and DENY covers READS, so a witness tree there cannot read its own venv
+# (the same reason gate/staged.sh keeps the staged tree under the home cache).
+WITNESS_DIR = os.path.join(os.path.expanduser("~"), ".cache", "el-openglo-witness")
+
+
 def witness(script, closure, defect_in=None, root=ROOT):
     """(rc, tail): run `gate/stage.sh selftest SCRIPT` in a temp tree holding ONLY its closure
     (plus MODULE.bazel, which locates the root, the venv by symlink and the warm palette cache: the
     host's, declared). Arm 1 (defect_in None): it must pass, or the closure is incomplete and the missing
     file is in the output. Arm 2: a `raise SystemExit(99)` appended to the closure file `defect_in`
     must make it fail, or that file does not reach the verdict on the selftest's path."""
-    with tempfile.TemporaryDirectory() as td:
+    os.makedirs(WITNESS_DIR, exist_ok=True)
+    with tempfile.TemporaryDirectory(dir=WITNESS_DIR) as td:
         for rel in set(closure) | {"MODULE.bazel"}:
             dst = os.path.join(td, rel)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
@@ -220,15 +229,36 @@ def witness(script, closure, defect_in=None, root=ROOT):
         if os.path.isfile(cache):
             shutil.copy2(cache, os.path.join(td, ".palette-cache.json"))
         os.symlink(os.path.join(root, ".venv"), os.path.join(td, ".venv"))
-        if defect_in is not None:
-            with open(os.path.join(td, defect_in), "a", encoding="utf-8") as fh:
-                fh.write("\nraise SystemExit(99)\n")
         # the stage under witness must not inherit the request to run the witness (it would recurse)
         env = {
             k: v
             for k, v in os.environ.items()
             if not k.startswith("GIT_") and k != "CLOSURE_WITNESS"
         }
+        # ⚑ THE CLOSURE-ONLY TREE IS A REPOSITORY, ITS INDEX EXACTLY THE CLOSURE (W504, 2026-10-11). Without
+        # one git_tracked falls back to a directory WALK, whose population races with the sibling checks of
+        # the same stage writing bytecode and caches into the tree: @LICENSE failed once and passed on
+        # replay inside the witness (0 of 40 under contention in the real tree). The staged tree
+        # (gate/staged.sh) is a repository for the same reason; the closure-only tree now is too.
+        names = "\0".join(sorted(set(closure) | {"MODULE.bazel"})).encode()
+        subprocess.run(["git", "-C", td, "init", "-q"], env=env, check=True)
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                td,
+                "add",
+                "-f",
+                "--pathspec-from-file=-",
+                "--pathspec-file-nul",
+            ],
+            input=names,
+            env=env,
+            check=True,
+        )
+        if defect_in is not None:
+            with open(os.path.join(td, defect_in), "a", encoding="utf-8") as fh:
+                fh.write("\nraise SystemExit(99)\n")
         env.update(TEST_SRCDIR=os.path.dirname(td), TEST_WORKSPACE=os.path.basename(td))
         r = subprocess.run(
             ["bash", os.path.join(td, "gate", "stage.sh"), *stage_args(script)],
@@ -420,7 +450,7 @@ def main(argv):
             if closure is None:
                 print(f"check_closure: WITHHELD {s} — {why}", file=sys.stderr)
                 return 3
-            closures[s] = compress(closure, every)
+            closures[s] = [WHOLE] if s in CLONING else compress(closure, every)
             note = " (whole tree: recorded as *)" if closures[s] == [WHOLE] else ""
             print(f"check_closure: {s}: {len(closure)} file(s){note}")
         with open(CLOSURES, "w", encoding="utf-8") as fh:
@@ -462,7 +492,9 @@ def main(argv):
         every = git_tracked.files()
         with open(CLOSURES, encoding="utf-8") as fh:
             closures = {
-                k: compress(expand(v) if v == [WHOLE] else v, every)
+                k: [WHOLE]
+                if k in CLONING
+                else compress(expand(v) if v == [WHOLE] else v, every)
                 for k, v in load_closures(fh.read()).items()
             }
         with open(CLOSURES, "w", encoding="utf-8") as fh:

@@ -296,7 +296,9 @@ def render_all(d):
     # NOTHING.  main.qml instantiates ApertureField by bare name, which QML
     # resolves from the same directory — emitting one without the other gives
     # a widget that loads and draws an empty panel.
-    atomic_write(os.path.join(ui, "ApertureField.qml"), aperture_field_component())
+    import display_params as DP
+
+    DP.ship_components(ui, "marquee")
     # the body-markup parser (W39): main.qml imports it by bare name
     atomic_write(os.path.join(ui, "marquee-body.js"), body_parser())
     return d

@@ -393,12 +393,10 @@ def companions(surface):
     """{filename: text} a surface instantiates BY BARE NAME, which QML resolves
     from the subject's own directory — emitting the subject alone gives "X is not
     a type" and a blank render (measured s133, the clock on the shared display)."""
-    out = {}
-    if surface in ("clock", "live-wallpaper", "sddm"):
-        import make_segment_display as SD
+    # the roster (display_params.COMPONENTS, W504) says which surfaces stage which component
+    import display_params as DP
 
-        out["SegmentChar.qml"] = SD.segment_char_component()
-    return out
+    return DP.companions_for(surface)
 
 
 # ⚑ MANY FRAMES, ONE PROCESS (render speed #2, catalog/render-speed.md): the

@@ -359,3 +359,67 @@ def holes_for(mount, holes=None):
         "displayDecls": qml_decls(mount),
         "displayControls": qml_controls(mount, holes),
     }
+
+
+@dataclass(frozen=True)
+class Component:
+    """A shared QML component a package ships BESIDE its main.qml (W504).
+
+    ⚑ QML RESOLVES A BARE TYPE NAME FROM THE DOCUMENT'S OWN DIRECTORY, so a package that instantiates
+    SegmentChar without shipping it loads and draws nothing (measured live, s134: "SegmentChar is not a
+    type"). Eight sites named the component by hand, each remembering for itself: three emitters, the
+    render harness's companion list, the parity and lint tables, ApertureField's own emitter. ONE roster
+    now, read by all of them, so a component added here is shipped, staged, pinned and linted everywhere
+    it is mounted (the next one is the shared emission halo, W500).
+
+    `file` is the bare name (templates/<file>, shipped under it); `accessor` is (module, function) giving
+    its text; `packages` are the plasmoids and themes that ship it; `surfaces` are the render_qml surfaces
+    that stage it as a companion (the marquee's render stages ApertureField another way: none here)."""
+
+    file: str
+    accessor: tuple
+    packages: tuple
+    surfaces: tuple = ()
+
+
+COMPONENTS = (
+    Component(
+        "SegmentChar.qml",
+        ("make_segment_display", "segment_char_component"),
+        ("clock", "wallpaper", "sddm"),
+        ("clock", "live-wallpaper", "sddm"),
+    ),
+    Component(
+        "ApertureField.qml",
+        ("make_notify_marquee", "aperture_field_component"),
+        ("marquee",),
+    ),
+)
+
+
+def components_for(package):
+    """The components `package` ships beside its document, in roster order."""
+    return tuple(c for c in COMPONENTS if package in c.packages)
+
+
+def component_text(component):
+    """A component's QML text, from its accessor."""
+    import importlib
+
+    module, function = component.accessor
+    return getattr(importlib.import_module(module), function)()
+
+
+def companions_for(surface):
+    """{file: text} the render harness stages beside a surface's document (render_qml.companions)."""
+    return {c.file: component_text(c) for c in COMPONENTS if surface in c.surfaces}
+
+
+def ship_components(directory, package):
+    """Write every component `package` ships into `directory`, atomically, by the roster."""
+    import os
+
+    from emitters import atomic_write
+
+    for c in components_for(package):
+        atomic_write(os.path.join(directory, c.file), component_text(c))

@@ -184,13 +184,11 @@ def render_all(path):
     atomic_write(os.path.join(path, "contents/ui/main.qml"), main_qml())
     # ⚑ THE DISPLAY SHIPS BESIDE THE MOUNT OR THE IMPORT RESOLVES TO NOTHING
     # (W33, s133): main.qml instantiates SegmentChar by bare name, which QML
-    # resolves from the same directory. The live wallpaper emits the SAME
-    # component from the same accessor — one display, two mounts.
-    import make_segment_display as SD
+    # resolves from the same directory. The roster (display_params.COMPONENTS, W504)
+    # names what each package ships: one display, every mount.
+    import display_params as DP
 
-    atomic_write(
-        os.path.join(path, "contents/ui/SegmentChar.qml"), SD.segment_char_component()
-    )
+    DP.ship_components(os.path.join(path, "contents/ui"), "clock")
     atomic_write(os.path.join(path, "contents/ui/configGeneral.qml"), CONFIG_QML)
     atomic_write(os.path.join(path, "contents/config/main.xml"), CONFIG_XML)
     atomic_write(

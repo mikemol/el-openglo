@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 504,
+  "counter": 506,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -2462,7 +2462,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 32,
+      "weight": 29,
       "completed": null
     },
     {
@@ -4396,7 +4396,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "weight": 29
+      "weight": 27
     },
     {
       "symbol": "W202",
@@ -5191,7 +5191,7 @@
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
-      "weight": 23,
+      "weight": 22,
       "completed": null
     },
     {
@@ -5682,7 +5682,7 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null,
-      "weight": 20
+      "weight": 19
     },
     {
       "symbol": "W257",
@@ -5954,7 +5954,7 @@
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null,
-      "weight": 19
+      "weight": 21
     },
     {
       "symbol": "W268",
@@ -6156,7 +6156,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 25
+      "weight": 23
     },
     {
       "symbol": "W275",
@@ -6195,7 +6195,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 27
+      "weight": 25
     },
     {
       "symbol": "W276",
@@ -6224,7 +6224,7 @@
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
-      "weight": 21
+      "weight": 20
     },
     {
       "symbol": "W277",
@@ -12090,16 +12090,54 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Find every site that names a shared component by hand (make_clock.render_all, make_sddm.render_all, make_wallpaper_live.render_all, make_notify_marquee, render_qml.companions, check_template_parity, check_qml_lint, check_package_imports selftest, make_segment_display.segment_char_component); declare ONE roster (component file -> mounts that ship it) in display_params (the one display declaration), have each site read it; check_package_imports and check_template_parity then guard the roster; no pixel and no emitted-byte change (check_emitters_run shows 0 drift).",
-      "evidence": "",
+      "next_bounded_step": "Commit lands (staged gate); close W504; W500 next",
+      "evidence": "2026-10-11: display_params.COMPONENTS: one roster (file, accessor, packages, render surfaces) for SegmentChar.qml and ApertureField.qml, with components_for, component_text, companions_for and ship_components. Read now by make_clock, make_sddm, make_wallpaper_live and make_notify_marquee (ship_components), render_qml.companions (companions_for), check_template_parity and check_qml_lint (their component rows are derived, the two hand rows removed). Proven: check_emitters_run 0 drifted of 661 tracked files, 0 tree files written; template_parity admitted 14, package_imports admitted 3, qml_lint admitted 14; both selftests pass. render_qml selftest has two litGradient texture arms failing at HEAD too (pre-existing, ungated): W506. Found while scanning: 17 stale .ebuild-witness trees from killed check_ebuild runs (removed; W505 sweeps them at start). | 2026-10-11: First two commit attempts: @CURRENCY (the schemes key moved with the edited sources; outputs unchanged, 0 drift, so check_action_key --write re-recorded it) and the closure witness refusing on an @LICENSE flake inside the closure-only tree (a directory WALK races with sibling checks writing bytecode; 0 of 40 under contention in the real tree). Fix in the witness: the closure-only tree is a git repository (index = the closure) under the home cache (not /var/tmp: portage sandbox denies reads there). Result: check_tree_writes and the readme stage pass outright, check_ebuild too once recorded as a CLONING stage (its clone reads whatever the index holds, so its closure is the whole tree: it was missing templates/), and the worklist stage fails only on @CURRENCY (untracked emitted outputs). WITNESS_EXEMPT is empty; WITNESS_KNOWN keeps one entry.",
       "issued_at": "2026-10-11T17:19:36Z",
       "minted_during": "interrupt",
       "caused_by": "W500",
-      "last_worked": "2026-10-11T17:19:45Z",
+      "last_worked": "2026-10-11T19:36:13Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
+    },
+    {
+      "symbol": "W505",
+      "title": "check_ebuild leaves its .ebuild-witness temp trees behind when killed (17 found, each a full repo copy that every tool scan then reads): sweep stale ones at start",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_ebuild",
+        "gate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T18:06:34Z",
+      "minted_during": "interrupt",
+      "caused_by": "W504",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W506",
+      "title": "render_qml.py --selftest fails two litGradient texture arms at HEAD (pre-existing) and no gate stage runs it",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "render_qml",
+        "gate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-11T18:09:44Z",
+      "minted_during": "interrupt",
+      "caused_by": "W504",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [

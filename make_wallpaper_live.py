@@ -261,9 +261,9 @@ def render_all(d):
     # merge): "SegmentChar is not a type" and the wallpaper failed to load — I had
     # added this line to make_clock and not here, and the emitters' own gates
     # could not see it because they read the emitted TEXT, never the directory.
-    import make_segment_display as SD
+    import display_params as DP
 
-    atomic_write(os.path.join(ui, "SegmentChar.qml"), SD.segment_char_component())
+    DP.ship_components(ui, "wallpaper")
     atomic_write(os.path.join(cfg, "main.xml"), config_main_xml())
     atomic_write(os.path.join(ui, "config.qml"), config_qml())
     return d

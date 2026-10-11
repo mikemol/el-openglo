@@ -116,7 +116,7 @@ def theme_conf(variant):
 
 def render_all(themes_dir, variants=VARIANTS):
     """Write one theme directory per variant under themes_dir; returns the dirs."""
-    import make_segment_display as SD
+    import display_params as DP
 
     out = []
     for v in variants:
@@ -125,8 +125,8 @@ def render_all(themes_dir, variants=VARIANTS):
         atomic_write(os.path.join(d, "metadata.desktop"), metadata_desktop(v))
         atomic_write(os.path.join(d, "theme.conf"), theme_conf(v))
         atomic_write(os.path.join(d, "Main.qml"), main_qml(v))
-        # the display ships beside the mount: Main.qml names SegmentChar bare
-        atomic_write(os.path.join(d, "SegmentChar.qml"), SD.segment_char_component())
+        # the display ships beside the mount: Main.qml names SegmentChar bare (the roster, W504)
+        DP.ship_components(d, "sddm")
         out.append(d)
     return out
 

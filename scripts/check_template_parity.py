@@ -28,11 +28,20 @@ import sys
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASELINES = os.path.join(ROOT, "catalog", "baselines")
 
+
+def _component_rows():
+    """The shared QML components' pairs, FROM THE ROSTER (display_params.COMPONENTS, W504): a component
+    added there is pinned here without a second list to remember."""
+    sys.path.insert(0, ROOT)
+    import display_params as DP
+
+    return tuple((c.accessor[0], c.accessor[1], None, c.file) for c in DP.COMPONENTS)
+
+
 # (module, accessor, args, baseline filename). `args` names a callable in the
 # module that supplies the argument, so a generator taking a token dict can be
 # exercised without this file knowing what a token dict is.
-PAIRS = (
-    ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
+PAIRS = _component_rows() + (
     # the ONE clock package (⊕ONE-THEME, W35): one colour hole, the global ghost alpha
     ("make_clock", "main_qml", None, "clock-main.qml"),
     ("make_clock", "CONFIG_XML", None, "clock-config.kcfg"),
@@ -54,9 +63,7 @@ PAIRS = (
     ("make_notify_marquee", "config_xml", None, "marquee-config.kcfg"),
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     ("make_notify_marquee", "body_parser", None, "marquee-body.js"),
-    # the aperture field (W54, the marquee's board since s120; MatrixField retired s124):
-    # a component the plasmoid instantiates by bare name
-    ("make_notify_marquee", "aperture_field_component", None, "ApertureField.qml"),
+    # (the aperture field, SegmentChar and any other shared component: the roster rows above)
     # ⚑ THE GEOMETRY MOVED TOO, NOT ONLY THE MARKUP.  This surface's seven-seg map
     # and stroke table were hand-written inside the f-string; they are now
     # segment_topology's projection. So this pair proves TWO things at once — that

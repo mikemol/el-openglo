@@ -41,9 +41,17 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
 
+
+def _component_rows():
+    """The shared QML components' rows, FROM THE ROSTER (display_params.COMPONENTS, W504): a component
+    added there is linted here without a second list to remember."""
+    import display_params as DP
+
+    return tuple((c.accessor[0], c.accessor[1], None, c.file) for c in DP.COMPONENTS)
+
+
 # (module, accessor, argsrc, label) — argsrc as check_template_parity._value reads it
-DOCS = (
-    ("make_segment_display", "segment_char_component", None, "SegmentChar.qml"),
+DOCS = _component_rows() + (
     ("make_clock", "CONFIG_QML", None, "clock-config.qml"),
     ("make_clock", "main_qml", None, "clock-main.qml"),  # one package since W35
     (
@@ -61,12 +69,7 @@ DOCS = (
     ),  # one package since W35
     ("make_notify_marquee", "config_qml", None, "marquee-config.qml"),
     # MatrixChar.qml / MatrixField.qml retired s124 (--uses: 0 of 12 instantiators)
-    (
-        "make_notify_marquee",
-        "aperture_field_component",
-        None,
-        "ApertureField.qml",
-    ),  # W54
+    # (ApertureField.qml and SegmentChar.qml: the roster rows above)
     (
         "make_notify_marquee",
         "aperture_probe_qml",
