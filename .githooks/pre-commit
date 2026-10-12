@@ -12,12 +12,18 @@
 # ⚑ THE `bazel test` IS HERE, IN THE HOOK, NOT BEHIND THE SCRIPT: the fleet's precommit kata (operator rule
 # 2026-10-06: a repo whose precommit is a script rather than a bazel test is blocked) reads this file.
 root="$(git rev-parse --show-toplevel)"
+# ⚑ THE TOOLS ARE HOST STATE AND COME FROM THE REAL CHECKOUT (W508, mtools:W954). An isolated commit
+# (mikemol-commit, MIKEMOL_COMMIT_ISOLATED=1) runs this hook from a snapshot of the tree that lands, which holds
+# the tracked files and none of the uv venv; MIKEMOL_REAL_ROOT names the real checkout, and gate/staged.sh reads
+# the venv, the host-state links and the ledger through it. Unset (a normal commit) it is $root, so nothing
+# changes. The TREE gated is the index's either way.
+tools="${MIKEMOL_REAL_ROOT:-$root}"
 snap="${TMPDIR:-$HOME/.cache}/el-openglo-staged-$$.sh"
 if cp "$root/gate/staged.sh" "$snap" 2>/dev/null; then
-  staged="$(EL_STAGED_SNAPSHOT=1 bash "$snap" --materialise)" || exit 1
+  staged="$(MIKEMOL_REAL_ROOT="$tools" EL_STAGED_SNAPSHOT=1 bash "$snap" --materialise)" || exit 1
 else
   printf 'pre-commit: could not snapshot gate/staged.sh to %s - running it LIVE from the tree\n' "$snap" >&2
-  staged="$("$root/gate/staged.sh" --materialise)" || exit 1
+  staged="$(MIKEMOL_REAL_ROOT="$tools" "$root/gate/staged.sh" --materialise)" || exit 1
 fi
 cd "$staged" || exit 1
 # the staged repository is self-contained: none of the commit's GIT_* (they name the REAL repository)

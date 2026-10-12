@@ -12160,18 +12160,19 @@
     {
       "symbol": "W508",
       "title": "Adopt isolated mikemol-commit: pre-commit and gate resolve tools via MIKEMOL_REAL_ROOT; verify one commit prints path: isolated",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "",
-      "evidence": "",
+      "evidence": "2026-10-12: 2026-10-12: gate/staged.sh reads the venv, the host-state links and the ledger through HOST=MIKEMOL_REAL_ROOT with default ROOT; .githooks/pre-commit names MIKEMOL_REAL_ROOT (tools var) and passes it to the snapshot of staged.sh, as mtools pre-commit does (mtools:W954). Verification: one commit through mikemol-commit must print path: isolated",
       "issued_at": "2026-10-11T21:54:25Z",
       "minted_during": "interrupt",
       "caused_by": "mtools:W954",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-12T08:13:32Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W509",

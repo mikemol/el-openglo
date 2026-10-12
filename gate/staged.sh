@@ -44,7 +44,14 @@ for tool in bazel git uv; do
 done
 
 ROOT="$(git rev-parse --show-toplevel)"
-[ -x "$ROOT/.venv/bin/python3" ] || refuse "$ROOT/.venv/bin/python3 is absent (uv sync --extra tooling --extra research)"
+# ⚑ THE TOOLS AND THE HOST'S STATE COME FROM THE REAL CHECKOUT (W508, mtools:W954, github-8f 2026-10-12).
+# An isolated commit (mikemol-commit, MIKEMOL_COMMIT_ISOLATED=1) runs the hook from a SNAPSHOT of the tree
+# that lands: it holds the tracked files and none of the uv venv, the palette cache, the gitignored emitted
+# outputs or the ledger. MIKEMOL_REAL_ROOT names the real checkout; every lookup of that host state goes
+# through $HOST. Unset (a normal commit) it is $ROOT, so nothing changes. The TREE gated is the index's
+# either way (checkout-index below reads $ROOT).
+HOST="${MIKEMOL_REAL_ROOT:-$ROOT}"
+[ -x "$HOST/.venv/bin/python3" ] || refuse "$HOST/.venv/bin/python3 is absent (uv sync --extra tooling --extra research)"
 # ⚑ NOT UNDER /tmp OR /var/tmp: check_ebuild stages inside the tree under portage's sandbox with
 # SANDBOX_DENY=/tmp:/var/tmp, and DENY covers READS, so a staged tree there cannot read its own venv
 # ("open_rd deny /var/tmp/el-openglo-staged/.venv/pyvenv.cfg", measured 2026-10-11). The home cache is the
@@ -83,11 +90,11 @@ materialise() {
     esac
     [ -e "$STAGED/$entry" ] || [ -L "$STAGED/$entry" ] && continue
     mkdir -p "$STAGED/$(dirname "$entry")"
-    ln -s "$ROOT/$entry" "$STAGED/$entry"
-  done < <(git -C "$ROOT" ls-files -z --others --ignored --exclude-standard --directory)
+    ln -s "$HOST/$entry" "$STAGED/$entry"
+  done < <(git -C "$HOST" ls-files -z --others --ignored --exclude-standard --directory)
   # the ledger is the real tree's: gate timings accumulate across commits, not in a throwaway copy
-  touch "$ROOT/.gate-outcomes.tsv"
-  ln -s "$ROOT/.gate-outcomes.tsv" "$STAGED/.gate-outcomes.tsv"
+  touch "$HOST/.gate-outcomes.tsv"
+  ln -s "$HOST/.gate-outcomes.tsv" "$STAGED/.gate-outcomes.tsv"
   # ⚑ THE STAGED INDEX IS THE COMMIT'S LIST, ADDED BY NAME AND FORCED (-f), NOT `git add -A`: add -A obeys
   # ignore rules, so a tracked file an ignore pattern matches (.claude/settings.local.json) was left out,
   # and the host-state links above would be added unless every one were excluded. The list is the
