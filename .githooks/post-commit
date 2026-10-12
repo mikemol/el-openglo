@@ -64,9 +64,15 @@ fi
 # BACKGROUND, so the ~190 s CPU tree-writes gate the push runs does not block the commit.
 # Fast-forward only, main only, serialised; every outcome in .git/auto-push.log.
 # EL_NO_AUTO_PUSH=1 opts a single commit out.
+# ⚑ FROM THE REAL CHECKOUT, NOT THE COMMIT'S TREE (2026-10-12). An isolated commit (mikemol-commit) runs this
+# hook from a SNAPSHOT under /var/tmp/mikemol/gate/: its toplevel holds no .venv, so the push it started
+# resolved .githooks/pre-push there and every push from 04:35 on was refused ("mikemol-githook-pre-push: No
+# such file"), 18 commits ahead by the evening. MIKEMOL_REAL_ROOT names the real checkout (gate/staged.sh
+# reads it the same way); unset, a normal commit, it is $ROOT and nothing changes.
 if [ -z "${EL_NO_AUTO_PUSH:-}" ]; then
-  PY="$ROOT/.venv/bin/python3"
+  HOST="${MIKEMOL_REAL_ROOT:-$ROOT}"
+  PY="$HOST/.venv/bin/python3"
   [ -x "$PY" ] || PY=python3
-  setsid "$PY" "$ROOT/scripts/auto_push.py" </dev/null >/dev/null 2>&1 &
+  setsid "$PY" "$HOST/scripts/auto_push.py" </dev/null >/dev/null 2>&1 &
 fi
 exit 0
