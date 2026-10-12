@@ -35,7 +35,11 @@ import tempfile
 import time
 
 KEEP = ("QT_", "QML", "QSG_", "KDE_")
-FLAGS = {"--seconds", "--every", "--selftest"}
+FLAGS = {"--seconds", "--every", "--mix", "--selftest"}
+# the inputs a soak can switch on, one at a time, to BISECT a cost (the baseline is one normal
+# item per burst with a short body): the urgencies, a replace of a visible item, a same-turn
+# flash, a job gauge, actions, and the long marked-up body
+MIXES = ("low", "critical", "replace", "flash", "job", "actions", "long")
 
 
 APPS = ("mail", "chat", "build", "calendar", "backup")
@@ -48,64 +52,56 @@ LIVE_CYCLES = (
 )
 
 
-def soak_timeline(seconds, period_ms=1500):
-    """A PUMMELLING: every period, a burst of notifications of every urgency (low, normal and
-    CRITICAL, which blinks) with long marked-up bodies and actions, a flash that arrives and
-    vanishes in one turn, a replace of a visible item, and a job gauge; each item stays up
-    LIVE_CYCLES periods, so the ring holds a dozen or more items (the live board's ticker held
-    about 228 characters, a 6004 px backdrop; this holds several times that)."""
+def soak_timeline(seconds, period_ms=1500, mix=MIXES):
+    """A PUMMELLING, switchable by `mix` so a cost can be BISECTED. Every period, a burst of
+    notifications: a normal item always, plus (when in `mix`) a low and a CRITICAL one (which
+    blinks), a long marked-up body (else a short one), actions, a flash that arrives and vanishes
+    in one turn, a replace of a visible item, and a job gauge. Each item stays up LIVE_CYCLES
+    periods, so the ring holds a dozen or more (the live board's ticker held about 228
+    characters, a 6004 px backdrop; the full mix holds several times that)."""
     out = []
     nid = 0
+    body = BODY if "long" in mix else "short"
+    urgencies = [1] + [u for u, name in ((0, "low"), (2, "critical")) if name in mix]
     for k in range(max(1, int(seconds * 1000 // period_ms))):
         t = 700 + k * period_ms
         ids = []
-        for j, urgency in enumerate((1, 0, 2, 1)):
+        for j, urgency in enumerate(urgencies):
             nid += 1
             ids.append(nid)
             fields = {
                 "summary": f"item {nid}",
-                "body": BODY,
+                "body": body,
                 "applicationName": APPS[(k + j) % len(APPS)],
                 "urgency": urgency,
             }
-            if j == 3:
+            if "actions" in mix and j == 0:
                 fields["actionNames"] = ["open", "later"]
                 fields["actionLabels"] = ["Open", "Later"]
             out.append((t + 100 * j, "arrive", nid, fields, ""))
-        nid += 1
-        out.append(
-            (t + 450, "flash", nid, {"summary": "flash", "applicationName": "app"}, "")
-        )
-        out.append(
-            (
-                t + 600,
-                "replace",
-                ids[0],
-                {
-                    "summary": f"item {ids[0]}",
-                    "body": "changed " + BODY,
-                    "applicationName": "app",
-                },
-                "",
-            )
-        )
-        nid += 1
-        job = {"type": 2, "jobState": 1, "percentage": (k * 7) % 100}
-        out.append(
-            (
-                t + 700,
-                "arrive",
-                nid,
-                {"summary": "job", "applicationName": "app", **job},
-                "",
-            )
-        )
-        for i in ids + [nid]:
+        if "flash" in mix:
+            nid += 1
+            fl = {"summary": "flash", "applicationName": "app"}
+            out.append((t + 450, "flash", nid, fl, ""))
+        if "replace" in mix:
+            fields = {
+                "summary": f"item {ids[0]}",
+                "body": "changed " + body,
+                "applicationName": "app",
+            }
+            out.append((t + 600, "replace", ids[0], fields, ""))
+        if "job" in mix:
+            nid += 1
+            ids.append(nid)
+            job = {"type": 2, "jobState": 1, "percentage": (k * 7) % 100}
+            fields = {"summary": "job", "applicationName": "app", **job}
+            out.append((t + 700, "arrive", nid, fields, ""))
+        for i in ids:
             out.append((t + LIVE_CYCLES * period_ms + 900, "expire", i, {}, ""))
     return sorted(out, key=lambda e: e[0])
 
 
-def stage(directory, seconds):
+def stage(directory, seconds, mix=MIXES):
     """Write the run into `directory` and return its soak.json (argv and env hold {DIR})."""
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if root not in sys.path:
@@ -114,7 +110,9 @@ def stage(directory, seconds):
     import check_marquee_live as CM
 
     os.makedirs(directory, exist_ok=True)
-    stager = CM.stager(end_ms=int(seconds * 1000), timeline=soak_timeline(seconds))
+    stager = CM.stager(
+        end_ms=int(seconds * 1000), timeline=soak_timeline(seconds, mix=mix)
+    )
     argv, env, _rhi = stager(directory)
 
     def sub(text):
@@ -126,6 +124,7 @@ def stage(directory, seconds):
             k: sub(v) for k, v in env.items() if any(k.startswith(p) for p in KEEP)
         },
         "seconds": seconds,
+        "mix": list(mix),
     }
     with open(os.path.join(directory, "soak.json"), "w") as fh:
         json.dump(spec, fh, indent=1)
@@ -379,6 +378,35 @@ def _selftest():
             all(any(k.startswith(p) for p in KEEP) for k in spec["env"]),
             True,
         )
+    # the mix switches each input on and off: the baseline is normal items only, and each input
+    # added shows up in the timeline and only then
+    base = soak_timeline(10, 1500, mix=())
+    chk(
+        "the empty mix is normal arrivals and expires only",
+        {e[1] for e in base} | {e[3].get("urgency") for e in base if e[1] == "arrive"},
+        {"arrive", "expire", 1},
+    )
+    for name, op in (("flash", "flash"), ("replace", "replace")):
+        chk(
+            f"mix {name} adds the {op} op and nothing else adds it",
+            (
+                op in {e[1] for e in soak_timeline(10, 1500, mix=(name,))},
+                op in {e[1] for e in base},
+            ),
+            (True, False),
+        )
+    crit = soak_timeline(10, 1500, mix=("critical",))
+    chk(
+        "mix critical adds urgency 2 and not urgency 0",
+        {e[3].get("urgency") for e in crit if e[1] == "arrive"},
+        {1, 2},
+    )
+    chk(
+        "mix long widens the body",
+        len(soak_timeline(10, 1500, mix=("long",))[0][3]["body"])
+        > len(base[0][3]["body"]),
+        True,
+    )
     print("marquee_soak selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -392,25 +420,37 @@ def main(argv):
     if "--selftest" in args:
         return 0 if _selftest() else 1
     opts = {}
-    for flag in ("--seconds", "--every"):
+    for flag in ("--seconds", "--every", "--mix"):
         if flag in args:
             i = args.index(flag)
             if i + 1 >= len(args):
                 print(f"marquee_soak: {flag} needs a value", file=sys.stderr)
                 return 2
-            opts[flag] = float(args.pop(i + 1))
+            raw = args.pop(i + 1)
+            opts[flag] = raw if flag == "--mix" else float(raw)
             args.pop(i)
     if len(args) != 2 or args[0] not in ("stage", "run"):
         print(
-            "usage: marquee_soak.py stage|run DIR [--seconds N] [--every S]",
+            "usage: marquee_soak.py stage|run DIR [--seconds N] [--every S] [--mix a,b|none]",
             file=sys.stderr,
         )
         return 2
+    mix = MIXES
+    if "--mix" in opts:
+        mix = tuple(m for m in opts["--mix"].split(",") if m and m != "none")
+        unknown = [m for m in mix if m not in MIXES]
+        if unknown:
+            print(
+                f"marquee_soak: unknown mix {unknown}; known {MIXES}", file=sys.stderr
+            )
+            return 2
     directory = os.path.abspath(args[1])
     seconds = opts.get("--seconds", 120.0)
     if args[0] == "stage":
-        stage(directory, seconds)
-        print(f"marquee_soak: staged {seconds:.0f} s into {directory}")
+        stage(directory, seconds, mix)
+        print(
+            f"marquee_soak: staged {seconds:.0f} s, mix {list(mix)}, into {directory}"
+        )
         return 0
     summary = run(directory, opts.get("--seconds"), opts.get("--every", 2.0))
     return 0 if summary["samples"] else 1
