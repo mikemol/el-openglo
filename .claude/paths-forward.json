@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 526,
+  "counter": 527,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -12536,7 +12536,7 @@
     {
       "symbol": "W526",
       "title": "Bold letters bleed at some sub-pip scroll phases: K1 denies a 7-column bold run under every colour-vision view at stepped frame 14, on both scene graphs",
-      "status": "working",
+      "status": "blocked",
       "enables": [
         "W121"
       ],
@@ -12544,14 +12544,38 @@
         "check_kerning",
         "marquee-body"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Decide the claim: must kerning (a dark pip column between letters) hold at every sub-pip scroll phase, or only at the aligned one the closed loop measures? Measure K1 across all 6 phases of the 0.618 step with check_kerning --frame N (frames 10 to 25), then either widen the kern loop to the worst phase or restate the claim in rego",
-      "evidence": "",
+      "blocked_on": [
+        "W527"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Decide the claim with the operator-facing question stated in W527; minted W527 for the phase-robust measure",
+      "evidence": "2026-10-12: 2026-10-12 K1 across scroll phases, software scene graph, stepped capture frames 8 to 40, widest interior lit run per view (scratch kern_phases.py: one frames run per style). Frames 8 to 22 (text fully on the board): gray view bold runs 5 or 6 at EVERY phase; the three colour-vision views reach 7 at frames 14, 17, 19 and 22 and 5 or 6 elsewhere. So the 7 is CVD-specific and phase-specific: the binarisation is to each stills OWN peak, and under the CVD channel mixing the faint half-covered neighbour pip that the bold grow (s/2) spreads onto at a sub-pip phase clears the lit threshold. A graded pip is not a bleed in the LED-board sense. Frames from 23 on show runs of 18, 30, 45 columns, also in REGULAR text under CVD views (frames 18, 23, 26, 31, 34, 39): a measurement artifact not yet explained (text leaving the board edge, or the binarisation collapsing when the peak is small)",
       "issued_at": "2026-10-12T09:55:12Z",
       "minted_during": "interrupt",
       "caused_by": "W525",
-      "last_worked": "2026-10-12T10:28:41Z",
+      "last_worked": "2026-10-12T10:58:15Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W527",
+      "title": "Make K1 phase-robust: judge the gap column brightness against the stroke (graded, not binarised to the stills own peak) over the stepped frames of one full phase cycle, and explain the 18 to 45 column runs past frame 22",
+      "status": "working",
+      "enables": [
+        "W526"
+      ],
+      "touches": [
+        "check_kerning",
+        "check_urgency_cues"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Write the gap-brightness fact: for each stepped frame in one phase cycle (about 6 frames for the 0.618 step), for every letter boundary take the brightest gap column as a fraction of the stroke peak, in each view; read the distribution at aligned and unaligned phases, then state the K1 bound in rego from that data. First read why runs of 18 to 45 appear past frame 22 (frames 18, 23, 26 in regular text under CVD views)",
+      "evidence": "",
+      "issued_at": "2026-10-12T10:58:10Z",
+      "minted_during": "interrupt",
+      "caused_by": "W526",
+      "last_worked": "2026-10-12T10:58:16Z",
       "ticks_blocked": 0,
       "completed": null
     }
