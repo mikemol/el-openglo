@@ -35,11 +35,14 @@ import tempfile
 import time
 
 KEEP = ("QT_", "QML", "QSG_", "KDE_")
-FLAGS = {"--seconds", "--every", "--mix", "--selftest"}
+FLAGS = {"--seconds", "--every", "--mix", "--set", "--env", "--patch", "--selftest"}
 # the inputs a soak can switch on, one at a time, to BISECT a cost (the baseline is one normal
 # item per burst with a short body): the urgencies, a replace of a visible item, a same-turn
 # flash, a job gauge, actions, and the long marked-up body
 MIXES = ("low", "critical", "replace", "flash", "job", "actions", "long")
+# "idle" is not an input but its absence: a board with NO events at all (the cost of the board
+# itself, apart from any notification)
+KNOWN = (*MIXES, "idle")
 
 
 APPS = ("mail", "chat", "build", "calendar", "backup")
@@ -59,6 +62,8 @@ def soak_timeline(seconds, period_ms=1500, mix=MIXES):
     in one turn, a replace of a visible item, and a job gauge. Each item stays up LIVE_CYCLES
     periods, so the ring holds a dozen or more (the live board's ticker held about 228
     characters, a 6004 px backdrop; the full mix holds several times that)."""
+    if "idle" in mix:
+        return []
     out = []
     nid = 0
     body = BODY if "long" in mix else "short"
@@ -101,7 +106,26 @@ def soak_timeline(seconds, period_ms=1500, mix=MIXES):
     return sorted(out, key=lambda e: e[0])
 
 
-def stage(directory, seconds, mix=MIXES):
+def apply_patch(directory, spec):
+    """Rewrite one staged file: spec is 'FILE:OLD=>NEW'. OLD must occur (a patch that matches
+    nothing is refused, never a silent no-op). For EXPERIMENTS on the staged copy only: the
+    repository's templates are never touched."""
+    name, _, rule = spec.partition(":")
+    old, sep, new = rule.partition("=>")
+    path = os.path.join(directory, name)
+    if not sep or not old or not os.path.isfile(path):
+        raise SystemExit(
+            f"marquee_soak: bad patch {spec!r} (FILE:OLD=>NEW, file staged)"
+        )
+    with open(path) as fh:
+        text = fh.read()
+    if old not in text:
+        raise SystemExit(f"marquee_soak: patch {spec!r}: {old!r} not found in {name}")
+    with open(path, "w") as fh:
+        fh.write(text.replace(old, new))
+
+
+def stage(directory, seconds, mix=MIXES, config=None, extra_env=None, patches=()):
     """Write the run into `directory` and return its soak.json (argv and env hold {DIR})."""
     root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     if root not in sys.path:
@@ -111,9 +135,13 @@ def stage(directory, seconds, mix=MIXES):
 
     os.makedirs(directory, exist_ok=True)
     stager = CM.stager(
-        end_ms=int(seconds * 1000), timeline=soak_timeline(seconds, mix=mix)
+        end_ms=int(seconds * 1000),
+        timeline=soak_timeline(seconds, mix=mix),
+        config_overrides=config,
     )
     argv, env, _rhi = stager(directory)
+    for patch in patches:
+        apply_patch(directory, patch)
 
     def sub(text):
         return text.replace(directory, "{DIR}")
@@ -125,10 +153,25 @@ def stage(directory, seconds, mix=MIXES):
         },
         "seconds": seconds,
         "mix": list(mix),
+        "config": config or {},
     }
+    spec["env"].update(extra_env or {})
     with open(os.path.join(directory, "soak.json"), "w") as fh:
         json.dump(spec, fh, indent=1)
     return spec
+
+
+def parse_set(text):
+    """{key: value} from 'key=value,key=value'; each value is read as JSON (false, 1.5, "x"),
+    else kept as the string."""
+    out = {}
+    for pair in filter(None, text.split(",")):
+        key, _, raw = pair.partition("=")
+        try:
+            out[key] = json.loads(raw)
+        except ValueError:
+            out[key] = raw
+    return out
 
 
 def read_status(pid):
@@ -177,18 +220,39 @@ def sample_run(argv, env, seconds, every, out_dir):
             proc.wait()
     with open(os.path.join(out_dir, "samples.jsonl"), "w") as fh:
         fh.writelines(json.dumps(r) + "\n" for r in rows)
-    return {**summarise(rows, proc.returncode), "exercised": log_facts(log_path)}
+    out = {**summarise(rows, proc.returncode), "exercised": log_facts(log_path)}
+    swaps = out["exercised"]["swaps"]
+    if swaps and "cpu_s" in out:
+        out["cpu_ms_per_swap"] = round(1000 * out["cpu_s"] / swaps, 2)
+    return out
 
 
 def log_facts(path):
     """What the run's own output says it did: lines, el-marquee trace lines, whether RESULT
     printed. A flat memory trace means nothing if the board never ran (a silent harness)."""
     with open(path, errors="replace") as fh:
-        lines = fh.read().splitlines()
+        return log_facts_of(fh.read().splitlines())
+
+
+def log_facts_of(lines):
+    """log_facts over lines already read."""
+    kinds = {}
+    for line in lines:
+        head = line.split(" ", 1)[0].rstrip(":")[:40]
+        kinds[head] = kinds.get(head, 0) + 1
+    swaps = None
+    for line in lines:
+        if line.startswith("RESULT ") or " RESULT " in line:
+            try:
+                swaps = json.loads(line.split("RESULT ", 1)[1]).get("swaps")
+            except ValueError:
+                swaps = None
     return {
         "lines": len(lines),
         "trace": sum("el-marquee " in line for line in lines),
         "result": any("RESULT " in line for line in lines),
+        "swaps": swaps,
+        "kinds": dict(sorted(kinds.items(), key=lambda kv: -kv[1])[:6]),
     }
 
 
@@ -401,6 +465,60 @@ def _selftest():
         {e[3].get("urgency") for e in crit if e[1] == "arrive"},
         {1, 2},
     )
+    chk("the idle mix has no events at all", soak_timeline(10, 1500, mix=("idle",)), [])
+    with tempfile.TemporaryDirectory() as td:
+        with open(os.path.join(td, "f.qml"), "w") as fh:
+            fh.write("a: integrate()\n")
+        apply_patch(td, "f.qml:integrate()=>0")
+        with open(os.path.join(td, "f.qml")) as fh:
+            chk("a patch rewrites the staged file", fh.read(), "a: 0\n")
+        refused = []
+        for bad in ("f.qml:absent=>x", "f.qml:noarrow", "nofile.qml:a=>b"):
+            try:
+                apply_patch(td, bad)
+                refused.append(False)
+            except SystemExit:
+                refused.append(True)
+        chk(
+            "a patch that matches nothing or is malformed is refused",
+            refused,
+            [True] * 3,
+        )
+    chk(
+        "the frames swapped are read from the RESULT line, None when absent",
+        (
+            log_facts_of(['RESULT {"swaps": 120}'])["swaps"],
+            log_facts_of(["RESULT {}"])["swaps"],
+        ),
+        (120, None),
+    )
+    kinds = log_facts_of(["a: 1", "a: 2", "b x", "RESULT {}"])["kinds"]
+    chk(
+        "the log's line kinds are tallied, commonest first",
+        list(kinds.items())[:2],
+        [("a", 2), ("b", 1)],
+    )
+    with tempfile.TemporaryDirectory() as td:
+        env_spec = stage(os.path.join(td, "e"), 6, ("idle",), None, {"QT_X": "1"})
+        chk(
+            "an extra env name rides in the staged spec",
+            env_spec["env"].get("QT_X"),
+            "1",
+        )
+    chk(
+        "--set reads JSON values and keeps strings",
+        parse_set("showField=false,pitchScale=1.5,name=x"),
+        {"showField": False, "pitchScale": 1.5, "name": "x"},
+    )
+    with tempfile.TemporaryDirectory() as td:
+        idle_spec = stage(os.path.join(td, "i"), 6, ("idle",), {"showField": False})
+        with open(os.path.join(td, "i", "harness.qml")) as fh:
+            harness = fh.read()
+        chk(
+            "an idle staged run carries the override in its harness and no events",
+            ('"showField": false' in harness, idle_spec["config"]),
+            (True, {"showField": False}),
+        )
     chk(
         "mix long widens the body",
         len(soak_timeline(10, 1500, mix=("long",))[0][3]["body"])
@@ -420,36 +538,52 @@ def main(argv):
     if "--selftest" in args:
         return 0 if _selftest() else 1
     opts = {}
-    for flag in ("--seconds", "--every", "--mix"):
+    patches = []
+    while "--patch" in args:
+        i = args.index("--patch")
+        if i + 1 >= len(args):
+            print("marquee_soak: --patch needs a value", file=sys.stderr)
+            return 2
+        patches.append(args.pop(i + 1))
+        args.pop(i)
+    for flag in ("--seconds", "--every", "--mix", "--set", "--env"):
         if flag in args:
             i = args.index(flag)
             if i + 1 >= len(args):
                 print(f"marquee_soak: {flag} needs a value", file=sys.stderr)
                 return 2
             raw = args.pop(i + 1)
-            opts[flag] = raw if flag == "--mix" else float(raw)
+            opts[flag] = float(raw) if flag in ("--seconds", "--every") else raw
             args.pop(i)
     if len(args) != 2 or args[0] not in ("stage", "run"):
         print(
-            "usage: marquee_soak.py stage|run DIR [--seconds N] [--every S] [--mix a,b|none]",
+            "usage: marquee_soak.py stage|run DIR [--seconds N] [--every S] "
+            "[--mix a,b|none] [--set key=value,key=value]",
             file=sys.stderr,
         )
         return 2
     mix = MIXES
     if "--mix" in opts:
         mix = tuple(m for m in opts["--mix"].split(",") if m and m != "none")
-        unknown = [m for m in mix if m not in MIXES]
+        unknown = [m for m in mix if m not in KNOWN]
         if unknown:
             print(
-                f"marquee_soak: unknown mix {unknown}; known {MIXES}", file=sys.stderr
+                f"marquee_soak: unknown mix {unknown}; known {KNOWN}", file=sys.stderr
             )
             return 2
+    config = parse_set(opts.get("--set", ""))
+    key, _, value = opts.get("--env", "").partition("=")
+    extra_env = {key: value} if key else {}
+    if key and not any(key.startswith(p) for p in KEEP):
+        print(f"marquee_soak: --env {key} is outside {KEEP}", file=sys.stderr)
+        return 2
     directory = os.path.abspath(args[1])
     seconds = opts.get("--seconds", 120.0)
     if args[0] == "stage":
-        stage(directory, seconds, mix)
+        stage(directory, seconds, mix, config, extra_env, patches)
         print(
-            f"marquee_soak: staged {seconds:.0f} s, mix {list(mix)}, into {directory}"
+            f"marquee_soak: staged {seconds:.0f} s, mix {list(mix)}, "
+            f"set {config}, into {directory}"
         )
         return 0
     summary = run(directory, opts.get("--seconds"), opts.get("--every", 2.0))

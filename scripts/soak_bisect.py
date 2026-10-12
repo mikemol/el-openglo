@@ -32,11 +32,20 @@ FLAGS = {"--image", "--seconds", "--only", "--selftest"}
 
 
 def mixes(only=None):
-    """[(label, mix tuple)]: the baseline, each input alone, then all of them together."""
+    """[(label, mix tuple, settings)]: the baseline, an idle board (no events), each input alone,
+    all of them together, then the baseline under settings that change the BOARD (the ghost field
+    off, a larger pitch so fewer pips, a slower scroll)."""
     sys.path.insert(0, HERE)
     import marquee_soak as MS
 
-    rows = [("baseline", ())] + [(m, (m,)) for m in MS.MIXES] + [("all", MS.MIXES)]
+    rows = [("baseline", (), ""), ("idle", ("idle",), "")]
+    rows += [(m, (m,), "") for m in MS.MIXES]
+    rows += [("all", MS.MIXES, "")]
+    rows += [
+        ("noghost", (), "showField=false"),
+        ("bigpitch", (), "pitchScale=1.5"),
+        ("slow", (), "speed=1"),
+    ]
     return [r for r in rows if only is None or r[0] in only]
 
 
@@ -60,11 +69,13 @@ def row(label, s):
     )
 
 
-def run_one(label, mix, image, seconds):
+def run_one(label, mix, settings, image, seconds):
     with tempfile.TemporaryDirectory() as td:
         d = os.path.join(td, "s")
         stage = [os.path.join(HERE, "marquee_soak.py"), "stage", d]
         stage += ["--seconds", str(seconds), "--mix", ",".join(mix) or "none"]
+        if settings:
+            stage += ["--set", settings]
         subprocess.run([sys.executable, *stage], check=True, capture_output=True)
         pod = [os.path.join(HERE, "soak_pod.py"), d, "--image", image]
         pod += ["--seconds", str(seconds), "--name", f"soak-bisect-{label}"]
@@ -87,9 +98,15 @@ def _selftest():
 
     labels = [m[0] for m in mixes()]
     chk(
-        "the bisect covers a baseline, every input alone, and all together",
-        (labels[0], labels[-1], len(labels)),
-        ("baseline", "all", 9),
+        "the bisect covers a baseline, an idle board, every input alone, all together, "
+        "and three board settings",
+        (labels[:2], labels[-3:], len(labels)),
+        (["baseline", "idle"], ["noghost", "bigpitch", "slow"], 13),
+    )
+    chk(
+        "a settings row carries its override and no events change",
+        [m for m in mixes({"noghost"})],
+        [("noghost", (), "showField=false")],
     )
     chk("only= narrows the rows", [m[0] for m in mixes({"flash"})], ["flash"])
     log = 'noise\n{"samples": 3, "cpu_pct_mean": 12.5, "cpu_s": 4.0}\n---SAMPLES---\n'
@@ -130,8 +147,8 @@ def main(argv):
         return 2
     seconds = int(opts["--seconds"])
     done = 0
-    for label, mix in todo:
-        s = run_one(label, mix, opts["--image"], seconds)
+    for label, mix, settings in todo:
+        s = run_one(label, mix, settings, opts["--image"], seconds)
         done += s is not None
         print(row(label, s), flush=True)
     print(f"soak_bisect: {done} of {len(todo)} run(s) produced a summary")

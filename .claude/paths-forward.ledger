@@ -878,3 +878,5 @@
 2026-10-12T02:16:16Z  interrupt W518 minted    -         "Let a tool outside scripts/check_ be a gated selftest stage with a closure, then retire the two census exemptions (profile_shell, marquee_soak)"
 2026-10-12T02:38:45Z  interrupt W519 minted    -         "Soak the marquee with ticker-length text (about 228 characters, a 6004 px backdrop) and sample the qml process CPU as well as memory"  evidence=W515
 2026-10-12T03:12:19Z  interrupt W520 minted    -         "Bisect the pummel soak CPU: vary one input at a time (critical flash, replace, job gauge, long body, item count) in the Pod and name the costly path in the marquee"  evidence=W519
+2026-10-12T05:18:11Z  interrupt W521 minted    -         "Stop recomputing the per-pip ink colour on every frame: colour is a property of the painted run, so cache it per backdrop paint (E3 saves 37 percent CPU)"  evidence=W520
+2026-10-12T05:18:12Z  interrupt W522 minted    -         "Update only the pips whose coverage changed instead of reassigning the whole coverage array, so unchanged delegates re-evaluate nothing"  evidence=W520

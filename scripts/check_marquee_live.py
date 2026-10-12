@@ -305,6 +305,9 @@ import org.kde.notificationmanager as NM
 Window {
     id: harness
     width: 420; height: 40; visible: true; color: "%(ground)s"
+    // frames the window actually swapped: the soak divides the process's CPU by it (cost per frame)
+    property int swaps: 0
+    onFrameSwapped: swaps += 1
     property var plasmoid: QtObject { property var configuration: (%(config)s) }
     Loader {
         id: subject; anchors.fill: parent; source: "subject.qml"
@@ -480,7 +483,7 @@ Window {
                 // W208: the board px per pip, from the widget's own layout (advance = cols + 1 pips),
                 // so a frame's logged x converts to pips without the harness guessing a pitch
                 console.log("RESULT " + JSON.stringify({ events: events, samples: samples, width: harness.width, frames: harness.frameX, taps: harness.taps,
-                                                         pitch: s.charAdvance / (s.matrix.cols + 1) }));
+                                                         swaps: harness.swaps, pitch: s.charAdvance / (s.matrix.cols + 1) }));
                 Qt.quit();
             }
         }
@@ -643,18 +646,22 @@ def stager(
     grab_paused=None,
     frames=None,
     timeline=None,
+    config_overrides=None,
 ):
     """run()'s JOB as a stager: `stage(td) -> (argv, env, gpu)` writes every file
     the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS (W61): run()
     executes it and render_screens.output_keys digests it, so the screens key is
     over what the process is handed rather than a list of what it was believed to
-    read."""
+    read. `timeline=None` is the default timeline, an EMPTY list is an idle board
+    (no events); `config_overrides` sets settings over the harness defaults (the
+    soak's bisect varies them)."""
     import theme_probe as TP
 
     qml, config, ground, files = subject(hover_pause, variant)
+    config.update(config_overrides or {})
     timeline = [
         {"t": t, "op": op, "id": i, "fields": f, "shows": s}
-        for t, op, i, f, s in (timeline or TIMELINE)
+        for t, op, i, f, s in (TIMELINE if timeline is None else timeline)
     ]
 
     def stage(td):
