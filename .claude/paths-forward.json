@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 508,
+  "counter": 519,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -2443,7 +2443,7 @@
     {
       "symbol": "W121",
       "title": "MARQUEE GAINS THE HALO: qt_sandbox.popen(mesa=True) inside a caller-held kwin_session, and check_marquee_live defaults to the RHI on it, so the marquee stills/animation render with MultiEffect bloom (today EL_QUICK_BACKEND is never set in-tree, so the marquee has ALWAYS been software, no halo)",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W98"
       ],
@@ -2458,7 +2458,7 @@
       "issued_at": "2026-09-28T19:52:36Z",
       "minted_during": "interrupt",
       "caused_by": "W108",
-      "last_worked": "2026-10-12T00:46:53Z",
+      "last_worked": "2026-10-12T01:18:44Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -5171,7 +5171,7 @@
     {
       "symbol": "W235",
       "title": "Guest image recipe: oci/guest/ mmdebstrap + containerDisk, refusing an unpinned snapshot (guest-image.md W71c)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W240",
         "luthen-observability:W127"
@@ -5180,14 +5180,16 @@
         "guest-image",
         "oci"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Build once as a systemd-run --user service (MemoryMax=8G, no swap, prlimit cpu 7200): mmdebstrap per --plan into guest.raw, qemu-img convert, buildctl with --metadata-file; record catalog/guest-image.json (adopted:false). If mmdebstrap/unshare is unavailable here, ask luthen for a builder (cite W235).",
-      "evidence": "2026-10-02: 2026-10-02: oci/guest/recipe.json (trixie, snapshot 20260920T000000Z via snapshot.debian.org, minbase, (e) package set no-recommends, absent set incl python3), customize.sh (apt install ./deb, el-openglo-plymouth, baloo/zram/initramfs trims, probe user, /etc/el-openglo-guest.json), Containerfile (FROM scratch, /disk/guest.qcow2 107:107); check_guest_recipe + policy/guest_recipe R0-R4 (opa 17/17), gate admitted, selftest sees latest/empty/None/dashed snapshots, a live mirror and a forbidden package; @GUEST-RECIPE warrant; guest-image.md G4 updated | 2026-10-02: 2026-10-02: build attempted to start: which -> no mmdebstrap, no qemu-img on this host (buildctl, unshare present). Asked luthen-observability (live) for a guest-image builder runner shaped like checks.serial_writer, to mint a waypoint --enables el-openglo:W235; replace this bare repo block with their symbol when they reply. | 2026-10-02: 2026-10-02: luthen minted luthen-observability:W286 (guest-image builder runner, serial_writer-shaped; mmdebstrap + qemu-img inside a BuildKit stage, no host root) with --enables el-openglo:W235; block re-cited.",
+      "blocked_on": [
+        "luthen-observability:W163"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Re-scoped 2026-10-12 to option b: the guest-VM track waits behind luthen-observability:W163 (TTL reaper, itself behind the Gentoo base W41). The near-term path is the offscreen Pod soak (W515, W516, luthen W841). Resume the guest image recipe build when W163 ships",
+      "evidence": "2026-10-02: 2026-10-02: oci/guest/recipe.json (trixie, snapshot 20260920T000000Z via snapshot.debian.org, minbase, (e) package set no-recommends, absent set incl python3), customize.sh (apt install ./deb, el-openglo-plymouth, baloo/zram/initramfs trims, probe user, /etc/el-openglo-guest.json), Containerfile (FROM scratch, /disk/guest.qcow2 107:107); check_guest_recipe + policy/guest_recipe R0-R4 (opa 17/17), gate admitted, selftest sees latest/empty/None/dashed snapshots, a live mirror and a forbidden package; @GUEST-RECIPE warrant; guest-image.md G4 updated | 2026-10-02: 2026-10-02: build attempted to start: which -> no mmdebstrap, no qemu-img on this host (buildctl, unshare present). Asked luthen-observability (live) for a guest-image builder runner shaped like checks.serial_writer, to mint a waypoint --enables el-openglo:W235; replace this bare repo block with their symbol when they reply. | 2026-10-02: 2026-10-02: luthen minted luthen-observability:W286 (guest-image builder runner, serial_writer-shaped; mmdebstrap + qemu-img inside a BuildKit stage, no host root) with --enables el-openglo:W235; block re-cited. | 2026-10-12: 2026-10-12: why this waits on luthen-observability:W94 side: no guest VM can run until VMI rights return (luthen reaper W163 blocked on the Gentoo base W41), so the guest image has no consumer yet; the qt-stage Pod soak (W516, W517) is the near-term repro route and needs no guest image. Re-scoped, not dropped",
       "issued_at": "2026-10-02T15:43:01Z",
       "minted_during": "interrupt",
       "caused_by": "W71",
-      "last_worked": "2026-10-06T01:51:12Z",
+      "last_worked": "2026-10-12T02:22:10Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
@@ -6077,7 +6079,6 @@
         "check_marquee_live"
       ],
       "blocked_on": [
-        "W502",
         "W503"
       ],
       "blocked_kind": "agent",
@@ -6086,7 +6087,7 @@
       "issued_at": "2026-10-04T02:19:17Z",
       "minted_during": "interrupt",
       "caused_by": "W271",
-      "last_worked": "2026-10-11T17:19:45Z",
+      "last_worked": "2026-10-12T02:13:40Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -12169,6 +12170,230 @@
       "issued_at": "2026-10-11T21:54:25Z",
       "minted_during": "interrupt",
       "caused_by": "mtools:W954",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W509",
+      "title": "Ask luthen to add perf and pidstat (sysstat) to the host profiling set; el-openglo uses them to profile plasmashell under the marquee",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        "marquee-main"
+      ],
+      "blocked_on": [
+        "luthen-observability:W837"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Wait for luthen-observability:W837 (perf + pidstat in the @luthen set, rides the next operator host apply); then profile plasmashell per function with perf",
+      "evidence": "",
+      "issued_at": "2026-10-12T01:12:28Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-12T01:13:17Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W510",
+      "title": "Read the overnight plasmashell profile (profile_shell --report) against the marquee trace and name the thread and cause of the slowdown",
+      "status": "working",
+      "enables": [],
+      "touches": [
+        "marquee-main",
+        "check_marquee_host"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Work W515 (reproduce the Shmem burst in the harness under MemoryMax), then trace the Shmem source: Canvas image buffers, grabToImage, the backdrop at 6004x32 resized per paint; and the CPU cause: the idle/ticker repaint loop",
+      "evidence": "2026-10-12: profile_shell over 66 samples (~5.5 min): plasmashell GUI thread mean 90.6 pct and led all 66; no render thread above the 1 pct floor; rss 626 to 657 MB. So the cost is JS or bindings on the GUI thread, not the scene graph | 2026-10-12: Operator 2026-10-12: the widget ate all RAM then all swap, recovered on kill. Measured after: plasmashell rss peaked at 709 MB over 375 samples, never runaway, so the sampled run does not show the widget growing. Host holders now (profile_shell --holders): 13 bazel server JVMs hold the memory, swap 65535 of 65535 MB, free 113 of 128 GB used; paperkit server 12.5 GB in swap. el-openglo server 36 MB. Reported to github-8f. Cannot yet attribute the operators blowup to the widget or to the servers | 2026-10-12: Operator removed the widget about 2026-10-12 01:45 UTC: plasmashell CPU fell from about 90 pct to about 2 pct by difference of the report means (395 samples mean 79.3 vs 375 samples mean 83.4 gives about 2.4 pct over the last 20 samples). That is a clean on-off result: the widget is the CPU cause. Memory is not explained by plasmashell rss (peak 709 MB) and host memory is still 118 of 128 GB used with swap full, held by bazel JVMs | 2026-10-12: luthen series (luthen-observability:W838): memory burst 01:20 to 01:35Z 2026-10-12, about 60 GB in 15 min, swap 33.5 to 68.7 GB, Shmem 13.5 to 19.7 GB, zram0 filled to its cap; plasmashell current process swap only 122 MB (restarted). Shmem is the telling counter. Operator and luthen: do not re-enable the widget on the live desktop until the growth reproduces under a cgroup memory limit (W515)",
+      "issued_at": "2026-10-12T01:12:42Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-12T02:22:10Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W511",
+      "title": "The marquee falls back to ? for characters outside the registry font: wire arbitrary glyphs (Unifont via the viewport) so the board absorbs them",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "marquee-main",
+        "marquee-body"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Umbrella: work W512 first (the rasteriser rule, parity-checked on registry glyphs), then W513, then W514; the painter then falls back to the memoised raster instead of the question mark",
+      "evidence": "2026-10-12: Operator 2026-10-12: the matrix font is not meant to be uppercase and digits only; it should absorb more arbitrary glyphs. Existing pieces: W47 (done, folded into W54) gave ApertureField backdropRows and offsetY and read Unifont 1:1 through a 16-row backdrop; W30 is the font compiler; W26 authored the 5x8 descender table. The painter still takes only registry glyphs via Body.glyphFor, whose last fallback is the question mark | 2026-10-12: Operator 2026-10-12: the registry lacks almost the whole Unicode set, so measuring the missing set is moot. Design: render on demand and memoise, with pre-rendering from system locale settings. Atomized into W512 (one rasteriser rule), W513 (memo cache), W514 (locale prewarm). Risk: an on-demand Canvas render runs on the GUI thread, which W510 shows already saturated, so the memo must make a miss a one-time cost",
+      "issued_at": "2026-10-12T01:19:20Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-12T01:23:38Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W512",
+      "title": "One glyph rasteriser rule shared by Python and QML: a font glyph becomes 5x8 (or 8x16) column bytes by one threshold rule, parity-checked on the registry glyphs",
+      "status": "ready",
+      "enables": [
+        "W511"
+      ],
+      "touches": [
+        "marquee-body",
+        "display_types"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T01:23:33Z",
+      "minted_during": "interrupt",
+      "caused_by": "W511",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W513",
+      "title": "Memoise rendered glyphs on demand: key (codepoint, font, cell size, rule version), miss renders once, the table persists across plasmashell restarts",
+      "status": "ready",
+      "enables": [
+        "W511"
+      ],
+      "touches": [
+        "marquee-main",
+        "marquee-body"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Decide in-process time-sliced versus helper process by measuring one page render cost under the Canvas route (after W512 fixes the rule), then implement the miss-first-then-page queue with the budget",
+      "evidence": "2026-10-12: Operator suggestion 2026-10-12: render the missed glyph first so its paint unblocks, then the whole page it belongs to, since one pulled glyph predicts more. Analysis: sound (demand paging with readahead). Page = an aligned Unicode block of 256 code points, clipped to what the font covers, so a CJK block costs one page not twenty thousand glyphs. The miss renders synchronously and alone, the rest of its page in a queue time-sliced to a per-frame budget so no frame is blocked, pages deduplicated while in flight, a cap on queued pages, and the page persisted as one unit. Open choice: render in the GUI thread time-sliced, or in a helper process (Python and FreeType) that writes the table the widget loads, which is the only truly off-path option. W510 says the GUI thread has no slack, which favours the helper",
+      "issued_at": "2026-10-12T01:23:33Z",
+      "minted_during": "interrupt",
+      "caused_by": "W511",
+      "last_worked": "2026-10-12T01:26:29Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W514",
+      "title": "Pre-render glyph tables from the system locale: map LANG and the installed scripts to Unicode blocks and ship their tables through the font compiler (W30)",
+      "status": "ready",
+      "enables": [
+        "W511"
+      ],
+      "touches": [
+        "display_types",
+        "make_font"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T01:23:34Z",
+      "minted_during": "interrupt",
+      "caused_by": "W511",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W515",
+      "title": "Reproduce the marquee memory burst under a MemoryMax cgroup: a long marquee harness run on the RHI and software paths, sampling Shmem and swap, never on the live desktop",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_marquee_live",
+        "marquee-main"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Atomized: soak runner (new card) then Pod submission (new card); ask luthen to build the qt stage as a runnable image if the Containerfile has no such target",
+      "evidence": "2026-10-12: Operator 2026-10-12: the KVM/k8s route is the repro path. State of it: inbox 2026-10-04 luthen says VMI create is withheld from throwaway-el-openglo until the reaper ships (luthen-observability:W163, tracked as W126), while Pods are allowed (TTL annotation, activeDeadlineSeconds at most 1800). W70 is the open VM harness card, blocked on luthen-observability:W127; W71 (guest image) is ours. Shmem growth is the signature, and Qt Canvas buffers in the offscreen software harness are heap not Shmem, so only a real Wayland client path reproduces Shmem faithfully | 2026-10-12: luthen 2026-10-12: VMI rights stay withheld (reaper W163 blocked on the Gentoo native base W41), so no guest VM yet; do the offscreen Pod soak first. Read images/qml-check/Containerfile in luthen-observability: stage qt (Ubuntu resolute, qt6-declarative-dev-tools, qml6 modules, QtQuick.Effects, libplasma7, plasma-workspace, python3) carries qml and the Qt offscreen platform; its final stage is FROM scratch for exports, so a runnable Pod image needs the qt stage as target, which luthen builds. Software scene graph needs no GL. Host is memory tight: soak limit a few GiB at most, short run",
+      "issued_at": "2026-10-12T01:46:36Z",
+      "minted_during": "interrupt",
+      "caused_by": "luthen-observability:W838",
+      "last_worked": "2026-10-12T01:50:16Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W516",
+      "title": "Marquee soak runner: stage the harness and a rss/RssShmem sampler into one directory the qml-check image runs, results to out",
+      "status": "done",
+      "enables": [
+        "W515"
+      ],
+      "touches": [
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: scripts/marquee_soak.py: stage (host, reuses check_marquee_live stager, arrive/expire cycles) and run (stdlib only, samples VmRSS/RssShmem/RssAnon to samples.jsonl and summary.json); selftest 7 arms pass incl. growth and flat children with touched bytes; census exempt with reason, gating retired by W518",
+      "issued_at": "2026-10-12T01:50:15Z",
+      "minted_during": "interrupt",
+      "caused_by": "W515",
+      "last_worked": "2026-10-12T02:16:22Z",
+      "ticks_blocked": 0,
+      "completed": "20261012T021622Z"
+    },
+    {
+      "symbol": "W517",
+      "title": "Submit the marquee soak to throwaway-el-openglo as a Pod with a 2 GiB limit and TTL, and read its samples back",
+      "status": "done",
+      "enables": [
+        "W515"
+      ],
+      "touches": [
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Next soak (new card): long-text items near 228 characters so the backdrop is 6004 wide, plus CPU time of the qml process, to reproduce the 90 pct GUI-thread cost",
+      "evidence": "2026-10-12: scripts/soak_pod.py submits the staged soak as a ConfigMap plus Pod to throwaway-el-openglo on localhost/qml-check-qt:built (imagePullPolicy Never). Admission learnt: per-container memory max is 1Gi (2Gi refused), TTL annotation luthen.io/ttl-seconds, deadline at most 1800. Result 2026-10-12, 330 s, 1620 trace lines so the board ran: VmRSS 131 MB at 2 s to 147 MB at 328 s, RssAnon 72 to 88 MB, RssShmem 0 throughout; no runaway in the offscreen software path with short synthetic items. RESULT never printed before the sampler killed it at 330 s (rc -9). Limits: no compositor so no Shmem, and the soak items are short whereas the live ticker held about 228 characters (backdrop 6004 px)",
+      "issued_at": "2026-10-12T01:50:15Z",
+      "minted_during": "interrupt",
+      "caused_by": "W515",
+      "last_worked": "2026-10-12T02:38:44Z",
+      "ticks_blocked": 0,
+      "completed": "20261012T023844Z"
+    },
+    {
+      "symbol": "W518",
+      "title": "Let a tool outside scripts/check_ be a gated selftest stage with a closure (profile_shell, marquee_soak, soak_pod run by hand today)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_closure",
+        "BUILD"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-10-12: Census refused the two exemptions (N3): whole-tree stages already name every tracked file, so exemption was unnecessary and is dropped. What remains is that these three tools selftests are not gated stages",
+      "issued_at": "2026-10-12T02:16:16Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-12T02:39:03Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W519",
+      "title": "Soak the marquee with ticker-length text (about 228 characters, a 6004 px backdrop) and sample the qml process CPU as well as memory",
+      "status": "ready",
+      "enables": [
+        "W515"
+      ],
+      "touches": [
+        "check_marquee_live",
+        "marquee-main"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T02:38:45Z",
+      "minted_during": "interrupt",
+      "caused_by": "W515",
       "last_worked": null,
       "ticks_blocked": 0
     }

@@ -864,3 +864,16 @@
 2026-10-11T21:54:25Z  interrupt W508 minted    -         "Adopt isolated mikemol-commit: pre-commit and gate resolve tools via MIKEMOL_REAL_ROOT; verify one commit prints path: isolated"  evidence=github-8f:W954
 2026-10-11T21:59:46Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:0b175c8589a2cbc3; the FILE wins"
 2026-10-12T00:44:09Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:6ecf5ee669475187; the FILE wins"
+2026-10-12T01:12:28Z  interrupt W509 minted    -         "Ask luthen to add perf and pidstat (sysstat) to the host profiling set; el-openglo uses them to profile plasmashell under the marquee"
+2026-10-12T01:12:42Z  interrupt W510 minted    -         "Read the overnight plasmashell profile (profile_shell --report) against the marquee trace and name the thread and cause of the slowdown"
+2026-10-12T01:18:14Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:b3b3222f38b99209; the FILE wins"
+2026-10-12T01:19:20Z  interrupt W511 minted    -         "The marquee draws ? for characters its 5x8 matrix charset lacks: name the missing set and cover it"
+2026-10-12T01:23:33Z  interrupt W512 minted    -         "One glyph rasteriser rule shared by Python and QML: a font glyph becomes 5x8 (or 8x16) column bytes by one threshold rule, parity-checked on the registry glyphs"  evidence=W511
+2026-10-12T01:23:33Z  interrupt W513 minted    -         "Memoise rendered glyphs on demand: key (codepoint, font, cell size, rule version), miss renders once, the table persists across plasmashell restarts"  evidence=W511
+2026-10-12T01:23:34Z  interrupt W514 minted    -         "Pre-render glyph tables from the system locale: map LANG and the installed scripts to Unicode blocks and ship their tables through the font compiler (W30)"  evidence=W511
+2026-10-12T01:43:41Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:3a1d68b626d6599f; the FILE wins"
+2026-10-12T01:46:36Z  interrupt W515 minted    -         "Reproduce the marquee memory burst under a MemoryMax cgroup: a long marquee harness run on the RHI and software paths, sampling Shmem and swap, never on the live desktop"  evidence=luthen-observability:W838
+2026-10-12T01:50:15Z  interrupt W516 minted    -         "Marquee soak runner: stage the harness and a rss/RssShmem sampler into one directory the qml-check image runs, results to out"  evidence=W515
+2026-10-12T01:50:15Z  interrupt W517 minted    -         "Submit the marquee soak to throwaway-el-openglo as a Pod with a 2 GiB limit and TTL, and read its samples back"  evidence=W515
+2026-10-12T02:16:16Z  interrupt W518 minted    -         "Let a tool outside scripts/check_ be a gated selftest stage with a closure, then retire the two census exemptions (profile_shell, marquee_soak)"
+2026-10-12T02:38:45Z  interrupt W519 minted    -         "Soak the marquee with ticker-length text (about 228 characters, a 6004 px backdrop) and sample the qml process CPU as well as memory"  evidence=W515
