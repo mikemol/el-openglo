@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 524,
+  "counter": 525,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -2453,12 +2453,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "popen mesa route landed (caller-held kwin_session, session=); _run_until_result(mesa=True) opt-in. Next: measure each marquee check on the RHI path against its software calibration, then flip the default (one sub-card) and render the halo into marquee stills",
-      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition.",
+      "next_bounded_step": "Work the RHI difference card (kerning K1 and urgency V9 on the RHI), then flip the default only when every marquee check admits on both paths",
+      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition. | 2026-10-12: 2026-10-12: check_marquee_live now has BACKEND (EL_MARQUEE_RHI=1 or --rhi) running the SAME harness on the RHI inside a held kwin; default stays software. Measured on the RHI with the real policies: marquee_live admitted (0 deny), symmetry admitted, kerning DENIED K1 x3 (EL-Openglo bold under deuteranomaly, protanomaly, tritanomaly: interior run 3 is 7 columns, wider than a 5-column glyph plus 1 bloom), urgency_cues DENIED V9 (the hover-pause never held the board: pausability not measured). So the RHI is not yet a drop-in default: the two differences are the next cards, not a flip",
       "issued_at": "2026-09-28T19:52:36Z",
       "minted_during": "interrupt",
       "caused_by": "W108",
-      "last_worked": "2026-10-12T01:18:44Z",
+      "last_worked": "2026-10-12T09:24:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -12504,6 +12504,27 @@
       "last_worked": "2026-10-12T08:56:16Z",
       "ticks_blocked": 0,
       "completed": "20261012T085616Z"
+    },
+    {
+      "symbol": "W525",
+      "title": "Explain why the marquee measurements differ on the RHI: kerning K1 (bold interior run of 7 columns under CVD) and urgency V9 (hover-pause not measured) deny there and admit on software",
+      "status": "working",
+      "enables": [
+        "W121"
+      ],
+      "touches": [
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T09:24:57Z",
+      "minted_during": "interrupt",
+      "caused_by": "W121",
+      "last_worked": "2026-10-12T09:25:04Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [

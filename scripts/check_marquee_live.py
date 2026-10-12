@@ -577,6 +577,12 @@ LOOP_TIMELINE = [
 ]
 
 
+# W121: which scene graph the harness runs on. Software by default (every calibration in this file was
+# measured there); `--rhi` sets mesa, which runs the same harness on the RHI inside a held kwin so the
+# halo's MultiEffect renders. A module-level switch because run() is called from a dozen places.
+BACKEND = {"mesa": os.environ.get("EL_MARQUEE_RHI") == "1"}
+
+
 def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, mesa=False):
     """Run the harness; the measurement is COMPLETE at its RESULT line.
 
@@ -751,7 +757,7 @@ def run(
     )
     with tempfile.TemporaryDirectory() as td:
         argv, env, _rhi = stage(td)
-        r = _run_until_result(argv, env)
+        r = _run_until_result(argv, env, mesa=BACKEND["mesa"])
     log = [
         l.split("el-marquee ", 1)[1]
         for l in (r.stdout + r.stderr).splitlines()
@@ -1022,9 +1028,13 @@ def main(argv):
         "--selftest",
         "--event",
         "--frames",
+        "--rhi",
     }
     variant = VARIANT
     args = list(argv[1:])
+    if "--rhi" in args:
+        BACKEND["mesa"] = True
+        args.remove("--rhi")
     event_id = None
     if "--event" in args:
         i = args.index("--event")
@@ -1328,6 +1338,11 @@ def _selftest():
     # RHI path (wayland, software GL) the halo needs; the software default is what every other arm ran
     import shutil
 
+    chk(
+        "the harness defaults to the software scene graph (--rhi switches it)",
+        BACKEND["mesa"],
+        False,
+    )
     if shutil.which(QT.KWIN):
         probe = [
             sys.executable,

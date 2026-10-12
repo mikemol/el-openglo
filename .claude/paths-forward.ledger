@@ -884,3 +884,5 @@
 2026-10-12T07:32:37Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:88b38d69323420d9; the FILE wins"
 2026-10-12T08:36:38Z  interrupt W524 minted    -         "Add the mikemol-fence dist to the mikemol pins at f04f0a2 with both extras synced, so mikemol-commit prints lock: held (github-8f, mtools:W1038)"
 2026-10-12T08:56:41Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:9b7cd9e7afd5703a; the FILE wins"
+2026-10-12T09:19:38Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:95f353e2d0c6e590; the FILE wins"
+2026-10-12T09:24:57Z  interrupt W525 minted    -         "Explain why the marquee measurements differ on the RHI: kerning K1 (bold interior run of 7 columns under CVD) and urgency V9 (hover-pause not measured) deny there and admit on software"  evidence=W121
