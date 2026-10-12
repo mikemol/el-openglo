@@ -892,3 +892,5 @@
 2026-10-12T10:57:18Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:9026d29d12c416a4; the FILE wins"
 2026-10-12T10:58:10Z  interrupt W527 minted    -         "Make K1 phase-robust: judge the gap column brightness against the stroke (graded, not binarised to the stills own peak) over the stepped frames of one full phase cycle, and explain the 18 to 45 column runs past frame 22"  evidence=W526
 2026-10-12T11:27:41Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:b27ee49a9d188f53; the FILE wins"
+2026-10-12T11:57:51Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:dc8d10e22e78c4ba; the FILE wins"
+2026-10-12T12:02:40Z  interrupt W528 minted    -         "Bold marquee text garbles at some scroll phases: stepped frames 23, 24 and 26 show an 18-column fused stroke group in every view, with the template before and after W521 to W523 alike"  evidence=W527

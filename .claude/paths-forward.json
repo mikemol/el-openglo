@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 527,
+  "counter": 528,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -12570,14 +12570,35 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Add the graded gap fact to check_kerning (per-column peak profile over rows, boundaries at the 6-pip advance with the best phase, gap peak over stroke peak per boundary, per view), measure it on stepped frames 8 to 40 under software and RHI, read the distribution, then state K1 as a bound in rego",
-      "evidence": "2026-10-12: 2026-10-12 the 18 to 45 column runs explained (kept frames, lit column profiles at frames 17 to 19). At frame 18 (x=138.6) the pip image is a half-pip phase: every glyph column is split across two pips, no pip is fully lit, the gray view binarises to the stills own peak and keeps only faint scattered columns, while the colour-vision views (a different peak and threshold) keep nearly every pip and fuse the text into 18, 30 and 45 column runs. Frames 17 and 19 (aligned) give identical, clean profiles in both views. So the runs are not a defect in the board, they are the binarisation applied to a uniformly half-covered still: a binary lit-run measure is phase-fragile by construction. That settles the measure: K1 needs a graded fact, the brightness of the gap pip next to a stroke pip, judged per letter boundary at the known 6-pip advance",
+      "next_bounded_step": "Replace the valley fact with the stroke-group width in gap_facts (worst interior group per view and style over frames 8 to 22), keep the valley ratio as a reported secondary, state K4 as group width at most glyph plus bloom in rego with tests, then handle the bold garble card before extending the sweep to frame 24",
+      "evidence": "2026-10-12: 2026-10-12 the 18 to 45 column runs explained (kept frames, lit column profiles at frames 17 to 19). At frame 18 (x=138.6) the pip image is a half-pip phase: every glyph column is split across two pips, no pip is fully lit, the gray view binarises to the stills own peak and keeps only faint scattered columns, while the colour-vision views (a different peak and threshold) keep nearly every pip and fuse the text into 18, 30 and 45 column runs. Frames 17 and 19 (aligned) give identical, clean profiles in both views. So the runs are not a defect in the board, they are the binarisation applied to a uniformly half-covered still: a binary lit-run measure is phase-fragile by construction. That settles the measure: K1 needs a graded fact, the brightness of the gap pip next to a stroke pip, judged per letter boundary at the known 6-pip advance | 2026-10-12: 2026-10-12 graded measures tried on stepped frames 8 to 24 (scratch kern_graded.py). (a) Valley ratio (gap pip over the lower neighbouring stroke): regular text 0.0 at aligned phases and up to 0.66 gray / 0.78 CVD at others; bold up to 0.91 in the CVD views, 0.66 gray; a fused pair has NO valley, so the valley alone cannot catch it (it scores 0). (b) Stroke-group width (columns at or above 0.6 of the stills peak, interior groups): regular 4 or 5, bold 5 or 6, IDENTICAL in all four views, at every phase from frame 8 to 22; a fused pair blows it out. So the stable graded fact is the stroke-group width, and the valley ratio is secondary. Frames 23, 24 and 26 show an 18-column group for BOLD in the views (frame 23 in all four): a real garbled render, unchanged with the template before W521 (8bc17e4) and with the W523 skip disabled, so not mine: minted as the bold garble card. Built in the tree and NOT yet committed: valley_ratios and gap_facts in check_urgency_cues, a measure that returns gaps in check_kerning (staged only in scratch ck.py, not installed)",
       "issued_at": "2026-10-12T10:58:10Z",
       "minted_during": "interrupt",
       "caused_by": "W526",
-      "last_worked": "2026-10-12T11:28:14Z",
+      "last_worked": "2026-10-12T12:02:40Z",
       "ticks_blocked": 0,
       "completed": null
+    },
+    {
+      "symbol": "W528",
+      "title": "Bold marquee text garbles at some scroll phases: stepped frames 23, 24 and 26 show an 18-column fused stroke group in every view, with the template before and after W521 to W523 alike",
+      "status": "ready",
+      "enables": [
+        "W527"
+      ],
+      "touches": [
+        "marquee-main",
+        "ApertureField"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T12:02:40Z",
+      "minted_during": "interrupt",
+      "caused_by": "W527",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
