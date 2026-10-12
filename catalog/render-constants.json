@@ -7,6 +7,7 @@
     "offset": "STATE",
     "gamma": "OPEN:W268",
     "colourFromInk": "MOUNT",
+    "cov": "STATE",
     "ringOpacity": "STATE",
     "sizing": "STATE",
     "backdropWidth": "STATE"

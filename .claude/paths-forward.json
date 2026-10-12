@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 522,
+  "counter": 523,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -12423,6 +12423,49 @@
     {
       "symbol": "W521",
       "title": "Stop recomputing the per-pip ink colour on every frame: colour is a property of the painted run, so cache it per backdrop paint (E3 saves 37 percent CPU)",
+      "status": "done",
+      "enables": [
+        "W510"
+      ],
+      "touches": [
+        "ApertureField",
+        "marquee-main"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: templates/ApertureField.qml integrate(): the three colour sums run only for a pip with ink (sum above 0), same arithmetic and order so the colour is bit-identical. Soak 60 s, 3683 frames: 17.86 ms CPU per frame versus 19.13 before, only 6.6 pct: the arithmetic on dark pips was not the main cost, the delegate bindings were (see W522)",
+      "issued_at": "2026-10-12T05:18:11Z",
+      "minted_during": "interrupt",
+      "caused_by": "W520",
+      "last_worked": "2026-10-12T06:32:09Z",
+      "ticks_blocked": 0,
+      "completed": "20261012T063209Z"
+    },
+    {
+      "symbol": "W522",
+      "title": "Update only the pips whose coverage changed instead of reassigning the whole coverage array, so unchanged delegates re-evaluate nothing",
+      "status": "done",
+      "enables": [
+        "W510"
+      ],
+      "touches": [
+        "ApertureField"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: templates/ApertureField.qml: pip delegates hold cov and ink as plain properties and integrate() writes only those that differ (Repeater id pips, itemAt); coverage and inkColour stay assigned for whole-array readers. Soak 60 s Pod, 3684 frames: 14.66 ms CPU per frame versus 19.13 before (23 pct), total 54.0 CPU s versus 70.5; screens pixel-identical (render_screens left catalog/library unchanged); qml_lint and marquee_live admit. Remaining cost per frame: the integrate arithmetic, the itemAt sweep, lit-pip writes and the software render. Colour-from-ink off measured 12.1 ms per frame as the floor for the colour table",
+      "issued_at": "2026-10-12T05:18:12Z",
+      "minted_during": "interrupt",
+      "caused_by": "W520",
+      "last_worked": "2026-10-12T06:32:10Z",
+      "ticks_blocked": 0,
+      "completed": "20261012T063210Z"
+    },
+    {
+      "symbol": "W523",
+      "title": "Cut the ApertureField per-frame cost further: skip the itemAt sweep over unchanged columns, and measure integrate() against the lit-pip write and render share",
       "status": "working",
       "enables": [
         "W510"
@@ -12435,32 +12478,12 @@
       "blocked_kind": null,
       "next_bounded_step": "",
       "evidence": "",
-      "issued_at": "2026-10-12T05:18:11Z",
+      "issued_at": "2026-10-12T06:32:10Z",
       "minted_during": "interrupt",
-      "caused_by": "W520",
-      "last_worked": "2026-10-12T05:18:16Z",
+      "caused_by": "W522",
+      "last_worked": "2026-10-12T06:32:14Z",
       "ticks_blocked": 0,
       "completed": null
-    },
-    {
-      "symbol": "W522",
-      "title": "Update only the pips whose coverage changed instead of reassigning the whole coverage array, so unchanged delegates re-evaluate nothing",
-      "status": "ready",
-      "enables": [
-        "W510"
-      ],
-      "touches": [
-        "ApertureField"
-      ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-12T05:18:12Z",
-      "minted_during": "interrupt",
-      "caused_by": "W520",
-      "last_worked": null,
-      "ticks_blocked": 0
     }
   ],
   "residue": [

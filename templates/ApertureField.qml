@@ -144,13 +144,16 @@ Item {
             for (var r = 0; r < rows; r++) {
                 var sum = 0, sr = 0, sg = 0, sb = 0;
                 var y0 = Math.max(0, r * s + oy), y1 = Math.min(h, (r + 1) * s + oy);
-                if (b > a) for (var yy = y0; yy < y1; yy++) {
-                    sum += prefix[yy][b] - prefix[yy][a];
-                    if (colourFromInk) {
-                        sr += prefixRGB[yy][0][b] - prefixRGB[yy][0][a];
-                        sg += prefixRGB[yy][1][b] - prefixRGB[yy][1][a];
-                        sb += prefixRGB[yy][2][b] - prefixRGB[yy][2][a];
-                    }
+                if (b > a) for (var yy = y0; yy < y1; yy++) sum += prefix[yy][b] - prefix[yy][a];
+                // ⚑ THE INK'S COLOUR ONLY WHERE THERE IS INK (W521): most pips are dark, and the
+                // three colour sums cost three more nested lookups per backdrop row for each of
+                // them, every frame (measured in the soak: colourFromInk off saved 37 % of the
+                // CPU). The sums and their order are unchanged for a pip that has ink, so the
+                // colour it gets is bit-identical.
+                if (colourFromInk && sum > 0) for (var yc = y0; yc < y1; yc++) {
+                    sr += prefixRGB[yc][0][b] - prefixRGB[yc][0][a];
+                    sg += prefixRGB[yc][1][b] - prefixRGB[yc][1][a];
+                    sb += prefixRGB[yc][2][b] - prefixRGB[yc][2][a];
                 }
                 cov[r * cols + c] = gamma === 1.0 ? sum / area : Math.pow(sum / area, gamma);
                 if (colourFromInk) col[r * cols + c] = sum > 0 ? Qt.rgba(sr / sum / 255, sg / sum / 255, sb / sum / 255, 1) : litColor;
@@ -158,6 +161,22 @@ Item {
         }
         coverage = cov;
         if (colourFromInk) inkColour = col;
+        // ⚑ ONLY THE PIPS THAT CHANGED ARE WRITTEN (W522). The delegates used to BIND to the two
+        // arrays above, so every new array made all of them (1064 on a marquee) re-evaluate their
+        // coverage and colour bindings whether or not their own value moved: with the colour table
+        // that was 37 % of the CPU and the whole of the GUI-thread cost (soak, 2026-10-12: 19 ms of
+        // CPU per frame, over one core at 60 fps). Now each delegate holds `cov` and `ink` as plain
+        // properties, set here only when they differ; a dark pip that stays dark is not touched.
+        // `coverage` and `inkColour` stay assigned for the readers that take them whole.
+        for (var i = 0; i < cov.length; i++) {
+            var pip = pips.itemAt(i);
+            if (!pip) continue;
+            if (pip.cov !== cov[i]) pip.cov = cov[i];
+            if (col) {
+                var want = cov[i] > 0 ? col[i] : null;
+                if (want !== null || pip.ink !== null) pip.ink = want;
+            }
+        }
     }
     onOffsetChanged: integrate()
     onOffsetYChanged: integrate()
@@ -165,11 +184,20 @@ Item {
     onGammaChanged: integrate()
 
     Repeater {
+        id: pips
         model: field.rows * field.cols
         Item {
+            id: pip
             readonly property int col: index % field.cols
             readonly property int row: Math.floor(index / field.cols)
-            readonly property real cov: field.coverage[index] || 0
+            // set by field.integrate() when it changes, never bound (W522); the ink's colour is
+            // null for a pip with none, which draws in litColor
+            property real cov: 0
+            property var ink: null
+            Component.onCompleted: {
+                cov = field.coverage[index] || 0;
+                ink = (field.colourFromInk && field.inkColour.length > index && cov > 0) ? field.inkColour[index] : null;
+            }
             // ⚑ THE PIPS ARE HARDWARE: THE GRID IS PIXEL-REGULAR AND NEVER MOVES
             // (operator, 2026-09-22, seeing the scroll: "there's some serious grid
             // glitching ... are we aligning the pips to the font, rather than the
@@ -190,8 +218,8 @@ Item {
             // the PWM: the lit token (or the ink's colour) at the coverage
             Rectangle {
                 anchors.fill: parent; radius: width / 2; antialiasing: true
-                color: field.colourFromInk && field.inkColour.length > index ? field.inkColour[index] : field.litColor
-                opacity: parent.cov
+                color: pip.ink !== null && field.colourFromInk ? pip.ink : field.litColor
+                opacity: pip.cov
             }
             // the ring: the outermost pips, pulsed by the owner
             Rectangle {
