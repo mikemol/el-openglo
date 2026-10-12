@@ -574,7 +574,7 @@ LOOP_TIMELINE = [
 ]
 
 
-def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
+def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, mesa=False):
     """Run the harness; the measurement is COMPLETE at its RESULT line.
 
     ⚑ THE THREADED LOOP CAN HANG AT TEARDOWN (measured W63: 4 of 10 hovered runs
@@ -584,14 +584,32 @@ def _run_until_result(cmd, env, wall_cap=WALL_CAP_S):
     ends at RESULT and the process is killed after a short grace. `wall_cap` (wall
     seconds) bounds a wedge BEFORE RESULT; hitting it yields no RESULT, which
     run() reports as a failure to measure."""
-    import threading
+    import contextlib
 
     # W73: streamed, so it cannot be QT.run — QT.popen is the same sandbox
-    # W158: no GPU path exists; the marquee runs on the software scene graph until W121
-    # gives popen the mesa route (then the halo renders here too)
-    proc = QT.popen(
-        cmd, env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-    )
+    # W121: mesa=True runs the harness on the RHI (the halo's MultiEffect renders) inside a kwin this
+    # function holds for the whole run; the default stays the software scene graph (every other
+    # marquee measurement is calibrated on it) until the RHI path is measured against them
+    with contextlib.ExitStack() as held:
+        session = (
+            held.enter_context(QT.kwin_session(QT.mesa_env(env))) if mesa else None
+        )
+        proc = QT.popen(
+            cmd,
+            env=env,
+            mesa=mesa,
+            session=session,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+        return _read_result(proc, cmd, wall_cap)
+
+
+def _read_result(proc, cmd, wall_cap):
+    """Read the harness's output to its RESULT line, then reap it (see _run_until_result)."""
+    import threading
+
     cap = threading.Timer(wall_cap, proc.kill)
     cap.start()
     lines = []
@@ -1299,6 +1317,24 @@ def _selftest():
         mo["x"]["cv"] > mo["raw"]["cv"],
         True,
     )
+    # ⚑ W121: the runner's mesa route streams a child through a held kwin to its RESULT line, on the
+    # RHI path (wayland, software GL) the halo needs; the software default is what every other arm ran
+    import shutil
+
+    if shutil.which(QT.KWIN):
+        probe = [
+            sys.executable,
+            "-c",
+            "import os;print('RESULT', os.environ['QT_QPA_PLATFORM'], os.environ['QSG_RHI_BACKEND'])",
+        ]
+        r = _run_until_result(probe, os.environ, wall_cap=120, mesa=True)
+        chk(
+            "mesa=True streams a child on wayland over the RHI",
+            r.stdout.strip(),
+            "RESULT wayland opengl",
+        )
+    else:
+        print(f"  SKIP mesa arm — {QT.KWIN} is not installed")
     print("check_marquee_live selftest:", "PASS" if ok else "FAIL")
     return ok
 

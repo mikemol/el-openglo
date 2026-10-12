@@ -231,16 +231,25 @@ def run(cmd, env=None, cpu=None, mesa=False, **kw):
     )
 
 
-def popen(cmd, env=None, mesa=False, **kw):
+def popen(cmd, env=None, mesa=False, session=None, **kw):
     """subprocess.Popen under the same env and core limit (launch_argv) as run(): for a harness whose
     measurement must be STREAMED (check_marquee_live ends at its RESULT line and
-    kills a teardown hang, W63), which run() cannot do."""
-    if mesa:
-        raise TypeError(
-            "qt_sandbox.popen: mesa=True not offered yet (the wrapper dir must outlive the call)"
-        )
+    kills a teardown hang, W63), which run() cannot do.
+
+    ⚑ W121: mesa=True needs a kwin that OUTLIVES this call (the child streams after it returns), so
+    the CALLER holds it: `with kwin_session(mesa_env(env)) as sock:` and passes `session=sock`.
+    Asking for mesa without a session is a TypeError, never a kwin leaked to the caller."""
     if "preexec_fn" in kw:
         raise TypeError("qt_sandbox.popen owns preexec_fn")
+    if session is not None and not mesa:
+        raise TypeError("qt_sandbox.popen: session= belongs to mesa=True")
+    if mesa:
+        if session is None:
+            raise TypeError(
+                "qt_sandbox.popen: mesa=True needs session=<socket> from a caller-held kwin_session"
+            )
+        e = dict(mesa_env(env), WAYLAND_DISPLAY=session, QT_QPA_PLATFORM="wayland")
+        return subprocess.Popen(launch_argv(cmd), env=e, **kw)
     return subprocess.Popen(launch_argv(cmd), env=globals()["env"](env), **kw)
 
 
@@ -442,6 +451,37 @@ def _selftest():
             check(
                 "mesa: a kwin whose socket is not ready in time is refused", True, True
             )
+    # ⚑ W121: popen's mesa route is the CALLER's kwin: refused without a session, refused with a
+    # session on the software route, and a real streamed child sees wayland + software GL.
+    for label, kw in (
+        ("popen(mesa=True) without a session is refused", {"mesa": True}),
+        ("popen(session=) without mesa is refused", {"session": "x"}),
+    ):
+        try:
+            popen(["true"], env=base, **kw)
+            check(label, False, True)
+        except TypeError:
+            check(label, True, True)
+    if shutil.which(KWIN):
+        with kwin_session(mesa_env(base)) as sock:
+            p = popen(
+                [
+                    sys.executable,
+                    "-c",
+                    "import os;print(os.environ['QT_QPA_PLATFORM'],os.environ['LIBGL_ALWAYS_SOFTWARE'])",
+                ],
+                env=base,
+                mesa=True,
+                session=sock,
+                stdout=subprocess.PIPE,
+                text=True,
+            )
+            out, _ = p.communicate(timeout=120)
+        check(
+            "popen(mesa=True, session=) streams a wayland, software-GL child",
+            out.strip(),
+            "wayland 1",
+        )
     print("qt_sandbox selftest:", "PASS" if ok else "FAIL")
     return ok
 

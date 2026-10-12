@@ -863,3 +863,4 @@
 2026-10-11T20:19:58Z  interrupt W507 minted    -         "Repin the mtools pins to the fleet par a61069e (repin_behind_par alert), then uv sync both extras and read the uv.lock diff for anything beyond mtools dists"  evidence=github-8f
 2026-10-11T21:54:25Z  interrupt W508 minted    -         "Adopt isolated mikemol-commit: pre-commit and gate resolve tools via MIKEMOL_REAL_ROOT; verify one commit prints path: isolated"  evidence=github-8f:W954
 2026-10-11T21:59:46Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:0b175c8589a2cbc3; the FILE wins"
+2026-10-12T00:44:09Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:6ecf5ee669475187; the FILE wins"

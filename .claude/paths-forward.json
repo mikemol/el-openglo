@@ -2443,7 +2443,7 @@
     {
       "symbol": "W121",
       "title": "MARQUEE GAINS THE HALO: qt_sandbox.popen(mesa=True) inside a caller-held kwin_session, and check_marquee_live defaults to the RHI on it, so the marquee stills/animation render with MultiEffect bloom (today EL_QUICK_BACKEND is never set in-tree, so the marquee has ALWAYS been software, no halo)",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W98"
       ],
@@ -2453,12 +2453,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
+      "next_bounded_step": "popen mesa route landed (caller-held kwin_session, session=); _run_until_result(mesa=True) opt-in. Next: measure each marquee check on the RHI path against its software calibration, then flip the default (one sub-card) and render the halo into marquee stills",
       "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition.",
       "issued_at": "2026-09-28T19:52:36Z",
       "minted_during": "interrupt",
       "caused_by": "W108",
-      "last_worked": "2026-10-06T01:51:04Z",
+      "last_worked": "2026-10-12T00:46:53Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -12017,7 +12017,7 @@
     {
       "symbol": "W502",
       "title": "display_params: the marquee exposes bloom, haloOpacity and glow (three lift-debt Withheld rows become Exposed) with kcfg and page controls",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W272"
       ],
@@ -12026,15 +12026,15 @@
         "marquee-main"
       ],
       "blocked_on": [],
-      "blocked_kind": "agent",
-      "next_bounded_step": "",
-      "evidence": "",
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Landed: marquee bloom/haloOpacity/glow Exposed (kcfg, page, main.qml cfg bindings); parity baselines recorded; staged gate passed",
       "issued_at": "2026-10-11T16:04:43Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-11T23:17:34Z",
+      "last_worked": "2026-10-12T00:43:30Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261012T004330Z",
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
@@ -12050,16 +12050,16 @@
         "check_config_reach"
       ],
       "blocked_on": [
-        "W502"
+        "W121"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "",
+      "next_bounded_step": "After W121 (RHI path in check_marquee_live): extend check_config_reach to run a sampled marquee run per key end for bloom, haloOpacity, glow and require the picture to differ; lift the W267 unmeasured entry for marquee in MOUNT_REGISTRY",
       "evidence": "",
       "issued_at": "2026-10-11T16:04:44Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-11T16:04:52Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-12T00:43:36Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
