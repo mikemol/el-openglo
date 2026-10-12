@@ -153,7 +153,7 @@ def replay(frames, still_png, variant):
     return temporal_facts(res, frames, ground, ink["_grid"])
 
 
-def bold_facts(variant, out_dir):
+def bold_facts(variant, out_dir, still_frame=None):
     """⟐W72.f — does a BOLD run differ from a regular one in the SET of lit pips, or only
     in brightness? Operator (2026-09-25): grow=s/2 overhangs into NEIGHBOUR pips, so a
     heavier stroke should show as a wider footprint through the aperture — "a bloom
@@ -165,8 +165,19 @@ def bold_facts(variant, out_dir):
 
     body = " ".join(["Hello World"] * 9)
     got = {}
+    # ⚑ `still_frame` (W525): None grabs at the first sample with the text mid-board, a MOMENT, so where
+    # the board is depends on frame timing (the same RHI run gave three different run lists at one
+    # speed). An integer takes the still from the STEPPED capture (R9: the rotation held and moved by
+    # equal steps, one grabbed frame each), so frame N is the same offset on every host and on both
+    # scene graphs (measured identical, software versus RHI). Gating stays on None: at frame 14 the
+    # bold interior runs are 7 columns under every colour-vision view, which K1 denies (W526).
     for name, b in (("regular", body), ("bold", f"<b>{body}</b>")):
-        png = os.path.join(out_dir, f"{variant}-{name}.png")
+        fdir = os.path.join(out_dir, f"{variant}-{name}")
+        os.makedirs(fdir, exist_ok=True)
+        if still_frame is None:
+            png = os.path.join(out_dir, f"{variant}-{name}.png")
+        else:
+            png = os.path.join(fdir, f"frame-{still_frame:03d}.png")
         tl = [
             (
                 300,
@@ -176,7 +187,12 @@ def bold_facts(variant, out_dir):
                 f"{APP}: {body}",
             )
         ]
-        if ML.run(variant=variant, end_ms=END_MS, grab=png, timeline=tl) is None:
+        taken = (
+            ML.run(variant=variant, end_ms=END_MS, grab=png, timeline=tl)
+            if still_frame is None
+            else ML.run(variant=variant, end_ms=END_MS, frames=fdir, timeline=tl)
+        )
+        if taken is None:
             return {
                 "variant": variant,
                 "withheld": "the qml runner is not on this host",

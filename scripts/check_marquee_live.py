@@ -732,6 +732,7 @@ def run(
     grab_paused=None,
     frames=None,
     timeline=None,
+    config_overrides=None,
 ):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
@@ -753,7 +754,15 @@ def run(
     if TP.scheme_path(variant) is None:
         return None
     stage = stager(
-        hover_pause, end_ms, stop_paused, variant, grab, grab_paused, frames, timeline
+        hover_pause,
+        end_ms,
+        stop_paused,
+        variant,
+        grab,
+        grab_paused,
+        frames,
+        timeline,
+        config_overrides,
     )
     with tempfile.TemporaryDirectory() as td:
         argv, env, _rhi = stage(td)

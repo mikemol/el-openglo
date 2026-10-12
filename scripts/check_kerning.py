@@ -13,6 +13,9 @@ Letters that bleed merge into one run about twice a glyph wide; kerned letters s
 one glyph (+ its bloom) each.
 
     scripts/check_kerning.py --json [VARIANT]   # the facts rego judges (default EL-Openglo)
+    scripts/check_kerning.py --json --frame N   # the stills from the STEPPED capture's frame N, a fixed
+                                                # scroll offset on every host and scene graph (W525); the
+                                                # gate uses the default moment-grab, see W526 for why
     scripts/check_kerning.py --selftest          # the run reader can SEE a merge
     scripts/opa_gate.py kerning [VARIANT]        # measurement + policy, one verdict
 
@@ -49,11 +52,11 @@ def interior(runs):
     return runs[1:-1] if len(runs) > 2 else []
 
 
-def measure(variant):
+def measure(variant, still_frame=None):
     import check_urgency_cues as UC
 
     with tempfile.TemporaryDirectory() as td:
-        f = UC.bold_facts(variant, td)
+        f = UC.bold_facts(variant, td, still_frame)
     if "withheld" in f:
         return {
             "cases": [],
@@ -106,7 +109,7 @@ def _selftest():
 
 def main(argv):
     args = argv[1:]
-    known = {"--json", "--selftest"}
+    known = {"--json", "--selftest", "--frame"}
     flags = [a for a in args if a.startswith("--")]
     for a in flags:
         if a not in known:
@@ -114,11 +117,22 @@ def main(argv):
             return 2
     if "--selftest" in flags:
         return 0 if _selftest() else 1
+    still_frame = None
+    if "--frame" in args:
+        i = args.index("--frame")
+        if i + 1 >= len(args) or not args[i + 1].isdigit():
+            print("check_kerning: --frame needs a frame number", file=sys.stderr)
+            return 2
+        still_frame = int(args[i + 1])
+        del args[i : i + 2]
     rest = [a for a in args if not a.startswith("--")]
     if "--json" not in flags or len(rest) > 1:
-        print("usage: check_kerning.py --json [VARIANT] | --selftest", file=sys.stderr)
+        print(
+            "usage: check_kerning.py --json [--frame N] [VARIANT] | --selftest",
+            file=sys.stderr,
+        )
         return 2
-    print(json.dumps(measure(rest[0] if rest else VARIANT), indent=1))
+    print(json.dumps(measure(rest[0] if rest else VARIANT, still_frame), indent=1))
     return 0
 
 
