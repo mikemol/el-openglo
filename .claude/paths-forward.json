@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 531,
+  "counter": 534,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -5847,16 +5847,16 @@
         "check_config_load"
       ],
       "blocked_on": [
-        "W268"
+        "operator: decide how much halo wash the clock default may have. Measured on EL-Openglo, the share of the face off the ground colour is 18.8 percent with no bloom, 40.7 at bloom 1, 48.6 at 2, 54.0 at 3, 55.4 at the default 4, 42.7 at 6; the digits stay legible at all of them (contact sheet sent). Options: A keep the default bloom 4 and gate only legibility (stroke against halo contrast), B lower the default to about 1.5 (about 45 percent wash) and cap the halo radius at a few stroke widths, C leave as is and close the card as resolved by the earlier fixes"
       ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Remaining after W265: the DEFAULT bloom 4.0 halo radius (strokeLit*2*bloom px, ~24 px at 48 px) lifts the whole face colour; bound the halo in stroke widths and gate it (ground wash fraction); and the DEFAULT ghost alpha 0.566 is a palette-solved relation (operator decision after seeing W265 renders). Reach witness is W264.",
-      "evidence": "2026-10-03: Operator report 2026-10-03 (screenshot: EL Segment Clock Settings with lit weight high, unlit weight 0, pitch low, bloom ~65%; the panel clock shows near-88:88 blobs; \"I bet tesseract would say 88:88\"). MEASURED in the render harness (render_qml clock 160x48, RHI/llvmpipe, EL-Openglo): config DOES reach the pixels there (showGhost=false drops ghost-ish 206 -> 6; bloom 0/1/2.5/4 gives other-pixels 762/3559/5439/5960 of 7680, ground 6072/3174/1432/994). So the harness does not reproduce \"ignores\"; it reproduces the UNREADABLE face: the halo is blurMax = round(strokeLit*2*bloom) px (SegmentChar.qml L127), ~24 px at the default bloom 4.0 on a 48 px panel, i.e. half the digit height, and the modal colour of the whole face moves from ground #0c1f1a to #142c26. Past ~2.5 the wash saturates, so moving the dialog slider between 65% and 100% changes nothing visible, which can read as the dialog being ignored. NOT verified: that the real Plasma applet receives the dialog values (no Plasma runtime here; check_config_page proves only that each kcfg entry declares value+default and each mount names its key). tesseract is installed (/usr/bin/tesseract) but read nothing from the raw render (no inversion/scale), so no OCR verdict yet. | 2026-10-03: Operator follow-ups 2026-10-03: (1) even without bloom the face is near-unreadable and the unlit stroke weight is nonresponsive; (2) ghost brightness too high and not adjustable. MEASURED: Segment snaps every stroke to an even integer >= 2 px (SegmentChar t = 2*max(1,round(thick/2))) and segThick floors at 2 at 48 px, so lit (2.5 -> 2 px) and unlit (0.4*2 = 0.8 -> 2 px) are the SAME stroke and the lit/unlit distinction is opacity alone (palette-solved ghost alpha 0.566, high); the unlit slider floor was 0.3, inside the dead zone. SHIPPED: unlit weight 0 = no ghost (slider floor now 0); clock exposes Unlit opacity (default the solved alpha, 0-1; verified 0.05 vs 0.9 differ on screen; baked literal kept as ghostAlpha, override in cfgGhostAlpha). NOT FIXED: the stroke quantisation (W265, operator-visible restyle) and the high DEFAULT ghost alpha (a palette-solved relation: re-solving it is a W-level change, not a dialog fix). Mistake of mine: my first version replaced the baked alpha literal and check_ghost_surfaces refused 6 of 6 clock variants while the commit still passed (cotype is non-blocking): fixed next commit, gate gap minted as W266.",
+      "blocked_kind": "human",
+      "next_bounded_step": "Operator decision pending (see blocked_on); on a ruling, bound the halo in stroke widths and gate the wash fraction in rego",
+      "evidence": "2026-10-03: Operator report 2026-10-03 (screenshot: EL Segment Clock Settings with lit weight high, unlit weight 0, pitch low, bloom ~65%; the panel clock shows near-88:88 blobs; \"I bet tesseract would say 88:88\"). MEASURED in the render harness (render_qml clock 160x48, RHI/llvmpipe, EL-Openglo): config DOES reach the pixels there (showGhost=false drops ghost-ish 206 -> 6; bloom 0/1/2.5/4 gives other-pixels 762/3559/5439/5960 of 7680, ground 6072/3174/1432/994). So the harness does not reproduce \"ignores\"; it reproduces the UNREADABLE face: the halo is blurMax = round(strokeLit*2*bloom) px (SegmentChar.qml L127), ~24 px at the default bloom 4.0 on a 48 px panel, i.e. half the digit height, and the modal colour of the whole face moves from ground #0c1f1a to #142c26. Past ~2.5 the wash saturates, so moving the dialog slider between 65% and 100% changes nothing visible, which can read as the dialog being ignored. NOT verified: that the real Plasma applet receives the dialog values (no Plasma runtime here; check_config_page proves only that each kcfg entry declares value+default and each mount names its key). tesseract is installed (/usr/bin/tesseract) but read nothing from the raw render (no inversion/scale), so no OCR verdict yet. | 2026-10-03: Operator follow-ups 2026-10-03: (1) even without bloom the face is near-unreadable and the unlit stroke weight is nonresponsive; (2) ghost brightness too high and not adjustable. MEASURED: Segment snaps every stroke to an even integer >= 2 px (SegmentChar t = 2*max(1,round(thick/2))) and segThick floors at 2 at 48 px, so lit (2.5 -> 2 px) and unlit (0.4*2 = 0.8 -> 2 px) are the SAME stroke and the lit/unlit distinction is opacity alone (palette-solved ghost alpha 0.566, high); the unlit slider floor was 0.3, inside the dead zone. SHIPPED: unlit weight 0 = no ghost (slider floor now 0); clock exposes Unlit opacity (default the solved alpha, 0-1; verified 0.05 vs 0.9 differ on screen; baked literal kept as ghostAlpha, override in cfgGhostAlpha). NOT FIXED: the stroke quantisation (W265, operator-visible restyle) and the high DEFAULT ghost alpha (a palette-solved relation: re-solving it is a W-level change, not a dialog fix). Mistake of mine: my first version replaced the baked alpha literal and check_ghost_surfaces refused 6 of 6 clock variants while the commit still passed (cotype is non-blocking): fixed next commit, gate gap minted as W266. | 2026-10-12: 2026-10-12 wash measured (clock 160x48, pixels farther than 12 per channel from the ground; bloom 0 is the strokes and ghost alone). EL-Openglo: bloom 0 18.8 pct, 1 40.7, 2 48.6, 3 54.0, 4 55.4 (the default), 6 42.7 (a larger blur thins below the tolerance). EL-Amber-Lit: 18.8, 38.0, 44.1, 48.5, 48.4, 32.2. The wash saturates by bloom 2 to 3. A contact sheet (bloom 0 to 6, EL-Openglo) shows the digits stay clearly legible at every value, including the default 4, with a soft green wash on the ground; the original unreadable report combined lit weight high, unlit weight 0 and pitch low, and the stroke snapping and ghost settings were fixed since. So the default is legible and the open question is taste: how much ground wash is acceptable",
       "issued_at": "2026-10-03T22:04:32Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-06T01:51:15Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-12T17:39:49Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -6093,7 +6093,7 @@
     {
       "symbol": "W273",
       "title": "Converge SegmentChar and ApertureField toward one display component with swappable geometry (one renderer for every surface)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W271"
       ],
@@ -6102,14 +6102,18 @@
         "ApertureField",
         "display_params"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "After W272: list the mechanics SegmentChar and ApertureField each implement (emission, ghost/lit passes, brightness relation, layout, backdrop), name the shared interface (geometry as the one swappable input: segment polygons vs pips), and move shared code behind it one mechanic at a time, each step holding the stills and the reach witness unchanged.",
-      "evidence": "",
+      "blocked_on": [
+        "W532",
+        "W533",
+        "W534"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Work the three child cards in order: the shared ghost layer, the primitive coverage interface, the shared lit layer and brightness relation; close this umbrella when all three land",
+      "evidence": "2026-10-12: 2026-10-12 INVENTORY (SegmentChar.qml read whole, ApertureField.qml read). MECHANICS BOTH IMPLEMENT: (1) a GHOST pass of unlit primitives: colour, alpha (ghostAlpha, glow), show flag; SegmentChar draws the unlit segments, the field every pip as a floor. (2) a LIT pass at a coverage: SegmentChar lit segments at coverage 1 times glow, the field a pip at the aperture coverage; (3) the EMISSION HALO, already shared (W500, W501: EmissionHalo, bloom, haloOpacity, glow, radiusUnit); (4) one brightness relation: perceived brightness is luminance times AREA (SegmentChar: stroke weight and coverage thick over t; field: ghostOpacity + coverage times (1 - ghostOpacity), then the gamma curve); (5) a glow multiplier on the whole cell; (6) a mount-owned layout (segLen, cellGap, colon; pitch, rows, y0). GEOMETRY-SPECIFIC, the one swappable input: SegmentChar: the substrate tables (segGeom, digSegs), device-grid snapped rounded bars, ghostWeight stroke thickness, the lit gradient and boundary depth along a bar, the weight between grid widths (litExtra underlay), the colon; ApertureField: the pip grid, dotFill, the backdrop canvas and its prefix-sum aperture integral, scrolling offset, colour from ink, the ring. SHARED INTERFACE PROPOSED: a primitive set with per-primitive coverage in 0 to 1 (a segment is a bar at coverage 0 or 1, a pip a dot at the aperture coverage) feeding three layers in this order, ghost then halo then crisp lit, with emission (litColor, ghostColor, ghostAlpha, showGhost, glow, bloom, haloOpacity) as the common properties. The display_params rows already encode the split: Withheld geometry rows (litWeight, ghostWeight, litGradient, boundaryDepth on the field; apertureGamma, backdropScale on the strokes) are exactly the geometry-specific values. STEP ORDER, each holding stills, parity baselines and the reach witness: ghost layer, then the primitive coverage interface, then the lit layer and the brightness relation",
       "issued_at": "2026-10-04T02:19:17Z",
       "minted_during": "interrupt",
       "caused_by": "W271",
-      "last_worked": "2026-10-06T01:51:16Z",
+      "last_worked": "2026-10-12T17:40:29Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -12649,6 +12653,71 @@
       "issued_at": "2026-10-12T16:56:55Z",
       "minted_during": "interrupt",
       "caused_by": "W268",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W532",
+      "title": "Share the ghost layer: one component draws the unlit primitives with the common colour, alpha times glow, and show flag, mounted by SegmentChar and ApertureField, stills unchanged",
+      "status": "working",
+      "enables": [
+        "W273"
+      ],
+      "touches": [
+        "SegmentChar",
+        "ApertureField"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T17:40:23Z",
+      "minted_during": "interrupt",
+      "caused_by": "W273",
+      "last_worked": "2026-10-12T17:40:30Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W533",
+      "title": "Name the primitive coverage interface: a segment is a bar and a pip a dot, each with a coverage in 0 to 1 and a lit flag, so both displays feed the same layers",
+      "status": "ready",
+      "enables": [
+        "W273"
+      ],
+      "touches": [
+        "SegmentChar",
+        "ApertureField",
+        "display_params"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T17:40:24Z",
+      "minted_during": "interrupt",
+      "caused_by": "W273",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W534",
+      "title": "Share the lit layer and the brightness relation: crisp lit primitives at coverage times glow, the luminance-times-area rule and the gamma curve stated once for both displays",
+      "status": "ready",
+      "enables": [
+        "W273"
+      ],
+      "touches": [
+        "SegmentChar",
+        "ApertureField"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T17:40:24Z",
+      "minted_during": "interrupt",
+      "caused_by": "W273",
       "last_worked": null,
       "ticks_blocked": 0
     }
