@@ -888,3 +888,4 @@
 2026-10-12T09:24:57Z  interrupt W525 minted    -         "Explain why the marquee measurements differ on the RHI: kerning K1 (bold interior run of 7 columns under CVD) and urgency V9 (hover-pause not measured) deny there and admit on software"  evidence=W121
 2026-10-12T09:47:01Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:b0fb2dfdff536335; the FILE wins"
 2026-10-12T09:55:12Z  interrupt W526 minted    -         "Bold letters bleed at some sub-pip scroll phases: K1 denies a 7-column bold run under every colour-vision view at stepped frame 14, on both scene graphs"  evidence=W525
+2026-10-12T10:26:41Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:30d43518f37257e4; the FILE wins"

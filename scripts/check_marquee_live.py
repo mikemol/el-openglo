@@ -583,6 +583,15 @@ LOOP_TIMELINE = [
 BACKEND = {"mesa": os.environ.get("EL_MARQUEE_RHI") == "1"}
 
 
+def uses_rhi(hover_pause):
+    """Whether a run goes to the RHI. ⚑ A HOVERED RUN NEVER DOES (W525): the hover-pause is input, not
+    drawing, and the board's HoverHandler only fires because the OFFSCREEN platform rests its pointer at
+    (0,0) (marquee-main.qml says so). Under a Wayland compositor there is no pointer at all, so the
+    board never pauses and urgency V9 reports 'pausability not measured'. Keeping that run on the
+    software scene graph keeps the claim measured; the scene graph has nothing to do with it."""
+    return BACKEND["mesa"] and not hover_pause
+
+
 def _run_until_result(cmd, env, wall_cap=WALL_CAP_S, mesa=False):
     """Run the harness; the measurement is COMPLETE at its RESULT line.
 
@@ -766,7 +775,7 @@ def run(
     )
     with tempfile.TemporaryDirectory() as td:
         argv, env, _rhi = stage(td)
-        r = _run_until_result(argv, env, mesa=BACKEND["mesa"])
+        r = _run_until_result(argv, env, mesa=uses_rhi(hover_pause))
     log = [
         l.split("el-marquee ", 1)[1]
         for l in (r.stdout + r.stderr).splitlines()
@@ -1350,8 +1359,18 @@ def _selftest():
     chk(
         "the harness defaults to the software scene graph (--rhi switches it)",
         BACKEND["mesa"],
-        False,
+        os.environ.get("EL_MARQUEE_RHI") == "1",
     )
+    saved = BACKEND["mesa"]
+    BACKEND["mesa"] = True
+    try:
+        chk(
+            "on the RHI a normal run goes there and a hovered run stays on software",
+            (uses_rhi(False), uses_rhi(True)),
+            (True, False),
+        )
+    finally:
+        BACKEND["mesa"] = saved
     if shutil.which(QT.KWIN):
         probe = [
             sys.executable,

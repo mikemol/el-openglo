@@ -2443,7 +2443,7 @@
     {
       "symbol": "W121",
       "title": "MARQUEE GAINS THE HALO: qt_sandbox.popen(mesa=True) inside a caller-held kwin_session, and check_marquee_live defaults to the RHI on it, so the marquee stills/animation render with MultiEffect bloom (today EL_QUICK_BACKEND is never set in-tree, so the marquee has ALWAYS been software, no halo)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W98"
       ],
@@ -2451,14 +2451,16 @@
         "qt_sandbox.py",
         "check_marquee_live"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "Work the RHI difference card (kerning K1 and urgency V9 on the RHI), then flip the default only when every marquee check admits on both paths",
-      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition. | 2026-10-12: 2026-10-12: check_marquee_live now has BACKEND (EL_MARQUEE_RHI=1 or --rhi) running the SAME harness on the RHI inside a held kwin; default stays software. Measured on the RHI with the real policies: marquee_live admitted (0 deny), symmetry admitted, kerning DENIED K1 x3 (EL-Openglo bold under deuteranomaly, protanomaly, tritanomaly: interior run 3 is 7 columns, wider than a 5-column glyph plus 1 bloom), urgency_cues DENIED V9 (the hover-pause never held the board: pausability not measured). So the RHI is not yet a drop-in default: the two differences are the next cards, not a flip",
+      "blocked_on": [
+        "W526"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Wait on W526 (kerning at every scroll phase), then flip BACKEND default and re-run the whole marquee suite on both paths",
+      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition. | 2026-10-12: 2026-10-12: check_marquee_live now has BACKEND (EL_MARQUEE_RHI=1 or --rhi) running the SAME harness on the RHI inside a held kwin; default stays software. Measured on the RHI with the real policies: marquee_live admitted (0 deny), symmetry admitted, kerning DENIED K1 x3 (EL-Openglo bold under deuteranomaly, protanomaly, tritanomaly: interior run 3 is 7 columns, wider than a 5-column glyph plus 1 bloom), urgency_cues DENIED V9 (the hover-pause never held the board: pausability not measured). So the RHI is not yet a drop-in default: the two differences are the next cards, not a flip | 2026-10-12: RHI comparison after W525: marquee_live, symmetry and urgency_cues admit on the RHI (hovered runs stay software); kerning K1 does not on the default moment-grab, because bold letters bleed at some sub-pip scroll phases (W526). The default flips to the RHI when W526 settles",
       "issued_at": "2026-09-28T19:52:36Z",
       "minted_during": "interrupt",
       "caused_by": "W108",
-      "last_worked": "2026-10-12T09:24:58Z",
+      "last_worked": "2026-10-12T10:28:41Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -12513,7 +12515,7 @@
     {
       "symbol": "W525",
       "title": "Explain why the marquee measurements differ on the RHI: kerning K1 (bold interior run of 7 columns under CVD) and urgency V9 (hover-pause not measured) deny there and admit on software",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W121"
       ],
@@ -12522,19 +12524,19 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read V9 on the RHI: the hover-pause needs the pointer at the board, and under the held kwin the offscreen pointer position may differ; then W526 decides whether kerning must hold at every phase",
-      "evidence": "2026-10-12: 2026-10-12 kerning measurement, software versus RHI (check_kerning --json EL-Openglo, EL_MARQUEE_RHI=1 for the RHI): the RHI case lists 10 runs where software lists 9 (an extra trailing run of 3 or 4 columns, a partial glyph at the right edge), and its first bold run is 7 columns where every software bold run is 6. So the two backends capture the board at a different scroll offset or width, or antialias the pip edge differently; not a glyph-width change in the template. K1 reads the interior run, so the 7 is what denies. Urgency V9 (pausability not measured) is the other difference, still unread | 2026-10-12: 2026-10-12 CAUSE FOUND. The kerning and urgency stills use harness grab, taken at the first sample with the text mid-board: a MOMENT, so the scroll offset depends on frame timing. The same RHI run gave three different run lists at one speed. The stepped capture (frames mode, R9) is deterministic: x falls 16.55 px per frame, and software and RHI give IDENTICAL run lists frame by frame (regular and bold, frames 6, 10, 14, 18). So the RHI renders the pips the same; the K1 difference was capture phase, a latent flake on BOTH backends. Gating the stepped capture is not possible yet: at frame 14 both backends deny K1 (7-column bold run under deuteranomaly, protanomaly and tritanomaly), a real defect minted as W526. Tooling: check_kerning --json --frame N takes the stills from the stepped capture; bold_facts gained still_frame; run() gained config_overrides. Gate default unchanged and admitting. Urgency V9 on the RHI (hover pause not measured) is still unread",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: 2026-10-12 kerning measurement, software versus RHI (check_kerning --json EL-Openglo, EL_MARQUEE_RHI=1 for the RHI): the RHI case lists 10 runs where software lists 9 (an extra trailing run of 3 or 4 columns, a partial glyph at the right edge), and its first bold run is 7 columns where every software bold run is 6. So the two backends capture the board at a different scroll offset or width, or antialias the pip edge differently; not a glyph-width change in the template. K1 reads the interior run, so the 7 is what denies. Urgency V9 (pausability not measured) is the other difference, still unread | 2026-10-12: 2026-10-12 CAUSE FOUND. The kerning and urgency stills use harness grab, taken at the first sample with the text mid-board: a MOMENT, so the scroll offset depends on frame timing. The same RHI run gave three different run lists at one speed. The stepped capture (frames mode, R9) is deterministic: x falls 16.55 px per frame, and software and RHI give IDENTICAL run lists frame by frame (regular and bold, frames 6, 10, 14, 18). So the RHI renders the pips the same; the K1 difference was capture phase, a latent flake on BOTH backends. Gating the stepped capture is not possible yet: at frame 14 both backends deny K1 (7-column bold run under deuteranomaly, protanomaly and tritanomaly), a real defect minted as W526. Tooling: check_kerning --json --frame N takes the stills from the stepped capture; bold_facts gained still_frame; run() gained config_overrides. Gate default unchanged and admitting. Urgency V9 on the RHI (hover pause not measured) is still unread | 2026-10-12: Both RHI differences explained. K1: the moment-grab phase (W526 holds the real defect behind it). V9: the hover-pause needs the offscreen pointer resting at (0,0), which a Wayland compositor does not have, so hovered runs now stay on the software scene graph (uses_rhi); urgency_cues admits on the RHI. RHI state now: marquee_live admit, symmetry admit, urgency_cues admit, kerning denies on the default grab until W526",
       "issued_at": "2026-10-12T09:24:57Z",
       "minted_during": "interrupt",
       "caused_by": "W121",
-      "last_worked": "2026-10-12T09:55:13Z",
+      "last_worked": "2026-10-12T10:28:40Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T102840Z"
     },
     {
       "symbol": "W526",
       "title": "Bold letters bleed at some sub-pip scroll phases: K1 denies a 7-column bold run under every colour-vision view at stepped frame 14, on both scene graphs",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W121"
       ],
@@ -12544,13 +12546,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
+      "next_bounded_step": "Decide the claim: must kerning (a dark pip column between letters) hold at every sub-pip scroll phase, or only at the aligned one the closed loop measures? Measure K1 across all 6 phases of the 0.618 step with check_kerning --frame N (frames 10 to 25), then either widen the kern loop to the worst phase or restate the claim in rego",
       "evidence": "",
       "issued_at": "2026-10-12T09:55:12Z",
       "minted_during": "interrupt",
       "caused_by": "W525",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-12T10:28:41Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
