@@ -877,3 +877,4 @@
 2026-10-12T01:50:15Z  interrupt W517 minted    -         "Submit the marquee soak to throwaway-el-openglo as a Pod with a 2 GiB limit and TTL, and read its samples back"  evidence=W515
 2026-10-12T02:16:16Z  interrupt W518 minted    -         "Let a tool outside scripts/check_ be a gated selftest stage with a closure, then retire the two census exemptions (profile_shell, marquee_soak)"
 2026-10-12T02:38:45Z  interrupt W519 minted    -         "Soak the marquee with ticker-length text (about 228 characters, a 6004 px backdrop) and sample the qml process CPU as well as memory"  evidence=W515
+2026-10-12T03:12:19Z  interrupt W520 minted    -         "Bisect the pummel soak CPU: vary one input at a time (critical flash, replace, job gauge, long body, item count) in the Pod and name the costly path in the marquee"  evidence=W519

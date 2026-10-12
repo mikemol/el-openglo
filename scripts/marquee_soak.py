@@ -38,15 +38,71 @@ KEEP = ("QT_", "QML", "QSG_", "KDE_")
 FLAGS = {"--seconds", "--every", "--selftest"}
 
 
-def soak_timeline(seconds, period_ms=3000):
-    """arrive/expire cycles for `seconds`: one item shown for half a period, then another."""
+APPS = ("mail", "chat", "build", "calendar", "backup")
+BODY = (
+    "<b>bold</b> and <i>italic</i> with <u>underline</u>, a "
+    "<a href='https://example.test/x'>link</a> and some longer plain text to widen the ticker"
+)
+LIVE_CYCLES = (
+    3  # a cycle's items stay up this many periods, so the ticker holds a dozen or more
+)
+
+
+def soak_timeline(seconds, period_ms=1500):
+    """A PUMMELLING: every period, a burst of notifications of every urgency (low, normal and
+    CRITICAL, which blinks) with long marked-up bodies and actions, a flash that arrives and
+    vanishes in one turn, a replace of a visible item, and a job gauge; each item stays up
+    LIVE_CYCLES periods, so the ring holds a dozen or more items (the live board's ticker held
+    about 228 characters, a 6004 px backdrop; this holds several times that)."""
     out = []
+    nid = 0
     for k in range(max(1, int(seconds * 1000 // period_ms))):
         t = 700 + k * period_ms
-        fields = {"summary": f"soak {k}", "body": "", "applicationName": "app"}
-        out.append((t, "arrive", k + 1, fields, f"app: soak {k}"))
-        out.append((t + period_ms // 2, "expire", k + 1, {}, ""))
-    return out
+        ids = []
+        for j, urgency in enumerate((1, 0, 2, 1)):
+            nid += 1
+            ids.append(nid)
+            fields = {
+                "summary": f"item {nid}",
+                "body": BODY,
+                "applicationName": APPS[(k + j) % len(APPS)],
+                "urgency": urgency,
+            }
+            if j == 3:
+                fields["actionNames"] = ["open", "later"]
+                fields["actionLabels"] = ["Open", "Later"]
+            out.append((t + 100 * j, "arrive", nid, fields, ""))
+        nid += 1
+        out.append(
+            (t + 450, "flash", nid, {"summary": "flash", "applicationName": "app"}, "")
+        )
+        out.append(
+            (
+                t + 600,
+                "replace",
+                ids[0],
+                {
+                    "summary": f"item {ids[0]}",
+                    "body": "changed " + BODY,
+                    "applicationName": "app",
+                },
+                "",
+            )
+        )
+        nid += 1
+        job = {"type": 2, "jobState": 1, "percentage": (k * 7) % 100}
+        out.append(
+            (
+                t + 700,
+                "arrive",
+                nid,
+                {"summary": "job", "applicationName": "app", **job},
+                "",
+            )
+        )
+        for i in ids + [nid]:
+            out.append((t + LIVE_CYCLES * period_ms + 900, "expire", i, {}, ""))
+    return sorted(out, key=lambda e: e[0])
 
 
 def stage(directory, seconds):
@@ -58,9 +114,7 @@ def stage(directory, seconds):
     import check_marquee_live as CM
 
     os.makedirs(directory, exist_ok=True)
-    stager = CM.stager(
-        end_ms=int(seconds * 1000), timeline=soak_timeline(seconds, 3000)
-    )
+    stager = CM.stager(end_ms=int(seconds * 1000), timeline=soak_timeline(seconds))
     argv, env, _rhi = stager(directory)
 
     def sub(text):
@@ -91,6 +145,16 @@ def read_status(pid):
         return None
 
 
+def read_cpu(pid):
+    """The process's CPU seconds so far (utime + stime), or None once it has gone."""
+    try:
+        with open(f"/proc/{pid}/stat") as fh:
+            fields = fh.read().rpartition(")")[2].split()
+    except OSError:
+        return None
+    return (int(fields[11]) + int(fields[12])) / os.sysconf("SC_CLK_TCK")
+
+
 def sample_run(argv, env, seconds, every, out_dir):
     """Run `argv` for at most `seconds` (+ grace), sampling its memory every `every` seconds."""
     log_path = os.path.join(out_dir, "qml.log")
@@ -102,7 +166,11 @@ def sample_run(argv, env, seconds, every, out_dir):
             while proc.poll() is None and time.monotonic() - t0 < seconds + 30:
                 st = read_status(proc.pid)
                 if st is not None:
-                    rows.append({"t": round(time.monotonic() - t0, 1), **st})
+                    row = {"t": round(time.monotonic() - t0, 1), **st}
+                    cpu = read_cpu(proc.pid)
+                    if cpu is not None:
+                        row["cpu_s"] = round(cpu, 2)
+                    rows.append(row)
                 time.sleep(every)
         finally:
             if proc.poll() is None:
@@ -134,6 +202,11 @@ def summarise(rows, rc):
             "verdict": "no samples: the run recorded nothing",
         }
     out = {"samples": len(rows), "rc": rc, "span_s": rows[-1]["t"]}
+    timed = [r for r in rows if "cpu_s" in r]
+    if len(timed) > 1 and timed[-1]["t"] > timed[0]["t"]:
+        used = timed[-1]["cpu_s"] - timed[0]["cpu_s"]
+        out["cpu_pct_mean"] = round(100 * used / (timed[-1]["t"] - timed[0]["t"]), 1)
+        out["cpu_s"] = timed[-1]["cpu_s"]
     for key in ("VmRSS", "RssShmem", "RssAnon"):
         vals = [r[key] for r in rows if key in r]
         if vals:
@@ -180,11 +253,39 @@ def _selftest():
         )
         ok = ok and got == want
 
-    tl = soak_timeline(10, 3000)
+    tl = soak_timeline(10, 1500)
+    arrived = {e[2]: e[0] for e in tl if e[1] in ("arrive", "flash")}
+    expired = {e[2]: e[0] for e in tl if e[1] == "expire"}
+    ops = {e[1] for e in tl}
+    urgencies = {e[3].get("urgency") for e in tl if e[1] == "arrive"}
     chk(
-        "10 s at a 3 s period is 3 arrive/expire pairs, each expiring after its arrival",
-        (len(tl), all(tl[i][0] < tl[i + 1][0] for i in range(0, len(tl), 2))),
-        (6, True),
+        "the timeline is time-ordered",
+        [e[0] for e in tl] == sorted(e[0] for e in tl),
+        True,
+    )
+    chk(
+        "it pummels: arrive, flash, replace and expire all occur",
+        ops >= {"arrive", "flash", "replace", "expire"},
+        True,
+    )
+    chk(
+        "every urgency appears, critical included (the blinking one)",
+        {0, 1, 2} <= urgencies,
+        True,
+    )
+    chk(
+        "every expired item had arrived first",
+        all(arrived[i] < expired[i] for i in expired),
+        True,
+    )
+    chk(
+        "items overlap, so the ring holds many at once",
+        max(
+            sum(1 for i in expired if arrived[i] <= t < expired[i])
+            for t in sorted(arrived.values())
+        )
+        >= 12,
+        True,
     )
     # the sampler SEES growth: a child that holds more memory each step shows a rising peak
     # (the bytes are TOUCHED: a zero-filled bytearray is never made resident, which would make
@@ -211,6 +312,24 @@ def _selftest():
             f["VmRSS"]["peak"] < f["VmRSS"]["first"] + 20000,
             True,
         )
+    # CPU is judged against the CHILD'S OWN CPU time, never a share of a core: a loaded host
+    # gives a spinning child any fraction of a core (a flake measured 2026-10-12 under the gate)
+    spin = (
+        "import time\nwhile time.process_time() < 1.5: pass\n"
+        "print(time.process_time())\ntime.sleep(1)\n"
+    )
+    nap = "import time\ntime.sleep(3)\n"
+    with tempfile.TemporaryDirectory() as td:
+        hot = sample_run([sys.executable, "-c", spin], dict(os.environ), 60, 0.3, td)
+        with open(os.path.join(td, "qml.log")) as fh:
+            own = float(fh.read().split()[0])
+        chk(
+            "the sampled CPU seconds match the child's own process time",
+            abs(hot["cpu_s"] - own) < 0.6,
+            True,
+        )
+        cold = sample_run([sys.executable, "-c", nap], dict(os.environ), 60, 0.3, td)
+        chk("a sleeping child's CPU seconds stay under 0.5", cold["cpu_s"] < 0.5, True)
     talk = "print('el-marquee paint idle=false');print('RESULT {}')"
     with tempfile.TemporaryDirectory() as td:
         t = sample_run([sys.executable, "-c", talk], dict(os.environ), 5, 0.1, td)

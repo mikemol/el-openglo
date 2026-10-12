@@ -224,24 +224,37 @@ def _selftest():
         [(r["comm"], r["pct"]) for r in delta(before, after, 10.0)],
         [("main", 50.0), ("new", 10.0)],
     )
-    # the measurement SEES a real busy child: a spinning process shows a high total
+    # the measurement SEES a real busy child. Judged against the child's OWN CPU time, never a
+    # share of a core: a loaded host gives a spinning child any fraction of one (this arm flaked
+    # at 'above 50 %' while the gate and a Pod ran, 2026-10-12). The child spins until it has
+    # used 1.0 s of CPU, reports that, and waits; the sampler's thread total must agree.
+    spin = (
+        "import time\nwhile time.process_time() < 1.0: pass\n"
+        "print(time.process_time(), flush=True)\ntime.sleep(30)"
+    )
     child = subprocess.Popen(
-        [sys.executable, "-c", "while True: pass"], stdout=subprocess.DEVNULL
+        [sys.executable, "-c", spin], stdout=subprocess.PIPE, text=True
     )
     try:
-        row = sample(child.pid, 1.0)
+        own = float((child.stdout.readline() or "nan").split()[0])
+        ticks = sum(t for _, t in read_threads(child.pid).values()) / CLK
+        chk(
+            "the sampled thread CPU matches the child's own process time",
+            abs(ticks - own) < 0.3,
+            True,
+        )
     finally:
         child.kill()
         child.wait()
-    chk("a spinning child reads above 50 % of a core", row["total_pct"] > 50.0, True)
-    # and an idle one does not (the all-clear differs from found-something)
+    # and an idle one reads near zero (the all-clear differs from found-something)
     idle = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"])
     try:
-        row = sample(idle.pid, 1.0)
+        time.sleep(0.5)
+        ticks = sum(t for _, t in read_threads(idle.pid).values()) / CLK
     finally:
         idle.kill()
         idle.wait()
-    chk("a sleeping child reads below 10 % of a core", row["total_pct"] < 10.0, True)
+    chk("a sleeping child's CPU seconds stay under 0.3", ticks < 0.3, True)
     print("profile_shell selftest:", "PASS" if ok else "FAIL")
     return ok
 

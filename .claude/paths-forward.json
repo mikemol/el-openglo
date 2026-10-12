@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 519,
+  "counter": 520,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -12379,7 +12379,7 @@
     {
       "symbol": "W519",
       "title": "Soak the marquee with ticker-length text (about 228 characters, a 6004 px backdrop) and sample the qml process CPU as well as memory",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W515"
       ],
@@ -12389,11 +12389,33 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: 2026-10-12 pummel soak (scripts/marquee_soak.py timeline: bursts of low, normal and critical items, long marked-up bodies, actions, flash, replace, job gauge, 3-cycle overlap) 330 s in the 1 GiB Pod: CPU mean 59.3 pct of the 1 core limit (194.8 CPU s), so the heavy CPU REPRODUCES offscreen; RSS sawtooth 200-240 MB (GC spikes about 20 MB) with a baseline creeping 205 to 226 MB between 80 s and 300 s (about 6 MB per minute), anon 142 to 170 MB; RssShmem 0. Only 559 trace lines in 330 s versus 1620 for the light soak: paints are slow under load. No GB-scale growth in this path",
       "issued_at": "2026-10-12T02:38:45Z",
       "minted_during": "interrupt",
       "caused_by": "W515",
+      "last_worked": "2026-10-12T03:12:19Z",
+      "ticks_blocked": 0,
+      "completed": "20261012T031219Z"
+    },
+    {
+      "symbol": "W520",
+      "title": "Bisect the pummel soak CPU: vary one input at a time (critical flash, replace, job gauge, long body, item count) in the Pod and name the costly path in the marquee",
+      "status": "ready",
+      "enables": [
+        "W510"
+      ],
+      "touches": [
+        "marquee-main",
+        "check_marquee_live"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T03:12:19Z",
+      "minted_during": "interrupt",
+      "caused_by": "W519",
       "last_worked": null,
       "ticks_blocked": 0
     }
