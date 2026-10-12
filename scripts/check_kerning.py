@@ -52,17 +52,40 @@ def interior(runs):
     return runs[1:-1] if len(runs) > 2 else []
 
 
+# the stepped frames the graded gap sweeps: 15 consecutive frames span several cycles of the 0.618-pip
+# step, so aligned and half-pip phases are both met. Frame 22 is the last: from frame 23 the bold text
+# garbles (W528), a separate defect this sweep must not be asked to judge until it is understood.
+GAP_FRAMES = range(8, 23)
+
+
 def measure(variant, still_frame=None):
     import check_urgency_cues as UC
 
     with tempfile.TemporaryDirectory() as td:
         f = UC.bold_facts(variant, td, still_frame)
-    if "withheld" in f:
+        g = UC.gap_facts(variant, td, GAP_FRAMES)
+    if "withheld" in f or "withheld" in g:
         return {
             "cases": [],
-            "withheld": [{"variant": variant, "reason": f["withheld"]}],
+            "gaps": [],
+            "withheld": [
+                {"variant": variant, "reason": f.get("withheld") or g["withheld"]}
+            ],
         }
     cols = glyph_cols()
+    gaps = [
+        {
+            "variant": variant,
+            "view": view,
+            "style": style,
+            "glyph_cols": cols,
+            "frames": cell["frames"],
+            "max_group": cell["group"],
+            "worst_gap_ratio": cell["worst"],
+        }
+        for view, styles in sorted(g["views"].items())
+        for style, cell in sorted(styles.items())
+    ]
     cases = []
     for view, v in sorted(f["views"].items()):
         for style in ("regular", "bold"):
@@ -77,7 +100,7 @@ def measure(variant, still_frame=None):
                     "interior_runs": interior(runs),
                 }
             )
-    return {"cases": cases, "withheld": []}
+    return {"cases": cases, "gaps": gaps, "withheld": []}
 
 
 def _selftest():
@@ -102,6 +125,34 @@ def _selftest():
     chk("kerned letters read as two runs", UC.lit_runs(apart), [5, 5])
     chk("bleeding letters read as ONE run twice as wide", UC.lit_runs(merged), [10])
     chk("the edge runs are not judged", interior([3, 5, 5, 2]), [5, 5])
+    # the graded gap: a dark gap reads 0, a half-lit gap reads 0.5, no gap at all reads 1.0
+    dark = np.zeros((8, 20))
+    dark[:, 1:6] = 1.0
+    dark[:, 7:12] = 1.0
+    half = dark.copy()
+    half[:, 6] = 0.5
+    fused = dark.copy()
+    fused[:, 6] = 1.0
+    chk("a dark gap reads as ratio 0", UC.valley_ratios(dark), [0.0])
+    chk("a half-lit gap reads as ratio 0.5", UC.valley_ratios(half), [0.5])
+    chk("no gap at all reads as no valley", UC.valley_ratios(fused), [])
+    chk("a blank still has no valleys", UC.valley_ratios(np.zeros((8, 20))), [])
+    # the stroke group: the fused pair is the one the valley cannot see, and the group width does
+    four = np.zeros((8, 26))
+    for start in (1, 7, 13, 19):
+        four[:, start : start + 5] = 1.0
+    fused = four.copy()
+    fused[:, 12] = 1.0  # the gap between the middle pair filled
+    chk(
+        "four kerned letters: both interior groups are one glyph wide",
+        UC.stroke_groups(four),
+        [5, 5],
+    )
+    chk(
+        "a fused middle pair reads as one interior group twice a glyph wide",
+        UC.stroke_groups(fused),
+        [11],
+    )
     chk("the registry names a glyph width", glyph_cols() > 0, True)
     print(f"check_kerning selftest: {'PASS' if ok else 'FAIL'}")
     return ok

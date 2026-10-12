@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 528,
+  "counter": 530,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -12536,7 +12536,7 @@
     {
       "symbol": "W526",
       "title": "Bold letters bleed at some sub-pip scroll phases: K1 denies a 7-column bold run under every colour-vision view at stepped frame 14, on both scene graphs",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W121"
       ],
@@ -12544,23 +12544,21 @@
         "check_kerning",
         "marquee-body"
       ],
-      "blocked_on": [
-        "W527"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Decide the claim with the operator-facing question stated in W527; minted W527 for the phase-robust measure",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "W527 landed the phase-swept K4 (stroke-group width, stable in every view and on both scene graphs). What remains of this card is the claim itself: K1 retirement is W529, the bold garble at frames 23 to 26 is W528. Close when W529 and W528 are decided",
       "evidence": "2026-10-12: 2026-10-12 K1 across scroll phases, software scene graph, stepped capture frames 8 to 40, widest interior lit run per view (scratch kern_phases.py: one frames run per style). Frames 8 to 22 (text fully on the board): gray view bold runs 5 or 6 at EVERY phase; the three colour-vision views reach 7 at frames 14, 17, 19 and 22 and 5 or 6 elsewhere. So the 7 is CVD-specific and phase-specific: the binarisation is to each stills OWN peak, and under the CVD channel mixing the faint half-covered neighbour pip that the bold grow (s/2) spreads onto at a sub-pip phase clears the lit threshold. A graded pip is not a bleed in the LED-board sense. Frames from 23 on show runs of 18, 30, 45 columns, also in REGULAR text under CVD views (frames 18, 23, 26, 31, 34, 39): a measurement artifact not yet explained (text leaving the board edge, or the binarisation collapsing when the peak is small)",
       "issued_at": "2026-10-12T09:55:12Z",
       "minted_during": "interrupt",
       "caused_by": "W525",
-      "last_worked": "2026-10-12T10:58:15Z",
+      "last_worked": "2026-10-12T12:58:23Z",
       "ticks_blocked": 0,
       "completed": null
     },
     {
       "symbol": "W527",
       "title": "Make K1 phase-robust: judge the gap column brightness against the stroke (graded, not binarised to the stills own peak) over the stepped frames of one full phase cycle, and explain the 18 to 45 column runs past frame 22",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W526"
       ],
@@ -12570,14 +12568,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Replace the valley fact with the stroke-group width in gap_facts (worst interior group per view and style over frames 8 to 22), keep the valley ratio as a reported secondary, state K4 as group width at most glyph plus bloom in rego with tests, then handle the bold garble card before extending the sweep to frame 24",
-      "evidence": "2026-10-12: 2026-10-12 the 18 to 45 column runs explained (kept frames, lit column profiles at frames 17 to 19). At frame 18 (x=138.6) the pip image is a half-pip phase: every glyph column is split across two pips, no pip is fully lit, the gray view binarises to the stills own peak and keeps only faint scattered columns, while the colour-vision views (a different peak and threshold) keep nearly every pip and fuse the text into 18, 30 and 45 column runs. Frames 17 and 19 (aligned) give identical, clean profiles in both views. So the runs are not a defect in the board, they are the binarisation applied to a uniformly half-covered still: a binary lit-run measure is phase-fragile by construction. That settles the measure: K1 needs a graded fact, the brightness of the gap pip next to a stroke pip, judged per letter boundary at the known 6-pip advance | 2026-10-12: 2026-10-12 graded measures tried on stepped frames 8 to 24 (scratch kern_graded.py). (a) Valley ratio (gap pip over the lower neighbouring stroke): regular text 0.0 at aligned phases and up to 0.66 gray / 0.78 CVD at others; bold up to 0.91 in the CVD views, 0.66 gray; a fused pair has NO valley, so the valley alone cannot catch it (it scores 0). (b) Stroke-group width (columns at or above 0.6 of the stills peak, interior groups): regular 4 or 5, bold 5 or 6, IDENTICAL in all four views, at every phase from frame 8 to 22; a fused pair blows it out. So the stable graded fact is the stroke-group width, and the valley ratio is secondary. Frames 23, 24 and 26 show an 18-column group for BOLD in the views (frame 23 in all four): a real garbled render, unchanged with the template before W521 (8bc17e4) and with the W523 skip disabled, so not mine: minted as the bold garble card. Built in the tree and NOT yet committed: valley_ratios and gap_facts in check_urgency_cues, a measure that returns gaps in check_kerning (staged only in scratch ck.py, not installed)",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: 2026-10-12 the 18 to 45 column runs explained (kept frames, lit column profiles at frames 17 to 19). At frame 18 (x=138.6) the pip image is a half-pip phase: every glyph column is split across two pips, no pip is fully lit, the gray view binarises to the stills own peak and keeps only faint scattered columns, while the colour-vision views (a different peak and threshold) keep nearly every pip and fuse the text into 18, 30 and 45 column runs. Frames 17 and 19 (aligned) give identical, clean profiles in both views. So the runs are not a defect in the board, they are the binarisation applied to a uniformly half-covered still: a binary lit-run measure is phase-fragile by construction. That settles the measure: K1 needs a graded fact, the brightness of the gap pip next to a stroke pip, judged per letter boundary at the known 6-pip advance | 2026-10-12: 2026-10-12 graded measures tried on stepped frames 8 to 24 (scratch kern_graded.py). (a) Valley ratio (gap pip over the lower neighbouring stroke): regular text 0.0 at aligned phases and up to 0.66 gray / 0.78 CVD at others; bold up to 0.91 in the CVD views, 0.66 gray; a fused pair has NO valley, so the valley alone cannot catch it (it scores 0). (b) Stroke-group width (columns at or above 0.6 of the stills peak, interior groups): regular 4 or 5, bold 5 or 6, IDENTICAL in all four views, at every phase from frame 8 to 22; a fused pair blows it out. So the stable graded fact is the stroke-group width, and the valley ratio is secondary. Frames 23, 24 and 26 show an 18-column group for BOLD in the views (frame 23 in all four): a real garbled render, unchanged with the template before W521 (8bc17e4) and with the W523 skip disabled, so not mine: minted as the bold garble card. Built in the tree and NOT yet committed: valley_ratios and gap_facts in check_urgency_cues, a measure that returns gaps in check_kerning (staged only in scratch ck.py, not installed) | 2026-10-12: 2026-10-12 landed in the tree: check_urgency_cues.stroke_groups, valley_ratios and gap_facts; check_kerning measure now returns gaps (widest interior stroke group per view and style over stepped frames 8 to 22, plus the valley ratio); policy/kerning.rego gains K4 (group wider than glyph plus bloom at some phase), K5 (cases without a sweep), K6 (fewer than 6 frames) with refusing and admitting tests, 1205 of 1205 rego tests pass. Kerning admits on software AND on the RHI. K1 still reads the moment-grab still, so on the RHI it can pass or fail by phase luck (it denied once, then admitted): its retirement in favour of K4 is the next card",
       "issued_at": "2026-10-12T10:58:10Z",
       "minted_during": "interrupt",
       "caused_by": "W526",
-      "last_worked": "2026-10-12T12:02:40Z",
+      "last_worked": "2026-10-12T12:34:43Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T123443Z"
     },
     {
       "symbol": "W528",
@@ -12599,6 +12597,46 @@
       "caused_by": "W527",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W529",
+      "title": "Retire kerning K1 (binary lit-run on a moment-grab still) in favour of the phase-swept K4, keeping the K2 and K3 population guards, with the reason recorded in the policy",
+      "status": "working",
+      "enables": [
+        "W121"
+      ],
+      "touches": [
+        "check_kerning"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T12:34:34Z",
+      "minted_during": "interrupt",
+      "caused_by": "W527",
+      "last_worked": "2026-10-12T12:34:43Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W530",
+      "title": "Pin mikemol-grade at the par sha: the located paperkit imports mikemol.grade, so the worklist and readme stages failed with ModuleNotFoundError",
+      "status": "done",
+      "enables": [],
+      "touches": [
+        "pyproject"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Gate failure at the W527 commit: the located paperkit (bib.py line 36) imports mikemol.grade.grade, a dist this venv lacked (mtools:W557 moved the ladder out of paperkit). Added mikemol-grade at f04f0a2 to the tooling extra, uv sync of both extras installed it, worklist_gate --only readme passes",
+      "issued_at": "2026-10-12T12:58:24Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-12T12:58:29Z",
+      "ticks_blocked": 0,
+      "completed": "20261012T125829Z"
     }
   ],
   "residue": [

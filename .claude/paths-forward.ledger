@@ -894,3 +894,6 @@
 2026-10-12T11:27:41Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:b27ee49a9d188f53; the FILE wins"
 2026-10-12T11:57:51Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:dc8d10e22e78c4ba; the FILE wins"
 2026-10-12T12:02:40Z  interrupt W528 minted    -         "Bold marquee text garbles at some scroll phases: stepped frames 23, 24 and 26 show an 18-column fused stroke group in every view, with the template before and after W521 to W523 alike"  evidence=W527
+2026-10-12T12:31:55Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:1ab53f7fc24177f2; the FILE wins"
+2026-10-12T12:34:34Z  interrupt W529 minted    -         "Retire kerning K1 (binary lit-run on a moment-grab still) in favour of the phase-swept K4, keeping the K2 and K3 population guards, with the reason recorded in the policy"  evidence=W527
+2026-10-12T12:58:24Z  interrupt W530 minted    -         "Pin mikemol-grade at the par sha: the located paperkit imports mikemol.grade, so the worklist and readme stages failed with ModuleNotFoundError"

@@ -79,6 +79,10 @@ tooling = [
     # with ModuleNotFoundError the first time the checkout moved past this venv (W487,
     # 2026-10-11). The gate only verifies and never imported it; the projector writes.
     "mikemol-atomicwrite @ git+https://github.com/mikemol/mtools.git@f04f0a2f6b93b69e8e479d341f50ac786f801995#subdirectory=atomicwrite",
+    # ⚑ THE SAME CLASS, ONE DIST FURTHER (W530, 2026-10-12): the located paperkit's bib.py now does
+    # `import mikemol.grade.grade` (the grade ladder, moved out of paperkit by mtools:W557), so the worklist
+    # and readme stages died with ModuleNotFoundError when the checkout moved past this venv.
+    "mikemol-grade @ git+https://github.com/mikemol/mtools.git@f04f0a2f6b93b69e8e479d341f50ac786f801995#subdirectory=grade",
     # W139/W210: Rego specs as pytest items (mtools:W372 7b1e381 adds expect.deny, so a
     # refusing case is expressible and the falsifiability pair survives the port)
     "mikemol-pytestspec @ git+https://github.com/mikemol/mtools.git@f04f0a2f6b93b69e8e479d341f50ac786f801995#subdirectory=pytestspec",

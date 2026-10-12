@@ -45,6 +45,36 @@ deny contains msg if {
 	msg := sprintf("K3: no %s view measured", [s])
 }
 
+# THE GRADED CLAIM, AT EVERY SCROLL PHASE (W527). K1 reads one still, binarised to its own peak, and the
+# moment it is taken depends on frame timing: at a half-pip phase every glyph column is split across two
+# pips and the colour-vision views' threshold fuses the whole text into one 18 to 45 column run. So the
+# gate also reads a SWEEP: `gaps` holds, per variant, view and style, the widest interior stroke group
+# (columns at 0.6 of the still's peak) over a run of stepped frames. Measured: regular 4 or 5, bold 5 or
+# 6, identical in every view at every phase; a fused pair is a group about twice that.
+min_sweep := 6
+
+# K4 — a stroke group wider than one letter + its bloom at SOME phase: two letters fused there
+deny contains msg if {
+	some g in object.get(input, "gaps", [])
+	g.max_group > g.glyph_cols + bloom
+	msg := sprintf("K4: %s %s under %s: over %d stepped frames the widest stroke group is %d columns, wider than a %d-column glyph + %d bloom: letters fuse at some scroll phase",
+		[g.variant, g.style, g.view, g.frames, g.max_group, g.glyph_cols, bloom])
+}
+
+# K5 — cases without a sweep judged one phase only (the moment the still happened to be taken)
+deny contains "K5: no stepped-frame sweep measured: kerning was judged at one scroll phase only" if {
+	count(object.get(input, "cases", [])) > 0
+	count(object.get(input, "gaps", [])) == 0
+}
+
+# K6 — a sweep of fewer frames than a phase cycle (the step is 0.618 pip) met too few phases
+deny contains msg if {
+	some g in object.get(input, "gaps", [])
+	g.frames < min_sweep
+	msg := sprintf("K6: %s %s under %s: only %d stepped frames read, fewer than the %d a phase sweep needs",
+		[g.variant, g.style, g.view, g.frames, min_sweep])
+}
+
 admitted contains sprintf("%s/%s/%s", [c.variant, c.style, c.view]) if {
 	some c in object.get(input, "cases", [])
 	count(object.get(c, "interior_runs", [])) > 0

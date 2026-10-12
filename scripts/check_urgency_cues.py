@@ -153,6 +153,101 @@ def replay(frames, still_png, variant):
     return temporal_facts(res, frames, ground, ink["_grid"])
 
 
+# ⚑ THE GRADED GAP (W527). A binary lit-run measure is phase-fragile by construction: at a half-pip scroll
+# phase every glyph column is split across two pips, no pip is fully lit, and the colour-vision views'
+# thresholds fuse the whole text into one 18 to 45 column run (measured, stepped frame 18). What a gap
+# IS at every phase is graded: a valley in the column profile (the brightest ink in each pip column,
+# over the still's own peak), judged against the strokes either side.
+VALLEY_PEAK = 0.6  # a stroke is a column at >= this fraction of the still's peak
+VALLEY_REACH = 6  # ... within one glyph advance on each side
+
+
+def valley_ratios(c):
+    """The gap between letters, per local minimum of the column profile, as the minimum over the
+    LOWER of the two strokes it sits between: 0 is a dark gap, 1 is no gap at all.
+
+    A valley needs a stroke (>= VALLEY_PEAK of the peak) within VALLEY_REACH columns on BOTH sides and
+    must be a local minimum below them; the profile's first and last two columns are not judged (the
+    board edge clips them). Returns the ratios, one per valley (empty for a blank still)."""
+    p = c.max(axis=0)
+    if p.max() <= 0:
+        return []
+    p = p / p.max()
+    out = []
+    for i in range(2, len(p) - 2):
+        if not (p[i] <= p[i - 1] and p[i] <= p[i + 1]):
+            continue
+        top = min(
+            p[max(0, i - VALLEY_REACH) : i].max(), p[i + 1 : i + 1 + VALLEY_REACH].max()
+        )
+        if top >= VALLEY_PEAK and p[i] < top:
+            out.append(round(float(p[i] / top), 2))
+    return out
+
+
+def stroke_groups(c):
+    """Widths, in pip columns, of the INTERIOR groups of strokes: runs of columns whose brightest ink is
+    at least VALLEY_PEAK of the still's peak (the edge groups may be clipped by the board).
+
+    ⚑ THE GRADED FACT THAT HOLDS AT EVERY PHASE (W527). Measured on stepped frames 8 to 22: regular text
+    groups are 4 or 5 columns, bold 5 or 6, identical in all four colour-vision views; a fused pair is a
+    group about twice that. Unlike the binary lit-run (cells at a fraction of the still's own peak, which a
+    half-pip phase fuses in the CVD views alone) it reads the same in every view and at every phase."""
+    p = c.max(axis=0)
+    if p.max() <= 0:
+        return []
+    runs, n = [], 0
+    for hot in p / p.max() >= VALLEY_PEAK:
+        if hot:
+            n += 1
+        elif n:
+            runs.append(n)
+            n = 0
+    if n:
+        runs.append(n)
+    return runs[1:-1]
+
+
+def gap_facts(variant, out_dir, frames):
+    """{"views": {view: {style: {"group": the widest interior stroke group over the swept frames, "worst":
+    the largest valley ratio (secondary), "frames": how many frames were read}}}} from ONE stepped capture
+    per style (the same text plain and bold), or {"withheld": why}.
+
+    The stepped capture (R9) is the same offset on every host and both scene graphs, and `frames` spans
+    more than one cycle of the 0.618-pip step, so the sweep meets aligned and half-pip phases alike."""
+    import check_marquee_live as ML
+
+    body = " ".join(["Hello World"] * 9)
+    worst = {}
+    for name, b in (("regular", body), ("bold", f"<b>{body}</b>")):
+        fdir = os.path.join(out_dir, f"{variant}-gap-{name}")
+        os.makedirs(fdir, exist_ok=True)
+        tl = [
+            (
+                300,
+                "arrive",
+                1,
+                {"summary": "", "body": b, "applicationName": APP, "urgency": 1},
+                f"{APP}: {body}",
+            )
+        ]
+        if ML.run(variant=variant, end_ms=END_MS, frames=fdir, timeline=tl) is None:
+            return {"withheld": "the qml runner is not on this host"}
+        for k in frames:
+            png = os.path.join(fdir, f"frame-{k:03d}.png")
+            got = read_still(png, ground_of(variant)) if os.path.isfile(png) else None
+            if got is None:
+                continue
+            for v in VIEWS:
+                cell = worst.setdefault(v, {}).setdefault(
+                    name, {"worst": 0.0, "group": 0, "frames": 0}
+                )
+                cell["worst"] = max([cell["worst"], *valley_ratios(got[v])])
+                cell["group"] = max([cell["group"], *stroke_groups(got[v])])
+                cell["frames"] += 1
+    return {"views": worst}
+
+
 def bold_facts(variant, out_dir, still_frame=None):
     """⟐W72.f — does a BOLD run differ from a regular one in the SET of lit pips, or only
     in brightness? Operator (2026-09-25): grow=s/2 overhangs into NEIGHBOUR pips, so a
