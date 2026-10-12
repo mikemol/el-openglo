@@ -198,19 +198,17 @@ MOUNTS = {
             ("0.5", "1.5", "0.05"),
             "a fraction of the panel-derived pitch",
         ),
-        "bloom": Withheld(
-            "ApertureField has no emission model (no halo layer; the software scene "
-            "graph the gates run has no MultiEffect) — a bloom key would be a slider "
-            "that moves nothing, the defect the clock once shipped twice"
+        # the lit pips mount the shared EmissionHalo (W501); 0 is OFF, so an unconfigured board is unchanged
+        "bloom": Exposed(
+            "bloom",
+            "0.0",
+            ("0", "6", "0.5"),
+            "0.0: off, so the unconfigured board draws as it always has",
         ),
-        "haloOpacity": Withheld("ApertureField has no halo layer (see bloom)"),
+        "haloOpacity": Exposed("haloOpacity", "0.75", ("0", "1", "0.05")),
         "litGradient": Withheld(_PIP_NO_STROKE, "geometry"),
         "boundaryDepth": Withheld(_PIP_NO_STROKE, "geometry"),
-        "glow": Withheld(
-            "ApertureField's brightness is the aperture relation over the backdrop "
-            "(ghostAlpha and dotFill carry it); it has no cell-level emission "
-            "multiplier, so a key would be a control that moves nothing"
-        ),
+        "glow": Exposed("glow", "1.0", ("0", "1", "0.05")),
     },
     "wallpaper": {
         "ghost": Exposed("showGhost", "true"),

@@ -7,9 +7,6 @@
     "offset": "STATE",
     "gamma": "OPEN:W268",
     "colourFromInk": "MOUNT",
-    "bloom": "OPEN:W502",
-    "haloOpacity": "OPEN:W502",
-    "glow": "OPEN:W502",
     "ringOpacity": "STATE",
     "sizing": "STATE",
     "backdropWidth": "STATE"

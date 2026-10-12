@@ -47,6 +47,12 @@ PlasmoidItem {
                                  : plasmoid.configuration.pitchScale
     property real cfgDotFill: (plasmoid.configuration.dotFill === undefined) ? 0.82
                               : plasmoid.configuration.dotFill
+    property real cfgBloom: (plasmoid.configuration.bloom === undefined) ? 0.0
+                            : plasmoid.configuration.bloom
+    property real cfgHaloOpacity: (plasmoid.configuration.haloOpacity === undefined) ? 0.75
+                                  : plasmoid.configuration.haloOpacity
+    property real cfgGlow: (plasmoid.configuration.glow === undefined) ? 1.0
+                           : plasmoid.configuration.glow
     property real cfgGhostAlpha: (plasmoid.configuration.ghostAlpha === undefined) ? root.ghostAlpha
                                  : plasmoid.configuration.ghostAlpha
     property bool cfgShowField: (plasmoid.configuration.showField === undefined) ? true
@@ -543,6 +549,9 @@ PlasmoidItem {
             u: rep.pitch
             scale: 4
             dotFill: root.cfgDotFill
+            bloom: root.cfgBloom
+            haloOpacity: root.cfgHaloOpacity
+            glow: root.cfgGlow
             ghostColor: root.ghostColor
             ghostOpacity: root.cfgGhostAlpha
             litColor: root.litColor

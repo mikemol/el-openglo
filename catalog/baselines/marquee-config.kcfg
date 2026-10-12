@@ -10,6 +10,10 @@
   <entry name="dotFill" type="Double"><default>0.82</default></entry>
   <!-- pitch: a fraction of the panel-derived pitch -->
   <entry name="pitchScale" type="Double"><default>1.0</default></entry>
+  <!-- bloom: 0.0: off, so the unconfigured board draws as it always has -->
+  <entry name="bloom" type="Double"><default>0.0</default></entry>
+  <entry name="haloOpacity" type="Double"><default>0.75</default></entry>
+  <entry name="glow" type="Double"><default>1.0</default></entry>
   <!-- MOUNT layer: this marquee's own -->
   <!-- scroll speed: the WHOLE pips the board advances per frame (W178). Each frame moves
        speed + 1/phi pips, so the step's fraction is 0.618 at every setting, panel height

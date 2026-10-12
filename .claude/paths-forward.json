@@ -6077,7 +6077,6 @@
         "check_marquee_live"
       ],
       "blocked_on": [
-        "W501",
         "W502",
         "W503"
       ],
@@ -6088,7 +6087,7 @@
       "minted_during": "interrupt",
       "caused_by": "W271",
       "last_worked": "2026-10-11T17:19:45Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null,
@@ -12018,7 +12017,7 @@
     {
       "symbol": "W502",
       "title": "display_params: the marquee exposes bloom, haloOpacity and glow (three lift-debt Withheld rows become Exposed) with kcfg and page controls",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W272"
       ],
@@ -12026,17 +12025,15 @@
         "display_params",
         "marquee-main"
       ],
-      "blocked_on": [
-        "W501"
-      ],
+      "blocked_on": [],
       "blocked_kind": "agent",
       "next_bounded_step": "",
       "evidence": "",
       "issued_at": "2026-10-11T16:04:43Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-11T16:04:52Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-11T23:17:34Z",
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
