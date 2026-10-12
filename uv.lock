@@ -312,6 +312,7 @@ research = [
 tooling = [
     { name = "libcst" },
     { name = "mikemol-atomicwrite" },
+    { name = "mikemol-fence" },
     { name = "mikemol-hooks" },
     { name = "mikemol-mdstruct" },
     { name = "mikemol-pathsforward" },
@@ -333,6 +334,7 @@ requires-dist = [
     { name = "material-color-utilities", marker = "extra == 'research'" },
     { name = "matplotlib", marker = "extra == 'research'" },
     { name = "mikemol-atomicwrite", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995" },
+    { name = "mikemol-fence", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995" },
     { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995" },
     { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995" },
     { name = "mikemol-pathsforward", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995" },
@@ -661,6 +663,11 @@ wheels = [
 name = "mikemol-atomicwrite"
 version = "0.1.0"
 source = { git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995#f04f0a2f6b93b69e8e479d341f50ac786f801995" }
+
+[[package]]
+name = "mikemol-fence"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=f04f0a2f6b93b69e8e479d341f50ac786f801995#f04f0a2f6b93b69e8e479d341f50ac786f801995" }
 
 [[package]]
 name = "mikemol-hooks"
