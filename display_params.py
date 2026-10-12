@@ -115,6 +115,20 @@ DISPLAY = (
         "how far from each tip the fade reaches, as a fraction of the stroke (0.5 = to the midpoint)",
     ),
     Param("glow", "Double", "Brightness:", "the whole cell's emission level"),
+    # the aperture field's two render values (W268): how a pip's brightness follows the ink under its
+    # aperture, and how finely that ink is sampled
+    Param(
+        "apertureGamma",
+        "Double",
+        "Aperture gamma:",
+        "the transfer curve of a pip's brightness over the fraction of its aperture covered (1 is linear)",
+    ),
+    Param(
+        "backdropScale",
+        "Double",
+        "Backdrop resolution:",
+        "backdrop pixels per pip: the supersampling of the aperture integral (a whole number)",
+    ),
 )
 
 _BAKED_ALPHA = (
@@ -130,6 +144,10 @@ _PIP_ONE_SIZE = (
     "stroke, so this key would be a control that moves nothing"
 )
 
+_NO_APERTURE = (
+    "an aperture-field value: a stroke display draws strokes with no backdrop to sample and no "
+    "pip brightness to bend, so this key would be a control that moves nothing"
+)
 _PIP_NO_STROKE = (
     "ApertureField draws pips, not strokes: there is no stroke to dim toward its "
     "tips, so this key would be a control that moves nothing"
@@ -174,6 +192,8 @@ MOUNTS = {
         "litGradient": Exposed("litGradient", "0.35", ("0", "1", "0.05")),
         "boundaryDepth": Exposed("boundaryDepth", "0.5", ("0", "0.5", "0.05")),
         "glow": Exposed("glow", "1.0", ("0", "1", "0.05")),
+        "apertureGamma": Withheld(_NO_APERTURE, "geometry"),
+        "backdropScale": Withheld(_NO_APERTURE, "geometry"),
     },
     "marquee": {
         "ghost": Exposed("showField", "true"),
@@ -209,6 +229,19 @@ MOUNTS = {
         "litGradient": Withheld(_PIP_NO_STROKE, "geometry"),
         "boundaryDepth": Withheld(_PIP_NO_STROKE, "geometry"),
         "glow": Exposed("glow", "1.0", ("0", "1", "0.05")),
+        # the aperture field's two render values (W268; they were OPEN render constants)
+        "apertureGamma": Exposed(
+            "gamma",
+            "1.0",
+            ("0.4", "2.0", "0.05"),
+            "1.0 is linear coverage; below 1 lifts partial coverage (a dim edge pip brighter), above 1 darkens it",
+        ),
+        "backdropScale": Exposed(
+            "backdropScale",
+            "4",
+            ("2", "8", "1"),
+            "backdrop pixels per pip, a whole number: higher samples the ink more finely and costs more per frame",
+        ),
     },
     "wallpaper": {
         "ghost": Exposed("showGhost", "true"),
@@ -238,6 +271,8 @@ MOUNTS = {
         "litGradient": Exposed("litGradient", "0.35", ("0", "1", "0.05")),
         "boundaryDepth": Exposed("boundaryDepth", "0.5", ("0", "0.5", "0.05")),
         "glow": Exposed("glow", "1.0", ("0", "1", "0.05")),
+        "apertureGamma": Withheld(_NO_APERTURE, "geometry"),
+        "backdropScale": Withheld(_NO_APERTURE, "geometry"),
     },
 }
 

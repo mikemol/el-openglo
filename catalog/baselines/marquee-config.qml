@@ -22,6 +22,8 @@ KCM.SimpleKCM {
     property alias cfg_bloom: bloomControl.value
     property alias cfg_haloOpacity: haloOpacityControl.value
     property alias cfg_glow: glowControl.value
+    property alias cfg_gamma: gammaControl.value
+    property alias cfg_backdropScale: backdropScaleControl.value
     property bool cfg_showFieldDefault
     property real cfg_ghostAlphaDefault
     property real cfg_dotFillDefault
@@ -29,6 +31,8 @@ KCM.SimpleKCM {
     property real cfg_bloomDefault
     property real cfg_haloOpacityDefault
     property real cfg_glowDefault
+    property real cfg_gammaDefault
+    property real cfg_backdropScaleDefault
     // MOUNT layer: this marquee's own
     property alias cfg_speed: speedSlider.value
     property alias cfg_idleText: idleText.text
@@ -53,6 +57,8 @@ KCM.SimpleKCM {
         QQC2.Slider { id: bloomControl; from: 0; to: 6; stepSize: 0.5; Kirigami.FormData.label: "Bloom / glow:" }
         QQC2.Slider { id: haloOpacityControl; from: 0; to: 1; stepSize: 0.05; Kirigami.FormData.label: "Halo opacity:" }
         QQC2.Slider { id: glowControl; from: 0; to: 1; stepSize: 0.05; Kirigami.FormData.label: "Brightness:" }
+        QQC2.Slider { id: gammaControl; from: 0.4; to: 2.0; stepSize: 0.05; Kirigami.FormData.label: "Aperture gamma:" }
+        QQC2.Slider { id: backdropScaleControl; from: 2; to: 8; stepSize: 1; Kirigami.FormData.label: "Backdrop resolution:" }
         // whole pips per frame (W178): the widget adds 1/phi, so every setting keeps a 0.618 step fraction
         QQC2.Slider { id: speedSlider; from: 1; to: 4; stepSize: 1; snapMode: QQC2.Slider.SnapAlways; Kirigami.FormData.label: "Scroll speed:" }
         QQC2.TextField { id: idleText; Kirigami.FormData.label: "Idle text:"; placeholderText: "(empty: bare field)" }

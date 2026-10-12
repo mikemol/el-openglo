@@ -85,7 +85,13 @@ HALO_KEYS = {"bloom", "haloOpacity", "glow"}
 
 # the sampled measurement: the stepped-capture frame compared (the text is well on the board) and the
 # wall-clock cap that bounds the run once that many frames are grabbed
-SAMPLED_FRAME = 14
+# ⚑ FRAME 23, NOT 14 (W268). Frame 14 sits at an ALIGNED scroll phase (13 steps of 4.618 pips leave a
+# fraction of 0.03), where every pip is fully lit or dark: a transfer curve (gamma) and the backdrop
+# sampling (backdropScale) act on PARTIAL coverage and had nothing to act on, so both read as dead
+# (measured: identical frames). Frame 23 leaves a fraction of 0.60: partial pips exist, and the
+# backdrop resolutions 2 and 8 round that phase differently (0.5 against 0.625). Measured at 23:
+# gamma and backdropScale each change about 2500 pixels; the same config twice is identical.
+SAMPLED_FRAME = 23
 SAMPLED_END_MS = 8000
 SAMPLED_TEXT = " ".join(["Hello World"] * 9)
 

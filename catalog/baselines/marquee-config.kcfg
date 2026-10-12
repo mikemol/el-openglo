@@ -14,6 +14,10 @@
   <entry name="bloom" type="Double"><default>0.0</default></entry>
   <entry name="haloOpacity" type="Double"><default>0.75</default></entry>
   <entry name="glow" type="Double"><default>1.0</default></entry>
+  <!-- apertureGamma: 1.0 is linear coverage; below 1 lifts partial coverage (a dim edge pip brighter), above 1 darkens it -->
+  <entry name="gamma" type="Double"><default>1.0</default></entry>
+  <!-- backdropScale: backdrop pixels per pip, a whole number: higher samples the ink more finely and costs more per frame -->
+  <entry name="backdropScale" type="Double"><default>4</default></entry>
   <!-- MOUNT layer: this marquee's own -->
   <!-- scroll speed: the WHOLE pips the board advances per frame (W178). Each frame moves
        speed + 1/phi pips, so the step's fraction is 0.618 at every setting, panel height

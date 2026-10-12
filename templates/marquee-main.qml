@@ -47,6 +47,11 @@ PlasmoidItem {
                                  : plasmoid.configuration.pitchScale
     property real cfgDotFill: (plasmoid.configuration.dotFill === undefined) ? 0.82
                               : plasmoid.configuration.dotFill
+    // the aperture field's transfer curve and backdrop sampling (W268), settings now and no longer literals
+    property real cfgGamma: (plasmoid.configuration.gamma === undefined) ? 1.0
+                            : plasmoid.configuration.gamma
+    property int cfgBackdropScale: (plasmoid.configuration.backdropScale === undefined) ? 4
+                                   : Math.round(plasmoid.configuration.backdropScale)
     property real cfgBloom: (plasmoid.configuration.bloom === undefined) ? 0.0
                             : plasmoid.configuration.bloom
     property real cfgHaloOpacity: (plasmoid.configuration.haloOpacity === undefined) ? 0.75
@@ -547,7 +552,8 @@ PlasmoidItem {
             showGhost: root.cfgShowField
             rows: root.matrix.rows
             u: rep.pitch
-            scale: 4
+            scale: root.cfgBackdropScale
+            gamma: root.cfgGamma
             dotFill: root.cfgDotFill
             bloom: root.cfgBloom
             haloOpacity: root.cfgHaloOpacity
@@ -793,6 +799,8 @@ PlasmoidItem {
                 if (field.backdrop.available) rep.drawBackdrop();
             }
             function onCfgIdleTextChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
+            // the backdrop's resolution changed (W268): its size and every cell's pixels change with it
+            function onCfgBackdropScaleChanged() { if (field.backdrop.available) rep.paintBackdrop(); }
             // the flash toggled: the backdrop is already sized for this text, so redraw only
             function onFlashLitChanged() { if (field.backdrop.available) rep.drawBackdrop(); }
         }

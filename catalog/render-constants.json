@@ -3,9 +3,7 @@
   "templates/ApertureField.qml": {
     "rows": "MOUNT",
     "u": "MOUNT",
-    "scale": "OPEN:W268",
     "offset": "STATE",
-    "gamma": "OPEN:W268",
     "colourFromInk": "MOUNT",
     "cov": "STATE",
     "ringOpacity": "STATE",

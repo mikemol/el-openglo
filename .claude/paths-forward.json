@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 530,
+  "counter": 531,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -5935,7 +5935,7 @@
     {
       "symbol": "W267",
       "title": "Reach witness for the live wallpaper and the marquee settings (as check_config_reach does for the clock): the same dead-slider blind spot",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W268"
       ],
@@ -5946,22 +5946,22 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Generalise check_config_reach over mounts: the live wallpaper through render_qml live-wallpaper (frozen time already applies), the marquee through check_marquee_live (its keys act over time: sample a short run per key end). Declare each unreachable-in-one-still key inert with its reason. THIS IS WHAT UNBLOCKS the two remaining OPEN render values: expose ApertureField gamma and scale on the marquee (display_params rows Aperture gamma, Backdrop resolution) and prove each effectful here.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Satisfied: check_config_reach measures all three mounts. The clock and the live wallpaper by frozen stills (render_qml), the marquee by a SAMPLED run (W503: its harness at each key two ends, stepped frame 14, halo keys on the RHI, NEEDS and INERT declared with reasons). opa_gate config_reach admitted 39, 0 deny, 0 withheld. This unblocks W268: ApertureField gamma and scale can now be exposed and proven effectful here",
       "issued_at": "2026-10-03T23:46:48Z",
       "minted_during": "interrupt",
       "caused_by": "W264",
-      "last_worked": "2026-10-06T01:51:15Z",
+      "last_worked": "2026-10-12T15:49:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null,
+      "completed": "20261012T154932Z",
       "weight": 21
     },
     {
       "symbol": "W268",
       "title": "Every render-time value is exposed and effectful in the configuration view (operator rule): census the literals each mount consumes, expose or Withhold each with a reason",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W263"
       ],
@@ -5971,20 +5971,18 @@
         "clock",
         "check_config_page"
       ],
-      "blocked_on": [
-        "W267"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "After W267: expose ApertureField gamma and scale on the marquee (display_params rows + marquee-main.qml reads), prove each in the reach witness, delete their OPEN entries. Then census the numeric literals inside render bindings (a second measurement in check_render_constants: number literals in binding expressions per template, each with a disposition), starting with clock-main segLen ratio 0.42, SegmentChar blur law and the Timer intervals.",
-      "evidence": "2026-10-04: Operator 2026-10-04: the rule applies to ALL widgets and the live wallpaper(s). FIRST SLICE DONE (commit this tick): clock and live wallpaper expose halo opacity, lit gradient, gradient reach and brightness (the wallpaper also gains unlit opacity); marquee rows Withheld with reasons; config pages 13/13 and 11/11, reach witness 13 of 13 clock keys alive. REMAINING: the census tool over EVERY template (marquee-main, taskswitch-main, metrics-main, splash, sddm, android clock, ApertureField, the config pages) and the per-mount reach witness (W267); numeric literals inside bindings (digit height ratio 0.42, blink interval 500 ms and 1000 ms, marquee speeds and paddings) are invisible to a property census and need their own pass. | 2026-10-04: CENSUS SLICE 1 (scripts/check_render_constants.py --list, selftested): 12 of 61 literal-default properties over 16 QML templates are reached by a kcfg key. Most of the other 49 are STATE or DATA, not settings (timeStr, colonOn, tickerText, boardX, captureSteps, rollProgress, ...), which the census cannot yet tell from a setting. The ones that look like real unexposed render values: ApertureField gamma 1.0, scale 4, u 4; SegmentChar segLen 20 (mount-owned); metrics-main endpoint (a setting by name); sddm and splash have no config surface at all (greeter and splash screens: whether they need one is an operator question). Inline constants in bindings are not counted yet. | 2026-10-04: REGISTRY AND POLICY DONE (commits this tick): catalog/render-constants.json classifies the 49 literal render properties no key reaches; policy/render_constants.rego C0-C3 (OPEN is debt, never a pass); warrants RENDER-CONSTANTS(+SEES). Live: 59 admitted, 0 denied, 2 OPEN (ApertureField gamma, scale): the metrics endpoint is WITHHELD by contract (luthen-observability: asked for, never copied into configuration). The two OPEN values wait on W267 (a per-mount reach witness) so their exposure can be PROVEN effectful. STILL TO DO: numeric literals inside bindings (digit height ratio 0.42, blink intervals, marquee speeds and paddings, the halo blur law strokeLit*2*bloom) and the SDDM greeter and splash (no config surface; operator question asked). | 2026-10-04: OPERATOR RULING 2026-10-04: the SDDM greeter and the login splash NEED a configuration view; \"the name of the game is conformity and standardization of implementation; that is what lets us lift everything, define interfaces, and project out to everything, and get a consistent product.\" Minted W269 (SDDM) and W270 (splash); both are mounts of the one display declaration, not exceptions. Saved as memory conformity-and-standardization.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-04: Operator 2026-10-04: the rule applies to ALL widgets and the live wallpaper(s). FIRST SLICE DONE (commit this tick): clock and live wallpaper expose halo opacity, lit gradient, gradient reach and brightness (the wallpaper also gains unlit opacity); marquee rows Withheld with reasons; config pages 13/13 and 11/11, reach witness 13 of 13 clock keys alive. REMAINING: the census tool over EVERY template (marquee-main, taskswitch-main, metrics-main, splash, sddm, android clock, ApertureField, the config pages) and the per-mount reach witness (W267); numeric literals inside bindings (digit height ratio 0.42, blink interval 500 ms and 1000 ms, marquee speeds and paddings) are invisible to a property census and need their own pass. | 2026-10-04: CENSUS SLICE 1 (scripts/check_render_constants.py --list, selftested): 12 of 61 literal-default properties over 16 QML templates are reached by a kcfg key. Most of the other 49 are STATE or DATA, not settings (timeStr, colonOn, tickerText, boardX, captureSteps, rollProgress, ...), which the census cannot yet tell from a setting. The ones that look like real unexposed render values: ApertureField gamma 1.0, scale 4, u 4; SegmentChar segLen 20 (mount-owned); metrics-main endpoint (a setting by name); sddm and splash have no config surface at all (greeter and splash screens: whether they need one is an operator question). Inline constants in bindings are not counted yet. | 2026-10-04: REGISTRY AND POLICY DONE (commits this tick): catalog/render-constants.json classifies the 49 literal render properties no key reaches; policy/render_constants.rego C0-C3 (OPEN is debt, never a pass); warrants RENDER-CONSTANTS(+SEES). Live: 59 admitted, 0 denied, 2 OPEN (ApertureField gamma, scale): the metrics endpoint is WITHHELD by contract (luthen-observability: asked for, never copied into configuration). The two OPEN values wait on W267 (a per-mount reach witness) so their exposure can be PROVEN effectful. STILL TO DO: numeric literals inside bindings (digit height ratio 0.42, blink intervals, marquee speeds and paddings, the halo blur law strokeLit*2*bloom) and the SDDM greeter and splash (no config surface; operator question asked). | 2026-10-04: OPERATOR RULING 2026-10-04: the SDDM greeter and the login splash NEED a configuration view; \"the name of the game is conformity and standardization of implementation; that is what lets us lift everything, define interfaces, and project out to everything, and get a consistent product.\" Minted W269 (SDDM) and W270 (splash); both are mounts of the one display declaration, not exceptions. Saved as memory conformity-and-standardization. | 2026-10-12: 2026-10-12 the property-level census is complete: the last two OPEN render values, ApertureField gamma and scale, are now settings (display_params apertureGamma and backdropScale; Exposed on the marquee with kcfg gamma and backdropScale and page sliders, Withheld as geometry on the stroke displays; marquee-main cfgGamma and cfgBackdropScale reach the field, a resolution change repaints the backdrop). render_constants admitted 69, 0 deny, 0 withheld, no OPEN left; config_page admitted 42; config_reach admitted 41 with both keys alive. FINDING that mattered: the witness read both as dead at the sampled frame 14 because an aligned scroll phase has only fully lit or dark pips; the sampled frame is now 23 (a 0.60 phase, partial pips, the resolutions round differently), measured gamma and backdropScale about 2500 pixels each, same config twice identical. Screens pixel-identical at the defaults. Remaining from the original scope: numeric literals inside bindings (new card), the SDDM greeter and splash configuration views (W269, W270)",
       "issued_at": "2026-10-04T00:05:52Z",
       "minted_during": "interrupt",
       "caused_by": "operator",
-      "last_worked": "2026-10-06T01:51:15Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-12T16:56:56Z",
+      "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null
+      "completed": "20261012T165656Z"
     },
     {
       "symbol": "W269",
@@ -11416,19 +11414,19 @@
     {
       "symbol": "W475",
       "title": "Answer luthen-observability: plasmashell's GUI thread is CPU-saturated on luthen right now, and your two plasmoids (org.el.notifymarquee, or",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Answered luthen-observability-d9 2026-10-12: cause (per-frame array assignment re-evaluating every pip delegate, plus the JS coverage integral), the 27 percent cut (W521 to W523), Shmem still open behind the VM (W515). Letter archived to inbox/archive",
       "issued_at": "2026-10-10T21:27:08Z",
       "minted_during": "interrupt",
       "caused_by": "inbox/2026-10-04-luthen-observability-plasmashell-pegged.md",
-      "last_worked": "2026-10-10T21:31:42Z",
+      "last_worked": "2026-10-12T15:49:32Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261012T154932Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "default",
       "weight": 2
@@ -12309,11 +12307,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "The offscreen soak cleared the QML (no runaway, Shmem 0 without a compositor); a faithful Shmem repro needs the guest VM, which waits on luthen-observability:W163 (TTL reaper, behind the Gentoo base W41)",
-      "evidence": "2026-10-12: Operator 2026-10-12: the KVM/k8s route is the repro path. State of it: inbox 2026-10-04 luthen says VMI create is withheld from throwaway-el-openglo until the reaper ships (luthen-observability:W163, tracked as W126), while Pods are allowed (TTL annotation, activeDeadlineSeconds at most 1800). W70 is the open VM harness card, blocked on luthen-observability:W127; W71 (guest image) is ours. Shmem growth is the signature, and Qt Canvas buffers in the offscreen software harness are heap not Shmem, so only a real Wayland client path reproduces Shmem faithfully | 2026-10-12: luthen 2026-10-12: VMI rights stay withheld (reaper W163 blocked on the Gentoo native base W41), so no guest VM yet; do the offscreen Pod soak first. Read images/qml-check/Containerfile in luthen-observability: stage qt (Ubuntu resolute, qt6-declarative-dev-tools, qml6 modules, QtQuick.Effects, libplasma7, plasma-workspace, python3) carries qml and the Qt offscreen platform; its final stage is FROM scratch for exports, so a runnable Pod image needs the qt stage as target, which luthen builds. Software scene graph needs no GL. Host is memory tight: soak limit a few GiB at most, short run",
+      "evidence": "2026-10-12: Operator 2026-10-12: the KVM/k8s route is the repro path. State of it: inbox 2026-10-04 luthen says VMI create is withheld from throwaway-el-openglo until the reaper ships (luthen-observability:W163, tracked as W126), while Pods are allowed (TTL annotation, activeDeadlineSeconds at most 1800). W70 is the open VM harness card, blocked on luthen-observability:W127; W71 (guest image) is ours. Shmem growth is the signature, and Qt Canvas buffers in the offscreen software harness are heap not Shmem, so only a real Wayland client path reproduces Shmem faithfully | 2026-10-12: luthen 2026-10-12: VMI rights stay withheld (reaper W163 blocked on the Gentoo native base W41), so no guest VM yet; do the offscreen Pod soak first. Read images/qml-check/Containerfile in luthen-observability: stage qt (Ubuntu resolute, qt6-declarative-dev-tools, qml6 modules, QtQuick.Effects, libplasma7, plasma-workspace, python3) carries qml and the Qt offscreen platform; its final stage is FROM scratch for exports, so a runnable Pod image needs the qt stage as target, which luthen builds. Software scene graph needs no GL. Host is memory tight: soak limit a few GiB at most, short run | 2026-10-12: luthen-observability-d9 2026-10-12: widget stays off the live desktop until a real-compositor test exists; nothing needed from el-openglo. FYI an alternative to the KubeVirt guest VM: a bring-your-own-kernel Kata RuntimeClass (luthen W868, allowlist design) may serve a real-compositor test without VMI rights; it needs one operator root act and is not built. Watch luthen W868 as a second route besides W163",
       "issued_at": "2026-10-12T01:46:36Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability:W838",
-      "last_worked": "2026-10-12T09:45:10Z",
+      "last_worked": "2026-10-12T15:50:16Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -12632,6 +12630,27 @@
       "last_worked": "2026-10-12T12:58:29Z",
       "ticks_blocked": 0,
       "completed": "20261012T125829Z"
+    },
+    {
+      "symbol": "W531",
+      "title": "Census the numeric literals inside render bindings (clock digit ratio 0.42, blink and timer intervals, halo blur law, marquee paddings), each exposed or withheld with a reason",
+      "status": "ready",
+      "enables": [
+        "W263"
+      ],
+      "touches": [
+        "check_render_constants",
+        "display_params"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-12T16:56:55Z",
+      "minted_during": "interrupt",
+      "caused_by": "W268",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [
