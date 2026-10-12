@@ -662,6 +662,7 @@ def stager(
     frames=None,
     timeline=None,
     config_overrides=None,
+    frame_cap=None,
 ):
     """run()'s JOB as a stager: `stage(td) -> (argv, env, gpu)` writes every file
     the qml process reads into td. ⚑ ONE CONSTRUCTION, TWO READERS (W61): run()
@@ -706,7 +707,7 @@ def stager(
                 if grab_paused
                 else "null",
                 "frames": json.dumps(os.path.abspath(frames)) if frames else "null",
-                "frame_cap": FRAME_CAP,
+                "frame_cap": frame_cap or FRAME_CAP,
                 "capture_steps": CAPTURE_STEPS,
             },
         )
@@ -742,6 +743,7 @@ def run(
     frames=None,
     timeline=None,
     config_overrides=None,
+    frame_cap=None,
 ):
     """{'events': [...], 'samples': [...], 'width': W} or None when the runner is absent.
 
@@ -772,6 +774,7 @@ def run(
         frames,
         timeline,
         config_overrides,
+        frame_cap,
     )
     with tempfile.TemporaryDirectory() as td:
         argv, env, _rhi = stage(td)

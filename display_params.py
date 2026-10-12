@@ -249,7 +249,8 @@ class MountSpec:
     resolved lazily by the check (a constant text or a callable) and `page_label` names
     the settings page; `holes` is the provider of the display rows' emit-time holes;
     `surface` is the render_qml surface and `size` its still, or None with `unmeasured`
-    saying why the mount cannot be rendered as one still."""
+    saying why the mount cannot be rendered as one still; `sampled` says the mount IS measured, by a
+    stepped-capture frame of its own harness (check_marquee_live) rather than by a frozen still (W503)."""
 
     kcfg: tuple[str, str]
     page: tuple[str, str]
@@ -258,6 +259,7 @@ class MountSpec:
     size: tuple[int, int] | None = None
     holes: tuple[str, str] | None = None
     unmeasured: str = ""
+    sampled: bool = False
 
 
 MOUNT_REGISTRY = {
@@ -274,6 +276,7 @@ MOUNT_REGISTRY = {
         page=("make_notify_marquee", "config_qml"),
         page_label="marquee-config.qml",
         unmeasured="acts over time: needs a sampled run per key end (check_marquee_live), W267",
+        sampled=True,
     ),
     "wallpaper": MountSpec(
         kcfg=("make_wallpaper_live", "config_main_xml"),

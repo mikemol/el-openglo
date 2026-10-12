@@ -6067,7 +6067,7 @@
     {
       "symbol": "W272",
       "title": "Marquee gains the shared emission model: bloom, halo opacity and glow as properties of one emission layer ApertureField pips mount like SegmentChar strokes (the three marquee lift debts)",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W271",
         "W268"
@@ -6078,20 +6078,18 @@
         "marquee-main",
         "check_marquee_live"
       ],
-      "blocked_on": [
-        "W503"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: W500 (extract the halo from SegmentChar into a shared emission component, clock and wallpaper pixel-identical), W501 (ApertureField mounts it, the marquee passes bloom/haloOpacity/glow), W502 (display_params: the three lift-debt rows become Exposed, kcfg and page), W503 (sampled-run reach witness under the RHI path). The aperture gamma and scale (W268 OPEN) are separate. The software scene graph has no MultiEffect, so the halo is only observable under the RHI (mesa) path.",
-      "evidence": "",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Umbrella complete 2026-10-12: W500 the shared EmissionHalo component (clock and wallpaper pixel-identical), W501 ApertureField mounts it, W502 bloom haloOpacity and glow Exposed with kcfg and page, W503 the sampled-run reach witness on the RHI (each of the three changes the picture, with bloom on for the other two). The marquee now shares the emission model; its reach is measured, not Withheld. Aperture gamma and scale remain OPEN under W268",
       "issued_at": "2026-10-04T02:19:17Z",
       "minted_during": "interrupt",
       "caused_by": "W271",
-      "last_worked": "2026-10-12T02:13:40Z",
+      "last_worked": "2026-10-12T14:29:09Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null,
+      "completed": "20261012T142909Z",
       "weight": 33
     },
     {
@@ -12042,7 +12040,7 @@
     {
       "symbol": "W503",
       "title": "Sampled-run reach witness for the marquee keys under the RHI path: each of bloom, haloOpacity and glow changes the picture (W267 marquee part, W121)",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W272"
       ],
@@ -12051,15 +12049,15 @@
         "check_config_reach"
       ],
       "blocked_on": [],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Extend check_config_reach (or a marquee reach witness) to run EL_MARQUEE_RHI=1 sampled runs per key end for bloom, haloOpacity and glow with the pummel soak timeline, and require the picture to differ; then lift the marquee unmeasured entry (W267) from MOUNT_REGISTRY",
-      "evidence": "",
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: check_config_reach now measures the marquee by a SAMPLED run: the marquee harness at each key two ends, stepped-capture frame 14 compared (deterministic), keys in HALO_KEYS on the RHI inside a held kwin, keys that need another on measured with it (NEEDS: haloOpacity and glow with bloom 3), non-visual and state-dependent keys declared INERT with reasons (openLinks, hoverPause, debugLog, traceLog, idleText, maxItems). Result: showField, ghostAlpha, dotFill, pitchScale, bloom, haloOpacity, glow and speed all change the frame; opa_gate config_reach admitted 39, 0 deny, 0 withheld (clock, marquee, wallpaper). Selftest sees a software key, an unread key, and the RHI halo (bloom 6 against 0). MountSpec gained sampled; the harness gained frame_cap. A kwin that will not start is a withheld skip, not a crash. Cost: the measurement is about 2 CPU minutes",
       "issued_at": "2026-10-11T16:04:44Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-12T13:34:37Z",
+      "last_worked": "2026-10-12T14:29:02Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261012T142902Z",
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "default"
     },
@@ -12576,7 +12574,7 @@
     {
       "symbol": "W528",
       "title": "Bold marquee text garbles at some scroll phases: stepped frames 23, 24 and 26 show an 18-column fused stroke group in every view, with the template before and after W521 to W523 alike",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W527"
       ],
@@ -12591,8 +12589,9 @@
       "issued_at": "2026-10-12T12:02:40Z",
       "minted_during": "interrupt",
       "caused_by": "W527",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-12T14:29:09Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W529",

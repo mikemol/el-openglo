@@ -15,8 +15,12 @@ at its default, and records whether the two PNGs differ. `--json` is the MEASURE
 policy/config_reach.rego decides: a key whose two renders are identical is a dead
 setting unless it is declared INERT here with the reason it cannot show in one still.
 
-MOUNTS TODAY: the clock and the live wallpaper (W267). The marquee acts over time and
-needs a sampled run per key end (check_marquee_live): its keys are not measured here yet.
+MOUNTS: the clock and the live wallpaper (W267) are rendered as frozen stills. The marquee acts over
+time, so it is measured by a SAMPLED run (W503): its own harness (check_marquee_live) is run at each
+key's two ends and the stepped-capture frame SAMPLED_FRAME is compared, a fixed scroll offset on every
+host. The halo keys (bloom, haloOpacity, glow) are drawn by a MultiEffect the software scene graph does
+not render, so those runs go to the RHI inside a held kwin (EL_MARQUEE_RHI path, W121); a key that acts
+only while another is on is measured with that one on, declared in NEEDS.
 
     scripts/check_config_reach.py            # the verdict, as opa_gate config_reach decides it
     scripts/check_config_reach.py --json     # the measurement
@@ -46,10 +50,44 @@ VARIANT = "EL-Openglo"
 # (mount, key) that cannot show in ONE still, with the reason; a declaration is data the
 # policy can read, so an exemption is visible rather than a quiet `continue`
 _BLINK = "the colon toggles per tick and one still holds it lit either way"
+_NOT_DRAWN = "not drawn: it changes behaviour or the trace, never a pixel of the board"
 INERT = {
     ("clock", "blinkColon"): _BLINK,
     ("wallpaper", "blinkColon"): _BLINK,
+    # the marquee's non-visual and state-dependent keys (W503). Declared, never silently passed; not rendered.
+    ("marquee", "openLinks"): "a tap opens a link: " + _NOT_DRAWN,
+    (
+        "marquee",
+        "hoverPause",
+    ): "the pointer pauses the board (measured by check_marquee_live --hovered): the pointer is not part of a still",
+    ("marquee", "debugLog"): "writes the widget's trace: " + _NOT_DRAWN,
+    ("marquee", "traceLog"): "the persisted trace text: " + _NOT_DRAWN,
+    (
+        "marquee",
+        "idleText",
+    ): "shown only on an IDLE board; the sampled run holds a board with text",
+    (
+        "marquee",
+        "maxItems",
+    ): "caps the ring's items; visible only with more notifications than the cap",
 }
+
+# a key that acts only while ANOTHER is on is measured with that one on (the other keys stay default):
+# the halo's opacity and brightness multiply a halo the marquee draws only when bloom is above 0, and bloom
+# defaults to 0 (off: an unconfigured board is unchanged), so at the defaults they cannot show
+NEEDS = {
+    ("marquee", "haloOpacity"): {"bloom": 3.0},
+    ("marquee", "glow"): {"bloom": 3.0},
+}
+
+# the keys drawn by the emission halo's MultiEffect, which only the RHI renders
+HALO_KEYS = {"bloom", "haloOpacity", "glow"}
+
+# the sampled measurement: the stepped-capture frame compared (the text is well on the board) and the
+# wall-clock cap that bounds the run once that many frames are grabbed
+SAMPLED_FRAME = 14
+SAMPLED_END_MS = 8000
+SAMPLED_TEXT = " ".join(["Hello World"] * 9)
 
 # ⚑ EVERY RENDER HOLDS THE COLON STEADY (W454, 2026-10-10: the @CONFIG-REACH-SEES flake).
 # The colon's own 1 Hz timer starts when the subject LOADS while the harness grabs at a fixed
@@ -80,6 +118,9 @@ def ends(entries, holes, mount="clock"):
             continue
         if isinstance(default, bool):
             out.append((key, "Bool", False, True))
+        elif isinstance(default, str):
+            # a text key has no ends: it must be declared INERT (a string is never a slider)
+            out.append((key, "String", default, default))
         else:
             out.append((key, "Double", float(default), float(default) * 2 + 1))
     return out
@@ -149,6 +190,88 @@ def mount_inputs(spec):
     return resolve(spec.kcfg), holes
 
 
+def sampled_png(overrides, mesa, td, tag):
+    """The stepped-capture frame SAMPLED_FRAME of the marquee harness under `overrides` as PNG bytes,
+    or None when the run produced no such frame. The same offset on every host (R9), so a frame is a
+    function of its inputs; `mesa` runs it on the RHI inside a held kwin."""
+    import check_marquee_live as ML
+
+    fdir = os.path.join(td, tag)
+    os.makedirs(fdir, exist_ok=True)
+    timeline = [
+        (
+            300,
+            "arrive",
+            1,
+            {
+                "summary": "",
+                "body": SAMPLED_TEXT,
+                "applicationName": "app",
+                "urgency": 1,
+            },
+            "",
+        )
+    ]
+    saved = ML.BACKEND["mesa"]
+    ML.BACKEND["mesa"] = mesa
+    try:
+        ML.run(
+            variant=VARIANT,
+            end_ms=SAMPLED_END_MS,
+            frames=fdir,
+            timeline=timeline,
+            config_overrides=overrides,
+            frame_cap=SAMPLED_FRAME + 1,
+        )
+    except RuntimeError:
+        # a kwin that would not start, or a harness that printed no RESULT, is a fact about the
+        # machine: no frame, so the key is WITHHELD (counted and printed), never a crash or a pass
+        return None
+    finally:
+        ML.BACKEND["mesa"] = saved
+    png = os.path.join(fdir, f"frame-{SAMPLED_FRAME:03d}.png")
+    if not os.path.exists(png):
+        return None
+    with open(png, "rb") as fh:
+        return fh.read()
+
+
+def sampled_cases(mount, entries, holes, td):
+    """([case], withheld-or-None) for a SAMPLED mount: each key's two ends compared at the stepped frame.
+    A key declared INERT is not rendered (its reason is the case); a key in NEEDS is measured with its
+    prerequisite on; a halo key goes to the RHI."""
+    cases = []
+    for key, typ, lo, hi in ends(entries, holes, mount):
+        inert = INERT.get((mount, key))
+        context = NEEDS.get((mount, key), {})
+        case = {
+            "mount": mount,
+            "key": key,
+            "type": typ,
+            "low": lo,
+            "high": hi,
+            "inert": inert,
+            "context": context,
+        }
+        if inert:
+            cases.append({**case, "differs": False})
+            continue
+        mesa = key in HALO_KEYS
+        shots = []
+        for tag, value in (("lo", lo), ("hi", hi)):
+            blob = sampled_png(
+                {**context, key: value}, mesa, td, f"{mount}-{key}-{tag}"
+            )
+            if blob is None:
+                return (
+                    cases,
+                    f"{mount}/{key}={value}: the sampled run produced no frame",
+                )
+            shots.append(blob)
+        cases.append({**case, "differs": differs(shots[0], shots[1])})
+    return cases, None
+
+
 def measure():
     """The MEASUREMENT policy/config_reach.rego decides: per mount and key, whether the
     render at its low end differs from the render at its high end; `withheld` says why
@@ -166,6 +289,15 @@ def measure():
     unmeasured = []
     with tempfile.TemporaryDirectory() as td:
         for mount, spec in specs().items():
+            if spec.sampled:
+                kcfg, holes = mount_inputs(spec)
+                got, why = sampled_cases(
+                    mount, plasma_rewrite._kcfg_defaults(kcfg), holes, td
+                )
+                cases += got
+                if why:
+                    return {"cases": cases, "unmeasured": unmeasured, "withheld": why}
+                continue
             if spec.surface is None or spec.size is None:
                 unmeasured.append({"mount": mount, "reason": spec.unmeasured})
                 continue
@@ -280,6 +412,73 @@ def _selftest():
         all(s.unmeasured for m, s in specs().items() if m not in measured),
         True,
     )
+    # the sampled mount's declarations name real keys (a stale INERT or NEEDS entry would exempt nothing)
+    import plasma_rewrite
+
+    sampled = {m: s for m, s in specs().items() if s.sampled}
+    chk("only the marquee is sampled", sorted(sampled), ["marquee"])
+    for mount, spec in sampled.items():
+        kcfg_keys = set(plasma_rewrite._kcfg_defaults(mount_inputs(spec)[0]))
+        declared = {k for (m, k) in [*INERT, *NEEDS] if m == mount}
+        chk(
+            f"{mount}: every INERT and NEEDS key is a real setting",
+            sorted(declared - kcfg_keys),
+            [],
+        )
+        chk(
+            f"{mount}: every halo key is a real setting",
+            sorted(HALO_KEYS - kcfg_keys),
+            [],
+        )
+    chk(
+        "a text key gets a String row, never a slider",
+        ("idle", "String", "", "") in ends({"idle": ""}, {}, "marquee"),
+        True,
+    )
+    # the SAMPLED live arms: the sampled measurement sees a setting that reaches the board and one that
+    # does not, on the software scene graph; and, where kwin exists, that the RHI draws the halo
+    # (bloom 0 against 6), which the software scene graph cannot
+    import render_qml as rq
+
+    if not os.path.exists(rq.QML):
+        print("  SKIP no qml runner — the sampled live arms did not run")
+    else:
+        with tempfile.TemporaryDirectory() as std:
+            base = sampled_png({}, False, std, "base")
+            ghost = sampled_png({"showField": False}, False, std, "ghost")
+            unread = sampled_png(
+                {"noSuchKeyTheTemplateNeverReads": 7.0}, False, std, "unread"
+            )
+            chk(
+                "sampled: the three runs produced a frame",
+                (base is None, ghost is None, unread is None),
+                (False, False, False),
+            )
+            if None not in (base, ghost, unread):
+                chk(
+                    "sampled: a setting the board reads changes the frame",
+                    differs(base, ghost),
+                    True,
+                )
+                chk(
+                    "sampled: a key it never reads does not",
+                    differs(base, unread),
+                    False,
+                )
+            import shutil
+
+            import qt_sandbox
+
+            if shutil.which(qt_sandbox.KWIN):
+                off = sampled_png({"bloom": 0.0}, True, std, "bloom-off")
+                on = sampled_png({"bloom": 6.0}, True, std, "bloom-on")
+                chk(
+                    "sampled on the RHI: bloom 6 draws a halo that bloom 0 does not",
+                    None not in (off, on) and differs(off, on),
+                    True,
+                )
+            else:
+                print(f"  SKIP no {qt_sandbox.KWIN} — the RHI halo arm did not run")
     # the LIVE arms: the measurement sees a key that reaches the pixels, and one that
     # does not (a key the template never reads), against the same renderer
     import render_qml
