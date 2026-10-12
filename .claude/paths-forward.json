@@ -12570,12 +12570,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write the gap-brightness fact: for each stepped frame in one phase cycle (about 6 frames for the 0.618 step), for every letter boundary take the brightest gap column as a fraction of the stroke peak, in each view; read the distribution at aligned and unaligned phases, then state the K1 bound in rego from that data. First read why runs of 18 to 45 appear past frame 22 (frames 18, 23, 26 in regular text under CVD views)",
-      "evidence": "",
+      "next_bounded_step": "Add the graded gap fact to check_kerning (per-column peak profile over rows, boundaries at the 6-pip advance with the best phase, gap peak over stroke peak per boundary, per view), measure it on stepped frames 8 to 40 under software and RHI, read the distribution, then state K1 as a bound in rego",
+      "evidence": "2026-10-12: 2026-10-12 the 18 to 45 column runs explained (kept frames, lit column profiles at frames 17 to 19). At frame 18 (x=138.6) the pip image is a half-pip phase: every glyph column is split across two pips, no pip is fully lit, the gray view binarises to the stills own peak and keeps only faint scattered columns, while the colour-vision views (a different peak and threshold) keep nearly every pip and fuse the text into 18, 30 and 45 column runs. Frames 17 and 19 (aligned) give identical, clean profiles in both views. So the runs are not a defect in the board, they are the binarisation applied to a uniformly half-covered still: a binary lit-run measure is phase-fragile by construction. That settles the measure: K1 needs a graded fact, the brightness of the gap pip next to a stroke pip, judged per letter boundary at the known 6-pip advance",
       "issued_at": "2026-10-12T10:58:10Z",
       "minted_during": "interrupt",
       "caused_by": "W526",
-      "last_worked": "2026-10-12T10:58:16Z",
+      "last_worked": "2026-10-12T11:28:14Z",
       "ticks_blocked": 0,
       "completed": null
     }
