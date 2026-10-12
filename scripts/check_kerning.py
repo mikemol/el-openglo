@@ -31,8 +31,7 @@ MATRIX_DISPLAY].cols) — the one number the widget's advanceCells derives from.
 WEAKNESS: one variant by default (each style is a real Qt run, ~CPU seconds each); groups are per
 COLUMN over all rows, so a letter pair whose ink never shares a column cannot fuse in this measure even
 if a diagonal bleed would read as touching; the first and last groups are dropped as possibly clipped by
-the board's edges; the sweep stops at frame 22 because bold text garbles from frame 23 (W528), a
-separate defect not yet understood.
+the board's edges; the sweep reads the text as it crosses the board, not every possible text.
 """
 
 import json
@@ -54,10 +53,12 @@ def glyph_cols():
     return DT.DISPLAYS[MNM.MATRIX_DISPLAY].cols
 
 
-# the stepped frames the sweep reads: 15 consecutive frames span several cycles of the 0.618-pip step,
-# so aligned and half-pip phases are both met. Frame 22 is the last: from frame 23 the bold text
-# garbles (W528), a separate defect this sweep must not be asked to judge until it is understood.
-GAP_FRAMES = range(8, 23)
+# the stepped frames the sweep reads: 33 consecutive frames span many cycles of the 0.618-pip step, so
+# aligned and half-pip phases are all met. From frame 8 the text is well on the board. (The sweep stopped
+# at frame 22 until W528: the bold text read as garbled from frame 23, which was the still reader's median
+# baseline inverting once bold covered over half the board, not the widget; see check_urgency_cues.
+# dark_baseline. Measured clean to frame 40 with the baseline fixed.)
+GAP_FRAMES = range(8, 41)
 
 
 def measure(variant):
@@ -133,6 +134,21 @@ def _selftest():
         "a half-covered edge pip does not widen the group (graded, not binarised)",
         UC.stroke_groups(half_pip),
         [3, 3],
+    )
+    # the baseline of a cell's ink is the UNLIT level, however much of the board is lit (W528): bold text
+    # covered more than half the board from stepped frame 23, the median landed on the lit level and the
+    # picture inverted
+    mostly_lit = np.full((8, 40), 0.9)
+    mostly_lit[:, :8] = 0.1  # the unlit (ghost) pips: 20 percent of the board
+    chk(
+        "a mostly lit board still has its unlit level as the baseline",
+        round(UC.dark_baseline(mostly_lit), 2),
+        0.1,
+    )
+    chk(
+        "...where the median would have read the lit level",
+        round(float(np.median(mostly_lit)), 2),
+        0.9,
     )
     chk("the registry names a glyph width", glyph_cols() > 0, True)
     print(f"check_kerning selftest: {'PASS' if ok else 'FAIL'}")

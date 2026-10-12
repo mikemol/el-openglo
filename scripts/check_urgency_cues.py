@@ -408,6 +408,23 @@ def read_still(path, ground):
     return ink_views(_rgb(path), ground)
 
 
+DARK_PERCENTILE = 2
+
+
+def dark_baseline(c):
+    """The brightness of an UNLIT pip (the ghost field, or the ground with it off): a low percentile
+    of the cell brightnesses.
+
+    ⚑ NOT THE MEDIAN (W528). The ink of a cell is its distance from the unlit level, and the median is
+    that level only while MOST cells are unlit. Bold text covers more than half the board from stepped
+    frame 23 (529 of 840 pips with coverage, measured), the median then lands on the LIT level, and the
+    whole picture inverts: lit pips read as no ink, the empty board as ink, a dim wide double exposure
+    of the text. Measured: the widget's own coverage is sound at those offsets (max 1.0, plausible lit
+    counts) and the stills are pixel-identical run to run; only this baseline moved. The darkest pips
+    are unlit whatever fraction of the board the text covers."""
+    return float(np.percentile(c, DARK_PERCENTILE))
+
+
 def ink_views(rgb, ground, views=VIEWS):
     g = np.array(ground, dtype=float).reshape(1, 1, 3)
     gray = view_image(rgb, "gray")
@@ -420,7 +437,7 @@ def ink_views(rgb, ground, views=VIEWS):
     for v in views:
         im = gray if v == "gray" else view_image(rgb, v)
         c = cells(im, pitch, x0, bands)
-        out[v] = np.abs(c - np.median(c))
+        out[v] = np.abs(c - dark_baseline(c))
     return out
 
 

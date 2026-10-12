@@ -12530,7 +12530,7 @@
     {
       "symbol": "W526",
       "title": "Bold letters bleed at some sub-pip scroll phases: K1 denies a 7-column bold run under every colour-vision view at stepped frame 14, on both scene graphs",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W121"
       ],
@@ -12540,14 +12540,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "W527 landed the phase-swept K4 (stroke-group width, stable in every view and on both scene graphs). What remains of this card is the claim itself: K1 retirement is W529, the bold garble at frames 23 to 26 is W528. Close when W529 and W528 are decided",
-      "evidence": "2026-10-12: 2026-10-12 K1 across scroll phases, software scene graph, stepped capture frames 8 to 40, widest interior lit run per view (scratch kern_phases.py: one frames run per style). Frames 8 to 22 (text fully on the board): gray view bold runs 5 or 6 at EVERY phase; the three colour-vision views reach 7 at frames 14, 17, 19 and 22 and 5 or 6 elsewhere. So the 7 is CVD-specific and phase-specific: the binarisation is to each stills OWN peak, and under the CVD channel mixing the faint half-covered neighbour pip that the bold grow (s/2) spreads onto at a sub-pip phase clears the lit threshold. A graded pip is not a bleed in the LED-board sense. Frames from 23 on show runs of 18, 30, 45 columns, also in REGULAR text under CVD views (frames 18, 23, 26, 31, 34, 39): a measurement artifact not yet explained (text leaving the board edge, or the binarisation collapsing when the peak is small)",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: 2026-10-12 K1 across scroll phases, software scene graph, stepped capture frames 8 to 40, widest interior lit run per view (scratch kern_phases.py: one frames run per style). Frames 8 to 22 (text fully on the board): gray view bold runs 5 or 6 at EVERY phase; the three colour-vision views reach 7 at frames 14, 17, 19 and 22 and 5 or 6 elsewhere. So the 7 is CVD-specific and phase-specific: the binarisation is to each stills OWN peak, and under the CVD channel mixing the faint half-covered neighbour pip that the bold grow (s/2) spreads onto at a sub-pip phase clears the lit threshold. A graded pip is not a bleed in the LED-board sense. Frames from 23 on show runs of 18, 30, 45 columns, also in REGULAR text under CVD views (frames 18, 23, 26, 31, 34, 39): a measurement artifact not yet explained (text leaving the board edge, or the binarisation collapsing when the peak is small) | 2026-10-12: Settled: W527 landed the phase-swept K4 (stroke-group width, stable across views, phases and scene graphs), W529 retired K1 and its guards, W528 showed the apparent garble was the still readers median baseline. Kerning is judged at every phase from frame 8 to 40 and holds",
       "issued_at": "2026-10-12T09:55:12Z",
       "minted_during": "interrupt",
       "caused_by": "W525",
-      "last_worked": "2026-10-12T12:58:23Z",
+      "last_worked": "2026-10-12T15:48:30Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T154830Z"
     },
     {
       "symbol": "W527",
@@ -12574,7 +12574,7 @@
     {
       "symbol": "W528",
       "title": "Bold marquee text garbles at some scroll phases: stepped frames 23, 24 and 26 show an 18-column fused stroke group in every view, with the template before and after W521 to W523 alike",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W527"
       ],
@@ -12584,14 +12584,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Instrument a staged copy (marquee_soak --patch style, never the repo): log the offset, the max coverage and the number of lit pips from integrate() per stepped frame for the bold text, read where frame 23 departs; test the hypothesis that the dim wide copy is the bold grow overhang read at a phase where the backdrop sample window straddles two glyphs, against the other hypothesis that coverage is wrong (a stale pip.cov). Then the fix at the source",
-      "evidence": "2026-10-12: 2026-10-12 characterised. (1) The widget paints every cell (trace: bold 745 cells, ink 46328 landed, regular ink equals its expected 22784), so the backdrop is sound. (2) DETERMINISTIC: three identical bold runs give pixel-identical frames 20 to 28, on software and on the RHI separately (digests differ between the two scene graphs, structure does not). So not a capture race and not a scene graph: the widget logic. (3) Frame 22 is clean text; frame 23 (offset 22 steps of 4.618 pips) is a double exposure: the text plus a dimmer wider copy at a different offset, and a uniform dim fill (about 0.09 of ink) across pips that should be empty, which the gray view normalises against a lower peak (0.20 against 0.33). (4) Not mine: identical with the ApertureField of 8bc17e4 (before W521 to W523). Regular text is clean at the same frames; bold only, from frame 23",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: 2026-10-12 characterised. (1) The widget paints every cell (trace: bold 745 cells, ink 46328 landed, regular ink equals its expected 22784), so the backdrop is sound. (2) DETERMINISTIC: three identical bold runs give pixel-identical frames 20 to 28, on software and on the RHI separately (digests differ between the two scene graphs, structure does not). So not a capture race and not a scene graph: the widget logic. (3) Frame 22 is clean text; frame 23 (offset 22 steps of 4.618 pips) is a double exposure: the text plus a dimmer wider copy at a different offset, and a uniform dim fill (about 0.09 of ink) across pips that should be empty, which the gray view normalises against a lower peak (0.20 against 0.33). (4) Not mine: identical with the ApertureField of 8bc17e4 (before W521 to W523). Regular text is clean at the same frames; bold only, from frame 23 | 2026-10-12: ROOT CAUSE: a measurement artifact, not a widget defect. check_urgency_cues.ink_views took a cell ink as |brightness - median brightness|, which is the unlit level only while most cells are unlit; bold text covers over half the board from stepped frame 23 (529 of 840 pips with coverage), the median landed on the lit level and the whole picture inverted (the double exposure and the uniform dim fill). Evidence: widget trace shows every cell lands and the coverage the board computes is sound at every offset (max 1.0, plausible lit counts); stills are pixel-identical run to run on both scene graphs; with the baseline changed to a low percentile of cell brightness (dark_baseline) the stroke groups for frames 8 to 40 are regular 4 or 5, bold 5 or 6, identical in all four views, no 18 to 45 column runs. Fix: dark_baseline in check_urgency_cues plus a kerning selftest arm for a mostly lit board; the kerning sweep widened from frames 8 to 22 to 8 to 40. kerning and urgency_cues admit; both selftests pass",
       "issued_at": "2026-10-12T12:02:40Z",
       "minted_during": "interrupt",
       "caused_by": "W527",
-      "last_worked": "2026-10-12T15:08:50Z",
+      "last_worked": "2026-10-12T15:48:29Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T154829Z"
     },
     {
       "symbol": "W529",
