@@ -2443,7 +2443,7 @@
     {
       "symbol": "W121",
       "title": "MARQUEE GAINS THE HALO: qt_sandbox.popen(mesa=True) inside a caller-held kwin_session, and check_marquee_live defaults to the RHI on it, so the marquee stills/animation render with MultiEffect bloom (today EL_QUICK_BACKEND is never set in-tree, so the marquee has ALWAYS been software, no halo)",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W98"
       ],
@@ -2451,21 +2451,19 @@
         "qt_sandbox.py",
         "check_marquee_live"
       ],
-      "blocked_on": [
-        "W526"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Wait on W526 (kerning at every scroll phase), then flip BACKEND default and re-run the whole marquee suite on both paths",
-      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition. | 2026-10-12: 2026-10-12: check_marquee_live now has BACKEND (EL_MARQUEE_RHI=1 or --rhi) running the SAME harness on the RHI inside a held kwin; default stays software. Measured on the RHI with the real policies: marquee_live admitted (0 deny), symmetry admitted, kerning DENIED K1 x3 (EL-Openglo bold under deuteranomaly, protanomaly, tritanomaly: interior run 3 is 7 columns, wider than a 5-column glyph plus 1 bloom), urgency_cues DENIED V9 (the hover-pause never held the board: pausability not measured). So the RHI is not yet a drop-in default: the two differences are the next cards, not a flip | 2026-10-12: RHI comparison after W525: marquee_live, symmetry and urgency_cues admit on the RHI (hovered runs stay software); kerning K1 does not on the default moment-grab, because bold letters bleed at some sub-pip scroll phases (W526). The default flips to the RHI when W526 settles",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-09-28: 2026-09-28 pycodemod --literal EL_QUICK_BACKEND: 1 site in 110 files, a READ at check_marquee_live.py:446 (default software); nothing sets it. So W121 does NOT block W108: the marquee re-renders unchanged on the software path; W121 is an improvement (first halo), not a precondition. | 2026-10-12: 2026-10-12: check_marquee_live now has BACKEND (EL_MARQUEE_RHI=1 or --rhi) running the SAME harness on the RHI inside a held kwin; default stays software. Measured on the RHI with the real policies: marquee_live admitted (0 deny), symmetry admitted, kerning DENIED K1 x3 (EL-Openglo bold under deuteranomaly, protanomaly, tritanomaly: interior run 3 is 7 columns, wider than a 5-column glyph plus 1 bloom), urgency_cues DENIED V9 (the hover-pause never held the board: pausability not measured). So the RHI is not yet a drop-in default: the two differences are the next cards, not a flip | 2026-10-12: RHI comparison after W525: marquee_live, symmetry and urgency_cues admit on the RHI (hovered runs stay software); kerning K1 does not on the default moment-grab, because bold letters bleed at some sub-pip scroll phases (W526). The default flips to the RHI when W526 settles | 2026-10-12: Closed 2026-10-12 with the flip DROPPED, not done: the RHI path exists (qt_sandbox.popen mesa route, kwin held by the caller, check_marquee_live BACKEND via EL_MARQUEE_RHI or --rhi) and every marquee check admits on BOTH scene graphs (marquee_live, symmetry, urgency_cues with hovered runs kept on software, kerning with the phase-swept K4). Making the RHI the default would slow every marquee run with a kwin and buy nothing (bloom defaults to 0); the RHI is opt-in for the runs that need the halo, which is W503",
       "issued_at": "2026-09-28T19:52:36Z",
       "minted_during": "interrupt",
       "caused_by": "W108",
-      "last_worked": "2026-10-12T10:28:41Z",
+      "last_worked": "2026-10-12T13:34:37Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 29,
-      "completed": null
+      "completed": "20261012T133437Z"
     },
     {
       "symbol": "W122",
@@ -12044,7 +12042,7 @@
     {
       "symbol": "W503",
       "title": "Sampled-run reach witness for the marquee keys under the RHI path: each of bloom, haloOpacity and glow changes the picture (W267 marquee part, W121)",
-      "status": "blocked",
+      "status": "working",
       "enables": [
         "W272"
       ],
@@ -12052,16 +12050,14 @@
         "check_marquee_live",
         "check_config_reach"
       ],
-      "blocked_on": [
-        "W121"
-      ],
+      "blocked_on": [],
       "blocked_kind": "agent",
-      "next_bounded_step": "After W121 (RHI path in check_marquee_live): extend check_config_reach to run a sampled marquee run per key end for bloom, haloOpacity, glow and require the picture to differ; lift the W267 unmeasured entry for marquee in MOUNT_REGISTRY",
+      "next_bounded_step": "Extend check_config_reach (or a marquee reach witness) to run EL_MARQUEE_RHI=1 sampled runs per key end for bloom, haloOpacity and glow with the pummel soak timeline, and require the picture to differ; then lift the marquee unmeasured entry (W267) from MOUNT_REGISTRY",
       "evidence": "",
       "issued_at": "2026-10-11T16:04:44Z",
       "minted_during": "interrupt",
       "caused_by": "W272",
-      "last_worked": "2026-10-12T00:43:36Z",
+      "last_worked": "2026-10-12T13:34:37Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
@@ -12601,7 +12597,7 @@
     {
       "symbol": "W529",
       "title": "Retire kerning K1 (binary lit-run on a moment-grab still) in favour of the phase-swept K4, keeping the K2 and K3 population guards, with the reason recorded in the policy",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W121"
       ],
@@ -12610,14 +12606,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: K1, K2 and K3 retired from policy/kerning.rego (reason recorded in the policy and in check_kerning docstring); K4 (stroke group at most glyph plus bloom over a 15-frame stepped sweep), K5 (both styles swept) and K6 (at least 6 frames) judge; K0 guards the population. Mutation: with KERN_CAP = 0 both the old K1 and the new K4 denied in all four views at a 30-column group, so K4 catches what K1 caught. check_kerning measure no longer takes the moment-grab still; bold_facts lost still_frame; rego tests 1203 of 1203; kerning admits on software and on the RHI; check_urgency_cues selftest passes",
       "issued_at": "2026-10-12T12:34:34Z",
       "minted_during": "interrupt",
       "caused_by": "W527",
-      "last_worked": "2026-10-12T12:34:43Z",
+      "last_worked": "2026-10-12T13:34:36Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T133436Z"
     },
     {
       "symbol": "W530",
