@@ -433,6 +433,13 @@ COMPONENTS = (
         ("clock", "wallpaper", "sddm", "marquee"),
         ("clock", "live-wallpaper", "sddm", "marquee"),
     ),
+    # the shared un-energised layer SegmentChar and ApertureField mount their unlit primitives in (W532)
+    Component(
+        "GhostLayer.qml",
+        ("make_segment_display", "ghost_layer_component"),
+        ("clock", "wallpaper", "sddm", "marquee"),
+        ("clock", "live-wallpaper", "sddm", "marquee"),
+    ),
     Component(
         "ApertureField.qml",
         ("make_notify_marquee", "aperture_field_component"),

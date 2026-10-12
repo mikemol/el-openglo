@@ -108,16 +108,26 @@ Item {
 
     // one glyph, three passes: ghost (un-energised, no halo), the lit layer
     // blurred into a halo, then the crisp lit core on top
-    Repeater {
-        model: ["A", "B", "C", "D", "E", "F", "G"]
-        Segment {
-            seg: modelData
-            // a ghost weight of 0 is OFF: Segment snaps every stroke to an even integer of at least 2 px,
-            // so without this the slider's zero end still drew a 2 px ghost (W263, measured at 48 px)
-            visible: sc.showGhost && !sc.isOn(modelData) && sc.strokeGhost > 0
-            color: sc.ghostColor
-            opacity: sc.ghostAlpha * sc.glow * coverage
-            thick: sc.strokeGhost
+    // ⚑ THE GHOST IS THE SHARED UN-ENERGISED LAYER (W532): GhostLayer.qml owns ghostAlpha x glow and the
+    // show flag, so this display and the aperture field draw the same ghost. A segment carries only its own
+    // coverage (a stroke thinner than the grid dims by what it stands for).
+    GhostLayer {
+        anchors.fill: parent
+        ghostColor: sc.ghostColor
+        ghostAlpha: sc.ghostAlpha
+        glow: sc.glow
+        showGhost: sc.showGhost
+        Repeater {
+            model: ["A", "B", "C", "D", "E", "F", "G"]
+            Segment {
+                seg: modelData
+                // a ghost weight of 0 is OFF: Segment snaps every stroke to an even integer of at least 2 px,
+                // so without this the slider's zero end still drew a 2 px ghost (W263, measured at 48 px)
+                visible: !sc.isOn(modelData) && sc.strokeGhost > 0
+                color: sc.ghostColor
+                opacity: coverage
+                thick: sc.strokeGhost
+            }
         }
     }
     // ⚑ THE HALO IS THE SHARED EMISSION LAYER (W500): EmissionHalo.qml owns the blur, its radius law and its

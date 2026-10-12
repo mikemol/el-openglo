@@ -203,6 +203,30 @@ Item {
     onColsChanged: integrate()
     onGammaChanged: integrate()
 
+    // ⚑ ONE PLACE FOR A PIP'S POSITION (W532): the ghost pass, the lit pass and the halo pass each placed
+    // their pips with a copy of this arithmetic. A pip is a dot of pipD px centred in its pitch cell.
+    readonly property int pipD: Math.max(1, Math.round(uPx * dotFill))
+    function pipX(i) { return (i % cols) * uPx + Math.round((uPx - pipD) / 2); }
+    function pipY(i) { return y0 + Math.floor(i / cols) * uPx + Math.round((uPx - pipD) / 2); }
+
+    // the floor: the ghost pips (the LEDs that are there), in the shared un-energised layer (W532)
+    GhostLayer {
+        anchors.fill: parent
+        ghostColor: field.ghostColor
+        ghostAlpha: field.ghostOpacity
+        glow: field.glow
+        showGhost: field.showGhost
+        Repeater {
+            model: field.rows * field.cols
+            Rectangle {
+                x: field.pipX(index); y: field.pipY(index)
+                width: field.pipD; height: field.pipD
+                radius: width / 2; antialiasing: true
+                color: field.ghostColor
+            }
+        }
+    }
+
     Repeater {
         id: pips
         model: field.rows * field.cols
@@ -226,15 +250,11 @@ Item {
             // subpixel phase and the field shimmered as the backdrop moved —
             // exactly backwards for a board whose LEDs are fixed. The position is
             // rounded to the device grid; only the COVERAGE varies.
-            x: col * field.uPx + Math.round((field.uPx - d) / 2)
-            y: field.y0 + row * field.uPx + Math.round((field.uPx - d) / 2)
-            readonly property int d: Math.max(1, Math.round(field.uPx * field.dotFill))
+            x: field.pipX(index)
+            y: field.pipY(index)
+            readonly property int d: field.pipD
             width: d; height: d
-            // the floor: the ghost pip (the LED that is there), if shown
-            Rectangle {
-                anchors.fill: parent; radius: width / 2; antialiasing: true
-                color: field.ghostColor; opacity: field.showGhost ? field.ghostOpacity : 0
-            }
+            // (the unlit floor is the shared GhostLayer above, W532)
             // the PWM: the lit token (or the ink's colour) at the coverage
             Rectangle {
                 anchors.fill: parent; radius: width / 2; antialiasing: true
@@ -264,10 +284,8 @@ Item {
         Repeater {
             model: field.bloom > 0 ? field.rows * field.cols : 0
             Rectangle {
-                readonly property int d: Math.max(1, Math.round(field.uPx * field.dotFill))
-                x: (index % field.cols) * field.uPx + Math.round((field.uPx - d) / 2)
-                y: field.y0 + Math.floor(index / field.cols) * field.uPx + Math.round((field.uPx - d) / 2)
-                width: d; height: d; radius: d / 2; antialiasing: true
+                x: field.pipX(index); y: field.pipY(index)
+                width: field.pipD; height: field.pipD; radius: width / 2; antialiasing: true
                 color: field.colourFromInk && field.inkColour.length > index ? field.inkColour[index] : field.litColor
                 opacity: field.coverage[index] || 0
             }

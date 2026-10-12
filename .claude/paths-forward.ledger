@@ -907,3 +907,4 @@
 2026-10-12T17:40:23Z  interrupt W532 minted    -         "Share the ghost layer: one component draws the unlit primitives with the common colour, alpha times glow, and show flag, mounted by SegmentChar and ApertureField, stills unchanged"  evidence=W273
 2026-10-12T17:40:24Z  interrupt W533 minted    -         "Name the primitive coverage interface: a segment is a bar and a pip a dot, each with a coverage in 0 to 1 and a lit flag, so both displays feed the same layers"  evidence=W273
 2026-10-12T17:40:24Z  interrupt W534 minted    -         "Share the lit layer and the brightness relation: crisp lit primitives at coverage times glow, the luminance-times-area rule and the gamma curve stated once for both displays"  evidence=W273
+2026-10-12T18:20:31Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:b3871f6178a716b2; the FILE wins"

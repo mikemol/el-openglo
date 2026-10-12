@@ -81,6 +81,15 @@ def segment_char_component():
     return TL.render("SegmentChar.qml", ghostAlpha=make_schemes.GHOST_ALPHA)
 
 
+def ghost_layer_component():
+    """The shared un-energised layer: templates/GhostLayer.qml (W532, under W273). The unlit primitives
+    SegmentChar and ApertureField mount in it: ghostAlpha, glow and showGhost mean the same on every display
+    that mounts it. No holes: the opacity and colour arrive as properties."""
+    import templates.loader as TL
+
+    return TL.render("GhostLayer.qml")
+
+
 def emission_halo_component():
     """The shared emission layer: templates/EmissionHalo.qml (W500, under W272). The blurred lit layer
     SegmentChar mounts its lit segments in, and ApertureField will (W501): bloom, haloOpacity and glow
