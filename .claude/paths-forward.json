@@ -12197,7 +12197,7 @@
     {
       "symbol": "W510",
       "title": "Read the overnight plasmashell profile (profile_shell --report) against the marquee trace and name the thread and cause of the slowdown",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "marquee-main",
@@ -12210,7 +12210,7 @@
       "issued_at": "2026-10-12T01:12:42Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-12T04:21:19Z",
+      "last_worked": "2026-10-12T07:42:17Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -12466,7 +12466,7 @@
     {
       "symbol": "W523",
       "title": "Cut the ApertureField per-frame cost further: skip the itemAt sweep over unchanged columns, and measure integrate() against the lit-pip write and render share",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W510"
       ],
@@ -12476,14 +12476,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Split of the 54.0 CPU s per 60 s soak after W522 (patched staged copies): floor with no integrate 8.2; integrate only 18.0 (so integrate about 9.8, 18 pct); itemAt sweep with reads and no writes 19.6 (sweep about 1.6, 3 pct); pip writes plus software render about 34.4 (64 pct, mostly the offscreen software raster the GL desktop puts on the render thread). Next cut that is exact: skip blank columns in integrate() with a per-column ink prefix (Float64) since non-negative alphas make a zero total mean every pip sum is zero | 2026-10-12: templates/ApertureField.qml: sample() builds a Float64 per-column ink prefix (colPrefix) and integrate() skips a column whose aperture range holds no ink, filling the exact zeros the row loop would. Soak 60 s Pod, 3684 frames: 13.98 ms CPU per frame, 51.5 CPU s, versus 14.66 and 54.0 after W522 and 19.13 and 70.5 originally (27 pct total). Screens pixel-identical, qml_lint, render_constants and marquee_live admit. What remains is mostly the pip writes plus the offscreen software raster (about 34 CPU s of 54 before this cut), which the GL desktop moves off the GUI thread and which this offscreen soak cannot separate",
       "issued_at": "2026-10-12T06:32:10Z",
       "minted_during": "interrupt",
       "caused_by": "W522",
-      "last_worked": "2026-10-12T06:32:14Z",
+      "last_worked": "2026-10-12T07:42:16Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T074216Z"
     }
   ],
   "residue": [

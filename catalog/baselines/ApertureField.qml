@@ -100,11 +100,17 @@ Item {
     // with colourFromInk, three more sums of ink-weighted r, g, b
     property var prefix: null
     property var prefixRGB: null
+    // ⚑ INK PER BACKDROP COLUMN, summed over every row (W523): a column range with none is blank for
+    // every pip row at once, so integrate() skips it whole. Float64, not the rows' Float32: at the
+    // backdrop's total (up to ~190k) a Float32 swallows an edge's 1/255 and a column with ink would
+    // read as blank; a double cannot, so a zero here is exactly zero ink.
+    property var colPrefix: null
     property int backdropWidth: 0
     function sample() {
         var w = backdrop.width, h = backdrop.height;
         var ctx = backdrop.getContext("2d");
         var data = ctx.getImageData(0, 0, w, h).data;
+        var colSum = new Float64Array(w);
         var p = [], prgb = colourFromInk ? [] : null;
         for (var y = 0; y < h; y++) {
             var row = new Float32Array(w + 1);
@@ -115,6 +121,7 @@ Item {
             for (var x = 0; x < w; x++) {
                 var i = (y * w + x) * 4, a = data[i + 3] / 255;   // ink = alpha
                 acc += a;
+                colSum[x] += a;
                 row[x + 1] = acc;
                 if (colourFromInk) {
                     ar += a * data[i]; ag += a * data[i + 1]; ab += a * data[i + 2];
@@ -124,6 +131,9 @@ Item {
             p.push(row);
             if (colourFromInk) prgb.push([rr, gg, bb]);
         }
+        var cp = new Float64Array(w + 1);
+        for (var cx = 0; cx < w; cx++) cp[cx + 1] = cp[cx] + colSum[cx];
+        colPrefix = cp;
         backdropWidth = w;
         prefix = p;
         prefixRGB = prgb;
@@ -141,6 +151,16 @@ Item {
         for (var c = 0; c < cols; c++) {
             var x0 = Math.round(c * s + offset), x1 = x0 + s;
             var a = Math.max(0, Math.min(w, x0)), b = Math.max(0, Math.min(w, x1));
+            // a column with no ink under its aperture is blank in every row: the same zeros the row
+            // loop would find, without the rows * scale lookups (W523)
+            if (b <= a || (colPrefix && colPrefix[b] - colPrefix[a] === 0)) {
+                var dark = gamma === 1.0 ? 0 : Math.pow(0, gamma);
+                for (var rb = 0; rb < rows; rb++) {
+                    cov[rb * cols + c] = dark;
+                    if (colourFromInk) col[rb * cols + c] = litColor;
+                }
+                continue;
+            }
             for (var r = 0; r < rows; r++) {
                 var sum = 0, sr = 0, sg = 0, sb = 0;
                 var y0 = Math.max(0, r * s + oy), y1 = Math.min(h, (r + 1) * s + oy);
