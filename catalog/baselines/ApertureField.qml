@@ -218,10 +218,9 @@ Item {
         showGhost: field.showGhost
         Repeater {
             model: field.rows * field.cols
-            Rectangle {
+            Primitive {
                 x: field.pipX(index); y: field.pipY(index)
                 width: field.pipD; height: field.pipD
-                radius: width / 2; antialiasing: true
                 color: field.ghostColor
             }
         }
@@ -256,10 +255,10 @@ Item {
             width: d; height: d
             // (the unlit floor is the shared GhostLayer above, W532)
             // the PWM: the lit token (or the ink's colour) at the coverage
-            Rectangle {
-                anchors.fill: parent; radius: width / 2; antialiasing: true
+            Primitive {
+                anchors.fill: parent
                 color: pip.ink !== null && field.colourFromInk ? pip.ink : field.litColor
-                opacity: pip.cov
+                coverage: pip.cov
             }
             // the ring: the outermost pips, pulsed by the owner
             Rectangle {
@@ -283,11 +282,11 @@ Item {
         radiusUnit: field.uPx * field.dotFill
         Repeater {
             model: field.bloom > 0 ? field.rows * field.cols : 0
-            Rectangle {
+            Primitive {
                 x: field.pipX(index); y: field.pipY(index)
-                width: field.pipD; height: field.pipD; radius: width / 2; antialiasing: true
+                width: field.pipD; height: field.pipD
                 color: field.colourFromInk && field.inkColour.length > index ? field.inkColour[index] : field.litColor
-                opacity: field.coverage[index] || 0
+                coverage: field.coverage[index] || 0
             }
         }
     }

@@ -12680,7 +12680,7 @@
     {
       "symbol": "W533",
       "title": "Name the primitive coverage interface: a segment is a bar and a pip a dot, each with a coverage in 0 to 1 and a lit flag, so both displays feed the same layers",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W273"
       ],
@@ -12691,14 +12691,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: Lesson from W532: adding a component to display_params.COMPONENTS makes every stage that reads the roster read the new file, so the same commit must regenerate those closures (the closure witness refused the first W532 commit; 18 stored closures held EmissionHalo.qml and lacked GhostLayer.qml). Find them with a stored-closures scan, regenerate with check_closure.py --write SCRIPT... in one call | 2026-10-12: Primitive.qml is the one drawn thing under SegmentChar and ApertureField (coverage is opacity). Stills byte-identical, emitters 19 ran 0 failed 0 drifted of 672, closure 108 admitted, render_constants 73 admitted, qml_lint 17 admitted, marquee_live admitted, check_symbol 49 of 49. Lesson: a new component means regenerating the roster-reading closures in the same commit.",
       "issued_at": "2026-10-12T17:40:24Z",
       "minted_during": "interrupt",
       "caused_by": "W273",
-      "last_worked": "2026-10-12T18:27:31Z",
+      "last_worked": "2026-10-12T20:06:56Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261012T200656Z"
     },
     {
       "symbol": "W534",

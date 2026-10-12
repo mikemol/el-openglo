@@ -81,6 +81,14 @@ def segment_char_component():
     return TL.render("SegmentChar.qml", ghostAlpha=make_schemes.GHOST_ALPHA)
 
 
+def primitive_component():
+    """The shared drawn primitive: templates/Primitive.qml (W533, under W273). A rounded antialiased rectangle
+    with a coverage: a segment is a long one, an aperture pip a square one. No holes."""
+    import templates.loader as TL
+
+    return TL.render("Primitive.qml")
+
+
 def ghost_layer_component():
     """The shared un-energised layer: templates/GhostLayer.qml (W532, under W273). The unlit primitives
     SegmentChar and ApertureField mount in it: ghostAlpha, glow and showGhost mean the same on every display

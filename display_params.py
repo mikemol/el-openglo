@@ -433,6 +433,14 @@ COMPONENTS = (
         ("clock", "wallpaper", "sddm", "marquee"),
         ("clock", "live-wallpaper", "sddm", "marquee"),
     ),
+    # the shared drawn primitive (a rounded antialiased rectangle with a coverage) SegmentChar's segments and
+    # ApertureField's pips are both instances of (W533)
+    Component(
+        "Primitive.qml",
+        ("make_segment_display", "primitive_component"),
+        ("clock", "wallpaper", "sddm", "marquee"),
+        ("clock", "live-wallpaper", "sddm", "marquee"),
+    ),
     # the shared un-energised layer SegmentChar and ApertureField mount their unlit primitives in (W532)
     Component(
         "GhostLayer.qml",

@@ -13,6 +13,9 @@
   "templates/EmissionHalo.qml": {
     "radiusUnit": "MOUNT"
   },
+  "templates/Primitive.qml": {
+    "coverage": "STATE"
+  },
   "templates/SegmentChar.qml": {
     "ch": "STATE",
     "insertColon": "STATE",

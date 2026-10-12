@@ -125,7 +125,6 @@ Item {
                 // so without this the slider's zero end still drew a 2 px ghost (W263, measured at 48 px)
                 visible: !sc.isOn(modelData) && sc.strokeGhost > 0
                 color: sc.ghostColor
-                opacity: coverage
                 thick: sc.strokeGhost
             }
         }
@@ -204,7 +203,7 @@ Item {
     // (radius = half the thickness) and antialiasing — what makes a segment read
     // as a lit bar rather than a cut rectangle (W33, measured s132). The caller
     // says colour, opacity and weight; the geometry is the substrate's alone.
-    component Segment: Rectangle {
+    component Segment: Primitive {
         property string seg: "A"
         property real thick: sc.segThick
         property bool lit: false          // true only for the halo/crisp LIT instances; ghost stays flat
@@ -222,9 +221,8 @@ Item {
         // at t and the weight would do nothing. Perceived brightness is luminance x AREA, so the thin
         // stroke is drawn at t with its opacity scaled by thick / t - the area it stands for. Lit
         // strokes never dim (coverage 1); a stroke at or above the grid is unchanged (thick / t >= 1).
-        property real coverage: lit ? 1.0 : Math.min(1.0, thick / t)
+        coverage: lit ? 1.0 : Math.min(1.0, thick / t)
         property real gap: Math.round(sc.segThick * 0.62)
-        antialiasing: true
         radius: t / 2
         width:  horiz ? sc.segLen - gap * 2 : t
         height: horiz ? t : sc.segLen - gap * 2
