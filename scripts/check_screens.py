@@ -337,6 +337,50 @@ def _selftest():
             ([-1.0, -1.0, 1.0, 1.0], []),
         )
         chk("...and it loops", a["seamless"], True)
+
+        # W202: a SEE-SAW (three pips alternating whole and half lit, frame after frame)
+        # puts the run's temporal power at period 2; a steady scroll of the same three pips
+        # does not. The positive control for the S9 rule.
+        def block_field(cols, level):
+            f = Image.new("RGB", (400, 20), gnd)
+            for c in range(100):
+                lv = level if c in cols else 0.0
+                px = tuple(round(g + (lt - g) * lv) for g, lt in zip(ghost, litc))
+                for y in range(4, 16):
+                    f.putpixel((4 * c + 2, y), px)
+            return f
+
+        runs = {
+            "see-saw": [block_field((), 0.0)]
+            + [
+                block_field((40, 41, 42), 1.0 if k % 2 == 0 else 0.5) for k in range(23)
+            ],
+            "steady scroll": [block_field((), 0.0)]
+            + [block_field((at, at + 1, at + 2), 1.0) for at in range(80, 57, -1)],
+        }
+        p2 = {}
+        for name, fs in runs.items():
+            path = os.path.join(td, f"{name.replace(' ', '-')}-anim-EL-Amber.png")
+            fs[0].save(
+                path,
+                format="PNG",
+                save_all=True,
+                append_images=fs[1:],
+                duration=40,
+                loop=0,
+            )
+            p2[name] = RS.animation_facts(path, "#ffd499", "#140f08")["period2_share"]
+        chk(
+            "a see-saw concentrates the power at period 2 (share over 0.5)",
+            p2["see-saw"] is not None and p2["see-saw"] > 0.5,
+            True,
+        )
+        chk(
+            "a steady scroll does not (share under 0.25)",
+            p2["steady scroll"] is not None and p2["steady scroll"] < 0.25,
+            True,
+        )
+        print(f"    (measured: see-saw {p2['see-saw']}, steady {p2['steady scroll']})")
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok
 

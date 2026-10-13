@@ -59,6 +59,7 @@ admitted contains s.file if {
 	some s in array.concat(stills, anims)
 	not denied_file(s.file)
 	not s8_unjudged(s.file)
+	not s9_unjudged(s.file)
 }
 
 denied_file(f) if {
@@ -208,6 +209,45 @@ s8_unjudged(f) if {
 	a.file == f
 	a.exists == true
 	count(s8_moving(a)) == 0
+}
+
+# METADATA
+# title: "S9 — a scroll does not see-saw between whole and half pips"
+# description: |
+#   W202. A scroll that alternates between a whole-pip state and a half-pip state, frame
+#   after frame, looks like a flicker however fast it moves, and S8's step share cannot
+#   see it (its steps are still fractional). Per pip, brightness over the run is a time
+#   series; render_screens.spectral_lines sums its spectrum over the pips and reports the
+#   share of the non-DC power at period 2 frames, the highest bin.
+#
+#   THE THRESHOLD, STATED: 0.25. A broadband run spreads its power over about N/2 bins,
+#   so one bin holds about 2/N of it (about 0.05 for the marquee's 37 frames); the real
+#   animations read 0.039 to 0.040 (marquee) and 0.013 (pinholes), the synthetic steady
+#   scroll 0.031, and the synthetic see-saw (whole, half, whole, half) 0.937
+#   (check_screens --selftest). 0.25 is five times the noise level and under a third of
+#   the see-saw; it is the project's judgement, not a standard's. A run with no spectrum
+#   (under 4 frames, or nothing moves) is withheld, not judged and not admitted.
+s9_max := 0.25
+
+case_deny contains {"file": a.file, "msg": sprintf("S9: %s: %v of the run's temporal power sits at period 2 (over %v) — a see-saw between whole and half pips", [a.file, a.period2_share, s9_max])} if {
+	some a in anims
+	a.exists == true
+	is_number(object.get(a, "period2_share", null))
+	a.period2_share > s9_max
+}
+
+withheld contains msg if {
+	some a in anims
+	a.exists == true
+	not is_number(object.get(a, "period2_share", null))
+	msg := sprintf("S9: %s: no period-2 share was measured (under 4 frames, or nothing moves)", [a.file])
+}
+
+s9_unjudged(f) if {
+	some a in anims
+	a.file == f
+	a.exists == true
+	not is_number(object.get(a, "period2_share", null))
 }
 
 # METADATA

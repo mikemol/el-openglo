@@ -11,7 +11,7 @@ test_admits_clean if {
 }
 
 scroll := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 61,
-	"tears": [], "seamless": true, "shifts": [2.75, 3.0, 2.5, 2.75, 3.25, 2.5]}
+	"tears": [], "seamless": true, "shifts": [2.75, 3.0, 2.5, 2.75, 3.25, 2.5], "period2_share": 0.04}
 
 s8(inp) := [m | some m in sc.deny with input as inp; startswith(m, "S8")]
 
@@ -90,6 +90,50 @@ test_s8_a_judged_scroll_is_admitted if {
 	sc.admitted == {"clock-EL-Amber.png", "marquee-anim-EL-Amber.png"} with input as {"screens": [good], "animations": [scroll]}
 }
 
+# W202 / S9: a see-saw between whole and half pips concentrates the temporal power at period 2
+s9(inp) := [m | some m in sc.deny with input as inp; startswith(m, "S9")]
+
+s9_withheld(inp) := [m | some m in sc.withheld with input as inp; startswith(m, "S9")]
+
+with_p2(v) := {"screens": [good], "animations": [object.union(scroll, {"period2_share": v})]}
+
+test_s9_admits_a_real_scroll_at_the_measured_noise_level if {
+	count(s9(with_p2(0.0395))) == 0
+	sc.admitted == {"clock-EL-Amber.png", "marquee-anim-EL-Amber.png"} with input as with_p2(0.0395)
+}
+
+# refusing: the synthetic see-saw's share (check_screens --selftest reads 0.937)
+test_s9_refuses_a_see_saw if {
+	d := s9(with_p2(0.937))
+	count(d) == 1
+	contains(d[0], "937 of the run's temporal power sits at period 2")
+	count(sc.admitted) == 1 with input as with_p2(0.937)
+}
+
+# the boundary: above 0.25 is refused, 0.25 itself is not
+test_s9_exactly_at_the_threshold_is_admitted if {
+	count(s9(with_p2(0.25))) == 0
+}
+
+test_s9_just_over_the_threshold_is_refused if {
+	count(s9(with_p2(0.2501))) == 1
+}
+
+# no spectrum is withheld, never judged and never admitted: null or an absent key
+test_s9_a_null_share_is_withheld_not_admitted if {
+	inp := with_p2(null)
+	count(s9(inp)) == 0
+	s9_withheld(inp) == ["S9: marquee-anim-EL-Amber.png: no period-2 share was measured (under 4 frames, or nothing moves)"]
+	sc.admitted == {"clock-EL-Amber.png"} with input as inp
+}
+
+test_s9_an_absent_share_is_withheld_not_admitted if {
+	inp := {"screens": [good], "animations": [object.remove(scroll, ["period2_share"])]}
+	count(s9(inp)) == 0
+	count(s9_withheld(inp)) == 1
+	sc.admitted == {"clock-EL-Amber.png"} with input as inp
+}
+
 # W209 / S5 (logged): the harness's own offsets decide where they exist
 s5(inp) := [m | some m in sc.deny with input as inp; startswith(m, "S5")]
 
@@ -142,7 +186,7 @@ test_s3_admits_the_view_ground if {
 # since W54 (this fixture was [6, 6, 7, 6, 12, 6], whole-pixel steps from before the
 # aperture field — under today's unit exactly the pixelate-then-move shape S8 refuses)
 anim := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 48, "width": 420,
-	"shifts": [2.75, 3.0, 2.5, 2.75, 3.25, 3.0], "tears": [], "seamless": true}
+	"shifts": [2.75, 3.0, 2.5, 2.75, 3.25, 3.0], "tears": [], "seamless": true, "period2_share": 0.04}
 
 test_s6_refuses_an_open_loop if {
 	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"seamless": false})]}
