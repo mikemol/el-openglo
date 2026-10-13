@@ -226,7 +226,11 @@ Item {
         }
     }
 
-    Repeater {
+    // the crisp lit pips, in the shared energised layer (W534): glow dims the core here as on the clock
+    LitLayer {
+      anchors.fill: parent
+      glow: field.glow
+      Repeater {
         id: pips
         model: field.rows * field.cols
         Item {
@@ -269,6 +273,7 @@ Item {
                 color: field.ringColor; opacity: field.ringOpacity
             }
         }
+      }
     }
 
     // the emission: the lit pips again, blurred under the shared halo component

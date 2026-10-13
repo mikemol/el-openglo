@@ -448,6 +448,13 @@ COMPONENTS = (
         ("clock", "wallpaper", "sddm", "marquee"),
         ("clock", "live-wallpaper", "sddm", "marquee"),
     ),
+    # the shared energised layer SegmentChar and ApertureField mount their crisp lit primitives in (W534)
+    Component(
+        "LitLayer.qml",
+        ("make_segment_display", "lit_layer_component"),
+        ("clock", "wallpaper", "sddm", "marquee"),
+        ("clock", "live-wallpaper", "sddm", "marquee"),
+    ),
     Component(
         "ApertureField.qml",
         ("make_notify_marquee", "aperture_field_component"),

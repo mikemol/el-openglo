@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 536,
+  "counter": 537,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -6093,7 +6093,7 @@
     {
       "symbol": "W273",
       "title": "Converge SegmentChar and ApertureField toward one display component with swappable geometry (one renderer for every surface)",
-      "status": "blocked",
+      "status": "done",
       "enables": [
         "W271"
       ],
@@ -6102,20 +6102,18 @@
         "ApertureField",
         "display_params"
       ],
-      "blocked_on": [
-        "W534"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Work the three child cards in order: the shared ghost layer, the primitive coverage interface, the shared lit layer and brightness relation; close this umbrella when all three land",
-      "evidence": "2026-10-12: 2026-10-12 INVENTORY (SegmentChar.qml read whole, ApertureField.qml read). MECHANICS BOTH IMPLEMENT: (1) a GHOST pass of unlit primitives: colour, alpha (ghostAlpha, glow), show flag; SegmentChar draws the unlit segments, the field every pip as a floor. (2) a LIT pass at a coverage: SegmentChar lit segments at coverage 1 times glow, the field a pip at the aperture coverage; (3) the EMISSION HALO, already shared (W500, W501: EmissionHalo, bloom, haloOpacity, glow, radiusUnit); (4) one brightness relation: perceived brightness is luminance times AREA (SegmentChar: stroke weight and coverage thick over t; field: ghostOpacity + coverage times (1 - ghostOpacity), then the gamma curve); (5) a glow multiplier on the whole cell; (6) a mount-owned layout (segLen, cellGap, colon; pitch, rows, y0). GEOMETRY-SPECIFIC, the one swappable input: SegmentChar: the substrate tables (segGeom, digSegs), device-grid snapped rounded bars, ghostWeight stroke thickness, the lit gradient and boundary depth along a bar, the weight between grid widths (litExtra underlay), the colon; ApertureField: the pip grid, dotFill, the backdrop canvas and its prefix-sum aperture integral, scrolling offset, colour from ink, the ring. SHARED INTERFACE PROPOSED: a primitive set with per-primitive coverage in 0 to 1 (a segment is a bar at coverage 0 or 1, a pip a dot at the aperture coverage) feeding three layers in this order, ghost then halo then crisp lit, with emission (litColor, ghostColor, ghostAlpha, showGhost, glow, bloom, haloOpacity) as the common properties. The display_params rows already encode the split: Withheld geometry rows (litWeight, ghostWeight, litGradient, boundaryDepth on the field; apertureGamma, backdropScale on the strokes) are exactly the geometry-specific values. STEP ORDER, each holding stills, parity baselines and the reach witness: ghost layer, then the primitive coverage interface, then the lit layer and the brightness relation",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: 2026-10-12 INVENTORY (SegmentChar.qml read whole, ApertureField.qml read). MECHANICS BOTH IMPLEMENT: (1) a GHOST pass of unlit primitives: colour, alpha (ghostAlpha, glow), show flag; SegmentChar draws the unlit segments, the field every pip as a floor. (2) a LIT pass at a coverage: SegmentChar lit segments at coverage 1 times glow, the field a pip at the aperture coverage; (3) the EMISSION HALO, already shared (W500, W501: EmissionHalo, bloom, haloOpacity, glow, radiusUnit); (4) one brightness relation: perceived brightness is luminance times AREA (SegmentChar: stroke weight and coverage thick over t; field: ghostOpacity + coverage times (1 - ghostOpacity), then the gamma curve); (5) a glow multiplier on the whole cell; (6) a mount-owned layout (segLen, cellGap, colon; pitch, rows, y0). GEOMETRY-SPECIFIC, the one swappable input: SegmentChar: the substrate tables (segGeom, digSegs), device-grid snapped rounded bars, ghostWeight stroke thickness, the lit gradient and boundary depth along a bar, the weight between grid widths (litExtra underlay), the colon; ApertureField: the pip grid, dotFill, the backdrop canvas and its prefix-sum aperture integral, scrolling offset, colour from ink, the ring. SHARED INTERFACE PROPOSED: a primitive set with per-primitive coverage in 0 to 1 (a segment is a bar at coverage 0 or 1, a pip a dot at the aperture coverage) feeding three layers in this order, ghost then halo then crisp lit, with emission (litColor, ghostColor, ghostAlpha, showGhost, glow, bloom, haloOpacity) as the common properties. The display_params rows already encode the split: Withheld geometry rows (litWeight, ghostWeight, litGradient, boundaryDepth on the field; apertureGamma, backdropScale on the strokes) are exactly the geometry-specific values. STEP ORDER, each holding stills, parity baselines and the reach witness: ghost layer, then the primitive coverage interface, then the lit layer and the brightness relation | 2026-10-13: All three children landed: W532 ghost layer (6dd3922), W533 Primitive (8a8cc19), W534 lit layer and brightness relation. SegmentChar and ApertureField now share Primitive, GhostLayer, LitLayer and EmissionHalo; the geometry (segment tables and snapping; pip grid, backdrop and aperture integral) is the one swappable input. Follow-up W537 (reach arm for the lit core).",
       "issued_at": "2026-10-04T02:19:17Z",
       "minted_during": "interrupt",
       "caused_by": "W271",
-      "last_worked": "2026-10-12T17:40:29Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-13T00:10:04Z",
+      "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null,
+      "completed": "20261013T001004Z",
       "weight": 31
     },
     {
@@ -12702,7 +12700,7 @@
     {
       "symbol": "W534",
       "title": "Share the lit layer and the brightness relation: crisp lit primitives at coverage times glow, the luminance-times-area rule and the gamma curve stated once for both displays",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W273"
       ],
@@ -12712,14 +12710,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Asymmetry read this tick: SegmentChar draws its crisp lit segments at opacity glow (plus an underlay at glow times litExtra) while the field draws its crisp lit pips at coverage only, with glow reaching the field in the ghost and halo layers alone (verify no other glow use in ApertureField.qml first). Design LitLayer.qml (glow opacity, content slot) like GhostLayer, mount both displays crisp lit primitives in it, and state the brightness relation (luminance times area, gamma) once beside Primitive.qml. A pip gaining glow changes pixels at glow below 1 only: check_config_reach glow arm on the marquee must then see it.",
-      "evidence": "2026-10-12: W534 tick 2026-10-12: W533 landed as 8a8cc19. Read both lit passes; the finding is in next_bounded_step. No code changed this tick.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-12: W534 tick 2026-10-12: W533 landed as 8a8cc19. Read both lit passes; the finding is in next_bounded_step. No code changed this tick. | 2026-10-12: W534 tick 2026-10-12: verified glow use in ApertureField.qml. It appears only at the property (line 63), the GhostLayer mount and the EmissionHalo mount; the crisp lit pips never read it. So the marquee glow setting leaves the lit core at full while SegmentChar dims its lit core by glow: a kcfg key that is partly effective. Gamma lives only in the field integrate (line 178); segments carry coverage thick over t, linear. No code changed. | 2026-10-13: LitLayer.qml is the one energised layer: SegmentChar lit segments and ApertureField crisp pips mount in it, so glow dims the lit core on both (the marquee core ignored it before). The brightness relation (luminance x coverage x layer level, gamma on coverage only) is stated once in the Primitive.qml header. Stills decode identical (the marquee animation differs only in encoder bytes, 37 of 37 frames equal, committed copy restored), emitters 19 ran 0 drifted of 675, closures regenerated for the 18 that read the roster, render_constants 74 admitted, qml_lint 18 admitted, marquee_live admitted, check_symbol 49 of 49. Ring pips now also dim with glow (glow below 1 only). Follow-up W537: a reach arm for the lit core.",
       "issued_at": "2026-10-12T17:40:24Z",
       "minted_during": "interrupt",
       "caused_by": "W273",
-      "last_worked": "2026-10-12T20:45:37Z",
+      "last_worked": "2026-10-13T00:01:28Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261013T000128Z"
     },
     {
       "symbol": "W535",
@@ -12755,6 +12753,26 @@
       "issued_at": "2026-10-12T21:59:41Z",
       "minted_during": "interrupt",
       "caused_by": "W535",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W537",
+      "title": "check_config_reach: a marquee glow arm that sees the LIT pips dim at glow 0.5, not only the ghost and halo",
+      "status": "ready",
+      "enables": [
+        "W273"
+      ],
+      "touches": [
+        "check_config_reach"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add to the sampled marquee cases a glow 0.5 run and assert the brightest lit pip (not the ghost floor) drops, with a selftest arm that fails on the pre-W534 template where the core ignored glow.",
+      "evidence": "",
+      "issued_at": "2026-10-12T23:48:08Z",
+      "minted_during": "interrupt",
+      "caused_by": "W534",
       "last_worked": null,
       "ticks_blocked": 0
     }

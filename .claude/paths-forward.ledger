@@ -912,3 +912,6 @@
 2026-10-12T20:45:02Z  hash  --   diverged  --        "divergence: payload v2:f592eadb0f19b671, file v2:0552e9a06fdd3ed9; the FILE wins"
 2026-10-12T21:34:41Z  interrupt W535 minted    -         "post-commit pushes from the real checkout, not the isolated snapshot: 18 pushes were refused 10-12 04:35 to 16:44"
 2026-10-12T21:59:41Z  interrupt W536 minted    -         "Pin mikemol-bibparse: the located paperkit bib.py now imports it and the worklist and readme stages die without it"  evidence=W535
+2026-10-12T23:12:09Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:bd4fc6f0c036f66e; the FILE wins"
+2026-10-12T23:45:46Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:0eac1d6d2d486617; the FILE wins"
+2026-10-12T23:48:08Z  interrupt W537 minted    -         "check_config_reach: a marquee glow arm that sees the LIT pips dim at glow 0.5, not only the ghost and halo"  evidence=W534

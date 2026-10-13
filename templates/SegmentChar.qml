@@ -152,30 +152,35 @@ Item {
         ColonDot { visible: sc.insertColon && sc.colonOn; y: sc.segLen * 0.62 }
         ColonDot { visible: sc.insertColon && sc.colonOn; y: sc.segLen * 1.38 - sc.dotSize }
     }
-    Repeater {
-        model: ["A", "B", "C", "D", "E", "F", "G"]
-        Segment {
-            seg: modelData
-            visible: sc.isOn(modelData)
-            color: sc.litColor
-            opacity: sc.glow
-            thick: sc.litLowT
-            lit: true
+    // ⚑ THE CRISP LIT CORE IS THE SHARED ENERGISED LAYER (W534): LitLayer.qml owns glow, so this display and
+    // the aperture field dim their lit core the same way. A lit segment carries only its own coverage.
+    LitLayer {
+        anchors.fill: parent
+        glow: sc.glow
+        Repeater {
+            model: ["A", "B", "C", "D", "E", "F", "G"]
+            Segment {
+                seg: modelData
+                visible: sc.isOn(modelData)
+                color: sc.litColor
+                thick: sc.litLowT
+                lit: true
+            }
         }
-    }
-    // ⚑ THE LIT WEIGHT BETWEEN GRID WIDTHS (W265). The crisp stroke is drawn at the grid width at or below
-    // the request (litLowT), and the area the request reaches into the next step is an UNDERLAY one
-    // step wider, in the lit colour, at the opacity that fraction stands for (litExtra). A request the
-    // grid holds exactly (litExtra 0) draws no underlay. Even widths, centred: the W57 symmetry holds.
-    Repeater {
-        model: ["A", "B", "C", "D", "E", "F", "G"]
-        Segment {
-            seg: modelData
-            visible: sc.litExtra > 0 && sc.isOn(modelData)
-            color: sc.litColor
-            opacity: sc.glow * sc.litExtra
-            thick: sc.litLowT + 2
-            lit: true
+        // ⚑ THE LIT WEIGHT BETWEEN GRID WIDTHS (W265). The crisp stroke is drawn at the grid width at or
+        // below the request (litLowT), and the area the request reaches into the next step is an UNDERLAY
+        // one step wider, in the lit colour, at the coverage that fraction stands for (litExtra). A request
+        // the grid holds exactly (litExtra 0) draws no underlay. Even widths, centred: the W57 symmetry holds.
+        Repeater {
+            model: ["A", "B", "C", "D", "E", "F", "G"]
+            Segment {
+                seg: modelData
+                visible: sc.litExtra > 0 && sc.isOn(modelData)
+                color: sc.litColor
+                coverage: sc.litExtra
+                thick: sc.litLowT + 2
+                lit: true
+            }
         }
     }
     // the colon after this cell: lit when on, ghost (never bloomed) when off

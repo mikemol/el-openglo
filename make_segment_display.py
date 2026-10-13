@@ -98,6 +98,15 @@ def ghost_layer_component():
     return TL.render("GhostLayer.qml")
 
 
+def lit_layer_component():
+    """The shared energised layer: templates/LitLayer.qml (W534, under W273). The crisp lit primitives
+    SegmentChar and ApertureField mount: glow dims the lit core the same way on every display that mounts it.
+    No holes: the opacity arrives as a property."""
+    import templates.loader as TL
+
+    return TL.render("LitLayer.qml")
+
+
 def emission_halo_component():
     """The shared emission layer: templates/EmissionHalo.qml (W500, under W272). The blurred lit layer
     SegmentChar mounts its lit segments in, and ApertureField will (W501): bloom, haloOpacity and glow
