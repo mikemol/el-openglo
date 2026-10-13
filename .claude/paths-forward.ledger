@@ -928,3 +928,7 @@
 2026-10-13T08:12:56Z  interrupt W544 minted    -         "Extract cvd_gate pure core (worst_view_dE, Okabe-Ito floor) as a mikemol-* dist homed in mtools, cutting the lazy palette_graph import"  evidence=nemik:W438
 2026-10-13T08:20:22Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:623367d4213ef9ef; the FILE wins"
 2026-10-13T08:56:24Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:0bd358e932260313; the FILE wins"
+2026-10-13T09:37:31Z  interrupt W545 minted    -         "Body.rollDuration(queued): smoothstep from the base roll time down to a floor as replaces queue up, pure, cased in check_marquee_body"  evidence=W184
+2026-10-13T09:37:32Z  interrupt W546 minted    -         "Marquee queues replaces that arrive during a live roll and exposes the queued count, so the roll can see the pileup"  evidence=W184
+2026-10-13T09:37:32Z  interrupt W547 minted    -         "Marquee roll speed follows the queue: progress per frame at 1 / rollDuration(queued), eased so the speed never jumps, settings exposed"  evidence=W184
+2026-10-13T09:37:33Z  interrupt W548 minted    -         "check_marquee_live L-rule: a 10 Hz burst of replaces never leaves the roll more than N behind and its speed changes are continuous"  evidence=W184
