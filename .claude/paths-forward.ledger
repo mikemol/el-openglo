@@ -919,3 +919,4 @@
 2026-10-13T01:36:14Z  interrupt W538 minted    -         "Script the new-template landing chain as one mtools mode: stale closures, closure write, action keys, parity record, gates"  evidence=github:W0
 2026-10-13T01:41:17Z  interrupt W539 minted    -         "check_template_parity --record takes several templates in one call, and one command runs the four independent gates with one summary"  evidence=W538
 2026-10-13T01:45:47Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:fd029aacf5f5942b; the FILE wins"
+2026-10-13T04:56:20Z  interrupt W540 minted    -         "Urgency cues: the voxel volume in the colour-vision views, not only gray"  evidence=W74

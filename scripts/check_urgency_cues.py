@@ -411,9 +411,17 @@ def read_still(path, ground):
 DARK_PERCENTILE = 2
 
 
-def dark_baseline(c):
+def dark_baseline(c, ground_gray=None):
     """The brightness of an UNLIT pip (the ghost field, or the ground with it off): a low percentile
-    of the cell brightnesses.
+    of the cell brightnesses, or the HIGH one when the ground is nearer it.
+
+    ⚑ THE UNLIT LEVEL IS THE EXTREME NEAREST THE GROUND, NOT ALWAYS THE DARK ONE (W74). Lit pips are
+    brighter than the unlit on a dark scheme and DARKER on a light one (the -Lit variants' ground is
+    (157, 194, 232)); the fixed low percentile took the lit strokes as the baseline there and read the
+    picture inverted: the ground as ink, the text as none. Measured: normal's underline row 1.00 and
+    critical's 0.52 (the ghost) in every Lit variant, and a normal~critical shape of 0.070 on an inverted
+    picture. Given the ground's brightness in this view, the baseline is the lower or the upper
+    percentile, whichever sits nearer it; without it, the lower (the dark-scheme reading, unchanged).
 
     ⚑ NOT THE MEDIAN (W528). The ink of a cell is its distance from the unlit level, and the median is
     that level only while MOST cells are unlit. Bold text covers more than half the board from stepped
@@ -422,7 +430,11 @@ def dark_baseline(c):
     of the text. Measured: the widget's own coverage is sound at those offsets (max 1.0, plausible lit
     counts) and the stills are pixel-identical run to run; only this baseline moved. The darkest pips
     are unlit whatever fraction of the board the text covers."""
-    return float(np.percentile(c, DARK_PERCENTILE))
+    low = float(np.percentile(c, DARK_PERCENTILE))
+    if ground_gray is None:
+        return low
+    high = float(np.percentile(c, 100 - DARK_PERCENTILE))
+    return low if abs(low - ground_gray) <= abs(high - ground_gray) else high
 
 
 def ink_views(rgb, ground, views=VIEWS):
@@ -436,8 +448,9 @@ def ink_views(rgb, ground, views=VIEWS):
     out = {"_grid": {"pitch": pitch, "x0": x0, "rows": len(bands), "bands": bands}}
     for v in views:
         im = gray if v == "gray" else view_image(rgb, v)
+        gv = gg if v == "gray" else float(view_image(g, v)[0, 0])
         c = cells(im, pitch, x0, bands)
-        out[v] = np.abs(c - dark_baseline(c))
+        out[v] = np.abs(c - dark_baseline(c, gv))
     return out
 
 
@@ -1145,6 +1158,47 @@ def _selftest():
             lit_set(normal["gray"]), np.roll(lit_set(normal["gray"]), 1, axis=1)
         )[0],
         0.0,
+    )
+    # a LIGHT scheme (the -Lit variants): the ground is bright and the lit pips are DARKER than it.
+    # The low-percentile baseline read this inverted (the ground as ink, the text as none).
+    light = {
+        "ground": (157, 194, 232),
+        "ghost": (130, 170, 215),
+        "lit": (10, 30, 60),
+    }
+    lg = light["ground"]
+    l_dim = ink_views(synth_board(synth_coverage(level=0.25), **light), lg)
+    l_norm = ink_views(synth_board(synth_coverage(), **light), lg)
+    l_crit = ink_views(synth_board(synth_coverage(underline=True), **light), lg)
+    lc = judge_variant("light", {"low": l_dim, "normal": l_norm, "critical": l_crit})
+    lpr = {(p["a"], p["b"]): p for p in lc["pairs"]}
+    chk(
+        "a light scheme: the critical underline row is lit, the normal one's is not",
+        (
+            lc["urgencies"]["critical"]["gray"]["underline"] > 0.5,
+            lc["urgencies"]["normal"]["gray"]["underline"],
+        ),
+        (True, 0.0),
+    )
+    chk(
+        "a light scheme: an underlined critical IS distinguishable from normal by shape",
+        lpr[("normal", "critical")]["shape"] > 0.2,
+        True,
+    )
+    chk(
+        "a light scheme reads the SAME lit set as the dark one (polarity drops out)",
+        int(lit_set(l_norm["gray"]).sum()),
+        int(lit_set(normal["gray"]).sum()),
+    )
+    chk(
+        "the unlit level is the extreme nearest the ground (light ground: the HIGH end)",
+        dark_baseline(np.array([0.1, 0.5, 0.9, 0.9, 0.9]), 0.95),
+        0.9,
+    )
+    chk(
+        "...and the low end for a dark ground, as before",
+        dark_baseline(np.array([0.1, 0.1, 0.1, 0.5, 0.9]), 0.05),
+        0.1,
     )
     # the frame arm, on a synthetic series: 4 Hz edges over 40 ms samples (2 Hz flash)
     import tempfile

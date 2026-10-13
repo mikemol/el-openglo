@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 539,
+  "counter": 540,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -1450,18 +1450,18 @@
     {
       "symbol": "W74",
       "title": "Make low urgency on the marquee read by shape, not only by dimming",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
       "rank_reason": "",
-      "next_bounded_step": "V3 IS A FLAKE, NOT A PASS: opa_gate urgency_cues admits all six on 2026-10-13 only because the Lit variants critical underline read 0.52 in that run; on 2026-10-12 the same gate read 0.4762 on EL-Azure-Lit and denied (floor 0.5). One grab at one flash phase decides it. Do it over the series: the underline row of the voxel volume (bottom row, lit voxels over the span) per frame, judged at the frames where critical is lit, so the grab phase drops out; selftest a flash whose lit phase is full and one whose underline is half. Why the Lit variants read ~0.52 where the others read 0.85 is part of it. Then close W74 and mint the follow-up for the non-gray views.",
-      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction. | 2026-10-13: W74 tick 2026-10-12: re-measured instead of trusting the stale step. use_of_colour admits (W72 closed) but urgency_cues is DENIED on 2 variants for V1 and Azure-Lit for V3; see next_bounded_step. No code changed. | 2026-10-13: Operator 2026-10-12: my phrase a still shows the same letterform wrongly treated a still as one frame; a still has a time dimension, so the check reads the frame series. The earlier worry that V1 contradicts the ruling is withdrawn: the missing edge is the time axis in the measurement. | 2026-10-13: W74 tick 2026-10-12: volume builder landed (uncommitted until the gate returns). V1 was a measurement defect: a one-frame shape cannot see a flash. EL-Openglo-Lit measured, static vs voxel: normal~critical 0.070 vs 0.580, low~normal 0.163 vs 0.635, low~critical 0.223 vs 0.810; critical flashes at 2.00 Hz, 9 edges, 16 dark of 33 covered frames. No policy changed yet. | 2026-10-13: W74 tick 2026-10-13: six-variant voxel reading (check_urgency_cues --list): normal~critical 0.561 to 0.580 (static 0.070 to 0.279), low~normal 0.635 to 0.677 (static 0.163 to 0.696), low~critical 0.810 to 0.820; critical flashes at 2.00 Hz, 9 edges, 16 dark of 33 covered on all six. Floor decision: shape_min 0.15 kept, because the voxel shape is the SAME quantity (1 - IoU of the lit sets) over more frames, so its rationale carries; margins 0.41 above the measured minimum and 0.15 above a colour-only critical (0.0, selftest). Earlier note not to carry 0.15 over by analogy withdrawn for that reason. | 2026-10-13: W74 tick 2026-10-13: V1 now judged on the voxel pairs; opa_gate urgency_cues admitted 6 of 6, 0 deny, 0 withheld, opa test policy 1206 of 1206. V3 sits on its floor: 0.4762 (2026-10-12, deny) vs 0.52 (2026-10-13, admit) for the same Lit variants, so the admit is not trusted; card stays open.",
+      "next_bounded_step": null,
+      "evidence": "use-of-colour check FIXED in worktree aed2294d: aperture feed derived from QML (components declaring \"property alias backdrop\"); behind ApertureField a fillRect size change = OPACITY. On main it now DENIES C7 low, C8 suspended - and C10 BOLD (the rule as asked counts every size change behind the aperture as opacity; but bold grows +s/2, spilling ink into NEIGHBOURING apertures and lighting pips that were dark = partly SHAPE). opa 10/10, selftest 14/14. Landing it red (uncited, so it does not block commits). | 2026-09-26: 2026-09-27: edge retrofit — title names W72 directly (W72.h); a measured defect found while doing W72's own work, not yet integrated to main (worktree aed2294d). Wired W72 enables W74. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): W72 LOW URGENCY IS STILL DIMMING — measured from pixels (W72.h, worktree af7796d8): the marquee draws through ApertureField, whose dots are FIXED in size (pitch 4, dot 3) and whose only output is opacity = backdrop coverage, so W72's '-s/4 light dot' renders as the same dots at ~1/4 opacity. low~normal footprint 1.007-1.045 on all 6 variants (threshold 1.25); critical 1.99-2.47 with underline lit in every CVD view. So 3f2bc12's claim 'low is light dots at full ink' is FALSE IN EFFECT, and check_use_of_colour was fooled: it credits a smaller fillRect as WEIGHT, but through the aperture fillRect size IS coverage IS opacity. The suspended gauge's g0=-s/4 has the same defect by construction. | 2026-10-13: W74 tick 2026-10-12: re-measured instead of trusting the stale step. use_of_colour admits (W72 closed) but urgency_cues is DENIED on 2 variants for V1 and Azure-Lit for V3; see next_bounded_step. No code changed. | 2026-10-13: Operator 2026-10-12: my phrase a still shows the same letterform wrongly treated a still as one frame; a still has a time dimension, so the check reads the frame series. The earlier worry that V1 contradicts the ruling is withdrawn: the missing edge is the time axis in the measurement. | 2026-10-13: W74 tick 2026-10-12: volume builder landed (uncommitted until the gate returns). V1 was a measurement defect: a one-frame shape cannot see a flash. EL-Openglo-Lit measured, static vs voxel: normal~critical 0.070 vs 0.580, low~normal 0.163 vs 0.635, low~critical 0.223 vs 0.810; critical flashes at 2.00 Hz, 9 edges, 16 dark of 33 covered frames. No policy changed yet. | 2026-10-13: W74 tick 2026-10-13: six-variant voxel reading (check_urgency_cues --list): normal~critical 0.561 to 0.580 (static 0.070 to 0.279), low~normal 0.635 to 0.677 (static 0.163 to 0.696), low~critical 0.810 to 0.820; critical flashes at 2.00 Hz, 9 edges, 16 dark of 33 covered on all six. Floor decision: shape_min 0.15 kept, because the voxel shape is the SAME quantity (1 - IoU of the lit sets) over more frames, so its rationale carries; margins 0.41 above the measured minimum and 0.15 above a colour-only critical (0.0, selftest). Earlier note not to carry 0.15 over by analogy withdrawn for that reason. | 2026-10-13: W74 tick 2026-10-13: V1 now judged on the voxel pairs; opa_gate urgency_cues admitted 6 of 6, 0 deny, 0 withheld, opa test policy 1206 of 1206. V3 sits on its floor: 0.4762 (2026-10-12, deny) vs 0.52 (2026-10-13, admit) for the same Lit variants, so the admit is not trusted; card stays open. | 2026-10-13: W74 closed 2026-10-13. Root cause of the V3 flake and of the Lit anomalies: dark_baseline took the low percentile as the unlit level, which on the light-ground Lit variants is the lit text, so the picture read inverted (normal underline 1.00, critical 0.52 = the ghost, static normal~critical 0.070). Fixed: the unlit level is the percentile extreme nearest the ground in each view (dark variants unchanged). Re-measured EL-Azure-Lit: lit 111/129/179, underline 0.03/0.00/0.85, static shapes 0.696/0.750/0.279, identical to the dark variants. V1 judges the voxel pairs (committed e6302c9); opa_gate urgency_cues admitted 6 of 6, 0 deny, 0 withheld; opa test policy 1206 of 1206; check_urgency_cues selftest 29 of 29 incl. light-scheme arms (not shown to fail on the old baseline). Follow-up: the colour-vision views of the volume.",
       "issued_at": "2026-09-23T11:56:27+00:00",
-      "last_worked": "2026-10-13T04:04:57Z",
+      "last_worked": "2026-10-13T04:56:20Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261013T045620Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
@@ -12810,6 +12810,24 @@
       "issued_at": "2026-10-13T01:41:17Z",
       "minted_during": "interrupt",
       "caused_by": "W538",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W540",
+      "title": "Urgency cues: the voxel volume in the colour-vision views, not only gray",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "check_urgency_cues"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "voxel_facts builds the volume in the gray view only (volume takes a view parameter already). Emit the pair shape per view (gray, protanomaly, deuteranomaly, tritanomaly), have V1 judge the worst view as the static rule did, a selftest arm where a cue exists in gray and vanishes in a CVD view, and re-run opa_gate urgency_cues on all six.",
+      "evidence": "",
+      "issued_at": "2026-10-13T04:56:20Z",
+      "minted_during": "interrupt",
+      "caused_by": "W74",
       "last_worked": null,
       "ticks_blocked": 0
     }
