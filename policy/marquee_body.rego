@@ -380,6 +380,67 @@ withheld contains msg if {
 }
 
 # METADATA
+# title: "M14 — the roll's duration follows the queue as a smoothstep: exact at the ends, never rising, never stepping (W545)"
+# description: |
+#   rollDuration(queued, base, floor, full) is the roll's time in ms when replaces pile up
+#   behind it (operator: a pileup accelerates the rotation, probably as an s-curve). Each
+#   case states the exact duration. The SWEEP (queued 0 to 2 * full in steps) is judged on
+#   two properties no single case shows: it never RISES (a deeper queue never slows the
+#   roll), and it never STEPS by more than the smoothstep's steepest slope allows,
+#   1.5 * (base - floor) / full per queued replace, so the speed is continuous.
+duration_sweep := object.get(input, "sweep", null)
+
+deny contains msg if {
+	some c in object.get(input, "duration", [])
+	is_number(object.get(c, "got", null))
+	abs(c.got - c.expected) > 0.000000001
+	msg := sprintf("M14: %s: rollDuration%v gave %v, expected %v", [c.label, c.args, c.got, c.expected])
+}
+
+deny contains msg if {
+	input.runner == true
+	count(object.get(input, "duration", [])) == 0
+	msg := "M14: no rollDuration cases were measured"
+}
+
+deny contains msg if {
+	input.runner == true
+	not is_object(duration_sweep)
+	msg := "M14: no rollDuration sweep was measured"
+}
+
+deny contains msg if {
+	is_object(duration_sweep)
+	count(object.get(duration_sweep, "values", [])) < 2
+	msg := "M14: the rollDuration sweep has fewer than two samples"
+}
+
+deny contains msg if {
+	is_object(duration_sweep)
+	some i, v in duration_sweep.values
+	i > 0
+	v > duration_sweep.values[i - 1] + 0.000000001
+	msg := sprintf("M14: the duration rises from %v to %v at sweep sample %d: a deeper queue slowed the roll", [duration_sweep.values[i - 1], v, i])
+}
+
+deny contains msg if {
+	is_object(duration_sweep)
+	[base, floor, full, step] := duration_sweep.args
+	full > 0
+	limit := (1.5 * abs(base - floor) / full) * step
+	some i, v in duration_sweep.values
+	i > 0
+	abs(v - duration_sweep.values[i - 1]) > limit + 0.000000001
+	msg := sprintf("M14: the duration steps %v to %v at sweep sample %d, over the smoothstep's steepest %v: the speed is not continuous", [duration_sweep.values[i - 1], v, i, limit])
+}
+
+withheld contains msg if {
+	some c in object.get(input, "duration", [])
+	not is_number(object.get(c, "got", null))
+	msg := sprintf("W: duration %v: got was not measured", [object.get(c, "label", null)])
+}
+
+# METADATA
 # title: "W — the qml runner is absent: nothing measured, nothing admitted"
 # description: |
 #   The measurement always emits `runner` as a bool. `false` is the host fact;

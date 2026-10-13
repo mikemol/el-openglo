@@ -478,3 +478,16 @@ function stallOffsets(oldOffs, newOffs, span, progress, advance) {
 function paintsPlain(i, textLen, span) {
     return i < textLen && !(i >= span.p && i < span.newEnd);
 }
+
+// ⚑ HOW LONG A ROLL TAKES WHEN REPLACES PILE UP (W545, for W184; operator: "a pileup of
+// replacements accelerates the vertical rotation, probably as an s-curve"). `queued` is how many
+// replaces wait behind the live roll. The duration blends from `base` (nothing waiting) down to
+// `floor` (a full queue) along a SMOOTHSTEP of queued / full, so the speed eases in and out and
+// never steps: 3t^2 - 2t^3 has slope 0 at both ends and at most 1.5 / full per queued replace in
+// between. `queued` at or past `full` is the floor exactly, below 0 is the base exactly; a `full`
+// of 0 or less (no queue is ever tolerated) is the floor. Pure, in milliseconds, so the painter
+// divides its frame time by it and nothing else decides a roll's speed.
+function rollDuration(queued, base, floor, full) {
+    var t = full > 0 ? Math.max(0, Math.min(1, queued / full)) : 1;
+    return base + (floor - base) * (t * t * (3 - 2 * t));
+}

@@ -387,12 +387,33 @@ PLAIN_CASES = [
     ),
 ]
 
+# rollDuration (W545, for W184): (queued, base, floor, full) -> the roll's duration in ms, a
+# smoothstep of queued / full from base down to floor. The sweep is what the policy reads for
+# monotonicity and continuity: (base, floor, full, step), sampled from 0 to 2 * full.
+DURATION_CASES = [
+    ("nothing queued is the base time exactly", (0, 400, 120, 6), 400),
+    ("a full queue is the floor exactly", (6, 400, 120, 6), 120),
+    ("past full clamps at the floor", (12, 400, 120, 6), 120),
+    ("a negative count clamps at the base", (-3, 400, 120, 6), 400),
+    ("half full is the midpoint (smoothstep 0.5 is 0.5)", (3, 400, 120, 6), 260),
+    (
+        "a quarter full is eased, not linear (smoothstep 0.25 is 0.15625)",
+        (1.5, 400, 120, 6),
+        356.25,
+    ),
+    ("a full of 0 tolerates no queue: the floor", (1, 400, 120, 0), 120),
+    ("a floor equal to the base is constant", (4, 300, 300, 6), 300),
+]
+DURATION_SWEEP = (400, 120, 6, 0.5)
+
 HARNESS = """import QtQuick
 import "marquee-body.js" as Body
 QtObject {
     Component.onCompleted: {
-        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s, rolls = %s, stalls = %s, stallProgress = %s, stallAdvance = %s, plains = %s;
-        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [], roll: [], stall: [], plain: [] };
+        var bodies = %s, joins = %s, rings = %s, series = %s, display = %s, kern = %s, spans = %s, rolls = %s, stalls = %s, stallProgress = %s, stallAdvance = %s, plains = %s, durations = %s, sweep = %s;
+        var out = { parse: [], join: [], ring: [], series: [], display: [], kern: [], span: [], roll: [], stall: [], plain: [], duration: [], sweep: [] };
+        for (var du = 0; du < durations.length; du++) out.duration.push(Body.rollDuration(durations[du][0], durations[du][1], durations[du][2], durations[du][3]));
+        for (var sq = 0; sq <= 2 * sweep[2]; sq += sweep[3]) out.sweep.push(Body.rollDuration(sq, sweep[0], sweep[1], sweep[2]));
         for (var pl = 0; pl < plains.length; pl++) {
             var pSpan = Body.replaceSpan(plains[pl][0], plains[pl][1]), pRow = [];
             for (var pj = 0; pj < Math.max(plains[pl][0].length, plains[pl][1].length); pj++) pRow.push(Body.paintsPlain(pj, plains[pl][1].length, pSpan));
@@ -482,6 +503,8 @@ def run(bodies=None):
             json.dumps(STALL_PROGRESS),
             STALL_ADVANCE,
             json.dumps([list(c[1]) for c in PLAIN_CASES]),
+            json.dumps([list(c[1]) for c in DURATION_CASES]),
+            json.dumps(list(DURATION_SWEEP)),
         )
         with open(h, "w", encoding="utf-8") as fh:
             fh.write(harness_src)
@@ -640,6 +663,8 @@ def measure(res):
             "roll": [],
             "stall": [],
             "plain": [],
+            "duration": [],
+            "sweep": None,
         }
     out = {
         "runner": True,
@@ -653,7 +678,13 @@ def measure(res):
         "roll": [],
         "stall": [],
         "plain": [],
+        "duration": [],
+        "sweep": {"args": list(DURATION_SWEEP), "values": res.get("sweep", [])},
     }
+    for (label, args, want), got in zip(DURATION_CASES, res.get("duration", [])):
+        out["duration"].append(
+            {"label": label, "args": list(args), "expected": want, "got": got}
+        )
     for (label, args, want), got in zip(PLAIN_CASES, res.get("plain", [])):
         out["plain"].append(
             {"label": label, "args": list(args), "expected": want, "paints": got}
@@ -862,6 +893,27 @@ def _selftest():
         "every display (letterform) case carries expected and shown",
         len([c for c in m["display"] if "expected" in c and "shown" in c]),
         len(DISPLAY_CASES),
+    )
+    chk(
+        "every rollDuration case carries expected and the duration returned",
+        len(
+            [
+                c
+                for c in m["duration"]
+                if "expected" in c and isinstance(c.get("got"), (int, float))
+            ]
+        ),
+        len(DURATION_CASES),
+    )
+    chk(
+        "the rollDuration sweep spans 0 to 2 * full in steps (25 samples)",
+        len(m["sweep"]["values"]),
+        int(2 * DURATION_SWEEP[2] / DURATION_SWEEP[3]) + 1,
+    )
+    chk(
+        "the sweep falls from the base to the floor and holds",
+        (m["sweep"]["values"][0], m["sweep"]["values"][-1]),
+        (DURATION_SWEEP[0], DURATION_SWEEP[1]),
     )
     g = glyph_census({"a": [1], "A": [2], "?": [3]}, ["a", "b"])
     chk(

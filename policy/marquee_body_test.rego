@@ -7,6 +7,67 @@ import rego.v1
 
 plain_ok := {"label": "shortened (ABBC -> ABC): the suffix paints", "args": ["ABBC", "ABC"], "expected": [true, true, true, false], "paints": [true, true, true, false]}
 
+# W545 / M14: the roll's duration as replaces queue up
+dur_ok := {"label": "half full is the midpoint", "args": [3, 400, 120, 6], "expected": 260, "got": 260}
+
+# a small exact sweep: base 100, floor 0, full 2, step 1, samples at queued 0 to 4 (smoothstep: 100, 50, 0, 0, 0)
+sweep_ok := {"args": [100, 0, 2, 1], "values": [100, 50, 0, 0, 0]}
+
+# the sweep the shipped function really produces (check_marquee_body --json): base 400, floor 120, full 6, step 0.5
+sweep_real := {"args": [400, 120, 6, 0.5], "values": [400, 394.49074074074076, 379.25925925925924, 356.25, 327.4074074074074, 294.6759259259259, 260, 225.32407407407405, 192.5925925925926, 163.75, 140.7407407407407, 125.50925925925924, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120]}
+
+m14(inp) := [m | some m in mb.deny with input as inp; startswith(m, "M14:")]
+
+test_m14_admits_a_correct_duration_and_sweep if {
+	count(m14(clean)) == 0
+}
+
+test_m14_admits_the_real_sweep if {
+	count(m14(object.union(clean, {"sweep": sweep_real}))) == 0
+}
+
+test_m14_refuses_a_wrong_duration if {
+	c := object.union(dur_ok, {"got": 300})
+	m14(object.union(clean, {"duration": [c]})) == ["M14: half full is the midpoint: rollDuration[3, 400, 120, 6] gave 300, expected 260"]
+}
+
+# a deeper queue slowing the roll is the defect the rule is for
+test_m14_refuses_a_rising_sweep if {
+	inp := object.union(clean, {"sweep": {"args": [100, 0, 2, 1], "values": [100, 50, 60, 0, 0]}})
+	some m in m14(inp)
+	startswith(m, "M14: the duration rises from 50 to 60 at sweep sample 2")
+}
+
+# a linear drop that jumps (no easing) steps over the smoothstep's steepest slope: 1.5 * 100 / 2 = 75
+test_m14_refuses_a_step_over_the_steepest_slope if {
+	inp := object.union(clean, {"sweep": {"args": [100, 0, 2, 1], "values": [100, 0, 0, 0, 0]}})
+	some m in m14(inp)
+	startswith(m, "M14: the duration steps 100 to 0 at sweep sample 1")
+}
+
+test_m14_exactly_at_the_steepest_slope_is_admitted if {
+	inp := object.union(clean, {"sweep": {"args": [100, 0, 2, 1], "values": [100, 25, 25, 0, 0]}})
+	count(m14(inp)) == 0
+}
+
+test_m14_refuses_an_empty_population if {
+	"M14: no rollDuration cases were measured" in mb.deny with input as object.union(clean, {"duration": []})
+}
+
+test_m14_refuses_a_missing_sweep if {
+	"M14: no rollDuration sweep was measured" in mb.deny with input as object.remove(clean, ["sweep"])
+}
+
+test_m14_refuses_a_sweep_of_one_sample if {
+	inp := object.union(clean, {"sweep": {"args": [100, 0, 2, 1], "values": [100]}})
+	"M14: the rollDuration sweep has fewer than two samples" in mb.deny with input as inp
+}
+
+test_m14_withholds_an_unmeasured_duration if {
+	c := object.union(dur_ok, {"got": null})
+	"W: duration half full is the midpoint: got was not measured" in mb.withheld with input as object.union(clean, {"duration": [c]})
+}
+
 test_m13_admits_a_correct_plain_row if {
 	count([m | some m in mb.deny with input as clean; startswith(m, "M13:")]) == 0
 }
@@ -120,7 +181,7 @@ kern_cap := {"label": "never separates", "expect": "capped", "advance": 24, "off
 
 span_ok := {"label": "a delete changes only the gap", "args": ["abcd", "abd"], "expected": {"p": 2, "oldEnd": 3, "newEnd": 2}, "span": {"p": 2, "oldEnd": 3, "newEnd": 2}}
 
-clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok], "roll": [roll_ok], "stall": [stall_ok], "plain": [plain_ok]}
+clean := {"runner": true, "parse": [parse_ok], "join": [join_ok], "ring": [ring_ok], "series": [series_ok], "display": [display_ok], "kern": [kern_plain, kern_sep, kern_cap], "span": [span_ok], "roll": [roll_ok], "stall": [stall_ok], "plain": [plain_ok], "duration": [dur_ok], "sweep": sweep_ok}
 
 # M10 (W186): a replace's changed span
 test_m10_refuses_a_wrong_span if {
@@ -232,7 +293,7 @@ test_admits_clean if {
 }
 
 test_m0_refuses_empty if {
-	# M0, and M8's to M11's own empty-population denials (display, kern, span and roll are absent here) — nothing else
+	# M0, and M8's to M14's own empty-population denials (display, kern, span, roll, stall, plain and duration are absent here) — nothing else
 	d := mb.deny with input as {"runner": true, "parse": [], "join": [], "ring": []}
 	d == {"M0: no cases were measured; the population is empty, not the parser right",
 		"M8: no display (letterform) cases were measured",
@@ -240,7 +301,9 @@ test_m0_refuses_empty if {
 		"M10: no replaceSpan cases were measured",
 		"M11: no rollCells cases were measured",
 		"M12: no stallOffsets cases were measured",
-		"M13: no paintsPlain cases were measured"}
+		"M13: no paintsPlain cases were measured",
+		"M14: no rollDuration cases were measured",
+		"M14: no rollDuration sweep was measured"}
 }
 
 test_m1_refuses_wrong_text if {
@@ -319,7 +382,7 @@ test_all_null_case_withheld_only if {
 	rl := object.union(roll_ok, {"cells": null})
 	st := object.union(stall_ok, {"samples": null})
 	pn := object.union(plain_ok, {"paints": null})
-	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp], "roll": [rl], "stall": [st], "plain": [pn]}
+	inp := {"runner": true, "parse": [p], "join": [j], "ring": [r], "series": [s], "display": [d], "kern": [k], "span": [sp], "roll": [rl], "stall": [st], "plain": [pn], "duration": [dur_ok], "sweep": sweep_ok}
 	w := mb.withheld with input as inp
 	"W: kern bold pair: bleeds_after was not measured" in w
 	"W: parse <b>hi</b>: text was not measured" in w
