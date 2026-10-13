@@ -205,10 +205,14 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
     `repos.conf: default repo gentoo` and the replay passes.  Isolated: the overlay
     is COPIED to a private dir (its caches land there) and --cache-dir is private.
     `isolated=False` is the old call, kept so --race can show the difference."""
+    # ⚑ ONLY THE REAL OVERLAY IS CAPTURED (2026-10-13): the selftest scans deliberately broken ebuilds in
+    # a temp dir, and each run left three records of them, so the first listing of the capture held 14
+    # records and not one was a flake. A failure of THIS repo's ebuild is the evidence the capture is for.
+    real = path.startswith(OVERLAY + os.sep)
     if not isolated:
         argv = ["pkgcheck", "scan", "--repo", OVERLAY, "-k", "error", path]
         r = subprocess.run(argv, capture_output=True, text=True, check=False)
-        if r.returncode != 0:
+        if r.returncode != 0 and real:
             record_failure(argv, r)
         return r.returncode, r.stdout, r.stderr
     with tempfile.TemporaryDirectory(prefix="el-pkgcheck-") as td:
@@ -231,7 +235,7 @@ def pkgcheck_scan(path=EBUILD, isolated=True):
             target,
         ]
         r = subprocess.run(argv, capture_output=True, text=True, check=False)
-        if r.returncode != 0:
+        if r.returncode != 0 and real:
             record_failure(argv, r)
         return r.returncode, r.stdout, r.stderr
 
@@ -542,8 +546,9 @@ def main(argv):
             print("  " + failure_line(name, doc))
         if not recs:
             print(
-                "  none here. WEAKNESS: under bazel the capture goes to the test's undeclared "
-                "outputs (BuildBuddy), not this directory, so none here is not none anywhere"
+                "  none here. WEAKNESS: a bazel stage whose sandbox forbids writing this "
+                "directory leaves only its undeclared-outputs copy (BuildBuddy), so none here "
+                "is not none anywhere; and only failures of the real overlay ebuild are captured"
             )
         return 0
     if "--race" in argv:
@@ -605,6 +610,13 @@ def _selftest():
             )
         w_ok, _d = ebuild_wellformed(p)
         check("an ebuild that does not parse is seen (bash -n / pkgcheck)", w_ok, False)
+        captured = len(failure_records())
+        ebuild_wellformed(p)
+        check(
+            "a deliberately broken ebuild outside the overlay is NOT captured as a flake",
+            len(failure_records()),
+            captured,
+        )
         # the MEASUREMENT sees the same breakage as facts (policy/ebuild.rego rules on them)
         check(
             "lint_facts reports the unparsable ebuild's bash rc",
