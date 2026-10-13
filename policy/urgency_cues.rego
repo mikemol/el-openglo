@@ -40,19 +40,34 @@ covered_min := 20
 
 num(x) if is_number(x)
 
-# V1 — two urgencies whose lit-pip SETS barely differ, in the worst view
+# The VOLUME (operator, 2026-10-12: a still has a time axis, read literally as voxels): the frame
+# series as a (frame, row, column) grid at pip resolution, one pair fact per two urgencies. Its shape
+# is the same quantity as the static one (1 - IoU of the lit sets, brightness normalised away, a +-2
+# column slip forgiven) taken over the frames every urgency covers, so shape_min's rationale carries
+# unchanged. Measured on all six variants (2026-10-13): normal~critical 0.561 to 0.580, low~normal
+# 0.635 to 0.677, low~critical 0.810 to 0.820; a colour-only critical (selftest) 0.
+voxel(c) := object.get(c, "voxel", {})
+
+voxel_pairs(c) := object.get(voxel(c), "pairs", [])
+
+voxel_withheld(c) := object.get(voxel(c), "withheld", "")
+
+# V1 — two urgencies whose lit VOXEL sets barely differ. ⚑ NOT THE ONE-FRAME SHAPE: the ruling makes
+# normal UPPER CASE and critical FLASHING upper case, so one frame shows the same letterform and
+# scored 0.070 on the Lit variants; a flash lives across frames and only the volume can see it.
+# The static pair shape stays in the measurement as a reported fact.
 deny contains msg if {
 	some c in object.get(input, "cases", [])
-	some p in object.get(c, "pairs", [])
+	some p in voxel_pairs(c)
 	num(p.shape)
 	p.shape < shape_min
-	msg := sprintf("V1: %s: %s and %s are indistinguishable by letterform (shape %s < %s under %s; mass ratio %s is colour, not shape)",
-		[c.variant, p.a, p.b, fmt.fixed(p.shape, 3), fmt.fixed(shape_min, 2), p.view, fmt.fixed(object.get(p, "mass_ratio", 0), 2)])
+	msg := sprintf("V1: %s: %s and %s are indistinguishable by letterform over the frame series (voxel shape %s < %s over %v frames)",
+		[c.variant, p.a, p.b, fmt.fixed(p.shape, 3), fmt.fixed(shape_min, 2), object.get(voxel(c), "frames", 0)])
 }
 
 deny contains msg if {
 	some c in object.get(input, "cases", [])
-	some p in object.get(c, "pairs", [])
+	some p in voxel_pairs(c)
 	not num(object.get(p, "shape", null))
 	msg := sprintf("V1: %s: %v~%v has no shape measured", [c.variant, object.get(p, "a", "?"), object.get(p, "b", "?")])
 }
@@ -62,6 +77,14 @@ deny contains msg if {
 	some c in object.get(input, "cases", [])
 	count(object.get(c, "pairs", [])) != 3
 	msg := sprintf("V2: %s: %d of 3 urgency pairs measured", [c.variant, count(object.get(c, "pairs", []))])
+}
+
+# ...and so is a volume that is neither measured nor withheld: V1 would judge nothing
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	voxel_withheld(c) == ""
+	count(voxel_pairs(c)) != 3
+	msg := sprintf("V2: %s: %d of 3 voxel pairs measured", [c.variant, count(voxel_pairs(c))])
 }
 
 # V3 — critical keeps its lit underline row: lit in every view
@@ -210,11 +233,20 @@ deny contains "V10: the charset census measured no letters" if {
 admitted contains c.variant if {
 	some c in object.get(input, "cases", [])
 	count(object.get(c, "pairs", [])) == 3
-	every p in c.pairs { p.shape >= shape_min }
+	count(voxel_pairs(c)) == 3
+	every p in voxel_pairs(c) { p.shape >= shape_min }
 	object.get(temporal(c, "critical"), "edges", 0) >= 2
 }
 
 withheld contains msg if {
 	some w in object.get(input, "withheld", [])
 	msg := sprintf("%s: %s", [w.variant, w.reason])
+}
+
+# a volume the measurement could not build is not-confirmed, not failed (and never admitted)
+withheld contains msg if {
+	some c in object.get(input, "cases", [])
+	why := voxel_withheld(c)
+	why != ""
+	msg := sprintf("%s: voxel not measured: %s", [c.variant, why])
 }

@@ -10,15 +10,21 @@ steady := {"frames": 90, "covered": 60, "dark": 0, "edges": 0, "span_ms": 0, "hz
 flashing(hz) := {"frames": 90, "covered": 60, "dark": 30, "edges": 10, "span_ms": 2250, "hz": hz, "steady_min": 0.9}
 
 # the shape of a measured variant: lowercase low, upper-case normal, flashing
-# underlined critical (numbers of the order the real board gives)
+# underlined critical. The STATIC pairs are the real Lit-variant numbers (normal~critical 0.070, under the
+# floor: one frame shows the same upper case); the VOXEL pairs, which V1 judges, take lo_norm and norm_crit.
 case(lo_norm, norm_crit, crit_t) := {
 	"variant": "EL-Fixture",
 	"urgencies": {"critical": facts(1.0)},
 	"pairs": [
-		{"a": "low", "b": "normal", "shape": lo_norm, "view": "tritanomaly", "mass_ratio": 1.0},
-		{"a": "low", "b": "critical", "shape": 0.55, "view": "gray", "mass_ratio": 1.1},
-		{"a": "normal", "b": "critical", "shape": norm_crit, "view": "gray", "mass_ratio": 1.1},
+		{"a": "low", "b": "normal", "shape": 0.163, "view": "gray", "mass_ratio": 1.0},
+		{"a": "low", "b": "critical", "shape": 0.223, "view": "gray", "mass_ratio": 1.1},
+		{"a": "normal", "b": "critical", "shape": 0.070, "view": "gray", "mass_ratio": 1.1},
 	],
+	"voxel": {"frames": 36, "pairs": [
+		{"a": "low", "b": "normal", "shape": lo_norm, "shift": 0},
+		{"a": "low", "b": "critical", "shape": 0.81, "shift": 0},
+		{"a": "normal", "b": "critical", "shape": norm_crit, "shift": 0},
+	]},
 	"temporal": {"low": steady, "normal": steady, "critical": crit_t},
 	"pause": {"paused_samples": 20, "paused_dark": 0, "paused_ms": 760, "running_dark": 4},
 }
@@ -143,12 +149,37 @@ test_missing_pair_denied if {
 }
 
 test_null_shape_denied if {
-	c := object.union(case(0.42, 0.24, flashing(2.0)), {"pairs": [
-		{"a": "low", "b": "normal", "shape": null, "view": "gray"},
-		{"a": "low", "b": "critical", "shape": 0.5, "view": "gray"},
-		{"a": "normal", "b": "critical", "shape": 0.3, "view": "gray"},
-	]})
+	c := object.union(case(0.42, 0.24, flashing(2.0)), {"voxel": {"frames": 36, "pairs": [
+		{"a": "low", "b": "normal", "shape": null},
+		{"a": "low", "b": "critical", "shape": 0.5},
+		{"a": "normal", "b": "critical", "shape": 0.3},
+	]}})
 	count(denials(object.union(good, {"cases": [c]}), "V1: EL-Fixture: low~normal has no shape")) == 1
+}
+
+# admitting, and the reason V1 reads the volume: the Lit variants' normal~critical is 0.070 in ONE frame
+# (denied by the old rule) and 0.58 over the series, where the flash is
+test_one_frame_blind_flash_admitted_by_the_volume if {
+	good.cases[0].pairs[2].shape < urgency_cues.shape_min
+	count(urgency_cues.deny) == 0 with input as good
+	urgency_cues.admitted == {"EL-Fixture"} with input as good
+}
+
+# refusing: a volume neither measured nor withheld judges nothing, so it is a V2 deny, not a pass
+test_missing_volume_denied if {
+	c := with_key(case(0.42, 0.24, flashing(2.0)), "voxel", {})
+	count(denials(object.union(good, {"cases": [c]}), "V2: EL-Fixture: 0 of 3 voxel pairs")) == 1
+	count(urgency_cues.admitted) == 0 with input as object.union(good, {"cases": [c]})
+}
+
+# ...but a volume the measurement says it could not build is withheld: not failed, not admitted
+test_withheld_volume_is_withheld_not_denied if {
+	c := with_key(case(0.42, 0.24, flashing(2.0)), "voxel", {"withheld": "no frame is covered end to end"})
+	inp := object.union(good, {"cases": [c]})
+	count(denials(inp, "V1:")) == 0
+	count(denials(inp, "V2:")) == 0
+	count(urgency_cues.withheld) == 1 with input as inp
+	count(urgency_cues.admitted) == 0 with input as inp
 }
 
 test_unlit_underline_denied if {
