@@ -626,6 +626,47 @@ def logged_steps(path):
     return [(xs[i] - xs[i + 1]) / pitch for i in range(len(xs) - 1)]
 
 
+def pip_lattice(frame, lit, ground):
+    """(cols, rows): the pip centres in both axes, with the spurious lines removed.
+
+    pip_centres finds peaks of the line profile, and a stray peak between two pips (or past the board's
+    edge) is a 'row' with no pip on it: EL-Azure and EL-Amber read 9 and 10 rows of an 8-row board. A
+    true line crosses ghost pips all along it, so a line is kept when its mean lit-ness over the OTHER
+    axis's centres is at least half the best line's."""
+    cols = pip_centres(frame, lit, ground, "x")
+    rows = pip_centres(frame, lit, ground, "y")
+    L = _litness(frame, lit, ground)
+    if not cols or not rows:
+        return cols, rows
+    col_mean = [sum(L[r][c] for r in rows) / len(rows) for c in cols]
+    row_mean = [sum(L[r][c] for c in cols) / len(cols) for r in rows]
+    cols = [c for c, m in zip(cols, col_mean) if m >= 0.5 * max(col_mean)]
+    rows = [r for r, m in zip(rows, row_mean) if m >= 0.5 * max(row_mean)]
+    return cols, rows
+
+
+def pip_values(frame, cols, rows, lit, ground, floor):
+    """Each pip's brightness above the ghost floor in [0, 1], one value per (row, column)
+    centre of the lattice: the lit-ness AT the pip, not averaged along its column, so a
+    stroke that straddles two pips reads as two partial pips and one that sits whole
+    reads as one full one."""
+    L = _litness(frame, lit, ground)
+    if floor >= 1:
+        return [0.0 for _r in rows for _c in cols]
+    return [max(0.0, (L[r][c] - floor) / (1 - floor)) for r in rows for c in cols]
+
+
+def whole_share(values, inked=0.1, whole=0.9):
+    """(share, n): of the pips INKED above the floor (value over `inked`), the share that
+    are WHOLE (value at or over `whole`); 1.0 is every stroke sitting whole on the pips,
+    low is graded edges. (None, 0) when no pip is inked, which is the empty board, not a
+    score of zero."""
+    ink = [v for v in values if v > inked]
+    if not ink:
+        return None, 0
+    return sum(v >= whole for v in ink) / len(ink), len(ink)
+
+
 def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
     """A scroll is a LEFT SHIFT OF THE PIPS' BRIGHTNESS: the field never moves (W34a,
     the pips are the hardware); the backdrop behind it does, by a fraction of a pip
@@ -640,13 +681,24 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
     either frame (the board empty) has nothing to compare and is skipped, not
     judged; the tolerance is re-measured on the graded field (see COTYPE s120).
     Before W54 this compared pixel columns under a whole-pixel shift, which is the
-    f = 0 special case a snapping field satisfies."""
+    f = 0 special case a snapping field satisfies.
+
+    WHOLE ON THE PIPS (W174, reported not required): `whole_best` is the frame where the
+    largest share of the inked pips sit whole (value >= 0.9 above the per-pip ghost floor),
+    chosen among frames with at least half the most inked pips any frame has (a handful of
+    pips scores 1.0 by chance); `whole_median` is the share over all scored frames.
+    WEAKNESS: the `phase` is the profile fit's scroll position mod one pip, and it differs
+    between variants for the SAME frame (measured 0.25, 0.0, 0.375 at marquee frame 13), so
+    only the frame index is reliable; the lattice is detected from peaks and filtered by
+    ghost lit-ness (pip_lattice), with no selftest arm of its own; an empty board scores
+    None, not zero."""
     from PIL import Image, ImageSequence
 
     lit, ground = _hex(lit_hex), _hex(ground_hex)
     im = Image.open(path)
     width = im.width
     profiles, rgb_first, rgb_last, centres, floor = [], None, None, None, 0.0
+    grid_c, grid_r, scores, pip_floor = [], [], [], 0.0
     for fr in ImageSequence.Iterator(im):
         rgb = fr.convert("RGB")
         if rgb_first is None:
@@ -657,9 +709,19 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
             # not empty) the least-lit pip line does
             raw = pip_profile(rgb, centres, lit, ground, 0.0, axis)
             floor = ((sum(raw) / len(raw)) if axis == "x" else min(raw)) if raw else 0.0
+            # the pip lattice in BOTH axes, for the per-pip reading below. ⚑ ITS OWN FLOOR: the profile
+            # floor above is a mean down a whole column, gaps between pips included, so a ghost pip read
+            # AT ITS CENTRE sits well over it and the whole board read as inked (840 of 840, measured)
+            grid_c, grid_r = pip_lattice(rgb, lit, ground)
+            vals0 = pip_values(rgb, grid_c, grid_r, lit, ground, 0.0)
+            if vals0:
+                pip_floor = (sum(vals0) / len(vals0)) if axis == "x" else min(vals0)
         profiles.append(pip_profile(rgb, centres, lit, ground, floor, axis))
+        scores.append(
+            whole_share(pip_values(rgb, grid_c, grid_r, lit, ground, pip_floor))
+        )
         rgb_last = rgb
-    shifts, tears = [], []
+    shifts, tears, phases, acc = [], [], {0: 0.0}, 0.0
     for i in range(len(profiles) - 1):
         prev, cur = profiles[i], profiles[i + 1]
         total = max(sum(prev), sum(cur))
@@ -669,6 +731,8 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
             prev, cur, max(1, len(centres) // 4), both_ways=(axis == "y")
         )
         shifts.append(k + f)
+        acc += k + f
+        phases[i + 1] = acc % 1.0
         if mism > tolerance * total:
             tears.append(
                 {
@@ -683,7 +747,31 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
     seamless = rgb_first is not None and rgb_first.tobytes() == rgb_last.tobytes()
     frac = [s for s in shifts if s != int(s)]
     period, line_share, power, p2 = spectral_lines(profiles)
+    # ⚑ WHOLE ON THE PIPS (W174): per frame, of the pips inked above the floor, the share that are
+    # whole. Reported, not required: whether a scroll MUST pass through an alignment where every
+    # stroke sits whole is an operator decision. `phase` is the scroll's cumulative shift mod one pip
+    # at that frame (pairs with nothing to compare add no shift, so a phase after one is approximate).
+    scored = [(s, i, n) for i, (s, n) in enumerate(scores) if s is not None]
+    # a frame with a handful of inked pips scores 1.0 by chance (measured: a Lit pinholes frame 2), so the
+    # best frame is chosen among those with at least half the most inked pips any frame has
+    top_n = max((n for _s, _i, n in scored), default=0)
+    full = [t for t in scored if t[2] * 2 >= top_n]
+    best = max(full, key=lambda t: (t[0], -t[1])) if full else None
+    ordered = sorted(s for s, _i, _n in scored)
+    whole = (
+        {
+            "frame": best[1],
+            "score": round(best[0], 4),
+            "inked": best[2],
+            "phase": round(phases[best[1]], 3) if best[1] in phases else None,
+        }
+        if best
+        else None
+    )
     return {
+        "whole_best": whole,
+        "whole_median": round(ordered[len(ordered) // 2], 4) if ordered else None,
+        "whole_frames": len(scored),
         "frames": len(profiles),
         "width": width,
         "axis": axis,
@@ -758,6 +846,43 @@ def selftest():
         f"  {'ok  ' if anims and len(moved) == len(anims) else 'FAIL'} (3) check_marquee_live.py edit: "
         f"{len(moved)} of {len(anims)} marquee-anim key(s) moved (want all, >0)"
     )
+    # (4)-(6) W174, the whole-on-the-pips score: it must SEE a stroke that straddles pips
+    from PIL import Image
+
+    lit_c, ground_c = (200, 100, 50), (10, 10, 10)
+    frame = Image.new("RGB", (12, 12), ground_c)
+    frame.putpixel((2, 2), lit_c)  # a pip fully lit
+    frame.putpixel((6, 2), (105, 55, 30))  # a pip half lit: an edge between two pips
+    vals = pip_values(frame, [2, 6, 10], [2], lit_c, ground_c, 0.0)
+    arms = (
+        (
+            "(4) a whole stroke scores 1.0 over its inked pips",
+            whole_share([1.0, 1.0, 0.95]),
+            (1.0, 3),
+        ),
+        (
+            "(5) a graded edge pip lowers it, and an unlit pip is not inked",
+            whole_share([1.0, 0.5, 0.4, 0.0]),
+            (1 / 3, 3),
+        ),
+        (
+            "(6) an empty board has NO score (not zero)",
+            whole_share([0.0, 0.05]),
+            (None, 0),
+        ),
+        (
+            "(7) pip_values reads the lit-ness AT each pip (full, half, none)",
+            [round(v, 2) for v in vals],
+            [1.0, 0.5, 0.0],
+        ),
+    )
+    for label, got, want in arms:
+        n += 1
+        ok += got == want
+        print(
+            f"  {'ok  ' if got == want else 'FAIL'} {label}"
+            + ("" if got == want else f": got {got!r} want {want!r}")
+        )
     print(f"render_screens selftest: {ok}/{n}")
     return 0 if ok == n else 1
 
@@ -771,6 +896,7 @@ def main(argv):
         "--stale",
         "--all",
         "--selftest",
+        "--whole",
     }
     jobs = 1
     for a in argv[1:]:
@@ -834,6 +960,25 @@ def main(argv):
         return 0
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
+        return 0
+    if "--whole" in argv:
+        # ⚑ W174: does each scroll pass through the alignment where every stroke sits whole on the
+        # pips? One line per animation; reported, not required (an operator decision).
+        rows = [a for a in measure()["animations"] if a.get("exists")]
+        for a in rows:
+            w = a.get("whole_best")
+            print(
+                f"  {a['file']:34s} frames {a['frames']:3d} scored {a['whole_frames']:3d} "
+                + (
+                    f"best frame {w['frame']:3d} score {w['score']:.3f} of {w['inked']:3d} "
+                    f"inked, phase {w['phase']}, median {a['whole_median']:.3f}"
+                    if w
+                    else "no pip is ever inked"
+                )
+            )
+        print(
+            f"render_screens --whole: {len(rows)} of {len(plan_animations())} animation(s) read"
+        )
         return 0
     import render_qml as RQ
 

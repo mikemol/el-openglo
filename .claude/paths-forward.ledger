@@ -920,3 +920,5 @@
 2026-10-13T01:41:17Z  interrupt W539 minted    -         "check_template_parity --record takes several templates in one call, and one command runs the four independent gates with one summary"  evidence=W538
 2026-10-13T01:45:47Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:fd029aacf5f5942b; the FILE wins"
 2026-10-13T04:56:20Z  interrupt W540 minted    -         "Urgency cues: the voxel volume in the colour-vision views, not only gray"  evidence=W74
+2026-10-13T07:06:52Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:c9e6229358ff44f5; the FILE wins"
+2026-10-13T07:15:18Z  interrupt W541 minted    -         "Operator: require each scroll to pass through the alignment where every stroke sits whole on the pips?"  evidence=W174
