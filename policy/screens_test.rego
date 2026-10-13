@@ -11,26 +11,83 @@ test_admits_clean if {
 }
 
 scroll := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 61,
-	"tears": [], "seamless": true, "shifts": [2.75, 3.0, 2.5, 3.0]}
+	"tears": [], "seamless": true, "shifts": [2.75, 3.0, 2.5, 2.75, 3.25, 2.5]}
 
-# W60 / S8: move the content, then sample — a fractional shift is the evidence
+s8(inp) := [m | some m in sc.deny with input as inp; startswith(m, "S8")]
+
+s8_withheld(inp) := [m | some m in sc.withheld with input as inp; startswith(m, "S8")]
+
+with_steps(steps) := {"screens": [good], "animations": [object.union(scroll, {"logged_steps": steps})]}
+
+# W60 / W201 / S8: move the content, then sample. At least 2/3 of the MOVING steps are fractional.
 test_s8_admits_a_scroll_that_moves_by_fractions_of_a_pip if {
-	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as {"screens": [good], "animations": [scroll]}
+	count(s8({"screens": [good], "animations": [scroll]})) == 0
 }
 
+# the old rule denied only when EVERY step was whole; one fractional step carried a pixelated run
 test_s8_refuses_a_scroll_that_moves_only_by_whole_pips if {
 	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [3.0, 3.0, 2.0, 3.0]})]}
-	"S8: marquee-anim-EL-Amber.png moves only by whole pips over 4 frame pair(s) — pixelated, then moved" in sc.deny with input as inp
+	"S8: marquee-anim-EL-Amber.png: only 0 of 4 moving step(s) are fractional, under 2/3 — pixelated, then moved" in sc.deny with input as inp
+}
+
+test_s8_one_fractional_step_among_whole_ones_is_refused if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [3.0, 3.0, 2.75, 3.0, 2.0]})]}
+	count(s8(inp)) == 1
 }
 
 test_s8_a_negative_fractional_shift_counts if {
-	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [-1.25, 0.0, 2.0]})]}
-	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as inp
+	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [-1.25, 0.0, 2.75]})]}
+	count(s8(inp)) == 0
 }
 
-test_s8_does_not_judge_a_run_with_no_measured_shift if {
+# the boundary is 2/3, inclusive
+test_s8_exactly_two_thirds_fractional_is_admitted if {
+	count(s8(with_steps([2.5, 2.5, 3.0]))) == 0
+}
+
+test_s8_just_under_two_thirds_is_refused if {
+	"S8: marquee-anim-EL-Amber.png: only 1 of 3 moving step(s) are fractional, under 2/3 — pixelated, then moved" in sc.deny with input as with_steps([2.5, 3.0, 3.0])
+}
+
+# W208: the harness's logged offsets decide where they exist, in BOTH directions
+test_s8_logged_fractional_steps_admit_even_when_the_image_fit_reads_whole if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": [3.0, 3.0, 3.0, 3.0], "logged_steps": [4.618, 4.618, 4.618]})]}
+	count(s8(inp)) == 0
+}
+
+test_s8_logged_whole_steps_refuse_even_when_the_image_fit_reads_fractional if {
+	inp := {"screens": [good], "animations": [object.union(scroll, {"logged_steps": [3.0, 3.0, 3.0]})]}
+	count(s8(inp)) == 1
+}
+
+# whole is within 0.001 of an integer: float noise on a whole step is not a fraction
+test_s8_float_noise_on_a_whole_step_is_still_whole if {
+	count(s8(with_steps([3.0000000000000004, 3.0, 3.0]))) == 1
+}
+
+# a stall is not a move: zero steps are excluded from the share
+test_s8_zero_steps_are_excluded if {
+	count(s8(with_steps([0.0, 0.0, 4.5, 4.75, 0.0]))) == 0
+	count(s8_withheld(with_steps([0.0, 0.0, 4.5, 4.75, 0.0]))) == 0
+}
+
+# withheld, never judged and never admitted: nothing measured, or only stalls
+test_s8_a_run_with_no_step_at_all_is_withheld if {
 	inp := {"screens": [good], "animations": [object.union(scroll, {"shifts": []})]}
-	count([m | some m in sc.deny; startswith(m, "S8")]) == 0 with input as inp
+	count(s8(inp)) == 0
+	s8_withheld(inp) == ["S8: marquee-anim-EL-Amber.png: no step was measured (no logged offsets, no image-fit shift)"]
+	count(sc.admitted) == 1 with input as inp
+}
+
+test_s8_an_all_stall_run_is_withheld_and_not_admitted if {
+	inp := with_steps([0.0, 0.0, 0.0])
+	count(s8(inp)) == 0
+	s8_withheld(inp) == ["S8: marquee-anim-EL-Amber.png: every step is a stall, so there is nothing to judge"]
+	sc.admitted == {"clock-EL-Amber.png"} with input as inp
+}
+
+test_s8_a_judged_scroll_is_admitted if {
+	sc.admitted == {"clock-EL-Amber.png", "marquee-anim-EL-Amber.png"} with input as {"screens": [good], "animations": [scroll]}
 }
 
 # W209 / S5 (logged): the harness's own offsets decide where they exist
@@ -85,7 +142,7 @@ test_s3_admits_the_view_ground if {
 # since W54 (this fixture was [6, 6, 7, 6, 12, 6], whole-pixel steps from before the
 # aperture field — under today's unit exactly the pixelate-then-move shape S8 refuses)
 anim := {"file": "marquee-anim-EL-Amber.png", "variant": "EL-Amber", "exists": true, "frames": 48, "width": 420,
-	"shifts": [2.75, 3.0, 2.5, 3.0, 2.75, 3.0], "tears": [], "seamless": true}
+	"shifts": [2.75, 3.0, 2.5, 2.75, 3.25, 3.0], "tears": [], "seamless": true}
 
 test_s6_refuses_an_open_loop if {
 	some msg in sc.deny with input as {"screens": [good], "animations": [object.union(anim, {"seamless": false})]}

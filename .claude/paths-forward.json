@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 543,
+  "counter": 544,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -4370,7 +4370,7 @@
     {
       "symbol": "W201",
       "title": "S8 refuses an animation with under 2/3 of its moving steps fractional; zero steps excluded, all-stall withheld",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W173"
       ],
@@ -4380,14 +4380,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "S8 reads the step from the logged offsets (W208): render_screens.measure carries each animation logged steps (or check_screens --json adds them) and policy/screens.rego S8 denies fractional share < 2/3 of MOVING logged steps (whole = within 1e-3 of an integer, zero excluded), withholds an animation with no log and no image fallback, and withholds all-stall; refusing + admitting tests in screens_test.rego. The image fit stays for S5 tears only (W209).",
-      "evidence": "2026-10-01: 2026-10-01 from W203 --frames: high-mismatch whole readings are a measurement artifact; S8 must not count them as whole.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 from W203 --frames: high-mismatch whole readings are a measurement artifact; S8 must not count them as whole. | 2026-10-13: W201 landed 2026-10-13: policy/screens.rego S8 refuses an animation with under 2/3 of its MOVING steps fractional (whole = within 0.001 of an integer), reading the harness logged offsets where present (exact) else the image fit; zero steps excluded; a run with no step or only stalls is withheld and not admitted. The old rule denied only when EVERY step was whole, so one fractional step carried a pixelated run. Measured first: all six marquee animations log 35 steps of 4.618 pips, 35 of 35 fractional (the image fit reads only 24 to 26 of 35 there, the W207 artifact); pinholes have no log, image fit 61 moving of which 60 fractional. opa test policy 1215 of 1215 (9 new: boundary inclusive at exactly 2/3 and refused just under, logged beats the image fit in both directions, float noise stays whole, zero steps excluded, no step withheld, all-stall withheld and not admitted); opa_gate screens admitted 0 deny 0 withheld 48 admitted. INTERPRETATION, reversible: the card said withhold an animation with no log and no image fallback and also that the image fit stays for S5 only; I kept the image fit as S8 fallback where there is no log, because otherwise the pinholes (the W60 origin) would lose S8 entirely.",
       "issued_at": "2026-10-01T22:54:54Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-06T01:51:09Z",
+      "last_worked": "2026-10-13T08:23:05Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261013T082305Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 27
@@ -4889,17 +4889,19 @@
     {
       "symbol": "W222",
       "title": "Oxygen flavour renders with the EL scheme: apply org.el.openglo.elazureoxygen in the k8s+KVM VM and screenshot a window",
-      "status": "working",
+      "status": "blocked",
       "enables": [],
       "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "luthen-observability:W163"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Through luthen (k8s+KVM VM, per the k8s-test-harness memory): install the staged el-openglo tree, plasma-apply-lookandfeel -a org.el.openglo.elazureoxygen, open a window with a selection, buttons and a titlebar, screenshot; compare against org.el.openglo.elazure (Breeze) on the same scene - selection, button and titlebar colours must be the EL-Azure roles in both. check_lnf (W37) covers the keys; this covers the drawing.",
-      "evidence": "2026-10-02: Split from W37 (2026-10-02, ATOMIZE): the render check_lnf states it cannot see.",
+      "evidence": "2026-10-02: Split from W37 (2026-10-02, ATOMIZE): the render check_lnf states it cannot see. | 2026-10-13: W222 tick 2026-10-13: blocked, not worked. The step needs a KVM VM running a Plasma session; a VMI create is withheld until luthen-observability reaper W163 lands (the same block as W235 and W515). Pod-only containers cannot run plasma-apply-lookandfeel with a window to screenshot.",
       "issued_at": "2026-10-02T04:04:27Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-13T07:46:35Z",
+      "last_worked": "2026-10-13T08:20:30Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -12887,6 +12889,26 @@
       "minted_during": "interrupt",
       "caused_by": "W229",
       "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W544",
+      "title": "Extract cvd_gate pure core (worst_view_dE, Okabe-Ito floor) as a mikemol-* dist homed in mtools, cutting the lazy palette_graph import",
+      "status": "ready",
+      "enables": [
+        "nemik:W438"
+      ],
+      "touches": [
+        "cvd_gate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Scope read from cvd_gate.py 2026-10-13: the pure core is worst_view_dE (line 52) and OKABE_ITO with its floor (line 63 on); the one non-pure edge is the lazy import palette_graph as _pg at line 368, to cut or inject. Deps are numpy and colorspacious. Steps: (1) split the pure core into a module with no repo import, selftested, keeping cvd_gate as the thin caller; (2) ask mtools (mtools owns dists) for the home and mint the card there, citing el-openglo:W544 and nemik:W438; (3) pin it here at the par sha and repoint check_urgency_cues, which imports cvd_gate._ucs. Correction to my 2026-10-11 note to nemik: it cited W508, which became adopt isolated mikemol-commit; this is the card.",
+      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on.",
+      "issued_at": "2026-10-13T08:12:56Z",
+      "minted_during": "interrupt",
+      "caused_by": "nemik:W438",
+      "last_worked": "2026-10-13T08:13:03Z",
       "ticks_blocked": 0
     }
   ],

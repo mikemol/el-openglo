@@ -58,6 +58,7 @@ withheld contains "S7: animations was not measured" if {
 admitted contains s.file if {
 	some s in array.concat(stills, anims)
 	not denied_file(s.file)
+	not s8_unjudged(s.file)
 }
 
 denied_file(f) if {
@@ -159,19 +160,54 @@ case_deny contains {"file": a.file, "msg": sprintf("S5: %s tears at frame(s) %v 
 # description: |
 #   W60 (operator, 2026-09-22, seeing pinholes-anim: "the pixelation of the glyphs is
 #   calculated, and then the pixelated glyphs are moved ... we want the glyphs to move
-#   and the pixelation RECALCULATED"). render_screens.animation_facts gives, per
-#   adjacent frame pair, the best shift in PIPS: a whole k plus a fraction f. A
-#   pre-pixelated bitmap translated across the field only ever moves by whole pips,
-#   so a run whose every measured shift is a whole number is pixelate-then-move. A
-#   run with no measured shift (an empty board) is not judged here.
-fractional(s) if s - floor(s) != 0
+#   and the pixelation RECALCULATED"). A pre-pixelated bitmap translated across the
+#   field only ever moves by whole pips; a scroll that samples the moving content lands
+#   between pips. W201 (2026-10-13): a run is refused when under 2/3 of its MOVING
+#   steps are fractional (whole = within 0.001 of an integer), and the old rule (deny
+#   only when EVERY step was whole) let one fractional step carry a pixelated run.
+#
+#   WHERE THE STEPS COME FROM. The harness's logged offsets (W208) where it wrote them,
+#   exact; else the image fit render_screens.animation_facts measures (a whole k plus a
+#   quarter-pip fraction per adjacent pair), which mis-reads the coverage-graded field
+#   (W207: on the marquee it reads 24 to 26 of 35 fractional steps where the log reads
+#   35 of 35). A STALL (a zero step) is not a move and is excluded from the share; a run
+#   with no step at all, or only stalls, is withheld, not judged and not admitted.
+s8_steps(a) := a.logged_steps if logged(a)
+else := a.shifts if is_array(object.get(a, "shifts", null))
+else := []
 
-case_deny contains {"file": a.file, "msg": sprintf("S8: %s moves only by whole pips over %d frame pair(s) — pixelated, then moved", [a.file, count(a.shifts)])} if {
+s8_moving(a) := [s | some s in s8_steps(a); abs(s) > 0.001]
+
+s8_fractional(a) := [s | some s in s8_moving(a); abs(s - round(s)) > 0.001]
+
+case_deny contains {"file": a.file, "msg": sprintf("S8: %s: only %d of %d moving step(s) are fractional, under 2/3 — pixelated, then moved", [a.file, count(s8_fractional(a)), count(s8_moving(a))])} if {
 	some a in anims
 	a.exists == true
-	is_array(object.get(a, "shifts", null))
-	count(a.shifts) > 0
-	count([s | some s in a.shifts; fractional(s)]) == 0
+	count(s8_moving(a)) > 0
+	3 * count(s8_fractional(a)) < 2 * count(s8_moving(a))
+}
+
+withheld contains msg if {
+	some a in anims
+	a.exists == true
+	count(s8_steps(a)) == 0
+	msg := sprintf("S8: %s: no step was measured (no logged offsets, no image-fit shift)", [a.file])
+}
+
+withheld contains msg if {
+	some a in anims
+	a.exists == true
+	count(s8_steps(a)) > 0
+	count(s8_moving(a)) == 0
+	msg := sprintf("S8: %s: every step is a stall, so there is nothing to judge", [a.file])
+}
+
+# an animation S8 could not judge is not admitted: "judged and passed" must mean every rule ran
+s8_unjudged(f) if {
+	some a in anims
+	a.file == f
+	a.exists == true
+	count(s8_moving(a)) == 0
 }
 
 # METADATA
