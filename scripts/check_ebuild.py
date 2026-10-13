@@ -30,6 +30,7 @@ palette solve; the cache rides along) and seconds warm.
 
     scripts/check_ebuild.py --deps     # the declared atoms and whether each resolves
     scripts/check_ebuild.py --race [--ambient]   # 8 concurrent pkgcheck scans (W212)
+    scripts/check_ebuild.py --failures           # the captured failing scans, newest first (W212)
 
 W212, STATED. pkgcheck runs against a PRIVATE COPY of the overlay with a private
 --cache-dir (it used to write overlay/metadata/md5-cache into the checkout). The
@@ -117,23 +118,27 @@ def deps_resolve(path=EBUILD):
 FAILURES = os.path.join(tempfile.gettempdir(), "el-openglo-pkgcheck-failures")
 
 
-def record_failure(argv, r):
+def record_failure(argv, r, dirs=None):
     """Keep what a FAILING pkgcheck scan printed, outside the tree (W212, 2026-10-06).
 
     The flake's first failure output was never captured: the gate printed
     `DENY B1: pkgcheck:` with an empty message and the replay passed, so every
-    theory about the cause stayed a theory. One JSON file per failure under
-    FAILURES (the system temp dir, never the checkout: W68), with argv, exit
-    code, both streams and the environment names pkgcheck and git read."""
+    theory about the cause stayed a theory. One JSON file per failure, with argv,
+    exit code, both streams and the environment names pkgcheck and git read.
+
+    ⚑ BOTH PLACES, ALWAYS (2026-10-13). Under bazel the test's undeclared-outputs directory is
+    what BuildBuddy captures with the invocation, but bazel overwrites it on the next run of the
+    same test, so the failing run's record was gone before anyone read it (`--failures` found
+    none in the temp dir because it had never been written there). The system temp dir (never the
+    checkout: W68) now always gets a copy; where the sandbox forbids that write, the undeclared
+    copy alone stands. `dirs` overrides both (the selftest's)."""
     import json
     import time
 
-    # Under bazel the test's undeclared-outputs directory is what BuildBuddy captures with the
-    # invocation; outside it the system temp dir keeps the file.
-    where = os.environ.get("TEST_UNDECLARED_OUTPUTS_DIR") or FAILURES
-    os.makedirs(where, exist_ok=True)
+    undeclared = os.environ.get("TEST_UNDECLARED_OUTPUTS_DIR")
+    default = [FAILURES] + ([undeclared] if undeclared else [])
+    where = default if dirs is None else dirs
     stamp = time.strftime("%Y%m%dT%H%M%S")
-    name = os.path.join(where, f"{stamp}-{os.getpid()}.json")
     prefixes = ("PORTAGE", "PKGCORE", "PKGCHECK", "XDG", "GIT", "PAPERKIT", "HOME")
     env = {k: v for k, v in os.environ.items() if k.startswith(prefixes)}
     doc = {
@@ -143,10 +148,50 @@ def record_failure(argv, r):
         "stderr": r.stderr,
         "env": env,
     }
-    with open(
-        name, "w", encoding="utf-8"
-    ) as fh:  # atomic-write: exempt — a diagnostic outside the tree
-        json.dump(doc, fh, indent=1)
+    wrote = 0
+    for d in where:
+        try:
+            os.makedirs(d, exist_ok=True)
+            with open(
+                os.path.join(d, f"{stamp}-{os.getpid()}.json"), "w", encoding="utf-8"
+            ) as fh:  # atomic-write: exempt — a diagnostic outside the tree
+                json.dump(doc, fh, indent=1)
+            wrote += 1
+        except OSError:
+            if len(where) == 1:
+                raise
+    if not wrote:
+        raise OSError(f"no capture directory of {where} was writable")
+
+
+def failure_records(where=FAILURES):
+    """The captured failing scans under `where`, newest first: [(file name, record)].
+    Empty when the directory is absent or holds none; a file that is not a JSON record
+    is listed with the parse error as its record, never skipped."""
+    import json
+
+    if not os.path.isdir(where):
+        return []
+    out = []
+    # population: the capture directory's own records, diagnostics outside the tree (W68), untracked by design
+    for name in sorted(os.listdir(where), reverse=True):
+        if not name.endswith(".json"):
+            continue
+        try:
+            with open(os.path.join(where, name), encoding="utf-8") as fh:
+                out.append((name, json.load(fh)))
+        except ValueError as e:
+            out.append((name, {"rc": None, "stdout": "", "stderr": f"unreadable: {e}"}))
+    return out
+
+
+def failure_line(name, doc):
+    """One line per captured failure: when, the exit code, whether it reads as a host-load
+    failure, and what pkgcheck printed (EMPTY says so: the flake once printed nothing)."""
+    out, err = doc.get("stdout") or "", doc.get("stderr") or ""
+    shown = (err or out).strip().replace("\n", " | ")[:160]
+    host = pkgcheck_env_error(doc.get("rc") or 0, out, err)
+    return f"{name}  rc {doc.get('rc')}  host-load {host}  {shown or '(EMPTY output)'}"
 
 
 def pkgcheck_scan(path=EBUILD, isolated=True):
@@ -477,11 +522,30 @@ def measure():
 
 
 def main(argv):
-    known = {"--tree", "--selftest", "--deps", "--json", "--race", "--ambient"}
+    known = {
+        "--tree",
+        "--selftest",
+        "--deps",
+        "--json",
+        "--race",
+        "--ambient",
+        "--failures",
+    }
     for a in argv[1:]:
         if a not in known:
             print(f"check_ebuild: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if "--failures" in argv:
+        recs = failure_records()
+        print(f"check_ebuild --failures: {len(recs)} record(s) in {FAILURES}")
+        for name, doc in recs:
+            print("  " + failure_line(name, doc))
+        if not recs:
+            print(
+                "  none here. WEAKNESS: under bazel the capture goes to the test's undeclared "
+                "outputs (BuildBuddy), not this directory, so none here is not none anywhere"
+            )
+        return 0
     if "--race" in argv:
         res = race(8, "--ambient" not in argv)
         print(
@@ -569,6 +633,27 @@ def _selftest():
         False,
     )
     check("a clean scan is not a host fact", pkgcheck_env_error(0, "", ""), False)
+    # the capture can be READ back: a record written by record_failure is listed, an empty
+    # failure says so, and a directory with none lists none (n of m, never a bare nothing)
+    with tempfile.TemporaryDirectory() as td:
+        check("an absent capture directory lists none", failure_records(td + "/x"), [])
+        record_failure(
+            ["pkgcheck", "scan"], subprocess.CompletedProcess([], 2, "", ""), [td]
+        )
+        recs = failure_records(td)
+        check("a recorded failure is listed", len(recs), 1)
+        check(
+            "an empty failure reads as EMPTY",
+            "(EMPTY output)" in failure_line(*recs[0]),
+            True,
+        )
+        with open(os.path.join(td, "z-broken.json"), "w") as fh:
+            fh.write("{not json")
+        check(
+            "a file that is not a record is listed, not skipped",
+            [n for n, _d in failure_records(td)].count("z-broken.json"),
+            1,
+        )
     if shutil.which("pkgcheck"):
         before = os.path.isdir(os.path.join(OVERLAY, "metadata", "md5-cache"))
         pkgcheck_scan()
