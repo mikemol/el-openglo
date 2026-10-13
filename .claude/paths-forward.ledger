@@ -915,3 +915,7 @@
 2026-10-12T23:12:09Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:bd4fc6f0c036f66e; the FILE wins"
 2026-10-12T23:45:46Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:0eac1d6d2d486617; the FILE wins"
 2026-10-12T23:48:08Z  interrupt W537 minted    -         "check_config_reach: a marquee glow arm that sees the LIT pips dim at glow 0.5, not only the ghost and halo"  evidence=W534
+2026-10-13T01:35:37Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:6b09cb1c5bf55c0a; the FILE wins"
+2026-10-13T01:36:14Z  interrupt W538 minted    -         "Script the new-template landing chain as one mtools mode: stale closures, closure write, action keys, parity record, gates"  evidence=github:W0
+2026-10-13T01:41:17Z  interrupt W539 minted    -         "check_template_parity --record takes several templates in one call, and one command runs the four independent gates with one summary"  evidence=W538
+2026-10-13T01:45:47Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:fd029aacf5f5942b; the FILE wins"

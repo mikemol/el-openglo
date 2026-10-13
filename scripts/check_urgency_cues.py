@@ -608,6 +608,92 @@ def temporal_facts(res, frames_dir, ground, grid_):
     }
 
 
+# ── the volume: the frame series as voxels ──────────────────────────────────────
+
+
+def covered_frames(res):
+    """The frame numbers in which text covers the board end to end: the population the
+    temporal arm reads, and the SAME for every urgency (one text, one timeline), so two
+    urgencies' volumes line up frame for frame."""
+    width = res.get("width", 0)
+    w = max([s.get("w") or 0 for s in res.get("samples", [])] or [0])
+    return [
+        n
+        for n, f in enumerate(res.get("frames") or [])
+        if f["x"] <= 0 and f["x"] + w >= width
+    ]
+
+
+def volume(frames_dir, ground, grid_, numbers, view="gray"):
+    """The frame series as a VOXEL volume (operator, 2026-10-12: literal voxels): a
+    (frames, rows, cols) array at PIP resolution, one voxel per pip per frame, valued by
+    the pip's ink over the ground in `view`. None when no listed frame is on disk.
+
+    ⚑ ONE FLOOR FOR THE WHOLE VOLUME, at the darkest percentile (the unlit ghost), not one
+    per frame: a per-frame floor would lift a dark frame of a flash back to the picture
+    and erase the very change this reads. The darkest pips are unlit however much of the
+    board the text covers (the W528 baseline, over time)."""
+    pitch, x0, bands = grid_["pitch"], grid_["x0"], grid_["bands"]
+    gg = float(view_image(np.array(ground, float).reshape(1, 1, 3), view)[0, 0])
+    planes = []
+    for n in numbers:
+        path = os.path.join(frames_dir, f"frame-{n:03d}.png")
+        if os.path.isfile(path):
+            c = cells(view_image(_rgb(path), view), pitch, x0, bands)
+            planes.append(np.abs(c - gg))
+    if not planes:
+        return None
+    vol = np.stack(planes)
+    return np.clip(vol - float(np.percentile(vol, DARK_PERCENTILE)), 0, None)
+
+
+def lit_volume(vol):
+    """The binarised volume: voxels at >= LIT_FRACTION of the volume's OWN peak, so
+    brightness drops out (an opacity-only cue scores zero) and a dark frame is empty."""
+    peak = float(vol.max())
+    return vol >= LIT_FRACTION * peak if peak > 0 else np.zeros(vol.shape, bool)
+
+
+def voxel_shape_difference(a, b, shift=SHIFT):
+    """1 - IoU of two lit volumes, minimised over a +-shift COLUMN alignment; (value, dx).
+
+    Space is slip-tolerant exactly as shape_difference is. TIME IS NOT ALIGNED: frame k of
+    one is frame k of the other (one capture timeline), so a flash that is dark where the
+    other is lit costs IoU. The static letterform is the special case of one frame."""
+    t = min(a.shape[0], b.shape[0])
+    a, b = a[:t], b[:t]
+    best = (1.0, 0) if (a.any() or b.any()) else (0.0, 0)
+    n = a.shape[2]
+    for dx in range(-shift, shift + 1):
+        aa = a[:, :, max(0, dx) : n + min(0, dx)]
+        bb = b[:, :, max(0, -dx) : n - max(0, dx)]
+        union = int((aa | bb).sum())
+        if union == 0:
+            continue
+        d = 1.0 - int((aa & bb).sum()) / union
+        if d < best[0]:
+            best = (d, dx)
+    return round(best[0], 4), best[1]
+
+
+def voxel_facts(runs, ground, grid_):
+    """Per pair of urgencies, the VOLUME's shape difference (gray view) over the frames
+    every urgency covers, or {"withheld": why}. runs: {urgency: (harness result, frames
+    dir)}. The static pair facts (judge_variant) are the one-frame reading of the same."""
+    nums = sorted(set.intersection(*(set(covered_frames(r)) for r, _ in runs.values())))
+    vols = {n: volume(fr, ground, grid_, nums) for n, (_, fr) in runs.items()}
+    if not nums or any(v is None for v in vols.values()):
+        return {"withheld": "no frame is covered end to end in every urgency's series"}
+    names = [n for n, _ in URGENCIES]
+    pairs = []
+    for i in range(len(names)):
+        for j in range(i + 1, len(names)):
+            a, b = names[i], names[j]
+            d, dx = voxel_shape_difference(lit_volume(vols[a]), lit_volume(vols[b]))
+            pairs.append({"a": a, "b": b, "shape": d, "shift": dx})
+    return {"frames": len(nums), "pairs": pairs}
+
+
 def pause_facts(res):
     ss = res.get("samples", []) if res else []
     held = [s for s in ss if s.get("paused")]
@@ -703,7 +789,7 @@ def measure(only=None, stills_dir=None):
             if isinstance(ground, str)
             else tuple(ground)
         )
-        inks, temporal, why = {}, {}, None
+        inks, temporal, runs, why = {}, {}, {}, None
         for (vv, n, u, path, frames), res in results:
             if vv != v:
                 continue
@@ -716,11 +802,13 @@ def measure(only=None, stills_dir=None):
                 break
             inks[n] = ink
             temporal[n] = temporal_facts(res, frames, ground, ink["_grid"])
+            runs[n] = (res, frames)
         if why:
             withheld.append({"variant": v, "reason": why})
             continue
         c = judge_variant(v, inks)
         c["temporal"] = temporal
+        c["voxel"] = voxel_facts(runs, ground, inks["normal"]["_grid"])
         c["pause"] = pause_facts(held.get(v))
         c["stills"] = {
             n: os.path.join(keep, f"urgency-{n}-{v}.png") for n, _ in URGENCIES
@@ -835,6 +923,14 @@ def listing(m):
                 f"  {p['a']}~{p['b']}: shape {p['shape']:.3f} (worst view {p['view']}, shift {p['shift']}); "
                 f"footprint ratio {p['footprint_ratio']}, mass ratio {p['mass_ratio']}"
             )
+        vx = c.get("voxel", {})
+        for p in vx.get("pairs", []):
+            print(
+                f"  voxel {p['a']}~{p['b']}: shape {p['shape']:.3f} over {vx['frames']} "
+                f"frames (shift {p['shift']})"
+            )
+        if "withheld" in vx:
+            print(f"  voxel withheld: {vx['withheld']}")
         pz = c["pause"]
         print(
             f"  paused: {pz['paused_dark']} of {pz['paused_samples']} held samples dark "
@@ -1085,6 +1181,67 @@ def _selftest():
             "an uncovered series (text never spans the board) is 0 covered frames",
             temporal_facts(dict(res, samples=[{"w": 100}]), td, ground, g)["covered"],
             0,
+        )
+    # the volume: the series as voxels. The same upper-case letterform steady, flashing and
+    # hue-only, written as frames and read back through the real reader.
+    with tempfile.TemporaryDirectory() as td:
+        lit_img = synth_board(synth_coverage(n=17, start=0))
+        dark_img = synth_board(synth_coverage(n=17, start=0, level=0.0))
+        hot_img = synth_board(synth_coverage(n=17, start=0), lit=(240, 90, 60))
+        dirs = {n: os.path.join(td, n) for n in ("flash", "steady", "hue")}
+        frames = [{"t": k * 40, "x": -10} for k in range(50)]
+        for name, d in dirs.items():
+            os.makedirs(d)
+            for k in range(50):
+                img = {"steady": lit_img, "hue": hot_img}.get(name)
+                if img is None:
+                    img = lit_img if (k * 40 // 250) % 2 == 0 else dark_img
+                Image.fromarray(img.astype(np.uint8)).save(
+                    os.path.join(d, f"frame-{k:03d}.png")
+                )
+        res = {"width": 420, "samples": [{"w": 1000}], "frames": frames}
+        nums = covered_frames(res)
+        g = ink_views(lit_img, ground)["_grid"]
+        vol = {n: volume(d, ground, g, nums) for n, d in dirs.items()}
+        chk("every frame of the series is covered", len(nums), 50)
+        chk(
+            "the volume is (frames, rows) at pip resolution",
+            vol["flash"].shape[:2],
+            (50, 8),
+        )
+        want = [(k * 40 // 250) % 2 == 0 for k in range(50)]
+        got = lit_volume(vol["flash"]).reshape(50, -1).any(axis=1).tolist()
+        chk("a flash's dark frames are EMPTY frames of the volume", got, want)
+        chk(
+            "no frame listed on disk reads as no volume",
+            volume(dirs["flash"], ground, g, []),
+            None,
+        )
+        lf, ls, lh = (lit_volume(vol[n]) for n in ("flash", "steady", "hue"))
+        chk(
+            "one frame of a flash and of a steady series: the same letterform, 2D shape 0",
+            shape_difference(lf[0], ls[0])[0],
+            0.0,
+        )
+        chk(
+            "...and the VOLUME sees the flash one frame cannot (shape >= 0.3)",
+            voxel_shape_difference(lf, ls)[0] >= 0.3,
+            True,
+        )
+        chk(
+            "a steady series against itself differs by 0",
+            voxel_shape_difference(ls, ls)[0],
+            0.0,
+        )
+        chk(
+            "a hue-only critical is INDISTINGUISHABLE in the volume",
+            voxel_shape_difference(lh, ls)[0],
+            0.0,
+        )
+        chk(
+            "a one-column slip of the whole volume is not credited as shape",
+            voxel_shape_difference(ls, np.roll(ls, 1, axis=2))[0],
+            0.0,
         )
     chk("the population is the six variants", len(variants()), 6)
     print("check_urgency_cues selftest:", "PASS" if ok else "FAIL")
