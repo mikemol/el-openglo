@@ -922,3 +922,6 @@
 2026-10-13T04:56:20Z  interrupt W540 minted    -         "Urgency cues: the voxel volume in the colour-vision views, not only gray"  evidence=W74
 2026-10-13T07:06:52Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:c9e6229358ff44f5; the FILE wins"
 2026-10-13T07:15:18Z  interrupt W541 minted    -         "Operator: require each scroll to pass through the alignment where every stroke sits whole on the pips?"  evidence=W174
+2026-10-13T07:45:27Z  interrupt W542 minted    -         "Operator: which boundaryDepth default for the segment display, 0.5 as today, 0.4 or 0.3?"  evidence=W216
+2026-10-13T07:46:11Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:078f13375fe07e65; the FILE wins"
+2026-10-13T07:46:31Z  interrupt W543 minted    -         "Classify the 20 unresolved edges of the action keys (schemes 7, screens 5, wallpapers 8): computed, or replaceable by a literal"  evidence=W229
