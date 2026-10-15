@@ -51,6 +51,10 @@ VARIANT = "EL-Openglo"
 # policy can read, so an exemption is visible rather than a quiet `continue`
 _BLINK = "the colon toggles per tick and one still holds it lit either way"
 _NOT_DRAWN = "not drawn: it changes behaviour or the trace, never a pixel of the board"
+_ROLL_SPEED = (
+    "a replace roll's duration is time, not a pixel of one still; the live burst rule (W548) measures it "
+    "at the defaults and with changed settings and requires the measured durations to differ"
+)
 INERT = {
     ("clock", "blinkColon"): _BLINK,
     ("wallpaper", "blinkColon"): _BLINK,
@@ -70,6 +74,9 @@ INERT = {
         "marquee",
         "maxItems",
     ): "caps the ring's items; visible only with more notifications than the cap",
+    ("marquee", "rollBaseMs"): _ROLL_SPEED,
+    ("marquee", "rollFloorMs"): _ROLL_SPEED,
+    ("marquee", "rollFullQueue"): _ROLL_SPEED,
 }
 
 # a key that acts only while ANOTHER is on is measured with that one on (the other keys stay default):

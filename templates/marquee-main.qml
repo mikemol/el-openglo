@@ -70,6 +70,13 @@ PlasmoidItem {
                                 : plasmoid.configuration.openLinks
     property bool cfgHoverPause: (plasmoid.configuration.hoverPause === undefined) ? true
                                  : plasmoid.configuration.hoverPause
+    // the replace roll's speed (W547): Body.rollDuration(queuedRolls, base, floor, full), filtered in rollAnim
+    property int cfgRollBaseMs: (plasmoid.configuration.rollBaseMs === undefined) ? 400
+                                : Math.round(plasmoid.configuration.rollBaseMs)
+    property int cfgRollFloorMs: (plasmoid.configuration.rollFloorMs === undefined) ? 120
+                                 : Math.round(plasmoid.configuration.rollFloorMs)
+    property int cfgRollFullQueue: (plasmoid.configuration.rollFullQueue === undefined) ? 6
+                                   : Math.round(plasmoid.configuration.rollFullQueue)
     // ⚑ THE LIVE HOST'S TRACE (operator, 2026-09-22: a single notify-send after a
     // plasmashell replace showed nothing; under `watch` things eventually
     // appeared — and the headless run passes). What check_marquee_live samples
@@ -525,6 +532,7 @@ PlasmoidItem {
         // BEFORE the new roll is set, never after
         rollAnim.stop();
         root.roll = { oldText: oldText, span: Body.replaceSpan(oldText, newText), oldOffs: root.layoutOffs.slice() };
+        root.rollProgress = 0;
         rollAnim.start();
     }
     // ⚑ REPLACES THAT ARRIVE DURING A LIVE ROLL QUEUE (W546, under W184). Measured 2026-10-13, a burst of five
@@ -549,11 +557,40 @@ PlasmoidItem {
         if (was) root.replaceInPlace([was], [entry]);
         else root.applyPending();
     }
+    // ⚑ THE ROLL'S SPEED FOLLOWS THE QUEUE (W547, under W184; operator: a pileup of replacements accelerates
+    // the roll, as an s-curve). A frame animation, not a duration: a NumberAnimation whose duration changes
+    // while it runs re-maps its clock and the progress jumps. Each frame the target duration is
+    // Body.rollDuration(queuedRolls, base, floor, full) and rollMsNow follows it through a low-pass (time
+    // constant rollSmoothMs), so the rate 1 / rollMsNow cannot step when queuedRolls does; progress advances by
+    // frameTime / rollMsNow. A roll that ends with nothing waiting resets rollMsNow to the base.
+    readonly property real rollSmoothMs: 80
+    property real rollMsNow: root.cfgRollBaseMs
+    // ⚑ THE CLOCK IS A NumberAnimation, NOT A FrameAnimation's frameTime: the harness runs the animation driver
+    // at a fixed step (virtual time, W63) and frameTime does not follow it, so the roll ended early and the board
+    // jumped (measured, marquee_live L4/L13). rollClockMs counts driver milliseconds; each change integrates the
+    // delta since the last one. An oversized span so the clock never ends before progress does.
+    property real rollClockMs: 0
+    property real rollClockLast: 0
+    onRollClockMsChanged: {
+        if (root.roll === null) return;
+        var dtMs = root.rollClockMs - root.rollClockLast;
+        root.rollClockLast = root.rollClockMs;
+        if (dtMs <= 0) return;      // a restart rewinds the clock: the last value follows it, nothing integrates
+        var want = Body.rollDuration(root.queuedRolls, root.cfgRollBaseMs, root.cfgRollFloorMs, root.cfgRollFullQueue);
+        root.rollMsNow += (want - root.rollMsNow) * (1 - Math.exp(-dtMs / root.rollSmoothMs));
+        root.rollProgress = Math.min(1, root.rollProgress + dtMs / Math.max(1, root.rollMsNow));
+        if (root.rollProgress >= 1) rollAnim.stop();
+    }
     NumberAnimation {
         id: rollAnim
-        target: root; property: "rollProgress"
-        from: 0; to: 1; duration: root.rollMs
-        onStopped: { root.roll = null; root.applyPending(); }
+        target: root; property: "rollClockMs"
+        from: 0; to: 600000; duration: 600000
+        onStarted: root.rollClockLast = 0
+        onStopped: {
+            root.roll = null;
+            if (root.pendingReplaces.length === 0) root.rollMsNow = root.cfgRollBaseMs;
+            root.applyPending();
+        }
     }
 
     property var registry: $registry

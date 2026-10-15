@@ -32,6 +32,13 @@
   <!-- hovering the board pauses the scroll so a link can be aimed at (W40); a pointer
        parked on the panel then holds the board still, so it is a choice (W49) -->
   <entry name="hoverPause" type="Bool"><default>true</default></entry>
+  <!-- the vertical roll of a replaced notification (W547, under W184): how long one roll takes
+       with nothing waiting (rollBaseMs), how short it gets once replaces pile up (rollFloorMs), and
+       how many waiting replaces count as a full pileup (rollFullQueue). The duration eases between
+       the two along Body.rollDuration's smoothstep, so the speed never steps. -->
+  <entry name="rollBaseMs" type="Int"><default>400</default></entry>
+  <entry name="rollFloorMs" type="Int"><default>120</default></entry>
+  <entry name="rollFullQueue" type="Int"><default>6</default></entry>
   <!-- INSTRUMENT layer: changes nothing a user sees -->
   <!-- print every rebuild / swap / start to plasmashell's stderr (the live host's
        twin of check_marquee_live's trace) -->

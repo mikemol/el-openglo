@@ -44,6 +44,12 @@ KCM.SimpleKCM {
     property int cfg_maxItemsDefault
     property bool cfg_openLinksDefault
     property bool cfg_hoverPauseDefault
+    property alias cfg_rollBaseMs: rollBaseMs.value
+    property alias cfg_rollFloorMs: rollFloorMs.value
+    property alias cfg_rollFullQueue: rollFullQueue.value
+    property int cfg_rollBaseMsDefault
+    property int cfg_rollFloorMsDefault
+    property int cfg_rollFullQueueDefault
     // INSTRUMENT layer — traceLog is the widget's own log, never a control: declared, not drawn
     property alias cfg_debugLog: debugLog.checked
     property string cfg_traceLog
@@ -65,6 +71,10 @@ KCM.SimpleKCM {
         QQC2.SpinBox { id: maxItems; from: 1; to: 50; Kirigami.FormData.label: "Notifications shown:" }
         QQC2.CheckBox { id: openLinks; Kirigami.FormData.label: "Open links on click:" }
         QQC2.CheckBox { id: hoverPause; Kirigami.FormData.label: "Pause while hovered:" }
+        // the replace roll (W547): milliseconds with nothing waiting, milliseconds at a full pileup, and the pileup size
+        QQC2.SpinBox { id: rollBaseMs; from: 100; to: 2000; stepSize: 50; Kirigami.FormData.label: "Replace roll (ms):" }
+        QQC2.SpinBox { id: rollFloorMs; from: 40; to: 1000; stepSize: 20; Kirigami.FormData.label: "Fastest replace roll (ms):" }
+        QQC2.SpinBox { id: rollFullQueue; from: 1; to: 20; Kirigami.FormData.label: "Pileup that rolls fastest:" }
         QQC2.CheckBox { id: debugLog; Kirigami.FormData.label: "Log to plasmashell's stderr:" }
     }
 }

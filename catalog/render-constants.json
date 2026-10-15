@@ -49,6 +49,8 @@
     "paintedText": "STATE",
     "paintedRollEnd": "STATE",
     "queuedRolls": "STATE",
+    "rollClockMs": "STATE",
+    "rollClockLast": "STATE",
     "viewWidth": "STATE",
     "flashLit": "STATE",
     "charAdvance": "STATE",

@@ -70,6 +70,13 @@ PlasmoidItem {
                                 : plasmoid.configuration.openLinks
     property bool cfgHoverPause: (plasmoid.configuration.hoverPause === undefined) ? true
                                  : plasmoid.configuration.hoverPause
+    // the replace roll's speed (W547): Body.rollDuration(queuedRolls, base, floor, full), filtered in rollAnim
+    property int cfgRollBaseMs: (plasmoid.configuration.rollBaseMs === undefined) ? 400
+                                : Math.round(plasmoid.configuration.rollBaseMs)
+    property int cfgRollFloorMs: (plasmoid.configuration.rollFloorMs === undefined) ? 120
+                                 : Math.round(plasmoid.configuration.rollFloorMs)
+    property int cfgRollFullQueue: (plasmoid.configuration.rollFullQueue === undefined) ? 6
+                                   : Math.round(plasmoid.configuration.rollFullQueue)
     // ⚑ THE LIVE HOST'S TRACE (operator, 2026-09-22: a single notify-send after a
     // plasmashell replace showed nothing; under `watch` things eventually
     // appeared — and the headless run passes). What check_marquee_live samples
@@ -525,6 +532,7 @@ PlasmoidItem {
         // BEFORE the new roll is set, never after
         rollAnim.stop();
         root.roll = { oldText: oldText, span: Body.replaceSpan(oldText, newText), oldOffs: root.layoutOffs.slice() };
+        root.rollProgress = 0;
         rollAnim.start();
     }
     // ⚑ REPLACES THAT ARRIVE DURING A LIVE ROLL QUEUE (W546, under W184). Measured 2026-10-13, a burst of five
@@ -549,11 +557,40 @@ PlasmoidItem {
         if (was) root.replaceInPlace([was], [entry]);
         else root.applyPending();
     }
+    // ⚑ THE ROLL'S SPEED FOLLOWS THE QUEUE (W547, under W184; operator: a pileup of replacements accelerates
+    // the roll, as an s-curve). A frame animation, not a duration: a NumberAnimation whose duration changes
+    // while it runs re-maps its clock and the progress jumps. Each frame the target duration is
+    // Body.rollDuration(queuedRolls, base, floor, full) and rollMsNow follows it through a low-pass (time
+    // constant rollSmoothMs), so the rate 1 / rollMsNow cannot step when queuedRolls does; progress advances by
+    // frameTime / rollMsNow. A roll that ends with nothing waiting resets rollMsNow to the base.
+    readonly property real rollSmoothMs: 80
+    property real rollMsNow: root.cfgRollBaseMs
+    // ⚑ THE CLOCK IS A NumberAnimation, NOT A FrameAnimation's frameTime: the harness runs the animation driver
+    // at a fixed step (virtual time, W63) and frameTime does not follow it, so the roll ended early and the board
+    // jumped (measured, marquee_live L4/L13). rollClockMs counts driver milliseconds; each change integrates the
+    // delta since the last one. An oversized span so the clock never ends before progress does.
+    property real rollClockMs: 0
+    property real rollClockLast: 0
+    onRollClockMsChanged: {
+        if (root.roll === null) return;
+        var dtMs = root.rollClockMs - root.rollClockLast;
+        root.rollClockLast = root.rollClockMs;
+        if (dtMs <= 0) return;      // a restart rewinds the clock: the last value follows it, nothing integrates
+        var want = Body.rollDuration(root.queuedRolls, root.cfgRollBaseMs, root.cfgRollFloorMs, root.cfgRollFullQueue);
+        root.rollMsNow += (want - root.rollMsNow) * (1 - Math.exp(-dtMs / root.rollSmoothMs));
+        root.rollProgress = Math.min(1, root.rollProgress + dtMs / Math.max(1, root.rollMsNow));
+        if (root.rollProgress >= 1) rollAnim.stop();
+    }
     NumberAnimation {
         id: rollAnim
-        target: root; property: "rollProgress"
-        from: 0; to: 1; duration: root.rollMs
-        onStopped: { root.roll = null; root.applyPending(); }
+        target: root; property: "rollClockMs"
+        from: 0; to: 600000; duration: 600000
+        onStarted: root.rollClockLast = 0
+        onStopped: {
+            root.roll = null;
+            if (root.pendingReplaces.length === 0) root.rollMsNow = root.cfgRollBaseMs;
+            root.applyPending();
+        }
     }
 
     property var registry: {"displays": {"5x8": {"baseline": 6, "cell": [5.0, 8.0], "cols": 5, "font": "5x8", "kind": "matrix", "rows": 8}}, "font5x8": {" ": [0, 0, 0, 0, 0], "!": [79, 95, 95, 95, 95], "\"": [3, 3, 0, 3, 3], "#": [20, 30, 20, 28, 20], "$": [38, 69, 127, 73, 50], "%": [7, 37, 24, 66, 112], "&": [112, 79, 85, 99, 64], "'": [1, 7, 7, 7, 1], "(": [60, 126, 131, 129, 0], ")": [0, 129, 131, 126, 124], "*": [20, 8, 62, 8, 20], "+": [8, 8, 62, 8, 8], ",": [0, 192, 96, 96, 0], "-": [8, 8, 8, 8, 8], ".": [0, 96, 96, 0, 0], "/": [32, 16, 8, 4, 2], "0": [62, 81, 73, 69, 62], "1": [0, 66, 127, 64, 0], "2": [66, 97, 81, 73, 70], "3": [33, 65, 69, 75, 49], "4": [24, 20, 18, 127, 16], "5": [39, 69, 69, 69, 57], "6": [60, 74, 73, 73, 48], "7": [1, 113, 9, 5, 3], "8": [54, 73, 73, 73, 54], "9": [6, 73, 73, 41, 30], ":": [0, 54, 54, 0, 0], ";": [0, 192, 102, 102, 0], "<": [8, 20, 20, 34, 34], "=": [20, 20, 20, 20, 20], ">": [34, 34, 20, 20, 8], "?": [2, 1, 81, 9, 6], "@": [126, 61, 2, 60, 63], "A": [126, 9, 9, 9, 126], "B": [127, 73, 73, 73, 54], "C": [62, 65, 65, 65, 34], "D": [127, 65, 65, 34, 28], "E": [127, 73, 73, 73, 65], "F": [127, 9, 9, 9, 1], "G": [62, 65, 73, 73, 122], "H": [127, 8, 8, 8, 127], "I": [0, 65, 127, 65, 0], "J": [32, 64, 65, 63, 1], "K": [127, 8, 20, 34, 65], "L": [127, 64, 64, 64, 64], "M": [127, 2, 12, 2, 127], "N": [127, 4, 8, 16, 127], "O": [62, 65, 65, 65, 62], "P": [127, 9, 9, 9, 6], "Q": [62, 65, 81, 33, 94], "R": [127, 9, 25, 41, 70], "S": [70, 73, 73, 73, 49], "T": [1, 1, 127, 1, 1], "U": [63, 64, 64, 64, 63], "V": [31, 32, 64, 32, 31], "W": [127, 32, 24, 32, 127], "X": [99, 20, 8, 20, 99], "Y": [3, 4, 120, 4, 3], "Z": [97, 81, 73, 69, 67], "[": [255, 255, 0, 0, 0], "\\": [0, 3, 12, 48, 64], "]": [0, 0, 0, 255, 255], "^": [24, 6, 1, 6, 24], "`": [0, 0, 0, 1, 0], "a": [32, 84, 84, 84, 120], "b": [127, 68, 68, 68, 56], "c": [56, 68, 68, 68, 68], "d": [56, 68, 68, 68, 127], "e": [56, 84, 84, 84, 88], "f": [8, 126, 9, 1, 2], "g": [24, 164, 164, 164, 124], "h": [127, 4, 4, 4, 120], "i": [0, 68, 125, 64, 0], "j": [64, 128, 132, 125, 0], "k": [127, 16, 40, 68, 0], "l": [0, 65, 127, 64, 0], "m": [124, 4, 24, 4, 120], "n": [124, 4, 4, 4, 120], "o": [56, 68, 68, 68, 56], "p": [252, 36, 36, 36, 24], "q": [24, 36, 36, 36, 252], "r": [124, 8, 4, 4, 8], "s": [72, 84, 84, 84, 36], "t": [4, 63, 68, 64, 32], "u": [60, 64, 64, 32, 124], "v": [28, 32, 64, 32, 28], "w": [60, 64, 48, 64, 60], "x": [68, 40, 16, 40, 68], "y": [28, 160, 160, 160, 124], "z": [68, 100, 84, 76, 68], "{": [16, 24, 239, 0, 0], "|": [255, 255, 255, 255, 255], "}": [0, 0, 239, 24, 16], "~": [8, 8, 8, 8, 8], "\u00a1": [246, 254, 254, 254, 246], "\u00a2": [28, 34, 127, 34, 48], "\u00a3": [72, 127, 73, 65, 64], "\u00a4": [62, 50, 34, 50, 62], "\u00a5": [1, 46, 120, 46, 1], "\u00a6": [239, 239, 239, 239, 239], "\u00a7": [73, 22, 148, 52, 109], "\u00a8": [1, 0, 0, 0, 1], "\u00a9": [12, 94, 66, 82, 12], "\u00aa": [5, 10, 2, 7, 8], "\u00ab": [24, 44, 0, 56, 4], "\u00ac": [8, 8, 8, 8, 56], "\u00ad": [16, 16, 16, 16, 16], "\u00ae": [12, 94, 74, 86, 12], "\u00b0": [2, 5, 5, 5, 2], "\u00b1": [72, 72, 94, 72, 72], "\u00b2": [9, 13, 12, 11, 11], "\u00b3": [9, 8, 10, 11, 13], "\u00b4": [0, 1, 0, 0, 0], "\u00b5": [254, 64, 64, 64, 126], "\u00b6": [6, 15, 127, 1, 1], "\u00b7": [24, 24, 24, 24, 24], "\u00b8": [0, 128, 128, 128, 128], "\u00b9": [9, 9, 15, 8, 8], "\u00ba": [7, 0, 8, 0, 7], "\u00bb": [4, 56, 0, 44, 24], "\u00bc": [9, 40, 8, 1, 120], "\u00bd": [9, 40, 8, 106, 88], "\u00be": [9, 79, 32, 2, 120], "\u00bf": [96, 16, 152, 0, 64], "\u00c0": [96, 28, 19, 28, 96], "\u00c1": [96, 28, 19, 28, 96], "\u00c2": [96, 28, 19, 28, 96], "\u00c3": [96, 28, 19, 28, 96], "\u00c4": [96, 28, 19, 28, 96], "\u00c5": [96, 28, 19, 28, 96], "\u00c6": [96, 28, 19, 127, 73], "\u00c7": [62, 65, 193, 65, 34], "\u00c8": [127, 73, 73, 73, 65], "\u00c9": [127, 73, 73, 73, 65], "\u00ca": [127, 73, 73, 73, 65], "\u00cb": [127, 73, 73, 73, 65], "\u00cc": [65, 65, 127, 65, 65], "\u00cd": [65, 65, 127, 65, 65], "\u00ce": [65, 65, 127, 65, 65], "\u00cf": [65, 65, 127, 65, 65], "\u00d0": [127, 127, 73, 65, 62], "\u00d1": [127, 7, 28, 112, 127], "\u00d2": [62, 65, 65, 65, 62], "\u00d3": [62, 65, 65, 65, 62], "\u00d4": [62, 65, 65, 65, 62], "\u00d5": [62, 65, 65, 65, 62], "\u00d6": [62, 65, 65, 65, 62], "\u00d7": [34, 20, 8, 20, 34], "\u00d8": [94, 113, 73, 71, 63], "\u00d9": [63, 64, 64, 64, 63], "\u00da": [63, 64, 64, 64, 63], "\u00db": [63, 64, 64, 64, 63], "\u00dc": [63, 64, 64, 64, 63], "\u00dd": [1, 6, 120, 6, 1], "\u00de": [127, 34, 34, 18, 28], "\u00df": [127, 0, 64, 75, 112], "\u00e0": [116, 66, 74, 124, 64], "\u00e1": [116, 66, 75, 124, 64], "\u00e2": [116, 67, 74, 124, 64], "\u00e3": [116, 66, 75, 125, 64], "\u00e4": [116, 67, 74, 124, 64], "\u00e5": [116, 67, 75, 124, 64], "\u00e6": [116, 74, 124, 82, 92], "\u00e7": [60, 70, 194, 66, 36], "\u00e8": [60, 82, 83, 82, 28], "\u00e9": [60, 82, 83, 82, 28], "\u00ea": [60, 82, 82, 83, 28], "\u00eb": [60, 83, 82, 83, 28], "\u00ec": [64, 66, 127, 64, 64], "\u00ed": [64, 66, 127, 64, 64], "\u00ee": [64, 67, 126, 64, 64], "\u00ef": [64, 67, 126, 65, 64], "\u00f0": [56, 69, 69, 71, 60], "\u00f1": [126, 4, 3, 3, 124], "\u00f2": [60, 66, 67, 66, 60], "\u00f3": [60, 66, 67, 66, 60], "\u00f4": [60, 67, 66, 67, 60], "\u00f5": [60, 66, 67, 67, 60], "\u00f6": [60, 67, 66, 67, 60], "\u00f7": [8, 8, 42, 8, 8], "\u00f8": [124, 98, 82, 70, 60], "\u00f9": [126, 64, 65, 64, 126], "\u00fa": [126, 64, 65, 64, 126], "\u00fb": [126, 65, 64, 65, 126], "\u00fc": [126, 65, 64, 65, 126], "\u00fd": [4, 24, 97, 24, 4], "\u00fe": [255, 68, 66, 66, 60], "\u00ff": [4, 25, 96, 25, 4]}, "fontExtension": {"glyphs": 118, "path": "LiberationMono-Regular.ttf"}, "lattice": ["7", "9", "14", "16", "5x7", "5x8"]}
