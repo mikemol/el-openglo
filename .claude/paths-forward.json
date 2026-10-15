@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 548,
+  "counter": 551,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -12930,7 +12930,7 @@
     {
       "symbol": "W546",
       "title": "Marquee queues replaces that arrive during a live roll and exposes the queued count, so the roll can see the pileup",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W184",
         "W547"
@@ -12940,19 +12940,19 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Read first how a second replace of the visible item behaves during a live roll today (startRoll restarts? replaceInPlace merges?) with a measured case, then: a replace arriving while a roll is live is appended to a pending list (same id merges into one entry, the latest text wins), the live roll finishes, the next starts from where the board is, root.queuedRolls is the count. Depends on W545 only for the speed, not for the queue.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-13: W546 measured 2026-10-13 (scratch probe, one arrival then five replace_visible of the same id 100 ms apart, live widget, EL-Openglo): replaces land at 2000, 2128, 2208, 2320, 2400 ms and the roll progress resets to 0 at each (peaks 0.12, 0.12, 0.04); nothing past 0.12 during the burst; only after the last replace does a roll run to completion (0 to 0.92 over 2400 to 2800 ms). Cause read in marquee-main.qml startRoll: rollAnim.stop() then a new roll from the CURRENT text with progress from 0, so a second replace cuts the first off and the intermediate texts are never seen rolling, contradicting the 2026-10-01 ruling that at 10 Hz the changing piece is seen rolling as it pans. A restart, not a queue. | 2026-10-13: W546 landed 2026-10-13: templates/marquee-main.qml queues a replace of an on-board item that arrives during a live roll in root.pendingReplaces (a LIST of queue entries, the same id merges, the latest text wins), exposes root.queuedRolls, and applies the next entry through replaceInPlace when the live roll stops (rollAnim.onStopped), from the text the board holds; swapRing clears the list (the swap rebuilds from the queue, which holds the latest text). replaceInPlace returns the shown-marked entries when everything was deferred, or the item would be owed a duplicate rotation. MEASURED before and after with the same burst (one arrival, five replace_visible of one id 100 ms apart, live widget, EL-Openglo, a 141-character item): before, no roll got past 0.12 and the intermediate texts were never seen; after, roll 1 runs 928 to 1328 ms (0 to 0.92) and roll 2 starts at once, 1360 to 1760 ms (0 to 0.96), the four later replaces merged into one entry (trace: apply pending left=0 inRing=true where=on). Two defects found by measuring and fixed: an id-keyed object (Object.keys returns the id as a string, the ring ids are numbers, so nothing matched; now a list) and an unverified claim that Qt drops an animation started from its own onStopped (a direct call works identically; the deferral and its comment were removed). qml_lint admitted 18, marquee_live admitted 0 deny 0 withheld, check_symbol 49 of 49, parity baseline for marquee-main.qml recorded, 18 stale screens re-rendered and byte-identical, action keys re-recorded, emitters checked. Not yet: samples do not carry queuedRolls (W548), and the roll speed does not follow the queue (W547).",
       "issued_at": "2026-10-13T09:37:32Z",
       "minted_during": "interrupt",
       "caused_by": "W184",
-      "last_worked": "2026-10-13T10:27:06Z",
+      "last_worked": "2026-10-13T12:12:32Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261013T121232Z"
     },
     {
       "symbol": "W547",
       "title": "Marquee roll speed follows the queue: progress per frame at 1 / rollDuration(queued), eased so the speed never jumps, settings exposed",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W184",
         "W548"
@@ -12968,8 +12968,9 @@
       "issued_at": "2026-10-13T09:37:32Z",
       "minted_during": "interrupt",
       "caused_by": "W184",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-13T12:12:37Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W548",
@@ -12989,6 +12990,57 @@
       "issued_at": "2026-10-13T09:37:33Z",
       "minted_during": "interrupt",
       "caused_by": "W184",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W549",
+      "title": "closure_witness @CURRENCY denied wallpapers outputs not found once in the worklist closure tree, then passed on re-run unchanged",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "gate",
+        "closure"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Seen 2026-10-13 10:50 in the W545 gate (private EL_STAGED_DIR, no competing gate found): the worklist stage closure is the whole tracked tree and the wallpapers outputs are emitted files reached only through the staged tree host links; the same run also failed @PARITY (my omission, fixed). The re-run passed with nothing changed there. Account kept: /var/tmp/el-openglo-gate-accounts/20261013T105032-1099670.log (action_key DENY, 3 admitted in the real tree). Next: make the witness say, on a missing output, WHICH output paths it looked for and whether each is a symlink into the host (a mode or a line in the account), then wait for a recurrence; not worked now, no cause proven.",
+      "evidence": "2026-10-13: Second occurrence 2026-10-13 12:35 (W546 first gate attempt, accounts /var/tmp/el-openglo-gate-accounts/20261013T123507-2605900.log): the same closure-tree @CURRENCY denial (wallpapers declares outputs but none found), again in a run where the worklist stage ALSO had real denials (@LOG-CONTENT and @RENDER-CONSTANTS, both mine, fixed). First occurrence had @PARITY failing beside it (also mine). Both times it passed on the re-run once the real denials were fixed, with nothing changed on the wallpapers side. Pattern: it appears only when another check fails in the same closure-tree replay; a failing replay may change how the wallpapers outputs are found. Untested; the wanted instrument is still: say which output paths were looked for.",
+      "issued_at": "2026-10-13T12:00:45Z",
+      "minted_during": "interrupt",
+      "caused_by": "W545",
+      "last_worked": "2026-10-13T12:58:17Z",
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W550",
+      "title": "Give W156 a verbatim operator command in the standard shape with expected output and done-when, or re-file it as agent work (nemik OperatorActShape)",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-13T18:05:23Z",
+      "minted_during": "interrupt",
+      "caused_by": "nemik:W458",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W551",
+      "title": "Repin to the fleet par ca6702b with mikemol-repin --revendor --write, or say why not on this card",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-13T22:34:12Z",
+      "minted_during": "interrupt",
+      "caused_by": "luthen-observability:W966",
       "last_worked": null,
       "ticks_blocked": 0
     }

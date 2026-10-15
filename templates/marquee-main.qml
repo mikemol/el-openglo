@@ -180,6 +180,9 @@ PlasmoidItem {
     }
 
     function swapRing() {
+        // the swap rebuilds the board from the queue, whose entries already hold the latest text: nothing waits (W546)
+        root.pendingReplaces = [];
+        root.queuedRolls = 0;
         var live = root.liveIds();
         var next = Body.ringNext(root.queue, live, root.cfgMaxItems);
         root.queue = next.queue;
@@ -232,13 +235,24 @@ PlasmoidItem {
     // owed a fresh rotation, as before (W185 queues the second pass). A job's progress
     // replace keeps its text, so it never gets here and keeps its gauge path.
     function replaceInPlace(before, after) {
-        var items = root.ringItems.slice(), changed = false, rolls = false, keep = after.slice();
+        var items = root.ringItems.slice(), changed = false, rolls = false, deferred = false, keep = after.slice();
         for (var q = 0; q < after.length; q++) {
             var was = null;
             for (var b = 0; b < before.length; b++) if (before[b].id === after[q].id) was = before[b];
             if (!was || was.text === after[q].text) continue;
             var where = root.spanWhere(after[q].id);
             if (where !== "on" && where !== "ahead") continue;
+            // a roll is live: this replace WAITS for it (W546). The queue entry already holds the text, so it
+            // counts as shown; the board takes it when the live roll stops (applyPending)
+            if (where === "on" && root.roll !== null) {
+                var pend = root.pendingReplaces, hit = -1;
+                for (var pi = 0; pi < pend.length; pi++) if (pend[pi].id === after[q].id) hit = pi;
+                if (hit >= 0) pend[hit] = after[q]; else pend.push(after[q]);
+                root.queuedRolls = pend.length;
+                keep[q] = Body.queueItem(after[q], true, after[q].history);
+                deferred = true;
+                continue;
+            }
             for (var r = 0; r < items.length; r++) {
                 if (items[r].id !== after[q].id) continue;
                 items[r] = Body.queueItem(after[q], true, after[q].history);
@@ -247,7 +261,10 @@ PlasmoidItem {
                 rolls = rolls || where === "on";
             }
         }
-        if (!changed) return after;
+        if (!changed) {
+            if (deferred) root.trace("replace queued behind the live roll queued=" + root.queuedRolls);
+            return deferred ? keep : after;
+        }
         var oldText = root.tickerText;
         var joined = Body.ringJoin(items, "     •     ");
         root.ringItems = items;
@@ -510,11 +527,33 @@ PlasmoidItem {
         root.roll = { oldText: oldText, span: Body.replaceSpan(oldText, newText), oldOffs: root.layoutOffs.slice() };
         rollAnim.start();
     }
+    // ⚑ REPLACES THAT ARRIVE DURING A LIVE ROLL QUEUE (W546, under W184). Measured 2026-10-13, a burst of five
+    // replaces of one item 100 ms apart: startRoll used to stop the live roll and start the next from progress 0,
+    // so no roll got past 0.12 during the burst and the intermediate texts were never seen rolling (the operator
+    // ruled they are, W178). A replace of an on-board item that arrives while a roll runs now waits in this list
+    // (the same id merges: the LATEST text wins), and the next roll starts when the live one stops, from the text
+    // the board holds. queuedRolls is how many wait. ⚑ A LIST, NOT AN OBJECT KEYED BY ID: Object.keys hands the
+    // id back as a string, and the ring's ids are numbers, so a strict match found nothing (measured).
+    property var pendingReplaces: []
+    property int queuedRolls: 0
+    function applyPending() {
+        if (root.pendingReplaces.length === 0) return;
+        var entry = root.pendingReplaces.shift(), was = null;
+        root.queuedRolls = root.pendingReplaces.length;
+        for (var r = 0; r < root.ringItems.length; r++) if (root.ringItems[r].id === entry.id) was = root.ringItems[r];
+        // ⚑ THE COMPARISON IS DONE OUTSIDE THE TRACE: the log carries a boolean, never a content field (check_log_content)
+        var differs = was !== null && was.text !== entry.text;
+        root.trace("apply pending left=" + root.queuedRolls + " inRing=" + (was !== null) + " where=" + root.spanWhere(entry.id)
+                   + " differs=" + differs);
+        // an item that left the ring meanwhile has nothing to roll (the queue holds its latest text)
+        if (was) root.replaceInPlace([was], [entry]);
+        else root.applyPending();
+    }
     NumberAnimation {
         id: rollAnim
         target: root; property: "rollProgress"
         from: 0; to: 1; duration: root.rollMs
-        onStopped: root.roll = null
+        onStopped: { root.roll = null; root.applyPending(); }
     }
 
     property var registry: $registry

@@ -933,3 +933,6 @@
 2026-10-13T09:37:32Z  interrupt W547 minted    -         "Marquee roll speed follows the queue: progress per frame at 1 / rollDuration(queued), eased so the speed never jumps, settings exposed"  evidence=W184
 2026-10-13T09:37:33Z  interrupt W548 minted    -         "check_marquee_live L-rule: a 10 Hz burst of replaces never leaves the roll more than N behind and its speed changes are continuous"  evidence=W184
 2026-10-13T10:21:43Z  hash  --   diverged  --        "divergence: payload v2:18a0e6ee974703cb, file v2:1c566f8497722baa; the FILE wins"
+2026-10-13T12:00:45Z  interrupt W549 minted    -         "closure_witness @CURRENCY denied wallpapers outputs not found once in the worklist closure tree, then passed on re-run unchanged"  evidence=W545
+2026-10-13T18:05:23Z  interrupt W550 minted    -         "Give W156 a verbatim operator command in the standard shape with expected output and done-when, or re-file it as agent work (nemik OperatorActShape)"  evidence=nemik:W458
+2026-10-13T22:34:12Z  interrupt W551 minted    -         "Repin to the fleet par ca6702b with mikemol-repin --revendor --write, or say why not on this card"  evidence=luthen-observability:W966

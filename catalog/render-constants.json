@@ -48,6 +48,7 @@
     "ringOpacity": "STATE",
     "paintedText": "STATE",
     "paintedRollEnd": "STATE",
+    "queuedRolls": "STATE",
     "viewWidth": "STATE",
     "flashLit": "STATE",
     "charAdvance": "STATE",
