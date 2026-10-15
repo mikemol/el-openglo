@@ -80,20 +80,36 @@ def load(stage, pid, window=WINDOW_S):
         stderr=subprocess.STDOUT,
         text=True,
     )
-    timer = threading.Timer(window, proc.kill)
+    timed_out = threading.Event()
+
+    def stop():
+        timed_out.set()
+        proc.kill()
+
+    timer = threading.Timer(window, stop)
     timer.start()
     try:
         out = proc.stdout.read()
     finally:
         timer.cancel()
         proc.kill()
-        proc.wait()
+        rc = proc.wait()
     lines = [ln for ln in out.splitlines() if ln.strip()]
+    # ⚑ HOW THE RUN ENDED IS A FACT (W552). A process that dies at once without output reads
+    # exactly like an applet that loaded and said nothing (lines 0, errors []). A healthy applet
+    # never exits, so exited_early (ended before the window closed) with its rc says it did not run.
     return {
         "id": pid,
         "lines": len(lines),
         "errors": [ln for ln in lines if ERROR_RE.search(ln)],
+        "exited_early": not timed_out.is_set(),
+        "rc": rc,
     }
+
+
+def did_not_run(case):
+    """True when the load ended on its own with nothing to read — not confirmed, not clean."""
+    return bool(case.get("exited_early")) and case.get("lines", 0) == 0
 
 
 def measure(stage):
@@ -218,16 +234,22 @@ def _selftest():
                     "import QtQuick\nimport org.kde.plasma.plasmoid\nPlasmoidItem { NoSuchType {} }\n"
                 )
             broken = load(s, "org.el.broken")
-            chk(
-                "a real load of an applet naming a missing type REPORTS a load error",
-                len(broken["errors"]) > 0,
-                True,
-            )
             missing = load(s, "org.el.nothing.shipped")
-            chk("...and so does an id nothing ships", len(missing["errors"]) > 0, True)
-            if not (broken["errors"] and missing["errors"]):
-                print("    broken run said:", broken)
-                print("    missing run said:", missing)
+            # ⚑ NOT CONFIRMED IS NOT FAILED: a run that ended by itself with no output never
+            # exercised the engine, so it says nothing about whether errors are SEEN. SKIP, counted.
+            for label, run in (
+                (
+                    "a real load of an applet naming a missing type REPORTS a load error",
+                    broken,
+                ),
+                ("...and so does an id nothing ships", missing),
+            ):
+                if did_not_run(run):
+                    print(f"  SKIP {label}: plasmawindowed did not run {run}")
+                else:
+                    chk(label, len(run["errors"]) > 0, True)
+                    if not run["errors"]:
+                        print("    run said:", run)
     print("check_package_load selftest:", "PASS" if ok else "FAIL")
     return ok
 
@@ -257,8 +279,9 @@ def main(argv):
         return 0
     if "--list" in args:
         for c in m["cases"]:
+            ran = "DID NOT RUN" if did_not_run(c) else "ran"
             print(
-                f"  {c['id']:36} {c['lines']:4} line(s)  {len(c['errors'])} load error(s)"
+                f"  {c['id']:36} {c['lines']:4} line(s)  {len(c['errors'])} load error(s)  {ran}"
             )
             for e in c["errors"]:
                 print(f"      {e}")

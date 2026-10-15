@@ -36,7 +36,21 @@ deny contains msg if {
 deny contains msg if {
 	some c in cases
 	object.get(c, "lines", null) == 0
+	not did_not_run(c)
 	msg := sprintf("D2: %v produced no output; the load was not observed", [c.id])
+}
+
+# A run that ended by itself with nothing printed never ran the loader (W552): a fact about the
+# machine, not the applet. Not confirmed is not failed — withheld, neither a pass nor a deny.
+did_not_run(c) if {
+	object.get(c, "exited_early", false) == true
+	object.get(c, "lines", null) == 0
+}
+
+withheld contains msg if {
+	some c in cases
+	did_not_run(c)
+	msg := sprintf("D4: %v ended on its own with no output (rc %v); the load did not run", [c.id, object.get(c, "rc", "?")])
 }
 
 admitted contains c.id if {

@@ -13038,12 +13038,12 @@
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": "After the W544 commit lands: .venv/bin/mikemol-repin --root . --sha ca6702baac20fabab6d86856d45e27b931b55919 --write, then uv sync --extra tooling --extra research (repin drops the extras), then the local worklist gate as a pre-flight, then commit under W551. If a tool the loop depends on changes behaviour, say so on this card instead of working around it.",
+      "evidence": "2026-10-15: W551 read-only prep 2026-10-15: par ca6702b resolves to ca6702baac20fabab6d86856d45e27b931b55919. The card says mikemol-repin --revendor --write, but --revendor refuses here (\"vendors no hooks or pathsforward wheel\": it is for repos that vendor the wheels; this one pins mtools dists by git sha in pyproject). The right form is mikemol-repin --root . --sha SHA --write. Dry run (no --write): all nine pins DIFFER from the current f04f0a2f6b93 (mdstruct, hooks, pathsforward, pycodemod, atomicwrite, grade, bibparse, pytestspec, fence). Not done: a repin writes pyproject.toml and uv.lock and changes the venv tools (hooks, pycodemod), so it waits for the in-flight W544 gate commit to land.",
       "issued_at": "2026-10-13T22:34:12Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability:W966",
-      "last_worked": null,
+      "last_worked": "2026-10-15T21:23:56Z",
       "ticks_blocked": 0
     },
     {

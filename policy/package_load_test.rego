@@ -29,6 +29,20 @@ test_d2_refuses_a_silent_run if {
 	"D2: org.el.segclock produced no output; the load was not observed" in p.deny with input as object.union(good, {"cases": [silent]})
 }
 
+test_d4_withholds_a_run_that_ended_on_its_own if {
+	dead := object.union(clock, {"lines": 0, "exited_early": true, "rc": -9})
+	inp := object.union(good, {"cases": [dead, marquee]})
+	"D4: org.el.segclock ended on its own with no output (rc -9); the load did not run" in p.withheld with input as inp
+	count(p.deny) == 0 with input as inp
+	p.admitted == {"org.el.notifymarquee"} with input as inp
+}
+
+test_d2_still_refuses_a_silent_run_that_used_the_whole_window if {
+	silent := object.union(clock, {"lines": 0, "exited_early": false, "rc": -9})
+	"D2: org.el.segclock produced no output; the load was not observed" in p.deny with input as object.union(good, {"cases": [silent]})
+	count(p.withheld) == 0 with input as object.union(good, {"cases": [silent]})
+}
+
 test_wallpapers_outside_the_population_never_deny if {
 	count(p.deny) == 0 with input as object.union(good, {"not_loadable": ["a", "b", "c"]})
 }
