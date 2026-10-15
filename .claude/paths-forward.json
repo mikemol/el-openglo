@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 551,
+  "counter": 552,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -3313,16 +3313,16 @@
         "unity"
       ],
       "blocked_on": [
-        "operator: act engines, either install or rule out of scope: (1) install the Unity Editor (licence) and a C# toolchain on a test machine, or say Unity is out of scope (there is no Unity, dotnet, mono or csc here); (2) install Unreal Engine (Epic launcher account) and say which account would publish on Fab, or say Unreal is out of scope (there is no Unreal Engine or Unreal Build Tool here). Absorbs el-openglo:W157"
+        "operator: decide whether the Unity and Unreal engine packages are in scope for el-openglo. In scope: you then install the Unity Editor with a C# toolchain, and Unreal Engine with an Epic account that would publish on Fab, on a test machine, and say so here; out of scope: say so and W156 and W157 are dropped. There is no Unity, dotnet, mono, csc or Unreal Build Tool on this host, so nothing can be built until you answer."
       ],
       "blocked_kind": "human",
       "next_bounded_step": "On an editor + toolchain: a UPM package generated from the core (catalog/engines/*.glb, el-glyphs.json, the token material group), compiled and imported headless by Unity batchmode, listing the named segments.",
-      "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built: no Unity Editor and no C# toolchain (no dotnet, mono, csc) on this machine, so a UPM package could not be compiled or imported; Unity needs a licence and an editor install only the operator can supply. A file-exists check was refused as a measurement.",
+      "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built: no Unity Editor and no C# toolchain (no dotnet, mono, csc) on this machine, so a UPM package could not be compiled or imported; Unity needs a licence and an editor install only the operator can supply. A file-exists check was refused as a measurement. | 2026-10-15: W156 re-filed 2026-10-15 for nemik OperatorActShape (W550): the ask was operator: act (install the Unity Editor and a C# toolchain, install Unreal Engine with an Epic account, or rule each out of scope), which has no verbatim command, expected output or done-when because it is a licensed GUI install. It is a DECISION first and an act only after a yes, so it is now operator: decide with the act stated as the consequence of in scope. Nothing about the scope question was decided on the operator behalf.",
       "issued_at": "2026-10-01T04:04:30Z",
       "minted_during": "interrupt",
       "caused_by": "W43",
-      "last_worked": "2026-10-12T08:57:54Z",
-      "ticks_blocked": 7,
+      "last_worked": "2026-10-15T21:18:47Z",
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 3,
@@ -4656,11 +4656,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "Observation only, no code owed: the capture instrument is in (7ad7c12, 5d4a778). Count consecutive gate runs with check_ebuild --failures reading 0 record(s); so far 1 (the 5d4a778 gate). A flake leaves its record there (or in the bazel undeclared outputs if the sandbox forbids the temp dir): read it, then fix the cause it names. Close after a run of clean gates the operator finds convincing, or when a record names a cause and it is fixed.",
-      "evidence": "2026-10-02: 2026-10-02 seen once in the W210 pre-commit: \"pkgcheck: error: repos.conf: default repo gentoo\"; @EBUILD PASSED ON REPLAY on the unchanged tree. | 2026-10-02: 2026-10-02 ALSO: after the refused W210 pre-commit an UNTRACKED overlay/metadata/md5-cache/ appeared - pkgcheck (run by check_ebuild selftest) writes its metadata cache into the tree, which W68 forbids for a gated check; likely the same root as the flake (a first run builds the cache, a later run reads it). Not staged; point pkgcheck cache at a scratch dir. | 2026-10-03: 2026-10-03 (swarm): FOUND AND FIXED A REAL LEAK - a bare pkgcheck scan --repo overlay/ made pkgcore write its metadata cache into the checkout (the untracked overlay/metadata/md5-cache/ that sat in git status all of 2026-10-02; confirmed by --race --ambient recreating it). check_ebuild.pkgcheck_scan() now scans a PRIVATE COPY of the overlay with a private --cache-dir, backing both ebuild_wellformed and lint_facts; pkgcheck_env_error() classifies a host-repo-load failure -> lint_facts emits pkgcheck.env_error, ebuild_wellformed reports it as a SKIP, policy B1 withholds it (neither deny nor pass). New --race [--ambient] mode: 8 concurrent scans, isolated 8 of 8 rc 0, 0 host-load errors, md5-cache in tree False. selftest PASS (20 arms, 4 new); opa ebuild 17/17. THE FLAKE ITSELF (repos.conf: default repo gentoo) DID NOT REPRODUCE in 8 concurrent ambient scans: ROOT CAUSE UNPROVEN; PORTAGE_CONFIGROOT not pinned (not shown to be involved). | 2026-10-03: 2026-10-03 (integration): THE FLAKE RECURRED UNDER THE PRE-COMMIT LOAD and is NOT the host-load path the swarm fix classified. In the swarm commit first gate run the readme section reported check FAILED for @COMMANDS, @LICENCE and @OVERLAY (all tool:opa_gate.py ebuild), each PASSED ON REPLAY (opa_gate: ebuild admitted 0 deny 0 withheld 1 admitted). The new env_error SKIP did not catch it: either pkgcheck failed another way or the failure is outside pkgcheck_scan. Three claims failed in one run (same cause, one run), replay clean: a load-dependent race. Good news: it is now reproducible on demand - it happens during a full pre-commit gate. | 2026-10-06: 2026-10-06 flake observed again (a flushed queue commit: worklist gate opa_gate DENY B1 pkgcheck with an EMPTY message, three readme-gate claims PASSED ON REPLAY) and not reproducible in isolation (three plain opa_gate ebuild runs admitted). FIRST-FAILURE CAPTURE ADDED in scripts/check_ebuild.py: record_failure writes argv, rc, stdout, stderr and the pkgcheck/git/paperkit environment of every failing pkgcheck scan to TEST_UNDECLARED_OUTPUTS_DIR when under bazel (captured by BuildBuddy), else /var/tmp/el-openglo-pkgcheck-failures/ (never the checkout, W68). The next flake will leave its raw output there. The selftest passes and leaves records of its deliberately broken ebuilds. Direction (operator): the pre-commit should be a bazel target so logs are captured by BuildBuddy: mtools:W798. | 2026-10-13: W212 tick 2026-10-13: --failures found 0 records in /var/tmp/el-openglo-pkgcheck-failures: under bazel the capture only ever went to the undeclared outputs dir. The stale untracked overlay/metadata/md5-cache is dated 2026-10-03 17:14, the deliberate --race --ambient run, not a recurrence of the leak. The katas sweep Queue: state sync raw commit holds .git/index.lock for its whole gate (since 01:19), blocking git write-tree (exit 128) for check_ebuild staging; sent to github-8f. | 2026-10-13: W212 tick 2026-10-13: 5d4a778 gate passed in full (110 stages) and check_ebuild --failures read 0 records afterwards: clean gate run 1 with the capture in place.",
+      "evidence": "2026-10-02: 2026-10-02 seen once in the W210 pre-commit: \"pkgcheck: error: repos.conf: default repo gentoo\"; @EBUILD PASSED ON REPLAY on the unchanged tree. | 2026-10-02: 2026-10-02 ALSO: after the refused W210 pre-commit an UNTRACKED overlay/metadata/md5-cache/ appeared - pkgcheck (run by check_ebuild selftest) writes its metadata cache into the tree, which W68 forbids for a gated check; likely the same root as the flake (a first run builds the cache, a later run reads it). Not staged; point pkgcheck cache at a scratch dir. | 2026-10-03: 2026-10-03 (swarm): FOUND AND FIXED A REAL LEAK - a bare pkgcheck scan --repo overlay/ made pkgcore write its metadata cache into the checkout (the untracked overlay/metadata/md5-cache/ that sat in git status all of 2026-10-02; confirmed by --race --ambient recreating it). check_ebuild.pkgcheck_scan() now scans a PRIVATE COPY of the overlay with a private --cache-dir, backing both ebuild_wellformed and lint_facts; pkgcheck_env_error() classifies a host-repo-load failure -> lint_facts emits pkgcheck.env_error, ebuild_wellformed reports it as a SKIP, policy B1 withholds it (neither deny nor pass). New --race [--ambient] mode: 8 concurrent scans, isolated 8 of 8 rc 0, 0 host-load errors, md5-cache in tree False. selftest PASS (20 arms, 4 new); opa ebuild 17/17. THE FLAKE ITSELF (repos.conf: default repo gentoo) DID NOT REPRODUCE in 8 concurrent ambient scans: ROOT CAUSE UNPROVEN; PORTAGE_CONFIGROOT not pinned (not shown to be involved). | 2026-10-03: 2026-10-03 (integration): THE FLAKE RECURRED UNDER THE PRE-COMMIT LOAD and is NOT the host-load path the swarm fix classified. In the swarm commit first gate run the readme section reported check FAILED for @COMMANDS, @LICENCE and @OVERLAY (all tool:opa_gate.py ebuild), each PASSED ON REPLAY (opa_gate: ebuild admitted 0 deny 0 withheld 1 admitted). The new env_error SKIP did not catch it: either pkgcheck failed another way or the failure is outside pkgcheck_scan. Three claims failed in one run (same cause, one run), replay clean: a load-dependent race. Good news: it is now reproducible on demand - it happens during a full pre-commit gate. | 2026-10-06: 2026-10-06 flake observed again (a flushed queue commit: worklist gate opa_gate DENY B1 pkgcheck with an EMPTY message, three readme-gate claims PASSED ON REPLAY) and not reproducible in isolation (three plain opa_gate ebuild runs admitted). FIRST-FAILURE CAPTURE ADDED in scripts/check_ebuild.py: record_failure writes argv, rc, stdout, stderr and the pkgcheck/git/paperkit environment of every failing pkgcheck scan to TEST_UNDECLARED_OUTPUTS_DIR when under bazel (captured by BuildBuddy), else /var/tmp/el-openglo-pkgcheck-failures/ (never the checkout, W68). The next flake will leave its raw output there. The selftest passes and leaves records of its deliberately broken ebuilds. Direction (operator): the pre-commit should be a bazel target so logs are captured by BuildBuddy: mtools:W798. | 2026-10-13: W212 tick 2026-10-13: --failures found 0 records in /var/tmp/el-openglo-pkgcheck-failures: under bazel the capture only ever went to the undeclared outputs dir. The stale untracked overlay/metadata/md5-cache is dated 2026-10-03 17:14, the deliberate --race --ambient run, not a recurrence of the leak. The katas sweep Queue: state sync raw commit holds .git/index.lock for its whole gate (since 01:19), blocking git write-tree (exit 128) for check_ebuild staging; sent to github-8f. | 2026-10-13: W212 tick 2026-10-13: 5d4a778 gate passed in full (110 stages) and check_ebuild --failures read 0 records afterwards: clean gate run 1 with the capture in place. | 2026-10-15: W212 observation 2026-10-15: check_ebuild --failures reads 0 records after every gate run since the capture landed (7ad7c12): five commits passed their gate (W174 e225667, W201 ad30300, W202 c9deefd, W173 67d25d4, W545 92655a2) and about five more attempts failed for unrelated, now-fixed causes, none of them a pkgcheck failure. No recurrence in roughly ten full gate runs. Caveat stated in the tool: a bazel stage whose sandbox forbids writing the temp dir leaves only its undeclared-outputs copy, so zero here is not zero everywhere. Left open: closure is the operator call on whether that run is convincing.",
       "issued_at": "2026-10-02T01:06:13Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-13T07:06:21Z",
+      "last_worked": "2026-10-15T20:13:12Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:Y",
@@ -12771,20 +12771,21 @@
     {
       "symbol": "W538",
       "title": "One el-openglo command composes the new-template landing chain, closure catalog first, phases as named functions",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "gate"
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "github-8f 2026-10-13: el-openglo owns it (not mtools). Step 1: the closure catalog as a mode of one script (scripts/land_template.py --closures NAME.qml): closures by shared dependency read from closures.bzl, printed as data, with --selftest and n of m. Then phases as separate named functions (stale closures, closure write, action keys, parity record, the five gates, commit), halting on the first failure with a durable marker so a rerun resumes. Port to the mtools waldo recipe layer once mtools:W1068 lands (waldo.pipeline and waldo.marker already exist); the named phases make the port mechanical. Tell github-8f when the first run works.",
-      "evidence": "2026-10-13: github-8f 2026-10-13: scope is el-openglo own check scripts composed as one command; mtools:W1068 (waldo recipe layer) is a later port target, cited here, not a blocker.",
+      "next_bounded_step": "Add a TRACK phase first in the plan: git add the untracked files under the landing paths (templates and new modules), and make --plan list them; make the closure phase cover a new file anywhere under scripts/ (the directory-listing rule), not only roster components; then --run for real on the next landing and --commit WAYPOINT SUBJECT (private EL_STAGED_DIR, explicit paths, git log -1 and git status compared afterwards).",
+      "evidence": "2026-10-13: github-8f 2026-10-13: scope is el-openglo own check scripts composed as one command; mtools:W1068 (waldo recipe layer) is a later port target, cited here, not a blocker. | 2026-10-15: W538 taken as the working card 2026-10-15 on the operator loop prompt re-read: favour mechanizing fixes to cards over fixing them by hand. The chain was hand-run five times on 2026-10-13 (W532 to W546) and refused at the gate each time a step was missed: a parity baseline not recorded (W545), a render-constants disposition (W546), a log-content comparison in a trace (W546), action keys, stale closures. First mode: the closure catalog. Phases to follow, each a named function that halts on the first failure: stale closures, closure write, action keys, parity record, render re-run, the local worklist gate, then the commit. | 2026-10-15: W538 first mode landed in the tree 2026-10-15 (uncommitted until the W546 gate commit finishes): scripts/land_template.py --closures. Selftest 9 of 9 PASS; on the real tree --closures LitLayer.qml reads 0 of 108 stored closures behind. The first selftest run failed on MY expectation (the output is sorted by key; the arm wanted unsorted), fixed in the arm, not the function. | 2026-10-15: W538 second mode 2026-10-15: scripts/land_template.py --plan [NAME ...] prints the chain as data (phase, command, note) and runs nothing; with no names it takes the templates git says changed (changed_templates parses git status --porcelain: modified, added, untracked, shipped .qml and .js directly under templates/). Phases: closures (only for a roster component with stale closures, else skipped), keys, parity, render, the gate batch (template_parity, render_constants, log_content, qml_lint, marquee_live, config_reach: the order a template edit was refused by them on 2026-10-13), the full local worklist pre-flight. On the real tree --plan names marquee-main.qml and matches what was hand-run for W546. Selftest 15 of 15 PASS. Not yet runnable: the phases print, they do not execute, and there is no resume marker; that is the next step, then the commit phase with the git log and status comparison. Added log_content and template_parity to the batch after seeing they were the gates that refused W545 and W546. | 2026-10-15: W538 third mode 2026-10-15: scripts/land_template.py --run [NAME ...] [--fresh] executes the plan in order and halts on the first failed phase, printing the phase and the tail of its output. A resume marker under .git/land_template.marker is keyed to the changed templates NAMES and CONTENT (chain_key), so a rerun resumes after the last finished phase and any further edit starts over; --fresh drops it. The render and the worklist gate run as capped systemd services with stdio piped. The runner is injectable (run_plan takes a runner), so the selftest drives it with a fake: halts and names the failing phase, later phases never run, finished ones recorded (a plan skip too), a rerun resumes, another key starts over, a missing marker reads as none. Selftest 28 of 28. NOT yet run for real (the gate commit and the closure regeneration were in flight); its first real use is the cvd split landing. Not yet: the commit phase (--commit WAYPOINT SUBJECT, private EL_STAGED_DIR, explicit paths, afterwards git log -1 and git status compared with what was meant). | 2026-10-15: W538 lessons 2026-10-15 from the cvd split landing (the chain was not used for it yet, and it showed what is missing): (1) A NEW FILE MUST BE git-ADDED BEFORE any closure regeneration: closures hold only TRACKED files (check_closure docstring), so the first all-108 regeneration (about an hour of strace) finished and left 99 closures still behind cvd_core.py because it was untracked. A track phase belongs first in the plan. (2) The directory-listing rule: a stage that lists scripts/ holds every tracked file directly inside it, so ANY new file under scripts/ (land_template.py itself) makes those closures stale; that regeneration also surfaced four older gaps (marquee_soak, profile_shell, soak_bisect, soak_pod, and the LitLayer baseline) that were missing from ~100 closures already. (3) land_template --split OLD NEW --regen now regenerates exactly the closures behind a cut module, as a capped service, instead of all 108.",
       "issued_at": "2026-10-13T01:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W534",
-      "last_worked": "2026-10-13T01:37:13Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-15T21:03:40Z",
+      "ticks_blocked": 0,
+      "completed": null
     },
     {
       "symbol": "W539",
@@ -12799,11 +12800,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "github-8f census 2026-10-13: --record ran 4 times back to back (LitLayer, SegmentChar, ApertureField, Primitive). Make --record accept NAME.qml NAME.qml with n of m and a selftest arm; then a batch mode over the antichain render_constants, qml_lint, marquee_live, config_reach printing one verdict line each plus a total. Phases W538 composes.",
-      "evidence": "",
+      "evidence": "2026-10-15: W539 first half landed in the tree 2026-10-15 by a delegated subagent, VERIFIED by the parent before it counts: check_template_parity --record takes several names (record_many resolves every name to exactly one pair before writing; an unknown or ambiguous name exits 2 naming it and records nothing; an empty list exits 2; ends with record: N of M template(s) recorded). Parent checks: selftest PASS with the six new arms, opa_gate template_parity admitted 0 deny 0 withheld 18 admitted (same verdict as before), git diff confined to scripts/check_template_parity.py (51 insertions, 8 deletions), no real baseline written. Not yet: the gate batch (render_constants, qml_lint, marquee_live, config_reach in one command with one summary), the second half of the title.",
       "issued_at": "2026-10-13T01:41:17Z",
       "minted_during": "interrupt",
       "caused_by": "W538",
-      "last_worked": null,
+      "last_worked": "2026-10-15T20:00:19Z",
       "ticks_blocked": 0
     },
     {
@@ -12896,12 +12897,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Scope read from cvd_gate.py 2026-10-13: the pure core is worst_view_dE (line 52) and OKABE_ITO with its floor (line 63 on); the one non-pure edge is the lazy import palette_graph as _pg at line 368, to cut or inject. Deps are numpy and colorspacious. Steps: (1) split the pure core into a module with no repo import, selftested, keeping cvd_gate as the thin caller; (2) ask mtools (mtools owns dists) for the home and mint the card there, citing el-openglo:W544 and nemik:W438; (3) pin it here at the par sha and repoint check_urgency_cues, which imports cvd_gate._ucs. Correction to my 2026-10-11 note to nemik: it cited W508, which became adopt isolated mikemol-commit; this is the card.",
-      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on.",
+      "next_bounded_step": "Step 1 DONE in the tree 2026-10-15: cvd_core.py (pure, no repo import, python3 -I passes its 7-arm selftest), cvd_gate.py re-exports every moved name; consumers pass (cvd_gate selftest, check_urgency_cues, check_separation, check_rehue, check_symbol 49 of 49). Landing: closures regenerate (99 of 108 stored closures read cvd_gate, found with land_template --split cvd_gate.py cvd_core.py), action keys, then the local worklist gate, then the commit. Step 2: a request to mtools is in their inbox (2026-10-15-el-openglo-cvd-core-dist.md): name the dist (suggested mikemol-cvdcore) and mint a card citing el-openglo:W544 and nemik:W438. Step 3, after mtools names it: pin it at the par sha, repoint cvd_gate and check_urgency_cues, and delete cvd_core.py here.",
+      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on. | 2026-10-15: W544 tick 2026-10-15 (nemik SLA 49 ticks): letters sent to nemik (status, why it waited) and mtools (the home request). The pycodemod split mode was tried first (dry-run): it cuts by definition count, strands VIEWS alone and lumps WCAG and APCA into the core, so the semantic cut was done by hand; it did surface the external users of private names (check_urgency_cues takes _ucs, check_solver_roots takes _wcag_L), which is why the re-export keeps every name.",
       "issued_at": "2026-10-13T08:12:56Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W438",
-      "last_worked": "2026-10-13T08:13:03Z",
+      "last_worked": "2026-10-15T20:25:23Z",
       "ticks_blocked": 0
     },
     {
@@ -12952,7 +12953,7 @@
     {
       "symbol": "W547",
       "title": "Marquee roll speed follows the queue: progress per frame at 1 / rollDuration(queued), eased so the speed never jumps, settings exposed",
-      "status": "working",
+      "status": "ready",
       "enables": [
         "W184",
         "W548"
@@ -12963,12 +12964,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "After the pure function and the queue exist: rollAnim advances by dt / rollDuration(queued, base, floor, full) per frame with the effective duration low-pass filtered so the rate is continuous when queued changes; kcfg keys rollBaseMs, rollFloorMs, rollFullQueue as Exposed rows (slider, page control) that pass the config reach witness (every render-time value is a setting, operator rule); defaults base 400 ms as today, floor 120 ms, full 6, stated with the reason.",
-      "evidence": "",
+      "next_bounded_step": "Implement: (1) kcfg keys rollBaseMs (default 400, slider), rollFloorMs (120), rollFullQueue (6) in the marquee generator with page controls; (2) marquee-main.qml: rollAnim duration from Body.rollDuration(queuedRolls, base, floor, full), re-read per frame, low-pass filtered so the rate never jumps when queuedRolls changes mid-roll; (3) the three keys in check_config_reach.INERT with the reason above; (4) display_params/Exposed bookkeeping the way cfgSpeed is done. Land with land_template --run. Depends on W546 landed (92a2c65) and W545 (92655a2): both are.",
+      "evidence": "2026-10-15: W547 read-only prep 2026-10-15 (while the W546 commit ran): (1) display_params.DISPLAY is a per-display table with a row per PARAMETER per MOUNT (clock, wallpaper, sddm, marquee), so three marquee-only roll settings do not belong there; they belong with the marquee own kcfg keys in make_notify_marquee (cfgSpeed and the like) plus the config page control. (2) check_config_reach judges a setting from SAMPLED STILLS (SAMPLED_FRAME 23) and lists non-visual marquee keys in INERT; a roll duration is not visible in a still, so each of rollBaseMs, rollFloorMs, rollFullQueue needs either a LIVE reach case (check_marquee_live with two settings, the roll progress per sample differing) or an explicit Withheld with that reason: decide which before coding. (3) The QML side: rollAnim has duration root.rollMs (readonly 400); the speed must come from Body.rollDuration(root.queuedRolls, base, floor, full), re-read per frame and low-pass filtered so the rate never jumps when queuedRolls changes mid-roll. | 2026-10-15: W547 design decision 2026-10-15 (read-only, the reach witness read): check_config_reach already has the pattern for a setting a still cannot show, the INERT table (declared data with a reason, e.g. hoverPause measured live by check_marquee_live). rollBaseMs, rollFloorMs and rollFullQueue go in INERT with the reason a roll duration is not in a still and is measured live by W548 burst rule. CONDITION that keeps the exemption honest: W548 must run the burst at the defaults AND with a changed base, floor and full, and require the measured roll durations to differ accordingly; else the INERT declaration claims a measurement nobody makes.",
       "issued_at": "2026-10-13T09:37:32Z",
       "minted_during": "interrupt",
       "caused_by": "W184",
-      "last_worked": "2026-10-13T12:12:37Z",
+      "last_worked": "2026-10-15T20:58:50Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -12985,12 +12986,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Harness op replace_burst (the same item replaced at 10 Hz for 2 s, as the operator pummels it with blinking notifications); samples carry roll, queuedRolls and the effective duration; policy L-rule: queuedRolls never exceeds N (stated), the effective duration never changes by more than a bounded step between samples, and the run ends on the last text with queuedRolls 0; refusing and admitting tests; run live.",
+      "next_bounded_step": "Harness op replace_burst (the same item replaced at 10 Hz for 2 s, the operator pummelling it with blinking notifications; scratch wip/burst_probe.py is the prototype); samples carry roll, queuedRolls and the effective duration; policy L-rule: queuedRolls never exceeds N (stated), the effective duration never changes by more than a bounded step between samples, and the run ends on the last text with queuedRolls 0; refusing and admitting tests. MUST RUN THE BURST TWICE (W547 reach decision): at the defaults, and with a changed rollBaseMs, rollFloorMs and rollFullQueue, and require the measured roll durations to differ accordingly, because those three settings are declared INERT in check_config_reach on the strength of this live measurement. Run it live.",
       "evidence": "",
       "issued_at": "2026-10-13T09:37:33Z",
       "minted_during": "interrupt",
       "caused_by": "W184",
-      "last_worked": null,
+      "last_worked": "2026-10-15T20:58:51Z",
       "ticks_blocked": 0
     },
     {
@@ -13015,18 +13016,19 @@
     {
       "symbol": "W550",
       "title": "Give W156 a verbatim operator command in the standard shape with expected output and done-when, or re-file it as agent work (nemik OperatorActShape)",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-15: W550 done 2026-10-15: W156 re-filed from operator: act to operator: decide (see W156 evidence); the licensed GUI install has no verbatim command, so the honest shape is the scope decision with the install as its consequence. nemik-check will say whether OperatorActShape is satisfied; not read here (the fleet-wide report is 126 KB, ask for the el-openglo rows only).",
       "issued_at": "2026-10-13T18:05:23Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W458",
-      "last_worked": null,
-      "ticks_blocked": 0
+      "last_worked": "2026-10-15T21:18:48Z",
+      "ticks_blocked": 0,
+      "completed": "20261015T211848Z"
     },
     {
       "symbol": "W551",
@@ -13041,6 +13043,25 @@
       "issued_at": "2026-10-13T22:34:12Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability:W966",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W552",
+      "title": "selftest:check_package_load failed once: a real qml load printed nothing (lines 0, errors empty) in a 0.5 s stage; passes alone",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "gate",
+        "qt_sandbox"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Seen 2026-10-15 in the W538 gate commit (private EL_STAGED_DIR) while check_closure --write (all 108 stages, strace) ran at the same time: selftest_check_package_load FAILED in 0.5 s, arms 6 and 7 (a broken applet and an id nothing ships must report a load error) got False, the runs said lines 0 errors []. The stage passes alone (re-run right after: PASS 7 of 7). The commit changed only land_template.py and check_template_parity.py, so it is not the commit. Suspect: the real load did not execute (a 0.5 s stage cannot have loaded QML), so the arm read an empty result as no error; the check should WITHHOLD an unrun load, not report False. Next: make check_package_load distinguish a load that ran and found nothing from one that did not run (its own fact), and reproduce under load (run the stage while a second heavy QML stage runs). Do not run two heavy QML stages at once in the meantime.",
+      "evidence": "",
+      "issued_at": "2026-10-15T20:58:07Z",
+      "minted_during": "interrupt",
+      "caused_by": "W538",
       "last_worked": null,
       "ticks_blocked": 0
     }

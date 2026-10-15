@@ -304,6 +304,36 @@ def record(match):
     return 0
 
 
+def record_many(matches):
+    """Re-record SEVERAL baselines in one call, each by name (see record()).
+
+    Every name is resolved to exactly ONE pair BEFORE any is written: an unknown or
+    ambiguous name refuses the whole call (exit 2, naming it) and records nothing.
+    An empty list refuses too. The last line is `n of m`: m names asked, n exited 0.
+
+    WEAKNESS: a generator that raises mid-list stops that name only; earlier names
+    stay written (the n of m line shows the shortfall, exit 1)."""
+    if not matches:
+        print(
+            "check_template_parity: --record needs at least ONE pair to match "
+            "(read --diff first)",
+            file=sys.stderr,
+        )
+        return 2
+    for m in matches:
+        n = sum(1 for p in PAIRS if m in f"{p[0]}.{p[1]}" or m in p[3])
+        if n != 1:
+            print(
+                f"check_template_parity: --record needs exactly ONE pair; {m!r} "
+                f"matched {n} (see --pairs) — nothing recorded",
+                file=sys.stderr,
+            )
+            return 2
+    done = sum(1 for m in matches if record(m) == 0)
+    print(f"record: {done} of {len(matches)} template(s) recorded")
+    return 0 if done == len(matches) else 1
+
+
 # where the deb / ebuild puts each baselined emission on THIS host, so "which build
 # is installed" is a question the tool answers (operator, 2026-09-22, live: a single
 # notify-send showed nothing after a plasmashell replace — the first question is
@@ -401,14 +431,7 @@ def main(argv):
         return 0
     if "--record" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
-        if not rest:
-            print(
-                "check_template_parity: --record needs ONE pair to match "
-                "(read --diff first)",
-                file=sys.stderr,
-            )
-            return 2
-        return record(rest[0])
+        return record_many(rest)
     if "--diff" in argv:
         rest = [a for a in argv[1:] if not a.startswith("--")]
         if not rest:
@@ -481,6 +504,26 @@ def _selftest():
         finally:
             globals()["BASELINES"] = saved
     check("the real baselines share no inode", shared_inodes(), [])
+    # ⚑ --record TAKES SEVERAL NAMES; an unknown one refuses with NOTHING written.
+    # All in a tempdir: BASELINES is redirected, the real tree is never touched.
+    with tempfile.TemporaryDirectory() as td:
+        try:
+            globals()["BASELINES"] = td
+            two = ["clock-config.kcfg", "marquee-config.kcfg"]
+            check("several names are recorded in one call", record_many(two), 0)
+            check("...each written", sorted(os.listdir(td)), sorted(two))
+            for f in two:
+                os.remove(os.path.join(td, f))
+            check(
+                "an unknown name refuses the call",
+                record_many([two[0], "no-such-template.qml"]),
+                2,
+            )
+            check("...and writes nothing", os.listdir(td), [])
+            check("an empty list refuses", record_many([]), 2)
+            check("...and writes nothing either", os.listdir(td), [])
+        finally:
+            globals()["BASELINES"] = saved
     # ⚑ A PINNED HOST FILE THAT IS ABSENT IS A SKIP, NOT A DIFFERENCE — and a
     # SKIP is never 'ok'. Point the marquee pair's font at a path that does not
     # exist and the verdict must say SKIP and name the attribute.

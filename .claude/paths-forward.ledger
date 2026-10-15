@@ -936,3 +936,7 @@
 2026-10-13T12:00:45Z  interrupt W549 minted    -         "closure_witness @CURRENCY denied wallpapers outputs not found once in the worklist closure tree, then passed on re-run unchanged"  evidence=W545
 2026-10-13T18:05:23Z  interrupt W550 minted    -         "Give W156 a verbatim operator command in the standard shape with expected output and done-when, or re-file it as agent work (nemik OperatorActShape)"  evidence=nemik:W458
 2026-10-13T22:34:12Z  interrupt W551 minted    -         "Repin to the fleet par ca6702b with mikemol-repin --revendor --write, or say why not on this card"  evidence=luthen-observability:W966
+2026-10-15T20:18:25Z  hash  --   diverged  --        "divergence: payload v2:ceaf753d6c505703, file v2:321df2faa52fcedf; the FILE wins"
+2026-10-15T20:48:29Z  hash  --   diverged  --        "divergence: payload v2:ceaf753d6c505703, file v2:7f42f70cd7d470dc; the FILE wins"
+2026-10-15T20:58:07Z  interrupt W552 minted    -         "selftest:check_package_load failed once: a real qml load printed nothing (lines 0, errors empty) in a 0.5 s stage; passes alone"  evidence=W538
+2026-10-15T21:18:04Z  hash  --   diverged  --        "divergence: payload v2:ceaf753d6c505703, file v2:aef5778717d3056b; the FILE wins"
