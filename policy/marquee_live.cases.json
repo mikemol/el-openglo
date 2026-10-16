@@ -1,0 +1,5594 @@
+[
+ {
+  "case": "l15-admits-the-owed-second-pass",
+  "runner": true,
+  "events": [
+   {
+    "t": 100,
+    "op": "replace",
+    "id": 7,
+    "where": "on",
+    "textChanged": true,
+    "shows": "app: new"
+   },
+   {
+    "t": 200,
+    "op": "expire",
+    "id": 7,
+    "where": null,
+    "textChanged": null,
+    "shows": ""
+   }
+  ],
+  "samples": [
+   {
+    "t": 50,
+    "x": 300,
+    "boundary": false,
+    "text": "app: new"
+   },
+   {
+    "t": 300,
+    "x": 420,
+    "boundary": true,
+    "text": "app: new"
+   },
+   {
+    "t": 340,
+    "x": 380,
+    "boundary": false,
+    "text": "app: new"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13"
+   ],
+   "withheld": [
+    "B0",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "l15-refuses-a-board-that-dropped-the-item",
+  "runner": true,
+  "events": [
+   {
+    "t": 100,
+    "op": "replace",
+    "id": 7,
+    "where": "on",
+    "textChanged": true,
+    "shows": "app: new"
+   },
+   {
+    "t": 200,
+    "op": "expire",
+    "id": 7,
+    "where": null,
+    "textChanged": null,
+    "shows": ""
+   }
+  ],
+  "samples": [
+   {
+    "t": 50,
+    "x": 300,
+    "boundary": false,
+    "text": "app: new"
+   },
+   {
+    "t": 300,
+    "x": 420,
+    "boundary": true,
+    "text": ""
+   },
+   {
+    "t": 340,
+    "x": 420,
+    "boundary": false,
+    "text": ""
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13",
+    "L15",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "l15-withholds-when-no-replace-qualifies",
+  "runner": true,
+  "events": [
+   {
+    "t": 200,
+    "op": "expire",
+    "id": 7,
+    "where": null,
+    "textChanged": null,
+    "shows": ""
+   }
+  ],
+  "samples": [
+   {
+    "t": 50,
+    "x": 300,
+    "boundary": false,
+    "text": "app: new"
+   },
+   {
+    "t": 300,
+    "x": 420,
+    "boundary": true,
+    "text": "app: new"
+   },
+   {
+    "t": 340,
+    "x": 380,
+    "boundary": false,
+    "text": "app: new"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "l15-ignores-an-item-that-outlives-the-boundary",
+  "runner": true,
+  "events": [
+   {
+    "t": 100,
+    "op": "replace",
+    "id": 7,
+    "where": "on",
+    "textChanged": true,
+    "shows": "app: new"
+   },
+   {
+    "t": 500,
+    "op": "expire",
+    "id": 7,
+    "where": null,
+    "textChanged": null,
+    "shows": ""
+   }
+  ],
+  "samples": [
+   {
+    "t": 50,
+    "x": 300,
+    "boundary": false,
+    "text": "app: new"
+   },
+   {
+    "t": 300,
+    "x": 420,
+    "boundary": true,
+    "text": ""
+   },
+   {
+    "t": 340,
+    "x": 420,
+    "boundary": false,
+    "text": ""
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "b-admits-a-burst-the-settings-move",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b0-withholds-an-unmeasured-burst",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-a-pileup-past-the-bound",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 9,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "deny": [
+    "B1"
+   ],
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-a-speed-that-steps",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.9,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "deny": [
+    "B2"
+   ],
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b3-refuses-a-run-that-ends-with-replaces-waiting",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 2
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "deny": [
+    "B3"
+   ],
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-a-burst-with-no-lone-roll",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": null,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "deny": [
+    "B4"
+   ],
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b5-refuses-a-base-that-does-not-move-the-roll",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 460,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "deny": [
+    "B5"
+   ],
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "b5-refuses-settings-that-leave-the-burst-unchanged",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "deny": [
+    "B5"
+   ],
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "admits-clean: the only thing withheld is that L15 judged nothing",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "burst": {
+   "default": {
+    "settings": {
+     "rollBaseMs": 400,
+     "rollFloorMs": 120,
+     "rollFullQueue": 6
+    },
+    "lone_ms": 440,
+    "burst_rolls": 6,
+    "peak_queued": 2,
+    "max_step": 0.09,
+    "ended_queued": 0
+   },
+   "changed": {
+    "settings": {
+     "rollBaseMs": 800,
+     "rollFloorMs": 400,
+     "rollFullQueue": 3
+    },
+    "lone_ms": 840,
+    "burst_rolls": 4,
+    "peak_queued": 2,
+    "max_step": 0.24,
+    "ended_queued": 0
+   }
+  },
+  "expect": {
+   "withheld": [
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l2-admits-a-text-superseded-before-shown",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   },
+   {
+    "t": 1650,
+    "op": "replace",
+    "id": 2,
+    "shows": "app: two \u2014 new"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1800,
+    "text": "app: two \u2014 new",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-a-superseding-replace-that-never-shows",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   },
+   {
+    "t": 1650,
+    "op": "replace",
+    "id": 2,
+    "shows": "app: two \u2014 new"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-an-unshown-arrival-that-only-expires",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   },
+   {
+    "t": 1650,
+    "op": "arrive",
+    "id": 3,
+    "shows": "app: three"
+   },
+   {
+    "t": 1660,
+    "op": "expire",
+    "id": 3,
+    "shows": ""
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l0-refuses-no-samples",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [],
+  "expect": {
+   "deny": [
+    "L0",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-text-without-scrolling",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1600,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 2
+   },
+   {
+    "t": 1640,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 2
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-an-arrival-never-shown",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1600,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 2
+   },
+   {
+    "t": 1640,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 2
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-a-tear",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 900,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: new"
+   }
+  ],
+  "samples": [
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: new",
+    "x": -150,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 940,
+    "text": "app: new",
+    "x": -190,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L3"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l3-admits-a-neighbours-deferral-landing-on-the-boundary",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 13000,
+    "op": "expire",
+    "id": 20,
+    "shows": ""
+   },
+   {
+    "t": 13100,
+    "op": "expire",
+    "id": 21,
+    "shows": ""
+   }
+  ],
+  "samples": [
+   {
+    "t": 12980,
+    "text": "app: alarm     \u2022     app: quiet",
+    "x": -300,
+    "running": true,
+    "count": 2,
+    "boundary": false
+   },
+   {
+    "t": 13060,
+    "text": "app: alarm     \u2022     app: quiet",
+    "x": 397,
+    "running": true,
+    "count": 1,
+    "boundary": true
+   },
+   {
+    "t": 13140,
+    "text": "app: quiet",
+    "x": 377,
+    "running": true,
+    "count": 1,
+    "boundary": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l3-still-refuses-a-tear-when-boundaries-exist",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 900,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: new"
+   }
+  ],
+  "samples": [
+   {
+    "t": 860,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1,
+    "boundary": true
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1,
+    "boundary": false
+   },
+   {
+    "t": 900,
+    "text": "app: new",
+    "x": -150,
+    "running": true,
+    "count": 1,
+    "boundary": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L3"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l13-admits-a-rolled-replace",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hallo",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.1
+   },
+   {
+    "t": 800,
+    "text": "app: hallo",
+    "x": 220,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.5
+   },
+   {
+    "t": 1100,
+    "text": "app: hallo",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l13-refuses-a-replace-with-no-roll-frame",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hallo",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 1100,
+    "text": "app: hallo",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l13-refuses-a-replace-deferred-to-the-boundary",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hello",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.5
+   },
+   {
+    "t": 900,
+    "text": "app: hallo",
+    "x": 400,
+    "running": true,
+    "count": 1,
+    "boundary": true,
+    "roll": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l13-refuses-a-roll-that-never-ends",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hallo",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.5
+   },
+   {
+    "t": 1100,
+    "text": "app: hallo",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.6
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l14-admits-a-painted-suffix",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 680,
+    "text": "app: alpha gamma beta",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null,
+    "painted": "app: alpha gamma beta",
+    "plain": [
+     0,
+     1,
+     2
+    ],
+    "plainRollEnd": -1
+   },
+   {
+    "t": 720,
+    "text": "app: alpha beta",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.2,
+    "painted": "app: alpha beta",
+    "plain": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14
+    ],
+    "plainRollEnd": 12
+   },
+   {
+    "t": 800,
+    "text": "app: alpha beta",
+    "x": 220,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.6,
+    "painted": "app: alpha beta",
+    "plain": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14
+    ],
+    "plainRollEnd": 12
+   },
+   {
+    "t": 1100,
+    "text": "app: alpha beta",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null,
+    "painted": "app: alpha beta",
+    "plain": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14
+    ],
+    "plainRollEnd": -1
+   }
+  ],
+  "expects_shorten": true,
+  "expect": {
+   "deny": [
+    "L13",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l14-refuses-a-dropped-suffix",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 720,
+    "text": "app: alpha beta",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.2,
+    "painted": "app: alpha beta",
+    "plain": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ],
+    "plainRollEnd": 12
+   },
+   {
+    "t": 800,
+    "text": "app: alpha beta",
+    "x": 220,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.6,
+    "painted": "app: alpha beta",
+    "plain": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11
+    ],
+    "plainRollEnd": 12
+   }
+  ],
+  "expects_shorten": true,
+  "expect": {
+   "deny": [
+    "L13",
+    "L14",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l14-refuses-an-empty-suffix-population",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 720,
+    "text": "app: alpha beta",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.2
+   }
+  ],
+  "expects_shorten": true,
+  "expect": {
+   "deny": [
+    "L13",
+    "L14",
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l14-ignores-samples-without-the-field",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "on",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hallo",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.1
+   },
+   {
+    "t": 800,
+    "text": "app: hallo",
+    "x": 220,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.5
+   },
+   {
+    "t": 1100,
+    "text": "app: hallo",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l13-refuses-an-empty-roll-population",
+  "runner": true,
+  "width": 420,
+  "expects_roll": true,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "past",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hallo",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.1
+   },
+   {
+    "t": 800,
+    "text": "app: hallo",
+    "x": 220,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.5
+   },
+   {
+    "t": 1100,
+    "text": "app: hallo",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L13",
+    "L3"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l3-still-refuses-a-replace-scrolled-past",
+  "runner": true,
+  "width": 420,
+  "expects_roll": false,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: hallo",
+    "where": "past",
+    "textChanged": true
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 680,
+    "text": "app: hello",
+    "x": 250,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   },
+   {
+    "t": 720,
+    "text": "app: hallo",
+    "x": 240,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.1
+   },
+   {
+    "t": 800,
+    "text": "app: hallo",
+    "x": 220,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": 0.5
+   },
+   {
+    "t": 1100,
+    "text": "app: hallo",
+    "x": 150,
+    "running": true,
+    "count": 1,
+    "boundary": false,
+    "roll": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L3"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l4-refuses-a-forward-jump",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 350,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L4"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l4-admits-a-reset-to-the-right-edge",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": -200,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 414,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l5-refuses-a-board-that-does-not-wake",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L3",
+    "L5"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l6-refuses-a-stall-that-reports-running",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 1300,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1340,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1380,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1420,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1460,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1500,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1540,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1580,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1620,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1660,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1740,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L6"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l7-admits-a-pulsing-ring",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": [
+    {
+     "t": 1300,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0.57,
+     "count": 1
+    },
+    {
+     "t": 1340,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0.71,
+     "count": 1
+    },
+    {
+     "t": 1380,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0.86,
+     "count": 1
+    }
+   ]
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l7-refuses-a-ring-that-does-not-pulse",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": [
+    {
+     "t": 1300,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0.57,
+     "count": 1
+    },
+    {
+     "t": 1340,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0.57,
+     "count": 1
+    }
+   ]
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L7"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l7-refuses-a-dark-ring-while-paused",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": [
+    {
+     "t": 1300,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0,
+     "count": 1
+    },
+    {
+     "t": 1340,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": true,
+     "ring": 0.5,
+     "count": 1
+    }
+   ]
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L7"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l7-refuses-a-lit-ring-while-not-paused",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "paused": false,
+    "ring": 0.6
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L7"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l8-admits-the-variant-tokens-after-settling",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0,
+    "lit": "#000000",
+    "ghost": "#000000",
+    "ground": "#000000"
+   },
+   {
+    "t": 500,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "lit": "#ffd499",
+    "ghost": "#e5bf89",
+    "ground": "#140f08"
+   },
+   {
+    "t": 540,
+    "text": "app: hello",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "lit": "#ffd499",
+    "ghost": "#e5bf89",
+    "ground": "#140f08"
+   }
+  ],
+  "variant": "EL-Amber",
+  "expected": {
+   "lit": "#ffd499",
+   "ghost": "#e5bf89",
+   "ground": "#140f08"
+  },
+  "expect": {
+   "deny": [
+    "L2",
+    "L5"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l8-refuses-a-colour-off-the-variant",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "lit": "#99ffeb",
+    "ghost": "#e5bf89",
+    "ground": "#140f08"
+   },
+   {
+    "t": 540,
+    "text": "app: hello",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "lit": "#99ffeb",
+    "ghost": "#e5bf89",
+    "ground": "#140f08"
+   }
+  ],
+  "variant": "EL-Amber",
+  "expected": {
+   "lit": "#ffd499",
+   "ghost": "#e5bf89",
+   "ground": "#140f08"
+  },
+  "expect": {
+   "deny": [
+    "L2",
+    "L8"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l9-admits-a-critical-in-the-hot-token",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 20,
+    "fields": {
+     "urgency": 2
+    },
+    "shows": "app: alarm"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: alarm",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: alarm",
+    "lit": "#ffd499",
+    "hot": "#ffb000",
+    "ink": [
+     "#ffb000"
+    ]
+   },
+   {
+    "t": 540,
+    "text": "app: alarm",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: alarm",
+    "lit": "#ffd499",
+    "hot": "#ffb000",
+    "ink": [
+     "#ffb000"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l9-refuses-a-critical-in-the-lit-token",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 20,
+    "fields": {
+     "urgency": 2
+    },
+    "shows": "app: alarm"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: alarm",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: alarm",
+    "lit": "#ffd499",
+    "hot": "#ffb000",
+    "ink": [
+     "#ffd499"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L9"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l9-tolerates-the-paint-lag",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 20,
+    "fields": {
+     "urgency": 2
+    },
+    "shows": "app: alarm"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: alarm",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: hello",
+    "lit": "#ffd499",
+    "hot": "#ffb000",
+    "ink": [
+     "#ffd499"
+    ]
+   },
+   {
+    "t": 540,
+    "text": "app: alarm",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: alarm",
+    "lit": "#ffd499",
+    "hot": "#ffb000",
+    "ink": [
+     "#ffb000"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l9-refuses-a-critical-that-never-shows",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 20,
+    "fields": {
+     "urgency": 2
+    },
+    "shows": "app: alarm"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: other",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: other",
+    "lit": "#ffd499",
+    "hot": "#ffb000",
+    "ink": [
+     "#ffd499"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L9"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l9-refuses-a-hot-token-equal-to-lit",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 20,
+    "fields": {
+     "urgency": 2
+    },
+    "shows": "app: alarm"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: alarm",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: alarm",
+    "lit": "#ffd499",
+    "hot": "#ffd499",
+    "ink": [
+     "#ffd499"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L9"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l10-admits-a-tap-that-invoked",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 30,
+    "fields": {
+     "actionNames": [
+      "open"
+     ]
+    },
+    "shows": "app: act [Open]"
+   },
+   {
+    "t": 600,
+    "op": "tap",
+    "id": 30,
+    "fields": {
+     "text": "[Open]"
+    },
+    "shows": "app: act [Open]"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: act [Open]",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": null,
+    "invoked": []
+   },
+   {
+    "t": 640,
+    "text": "app: act [Open]",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": {
+     "index": 9,
+     "kind": "action",
+     "action": "open",
+     "item": 30,
+     "row": 0
+    },
+    "invoked": [
+     {
+      "row": 0,
+      "action": "open"
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L12"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l10-refuses-a-tap-that-resolved-to-nothing",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 30,
+    "fields": {
+     "actionNames": [
+      "open"
+     ]
+    },
+    "shows": "app: act [Open]"
+   },
+   {
+    "t": 600,
+    "op": "tap",
+    "id": 30,
+    "fields": {
+     "text": "[Open]"
+    },
+    "shows": "app: act [Open]"
+   }
+  ],
+  "samples": [
+   {
+    "t": 640,
+    "text": "app: act [Open]",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": {
+     "index": 3,
+     "kind": "none"
+    },
+    "invoked": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L10",
+    "L12"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l12-admits-a-tap-on-its-target",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 30,
+    "fields": {
+     "actionNames": [
+      "open"
+     ]
+    },
+    "shows": "app: act [Open]"
+   },
+   {
+    "t": 600,
+    "op": "tap",
+    "id": 30,
+    "fields": {
+     "text": "[Open]"
+    },
+    "shows": "app: act [Open]"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: act [Open]",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": null,
+    "invoked": []
+   },
+   {
+    "t": 640,
+    "text": "app: act [Open]",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": {
+     "index": 9,
+     "kind": "action",
+     "action": "open",
+     "item": 30,
+     "row": 0
+    },
+    "invoked": [
+     {
+      "row": 0,
+      "action": "open"
+     }
+    ]
+   }
+  ],
+  "taps": [
+   {
+    "t": 600,
+    "target": 9,
+    "index": 9
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l12-refuses-a-tap-on-the-neighbour",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 30,
+    "fields": {
+     "actionNames": [
+      "open"
+     ]
+    },
+    "shows": "app: act [Open]"
+   },
+   {
+    "t": 600,
+    "op": "tap",
+    "id": 30,
+    "fields": {
+     "text": "[Open]"
+    },
+    "shows": "app: act [Open]"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: act [Open]",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": null,
+    "invoked": []
+   },
+   {
+    "t": 640,
+    "text": "app: act [Open]",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": {
+     "index": 9,
+     "kind": "action",
+     "action": "open",
+     "item": 30,
+     "row": 0
+    },
+    "invoked": [
+     {
+      "row": 0,
+      "action": "open"
+     }
+    ]
+   }
+  ],
+  "taps": [
+   {
+    "t": 600,
+    "target": 9,
+    "index": 8
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L12"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l12-refuses-an-unlogged-tap",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 30,
+    "fields": {
+     "actionNames": [
+      "open"
+     ]
+    },
+    "shows": "app: act [Open]"
+   },
+   {
+    "t": 600,
+    "op": "tap",
+    "id": 30,
+    "fields": {
+     "text": "[Open]"
+    },
+    "shows": "app: act [Open]"
+   }
+  ],
+  "samples": [
+   {
+    "t": 500,
+    "text": "app: act [Open]",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": null,
+    "invoked": []
+   },
+   {
+    "t": 640,
+    "text": "app: act [Open]",
+    "x": 280,
+    "running": true,
+    "count": 1,
+    "painted": "app: act [Open]",
+    "tap": {
+     "index": 9,
+     "kind": "action",
+     "action": "open",
+     "item": 30,
+     "row": 0
+    },
+    "invoked": [
+     {
+      "row": 0,
+      "action": "open"
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L12"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l11-admits-a-three-column-gauge",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 10
+    },
+    "shows": "kio: copying"
+   },
+   {
+    "t": 500,
+    "op": "replace",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 50
+    },
+    "shows": "kio: copying"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 90
+    },
+    "shows": "kio: copying"
+   }
+  ],
+  "samples": [
+   {
+    "t": 400,
+    "text": "kio: copying \u2591",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "painted": "kio: copying \u2591",
+    "series": [
+     [
+      1
+     ]
+    ]
+   },
+   {
+    "t": 900,
+    "text": "kio: copying \u2591",
+    "x": 200,
+    "running": true,
+    "count": 1,
+    "painted": "kio: copying \u2591",
+    "series": [
+     [
+      1,
+      4,
+      7
+     ]
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l11-refuses-a-gauge-that-never-grew",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 10
+    },
+    "shows": "kio: copying"
+   },
+   {
+    "t": 500,
+    "op": "replace",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 50
+    },
+    "shows": "kio: copying"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 90
+    },
+    "shows": "kio: copying"
+   }
+  ],
+  "samples": [
+   {
+    "t": 900,
+    "text": "kio: copying \u2591",
+    "x": 200,
+    "running": true,
+    "count": 1,
+    "painted": "kio: copying \u2591",
+    "series": [
+     [
+      1
+     ]
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L11"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "l11-refuses-a-falling-gauge-for-rising-progress",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 10
+    },
+    "shows": "kio: copying"
+   },
+   {
+    "t": 500,
+    "op": "replace",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 50
+    },
+    "shows": "kio: copying"
+   },
+   {
+    "t": 700,
+    "op": "replace",
+    "id": 40,
+    "fields": {
+     "type": 2,
+     "percentage": 90
+    },
+    "shows": "kio: copying"
+   }
+  ],
+  "samples": [
+   {
+    "t": 900,
+    "text": "kio: copying \u2591",
+    "x": 200,
+    "running": true,
+    "count": 1,
+    "painted": "kio: copying \u2591",
+    "series": [
+     [
+      7,
+      4,
+      1
+     ]
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L11"
+   ],
+   "withheld": [
+    "B0",
+    "L15"
+   ]
+  }
+ },
+ {
+  "case": "null-runner-does-not-fire-l0",
+  "runner": null,
+  "events": [],
+  "samples": [],
+  "width": 0,
+  "hovered": {
+   "samples": []
+  },
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-running-does-not-fire-l4-or-l6",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 300,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 350,
+    "running": null,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-running-held-does-not-fire-l6",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 1300,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1340,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1380,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1420,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1460,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1500,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1540,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1580,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1620,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1660,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1740,
+    "text": "app: hello",
+    "x": 7.2,
+    "running": null,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-paused-does-not-fire-l7",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": [
+    {
+     "t": 1300,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": null,
+     "ring": 0,
+     "count": 1
+    },
+    {
+     "t": 1340,
+     "text": "app: hello",
+     "x": 7.2,
+     "running": true,
+     "paused": null,
+     "ring": 0,
+     "count": 1
+    }
+   ]
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "paused": null,
+    "boundary": null,
+    "ring": 0.6,
+    "count": 1
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "paused": null,
+    "boundary": null,
+    "ring": 0.6,
+    "count": 1
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "paused": null,
+    "boundary": null,
+    "ring": 0.6,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "absent-runner-is-withheld",
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": 421,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 400,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 600,
+    "text": "app: hello",
+    "x": 100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 900,
+    "text": "app: hello",
+    "x": -150,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1000,
+    "text": "app: hello",
+    "x": -212,
+    "running": true,
+    "count": 0
+   },
+   {
+    "t": 1100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1640,
+    "text": "app: two",
+    "x": 414,
+    "running": true,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": 300,
+    "running": true,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-running-l1-withheld",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 340,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 380,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1600,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "count": 2
+   },
+   {
+    "t": 1640,
+    "text": "app: hello",
+    "x": 421,
+    "running": null,
+    "count": 2
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-boundary-l3-withheld",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 900,
+    "op": "replace",
+    "id": 1,
+    "shows": "app: new"
+   }
+  ],
+  "samples": [
+   {
+    "t": 880,
+    "text": "app: hello",
+    "x": -100,
+    "running": true,
+    "count": 1,
+    "boundary": false
+   },
+   {
+    "t": 900,
+    "text": "app: new",
+    "x": -150,
+    "running": true,
+    "count": 1,
+    "boundary": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-running-idle-before-withheld",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": -212,
+    "running": null,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": -212,
+    "running": false,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L3"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-running-runs-after-withheld",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 100,
+    "text": "",
+    "x": -212,
+    "running": false,
+    "count": 0
+   },
+   {
+    "t": 1600,
+    "text": "app: two",
+    "x": -212,
+    "running": null,
+    "count": 1
+   },
+   {
+    "t": 1700,
+    "text": "app: two",
+    "x": -212,
+    "running": null,
+    "count": 1
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L3"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "L5",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "null-paused-main-l7-withheld",
+  "runner": true,
+  "width": 420,
+  "hovered": {
+   "samples": []
+  },
+  "events": [
+   {
+    "t": 300,
+    "op": "arrive",
+    "id": 1,
+    "shows": "app: hello"
+   },
+   {
+    "t": 900,
+    "op": "expire",
+    "id": 1,
+    "shows": ""
+   },
+   {
+    "t": 1600,
+    "op": "arrive",
+    "id": 2,
+    "shows": "app: two"
+   }
+  ],
+  "samples": [
+   {
+    "t": 300,
+    "text": "app: hello",
+    "x": 300,
+    "running": true,
+    "count": 1,
+    "paused": null,
+    "ring": 0.6
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ],
+   "withheld": [
+    "B0",
+    "L15",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "runner-false-is-withheld-without-deny",
+  "runner": false,
+  "events": [],
+  "samples": [],
+  "width": 0,
+  "hovered": {
+   "samples": []
+  },
+  "expect": {
+   "withheld": [
+    "the qml runner is not on this host; the widget did not run"
+   ]
+  }
+ }
+]
