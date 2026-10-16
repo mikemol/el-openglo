@@ -1,0 +1,78 @@
+[
+  {
+    "case": "admits-clean: two rendered documents with no lint and no bound running",
+    "qmllint": true,
+    "documents": [
+      {"id": "marquee-main.qml", "lint": [], "bound_running": []},
+      {"id": "clock-main.qml", "lint": [], "bound_running": []}
+    ]
+  },
+  {
+    "case": "q0-refuses-empty-population",
+    "qmllint": true,
+    "documents": [],
+    "expect": {"deny": ["Q0"]}
+  },
+  {
+    "case": "q0-refuses-an-absent-population: no documents key at all must not read as an empty body that admits",
+    "expect": {"deny": ["Q0"]}
+  },
+  {
+    "case": "q1-refuses-a-lint-error",
+    "qmllint": true,
+    "documents": [
+      {"id": "broken.qml", "lint": ["broken.qml:2:14: [syntax] Expected token"], "bound_running": []}
+    ],
+    "expect": {"deny": ["Q1"]}
+  },
+  {
+    "case": "q2-refuses-the-marquee-binding: a finite animation binds running",
+    "qmllint": true,
+    "documents": [
+      {"id": "marquee-main.qml", "lint": [], "bound_running": [{"animation": "NumberAnimation", "loops": "1"}]}
+    ],
+    "expect": {"deny": ["Q2"]}
+  },
+  {
+    "case": "withheld-beside-admitted-is-not-a-deny: a document the host could not render is withheld, the clean one beside it is judged",
+    "qmllint": true,
+    "documents": [
+      {"id": "marquee-main.qml", "withheld": "a pinned host file is absent"},
+      {"id": "clock-main.qml", "lint": [], "bound_running": []}
+    ],
+    "expect": {"withheld": ["marquee-main.qml"]}
+  },
+  {
+    "case": "null-withheld-does-not-fire: a null reason is not a withholding",
+    "qmllint": true,
+    "documents": [
+      {"id": "clock-main.qml", "lint": [], "bound_running": [], "withheld": null}
+    ]
+  },
+  {
+    "case": "all-null-case-is-withheld-only: lint and bound_running not measured are withheld by name, never a deny",
+    "qmllint": true,
+    "documents": [
+      {"id": "clock-main.qml", "lint": [], "bound_running": []},
+      {"id": "marquee-main.qml", "withheld": null, "lint": null, "bound_running": null}
+    ],
+    "expect": {"withheld": ["marquee-main.qml"]}
+  },
+  {
+    "case": "null-qmllint-is-withheld: a null qmllint was not measured, it is not 'installed'",
+    "qmllint": null,
+    "documents": [
+      {"id": "marquee-main.qml", "lint": [], "bound_running": []},
+      {"id": "clock-main.qml", "lint": [], "bound_running": []}
+    ],
+    "expect": {"withheld": ["qmllint was not measured; Q1 cannot say whether it ran"]}
+  },
+  {
+    "case": "withheld-without-qmllint: no qmllint on the host is withheld, not a deny",
+    "qmllint": false,
+    "documents": [
+      {"id": "clock-main.qml", "lint": [], "bound_running": []}
+    ],
+    "expect": {"withheld": ["qmllint is not installed on this host; Q1 measured nothing"]}
+  }
+]

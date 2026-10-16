@@ -152,6 +152,13 @@ mypy_path = ["scripts", "catalog/library", "templates", "stubs"]
 python_version = "3.13"
 explicit_package_bases = true
 
+[tool.pytest.ini_options]
+# ⚑ REGO SPECS AS PYTEST ITEMS (W211; mikemol-pytestspec). A spec that imports the shared helper package
+# (`import data.el.truth`) compiles only if the helper is loaded too, and nothing is loaded implicitly: the
+# helper paths are DECLARED here (mtools:W380). `pytest policy/qml_lint.rego` runs policy/qml_lint.cases.json.
+# opa test policy/ stays the full record; these cases carry the deny and withheld id sets, not `admitted`.
+pytestspec_data = "policy/lib"
+
 [tool.uv]
 # Environment is uv-managed: `uv sync` for the base, `uv sync --extra research`
 # to add the pipeline.  Never `pip install` into an ambient interpreter.

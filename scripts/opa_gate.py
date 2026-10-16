@@ -45,6 +45,10 @@ import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 POLICY = os.path.join(ROOT, "policy")
+# ⚑ A SPEC'S CASE DATA SITS BESIDE IT (mikemol-pytestspec: `<spec>.cases.json`, W211) AND IS A JSON LIST, which
+# opa refuses to load as a data document ("document must be of type object"): every opa call over the policy
+# directory ignores it. The cases are pytest's input, never opa data.
+IGNORE_CASES = ["--ignore", "*.cases.json"]
 OPA = shutil.which("opa")
 
 # ⚑ `opa test` HAS A 5 s WALL-CLOCK TIMEOUT PER TEST BY DEFAULT, AND THAT WAS THE @REGO FLAKE (W454,
@@ -116,7 +120,17 @@ def value(name, doc):
     defines, for a check whose listing mode shows what the POLICY derived (e.g.
     check_mark --files reads `offending`) rather than re-deriving it in Python."""
     r = subprocess.run(
-        [OPA, "eval", "-f", "json", "-I", "-d", POLICY, f"data.el.{name}"],
+        [
+            OPA,
+            "eval",
+            "-f",
+            "json",
+            "-I",
+            *IGNORE_CASES,
+            "-d",
+            POLICY,
+            f"data.el.{name}",
+        ],
         input=json.dumps(doc),
         capture_output=True,
         text=True,
@@ -318,7 +332,7 @@ def main(argv):
         return 0
     if "--test" in args:
         r = subprocess.run(
-            [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, POLICY],
+            [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, *IGNORE_CASES, POLICY],
             capture_output=True,
             text=True,
             check=False,
@@ -493,7 +507,7 @@ def _selftest():
         1,
     )
     r = subprocess.run(
-        [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, POLICY],
+        [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, *IGNORE_CASES, POLICY],
         capture_output=True,
         text=True,
         check=False,
