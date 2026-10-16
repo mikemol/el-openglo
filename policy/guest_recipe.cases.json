@@ -1,0 +1,53 @@
+[
+  {
+    "case": "r0-refuses-an-empty-input: no recipe measured admits nothing",
+    "expect": {"deny": ["R0"]}
+  },
+  {
+    "case": "good-admitted: a pinned snapshot, through the snapshot mirror, the decided suite, nothing missing or forbidden",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "mirror_through_snapshot": true, "suite": "trixie", "want_suite": "trixie", "missing": [], "forbidden_present": []}
+    ]
+  },
+  {
+    "case": "r1-unpinned-snapshot-denied: latest is not a pinned timestamp",
+    "cases": [
+      {"recipe": "r", "snapshot": "latest", "snapshot_pinned": false, "mirror_through_snapshot": true, "suite": "trixie", "want_suite": "trixie", "missing": [], "forbidden_present": []}
+    ],
+    "expect": {"deny": ["R1"]}
+  },
+  {
+    "case": "r2-live-mirror-denied: the mirror does not resolve through snapshot.debian.org at the pin",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "mirror_through_snapshot": false, "suite": "trixie", "want_suite": "trixie", "missing": [], "forbidden_present": []}
+    ],
+    "expect": {"deny": ["R2"]}
+  },
+  {
+    "case": "r3-wrong-suite-denied: bookworm against the decided trixie",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "mirror_through_snapshot": true, "suite": "bookworm", "want_suite": "trixie", "missing": [], "forbidden_present": []}
+    ],
+    "expect": {"deny": ["R3"]}
+  },
+  {
+    "case": "r4-forbidden-package-denied: python3 is declared absent but is in the set",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "mirror_through_snapshot": true, "suite": "trixie", "want_suite": "trixie", "missing": [], "forbidden_present": ["python3"]}
+    ],
+    "expect": {"deny": ["R4"]}
+  },
+  {
+    "case": "r4-missing-package-denied: a decided package is not in the set",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "mirror_through_snapshot": true, "suite": "trixie", "want_suite": "trixie", "missing": ["jq"], "forbidden_present": []}
+    ],
+    "expect": {"deny": ["R4"]}
+  },
+  {
+    "case": "unreadable-withheld: an unreadable recipe is withheld, never a deny",
+    "cases": [],
+    "withheld": ["recipe unreadable: x"],
+    "expect": {"withheld": ["recipe unreadable"]}
+  }
+]
