@@ -91,7 +91,12 @@ materialise() {
     [ -e "$STAGED/$entry" ] || [ -L "$STAGED/$entry" ] && continue
     mkdir -p "$STAGED/$(dirname "$entry")"
     ln -s "$HOST/$entry" "$STAGED/$entry"
-  done < <(git -C "$HOST" ls-files -z --others --ignored --exclude-standard --directory)
+  # ⚑ THE HOST'S OWN REPOSITORY, WITH NONE OF THE COMMIT'S GIT_* (W558; found running a stack through one gate):
+  # the isolated commit hands this hook GIT_WORK_TREE = the SNAPSHOT, which holds tracked files only, so with the
+  # variables inherited this listing read the snapshot and found no ignored entry at all: no .venv link, and
+  # every stage fell back to the bare system python ("No module named 'mikemol'", 108 of 111 stages in 0.1 s each).
+  # `git -C "$HOST"` alone discovers the real checkout, which is the question this loop asks.
+  done < <(env -u GIT_DIR -u GIT_INDEX_FILE -u GIT_WORK_TREE -u GIT_PREFIX git -C "$HOST" ls-files -z --others --ignored --exclude-standard --directory)
   # the ledger is the real tree's: gate timings accumulate across commits, not in a throwaway copy
   touch "$HOST/.gate-outcomes.tsv"
   ln -s "$HOST/.gate-outcomes.tsv" "$STAGED/.gate-outcomes.tsv"
