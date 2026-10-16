@@ -1,0 +1,123 @@
+[
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "series-sees-every-move-admitted",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 143,
+    "flat_max_min": 28,
+    "flat_series": 0
+   }
+  ]
+ },
+ {
+  "case": "series-blind-move-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 143,
+    "flat_max_min": 28,
+    "flat_series": 3
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N2"
+   ]
+  }
+ },
+ {
+  "case": "empty-candidate-search-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 0,
+    "flat_max_min": 0,
+    "flat_series": 0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "ghost-agreement-admitted",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 143,
+    "flat_max_min": 28,
+    "flat_series": 0
+   }
+  ],
+  "ghost": [
+   {
+    "variant": "EL-Azure",
+    "rel_diff": 1.5e-16
+   }
+  ]
+ },
+ {
+  "case": "ghost-disagreement-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 143,
+    "flat_max_min": 28,
+    "flat_series": 0
+   }
+  ],
+  "ghost": [
+   {
+    "variant": "EL-Azure",
+    "rel_diff": 0.003
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "gcalc-absent-withheld",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 143,
+    "flat_max_min": 28,
+    "flat_series": 0
+   }
+  ],
+  "ghost": [],
+  "withheld": [
+   "ghost: gcalc not importable here"
+  ],
+  "expect": {
+   "withheld": [
+    "ghost"
+   ]
+  }
+ },
+ {
+  "case": "max-min-blindness-alone-is-not-a-deny",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "moves": 143,
+    "flat_max_min": 143,
+    "flat_series": 0
+   }
+  ]
+ }
+]
