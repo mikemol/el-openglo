@@ -90,6 +90,53 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L15 — a replace while the changed part is visible owes a second horizontal pass (W185)"
+# description: |
+#   Operator 2026-10-01: if a notification is replaced while the replaced component is visible, it gets a
+#   second horizontal pass queued immediately. A replace taken IN PLACE on the board (where "on", the text
+#   changed) leaves the item owed a rotation. The population is the replaces whose item EXPIRED before the
+#   next rotation boundary, because a live item cycles anyway and so cannot tell an owed pass from a
+#   routine one; only an expired item can show the pass is owed. For each: the sample right after the first
+#   boundary following the replace shows the new text again (the owed pass), not a board that dropped it.
+owed_second_pass(e) if {
+	e.op == "replace"
+	e.where == "on"
+	e.textChanged == true
+	some x in input.events
+	x.op == "expire"
+	x.id == e.id
+	x.t > e.t
+	b := min({s.t | some s in input.samples; s.boundary == true; s.t > e.t})
+	x.t < b
+}
+
+second_pass_shown(e) if {
+	b := min({s.t | some s in input.samples; s.boundary == true; s.t > e.t})
+	some s in input.samples
+	s.t > b
+	s.t <= b + 120
+	contains(s.text, e.shows)
+}
+
+deny contains msg if {
+	some e in input.events
+	owed_second_pass(e)
+	not second_pass_shown(e)
+	msg := sprintf("L15: id %v was replaced at t=%v while its changed part was visible and expired before the next rotation; no second pass of %q followed", [e.id, e.t, e.shows])
+}
+
+# the population L15 judges: a timeline with no such replace would admit it vacuously
+l15_population contains e.id if {
+	some e in input.events
+	owed_second_pass(e)
+}
+
+withheld contains "L15: no replace of a visible item expired before its rotation ended; the second-pass rule judged nothing" if {
+	input.runner == true
+	count(l15_population) == 0
+}
+
+# METADATA
 # title: "L1 — a board that shows text is scrolling"
 # description: |
 #   The dead-rotation defect (COTYPE s98) and the stalled-run defects (s101):

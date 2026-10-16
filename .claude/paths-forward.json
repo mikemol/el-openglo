@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 552,
+  "counter": 553,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -2889,16 +2889,16 @@
         "pycodemod"
       ],
       "blocked_on": [
-        "mtools"
+        "W256"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Make the struct tools this repo routes to (mikemol-pycodemod, mdstruct) exclude registered worktrees from a repo-root walk - an mtools change, so a letter or waypoint there citing el-openglo:W138 - with a positive control (a planted importer inside a worktree is skipped, one outside is found).",
-      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default | 2026-10-02: 2026-10-02: narrowed in the W95/W138/W233 collapse audit: worktree retirement itself is W233; this keeps the distinct part (pycodemod --importers make_chrome counted 108 sites, 2 real, because worktrees were walked). | 2026-10-03: 2026-10-03 (swarm): the WORK is mtools (struct tools skip registered worktrees), so this card waits on them; W233 retires the checkouts themselves. Letter filed: mtools/inbox/2026-10-03-el-openglo-struct-tools-skip-worktrees.md. RE-MEASURED today (bash globstar over the repo **/*.py, because pycodemod importers refuses a directory): importers make_chrome finds 4 sites in 3 real files (make_deb.py, scripts/check_chrome.py twice, scripts/publish_browsers.py) and ~105 more in the 49 .claude/worktrees and 2 .tree-writes checkouts: ~109 against 4. The old 108-vs-2 is STALE on the real side (publish_browsers.py now imports make_chrome, W134). The scan also reported 12 unreadable files (broken links) among 7041 of 7053. ASK: default skip of registered worktrees with a printed skipped count and an include flag, plus a positive control. Bare repo block until mtools mint a waypoint.",
+      "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default | 2026-10-02: 2026-10-02: narrowed in the W95/W138/W233 collapse audit: worktree retirement itself is W233; this keeps the distinct part (pycodemod --importers make_chrome counted 108 sites, 2 real, because worktrees were walked). | 2026-10-03: 2026-10-03 (swarm): the WORK is mtools (struct tools skip registered worktrees), so this card waits on them; W233 retires the checkouts themselves. Letter filed: mtools/inbox/2026-10-03-el-openglo-struct-tools-skip-worktrees.md. RE-MEASURED today (bash globstar over the repo **/*.py, because pycodemod importers refuses a directory): importers make_chrome finds 4 sites in 3 real files (make_deb.py, scripts/check_chrome.py twice, scripts/publish_browsers.py) and ~105 more in the 49 .claude/worktrees and 2 .tree-writes checkouts: ~109 against 4. The old 108-vs-2 is STALE on the real side (publish_browsers.py now imports make_chrome, W134). The scan also reported 12 unreadable files (broken links) among 7041 of 7053. ASK: default skip of registered worktrees with a printed skipped count and an include flag, plus a positive control. Bare repo block until mtools mint a waypoint. | 2026-10-16: 2026-10-15 queue-planning: W480 collapsed here. mtools landed the worktree skip (mdstruct bbb6c8d, mtools:W561; pycodemod 920642f; shared mikemol-pathwalk), per inbox/2026-10-04-mtools-mdstruct-directory-operand.md, so the bare mtools block is lifted. Adoption needs the one-sha re-pin that brings these versions and mikemol-pathwalk in: W256. Then rerun the positive control.",
       "issued_at": "2026-09-28T21:21:47Z",
       "minted_during": "interrupt",
       "caused_by": "W134",
-      "last_worked": "2026-10-06T01:51:07Z",
-      "ticks_blocked": 8,
+      "last_worked": "2026-10-16T02:06:31Z",
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 1,
@@ -3254,7 +3254,7 @@
     {
       "symbol": "W154",
       "title": "Blender add-on built on the engine core, for the Blender Extensions platform",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
@@ -3262,8 +3262,10 @@
         "engines",
         "blender"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W257"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Keep oci/engines/Containerfile ready (blender + godot headless packages, snapshot-pinned like oci/guest/recipe.json) so the first W328 run is a one-step check; when W328 lands run the add-on checks through it.",
       "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built, no files touched: no blender binary on this machine (command -v / find over /usr/bin /usr/local/bin /opt ~/.local/bin found none; no flatpak or mise shims), so the add-on cannot be imported or checked against the GLBs; a file-exists check would pass whether or not it works and was refused as a measurement. Waiting on a luthen container runner with blender (same request as W155). | 2026-10-03: 2026-10-03: luthen minted luthen-observability:W328 --enables el-openglo:W154 and W155, queued behind W286. It is the GENERIC runner, not a Blender/Godot job. Operator ruling (2026-10-03), relayed by luthen: container and VM loadout are SELF-SERVE - the caller supplies its own Containerfile or initrd; luthen supplies only the build+run seam, the CPU bound and the ok / refused (rc) / cannot-run verdict, shaped like checks.serial_writer and the W286 guest-image builder. So the Blender and Godot packages belong in a Containerfile in THIS repo (oci/engines/Containerfile), and the first W328 run is --src, --script and that Containerfile.",
       "issued_at": "2026-10-01T04:04:29Z",
@@ -3279,7 +3281,7 @@
     {
       "symbol": "W155",
       "title": "Godot add-on built on the engine core",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W43"
       ],
@@ -3287,8 +3289,10 @@
         "engines",
         "godot"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W257"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "When Godot can run headless (a container image from luthen or the operator): port catalog/engines/el-segment.glsl to a .gdshader and a Display node reading el-glyphs.json and the token file material group; check it loads and renders a named glyph.",
       "evidence": "2026-10-03: 2026-10-03 (swarm): BLOCKED, nothing built, no files touched. command -v for godot, godot4, blender, dotnet, mono, csc, g++, clang++ found only /usr/bin/g++ and /usr/lib/llvm/23/bin/clang++; find over /usr/bin /usr/local/bin /opt ~/.local/bin for godot, blender, dotnet, unity, unreal found nothing; no flatpak or mise shims. The agent did NOT produce a layout-only package with a file-exists check: it would pass whether or not the add-on loads. A manifest check is at most the counted SKIP beside the engine run, which is the real measurement. The Godot Asset Library contract is also unread. | 2026-10-03: 2026-10-03 (integration): re-filed the block from an operator ask to luthen-observability: Godot and Blender both have headless Debian packages, so a container runner (serial_writer/guest-image-builder shaped) is an AGENT route and needs no operator act. Asked luthen for a runner image with blender and godot; bare repo block until they mint a waypoint --enables el-openglo:W154/W155 - then replace with luthen-observability:W<n>. | 2026-10-03: 2026-10-03: block cited to luthen-observability:W328 (generic self-serve runner; see W154 evidence): the Godot packages go in the same oci/engines/Containerfile, supplied by us.",
       "issued_at": "2026-10-01T04:04:29Z",
@@ -3944,28 +3948,28 @@
     {
       "symbol": "W184",
       "title": "Marquee replace pileup: queued rolls accelerate on an s-curve so the roll keeps up with the replace rate",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "marquee-main.qml"
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Umbrella, atomized 2026-10-13 from the operator sentence (a pileup of replacements accelerates the rotation, probably an s-curve): done when W545 (Body.rollDuration, pure), W546 (queue the replaces that arrive during a roll), W547 (speed follows the queue, settings exposed) and W548 (live L-rule on a 10 Hz burst) land. Order: W545 and W546 are independent, both feed W547, which feeds W548.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR: a pileup of replacements accelerates the vertical rotation, probably as an s-curve. | 2026-10-13: W184 atomized 2026-10-13 into W545 to W548; a roll with a single fixed 400 ms and no pending list cannot express a pileup, so the queue (W546) and the speed function (W545) are separate pieces joined in W547.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR: a pileup of replacements accelerates the vertical rotation, probably as an s-curve. | 2026-10-13: W184 atomized 2026-10-13 into W545 to W548; a roll with a single fixed 400 ms and no pending list cannot express a pileup, so the queue (W546) and the speed function (W545) are separate pieces joined in W547. | 2026-10-16: 2026-10-15: all four children landed: W545 92655a2 (rollDuration), W546 92a2c65 (queue), W547 90bb08f (speed follows the queue, settings exposed), W548 6baaa26 (live burst rule). A pileup of replacements now accelerates the roll on a smoothstep, measured live.",
       "issued_at": "2026-10-01T18:53:11Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-13T09:37:43Z",
+      "last_worked": "2026-10-16T00:54:25Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261016T005425Z",
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
     },
     {
       "symbol": "W185",
       "title": "Marquee replace while the changed part is visible queues a second horizontal pass immediately",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "marquee-main.qml",
@@ -3974,11 +3978,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "After W183: on replace, if the changed span is on the board, enqueue a second horizontal pass of that notification at the head of the queue; L-rule over TIMELINE.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR: if a notification is replaced while the replaced component is visible, it gets a second horizontal pass queued immediately.",
+      "evidence": "2026-10-01: 2026-10-01 OPERATOR: if a notification is replaced while the replaced component is visible, it gets a second horizontal pass queued immediately. | 2026-10-16: 2026-10-15: built. A replace taken in place while the changed part is on the board leaves the queue entry unshown (ringNext puts it at the head of the next ring); ahead items and transient items keep their one rotation. Timeline id 52 replaces while visible and expires before its rotation ends; L15 requires the owed pass after the next boundary and is withheld if nothing qualifies. Negative control: with the owed pass disabled L15 denied on id 52. 69 of 69 policy tests; marquee_live admitted; no still moved.",
       "issued_at": "2026-10-01T18:53:11Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-06T01:51:08Z",
+      "last_worked": "2026-10-16T01:22:39Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
@@ -4620,7 +4624,7 @@
     {
       "symbol": "W211",
       "title": "Port qml_lint to pytestspec with both halves (admitting cases, and refusing cases with expect.deny) and show the same counts as opa test",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W139"
       ],
@@ -4629,8 +4633,10 @@
         "qml_lint",
         "tests"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W256"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "After the swarm commit: find the mtools sha at or after cec108a, re-pin the five specs in pyproject.toml, uv sync --extra tooling --extra research, rerun every selftest that touches mtools tools, THEN: pytestspec_data = policy/lib and testpaths, policy/qml_lint.cases.json for the 17 tests (4 expect.deny, 13 expect.withheld or admitted), and check the differential line accounts for 17.",
       "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld). | 2026-10-02: 2026-10-02 mtools:W381 LANDED as cec108a: expect.withheld beside deny, exact id sets, omitted key = empty; failures name DENY MISMATCH / WITHHELD MISMATCH; differential line gains withheld-expected after refused; malformed expect is a collection error. API: spec.expected_denies -> spec.expectation (el-openglo imports neither). W211 unblocked. | 2026-10-03: 2026-10-03 (swarm): the port is blocked on THIS repo pyproject, not on mtools: the installed mikemol-pytestspec is 0.1.0 and has neither pytestspec_data (W380) nor expect.withheld (W381) - plugin.py in site-packages only knows expected_denies and has no withheld column in the differential line. Without them data.el.truth does not resolve and 13 of the 17 qml_lint tests cannot be expressed. Needs: re-pin ALL FIVE mtools specs in pyproject.toml to ONE sha at or after cec108a (mtools INSTALL.md: one sha across every spec), then uv sync --extra tooling --extra research (BOTH extras). Deferred to AFTER the swarm commit so the tools in use do not change mid-integration.",
       "issued_at": "2026-10-02T00:56:02Z",
@@ -5657,7 +5663,8 @@
       "title": "Re-pin all five mtools specs to one current sha and add mikemol-ratchet to the tooling extra, then uv sync both extras",
       "status": "ready",
       "enables": [
-        "W211"
+        "W211",
+        "W138"
       ],
       "touches": [
         "pyproject",
@@ -5666,11 +5673,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "git -C ~/github/mtools log -1 for the sha; set it on the five mikemol-* specs in pyproject (mdstruct, hooks, pathsforward, pycodemod, pytestspec) and add mikemol-ratchet at the same sha; uv sync --extra tooling --extra research (BOTH extras); rerun every selftest that touches an mtools tool (check_hooks, check_routes, opa_gate --selftest) and the paths-forward CLI. Do it with no agent running and no commit in flight: the tools in use change.",
-      "evidence": "2026-10-03: 2026-10-03: the pin is the one blocker of W211 (pytestspec 0.1.0 lacks pytestspec_data W380 and expect.withheld W381) and of the newer hooks (mikemol-hook-standing, -standing-stop in mtools hooks/bin) and of mikemol-ratchet (the mtools tool that refuses NEW debt after a baseline; SKELETON.md: ratchet --init-absent mints it). mtools INSTALL.md: ONE sha across every spec. Operator: trust mtools and nemik tooling.",
+      "evidence": "2026-10-03: 2026-10-03: the pin is the one blocker of W211 (pytestspec 0.1.0 lacks pytestspec_data W380 and expect.withheld W381) and of the newer hooks (mikemol-hook-standing, -standing-stop in mtools hooks/bin) and of mikemol-ratchet (the mtools tool that refuses NEW debt after a baseline; SKELETON.md: ratchet --init-absent mints it). mtools INSTALL.md: ONE sha across every spec. Operator: trust mtools and nemik tooling. | 2026-10-16: 2026-10-15 queue-planning: W478 collapsed here. luthen-observability W440 (inbox/2026-10-04-luthen-par-staged-gate-denied-under-contention.md) staged the same re-pin (5 mtools pins -> 03749d56, uv.lock gains mikemol-pathwalk, settings.json hooks); the commit was denied by opa_gate B3 write-tree 128 and B1 pkgcheck. Its witness: luthen-observability .venv/bin/python -m checks.fleet_par --root ~/github --check el-openglo. Sync both extras.",
       "issued_at": "2026-10-03T18:43:36Z",
       "minted_during": "interrupt",
       "caused_by": "W253",
-      "last_worked": "2026-10-06T01:51:14Z",
+      "last_worked": "2026-10-16T02:06:19Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -6110,7 +6117,7 @@
     {
       "symbol": "W274",
       "title": "el-openglo typing: segment_topology.py (9600 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W314",
         "W322",
@@ -6129,8 +6136,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 9600 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6146,7 +6155,7 @@
     {
       "symbol": "W275",
       "title": "el-openglo typing: emitters.py (2553 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W311",
         "W315",
@@ -6168,8 +6177,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 2553 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6185,7 +6196,7 @@
     {
       "symbol": "W276",
       "title": "el-openglo typing: scripts/git_tracked.py (1068 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W312",
         "W316",
@@ -6197,8 +6208,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 1068 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6214,15 +6227,17 @@
     {
       "symbol": "W277",
       "title": "el-openglo typing: scripts/worklist_gate.py (2670 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W320"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 2670 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6238,7 +6253,7 @@
     {
       "symbol": "W278",
       "title": "el-openglo typing: palette_graph.py (3900 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W309",
         "W313"
@@ -6246,8 +6261,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 3900 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6263,7 +6280,7 @@
     {
       "symbol": "W279",
       "title": "el-openglo typing: templates/loader.py (966 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W325",
         "W360",
@@ -6278,8 +6295,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 966 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6295,7 +6314,7 @@
     {
       "symbol": "W280",
       "title": "el-openglo typing: display_params.py (1302 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W360",
         "W361",
@@ -6308,8 +6327,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 1302 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:40Z",
@@ -6325,15 +6346,17 @@
     {
       "symbol": "W281",
       "title": "el-openglo typing: stubs/fontTools/ttLib/__init__.pyi (39 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W310"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 39 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6349,7 +6372,7 @@
     {
       "symbol": "W282",
       "title": "el-openglo typing: qt_sandbox.py (942 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W352",
         "W367",
@@ -6361,8 +6384,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 942 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6378,7 +6403,7 @@
     {
       "symbol": "W283",
       "title": "el-openglo typing: scripts/plasma_rewrite.py (32 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W376",
         "W426",
@@ -6387,8 +6412,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 32 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6404,15 +6431,17 @@
     {
       "symbol": "W284",
       "title": "el-openglo typing: catalog/library/screens_sheets.py (28 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W441"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 28 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6428,7 +6457,7 @@
     {
       "symbol": "W285",
       "title": "el-openglo typing: scripts/el_serial_spec.py (45 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W318",
         "W319"
@@ -6436,8 +6465,10 @@
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 45 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6453,15 +6484,17 @@
     {
       "symbol": "W286",
       "title": "el-openglo typing: scripts/identify.py (105 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [
         "W351"
       ],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 105 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6477,13 +6510,15 @@
     {
       "symbol": "W287",
       "title": "el-openglo typing: catalog/fixtures/deps/undeclared.py (1 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 1 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:41Z",
@@ -6520,13 +6555,15 @@
     {
       "symbol": "W289",
       "title": "el-openglo typing: scripts/auto_push.py (143 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 143 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6542,13 +6579,15 @@
     {
       "symbol": "W290",
       "title": "el-openglo typing: scripts/capture_baseline.py (50 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 50 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6564,13 +6603,15 @@
     {
       "symbol": "W291",
       "title": "el-openglo typing: scripts/check_cotype_coherence.py (95 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 95 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6586,13 +6627,15 @@
     {
       "symbol": "W292",
       "title": "el-openglo typing: scripts/check_cotype_open.py (67 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 67 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6608,13 +6651,15 @@
     {
       "symbol": "W293",
       "title": "el-openglo typing: scripts/check_deb.py (96 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 96 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6630,13 +6675,15 @@
     {
       "symbol": "W294",
       "title": "el-openglo typing: scripts/check_discriminates.py (184 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 184 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6652,13 +6699,15 @@
     {
       "symbol": "W295",
       "title": "el-openglo typing: scripts/check_log_content.py (91 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 91 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6674,13 +6723,15 @@
     {
       "symbol": "W296",
       "title": "el-openglo typing: scripts/check_marquee_host.py (129 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 129 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:42Z",
@@ -6696,13 +6747,15 @@
     {
       "symbol": "W297",
       "title": "el-openglo typing: scripts/check_modes.py (204 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 204 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6718,13 +6771,15 @@
     {
       "symbol": "W298",
       "title": "el-openglo typing: scripts/check_plasma_air.py (95 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 95 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6740,13 +6795,15 @@
     {
       "symbol": "W299",
       "title": "el-openglo typing: scripts/check_qml_target.py (141 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 141 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6762,13 +6819,15 @@
     {
       "symbol": "W300",
       "title": "el-openglo typing: scripts/check_qt_sandbox.py (181 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 181 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6784,13 +6843,15 @@
     {
       "symbol": "W301",
       "title": "el-openglo typing: scripts/check_runtime_warnings.py (77 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 77 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6806,13 +6867,15 @@
     {
       "symbol": "W302",
       "title": "el-openglo typing: scripts/check_use_of_colour.py (565 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 565 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6828,13 +6891,15 @@
     {
       "symbol": "W303",
       "title": "el-openglo typing: scripts/check_wall_limits.py (373 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 373 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6850,13 +6915,15 @@
     {
       "symbol": "W304",
       "title": "el-openglo typing: scripts/cotype_index.py (296 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 296 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:43Z",
@@ -6872,13 +6939,15 @@
     {
       "symbol": "W305",
       "title": "el-openglo typing: scripts/drop_lines.py (54 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 54 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:44Z",
@@ -6894,13 +6963,15 @@
     {
       "symbol": "W306",
       "title": "el-openglo typing: scripts/extract_template.py (50 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 50 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:44Z",
@@ -6916,13 +6987,15 @@
     {
       "symbol": "W307",
       "title": "el-openglo typing: scripts/pre_push_local.py (69 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 69 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:44Z",
@@ -6938,13 +7011,15 @@
     {
       "symbol": "W308",
       "title": "el-openglo typing: scripts/svg_setdiff.py (72 findings)",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "debt"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W553"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Whole-file Write clearing 72 finding(s) so the edit gate stops refusing it, then lower the ledger row",
       "evidence": "2026-10-06: ledger row gone",
       "issued_at": "2026-10-05T18:22:44Z",
@@ -11245,39 +11320,19 @@
     {
       "symbol": "W467",
       "title": "Your venv's interpreter is a dangling symlink into the removed mise install root",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-16: 2026-10-15 queue-planning: subject resolved. .venv/bin/python -> /usr/lib/python-exec/python3.14/python3 (no mise root), and .venv/bin/python --version prints Python 3.14.7.",
       "issued_at": "2026-10-10T21:27:03Z",
       "minted_during": "interrupt",
       "caused_by": "inbox/2026-09-16-linux-sources-your-venv-interpreter-is-a-dangling-symlink-into-the-removed-mise-root.md",
-      "last_worked": "2026-10-10T21:31:37Z",
+      "last_worked": "2026-10-16T02:05:41Z",
       "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
-      "symbol": "W468",
-      "title": "Answer substrate: your `scripts/run_selftests.py` symlink pins a substrate module",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:03Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-09-24-substrate-run-selftests-symlink.md",
-      "last_worked": "2026-10-10T21:31:38Z",
-      "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261016T020541Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "default",
       "weight": 2
@@ -11305,59 +11360,19 @@
     {
       "symbol": "W470",
       "title": "Answer nemik: four `enables` values are one comma-joined string, so their edges resolve to nothing",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-16: 2026-10-15 queue-planning: subject repaired. --show W50 stores enables as the list [W46, W35, W44, W53], and --check reports 553 of 553 symbols resolve (no comma-joined symbol remains).",
       "issued_at": "2026-10-10T21:27:05Z",
       "minted_during": "interrupt",
       "caused_by": "inbox/2026-09-25-nemik-enables-stored-as-one-string.md",
-      "last_worked": "2026-10-10T21:31:39Z",
+      "last_worked": "2026-10-16T02:06:00Z",
       "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
-      "symbol": "W471",
-      "title": "Answer substrate: your `scripts/ratchet.py` symlink now needs `mikemol-ratchet`",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:06Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-09-25-substrate-ratchet-needs-mikemol-ratchet.md",
-      "last_worked": "2026-10-10T21:31:39Z",
-      "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
-      "symbol": "W472",
-      "title": "Answer luthen: the `nemik-inbound --root DIR` bug you reported is fixed",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:06Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-09-26-luthen-nemik-inbound-root-fixed.md",
-      "last_worked": "2026-10-10T21:31:40Z",
-      "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261016T020600Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "default",
       "weight": 2
@@ -11376,26 +11391,6 @@
       "minted_during": "interrupt",
       "caused_by": "inbox/2026-09-28-luthen-observability-qml-check.md",
       "last_worked": "2026-10-10T21:31:40Z",
-      "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
-      "symbol": "W474",
-      "title": "Answer mtools: your four asks are claimed (mtools:W533, W534, W535, W536)",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:08Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-10-03-mtools-your-four-asks-claimed.md",
-      "last_worked": "2026-10-10T21:31:41Z",
       "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
@@ -11443,46 +11438,6 @@
       "weight": 2
     },
     {
-      "symbol": "W477",
-      "title": "Answer luthen-observability: your blocker landed. luthen-observability:W328 (the generic Containerfile runner you asked for as W154/W155's p",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:10Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-10-04-luthen-observability-w328-landed.md",
-      "last_worked": "2026-10-10T21:31:43Z",
-      "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
-      "symbol": "W478",
-      "title": "Par is staged; your pre-commit gate denied it (write-tree 128)",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:10Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-10-04-luthen-par-staged-gate-denied-under-contention.md",
-      "last_worked": "2026-10-10T21:31:44Z",
-      "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
       "symbol": "W479",
       "title": "Answer mtools: what has landed of your four asks (mtools:W533, W534, W535, W536), and what is still open",
       "status": "ready",
@@ -11495,26 +11450,6 @@
       "issued_at": "2026-10-10T21:27:11Z",
       "minted_during": "interrupt",
       "caused_by": "inbox/2026-10-04-mtools-landings-w106-w111-w138.md",
-      "last_worked": "2026-10-10T21:31:45Z",
-      "ticks_blocked": 0,
-      "completed": null,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
-      "vector_source": "default",
-      "weight": 2
-    },
-    {
-      "symbol": "W480",
-      "title": "Answer mtools: mdstruct reads a whole tree and skips the registered worktrees (el-openglo:W138, mtools:W561)",
-      "status": "ready",
-      "enables": [],
-      "touches": [],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "",
-      "evidence": "",
-      "issued_at": "2026-10-10T21:27:12Z",
-      "minted_during": "interrupt",
-      "caused_by": "inbox/2026-10-04-mtools-mdstruct-directory-operand.md",
       "last_worked": "2026-10-10T21:31:45Z",
       "ticks_blocked": 0,
       "completed": null,
@@ -12205,14 +12140,18 @@
     {
       "symbol": "W511",
       "title": "The marquee falls back to ? for characters outside the registry font: wire arbitrary glyphs (Unifont via the viewport) so the board absorbs them",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "marquee-main",
         "marquee-body"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W512",
+        "W513",
+        "W514"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Umbrella: work W512 first (the rasteriser rule, parity-checked on registry glyphs), then W513, then W514; the painter then falls back to the memoised raster instead of the question mark",
       "evidence": "2026-10-12: Operator 2026-10-12: the matrix font is not meant to be uppercase and digits only; it should absorb more arbitrary glyphs. Existing pieces: W47 (done, folded into W54) gave ApertureField backdropRows and offsetY and read Unifont 1:1 through a 16-row backdrop; W30 is the font compiler; W26 authored the 5x8 descender table. The painter still takes only registry glyphs via Body.glyphFor, whose last fallback is the question mark | 2026-10-12: Operator 2026-10-12: the registry lacks almost the whole Unicode set, so measuring the missing set is moot. Design: render on demand and memoise, with pre-rendering from system locale settings. Atomized into W512 (one rasteriser rule), W513 (memo cache), W514 (locale prewarm). Risk: an on-demand Canvas render runs on the GUI thread, which W510 shows already saturated, so the memo must make a miss a one-time cost",
       "issued_at": "2026-10-12T01:19:20Z",
@@ -12771,13 +12710,15 @@
     {
       "symbol": "W538",
       "title": "One el-openglo command composes the new-template landing chain, closure catalog first, phases as named functions",
-      "status": "ready",
+      "status": "blocked",
       "enables": [],
       "touches": [
         "gate"
       ],
-      "blocked_on": [],
-      "blocked_kind": null,
+      "blocked_on": [
+        "W539"
+      ],
+      "blocked_kind": "agent",
       "next_bounded_step": "Add a TRACK phase first in the plan: git add the untracked files under the landing paths (templates and new modules), and make --plan list them; make the closure phase cover a new file anywhere under scripts/ (the directory-listing rule), not only roster components; then --run for real on the next landing and --commit WAYPOINT SUBJECT (private EL_STAGED_DIR, explicit paths, git log -1 and git status compared afterwards).",
       "evidence": "2026-10-13: github-8f 2026-10-13: scope is el-openglo own check scripts composed as one command; mtools:W1068 (waldo recipe layer) is a later port target, cited here, not a blocker. | 2026-10-15: W538 taken as the working card 2026-10-15 on the operator loop prompt re-read: favour mechanizing fixes to cards over fixing them by hand. The chain was hand-run five times on 2026-10-13 (W532 to W546) and refused at the gate each time a step was missed: a parity baseline not recorded (W545), a render-constants disposition (W546), a log-content comparison in a trace (W546), action keys, stale closures. First mode: the closure catalog. Phases to follow, each a named function that halts on the first failure: stale closures, closure write, action keys, parity record, render re-run, the local worklist gate, then the commit. | 2026-10-15: W538 first mode landed in the tree 2026-10-15 (uncommitted until the W546 gate commit finishes): scripts/land_template.py --closures. Selftest 9 of 9 PASS; on the real tree --closures LitLayer.qml reads 0 of 108 stored closures behind. The first selftest run failed on MY expectation (the output is sorted by key; the arm wanted unsorted), fixed in the arm, not the function. | 2026-10-15: W538 second mode 2026-10-15: scripts/land_template.py --plan [NAME ...] prints the chain as data (phase, command, note) and runs nothing; with no names it takes the templates git says changed (changed_templates parses git status --porcelain: modified, added, untracked, shipped .qml and .js directly under templates/). Phases: closures (only for a roster component with stale closures, else skipped), keys, parity, render, the gate batch (template_parity, render_constants, log_content, qml_lint, marquee_live, config_reach: the order a template edit was refused by them on 2026-10-13), the full local worklist pre-flight. On the real tree --plan names marquee-main.qml and matches what was hand-run for W546. Selftest 15 of 15 PASS. Not yet runnable: the phases print, they do not execute, and there is no resume marker; that is the next step, then the commit phase with the git log and status comparison. Added log_content and template_parity to the batch after seeing they were the gates that refused W545 and W546. | 2026-10-15: W538 third mode 2026-10-15: scripts/land_template.py --run [NAME ...] [--fresh] executes the plan in order and halts on the first failed phase, printing the phase and the tail of its output. A resume marker under .git/land_template.marker is keyed to the changed templates NAMES and CONTENT (chain_key), so a rerun resumes after the last finished phase and any further edit starts over; --fresh drops it. The render and the worklist gate run as capped systemd services with stdio piped. The runner is injectable (run_plan takes a runner), so the selftest drives it with a fake: halts and names the failing phase, later phases never run, finished ones recorded (a plan skip too), a rerun resumes, another key starts over, a missing marker reads as none. Selftest 28 of 28. NOT yet run for real (the gate commit and the closure regeneration were in flight); its first real use is the cvd split landing. Not yet: the commit phase (--commit WAYPOINT SUBJECT, private EL_STAGED_DIR, explicit paths, afterwards git log -1 and git status compared with what was meant). | 2026-10-15: W538 lessons 2026-10-15 from the cvd split landing (the chain was not used for it yet, and it showed what is missing): (1) A NEW FILE MUST BE git-ADDED BEFORE any closure regeneration: closures hold only TRACKED files (check_closure docstring), so the first all-108 regeneration (about an hour of strace) finished and left 99 closures still behind cvd_core.py because it was untracked. A track phase belongs first in the plan. (2) The directory-listing rule: a stage that lists scripts/ holds every tracked file directly inside it, so ANY new file under scripts/ (land_template.py itself) makes those closures stale; that regeneration also surfaced four older gaps (marquee_soak, profile_shell, soak_bisect, soak_pod, and the LitLayer baseline) that were missing from ~100 closures already. (3) land_template --split OLD NEW --regen now regenerates exactly the closures behind a cut module, as a capped service, instead of all 108. | 2026-10-15: 2026-10-15: first real --run (W547): 9 of 10 phases passed, the worklist phase failed only on the by-design @RESIDUE red; the phase must admit exactly that known red (or run the gate with the residue bucket named) so a green chain is reachable. | 2026-10-16: 2026-10-15 (W548): land_template --run refuses with no changed template, yet a script-only change (check_marquee_live.py is in the screens action domain) stales the screens action; the chain needs a mode for it: render then check_action_key --write, without a template.",
       "issued_at": "2026-10-13T01:36:14Z",
@@ -12888,23 +12829,21 @@
     {
       "symbol": "W544",
       "title": "Extract cvd_gate pure core (worst_view_dE, Okabe-Ito floor) as a mikemol-* dist homed in mtools, cutting the lazy palette_graph import",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "nemik:W438"
       ],
       "touches": [
         "cvd_gate"
       ],
-      "blocked_on": [
-        "mtools:W1315"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Step 1 LANDED in 9a4be98 (cvd_core.py, cvd_gate re-exports, 108 closures). Waiting on mtools to name the dist and mint a card citing el-openglo:W544 (letter 2026-10-15-el-openglo-cvd-core-dist.md). Step 3 then: pin at the par sha, repoint cvd_gate and check_urgency_cues, delete cvd_core.py.",
-      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on. | 2026-10-15: W544 tick 2026-10-15 (nemik SLA 49 ticks): letters sent to nemik (status, why it waited) and mtools (the home request). The pycodemod split mode was tried first (dry-run): it cuts by definition count, strands VIEWS alone and lumps WCAG and APCA into the core, so the semantic cut was done by hand; it did surface the external users of private names (check_urgency_cues takes _ucs, check_solver_roots takes _wcag_L), which is why the re-export keeps every name. | 2026-10-15: 2026-10-15: mtools-ad accepted: dist mikemol-cvdcore (import mikemol.cvdcore); mtools:W1313 umbrella, W1314 scaffold, W1315 port cvd_core with its 7 arms; WCAG/APCA stay in cvd_gate; numpy and colorspacious become the first third-party deps (stubs for bazel mypy). par sha to pin comes when W1315 lands. cvd_core.py blob sent: commit 9a4be98.",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "mtools landed mikemol-cvdcore at e916285 (W1315; import mikemol.cvdcore; exports worst_view_dE, VIEWS, OKABE_ITO, reference_floor, reference_floors, rgb). Do: add the dist to the tooling extra pinned at e916285 (mikemol-repin or uv add), uv sync both extras; repoint cvd_gate and check_urgency_cues to mikemol.cvdcore (read three differences first: VIEWS is a tuple not a list, the floor empty sentinel is empty strings not None, no __main__ selftest); delete cvd_core.py and its closure entries (land_template --split ... --regen); run the consumers (cvd_gate selftest, check_urgency_cues, check_separation, check_rehue, check_symbol); local worklist gate; commit; tell nemik W438 is delivered.",
+      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on. | 2026-10-15: W544 tick 2026-10-15 (nemik SLA 49 ticks): letters sent to nemik (status, why it waited) and mtools (the home request). The pycodemod split mode was tried first (dry-run): it cuts by definition count, strands VIEWS alone and lumps WCAG and APCA into the core, so the semantic cut was done by hand; it did surface the external users of private names (check_urgency_cues takes _ucs, check_solver_roots takes _wcag_L), which is why the re-export keeps every name. | 2026-10-15: 2026-10-15: mtools-ad accepted: dist mikemol-cvdcore (import mikemol.cvdcore); mtools:W1313 umbrella, W1314 scaffold, W1315 port cvd_core with its 7 arms; WCAG/APCA stay in cvd_gate; numpy and colorspacious become the first third-party deps (stubs for bazel mypy). par sha to pin comes when W1315 lands. cvd_core.py blob sent: commit 9a4be98. | 2026-10-16: 2026-10-15: mtools-ad reports mikemol-cvdcore landed at mtools e916285 (W1315), parity checked on five pairs and the floors, numpy and colorspacious are its dependencies; WCAG and APCA stay in cvd_gate.",
       "issued_at": "2026-10-13T08:12:56Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W438",
-      "last_worked": "2026-10-15T23:55:18Z",
+      "last_worked": "2026-10-16T01:17:51Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -12979,7 +12918,7 @@
     {
       "symbol": "W548",
       "title": "check_marquee_live L-rule: a 10 Hz burst of replaces never leaves the roll more than N behind and its speed changes are continuous",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W184"
       ],
@@ -12989,14 +12928,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Harness op replace_burst (the same item replaced at 10 Hz for 2 s, the operator pummelling it with blinking notifications; scratch wip/burst_probe.py is the prototype); samples carry roll, queuedRolls and the effective duration; policy L-rule: queuedRolls never exceeds N (stated), the effective duration never changes by more than a bounded step between samples, and the run ends on the last text with queuedRolls 0; refusing and admitting tests. MUST RUN THE BURST TWICE (W547 reach decision): at the defaults, and with a changed rollBaseMs, rollFloorMs and rollFullQueue, and require the measured roll durations to differ accordingly, because those three settings are declared INERT in check_config_reach on the strength of this live measurement. Run it live.",
-      "evidence": "2026-10-16: 2026-10-15: burst measured live (virtual time): lone roll 440 ms at defaults vs 840 ms at base 800; burst rolls 6 vs 4; peak queue 2; max step 0.09 and 0.24 of base-floor; ended queued 0. Rules B0-B5 in policy/marquee_live.rego with 8 tests (65/65); opa_gate marquee_live admitted; screens re-rendered, no still moved.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-16: 2026-10-15: burst measured live (virtual time): lone roll 440 ms at defaults vs 840 ms at base 800; burst rolls 6 vs 4; peak queue 2; max step 0.09 and 0.24 of base-floor; ended queued 0. Rules B0-B5 in policy/marquee_live.rego with 8 tests (65/65); opa_gate marquee_live admitted; screens re-rendered, no still moved. | 2026-10-16: 2026-10-15: landed 6baaa26; marquee_live admitted with B0-B5 over the live burst at the defaults and with changed roll settings.",
       "issued_at": "2026-10-13T09:37:33Z",
       "minted_during": "interrupt",
       "caused_by": "W184",
-      "last_worked": "2026-10-16T00:24:47Z",
+      "last_worked": "2026-10-16T00:54:19Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261016T005419Z"
     },
     {
       "symbol": "W549",
@@ -13037,23 +12976,24 @@
     {
       "symbol": "W551",
       "title": "Repin to the fleet par ca6702b with mikemol-repin --revendor --write, or say why not on this card",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "After the W544 commit lands: .venv/bin/mikemol-repin --root . --sha ca6702baac20fabab6d86856d45e27b931b55919 --write, then uv sync --extra tooling --extra research (repin drops the extras), then the local worklist gate as a pre-flight, then commit under W551. If a tool the loop depends on changes behaviour, say so on this card instead of working around it.",
-      "evidence": "2026-10-15: W551 read-only prep 2026-10-15: par ca6702b resolves to ca6702baac20fabab6d86856d45e27b931b55919. The card says mikemol-repin --revendor --write, but --revendor refuses here (\"vendors no hooks or pathsforward wheel\": it is for repos that vendor the wheels; this one pins mtools dists by git sha in pyproject). The right form is mikemol-repin --root . --sha SHA --write. Dry run (no --write): all nine pins DIFFER from the current f04f0a2f6b93 (mdstruct, hooks, pathsforward, pycodemod, atomicwrite, grade, bibparse, pytestspec, fence). Not done: a repin writes pyproject.toml and uv.lock and changes the venv tools (hooks, pycodemod), so it waits for the in-flight W544 gate commit to land.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-15: W551 read-only prep 2026-10-15: par ca6702b resolves to ca6702baac20fabab6d86856d45e27b931b55919. The card says mikemol-repin --revendor --write, but --revendor refuses here (\"vendors no hooks or pathsforward wheel\": it is for repos that vendor the wheels; this one pins mtools dists by git sha in pyproject). The right form is mikemol-repin --root . --sha SHA --write. Dry run (no --write): all nine pins DIFFER from the current f04f0a2f6b93 (mdstruct, hooks, pathsforward, pycodemod, atomicwrite, grade, bibparse, pytestspec, fence). Not done: a repin writes pyproject.toml and uv.lock and changes the venv tools (hooks, pycodemod), so it waits for the in-flight W544 gate commit to land. | 2026-10-16: 2026-10-15: landed cbbad92, the nine packages repinned to ca6702b, extras re-synced, local worklist gate red only on the by-design @RESIDUE.",
       "issued_at": "2026-10-13T22:34:12Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability:W966",
-      "last_worked": "2026-10-15T21:23:56Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-16T00:55:14Z",
+      "ticks_blocked": 0,
+      "completed": "20261016T005514Z"
     },
     {
       "symbol": "W552",
       "title": "selftest:check_package_load failed once: a real qml load printed nothing (lines 0, errors empty) in a 0.5 s stage; passes alone",
-      "status": "ready",
+      "status": "done",
       "enables": [],
       "touches": [
         "gate",
@@ -13061,11 +13001,31 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Seen 2026-10-15 in the W538 gate commit (private EL_STAGED_DIR) while check_closure --write (all 108 stages, strace) ran at the same time: selftest_check_package_load FAILED in 0.5 s, arms 6 and 7 (a broken applet and an id nothing ships must report a load error) got False, the runs said lines 0 errors []. The stage passes alone (re-run right after: PASS 7 of 7). The commit changed only land_template.py and check_template_parity.py, so it is not the commit. Suspect: the real load did not execute (a 0.5 s stage cannot have loaded QML), so the arm read an empty result as no error; the check should WITHHOLD an unrun load, not report False. Next: make check_package_load distinguish a load that ran and found nothing from one that did not run (its own fact), and reproduce under load (run the stage while a second heavy QML stage runs). Do not run two heavy QML stages at once in the meantime.",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-16: 2026-10-15: landed aee70ce; load() records exited_early and rc, D4 withholds a load that ended on its own with no output, D2 still denies a silent full-window run, the selftest positive controls SKIP when plasmawindowed did not run.",
       "issued_at": "2026-10-15T20:58:07Z",
       "minted_during": "interrupt",
       "caused_by": "W538",
+      "last_worked": "2026-10-16T00:55:16Z",
+      "ticks_blocked": 0,
+      "completed": "20261016T005516Z"
+    },
+    {
+      "symbol": "W553",
+      "title": "Mechanize el-openglo's debt cards: one dry-run-first judged-fix run over the debt ledger, then close what the gate shows cleared",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "debt",
+        "kata"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "House rule: machine-generated debt cards are never worked by hand. Census the idioms behind the ready debt cards, run mikemol-pycodemod judged-fix and typed-args as dry runs over the ledger, apply what the project's mypy judges strictly better, close the debt cards the gate shows cleared, re-plan the rest by idiom. The debt cards are blocked on this card (planning pass 2026-10-16 for the operator's frontier goal).",
+      "evidence": "",
+      "issued_at": "2026-10-16T02:02:15Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
       "last_worked": null,
       "ticks_blocked": 0
     }
@@ -13091,6 +13051,55 @@
       "dropped_at": "2026-10-03T18:44:30Z",
       "reason": "Collapsed into W78 (operator 2026-10-03): a hand-ordered rebuild sequencer is what a declared Bazel dependency graph makes unnecessary - a forgotten rebuild means the dependencies were not declared. W251 two tools stay as the interim witness (check_emitters_run --apply, check_action_key --rebuild), not a sequencer on top of them.",
       "recoverable": true
+    },
+    {
+      "symbol": "W468",
+      "title": "Answer substrate: your `scripts/run_selftests.py` symlink pins a substrate module",
+      "dropped_at": "2026-10-16T02:05:41Z",
+      "reason": "stale: scripts/run_selftests.py was removed in el-openglo 68df865 (W101/W102); ls finds no such file, so the substrate pin it asks about no longer exists",
+      "recoverable": true
+    },
+    {
+      "symbol": "W471",
+      "title": "Answer substrate: your `scripts/ratchet.py` symlink now needs `mikemol-ratchet`",
+      "dropped_at": "2026-10-16T02:05:42Z",
+      "reason": "stale: scripts/ratchet.py was removed in el-openglo 68df865 (W101/W102); ls finds no such file. mikemol-ratchet adoption survives as W256",
+      "recoverable": true
+    },
+    {
+      "symbol": "W472",
+      "title": "Answer luthen: the `nemik-inbound --root DIR` bug you reported is fixed",
+      "dropped_at": "2026-10-16T02:05:43Z",
+      "reason": "superseded by W473: the letter (inbox/2026-09-26-luthen-nemik-inbound-root-fixed.md) only reports nemik 2a25c05 fixed the bug and points at the qml-check request, whose card is W473",
+      "recoverable": true
+    },
+    {
+      "symbol": "W474",
+      "title": "Answer mtools: your four asks are claimed (mtools:W533, W534, W535, W536)",
+      "dropped_at": "2026-10-16T02:05:44Z",
+      "reason": "superseded by W479: mtools' later letter on the same four asks (mtools:W533-W536) reports what landed and what is open; W474's claim notice is folded into it",
+      "recoverable": true
+    },
+    {
+      "symbol": "W477",
+      "title": "Answer luthen-observability: your blocker landed. luthen-observability:W328 (the generic Containerfile runner you asked for as W154/W155's p",
+      "dropped_at": "2026-10-16T02:05:44Z",
+      "reason": "superseded by W257: the letter reports luthen-observability:W328 (the Containerfile runner) landed; the work it unblocks is W257 (oci/engines/Containerfile for the first W328 run), which now gates W154/W155",
+      "recoverable": true
+    },
+    {
+      "symbol": "W478",
+      "title": "Par is staged; your pre-commit gate denied it (write-tree 128)",
+      "dropped_at": "2026-10-16T02:06:19Z",
+      "reason": "duplicate of W256: the staged par change is the same five-mtools-pin re-pin plus uv sync; its letter facts and witness are appended to W256's evidence",
+      "recoverable": true
+    },
+    {
+      "symbol": "W480",
+      "title": "Answer mtools: mdstruct reads a whole tree and skips the registered worktrees (el-openglo:W138, mtools:W561)",
+      "dropped_at": "2026-10-16T02:06:32Z",
+      "reason": "duplicate of W138: the letter is the landing notice of W138's mtools blocker (bbb6c8d, 920642f); its facts are appended to W138, now blocked on W256 for the pin",
+      "recoverable": true
     }
   ],
   "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner.",
@@ -13104,5 +13113,358 @@
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
   "predecessor_job_id": "798b6ad9",
-  "leases": []
+  "leases": [],
+  "advice": [
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W274",
+      "action": "block W274 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W275",
+      "action": "block W275 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W276",
+      "action": "block W276 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W277",
+      "action": "block W277 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W278",
+      "action": "block W278 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W279",
+      "action": "block W279 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W280",
+      "action": "block W280 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W281",
+      "action": "block W281 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W282",
+      "action": "block W282 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W283",
+      "action": "block W283 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W284",
+      "action": "block W284 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W285",
+      "action": "block W285 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W286",
+      "action": "block W286 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W287",
+      "action": "block W287 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W289",
+      "action": "block W289 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W290",
+      "action": "block W290 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W291",
+      "action": "block W291 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W292",
+      "action": "block W292 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W293",
+      "action": "block W293 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W294",
+      "action": "block W294 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W295",
+      "action": "block W295 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W296",
+      "action": "block W296 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W297",
+      "action": "block W297 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W298",
+      "action": "block W298 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W299",
+      "action": "block W299 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W300",
+      "action": "block W300 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W301",
+      "action": "block W301 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W302",
+      "action": "block W302 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W303",
+      "action": "block W303 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W304",
+      "action": "block W304 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W305",
+      "action": "block W305 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W306",
+      "action": "block W306 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W307",
+      "action": "block W307 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-matching",
+      "rule": "touches:debt",
+      "subject": "W308",
+      "action": "block W308 on W553",
+      "first_run": "2026-10-16T02:02:25Z",
+      "last_run": "2026-10-16T02:02:25Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-behind-open",
+      "rule": "behind-open",
+      "subject": "W154",
+      "action": "block W154 on W257",
+      "first_run": "2026-10-16T02:04:42Z",
+      "last_run": "2026-10-16T02:04:42Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-behind-open",
+      "rule": "behind-open",
+      "subject": "W155",
+      "action": "block W155 on W257",
+      "first_run": "2026-10-16T02:04:42Z",
+      "last_run": "2026-10-16T02:04:42Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-behind-open",
+      "rule": "behind-open",
+      "subject": "W211",
+      "action": "block W211 on W256",
+      "first_run": "2026-10-16T02:04:42Z",
+      "last_run": "2026-10-16T02:04:42Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-behind-open",
+      "rule": "behind-open",
+      "subject": "W511",
+      "action": "block W511 on W512, W513, W514",
+      "first_run": "2026-10-16T02:04:42Z",
+      "last_run": "2026-10-16T02:04:42Z",
+      "status": "applied"
+    },
+    {
+      "tool": "block-behind-open",
+      "rule": "behind-open",
+      "subject": "W538",
+      "action": "block W538 on W539",
+      "first_run": "2026-10-16T02:04:42Z",
+      "last_run": "2026-10-16T02:04:42Z",
+      "status": "applied"
+    }
+  ]
 }

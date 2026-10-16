@@ -249,21 +249,28 @@ PlasmoidItem {
             if (!was || was.text === after[q].text) continue;
             var where = root.spanWhere(after[q].id);
             if (where !== "on" && where !== "ahead") continue;
-            // a roll is live: this replace WAITS for it (W546). The queue entry already holds the text, so it
-            // counts as shown; the board takes it when the live roll stops (applyPending)
+            // ⚑ A SECOND PASS (W185; operator 2026-10-01: "if a notification is replaced while the replaced component
+            // is visible, it gets a second horizontal pass queued immediately"). The changed part was on the board, so
+            // this rotation showed the change only partly: the queue entry stays UNSHOWN, and ringNext puts every
+            // unshown item at the HEAD of the next ring, so the pass is owed at the next boundary even if the item
+            // expires meanwhile. One still AHEAD of the board has not been seen at all, so this rotation is its one.
+            // A transient item was promised exactly one traversal (W46): it is never re-queued.
+            var owed = where === "on" && !after[q].transient;
+            // a roll is live: this replace WAITS for it (W546). The queue entry already holds the text; the board
+            // takes it when the live roll stops (applyPending)
             if (where === "on" && root.roll !== null) {
                 var pend = root.pendingReplaces, hit = -1;
                 for (var pi = 0; pi < pend.length; pi++) if (pend[pi].id === after[q].id) hit = pi;
                 if (hit >= 0) pend[hit] = after[q]; else pend.push(after[q]);
                 root.queuedRolls = pend.length;
-                keep[q] = Body.queueItem(after[q], true, after[q].history);
+                keep[q] = Body.queueItem(after[q], !owed, after[q].history);
                 deferred = true;
                 continue;
             }
             for (var r = 0; r < items.length; r++) {
                 if (items[r].id !== after[q].id) continue;
                 items[r] = Body.queueItem(after[q], true, after[q].history);
-                keep[q] = items[r];
+                keep[q] = Body.queueItem(after[q], !owed, after[q].history);
                 changed = true;
                 rolls = rolls || where === "on";
             }

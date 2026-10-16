@@ -287,9 +287,27 @@ TIMELINE = [
         "app: alpha beta",
     ),
     (37500, "expire", 51, {}, ""),
+    # W185: a replace while the changed part is visible owes a SECOND horizontal pass. The item expires
+    # BEFORE the rotation that took the change ends, so only the owed pass can show the new text again:
+    # a board that counted the in-place roll as the item's rotation would drop it at the boundary
+    (
+        38000,
+        "arrive",
+        52,
+        {"summary": "alpha beta", "body": "", "applicationName": "app"},
+        "app: alpha beta",
+    ),
+    (
+        38100,
+        "replace_visible",
+        52,
+        {"summary": "alpha gamma beta", "body": "", "applicationName": "app"},
+        "app: alpha gamma beta",
+    ),
+    (38800, "expire", 52, {}, ""),
 ]
 END_MS = (
-    40000  # the CAP; the main run ends when every event has fired and the board drained
+    44000  # the CAP; the main run ends when every event has fired and the board drained
 )
 SAMPLE_MS = 40  # VIRTUAL ms: the animation driver's clock, not the wall's (W63)
 
@@ -1388,9 +1406,9 @@ def _selftest():
         if e["op"] == "replace" and e.get("where") == "on" and e.get("textChanged")
     ]
     chk(
-        "two replaces of items on the board were measured as on the board, one lengthening and one shortening (not a vacuous population)",
+        "three replaces of items on the board were measured as on the board, one lengthening, one shortening and one that expires before its rotation ends (W185; not a vacuous population)",
         len(rolled),
-        2,
+        3,
     )
     chk(
         "...and the timeline's shortening is recognised as one (W242)",

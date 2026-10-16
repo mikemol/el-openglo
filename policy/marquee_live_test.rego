@@ -19,6 +19,48 @@ burst_changed := {
 
 burst_ok := {"default": burst_default, "changed": burst_changed}
 
+# W185: a replace of a visible item that expires before the next rotation boundary
+owed_events := [
+	{"t": 100, "op": "replace", "id": 7, "where": "on", "textChanged": true, "shows": "app: new"},
+	{"t": 200, "op": "expire", "id": 7, "where": null, "textChanged": null, "shows": ""},
+]
+
+owed_kept := [
+	{"t": 50, "x": 300, "boundary": false, "text": "app: new"},
+	{"t": 300, "x": 420, "boundary": true, "text": "app: new"},
+	{"t": 340, "x": 380, "boundary": false, "text": "app: new"},
+]
+
+owed_dropped := [
+	{"t": 50, "x": 300, "boundary": false, "text": "app: new"},
+	{"t": 300, "x": 420, "boundary": true, "text": ""},
+	{"t": 340, "x": 420, "boundary": false, "text": ""},
+]
+
+test_l15_admits_the_owed_second_pass if {
+	inp := {"runner": true, "events": owed_events, "samples": owed_kept}
+	count({m | some m in ml.deny; startswith(m, "L15")}) == 0 with input as inp
+	count({m | some m in ml.withheld; startswith(m, "L15")}) == 0 with input as inp
+}
+
+test_l15_refuses_a_board_that_dropped_the_item if {
+	inp := {"runner": true, "events": owed_events, "samples": owed_dropped}
+	some m in ml.deny with input as inp
+	startswith(m, "L15: id 7 was replaced at t=100")
+}
+
+test_l15_withholds_when_no_replace_qualifies if {
+	inp := {"runner": true, "events": [owed_events[1]], "samples": owed_kept}
+	some m in ml.withheld with input as inp
+	startswith(m, "L15: no replace of a visible item")
+}
+
+test_l15_ignores_an_item_that_outlives_the_boundary if {
+	late := [owed_events[0], object.union(owed_events[1], {"t": 500})]
+	inp := {"runner": true, "events": late, "samples": owed_dropped}
+	count({m | some m in ml.deny; startswith(m, "L15")}) == 0 with input as inp
+}
+
 test_b_admits_a_burst_the_settings_move if {
 	count({m | some m in ml.deny; startswith(m, "B")}) == 0 with input as object.union(clean, {"burst": burst_ok})
 }
@@ -85,7 +127,8 @@ clean := {"runner": true, "width": 420, "hovered": {"samples": []}, "events": [
 
 test_admits_clean if {
 	count(ml.deny) == 0 with input as object.union(clean, {"burst": burst_ok})
-	count(ml.withheld) == 0 with input as object.union(clean, {"burst": burst_ok})
+	# the clean trace holds no replace, so the only thing withheld is that L15 judged nothing
+	ml.withheld == {"L15: no replace of a visible item expired before its rotation ended; the second-pass rule judged nothing"} with input as object.union(clean, {"burst": burst_ok})
 }
 
 # W187: id 2 arrives as "app: two" and is replaced before the board reaches it
