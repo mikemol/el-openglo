@@ -462,6 +462,7 @@ CLOSURES = {
         "policy/emitters_run_test.rego",
         "policy/firefox.rego",
         "policy/firefox_test.rego",
+        "policy/font.cases.json",
         "policy/font.rego",
         "policy/font_compiler.rego",
         "policy/font_compiler_test.rego",

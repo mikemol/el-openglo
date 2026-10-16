@@ -1,0 +1,386 @@
+[
+ {
+  "case": "admits-sound-fonts",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "EL-Segment-7.ttf",
+    "font": "EL-Segment-7.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [],
+    "descenders": [],
+    "descent": null
+   },
+   {
+    "kind": "ttf",
+    "id": "EL-Matrix-5x8.ttf",
+    "font": "EL-Matrix-5x8.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descenders": [
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descent": {
+     "hhea": -125,
+     "os2": -125
+    }
+   },
+   {
+    "kind": "svg",
+    "id": "EL-Segment-7.svg",
+    "font": "EL-Segment-7.svg",
+    "parse_error": null,
+    "missing": [],
+    "extra": []
+   }
+  ]
+ },
+ {
+  "case": "f0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "F0"
+   ]
+  }
+ },
+ {
+  "case": "f0-refuses-an-empty-measured-population",
+  "cases": [],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "F0"
+   ]
+  }
+ },
+ {
+  "case": "f0-withholds-without-fonttools",
+  "cases": [],
+  "withheld": "fontTools not installed (declared in pyproject; uv sync)",
+  "expect": {
+   "withheld": [
+    "F0"
+   ]
+  }
+ },
+ {
+  "case": "f1-refuses-a-missing-table",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "a.ttf",
+    "font": "a.ttf",
+    "charset": "0123",
+    "tables_missing": [
+     "OS/2"
+    ],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [],
+    "descenders": [],
+    "descent": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F1"
+   ]
+  }
+ },
+ {
+  "case": "f2-refuses-a-cmap-gap",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "a.ttf",
+    "font": "a.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [
+     " "
+    ],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [],
+    "descenders": [],
+    "descent": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F2"
+   ]
+  }
+ },
+ {
+  "case": "f3-refuses-a-dropped-segment",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "EL-Segment-7.ttf",
+    "font": "EL-Segment-7.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [
+     {
+      "glyph": "8",
+      "contours": 6,
+      "primitives": 7
+     }
+    ],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [],
+    "descenders": [],
+    "descent": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F3"
+   ]
+  }
+ },
+ {
+  "case": "f4-refuses-a-spec-flip",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "EL-Segment-7.ttf",
+    "font": "EL-Segment-7.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [
+     "2",
+     "7",
+     "J"
+    ],
+    "blank_inked": [],
+    "below_baseline": [],
+    "descenders": [],
+    "descent": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F4"
+   ]
+  }
+ },
+ {
+  "case": "f5-refuses-an-inked-space",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "a.ttf",
+    "font": "a.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [
+     "space"
+    ],
+    "below_baseline": [],
+    "descenders": [],
+    "descent": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F5"
+   ]
+  }
+ },
+ {
+  "case": "f6-refuses-every-glyph-below-the-line",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "EL-Matrix-5x8.ttf",
+    "font": "EL-Matrix-5x8.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [
+     "A",
+     "B",
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descenders": [
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descent": {
+     "hhea": -125,
+     "os2": -125
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F6"
+   ]
+  }
+ },
+ {
+  "case": "f6-refuses-no-descender-below-the-line",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "EL-Matrix-5x8.ttf",
+    "font": "EL-Matrix-5x8.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [],
+    "descenders": [
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descent": {
+     "hhea": -125,
+     "os2": -125
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F6"
+   ]
+  }
+ },
+ {
+  "case": "f7-refuses-a-positive-descent",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "ttf",
+    "id": "EL-Matrix-5x8.ttf",
+    "font": "EL-Matrix-5x8.ttf",
+    "charset": "0123",
+    "tables_missing": [],
+    "cmap_missing": [],
+    "contour_mismatch": [],
+    "flipped": [],
+    "blank_inked": [],
+    "below_baseline": [
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descenders": [
+     "g",
+     "j",
+     "p",
+     "q",
+     "y"
+    ],
+    "descent": {
+     "hhea": 0,
+     "os2": -125
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F7"
+   ]
+  }
+ },
+ {
+  "case": "f8-refuses-a-missing-svg-glyph",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "svg",
+    "id": "EL-Segment-7.svg",
+    "font": "EL-Segment-7.svg",
+    "parse_error": null,
+    "missing": [
+     "7"
+    ],
+    "extra": [
+     "x"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F8"
+   ]
+  }
+ },
+ {
+  "case": "f8-refuses-an-unparseable-svg",
+  "withheld": null,
+  "cases": [
+   {
+    "kind": "svg",
+    "id": "EL-Segment-7.svg",
+    "font": "EL-Segment-7.svg",
+    "parse_error": "no element found: line 1, column 0",
+    "missing": [],
+    "extra": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F8"
+   ]
+  }
+ }
+]
