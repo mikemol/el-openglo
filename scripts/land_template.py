@@ -14,6 +14,7 @@ record, render re-run, the local worklist gate, the commit), each halting on the
     scripts/land_template.py --split OLD NEW      # closures holding OLD that lack NEW, after a module is cut
     scripts/land_template.py --plan [NAME ...]    # the chain as data for the changed templates (default: git's)
     scripts/land_template.py --commit WAYPOINT SUBJECT [PATH ...]   # stage, commit, compare what landed
+    scripts/land_template.py --stack FILE         # several commits (a JSON list of waypoint, subject, paths[, body]) through ONE gate, each verified
     scripts/land_template.py --selftest
 
 `--commit` is the chain's last phase: it stages the NAMED paths (default: every tracked change, never an
@@ -168,6 +169,11 @@ def judge_worklist(rc, text):
     caught only by that rule (no named claim), not by what it would have said."""
     if rc == 0:
         return 0
+    # paperkit's typed gate exit (a7f9909; summit's letter of 2026-08-14): 3 is CANNOT RUN (no paper.toml,
+    # malformed config, a declared warrant or rubric that does not exist). That is a decision on the code,
+    # not an accident of the text: a gate that could not run has judged nothing, so it is never forgiven
+    if rc == 3:
+        return 3
     red = red_claims(text)
     return 0 if red and all(tag in KNOWN_RED for tag in red) else rc
 
@@ -388,7 +394,7 @@ def commit_argv(waypoint, subject, paths):
     return head + ["--subject", subject, *paths]
 
 
-def verify_commit(head_subject, head_body, waypoint, subject, porcelain):
+def verify_commit(head_subject, head_body, waypoint, subject, porcelain, marker=True):
     """[problem]: where the commit that LANDED differs from the one asked for (github-8f 2026-10-13: a commit
     that printed success had another subject and a staged deletion no one named). Empty means it matches.
 
@@ -399,7 +405,8 @@ def verify_commit(head_subject, head_body, waypoint, subject, porcelain):
         problems.append(f"HEAD subject is {head_subject[:70]!r}, not the one asked")
     if f"Waypoint: {waypoint}" not in head_body.splitlines():
         problems.append(f"HEAD carries no 'Waypoint: {waypoint}' trailer")
-    if "post-commit advisory (auto-captured)" not in head_body:
+    # only the TIP of a stack carries the advisory marker (the post-commit amend folds it into HEAD)
+    if marker and "post-commit advisory (auto-captured)" not in head_body:
         problems.append("HEAD lacks the post-commit advisory marker (not pushable yet)")
     for line in porcelain.splitlines():
         if line[:1] == "D":
@@ -407,19 +414,54 @@ def verify_commit(head_subject, head_body, waypoint, subject, porcelain):
     return problems
 
 
-def git_head():
-    """(subject, body) of HEAD."""
+def git_head(rev="HEAD"):
+    """(subject, body) of `rev` (HEAD unless a stack asks for an earlier commit)."""
     import subprocess
 
     def fmt(spec):
         return subprocess.run(
-            ["git", "-C", ROOT, "log", "-1", f"--format={spec}"],
+            ["git", "-C", ROOT, "log", "-1", f"--format={spec}", rev],
             capture_output=True,
             text=True,
             check=True,
         ).stdout.rstrip("\n")
 
     return fmt("%s"), fmt("%b")
+
+
+def stack_entries(path):
+    """The commits of a stack file, validated: a JSON list of {waypoint, subject, paths[, body]}.
+
+    Raises ValueError naming the first bad entry. The file is the one `mikemol-commit REPO --stack FILE` reads
+    (several commits, ONE gate run on the tip, a refusal lands nothing), so each entry keeps its own commit and
+    evidence while sharing a 30-minute gate."""
+    import json
+    import re
+
+    with open(path, encoding="utf-8") as fh:
+        raw = json.load(fh)
+    if not isinstance(raw, list) or not raw:
+        msg = "the stack must be a non-empty JSON list"
+        raise ValueError(msg)
+    for i, e in enumerate(raw):
+        if not isinstance(e, dict):
+            msg = f"entry {i} is not an object"
+            raise TypeError(msg)
+        if not re.fullmatch(r"W\d+", str(e.get("waypoint", ""))):
+            msg = f"entry {i}: {e.get('waypoint')!r} is not a waypoint symbol"
+            raise ValueError(msg)
+        if not str(e.get("subject", "")).strip():
+            msg = f"entry {i} ({e['waypoint']}): an empty subject"
+            raise ValueError(msg)
+        paths = e.get("paths")
+        if (
+            not isinstance(paths, list)
+            or not paths
+            or not all(isinstance(p, str) for p in paths)
+        ):
+            msg = f"entry {i} ({e['waypoint']}): paths must be a non-empty list of strings"
+            raise ValueError(msg)
+    return raw
 
 
 def commit_runner(argv):
@@ -470,6 +512,48 @@ def commit_report(
         return 1
     print(
         f"land_template --commit: {waypoint} landed, {len(paths)} path(s), HEAD matches the ask"
+    )
+    return 0
+
+
+def stack_report(path, run=commit_runner, head=git_head, status=git_porcelain):
+    """Commit a STACK through ONE gate and compare each landed commit with its entry; the exit code.
+
+    Stages every entry's paths, runs `mikemol-commit el-openglo --stack FILE`, then reads entry k at
+    HEAD~(n-1-k) and compares subject and Waypoint trailer (the tip also carries the advisory marker, and a
+    deletion left staged is reported once). 0 when all landed and match, 1 on a refusal (which lands nothing,
+    and names the culprit entry in mikemol-commit's own output) or a mismatch, 2 on a bad stack file before
+    anything ran."""
+    try:
+        entries = stack_entries(path)
+    except (OSError, TypeError, ValueError) as exc:
+        print(f"land_template: REFUSED: {exc}", file=sys.stderr)
+        return 2
+    paths = sorted({p for e in entries for p in e["paths"]})
+    rc, text = run(["git", "add", "-A", "--", *paths])
+    if rc != 0:
+        print(f"land_template: git add refused (rc {rc}):\n{text[-1200:]}")
+        return 1
+    rc, text = run([".venv/bin/mikemol-commit", "el-openglo", "--stack", path])
+    if rc != 0:
+        print(f"land_template: the stack was refused (rc {rc}); nothing landed:")
+        print(text[-1200:])
+        return 1
+    n, problems = len(entries), []
+    for k, e in enumerate(entries):
+        back = n - 1 - k
+        subject, body = head(f"HEAD~{back}" if back else "HEAD")
+        tip = back == 0
+        found = verify_commit(
+            subject, body, e["waypoint"], e["subject"], status() if tip else "", tip
+        )
+        problems += [f"{e['waypoint']}: {p}" for p in found]
+    for p in problems:
+        print(f"land_template: MISMATCH: {p}")
+    if problems:
+        return 1
+    print(
+        f"land_template --stack: {n} commit(s) landed through one gate, each matches its entry"
     )
     return 0
 
@@ -530,12 +614,19 @@ def main(argv):
             "--split",
             "--regen",
             "--commit",
+            "--stack",
             "--selftest",
         ):
             print(f"land_template: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--selftest" in flags:
         return 0 if _selftest() else 1
+    if "--stack" in flags:
+        rest = [a for a in args if not a.startswith("--")]
+        if len(rest) != 1:
+            print("land_template: --stack needs exactly one FILE", file=sys.stderr)
+            return 2
+        return stack_report(rest[0])
     if "--commit" in flags:
         rest = [a for a in args if not a.startswith("--")]
         if len(rest) < 2:
@@ -1015,6 +1106,125 @@ def _selftest():
         chk(
             "commit_report: no tracked change is refused",
             commit_report("W9", "subj", [], run=fake_run, status=lambda: "?? new.py\n"),
+            2,
+        )
+    # W462: paperkit's typed exit says 3 is CANNOT RUN; that is decided on the code, even when the text names only
+    # the known red (a report that says so while the gate could not run judged nothing)
+    chk(
+        "judge: rc 3 (cannot run) is never forgiven as known-red, whatever the text says",
+        judge_worklist(3, only),
+        3,
+    )
+    # W558 --stack: several commits through ONE gate, each verified at its own depth from HEAD
+    import json
+    import tempfile
+
+    good_stack = [
+        {"waypoint": "W1", "subject": "first", "paths": ["a.py"]},
+        {"waypoint": "W2", "subject": "second", "paths": ["b.py"], "body": "x"},
+    ]
+
+    def write_stack(td, entries):
+        path = os.path.join(td, "stack.json")
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(entries, fh)
+        return path
+
+    def refusal(entries):
+        with tempfile.TemporaryDirectory() as td:
+            try:
+                stack_entries(write_stack(td, entries))
+            except (TypeError, ValueError) as exc:
+                return type(exc).__name__
+        return None
+
+    with tempfile.TemporaryDirectory() as td:
+        chk(
+            "stack_entries: a well-formed stack is read as written",
+            stack_entries(write_stack(td, good_stack)),
+            good_stack,
+        )
+    chk("stack_entries: an empty list is refused", refusal([]), "ValueError")
+    chk(
+        "stack_entries: a non-waypoint symbol is refused",
+        refusal([{"waypoint": "nine", "subject": "s", "paths": ["a"]}]),
+        "ValueError",
+    )
+    chk(
+        "stack_entries: an empty subject is refused",
+        refusal([{"waypoint": "W1", "subject": " ", "paths": ["a"]}]),
+        "ValueError",
+    )
+    chk(
+        "stack_entries: no paths is refused",
+        refusal([{"waypoint": "W1", "subject": "s", "paths": []}]),
+        "ValueError",
+    )
+    chk(
+        "stack_entries: an entry that is not an object is refused",
+        refusal(["W1"]),
+        "TypeError",
+    )
+    heads = {
+        "HEAD~1": ("first", "Waypoint: W1\n"),
+        "HEAD": ("second", "Waypoint: W2\n\npost-commit advisory (auto-captured):\n"),
+    }
+
+    def stack_run(td, entries, run_rc=0, heads_=heads):
+        path = write_stack(td, entries)
+        ran = []
+
+        def fake(argv):
+            ran.append(argv)
+            return (run_rc, "boom") if "--stack" in argv else (0, "")
+
+        with contextlib.redirect_stdout(quiet), contextlib.redirect_stderr(quiet):
+            rc = stack_report(
+                path, run=fake, head=lambda rev="HEAD": heads_[rev], status=lambda: ""
+            )
+        return rc, ran
+
+    with tempfile.TemporaryDirectory() as td:
+        rc, ran = stack_run(td, good_stack)
+        chk(
+            "stack_report: stages every entry's paths once, runs the stack through one commit call, and a matching depth is exit 0",
+            (rc, ran[0][:3], ran[0][-2:], len(ran)),
+            (0, ["git", "add", "-A"], ["a.py", "b.py"], 2),
+        )
+        wrong = {**heads, "HEAD~1": ("another", "Waypoint: W1\n")}
+        chk(
+            "stack_report: an earlier commit with another subject is exit 1 (each entry is read at its own depth)",
+            stack_run(td, good_stack, heads_=wrong)[0],
+            1,
+        )
+        notip = {
+            **heads,
+            "HEAD~1": (
+                "first",
+                "Waypoint: W1\n\npost-commit advisory (auto-captured):\n",
+            ),
+        }
+        chk(
+            "stack_report: the advisory marker is the tip's alone, an earlier commit without it is fine",
+            stack_run(td, good_stack, heads_=notip)[0],
+            0,
+        )
+        nomark = {**heads, "HEAD": ("second", "Waypoint: W2\n")}
+        chk(
+            "stack_report: the tip without the marker is exit 1",
+            stack_run(td, good_stack, heads_=nomark)[0],
+            1,
+        )
+        chk(
+            "stack_report: a refused stack is exit 1 and reads no commit",
+            stack_run(td, good_stack, run_rc=1, heads_={})[0],
+            1,
+        )
+        with contextlib.redirect_stderr(quiet):
+            missing = stack_report(os.path.join(td, "absent.json"))
+        chk(
+            "stack_report: an unreadable stack file is exit 2 before anything runs",
+            missing,
             2,
         )
     print("land_template selftest:", "PASS" if ok else "FAIL")
