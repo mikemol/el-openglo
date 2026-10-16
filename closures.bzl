@@ -569,6 +569,7 @@ CLOSURES = {
         "policy/root_helpers_test.rego",
         "policy/routes.rego",
         "policy/routes_test.rego",
+        "policy/runtime_warnings.cases.json",
         "policy/runtime_warnings.rego",
         "policy/runtime_warnings_test.rego",
         "policy/scope_recorded.rego",

@@ -1,0 +1,48 @@
+[
+  {
+    "case": "admits-ruled-and-fresh-unruled: a ruled class and a recent unruled one under the limit",
+    "cases": [
+      {"class": "a", "ruled": true, "rule_file": "policy/x.rego", "rule_file_exists": true, "unruled_since": null, "unruled_days": null},
+      {"class": "b", "ruled": false, "rule_file": null, "rule_file_exists": null, "unruled_since": "2026-09-30", "unruled_days": 1}
+    ],
+    "withheld": null,
+    "max_unruled_days": 7
+  },
+  {
+    "case": "r0-refuses-an-absent-corpus: no cases key at all must not admit",
+    "expect": {"deny": ["R0"]}
+  },
+  {
+    "case": "r1-refuses-an-unruled-row-without-a-date",
+    "cases": [
+      {"class": "b", "ruled": false, "rule_file": null, "rule_file_exists": null, "unruled_since": null, "unruled_days": null}
+    ],
+    "withheld": null,
+    "max_unruled_days": 7,
+    "expect": {"deny": ["R1"]}
+  },
+  {
+    "case": "r2-refuses-a-stale-unruled-row: nine days against a limit of seven",
+    "cases": [
+      {"class": "b", "ruled": false, "rule_file": null, "rule_file_exists": null, "unruled_since": "2026-09-30", "unruled_days": 9}
+    ],
+    "withheld": null,
+    "max_unruled_days": 7,
+    "expect": {"deny": ["R2"]}
+  },
+  {
+    "case": "r3-refuses-a-missing-rule-file: a ruled class citing a file that does not exist",
+    "cases": [
+      {"class": "a", "ruled": true, "rule_file": "policy/x.rego", "rule_file_exists": false, "unruled_since": null, "unruled_days": null}
+    ],
+    "withheld": null,
+    "max_unruled_days": 7,
+    "expect": {"deny": ["R3"]}
+  },
+  {
+    "case": "r4-withholds-an-unread-corpus: not read is withheld, not a deny",
+    "cases": [],
+    "withheld": "OSError: x",
+    "expect": {"withheld": ["R4"]}
+  }
+]
