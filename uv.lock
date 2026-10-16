@@ -318,6 +318,7 @@ tooling = [
     { name = "mikemol-grade" },
     { name = "mikemol-hooks" },
     { name = "mikemol-mdstruct" },
+    { name = "mikemol-mutation" },
     { name = "mikemol-pathsforward" },
     { name = "mikemol-pycodemod" },
     { name = "mikemol-pytestspec" },
@@ -344,6 +345,7 @@ requires-dist = [
     { name = "mikemol-grade", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=grade&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
     { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
     { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
+    { name = "mikemol-mutation", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mutation&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
     { name = "mikemol-pathsforward", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
     { name = "mikemol-pycodemod", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pycodemod&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
     { name = "mikemol-pytestspec", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pytestspec&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" },
@@ -713,6 +715,11 @@ dependencies = [
     { name = "mikemol-pathwalk" },
     { name = "panflute" },
 ]
+
+[[package]]
+name = "mikemol-mutation"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mutation&rev=6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac#6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac" }
 
 [[package]]
 name = "mikemol-pathsforward"
