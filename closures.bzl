@@ -588,6 +588,7 @@ CLOSURES = {
         "policy/states_test.rego",
         "policy/symmetry.rego",
         "policy/symmetry_test.rego",
+        "policy/taskswitch.cases.json",
         "policy/taskswitch.rego",
         "policy/taskswitch_test.rego",
         "policy/template_parity.rego",

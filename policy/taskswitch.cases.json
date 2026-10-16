@@ -1,0 +1,189 @@
+[
+  {
+    "case": "admits-clean: a measured package, bound to its roles, resolving to the variant's tokens, no drift",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}}
+  },
+  {
+    "case": "t5-refuses-a-binding-that-resolves-elsewhere: under EL-Amber lit resolves to the ground colour",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#140f08", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T5"]}
+  },
+  {
+    "case": "t5-withheld-without-a-runner: a null resolution is withheld, never a deny",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": null,
+    "expect": {"withheld": ["the qml runner or the .colors files are absent; the bindings were not resolved (T5)"]}
+  },
+  {
+    "case": "t0-refuses-unmeasured: no package id is an empty population, and the facts never emitted read as not measured",
+    "qmllint": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"},
+    "bindings": {},
+    "expect": {"deny": ["T0"], "withheld": ["root was not measured", "lint was not measured", "roster_drift was not measured", "the qml runner or the .colors files are absent; the bindings were not resolved (T5)"]}
+  },
+  {
+    "case": "t0-null-id-denies: a null id is still the empty-population denial",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": null, "defaults_id": null, "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T0"]}
+  },
+  {
+    "case": "t1-refuses-wrong-structure: the KPackageStructure is not KWin/WindowSwitcher",
+    "qmllint": true, "structure": "Plasma/Applet", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T1"]}
+  },
+  {
+    "case": "t1-refuses-an-id-the-defaults-do-not-name: a stock switcher in silence",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.other", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T1"]}
+  },
+  {
+    "case": "t2-refuses-a-missing-root: the QML root is not KWin.TabBoxSwitcher",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": false,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T2"]}
+  },
+  {
+    "case": "t2-refuses-a-lint-error: a kept qmllint diagnostic is a measured defect",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": ["taskswitch-main.qml:3:1: [syntax] Expected token"], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T2"]}
+  },
+  {
+    "case": "t3-refuses-an-out-of-range-alpha: ghostAlpha must lie in (0,1)",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 1.5, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T3"]}
+  },
+  {
+    "case": "t4-refuses-a-baked-hex: lit is a literal colour, not a role binding",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "#99ffeb", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T4"]}
+  },
+  {
+    "case": "t4-refuses-the-wrong-role: lit bound to highlightColor instead of textColor",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.highlightColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T4"]}
+  },
+  {
+    "case": "t4-refuses-a-missing-colorset: the Window set's colours would be read",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": null,
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T4"]}
+  },
+  {
+    "case": "t6-refuses-roster-drift: the emitter does not declare a variant the palette does",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [],
+    "roster_drift": [{"variant": "EL-Amber", "who": "make_taskswitch", "why": "make_taskswitch.VARIANTS does not declare it (GRID does)"}],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"deny": ["T6"]}
+  },
+  {
+    "case": "all-null-case-withheld-only: every fact not measured is withheld by name and no rule judges a null",
+    "qmllint": null, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": null,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": null,
+    "alpha": 0.566, "lint": null, "roster_drift": null,
+    "resolution": null,
+    "expect": {"withheld": ["root was not measured", "qmllint was not measured", "lint was not measured", "bindings was not measured", "roster_drift was not measured", "the qml runner or the .colors files are absent; the bindings were not resolved (T5)"]}
+  },
+  {
+    "case": "null-root-is-withheld-not-t2: a null root is not the QML root being wrong",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": null,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"withheld": ["root was not measured"]}
+  },
+  {
+    "case": "null-qmllint-is-withheld-not-uninstalled: a null qmllint is not measured, not 'not installed'",
+    "qmllint": null, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"withheld": ["qmllint was not measured"]}
+  },
+  {
+    "case": "null-lint-is-withheld: lint not measured",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": null, "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"withheld": ["lint was not measured"]}
+  },
+  {
+    "case": "null-bindings-is-withheld: bindings not measured",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": null,
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"withheld": ["bindings was not measured"]}
+  },
+  {
+    "case": "null-roster-drift-is-withheld: roster_drift not measured",
+    "qmllint": true, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": null,
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"withheld": ["roster_drift was not measured"]}
+  },
+  {
+    "case": "withheld-without-qmllint: qmllint absent on the host is withheld, never a deny",
+    "qmllint": false, "structure": "KWin/WindowSwitcher", "id": "org.el.taskswitch", "defaults_id": "org.el.taskswitch", "root": true,
+    "roles": {"lit": "textColor", "ghost": "disabledTextColor", "void": "backgroundColor"}, "colorSet": "View",
+    "bindings": {"lit": "Kirigami.Theme.textColor", "ghost": "Kirigami.Theme.disabledTextColor", "void": "Kirigami.Theme.backgroundColor"},
+    "alpha": 0.566, "lint": [], "roster_drift": [],
+    "resolution": {"EL-Amber": {"resolved": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}, "expected": {"lit": "#ffd499", "ghost": "#e5bf89", "void": "#140f08"}}},
+    "expect": {"withheld": ["qmllint is not installed on this host; the switcher QML was not linted"]}
+  }
+]
