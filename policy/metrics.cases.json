@@ -1,0 +1,212 @@
+[
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "M0"
+   ]
+  }
+ },
+ {
+  "case": "every-scenario-correct-admitted",
+  "cases": [
+   {
+    "scenario": "tool-missing",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-refused",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-unreadable",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "query-failed",
+    "face": "unreachable",
+    "text": "UNREACHABLE"
+   },
+   {
+    "scenario": "query-ok",
+    "face": "values",
+    "text": "CPU 12%"
+   }
+  ]
+ },
+ {
+  "case": "unmeasured-scenario-denied",
+  "cases": [
+   {
+    "scenario": "tool-missing",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-refused",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-unreadable",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "query-failed",
+    "face": "unreachable",
+    "text": "UNREACHABLE"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M0"
+   ]
+  }
+ },
+ {
+  "case": "wrong-face-denied",
+  "cases": [
+   {
+    "scenario": "tool-missing",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-refused",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-unreadable",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "query-failed",
+    "face": "values",
+    "text": "CPU 0%"
+   },
+   {
+    "scenario": "query-ok",
+    "face": "values",
+    "text": "CPU 12%"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M1"
+   ]
+  }
+ },
+ {
+  "case": "blank-denied",
+  "cases": [
+   {
+    "scenario": "tool-missing",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-refused",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-unreadable",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "query-failed",
+    "face": "unreachable",
+    "text": "UNREACHABLE"
+   },
+   {
+    "scenario": "query-ok",
+    "face": "values",
+    "text": ""
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M2"
+   ]
+  }
+ },
+ {
+  "case": "missing-text-denied",
+  "cases": [
+   {
+    "scenario": "tool-missing",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-refused",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-unreadable",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "query-failed",
+    "face": "unreachable",
+    "text": "UNREACHABLE"
+   },
+   {
+    "scenario": "query-ok",
+    "face": "values"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M2"
+   ]
+  }
+ },
+ {
+  "case": "address-literal-denied",
+  "cases": [
+   {
+    "scenario": "tool-missing",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-refused",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "tool-unreadable",
+    "face": "endpoint-unavailable",
+    "text": "ENDPOINT UNAVAILABLE"
+   },
+   {
+    "scenario": "query-failed",
+    "face": "unreachable",
+    "text": "UNREACHABLE"
+   },
+   {
+    "scenario": "query-ok",
+    "face": "values",
+    "text": "CPU 12%"
+   }
+  ],
+  "address_literals": [
+   "vmsingle.example:8428"
+  ],
+  "expect": {
+   "deny": [
+    "M3"
+   ]
+  }
+ }
+]
