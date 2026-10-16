@@ -1,0 +1,268 @@
+[
+ {
+  "case": "admits-the-real-derivation: a Lit surface far from ground is admitted",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 7.738847554810347,
+    "hue_delta": 0.08061874068589248,
+    "surface_vs_ground_dE": 2.5260887531179925
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": null,
+    "dark": false,
+    "text_on_surface": 16.2710062638345,
+    "on_primary": 6.435950168881977,
+    "hue_delta": 0.6692825096613433,
+    "surface_vs_ground_dE": 21.456966212448105
+   }
+  ]
+ },
+ {
+  "case": "m0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "M0"
+   ]
+  }
+ },
+ {
+  "case": "m0-withholds-an-absent-library",
+  "library": false,
+  "roster": [
+   "EL-Amber"
+  ],
+  "cases": [],
+  "expect": {
+   "withheld": [
+    "M0"
+   ]
+  }
+ },
+ {
+  "case": "m0-refuses-a-declared-variant-not-measured",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 7.738847554810347,
+    "hue_delta": 0.08061874068589248,
+    "surface_vs_ground_dE": 2.5260887531179925
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M0"
+   ]
+  }
+ },
+ {
+  "case": "m0-refuses-an-unmeasurable-variant",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 7.738847554810347,
+    "hue_delta": 0.08061874068589248,
+    "surface_vs_ground_dE": 2.5260887531179925
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": "compare() returned no measurement"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M0"
+   ]
+  }
+ },
+ {
+  "case": "m1-refuses-a-text-pair-below-aa",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 1,
+    "on_primary": 7.738847554810347,
+    "hue_delta": 0.08061874068589248,
+    "surface_vs_ground_dE": 2.5260887531179925
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": null,
+    "dark": false,
+    "text_on_surface": 16.2710062638345,
+    "on_primary": 6.435950168881977,
+    "hue_delta": 0.6692825096613433,
+    "surface_vs_ground_dE": 21.456966212448105
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M1"
+   ]
+  }
+ },
+ {
+  "case": "m1-refuses-an-on-primary-below-aa",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 4.49,
+    "hue_delta": 0.08061874068589248,
+    "surface_vs_ground_dE": 2.5260887531179925
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": null,
+    "dark": false,
+    "text_on_surface": 16.2710062638345,
+    "on_primary": 6.435950168881977,
+    "hue_delta": 0.6692825096613433,
+    "surface_vs_ground_dE": 21.456966212448105
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M1"
+   ]
+  }
+ },
+ {
+  "case": "m2-refuses-a-foreign-hue",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 7.738847554810347,
+    "hue_delta": 102.3,
+    "surface_vs_ground_dE": 2.5260887531179925
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": null,
+    "dark": false,
+    "text_on_surface": 16.2710062638345,
+    "on_primary": 6.435950168881977,
+    "hue_delta": 0.6692825096613433,
+    "surface_vs_ground_dE": 21.456966212448105
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M2"
+   ]
+  }
+ },
+ {
+  "case": "m3-refuses-a-dark-surface-far-from-ground",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 7.738847554810347,
+    "hue_delta": 0.08061874068589248,
+    "surface_vs_ground_dE": 21.46
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": null,
+    "dark": false,
+    "text_on_surface": 16.2710062638345,
+    "on_primary": 6.435950168881977,
+    "hue_delta": 0.6692825096613433,
+    "surface_vs_ground_dE": 21.456966212448105
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M3"
+   ]
+  }
+ },
+ {
+  "case": "m0-refuses-a-null-quantity",
+  "library": true,
+  "roster": [
+   "EL-Amber",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "dark": true,
+    "text_on_surface": 14.346099415994113,
+    "on_primary": 7.738847554810347,
+    "hue_delta": null,
+    "surface_vs_ground_dE": 2.5260887531179925
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "missing": null,
+    "dark": false,
+    "text_on_surface": 16.2710062638345,
+    "on_primary": 6.435950168881977,
+    "hue_delta": 0.6692825096613433,
+    "surface_vs_ground_dE": 21.456966212448105
+   }
+  ],
+  "expect": {
+   "deny": [
+    "M0"
+   ]
+  }
+ }
+]

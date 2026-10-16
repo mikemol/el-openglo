@@ -1,0 +1,194 @@
+[
+ {
+  "case": "kerned-admits: regular at the glyph width, bold one bloom column wider",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 5
+   },
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "bold",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 6
+   }
+  ]
+ },
+ {
+  "case": "fused-at-some-phase-denied",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 5
+   },
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "bold",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 11
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K4"
+   ]
+  }
+ },
+ {
+  "case": "one-over-bloom-denied",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 5
+   },
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "bold",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 7
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K4"
+   ]
+  }
+ },
+ {
+  "case": "disabled-kern-loop-denied",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 5
+   },
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "bold",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 30
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K4"
+   ]
+  }
+ },
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "regular-only-denied",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 5
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K5"
+   ]
+  }
+ },
+ {
+  "case": "short-sweep-denied",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 2,
+    "max_group": 5
+   },
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "bold",
+    "glyph_cols": 5,
+    "frames": 2,
+    "max_group": 6
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K6"
+   ]
+  }
+ },
+ {
+  "case": "a-short-sweep-is-not-admitted-but-not-denied-for-the-long-one",
+  "gaps": [
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "regular",
+    "glyph_cols": 5,
+    "frames": 15,
+    "max_group": 5
+   },
+   {
+    "variant": "V",
+    "view": "gray",
+    "style": "bold",
+    "glyph_cols": 5,
+    "frames": 2,
+    "max_group": 6
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K6"
+   ]
+  }
+ },
+ {
+  "case": "withheld-is-not-denied",
+  "gaps": [],
+  "withheld": [
+   {
+    "variant": "V",
+    "reason": "no qml"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "V"
+   ]
+  }
+ }
+]
