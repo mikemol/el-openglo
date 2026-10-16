@@ -94,6 +94,11 @@ tooling = [
     # mikemol-membudget beside the interpreter, and mikemol-fence ships it. No //fence venv per repo
     # (ruled fleet-wide): the dist is pinned here at the same par sha as every other mikemol spec.
     "mikemol-fence @ git+https://github.com/mikemol/mtools.git@ca6702baac20fabab6d86856d45e27b931b55919#subdirectory=fence",
+    # ⚑ THE CVD CORE IS AN mtools DIST NOW (W544, for nemik:W438; mtools:W1313 to W1315): worst_view_dE,
+    # VIEWS, OKABE_ITO, reference_floor, reference_floors and rgb, ported from this repo's cvd_core.py
+    # (9a4be98) with parity checked on five pairs and the Okabe-Ito floor. WCAG and APCA stay in cvd_gate.
+    # Pinned at the commit that landed it; the next fleet repin moves it with every other spec.
+    "mikemol-cvdcore @ git+https://github.com/mikemol/mtools.git@e916285cf237277cd47800baae2cde3fb6931b65#subdirectory=cvdcore",
     # W85 (2026-10-02): past paperkit 0249924 (W50 there: the Δ scratch honours TMPDIR)
     "paperkit @ git+https://github.com/mikemol/paperkit.git@b5877102af3b48005fde814416bff5b8f06ba5cd",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)

@@ -14,12 +14,12 @@ shape's own tightest pair.
 """
 
 import numpy as np
+from mikemol.cvdcore import core as _core
 
-import cvd_core as _core
-
-# ⚑ THE CVD ARM LIVES IN cvd_core.py (W544): pure, numpy and colorspacious, no palette import. Every name
-# is bound here unchanged, so each caller that resolves one through cvd_gate keeps working
-# (check_st_api and check_palette_chain resolve by name; check_urgency_cues takes _ucs).
+# ⚑ THE CVD ARM LIVES IN mtools' mikemol-cvdcore (W544; nemik:W438): pure, numpy and colorspacious, no palette
+# import. Every name is bound here unchanged, so each caller that resolves one through cvd_gate keeps working
+# (check_st_api and check_palette_chain resolve by name). WCAG and APCA stay below: they are not in the dist.
+# The dist's VIEWS is a tuple where cvd_core.py's was a list; nothing here indexes it as a list.
 VIEWS = _core.VIEWS
 OKABE_ITO = _core.OKABE_ITO
 _ucs = _core._ucs

@@ -313,6 +313,7 @@ tooling = [
     { name = "libcst" },
     { name = "mikemol-atomicwrite" },
     { name = "mikemol-bibparse" },
+    { name = "mikemol-cvdcore" },
     { name = "mikemol-fence" },
     { name = "mikemol-grade" },
     { name = "mikemol-hooks" },
@@ -337,6 +338,7 @@ requires-dist = [
     { name = "matplotlib", marker = "extra == 'research'" },
     { name = "mikemol-atomicwrite", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=ca6702baac20fabab6d86856d45e27b931b55919" },
     { name = "mikemol-bibparse", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=bibparse&rev=ca6702baac20fabab6d86856d45e27b931b55919" },
+    { name = "mikemol-cvdcore", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=cvdcore&rev=e916285cf237277cd47800baae2cde3fb6931b65" },
     { name = "mikemol-fence", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=ca6702baac20fabab6d86856d45e27b931b55919" },
     { name = "mikemol-grade", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=grade&rev=ca6702baac20fabab6d86856d45e27b931b55919" },
     { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=ca6702baac20fabab6d86856d45e27b931b55919" },
@@ -672,6 +674,15 @@ source = { git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite
 name = "mikemol-bibparse"
 version = "0.1.0"
 source = { git = "https://github.com/mikemol/mtools.git?subdirectory=bibparse&rev=ca6702baac20fabab6d86856d45e27b931b55919#ca6702baac20fabab6d86856d45e27b931b55919" }
+
+[[package]]
+name = "mikemol-cvdcore"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=cvdcore&rev=e916285cf237277cd47800baae2cde3fb6931b65#e916285cf237277cd47800baae2cde3fb6931b65" }
+dependencies = [
+    { name = "colorspacious" },
+    { name = "numpy" },
+]
 
 [[package]]
 name = "mikemol-fence"
