@@ -1,0 +1,881 @@
+[
+ {
+  "case": "admits-reproduced-and-declared",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": false
+   }
+  ]
+ },
+ {
+  "case": "f0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "F0"
+   ]
+  }
+ },
+ {
+  "case": "f0-refuses-a-missing-format",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F0"
+   ]
+  }
+ },
+ {
+  "case": "f1-withholds-a-missing-font",
+  "font": null,
+  "withheld": "no TTF",
+  "cases": [],
+  "declarations": [],
+  "expect": {
+   "withheld": [
+    "F1"
+   ]
+  }
+ },
+ {
+  "case": "f2-refuses-a-document-for-another-font",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "cd",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F2"
+   ]
+  }
+ },
+ {
+  "case": "f4-refuses-an-undeclared-wrong-segment",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   },
+   {
+    "fmt": "22",
+    "ch": "8",
+    "authored": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2",
+     "e",
+     "f",
+     "g1"
+    ],
+    "agree": false,
+    "declared": false,
+    "class": null,
+    "reason": null
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F4"
+   ]
+  }
+ },
+ {
+  "case": "f4-refuses-a-null-agree",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": null,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F4"
+   ]
+  }
+ },
+ {
+  "case": "f5-refuses-an-outgrown-declaration",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F5"
+   ]
+  }
+ },
+ {
+  "case": "f6-refuses-an-unknown-class",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "taste",
+    "reason": "the 7-segment 1",
+    "authored": true,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F6"
+   ]
+  }
+ },
+ {
+  "case": "f6-refuses-an-empty-reason",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "",
+    "authored": true,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F6"
+   ]
+  }
+ },
+ {
+  "case": "f7-refuses-a-declaration-for-no-authored-glyph",
+  "font": "LiberationMono-Regular.ttf",
+  "withheld": null,
+  "font_sha256": "ab",
+  "font_sha256_in_doc": "ab",
+  "classes": [
+   "display",
+   "mid-x-height",
+   "descender",
+   "lattice"
+  ],
+  "cases": [
+   {
+    "fmt": "22",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g1",
+     "g2"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "7",
+    "ch": "H",
+    "authored": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "compiled": [
+     "b",
+     "c",
+     "e",
+     "f",
+     "g"
+    ],
+    "agree": true,
+    "declared": false,
+    "class": null,
+    "reason": null
+   },
+   {
+    "fmt": "22",
+    "ch": "1",
+    "authored": [
+     "b",
+     "c"
+    ],
+    "compiled": [
+     "a1",
+     "a2",
+     "b",
+     "c",
+     "d1",
+     "d2"
+    ],
+    "agree": false,
+    "declared": true,
+    "class": "display",
+    "reason": "the 7-segment 1"
+   }
+  ],
+  "declarations": [
+   {
+    "ch": "1",
+    "class": "display",
+    "reason": "the 7-segment 1",
+    "authored": false,
+    "agree22": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F7"
+   ]
+  }
+ }
+]

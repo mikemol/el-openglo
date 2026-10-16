@@ -1,0 +1,431 @@
+[
+ {
+  "case": "admits-a-valid-manifest",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       31,
+       23,
+       12
+      ],
+      "ints": true
+     },
+     {
+      "key": "ntp_text",
+      "value": [
+       255,
+       212,
+       153
+      ],
+      "ints": true
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "b0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b0-withholds-a-missing-third-party-module",
+  "roster": [],
+  "snapshot": [],
+  "cases": [],
+  "error": null,
+  "withheld": "needs PIL, which is not installed here",
+  "expect": {
+   "withheld": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b0-refuses-a-stray-snapshot-member",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber",
+   "EL-Old"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       31,
+       23,
+       12
+      ],
+      "ints": true
+     },
+     {
+      "key": "ntp_text",
+      "value": [
+       255,
+       212,
+       153
+      ],
+      "ints": true
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-a-declared-variant-whose-scheme-is-gone",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": "FileNotFoundError: EL-Amber.colors",
+    "manifest_version": null,
+    "name": null,
+    "colors": null,
+    "roundtrips": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B0",
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-manifest-v2",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 2,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       31,
+       23,
+       12
+      ],
+      "ints": true
+     },
+     {
+      "key": "ntp_text",
+      "value": [
+       255,
+       212,
+       153
+      ],
+      "ints": true
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-no-name",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       31,
+       23,
+       12
+      ],
+      "ints": true
+     },
+     {
+      "key": "ntp_text",
+      "value": [
+       255,
+       212,
+       153
+      ],
+      "ints": true
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b3-refuses-empty-colors",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B3"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-an-out-of-range-channel",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       1,
+       2,
+       999
+      ],
+      "ints": true
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-a-string-colour",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": "#fff",
+      "ints": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-a-null-colour",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": null,
+      "ints": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-a-float-channel",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": true,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       1,
+       2,
+       3
+      ],
+      "ints": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b5-refuses-an-unserialisable-manifest",
+  "roster": [
+   "EL-Amber"
+  ],
+  "snapshot": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "withheld": null,
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "error": null,
+    "manifest_version": 3,
+    "name": "EL Openglo (EL-Amber)",
+    "roundtrips": false,
+    "colors": [
+     {
+      "key": "frame",
+      "value": [
+       31,
+       23,
+       12
+      ],
+      "ints": true
+     },
+     {
+      "key": "ntp_text",
+      "value": [
+       255,
+       212,
+       153
+      ],
+      "ints": true
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B5"
+   ]
+  }
+ }
+]
