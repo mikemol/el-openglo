@@ -22,6 +22,16 @@ changed templates' names and content, so a rerun resumes after the last phase th
 further edit starts over; `--fresh` drops the marker. The render and the worklist gate run as capped
 systemd services. Run it in the BACKGROUND: the worklist phase alone is several minutes.
 
+THE CHAIN IS FOR THREE POPULATIONS, read from one `git status` (2026-10-16, after W185 and W544 each reached
+the commit gate with a defect the chain did not look for): the changed shipped templates, the changed checks
+(scripts/check_*.py: each gets its own --selftest phase, the commit's own stage), and the untracked files
+(`git add`ed first by the track phase, since a closure holds only tracked files). A change to a check alone
+is a chain too: selftest, render the stale stills, re-record the keys AFTER the render, the gate batch (the
+Rego lint and the page and deps gates among it), then the worklist. THE WORKLIST PHASE IS BELIEVED THROUGH A
+JUDGE: red only on a claim KNOWN_RED names (@RESIDUE, red by design) is green; any other red, or a failure
+that names no claim, halts. WEAKNESS: the gate set is the ones a landing has been refused by so far, not the
+commit's 110 stages; a stage not listed can still refuse, and the chain then grows one phase.
+
 `--closures` answers: which stored stage closures READ THE COMPONENT ROSTER (hold every other roster
 template) yet lack the new one. Those are the closures `check_closure.py --write` must regenerate in the same
 commit, or the closure witness runs them in a tree without the new file. One key per line, then `n of m`.
@@ -102,6 +112,11 @@ GATES = (
     "qml_lint",
     "marquee_live",
     "config_reach",
+    # W185: a new rule in a policy reached the commit with a bare reference the Rego lint refuses; the
+    # page and the deps gates are the other two a landing edit has been refused by
+    "rego_lint",
+    "config_page",
+    "deps",
 )
 
 
@@ -117,14 +132,85 @@ def changed_templates(porcelain):
     return sorted(out)
 
 
-def plan(names, stale_keys, roster):
-    """The chain as DATA: an ordered [(phase, argv, note)] for the changed templates `names`.
+# ⚑ THE ONE RED THE LOCAL WORKLIST GATE SHOWS BY DESIGN (CLAUDE.md; measured on every run of W538's first
+# week): the open-residue symbols the tree owns. A chain that treated it as a failure could never be green;
+# a chain that admitted ANY red would hide a real one. So the judge below admits exactly the claims named here.
+KNOWN_RED = {"@RESIDUE": "the open-residue symbols the tree owns, red by design"}
+
+
+def red_claims(text):
+    """The claim tags the paperkit gate printed as failed, in order and once each: the `[@TAG]` of every
+    'check FAILED for [@TAG]: ...' line of `text`."""
+    out = []
+    for line in text.splitlines():
+        if "check FAILED for [" not in line:
+            continue
+        tag = line.split("check FAILED for [", 1)[1].split("]", 1)[0]
+        if tag not in out:
+            out.append(tag)
+    return out
+
+
+def judge_worklist(rc, text):
+    """The exit code the chain should believe: 0 when the gate was red ONLY on claims KNOWN_RED names, else
+    the gate's own. A failing gate that names no claim at all is a crash, not a known red, and stays red.
+    WEAKNESS: it trusts the gate's own 'check FAILED for' lines; a gate that died before printing them is
+    caught only by that rule (no named claim), not by what it would have said."""
+    if rc == 0:
+        return 0
+    red = red_claims(text)
+    return 0 if red and all(tag in KNOWN_RED for tag in red) else rc
+
+
+JUDGES = {"worklist": judge_worklist}
+
+
+def _porcelain_paths(porcelain):
+    """[(code, path)] of a `git status --porcelain` text, the path unquoted as git printed it."""
+    return [(line[:2].strip(), line[3:]) for line in porcelain.splitlines() if line]
+
+
+def changed_scripts(porcelain):
+    """The checks whose own --selftest a commit is refused by: scripts/check_*.py (not nested) that
+    `git status --porcelain` lists as modified, added or untracked."""
+    out = []
+    for code, path in _porcelain_paths(porcelain):
+        name = path.rsplit("/", 1)[-1]
+        top = path.startswith("scripts/") and path.count("/") == 1
+        if code and top and name.startswith("check_") and name.endswith(".py"):
+            out.append(path)
+    return sorted(out)
+
+
+# paths git reports as untracked that are not work (a generated cache the overlay rebuilds)
+NOT_WORK = ("overlay/metadata/",)
+
+
+def untracked_files(porcelain):
+    """The untracked FILES a landing should `git add` first (a closure holds only tracked files, so a new
+    file nothing tracks yet leaves every closure incomplete): the '??' paths, directories and NOT_WORK left out."""
+    return sorted(
+        path
+        for code, path in _porcelain_paths(porcelain)
+        if code == "??" and not path.endswith("/") and not path.startswith(NOT_WORK)
+    )
+
+
+def plan(names, stale_keys, roster, scripts=(), untracked=()):
+    """The chain as DATA: an ordered [(phase, argv, note)] for the changed templates `names` and the
+    changed checks `scripts` (either may be empty, not both).
 
     The closure phase appears only for names the roster declares (`stale_keys` are the closures behind),
-    and only when there are stale ones; everything else runs for any shipped template. Nothing is run
+    and only when there are stale ones; the track phase only when files are untracked; a parity phase only
+    for templates; a selftest phase per changed check (the gate refuses a commit whose check's selftest
+    fails, so it is run first); the keys are re-recorded AFTER the render they describe. Nothing is run
     here: this is what the chain WOULD do, reviewable before it is runnable."""
     py = ".venv/bin/python3"
     steps = []
+    if untracked:
+        steps.append(
+            ("track", ["git", "add", "--", *untracked], f"{len(untracked)} file(s)")
+        )
     new = [n for n in names if n in roster]
     if stale_keys:
         argv = [py, "scripts/check_closure.py", "--write", *stale_keys]
@@ -132,16 +218,22 @@ def plan(names, stale_keys, roster):
         steps.append(("closures", argv, note))
     elif new:
         steps.append(("closures", None, "none stale: nothing to regenerate"))
-    steps.append(("keys", [py, "scripts/check_action_key.py", "--write"], "re-record"))
     if names:
         argv = [py, "scripts/check_template_parity.py", "--record", *names]
         steps.append(("parity", argv, f"{len(names)} template(s)"))
+    for path in scripts:
+        steps.append(
+            (f"selftest:{path}", [py, path, "--selftest"], "the commit's own stage")
+        )
     render = [py, "catalog/library/render_screens.py"]
-    steps.append(("render", render, "a capped service; then see which stills moved"))
+    steps.append(("render", render, "a capped service, the stale stills only"))
+    steps.append(("keys", [py, "scripts/check_action_key.py", "--write"], "re-record"))
     for gate in GATES:
         steps.append((f"gate:{gate}", [py, "scripts/opa_gate.py", gate], "antichain"))
     worklist = [py, "scripts/worklist_gate.py"]
-    steps.append(("worklist", worklist, "the full local pre-flight"))
+    steps.append(
+        ("worklist", worklist, "the full local pre-flight; @RESIDUE alone is admitted")
+    )
     return steps
 
 
@@ -175,15 +267,16 @@ MARKER = os.path.join(ROOT, ".git", "land_template.marker")
 HEAVY = ("render_screens.py", "worklist_gate.py", "check_closure.py")
 
 
-def chain_key(names):
-    """A short digest of the changed templates' NAMES and CONTENT: the marker is valid only for the exact
-    edit it recorded, so a further edit to any of them starts the chain over."""
+def chain_key(names, scripts=()):
+    """A short digest of the changed templates' and checks' NAMES and CONTENT: the marker is valid only for
+    the exact edit it recorded, so a further edit to any of them starts the chain over."""
     import hashlib
 
     h = hashlib.sha256()
-    for n in sorted(names):
-        h.update(n.encode())
-        path = os.path.join(ROOT, "templates", n)
+    paths = [os.path.join("templates", n) for n in sorted(names)] + sorted(scripts)
+    for rel in paths:
+        h.update(rel.encode())
+        path = os.path.join(ROOT, rel)
         if os.path.isfile(path):
             with open(path, "rb") as fh:
                 h.update(fh.read())
@@ -212,8 +305,9 @@ def write_marker(path, key, done):
 
 
 def real_runner(argv):
-    """(rc, tail): run one phase from the repo root. The heavy ones (the render, the worklist gate) run as
-    memory-capped systemd services with their stdio piped back, never as a bare child of this process."""
+    """(rc, text): run one phase from the repo root, its whole output (a judge reads the claim lines at the
+    top of a long gate report; the chain prints only the tail). The heavy ones (the render, the worklist
+    gate) run as memory-capped systemd services with their stdio piped back, never as a bare child."""
     import subprocess
 
     if any(a.endswith(HEAVY) for a in argv):
@@ -221,51 +315,75 @@ def real_runner(argv):
         capped += ["-p", "MemoryMax=8G", "-p", "MemorySwapMax=0"]
         argv = capped + [f"--working-directory={ROOT}", *argv]
     r = subprocess.run(argv, cwd=ROOT, capture_output=True, text=True, check=False)
-    return r.returncode, (r.stdout + r.stderr)[-1200:]
+    return r.returncode, r.stdout + r.stderr
 
 
-def run_plan(steps, key, marker, runner):
+def run_plan(steps, key, marker, runner, judges=JUDGES):
     """Run `steps` in order; halt on the first failure. Returns (ok, failed_phase, done, tail).
 
     A phase the marker already records as done for this key is skipped, so a rerun resumes after the last
-    one that finished. A step with no argv is a skip the plan decided (nothing to do) and counts as done."""
+    one that finished. A step with no argv is a skip the plan decided (nothing to do) and counts as done.
+    A phase with a judge is believed through it: the judge sees the phase's rc and whole output, and
+    returns the rc the chain should act on (the worklist's by-design red is the case)."""
     done = read_marker(marker, key)
     for phase, argv, _note in steps:
         if phase in done:
             continue
-        rc, tail = (0, "") if argv is None else runner(argv)
+        rc, text = (0, "") if argv is None else runner(argv)
+        if phase in judges:
+            rc = judges[phase](rc, text)
         if rc != 0:
-            return False, phase, done, tail
+            return False, phase, done, text[-1200:]
         done.append(phase)
         write_marker(marker, key, done)
     return True, None, done, ""
 
 
-def git_changed():
-    """The shipped templates git says changed, via changed_templates over `git status --porcelain`."""
+def git_porcelain():
+    """`git status --porcelain` for the whole tree: what the landing chain reads its three populations from."""
     import subprocess
 
-    porcelain = subprocess.run(
-        ["git", "-C", ROOT, "status", "--porcelain", "--", "templates"],
+    return subprocess.run(
+        ["git", "-C", ROOT, "status", "--porcelain"],
         capture_output=True,
         text=True,
         check=True,
     ).stdout
-    return changed_templates(porcelain)
+
+
+def git_changed():
+    """The shipped templates git says changed, via changed_templates over `git status --porcelain`."""
+    return changed_templates(git_porcelain())
+
+
+def chain_for(names, porcelain=None):
+    """(names, scripts, untracked, steps): the chain for the working tree. `names` default to the templates
+    git says changed; the changed checks and the untracked files come from the same `git status`. `steps` is
+    None when there is nothing to land (no template and no check changed)."""
+    porcelain = git_porcelain() if porcelain is None else porcelain
+    names = names or changed_templates(porcelain)
+    scripts = changed_scripts(porcelain)
+    untracked = untracked_files(porcelain)
+    if not names and not scripts:
+        return names, scripts, untracked, None
+    roster = roster_files()
+    keys, _m, why = closures_report([n for n in names if n in roster])
+    steps = plan(names, [] if why else keys, roster, scripts, untracked)
+    return names, scripts, untracked, steps
 
 
 def run_report(names, fresh):
     """Run the chain for `names` (default: git's changed templates), halting on the first failed phase.
     Exit 0 when every phase passed, 1 on a failure (the phase and the tail of its output are printed), 2 on
     a refusal. `fresh` drops the resume marker first."""
-    names = names or git_changed()
-    if not names:
-        print("land_template: REFUSED: no changed template to land", file=sys.stderr)
+    names, scripts, _untracked, steps = chain_for(names)
+    if steps is None:
+        print(
+            "land_template: REFUSED: no changed template or check to land",
+            file=sys.stderr,
+        )
         return 2
-    roster = roster_files()
-    keys, _m, why = closures_report([n for n in names if n in roster])
-    steps = plan(names, [] if why else keys, roster)
-    key = chain_key(names)
+    key = chain_key(names, scripts)
     if fresh and os.path.exists(MARKER):
         os.remove(MARKER)
     before = len(read_marker(MARKER, key))
@@ -281,24 +399,27 @@ def run_report(names, fresh):
         return 1
     print(
         f"land_template --run: {len(done)} of {total} phase(s) done "
-        f"for {', '.join(names)}"
+        f"for {', '.join(names + scripts)}"
     )
     return 0
 
 
 def plan_report(names):
     """Print the chain for `names` (default: the templates git says changed). Exit 0, or 2 on a refusal."""
-    names = names or git_changed()
-    if not names:
-        print("land_template: REFUSED: no changed template to land", file=sys.stderr)
+    names, scripts, _untracked, steps = chain_for(names)
+    if steps is None:
+        print(
+            "land_template: REFUSED: no changed template or check to land",
+            file=sys.stderr,
+        )
         return 2
-    roster = roster_files()
-    keys, _m, why = closures_report([n for n in names if n in roster])
-    stale = keys if not why else []
-    for phase, argv, note in plan(names, stale, roster):
+    for phase, argv, note in steps:
         cmd = " ".join(argv) if argv else "(skipped)"
         print(f"  {phase:24s} {cmd}  # {note}")
-    print(f"land_template --plan: {len(names)} template(s): {', '.join(names)}")
+    print(
+        f"land_template --plan: {len(names)} template(s), {len(scripts)} check(s): "
+        f"{', '.join(names + scripts)}"
+    )
     return 0
 
 
@@ -335,8 +456,8 @@ def main(argv):
         )
         if "--regen" in flags and keys:
             argv = [".venv/bin/python3", "scripts/check_closure.py", "--write", *keys]
-            rc, tail = real_runner(argv)
-            print(tail)
+            rc, text = real_runner(argv)
+            print(text[-1200:])
             print(f"land_template: regenerated {len(keys)} closure(s): rc {rc}")
             return rc
         return 0
@@ -433,15 +554,15 @@ def _selftest():
     chk("changed_templates: a clean tree names none", changed_templates(""), [])
     steps = plan(["New.qml", "x.js"], ["scripts/k.py"], ["A.qml", "New.qml"])
     chk(
-        "plan: closures, keys, parity, render, the gate batch, then the worklist",
+        "plan: closures, parity, render, THEN the keys it describes, the gate batch, then the worklist",
         [s[0] for s in steps],
-        ["closures", "keys", "parity", "render"]
+        ["closures", "parity", "render", "keys"]
         + [f"gate:{g}" for g in GATES]
         + ["worklist"],
     )
     chk(
         "plan: the parity phase names every changed template",
-        steps[2][1][-2:],
+        steps[1][1][-2:],
         ["New.qml", "x.js"],
     )
     chk(
@@ -452,7 +573,7 @@ def _selftest():
     chk(
         "plan: a template outside the roster has no closure phase at all",
         plan(["x.js"], [], ["A.qml"])[0][0],
-        "keys",
+        "parity",
     )
     cut = {
         "reads_old_lacks_new": ["old.py", "x.py"],
@@ -538,6 +659,136 @@ def _selftest():
         True,
     )
     chk("an empty name list is refused", closures_report([])[2] is not None, True)
+    # W538 (2026-10-16): the gaps the first real landings showed, each an arm that can fail
+    report = (
+        "paperkit-gate: check FAILED for [@RESIDUE]: tool:check_symbol.py --bucket RESIDUE\n"
+        "paperkit-gate: FAIL\n"
+        "paperkit-gate: check FAILED for [@REGO-LINT]: tool:opa_gate.py rego_lint\n"
+        "paperkit-gate: check FAILED for [@RESIDUE]: again\n"
+    )
+    chk(
+        "red_claims: each failed claim once, in order",
+        red_claims(report),
+        ["@RESIDUE", "@REGO-LINT"],
+    )
+    chk(
+        "red_claims: a passing report names none",
+        red_claims("paperkit-gate: PASS\n"),
+        [],
+    )
+    only = "paperkit-gate: check FAILED for [@RESIDUE]: x\n"
+    chk("judge: a green gate stays green", judge_worklist(0, ""), 0)
+    chk(
+        "judge: red ONLY on the by-design @RESIDUE is admitted",
+        judge_worklist(1, only),
+        0,
+    )
+    chk(
+        "judge: @RESIDUE beside a real red stays red",
+        judge_worklist(1, report),
+        1,
+    )
+    chk(
+        "judge: a failing gate that names no claim is a crash, not a known red",
+        judge_worklist(1, "Traceback (most recent call last)\n"),
+        1,
+    )
+    chk(
+        "judge: the exit code is the gate's own when it is not admitted",
+        judge_worklist(3, report),
+        3,
+    )
+    porc = (
+        " M scripts/check_marquee_live.py\n"
+        "A  scripts/check_new.py\n"
+        "?? scripts/check_untracked.py\n"
+        " M scripts/make_x.py\n"
+        " M scripts/sub/check_nested.py\n"
+        " M policy/marquee_live.rego\n"
+        "?? scripts/helper.py\n"
+        "?? overlay/metadata/md5-cache/\n"
+        "?? newdir/\n"
+        "?? overlay/metadata/other.txt\n"
+    )
+    chk(
+        "changed_scripts: checks directly under scripts/, modified, added or untracked; not other scripts or nested",
+        changed_scripts(porc),
+        [
+            "scripts/check_marquee_live.py",
+            "scripts/check_new.py",
+            "scripts/check_untracked.py",
+        ],
+    )
+    chk(
+        "untracked_files: untracked files only; a directory and the overlay cache are left out",
+        untracked_files(porc),
+        ["scripts/check_untracked.py", "scripts/helper.py"],
+    )
+    chk("untracked_files: a clean tree names none", untracked_files(""), [])
+    sc = plan(
+        [],
+        [],
+        ["A.qml"],
+        ["scripts/check_a.py"],
+        ["scripts/new.py"],
+    )
+    chk(
+        "plan: a check-only change tracks, runs its selftest, renders, re-keys, gates, then the worklist; no parity",
+        [s[0] for s in sc],
+        ["track", "selftest:scripts/check_a.py", "render", "keys"]
+        + [f"gate:{g}" for g in GATES]
+        + ["worklist"],
+    )
+    chk(
+        "plan: the track phase adds exactly the untracked files",
+        sc[0][1],
+        ["git", "add", "--", "scripts/new.py"],
+    )
+    chk(
+        "plan: a selftest phase runs the check's own --selftest",
+        sc[1][1][-2:],
+        ["scripts/check_a.py", "--selftest"],
+    )
+    chk(
+        "plan: the gate batch holds the Rego lint a new rule was refused by",
+        "gate:rego_lint" in [s[0] for s in sc],
+        True,
+    )
+    chk(
+        "chain_for: a clean tree has nothing to land",
+        chain_for([], "")[3],
+        None,
+    )
+    chk(
+        "chain_for: a changed check alone is a chain",
+        chain_for([], " M scripts/check_marquee_live.py\n")[3] is not None,
+        True,
+    )
+    with tempfile.TemporaryDirectory() as td:
+        mk = os.path.join(td, "marker")
+        seen = []
+
+        def judged(argv):
+            seen.append(argv[0])
+            if argv[0] == "wl":
+                return 1, only
+            return (2, "crash") if argv[0] == "crash" else (0, "")
+
+        steps = [("a", ["ok"], ""), ("worklist", ["wl"], ""), ("z", ["after"], "")]
+        res = run_plan(steps, "j1", mk, judged)
+        chk(
+            "run: the worklist phase red only on @RESIDUE does not halt the chain",
+            (res[0], seen),
+            (True, ["ok", "wl", "after"]),
+        )
+        seen.clear()
+        steps = [("worklist", ["crash"], ""), ("z", ["after"], "")]
+        res = run_plan(steps, "j2", mk, judged)
+        chk(
+            "run: a worklist crash halts the chain at the worklist",
+            (res[:2], "after" in seen),
+            ((False, "worklist"), False),
+        )
     print("land_template selftest:", "PASS" if ok else "FAIL")
     return ok
 
