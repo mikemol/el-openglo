@@ -615,6 +615,7 @@ CLOSURES = {
         "policy/use_of_colour_test.rego",
         "policy/vscode.rego",
         "policy/vscode_test.rego",
+        "policy/windows.cases.json",
         "policy/windows.rego",
         "policy/windows_test.rego",
         "project_font.py",

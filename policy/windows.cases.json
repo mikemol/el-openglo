@@ -1,0 +1,505 @@
+[
+ {
+  "case": "admits-a-theme-windows-would-list",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ]
+ },
+ {
+  "case": "n0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "n0-refuses-an-emitter-that-drops-a-variant",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [
+   {
+    "variant": "EL-Openglo-Lit",
+    "who": "make_windows",
+    "why": "make_windows.VARIANTS does not declare it (GRID does)"
+   }
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "n0-refuses-a-declared-variant-not-measured",
+  "roster": [
+   "EL-Amber",
+   "EL-Azure"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "n1-refuses-an-unparsable-theme",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": "MissingSectionHeaderError: x",
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N1"
+   ]
+  }
+ },
+ {
+  "case": "n2-refuses-a-missing-section",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "VisualStyle",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N2"
+   ]
+  }
+ },
+ {
+  "case": "n2-refuses-a-wrong-mtsm",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "NOPE",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N2"
+   ]
+  }
+ },
+ {
+  "case": "n3-refuses-an-authored-colour",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "1 2 3 ;255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "n3-refuses-an-absent-colour",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": null,
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "n4-refuses-a-wrong-accent",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0x00C4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N4"
+   ]
+  }
+ },
+ {
+  "case": "n4-refuses-an-absent-accent",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": null,
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N4"
+   ]
+  }
+ },
+ {
+  "case": "n5-refuses-a-missing-wallpaper",
+  "roster": [
+   "EL-Amber"
+  ],
+  "error": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "missing": null,
+    "parse_error": null,
+    "sections": [
+     "Theme",
+     "Control Panel\\Desktop",
+     "Control Panel\\Colors",
+     "VisualStyles",
+     "MasterThemeSelector"
+    ],
+    "mtsm": "DABJDKT",
+    "colors": [
+     {
+      "key": "Background",
+      "role": "ground",
+      "got": "31 23 12",
+      "want": "31 23 12"
+     },
+     {
+      "key": "WindowText",
+      "role": "phosphor",
+      "got": "255 212 153",
+      "want": "255 212 153"
+     }
+    ],
+    "colorization": "0xC4FAB14B",
+    "accent": "FAB14B",
+    "wallpaper": "DesktopBackground\\EL-Amber.png",
+    "wallpaper_exists": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N5"
+   ]
+  }
+ }
+]
