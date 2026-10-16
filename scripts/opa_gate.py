@@ -252,6 +252,7 @@ def main(argv):
         "--list",
         "--test",
         "--specs",
+        "--portable",
         "--selftest",
         "--census",
         "--cpu",
@@ -340,6 +341,8 @@ def main(argv):
         return 0
     if "--specs" in args:
         return specs_gate()
+    if "--portable" in args:
+        return portable_report()
     if "--test" in args:
         r = subprocess.run(
             [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, *IGNORE_CASES, POLICY],
@@ -356,6 +359,85 @@ def main(argv):
         )
         return 2
     return gate(names[0], names[1:])
+
+
+def _strings(node):
+    """Every string term in an opa AST node (a parsed rule): the literals AND the reference segments, so
+    `p.admitted` contributes "admitted". A structural walk of the parse, never a text search of the source."""
+    out, stack = set(), [node]
+    while stack:
+        n = stack.pop()
+        if isinstance(n, dict):
+            if n.get("type") == "string":
+                out.add(n.get("value"))
+            stack.extend(n.values())
+        elif isinstance(n, list):
+            stack.extend(n)
+    return out
+
+
+def test_census(policy_dir=POLICY, opa=None):
+    """{spec: (tests, admitted_tests)} for every `<spec>_test.rego`, read from `opa parse` (W558).
+
+    A test is a rule named test_*; it is ADMITTED-ASSERTING when its parse mentions the `admitted` set, which a
+    pytestspec case cannot express (a case judges the deny and withheld rule-id sets only), so the others are
+    PORTABLE. A test file opa cannot parse maps to None: counted by the caller, never read as zero tests.
+    WEAKNESS: a test that reaches `admitted` through a helper rule it defines is read as portable (the walk is
+    per rule, not across rules); the mutation control of a ported spec is what would catch it."""
+    opa = opa or OPA
+    out = {}
+    for fn in sorted(os.listdir(policy_dir)):
+        if not fn.endswith("_test.rego"):
+            continue
+        r = subprocess.run(
+            [opa, "parse", "--format", "json", os.path.join(policy_dir, fn)],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if r.returncode != 0:
+            out[fn.removesuffix("_test.rego")] = None
+            continue
+        rules = json.loads(r.stdout).get("rules", [])
+        tests = [x for x in rules if x["head"].get("name", "").startswith("test_")]
+        asserting = [x for x in tests if "admitted" in _strings(x)]
+        out[fn.removesuffix("_test.rego")] = (len(tests), len(asserting))
+    return out
+
+
+def portable_report(policy_dir=POLICY, census=None):
+    """Print, per spec, how many of its tests a pytestspec case could carry; the exit code (W558).
+
+    One line per spec with tests, the most portable first (the order a sweep wants): tests, admitted-asserting,
+    portable, and whether a cases file already exists. Then `n of m`: the portable tests of all tests, the specs
+    already carrying cases of those with tests. 2 when no test file was read at all (a broken search, not a tree
+    with nothing to port); a test file opa could not parse is listed as UNPARSED and fails the run (1)."""
+    census = test_census(policy_dir) if census is None else census
+    have = set(spec_cases(policy_dir)[0])
+    rows, bad = [], []
+    for spec, got in census.items():
+        if got is None:
+            bad.append(spec)
+        elif got[0]:
+            rows.append((spec, got[0], got[1], got[0] - got[1]))
+    if not rows and not bad:
+        print("opa_gate --portable: REFUSED — no test file was read", file=sys.stderr)
+        return 2
+    for spec, n, a, p in sorted(rows, key=lambda r: (-(r[3] / r[1]), -r[1], r[0])):
+        mark = "cases" if os.path.join("policy", spec + ".rego") in have else "     "
+        print(
+            f"  {spec:24s} tests {n:3d}  admitted-asserting {a:3d}  portable {p:3d}  {mark}"
+        )
+    for spec in bad:
+        print(f"  {spec:24s} UNPARSED: opa parse refused the test file")
+    total = sum(n for _s, n, _a, _p in rows)
+    port = sum(p for _s, _n, _a, p in rows)
+    ported = sum(1 for s, *_ in rows if os.path.join("policy", s + ".rego") in have)
+    print(
+        f"opa_gate --portable: {port} of {total} tests portable over {len(rows)} spec(s); "
+        f"{ported} of {len(rows)} already carry cases"
+    )
+    return 1 if bad else 0
 
 
 def spec_cases(policy_dir=POLICY):
@@ -691,6 +773,38 @@ def _selftest():
             "--specs: no spec with cases at all is REFUSED (2), never a green run",
             empty,
             2,
+        )
+    # W558 --portable: a test that mentions the admitted set is told from one that does not, by the parse
+    with tempfile.TemporaryDirectory() as pd:
+        with open(os.path.join(pd, "x_test.rego"), "w", encoding="utf-8") as fh:
+            fh.write(
+                "package el.x_test\n\nimport rego.v1\n\n"
+                "test_denies if count(data.el.x.deny) == 1\n\n"
+                "test_withheld if count(data.el.x.withheld) == 0\n\n"
+                'test_admits if data.el.x.admitted == {"a"}\n\n'
+                "helper := 1\n"
+            )
+        with open(os.path.join(pd, "bad_test.rego"), "w", encoding="utf-8") as fh:
+            fh.write("package el.bad_test\n\ntest_x if {\n")
+        census = test_census(pd)
+        chk(
+            "--portable: three tests, one of them asserting the admitted set; a non-test rule is not counted",
+            census.get("x"),
+            (3, 1),
+        )
+        chk(
+            "--portable: a test file opa cannot parse is None, never zero tests",
+            census.get("bad", "absent"),
+            None,
+        )
+        with contextlib.redirect_stdout(quiet), contextlib.redirect_stderr(quiet):
+            unparsed = portable_report(pd, census)
+            nothing = portable_report(pd, {})
+            clean = portable_report(pd, {"x": (3, 1)})
+        chk(
+            "--portable: an unparsed test file fails the report (1), an empty census is refused (2), a clean one is 0",
+            (unparsed, nothing, clean),
+            (1, 2, 0),
         )
     print("opa_gate selftest:", "PASS" if ok else "FAIL")
     return ok

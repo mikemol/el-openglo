@@ -13093,7 +13093,7 @@
     {
       "symbol": "W558",
       "title": "Sweep the next Rego specs to pytestspec cases, fewest admitted-set assertions first",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "policy",
@@ -13101,13 +13101,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Per spec: count its tests that assert only deny and withheld id sets (portable) against those that assert the admitted set (not expressible by a case today). Port the portable ones as policy/<name>.cases.json beside the spec, keep the rest in opa test, and run a mutation control per spec (rename one rule id, expect that case to fail). Where admitted-set assertions are the bulk, send mtools the ask for an expect.admitted with the count of tests it would free. Start with the specs whose tests are mostly deny and withheld ids (package_load, template_parity, routes are candidates).",
-      "evidence": "",
+      "next_bounded_step": "THE CENSUS EXISTS: opa_gate.py --portable ranks every spec by its portable share, read from opa parse. Measured 2026-10-16: 932 of 1236 tests portable over 94 specs, 1 spec already carries cases (qml_lint, 10 of its 15). All-portable specs, small first: codomain 6, runtime_warnings 6, plugin_ids 8, deb 8, guest_recipe 8, notify_roles 12, populations 17, taskswitch 20, license 38, marquee_body 57, marquee_live 69. One spec per unit: read its tests, write policy/<name>.cases.json one case per portable test (the rule id of the deny or withheld message is the expect), pytest policy/<name>.rego, a mutation control (rename one rule id, expect that case to fail), opa_gate --specs, commit. Where a spec is mostly admitted-asserting, send mtools the count for an expect.admitted.",
+      "evidence": "2026-10-16: 2026-10-16: opa_gate --portable built (test_census over opa parse, portable_report): 932 of 1236 tests portable, 94 specs, qml_lint 10 of 15 matches the hand count of W211; selftest 3 new arms (a test mentioning the admitted set told from one that does not, an unparseable test file is None not zero, report exits 0/1/2).",
       "issued_at": "2026-10-16T10:27:48Z",
       "minted_during": "interrupt",
       "caused_by": "W139",
-      "last_worked": "2026-10-16T10:27:55Z",
-      "ticks_blocked": 0
+      "last_worked": "2026-10-16T11:29:33Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
