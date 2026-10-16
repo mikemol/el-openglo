@@ -1,0 +1,108 @@
+[
+  {
+    "case": "admits-a-declared-and-modelled-contract: every needed role is declared by the host and modelled by the stub, invokeAction present",
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": ["invokeAction", "expire"],
+    "enums": {}
+  },
+  {
+    "case": "n0-refuses-no-roles: an empty roles map reads as a broken search",
+    "roles": {},
+    "needed": [],
+    "stub_roles": [],
+    "methods": ["invokeAction"],
+    "expect": {"deny": ["N0"]}
+  },
+  {
+    "case": "n1-withholds-an-absent-module: a host without the module is withheld, not judged",
+    "withheld": "no qmltypes",
+    "roles": {},
+    "needed": ["IdRole"],
+    "expect": {"withheld": ["N1"]}
+  },
+  {
+    "case": "null-withheld-does-not-fire: a null reason is not a withholding",
+    "withheld": null,
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": ["invokeAction", "expire"],
+    "enums": {}
+  },
+  {
+    "case": "all-null-is-withheld-only: every field not measured is withheld by name, never a deny",
+    "withheld": null,
+    "roles": null,
+    "needed": null,
+    "stub_roles": null,
+    "methods": null,
+    "expect": {"withheld": ["N0"]}
+  },
+  {
+    "case": "null-withheld-still-judges: HintsRole is missing from both the host's model (N2) and the stub (N3)",
+    "withheld": null,
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "HintsRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": ["invokeAction", "expire"],
+    "enums": {},
+    "expect": {"deny": ["N2", "N3"]}
+  },
+  {
+    "case": "null-withheld-still-judges-n4: no invokeAction among the methods",
+    "withheld": null,
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": ["expire"],
+    "enums": {},
+    "expect": {"deny": ["N4"]}
+  },
+  {
+    "case": "null-withheld-still-refuses-no-roles: a null reason does not silence N0",
+    "withheld": null,
+    "roles": {},
+    "needed": [],
+    "stub_roles": [],
+    "methods": ["invokeAction"],
+    "expect": {"deny": ["N0"]}
+  },
+  {
+    "case": "null-methods-is-withheld-not-denied: methods not measured is withheld, and N4 does not fire on it",
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": null,
+    "enums": {},
+    "expect": {"withheld": ["N0"]}
+  },
+  {
+    "case": "n2-refuses-a-role-the-host-lacks: HintsRole needed, declared by neither the host nor the stub",
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "HintsRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": ["invokeAction", "expire"],
+    "enums": {},
+    "expect": {"deny": ["N2", "N3"]}
+  },
+  {
+    "case": "n3-refuses-a-role-the-stub-lacks: the host declares them all, the stub models only IdRole",
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "stub_roles": ["IdRole"],
+    "methods": ["invokeAction", "expire"],
+    "enums": {},
+    "expect": {"deny": ["N3"]}
+  },
+  {
+    "case": "n4-refuses-no-invoke-action: the model cannot tap an action",
+    "roles": {"IdRole": 0, "UrgencyRole": 29, "PercentageRole": 19},
+    "needed": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "stub_roles": ["IdRole", "UrgencyRole", "PercentageRole"],
+    "methods": ["expire"],
+    "enums": {},
+    "expect": {"deny": ["N4"]}
+  }
+]
