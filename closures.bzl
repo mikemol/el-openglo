@@ -502,6 +502,7 @@ CLOSURES = {
         "policy/log_content_test.rego",
         "policy/mark.rego",
         "policy/mark_test.rego",
+        "policy/marquee_body.cases.json",
         "policy/marquee_body.rego",
         "policy/marquee_body_test.rego",
         "policy/marquee_live.rego",
