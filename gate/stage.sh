@@ -5,6 +5,7 @@
 #
 #   gate/stage.sh selftest scripts/check_x.py   a check's --selftest (and worklist_gate's)
 #   gate/stage.sh opa-test                      every policy's refusing and admitting case
+#   gate/stage.sh pytestspec                    every spec with a cases file, as pytest items (W557)
 #   gate/stage.sh segment-lattice               segment_topology's own invariants
 #   gate/stage.sh census                        every tracked file is a named input of some stage (W488)
 #   gate/stage.sh worklist                      every cited claim of catalog/worklist is discharged
@@ -26,7 +27,7 @@
 set -uo pipefail
 
 usage() {
-  echo "gate/stage.sh: REFUSED — usage: stage.sh selftest SCRIPT | opa-test | segment-lattice | census | closure-witness | worklist | readme" >&2
+  echo "gate/stage.sh: REFUSED — usage: stage.sh selftest SCRIPT | opa-test | pytestspec | segment-lattice | census | closure-witness | worklist | readme" >&2
   exit 2
 }
 
@@ -101,6 +102,11 @@ case "$KIND" in
     ;;
   opa-test)
     quiet "opa-test" "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" --test
+    ;;
+  pytestspec)
+    # the specs that carry a <name>.cases.json run as pytest items (mikemol-pytestspec, W557): the refusing
+    # and withholding half of a rule's record beside opa-test; an orphan cases file or an empty population fails
+    quiet "pytestspec" "${RUNNER[@]}" "$ROOT/scripts/opa_gate.py" --specs
     ;;
   segment-lattice)
     quiet "segment-lattice" "${RUNNER[@]}" "$ROOT/segment_topology.py" --selftest

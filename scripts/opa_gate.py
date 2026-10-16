@@ -248,7 +248,15 @@ def cpu_of(script):
 
 
 def main(argv):
-    known = {"--list", "--test", "--selftest", "--census", "--cpu", "--denies"}
+    known = {
+        "--list",
+        "--test",
+        "--specs",
+        "--selftest",
+        "--census",
+        "--cpu",
+        "--denies",
+    }
     rest, expect = list(argv[1:]), None
     # --expect takes a VALUE (`--expect denied:S0` or `--expect=denied:S0`); it is
     # lifted out before the flag/operand split so the value is not read as an operand
@@ -330,6 +338,8 @@ def main(argv):
                 f"{n:24s} policy/{n}.rego  {os.path.basename(m)} {'--json' if os.path.isfile(m) else 'ABSENT'}"
             )
         return 0
+    if "--specs" in args:
+        return specs_gate()
     if "--test" in args:
         r = subprocess.run(
             [OPA, "test", "--timeout", OPA_TEST_TIMEOUT, *IGNORE_CASES, POLICY],
@@ -346,6 +356,51 @@ def main(argv):
         )
         return 2
     return gate(names[0], names[1:])
+
+
+def spec_cases(policy_dir=POLICY):
+    """(specs, orphans): the specs that carry a pytestspec cases file, and the cases files with no spec.
+
+    A spec is `policy/<name>.rego` with `policy/<name>.cases.json` beside it (mikemol-pytestspec, W211).
+    Specs are returned as repo-relative paths (what pytest is handed); an orphan is a `<name>.cases.json` whose
+    `<name>.rego` is gone, which pytest would never collect and nothing else would read: stale data that looks
+    like coverage. WEAKNESS: it reads names, not the cases; whether a case is any good is the spec's mutation
+    control, not this census."""
+    specs, orphans = [], []
+    for fn in sorted(os.listdir(policy_dir)):
+        if not fn.endswith(".cases.json"):
+            continue
+        stem = fn.removesuffix(".cases.json")
+        if os.path.isfile(os.path.join(policy_dir, stem + ".rego")):
+            specs.append(os.path.join("policy", stem + ".rego"))
+        else:
+            orphans.append(os.path.join("policy", fn))
+    return specs, orphans
+
+
+def specs_gate(policy_dir=POLICY, run=None):
+    """Run pytest over every spec that has a cases file; the exit code (W557).
+
+    0 when every case passed, pytest's own code when one did not, 1 on an orphan cases file, 2 when no spec has
+    a cases file at all (an empty population is a broken search, never a green run). It prints `n of m`: the
+    specs that have cases of the policies there are. `run` is the seam a selftest fakes (argv -> rc)."""
+    specs, orphans = spec_cases(policy_dir)
+    for o in orphans:
+        print(f"opa_gate --specs: {o} has no spec beside it", file=sys.stderr)
+    if orphans:
+        return 1
+    if not specs:
+        print(
+            "opa_gate --specs: REFUSED — no spec has a cases file; the population is empty",
+            file=sys.stderr,
+        )
+        return 2
+    argv = [sys.executable, "-m", "pytest", *specs, "-q", "-p", "no:cacheprovider"]
+    rc = run(argv) if run else subprocess.run(argv, cwd=ROOT, check=False).returncode
+    print(
+        f"opa_gate --specs: {len(specs)} of {len(policies())} policy spec(s) carry cases"
+    )
+    return rc
 
 
 def gate(name, operands=()):
@@ -599,6 +654,44 @@ def _selftest():
         any(v == [] for v in d.values()),
         True,
     )
+    # W557 --specs: the finder SEES a spec with cases, one without, and an orphan; the gate refuses an
+    # empty population and an orphan, and returns the runner's own code otherwise
+    import contextlib
+    import io
+    import tempfile
+
+    a_spec = os.path.join("policy", "a.rego")
+    gone = os.path.join("policy", "gone.cases.json")
+    quiet = io.StringIO()
+    with tempfile.TemporaryDirectory() as pd:
+        for fn in ("a.rego", "a.cases.json", "b.rego", "gone.cases.json"):
+            with open(os.path.join(pd, fn), "w", encoding="utf-8") as fh:
+                fh.write("[]")
+        chk(
+            "--specs: a spec with cases is found, one without is not, a cases file with no spec is an orphan",
+            spec_cases(pd),
+            ([a_spec], [gone]),
+        )
+        with contextlib.redirect_stderr(quiet):
+            orphaned = specs_gate(pd, run=lambda argv: 0)
+        chk("--specs: an orphan cases file fails the gate (1)", orphaned, 1)
+        os.remove(os.path.join(pd, "gone.cases.json"))
+        ran = []
+        with contextlib.redirect_stdout(quiet):
+            rc = specs_gate(pd, run=lambda argv: ran.append(argv) or 5)
+        chk(
+            "--specs: a clean population hands pytest the spec and returns the runner's own code",
+            (rc, a_spec in ran[0]),
+            (5, True),
+        )
+        os.remove(os.path.join(pd, "a.cases.json"))
+        with contextlib.redirect_stderr(quiet):
+            empty = specs_gate(pd, run=lambda argv: 0)
+        chk(
+            "--specs: no spec with cases at all is REFUSED (2), never a green run",
+            empty,
+            2,
+        )
     print("opa_gate selftest:", "PASS" if ok else "FAIL")
     return ok
 

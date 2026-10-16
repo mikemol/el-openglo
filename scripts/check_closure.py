@@ -84,7 +84,7 @@ def parse_trace(text, root, tracked):
 
 
 # the gate stages that are not one check's selftest, keyed by their gate/stage.sh kind (W496)
-STAGE_KINDS = ("opa-test", "segment-lattice", "worklist", "readme")
+STAGE_KINDS = ("opa-test", "pytestspec", "segment-lattice", "worklist", "readme")
 
 
 def stage_args(key):

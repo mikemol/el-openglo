@@ -40,6 +40,7 @@ STAGES = [
     for c in CHECKS
 ] + [
     {"name": "opa_test", "args": ["opa-test"], "data": closure_data(CLOSURES, "opa-test", ALL)},
+    {"name": "pytestspec", "args": ["pytestspec"], "data": closure_data(CLOSURES, "pytestspec", ALL)},
     {"name": "segment_lattice", "args": ["segment-lattice"], "data": closure_data(CLOSURES, "segment-lattice", ALL)},
     # the witness copies every other stage's closure into its own tree: its data is their union plus
     # the suite's own files (closures.bzl, BUILD, the stage runner); a whole-tree stage makes it the tracked list
