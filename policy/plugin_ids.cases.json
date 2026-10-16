@@ -1,0 +1,82 @@
+[
+  {
+    "case": "admits-a-consistent-install: ids match directories, every reference is satisfied",
+    "shipped": [
+      {"id": "org.el.openglo.live", "kind": "plasma/wallpapers", "dir": "org.el.openglo.live", "dir_matches": true},
+      {"id": "org.el.openglo.elamber", "kind": "plasma/look-and-feel", "dir": "org.el.openglo.elamber", "dir_matches": true}
+    ],
+    "referenced": [
+      {"id": "org.el.openglo.live", "file": "/x/layout.js", "prefix": false},
+      {"id": "org.el.openglo", "file": "/usr/bin/el-openglo-apply", "prefix": true}
+    ],
+    "withheld": null
+  },
+  {
+    "case": "p0-refuses-an-absent-population: no shipped key at all must not admit",
+    "expect": {"deny": ["P0"]}
+  },
+  {
+    "case": "p1-refuses-an-id-that-is-not-its-directory: no references, so only P1 can fire",
+    "shipped": [
+      {"id": "org.el.renamed", "kind": "plasma/wallpapers", "dir": "org.el.openglo.live", "dir_matches": false},
+      {"id": "org.el.openglo.elamber", "kind": "plasma/look-and-feel", "dir": "org.el.openglo.elamber", "dir_matches": true}
+    ],
+    "referenced": [],
+    "withheld": null,
+    "expect": {"deny": ["P1"]}
+  },
+  {
+    "case": "p2-refuses-a-dangling-reference: the f521e6f shape, a desktop naming a per-variant wallpaper the build dropped",
+    "shipped": [
+      {"id": "org.el.openglo.live", "kind": "plasma/wallpapers", "dir": "org.el.openglo.live", "dir_matches": true},
+      {"id": "org.el.openglo.elamber", "kind": "plasma/look-and-feel", "dir": "org.el.openglo.elamber", "dir_matches": true}
+    ],
+    "referenced": [
+      {"id": "org.el.openglo.live.elazure", "file": "/x/appletsrc", "prefix": false}
+    ],
+    "withheld": null,
+    "expect": {"deny": ["P2"]}
+  },
+  {
+    "case": "p2-refuses-a-prefix-nothing-extends",
+    "shipped": [
+      {"id": "org.el.openglo.live", "kind": "plasma/wallpapers", "dir": "org.el.openglo.live", "dir_matches": true},
+      {"id": "org.el.openglo.elamber", "kind": "plasma/look-and-feel", "dir": "org.el.openglo.elamber", "dir_matches": true}
+    ],
+    "referenced": [
+      {"id": "org.el.nothing", "file": "/usr/bin/x", "prefix": true}
+    ],
+    "withheld": null,
+    "expect": {"deny": ["P2"]}
+  },
+  {
+    "case": "p2-a-prefix-is-not-satisfied-by-its-own-exact-id-alone",
+    "shipped": [
+      {"id": "org.el.solo", "kind": "plasma/plasmoids", "dir": "org.el.solo", "dir_matches": true}
+    ],
+    "referenced": [
+      {"id": "org.el.solo", "file": "/usr/bin/x", "prefix": true}
+    ],
+    "withheld": null,
+    "expect": {"deny": ["P2"]}
+  },
+  {
+    "case": "p3-withholds-a-reference-whose-prefix-was-not-measured: withheld, never judged",
+    "shipped": [
+      {"id": "org.el.openglo.live", "kind": "plasma/wallpapers", "dir": "org.el.openglo.live", "dir_matches": true},
+      {"id": "org.el.openglo.elamber", "kind": "plasma/look-and-feel", "dir": "org.el.openglo.elamber", "dir_matches": true}
+    ],
+    "referenced": [
+      {"id": "org.el.x", "file": "/y", "prefix": null}
+    ],
+    "withheld": null,
+    "expect": {"withheld": ["P3"]}
+  },
+  {
+    "case": "p3-withholds-an-unstaged-tree: a tree that is not a staged install is withheld, not a deny",
+    "shipped": [],
+    "referenced": [],
+    "withheld": "not a staged install tree",
+    "expect": {"withheld": ["P3"]}
+  }
+]

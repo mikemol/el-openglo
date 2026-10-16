@@ -538,6 +538,7 @@ CLOSURES = {
         "policy/partial_test.rego",
         "policy/plasma_air.rego",
         "policy/plasma_air_test.rego",
+        "policy/plugin_ids.cases.json",
         "policy/plugin_ids.rego",
         "policy/plugin_ids_test.rego",
         "policy/plymouth_digits.rego",

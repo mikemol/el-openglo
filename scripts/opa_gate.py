@@ -497,6 +497,18 @@ def specs_gate(policy_dir=POLICY, run=None, closure="stored"):
             file=sys.stderr,
         )
         return 2
+    # ⚑ THE SHARED LIBRARY IS LISTED HERE, ON PURPOSE (W558). pytestspec_data names policy/lib, and whether opa
+    # reads its files at run time varied between observations (the stage closure held them in one run and not
+    # the next, 429 files against 410), so a closure-only tree lacked the directory and every spec failed to
+    # collect. A directory this stage LISTS is declared by the closure rule (every tracked file directly inside
+    # it), so the dependency no longer rests on what pytest or opa happen to open.
+    lib_dir = os.path.join(policy_dir, "lib")
+    if os.path.isdir(lib_dir) and not os.listdir(lib_dir):
+        print(
+            f"opa_gate --specs: {lib_dir} is empty; pytestspec_data names it",
+            file=sys.stderr,
+        )
+        return 1
     held = stored_closure() if closure == "stored" else closure
     lacking = closure_lacks(specs, held) if held is not None else []
     for c in lacking:
