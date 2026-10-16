@@ -381,6 +381,54 @@ def _selftest():
             True,
         )
         print(f"    (measured: see-saw {p2['see-saw']}, steady {p2['steady scroll']})")
+    # W175: the prime-period reading can SEE a single line, an even spread and a partial one, and it
+    # refuses a run too short to have a spectrum. Cosines, not sines: a sine at period 2 is zero at every
+    # integer frame and would read as silent.
+    import math
+
+    def tone(periods, n=60):
+        return [
+            [sum(math.cos(2 * math.pi * t / p) for p in periods)] * 4 for t in range(n)
+        ]
+
+    one = RS.prime_lines(tone([7]))
+    spread = RS.prime_lines(tone([2, 3, 5, 7, 11, 13, 17, 19, 23, 29]))
+    part = RS.prime_lines(tone([3, 5, 7]))
+    chk(
+        "one line at period 7 is read as prime 7 holding over 0.9 of the power",
+        (one["peak"][0], one["peak"][1] > 0.9),
+        (7, True),
+    )
+    chk("...and as concentrated (evenness under 0.1)", one["evenness"] < 0.1, True)
+    chk(
+        "equal power on every prime up to 29 is read as even (evenness over 0.8)",
+        spread["evenness"] > 0.8,
+        True,
+    )
+    chk(
+        "equal power on only three of those primes is NOT even (evenness under 0.2)",
+        part["evenness"] < 0.2,
+        True,
+    )
+    chk(
+        "primes_upto lists them",
+        RS.primes_upto(20),
+        [2, 3, 5, 7, 11, 13, 17, 19],
+    )
+    chk("a 3-frame run has no spectrum", RS.prime_lines([[0.0]] * 3), None)
+    chk(
+        "a run that never varies has no spectrum",
+        RS.prime_lines([[1.0, 1.0]] * 20),
+        None,
+    )
+    chk(
+        "the fields on a record are the evenness and the peak, or None for both",
+        (RS.prime_fields([[0.0]] * 3), sorted(RS.prime_fields(tone([7])))),
+        (
+            {"prime_evenness": None, "prime_peak": None},
+            ["prime_evenness", "prime_peak"],
+        ),
+    )
     print("check_screens selftest:", "PASS" if ok else "FAIL")
     return ok
 

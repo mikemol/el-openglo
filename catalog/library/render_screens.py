@@ -583,6 +583,62 @@ def spectral_lines(profiles):
     return round(period, 3), round(float(power[i]) / total, 4), round(total, 3), p2
 
 
+def prime_fields(profiles):
+    """The two fields an animation's record carries for W175: how even the power is over the prime periods
+    (1.0 even) and the prime that holds the most with its share; both None when there is no spectrum."""
+    got = prime_lines(profiles)
+    return {
+        "prime_evenness": got["evenness"] if got else None,
+        "prime_peak": list(got["peak"]) if got else None,
+    }
+
+
+def primes_upto(n):
+    """The primes <= n, ascending."""
+    return [p for p in range(2, n + 1) if all(p % q for q in range(2, int(p**0.5) + 1))]
+
+
+def prime_lines(profiles):
+    """W175 (operator 2026-10-01, lower priority): the brightness power at the PRIME periods 2, 3, 5, 7, 11 ...
+    up to half the run, "not powers of 2 fft, but prime lines". Per pip, its brightness over the frames is a
+    series; the power at period p is |sum_t s_t exp(-2 pi i t / p)| squared, a direct DFT at the frequency
+    1/p, so a period that is no bin of the run's FFT is still read exactly; summed over pips, mean removed.
+
+    Returns {"lines": {p: share}, "evenness": spectral flatness, "peak": (p, share)}: the shares sum to 1
+    over the primes read, `evenness` is the geometric over the arithmetic mean of the line powers (1.0 is
+    perfectly even, 0.0 is a line with no power at all), `peak` the prime holding the most. None when the run
+    has fewer than 4 frames, fewer than two primes fit, or nothing varies.
+    WEAKNESS: it reads the lines that exist in the series, not whether they are the RIGHT ones: an even
+    spread is a property of the scroll's timing, and this measures what a render did, not what it was built
+    to do. A text's own spatial spectrum rides on every line, so the figure judges a whole run."""
+    import numpy as np
+
+    if len(profiles) < 4 or not profiles[0]:
+        return None
+    primes = primes_upto(len(profiles) // 2)
+    if len(primes) < 2:
+        return None
+    series = np.array(profiles, dtype=float)
+    series = series - series.mean(axis=0)
+    t = np.arange(len(profiles))
+    powers = []
+    for p in primes:
+        basis = np.exp(-2j * np.pi * t / p)
+        powers.append(float((np.abs(basis @ series) ** 2).sum()))
+    total = sum(powers)
+    if total <= 0:
+        return None
+    mean = total / len(powers)
+    geo = float(np.exp(np.mean(np.log(np.maximum(powers, 1e-300)))))
+    flat = geo / mean if min(powers) > 0 else 0.0
+    peak = max(range(len(primes)), key=lambda i: powers[i])
+    return {
+        "lines": {p: round(w / total, 4) for p, w in zip(primes, powers, strict=True)},
+        "evenness": round(flat, 4),
+        "peak": (primes[peak], round(powers[peak] / total, 4)),
+    }
+
+
 def best_pip_shift(prev, cur, max_shift, both_ways=False):
     """The shift in PIPS (whole k plus a fraction f) under which `cur` best matches
     `prev` moved left — cur[c] ≈ (1-f)·prev[c+k] + f·prev[c+k+1] — and the
@@ -785,6 +841,7 @@ def animation_facts(path, lit_hex, ground_hex, tolerance=0.5, axis="x"):
         "dominant_line_share": line_share,
         "spectral_power": power,
         "period2_share": p2,
+        **prime_fields(profiles),
     }
 
 
@@ -897,6 +954,7 @@ def main(argv):
         "--all",
         "--selftest",
         "--whole",
+        "--primes",
     }
     jobs = 1
     for a in argv[1:]:
@@ -960,6 +1018,24 @@ def main(argv):
         return 0
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
+        return 0
+    if "--primes" in argv:
+        # ⚑ W175: how evenly each scroll's brightness power sits on the prime periods (1.0 even); the
+        # prime holding the most and its share. Reported: the by-construction design is the card's next step.
+        rows = [a for a in measure()["animations"] if a.get("exists")]
+        for a in rows:
+            pk = a.get("prime_peak")
+            print(
+                f"  {a['file']:34s} frames {a['frames']:3d} "
+                + (
+                    f"evenness {a['prime_evenness']:.4f}, peak prime {pk[0]} holds {pk[1]:.3f}"
+                    if pk
+                    else "no spectrum"
+                )
+            )
+        print(
+            f"render_screens --primes: {len(rows)} of {len(plan_animations())} animation(s) read"
+        )
         return 0
     if "--whole" in argv:
         # ⚑ W174: does each scroll pass through the alignment where every stroke sits whole on the
