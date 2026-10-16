@@ -535,6 +535,7 @@ CLOSURES = {
         "policy/plugin_ids_test.rego",
         "policy/plymouth_digits.rego",
         "policy/plymouth_digits_test.rego",
+        "policy/populations.cases.json",
         "policy/populations.rego",
         "policy/populations_test.rego",
         "policy/projection.rego",

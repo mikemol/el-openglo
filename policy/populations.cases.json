@@ -1,0 +1,130 @@
+[
+  {
+    "case": "raw-git-ls-files-denied-as-p3-not-p1: the bypass that graded @LICENSE broken in the delta sandbox",
+    "files": ["scripts/check_license.py"],
+    "cases": [
+      {"module": "scripts/check_license.py", "line": 195, "kind": "git-ls-files", "recursive": true, "reach": "root", "root": "git ls-files", "marked": false, "reason": null, "borrowed": false}
+    ],
+    "expect": {"deny": ["P3"]}
+  },
+  {
+    "case": "git-ls-files-in-the-authority-is-admitted: scripts/git_tracked.py may run it",
+    "files": ["scripts/git_tracked.py"],
+    "cases": [
+      {"module": "scripts/git_tracked.py", "line": 195, "kind": "git-ls-files", "recursive": true, "reach": "root", "root": "git ls-files", "marked": false, "reason": null, "borrowed": false}
+    ]
+  },
+  {
+    "case": "marked-git-ls-files-is-admitted: a population reason is given",
+    "files": ["scripts/check_license.py"],
+    "cases": [
+      {"module": "scripts/check_license.py", "line": 195, "kind": "git-ls-files", "recursive": true, "reach": "root", "root": "git ls-files", "marked": true, "reason": "untracked files of a real repo", "borrowed": false}
+    ]
+  },
+  {
+    "case": "absent-population-denied: no files key at all",
+    "expect": {"deny": ["P0"]}
+  },
+  {
+    "case": "empty-population-denied: no file in the census scope",
+    "files": [],
+    "cases": [],
+    "expect": {"deny": ["P0"]}
+  },
+  {
+    "case": "bare-root-walk-denied: an unmarked recursive walk from the repo root",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 4, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": false}
+    ],
+    "expect": {"deny": ["P1"]}
+  },
+  {
+    "case": "unknown-root-walk-denied: a recursive walk whose root cannot be shown bounded",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 5, "kind": "walk", "recursive": true, "reach": "unknown", "root": "d", "marked": false, "reason": null, "borrowed": false}
+    ],
+    "expect": {"deny": ["P1"]}
+  },
+  {
+    "case": "marked-without-reason-denied: a population mark with an empty reason",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 8, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": true, "reason": "", "borrowed": false}
+    ],
+    "expect": {"deny": ["P2"]}
+  },
+  {
+    "case": "borrowed-is-withheld-not-denied: a substrate finding is measured and reported, never denied here",
+    "files": ["scripts/ratchet.py"],
+    "cases": [
+      {"module": "scripts/ratchet.py", "line": 3, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": true}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "bounded-marked-and-listing-admitted: a bounded walk, a marked one with a reason, a non-recursive listing",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 6, "kind": "walk", "recursive": true, "reach": "bounded", "root": "ROOT/catalog", "marked": false, "reason": null, "borrowed": false},
+      {"module": "scripts/x.py", "line": 7, "kind": "walk", "recursive": true, "reach": "unknown", "root": "td", "marked": true, "reason": "a private tempdir", "borrowed": false},
+      {"module": "scripts/x.py", "line": 9, "kind": "listdir", "recursive": false, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": false}
+    ]
+  },
+  {
+    "case": "null-recursive-marked-does-not-fire: a null recursive or marked is withheld as not measured, never judged",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 4, "kind": "walk", "recursive": null, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": false},
+      {"module": "scripts/x.py", "line": 8, "kind": "walk", "recursive": false, "reach": "root", "root": "ROOT", "marked": null, "reason": "", "borrowed": false}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "null-borrowed-recursive-does-not-withhold-as-substrate: both are withheld as not measured",
+    "files": ["scripts/ratchet.py"],
+    "cases": [
+      {"module": "scripts/ratchet.py", "line": 3, "kind": "walk", "recursive": null, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": true},
+      {"module": "scripts/x.py", "line": 10, "kind": "walk", "recursive": false, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": null}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "all-null-case-withheld-only: every field not measured is withheld by name, never a deny",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 4, "kind": "walk", "recursive": null, "reach": null, "root": "ROOT", "marked": null, "reason": null, "borrowed": null}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "null-borrowed-is-withheld: an unmarked root walk with borrowed null is neither denied nor silent",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 4, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": false, "reason": null, "borrowed": null}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "null-marked-is-withheld: a null marked does not read as marked",
+    "files": ["scripts/x.py"],
+    "cases": [
+      {"module": "scripts/x.py", "line": 4, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": null, "reason": null, "borrowed": false}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "null-marked-borrowed-is-withheld-not-substrate: a borrowed file with marked null is withheld as not measured",
+    "files": ["scripts/ratchet.py"],
+    "cases": [
+      {"module": "scripts/ratchet.py", "line": 3, "kind": "walk", "recursive": true, "reach": "root", "root": "ROOT", "marked": null, "reason": null, "borrowed": true}
+    ],
+    "expect": {"withheld": ["P1"]}
+  },
+  {
+    "case": "no-sites-over-a-population-admitted: zero sites over a non-empty population is the goal, not a defect",
+    "files": ["scripts/x.py"],
+    "cases": []
+  }
+]

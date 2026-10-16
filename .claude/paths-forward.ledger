@@ -948,3 +948,4 @@
 2026-10-16T06:50:47Z  interrupt W556 minted    -         "land_template: replace the resume marker by world readings, each phase skipped when its existing check already passes (nothing records status)"  evidence=W555
 2026-10-16T10:27:42Z  interrupt W557 minted    -         "A gate stage runs pytest over every spec with a cases file (xdist, the whole run memory-capped), beside opa test, and the census and closures name the cases files as stage inputs"  evidence=W139
 2026-10-16T10:27:48Z  interrupt W558 minted    -         "Sweep the next Rego specs to pytestspec cases, fewest admitted-set assertions first"  evidence=W139
+2026-10-16T17:05:37Z  interrupt W559 minted    -         "The tooling extra lacks mikemol-mutation: the located paperkit imports it, so --discriminate cannot start"  evidence=W469
