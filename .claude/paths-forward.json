@@ -2882,23 +2882,21 @@
     {
       "symbol": "W138",
       "title": "Struct-tool queries over the repo root skip .claude/worktrees and .tree-writes checkouts by default",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "worktrees",
         "pycodemod"
       ],
-      "blocked_on": [
-        "W256"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "Make the struct tools this repo routes to (mikemol-pycodemod, mdstruct) exclude registered worktrees from a repo-root walk - an mtools change, so a letter or waypoint there citing el-openglo:W138 - with a positive control (a planted importer inside a worktree is skipped, one outside is found).",
       "evidence": "2026-10-01: former title (retitled 2026-09-30, nemik title warning): STALE WORKTREES: ~50 leftover .claude/worktrees/agent-* checkouts and 2 .tree-writes/el-* trees each carry full copies of the tree; struct-tool queries over the repo root return ~100x the real sites (pycodemod --importers make_chrome: 108 sites, 2 real). Census which are merged or abandoned, remove them via git worktree remove (never rm -rf a registered worktree), and make the struct tools skip them by default | 2026-10-02: 2026-10-02: narrowed in the W95/W138/W233 collapse audit: worktree retirement itself is W233; this keeps the distinct part (pycodemod --importers make_chrome counted 108 sites, 2 real, because worktrees were walked). | 2026-10-03: 2026-10-03 (swarm): the WORK is mtools (struct tools skip registered worktrees), so this card waits on them; W233 retires the checkouts themselves. Letter filed: mtools/inbox/2026-10-03-el-openglo-struct-tools-skip-worktrees.md. RE-MEASURED today (bash globstar over the repo **/*.py, because pycodemod importers refuses a directory): importers make_chrome finds 4 sites in 3 real files (make_deb.py, scripts/check_chrome.py twice, scripts/publish_browsers.py) and ~105 more in the 49 .claude/worktrees and 2 .tree-writes checkouts: ~109 against 4. The old 108-vs-2 is STALE on the real side (publish_browsers.py now imports make_chrome, W134). The scan also reported 12 unreadable files (broken links) among 7041 of 7053. ASK: default skip of registered worktrees with a printed skipped count and an include flag, plus a positive control. Bare repo block until mtools mint a waypoint. | 2026-10-16: 2026-10-15 queue-planning: W480 collapsed here. mtools landed the worktree skip (mdstruct bbb6c8d, mtools:W561; pycodemod 920642f; shared mikemol-pathwalk), per inbox/2026-10-04-mtools-mdstruct-directory-operand.md, so the bare mtools block is lifted. Adoption needs the one-sha re-pin that brings these versions and mikemol-pathwalk in: W256. Then rerun the positive control.",
       "issued_at": "2026-09-28T21:21:47Z",
       "minted_during": "interrupt",
       "caused_by": "W134",
       "last_worked": "2026-10-16T02:06:31Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:N/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 1,
@@ -3734,29 +3732,6 @@
       "vector_source": "agent",
       "weight": 2,
       "completed": "20261013T071525Z"
-    },
-    {
-      "symbol": "W175",
-      "title": "Spread scroll brightness power evenly over the prime spectral lines, by construction",
-      "status": "working",
-      "enables": [],
-      "touches": [
-        "catalog/library/render_screens.py",
-        "templates"
-      ],
-      "blocked_on": [],
-      "blocked_kind": null,
-      "next_bounded_step": "MEASURING TOOL LANDS FIRST (2026-10-16): render_screens.prime_lines (direct DFT at the prime periods up to half the run, evenness = spectral flatness) and --primes. Baseline over the 12 real scrolls: marquee 0.945 (peak prime 5 holds 0.18), pinholes 0.44 (peak prime 29 holds 0.20). OPEN, THE DESIGN: equal power on every prime period BY CONSTRUCTION. Two facts bound it: lines at primes p and q are only resolvable over a window of about p*q frames, so over a short run the prime lines are NOT orthogonal and \"equal power on each\" is overdetermined near the top primes; and a text carries its own spatial spectrum onto every line, so the claim can hold for the scroll TIMING (the step sequence) and not for the picture. Derive which: pose it as the step sequence s_n whose quantisation error e_n = frac(sum s_k) has a flat power at prime periods; the present phi step gives e_n a Weyl sequence with its lines at multiples of 1/phi. Then make the evenness a witness (a policy rule over prime_evenness, withheld below a frame count) once a design passes it.",
-      "evidence": "2026-10-01: 2026-10-01 OPERATOR (aside, LOWER PRIORITY): \"If I could, I d look for an even power distribution (effectively the same power on each spectral line. Not powers of 2 fft, but prime lines, 2,3,5,7,11... up to however wide the widget is.) but that is a lower priority ask, and is something I d want to be true by construction rather than developed by trial and error - it would be complicated to do right, and we have a lot of other stuff I d want to get done first.\" | 2026-10-02: 2026-10-02 CONTRADICTION RESOLVED (preamble rule (a), a missing edge): nemik ranked W175 second-ready after the weight sync overwrote its -10 deferral, against the operator ruling that it waits behind the current queue. Its own next step names the W173 spectral measurement as its witness, so the true dependency is W173 -> W175; edge added, W175 blocked on W173. | 2026-10-16: 2026-10-16: prime_lines and --primes built, 8 selftest arms in check_screens (one line, an even spread, a partial spread, short and flat runs). Baseline: marquee anim evenness 0.9448 on 7 primes (peak 5, 0.184); pinholes anim 0.44 on 17 primes (peak 29, 0.202). Finding: prime lines at periods p and q are not orthogonal over a window shorter than about p*q frames, so equal power on all primes up to the width is overdetermined near the top; the card needs a derivation, not a tuning.",
-      "issued_at": "2026-10-01T14:43:22Z",
-      "minted_during": "interrupt",
-      "caused_by": "operator",
-      "last_worked": "2026-10-16T08:06:03Z",
-      "ticks_blocked": 0,
-      "weight": 13,
-      "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
-      "vector_source": "agent",
-      "completed": null
     },
     {
       "symbol": "W176",
@@ -4624,7 +4599,7 @@
     {
       "symbol": "W211",
       "title": "Port qml_lint to pytestspec with both halves (admitting cases, and refusing cases with expect.deny) and show the same counts as opa test",
-      "status": "blocked",
+      "status": "ready",
       "enables": [
         "W139"
       ],
@@ -4633,17 +4608,15 @@
         "qml_lint",
         "tests"
       ],
-      "blocked_on": [
-        "W256"
-      ],
-      "blocked_kind": "agent",
+      "blocked_on": [],
+      "blocked_kind": null,
       "next_bounded_step": "After the swarm commit: find the mtools sha at or after cec108a, re-pin the five specs in pyproject.toml, uv sync --extra tooling --extra research, rerun every selftest that touches mtools tools, THEN: pytestspec_data = policy/lib and testpaths, policy/qml_lint.cases.json for the 17 tests (4 expect.deny, 13 expect.withheld or admitted), and check the differential line accounts for 17.",
       "evidence": "2026-10-02: 2026-10-02 MEASURED two structural gaps before writing any case: (1) pytestspec evaluates `opa eval --data <spec>` alone; qml_lint.rego imports data.el.truth (policy/lib/truth.rego) -> rego_type_error \"undefined function data.el.truth.py\" at rows 53 and 75, so no case can run. (2) of the 17 tests in qml_lint_test.rego only 4 assert deny (Q0 empty, Q0 absent, Q1, Q2); 13 assert withheld sets or admitted membership, which pytestspec cases cannot express (withheld only fails or xfails). Porting now would drop 13 of 17 falsifiability arms. Asked mtools-3d for an explicit shared-data path and an expect.withheld field. | 2026-10-02: 2026-10-02 mtools claimed both: W380 = pytest ini key pytestspec_data (explicit list, each passed as extra --data; a missing path is a collection error) - el-openglo adds `pytestspec_data = policy/lib`; W381 = expect.withheld beside deny, same first-colon key, exact sets, omitted key means that set must be empty, plus its own differential-line column. W380 lands first; hashes to follow. | 2026-10-02: 2026-10-02 mtools:W380 LANDED as ac59711: pytest ini key pytestspec_data, each path an extra --data, a missing path is a collection error; a .rego under a declared path is a LIBRARY (not collected as a spec); opa compile errors now surface their cause. el-openglo half when porting: `pytestspec_data = policy/lib` and re-pin mtools to a sha at or after ac59711 (with W381). Still waiting on W381 (expect.withheld). | 2026-10-02: 2026-10-02 mtools:W381 LANDED as cec108a: expect.withheld beside deny, exact id sets, omitted key = empty; failures name DENY MISMATCH / WITHHELD MISMATCH; differential line gains withheld-expected after refused; malformed expect is a collection error. API: spec.expected_denies -> spec.expectation (el-openglo imports neither). W211 unblocked. | 2026-10-03: 2026-10-03 (swarm): the port is blocked on THIS repo pyproject, not on mtools: the installed mikemol-pytestspec is 0.1.0 and has neither pytestspec_data (W380) nor expect.withheld (W381) - plugin.py in site-packages only knows expected_denies and has no withheld column in the differential line. Without them data.el.truth does not resolve and 13 of the 17 qml_lint tests cannot be expressed. Needs: re-pin ALL FIVE mtools specs in pyproject.toml to ONE sha at or after cec108a (mtools INSTALL.md: one sha across every spec), then uv sync --extra tooling --extra research (BOTH extras). Deferred to AFTER the swarm commit so the tools in use do not change mid-integration.",
       "issued_at": "2026-10-02T00:56:02Z",
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:10Z",
-      "ticks_blocked": 1,
+      "ticks_blocked": 0,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -5661,7 +5634,7 @@
     {
       "symbol": "W256",
       "title": "Re-pin all five mtools specs to one current sha and add mikemol-ratchet to the tooling extra, then uv sync both extras",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W211",
         "W138"
@@ -5672,16 +5645,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "git -C ~/github/mtools log -1 for the sha; set it on the five mikemol-* specs in pyproject (mdstruct, hooks, pathsforward, pycodemod, pytestspec) and add mikemol-ratchet at the same sha; uv sync --extra tooling --extra research (BOTH extras); rerun every selftest that touches an mtools tool (check_hooks, check_routes, opa_gate --selftest) and the paths-forward CLI. Do it with no agent running and no commit in flight: the tools in use change.",
-      "evidence": "2026-10-03: 2026-10-03: the pin is the one blocker of W211 (pytestspec 0.1.0 lacks pytestspec_data W380 and expect.withheld W381) and of the newer hooks (mikemol-hook-standing, -standing-stop in mtools hooks/bin) and of mikemol-ratchet (the mtools tool that refuses NEW debt after a baseline; SKELETON.md: ratchet --init-absent mints it). mtools INSTALL.md: ONE sha across every spec. Operator: trust mtools and nemik tooling. | 2026-10-16: 2026-10-15 queue-planning: W478 collapsed here. luthen-observability W440 (inbox/2026-10-04-luthen-par-staged-gate-denied-under-contention.md) staged the same re-pin (5 mtools pins -> 03749d56, uv.lock gains mikemol-pathwalk, settings.json hooks); the commit was denied by opa_gate B3 write-tree 128 and B1 pkgcheck. Its witness: luthen-observability .venv/bin/python -m checks.fleet_par --root ~/github --check el-openglo. Sync both extras.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-03: 2026-10-03: the pin is the one blocker of W211 (pytestspec 0.1.0 lacks pytestspec_data W380 and expect.withheld W381) and of the newer hooks (mikemol-hook-standing, -standing-stop in mtools hooks/bin) and of mikemol-ratchet (the mtools tool that refuses NEW debt after a baseline; SKELETON.md: ratchet --init-absent mints it). mtools INSTALL.md: ONE sha across every spec. Operator: trust mtools and nemik tooling. | 2026-10-16: 2026-10-15 queue-planning: W478 collapsed here. luthen-observability W440 (inbox/2026-10-04-luthen-par-staged-gate-denied-under-contention.md) staged the same re-pin (5 mtools pins -> 03749d56, uv.lock gains mikemol-pathwalk, settings.json hooks); the commit was denied by opa_gate B3 write-tree 128 and B1 pkgcheck. Its witness: luthen-observability .venv/bin/python -m checks.fleet_par --root ~/github --check el-openglo. Sync both extras. | 2026-10-16: 2026-10-16: the repin half was done by W551 (cbbad92) and W554 (e4cd3ed): every spec is at mtools 6fba7de. This adds mikemol-ratchet at the same sha to the tooling extra; uv sync of both extras clean; check_hooks, check_routes and opa_gate selftests pass; mikemol-ratchet --help runs (the baseline mint, --init-absent, is deliberately not automatic). W211 and W138 lose this blocker.",
       "issued_at": "2026-10-03T18:43:36Z",
       "minted_during": "interrupt",
       "caused_by": "W253",
-      "last_worked": "2026-10-16T02:06:19Z",
+      "last_worked": "2026-10-16T08:59:12Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null,
+      "completed": "20261016T085912Z",
       "weight": 12
     },
     {
@@ -13169,6 +13142,13 @@
       "title": "Answer mtools: mdstruct reads a whole tree and skips the registered worktrees (el-openglo:W138, mtools:W561)",
       "dropped_at": "2026-10-16T02:06:32Z",
       "reason": "duplicate of W138: the letter is the landing notice of W138's mtools blocker (bbb6c8d, 920642f); its facts are appended to W138, now blocked on W256 for the pin",
+      "recoverable": true
+    },
+    {
+      "symbol": "W175",
+      "title": "Spread scroll brightness power evenly over the prime spectral lines, by construction",
+      "dropped_at": "2026-10-16T09:08:47Z",
+      "reason": "Delivered as a measurement (f4c459f: prime_lines, prime_evenness and prime_peak per animation, --primes). The by-construction claim does not hold through timing: the text spatial spectrum puts power on prime 2 whatever the step, and a flat-spectrum jitter lifts evenness from 0.737 to only 0.802 at a 1.0 pip excursion (steps 1.87 to 3.35 pips, visible judder). Operator aside, lower priority, and the status quo is the recommended outcome, so no ask is filed (the operator ask cap was 11 of 10). RECOVERABLE: reopen if the operator wants a bounded timing jitter, naming the largest excursion.",
       "recoverable": true
     }
   ],

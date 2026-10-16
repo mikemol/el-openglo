@@ -94,6 +94,9 @@ tooling = [
     # mikemol-membudget beside the interpreter, and mikemol-fence ships it. No //fence venv per repo
     # (ruled fleet-wide): the dist is pinned here at the same par sha as every other mikemol spec.
     "mikemol-fence @ git+https://github.com/mikemol/mtools.git@6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac#subdirectory=fence",
+    # ⚑ THE RATCHET (W256): the mtools tool that refuses NEW debt against a recorded baseline (SKELETON.md: `ratchet
+    # --init-absent` mints the baseline). Same par sha as every other spec: one sha across the fleet (INSTALL.md).
+    "mikemol-ratchet @ git+https://github.com/mikemol/mtools.git@6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac#subdirectory=ratchet",
     # ⚑ THE CVD CORE IS AN mtools DIST NOW (W544, for nemik:W438; mtools:W1313 to W1315): worst_view_dE,
     # VIEWS, OKABE_ITO, reference_floor, reference_floors and rgb, ported from this repo's cvd_core.py
     # (9a4be98) with parity checked on five pairs and the Okabe-Ito floor. WCAG and APCA stay in cvd_gate.
