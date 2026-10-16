@@ -23,6 +23,73 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "B — a 10 Hz burst of replaces (W548, under W184)"
+# description: |
+#   `input.burst` is the burst run twice: {default, changed}, each the facts of one run (lone_ms: the
+#   length of a lone replace's roll, burst_rolls: the rolls the 10 Hz burst got through, peak_queued,
+#   max_step: the largest one-sample change of the effective duration as a share of base - floor,
+#   ended_queued). B1 bounds the queue, B2 the speed's continuity, B3 the end state, B4 that the lone
+#   roll was measured, and B5 that the three roll settings MOVE the measured rolls: they are declared
+#   INERT in check_config_reach on the strength of this measurement, so a burst the settings do not
+#   change would leave that declaration claiming a measurement nobody makes.
+burst := object.get(input, "burst", null)
+
+burst_runs := {name: facts |
+	burst != null
+	some name, facts in burst
+}
+
+# the most replaces that may wait behind the live roll, stated; four items sit on the board, so more
+# waiting than this means replaces are piling up without bound
+max_queued := 8
+
+# the effective duration may move by at most this share of (base - floor) per 40 ms sample; the
+# 80 ms low-pass allows 1 - exp(-0.5) = 0.39 of a step, so 0.4 is the filter's own bound
+max_step := 0.4
+
+withheld contains "B0: the burst was not measured (no runner, or the run was skipped)" if {
+	input.runner == true
+	burst == null
+}
+
+deny contains msg if {
+	some name, f in burst_runs
+	f.peak_queued > max_queued
+	msg := sprintf("B1: the %v burst left %v replaces waiting; the bound is %v", [name, f.peak_queued, max_queued])
+}
+
+deny contains msg if {
+	some name, f in burst_runs
+	f.max_step > max_step
+	msg := sprintf("B2: the %v burst changed the roll duration by %v of base - floor between two samples; the bound is %v", [name, f.max_step, max_step])
+}
+
+deny contains msg if {
+	some name, f in burst_runs
+	f.ended_queued != 0
+	msg := sprintf("B3: the %v burst ended with %v replaces still waiting", [name, f.ended_queued])
+}
+
+deny contains msg if {
+	some name, f in burst_runs
+	f.lone_ms == null
+	msg := sprintf("B4: the %v burst measured no lone roll; the base duration was not observed", [name])
+}
+
+deny contains msg if {
+	burst_runs.changed.settings.rollBaseMs > burst_runs.default.settings.rollBaseMs
+	is_number(burst_runs.changed.lone_ms)
+	is_number(burst_runs.default.lone_ms)
+	burst_runs.changed.lone_ms < 1.5 * burst_runs.default.lone_ms
+	msg := sprintf("B5: a base of %v ms rolled a lone replace in %v ms against %v ms at %v; the setting did not move the roll", [burst_runs.changed.settings.rollBaseMs, burst_runs.changed.lone_ms, burst_runs.default.lone_ms, burst_runs.default.settings.rollBaseMs])
+}
+
+deny contains msg if {
+	burst_runs.changed.burst_rolls == burst_runs.default.burst_rolls
+	msg := sprintf("B5: the burst got through %v rolls at both the defaults and the changed settings; the floor and the full queue did not move the roll", [burst_runs.default.burst_rolls])
+}
+
+# METADATA
 # title: "L1 — a board that shows text is scrolling"
 # description: |
 #   The dead-rotation defect (COTYPE s98) and the stalled-run defects (s101):

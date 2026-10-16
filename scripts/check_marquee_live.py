@@ -292,6 +292,88 @@ END_MS = (
     40000  # the CAP; the main run ends when every event has fired and the board drained
 )
 SAMPLE_MS = 40  # VIRTUAL ms: the animation driver's clock, not the wall's (W63)
+
+# ⚑ THE BURST (W548, under W184; operator: "pummelling it with blinking notifications"). Four items sit on the
+# board; one lone replace rolls by itself (its duration is the BASE, measured); then the eight are replaced
+# round-robin at 10 Hz for 4 s, so replaces pile up behind the live roll. The run is judged twice, at the
+# defaults and with the three roll settings changed (W547: they are INERT in check_config_reach on the strength
+# of THIS measurement, so it must show them moving the measured rolls).
+BURST_IDS = list(range(60, 64))
+BURST_START_MS = 4000
+BURST_STEP_MS = 100
+BURST_COUNT = 40
+BURST_END_MS = 16000
+BURST_SETTINGS = {"rollBaseMs": 800, "rollFloorMs": 400, "rollFullQueue": 3}
+BURST_DEFAULTS = {"rollBaseMs": 400, "rollFloorMs": 120, "rollFullQueue": 6}
+
+
+def _burst_fields(n):
+    # ONE CHARACTER per item: four of them fit the 420 px board together, so replaces land on items that are ON it
+    return {"summary": str(n % 10), "body": "", "applicationName": "a"}
+
+
+def burst_timeline():
+    """[(t, op, id, fields, shows)] — arrive four, one lone replace of the first, then the 10 Hz burst, then expire."""
+    steps = [
+        (500 + 50 * k, "arrive", i, _burst_fields(0), "a: 0")
+        for k, i in enumerate(BURST_IDS)
+    ]
+    steps.append((2500, "replace_visible", BURST_IDS[0], _burst_fields(1), "a: 1"))
+    for k in range(BURST_COUNT):
+        i = BURST_IDS[k % len(BURST_IDS)]
+        steps.append(
+            (
+                BURST_START_MS + BURST_STEP_MS * k,
+                "replace",
+                i,
+                _burst_fields(k + 2),
+                f"a: {(k + 2) % 10}",
+            )
+        )
+    end = BURST_START_MS + BURST_STEP_MS * BURST_COUNT + 2000
+    steps += [(end + 50 * k, "expire", i, {}, "") for k, i in enumerate(BURST_IDS)]
+    return steps
+
+
+def roll_windows(samples):
+    """[[sample, ...]] — maximal runs of consecutive samples with a live roll (roll is not None)."""
+    out, cur = [], []
+    for s in samples:
+        if s.get("roll") is not None:
+            cur.append(s)
+        elif cur:
+            out.append(cur)
+            cur = []
+    if cur:
+        out.append(cur)
+    return out
+
+
+def burst_facts(samples, settings):
+    """What one burst run measured, and only that: the lone roll's length, the rolls the burst got through, the
+    deepest queue, the largest one-sample step of the effective duration (as a fraction of base - floor), and
+    whether the run ended with nothing waiting. `settings` are the roll settings the run was given."""
+    wins = roll_windows(samples)
+    lone = [w for w in wins if w[0]["t"] < BURST_START_MS]
+    burst = [w for w in wins if w[0]["t"] >= BURST_START_MS]
+    span = max(1, settings["rollBaseMs"] - settings["rollFloorMs"])
+    steps = [
+        abs(samples[i + 1]["rollMs"] - samples[i]["rollMs"]) / span
+        for i in range(len(samples) - 1)
+        if samples[i].get("roll") is not None and samples[i + 1].get("roll") is not None
+    ]
+    return {
+        "settings": dict(settings),
+        "samples": len(samples),
+        "lone_ms": len(lone[0]) * SAMPLE_MS if lone else None,
+        "burst_rolls": len(burst),
+        "shortest_burst_ms": min((len(w) for w in burst), default=0) * SAMPLE_MS,
+        "peak_queued": max((s.get("queued", 0) for s in samples), default=0),
+        "max_step": round(max(steps, default=0.0), 4),
+        "ended_queued": samples[-1].get("queued", 0) if samples else None,
+    }
+
+
 # WALL bounds, for a WEDGED process only. Virtual time costs wall in proportion to
 # load (the main run: ~50 s wall idle, measured >120 s under 32 busy loops, which
 # the old 120 s cap killed), so these sit far past any honest run and under
@@ -434,6 +516,8 @@ Window {
                            flash: s.flashLit,
                            // W189: the replace roll's progress while one is live, else null
                            roll: s.roll ? s.rollProgress : null,
+                           // W548: how many replaces wait behind the live roll, and the roll's effective duration now
+                           queued: s.queuedRolls, rollMs: s.rollMsNow,
                            // W242: where the new span ended in the paint `plain` came from (-1: no roll)
                            plainRollEnd: s.paintedRollEnd });
             if (s.boardPaused) harness.pausedSeen += 1;
@@ -1005,7 +1089,25 @@ def shortens(timeline):
     return False
 
 
-def measure(res, hovered=None, variant=VARIANT):
+def run_burst(variant=VARIANT):
+    """{'default': facts, 'changed': facts} — the burst run twice, at the defaults and with BURST_SETTINGS (W548),
+    or None when the runner is absent. Each run is the real widget on virtual time, so the facts are
+    load-independent."""
+    out = {}
+    for name, settings in (("default", BURST_DEFAULTS), ("changed", BURST_SETTINGS)):
+        res = run(
+            variant=variant,
+            end_ms=BURST_END_MS,
+            timeline=burst_timeline(),
+            config_overrides=settings,
+        )
+        if res is None:
+            return None
+        out[name] = burst_facts(res["samples"], settings)
+    return out
+
+
+def measure(res, hovered=None, variant=VARIANT, burst=None):
     """The measurement: the main run, and (W51) the HOVERED run — hover-pause on,
     the offscreen pointer at (0,0) holding the board — so the pulse rule has a
     paused trace to range over. Both are the real widget, run under `variant`'s
@@ -1036,6 +1138,8 @@ def measure(res, hovered=None, variant=VARIANT):
         "log": res.get("log", []),
         "taps": res.get("taps", []),
         "hovered": {"samples": hovered["samples"] if hovered else []},
+        # W548: the 10 Hz burst at the defaults and with changed settings; absent on a hovered-only run
+        "burst": burst,
     }
 
 
@@ -1050,6 +1154,7 @@ def main(argv):
         "--event",
         "--frames",
         "--rhi",
+        "--burst",
     }
     variant = VARIANT
     args = list(argv[1:])
@@ -1100,6 +1205,11 @@ def main(argv):
             )
         )
         return 0
+    if "--burst" in args:
+        # W548: the 10 Hz burst alone, at the defaults and with the changed roll settings: facts only
+        b = run_burst(variant)
+        print(json.dumps(b, indent=1))
+        return 0 if b else 3
     if "--motion" in args:
         # how the board moves: one item's run, the snapped x against the raw x
         r = run(variant=variant, end_ms=8000, timeline=LOOP_TIMELINE)
@@ -1130,7 +1240,7 @@ def main(argv):
             f"the ring took {pulsing} distinct opacities while paused"
         )
         return 0
-    m = measure(run(variant=variant), run_hovered(variant), variant)
+    m = measure(run(variant=variant), run_hovered(variant), variant, run_burst(variant))
     if event_id is not None:
         # ⚑ THE WINDOW AROUND ONE EVENT, because that is the question L3 asks and
         # --trace could only answer by eye over 101 KB. A reader scrolling a trace
@@ -1241,7 +1351,7 @@ def _selftest():
     # than spot-checking a few: a sample that silently grows a field is a sample
     # whose consumers were never told.
     chk(
-        "a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74), the paint's plain indices and roll end (W242)",
+        "a sample carries text, x, raw, w, running, paused, ring, count, the rotation boundary, the bound colours, the paint's inks + text + series, the last tap and the stub's invoked (W46), the flash phase (W74), the paint's plain indices and roll end (W242), the queue and the effective roll duration (W548)",
         sorted(m["samples"][0].keys()),
         [
             "boundary",
@@ -1257,9 +1367,11 @@ def _selftest():
             "paused",
             "plain",
             "plainRollEnd",
+            "queued",
             "raw",
             "ring",
             "roll",
+            "rollMs",
             "running",
             "series",
             "t",
@@ -1388,6 +1500,50 @@ def _selftest():
         )
     else:
         print(f"  SKIP mesa arm — {QT.KWIN} is not installed")
+
+    # W548: the burst's measurement can SEE a lone roll, a burst, a queue and a step in the duration
+    def sample(t, roll, queued=0, ms=400.0):
+        return {"t": t, "roll": roll, "queued": queued, "rollMs": ms}
+
+    fake = (
+        [sample(t, None) for t in (0, 40)]
+        + [sample(t, 0.5, 0, 400.0) for t in (80, 120, 160)]
+        + [sample(200, None)]
+        + [
+            sample(BURST_START_MS, 0.5, 3, 400.0),
+            sample(BURST_START_MS + 40, 0.5, 3, 250.0),
+        ]
+        + [sample(BURST_START_MS + 80, None, 0)]
+    )
+    facts = burst_facts(fake, BURST_DEFAULTS)
+    chk(
+        "a lone roll is counted in samples times the sample period",
+        facts["lone_ms"],
+        3 * SAMPLE_MS,
+    )
+    chk("one burst roll is seen after the start", facts["burst_rolls"], 1)
+    chk("the deepest queue is read", facts["peak_queued"], 3)
+    chk(
+        "a 150 ms step in the duration is a share of base - floor",
+        facts["max_step"],
+        round(150 / (400 - 120), 4),
+    )
+    chk("a run ending with nothing waiting says so", facts["ended_queued"], 0)
+    chk(
+        "an empty run measures nothing and says so",
+        burst_facts([], BURST_DEFAULTS)["lone_ms"],
+        None,
+    )
+    tl = burst_timeline()
+    chk(
+        "the burst timeline holds four arrivals and forty replaces at 10 Hz",
+        (
+            sum(1 for s in tl if s[1] == "arrive"),
+            sum(1 for s in tl if s[1] == "replace"),
+            sorted({tl[i + 1][0] - tl[i][0] for i in range(5, 44)}),
+        ),
+        (4, 40, [BURST_STEP_MS]),
+    )
     print("check_marquee_live selftest:", "PASS" if ok else "FAIL")
     return ok
 

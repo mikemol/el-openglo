@@ -6,6 +6,63 @@ package el.marquee_live_test
 import data.el.marquee_live as ml
 import rego.v1
 
+# W548: the burst facts as the harness measured them (2026-10-15), at the defaults and the changed settings
+burst_default := {
+	"settings": {"rollBaseMs": 400, "rollFloorMs": 120, "rollFullQueue": 6},
+	"lone_ms": 440, "burst_rolls": 6, "peak_queued": 2, "max_step": 0.09, "ended_queued": 0,
+}
+
+burst_changed := {
+	"settings": {"rollBaseMs": 800, "rollFloorMs": 400, "rollFullQueue": 3},
+	"lone_ms": 840, "burst_rolls": 4, "peak_queued": 2, "max_step": 0.24, "ended_queued": 0,
+}
+
+burst_ok := {"default": burst_default, "changed": burst_changed}
+
+test_b_admits_a_burst_the_settings_move if {
+	count({m | some m in ml.deny; startswith(m, "B")}) == 0 with input as object.union(clean, {"burst": burst_ok})
+}
+
+test_b0_withholds_an_unmeasured_burst if {
+	"B0: the burst was not measured (no runner, or the run was skipped)" in ml.withheld with input as clean
+}
+
+test_b1_refuses_a_pileup_past_the_bound if {
+	b := object.union(burst_ok, {"default": object.union(burst_default, {"peak_queued": 9})})
+	some m in ml.deny with input as object.union(clean, {"burst": b})
+	startswith(m, "B1: the default burst left 9 replaces waiting")
+}
+
+test_b2_refuses_a_speed_that_steps if {
+	b := object.union(burst_ok, {"changed": object.union(burst_changed, {"max_step": 0.9})})
+	some m in ml.deny with input as object.union(clean, {"burst": b})
+	startswith(m, "B2: the changed burst")
+}
+
+test_b3_refuses_a_run_that_ends_with_replaces_waiting if {
+	b := object.union(burst_ok, {"default": object.union(burst_default, {"ended_queued": 2})})
+	some m in ml.deny with input as object.union(clean, {"burst": b})
+	startswith(m, "B3: the default burst ended with 2")
+}
+
+test_b4_refuses_a_burst_with_no_lone_roll if {
+	b := object.union(burst_ok, {"default": object.union(burst_default, {"lone_ms": null})})
+	some m in ml.deny with input as object.union(clean, {"burst": b})
+	startswith(m, "B4: the default burst measured no lone roll")
+}
+
+test_b5_refuses_a_base_that_does_not_move_the_roll if {
+	b := object.union(burst_ok, {"changed": object.union(burst_changed, {"lone_ms": 460})})
+	some m in ml.deny with input as object.union(clean, {"burst": b})
+	startswith(m, "B5: a base of 800 ms")
+}
+
+test_b5_refuses_settings_that_leave_the_burst_unchanged if {
+	b := object.union(burst_ok, {"changed": object.union(burst_changed, {"burst_rolls": 6})})
+	some m in ml.deny with input as object.union(clean, {"burst": b})
+	startswith(m, "B5: the burst got through 6 rolls")
+}
+
 # a clean two-rotation trace: arrive, scroll off, expire mid-run, finish, drain, arrive again, wake
 clean := {"runner": true, "width": 420, "hovered": {"samples": []}, "events": [
 	{"t": 300, "op": "arrive", "id": 1, "shows": "app: hello"},
@@ -27,8 +84,8 @@ clean := {"runner": true, "width": 420, "hovered": {"samples": []}, "events": [
 ]}
 
 test_admits_clean if {
-	count(ml.deny) == 0 with input as clean
-	count(ml.withheld) == 0 with input as clean
+	count(ml.deny) == 0 with input as object.union(clean, {"burst": burst_ok})
+	count(ml.withheld) == 0 with input as object.union(clean, {"burst": burst_ok})
 }
 
 # W187: id 2 arrives as "app: two" and is replaced before the board reaches it
