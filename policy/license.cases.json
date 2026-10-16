@@ -1,0 +1,2410 @@
+[
+ {
+  "case": "admits-an-apache-tree: a fully measured, fully headed, generated-notice tree",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  }
+ },
+ {
+  "case": "l0-refuses-an-absent-population: no cases key at all",
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "l0-refuses-an-empty-population",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "l0-refuses-a-missing-emitted-kind",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L0",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l0-refuses-a-missing-file-kind",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L0",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-a-stale-emitted-metadata-json: GPLv3 still in plasma-clock metadata",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "GPLv3",
+    "via": "json"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-a-gpl-emitted-desktop-entry",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   },
+   {
+    "kind": "emitted",
+    "where": "sddm/x/metadata.desktop [SddmGreeterTheme] License=",
+    "id": "GPL-3",
+    "via": "desktop"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-a-gpl-generator",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   },
+   {
+    "kind": "generator",
+    "where": "make_sddm.py:82",
+    "id": "GPLv3",
+    "via": "LICENSE_SPDX"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-a-gpl-licence-file",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "GPL-3.0",
+    "via": "text"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-an-unresolved-declaration: a null id is not a correct licence",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   },
+   {
+    "kind": "file",
+    "where": "pyproject.toml [project].license",
+    "id": null,
+    "via": "toml"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-a-literal-even-when-correct",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   },
+   {
+    "kind": "generator",
+    "where": "make_plasma.py:75",
+    "id": "Apache-2.0",
+    "via": "literal"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2",
+    "L3"
+   ],
+   "withheld": [
+    "L5",
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l2-admits-a-literal-outside-the-generators",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   },
+   {
+    "kind": "file",
+    "where": "x",
+    "id": "Apache-2.0",
+    "via": "toml"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  }
+ },
+ {
+  "case": "l3-refuses-a-deb-without-copyright",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "absent": "make_deb has no copyright_text()"
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-a-missing-format-header",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": null,
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-a-star-stanza-under-another-id",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-a-shipped-third-party-without-its-stanza",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-a-third-party-under-the-project-licence",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-a-licence-without-text",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ],
+   "licenses": {
+    "Apache-2.0": true
+   }
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "null-absent-is-not-a-reason: absent null leaves the L3 rules judging",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "wrong",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ],
+   "absent": null
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "all-null-stanza-withheld-only: a stanza whose judged fields are all null is withheld, never judged",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    },
+    {
+     "files": null,
+     "license": null,
+     "copyright": null
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "withheld": [
+    "L4"
+   ]
+  }
+ },
+ {
+  "case": "null-copyright-is-withheld: not 'has no Copyright' and not silently fine",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": null
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "withheld": [
+    "L4"
+   ]
+  }
+ },
+ {
+  "case": "null-debian-copyright-withheld",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": null,
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "withheld": [
+    "L4"
+   ]
+  }
+ },
+ {
+  "case": "l5-refuses-an-absent-notice",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": false,
+   "generator": true,
+   "matches_generated": null,
+   "missing": null
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L5"
+   ]
+  }
+ },
+ {
+  "case": "l5-refuses-a-hand-edited-notice",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": false,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L5"
+   ]
+  }
+ },
+ {
+  "case": "l5-names-a-missing-part",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": false,
+   "missing": [
+    "DSEG"
+   ]
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L5"
+   ]
+  }
+ },
+ {
+  "case": "l5-withholds-an-unmeasured-notice",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "withheld": [
+    "L5"
+   ]
+  }
+ },
+ {
+  "case": "l5-withholds-a-tree-without-a-generator",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": false,
+   "matches_generated": null,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "withheld": [
+    "L5"
+   ]
+  }
+ },
+ {
+  "case": "l6-admits-every-file-naming-the-holder",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": [],
+   "holder": "Mike Mol",
+   "no_copyright": [],
+   "wrong_holder": []
+  }
+ },
+ {
+  "case": "l6-refuses-a-missing-header",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 2,
+   "missing": [
+    "make_clock.py"
+   ],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l6-refuses-a-header-under-another-id",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 2,
+   "missing": [],
+   "wrong": [
+    {
+     "file": "x.py",
+     "id": "GPL-3.0"
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l6-refuses-an-empty-population",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 0,
+   "carrying": 0,
+   "missing": [],
+   "wrong": []
+  },
+  "expect": {
+   "deny": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l6-refuses-a-missing-copyright-line",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": [],
+   "holder": "Mike Mol",
+   "no_copyright": [
+    "x.py"
+   ],
+   "wrong_holder": []
+  },
+  "expect": {
+   "deny": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l6-refuses-another-holder",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": [],
+   "holder": "Mike Mol",
+   "no_copyright": [],
+   "wrong_holder": [
+    {
+     "file": "x.py",
+     "holder": "Someone Else"
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l6-withholds-a-declared-holder-never-measured",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "headers": {
+   "population": 3,
+   "carrying": 3,
+   "missing": [],
+   "wrong": [],
+   "holder": "Mike Mol"
+  },
+  "expect": {
+   "withheld": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l6-withholds-unmeasured-headers",
+  "cases": [
+   {
+    "kind": "authority",
+    "where": "emitters.LICENSE_SPDX",
+    "id": "Apache-2.0",
+    "via": "constant"
+   },
+   {
+    "kind": "generator",
+    "where": "make_clock.py:63",
+    "id": "Apache-2.0",
+    "via": "LICENSE_SPDX"
+   },
+   {
+    "kind": "file",
+    "where": "LICENSE",
+    "id": "Apache-2.0",
+    "via": "text"
+   },
+   {
+    "kind": "emitted",
+    "where": "plasma-clock/org.el.segclock/metadata.json KPlugin.License",
+    "id": "Apache-2.0",
+    "via": "json"
+   }
+  ],
+  "third_party": [
+   {
+    "what": "KvFlat",
+    "spdx": "GPL-3.0-or-later",
+    "files": [
+     "usr/share/el-openglo/kvantum/*"
+    ]
+   },
+   {
+    "what": "DSEG",
+    "spdx": "OFL-1.1",
+    "files": []
+   }
+  ],
+  "debian_copyright": {
+   "format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+   "licenses": {
+    "Apache-2.0": true,
+    "GPL-3.0-or-later": true
+   },
+   "files": [
+    {
+     "files": [
+      "*"
+     ],
+     "license": "Apache-2.0",
+     "copyright": true
+    },
+    {
+     "files": [
+      "usr/share/el-openglo/kvantum/*"
+     ],
+     "license": "GPL-3.0-or-later",
+     "copyright": true
+    }
+   ]
+  },
+  "dep5_format": "https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/",
+  "notice": {
+   "present": true,
+   "generator": true,
+   "matches_generated": true,
+   "missing": []
+  },
+  "expect": {
+   "withheld": [
+    "L6"
+   ]
+  }
+ }
+]

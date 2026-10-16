@@ -493,6 +493,7 @@ CLOSURES = {
         "policy/lib/fmt_test.rego",
         "policy/lib/truth.rego",
         "policy/lib/truth_test.rego",
+        "policy/license.cases.json",
         "policy/license.rego",
         "policy/license_test.rego",
         "policy/lnf.rego",
