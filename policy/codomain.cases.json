@@ -1,0 +1,48 @@
+[
+  {
+    "case": "admits-a-complete-map: an emitted half and a well-formed gap",
+    "emitted": [{"target": "konsole", "emitter": "make_konsole", "venues": ["KDE Store"]}],
+    "gaps": [
+      {"target": "vscode", "family": "editor", "contract": "VS Code theme JSON", "venue": "Marketplace", "licence": "Apache-2.0", "reach": 5, "cost": 3, "missing": [], "rank": 15}
+    ],
+    "gaps_withheld": null
+  },
+  {
+    "case": "c0-refuses-an-absent-population: no emitted key at all must not admit",
+    "expect": {"deny": ["C0"]}
+  },
+  {
+    "case": "c0-refuses-an-empty-emitted-half: the roster read is broken",
+    "emitted": [],
+    "gaps": [
+      {"target": "vscode", "family": "editor", "contract": "VS Code theme JSON", "venue": "Marketplace", "licence": "Apache-2.0", "reach": 5, "cost": 3, "missing": [], "rank": 15}
+    ],
+    "gaps_withheld": null,
+    "expect": {"deny": ["C0"]}
+  },
+  {
+    "case": "c1-refuses-a-gap-without-a-contract",
+    "emitted": [{"target": "konsole", "emitter": "make_konsole", "venues": ["KDE Store"]}],
+    "gaps": [
+      {"target": "vscode", "family": "editor", "contract": null, "venue": "Marketplace", "licence": "Apache-2.0", "reach": 5, "cost": 3, "missing": ["contract"], "rank": 15}
+    ],
+    "gaps_withheld": null,
+    "expect": {"deny": ["C1"]}
+  },
+  {
+    "case": "c2-refuses-a-gap-already-emitted: the map would rank work that is done",
+    "emitted": [{"target": "konsole", "emitter": "make_konsole", "venues": ["KDE Store"]}],
+    "gaps": [
+      {"target": "konsole", "family": "editor", "contract": "VS Code theme JSON", "venue": "Marketplace", "licence": "Apache-2.0", "reach": 5, "cost": 3, "missing": [], "rank": 15}
+    ],
+    "gaps_withheld": null,
+    "expect": {"deny": ["C2"]}
+  },
+  {
+    "case": "c3-withholds-an-unread-gaps-file: not read is withheld, not a deny",
+    "emitted": [{"target": "konsole", "emitter": "make_konsole", "venues": ["KDE Store"]}],
+    "gaps": [],
+    "gaps_withheld": "OSError: x",
+    "expect": {"withheld": ["C3"]}
+  }
+]

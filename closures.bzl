@@ -439,6 +439,7 @@ CLOSURES = {
         "policy/chrome_zips_test.rego",
         "policy/closure.rego",
         "policy/closure_test.rego",
+        "policy/codomain.cases.json",
         "policy/codomain.rego",
         "policy/codomain_test.rego",
         "policy/compiles.rego",

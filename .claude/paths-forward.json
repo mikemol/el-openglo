@@ -13101,12 +13101,12 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "THE CENSUS EXISTS: opa_gate.py --portable ranks every spec by its portable share, read from opa parse. Measured 2026-10-16: 932 of 1236 tests portable over 94 specs, 1 spec already carries cases (qml_lint, 10 of its 15). All-portable specs, small first: codomain 6, runtime_warnings 6, plugin_ids 8, deb 8, guest_recipe 8, notify_roles 12, populations 17, taskswitch 20, license 38, marquee_body 57, marquee_live 69. One spec per unit: read its tests, write policy/<name>.cases.json one case per portable test (the rule id of the deny or withheld message is the expect), pytest policy/<name>.rego, a mutation control (rename one rule id, expect that case to fail), opa_gate --specs, commit. Where a spec is mostly admitted-asserting, send mtools the count for an expect.admitted.",
-      "evidence": "2026-10-16: 2026-10-16: opa_gate --portable built (test_census over opa parse, portable_report): 932 of 1236 tests portable, 94 specs, qml_lint 10 of 15 matches the hand count of W211; selftest 3 new arms (a test mentioning the admitted set told from one that does not, an unparseable test file is None not zero, report exits 0/1/2).",
+      "next_bounded_step": "codomain PORTED (6 of 6 tests, 6 cases, mutation control C2 to C9 failed exactly the C2 case). Next specs, all-portable, smallest first: runtime_warnings 6, plugin_ids 8, deb 8, guest_recipe 8, notify_roles 12, populations 17, taskswitch 20, license 38, marquee_body 57, marquee_live 69. Per spec: policy/<name>.cases.json, pytest policy/<name>.rego, a mutation control, git add the cases file, check_closure.py --write pytestspec (the stage closure must hold the new file or bazel silently runs fewer specs: 427 files with codomain), opa_gate --specs, then land_template --commit. A cases file is expect ids, not messages: the Rego tests also pinned message text, which a case does not.",
+      "evidence": "2026-10-16: 2026-10-16: opa_gate --portable built (test_census over opa parse, portable_report): 932 of 1236 tests portable, 94 specs, qml_lint 10 of 15 matches the hand count of W211; selftest 3 new arms (a test mentioning the admitted set told from one that does not, an unparseable test file is None not zero, report exits 0/1/2). | 2026-10-16: 2026-10-16: codomain ported: policy/codomain.cases.json 6 cases (admitted 1, refused 4, withheld-expected 1); renaming the C2 rule id to C9 failed exactly the C2 case (DENY MISMATCH: missing C2; unexpected C9), restored; opa_gate --specs now runs 16 cases over 2 of 94 specs; the pytestspec stage closure regenerated to 427 files and bazel test //:pytestspec passes.",
       "issued_at": "2026-10-16T10:27:48Z",
       "minted_during": "interrupt",
       "caused_by": "W139",
-      "last_worked": "2026-10-16T11:29:33Z",
+      "last_worked": "2026-10-16T12:14:34Z",
       "ticks_blocked": 0,
       "completed": null
     }
