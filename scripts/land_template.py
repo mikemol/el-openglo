@@ -24,10 +24,12 @@ post-commit advisory marker, and any deletion left staged (github-8f 2026-10-13:
 success had another subject and a deletion no one named). Run it in the BACKGROUND: the gate is ~30 min.
 
 `--plan` prints each phase and the command it would run, and runs nothing: the chain is reviewable
-before it is runnable. `--run [NAME ...] [--fresh]` runs it: in order, halting on the first failed
-phase (the phase and the tail of its output are printed), with a resume marker under .git keyed to the
-changed templates' names and content, so a rerun resumes after the last phase that finished and any
-further edit starts over; `--fresh` drops the marker. The render and the worklist gate run as capped
+before it is runnable. `--run [NAME ...]` runs it: in order, halting on the first failed phase (the phase
+and the tail of its output are printed). NOTHING RECORDS PROGRESS (W556; the waldo shape, mtools:W1067):
+a phase is skipped when a cheap reading of the tree says its work is already there (closures by the
+closure check, parity by the template_parity gate, the render and the keys by the action key check), so a
+rerun after ANY edit asks the tree again and cannot resume from a stale record; a gate, a selftest and the
+worklist have no reading, since running them is the reading. The render and the worklist gate run as capped
 systemd services. Run it in the BACKGROUND: the worklist phase alone is several minutes.
 
 THE CHAIN IS FOR THREE POPULATIONS, read from one `git status` (2026-10-16, after W185 and W544 each reached
@@ -271,45 +273,26 @@ def split_report(paths):
     return lacking_after_split(closures, *paths), len(closures), None
 
 
-MARKER = os.path.join(ROOT, ".git", "land_template.marker")
 HEAVY = ("render_screens.py", "worklist_gate.py", "check_closure.py")
 
 
-def chain_key(names, scripts=()):
-    """A short digest of the changed templates' and checks' NAMES and CONTENT: the marker is valid only for
-    the exact edit it recorded, so a further edit to any of them starts the chain over."""
-    import hashlib
-
-    h = hashlib.sha256()
-    paths = [os.path.join("templates", n) for n in sorted(names)] + sorted(scripts)
-    for rel in paths:
-        h.update(rel.encode())
-        path = os.path.join(ROOT, rel)
-        if os.path.isfile(path):
-            with open(path, "rb") as fh:
-                h.update(fh.read())
-    return h.hexdigest()[:16]
-
-
-def read_marker(path, key):
-    """The phases the marker records as done for THIS key; [] when absent, unreadable or for another edit."""
-    import json
-
-    try:
-        with open(path, encoding="utf-8") as fh:
-            doc = json.load(fh)
-    except (OSError, ValueError):
-        return []
-    return list(doc.get("done", [])) if doc.get("key") == key else []
-
-
-def write_marker(path, key, done):
-    import json
-
-    with open(
-        path, "w", encoding="utf-8"
-    ) as fh:  # atomic-write: exempt, a resume marker in .git
-        json.dump({"key": key, "done": done}, fh)
+def probes(names):
+    """{phase: argv}: the cheap READING of the world that says a phase's work is already there (W556; the
+    waldo shape, mtools:W1067: a phase is done when a witness over the world says so, never because a file
+    remembers it). A phase with a probe is skipped when its probe exits 0. The closures phase is read by the
+    closure check, the parity phase by the template_parity gate, and the render and the keys by the action
+    key check (current keys mean the stills they describe are current). A gate, a selftest and the worklist
+    have none: running them IS their reading, so they run every time. Nothing is recorded, so nothing can
+    be stale: a rerun after any edit asks the tree again."""
+    py = ".venv/bin/python3"
+    out = {
+        "closures": [py, "scripts/check_closure.py"],
+        "render": [py, "scripts/check_action_key.py"],
+        "keys": [py, "scripts/check_action_key.py"],
+    }
+    if names:
+        out["parity"] = [py, "scripts/opa_gate.py", "template_parity"]
+    return out
 
 
 def real_runner(argv):
@@ -326,16 +309,19 @@ def real_runner(argv):
     return r.returncode, r.stdout + r.stderr
 
 
-def run_plan(steps, key, marker, runner, judges=JUDGES):
+def run_plan(steps, runner, judges=JUDGES, readings=None):
     """Run `steps` in order; halt on the first failure. Returns (ok, failed_phase, done, tail).
 
-    A phase the marker already records as done for this key is skipped, so a rerun resumes after the last
-    one that finished. A step with no argv is a skip the plan decided (nothing to do) and counts as done.
-    A phase with a judge is believed through it: the judge sees the phase's rc and whole output, and
-    returns the rc the chain should act on (the worklist's by-design red is the case)."""
-    done = read_marker(marker, key)
+    A phase whose reading (`readings[phase]`, an argv) exits 0 is already done in the world and is skipped, so
+    a rerun resumes exactly where the tree says it is, and nothing records progress. A step with no argv is a
+    skip the plan decided (nothing to do) and counts as done. A phase with a judge is believed through it: the
+    judge sees the phase's rc and whole output, and returns the rc the chain should act on (the worklist's
+    by-design red is the case)."""
+    done = []
     for phase, argv, _note in steps:
-        if phase in done:
+        reading = (readings or {}).get(phase)
+        if reading is not None and runner(reading)[0] == 0:
+            done.append(phase)
             continue
         rc, text = (0, "") if argv is None else runner(argv)
         if phase in judges:
@@ -343,7 +329,6 @@ def run_plan(steps, key, marker, runner, judges=JUDGES):
         if rc != 0:
             return False, phase, done, text[-1200:]
         done.append(phase)
-        write_marker(marker, key, done)
     return True, None, done, ""
 
 
@@ -489,10 +474,10 @@ def commit_report(
     return 0
 
 
-def run_report(names, fresh):
+def run_report(names):
     """Run the chain for `names` (default: git's changed templates), halting on the first failed phase.
     Exit 0 when every phase passed, 1 on a failure (the phase and the tail of its output are printed), 2 on
-    a refusal. `fresh` drops the resume marker first."""
+    a refusal. A phase the tree already shows done is skipped by its reading (probes), not by a record."""
     names, scripts, _untracked, steps = chain_for(names)
     if steps is None:
         print(
@@ -500,14 +485,8 @@ def run_report(names, fresh):
             file=sys.stderr,
         )
         return 2
-    key = chain_key(names, scripts)
-    if fresh and os.path.exists(MARKER):
-        os.remove(MARKER)
-    before = len(read_marker(MARKER, key))
-    ok, failed, done, tail = run_plan(steps, key, MARKER, real_runner)
+    ok, failed, done, tail = run_plan(steps, real_runner, readings=probes(names))
     total = len(steps)
-    if before:
-        print(f"land_template: resumed after {before} phase(s) the marker records")
     if not ok:
         print(
             f"land_template: FAILED at phase {failed!r} ({len(done)} of {total} done):"
@@ -548,7 +527,6 @@ def main(argv):
             "--closures",
             "--plan",
             "--run",
-            "--fresh",
             "--split",
             "--regen",
             "--commit",
@@ -569,7 +547,7 @@ def main(argv):
         return commit_report(rest[0], rest[1], rest[2:])
     if "--run" in flags:
         names = [a for a in args if not a.startswith("--")]
-        return run_report(names, "--fresh" in flags)
+        return run_report(names)
     if "--split" in flags:
         keys, m, why = split_report([a for a in args if not a.startswith("--")])
         if why:
@@ -727,60 +705,78 @@ def _selftest():
     )
     import contextlib
     import io
-    import tempfile
 
-    with tempfile.TemporaryDirectory() as td:
-        mk = os.path.join(td, "marker")
-        calls = []
+    calls = []
 
-        def runner(argv):
-            calls.append(argv[0])
-            return (1, "boom") if argv[0] == "bad" else (0, "")
+    def runner(argv):
+        calls.append(argv[0])
+        return (1, "boom") if argv[0] == "bad" else (0, "")
 
-        steps = [
-            ("a", ["ok1"], ""),
-            ("b", None, "skipped by the plan"),
-            ("c", ["ok2"], ""),
-            ("d", ["bad"], ""),
-            ("e", ["never"], ""),
-        ]
-        first = run_plan(steps, "k1", mk, runner)
-        chk("run: halts at the first failing phase, naming it", first[:2], (False, "d"))
-        chk("run: the later phases never ran", "never" in calls, False)
-        chk(
-            "run: finished phases are recorded, a plan skip too",
-            first[2],
-            ["a", "b", "c"],
-        )
-        chk("run: the failing phase's output is returned", first[3], "boom")
-        calls.clear()
-        fixed = steps[:3] + [("d", ["ok3"], ""), ("e", ["ok4"], "")]
-        again = run_plan(fixed, "k1", mk, runner)
-        chk(
-            "run: a rerun resumes, so only the remaining phases run",
-            calls,
-            ["ok3", "ok4"],
-        )
-        chk("run: ...and completes", again[0], True)
-        calls.clear()
-        run_plan(steps[:3], "k2", mk, runner)
-        chk(
-            "run: another key (the templates changed) starts over",
-            calls,
-            ["ok1", "ok2"],
-        )
-        chk(
-            "run: a missing marker reads as none",
-            read_marker(os.path.join(td, "x"), "k"),
-            [],
-        )
+    steps = [
+        ("a", ["ok1"], ""),
+        ("b", None, "skipped by the plan"),
+        ("c", ["ok2"], ""),
+        ("d", ["bad"], ""),
+        ("e", ["never"], ""),
+    ]
+    first = run_plan(steps, runner)
+    chk("run: halts at the first failing phase, naming it", first[:2], (False, "d"))
+    chk("run: the later phases never ran", "never" in calls, False)
     chk(
-        "chain_key: the same templates give the same key, other ones another",
-        (
-            chain_key(["Primitive.qml"]) == chain_key(["Primitive.qml"]),
-            chain_key(["Primitive.qml"]) == chain_key(["GhostLayer.qml"]),
-        ),
-        (True, False),
+        "run: finished phases are listed, a plan skip too",
+        first[2],
+        ["a", "b", "c"],
+    )
+    chk("run: the failing phase's output is returned", first[3], "boom")
+    # W556: progress is READ from the world, never recorded; a phase whose reading passes is skipped
+    calls.clear()
+    fixed = steps[:3] + [("d", ["ok3"], ""), ("e", ["ok4"], "")]
+    read = {"a": ["reads-done"], "c": ["reads-undone-c"]}
+
+    def reading_runner(argv):
+        calls.append(argv[0])
+        if argv[0] == "reads-undone-c":
+            return 1, ""
+        return (1, "boom") if argv[0] == "bad" else (0, "")
+
+    again = run_plan(fixed, reading_runner, readings=read)
+    chk(
+        "run: a phase whose reading passes is skipped, one whose reading fails runs, the rest run",
+        calls,
+        ["reads-done", "reads-undone-c", "ok2", "ok3", "ok4"],
+    )
+    chk(
+        "run: ...and completes, every phase listed done",
+        (again[0], again[2]),
+        (True, ["a", "b", "c", "d", "e"]),
+    )
+    calls.clear()
+    run_plan(steps[:3], reading_runner)
+    chk(
+        "run: with no readings there is no memory: every phase runs again (nothing records status)",
+        calls,
+        ["ok1", "ok2"],
+    )
+    pr = probes(["x.qml"])
+    chk(
+        "probes: closures, parity, render and keys are read by the checks that already measure them",
+        sorted(pr),
+        ["closures", "keys", "parity", "render"],
+    )
+    chk(
+        "probes: render and keys share the action key reading",
+        pr["render"] == pr["keys"],
+        True,
+    )
+    chk(
+        "probes: a check-only change has no parity reading",
+        "parity" in probes([]),
+        False,
+    )
+    chk(
+        "probes: no gate and no worklist has a reading, since running them IS the reading",
+        [p for p in pr if p.startswith("gate:") or p == "worklist"],
+        [],
     )
     chk(
         "an unknown name is refused",
@@ -893,31 +889,29 @@ def _selftest():
         chain_for([], " M scripts/check_marquee_live.py\n")[3] is not None,
         True,
     )
-    with tempfile.TemporaryDirectory() as td:
-        mk = os.path.join(td, "marker")
-        seen = []
+    seen = []
 
-        def judged(argv):
-            seen.append(argv[0])
-            if argv[0] == "wl":
-                return 1, only
-            return (2, "crash") if argv[0] == "crash" else (0, "")
+    def judged(argv):
+        seen.append(argv[0])
+        if argv[0] == "wl":
+            return 1, only
+        return (2, "crash") if argv[0] == "crash" else (0, "")
 
-        steps = [("a", ["ok"], ""), ("worklist", ["wl"], ""), ("z", ["after"], "")]
-        res = run_plan(steps, "j1", mk, judged)
-        chk(
-            "run: the worklist phase red only on @RESIDUE does not halt the chain",
-            (res[0], seen),
-            (True, ["ok", "wl", "after"]),
-        )
-        seen.clear()
-        steps = [("worklist", ["crash"], ""), ("z", ["after"], "")]
-        res = run_plan(steps, "j2", mk, judged)
-        chk(
-            "run: a worklist crash halts the chain at the worklist",
-            (res[:2], "after" in seen),
-            ((False, "worklist"), False),
-        )
+    steps = [("a", ["ok"], ""), ("worklist", ["wl"], ""), ("z", ["after"], "")]
+    res = run_plan(steps, judged)
+    chk(
+        "run: the worklist phase red only on @RESIDUE does not halt the chain",
+        (res[0], seen),
+        (True, ["ok", "wl", "after"]),
+    )
+    seen.clear()
+    steps = [("worklist", ["crash"], ""), ("z", ["after"], "")]
+    res = run_plan(steps, judged)
+    chk(
+        "run: a worklist crash halts the chain at the worklist",
+        (res[:2], "after" in seen),
+        ((False, "worklist"), False),
+    )
     # W538 gap 4: the commit call and the check that what landed is what was asked
     chk(
         "commit_paths: tracked changes only; an untracked file, a directory and the overlay cache are not named",

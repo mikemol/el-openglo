@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 555,
+  "counter": 556,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -13055,17 +13055,38 @@
         "land_template"
       ],
       "blocked_on": [
-        "mtools:W1068"
+        "mtools:W1355"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "When mtools:W1068 lands the waldo recipe layer: express the chain as a recipe whose phases are the land_template phase functions (track, closures, parity, selftests, render, keys, gates, worklist behind the KNOWN_RED judge, commit with verification), keep land_template as the thin caller, and carry its 59 selftest arms over as the recipe tests.",
-      "evidence": "",
+      "next_bounded_step": "mtools-ad (2026-10-16): Setting.command is only the text printed in the confirmation instructions; a phase act is a Contract; a phase with no contract only records. mtools:W1355 cards Phase.act argv, run only when its done witness is false and judged by it after. When it lands: express the chain as a recipe whose phases carry the land_template commands as acts and the existing checks as done witnesses, keep land_template as the thin caller, carry its selftest arms over as recipe tests. The marker-to-readings step is W556, local, now.",
+      "evidence": "2026-10-16: 2026-10-16: W555 started; mtools:W1068 (waldo.run_phase) landed b0698d7 and was read: recipe = ordered phases, done by witness, entry witnesses re-run, confirm for points of no return, marker last and only on success. | 2026-10-16: 2026-10-16: mtools-ad answered the command-act question: not today; first option now (keep the commands, move the marker to world readings), the port waits on mtools:W1355.",
       "issued_at": "2026-10-16T06:44:10Z",
       "minted_during": "interrupt",
       "caused_by": "W538",
-      "last_worked": "2026-10-16T06:44:15Z",
+      "last_worked": "2026-10-16T06:50:47Z",
       "ticks_blocked": 0,
       "completed": null
+    },
+    {
+      "symbol": "W556",
+      "title": "land_template: replace the resume marker by world readings, each phase skipped when its existing check already passes (nothing records status)",
+      "status": "done",
+      "enables": [
+        "W555"
+      ],
+      "touches": [
+        "land_template"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-16: 2026-10-16: land_template no longer records progress. probes() gives the phases that have a cheap reading of the tree (closures: check_closure; parity: the template_parity gate; render and keys: check_action_key); run_plan skips a phase whose reading passes and runs the rest, and the resume marker, --fresh and chain_key are gone. 60 selftest arms including a phase skipped by a passing reading, one run on a failing reading, and no memory without readings. First real use of --commit (bf246b1, W538) reported HEAD matching the ask.",
+      "issued_at": "2026-10-16T06:50:47Z",
+      "minted_during": "interrupt",
+      "caused_by": "W555",
+      "last_worked": "2026-10-16T07:18:18Z",
+      "ticks_blocked": 0,
+      "completed": "20261016T071818Z"
     }
   ],
   "residue": [
