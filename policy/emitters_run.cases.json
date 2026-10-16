@@ -1,0 +1,102 @@
+[
+ {
+  "case": "absent-population-denied",
+  "expect": {
+   "deny": [
+    "E0"
+   ]
+  }
+ },
+ {
+  "case": "failed-emitter-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "rc": 0,
+    "detail": "ok"
+   },
+   {
+    "module": "make_y",
+    "rc": 1,
+    "detail": "NameError"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "E1"
+   ]
+  }
+ },
+ {
+  "case": "drift-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "rc": 0,
+    "detail": "ok"
+   }
+  ],
+  "drift": [
+   {
+    "path": "EL-X.colors",
+    "summary": "+A=2"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "E2"
+   ]
+  }
+ },
+ {
+  "case": "tree-write-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "rc": 0,
+    "detail": "ok"
+   }
+  ],
+  "tree_touched": [
+   "EL-X.colors"
+  ],
+  "expect": {
+   "deny": [
+    "E3"
+   ]
+  }
+ },
+ {
+  "case": "clean-run-admitted",
+  "cases": [
+   {
+    "module": "make_x",
+    "rc": 0,
+    "detail": "ok"
+   }
+  ],
+  "drift": [],
+  "tree_touched": []
+ },
+ {
+  "case": "skip-is-withheld-not-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "rc": 0,
+    "detail": "ok"
+   }
+  ],
+  "withheld": [
+   {
+    "module": "make_k",
+    "withheld": "needs /tmp/K"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "E0"
+   ]
+  }
+ }
+]
