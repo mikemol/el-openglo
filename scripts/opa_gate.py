@@ -460,7 +460,27 @@ def spec_cases(policy_dir=POLICY):
     return specs, orphans
 
 
-def specs_gate(policy_dir=POLICY, run=None):
+def stored_closure(key="pytestspec", bzl=None):
+    """The stored closure of a gate stage, read from closures.bzl with check_closure's own reader; None when
+    closures.bzl cannot be read here (a tree that holds only some stage's closure) or holds no such key."""
+    import check_closure as CC
+
+    try:
+        with open(bzl or os.path.join(ROOT, "closures.bzl"), encoding="utf-8") as fh:
+            return CC.load_closures(fh.read()).get(key)
+    except OSError:
+        return None
+
+
+def closure_lacks(specs, closure):
+    """The cases files of `specs` that `closure` does not hold. ⚑ A cases file the stage closure lacks is
+    SILENT: in bazel the stage's inputs are its closure, so it would run fewer specs than the tree has and
+    pass (W558, found porting codomain). Run `check_closure.py --write pytestspec` after adding one."""
+    wanted = [s.removesuffix(".rego") + ".cases.json" for s in specs]
+    return [c for c in wanted if c not in closure]
+
+
+def specs_gate(policy_dir=POLICY, run=None, closure="stored"):
     """Run pytest over every spec that has a cases file; the exit code (W557).
 
     0 when every case passed, pytest's own code when one did not, 1 on an orphan cases file, 2 when no spec has
@@ -477,6 +497,16 @@ def specs_gate(policy_dir=POLICY, run=None):
             file=sys.stderr,
         )
         return 2
+    held = stored_closure() if closure == "stored" else closure
+    lacking = closure_lacks(specs, held) if held is not None else []
+    for c in lacking:
+        print(
+            f"opa_gate --specs: {c} is not in the stored pytestspec closure; "
+            "run check_closure.py --write pytestspec (bazel would run fewer specs and pass)",
+            file=sys.stderr,
+        )
+    if lacking:
+        return 1
     argv = [sys.executable, "-m", "pytest", *specs, "-q", "-p", "no:cacheprovider"]
     rc = run(argv) if run else subprocess.run(argv, cwd=ROOT, check=False).returncode
     print(
@@ -760,11 +790,28 @@ def _selftest():
         os.remove(os.path.join(pd, "gone.cases.json"))
         ran = []
         with contextlib.redirect_stdout(quiet):
-            rc = specs_gate(pd, run=lambda argv: ran.append(argv) or 5)
+            rc = specs_gate(pd, run=lambda argv: ran.append(argv) or 5, closure=None)
         chk(
             "--specs: a clean population hands pytest the spec and returns the runner's own code",
             (rc, a_spec in ran[0]),
             (5, True),
+        )
+        # W558 guard: a cases file the stored stage closure lacks is a refusal that names the fix
+        said = io.StringIO()
+        with contextlib.redirect_stderr(said):
+            lacked = specs_gate(pd, run=lambda argv: 0, closure=[])
+        chk(
+            "--specs: a cases file the stage closure lacks fails the gate (1) and names the fix",
+            (lacked, "check_closure.py --write pytestspec" in said.getvalue()),
+            (1, True),
+        )
+        with contextlib.redirect_stdout(quiet):
+            held = specs_gate(pd, run=lambda argv: 0, closure=["policy/a.cases.json"])
+        chk("--specs: a closure that holds the cases file runs the specs", held, 0)
+        chk(
+            "closure_lacks: only the cases files the closure does not hold",
+            closure_lacks(["policy/a.rego", "policy/b.rego"], ["policy/a.cases.json"]),
+            ["policy/b.cases.json"],
         )
         os.remove(os.path.join(pd, "a.cases.json"))
         with contextlib.redirect_stderr(quiet):
