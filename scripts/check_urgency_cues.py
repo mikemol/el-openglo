@@ -350,9 +350,9 @@ def view_image(rgb, view):
         lin = _lin(rgb)
         return 0.2126 * lin[..., 0] + 0.7152 * lin[..., 1] + 0.0722 * lin[..., 2]
     # the CVD core is mtools' mikemol-cvdcore (W544): no palette import comes with it, where cvd_gate dragged one in
-    from mikemol.cvdcore import core
+    from mikemol.cvdcore import ucs_lightness
 
-    return core._ucs(rgb.reshape(-1, 3), view)[:, 0].reshape(rgb.shape[:2])
+    return ucs_lightness(rgb.reshape(-1, 3), view).reshape(rgb.shape[:2])
 
 
 def grid(img_gray, ground_gray):

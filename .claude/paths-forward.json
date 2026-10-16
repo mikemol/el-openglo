@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 553,
+  "counter": 554,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-11T16:05:12Z",
   "job_id": "6adeda42",
@@ -1570,15 +1570,15 @@
       "enables": [],
       "touches": [],
       "blocked_on": [
-        "paperkit:W112"
+        "paperkit:W461"
       ],
       "blocked_kind": "agent",
       "rank_reason": "",
       "next_bounded_step": "When paperkit W45 lands, re-run Δ on @EBUILD alone and read check_said",
-      "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported | 2026-09-29: 2026-09-29: nemik: paperkit:W45 is an umbrella (blocked on its W112 -> W113); cite the child whose landing unblocks this, paperkit:W113. | 2026-09-29: 2026-09-29: nemik treats paperkit:W113 as an umbrella too (it is blocked on its W112), so blocked_on cites the leaf paperkit:W112 (measure grader.py pycheck standing). What W80 actually needs is W113 baseline-only mode, which follows W112 in paperkit.",
+      "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported | 2026-09-29: 2026-09-29: nemik: paperkit:W45 is an umbrella (blocked on its W112 -> W113); cite the child whose landing unblocks this, paperkit:W113. | 2026-09-29: 2026-09-29: nemik treats paperkit:W113 as an umbrella too (it is blocked on its W112), so blocked_on cites the leaf paperkit:W112 (measure grader.py pycheck standing). What W80 actually needs is W113 baseline-only mode, which follows W112 in paperkit. | 2026-10-16: 2026-10-16: paperkit:W112 was collapsed into paperkit:W461 (the debt ledger measures grader.py at 641 findings, so the edit gate refuses the W113 edit until W461 lands); W113 (baseline-only mode) is the step W80 needs and now waits on W461, so the block is repointed to the leaf.",
       "issued_at": "2026-09-26T18:13:16+00:00",
-      "last_worked": "2026-10-06T01:51:03Z",
-      "ticks_blocked": 9,
+      "last_worked": "2026-10-16T04:20:06Z",
+      "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -12710,22 +12710,20 @@
     {
       "symbol": "W538",
       "title": "One el-openglo command composes the new-template landing chain, closure catalog first, phases as named functions",
-      "status": "blocked",
+      "status": "ready",
       "enables": [],
       "touches": [
         "gate"
       ],
-      "blocked_on": [
-        "W539"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Add a TRACK phase first in the plan: git add the untracked files under the landing paths (templates and new modules), and make --plan list them; make the closure phase cover a new file anywhere under scripts/ (the directory-listing rule), not only roster components; then --run for real on the next landing and --commit WAYPOINT SUBJECT (private EL_STAGED_DIR, explicit paths, git log -1 and git status compared afterwards).",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Four gaps, each seen in this session: (1) the worklist phase must admit exactly the by-design @RESIDUE red and run the whole gate set the commit runs (rego_lint reached a commit); (2) a script-only change in the screens domain needs render_screens (stale only) then check_action_key --write, with no template named; (3) a TRACK phase: git add untracked new files first and cover new files anywhere under scripts/; (4) --commit WAYPOINT SUBJECT with explicit paths and the private staged dir. Each as a named phase function with a selftest arm that can fail.",
       "evidence": "2026-10-13: github-8f 2026-10-13: scope is el-openglo own check scripts composed as one command; mtools:W1068 (waldo recipe layer) is a later port target, cited here, not a blocker. | 2026-10-15: W538 taken as the working card 2026-10-15 on the operator loop prompt re-read: favour mechanizing fixes to cards over fixing them by hand. The chain was hand-run five times on 2026-10-13 (W532 to W546) and refused at the gate each time a step was missed: a parity baseline not recorded (W545), a render-constants disposition (W546), a log-content comparison in a trace (W546), action keys, stale closures. First mode: the closure catalog. Phases to follow, each a named function that halts on the first failure: stale closures, closure write, action keys, parity record, render re-run, the local worklist gate, then the commit. | 2026-10-15: W538 first mode landed in the tree 2026-10-15 (uncommitted until the W546 gate commit finishes): scripts/land_template.py --closures. Selftest 9 of 9 PASS; on the real tree --closures LitLayer.qml reads 0 of 108 stored closures behind. The first selftest run failed on MY expectation (the output is sorted by key; the arm wanted unsorted), fixed in the arm, not the function. | 2026-10-15: W538 second mode 2026-10-15: scripts/land_template.py --plan [NAME ...] prints the chain as data (phase, command, note) and runs nothing; with no names it takes the templates git says changed (changed_templates parses git status --porcelain: modified, added, untracked, shipped .qml and .js directly under templates/). Phases: closures (only for a roster component with stale closures, else skipped), keys, parity, render, the gate batch (template_parity, render_constants, log_content, qml_lint, marquee_live, config_reach: the order a template edit was refused by them on 2026-10-13), the full local worklist pre-flight. On the real tree --plan names marquee-main.qml and matches what was hand-run for W546. Selftest 15 of 15 PASS. Not yet runnable: the phases print, they do not execute, and there is no resume marker; that is the next step, then the commit phase with the git log and status comparison. Added log_content and template_parity to the batch after seeing they were the gates that refused W545 and W546. | 2026-10-15: W538 third mode 2026-10-15: scripts/land_template.py --run [NAME ...] [--fresh] executes the plan in order and halts on the first failed phase, printing the phase and the tail of its output. A resume marker under .git/land_template.marker is keyed to the changed templates NAMES and CONTENT (chain_key), so a rerun resumes after the last finished phase and any further edit starts over; --fresh drops it. The render and the worklist gate run as capped systemd services with stdio piped. The runner is injectable (run_plan takes a runner), so the selftest drives it with a fake: halts and names the failing phase, later phases never run, finished ones recorded (a plan skip too), a rerun resumes, another key starts over, a missing marker reads as none. Selftest 28 of 28. NOT yet run for real (the gate commit and the closure regeneration were in flight); its first real use is the cvd split landing. Not yet: the commit phase (--commit WAYPOINT SUBJECT, private EL_STAGED_DIR, explicit paths, afterwards git log -1 and git status compared with what was meant). | 2026-10-15: W538 lessons 2026-10-15 from the cvd split landing (the chain was not used for it yet, and it showed what is missing): (1) A NEW FILE MUST BE git-ADDED BEFORE any closure regeneration: closures hold only TRACKED files (check_closure docstring), so the first all-108 regeneration (about an hour of strace) finished and left 99 closures still behind cvd_core.py because it was untracked. A track phase belongs first in the plan. (2) The directory-listing rule: a stage that lists scripts/ holds every tracked file directly inside it, so ANY new file under scripts/ (land_template.py itself) makes those closures stale; that regeneration also surfaced four older gaps (marquee_soak, profile_shell, soak_bisect, soak_pod, and the LitLayer baseline) that were missing from ~100 closures already. (3) land_template --split OLD NEW --regen now regenerates exactly the closures behind a cut module, as a capped service, instead of all 108. | 2026-10-15: 2026-10-15: first real --run (W547): 9 of 10 phases passed, the worklist phase failed only on the by-design @RESIDUE red; the phase must admit exactly that known red (or run the gate with the residue bucket named) so a green chain is reachable. | 2026-10-16: 2026-10-15 (W548): land_template --run refuses with no changed template, yet a script-only change (check_marquee_live.py is in the screens action domain) stales the screens action; the chain needs a mode for it: render then check_action_key --write, without a template. | 2026-10-16: 2026-10-15 (W185): two more gaps the pre-commit found that the chain did not: the worklist phase must run rego_lint and the whole gate set the commit runs (a bare s.boundary in a new rule reached the commit), and a script-only edit to a file in the screens domain needs render_screens (only the stale) then check_action_key --write without a template. Both belong in the chain as phases.",
       "issued_at": "2026-10-13T01:36:14Z",
       "minted_during": "interrupt",
       "caused_by": "W534",
-      "last_worked": "2026-10-16T02:45:42Z",
-      "ticks_blocked": 1,
+      "last_worked": "2026-10-16T04:45:53Z",
+      "ticks_blocked": 0,
       "completed": null
     },
     {
@@ -12829,7 +12827,7 @@
     {
       "symbol": "W544",
       "title": "Extract cvd_gate pure core (worst_view_dE, Okabe-Ito floor) as a mikemol-* dist homed in mtools, cutting the lazy palette_graph import",
-      "status": "working",
+      "status": "done",
       "enables": [
         "nemik:W438"
       ],
@@ -12838,14 +12836,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "mtools landed mikemol-cvdcore at e916285 (W1315; import mikemol.cvdcore; exports worst_view_dE, VIEWS, OKABE_ITO, reference_floor, reference_floors, rgb). Do: add the dist to the tooling extra pinned at e916285 (mikemol-repin or uv add), uv sync both extras; repoint cvd_gate and check_urgency_cues to mikemol.cvdcore (read three differences first: VIEWS is a tuple not a list, the floor empty sentinel is empty strings not None, no __main__ selftest); delete cvd_core.py and its closure entries (land_template --split ... --regen); run the consumers (cvd_gate selftest, check_urgency_cues, check_separation, check_rehue, check_symbol); local worklist gate; commit; tell nemik W438 is delivered.",
-      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on. | 2026-10-15: W544 tick 2026-10-15 (nemik SLA 49 ticks): letters sent to nemik (status, why it waited) and mtools (the home request). The pycodemod split mode was tried first (dry-run): it cuts by definition count, strands VIEWS alone and lumps WCAG and APCA into the core, so the semantic cut was done by hand; it did surface the external users of private names (check_urgency_cues takes _ucs, check_solver_roots takes _wcag_L), which is why the re-export keeps every name. | 2026-10-15: 2026-10-15: mtools-ad accepted: dist mikemol-cvdcore (import mikemol.cvdcore); mtools:W1313 umbrella, W1314 scaffold, W1315 port cvd_core with its 7 arms; WCAG/APCA stay in cvd_gate; numpy and colorspacious become the first third-party deps (stubs for bazel mypy). par sha to pin comes when W1315 lands. cvd_core.py blob sent: commit 9a4be98. | 2026-10-16: 2026-10-15: mtools-ad reports mikemol-cvdcore landed at mtools e916285 (W1315), parity checked on five pairs and the floors, numpy and colorspacious are its dependencies; WCAG and APCA stay in cvd_gate.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-13: Minted 2026-10-13 on nemik-71 ask: the 2026-10-11 promise cited el-openglo:W508, which was reused for another card, so nemik:W438 had no claim to wait on. | 2026-10-15: W544 tick 2026-10-15 (nemik SLA 49 ticks): letters sent to nemik (status, why it waited) and mtools (the home request). The pycodemod split mode was tried first (dry-run): it cuts by definition count, strands VIEWS alone and lumps WCAG and APCA into the core, so the semantic cut was done by hand; it did surface the external users of private names (check_urgency_cues takes _ucs, check_solver_roots takes _wcag_L), which is why the re-export keeps every name. | 2026-10-15: 2026-10-15: mtools-ad accepted: dist mikemol-cvdcore (import mikemol.cvdcore); mtools:W1313 umbrella, W1314 scaffold, W1315 port cvd_core with its 7 arms; WCAG/APCA stay in cvd_gate; numpy and colorspacious become the first third-party deps (stubs for bazel mypy). par sha to pin comes when W1315 lands. cvd_core.py blob sent: commit 9a4be98. | 2026-10-16: 2026-10-15: mtools-ad reports mikemol-cvdcore landed at mtools e916285 (W1315), parity checked on five pairs and the floors, numpy and colorspacious are its dependencies; WCAG and APCA stay in cvd_gate. | 2026-10-16: 2026-10-16: landed 55459bb. mikemol-cvdcore pinned at e916285cf237 in the tooling extra; cvd_gate binds its names from mikemol.cvdcore.core; check_urgency_cues takes _ucs from it; cvd_core.py deleted; 108 closures regenerated; the six scheme outputs rebuild byte-identical; check_deps, ebuild witness and the selftests of the four consumers pass. nemik:W438 delivered.",
       "issued_at": "2026-10-13T08:12:56Z",
       "minted_during": "interrupt",
       "caused_by": "nemik:W438",
-      "last_worked": "2026-10-16T02:45:46Z",
+      "last_worked": "2026-10-16T04:18:51Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261016T041851Z"
     },
     {
       "symbol": "W545",
@@ -13028,6 +13026,25 @@
       "caused_by": "operator",
       "last_worked": null,
       "ticks_blocked": 0
+    },
+    {
+      "symbol": "W554",
+      "title": "Repoint cvd_gate and check_urgency_cues to the public mikemol.cvdcore conversion once mtools names it, replacing the private core._ucs and core._ucs_one",
+      "status": "working",
+      "enables": [],
+      "touches": [
+        "cvd_gate"
+      ],
+      "blocked_on": [],
+      "blocked_kind": "agent",
+      "next_bounded_step": "mtools-ad will add a public typed function to mikemol.cvdcore once it has the call shape (sent 2026-10-16: core._ucs(rgb (N,3) float 0..255, view) reading column 0). When mtools names it and its card, pin at the par sha, repoint check_urgency_cues.view_image and the cvd_gate re-exports, delete the private-name reach, run the four consumers.",
+      "evidence": "2026-10-16: 2026-10-16: mtools-ad minted mtools:W1349: mikemol.cvdcore will export ucs(rgb, view) -> (N,3) and ucs_lightness(rgb, view) -> (N,) with tests pinning both; the sha comes by message. Keep core._ucs and core._ucs_one until then.",
+      "issued_at": "2026-10-16T04:20:07Z",
+      "minted_during": "interrupt",
+      "caused_by": "mtools:W1315",
+      "last_worked": "2026-10-16T04:45:54Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [

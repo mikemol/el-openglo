@@ -13,17 +13,18 @@ admissible if it is at least as separated (x a class factor) as the reference
 shape's own tightest pair.
 """
 
+import mikemol.cvdcore as _core
 import numpy as np
-from mikemol.cvdcore import core as _core
 
 # ⚑ THE CVD ARM LIVES IN mtools' mikemol-cvdcore (W544; nemik:W438): pure, numpy and colorspacious, no palette
-# import. Every name is bound here unchanged, so each caller that resolves one through cvd_gate keeps working
+# import. Every public name is bound here, so each caller that resolves one through cvd_gate keeps working
 # (check_st_api and check_palette_chain resolve by name). WCAG and APCA stay below: they are not in the dist.
 # The dist's VIEWS is a tuple where cvd_core.py's was a list; nothing here indexes it as a list.
+# ⚑ ONLY PUBLIC NAMES (W554; mtools:W1349): _ucs is the dist's public ucs, and _ucs_one is gone, since it was the
+# dist's memo and nothing here called it.
 VIEWS = _core.VIEWS
 OKABE_ITO = _core.OKABE_ITO
-_ucs = _core._ucs
-_ucs_one = _core._ucs_one
+_ucs = _core.ucs
 worst_view_dE = _core.worst_view_dE
 reference_floor = _core.reference_floor
 reference_floors = _core.reference_floors
