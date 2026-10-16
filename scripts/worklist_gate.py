@@ -88,6 +88,50 @@ ENTRY = {
 }
 
 
+# ⚑ A SWEEP THAT MUTATES THE WHOLE TREE RUNS UNDER A MEMORY CAP (W469; luthen-observability, 2026-09-25: a bare
+# --discriminate took the host down with a global OOM, and `timeout` bounds wall-clock, never memory). The cap
+# lives in a cgroup, so it is READ, not trusted: a limit anywhere on this process's cgroup path applies. 16 GiB is
+# the ceiling that counts (the practice is 8 GiB; a user-slice limit near the whole machine protects nothing).
+CAP_LIMIT = 16 * 2**30
+CGROUP_ROOT = "/sys/fs/cgroup"
+CAP_COMMAND = (
+    "systemd-run --user --pipe --wait --collect -p MemoryMax=8G -p MemorySwapMax=0 "
+    "python3 scripts/worklist_gate.py --discriminate"
+)
+
+
+def _read_text(path):
+    try:
+        with open(path, encoding="utf-8") as fh:
+            return fh.read()
+    except OSError:
+        return None
+
+
+def memory_cap(cgroup_text=None, root=CGROUP_ROOT, read=_read_text):
+    """The tightest memory.max, in bytes, on this process's cgroup path (its own and every ancestor's); None when
+    none is set or the hierarchy cannot be read (cgroup v1, no /proc, a path that does not resolve).
+    WEAKNESS: it reads memory.max, not memory.swap.max, so a swap-backed cap is not told from a swap-free one;
+    the stated practice (MemorySwapMax=0) is in CAP_COMMAND, not enforced here."""
+    text = read("/proc/self/cgroup") if cgroup_text is None else cgroup_text
+    line = next((ln for ln in (text or "").splitlines() if ln.startswith("0::")), None)
+    if line is None:
+        return None
+    parts = [p for p in line.split(":", 2)[2].split("/") if p]
+    caps = []
+    for i in range(len(parts), 0, -1):
+        value = read(os.path.join(root, *parts[:i], "memory.max"))
+        if value is not None and value.strip().isdigit():
+            caps.append(int(value.strip()))
+    return min(caps) if caps else None
+
+
+def under_cap():
+    """True when this process runs under a memory cap of CAP_LIMIT or less."""
+    cap = memory_cap()
+    return cap is not None and cap <= CAP_LIMIT
+
+
 def _engine_argv(script, proj):
     """⚑ THE ENGINE RUNS AS A PACKAGE, NEVER BY PATH (paperkit:W297): `-m paperkit.gate`."""
     return [sys.executable, "-m", "paperkit." + script.removesuffix(".py"), proj]
@@ -641,6 +685,14 @@ def main(argv):
             )
             return 2
 
+    if mode == "--discriminate" and not under_cap():
+        print(
+            "worklist_gate: REFUSED — --discriminate mutates and re-runs every check and runs outside a "
+            f"memory cap here (a bare run took the host down on 2026-09-25). Run it as: {CAP_COMMAND}",
+            file=sys.stderr,
+        )
+        return 2
+
     rc = _reexec_under_uv()
     if rc is not None:
         return rc
@@ -799,6 +851,69 @@ def _selftest():
             os.environ.pop("PAPERKIT", None)
         else:
             os.environ["PAPERKIT"] = saved
+
+    # W469: the memory cap is READ from the cgroup path and a limit on any ancestor counts
+    own = "0::/user.slice/user-1000.slice/run-x.service\n"
+    base = CGROUP_ROOT + "/user.slice/user-1000.slice"
+
+    def cg(files):
+        return lambda path: files.get(path)
+
+    eight = str(8 * 2**30)
+    check(
+        "memory_cap: a cap on the service itself is read",
+        memory_cap(own, read=cg({base + "/run-x.service/memory.max": eight + "\n"})),
+        8 * 2**30,
+    )
+    check(
+        "memory_cap: a service with no cap of its own is bound by its parent's",
+        memory_cap(
+            own,
+            read=cg(
+                {
+                    base + "/run-x.service/memory.max": "max\n",
+                    base + "/memory.max": str(4 * 2**30),
+                }
+            ),
+        ),
+        4 * 2**30,
+    )
+    check(
+        "memory_cap: max everywhere is no cap",
+        memory_cap(own, read=cg({base + "/run-x.service/memory.max": "max\n"})),
+        None,
+    )
+    check(
+        "memory_cap: an unreadable hierarchy is no cap",
+        memory_cap(own, read=cg({})),
+        None,
+    )
+    check(
+        "memory_cap: a cgroup v1 listing (no 0:: line) is no cap",
+        memory_cap("4:memory:/x\n", read=cg({})),
+        None,
+    )
+    global under_cap
+    real_under_cap = under_cap
+    refusal = io.StringIO()
+
+    def uncapped():
+        return False
+
+    under_cap = uncapped
+    try:
+        with contextlib.redirect_stderr(refusal):
+            refused = main(["worklist_gate.py", "--discriminate"])
+    finally:
+        under_cap = real_under_cap
+    check("--discriminate outside a cap exits 2", refused, 2)
+    check(
+        "...and names the capped command",
+        "MemoryMax=8G" in refusal.getvalue() and "REFUSED" in refusal.getvalue(),
+        True,
+    )
+    check("a 17 GiB cap does not count as a cap", 17 * 2**30 <= CAP_LIMIT, False)
+    check("an 8 GiB cap counts", 8 * 2**30 <= CAP_LIMIT, True)
 
     eng, why = locate()
     check("engine is locatable here", eng is not None, True)
