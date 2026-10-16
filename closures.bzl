@@ -500,6 +500,7 @@ CLOSURES = {
         "policy/license.cases.json",
         "policy/license.rego",
         "policy/license_test.rego",
+        "policy/lnf.cases.json",
         "policy/lnf.rego",
         "policy/lnf_test.rego",
         "policy/log_content.rego",

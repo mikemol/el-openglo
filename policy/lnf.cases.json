@@ -1,0 +1,300 @@
+[
+ {
+  "case": "admits-both-engines",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazure",
+    "variant": "EL-Azure",
+    "engine": "breeze",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazure",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "Breeze",
+    "lnf_package": "org.el.openglo.elazure",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": "__aurorae__svg__EL-Azure"
+   },
+   {
+    "id": "org.el.openglo.elazureoxygen",
+    "variant": "EL-Azure",
+    "engine": "oxygen",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazureoxygen",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "oxygen",
+    "lnf_package": "org.el.openglo.elazureoxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": null
+   }
+  ],
+  "undeclared_staged": []
+ },
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "missing-package-denied",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazureoxygen",
+    "variant": "EL-Azure",
+    "engine": "oxygen",
+    "missing": "declared but not staged",
+    "meta_id": "org.el.openglo.elazureoxygen",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "oxygen",
+    "lnf_package": "org.el.openglo.elazureoxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": null
+   }
+  ],
+  "undeclared_staged": [],
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "undeclared-staged-denied",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazure",
+    "variant": "EL-Azure",
+    "engine": "breeze",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazure",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "Breeze",
+    "lnf_package": "org.el.openglo.elazure",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": "__aurorae__svg__EL-Azure"
+   }
+  ],
+  "undeclared_staged": [
+   "org.el.stray"
+  ],
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "oxygen-with-breeze-style-denied",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazureoxygen",
+    "variant": "EL-Azure",
+    "engine": "oxygen",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazureoxygen",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "Breeze",
+    "lnf_package": "org.el.openglo.elazureoxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": null
+   }
+  ],
+  "undeclared_staged": [],
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "oxygen-with-aurorae-theme-denied",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazureoxygen",
+    "variant": "EL-Azure",
+    "engine": "oxygen",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazureoxygen",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "oxygen",
+    "lnf_package": "org.el.openglo.elazureoxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": "__aurorae__svg__EL-Azure"
+   }
+  ],
+  "undeclared_staged": [],
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "wrong-scheme-denied",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazure",
+    "variant": "EL-Azure",
+    "engine": "breeze",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazure",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "BreezeLight",
+    "widget_style": "Breeze",
+    "lnf_package": "org.el.openglo.elazure",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": "__aurorae__svg__EL-Azure"
+   }
+  ],
+  "undeclared_staged": [],
+  "expect": {
+   "deny": [
+    "L2"
+   ]
+  }
+ },
+ {
+  "case": "id-mismatch-denied",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "org.el.openglo.elazure",
+    "variant": "EL-Azure",
+    "engine": "breeze",
+    "missing": null,
+    "meta_id": "org.el.openglo.elazure",
+    "structure": "Plasma/LookAndFeel",
+    "color_scheme": "EL-Azure",
+    "widget_style": "Breeze",
+    "lnf_package": "org.kde.breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": "__aurorae__svg__EL-Azure"
+   }
+  ],
+  "undeclared_staged": [],
+  "expect": {
+   "deny": [
+    "L1"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-case-withheld",
+  "engines": {
+   "breeze": {
+    "widget": "Breeze",
+    "deco_library": "org.kde.kwin.aurorae",
+    "deco_theme": true
+   },
+   "oxygen": {
+    "widget": "oxygen",
+    "deco_library": "org.kde.oxygen",
+    "deco_theme": false
+   }
+  },
+  "cases": [
+   {
+    "id": "x",
+    "variant": "EL-Azure",
+    "engine": "breeze"
+   }
+  ],
+  "undeclared_staged": [],
+  "expect": {
+   "withheld": [
+    "L0"
+   ]
+  }
+ }
+]
