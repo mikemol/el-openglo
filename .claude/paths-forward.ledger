@@ -944,3 +944,4 @@
 2026-10-15T22:17:59Z  hash  --   diverged  --        "divergence: payload v2:ceaf753d6c505703, file v2:9ae1116f7a88b99c; the FILE wins"
 2026-10-16T02:02:15Z  interrupt W553 minted    -         "Mechanize el-openglo's debt cards: one dry-run-first judged-fix run over the debt ledger, then close what the gate shows cleared"  evidence=operator
 2026-10-16T04:20:07Z  interrupt W554 minted    -         "Repoint cvd_gate and check_urgency_cues to the public mikemol.cvdcore conversion once mtools names it, replacing the private core._ucs and core._ucs_one"  evidence=mtools:W1315
+2026-10-16T06:44:10Z  interrupt W555 minted    -         "Port the landing chain (land_template phases, judge, commit verification) to the mtools waldo recipe layer"  evidence=W538

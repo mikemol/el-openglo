@@ -13,7 +13,15 @@ record, render re-run, the local worklist gate, the commit), each halting on the
     scripts/land_template.py --closures NAME.qml [NAME.qml ...]   # stored closures the new component(s) are missing from
     scripts/land_template.py --split OLD NEW      # closures holding OLD that lack NEW, after a module is cut
     scripts/land_template.py --plan [NAME ...]    # the chain as data for the changed templates (default: git's)
+    scripts/land_template.py --commit WAYPOINT SUBJECT [PATH ...]   # stage, commit, compare what landed
     scripts/land_template.py --selftest
+
+`--commit` is the chain's last phase: it stages the NAMED paths (default: every tracked change, never an
+untracked file or the overlay cache; never `git commit -a`, whose temporary index makes the gates see 0
+files) with `git add -A`, runs mikemol-commit with the private staged dir and the subject as ONE argv element
+(a backtick in it is data), and then compares HEAD with the ask: the subject, the Waypoint trailer, the
+post-commit advisory marker, and any deletion left staged (github-8f 2026-10-13: a commit that printed
+success had another subject and a deletion no one named). Run it in the BACKGROUND: the gate is ~30 min.
 
 `--plan` prints each phase and the command it would run, and runs nothing: the chain is reviewable
 before it is runnable. `--run [NAME ...] [--fresh]` runs it: in order, halting on the first failed
@@ -372,6 +380,115 @@ def chain_for(names, porcelain=None):
     return names, scripts, untracked, steps
 
 
+# the staged dir this session's commits use while the katas sweep can collide on the shared one (the gate
+# died on a staged file the sweep removed under it); a private dir is a path nothing else writes
+PRIVATE_STAGED = os.path.expanduser("~/.cache/el-openglo-staged-claude")
+
+
+def commit_paths(porcelain):
+    """The paths a landing commit NAMES: every tracked path git lists as changed (modified, added, deleted),
+    never an untracked one (the track phase adds those) and never NOT_WORK. `git commit -a` is never used (its
+    temporary index makes the gates see 0 files), so the paths are named, sorted."""
+    return sorted(
+        path
+        for code, path in _porcelain_paths(porcelain)
+        if code and code != "??" and not path.startswith(NOT_WORK)
+    )
+
+
+def commit_argv(waypoint, subject, paths):
+    """The argv of the one commit call. A list, never a shell string: a backtick or a quote in the subject
+    is data here (an unquoted one executed and dropped waypoint text three times)."""
+    head = [".venv/bin/mikemol-commit", "el-openglo", "--waypoint", waypoint]
+    return head + ["--subject", subject, *paths]
+
+
+def verify_commit(head_subject, head_body, waypoint, subject, porcelain):
+    """[problem]: where the commit that LANDED differs from the one asked for (github-8f 2026-10-13: a commit
+    that printed success had another subject and a staged deletion no one named). Empty means it matches.
+
+    It compares the subject, the Waypoint trailer and the post-commit advisory marker (pre-push blocks a tip
+    without it), and reports every deletion still staged at the index, which a finished commit leaves none of."""
+    problems = []
+    if head_subject != subject:
+        problems.append(f"HEAD subject is {head_subject[:70]!r}, not the one asked")
+    if f"Waypoint: {waypoint}" not in head_body.splitlines():
+        problems.append(f"HEAD carries no 'Waypoint: {waypoint}' trailer")
+    if "post-commit advisory (auto-captured)" not in head_body:
+        problems.append("HEAD lacks the post-commit advisory marker (not pushable yet)")
+    for line in porcelain.splitlines():
+        if line[:1] == "D":
+            problems.append(f"a deletion is still staged: {line[3:]}")
+    return problems
+
+
+def git_head():
+    """(subject, body) of HEAD."""
+    import subprocess
+
+    def fmt(spec):
+        return subprocess.run(
+            ["git", "-C", ROOT, "log", "-1", f"--format={spec}"],
+            capture_output=True,
+            text=True,
+            check=True,
+        ).stdout.rstrip("\n")
+
+    return fmt("%s"), fmt("%b")
+
+
+def commit_runner(argv):
+    """(rc, text): the commit call, from the repo root, with the private staged dir in its environment."""
+    import subprocess
+
+    env = dict(os.environ, EL_STAGED_DIR=PRIVATE_STAGED)
+    r = subprocess.run(
+        argv, cwd=ROOT, capture_output=True, text=True, check=False, env=env
+    )
+    return r.returncode, r.stdout + r.stderr
+
+
+def commit_report(
+    waypoint, subject, paths, run=commit_runner, head=git_head, status=git_porcelain
+):
+    """Stage the named paths (default: every tracked change) and commit them under `waypoint`, then compare
+    what landed with what was asked. Exit 0 when the commit landed and matches, 1 when the gate refused it or
+    HEAD differs, 2 on a refusal before anything ran. `run`, `head` and `status` are the seams a selftest fakes."""
+    import re
+
+    if not re.fullmatch(r"W\d+", waypoint or ""):
+        print(
+            f"land_template: REFUSED: {waypoint!r} is not a waypoint symbol",
+            file=sys.stderr,
+        )
+        return 2
+    if not (subject or "").strip():
+        print("land_template: REFUSED: an empty subject", file=sys.stderr)
+        return 2
+    paths = paths or commit_paths(status())
+    if not paths:
+        print("land_template: REFUSED: no tracked change to commit", file=sys.stderr)
+        return 2
+    rc, text = run(["git", "add", "-A", "--", *paths])
+    if rc != 0:
+        print(f"land_template: git add refused (rc {rc}):\n{text[-1200:]}")
+        return 1
+    rc, text = run(commit_argv(waypoint, subject, paths))
+    if rc != 0:
+        print(f"land_template: the commit was refused (rc {rc}); HEAD is unchanged:")
+        print(text[-1200:])
+        return 1
+    problems = verify_commit(*head(), waypoint, subject, status())
+    for p in problems:
+        print(f"land_template: MISMATCH: {p}")
+    if problems:
+        return 1
+    print(
+        f"land_template --commit: {waypoint} landed, {len(paths)} path(s), HEAD matches the ask"
+    )
+    return 0
+
+
 def run_report(names, fresh):
     """Run the chain for `names` (default: git's changed templates), halting on the first failed phase.
     Exit 0 when every phase passed, 1 on a failure (the phase and the tail of its output are printed), 2 on
@@ -434,12 +551,22 @@ def main(argv):
             "--fresh",
             "--split",
             "--regen",
+            "--commit",
             "--selftest",
         ):
             print(f"land_template: unknown flag {a!r}", file=sys.stderr)
             return 2
     if "--selftest" in flags:
         return 0 if _selftest() else 1
+    if "--commit" in flags:
+        rest = [a for a in args if not a.startswith("--")]
+        if len(rest) < 2:
+            print(
+                "land_template: --commit needs WAYPOINT SUBJECT [PATH ...]",
+                file=sys.stderr,
+            )
+            return 2
+        return commit_report(rest[0], rest[1], rest[2:])
     if "--run" in flags:
         names = [a for a in args if not a.startswith("--")]
         return run_report(names, "--fresh" in flags)
@@ -598,6 +725,8 @@ def _selftest():
         split_report(["cvd_gate.py", "NoSuch.py"])[2] is not None,
         True,
     )
+    import contextlib
+    import io
     import tempfile
 
     with tempfile.TemporaryDirectory() as td:
@@ -788,6 +917,111 @@ def _selftest():
             "run: a worklist crash halts the chain at the worklist",
             (res[:2], "after" in seen),
             ((False, "worklist"), False),
+        )
+    # W538 gap 4: the commit call and the check that what landed is what was asked
+    chk(
+        "commit_paths: tracked changes only; an untracked file, a directory and the overlay cache are not named",
+        commit_paths(" M a.py\nA  b.py\n D c.py\n?? d.py\n?? overlay/metadata/x\n"),
+        ["a.py", "b.py", "c.py"],
+    )
+    chk("commit_paths: a clean tree names none", commit_paths(""), [])
+    chk(
+        "commit_argv: a list, the subject one element whatever it holds",
+        commit_argv("W9", "a `b` 'c' $d", ["x.py", "y.py"]),
+        [".venv/bin/mikemol-commit", "el-openglo", "--waypoint", "W9"]
+        + ["--subject", "a `b` 'c' $d", "x.py", "y.py"],
+    )
+    body = "Waypoint: W9\n\nCo-Authored-By: x\n\npost-commit advisory (auto-captured):\n  y"
+    chk(
+        "verify_commit: the commit asked for matches",
+        verify_commit("subj", body, "W9", "subj", ""),
+        [],
+    )
+    chk(
+        "verify_commit: another subject is reported",
+        len(verify_commit("other", body, "W9", "subj", "")),
+        1,
+    )
+    chk(
+        "verify_commit: another waypoint's trailer is reported",
+        len(verify_commit("subj", body, "W10", "subj", "")),
+        1,
+    )
+    chk(
+        "verify_commit: a missing advisory marker is reported",
+        len(verify_commit("subj", "Waypoint: W9\n", "W9", "subj", "")),
+        1,
+    )
+    chk(
+        "verify_commit: a deletion left staged is reported by its path",
+        verify_commit("subj", body, "W9", "subj", "D  gone.py\n M ok.py\n"),
+        ["a deletion is still staged: gone.py"],
+    )
+    ran = []
+
+    def fake_run(argv):
+        ran.append(argv)
+        return (1, "gate refused") if "--waypoint" in argv and bad_gate else (0, "")
+
+    bad_gate = False
+    quiet = io.StringIO()
+    with contextlib.redirect_stdout(quiet):
+        good = commit_report(
+            "W9",
+            "subj",
+            ["a.py"],
+            run=fake_run,
+            head=lambda: ("subj", body),
+            status=lambda: "",
+        )
+    chk(
+        "commit_report: stages the named paths with -A, then commits, and a matching HEAD is exit 0",
+        (good, [r[:3] for r in ran]),
+        (
+            0,
+            [
+                ["git", "add", "-A"],
+                [".venv/bin/mikemol-commit", "el-openglo", "--waypoint"],
+            ],
+        ),
+    )
+    ran.clear()
+    with contextlib.redirect_stdout(quiet):
+        wrong = commit_report(
+            "W9",
+            "subj",
+            ["a.py"],
+            run=fake_run,
+            head=lambda: ("another", body),
+            status=lambda: "",
+        )
+    chk("commit_report: a HEAD with another subject is exit 1", wrong, 1)
+    bad_gate = True
+    with contextlib.redirect_stdout(quiet):
+        refused = commit_report(
+            "W9",
+            "subj",
+            ["a.py"],
+            run=fake_run,
+            head=lambda: ("subj", body),
+            status=lambda: "",
+        )
+    chk("commit_report: a refused commit is exit 1 and never inspects HEAD", refused, 1)
+    with contextlib.redirect_stderr(quiet):
+        chk(
+            "commit_report: a non-symbol waypoint is refused before anything runs",
+            commit_report("nine", "subj", ["a.py"], run=fake_run),
+            2,
+        )
+        chk(
+            "commit_report: an empty subject is refused",
+            commit_report("W9", "  ", ["a.py"], run=fake_run),
+            2,
+        )
+        chk(
+            "commit_report: no tracked change is refused",
+            commit_report("W9", "subj", [], run=fake_run, status=lambda: "?? new.py\n"),
+            2,
         )
     print("land_template selftest:", "PASS" if ok else "FAIL")
     return ok
