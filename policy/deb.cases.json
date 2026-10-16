@@ -1,0 +1,63 @@
+[
+  {
+    "case": "complete-pack-admits: every step ran, every staged file packed, the verdict ok with a checksum",
+    "steps": {"clamp": 0, "build": 0, "info": 0, "contents": 0},
+    "staged": ["/usr/a", "/usr/b"],
+    "packed": ["/usr/a", "/usr/b"],
+    "verdict": {"state": "ok", "sha256": "ab"},
+    "withheld": []
+  },
+  {
+    "case": "empty-population-denied: an absent population is D0, and with no steps recorded every step also reads never ran (D1)",
+    "expect": {"deny": ["D0", "D1"]}
+  },
+  {
+    "case": "failed-step-denied: the build step exited 2",
+    "steps": {"clamp": 0, "build": 2, "info": 0, "contents": 0},
+    "staged": ["/usr/a", "/usr/b"],
+    "packed": ["/usr/a", "/usr/b"],
+    "verdict": {"state": "ok", "sha256": "ab"},
+    "withheld": [],
+    "expect": {"deny": ["D1"]}
+  },
+  {
+    "case": "step-never-ran-denied: only clamp was recorded, so build, info and contents never ran",
+    "steps": {"clamp": 0},
+    "staged": ["/usr/a", "/usr/b"],
+    "packed": ["/usr/a", "/usr/b"],
+    "withheld": [],
+    "expect": {"deny": ["D1"]}
+  },
+  {
+    "case": "missing-file-denied: a staged file is not in the package",
+    "steps": {"clamp": 0, "build": 0, "info": 0, "contents": 0},
+    "staged": ["/usr/a", "/usr/b"],
+    "packed": ["/usr/a"],
+    "verdict": {"state": "ok", "sha256": "ab"},
+    "withheld": [],
+    "expect": {"deny": ["D2"]}
+  },
+  {
+    "case": "foreign-file-denied: the package holds a file that was not staged",
+    "steps": {"clamp": 0, "build": 0, "info": 0, "contents": 0},
+    "staged": ["/usr/a", "/usr/b"],
+    "packed": ["/usr/a", "/usr/b", "/usr/c"],
+    "verdict": {"state": "ok", "sha256": "ab"},
+    "withheld": [],
+    "expect": {"deny": ["D3"]}
+  },
+  {
+    "case": "refused-verdict-denied: deb_pack's own verdict is refused",
+    "steps": {"clamp": 0, "build": 0, "info": 0, "contents": 0},
+    "staged": ["/usr/a", "/usr/b"],
+    "packed": ["/usr/a", "/usr/b"],
+    "verdict": {"state": "refused", "step": "build"},
+    "withheld": [],
+    "expect": {"deny": ["D4"]}
+  },
+  {
+    "case": "withheld-is-not-denied: no deb_pack output is withheld, never a deny",
+    "withheld": ["no deb_pack output"],
+    "expect": {"withheld": ["no deb_pack output"]}
+  }
+]
