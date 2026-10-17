@@ -1,0 +1,5888 @@
+[
+ {
+  "case": "admits-a-good-tree",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   }
+  ]
+ },
+ {
+  "case": "h1-refuses-roster-drift",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   }
+  ],
+  "roster_drift": [
+   {
+    "variant": "EL-Amber",
+    "who": "make_deb",
+    "why": "make_deb.VARIANTS does not declare it (GRID does)"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H1"
+   ]
+  }
+ },
+ {
+  "case": "h1-admits-no-drift",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   }
+  ],
+  "roster_drift": []
+ },
+ {
+  "case": "h0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "H0"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-debian-only-layout",
+  "cases": [
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-dangling-scriptfile",
+  "cases": [
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/y",
+      "script_exists": false,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-a-swallowed-alternatives-failure",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-a-silent-initramfs-skip",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-a-failure-that-names-nothing",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "oops",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-an-unprinted-skip",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-the-wrong-alternative",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-the-breeze-background-route",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-no-way-back",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-openglo\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-an-sddm-conf-write",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": true,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "null-sddm-conf-written-withheld-does-not-fire",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": null,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true,
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-reason-is-not-a-withholding",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true,
+    "withheld": null
+   }
+  ]
+ },
+ {
+  "case": "null-ref-existence-withheld-not-denied",
+  "cases": [
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": null,
+      "image_dir": "/x",
+      "image_dir_exists": null
+     }
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "null-want-theme-dir-exists-withheld-not-denied",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-an-uninstalled-theme",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-run-is-judged",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo",
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": null,
+    "stdout": null,
+    "stderr": null,
+    "tool_log": null,
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": null,
+    "want_theme": null,
+    "want_name": null,
+    "withheld": null
+   },
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": null,
+    "refs": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "null-kind-withheld",
+  "cases": [
+   {
+    "kind": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2",
+    "R1"
+   ],
+   "withheld": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "a-seamless-helper-is-withheld",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "withheld": "no seam"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ],
+   "withheld": [
+    "H0"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-no-reload-population",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-surviving-org-el-entry",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-deleted-foreign-entry",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-no-restart-when-active",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-restart-when-inactive",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "plasmashell --replace",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-silent-inactive",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-live-no-reload",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": true,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-no-reload-that-sweeps",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-unmeasured-fact-is-withheld-not-denied",
+  "cases": [
+   {
+    "kind": "layout",
+    "variant": "EL-Openglo",
+    "dir": "el-openglo-EL-Openglo",
+    "plymouth_files": [
+     "el-openglo-EL-Openglo.plymouth"
+    ],
+    "refs": {
+     "el-openglo-EL-Openglo.plymouth": {
+      "script_file": "/x.script",
+      "script_exists": true,
+      "image_dir": "/x",
+      "image_dir_exists": true
+     }
+    }
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "happy",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "update-alternatives --set",
+     "update-initramfs -u"
+    ],
+    "alternative": {
+     "link": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth"
+    },
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "alternatives_fail",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_update_initramfs",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "update-initramfs not found",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_initramfs_flag",
+    "exit": 0,
+    "stdout": "SKIP: initramfs rebuild",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "set_default_theme_route",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [
+     "plymouth-set-default-theme -R el-openglo-EL-Openglo"
+    ],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-plymouth",
+    "scenario": "no_route",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "neither update-alternatives nor plymouth-set-default-theme",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": null,
+    "sddm_conf_written": false,
+    "want_theme": "/usr/share/plymouth/themes/el-openglo-EL-Openglo/el-openglo-EL-Openglo.plymouth",
+    "want_name": "el-openglo-EL-Openglo"
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=el-openglo-azure-lit\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "unknown_variant",
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=x\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "run",
+    "helper": "el-openglo-sddm",
+    "scenario": "breeze_after_theme",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "tool_log": [],
+    "alternative": null,
+    "dropin": {
+     "text": "[Theme]\nCurrent=breeze\n"
+    },
+    "sddm_conf_written": false,
+    "want_current": "el-openglo-azure-lit",
+    "want_theme_dir_exists": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_active",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service",
+     "systemctl --user restart plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "reload_inactive",
+    "exit": 0,
+    "stdout": "  Reload: run 'plasmashell --replace &'",
+    "stderr": "",
+    "systemctl_log": [
+     "systemctl --user is-active --quiet plasma-plasmashell.service"
+    ],
+    "cache_el_present": false,
+    "cache_foreign_present": true
+   },
+   {
+    "kind": "reload",
+    "helper": "el-openglo-apply",
+    "scenario": "no_reload",
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "systemctl_log": [],
+    "cache_el_present": null,
+    "cache_foreign_present": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H2"
+   ]
+  }
+ }
+]

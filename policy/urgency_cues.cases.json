@@ -1,0 +1,3231 @@
+[
+ {
+  "case": "letterform-admitted",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "case": "exactly-at-shape-min-admitted",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.15,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "case": "opacity-only-low-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.0,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V1"
+   ]
+  }
+ },
+ {
+  "case": "colour-only-critical-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 0.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 0.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.0,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V1",
+    "V3",
+    "V5"
+   ]
+  }
+ },
+ {
+  "case": "flash-over-3hz-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 4.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V6",
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "flash-off-declared-rate-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.8,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "declared-rate-over-operator-ceiling-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.5,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2.5,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "no-declared-rate-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "flashing-low-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V8"
+   ]
+  }
+ },
+ {
+  "case": "dipping-normal-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.3
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V8"
+   ]
+  }
+ },
+ {
+  "case": "too-few-covered-frames-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 3,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V4"
+   ]
+  }
+ },
+ {
+  "case": "unpausable-flash-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 9,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V9"
+   ]
+  }
+ },
+ {
+  "case": "short-pause-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 3,
+     "paused_dark": 0,
+     "paused_ms": 80,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V9"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-pause-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {}
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V9"
+   ]
+  }
+ },
+ {
+  "case": "missing-lowercase-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "Q",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "q",
+       "key": "Q",
+       "partner_in_charset": true,
+       "case_applied": false
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V10"
+   ]
+  }
+ },
+ {
+  "case": "question-mark-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "q",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "q",
+       "key": "?",
+       "partner_in_charset": true,
+       "case_applied": false
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V10"
+   ]
+  }
+ },
+ {
+  "case": "partner-outside-charset-admitted",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "\u00ff",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "\u0178",
+       "key": "\u00ff",
+       "partner_in_charset": false,
+       "case_applied": false
+      }
+     ]
+    }
+   ]
+  }
+ },
+ {
+  "case": "empty-charset-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2
+  },
+  "expect": {
+   "deny": [
+    "V10"
+   ]
+  }
+ },
+ {
+  "case": "missing-pair-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.4,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V2"
+   ]
+  }
+ },
+ {
+  "case": "null-shape-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": null
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.5
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.3
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V1"
+   ]
+  }
+ },
+ {
+  "case": "missing-volume-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    },
+    "voxel": {}
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V2"
+   ]
+  }
+ },
+ {
+  "case": "withheld-volume-is-withheld-not-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    },
+    "voxel": {
+     "withheld": "no frame is covered end to end"
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "withheld": [
+    "EL-Fixture"
+   ]
+  }
+ },
+ {
+  "case": "unlit-underline-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 0.1
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 0.1
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V3"
+   ]
+  }
+ },
+ {
+  "case": "null-underline-denied",
+  "cases": [
+   {
+    "variant": "EL-Fixture",
+    "urgencies": {
+     "critical": {
+      "gray": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": null
+      },
+      "tritanomaly": {
+       "mass": 0.8,
+       "footprint": 0.7,
+       "underline": 1.0
+      }
+     }
+    },
+    "pairs": [
+     {
+      "a": "low",
+      "b": "normal",
+      "shape": 0.163,
+      "view": "gray",
+      "mass_ratio": 1.0
+     },
+     {
+      "a": "low",
+      "b": "critical",
+      "shape": 0.223,
+      "view": "gray",
+      "mass_ratio": 1.1
+     },
+     {
+      "a": "normal",
+      "b": "critical",
+      "shape": 0.07,
+      "view": "gray",
+      "mass_ratio": 1.1
+     }
+    ],
+    "voxel": {
+     "frames": 36,
+     "pairs": [
+      {
+       "a": "low",
+       "b": "normal",
+       "shape": 0.42,
+       "shift": 0
+      },
+      {
+       "a": "low",
+       "b": "critical",
+       "shape": 0.81,
+       "shift": 0
+      },
+      {
+       "a": "normal",
+       "b": "critical",
+       "shape": 0.24,
+       "shift": 0
+      }
+     ]
+    },
+    "temporal": {
+     "low": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "normal": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 0,
+      "edges": 0,
+      "span_ms": 0,
+      "hz": 0,
+      "steady_min": 0.82
+     },
+     "critical": {
+      "frames": 90,
+      "covered": 60,
+      "dark": 30,
+      "edges": 10,
+      "span_ms": 2250,
+      "hz": 2.0,
+      "steady_min": 0.9
+     }
+    },
+    "pause": {
+     "paused_samples": 20,
+     "paused_dark": 0,
+     "paused_ms": 760,
+     "running_dark": 4
+    }
+   }
+  ],
+  "withheld": [],
+  "charset": {
+   "flash_hz": 2,
+   "flash_ms": 500,
+   "cases": [
+    {
+     "ch": "A",
+     "forms": [
+      {
+       "urgency": 0,
+       "shown": "a",
+       "key": "a",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    },
+    {
+     "ch": "a",
+     "forms": [
+      {
+       "urgency": 1,
+       "shown": "A",
+       "key": "A",
+       "partner_in_charset": true,
+       "case_applied": true
+      }
+     ]
+    }
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V3"
+   ]
+  }
+ },
+ {
+  "case": "empty-population-denied",
+  "cases": [],
+  "withheld": [],
+  "expect": {
+   "deny": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "absent-population-denied",
+  "expect": {
+   "deny": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "runnerless-is-withheld-only",
+  "cases": [],
+  "withheld": [
+   {
+    "variant": "*",
+    "reason": "no qml runner on this host"
+   }
+  ],
+  "charset": null,
+  "expect": {
+   "withheld": [
+    "*"
+   ]
+  }
+ }
+]

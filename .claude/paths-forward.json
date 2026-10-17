@@ -13091,7 +13091,7 @@
     {
       "symbol": "W558",
       "title": "Sweep the next Rego specs to pytestspec cases, fewest admitted-set assertions first",
-      "status": "ready",
+      "status": "working",
       "enables": [],
       "touches": [
         "policy",
@@ -13104,7 +13104,7 @@
       "issued_at": "2026-10-16T10:27:48Z",
       "minted_during": "interrupt",
       "caused_by": "W139",
-      "last_worked": "2026-10-17T01:57:00Z",
+      "last_worked": "2026-10-17T03:05:04Z",
       "ticks_blocked": 0,
       "completed": null
     },
@@ -13130,17 +13130,17 @@
     {
       "symbol": "W560",
       "title": "The live ebuild fails src_compile: cvd_gate imports mikemol.cvdcore and the portage sandbox python has no mikemol",
-      "status": "working",
+      "status": "ready",
       "enables": [],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Make the sandbox build see mikemol.cvdcore: candidate is a second git-r3 checkout of mtools at a pinned sha with cvdcore/src on PYTHONPATH in src_compile and src_install; first measure whether a live ebuild may fetch a second repo and what src_install imports beyond src_compile.",
-      "evidence": "2026-10-17: 2026-10-16: landed as the ebuild fix; follow-up here derives the mtools sha in src_unpack from the checked-out pyproject.toml mikemol-cvdcore pin (one copy, a repin moves it; sed extraction run on the real pyproject returned 6fba7de before the repin); pins moved to mtools 1f4581f3c939330758001f723f11ff693035414f for mtools W1420 (bump-blocked prunes only); emerge proof is luthen next host apply record",
+      "next_bounded_step": "Close when luthen-observability reports the second rebuild (triggered by the sha-derivation follow-up) in its host apply record; then add a check that the ebuild sha extraction agrees with pyproject (selftest arm), since extraction is shell in the ebuild",
+      "evidence": "2026-10-17: 2026-10-16: landed as the ebuild fix; follow-up here derives the mtools sha in src_unpack from the checked-out pyproject.toml mikemol-cvdcore pin (one copy, a repin moves it; sed extraction run on the real pyproject returned 6fba7de before the repin); pins moved to mtools 1f4581f3c939330758001f723f11ff693035414f for mtools W1420 (bump-blocked prunes only); emerge proof is luthen next host apply record | 2026-10-17: 2026-10-17: luthen-observability read the shipped portage-emerge stream: emerge of x11-themes/el-openglo-9999 completed about 81 s end to end, src_compile and src_install passed, no palette solve failed line; its failed_now list was the stale pre-fix state. The sha-derivation follow-up and the repin to mtools 1f4581f landed; a second rebuild witness is pending in luthen record",
       "issued_at": "2026-10-17T01:56:55Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-10-17T02:30:43Z",
+      "last_worked": "2026-10-17T03:05:03Z",
       "ticks_blocked": 0,
       "completed": null
     }
