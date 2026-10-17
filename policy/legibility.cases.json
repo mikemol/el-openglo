@@ -1,0 +1,268 @@
+[
+ {
+  "case": "admits-a-clean-read",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello world 42",
+    "score": 1.0
+   }
+  ]
+ },
+ {
+  "case": "g0-refuses-no-cases",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g1-withholds-a-missing-reader",
+  "cases": [
+   {
+    "label": "cjk",
+    "text": "\u4e16\u754c",
+    "lang": "chi_sim",
+    "withheld": "tessdata for chi_sim is not installed"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-read-below-the-floor",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "hii ad ees",
+    "score": 0.143
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g2-message-formats-a-whole-number",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "x",
+    "score": 0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-an-empty-read",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "",
+    "score": 0.0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2",
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "floor-054-denied-only",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.54
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "floor-055-admitted-only",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.55
+   }
+  ]
+ },
+ {
+  "case": "floor-060-admitted-only",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.6
+   }
+  ]
+ },
+ {
+  "case": "floor-069-admitted-only",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.69
+   }
+  ]
+ },
+ {
+  "case": "floor-070-admitted-only",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.7
+   }
+  ]
+ },
+ {
+  "case": "current-honest-reads-admitted",
+  "cases": [
+   {
+    "label": "latin-liberation",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.562
+   },
+   {
+    "label": "latin-unifont-1to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.643
+   }
+  ]
+ },
+ {
+  "case": "g4-non-latin-read-withheld-only",
+  "cases": [
+   {
+    "label": "cjk-unifont-1to1",
+    "text": "\u4e16\u754c",
+    "lang": "chi_sim",
+    "read": "\u4e16\u754c",
+    "score": 1.0
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "g4-unscored-latin-read-withheld-only",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello world 42",
+    "score": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-is-judged-and-admitted",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello world 42",
+    "score": 1.0,
+    "withheld": null
+   }
+  ]
+ },
+ {
+  "case": "null-withheld-is-judged-and-denied",
+  "cases": [
+   {
+    "label": "latin-unifont-2to1",
+    "font": "Unifont",
+    "text": "Hello world 42",
+    "lang": "eng",
+    "rows": 8,
+    "read": "Hello wor1d 42",
+    "score": 0.3,
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ }
+]
