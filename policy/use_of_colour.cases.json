@@ -1,0 +1,276 @@
+[
+ {
+  "case": "u0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "U0"
+   ]
+  }
+ },
+ {
+  "case": "u0-refuses-an-empty-population",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "U0"
+   ]
+  }
+ },
+ {
+  "case": "u1-refuses-hue-alone",
+  "cases": [
+   {
+    "id": "C6",
+    "file": "templates/marquee-main.qml",
+    "line": 464,
+    "meaning": "critical urgency",
+    "colour": [
+     {
+      "kind": "hue",
+      "line": 464
+     }
+    ],
+    "cues": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "u1-refuses-opacity-alone",
+  "cases": [
+   {
+    "id": "C7",
+    "file": "templates/marquee-main.qml",
+    "line": 466,
+    "meaning": "low urgency",
+    "colour": [
+     {
+      "kind": "opacity",
+      "line": 466
+     }
+    ],
+    "cues": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "u1-opacity-is-not-a-cue",
+  "cases": [
+   {
+    "id": "C7",
+    "file": "templates/marquee-main.qml",
+    "line": 466,
+    "meaning": "low urgency",
+    "colour": [
+     {
+      "kind": "opacity",
+      "line": 466
+     }
+    ],
+    "cues": [
+     {
+      "kind": "opacity",
+      "line": 466
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "u1-refuses-a-fill-size-only-cue-behind-an-aperture",
+  "cases": [
+   {
+    "id": "C7",
+    "file": "templates/marquee-main.qml",
+    "line": 445,
+    "meaning": "low urgency",
+    "sampled_by": {
+     "instance": "field",
+     "component": "ApertureField",
+     "line": 429
+    },
+    "colour": [
+     {
+      "kind": "opacity",
+      "line": 472,
+      "via": "ctx.fillRect"
+     }
+    ],
+    "cues": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "admits-a-lit-row-behind-an-aperture-beside-a-refused-one",
+  "cases": [
+   {
+    "id": "C6",
+    "file": "templates/marquee-main.qml",
+    "line": 445,
+    "meaning": "critical urgency",
+    "sampled_by": {
+     "instance": "field",
+     "component": "ApertureField",
+     "line": 429
+    },
+    "colour": [
+     {
+      "kind": "hue",
+      "line": 468
+     },
+     {
+      "kind": "opacity",
+      "line": 481,
+      "via": "ctx.fillRect"
+     }
+    ],
+    "cues": [
+     {
+      "kind": "shape",
+      "line": 477,
+      "via": "on"
+     }
+    ]
+   },
+   {
+    "id": "C7",
+    "file": "templates/marquee-main.qml",
+    "line": 445,
+    "meaning": "low urgency",
+    "sampled_by": {
+     "instance": "field",
+     "component": "ApertureField",
+     "line": 429
+    },
+    "colour": [
+     {
+      "kind": "opacity",
+      "line": 472,
+      "via": "ctx.fillRect"
+     }
+    ],
+    "cues": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "admits-a-weight-cue",
+  "cases": [
+   {
+    "id": "C6",
+    "file": "templates/marquee-main.qml",
+    "line": 464,
+    "meaning": "critical urgency",
+    "colour": [
+     {
+      "kind": "hue",
+      "line": 464
+     }
+    ],
+    "cues": [
+     {
+      "kind": "weight",
+      "line": 468
+     }
+    ]
+   },
+   {
+    "id": "C7",
+    "file": "templates/marquee-main.qml",
+    "line": 466,
+    "meaning": "low urgency",
+    "colour": [],
+    "cues": [
+     {
+      "kind": "weight",
+      "line": 468
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "one-bad-case-denies-beside-good-ones",
+  "cases": [
+   {
+    "id": "C6",
+    "file": "templates/marquee-main.qml",
+    "line": 464,
+    "meaning": "critical urgency",
+    "colour": [
+     {
+      "kind": "hue",
+      "line": 464
+     }
+    ],
+    "cues": [
+     {
+      "kind": "weight",
+      "line": 468
+     }
+    ]
+   },
+   {
+    "id": "C7",
+    "file": "templates/marquee-main.qml",
+    "line": 466,
+    "meaning": "low urgency",
+    "colour": [
+     {
+      "kind": "opacity",
+      "line": 466
+     }
+    ],
+    "cues": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "withheld-only-is-withheld-not-admitted",
+  "cases": [],
+  "withheld": [
+   {
+    "id": "C15",
+    "file": "make_schemes.py",
+    "reason": "consumer-owned role"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U0"
+   ],
+   "withheld": [
+    "C15 make_schemes.py"
+   ]
+  }
+ }
+]
