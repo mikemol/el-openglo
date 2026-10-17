@@ -1,0 +1,685 @@
+[
+ {
+  "case": "admits-a-well-formed-set",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ]
+ },
+ {
+  "case": "r0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "R0",
+    "R5",
+    "R6"
+   ],
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-an-invented-role",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "no_such_role",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1",
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-a-floor-with-no-bound",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2",
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-no-quantity",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "",
+    "bound": "4.6"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2",
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r3-refuses-pinned-and-free",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view",
+   "fg"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r4-refuses-an-unreached-free-node",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg",
+   "view_alt"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg",
+   "view_alt"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r5-refuses-an-empty-handoff",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R5"
+   ]
+  }
+ },
+ {
+  "case": "r5-refuses-a-non-pair-key",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "'x'",
+    "pair": false,
+    "generator": "g"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R5"
+   ]
+  }
+ },
+ {
+  "case": "null-pair-withheld-not-denied",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": null,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   },
+   {
+    "u": null,
+    "v": null,
+    "kind": null,
+    "quantity": null,
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "r6-refuses-hidden-gaps",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 0,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R6"
+   ]
+  }
+ },
+ {
+  "case": "null-known-is-withheld",
+  "known": null,
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "null-terminals-is-withheld",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": null,
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "null-free-is-withheld",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": null,
+  "open_questions": 2,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "null-netlist-is-withheld",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": 2,
+  "netlist": null,
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ },
+ {
+  "case": "null-open_questions-is-withheld",
+  "known": [
+   "view",
+   "fg",
+   "sel_bg"
+  ],
+  "terminals": [
+   "view"
+  ],
+  "free": [
+   "fg",
+   "sel_bg"
+  ],
+  "open_questions": null,
+  "netlist": [
+   {
+    "key": "view~fg",
+    "pair": true,
+    "generator": "wcag"
+   }
+  ],
+  "cases": [
+   {
+    "u": "view",
+    "v": "fg",
+    "kind": "floor",
+    "quantity": "wcag_ratio",
+    "bound": "4.6"
+   },
+   {
+    "u": "fg",
+    "v": "sel_bg",
+    "kind": "balance",
+    "quantity": "q",
+    "bound": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R7"
+   ]
+  }
+ }
+]
