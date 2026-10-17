@@ -1,0 +1,303 @@
+[
+ {
+  "case": "stale-shader-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "extras": [
+   {
+    "file": "el-segment.glsl",
+    "present": true,
+    "current": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G6"
+   ]
+  }
+ },
+ {
+  "case": "overflow-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "overflow": [
+   "7:x"
+  ],
+  "expect": {
+   "deny": [
+    "G7"
+   ]
+  }
+ },
+ {
+  "case": "order-mismatch-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "order_mismatch": [
+   "5x7"
+  ],
+  "expect": {
+   "deny": [
+    "G7"
+   ]
+  }
+ },
+ {
+  "case": "shader-compile-failure-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "shader": {
+   "ok": false,
+   "why": "ERROR: 0:1"
+  },
+  "expect": {
+   "deny": [
+    "G8"
+   ]
+  }
+ },
+ {
+  "case": "shader-unvalidated-is-skip",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "shader": {
+   "ok": null,
+   "why": "glslangValidator not installed"
+  }
+ },
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "good-mesh-admitted",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "withheld": []
+ },
+ {
+  "case": "missing-file-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "unparseable-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": "magic is not glTF",
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [],
+    "flat": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "wrong-nodes-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b"
+    ],
+    "flat": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "flat-node-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": true,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": [
+     "b"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "stale-denied",
+  "cases": [
+   {
+    "file": "el-seg7.glb",
+    "present": true,
+    "parse_error": null,
+    "current": false,
+    "want": [
+     "a",
+     "b",
+     "c"
+    ],
+    "nodes": [
+     "a",
+     "b",
+     "c"
+    ],
+    "flat": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G5"
+   ]
+  }
+ }
+]
