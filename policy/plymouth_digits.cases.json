@@ -1,0 +1,386 @@
+[
+ {
+  "case": "admits-a-splash-that-draws-the-substrate",
+  "error": null,
+  "cases": [
+   {
+    "id": "0",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f"
+    ]
+   },
+   {
+    "id": "1",
+    "substrate": [
+     "b",
+     "c"
+    ],
+    "plymouth": [
+     "b",
+     "c"
+    ]
+   },
+   {
+    "id": "2",
+    "substrate": [
+     "a",
+     "b",
+     "d",
+     "e",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "d",
+     "e",
+     "g"
+    ]
+   },
+   {
+    "id": "3",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "g"
+    ]
+   },
+   {
+    "id": "4",
+    "substrate": [
+     "b",
+     "c",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "b",
+     "c",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "5",
+    "substrate": [
+     "a",
+     "c",
+     "d",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "c",
+     "d",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "6",
+    "substrate": [
+     "a",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "7",
+    "substrate": [
+     "a",
+     "b",
+     "c"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c"
+    ]
+   },
+   {
+    "id": "8",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "9",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "f",
+     "g"
+    ]
+   }
+  ]
+ },
+ {
+  "case": "p0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p0-refuses-an-unreadable-table",
+  "cases": [],
+  "error": "AttributeError: module 'make_plymouth' has no attribute 'SEVENSEG'",
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p0-refuses-a-shrunk-population",
+  "error": null,
+  "cases": [
+   {
+    "id": "0",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f"
+    ]
+   },
+   {
+    "id": "1",
+    "substrate": [
+     "b",
+     "c"
+    ],
+    "plymouth": [
+     "b",
+     "c"
+    ]
+   },
+   {
+    "id": "2",
+    "substrate": [
+     "a",
+     "b",
+     "d",
+     "e",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "d",
+     "e",
+     "g"
+    ]
+   },
+   {
+    "id": "3",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "g"
+    ]
+   },
+   {
+    "id": "4",
+    "substrate": [
+     "b",
+     "c",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "b",
+     "c",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "5",
+    "substrate": [
+     "a",
+     "c",
+     "d",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "c",
+     "d",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "6",
+    "substrate": [
+     "a",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "8",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "e",
+     "f",
+     "g"
+    ]
+   },
+   {
+    "id": "9",
+    "substrate": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "f",
+     "g"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "d",
+     "f",
+     "g"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p1-refuses-a-digit-that-differs",
+  "error": null,
+  "cases": [
+   {
+    "id": "7",
+    "substrate": [
+     "a",
+     "b",
+     "c"
+    ],
+    "plymouth": [
+     "a",
+     "b",
+     "c",
+     "f"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P0",
+    "P1"
+   ]
+  }
+ }
+]
