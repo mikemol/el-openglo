@@ -1,0 +1,137 @@
+[
+ {
+  "case": "admits-distinct-states",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "pairs": [
+     {
+      "a": "focus",
+      "b": "hover",
+      "q": 1.2
+     },
+     {
+      "a": "focus",
+      "b": "sel_bg",
+      "q": 1.4
+     },
+     {
+      "a": "hover",
+      "b": "sel_bg",
+      "q": 1.1
+     }
+    ],
+    "grounds": [
+     {
+      "state": "focus",
+      "ratio": 9.1
+     },
+     {
+      "state": "hover",
+      "ratio": 11.0
+     },
+     {
+      "state": "sel_bg",
+      "ratio": 8.0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "s0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s1-refuses-identical-focus-and-hover",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "pairs": [
+     {
+      "a": "focus",
+      "b": "hover",
+      "q": 0.0
+     },
+     {
+      "a": "focus",
+      "b": "sel_bg",
+      "q": 1.4
+     },
+     {
+      "a": "hover",
+      "b": "sel_bg",
+      "q": 1.1
+     }
+    ],
+    "grounds": [
+     {
+      "state": "focus",
+      "ratio": 9.1
+     },
+     {
+      "state": "hover",
+      "ratio": 11.0
+     },
+     {
+      "state": "sel_bg",
+      "ratio": 8.0
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1"
+   ]
+  }
+ },
+ {
+  "case": "s2-refuses-a-ring-invisible-on-its-ground",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "pairs": [
+     {
+      "a": "focus",
+      "b": "hover",
+      "q": 1.2
+     },
+     {
+      "a": "focus",
+      "b": "sel_bg",
+      "q": 1.4
+     },
+     {
+      "a": "hover",
+      "b": "sel_bg",
+      "q": 1.1
+     }
+    ],
+    "grounds": [
+     {
+      "state": "focus",
+      "ratio": 1.07
+     },
+     {
+      "state": "hover",
+      "ratio": 11.0
+     },
+     {
+      "state": "sel_bg",
+      "ratio": 8.0
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S2"
+   ]
+  }
+ }
+]
