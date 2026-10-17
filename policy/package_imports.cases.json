@@ -1,0 +1,113 @@
+[
+ {
+  "case": "admits-packages-whose-types-resolve",
+  "packages": [
+   {
+    "package": "org.el.segclock",
+    "files": [
+     "main.qml",
+     "metadata.json"
+    ],
+    "documents": [
+     "main.qml"
+    ],
+    "missing": []
+   },
+   {
+    "package": "org.el.openglo.live",
+    "files": [
+     "main.qml",
+     "metadata.json"
+    ],
+    "documents": [
+     "main.qml"
+    ],
+    "missing": []
+   }
+  ]
+ },
+ {
+  "case": "p0-refuses-no-packages",
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p2-refuses-an-unresolved-type",
+  "packages": [
+   {
+    "package": "org.el.openglo.live",
+    "files": [
+     "main.qml",
+     "metadata.json"
+    ],
+    "documents": [
+     "main.qml"
+    ],
+    "missing": [
+     {
+      "type": "SegmentChar",
+      "file": "main.qml",
+      "line": 105
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P2"
+   ]
+  }
+ },
+ {
+  "case": "p1-refuses-a-package-with-no-documents",
+  "packages": [
+   {
+    "package": "org.el.notifymarquee",
+    "files": [
+     "main.qml",
+     "metadata.json"
+    ],
+    "documents": [],
+    "missing": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "withholds-without-qmllint",
+  "packages": [
+   {
+    "package": "org.el.segclock",
+    "withheld": "/usr/lib64/qt6/bin/qmllint is not on this host"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "all-null-package-withheld-only",
+  "packages": [
+   {
+    "package": "org.el.segclock",
+    "files": null,
+    "documents": null,
+    "missing": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
