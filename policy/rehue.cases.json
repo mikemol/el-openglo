@@ -1,0 +1,340 @@
+[
+ {
+  "case": "admits-a-gated-table",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 72.4,
+      "sep": 1.8
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "h0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "H0"
+   ]
+  }
+ },
+ {
+  "case": "h0-refuses-an-unmeasured-declared-variant",
+  "roster": [
+   "EL-Azure",
+   "EL-Amber"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 72.4,
+      "sep": 1.8
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H0"
+   ]
+  }
+ },
+ {
+  "case": "h1-refuses-fg-under-the-floor",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 42.0,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 72.4,
+      "sep": 1.8
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H1"
+   ]
+  }
+ },
+ {
+  "case": "h2-refuses-an-accepted-hue-under-the-floor",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 12.5,
+      "sep": 1.8
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "h3-refuses-an-accepted-hue-the-ghost-hides",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 72.4,
+      "sep": 0.4
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H3"
+   ]
+  }
+ },
+ {
+  "case": "h4-refuses-a-fallback-that-is-not-fg",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 300,
+      "accepted": false,
+      "is_fg": false,
+      "lc": 64.1,
+      "sep": 2.2
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H4",
+    "H5"
+   ]
+  }
+ },
+ {
+  "case": "h5-refuses-a-dead-read",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H5"
+   ]
+  }
+ },
+ {
+  "case": "h5-refuses-no-buckets",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H5"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": null,
+    "fg_lc": null,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": null,
+      "is_fg": null,
+      "lc": null,
+      "sep": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "a-prefixed-variant-denial-does-not-leak",
+  "roster": [
+   "EL-Azure",
+   "EL-Azure-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "floor": 60,
+    "fg_lc": 64.1,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 72.4,
+      "sep": 1.8
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   },
+   {
+    "id": "EL-Azure-Lit",
+    "floor": 60,
+    "fg_lc": 42.0,
+    "buckets": [
+     {
+      "hue": 60,
+      "accepted": true,
+      "is_fg": false,
+      "lc": 72.4,
+      "sep": 1.8
+     },
+     {
+      "hue": 240,
+      "accepted": false,
+      "is_fg": true,
+      "lc": 64.1,
+      "sep": 2.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H1"
+   ]
+  }
+ }
+]
