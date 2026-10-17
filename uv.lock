@@ -338,18 +338,18 @@ requires-dist = [
     { name = "libcst", marker = "extra == 'tooling'" },
     { name = "material-color-utilities", marker = "extra == 'research'" },
     { name = "matplotlib", marker = "extra == 'research'" },
-    { name = "mikemol-atomicwrite", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-bibparse", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=bibparse&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-cvdcore", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=cvdcore&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-fence", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-grade", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=grade&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-mutation", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mutation&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-pathsforward", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-pycodemod", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pycodemod&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-pytestspec", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pytestspec&rev=910002e6456efbcd76fd99905889c438cc99632a" },
-    { name = "mikemol-ratchet", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=ratchet&rev=910002e6456efbcd76fd99905889c438cc99632a" },
+    { name = "mikemol-atomicwrite", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-bibparse", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=bibparse&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-cvdcore", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=cvdcore&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-fence", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-grade", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=grade&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-hooks", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-mdstruct", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-mutation", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=mutation&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-pathsforward", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-pycodemod", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pycodemod&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-pytestspec", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pytestspec&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
+    { name = "mikemol-ratchet", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=ratchet&rev=858196b097386a1573fe829e12b7e037695bd7a5" },
     { name = "networkx", marker = "extra == 'tooling'" },
     { name = "numpy" },
     { name = "panflute", marker = "extra == 'tooling'" },
@@ -672,17 +672,17 @@ wheels = [
 [[package]]
 name = "mikemol-atomicwrite"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=atomicwrite&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-bibparse"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=bibparse&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=bibparse&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-cvdcore"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=cvdcore&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=cvdcore&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 dependencies = [
     { name = "colorspacious" },
     { name = "numpy" },
@@ -691,17 +691,17 @@ dependencies = [
 [[package]]
 name = "mikemol-fence"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=fence&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-grade"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=grade&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=grade&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-hooks"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=hooks&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 dependencies = [
     { name = "mypy" },
     { name = "ruff" },
@@ -710,7 +710,7 @@ dependencies = [
 [[package]]
 name = "mikemol-mdstruct"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mdstruct&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 dependencies = [
     { name = "mikemol-pathwalk" },
     { name = "panflute" },
@@ -719,27 +719,27 @@ dependencies = [
 [[package]]
 name = "mikemol-mutation"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mutation&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=mutation&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-pathsforward"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pathsforward&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-pathwalk"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pathwalk&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pathwalk&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-procrun"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=procrun&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=procrun&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 
 [[package]]
 name = "mikemol-pycodemod"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pycodemod&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pycodemod&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 dependencies = [
     { name = "libcst" },
     { name = "mikemol-pathwalk" },
@@ -749,7 +749,7 @@ dependencies = [
 [[package]]
 name = "mikemol-pytestspec"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pytestspec&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=pytestspec&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 dependencies = [
     { name = "pytest" },
 ]
@@ -757,7 +757,7 @@ dependencies = [
 [[package]]
 name = "mikemol-ratchet"
 version = "0.1.0"
-source = { git = "https://github.com/mikemol/mtools.git?subdirectory=ratchet&rev=910002e6456efbcd76fd99905889c438cc99632a#910002e6456efbcd76fd99905889c438cc99632a" }
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=ratchet&rev=858196b097386a1573fe829e12b7e037695bd7a5#858196b097386a1573fe829e12b7e037695bd7a5" }
 dependencies = [
     { name = "mikemol-atomicwrite" },
 ]
