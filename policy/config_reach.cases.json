@@ -1,0 +1,218 @@
+[
+ {
+  "case": "admits-live-and-declared-inert-keys",
+  "cases": [
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": true,
+    "inert": null
+   },
+   {
+    "key": "blinkColon",
+    "type": "Bool",
+    "low": false,
+    "high": true,
+    "differs": false,
+    "inert": "one still holds the colon lit"
+   }
+  ],
+  "withheld": null
+ },
+ {
+  "case": "r0-refuses-an-empty-population",
+  "cases": [],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r0-absent-population-is-empty",
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-dead-setting",
+  "cases": [
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": true,
+    "inert": null
+   },
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": false,
+    "inert": null
+   }
+  ],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r1-is-per-mount",
+  "cases": [
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": true,
+    "inert": null,
+    "mount": "clock"
+   },
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": false,
+    "inert": null,
+    "mount": "wallpaper"
+   }
+  ],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-an-inert-declaration-without-a-reason",
+  "cases": [
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": true,
+    "inert": null
+   },
+   {
+    "key": "blinkColon",
+    "type": "Bool",
+    "low": false,
+    "high": true,
+    "differs": false,
+    "inert": ""
+   }
+  ],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "R1",
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-mount-is-named-debt",
+  "cases": [
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": true,
+    "inert": null
+   },
+   {
+    "key": "blinkColon",
+    "type": "Bool",
+    "low": false,
+    "high": true,
+    "differs": false,
+    "inert": "one still holds the colon lit"
+   }
+  ],
+  "withheld": null,
+  "unmeasured": [
+   {
+    "mount": "marquee",
+    "reason": "acts over time"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "U"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-mount-without-a-reason-is-flagged",
+  "cases": [
+   {
+    "key": "weight",
+    "type": "Double",
+    "low": 0.0,
+    "high": 1.0,
+    "differs": true,
+    "inert": null
+   },
+   {
+    "key": "blinkColon",
+    "type": "Bool",
+    "low": false,
+    "high": true,
+    "differs": false,
+    "inert": "one still holds the colon lit"
+   }
+  ],
+  "withheld": null,
+  "unmeasured": [
+   {
+    "mount": "marquee",
+    "reason": ""
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "U"
+   ]
+  }
+ },
+ {
+  "case": "withheld-when-the-runner-is-absent",
+  "cases": [],
+  "withheld": "no qml runner",
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-differs-is-withheld-not-judged",
+  "cases": [
+   {
+    "key": "bloom",
+    "differs": null,
+    "inert": null
+   }
+  ],
+  "withheld": null,
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
