@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 560,
+  "counter": 561,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-16T17:49:03Z",
   "job_id": "a10b866f",
@@ -13143,6 +13143,22 @@
       "last_worked": "2026-10-17T03:05:03Z",
       "ticks_blocked": 0,
       "completed": null
+    },
+    {
+      "symbol": "W561",
+      "title": "The post-commit hook amend folded the real index into the tip: files staged during a gate landed in the stack last commit",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Add a check_hooks arm that measures it: stage a file in a scratch repo, run the hook amend, assert the staged file stays out of HEAD and stays staged; cite mtools:W1434 and the 2026-10-17 reflog (amend entries after every stack update-ref)",
+      "evidence": "",
+      "issued_at": "2026-10-17T04:13:37Z",
+      "minted_during": "interrupt",
+      "caused_by": "mtools:W1434",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [

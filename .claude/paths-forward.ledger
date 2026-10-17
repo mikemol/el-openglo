@@ -951,3 +951,4 @@
 2026-10-16T17:05:37Z  interrupt W559 minted    -         "The tooling extra lacks mikemol-mutation: the located paperkit imports it, so --discriminate cannot start"  evidence=W469
 2026-10-16T18:46:31Z  hash  --   diverged  --        "divergence: payload v2:c18937695421401d, file v2:4da7176c1061c311; the FILE wins"
 2026-10-17T01:56:55Z  interrupt W560 minted    -         "The live ebuild fails src_compile: cvd_gate imports mikemol.cvdcore and the portage sandbox python has no mikemol"  evidence=luthen-observability
+2026-10-17T04:13:37Z  interrupt W561 minted    -         "The post-commit hook amend folded the real index into the tip: files staged during a gate landed in the stack last commit"  evidence=mtools:W1434

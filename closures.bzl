@@ -449,6 +449,7 @@ CLOSURES = {
         "policy/contracts_test.rego",
         "policy/css.rego",
         "policy/css_test.rego",
+        "policy/cursors.cases.json",
         "policy/cursors.rego",
         "policy/cursors_test.rego",
         "policy/deb.cases.json",
