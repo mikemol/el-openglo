@@ -1,0 +1,50 @@
+[
+ {
+  "case": "admits-a-tree-that-compiles",
+  "cases": [
+   {
+    "id": "make_font.py",
+    "error": null
+   },
+   {
+    "id": "cvd_gate.py",
+    "error": null
+   }
+  ]
+ },
+ {
+  "case": "k0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k0-refuses-an-empty-population",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k1-refuses-a-source-that-does-not-compile",
+  "cases": [
+   {
+    "id": "make_font.py",
+    "error": null
+   },
+   {
+    "id": "segment_topology.py",
+    "error": "SyntaxError: invalid syntax"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ }
+]
