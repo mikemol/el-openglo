@@ -1,0 +1,129 @@
+[
+ {
+  "case": "admits-clean",
+  "dist": true,
+  "cases": [
+   {
+    "variant": "EL-Openglo",
+    "exists": true,
+    "root_manifest": true,
+    "parses": true,
+    "manifest_version": 3
+   },
+   {
+    "variant": "EL-Amber",
+    "exists": true,
+    "root_manifest": true,
+    "parses": true,
+    "manifest_version": 3
+   }
+  ]
+ },
+ {
+  "case": "c0-refuses-empty",
+  "dist": true,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "C0"
+   ]
+  }
+ },
+ {
+  "case": "c0-refuses-absent-population",
+  "expect": {
+   "deny": [
+    "C0"
+   ]
+  }
+ },
+ {
+  "case": "absent-dist-is-withheld-not-denied",
+  "dist": false,
+  "cases": [
+   {
+    "variant": "EL-Openglo",
+    "exists": false
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "dist/chrome is absent"
+   ]
+  }
+ },
+ {
+  "case": "c1-refuses-a-missing-zip",
+  "dist": true,
+  "cases": [
+   {
+    "variant": "EL-Openglo",
+    "exists": true,
+    "root_manifest": true,
+    "parses": true,
+    "manifest_version": 3
+   },
+   {
+    "variant": "EL-Amber",
+    "exists": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C1"
+   ]
+  }
+ },
+ {
+  "case": "c2-refuses-a-nested-manifest",
+  "dist": true,
+  "cases": [
+   {
+    "variant": "EL-Amber",
+    "exists": true,
+    "root_manifest": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C2"
+   ]
+  }
+ },
+ {
+  "case": "c3-refuses-manifest-v2",
+  "dist": true,
+  "cases": [
+   {
+    "variant": "EL-Amber",
+    "exists": true,
+    "root_manifest": true,
+    "parses": true,
+    "manifest_version": 2
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C3"
+   ]
+  }
+ },
+ {
+  "case": "c3-refuses-an-unparsed-manifest",
+  "dist": true,
+  "cases": [
+   {
+    "variant": "EL-Amber",
+    "exists": true,
+    "root_manifest": true,
+    "parses": false,
+    "manifest_version": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C3"
+   ]
+  }
+ }
+]
