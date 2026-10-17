@@ -1,0 +1,733 @@
+[
+ {
+  "case": "admits-clean",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ]
+ },
+ {
+  "case": "s0-refuses-empty",
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s1-refuses-no-probe",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 1,
+    "lit_px": 0,
+    "probe": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1",
+    "S2"
+   ]
+  }
+ },
+ {
+  "case": "s2-refuses-no-lit",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 0,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S2"
+   ]
+  }
+ },
+ {
+  "case": "s3-refuses-missing-field",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": false,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "s3-refuses-plain-echo",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 0,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "s3-refuses-unfocused",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": false,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "s4-refuses-no-login-call",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 0,
+      "user": "",
+      "password": "",
+      "session": -1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S4"
+   ]
+  }
+ },
+ {
+  "case": "s4-refuses-wrong-session",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 0
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S4"
+   ]
+  }
+ },
+ {
+  "case": "s5-refuses-dead-enter",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 1,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5"
+   ]
+  }
+ },
+ {
+  "case": "s6-refuses-silent-failure",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": false,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S6"
+   ]
+  }
+ },
+ {
+  "case": "s7-refuses-unbound-users",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 0,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "withheld-only",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "withheld": "no qml"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "EL-Openglo"
+   ]
+  }
+ },
+ {
+  "case": "null-password-field-does-not-fire",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": null,
+     "passwordEcho": 0,
+     "focusedAtStart": false,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "null-user-selector-does-not-admit",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": null,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "null-session-selector-does-not-admit",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": null,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "null-focused-at-start-withheld-not-s3",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": null,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-case-is-judged",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 0,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    },
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": null,
+    "lit_px": null,
+    "probe": {
+     "passwordField": null,
+     "focusedAtStart": null,
+     "userSelector": null,
+     "sessionSelector": null,
+     "userCount": null,
+     "sessionCount": null,
+     "clickCall": null,
+     "enterCalls": null,
+     "failureVisible": null
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "null-expected-withheld",
+  "expected": null,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-does-not-fire",
+  "expected": {
+   "user": "bob",
+   "session": 1,
+   "password": "hunter2"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "rc": 0,
+    "lit_px": 900,
+    "probe": {
+     "passwordField": true,
+     "passwordEcho": 2,
+     "focusedAtStart": true,
+     "clickCall": {
+      "calls": 1,
+      "user": "bob",
+      "password": "hunter2",
+      "session": 1
+     },
+     "enterCalls": 2,
+     "failureVisibleAtStart": false,
+     "failureVisible": true,
+     "failureText": "Login Failed",
+     "userSelector": true,
+     "sessionSelector": true,
+     "userCount": 2,
+     "sessionCount": 2
+    },
+    "withheld": null
+   }
+  ]
+ }
+]
