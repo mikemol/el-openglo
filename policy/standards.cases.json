@@ -1,0 +1,180 @@
+[
+ {
+  "case": "admits-resolving-appliers",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [
+   {
+    "module": "cvd_gate",
+    "attr": "apca_Lc",
+    "imports": true,
+    "error": null,
+    "present": true
+   },
+   {
+    "module": "cvd_gate",
+    "attr": "wcag_ratio",
+    "imports": true,
+    "error": null,
+    "present": true
+   },
+   {
+    "module": "cvd_gate",
+    "attr": "SECTORS",
+    "imports": true,
+    "error": null,
+    "present": true
+   }
+  ]
+ },
+ {
+  "case": "t0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "T0",
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "t0-refuses-a-document-citing-nothing",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "T0"
+   ]
+  }
+ },
+ {
+  "case": "t1-refuses-an-absent-document",
+  "doc": "STANDARDS.md",
+  "doc_present": false,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "T0",
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "t2-refuses-the-lost-apca-applier",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [
+   {
+    "module": "cvd_gate",
+    "attr": "apca_Lc",
+    "imports": true,
+    "error": null,
+    "present": false
+   },
+   {
+    "module": "cvd_gate",
+    "attr": "wcag_ratio",
+    "imports": true,
+    "error": null,
+    "present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T2"
+   ]
+  }
+ },
+ {
+  "case": "t2-refuses-a-module-that-will-not-import",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [
+   {
+    "module": "cvd_gate",
+    "attr": "SECTORS",
+    "imports": false,
+    "error": "SyntaxError",
+    "present": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T2"
+   ]
+  }
+ },
+ {
+  "case": "null-imports-present-do-not-fire",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [
+   {
+    "module": "cvd_gate",
+    "attr": "apca_Lc",
+    "imports": null,
+    "error": null,
+    "present": false
+   },
+   {
+    "module": "cvd_gate",
+    "attr": "wcag_ratio",
+    "imports": null,
+    "error": null,
+    "present": true
+   },
+   {
+    "module": "cvd_gate",
+    "attr": "SECTORS",
+    "imports": true,
+    "error": null,
+    "present": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "cvd_gate.SECTORS",
+    "cvd_gate.apca_Lc",
+    "cvd_gate.wcag_ratio"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [
+   {
+    "module": "cvd_gate",
+    "attr": "apca_Lc",
+    "imports": null,
+    "error": null,
+    "present": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "cvd_gate.apca_Lc"
+   ]
+  }
+ },
+ {
+  "case": "null-present-withheld-not-t2",
+  "doc": "STANDARDS.md",
+  "doc_present": true,
+  "cases": [
+   {
+    "module": "cvd_gate",
+    "attr": "apca_Lc",
+    "imports": true,
+    "error": null,
+    "present": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "cvd_gate.apca_Lc"
+   ]
+  }
+ }
+]
