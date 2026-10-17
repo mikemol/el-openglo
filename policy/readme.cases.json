@@ -1,0 +1,417 @@
+[
+ {
+  "case": "admits-a-covering-readme",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ]
+ },
+ {
+  "case": "r0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r0-refuses-a-missing-kind",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-no-readme",
+  "readme": false,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-an-unnamed-item",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   },
+   {
+    "kind": "emitter",
+    "name": "make_union",
+    "named": false
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "r3-refuses-a-stale-fragment",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r4-refuses-roster-drift",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "roster_drift": [
+   {
+    "variant": "EL-Amber",
+    "who": "render_screens",
+    "why": "render_screens.VARIANTS does not declare it (GRID does)"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r4-admits-no-drift",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "roster_drift": []
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   },
+   {
+    "kind": "emitter",
+    "name": "make_union",
+    "named": null
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "population-flags-null-withheld",
+  "readme": null,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": true
+   }
+  ],
+  "roster_drift": null,
+  "expect": {
+   "withheld": [
+    "R1",
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "null-current-is-withheld",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [
+   {
+    "name": "gallery.md",
+    "current": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r3-refuses-no-fragments",
+  "readme": true,
+  "items": [
+   {
+    "kind": "emitter",
+    "name": "make_gtk",
+    "named": true
+   },
+   {
+    "kind": "variant",
+    "name": "EL-Amber",
+    "named": true
+   },
+   {
+    "kind": "picture",
+    "name": "strip.png",
+    "named": true
+   },
+   {
+    "kind": "symbol",
+    "name": "\u2295GTK",
+    "named": true
+   }
+  ],
+  "fragments": [],
+  "expect": {
+   "deny": [
+    "R3"
+   ]
+  }
+ }
+]
