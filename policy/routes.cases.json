@@ -1,0 +1,124 @@
+[
+ {
+  "case": "admits-a-populated-local-table",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": ".py -> ../substrate/scratch/pycodemod.py"
+   }
+  ]
+ },
+ {
+  "case": "r0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "R0"
+   ],
+   "withheld": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r0-r2-refuse-the-symlinked-hook-without-a-skill",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": false,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "R0",
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "null-hook-present-withheld-not-denied",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": null,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": ".py -> ../substrate/scratch/pycodemod.py"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "null-skill-present-withheld-not-denied",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": null,
+  "cases": [
+   {
+    "row": ".py -> ../substrate/scratch/pycodemod.py"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-an-absent-skill",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": false,
+  "cases": [
+   {
+    "row": ".py -> ../substrate/scratch/pycodemod.py"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-an-absent-hook",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": false,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": ".py -> ../substrate/scratch/pycodemod.py"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ }
+]
