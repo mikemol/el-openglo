@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 652,
+  "counter": 656,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-16T17:49:03Z",
   "job_id": "a10b866f",
@@ -13098,10 +13098,6 @@
         "pytestspec"
       ],
       "blocked_on": [
-        "W562",
-        "W563",
-        "W564",
-        "W565",
         "W566",
         "W567",
         "W568",
@@ -13203,7 +13199,7 @@
     {
       "symbol": "W562",
       "title": "Port css to pytestspec: policy/css.cases.json, 9 of 14 tests are input-only",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13213,21 +13209,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/css.cases.json from policy/css_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 6f958b3: policy/css.cases.json, 12 cases, K3 mutation control held",
       "issued_at": "2026-10-17T08:32:19Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-17T08:33:13Z",
+      "last_worked": "2026-10-17T09:40:05Z",
       "ticks_blocked": 0,
-      "completed": null,
+      "completed": "20261017T094005Z",
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
     },
     {
       "symbol": "W563",
       "title": "Port inherit to pytestspec: policy/inherit.cases.json, 9 of 14 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13237,20 +13233,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/inherit.cases.json from policy/inherit_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 54922ac: policy/inherit.cases.json, 13 cases, I2 mutation control held",
       "issued_at": "2026-10-17T08:32:20Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T09:40:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T094005Z"
     },
     {
       "symbol": "W564",
       "title": "Port role_theme to pytestspec: policy/role_theme.cases.json, 9 of 14 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13260,20 +13257,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/role_theme.cases.json from policy/role_theme_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 4fdfa29: policy/role_theme.cases.json, 14 cases, R4 mutation control held",
       "issued_at": "2026-10-17T08:32:20Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T09:40:05Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T094005Z"
     },
     {
       "symbol": "W565",
       "title": "Port hooks to pytestspec: policy/hooks.cases.json, 7 of 11 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13283,20 +13281,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/hooks.cases.json from policy/hooks_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 9710f14: policy/hooks.cases.json, 9 cases, H4 mutation control held",
       "issued_at": "2026-10-17T08:32:20Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T09:40:06Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T094006Z"
     },
     {
       "symbol": "W566",
       "title": "Port migration to pytestspec: policy/migration.cases.json, 7 of 11 tests are input-only",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W558"
       ],
@@ -13311,10 +13310,11 @@
       "issued_at": "2026-10-17T08:32:20Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T09:40:22Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W567",
@@ -15187,6 +15187,90 @@
       "last_worked": "2026-10-17T08:33:02Z",
       "ticks_blocked": 0,
       "completed": "20261017T083302Z"
+    },
+    {
+      "symbol": "W653",
+      "title": "Port action_key to pytestspec",
+      "status": "done",
+      "enables": [
+        "W558"
+      ],
+      "touches": [
+        "file:policy/action_key.cases.json!w"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 7ca15b7: policy/action_key.cases.json; the commit subject records its case count and mutation control",
+      "issued_at": "2026-10-17T09:40:15Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-17T09:40:15Z",
+      "ticks_blocked": 0,
+      "completed": "20261017T094015Z"
+    },
+    {
+      "symbol": "W654",
+      "title": "Port bazel_build to pytestspec",
+      "status": "done",
+      "enables": [
+        "W558"
+      ],
+      "touches": [
+        "file:policy/bazel_build.cases.json!w"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 18a7b05: policy/bazel_build.cases.json; the commit subject records its case count and mutation control",
+      "issued_at": "2026-10-17T09:40:15Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-17T09:40:15Z",
+      "ticks_blocked": 0,
+      "completed": "20261017T094015Z"
+    },
+    {
+      "symbol": "W655",
+      "title": "Port ghost_balance to pytestspec",
+      "status": "done",
+      "enables": [
+        "W558"
+      ],
+      "touches": [
+        "file:policy/ghost_balance.cases.json!w"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at d6c101b: policy/ghost_balance.cases.json; the commit subject records its case count and mutation control",
+      "issued_at": "2026-10-17T09:40:15Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-17T09:40:15Z",
+      "ticks_blocked": 0,
+      "completed": "20261017T094015Z"
+    },
+    {
+      "symbol": "W656",
+      "title": "Port tree_writes to pytestspec",
+      "status": "done",
+      "enables": [
+        "W558"
+      ],
+      "touches": [
+        "file:policy/tree_writes.cases.json!w"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 027c6dc: policy/tree_writes.cases.json; the commit subject records its case count and mutation control",
+      "issued_at": "2026-10-17T09:40:16Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-17T09:40:16Z",
+      "ticks_blocked": 0,
+      "completed": "20261017T094016Z"
     }
   ],
   "residue": [
@@ -15281,22 +15365,22 @@
   "predecessor_job_id": "6adeda42",
   "leases": [
     {
-      "tag": "file:policy/css.cases.json!w",
+      "tag": "file:policy/migration.cases.json!w",
       "holder": "(unlocked)",
-      "waypoint": "W562",
-      "base_sha": "242570d8fd83493cb9564799bcb371dbeb96bcea",
-      "taken_at": "2026-10-17T08:33:13Z",
-      "renewed_at": "2026-10-17T08:33:13Z",
-      "expires_at": "2026-10-17T09:03:13Z"
+      "waypoint": "W566",
+      "base_sha": "9710f144745bb7e92a254b1288122754295460ae",
+      "taken_at": "2026-10-17T09:40:22Z",
+      "renewed_at": "2026-10-17T09:40:22Z",
+      "expires_at": "2026-10-17T10:10:22Z"
     },
     {
       "tag": "file:closures.bzl!w",
       "holder": "(unlocked)",
-      "waypoint": "W562",
-      "base_sha": "242570d8fd83493cb9564799bcb371dbeb96bcea",
-      "taken_at": "2026-10-17T08:33:13Z",
-      "renewed_at": "2026-10-17T08:33:13Z",
-      "expires_at": "2026-10-17T09:03:13Z"
+      "waypoint": "W566",
+      "base_sha": "9710f144745bb7e92a254b1288122754295460ae",
+      "taken_at": "2026-10-17T09:40:22Z",
+      "renewed_at": "2026-10-17T09:40:22Z",
+      "expires_at": "2026-10-17T10:10:22Z"
     }
   ],
   "advice": [

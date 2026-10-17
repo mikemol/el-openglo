@@ -1,0 +1,454 @@
+[
+ {
+  "case": "admits-solved-overrides-breeze-reads",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "u0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "U0"
+   ]
+  }
+ },
+ {
+  "case": "u0-refuses-an-emitter-that-drops-a-variant",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [
+   {
+    "variant": "EL-Amber",
+    "who": "make_union",
+    "why": "make_union.VARIANTS does not declare it (GRID does)"
+   }
+  ],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U0"
+   ]
+  }
+ },
+ {
+  "case": "u1-refuses-a-malformed-sheet",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 2,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "u1-withholds-without-tinycss2",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": null,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "U1"
+   ]
+  }
+ },
+ {
+  "case": "u2-refuses-a-name-breeze-does-not-define",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-colour",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U2",
+    "U3"
+   ]
+  }
+ },
+ {
+  "case": "u2-withholds-an-absent-breeze",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": null,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "U2"
+   ]
+  }
+ },
+ {
+  "case": "u3-refuses-an-authored-alpha",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.4
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U3"
+   ]
+  }
+ },
+ {
+  "case": "u3-refuses-a-solved-alpha-not-overridden",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--card-hover-color",
+      "alpha": 0.353
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U3"
+   ]
+  }
+ },
+ {
+  "case": "u4-refuses-an-alpha-outside-the-unit-interval",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       1.2
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 1.2
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "U4"
+   ]
+  }
+ },
+ {
+  "case": "u3-ignores-an-unsolved-variable",
+  "roster": [
+   "EL-Amber"
+  ],
+  "breeze": [
+   "--card-hover-color",
+   "--indicator-color"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Amber",
+    "parse_errors": 0,
+    "overrides": [
+     {
+      "name": "--card-hover-color",
+      "numbers": [
+       0.353
+      ]
+     },
+     {
+      "name": "--indicator-color",
+      "numbers": [
+       0.437
+      ]
+     }
+    ],
+    "solved": [
+     {
+      "var": "--indicator-color",
+      "alpha": 0.437
+     },
+     {
+      "var": "--focus-color",
+      "alpha": null
+     }
+    ]
+   }
+  ]
+ }
+]
