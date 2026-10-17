@@ -1,0 +1,728 @@
+[
+ {
+  "case": "admits-a-routed-table",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   }
+  ]
+ },
+ {
+  "case": "b0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b0-refuses-an-empty-table",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [],
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-an-emitter-without-a-row",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   },
+   {
+    "emitter": "make_new",
+    "rows": 0
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-an-unlisted-id",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_x",
+    "venue": "KDE Store",
+    "route": "id 999",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "999",
+      "listed": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-a-guessed-id",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_x",
+    "venue": "KDE Store",
+    "route": "id 723?",
+    "guessed": true,
+    "ids": [
+     {
+      "id": "723",
+      "listed": true
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-admits-an-unlisted-id-off-the-store",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "id 999",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "999",
+      "listed": false
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "null-listing-guessed-does-not-fire",
+  "listing": null,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_x",
+    "venue": "KDE Store",
+    "route": "id 999",
+    "guessed": null,
+    "ids": [
+     {
+      "id": "999",
+      "listed": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   },
+   {
+    "emitter": "make_new",
+    "rows": null
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_x",
+    "venue": "KDE Store",
+    "route": "id 999",
+    "guessed": null,
+    "ids": [
+     {
+      "id": "999",
+      "listed": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B1",
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "null-venue-is-withheld",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_x",
+    "venue": null,
+    "route": "id 999",
+    "guessed": false,
+    "ids": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "null-listing-is-withheld",
+  "listing": null,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "null-listed-is-withheld",
+  "listing": true,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   },
+   {
+    "emitter": "make_x",
+    "venue": "KDE Store",
+    "route": "id 999",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "999",
+      "listed": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-a-missing-listing",
+  "listing": false,
+  "cases": [
+   {
+    "emitter": "make_schemes",
+    "rows": 1
+   },
+   {
+    "emitter": "make_deb",
+    "rows": 1
+   },
+   {
+    "emitter": "make_css",
+    "rows": 1
+   }
+  ],
+  "rows": [
+   {
+    "emitter": "make_schemes",
+    "venue": "KDE Store",
+    "route": "id 112 [OCS]",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "112",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_deb",
+    "venue": "KDE Store",
+    "route": "id 722",
+    "guessed": false,
+    "ids": [
+     {
+      "id": "722",
+      "listed": true
+     }
+    ]
+   },
+   {
+    "emitter": "make_css",
+    "venue": "the operator's site",
+    "route": "direct",
+    "guessed": false,
+    "ids": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ }
+]
