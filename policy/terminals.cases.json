@@ -1,0 +1,193 @@
+[
+ {
+  "case": "admits-faithful-emissions",
+  "variants": [
+   "EL-Openglo"
+  ],
+  "formats": [
+   "alacritty",
+   "foot"
+  ],
+  "drift": [],
+  "cases": [
+   {
+    "id": "alacritty EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "alacritty",
+    "parse_error": null,
+    "mismatches": []
+   },
+   {
+    "id": "foot EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "foot",
+    "parse_error": null,
+    "mismatches": []
+   }
+  ]
+ },
+ {
+  "case": "r0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r0-refuses-drift-either-way",
+  "variants": [
+   "EL-Openglo"
+  ],
+  "formats": [
+   "alacritty",
+   "foot"
+  ],
+  "drift": [
+   {
+    "format": "kitty",
+    "why": "this check reads it but make_konsole no longer declares it"
+   }
+  ],
+  "cases": [
+   {
+    "id": "alacritty EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "alacritty",
+    "parse_error": null,
+    "mismatches": []
+   },
+   {
+    "id": "foot EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "foot",
+    "parse_error": null,
+    "mismatches": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r0-refuses-a-declared-cell-not-measured",
+  "variants": [
+   "EL-Openglo",
+   "EL-Amber"
+  ],
+  "formats": [
+   "alacritty",
+   "foot"
+  ],
+  "drift": [],
+  "cases": [
+   {
+    "id": "alacritty EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "alacritty",
+    "parse_error": null,
+    "mismatches": []
+   },
+   {
+    "id": "foot EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "foot",
+    "parse_error": null,
+    "mismatches": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-a-parse-failure",
+  "variants": [
+   "EL-Openglo"
+  ],
+  "formats": [
+   "alacritty",
+   "foot"
+  ],
+  "drift": [],
+  "cases": [
+   {
+    "id": "alacritty EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "alacritty",
+    "parse_error": "TOMLDecodeError: Expected ']'",
+    "mismatches": null
+   },
+   {
+    "id": "foot EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "foot",
+    "parse_error": null,
+    "mismatches": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-a-swapped-colour",
+  "variants": [
+   "EL-Openglo"
+  ],
+  "formats": [
+   "windows-terminal"
+  ],
+  "drift": [],
+  "cases": [
+   {
+    "id": "windows-terminal EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "windows-terminal",
+    "parse_error": null,
+    "mismatches": [
+     {
+      "role": "b1",
+      "want": "#ff5555",
+      "got": "#55ff55"
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "variants": [
+   "EL-Openglo"
+  ],
+  "formats": [
+   "foot"
+  ],
+  "drift": [],
+  "cases": [
+   {
+    "id": "foot EL-Openglo",
+    "variant": "EL-Openglo",
+    "format": "foot",
+    "parse_error": null,
+    "mismatches": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
