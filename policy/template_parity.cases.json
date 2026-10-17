@@ -1,0 +1,195 @@
+[
+ {
+  "case": "admits-faithful-templates",
+  "cases": [
+   {
+    "id": "make_clock.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": null,
+    "raised": null,
+    "equal": true,
+    "got_bytes": 100,
+    "want_bytes": 100
+   },
+   {
+    "id": "make_taskswitch.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": null,
+    "raised": null,
+    "equal": true,
+    "got_bytes": 100,
+    "want_bytes": 100
+   }
+  ]
+ },
+ {
+  "case": "t0-refuses-no-pairs",
+  "expect": {
+   "deny": [
+    "T0"
+   ]
+  }
+ },
+ {
+  "case": "t1-refuses-a-missing-baseline",
+  "cases": [
+   {
+    "id": "make_clock.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": false,
+    "links": null,
+    "skip": null,
+    "raised": null,
+    "equal": null,
+    "got_bytes": 100,
+    "want_bytes": 100
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "t2-refuses-a-shared-inode",
+  "cases": [
+   {
+    "id": "make_clock.config_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 8,
+    "skip": null,
+    "raised": null,
+    "equal": true,
+    "got_bytes": 100,
+    "want_bytes": 100
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T2"
+   ]
+  }
+ },
+ {
+  "case": "t3-refuses-a-raising-generator",
+  "cases": [
+   {
+    "id": "make_clock.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": null,
+    "raised": "FileNotFoundError: make_wallpaper.py",
+    "equal": null,
+    "got_bytes": 100,
+    "want_bytes": 100
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T3"
+   ]
+  }
+ },
+ {
+  "case": "t3-refuses-a-difference",
+  "cases": [
+   {
+    "id": "make_notify_marquee.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": null,
+    "raised": null,
+    "equal": false,
+    "got_bytes": 42963,
+    "want_bytes": 40302
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T3"
+   ]
+  }
+ },
+ {
+  "case": "t3-withholds-a-skipped-pair-beside-a-faithful-one",
+  "cases": [
+   {
+    "id": "make_clock.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": null,
+    "raised": null,
+    "equal": true,
+    "got_bytes": 100,
+    "want_bytes": 100
+   },
+   {
+    "id": "make_notify_marquee.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": "PARITY_FONT = /x.ttf is not on this host",
+    "raised": null,
+    "equal": null,
+    "got_bytes": 100,
+    "want_bytes": 100
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "T3"
+   ]
+  }
+ },
+ {
+  "case": "all-skipped-admits-nothing",
+  "cases": [
+   {
+    "id": "make_notify_marquee.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": "font absent",
+    "raised": null,
+    "equal": null,
+    "got_bytes": 100,
+    "want_bytes": 100
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "T3"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "id": "make_clock.main_qml",
+    "baseline": "x.qml",
+    "baseline_present": true,
+    "links": 1,
+    "skip": null,
+    "raised": null,
+    "equal": null,
+    "got_bytes": null,
+    "want_bytes": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
