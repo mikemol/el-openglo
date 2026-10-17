@@ -1,0 +1,104 @@
+[
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "both-roots-covered-admitted",
+  "floor": 4.6,
+  "cases": [
+   {
+    "id": "EL-Azure/selection/neg/lighter",
+    "variant": "EL-Azure",
+    "field": "selection",
+    "slot": "neg",
+    "side": "lighter",
+    "reachable": 7.0,
+    "candidate": 5.0,
+    "n_candidates": 3
+   },
+   {
+    "id": "EL-Azure/selection/neg/darker",
+    "variant": "EL-Azure",
+    "field": "selection",
+    "slot": "neg",
+    "side": "darker",
+    "reachable": 6.0,
+    "candidate": 4.8,
+    "n_candidates": 2
+   }
+  ]
+ },
+ {
+  "case": "uncovered-root-denied",
+  "floor": 4.6,
+  "cases": [
+   {
+    "id": "EL-Azure/selection/neg/lighter",
+    "variant": "EL-Azure",
+    "field": "selection",
+    "slot": "neg",
+    "side": "lighter",
+    "reachable": 7.0,
+    "candidate": 5.0,
+    "n_candidates": 3
+   },
+   {
+    "id": "EL-Azure/selection/neg/darker",
+    "variant": "EL-Azure",
+    "field": "selection",
+    "slot": "neg",
+    "side": "darker",
+    "reachable": 6.0,
+    "candidate": null,
+    "n_candidates": 0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "candidates-below-floor-on-a-reachable-root-denied",
+  "floor": 4.6,
+  "cases": [
+   {
+    "id": "EL-Azure/selection/neg/lighter",
+    "variant": "EL-Azure",
+    "field": "selection",
+    "slot": "neg",
+    "side": "lighter",
+    "reachable": 7.0,
+    "candidate": 3.3,
+    "n_candidates": 4
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "unreachable-side-is-not-a-root",
+  "floor": 4.6,
+  "cases": [
+   {
+    "id": "EL-Azure/selection/neg/darker",
+    "variant": "EL-Azure",
+    "field": "selection",
+    "slot": "neg",
+    "side": "darker",
+    "reachable": 2.1,
+    "candidate": null,
+    "n_candidates": 0
+   }
+  ]
+ }
+]
