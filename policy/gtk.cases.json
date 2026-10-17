@@ -1,0 +1,437 @@
+[
+ {
+  "case": "admits-clean-sheets",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "k0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k0-refuses-emitter-drift",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [
+   {
+    "variant": "EL-Amber",
+    "why": "in GRID, not in make_gtk.VARIANTS"
+   }
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k0-refuses-a-shrunk-pair-population",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 8,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k1-refuses-a-parse-error",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 2,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ },
+ {
+  "case": "k1-withholds-without-tinycss2",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": null,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K1"
+   ]
+  }
+ },
+ {
+  "case": "k2-refuses-a-typod-variable",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [
+     "--headerbar-bg-colour"
+    ],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "k2-refuses-a-typod-define",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [
+     "theme_bg_colour"
+    ],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "k3-refuses-an-authored-value",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [
+     {
+      "name": "--view-fg-color",
+      "role": "view_fg",
+      "got": "#00ffffff",
+      "want": "#ffffff"
+     }
+    ],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "k4-refuses-an-absent-pair",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": false,
+      "ratio": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K4"
+   ]
+  }
+ },
+ {
+  "case": "k4-refuses-a-pair-under-its-floor",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 1
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K4"
+   ]
+  }
+ },
+ {
+  "case": "k4-admits-a-selection-pair-at-its-own-floor",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--accent-bg-color",
+      "fg": "--accent-fg-color",
+      "floor": 3,
+      "present": true,
+      "ratio": 4.41
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": null,
+    "unknown_gtk4": null,
+    "unknown_gtk3": null,
+    "wrong_values": null,
+    "pairs": [
+     {
+      "bg": "--x-bg",
+      "fg": "--x-fg",
+      "floor": 4.5,
+      "present": null,
+      "ratio": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K1",
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "a-prefixed-variant-parse-error-denies-only-its-own-id",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "pairs_declared": 1,
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_errors": 0,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "parse_errors": 3,
+    "unknown_gtk4": [],
+    "unknown_gtk3": [],
+    "wrong_values": [],
+    "pairs": [
+     {
+      "bg": "--window-bg-color",
+      "fg": "--window-fg-color",
+      "floor": 4.5,
+      "present": true,
+      "ratio": 12.3
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ }
+]
