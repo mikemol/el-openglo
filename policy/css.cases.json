@@ -1,0 +1,562 @@
+[
+ {
+  "case": "admits-a-current-sheet",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ]
+ },
+ {
+  "case": "k0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "K0"
+   ],
+   "withheld": [
+    "K5"
+   ]
+  }
+ },
+ {
+  "case": "k0-refuses-an-absent-file",
+  "file_present": false,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k1-refuses-a-stale-value",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(0 0 0)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(0 0 0)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ },
+ {
+  "case": "k1-refuses-a-missing-key",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ },
+ {
+  "case": "k2-refuses-a-foreign-property",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-made-up": "red"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-made-up": "red"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "k3-refuses-a-seen-ghost-without-color-mix",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "var(--el-fg-in)",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "var(--el-fg-in)",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "k4-refuses-a-light-scheme-that-is-not-lit",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(1 2 3)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K4"
+   ]
+  }
+ },
+ {
+  "case": "null-parsed-does-not-fire",
+  "file_present": true,
+  "parsed": null,
+  "root": {
+   "--el-fg": "rgb(0 0 0)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(0 0 0)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K5"
+   ]
+  }
+ },
+ {
+  "case": "null-file-present-is-withheld",
+  "file_present": null,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K5"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "file_present": true,
+  "parsed": true,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Amber",
+    "expected": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K5"
+   ]
+  }
+ },
+ {
+  "case": "tinycss2-absent-is-withheld",
+  "file_present": true,
+  "parsed": false,
+  "root": {
+   "--el-fg": "rgb(75 250 215)",
+   "--el-view": "rgb(8 20 17)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "light": {
+   "--el-fg": "rgb(8 20 17)",
+   "--el-view": "rgb(240 250 248)",
+   "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+   "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+  },
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "expected": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)"
+    },
+    "got": {
+     "--el-fg": "rgb(75 250 215)",
+     "--el-view": "rgb(8 20 17)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "expected": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)"
+    },
+    "got": {
+     "--el-fg": "rgb(8 20 17)",
+     "--el-view": "rgb(240 250 248)",
+     "--el-fg-in-seen": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))",
+     "--el-fg-in-seen-glanced": "color-mix(in srgb, var(--el-fg-in) 40%, var(--el-view))"
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K0"
+   ]
+  }
+ }
+]
