@@ -1,0 +1,269 @@
+[
+ {
+  "case": "admits-a-de-siloed-tree",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_clock.py",
+    "present": true,
+    "reads": [
+     "segment_topology"
+    ],
+    "owns": []
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "display_types"
+    ],
+    "owns": []
+   }
+  ]
+ },
+ {
+  "case": "g0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g2-g3-refuse-a-silo-with-its-own-stroke-table",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_wallpaper.py",
+    "present": true,
+    "reads": [],
+    "owns": [
+     "SEGS"
+    ]
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "display_types"
+    ],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2",
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-surface-reading-no-authority",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_clock.py",
+    "present": true,
+    "reads": [
+     "segment_topology"
+    ],
+    "owns": []
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-an-owned-table-beside-an-authority",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_clock.py",
+    "present": true,
+    "reads": [
+     "segment_topology"
+    ],
+    "owns": [
+     "DIGITS"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-a-vanished-surface",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_clock.py",
+    "present": true,
+    "reads": [
+     "segment_topology"
+    ],
+    "owns": []
+   },
+   {
+    "file": "make_plymouth.py",
+    "present": false,
+    "reads": [],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "null-present-silo-is-withheld-not-judged",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_wallpaper.py",
+    "present": null,
+    "reads": [],
+    "owns": [
+     "SEGS"
+    ]
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "display_types"
+    ],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_wallpaper.py",
+    "present": null,
+    "reads": null,
+    "owns": null
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "display_types"
+    ],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "null-present-is-withheld-not-absent",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_plymouth.py",
+    "present": null,
+    "reads": [],
+    "owns": []
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "display_types"
+    ],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "present-with-null-lists-is-withheld",
+  "authorities": [
+   "segment_topology",
+   "make_segment_display",
+   "display_types"
+  ],
+  "cases": [
+   {
+    "file": "make_clock.py",
+    "present": true,
+    "reads": null,
+    "owns": null
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "display_types"
+    ],
+    "owns": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "G4"
+   ]
+  }
+ }
+]
