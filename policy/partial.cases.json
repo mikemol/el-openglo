@@ -1,0 +1,199 @@
+[
+ {
+  "case": "admits-an-intact-record",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": true
+   },
+   {
+    "file": "make_deb.py",
+    "exists": true,
+    "named": true
+   }
+  ]
+ },
+ {
+  "case": "p0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p0-refuses-an-empty-roster",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p1-refuses-a-vanished-partial-file",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": true
+   },
+   {
+    "file": "make_deb.py",
+    "exists": false,
+    "named": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "p2-refuses-absent-notes",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": false,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P2"
+   ]
+  }
+ },
+ {
+  "case": "p2-refuses-an-unnamed-partial-file",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": true
+   },
+   {
+    "file": "make_deb.py",
+    "exists": true,
+    "named": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": true
+   },
+   {
+    "file": "make_deb.py",
+    "exists": null,
+    "named": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "null-notes-present-is-withheld",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": null,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": true
+   },
+   {
+    "file": "make_deb.py",
+    "exists": true,
+    "named": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P2"
+   ]
+  }
+ },
+ {
+  "case": "null-exists-is-withheld",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [
+   {
+    "file": "make_deb.py",
+    "exists": null,
+    "named": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "null-named-is-withheld",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": true,
+  "cases": [
+   {
+    "file": "make_deb.py",
+    "exists": true,
+    "named": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "null-notes-present-does-not-fire-the-does-not-mention-arm",
+  "notes": "RECOVERY-NOTES.md",
+  "notes_present": null,
+  "cases": [
+   {
+    "file": "cvd_gate.py",
+    "exists": true,
+    "named": true
+   },
+   {
+    "file": "make_deb.py",
+    "exists": true,
+    "named": false
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P2"
+   ]
+  }
+ }
+]
