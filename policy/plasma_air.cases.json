@@ -1,0 +1,143 @@
+[
+ {
+  "case": "admits-recorded-bakes",
+  "themes": [
+   {
+    "id": "air",
+    "has_colors_file": true,
+    "colors_sections": [
+     "Colors:View"
+    ],
+    "svgs": [
+     {
+      "path": "widgets/button.svgz",
+      "scheme_classed": 0,
+      "baked": 256
+     },
+     {
+      "path": "widgets/arrows.svgz",
+      "scheme_classed": 14,
+      "baked": 4
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "p1-refuses-a-stale-record",
+  "themes": [
+   {
+    "id": "air",
+    "has_colors_file": false,
+    "colors_sections": [],
+    "svgs": [
+     {
+      "path": "widgets/arrows.svgz",
+      "scheme_classed": 14,
+      "baked": 0
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "colors-file-alone-bakes",
+  "themes": [
+   {
+    "id": "air",
+    "has_colors_file": true,
+    "colors_sections": [],
+    "svgs": [
+     {
+      "path": "widgets/arrows.svgz",
+      "scheme_classed": 14,
+      "baked": 0
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "unrecorded-theme-is-denied",
+  "themes": [
+   {
+    "id": "oxygen",
+    "has_colors_file": true,
+    "colors_sections": [
+     "Colors:View"
+    ],
+    "svgs": [
+     {
+      "path": "widgets/button.svgz",
+      "scheme_classed": 0,
+      "baked": 256
+     },
+     {
+      "path": "widgets/arrows.svgz",
+      "scheme_classed": 14,
+      "baked": 4
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "p0-refuses-absent-population",
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p0-refuses-empty-population",
+  "themes": [],
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p2-refuses-empty-svgs",
+  "themes": [
+   {
+    "id": "air",
+    "has_colors_file": true,
+    "colors_sections": [
+     "Colors:View"
+    ],
+    "svgs": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P2"
+   ]
+  }
+ },
+ {
+  "case": "withheld-only",
+  "themes": [
+   {
+    "id": "air",
+    "withheld": "/x/air is not on this host"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "air"
+   ]
+  }
+ }
+]
