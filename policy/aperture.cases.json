@@ -1,0 +1,417 @@
+[
+ {
+  "case": "admits-the-relation",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 1,
+     "half": 1,
+     "covered": 0
+    }
+   }
+  ]
+ },
+ {
+  "case": "a0-refuses-nothing-measured",
+  "variants": [],
+  "expect": {
+   "deny": [
+    "A0"
+   ]
+  }
+ },
+ {
+  "case": "a1-withholds-a-failed-render",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "withheld": "qml is not installed"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "A1"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-does-not-fire",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 1,
+     "half": 1,
+     "covered": 0
+    },
+    "withheld": null
+   }
+  ]
+ },
+ {
+  "case": "null-withheld-is-still-judged",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 40,
+     "half": 51,
+     "covered": 103
+    },
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "A2",
+    "A3",
+    "A4"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "withheld": null,
+    "expected": null,
+    "seen": null,
+    "error": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "A5"
+   ]
+  }
+ },
+ {
+  "case": "null-pip-error-is-withheld-not-passed",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 1,
+     "half": null,
+     "covered": 0
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "A5"
+   ]
+  }
+ },
+ {
+  "case": "a2-refuses-a-wrong-floor",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 40,
+     "half": 1,
+     "covered": 0
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "A2"
+   ]
+  }
+ },
+ {
+  "case": "a3-refuses-a-snapping-field",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 1,
+     "half": 51,
+     "covered": 0
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "A3"
+   ]
+  }
+ },
+ {
+  "case": "a4-refuses-an-unlit-covered-pip",
+  "variants": [
+   {
+    "variant": "EL-Amber",
+    "expected": {
+     "clear": [
+      152,
+      126,
+      90
+     ],
+     "half": [
+      203,
+      169,
+      121
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "seen": {
+     "clear": [
+      153,
+      127,
+      90
+     ],
+     "half": [
+      204,
+      169,
+      122
+     ],
+     "covered": [
+      255,
+      212,
+      153
+     ]
+    },
+    "error": {
+     "clear": 1,
+     "half": 1,
+     "covered": 103
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "A4"
+   ]
+  }
+ }
+]
