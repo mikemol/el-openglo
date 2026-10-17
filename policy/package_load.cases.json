@@ -1,0 +1,153 @@
+[
+ {
+  "case": "admits-clean-loads",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "lines": 8,
+    "errors": []
+   },
+   {
+    "id": "org.el.notifymarquee",
+    "lines": 11,
+    "errors": []
+   }
+  ],
+  "not_loadable": [
+   "org.el.openglo.live"
+  ],
+  "withheld": null
+ },
+ {
+  "case": "d0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "d1-refuses-a-load-error",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "lines": 8,
+    "errors": [
+     "main.qml:105:13: SegmentChar is not a type"
+    ]
+   },
+   {
+    "id": "org.el.notifymarquee",
+    "lines": 11,
+    "errors": []
+   }
+  ],
+  "not_loadable": [
+   "org.el.openglo.live"
+  ],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "D1"
+   ]
+  }
+ },
+ {
+  "case": "d2-refuses-a-silent-run",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "lines": 0,
+    "errors": []
+   }
+  ],
+  "not_loadable": [
+   "org.el.openglo.live"
+  ],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "D2"
+   ]
+  }
+ },
+ {
+  "case": "d4-withholds-a-run-that-ended-on-its-own",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "lines": 0,
+    "errors": [],
+    "exited_early": true,
+    "rc": -9
+   },
+   {
+    "id": "org.el.notifymarquee",
+    "lines": 11,
+    "errors": []
+   }
+  ],
+  "not_loadable": [
+   "org.el.openglo.live"
+  ],
+  "withheld": null,
+  "expect": {
+   "withheld": [
+    "D4"
+   ]
+  }
+ },
+ {
+  "case": "d2-still-refuses-a-silent-run-that-used-the-whole-window",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "lines": 0,
+    "errors": [],
+    "exited_early": false,
+    "rc": -9
+   }
+  ],
+  "not_loadable": [
+   "org.el.openglo.live"
+  ],
+  "withheld": null,
+  "expect": {
+   "deny": [
+    "D2"
+   ]
+  }
+ },
+ {
+  "case": "wallpapers-outside-the-population-never-deny",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "lines": 8,
+    "errors": []
+   },
+   {
+    "id": "org.el.notifymarquee",
+    "lines": 11,
+    "errors": []
+   }
+  ],
+  "not_loadable": [
+   "a",
+   "b",
+   "c"
+  ],
+  "withheld": null
+ },
+ {
+  "case": "d3-withholds-a-machine-without-the-loader",
+  "cases": [],
+  "not_loadable": [],
+  "withheld": "/usr/bin/plasmawindowed is not installed",
+  "expect": {
+   "withheld": [
+    "D3"
+   ]
+  }
+ }
+]

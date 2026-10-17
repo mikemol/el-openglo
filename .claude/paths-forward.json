@@ -13098,9 +13098,6 @@
         "pytestspec"
       ],
       "blocked_on": [
-        "W566",
-        "W567",
-        "W568",
         "W569",
         "W570",
         "W571",
@@ -13295,7 +13292,7 @@
     {
       "symbol": "W566",
       "title": "Port migration to pytestspec: policy/migration.cases.json, 7 of 11 tests are input-only",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13305,21 +13302,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/migration.cases.json from policy/migration_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at a4fdb53: policy/migration.cases.json, 11 cases, G1 mutation control held",
       "issued_at": "2026-10-17T08:32:20Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-17T09:40:22Z",
+      "last_worked": "2026-10-17T10:15:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null
+      "completed": "20261017T101532Z"
     },
     {
       "symbol": "W567",
       "title": "Port rehue to pytestspec: policy/rehue.cases.json, 7 of 11 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13329,20 +13326,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/rehue.cases.json from policy/rehue_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at d6311f0: policy/rehue.cases.json, 11 cases, H3 mutation control held",
       "issued_at": "2026-10-17T08:32:21Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T10:15:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T101532Z"
     },
     {
       "symbol": "W568",
       "title": "Port union to pytestspec: policy/union.cases.json, 7 of 11 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13352,15 +13350,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/union.cases.json from policy/union_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 5c4eaf4: policy/union.cases.json, 11 cases, U4 mutation control held",
       "issued_at": "2026-10-17T08:32:21Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T10:15:32Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T101532Z"
     },
     {
       "symbol": "W569",
@@ -13388,7 +13387,7 @@
     {
       "symbol": "W570",
       "title": "Port census to pytestspec: policy/census.cases.json, 5 of 8 tests are input-only",
-      "status": "ready",
+      "status": "working",
       "enables": [
         "W558"
       ],
@@ -13403,10 +13402,11 @@
       "issued_at": "2026-10-17T08:32:21Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T10:15:39Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": null
     },
     {
       "symbol": "W571",
@@ -15365,22 +15365,22 @@
   "predecessor_job_id": "6adeda42",
   "leases": [
     {
-      "tag": "file:policy/migration.cases.json!w",
+      "tag": "file:policy/census.cases.json!w",
       "holder": "(unlocked)",
-      "waypoint": "W566",
-      "base_sha": "9710f144745bb7e92a254b1288122754295460ae",
-      "taken_at": "2026-10-17T09:40:22Z",
-      "renewed_at": "2026-10-17T09:40:22Z",
-      "expires_at": "2026-10-17T10:10:22Z"
+      "waypoint": "W570",
+      "base_sha": "5c4eaf44031159db813642bcb6254f830ef8fd4c",
+      "taken_at": "2026-10-17T10:15:39Z",
+      "renewed_at": "2026-10-17T10:15:39Z",
+      "expires_at": "2026-10-17T10:45:39Z"
     },
     {
       "tag": "file:closures.bzl!w",
       "holder": "(unlocked)",
-      "waypoint": "W566",
-      "base_sha": "9710f144745bb7e92a254b1288122754295460ae",
-      "taken_at": "2026-10-17T09:40:22Z",
-      "renewed_at": "2026-10-17T09:40:22Z",
-      "expires_at": "2026-10-17T10:10:22Z"
+      "waypoint": "W570",
+      "base_sha": "5c4eaf44031159db813642bcb6254f830ef8fd4c",
+      "taken_at": "2026-10-17T10:15:39Z",
+      "renewed_at": "2026-10-17T10:15:39Z",
+      "expires_at": "2026-10-17T10:45:39Z"
     }
   ],
   "advice": [
