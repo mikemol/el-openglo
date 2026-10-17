@@ -1,0 +1,192 @@
+[
+ {
+  "case": "h4-refuses-an-unwired-adopted-hook",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_no_chaining.py",
+    "rc": 0,
+    "tail": "PASS"
+   },
+   {
+    "hook": "hook_structural_query.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_structural_query.py",
+    "rc": 0,
+    "tail": "PASS"
+   }
+  ],
+  "unwired": [
+   "mikemol-hook-pycheck"
+  ],
+  "expect": {
+   "deny": [
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "h4-admits-when-every-adopted-hook-is-wired",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_no_chaining.py",
+    "rc": 0,
+    "tail": "PASS"
+   },
+   {
+    "hook": "hook_structural_query.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_structural_query.py",
+    "rc": 0,
+    "tail": "PASS"
+   }
+  ],
+  "unwired": []
+ },
+ {
+  "case": "h4-withholds-an-unmeasured-unwired",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_no_chaining.py",
+    "rc": 0,
+    "tail": "PASS"
+   },
+   {
+    "hook": "hook_structural_query.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_structural_query.py",
+    "rc": 0,
+    "tail": "PASS"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "h0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "H0"
+   ],
+   "withheld": [
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "h1-refuses-a-missing-hook-command",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_no_chaining.py",
+    "rc": 0,
+    "tail": "PASS"
+   },
+   {
+    "hook": "mikemol-hook-structural-query",
+    "present": false,
+    "resolves": null,
+    "rc": null,
+    "tail": ""
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H1"
+   ],
+   "withheld": [
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "h2-refuses-a-failing-selftest",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": true,
+    "resolves": "/x",
+    "rc": 1,
+    "tail": "selftest: FAIL"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H2"
+   ],
+   "withheld": [
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "null-present-does-not-fire",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": null,
+    "resolves": "/x",
+    "rc": 1,
+    "tail": "selftest: FAIL"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H3",
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": null,
+    "resolves": null,
+    "rc": null,
+    "tail": null
+   },
+   {
+    "hook": "hook_structural_query.py",
+    "present": true,
+    "resolves": "/x/substrate/scripts/hook_structural_query.py",
+    "rc": 0,
+    "tail": "PASS"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H3",
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "present-null-rc-withheld",
+  "cases": [
+   {
+    "hook": "hook_no_chaining.py",
+    "present": true,
+    "resolves": "/x",
+    "rc": null,
+    "tail": ""
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H3",
+    "H4"
+   ]
+  }
+ }
+]
