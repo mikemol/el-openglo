@@ -1,0 +1,241 @@
+[
+ {
+  "case": "admits-a-sourced-roster",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": true,
+    "reads": [
+     "make_preview"
+    ]
+   },
+   {
+    "file": "make_wallpaper.py",
+    "present": true,
+    "reads": [
+     "make_schemes"
+    ]
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "via make_wallpaper_live"
+    ]
+   }
+  ]
+ },
+ {
+  "case": "c0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "C0"
+   ]
+  }
+ },
+ {
+  "case": "c2-refuses-make-wallpaper-reading-nothing",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": true,
+    "reads": [
+     "make_preview"
+    ]
+   },
+   {
+    "file": "make_wallpaper.py",
+    "present": true,
+    "reads": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C2"
+   ]
+  }
+ },
+ {
+  "case": "c1-refuses-a-deleted-declared-emitter",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [
+   "make_css.py"
+  ],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": false,
+    "reads": []
+   },
+   {
+    "file": "make_wallpaper.py",
+    "present": true,
+    "reads": [
+     "make_schemes"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C1"
+   ]
+  }
+ },
+ {
+  "case": "c1-refuses-an-undeclared-generator",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [
+   "make_new.py"
+  ],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": true,
+    "reads": [
+     "make_preview"
+    ]
+   },
+   {
+    "file": "make_wallpaper.py",
+    "present": true,
+    "reads": [
+     "make_schemes"
+    ]
+   },
+   {
+    "file": "make_notify_marquee.py",
+    "present": true,
+    "reads": [
+     "via make_wallpaper_live"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C1"
+   ]
+  }
+ },
+ {
+  "case": "null-present-does-not-fire-c2",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": null,
+    "reads": [
+     "make_preview"
+    ]
+   },
+   {
+    "file": "make_wallpaper.py",
+    "present": null,
+    "reads": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "make_css.py",
+    "make_wallpaper.py"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": null,
+    "reads": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "make_css.py"
+   ]
+  }
+ },
+ {
+  "case": "null-present-withheld-not-c1",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": null,
+    "reads": [
+     "make_preview"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "make_css.py"
+   ]
+  }
+ },
+ {
+  "case": "null-reads-withheld",
+  "authorities": [
+   "make_preview",
+   "make_schemes"
+  ],
+  "declared": 3,
+  "undeclared": [],
+  "absent": [],
+  "cases": [
+   {
+    "file": "make_css.py",
+    "present": true,
+    "reads": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "make_css.py"
+   ]
+  }
+ }
+]
