@@ -648,6 +648,7 @@ CLOSURES = {
         "policy/runtime_warnings_test.rego",
         "policy/scope_recorded.rego",
         "policy/scope_recorded_test.rego",
+        "policy/screens.cases.json",
         "policy/screens.rego",
         "policy/screens_test.rego",
         "policy/sddm.cases.json",

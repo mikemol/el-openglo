@@ -1,0 +1,1498 @@
+[
+ {
+  "case": "admits-clean",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "s8-admits-a-scroll-that-moves-by-fractions-of-a-pip",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04
+   }
+  ]
+ },
+ {
+  "case": "s8-refuses-a-scroll-that-moves-only-by-whole-pips",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     3.0,
+     3.0,
+     2.0,
+     3.0
+    ],
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s8-one-fractional-step-among-whole-ones-is-refused",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     3.0,
+     3.0,
+     2.75,
+     3.0,
+     2.0
+    ],
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s8-a-negative-fractional-shift-counts",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     -1.25,
+     0.0,
+     2.75
+    ],
+    "period2_share": 0.04
+   }
+  ]
+ },
+ {
+  "case": "s8-exactly-two-thirds-fractional-does-not-trip-s8 (S5 trips on the uneven logged steps)",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     2.5,
+     2.5,
+     3.0
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5"
+   ]
+  }
+ },
+ {
+  "case": "s8-just-under-two-thirds-is-refused",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     2.5,
+     3.0,
+     3.0
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5",
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s8-logged-fractional-steps-admit-even-when-the-image-fit-reads-whole",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     3.0,
+     3.0,
+     3.0,
+     3.0
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     4.618,
+     4.618,
+     4.618
+    ]
+   }
+  ]
+ },
+ {
+  "case": "s8-logged-whole-steps-refuse-even-when-the-image-fit-reads-fractional",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     3.0,
+     3.0,
+     3.0
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s8-float-noise-on-a-whole-step-is-still-whole",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     3.0000000000000004,
+     3.0,
+     3.0
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s8-zero-steps-are-excluded-from-the-share (S5 trips on the uneven logged steps)",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     0.0,
+     0.0,
+     4.5,
+     4.75,
+     0.0
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5"
+   ]
+  }
+ },
+ {
+  "case": "s8-a-run-with-no-step-at-all-is-withheld",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [],
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s8-an-all-stall-run-is-withheld-and-not-admitted",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S8"
+   ]
+  }
+ },
+ {
+  "case": "s9-admits-a-real-scroll-at-the-measured-noise-level",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.0395
+   }
+  ]
+ },
+ {
+  "case": "s9-refuses-a-see-saw",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.937
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S9"
+   ]
+  }
+ },
+ {
+  "case": "s9-exactly-at-the-threshold-is-admitted",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.25
+   }
+  ]
+ },
+ {
+  "case": "s9-just-over-the-threshold-is-refused",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.2501
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S9"
+   ]
+  }
+ },
+ {
+  "case": "s9-a-null-share-is-withheld-not-admitted",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S9"
+   ]
+  }
+ },
+ {
+  "case": "s9-an-absent-share-is-withheld-not-admitted",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S9"
+   ]
+  }
+ },
+ {
+  "case": "s5-logged-uniform-steps-admit-even-when-the-image-fit-reports-tears",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [
+     {
+      "frame": 18,
+      "shift": 2.75,
+      "mismatch": 9.1,
+      "total": 12.0
+     }
+    ],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     2.75,
+     2.75,
+     2.75,
+     2.75
+    ]
+   }
+  ]
+ },
+ {
+  "case": "s5-logged-off-step-denies-and-names-the-frame",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": [
+     2.75,
+     2.75,
+     -40.0,
+     2.75
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5"
+   ]
+  }
+ },
+ {
+  "case": "s5-without-a-log-the-image-fit-still-judges",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 61,
+    "tears": [
+     {
+      "frame": 7,
+      "shift": 2.75,
+      "mismatch": 9.1,
+      "total": 12.0
+     }
+    ],
+    "seamless": true,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     2.5
+    ],
+    "period2_share": 0.04,
+    "logged_steps": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5"
+   ]
+  }
+ },
+ {
+  "case": "s0-refuses-no-plan",
+  "screens": [],
+  "expect": {
+   "deny": [
+    "S0"
+   ],
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "s1-refuses-a-missing-still",
+  "screens": [
+   {
+    "file": "switcher-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": false,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1"
+   ],
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "s2-refuses-a-blank-still",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 1,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S2"
+   ],
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "s3-refuses-the-wrong-ground",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#081411",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S3"
+   ],
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "s3-admits-the-view-ground",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#140f08",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "s6-refuses-an-open-loop",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 48,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [],
+    "seamless": false,
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S6"
+   ]
+  }
+ },
+ {
+  "case": "s4-s5-admit-a-scrolling-animation",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 48,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [],
+    "seamless": true,
+    "period2_share": 0.04
+   }
+  ]
+ },
+ {
+  "case": "s4-refuses-a-missing-animation",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S4"
+   ]
+  }
+ },
+ {
+  "case": "s4-refuses-a-still-with-a-loop-flag",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 1,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [],
+    "seamless": true,
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S4"
+   ]
+  }
+ },
+ {
+  "case": "s5-refuses-a-tear",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 48,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [
+     {
+      "frame": 3,
+      "shift": 0,
+      "mismatch": 40,
+      "lit": 90
+     }
+    ],
+    "seamless": true,
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S5"
+   ]
+  }
+ },
+ {
+  "case": "null-screen-exists-withheld-not-s1",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": null,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "null-animation-exists-withheld-not-s4",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": null,
+    "frames": 48,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [],
+    "seamless": true,
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "null-seamless-withheld-not-s6",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": 48,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [],
+    "seamless": null,
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "modal": null,
+    "distinct": null,
+    "grounds": null
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "frames": null,
+    "tears": null,
+    "seamless": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "null-animations-population-withheld",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": null,
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "a-denied-still-is-not-admitted",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 1,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [],
+  "expect": {
+   "deny": [
+    "S2"
+   ]
+  }
+ },
+ {
+  "case": "null-screen-exists-does-not-fire",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": null,
+    "width": 400,
+    "height": 48,
+    "modal": "#081411",
+    "distinct": 1,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ },
+ {
+  "case": "null-animation-exists-does-not-fire",
+  "screens": [
+   {
+    "file": "clock-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": true,
+    "width": 400,
+    "height": 48,
+    "modal": "#1f170c",
+    "distinct": 120,
+    "grounds": [
+     "#1f170c",
+     "#140f08"
+    ]
+   }
+  ],
+  "animations": [
+   {
+    "file": "marquee-anim-EL-Amber.png",
+    "variant": "EL-Amber",
+    "exists": null,
+    "frames": 1,
+    "width": 420,
+    "shifts": [
+     2.75,
+     3.0,
+     2.5,
+     2.75,
+     3.25,
+     3.0
+    ],
+    "tears": [
+     {
+      "frame": 3,
+      "shift": 0,
+      "mismatch": 40,
+      "lit": 90
+     }
+    ],
+    "seamless": false,
+    "period2_share": 0.04
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S7"
+   ]
+  }
+ }
+]
