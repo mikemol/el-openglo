@@ -1,0 +1,44 @@
+[
+ {
+  "case": "admits-structure-only",
+  "files": 1,
+  "cases": [
+   {
+    "id": "templates/marquee-main.qml:382",
+    "call": "trace",
+    "content": []
+   }
+  ]
+ },
+ {
+  "case": "c0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "C0"
+   ]
+  }
+ },
+ {
+  "case": "c1-refuses-a-traced-ticker",
+  "files": 1,
+  "cases": [
+   {
+    "id": "templates/marquee-main.qml:382",
+    "call": "trace",
+    "content": []
+   },
+   {
+    "id": "templates/marquee-main.qml:377",
+    "call": "trace",
+    "content": [
+     "tickerText"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C1"
+   ]
+  }
+ }
+]
