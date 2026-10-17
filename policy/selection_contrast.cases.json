@@ -1,0 +1,385 @@
+[
+ {
+  "case": "admits-a-legible-tree",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "keys": [
+   "ForegroundNormal",
+   "ForegroundNegative"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo/ForegroundNormal",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 7.1,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/ForegroundNegative",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 3.4,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNormal",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 6.8,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNegative",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 3.33,
+    "why": null
+   }
+  ]
+ },
+ {
+  "case": "s0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s0-refuses-a-scheme-whose-selection-section-is-unreadable",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "keys": [
+   "ForegroundNormal",
+   "ForegroundNegative"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo/ForegroundNormal",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 7.1,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/ForegroundNegative",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 3.4,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNormal",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNormal",
+    "fg": null,
+    "bg": null,
+    "ratio": null,
+    "why": "[Colors:Selection] BackgroundNormal is absent"
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNegative",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNegative",
+    "fg": null,
+    "bg": null,
+    "ratio": null,
+    "why": "[Colors:Selection] BackgroundNormal is absent"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s0-refuses-a-shrunk-population",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "keys": [
+   "ForegroundNormal",
+   "ForegroundNegative"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo/ForegroundNormal",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 7.1,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/ForegroundNegative",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 3.4,
+    "why": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s1-refuses-a-pair-below-the-floor",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "keys": [
+   "ForegroundNormal",
+   "ForegroundNegative"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo/ForegroundNormal",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 7.1,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/ForegroundNegative",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 3.4,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNormal",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 6.8,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNegative",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 2.94,
+    "why": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1"
+   ]
+  }
+ },
+ {
+  "case": "s1-message-formats-whole-numbers",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "keys": [
+   "ForegroundNormal",
+   "ForegroundNegative"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo/ForegroundNormal",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 7.1,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/ForegroundNegative",
+    "scheme": "EL-Openglo",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 3.4,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNormal",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNormal",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 6.8,
+    "why": null
+   },
+   {
+    "id": "EL-Openglo-Lit/ForegroundNegative",
+    "scheme": "EL-Openglo-Lit",
+    "key": "ForegroundNegative",
+    "fg": [
+     8,
+     20,
+     17
+    ],
+    "bg": [
+     120,
+     200,
+     185
+    ],
+    "ratio": 2,
+    "why": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1"
+   ]
+  }
+ }
+]
