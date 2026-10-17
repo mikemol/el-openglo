@@ -44,6 +44,21 @@ RDEPEND="
 	kde-plasma/plasma-workspace:6
 "
 
+# ⚑ THE CVD CORE IS AN mtools DIST, NOT THIS TREE (W544): cvd_gate imports `mikemol.cvdcore`, and the
+# sandbox python has no `mikemol` (the wheels live in repo venvs), so src_compile died with
+# ModuleNotFoundError and luthen's host apply failed every pass (W560). The dist is stdlib plus numpy and
+# colorspacious, both already BDEPEND, so the build takes its source from the SAME mtools commit the repo's
+# pyproject.toml pins (mikemol-cvdcore @ ...@<sha>) and puts cvdcore/src on PYTHONPATH. Move the two together.
+MTOOLS_COMMIT="6fba7de7f0ca5b887f1995eb80eb028b8dc7aeac"
+
+src_unpack() {
+	git-r3_src_unpack
+	local EGIT_REPO_URI="https://github.com/mikemol/mtools.git"
+	local EGIT_COMMIT="${MTOOLS_COMMIT}"
+	local EGIT_CHECKOUT_DIR="${WORKDIR}/mtools"
+	git-r3_src_unpack
+}
+
 python_check_deps() {
 	python_has_version \
 		"media-gfx/cairosvg[${PYTHON_USEDEP}]" \
@@ -58,6 +73,7 @@ src_compile() {
 	# import (~2 min, cached in .palette-cache.json inside ${S}) and the emitters
 	# write every surface from it. Staging does both; this phase only warms the
 	# cache so src_install's timing is honest.
+	export PYTHONPATH="${WORKDIR}/mtools/cvdcore/src${PYTHONPATH:+:${PYTHONPATH}}"
 	"${EPYTHON}" -c "import make_schemes" || die "palette solve failed"
 }
 
@@ -66,6 +82,7 @@ src_install() {
 	# tree under a DESTDIR — the same function the Kubuntu .deb wraps — so the
 	# set of files this ebuild installs cannot drift from the .deb's.
 	# A render-gate SKIP under the sandbox is printed and is not an error.
+	export PYTHONPATH="${WORKDIR}/mtools/cvdcore/src${PYTHONPATH:+:${PYTHONPATH}}"
 	"${EPYTHON}" make_deb.py --stage "${ED}" || die "make_deb --stage failed"
 	# make_deb stages helper scripts into usr/bin; make sure they are executable
 	find "${ED}/usr/bin" -type f -exec chmod 0755 {} + || die
