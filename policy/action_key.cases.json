@@ -1,0 +1,625 @@
+[
+ {
+  "case": "undeclared-output-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [
+     "strip.png",
+     "README.md"
+    ],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" writes 2 file(s) it does not declare (strip.png, README.md)"
+   ]
+  }
+ },
+ {
+  "case": "declared-but-absent-output-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [
+     "clock-EL-Amber.png"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" declares 1 output(s) that are ABSENT (clock-EL-Amber.png)"
+   ]
+  }
+ },
+ {
+  "case": "matching-output-boundary-denies-nothing",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ]
+ },
+ {
+  "case": "unresolved-edges-withhold-not-deny",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 21,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "action \"screens\" keyed over a domain with 21 UNRESOLVED edge(s)"
+   ]
+  }
+ },
+ {
+  "case": "undeclared-domains-withhold-not-deny",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 2,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "action \"screens\" keyed over 2 UNDECLARED domain(s) (glob/walk/listdir)"
+   ]
+  }
+ },
+ {
+  "case": "a-clean-domain-withholds-nothing-and-was-alive",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ]
+ },
+ {
+  "case": "an-empty-domain-cannot-pass-as-clean",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 0,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" has an EMPTY input domain"
+   ]
+  }
+ },
+ {
+  "case": "stale-action-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "stale",
+    "key": "bbbb333344445555",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" is STALE"
+   ]
+  }
+ },
+ {
+  "case": "empty-population-denies",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "no actions measured"
+   ]
+  }
+ },
+ {
+  "case": "absent-population-denies",
+  "expect": {
+   "deny": [
+    "no actions measured"
+   ]
+  }
+ },
+ {
+  "case": "zero-outputs-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 0,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" declares outputs but none were found"
+   ]
+  }
+ },
+ {
+  "case": "unrecorded-is-withheld-not-denied",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "unrecorded",
+    "key": "aaaa000011112222",
+    "recorded_key": null,
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "action \"screens\" has no recorded key"
+   ]
+  }
+ },
+ {
+  "case": "absent-host-input-is-withheld-not-denied",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "unmeasurable",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [
+     "/usr/lib64/qt6/bin/qml"
+    ],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "action \"screens\" declares host input(s) absent here (/usr/lib64/qt6/bin/qml)"
+   ]
+  }
+ },
+ {
+  "case": "unpinned-host-withholds-for-host-seeing-action",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "sees_host": true
+   }
+  ],
+  "host": {
+   "kind": "unpinned",
+   "detail": "3 of 3 source(s)"
+  },
+  "expect": {
+   "withheld": [
+    "action \"screens\" sees the host and the host is UNPINNED"
+   ]
+  }
+ },
+ {
+  "case": "unpinned-host-is-silent-for-a-pure-action",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "sees_host": false
+   }
+  ],
+  "host": {
+   "kind": "unpinned",
+   "detail": "3 of 3 source(s)"
+  }
+ },
+ {
+  "case": "pinned-host-withholds-nothing",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "sees_host": true
+   }
+  ],
+  "host": {
+   "kind": "pinned",
+   "detail": "oci/Containerfile"
+  }
+ },
+ {
+  "case": "unmeasurable-host-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "sees_host": true
+   }
+  ],
+  "host": {
+   "kind": "unmeasurable",
+   "detail": "no host fingerprint source is readable"
+  },
+  "expect": {
+   "deny": [
+    "the host identity could not be computed"
+   ]
+  }
+ },
+ {
+  "case": "one-stale-output-denies-by-name",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "stale",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "per_output": true,
+    "n_keyed_outputs": 56,
+    "stale_outputs": [
+     "clock-EL-Amber.png"
+    ],
+    "unrecorded_outputs": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" output \"clock-EL-Amber.png\" is STALE"
+   ]
+  }
+ },
+ {
+  "case": "each-stale-output-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "stale",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "per_output": true,
+    "n_keyed_outputs": 56,
+    "stale_outputs": [
+     "clock-EL-Amber.png",
+     "sheet-EL-Amber.png",
+     "strip.png"
+    ],
+    "unrecorded_outputs": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" output \"clock-EL-Amber.png\" is STALE",
+    "action \"screens\" output \"sheet-EL-Amber.png\" is STALE",
+    "action \"screens\" output \"strip.png\" is STALE"
+   ]
+  }
+ },
+ {
+  "case": "stale-output-denies-even-if-summary-says-current",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "per_output": true,
+    "n_keyed_outputs": 56,
+    "stale_outputs": [
+     "pinholes-EL-Azure.png"
+    ],
+    "unrecorded_outputs": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "action \"screens\" output \"pinholes-EL-Azure.png\" is STALE"
+   ]
+  }
+ },
+ {
+  "case": "all-outputs-current-admits",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "per_output": true,
+    "n_keyed_outputs": 56,
+    "stale_outputs": [],
+    "unrecorded_outputs": []
+   }
+  ]
+ },
+ {
+  "case": "unrecorded-output-withholds-not-denies",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "unrecorded",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "per_output": true,
+    "n_keyed_outputs": 56,
+    "stale_outputs": [],
+    "unrecorded_outputs": [
+     "README.md"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "action \"screens\""
+   ]
+  }
+ },
+ {
+  "case": "null-sees-host-does-not-fire",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": [],
+    "sees_host": null
+   }
+  ],
+  "host": {
+   "kind": "unpinned",
+   "detail": "3 of 3 source(s)"
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "action": "screens",
+    "state": null,
+    "key": null,
+    "recorded_key": null,
+    "n_inputs": null,
+    "n_outputs": null,
+    "missing_host": null,
+    "n_unresolved": null,
+    "n_undeclared_domains": null,
+    "undeclared_outputs": null,
+    "declared_absent": null,
+    "stale_outputs": null,
+    "unrecorded_outputs": null,
+    "sees_host": null
+   }
+  ],
+  "host": {
+   "kind": "unpinned",
+   "detail": "x"
+  },
+  "expect": {
+   "withheld": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "null-count-is-withheld-not-admitted",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": null,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "withheld-beside-admitted",
+  "cases": [
+   {
+    "action": "screens",
+    "state": "current",
+    "key": "aaaa000011112222",
+    "recorded_key": "aaaa000011112222",
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   },
+   {
+    "action": "schemes",
+    "state": "unrecorded",
+    "key": "aaaa000011112222",
+    "recorded_key": null,
+    "n_inputs": 64,
+    "n_outputs": 55,
+    "missing_host": [],
+    "n_unresolved": 0,
+    "n_undeclared_domains": 0,
+    "undeclared_outputs": [],
+    "declared_absent": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "action \"schemes\" has no recorded key"
+   ]
+  }
+ }
+]
