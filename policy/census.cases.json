@@ -1,0 +1,128 @@
+[
+ {
+  "case": "admits-a-fully-named-tree",
+  "checked": true,
+  "withheld": null,
+  "tracked": 3,
+  "cases": [
+   {
+    "path": "a.py",
+    "status": "named",
+    "reason": ""
+   },
+   {
+    "path": "b.py",
+    "status": "named",
+    "reason": ""
+   },
+   {
+    "path": "c.png",
+    "status": "exempt",
+    "reason": "generated sample, read by no stage"
+   }
+  ]
+ },
+ {
+  "case": "n0-refuses-an-empty-population",
+  "checked": true,
+  "cases": [],
+  "tracked": 0,
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "n0-absent-population-is-empty",
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "n1-refuses-a-tracked-file-no-stage-names",
+  "checked": true,
+  "withheld": null,
+  "tracked": 3,
+  "cases": [
+   {
+    "path": "x.py",
+    "status": "unnamed",
+    "reason": ""
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N1"
+   ]
+  }
+ },
+ {
+  "case": "n2-refuses-an-exemption-without-a-reason",
+  "checked": true,
+  "withheld": null,
+  "tracked": 3,
+  "cases": [
+   {
+    "path": "x.py",
+    "status": "unreasoned",
+    "reason": ""
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N2"
+   ]
+  }
+ },
+ {
+  "case": "n3-refuses-a-stale-exemption",
+  "checked": true,
+  "withheld": null,
+  "tracked": 3,
+  "cases": [
+   {
+    "path": "x.py",
+    "status": "stale",
+    "reason": "old"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "n4-refuses-an-exemption-for-an-untracked-file",
+  "checked": true,
+  "withheld": null,
+  "tracked": 3,
+  "cases": [
+   {
+    "path": "zz.py",
+    "status": "gone",
+    "reason": "was"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N4"
+   ]
+  }
+ },
+ {
+  "case": "not-under-bazel-is-withheld-not-judged",
+  "checked": false,
+  "cases": [],
+  "tracked": 662,
+  "withheld": "no runfiles tree",
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
