@@ -1,0 +1,261 @@
+[
+ {
+  "case": "admits-declared-closures",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   },
+   {
+    "script": "scripts/check_b.py",
+    "has_closure": true,
+    "files": 3,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": []
+ },
+ {
+  "case": "l0-refuses-an-empty-population",
+  "cases": [],
+  "stale": [],
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "l0-absent-population-is-empty",
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-a-stage-with-no-closure",
+  "cases": [
+   {
+    "script": "scripts/check_new.py",
+    "has_closure": false,
+    "files": 0,
+    "self_listed": false,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "expect": {
+   "deny": [
+    "L1"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-a-closure-missing-its-own-script",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 5,
+    "self_listed": false,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "expect": {
+   "deny": [
+    "L2"
+   ]
+  }
+ },
+ {
+  "case": "l3-refuses-an-untracked-listed-file",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 5,
+    "self_listed": true,
+    "untracked": [
+     ".palette-cache.json"
+    ]
+   }
+  ],
+  "stale": [],
+  "expect": {
+   "deny": [
+    "L3"
+   ]
+  }
+ },
+ {
+  "case": "l5-refuses-an-insufficient-closure",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   },
+   {
+    "script": "scripts/check_b.py",
+    "has_closure": true,
+    "files": 3,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "witness": [
+   {
+    "script": "scripts/check_a.py",
+    "arm1": "fail",
+    "arm2": "none",
+    "victim": null,
+    "detail": "ModuleNotFoundError: gone"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L5"
+   ]
+  }
+ },
+ {
+  "case": "a-passing-witness-adds-no-denial",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   },
+   {
+    "script": "scripts/check_b.py",
+    "has_closure": true,
+    "files": 3,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "witness": [
+   {
+    "script": "scripts/check_a.py",
+    "arm1": "pass",
+    "arm2": "refused",
+    "victim": "scripts/x.py",
+    "detail": ""
+   }
+  ]
+ },
+ {
+  "case": "exempt-and-unproven-are-withheld-not-judged",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   },
+   {
+    "script": "scripts/check_b.py",
+    "has_closure": true,
+    "files": 3,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "witness": [
+   {
+    "script": "scripts/check_e.py",
+    "arm1": "exempt",
+    "arm2": "none",
+    "victim": null,
+    "detail": "needs a git index"
+   },
+   {
+    "script": "scripts/check_u.py",
+    "arm1": "pass",
+    "arm2": "unproven",
+    "victim": null,
+    "detail": ""
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "a-known-failure-is-withheld-with-its-reason",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   },
+   {
+    "script": "scripts/check_b.py",
+    "has_closure": true,
+    "files": 3,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "witness": [
+   {
+    "script": "worklist",
+    "arm1": "known",
+    "arm2": "none",
+    "victim": null,
+    "detail": "@EBUILD: needs a clone"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "l4-refuses-a-closure-for-a-gone-stage",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   },
+   {
+    "script": "scripts/check_b.py",
+    "has_closure": true,
+    "files": 3,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [
+   "scripts/check_gone.py"
+  ],
+  "expect": {
+   "deny": [
+    "L4"
+   ]
+  }
+ }
+]
