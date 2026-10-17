@@ -1,0 +1,199 @@
+[
+ {
+  "case": "absent-population-denied",
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "empty-population-denied",
+  "files": [],
+  "truthy": [],
+  "fixed": [],
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "bare-value-reference-denied",
+  "files": [
+   "policy/x.rego"
+  ],
+  "truthy": [
+   {
+    "module": "policy/x.rego",
+    "line": 9,
+    "root": "local",
+    "text": "c.withheld",
+    "value": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "bare-input-reference-denied",
+  "files": [
+   "policy/x.rego"
+  ],
+  "truthy": [
+   {
+    "module": "policy/x.rego",
+    "line": 3,
+    "root": "input",
+    "text": "input.parsed",
+    "value": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "rule-reference-admitted",
+  "files": [
+   "policy/x.rego"
+  ],
+  "truthy": [
+   {
+    "module": "policy/x.rego",
+    "line": 12,
+    "root": "rule",
+    "text": "helper",
+    "value": false
+   }
+  ]
+ },
+ {
+  "case": "null-value-flag-is-not-a-finding",
+  "files": [
+   "policy/x.rego"
+  ],
+  "truthy": [
+   {
+    "module": "policy/x.rego",
+    "line": 9,
+    "root": "local",
+    "text": "c.withheld",
+    "value": null
+   }
+  ]
+ },
+ {
+  "case": "negated-value-reference-denied",
+  "files": [
+   "policy/x.rego"
+  ],
+  "negated": [
+   {
+    "module": "policy/x.rego",
+    "line": 9,
+    "root": "local",
+    "text": "c.withheld",
+    "value": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N1"
+   ]
+  }
+ },
+ {
+  "case": "float-verb-denied",
+  "files": [
+   "policy/x.rego"
+  ],
+  "fixed": [
+   {
+    "module": "policy/x.rego",
+    "line": 20,
+    "format": "G2: %.3f",
+    "verbs": [
+     "%.3f"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F1"
+   ]
+  }
+ },
+ {
+  "case": "float-verb-in-the-exempt-file-is-withheld-not-denied",
+  "files": [
+   "policy/lib/fmt_test.rego"
+  ],
+  "fixed": [
+   {
+    "module": "policy/lib/fmt_test.rego",
+    "line": 8,
+    "format": "G2: %.3f",
+    "verbs": [
+     "%.3f"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "F1"
+   ]
+  }
+ },
+ {
+  "case": "the-exemption-does-not-leak-to-another-file",
+  "files": [
+   "policy/lib/fmt.rego"
+  ],
+  "fixed": [
+   {
+    "module": "policy/lib/fmt.rego",
+    "line": 20,
+    "format": "G2: %.3f",
+    "verbs": [
+     "%.3f"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "F1"
+   ]
+  }
+ },
+ {
+  "case": "clean-population-admitted",
+  "files": [
+   "policy/x.rego"
+  ],
+  "truthy": [],
+  "fixed": []
+ },
+ {
+  "case": "unparsed-file-withheld-not-admitted",
+  "files": [
+   "policy/x.rego"
+  ],
+  "unreadable": [
+   {
+    "module": "policy/x.rego",
+    "withheld": "opa absent"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R0"
+   ]
+  }
+ }
+]
