@@ -7,6 +7,8 @@
 #   ⚑ AGREEMENT IS REPORTED, NOT GATED — the threshold is ⊕SEG-PROJECT-CALIBRATE's.
 #   What IS gated is that the instrument works: it ran over the table and it
 #   discriminates between glyphs.
+# custom:
+#   family: display
 package el.projection
 
 import rego.v1

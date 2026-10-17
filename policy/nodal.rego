@@ -12,6 +12,8 @@
 #   ⚑ RETIRED: N1 judged effective resistance over the graph topology (margin as
 #   resistance). That reading was refuted on 2026-10-02 - it measures how
 #   connected two colours are, not how separated - and is not restated.
+# custom:
+#   family: targets
 package el.nodal
 
 import rego.v1

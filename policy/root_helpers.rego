@@ -4,6 +4,8 @@
 #   The measurement is `scripts/check_root_helpers.py --json`: the plymouth theme
 #   layout per variant, and each root helper run against a scratch root with a
 #   stubbed PATH. An empty population is a broken search, not a clean tree.
+# custom:
+#   family: gate
 package el.root_helpers
 
 import rego.v1

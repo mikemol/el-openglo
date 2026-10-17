@@ -5,6 +5,8 @@
 #   phosphor cursor theme make_cursors emits (W36) read back as XCursor files —
 #   each entry's link target, nominal sizes, and dominant opaque colours at 32 px,
 #   beside the variant's solved tokens (parse_scheme phosphor + ground).
+# custom:
+#   family: targets
 package el.cursors
 
 import rego.v1

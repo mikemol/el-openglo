@@ -5,6 +5,8 @@
 #   snapshot pin, whether its mirror resolves through snapshot.debian.org at that pin,
 #   its suite, the decided packages it lacks and the absent set it lets in. W235;
 #   catalog/guest-image.md (a)-(e).
+# custom:
+#   family: gate
 package el.guest_recipe
 
 import rego.v1

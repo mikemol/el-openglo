@@ -7,6 +7,8 @@
 #   tracked; plus closure keys no stage uses. This decides the SHAPE of the declaration. Whether a
 #   closure is COMPLETE is not decided here: observation under-approximates (W458/W494's witness
 #   runs the stage with only its closure present).
+# custom:
+#   family: gate
 package el.closure
 
 import rego.v1

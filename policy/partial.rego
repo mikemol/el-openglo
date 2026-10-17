@@ -10,6 +10,8 @@
 #   `exists` and `named` as booleans. One of those null or absent is a
 #   could-not-say: the case is WITHHELD by name and no rule judges it
 #   (`not c.exists` read null as "exists").
+# custom:
+#   family: gate
 package el.partial
 
 import rego.v1

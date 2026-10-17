@@ -8,6 +8,8 @@
 #   with the reason it could not be read. A SHRINKING POPULATION IS NOT A PASSING
 #   ONE: renaming one scheme's [Colors:Selection] header once took "30 of 30" to
 #   "25 of 25", exit 0 (W65). Weakness: a legibility FLOOR, not a preferred colour.
+# custom:
+#   family: palette
 package el.selection_contrast
 
 import data.el.fmt

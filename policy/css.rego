@@ -9,6 +9,8 @@
 #   prefers-color-scheme: light blocks. tinycss2 absent is WITHHELD — the sheet
 #   is unparsed, not wrong. A STALE FILE IS THE DEFECT: values are compared, not
 #   presence. Weakness: tinycss2 tokenizes, it does not evaluate color-mix().
+# custom:
+#   family: targets
 package el.css
 
 import rego.v1

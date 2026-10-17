@@ -7,6 +7,8 @@
 #   [Control Panel\Colors] key beside the `R G B` its palette role wants,
 #   ColorizationColor beside the accent's RRGGBB, and whether the referenced
 #   wallpaper exists beside it. Weakness: Microsoft's format page, not Windows.
+# custom:
+#   family: targets
 package el.windows
 
 import rego.v1

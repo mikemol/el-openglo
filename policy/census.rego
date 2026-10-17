@@ -6,6 +6,8 @@
 #   every stage's inputs) or declared exempt in gate/census_exempt.tsv with a reason (W488, operator
 #   rule 2026-10-06: a tracked gated file missing from the list must itself fail the gate). Outside
 #   bazel there is no declaration to compare against: withheld, never admitted.
+# custom:
+#   family: gate
 package el.census
 
 import rego.v1

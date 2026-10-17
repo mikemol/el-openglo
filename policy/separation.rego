@@ -9,6 +9,8 @@
 #   where colour is the SOLE carrier; SURFACED pairs are reported, never gated.
 #   Weakness: this gates the pairs the authority DECLARES, not the pairs that
 #   matter (check_palette_graph --edges shows the ungated ones).
+# custom:
+#   family: palette
 package el.separation
 
 import data.el.fmt

@@ -5,6 +5,8 @@
 #   (7/16/22-segment and the 5x7 matrix), whether catalog/engines/<file> exists and
 #   parses as GLB, its node names against the names its format demands, the nodes
 #   whose mesh is empty or flat, and whether it equals a fresh emission. W152.
+# custom:
+#   family: targets
 package el.glb
 
 import rego.v1

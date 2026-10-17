@@ -8,6 +8,8 @@
 #   (null when tinycss2 is absent), each overridden name with the numbers in its
 #   value, and each alpha make_union.alphas() solved. Weakness: the emitted text,
 #   not Union's cascade.
+# custom:
+#   family: palette
 package el.union
 
 import data.el.fmt

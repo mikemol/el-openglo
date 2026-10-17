@@ -7,6 +7,8 @@
 #   the geometry sections that differ from segment_topology / display_types, the digits
 #   without a mask, whether it equals a fresh make_android_clock emission, and orphan
 #   files nobody declares. W193.
+# custom:
+#   family: targets
 package el.android_clock
 
 import rego.v1

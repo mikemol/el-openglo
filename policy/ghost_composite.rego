@@ -10,6 +10,8 @@
 #   renders are different quantities; this is the join. Weakness: a flat alpha
 #   over the unlit core — the lit bloom underlay and the matrix dot field
 #   (--matrix) are not modelled here.
+# custom:
+#   family: targets
 package el.ghost_composite
 
 import data.el.fmt

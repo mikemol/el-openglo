@@ -14,6 +14,8 @@
 #   open_questions) that is null or absent could not be said: R7 withholds it,
 #   and no rule judges it. `bound` is legitimately null (a balance or arrow has
 #   none), so it is not in that list.
+# custom:
+#   family: palette
 package el.relations
 
 import rego.v1

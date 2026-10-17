@@ -8,6 +8,8 @@
 #   and what the /api/v1/query GET returned. luthen's contract (2026-10-02):
 #   exit 0 + state "answered" carries host and port; exit 1 refused; exit 2
 #   declaration unreadable; tool absent off-cluster.
+# custom:
+#   family: targets
 package el.metrics
 
 import rego.v1

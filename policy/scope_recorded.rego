@@ -9,6 +9,8 @@
 #   ⚑ EVERY CASE LANDS IN EXACTLY ONE OF withheld / deny / admitted. `present`
 #   (a boolean) and `evidence` (a list) are ALWAYS emitted; null or absent could
 #   not be said — S3 withholds it and no rule judges that record.
+# custom:
+#   family: gate
 package el.scope_recorded
 
 import rego.v1

@@ -6,6 +6,8 @@
 #   timeline (events, each with the text the board must then show) and sampled
 #   every 40 ms (text, x, running, count). No samples means the widget did not
 #   run, not that it behaved.
+# custom:
+#   family: targets
 package el.marquee_live
 
 import rego.v1

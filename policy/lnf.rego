@@ -5,6 +5,8 @@
 #   make_deb.ENGINES staged through build_lnf_packages, each package's
 #   metadata.json and contents/defaults read back, and `engines` — what the
 #   packager declares each engine selects. W37.
+# custom:
+#   family: targets
 package el.lnf
 
 import rego.v1

@@ -7,6 +7,8 @@
 #   exists (`when_exists`). A read outside the declaration, or a declared field the producer
 #   does not emit, is denied. A surface whose producer or consumer could not be read is
 #   withheld, never judged.
+# custom:
+#   family: gate
 package el.contracts
 
 import rego.v1

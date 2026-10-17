@@ -5,6 +5,8 @@
 #   (open for writing, write_text/bytes, shutil copies, path-taking savers,
 #   svg2png write_to=) in every module emitters.ROLES declares. An empty
 #   population is a broken search, not a clean tree.
+# custom:
+#   family: gate
 package el.atomic_writes
 
 import rego.v1

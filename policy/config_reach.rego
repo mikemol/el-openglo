@@ -7,6 +7,8 @@
 #   changes nothing on screen is a control that does nothing, whatever the kcfg and the
 #   page declare about it (W264). An empty population is a broken measurement, not a
 #   clock whose settings all work.
+# custom:
+#   family: display
 package el.config_reach
 
 import rego.v1

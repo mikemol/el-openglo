@@ -10,6 +10,8 @@
 #   descenders, and (5x8) the descent metrics. An SVG case carries its parse
 #   error or the members it lacks / carries beyond the charset. fontTools absent
 #   withholds. Weakness: fontconfig and a shaper are not run.
+# custom:
+#   family: targets
 package el.font
 
 import rego.v1

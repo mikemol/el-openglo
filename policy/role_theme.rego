@@ -10,6 +10,8 @@
 #   of these roles over Okabe-Ito clears the floor, so `q >= 1` could not fail.
 #   Weakness: optimal FOR THE ROLES GIVEN; whether a consumer should adopt it is
 #   not measured.
+# custom:
+#   family: palette
 package el.role_theme
 
 import data.el.fmt

@@ -9,6 +9,8 @@
 #   @define-color names not in GTK3_DEFINES, each value that is not its role, and
 #   per declared pair whether both variables are present and their WCAG ratio.
 #   Weakness: ADW_NAMED is a snapshot; GNOME is not run here.
+# custom:
+#   family: targets
 package el.gtk
 
 import data.el.fmt

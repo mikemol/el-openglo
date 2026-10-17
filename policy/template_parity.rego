@@ -7,6 +7,8 @@
 #   equals the baseline byte for byte (with both sizes); `skip` names a pinned host
 #   file that is absent, `raised` the generator's exception. Extraction must be
 #   output-neutral, and a recorded baseline is how that is shown, not said.
+# custom:
+#   family: gate
 package el.template_parity
 
 import rego.v1

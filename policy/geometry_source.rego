@@ -7,6 +7,8 @@
 #   (segment_topology, make_segment_display, display_types), and which stroke-
 #   table names it binds to a LITERAL at module level. An empty roster is
 #   stale, not a de-siloed tree.
+# custom:
+#   family: display
 package el.geometry_source
 
 import rego.v1

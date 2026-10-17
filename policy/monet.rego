@@ -10,6 +10,8 @@
 #   claimed: that a Lit variant's surface equals ground — Monet's light surfaces
 #   are near-white by design; catalog/android.md records that disagreement.
 #   Weakness: the reference derivation, pinned by the library's version.
+# custom:
+#   family: palette
 package el.monet
 
 import data.el.fmt

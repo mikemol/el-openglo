@@ -3,6 +3,8 @@
 # description: |
 #   The measurement is `scripts/check_runtime_warnings.py --json` (W53): one case
 #   per class of shell warning the live host has produced.
+# custom:
+#   family: gate
 package el.runtime_warnings
 
 import rego.v1

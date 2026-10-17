@@ -7,6 +7,8 @@
 #   names an artifact MIME, docstrings excluded), the waivers with their reasons,
 #   and whether identify.py could be imported at all. Weakness: top-level modules
 #   only, and a document split across several short constants is not one.
+# custom:
+#   family: gate
 package el.embedded_markup
 
 import rego.v1

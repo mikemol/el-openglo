@@ -7,6 +7,8 @@
 #   Origin (luthen-observability, 2026-10-01): the marquee traced its ticker text -
 #   senders, subjects, bodies - into the journal that is shipped to VictoriaLogs, and
 #   into the appletsrc on disk.
+# custom:
+#   family: gate
 package el.log_content
 
 import rego.v1

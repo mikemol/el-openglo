@@ -5,6 +5,8 @@
 #   DECLARES (emitters.ROLES, render_screens.VARIANTS and plan_all(),
 #   check_symbol.CLOSED) and whether README.md names it. An empty population is
 #   a broken search, not a covered README.
+# custom:
+#   family: gate
 package el.readme
 
 import rego.v1

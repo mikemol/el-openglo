@@ -8,6 +8,8 @@
 #   cannot be shown wrong. The solve can, against the balance condition.
 #   Weakness: solving luminance is exact, reaching it with an 8-bit triple is
 #   not, so a residual skew is bounded, not forbidden.
+# custom:
+#   family: targets
 package el.ghost_balance
 
 import data.el.fmt

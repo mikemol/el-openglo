@@ -7,6 +7,8 @@
 #   table row with its venue, the KDE Store ids its route cites (each marked
 #   listed or not in the cached OCS listing), and whether the route carries a
 #   '?'; and whether the cached listing was present at all.
+# custom:
+#   family: gate
 package el.publishing
 
 import rego.v1

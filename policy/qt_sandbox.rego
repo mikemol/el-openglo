@@ -9,6 +9,8 @@
 #   ⚑ EXACTLY ONCE: a case with a withholding reason (non-empty `withheld`) is
 #   withheld; every other case always carries `routed` (bool). A null or absent
 #   `routed` is a could-not-say — withheld by id, neither denied nor admitted.
+# custom:
+#   family: gate
 package el.qt_sandbox
 
 import rego.v1

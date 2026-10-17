@@ -8,6 +8,8 @@
 #   (with the consumer's own parser) differs from make_konsole.ansi_table.
 #   Weakness: the file says what the table says; whether a terminal reads a key is
 #   the consumer's schema, checked only by name.
+# custom:
+#   family: targets
 package el.terminals
 
 import rego.v1

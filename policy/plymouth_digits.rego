@@ -7,6 +7,8 @@
 #   the read. Plymouth imports the substrate and carried its own digit table
 #   anyway; this is the join. Weakness: glyphs, not pixels — the renderer's
 #   polygon is not compared.
+# custom:
+#   family: targets
 package el.plymouth_digits
 
 import rego.v1

@@ -9,6 +9,8 @@
 #   fallback deliberately. The recovery lost 8 of the 10 attributes and every gate
 #   stayed green while the authored table shipped. Weakness: SHIPPED is the
 #   module's own state, not the emitted files.
+# custom:
+#   family: palette
 package el.palette_chain
 
 import rego.v1

@@ -6,6 +6,8 @@
 #   W99, no longer symlinks into substrate), whether its executable is present and
 #   rc = 0 iff, run FROM THIS REPO, it denied a known-bad event and admitted a
 #   known-good one - an installed command reads this repo's tables at run time.
+# custom:
+#   family: gate
 package el.hooks
 
 import rego.v1

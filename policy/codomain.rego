@@ -4,6 +4,8 @@
 #   The measurement is `scripts/check_codomain.py --json` (W42): the emitted half
 #   read from check_publishing, the gaps from catalog/codomain.json. No emitted
 #   surface means the roster read broke, not that nothing ships.
+# custom:
+#   family: palette
 package el.codomain
 
 import rego.v1

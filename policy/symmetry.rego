@@ -8,6 +8,8 @@
 #   render. ⚑ THE MIRROR REGIONS ARE DIAGNOSTIC (operator, 2026-09-22: "we don't
 #   expect it to match exactly — we expect it to fix defects"), so no rule here
 #   judges them; `check_symmetry.py --list` reports them. The GRID is the claim.
+# custom:
+#   family: palette
 package el.symmetry
 
 import rego.v1

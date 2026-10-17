@@ -10,6 +10,9 @@
 #
 # ⚑ CURRENCY IS NOT A BOUNDARY. build_graph asks PRODUCED and CONSUMED; a file can
 # be both and still be wrong. This is the third obligation.
+# METADATA
+# custom:
+#   family: gate
 package el.action_key
 
 import data.el.truth

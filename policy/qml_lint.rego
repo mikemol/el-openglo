@@ -5,6 +5,8 @@
 #   no documents is a broken search, not a clean tree (CLAUDE.md: "if the
 #   population is empty, REFUSE"). Every other rule ranges over
 #   input.documents, so this denies first.
+# custom:
+#   family: gate
 package el.qml_lint
 
 import rego.v1

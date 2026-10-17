@@ -7,6 +7,8 @@
 #   substrate's projection), font5x7 glyphs (column bytes), displays. An empty
 #   population — or an empty KIND of it — is a registry not built, not an
 #   emission faithful.
+# custom:
+#   family: display
 package el.display_registry
 
 import rego.v1

@@ -11,6 +11,8 @@
 #   measurement always emits roles (object), needed, stub_roles and methods
 #   (lists); one of those null or absent is a could-not-say, WITHHELD by name,
 #   and the rule that reads it does not judge.
+# custom:
+#   family: palette
 package el.notify_roles
 
 import rego.v1

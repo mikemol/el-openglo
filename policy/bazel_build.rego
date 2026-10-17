@@ -6,6 +6,8 @@
 #   it is a file, a directory or absent. The operator rule (2026-10-06): BUILD inputs are named
 #   files, never a glob and never a directory (W487). The names come from mtools' `select_tracked`,
 #   a call the measurement does not resolve, so what it refuses is what bypasses the generator.
+# custom:
+#   family: gate
 package el.bazel_build
 
 import rego.v1

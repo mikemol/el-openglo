@@ -1,3 +1,6 @@
+# METADATA
+# custom:
+#   family: palette
 package el.use_of_colour
 
 # W72 — WCAG 2.2 SC 1.4.1, use of colour. The measurement is

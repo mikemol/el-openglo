@@ -5,6 +5,8 @@
 #   policy/**.rego parsed by `opa parse`, its bare-reference conditions
 #   (`truthy`) and its float-verb sprintf formats (`fixed`). An empty file
 #   population is a broken search, not a clean tree.
+# custom:
+#   family: gate
 package el.rego_lint
 
 import rego.v1

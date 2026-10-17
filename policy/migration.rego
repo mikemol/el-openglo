@@ -9,6 +9,8 @@
 #   absent: withheld, nothing admitted. The script runs ONCE on real containments;
 #   this is its only rehearsal. Weakness: the fake API is the subset the script
 #   uses; a real Plasma API difference is invisible here.
+# custom:
+#   family: gate
 package el.migration
 
 import rego.v1

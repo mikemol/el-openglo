@@ -6,6 +6,8 @@
 #   py_compile's error or null. Weakness, stated: compiling proves the syntax
 #   survived the recovery and nothing about behaviour — eight partial files
 #   compile (check_partial is the separate claim).
+# custom:
+#   family: gate
 package el.compiles
 
 import rego.v1

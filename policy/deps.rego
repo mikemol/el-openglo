@@ -8,6 +8,8 @@
 #   and whether the name is RECORDED in the manifest's text (the "deliberately
 #   absent" notes). Weakness: `recorded` is a mention, so a name that merely
 #   appears in a comment is recorded; the policy says which admissions rest on it.
+# custom:
+#   family: gate
 package el.deps
 
 import rego.v1

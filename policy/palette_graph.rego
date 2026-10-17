@@ -9,6 +9,8 @@
 #   partial mapping makes it a fourth namespace. Weakness: the emitted keys come
 #   from the authored fallback tables, not a solver run (check_palette_chain
 #   gates that the two agree); b1 (--b1) is a capacity, not a finding.
+# custom:
+#   family: palette
 package el.palette_graph
 
 import rego.v1

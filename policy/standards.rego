@@ -5,6 +5,8 @@
 #   `module.attr` STANDARDS.md credits with applying a standard, and whether the
 #   module imports and carries it. No citation at all means the citation format
 #   changed or the scan broke — not that every standard is applied.
+# custom:
+#   family: gate
 package el.standards
 
 import rego.v1

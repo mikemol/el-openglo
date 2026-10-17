@@ -6,6 +6,8 @@
 #   install tree, through qt_sandbox, read for a fixed window. Wallpapers are listed
 #   under `not_loadable` (plasmawindowed hosts applets; a wallpaper needs a
 #   containment) and are outside the population, never silently dropped.
+# custom:
+#   family: gate
 package el.package_load
 
 import rego.v1

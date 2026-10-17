@@ -5,6 +5,8 @@
 #   declares (variant_roster), whether catalog/el-openglo.tokens.json has its DTCG
 #   group, its colour and alpha leaf counts, every leaf not in this file's DTCG shape,
 #   and whether the committed file equals a fresh make_tokens.document(). W160.
+# custom:
+#   family: palette
 package el.tokens
 
 import rego.v1

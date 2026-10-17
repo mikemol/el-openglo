@@ -8,6 +8,8 @@
 #   each colour key no role maps, the color_scheme found and the one the
 #   polarity wants, the gecko id, and web-ext lint's errors (null when web-ext
 #   is not installed). Weakness: the manifest, not Firefox's render.
+# custom:
+#   family: targets
 package el.firefox
 
 import rego.v1

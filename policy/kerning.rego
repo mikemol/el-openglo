@@ -1,3 +1,6 @@
+# METADATA
+# custom:
+#   family: targets
 package el.kerning
 
 # W76 — adjacent letters never bleed into one another through the pip mask. The

@@ -8,6 +8,8 @@
 #   still carrying edges after the last frame. `render.ok` null is a host fact
 #   (graphviz absent) and is WITHHELD, not failed.
 #   Weakness: a picture that renders is not a picture that is legible.
+# custom:
+#   family: targets
 package el.netlist_render
 
 import rego.v1

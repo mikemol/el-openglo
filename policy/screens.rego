@@ -9,6 +9,8 @@
 #   `distinct` / `modal` / `grounds` for a still and `frames` / `tears` /
 #   `seamless` for an animation; the population always carries `animations`.
 #   Null or absent is "could not say": S7 withholds it and no rule judges it.
+# custom:
+#   family: targets
 package el.screens
 
 import rego.v1

@@ -1,3 +1,6 @@
+# METADATA
+# custom:
+#   family: gate
 package el.deb
 
 # W79 — the .deb the operator installs by hand builds, dpkg accepts it, and it

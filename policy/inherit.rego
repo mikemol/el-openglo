@@ -9,6 +9,8 @@
 #   declared variant make_inherit does not emit, one it emits the palette does not
 #   declare, an index that does not parse). An inheriting theme is only as real as
 #   its parent; a parent not installed HERE is withheld, a fact about the host.
+# custom:
+#   family: gate
 package el.inherit
 
 import rego.v1

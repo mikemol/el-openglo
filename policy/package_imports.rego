@@ -7,6 +7,8 @@
 #   type qmllint cannot resolve with that ui directory on the import path (the
 #   resolution Plasma does; qmllint's exit code does not report it). `withheld`
 #   when qmllint is not on the host. Weakness: type resolution is not a load.
+# custom:
+#   family: gate
 package el.package_imports
 
 import rego.v1

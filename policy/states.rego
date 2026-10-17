@@ -7,6 +7,8 @@
 #   its ground (`view`). relations.md §4b, W10.
 #   Weakness: q is judged on flat swatches; a 2px ring beside a field is judged
 #   by the same number as two fields.
+# custom:
+#   family: palette
 package el.states
 
 import rego.v1

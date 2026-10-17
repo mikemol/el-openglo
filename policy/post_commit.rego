@@ -6,6 +6,8 @@
 #   the file the commit names. W561: a plain `git commit --amend` in that hook folds
 #   the whole index into the tip, so a file staged during a gate landed in a stack's
 #   last commit.
+# custom:
+#   family: gate
 package el.post_commit
 
 import rego.v1

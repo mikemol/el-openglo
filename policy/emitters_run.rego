@@ -5,6 +5,8 @@
 #   emitters.ORDER (and each EXTERNAL one whose input is present) run inside a
 #   private copy of the tracked tree, the tracked files compared, and the real
 #   tree fingerprinted before and after. An empty population is a broken run.
+# custom:
+#   family: gate
 package el.emitters_run
 
 import rego.v1

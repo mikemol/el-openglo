@@ -1,3 +1,6 @@
+# METADATA
+# custom:
+#   family: palette
 package el.urgency_cues
 
 # W72.h / W74 — is marquee urgency VISIBLE without colour at panel size? The

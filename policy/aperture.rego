@@ -4,6 +4,8 @@
 #   The measurement is `scripts/check_aperture.py --json`: per variant, the three
 #   pips of the aperture probe (clear / half / covered) as seen and as the scheme
 #   says they should read, with the per-channel max error.
+# custom:
+#   family: targets
 package el.aperture
 
 import rego.v1

@@ -7,6 +7,8 @@
 #   Lc, its worst-view separation from the ghost (normalised, >= 1 separable), and
 #   whether it IS fg. Weakness: the table the solver emits, not what the widget
 #   paints (check_marquee_live sees pixels).
+# custom:
+#   family: palette
 package el.rehue
 
 import data.el.fmt

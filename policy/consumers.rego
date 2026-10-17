@@ -7,6 +7,8 @@
 #   ModuleNotFoundError the missing name and whether it is a module of this tree.
 #   Importing runs the top level, so this is stronger than compiling; it is still
 #   not a test of what the module computes.
+# custom:
+#   family: gate
 package el.consumers
 
 import rego.v1

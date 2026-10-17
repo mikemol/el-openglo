@@ -7,6 +7,8 @@
 #   directly, or `via` a sibling emitter); plus the roster drift. The roster is
 #   declared, not discovered: a discovered population cannot tell a clean tree
 #   from a deleted one.
+# custom:
+#   family: palette
 package el.token_source
 
 import rego.v1

@@ -6,6 +6,8 @@
 #   metadata site, LICENSE / pyproject.toml / the ebuild, and every TRACKED emitted
 #   file that declares one). An empty population is
 #   a broken search, not a clean tree. Third-party licences are outside it.
+# custom:
+#   family: gate
 package el.license
 
 import rego.v1

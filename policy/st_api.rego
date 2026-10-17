@@ -6,6 +6,8 @@
 #   ST), the files naming it, and whether segment_topology.py exports it. The
 #   required set is DISCOVERED from the consumers, never hand-listed; if the
 #   discovery finds nothing, the search is broken, not the API complete.
+# custom:
+#   family: gate
 package el.st_api
 
 import rego.v1

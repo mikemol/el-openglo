@@ -7,6 +7,8 @@
 #   each theme colour's value and whether its channels were Python ints, whether
 #   the manifest round-trips through json — or the error it raised. A third-party
 #   module absent from this host is `withheld`. Weakness: shape, not a browser.
+# custom:
+#   family: targets
 package el.chrome
 
 import rego.v1

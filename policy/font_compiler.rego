@@ -10,6 +10,8 @@
 #   The requirement (operator, 2026-09-23): F4, compiled == authored, holds —
 #   every remaining difference is a DECLARED convention with a reason, and a
 #   declaration the compiler has outgrown must leave.
+# custom:
+#   family: targets
 package el.font_compiler
 
 import data.el.fmt

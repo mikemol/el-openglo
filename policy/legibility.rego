@@ -15,6 +15,8 @@
 #   moved to 0.55 at s134, so every read in [0.55, 0.7) — the CURRENT honest
 #   reads, 0.562 and 0.643 — was neither denied nor admitted: silently unjudged.
 #   One `floor`, read by both rules, makes that band unrepresentable.
+# custom:
+#   family: palette
 package el.legibility
 
 import rego.v1

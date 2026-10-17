@@ -5,6 +5,8 @@
 #   marquee-body.js run headless under Qt's qml on every case, each with the
 #   EXPECTED result beside what the parser RETURNED. No cases measured means
 #   the harness did not run, not that the parser is right.
+# custom:
+#   family: targets
 package el.marquee_body
 
 import rego.v1

@@ -5,6 +5,8 @@
 #   claim's check run serially in a scratch worktree, every tracked file
 #   fingerprinted (inode, mtime_ns, size) before and after. An empty population
 #   is a broken run, not a clean tree.
+# custom:
+#   family: gate
 package el.tree_writes
 
 import rego.v1

@@ -4,6 +4,8 @@
 #   The measurement is `scripts/check_taskswitch.py --json`: ONE emitted
 #   KWin/WindowSwitcher package (⊕ONE-THEME, W35 — the variant is the active
 #   colour scheme, not a package).
+# custom:
+#   family: targets
 package el.taskswitch
 
 import rego.v1

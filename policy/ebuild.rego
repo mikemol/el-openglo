@@ -8,6 +8,8 @@
 #   sys-apps/sandbox (the error, the file count, the mapped destinations absent,
 #   whether the sandbox confined it). Weakness: staging uses this checkout's
 #   Python, not the ebuild's BDEPEND; only an emerge proves that set.
+# custom:
+#   family: gate
 package el.ebuild
 
 import rego.v1

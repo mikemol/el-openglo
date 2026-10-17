@@ -10,6 +10,8 @@
 #   `hook_present` and `skill_present` are booleans the measurement ALWAYS
 #   emits; null or absent is "could not say" — R3 withholds it and neither R1/R2
 #   nor the admit judges it. A row with no text is withheld the same way.
+# custom:
+#   family: gate
 package el.routes
 
 import rego.v1

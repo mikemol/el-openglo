@@ -5,6 +5,8 @@
 #   per file, each line carrying the retired mark (its count, and whether the line
 #   reads as attribution). The population is the TREE, not the hits: zero files
 #   scanned is a broken search, not a scrubbed tree.
+# custom:
+#   family: gate
 package el.mark
 
 import rego.v1

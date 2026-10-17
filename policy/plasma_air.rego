@@ -8,6 +8,8 @@
 #   in any SVG; otherwise it BAKES, and an EL flavour of it needs a recolour emitter
 #   (make_plasma), not a defaults choice (W37). `recorded` is the finding; P1 denies a
 #   recorded verdict the host no longer shows, so the finding cannot go stale.
+# custom:
+#   family: targets
 package el.plasma_air
 
 import rego.v1

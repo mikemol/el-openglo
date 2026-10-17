@@ -7,6 +7,8 @@
 #   rule (W268): every value consumed at render time is exposed and effectful in the
 #   configuration view, for every widget and wallpaper. A literal no key reaches must say
 #   what it is (STATE, MOUNT, WITHHELD with a reason) or be recorded as OPEN debt.
+# custom:
+#   family: display
 package el.render_constants
 
 import rego.v1

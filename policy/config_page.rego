@@ -3,6 +3,8 @@
 # description: |
 #   The measurement is `scripts/check_config_page.py --json`: per (kcfg, page)
 #   template pair, the kcfg's entries and which `cfg_` properties the page declares.
+# custom:
+#   family: display
 package el.config_page
 
 import rego.v1

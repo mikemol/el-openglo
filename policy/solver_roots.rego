@@ -6,6 +6,8 @@
 #   sector on that side of the field, and the best the solver's candidate set
 #   offers there. W220: |contrast| >= floor has two roots (lighter and darker),
 #   and the candidates must cover every root that exists.
+# custom:
+#   family: gate
 package el.solver_roots
 
 import rego.v1

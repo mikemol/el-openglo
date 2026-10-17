@@ -12,6 +12,8 @@
 #   >= 1); null or absent there is "could not say", withheld by W and judged by
 #   no rule. `done` is legitimately null (S1 denies it). A null / absent
 #   `withheld` list is "nothing withheld", not a withholding.
+# custom:
+#   family: display
 package el.serial
 
 import rego.v1

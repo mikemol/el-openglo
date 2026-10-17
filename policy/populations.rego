@@ -7,6 +7,8 @@
 #   of its root argument. An empty file population is a broken search, not a
 #   clean tree. (Zero SITES over a non-empty population is admissible: a tree
 #   with no disk walk at all is the goal, not a defect.)
+# custom:
+#   family: gate
 package el.populations
 
 import rego.v1

@@ -5,6 +5,8 @@
 #   make_deb.stage() lays down, every package metadata.json (its KPlugin.Id and
 #   directory) and every org.el.* id the staged text references. No shipped package
 #   means the stage or the walk broke, not that nothing is referenced.
+# custom:
+#   family: gate
 package el.plugin_ids
 
 import rego.v1

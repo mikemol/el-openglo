@@ -7,6 +7,8 @@
 #   host's harness provoke the line at all). L2 denies a page that shows the line; a
 #   CLEAN page is admitted only when the control provokes it. A control that does not
 #   makes every clean page WITHHELD (a counted SKIP: not reproduced is not absent).
+# custom:
+#   family: display
 package el.config_load
 
 import rego.v1

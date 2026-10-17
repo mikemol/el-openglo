@@ -6,6 +6,8 @@
 #   attribute a caller reads off the adapter (declared in NAMES or not). gcalculus split its solver
 #   into a package of namespaces on 2026-10-09 and four checks died on removed names (W485): this
 #   names the moved name instead of a bare AttributeError far from its cause.
+# custom:
+#   family: gate
 package el.gcalc_api
 
 import rego.v1

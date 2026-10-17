@@ -9,6 +9,8 @@
 #   every declared text pair and syntax colour read from the file against its floor.
 #   Plus the package.json against the roster and the .vsix packed afresh against the
 #   documented layout. W161. Weakness: the files, not VS Code's render.
+# custom:
+#   family: targets
 package el.vscode
 
 import data.el.fmt

@@ -3,6 +3,8 @@
 # description: |
 #   The measurement is `scripts/check_chrome_zips.py --json`: one case per expected
 #   variant. No cases is a broken roster, not a clean package set.
+# custom:
+#   family: targets
 package el.chrome_zips
 
 import rego.v1

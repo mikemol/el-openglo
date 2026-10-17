@@ -13,6 +13,8 @@
 #   case. `probe` itself is legitimately null (no probe line: S1), and so are
 #   `passwordEcho` / `failureVisibleAtStart` / `failureText` when the element is
 #   absent — those stay judged.
+# custom:
+#   family: targets
 package el.sddm
 
 import rego.v1
