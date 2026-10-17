@@ -1,0 +1,170 @@
+[
+ {
+  "case": "missing-material-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "colors": 44,
+    "alphas": 2,
+    "bad": [],
+    "materials": [
+     "base",
+     "emissive",
+     "ghost",
+     "hue",
+     "floors"
+    ]
+   }
+  ],
+  "current": true,
+  "withheld": [],
+  "expect": {
+   "deny": [
+    "D5"
+   ]
+  }
+ },
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "complete-current-admitted",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "colors": 44,
+    "alphas": 2,
+    "bad": [],
+    "materials": [
+     "base",
+     "emissive",
+     "floors",
+     "ghost",
+     "ghost_opacity",
+     "hue"
+    ]
+   }
+  ],
+  "current": true,
+  "withheld": []
+ },
+ {
+  "case": "missing-variant-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": false
+   }
+  ],
+  "current": true,
+  "withheld": [],
+  "expect": {
+   "deny": [
+    "D1"
+   ]
+  }
+ },
+ {
+  "case": "bad-leaf-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "colors": 44,
+    "alphas": 2,
+    "bad": [
+     "color.fg"
+    ],
+    "materials": [
+     "base",
+     "emissive",
+     "floors",
+     "ghost",
+     "ghost_opacity",
+     "hue"
+    ]
+   }
+  ],
+  "current": true,
+  "withheld": [],
+  "expect": {
+   "deny": [
+    "D2"
+   ]
+  }
+ },
+ {
+  "case": "missing-alpha-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "colors": 44,
+    "alphas": 1,
+    "bad": [],
+    "materials": [
+     "base",
+     "emissive",
+     "floors",
+     "ghost",
+     "ghost_opacity",
+     "hue"
+    ]
+   }
+  ],
+  "current": true,
+  "withheld": [],
+  "expect": {
+   "deny": [
+    "D3"
+   ]
+  }
+ },
+ {
+  "case": "stale-file-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "colors": 44,
+    "alphas": 2,
+    "bad": [],
+    "materials": [
+     "base",
+     "emissive",
+     "floors",
+     "ghost",
+     "ghost_opacity",
+     "hue"
+    ]
+   }
+  ],
+  "current": false,
+  "withheld": [],
+  "expect": {
+   "deny": [
+    "D4"
+   ]
+  }
+ },
+ {
+  "case": "unreadable-file-withheld",
+  "cases": [],
+  "current": null,
+  "withheld": [
+   "token file unreadable: no such file"
+  ],
+  "expect": {
+   "withheld": [
+    "token file unreadable"
+   ]
+  }
+ }
+]
