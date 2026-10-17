@@ -1,0 +1,116 @@
+[
+ {
+  "case": "absent-population-denied",
+  "expect": {
+   "deny": [
+    "T0"
+   ]
+  }
+ },
+ {
+  "case": "writer-denied",
+  "cases": [
+   {
+    "key": "A",
+    "check": "tool:a.py",
+    "rc": 0,
+    "written": []
+   },
+   {
+    "key": "B",
+    "check": "tool:b.py",
+    "rc": 0,
+    "written": [
+     "plasma-clock/x.json"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "failing-check-that-writes-is-still-denied",
+  "cases": [
+   {
+    "key": "B",
+    "check": "tool:b.py",
+    "rc": 1,
+    "written": [
+     "plasma-clock/x.json"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T1"
+   ]
+  }
+ },
+ {
+  "case": "withheld-writer-denied",
+  "cases": [
+   {
+    "key": "A",
+    "check": "tool:a.py",
+    "rc": 0,
+    "written": []
+   }
+  ],
+  "withheld": [
+   {
+    "key": "B",
+    "check": "tool:b.py",
+    "rc": 0,
+    "written": [
+     "plasma-clock/x.json"
+    ],
+    "withheld": "exceeded 900 s"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "T1"
+   ],
+   "withheld": [
+    "T0"
+   ]
+  }
+ },
+ {
+  "case": "clean-admitted",
+  "cases": [
+   {
+    "key": "A",
+    "check": "tool:a.py",
+    "rc": 0,
+    "written": []
+   }
+  ]
+ },
+ {
+  "case": "unobserved-is-withheld-not-admitted",
+  "cases": [
+   {
+    "key": "A",
+    "check": "tool:a.py",
+    "rc": 0,
+    "written": []
+   }
+  ],
+  "withheld": [
+   {
+    "key": "C",
+    "check": "x:y",
+    "withheld": "command not found (127)"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "T0"
+   ]
+  }
+ }
+]
