@@ -1,0 +1,107 @@
+[
+ {
+  "case": "admits-a-balanced-solve",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "scan": 3.955,
+    "solve": 3.991,
+    "ideal": 3.996,
+    "skew": 1.0022
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "scan": 3.381,
+    "solve": 3.381,
+    "ideal": 3.415,
+    "skew": 1.02
+   }
+  ]
+ },
+ {
+  "case": "b0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-a-solve-that-loses-to-the-scan",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "scan": 3.955,
+    "solve": 3.9,
+    "ideal": 3.996,
+    "skew": 1.0022
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "scan": 3.381,
+    "solve": 3.381,
+    "ideal": 3.415,
+    "skew": 1.02
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-an-off-balance-ghost",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "scan": 3.955,
+    "solve": 3.991,
+    "ideal": 3.996,
+    "skew": 1.0022
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "scan": 3.381,
+    "solve": 3.381,
+    "ideal": 3.415,
+    "skew": 11.4
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b-messages-format-whole-numbers",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "scan": 4,
+    "solve": 3,
+    "ideal": 3.996,
+    "skew": 2
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B1",
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-the-bound-is-inclusive",
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "scan": 3.955,
+    "solve": 3.991,
+    "ideal": 3.996,
+    "skew": 1.06
+   }
+  ]
+ }
+]
