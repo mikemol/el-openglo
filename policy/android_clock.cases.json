@@ -1,0 +1,207 @@
+[
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "complete-current-admitted",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [],
+    "palette_mismatch": [],
+    "geometry_mismatch": [],
+    "digit_gaps": [],
+    "current": true
+   }
+  ],
+  "orphans": [],
+  "withheld": []
+ },
+ {
+  "case": "missing-file-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": false
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D1"
+   ]
+  }
+ },
+ {
+  "case": "parse-error-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": "bad"
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D2"
+   ]
+  }
+ },
+ {
+  "case": "missing-section-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [
+     "sources"
+    ],
+    "palette_mismatch": [],
+    "geometry_mismatch": [],
+    "digit_gaps": [],
+    "current": true
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D3"
+   ]
+  }
+ },
+ {
+  "case": "blank-digit-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [],
+    "palette_mismatch": [],
+    "geometry_mismatch": [],
+    "digit_gaps": [
+     "8"
+    ],
+    "current": true
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D3"
+   ]
+  }
+ },
+ {
+  "case": "wrong-colour-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [],
+    "palette_mismatch": [
+     "lit"
+    ],
+    "geometry_mismatch": [],
+    "digit_gaps": [],
+    "current": true
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D4"
+   ]
+  }
+ },
+ {
+  "case": "wrong-geometry-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [],
+    "palette_mismatch": [],
+    "geometry_mismatch": [
+     "geometry.metrics"
+    ],
+    "digit_gaps": [],
+    "current": true
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D5"
+   ]
+  }
+ },
+ {
+  "case": "stale-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [],
+    "palette_mismatch": [],
+    "geometry_mismatch": [],
+    "digit_gaps": [],
+    "current": false
+   }
+  ],
+  "orphans": [],
+  "expect": {
+   "deny": [
+    "D6"
+   ]
+  }
+ },
+ {
+  "case": "orphan-denied",
+  "cases": [
+   {
+    "variant": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "missing_keys": [],
+    "palette_mismatch": [],
+    "geometry_mismatch": [],
+    "digit_gaps": [],
+    "current": true
+   }
+  ],
+  "orphans": [
+   "stray.json"
+  ],
+  "expect": {
+   "deny": [
+    "D7"
+   ]
+  }
+ },
+ {
+  "case": "withheld-only",
+  "cases": [],
+  "orphans": [],
+  "withheld": [
+   "roster unreadable"
+  ],
+  "expect": {
+   "withheld": [
+    "roster unreadable"
+   ]
+  }
+ }
+]
