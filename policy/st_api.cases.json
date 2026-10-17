@@ -1,0 +1,171 @@
+[
+ {
+  "case": "admits-an-exported-api",
+  "module_present": true,
+  "cases": [
+   {
+    "symbol": "GEOM16",
+    "files": [
+     "make_clock.py"
+    ],
+    "exported": true
+   },
+   {
+    "symbol": "project",
+    "files": [
+     "display_types.py",
+     "make_clock.py"
+    ],
+    "exported": true
+   }
+  ]
+ },
+ {
+  "case": "a0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "A0"
+   ]
+  }
+ },
+ {
+  "case": "a0-refuses-an-empty-search",
+  "module_present": true,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "A0"
+   ]
+  }
+ },
+ {
+  "case": "a1-refuses-an-absent-module",
+  "module_present": false,
+  "cases": [
+   {
+    "symbol": "GEOM16",
+    "files": [
+     "a.py"
+    ],
+    "exported": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "A1"
+   ]
+  }
+ },
+ {
+  "case": "a2-refuses-the-missing-22-segment-geometry",
+  "module_present": true,
+  "cases": [
+   {
+    "symbol": "GEOM16",
+    "files": [
+     "make_clock.py"
+    ],
+    "exported": true
+   },
+   {
+    "symbol": "project",
+    "files": [
+     "display_types.py",
+     "make_clock.py"
+    ],
+    "exported": true
+   },
+   {
+    "symbol": "GEOM22",
+    "files": [
+     "display_types.py"
+    ],
+    "exported": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "A2"
+   ]
+  }
+ },
+ {
+  "case": "null-module-present-does-not-fire-a2",
+  "module_present": null,
+  "cases": [
+   {
+    "symbol": "GEOM22",
+    "files": [
+     "display_types.py"
+    ],
+    "exported": false
+   },
+   {
+    "symbol": "GEOM16",
+    "files": [
+     "make_clock.py"
+    ],
+    "exported": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "module_present was not measured; no referenced symbol was judged"
+   ]
+  }
+ },
+ {
+  "case": "null-exported-is-withheld-not-admitted",
+  "module_present": true,
+  "cases": [
+   {
+    "symbol": "GEOM16",
+    "files": [
+     "make_clock.py"
+    ],
+    "exported": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "GEOM16"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "module_present": true,
+  "cases": [
+   {
+    "symbol": "GEOM22",
+    "files": [
+     "a.py"
+    ],
+    "exported": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "GEOM22"
+   ]
+  }
+ },
+ {
+  "case": "null-module-present-withheld-not-a1",
+  "module_present": null,
+  "cases": [
+   {
+    "symbol": "GEOM22",
+    "files": [
+     "a.py"
+    ],
+    "exported": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "module_present was not measured; no referenced symbol was judged"
+   ]
+  }
+ }
+]
