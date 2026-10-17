@@ -1,0 +1,134 @@
+[
+ {
+  "case": "admits-named-files",
+  "builds": [
+   "BUILD.bazel"
+  ],
+  "globs": [],
+  "inputs": [
+   {
+    "build": "BUILD.bazel",
+    "line": 16,
+    "target": "precommit",
+    "attr": "srcs",
+    "label": "gate/precommit.sh",
+    "path": "gate/precommit.sh",
+    "kind": "file"
+   },
+   {
+    "build": "BUILD.bazel",
+    "line": 20,
+    "target": "precommit",
+    "attr": "data",
+    "label": "MODULE.bazel",
+    "path": "MODULE.bazel",
+    "kind": "file"
+   }
+  ]
+ },
+ {
+  "case": "b0-refuses-an-empty-population",
+  "builds": [],
+  "globs": [],
+  "inputs": [],
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b0-absent-population-is-empty",
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-a-glob",
+  "builds": [
+   "BUILD.bazel"
+  ],
+  "globs": [
+   {
+    "build": "BUILD.bazel",
+    "line": 9,
+    "patterns": [
+     "scripts/*.py"
+    ]
+   }
+  ],
+  "inputs": [
+   {
+    "build": "BUILD.bazel",
+    "line": 16,
+    "target": "precommit",
+    "attr": "srcs",
+    "label": "gate/precommit.sh",
+    "path": "gate/precommit.sh",
+    "kind": "file"
+   },
+   {
+    "build": "BUILD.bazel",
+    "line": 20,
+    "target": "precommit",
+    "attr": "data",
+    "label": "MODULE.bazel",
+    "path": "MODULE.bazel",
+    "kind": "file"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-a-directory",
+  "builds": [
+   "BUILD.bazel"
+  ],
+  "globs": [],
+  "inputs": [
+   {
+    "build": "BUILD.bazel",
+    "line": 21,
+    "target": "precommit",
+    "attr": "data",
+    "label": "scripts",
+    "path": "scripts",
+    "kind": "directory"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b3-refuses-a-gone-file",
+  "builds": [
+   "BUILD.bazel"
+  ],
+  "globs": [],
+  "inputs": [
+   {
+    "build": "BUILD.bazel",
+    "line": 22,
+    "target": "precommit",
+    "attr": "srcs",
+    "label": "gate/gone.sh",
+    "path": "gate/gone.sh",
+    "kind": "absent"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "B3"
+   ]
+  }
+ }
+]
