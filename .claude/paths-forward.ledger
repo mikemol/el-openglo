@@ -1057,3 +1057,19 @@
 2026-10-17T14:48:39Z  tick  W583 advanced  sweep     "closed W659 on 03a9740; installed geometry_source and contracts, mutation control failed exactly G1 and K3; stack E queued"
 2026-10-17T15:17:26Z  tick  W584 advanced  sweep     "built post_commit cases (8) in scratch, uninstalled; stack E (W582, W583) is gating"
 2026-10-17T15:48:28Z  tick  W585 advanced  sweep     "closed W582 and W583 on 9a71345 and 7f7e067; built deps cases (6); installed post_commit and deps, mutation control failed exactly P1 and D1; stack F queued"
+2026-10-17T16:19:10Z  tick  W590 advanced  sweep     "built qt_sandbox (10) and token_source (9) cases, mutation control failed exactly Q2 and C2; stack H queued behind F and G"
+2026-10-17T16:41:32Z  interrupt W660 minted    -         "Shard closures.bzl so a port touches only its own shard, not one shared file"  evidence=operator
+2026-10-17T16:47:43Z  tick  W592 advanced  sweep     "built consumers (7) and embedded_markup (9) cases in scratch, uninstalled: they list G and H files in their closure, so they wait for those to land (H refusal); stack G gating"
+2026-10-17T17:18:48Z  tick  W593 advanced  sweep     "closed W586-W588 on 41dd210 851d6e0 62d21d2; resubmitted H (W589, W590) without queue files; built serial cases (18) in scratch, the unknown-probe case also trips S4 as recorded"
+2026-10-17T17:30:07Z  tick  W599 advanced  sweep     "built config_load (9), template_parity (9), package_imports (6), log_content (3), st_api (9) and projection (7) cases in scratch, uninstalled; every remaining port now has its cases built and waits only on H landing"
+2026-10-17T17:30:11Z  tick  W599 advanced  sweep     "built cases for W591-W599 in scratch; they install after stack H lands so their closures list no queued stack file [blocked by W589]"
+2026-10-17T17:48:05Z  lease W589 lapsed    --        "lease on file:policy/qt_sandbox.cases.json!w held by (unlocked) lapsed unrenewed"
+2026-10-17T17:48:05Z  lease W589 lapsed    --        "lease on file:closures.bzl!w held by (unlocked) lapsed unrenewed"
+2026-10-17T17:48:29Z  tick  W660 advanced  sweep     "designed the closures.bzl shard: only the pytestspec closure grows per port, so split policy/*.cases.json out of it into a select_tracked in BUILD.bazel; manifest and next step recorded [blocked by W589]"
+2026-10-17T17:56:30Z  interrupt W661 minted    -         "Tag each policy spec with its closure family in rego METADATA custom.family"
+2026-10-17T17:56:31Z  interrupt W662 minted    -         "Emit the closure tree: closures/<kind>/<family>/<spec>.bzl leaves, family and kind files, and a root loading only the kinds"
+2026-10-17T17:58:48Z  interrupt W663 minted    -         "Repin every mikemol pin to mtools 858196b as its own land, scoped to this repo"  evidence=github-8f
+2026-10-17T18:19:08Z  tick  W661 advanced  sweep     "wrote scripts/spec_families.py: 97 policy modules each in exactly one of four families, selftest caught three omissions before it passed; uncommitted until the repin lands [blocked by W663]"
+2026-10-17T18:51:35Z  tick  W599 advanced  sweep     "closed W589 W590 on a08796f edff51b and W663 on ec02a92; installed W591-W599 as one stack with all nine mutation controls in one run (ten cases failed, each on its own rename); stack gating [reason: W599 (the nine-port stack, task b05xtygr0) is gating; W661 and W662 land after it so nothing else is queued beside it (cites W661, W662)]"
+2026-10-17T19:20:13Z  tick  W664 minted    -         "land_template prints the final sha: read HEAD after the post-commit amend so a pre-amend sha cannot be cited"  evidence=github-8f
+2026-10-17T19:20:17Z  tick  W661 advanced  sweep     "corrected the repin sha on W663 (420375a, not the pre-amend ec02a92); spec_families.py gained --tags and --apply and a population fixed to the 95 real specs, 0 of 95 tagged; minted W664 so land_template prints the final sha [blocked by W599]"

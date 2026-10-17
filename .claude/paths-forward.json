@@ -1,10 +1,10 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 659,
+  "counter": 664,
   "armed_at": "2026-09-20T18:45:21+00:00",
-  "heartbeat": "2026-10-16T17:49:03Z",
-  "job_id": "a10b866f",
+  "heartbeat": "2026-10-17T16:53:11Z",
+  "job_id": "08f1713f",
   "bindings": {
     "SCHEDULE_CREATE": "CronCreate (session-only, in-memory, 7-day auto-expiry)",
     "SCHEDULE_DELETE": "CronDelete",
@@ -242,7 +242,7 @@
       "evidence": "EMERGE #3 INSTALLED; ⊕VER #2 previews on screen. ⊕VER #3 (Apply EL-Azure, \"Appearance settings\" only): PANEL recoloured (plasmarc Theme name=EL-Azure — measured), Qt widgets NOT (kdeglobals ColorScheme still BreezeLight — measured), wallpaper NOT (expected: Image= is under \"Desktop and window layout\", unticked). Our defaults has the same [kdeglobals][General] ColorScheme= shape as org.kde.breezedark.desktop; plasma-apply-colorscheme --list-schemes lists all six EL schemes. Open question: did the KCM skip Colors (its \"Choose what to apply…\" sub-selection) or fail to apply it. Packaging half CLOSED; guru colorspacious + host hardlink dedup still open. | 2026-09-26: 2026-09-27: operator does not recall the ticked state from the original observation (Qt widgets stayed BreezeLight, wallpaper unchanged) — re-asking as a fresh, reproducible check rather than relying on memory | 2026-09-26: 2026-09-27: operator screenshot of the 'Choose what to apply' dialog for EL-Azure-Lit — Colors IS ticked (also Application Style, Window Decoration Style, Icons, Plasma Style, Pointers, Splash Screen); only 'Desktop layout' (bundles wallpaper) is unticked. CLOSES the wallpaper question (expected: unticked). SHARPENS the Qt-widgets question into a real defect: Colors was ticked and Apply pressed, yet kdeglobals ColorScheme stayed BreezeLight (earlier measurement).",
       "issued_at": "2026-09-20T23:28:07+00:00",
       "last_worked": "2026-10-06T01:51:01Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -789,7 +789,7 @@
       "evidence": "2026-09-28: 2026-09-28 operator ruling (life letter inbox/2026-09-28-life-operator-ruling-licence-and-funnel.md, life:W16): browser themes are the free FUNNEL to the paid W43 listings; launch NOW, do not wait for W43; listing text gains paid references later; in-product references only where venue policy permits (W113). | 2026-09-28: 2026-09-28 measured: web-ext NOT installed (node + npx present at /usr/bin); firefox/ holds 6 emitted variant folders; NO chrome/ at the repo root (make_chrome output location unmeasured). Shape proposed to operator: Firefox ships as ONE dynamic-theme extension (browser.theme.update + options page chooser: one listing, one signed .xpi, and the options page is where W113 permits a paid reference); no objection yet. Operator acts needed later: AMO API key/secret; Chrome Web Store developer registration. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BROWSER PUBLISHING PIPELINE (operator 2026-09-22: 'the manual import gets old'). Firefox: AMO signing is mandatory; UNLISTED submission via web-ext sign --channel unlisted (AMO API key/secret from the operator's account) yields a signed .xpi to self-host, with an update_url for updates; listed = the public page. Chrome: the Web Store is the only one-click/auto-update route (a theme is an extension with a theme key; zip the emitted folder; developer dashboard, one-time registration; a Web Store API exists for CI). Firefox's dynamic theme API (browser.theme.update) lets ONE extension carry all six variants with a chooser — the browser twin of W35; Chrome has no such API (one listing per variant)",
       "issued_at": "2026-09-21T17:49:03+00:00",
       "last_worked": "2026-10-06T01:51:01Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -835,7 +835,7 @@
       "evidence": "2026-09-26: 2026-09-27: edge retrofit (operator: the queue graph renders flat) — both W43 and W62 already stated 'COLLAPSE CANDIDATE WITH' each other in prose (next_bounded_step) but neither had the edge encoded; wired W62 enables W43, W43 blocked_on W62 | 2026-09-26: 2026-09-27: also touches segment_topology with W57 (symmetry oracle) — REJECTED as a collapse candidate, shared substrate module only (engine-asset mesh export vs a rendering-defect witness); no stated relationship. No edge added beyond the confirmed W62 block above. | 2026-09-28: 2026-09-28 operator ruling (life:W16): W43 engine assets and tools are the PAID tier; the free browser themes (W41) funnel to their listings. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): ENGINE ASSETS AND TOOLS (operator 2026-09-22: Blender, Unreal, Unity, Godot — 'the one spot where this could actually start paying back'). The engine-neutral CORE first, since every wrapper reads it: (1) the palette as a material spec — per variant JSON (ground = base, lit = emissive, ghost + solved alpha, hue table, the floors) — emitted from make_schemes.GRID, ideally the same DTCG token file W42 names; (2) the fonts as-is (EL-Segment-7/16, EL-Matrix-5x7/5x8 TTFs load in all four); (3) the displays as glTF (.glb): segment_topology's lattice extruded at the module stroke ratio (bevelled), one file per format (7/16/22) with each segment a NAMED node, and the matrix as a dot grid — trimesh or pygltflib in Python; (4) ONE GLSL shader lighting named segments/dots from a glyph bitmask with the ghost/lit/bloom relation (blur of the lit layer only), plus the registry's glyph tables as JSON. Then the wrappers: BLENDER add-on first (Python — segment_topology + make_palette drive a one-click display mesh + material with a variant chooser; publish on the Blender Extensions platform), then Godot addon (.gdshader port + a Display node), Unity (UPM package, ShaderGraph/HLSL port), Unreal (plugin, material graph; Fab). Each venue's manifest contract READ from its docs before emitting. Licence: assets want CC0/CC-BY or MIT for adoption — operator's decision",
       "issued_at": "2026-09-21T17:57:42+00:00",
       "last_worked": "2026-10-06T01:51:01Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -1275,7 +1275,7 @@
       "evidence": "not started; paperkit/tools/sites.py read 2026-09-22 | 2026-10-01: 2026-10-01 dflip over TIMELINE is NOT expressible today: paperkit dflip perturbs only the first scalar leaf (t ms). Gap minted as W179.",
       "issued_at": "2026-09-22T15:31:34+00:00",
       "last_worked": "2026-10-06T01:51:02Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1295,7 +1295,7 @@
       "evidence": "check_discriminates --probe selection-contrast/emitted-colors: 30 of 30 -> 25 of 25, rc 0 both | 2026-09-26: 2026-09-27: edge retrofit — W65 is a specific finding produced by extending the mutation-grading tool W64 adopted (check_discriminates --probe); W64's own next step says 'extend PROBES to the remaining ~58 checks', the same mechanism W65 continues. Wired W64 enables W65.",
       "issued_at": "2026-09-22T15:41:39+00:00",
       "last_worked": "2026-10-06T01:51:02Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1379,7 +1379,7 @@
       "evidence": "luthen 2026-09-22 (corrected per operator ruling): NOT READY. Surface will be k8s — a submitted manifest: KubeVirt-class VM kind for boot+GUI probes, plain Pod for userspace. NOT host QEMU. No guest image — we supply boot media. Artifacts (proposal): serial log, journal, QMP screendumps, systemd-analyze. Limits declared as data; clean kill, no cores. Replied with per-probe field needs (msg 57af20a7). | 2026-09-27: luthen 2026-09-27: blocker repointed to luthen-observability:W127 (VM acceptance harness; chain W125 -> W121 -> W126 -> W127). Landed W120 (7eba960, KubeVirt v1.9.0 vendored by sha256) and W122 (77c08d4, ns throwaway-el-openglo, 4GiB/4 envs, 30min TTL at admission). W71 guest image remains ours. | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): BOOT-STACK INTEGRATION HARNESS VIA k8s (operator 2026-09-22: SVM enabled; luthen-observability manages VMs through k8s — boot+GUI -> throwaway VM, userspace -> container, both routed through k8s). Consumers: W58 (gate the wallpaper as Plasma loads it), W66 (SDDM greeter probe, currently headless), plymouth boot splash, boot-time measurement, W61 (render in image), W12 (reproduce the kdeglobals ColorScheme apply defect under a real logged-in Plasma session). First step: ask luthen-observability what the request surface is (manifest? API? which VM image?) — do not assume KubeVirt.",
       "issued_at": "2026-09-22T22:20:36+00:00",
       "last_worked": "2026-10-06T01:51:02Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -1401,7 +1401,7 @@
       "evidence": "worktree a4eb0d2c: catalog/guest-image.md rewritten for luthen's limits. KubeVirt v1.9.0 overhead read from source: ~305 Mi (~405 Mi if Guaranteed QoS), leaving ~619-719 Mi for the guest. ESTIMATES: plymouth-only fits (150-250 Mi); SDDM greeter likely fits trimmed (350-550 Mi); full Plasma 6 likely does NOT (700-900 Mi trimmed). Concrete ask: 1.5 GiB, justified by a logged P2 run at 1 GiB. Serial protocol el-serial/1 specified. G1-G3 point at the root_helpers gate; new G6 (serial reporter/reader), G7 (VNC client). | 2026-10-01: former title (retitled 2026-09-30, nemik title warning): GUEST BOOT IMAGE for W70's probes (luthen 2026-09-22: 'the image is yours to build'). A Plasma 6 + SDDM + plymouth guest that installs our emitted themes, bootable by a KubeVirt-class VM. Decide: distro base; theme ingress (make_deb .deb vs overlay ebuild W12); image digest recorded so each probe result names what it measured. luthen recorded our probe fields as their acceptance cases. | 2026-10-01: 2026-10-01 FIRST RUN of the W71f worktree files (agent-a330b44b42000d0ed, uncommitted). opa test policy/serial*.rego: 12/12 PASS. read_serial.py --selftest: 20 ok, round trip SKIP (jq absent, counted), then CRASH: FileNotFoundError catalog/fixtures/serial/clean.log - the fixture files were never written (they depend on the jq round trip). check_serial.py --selftest delegates to read_serial and crashes identically. The 15 spec ambiguities are NOT on disk anywhere (lost with the agent context). | 2026-10-02: 2026-10-02: ATOMIZED - guest-image.md Next steps W71c-h had no waypoints; minted W235 (recipe), W236 (probe digest), W237 (serial units), W238 (RFB client), W239 (first VMI, blocked on luthen-observability:W126), W240 (probe runs). W71a/b carried by root_helpers gate; W71f spec/writers/reader done (W181/W232).",
       "issued_at": "2026-09-22T22:21:36+00:00",
       "last_worked": "2026-10-06T01:51:02Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
@@ -1537,7 +1537,7 @@
       "evidence": "86e215d proposal in catalog/bazel-survey.md; operator 2026-09-25 wait for paperkit package | 2026-10-03: 2026-10-03 OPERATOR: \"what is actually called for is bazel-orchestrated dependency-driven build artifacts; if you can forget to rebuild something that needed to be rebuilt because something else changed, then there was insufficient understanding of the dependencies and build layout\" - and \"mtools has tooling around this problem; look at the pre-commit hooks\". THE CASE: the swarm integration was walked by hand and a SegmentChar edit moved the clock plasmoid tracked copy (plasma-clock/.../SegmentChar.qml); the commit gate caught it (not silent), but the dev loop depends on memory. READ in mtools (no embargoed paths used): (1) SKELETON.md - bazel test //... passes in a clone with no venvs because every tool is a hash-pinned declared input; (2) .githooks/pre-commit - gates the STAGED index (git checkout-index into a STABLE path so bazel action cache survives), derives its populations structurally (dirs with pyproject/MODULE.bazel, refusing an empty derivation), refuses when a tool is absent, records which check failed (note_failure/run_checked/refusal_record), snapshots itself before running; (3) domain_witness.sh - a standing TWO-ARMED witness that a checker domain is not short: a transitive edit must reach the action AND a transitive defect must reach the verdict; (4) findings/deps-build/deps-build-apex.md AX-11a/b: the closure is a CORRECTNESS requirement (linux-sources LS-03/LS-04: three-state first_party/unresolvable/dynamic, hard fail on an under-cover, seventeen adversaries incl. stub files, roster contents, a second artefact of one generator), AX-13 hermeticity (the gate that passes by not running), AX-15 build design (linux-sources: BUILD.bazel GENERATED, 261 pk_cmd, 94 percent sandbox tier, a stale-BUILD gate). The blocker paperkit:W52 (packaged pk_* rules) is behind paperkit hub unfreeze per the 09-26 ruling; mtools bazel atoms (rules_py, check_ruff, check_mypy: real directories with MODULE.bazel) may give a path that needs no fourth verb.bzl - OPEN QUESTION for the operator (below). W252 (a rebuild sequencer) is dropped into this card.",
       "issued_at": "2026-09-25T22:54:05+00:00",
       "last_worked": "2026-10-06T01:51:03Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 3,
@@ -1558,7 +1558,7 @@
       "evidence": "cac10f7: byte fix + check_deb/deb.rego; first .deb (c032a57) installed but marquee failed on Qt 6.10.2 | 2026-09-26: OPERATOR LAPTOP 2026-09-26 (Ubuntu resolute, Plasma 6.6.6, Qt 6.10.2): the cac10f7 .deb (sha256 8c98e29c...) installed and, after plasmashell --replace, the marquee LOADS (clock + dot-matrix field drawing) - the byte fix confirmed on the target Qt",
       "issued_at": "2026-09-26T01:20:13+00:00",
       "last_worked": "2026-10-06T01:51:03Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -1578,7 +1578,7 @@
       "evidence": "Δ 84 behavioral / 1 broken (@EBUILD) / 5 imported | 2026-09-29: 2026-09-29: nemik: paperkit:W45 is an umbrella (blocked on its W112 -> W113); cite the child whose landing unblocks this, paperkit:W113. | 2026-09-29: 2026-09-29: nemik treats paperkit:W113 as an umbrella too (it is blocked on its W112), so blocked_on cites the leaf paperkit:W112 (measure grader.py pycheck standing). What W80 actually needs is W113 baseline-only mode, which follows W112 in paperkit. | 2026-10-16: 2026-10-16: paperkit:W112 was collapsed into paperkit:W461 (the debt ledger measures grader.py at 641 findings, so the edit gate refuses the W113 edit until W461 lands); W113 (baseline-only mode) is the step W80 needs and now waits on W461, so the block is repointed to the leaf.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-16T04:20:06Z",
-      "ticks_blocked": 8,
+      "ticks_blocked": 16,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -1598,7 +1598,7 @@
       "evidence": "output_keys docstring names host fonts as the key weakness; the executor image (W78) is the other half",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-06T01:51:03Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1618,7 +1618,7 @@
       "evidence": "DEPS-DENIES, CONSUMERS-DENIES, TEMPLATES-DENIES warrants exist | 2026-09-26: 2026-09-27: edge retrofit — title already says 'W75 follow-on'; W75 built the --expect denied:RULE mechanism, W82 is the ongoing sweep using it (DEPS/CONSUMERS/TEMPLATES-DENIES warrants). Wired W75 enables W82.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-06T01:51:03Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -1640,7 +1640,7 @@
       "evidence": "operator screenshot main.qml:560:25; laptop plasmashell 6.6.6 / Qt 6.10.2; host qml 6.11.2 | 2026-09-29: 2026-09-29: nemik-check: its only blocker luthen-observability:W114 has landed; back to ready. | 2026-10-02: 2026-10-02 FIRST MEASUREMENT: make_deb --stage (systemd-run) then, per luthen inbox 2026-09-28, `sg k3s -c \"python3 -m checks.qml_check --src <stage>/usr/share/plasma/plasmoids/org.el.notifymarquee/contents/ui --entry main.qml --out <scratch>\"` -> {\"state\":\"ok\"} on docker.io/library/ubuntu@sha256:da6fc2be5478... (resolute, Qt 6.10.2): the marquee as emitted today lints and loads under the laptop stack. One package of the staged set, by hand; the gate is the next step.",
       "issued_at": "2026-09-26T18:13:16+00:00",
       "last_worked": "2026-10-06T01:51:03Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:H/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 12,
@@ -1795,7 +1795,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:04Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -2211,7 +2211,7 @@
       "minted_during": "interrupt",
       "caused_by": "W105",
       "last_worked": "2026-10-06T01:51:04Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 2,
@@ -2268,7 +2268,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-12T08:57:53Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2339,7 +2339,7 @@
       "minted_during": "interrupt",
       "caused_by": "life:W16",
       "last_worked": "2026-10-06T01:51:04Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -2432,7 +2432,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:04Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 13,
@@ -2486,7 +2486,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
@@ -2513,7 +2513,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2538,7 +2538,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2564,7 +2564,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2591,7 +2591,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2618,7 +2618,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2648,7 +2648,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:05Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2674,7 +2674,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:06Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2700,7 +2700,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:06Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2726,7 +2726,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:06Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2751,7 +2751,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:06Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "completed": null
@@ -2779,7 +2779,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-06T01:51:06Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 11,
@@ -2848,7 +2848,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-10-12T08:57:59Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -2874,7 +2874,7 @@
       "minted_during": "interrupt",
       "caused_by": "W41",
       "last_worked": "2026-10-12T08:58:00Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -3268,7 +3268,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-06T01:51:07Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 3,
@@ -3295,7 +3295,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-06T01:51:07Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 3,
@@ -3322,7 +3322,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-15T21:18:47Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 3,
@@ -3349,7 +3349,7 @@
       "minted_during": "interrupt",
       "caused_by": "W43",
       "last_worked": "2026-10-12T08:58:00Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 3,
@@ -3488,7 +3488,7 @@
       "minted_during": "interrupt",
       "caused_by": "W53",
       "last_worked": "2026-10-06T01:51:07Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
       "weight": 2,
@@ -4079,7 +4079,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:09Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4106,7 +4106,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:09Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4132,7 +4132,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:09Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -4209,7 +4209,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:09Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -4259,7 +4259,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-12T08:58:00Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
@@ -4436,7 +4436,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:10Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent",
@@ -4462,7 +4462,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:10Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -4737,7 +4737,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-13T07:45:32Z",
-      "ticks_blocked": 13,
+      "ticks_blocked": 21,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:N/S:U/F:U/W:Y",
       "vector_source": "agent",
@@ -4825,7 +4825,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:11Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "weight": 13,
@@ -4850,7 +4850,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:11Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "weight": 13,
@@ -4872,7 +4872,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-13T08:20:30Z",
-      "ticks_blocked": 12,
+      "ticks_blocked": 20,
       "vector": "WV:1/R:H/E:N/C:N/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
       "weight": 24,
@@ -4916,7 +4916,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-12T08:58:00Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4939,7 +4939,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-12T08:57:54Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -4960,7 +4960,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:11Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -4983,7 +4983,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:11Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:N/X:P/S:U/F:K/W:Y",
       "vector_source": "agent"
@@ -5004,7 +5004,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:12Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "vector": "WV:1/R:H/E:N/C:H/I:H/A:L/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "completed": null
@@ -5158,7 +5158,7 @@
       "minted_during": "interrupt",
       "caused_by": "W71",
       "last_worked": "2026-10-12T02:22:10Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent",
       "weight": 22,
@@ -5261,7 +5261,7 @@
       "minted_during": "interrupt",
       "caused_by": "W71",
       "last_worked": "2026-10-06T01:51:12Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
@@ -5288,7 +5288,7 @@
       "minted_during": "interrupt",
       "caused_by": "W71",
       "last_worked": "2026-10-06T01:51:12Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:Y",
       "vector_source": "agent"
@@ -5387,7 +5387,7 @@
       "minted_during": "interrupt",
       "caused_by": "W217",
       "last_worked": "2026-10-06T01:51:13Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -5703,7 +5703,7 @@
       "minted_during": "interrupt",
       "caused_by": "W78",
       "last_worked": "2026-10-06T01:51:15Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -5825,7 +5825,7 @@
       "minted_during": "interrupt",
       "caused_by": "operator",
       "last_worked": "2026-10-12T17:39:49Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "completed": null,
       "vector": "WV:1/R:H/E:N/C:N/I:H/A:N/X:N/S:U/F:K/W:N",
       "vector_source": "agent"
@@ -6117,7 +6117,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:16Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6158,7 +6158,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:16Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6189,7 +6189,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:16Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6215,7 +6215,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:16Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6242,7 +6242,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:16Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6276,7 +6276,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6308,7 +6308,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6334,7 +6334,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6365,7 +6365,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6393,7 +6393,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6419,7 +6419,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6446,7 +6446,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6472,7 +6472,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:17Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6496,7 +6496,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6541,7 +6541,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6565,7 +6565,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6589,7 +6589,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6613,7 +6613,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6637,7 +6637,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6661,7 +6661,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:18Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6685,7 +6685,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6709,7 +6709,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6733,7 +6733,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6757,7 +6757,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6781,7 +6781,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6805,7 +6805,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6829,7 +6829,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6853,7 +6853,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:19Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6877,7 +6877,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6901,7 +6901,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6925,7 +6925,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6949,7 +6949,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6973,7 +6973,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -6997,7 +6997,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 9,
+      "ticks_blocked": 17,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent",
@@ -7025,7 +7025,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:20Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7051,7 +7051,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7077,7 +7077,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7102,7 +7102,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7128,7 +7128,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7151,7 +7151,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7174,7 +7174,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7197,7 +7197,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7220,7 +7220,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:21Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7243,7 +7243,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7266,7 +7266,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7292,7 +7292,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7325,7 +7325,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7362,7 +7362,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7399,7 +7399,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7436,7 +7436,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:22Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7463,7 +7463,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7488,7 +7488,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7513,7 +7513,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7583,7 +7583,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7614,7 +7614,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7640,7 +7640,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7665,7 +7665,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:23Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7688,7 +7688,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7711,7 +7711,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7734,7 +7734,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7757,7 +7757,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7780,7 +7780,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7803,7 +7803,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7826,7 +7826,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:24Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7849,7 +7849,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7872,7 +7872,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7895,7 +7895,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7918,7 +7918,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7941,7 +7941,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7964,7 +7964,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -7987,7 +7987,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:25Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8018,7 +8018,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8047,7 +8047,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8075,7 +8075,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8103,7 +8103,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8129,7 +8129,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8153,7 +8153,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8177,7 +8177,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8201,7 +8201,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:26Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8230,7 +8230,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8255,7 +8255,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8280,7 +8280,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8303,7 +8303,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8329,7 +8329,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8353,7 +8353,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8399,7 +8399,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:27Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8445,7 +8445,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8491,7 +8491,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8537,7 +8537,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8583,7 +8583,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8629,7 +8629,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8675,7 +8675,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8705,7 +8705,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:28Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8735,7 +8735,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8759,7 +8759,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8783,7 +8783,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8813,7 +8813,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8842,7 +8842,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8871,7 +8871,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8900,7 +8900,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:29Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8926,7 +8926,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8952,7 +8952,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -8976,7 +8976,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9000,7 +9000,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9026,7 +9026,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9050,7 +9050,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9074,7 +9074,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9098,7 +9098,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:30Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9122,7 +9122,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9145,7 +9145,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9176,7 +9176,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9208,7 +9208,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9239,7 +9239,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9268,7 +9268,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9297,7 +9297,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9326,7 +9326,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:31Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9378,7 +9378,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9410,7 +9410,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9436,7 +9436,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9466,7 +9466,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9496,7 +9496,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9526,7 +9526,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9556,7 +9556,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:32Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9586,7 +9586,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9616,7 +9616,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9646,7 +9646,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9679,7 +9679,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9703,7 +9703,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9727,7 +9727,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9760,7 +9760,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9788,7 +9788,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:33Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9812,7 +9812,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9836,7 +9836,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9861,7 +9861,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9886,7 +9886,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9911,7 +9911,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9936,7 +9936,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -9961,7 +9961,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10000,7 +10000,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:34Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10024,7 +10024,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10048,7 +10048,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10075,7 +10075,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10098,7 +10098,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10122,7 +10122,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10147,7 +10147,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10173,7 +10173,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10196,7 +10196,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:35Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10221,7 +10221,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10245,7 +10245,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10269,7 +10269,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10296,7 +10296,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10326,7 +10326,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10349,7 +10349,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10383,7 +10383,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10406,7 +10406,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:36Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10433,7 +10433,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10458,7 +10458,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10481,7 +10481,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10504,7 +10504,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10531,7 +10531,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10555,7 +10555,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10579,7 +10579,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10603,7 +10603,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:37Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10626,7 +10626,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10650,7 +10650,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10674,7 +10674,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10703,7 +10703,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10726,7 +10726,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10753,7 +10753,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10776,7 +10776,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10815,7 +10815,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:38Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10838,7 +10838,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:39Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10861,7 +10861,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:39Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10884,7 +10884,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:39Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10907,7 +10907,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:39Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10930,7 +10930,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:39Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -10954,7 +10954,7 @@
       "minted_during": "tick",
       "caused_by": null,
       "last_worked": "2026-10-06T01:51:39Z",
-      "ticks_blocked": 17,
+      "ticks_blocked": 25,
       "completed": null,
       "vector": "WV:1/R:L/E:Y/C:L/I:L/A:L/X:P/S:U/F:U/W:N",
       "vector_source": "agent"
@@ -12103,7 +12103,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-12T09:45:10Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "completed": null
     },
     {
@@ -12127,7 +12127,7 @@
       "minted_during": "interrupt",
       "caused_by": null,
       "last_worked": "2026-10-12T01:23:38Z",
-      "ticks_blocked": 9
+      "ticks_blocked": 17
     },
     {
       "symbol": "W512",
@@ -12214,7 +12214,7 @@
       "minted_during": "interrupt",
       "caused_by": "luthen-observability:W838",
       "last_worked": "2026-10-12T15:50:16Z",
-      "ticks_blocked": 16,
+      "ticks_blocked": 24,
       "completed": null
     },
     {
@@ -12759,7 +12759,7 @@
       "minted_during": "interrupt",
       "caused_by": "W174",
       "last_worked": "2026-10-13T07:15:25Z",
-      "ticks_blocked": 13,
+      "ticks_blocked": 21,
       "completed": null
     },
     {
@@ -12780,7 +12780,7 @@
       "minted_during": "interrupt",
       "caused_by": "W216",
       "last_worked": "2026-10-13T07:45:32Z",
-      "ticks_blocked": 13,
+      "ticks_blocked": 21,
       "completed": null
     },
     {
@@ -13089,39 +13089,22 @@
     {
       "symbol": "W558",
       "title": "Sweep the next Rego specs to pytestspec cases, fewest admitted-set assertions first",
-      "status": "blocked",
+      "status": "done",
       "enables": [],
       "touches": [
         "policy",
         "pytestspec"
       ],
-      "blocked_on": [
-        "W584",
-        "W585",
-        "W586",
-        "W587",
-        "W588",
-        "W589",
-        "W590",
-        "W591",
-        "W592",
-        "W593",
-        "W594",
-        "W595",
-        "W596",
-        "W597",
-        "W598",
-        "W599"
-      ],
-      "blocked_kind": "agent",
-      "next_bounded_step": "Umbrella: each open child W562 to W599 ports one spec (its cases file plus closures.bzl as touches); mint the four ports now in a stack (action_key, bazel_build, ghost_balance, tree_writes) as done children when they land; stacks must carry a closures.bzl consistent with their own tip, never queue a stack whose closure lists a later stack files",
-      "evidence": "2026-10-16: 2026-10-16: opa_gate --portable built (test_census over opa parse, portable_report): 932 of 1236 tests portable, 94 specs, qml_lint 10 of 15 matches the hand count of W211; selftest 3 new arms (a test mentioning the admitted set told from one that does not, an unparseable test file is None not zero, report exits 0/1/2). | 2026-10-16: 2026-10-16: codomain ported: policy/codomain.cases.json 6 cases (admitted 1, refused 4, withheld-expected 1); renaming the C2 rule id to C9 failed exactly the C2 case (DENY MISMATCH: missing C2; unexpected C9), restored; opa_gate --specs now runs 16 cases over 2 of 94 specs; the pytestspec stage closure regenerated to 427 files and bazel test //:pytestspec passes. | 2026-10-16: 2026-10-16: runtime_warnings ported: policy/runtime_warnings.cases.json 6 cases (admitted 1, refused 4, withheld-expected 1); renaming the R2 rule id to R9 failed exactly the R2 case, restored; opa_gate --specs runs 22 cases over 3 of 94 specs; stage closure 428 files. | 2026-10-16: 2026-10-16: closure guard in opa_gate --specs: stored_closure reads closures.bzl, closure_lacks names the cases files the stage closure does not hold; a planted spec with cases (policy/zzprobe, removed) was refused with exit 1 naming the fix; 4 selftest arms; the stage closure holds closures.bzl and check_closure.py so the guard is live in bazel; bazel test //:pytestspec passes. | 2026-10-16: 2026-10-16: plugin_ids ported: policy/plugin_ids.cases.json 8 cases (admitted 1, refused 5, withheld-expected 2); renaming the P1 id to P9 failed exactly the P1 case, restored; the closure guard refused the first run without the stage closure and named the fix (its first real use); closure regenerated (410 files; the earlier 428 was an over-wide observation, both pass under bazel); opa_gate --specs 30 cases over 4 of 94 specs. | 2026-10-16: 2026-10-16: the commit gate REFUSED plugin_ids (closure_witness L5: pytestspec fails in a tree holding only its closure, pytestspec_data names policy/lib which does not exist there). Cause measured: the stage closure observation was UNSTABLE, 429 files holding the four policy/lib files in one run and 410 holding none in the next, because whether opa reads them at run time varied. Fix: opa_gate --specs now LISTS policy/lib itself (the closure rule then declares every tracked file directly inside) and refuses an empty library; the closure is stable at 429 across consecutive regenerations and check_closure.py --witness pytestspec passes arm 1. A candidate for the next sweep note: any stage that depends on a directory should list it. | 2026-10-16: 2026-10-16: deb (8), guest_recipe (8), notify_roles (12) ported in one stack; five mutation failures predicted and observed (deb D3 one case, guest_recipe R3 one, notify_roles N3 three), restored; the stage closure is 417 files and check_closure --witness pytestspec passes arm 1 (about 15 other files flicker between observations and are not needed). | 2026-10-16: 2026-10-16: populations ported (17 cases: admitted 4, refused 6, withheld-expected 7); renaming P2 and P3 failed exactly the two cases that expect them, restored; stage closure 418 files. | 2026-10-16: 2026-10-16: taskswitch ported (21 cases for 20 tests, the each-flag-null test fanning out into five): admitted 1, refused 12, withheld-expected 8; the hand-derived sets, including the T0 input leaving three facts unmeasured, all held on the first run; renaming the T4 binding rule and T6 failed exactly the three cases that expect them, restored; stage closure 419 files. | 2026-10-16: 2026-10-16: license ported (35 cases for 38 tests, three duplicates folded): admitted 3, refused 25, withheld-expected 7. The generator recorded the actual id sets after asserting each original intent was among them; every extra was the same explained pattern (a cases-only input also denies L3 and withholds L5 and L6). Renaming L2 and the L5 absent-notice rule failed exactly the two cases that expect them, restored. Stage closure 420 files. | 2026-10-17: 2026-10-16: stacks landed through one gate each: k=3 (nodal, metrics, emitters_run) and k=6 (glb, plymouth_digits, closure, routes, palette_graph, relations), every entry matched its ask at HEAD~k; 28 of 94 specs carry cases once ebuild and vscode land | 2026-10-17: 2026-10-16: correction to the line above: 28 specs carry cases after the k=6 stack; 30 of 94 once ebuild and vscode land (opa_gate --specs, 447 cases) | 2026-10-17: 2026-10-17: stacks landed through one gate each: k=4 (chrome_zips, palette_chain, selection_contrast, separation); k=4 (publishing, readme, rego_lint, config_page) in the gate; second stack root_helpers and urgency_cues submitted behind it on the commit lease after mtools-ad confirmed the gate runs on a snapshot taken when a commit starts; 40 of 94 specs carry cases once it lands",
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-16: 2026-10-16: opa_gate --portable built (test_census over opa parse, portable_report): 932 of 1236 tests portable, 94 specs, qml_lint 10 of 15 matches the hand count of W211; selftest 3 new arms (a test mentioning the admitted set told from one that does not, an unparseable test file is None not zero, report exits 0/1/2). | 2026-10-16: 2026-10-16: codomain ported: policy/codomain.cases.json 6 cases (admitted 1, refused 4, withheld-expected 1); renaming the C2 rule id to C9 failed exactly the C2 case (DENY MISMATCH: missing C2; unexpected C9), restored; opa_gate --specs now runs 16 cases over 2 of 94 specs; the pytestspec stage closure regenerated to 427 files and bazel test //:pytestspec passes. | 2026-10-16: 2026-10-16: runtime_warnings ported: policy/runtime_warnings.cases.json 6 cases (admitted 1, refused 4, withheld-expected 1); renaming the R2 rule id to R9 failed exactly the R2 case, restored; opa_gate --specs runs 22 cases over 3 of 94 specs; stage closure 428 files. | 2026-10-16: 2026-10-16: closure guard in opa_gate --specs: stored_closure reads closures.bzl, closure_lacks names the cases files the stage closure does not hold; a planted spec with cases (policy/zzprobe, removed) was refused with exit 1 naming the fix; 4 selftest arms; the stage closure holds closures.bzl and check_closure.py so the guard is live in bazel; bazel test //:pytestspec passes. | 2026-10-16: 2026-10-16: plugin_ids ported: policy/plugin_ids.cases.json 8 cases (admitted 1, refused 5, withheld-expected 2); renaming the P1 id to P9 failed exactly the P1 case, restored; the closure guard refused the first run without the stage closure and named the fix (its first real use); closure regenerated (410 files; the earlier 428 was an over-wide observation, both pass under bazel); opa_gate --specs 30 cases over 4 of 94 specs. | 2026-10-16: 2026-10-16: the commit gate REFUSED plugin_ids (closure_witness L5: pytestspec fails in a tree holding only its closure, pytestspec_data names policy/lib which does not exist there). Cause measured: the stage closure observation was UNSTABLE, 429 files holding the four policy/lib files in one run and 410 holding none in the next, because whether opa reads them at run time varied. Fix: opa_gate --specs now LISTS policy/lib itself (the closure rule then declares every tracked file directly inside) and refuses an empty library; the closure is stable at 429 across consecutive regenerations and check_closure.py --witness pytestspec passes arm 1. A candidate for the next sweep note: any stage that depends on a directory should list it. | 2026-10-16: 2026-10-16: deb (8), guest_recipe (8), notify_roles (12) ported in one stack; five mutation failures predicted and observed (deb D3 one case, guest_recipe R3 one, notify_roles N3 three), restored; the stage closure is 417 files and check_closure --witness pytestspec passes arm 1 (about 15 other files flicker between observations and are not needed). | 2026-10-16: 2026-10-16: populations ported (17 cases: admitted 4, refused 6, withheld-expected 7); renaming P2 and P3 failed exactly the two cases that expect them, restored; stage closure 418 files. | 2026-10-16: 2026-10-16: taskswitch ported (21 cases for 20 tests, the each-flag-null test fanning out into five): admitted 1, refused 12, withheld-expected 8; the hand-derived sets, including the T0 input leaving three facts unmeasured, all held on the first run; renaming the T4 binding rule and T6 failed exactly the three cases that expect them, restored; stage closure 419 files. | 2026-10-16: 2026-10-16: license ported (35 cases for 38 tests, three duplicates folded): admitted 3, refused 25, withheld-expected 7. The generator recorded the actual id sets after asserting each original intent was among them; every extra was the same explained pattern (a cases-only input also denies L3 and withholds L5 and L6). Renaming L2 and the L5 absent-notice rule failed exactly the two cases that expect them, restored. Stage closure 420 files. | 2026-10-17: 2026-10-16: stacks landed through one gate each: k=3 (nodal, metrics, emitters_run) and k=6 (glb, plymouth_digits, closure, routes, palette_graph, relations), every entry matched its ask at HEAD~k; 28 of 94 specs carry cases once ebuild and vscode land | 2026-10-17: 2026-10-16: correction to the line above: 28 specs carry cases after the k=6 stack; 30 of 94 once ebuild and vscode land (opa_gate --specs, 447 cases) | 2026-10-17: 2026-10-17: stacks landed through one gate each: k=4 (chrome_zips, palette_chain, selection_contrast, separation); k=4 (publishing, readme, rego_lint, config_page) in the gate; second stack root_helpers and urgency_cues submitted behind it on the commit lease after mtools-ad confirmed the gate runs on a snapshot taken when a commit starts; 40 of 94 specs carry cases once it lands | 2026-10-17: 2026-10-17: every policy spec now carries pytestspec cases: opa_gate --specs reported 95 of 95 specs and 1206 cases at the nine-port stack tip 7adf84d (closure 508 files); the last stacks A to H and the nine-port stack landed through single gates, each entry matching its ask",
       "issued_at": "2026-10-16T10:27:48Z",
       "minted_during": "interrupt",
       "caused_by": "W139",
-      "last_worked": "2026-10-17T08:33:14Z",
-      "ticks_blocked": 1,
-      "completed": null
+      "last_worked": "2026-10-17T19:32:09Z",
+      "ticks_blocked": 0,
+      "completed": "20261017T193209Z"
     },
     {
       "symbol": "W559",
@@ -13745,7 +13728,7 @@
     {
       "symbol": "W584",
       "title": "Port post_commit to pytestspec: policy/post_commit.cases.json, 4 of 8 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13755,24 +13738,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/post_commit.cases.json from policy/post_commit_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack F at 67a8042",
       "issued_at": "2026-10-17T08:32:25Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T16:27:49Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/post_commit.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T162749Z"
     },
     {
       "symbol": "W585",
       "title": "Port deps to pytestspec: policy/deps.cases.json, 3 of 6 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13782,24 +13766,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/deps.cases.json from policy/deps_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack F at 3051917",
       "issued_at": "2026-10-17T08:32:26Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T16:27:49Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/deps.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T162749Z"
     },
     {
       "symbol": "W586",
       "title": "Port gcalc_api to pytestspec: policy/gcalc_api.cases.json, 3 of 6 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13809,24 +13794,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/gcalc_api.cases.json from policy/gcalc_api_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack G at 41dd210",
       "issued_at": "2026-10-17T08:32:26Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T17:03:15Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/gcalc_api.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T170315Z"
     },
     {
       "symbol": "W587",
       "title": "Port compiles to pytestspec: policy/compiles.cases.json, 2 of 4 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13836,24 +13822,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/compiles.cases.json from policy/compiles_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack G at 851d6e0",
       "issued_at": "2026-10-17T08:32:26Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T17:03:16Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/compiles.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T170316Z"
     },
     {
       "symbol": "W588",
       "title": "Port states to pytestspec: policy/states.cases.json, 2 of 4 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13863,24 +13850,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/states.cases.json from policy/states_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack G at 62d21d2",
       "issued_at": "2026-10-17T08:32:26Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T17:03:16Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/states.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T170316Z"
     },
     {
       "symbol": "W589",
       "title": "Port qt_sandbox to pytestspec: policy/qt_sandbox.cases.json, 5 of 11 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13890,24 +13878,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/qt_sandbox.cases.json from policy/qt_sandbox_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack H at a08796f",
       "issued_at": "2026-10-17T08:32:27Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T18:13:18Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/qt_sandbox.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T181318Z"
     },
     {
       "symbol": "W590",
       "title": "Port token_source to pytestspec: policy/token_source.cases.json, 4 of 9 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13917,24 +13906,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/token_source.cases.json from policy/token_source_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in stack H at edff51b",
       "issued_at": "2026-10-17T08:32:27Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T18:13:18Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/token_source.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T181318Z"
     },
     {
       "symbol": "W591",
       "title": "Port consumers to pytestspec: policy/consumers.cases.json, 3 of 7 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13944,24 +13934,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/consumers.cases.json from policy/consumers_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at b6fe721",
       "issued_at": "2026-10-17T08:32:28Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:53Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/consumers.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193153Z"
     },
     {
       "symbol": "W592",
       "title": "Port embedded_markup to pytestspec: policy/embedded_markup.cases.json, 3 of 8 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13971,24 +13962,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/embedded_markup.cases.json from policy/embedded_markup_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at 696abc5",
       "issued_at": "2026-10-17T08:32:28Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:54Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/embedded_markup.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193154Z"
     },
     {
       "symbol": "W593",
       "title": "Port serial to pytestspec: policy/serial.cases.json, 6 of 18 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13998,24 +13990,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/serial.cases.json from policy/serial_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at 106e057",
       "issued_at": "2026-10-17T08:32:29Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:54Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/serial.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193154Z"
     },
     {
       "symbol": "W594",
       "title": "Port config_load to pytestspec: policy/config_load.cases.json, 3 of 9 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -14025,24 +14018,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/config_load.cases.json from policy/config_load_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at 3e128bb",
       "issued_at": "2026-10-17T08:32:29Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:54Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/config_load.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193154Z"
     },
     {
       "symbol": "W595",
       "title": "Port template_parity to pytestspec: policy/template_parity.cases.json, 3 of 9 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -14052,24 +14046,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/template_parity.cases.json from policy/template_parity_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at 16e93a8",
       "issued_at": "2026-10-17T08:32:29Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:55Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/template_parity.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193155Z"
     },
     {
       "symbol": "W596",
       "title": "Port package_imports to pytestspec: policy/package_imports.cases.json, 2 of 6 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -14079,24 +14074,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/package_imports.cases.json from policy/package_imports_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at 67e24a8",
       "issued_at": "2026-10-17T08:32:30Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:55Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/package_imports.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193155Z"
     },
     {
       "symbol": "W597",
       "title": "Port log_content to pytestspec: policy/log_content.cases.json, 1 of 3 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -14106,24 +14102,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/log_content.cases.json from policy/log_content_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at 89c7032",
       "issued_at": "2026-10-17T08:32:30Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:55Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/log_content.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193155Z"
     },
     {
       "symbol": "W598",
       "title": "Port st_api to pytestspec: policy/st_api.cases.json, 3 of 10 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -14133,24 +14130,25 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/st_api.cases.json from policy/st_api_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed in the nine-port stack at b2ca49c",
       "issued_at": "2026-10-17T08:32:30Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:31:56Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/st_api.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193156Z"
     },
     {
       "symbol": "W599",
       "title": "Port projection to pytestspec: policy/projection.cases.json, 2 of 7 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -14160,19 +14158,20 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/projection.cases.json from policy/projection_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed as the last entry of the nine-port stack at 7adf84d, with the post-commit advisory marker in HEAD",
       "issued_at": "2026-10-17T08:32:31Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T19:32:02Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
       "manifest": [
         "policy/projection.cases.json"
       ],
-      "size_class": "small"
+      "size_class": "small",
+      "completed": "20261017T193202Z"
     },
     {
       "symbol": "W600",
@@ -15425,6 +15424,148 @@
       "last_worked": "2026-10-17T14:39:02Z",
       "ticks_blocked": 0,
       "completed": "20261017T143902Z"
+    },
+    {
+      "symbol": "W660",
+      "title": "Shard closures.bzl so a port touches only its own shard, not one shared file",
+      "status": "blocked",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [
+        "W661",
+        "W662"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "Nested design (operator via github-8f): L0 closures.bzl loads L1 only; L1 closures/{selftest,pytestspec,stages}.bzl; L2 closures/pytestspec/<family>.bzl loads its leaves; L3 closures/pytestspec/<family>/<spec>.bzl; machinery files in closures/pytestspec/machinery.bzl. A new port adds one leaf file and edits only its family file. Open: (1) .claude/generated.json lists exact paths, so every new leaf would add a line there unless mtools W1468 takes a directory prefix; (2) a spec->family map must not itself be a shared file: derive family from a per-spec attribute (rego METADATA custom.family) set once in its own land; (3) selftest closures nest the same way by check family. Show the tree to the operator before landing.",
+      "evidence": "",
+      "issued_at": "2026-10-17T16:41:32Z",
+      "minted_during": "interrupt",
+      "caused_by": "operator",
+      "last_worked": "2026-10-17T17:56:39Z",
+      "ticks_blocked": 3,
+      "manifest": [
+        "BUILD.bazel",
+        "stages.bzl",
+        "scripts/check_closure.py",
+        "policy/closure.rego"
+      ],
+      "size_class": "medium",
+      "warrants": [
+        {
+          "@context": {
+            "prov": "http://www.w3.org/ns/prov#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "mtools": "urn:mtools:warrant#"
+          },
+          "@id": "urn:nemik:el-openglo/W660",
+          "prov:wasDerivedFrom": {
+            "@id": "file:///home/mikemol/.claude/projects/-home-mikemol-github/695f3e0a-d36f-4080-9c67-7548978cd99e.jsonl#c47368c6-e83e-4403-bdbf-9cd9cdd4e47c",
+            "@type": "prov:Entity",
+            "prov:generatedAtTime": {
+              "@value": "2026-10-17T17:52:55.580Z",
+              "@type": "xsd:dateTime"
+            },
+            "prov:wasAttributedTo": {
+              "@id": "urn:nemik:operator",
+              "@type": "prov:Agent"
+            },
+            "prov:wasGeneratedBy": {
+              "@id": "urn:nemik:utterance/c47368c6-e83e-4403-bdbf-9cd9cdd4e47c",
+              "@type": "prov:Activity"
+            },
+            "mtools:line": 75563,
+            "mtools:reader": "/home/mikemol/github/life/.venv/bin/mikemol-transcriptstruct /home/mikemol/.claude/projects/-home-mikemol-github/695f3e0a-d36f-4080-9c67-7548978cd99e.jsonl --verify c47368c6-e83e-4403-bdbf-9cd9cdd4e47c --claim operator --line 75563"
+          }
+        }
+      ],
+      "completed": null
+    },
+    {
+      "symbol": "W661",
+      "title": "Tag each policy spec with its closure family in rego METADATA custom.family",
+      "status": "working",
+      "enables": [
+        "W660",
+        "W662"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "scripts/spec_families.py now covers the 95 specs (fmt and truth are libraries under policy/lib, not specs), has --tags and --apply, and its selftest passes; the tree has 0 of 95 tagged. After the nine-port stack W599 lands: run --apply, check --tags, run opa_gate --list, then land the tool and the 95 tags together.",
+      "evidence": "",
+      "issued_at": "2026-10-17T17:56:30Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": "2026-10-17T19:20:09Z",
+      "ticks_blocked": 0,
+      "size_class": "medium",
+      "completed": null,
+      "manifest": [
+        "scripts/spec_families.py"
+      ]
+    },
+    {
+      "symbol": "W662",
+      "title": "Emit the closure tree: closures/<kind>/<family>/<spec>.bzl leaves, family and kind files, and a root loading only the kinds",
+      "status": "ready",
+      "enables": [
+        "W660"
+      ],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "After the family tags land and no stack is queued: check_closure.py --write renders the nested tree from custom.family, BUILD.bazel loads the L1 kinds, stages.bzl aggregates, policy/closure.rego measures the shape; show the tree to the operator first. generated.json lists only the fixed family and root files, never a per-port leaf.",
+      "evidence": "",
+      "issued_at": "2026-10-17T17:56:31Z",
+      "minted_during": "interrupt",
+      "caused_by": null,
+      "last_worked": null,
+      "ticks_blocked": 0,
+      "manifest": [
+        "BUILD.bazel",
+        "stages.bzl",
+        "scripts/check_closure.py",
+        "policy/closure.rego",
+        ".claude/generated.json"
+      ],
+      "size_class": "medium"
+    },
+    {
+      "symbol": "W663",
+      "title": "Repin every mikemol pin to mtools 858196b as its own land, scoped to this repo",
+      "status": "done",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed alone at ec02a92; mtools pin 858196b | 2026-10-17: correction: the landed sha is 420375a; ec02a92 was the pre-amend tip I read before the post-commit advisory amended it",
+      "issued_at": "2026-10-17T17:58:48Z",
+      "minted_during": "interrupt",
+      "caused_by": "github-8f",
+      "last_worked": "2026-10-17T19:18:19Z",
+      "ticks_blocked": 0,
+      "completed": "20261017T184815Z"
+    },
+    {
+      "symbol": "W664",
+      "title": "land_template prints the final sha: read HEAD after the post-commit amend so a pre-amend sha cannot be cited",
+      "status": "ready",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "The repin was reported as ec02a92 and landed as 420375a because the verdict line printed the tip before the post-commit advisory amended it. Read scripts/land_template.py and .githooks/post-commit; make the verdict wait for the advisory marker in HEAD (the same marker pre-push.local waits for) and print that sha; add a selftest arm.",
+      "evidence": "",
+      "issued_at": "2026-10-17T19:20:13Z",
+      "minted_during": "tick",
+      "caused_by": "github-8f",
+      "last_worked": null,
+      "ticks_blocked": 0,
+      "manifest": [
+        "scripts/land_template.py"
+      ],
+      "size_class": "small"
     }
   ],
   "residue": [
@@ -15508,15 +15649,9 @@
   ],
   "notes": "The cotype RESIDUE bucket (⊕KNB2 ⊕KVT2 ⊕NOTIFY-SEGRENDER ⊕PLA2 ⊕SUPERSAMPLE-WP ⊕VER-SYSCLOCK) is residue in the cotype already and is NOT duplicated here; the cotype is its owner.",
   "preamble": [
-    "ONE item per tick, no swarm. Checks under .venv/bin/python3. Never stage during a commit/render.",
-    "Pushes are automatic (post-commit auto_push); never push by hand; read .git/auto-push.log; no tree writes while check_tree_writes runs.",
-    "Heavy runs = systemd-run --user services, MemoryMax=8G, no swap, prlimit --cpu=7200:7200, no wall deadline; verify RUNNING. Commits in background.",
-    "Plan lives in the graph: every next step is a waypoint with resolvable edges; nemik-check --root ~/github; re-arm from --payload verbatim.",
-    "STATUS IS LIVE: --status working when the tick's unit starts; back to ready (new next) or done when it lands; stays working while a service/commit it started is in flight. Ledger outcomes: minted/advanced/atomized/done only (no hand-coined words; W106).",
-    "NEMIK'S RANKING IS THE ORDER (operator 2026-10-01): before choosing the unit, sync it - `nemik-rank el-openglo --json > <scratch>/w.json` then `--weights-from <scratch>/w.json` - and after minting or scoring. Exactly one working card (nemik:W177).",
-    "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
+    "Canonical loop prompt: /home/mikemol/github/.claude/loop-prompt.md (the operator's wording plus the Fleet practice section); read it each tick and follow it. This repo's own rules are in the queue's standing list."
   ],
-  "predecessor_job_id": "6adeda42",
+  "predecessor_job_id": "a10b866f",
   "leases": [],
   "advice": [
     {
@@ -16212,5 +16347,14 @@
       "last_run": "2026-10-17T08:36:42Z",
       "status": "applied"
     }
+  ],
+  "standing": [
+    "Checks run under .venv/bin/python3; fix the tooling so it answers the question (no grep, sed or inline Python: a missing mode is work).",
+    "Pushes are automatic (post-commit auto_push, ff-only, logged in .git/auto-push.log); never push by hand or with --no-verify; wait for the marker `post-commit advisory (auto-captured)` in HEAD.",
+    "No tree writes while check_tree_writes runs; commit through scripts/land_template.py (--commit, or --stack FILE), never git commit -a.",
+    "The worklist is the status: no open or closed field, WORKLIST.md is generated and never hand-edited, and no check may be unfalsifiable (--selftest, refuse unknown flags, report n of m).",
+    "A requirement is Rego (policy/NAME.rego plus NAME_test.rego, cases in policy/NAME.cases.json); the Python check only measures and emits --json.",
+    "Mutation-control each pytestspec port by renaming one rule id and confirming exactly the cases that expect it fail, then revert the rename without losing trailing spaces.",
+    "Until mtools fixes --stack gating, queue only stacks whose closures list no file of another queued stack; a dependent stack waits for the one ahead to land."
   ]
 }
