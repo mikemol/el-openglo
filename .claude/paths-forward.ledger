@@ -1053,3 +1053,5 @@
 2026-10-17T13:19:08Z  tick  W581 advanced  sweep     "closed W569 on 63b31f3; built atomic_writes cases (12) with mutation control failing exactly A1, queued as stack D behind terminals/render_constants"
 2026-10-17T13:37:53Z  interrupt W659 minted    -         "Repin every mikemol pin to mtools 910002e as its own land"  evidence=github-8f
 2026-10-17T13:47:39Z  tick  W582 advanced  sweep     "built geometry_source cases (10) in scratch, uninstalled; the repin W659 lands alone first, after stack D W581"
+2026-10-17T14:17:43Z  tick  W583 advanced  sweep     "built contracts cases (8) in scratch, uninstalled; geometry_source (10) also waiting; the repin W659 is gating alone"
+2026-10-17T14:48:39Z  tick  W583 advanced  sweep     "closed W659 on 03a9740; installed geometry_source and contracts, mutation control failed exactly G1 and K3; stack E queued"

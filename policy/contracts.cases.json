@@ -1,0 +1,198 @@
+[
+ {
+  "case": "admits-a-kept-contract",
+  "surfaces": [
+   {
+    "surface": "render_screens.animation",
+    "emitted": [
+     "file",
+     "variant",
+     "exists",
+     "frames",
+     "width",
+     "axis",
+     "pips",
+     "floor",
+     "shifts",
+     "tears",
+     "seamless",
+     "fractional_share",
+     "dominant_period",
+     "dominant_line_share",
+     "spectral_power",
+     "period2_share",
+     "logged_steps"
+    ],
+    "consumers": [
+     {
+      "file": "scripts/check_screens.py",
+      "reads": [
+       {
+        "field": "shifts",
+        "line": 55
+       },
+       {
+        "field": "exists",
+        "line": 153
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "k0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k0-refuses-an-empty-population",
+  "surfaces": [],
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k1-refuses-an-undeclared-surface",
+  "surfaces": [
+   {
+    "surface": "make_x.row",
+    "emitted": [
+     "a"
+    ],
+    "consumers": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ },
+ {
+  "case": "k2-refuses-a-read-of-an-undeclared-field",
+  "surfaces": [
+   {
+    "surface": "render_screens.animation",
+    "emitted": [
+     "file",
+     "variant",
+     "exists",
+     "frames",
+     "width",
+     "axis",
+     "pips",
+     "floor",
+     "shifts",
+     "tears",
+     "seamless",
+     "fractional_share",
+     "dominant_period",
+     "dominant_line_share",
+     "spectral_power",
+     "period2_share",
+     "logged_steps"
+    ],
+    "consumers": [
+     {
+      "file": "scripts/check_screens.py",
+      "reads": [
+       {
+        "field": "variants",
+        "line": 9
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "k3-refuses-a-declared-field-not-emitted",
+  "surfaces": [
+   {
+    "surface": "render_screens.animation",
+    "emitted": [
+     "file",
+     "variant",
+     "exists"
+    ],
+    "consumers": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "unreadable-producer-is-withheld-not-judged",
+  "surfaces": [
+   {
+    "surface": "render_screens.animation",
+    "emitted": null,
+    "consumers": [
+     {
+      "file": "c.py",
+      "reads": []
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "render_screens.animation"
+   ]
+  }
+ },
+ {
+  "case": "unreadable-consumer-is-withheld-not-judged",
+  "surfaces": [
+   {
+    "surface": "render_screens.animation",
+    "emitted": [
+     "file",
+     "variant",
+     "exists",
+     "frames",
+     "width",
+     "axis",
+     "pips",
+     "floor",
+     "shifts",
+     "tears",
+     "seamless",
+     "fractional_share",
+     "dominant_period",
+     "dominant_line_share",
+     "spectral_power",
+     "period2_share",
+     "logged_steps"
+    ],
+    "consumers": [
+     {
+      "file": "c.py",
+      "reads": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "render_screens.animation"
+   ]
+  }
+ }
+]
