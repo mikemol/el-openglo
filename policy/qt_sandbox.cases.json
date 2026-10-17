@@ -1,0 +1,200 @@
+[
+ {
+  "case": "admits-a-routed-site",
+  "cases": [
+   {
+    "id": "theme_probe.py:75",
+    "file": "theme_probe.py",
+    "line": 75,
+    "tool": "qml",
+    "via": "qt_sandbox",
+    "routed": true,
+    "gpu": false
+   }
+  ]
+ },
+ {
+  "case": "q2-refuses-a-gpu-site",
+  "cases": [
+   {
+    "id": "theme_probe.py:75",
+    "file": "theme_probe.py",
+    "line": 75,
+    "tool": "qml",
+    "via": "qt_sandbox",
+    "routed": true,
+    "gpu": false
+   },
+   {
+    "id": "scripts/render_qml.py:327",
+    "file": "scripts/render_qml.py",
+    "line": 327,
+    "tool": "qml",
+    "via": "qt_sandbox",
+    "routed": true,
+    "gpu": "conditional: gpu"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "Q2"
+   ]
+  }
+ },
+ {
+  "case": "q0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "Q0"
+   ]
+  }
+ },
+ {
+  "case": "q0-refuses-an-empty-population",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "Q0"
+   ]
+  }
+ },
+ {
+  "case": "q1-refuses-an-unrouted-site",
+  "cases": [
+   {
+    "id": "theme_probe.py:75",
+    "file": "theme_probe.py",
+    "line": 75,
+    "tool": "qml",
+    "via": "qt_sandbox",
+    "routed": true,
+    "gpu": false
+   },
+   {
+    "id": "scripts/check_ebuild.py:9",
+    "file": "scripts/check_ebuild.py",
+    "line": 9,
+    "tool": "qml",
+    "via": "subprocess",
+    "routed": false,
+    "gpu": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "Q1"
+   ]
+  }
+ },
+ {
+  "case": "null-routed-is-withheld-not-denied",
+  "cases": [
+   {
+    "id": "theme_probe.py:75",
+    "file": "theme_probe.py",
+    "line": 75,
+    "tool": "qml",
+    "via": "qt_sandbox",
+    "routed": true,
+    "gpu": false
+   },
+   {
+    "id": "scripts/check_ebuild.py:9",
+    "file": "scripts/check_ebuild.py",
+    "line": 9,
+    "tool": "qml",
+    "via": "subprocess",
+    "routed": null,
+    "gpu": null,
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "scripts/check_ebuild.py"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "id": "theme_probe.py:75",
+    "file": "theme_probe.py",
+    "line": 75,
+    "tool": "qml",
+    "via": "qt_sandbox",
+    "routed": true,
+    "gpu": false
+   },
+   {
+    "id": "scripts/x.py:3",
+    "file": null,
+    "line": null,
+    "tool": null,
+    "via": null,
+    "routed": null,
+    "gpu": null,
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "scripts/x.py"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-unrouted-is-denied",
+  "cases": [
+   {
+    "id": "scripts/check_ebuild.py:9",
+    "file": "scripts/check_ebuild.py",
+    "line": 9,
+    "tool": "qml",
+    "via": "subprocess",
+    "routed": false,
+    "gpu": null,
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "Q1"
+   ]
+  }
+ },
+ {
+  "case": "null-routed-alone-is-withheld",
+  "cases": [
+   {
+    "id": "scripts/check_ebuild.py:9",
+    "file": "scripts/check_ebuild.py",
+    "line": 9,
+    "tool": "qml",
+    "via": "subprocess",
+    "routed": null,
+    "gpu": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "scripts/check_ebuild.py"
+   ]
+  }
+ },
+ {
+  "case": "withheld-only",
+  "cases": [
+   {
+    "id": "broken.py",
+    "withheld": "SyntaxError"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "broken.py"
+   ]
+  }
+ }
+]
