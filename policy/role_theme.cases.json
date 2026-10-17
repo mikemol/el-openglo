@@ -1,0 +1,939 @@
+[
+ {
+  "case": "admits-an-optimal-theme-that-renders",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ]
+ },
+ {
+  "case": "r5-withholds-the-render-without-graphviz",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": "graphviz `dot` is not installed",
+   "error": null,
+   "survives": {}
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R5"
+   ]
+  }
+ },
+ {
+  "case": "null-assignment-is-withheld-not-unassigned",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": null
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "R0"
+   ]
+  }
+ },
+ {
+  "case": "r1-refuses-an-unassigned-role",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R1"
+   ]
+  }
+ },
+ {
+  "case": "r2-refuses-a-sub-optimal-assignment",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 0.9936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "r2-message-formats-whole-numbers",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1,
+  "best_q": 2,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R2"
+   ]
+  }
+ },
+ {
+  "case": "r3-refuses-a-missing-field",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r3-refuses-a-non-hex-colour",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "sky"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R3"
+   ]
+  }
+ },
+ {
+  "case": "r4-refuses-a-grounded-role-under-3-to-1",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 1.32,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r4-refuses-a-grounded-solve-that-refused",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": "4 eligible members for 5 free roles",
+   "ground": null,
+   "contrast": {},
+   "pins_hold": {}
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r4-refuses-a-broken-grounded-pin",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": false
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": true,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r5-refuses-a-colour-lost-in-the-render",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": null,
+   "survives": {
+    "read": false,
+    "write": true,
+    "flow": true
+   }
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R5"
+   ]
+  }
+ },
+ {
+  "case": "r5-refuses-a-dot-that-does-not-render",
+  "roles": [
+   "read",
+   "write",
+   "flow"
+  ],
+  "pinned": {},
+  "pins_hold": {},
+  "assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "worst_q": 1.4936,
+  "best_q": 1.4936,
+  "best_assignment": {
+   "read": "blue",
+   "write": "bluegreen",
+   "flow": "sky"
+  },
+  "json": {
+   "error": null,
+   "fields": [
+    "assignment",
+    "roles",
+    "worst_q",
+    "metric",
+    "solved_exhaustively"
+   ],
+   "assignment": {
+    "read": "#0072b2",
+    "write": "#009e73",
+    "flow": "#56b4e9"
+   }
+  },
+  "ground": {
+   "refused": null,
+   "ground": "#ffffff",
+   "contrast": {
+    "read": 5.19,
+    "write": 3.42
+   },
+   "pins_hold": {
+    "roundtrip": true
+   }
+  },
+  "render": {
+   "withheld": null,
+   "error": "dot exited 1: syntax error",
+   "survives": {}
+  },
+  "cases": [
+   {
+    "id": "read"
+   },
+   {
+    "id": "write"
+   },
+   {
+    "id": "flow"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R5"
+   ]
+  }
+ }
+]
