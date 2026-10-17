@@ -1,0 +1,205 @@
+[
+ {
+  "case": "admits-the-solved-chain",
+  "cvd_gate_error": null,
+  "make_palette_error": null,
+  "make_schemes_error": null,
+  "authored_env": false,
+  "grid_is_authored": false,
+  "grid_count": 6,
+  "cases": [
+   {
+    "id": "apca_Lc",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "wcag_ratio",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "worst_view_dE",
+    "files": [
+     "make_konsole.py",
+     "make_palette.py"
+    ],
+    "present": true
+   }
+  ]
+ },
+ {
+  "case": "k0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "recovery-shape-trips-k1-k2-k3",
+  "cvd_gate_error": null,
+  "make_palette_error": "AttributeError: module 'cvd_gate' has no attribute 'worst_view_dE'",
+  "make_schemes_error": null,
+  "authored_env": false,
+  "grid_is_authored": true,
+  "grid_count": 6,
+  "cases": [
+   {
+    "id": "apca_Lc",
+    "files": [
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "wcag_ratio",
+    "files": [
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "worst_view_dE",
+    "files": [
+     "make_konsole.py",
+     "make_palette.py"
+    ],
+    "present": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1",
+    "K2",
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "k1-refuses-cvd-gate-that-will-not-import",
+  "cvd_gate_error": "SyntaxError: invalid syntax",
+  "make_palette_error": null,
+  "make_schemes_error": null,
+  "authored_env": false,
+  "grid_is_authored": false,
+  "grid_count": 6,
+  "cases": [
+   {
+    "id": "apca_Lc",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "wcag_ratio",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "worst_view_dE",
+    "files": [
+     "make_konsole.py",
+     "make_palette.py"
+    ],
+    "present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K1"
+   ]
+  }
+ },
+ {
+  "case": "k3-refuses-an-empty-grid",
+  "cvd_gate_error": null,
+  "make_palette_error": null,
+  "make_schemes_error": null,
+  "authored_env": false,
+  "grid_is_authored": false,
+  "grid_count": 0,
+  "cases": [
+   {
+    "id": "apca_Lc",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "wcag_ratio",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "worst_view_dE",
+    "files": [
+     "make_konsole.py",
+     "make_palette.py"
+    ],
+    "present": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "k3-withholds-the-deliberate-fallback",
+  "cvd_gate_error": null,
+  "make_palette_error": null,
+  "make_schemes_error": null,
+  "authored_env": true,
+  "grid_is_authored": true,
+  "grid_count": 6,
+  "cases": [
+   {
+    "id": "apca_Lc",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "wcag_ratio",
+    "files": [
+     "ghost_solve.py",
+     "make_palette.py"
+    ],
+    "present": true
+   },
+   {
+    "id": "worst_view_dE",
+    "files": [
+     "make_konsole.py",
+     "make_palette.py"
+    ],
+    "present": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K3"
+   ]
+  }
+ }
+]
