@@ -1,0 +1,882 @@
+[
+ {
+  "case": "empty-population-denied",
+  "expect": {
+   "deny": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "complete-admitted",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  }
+ },
+ {
+  "case": "declared-but-unmeasured-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "Other",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "missing-theme-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": false
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V1"
+   ]
+  }
+ },
+ {
+  "case": "orphan-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [
+   "stray.json"
+  ],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V1"
+   ]
+  }
+ },
+ {
+  "case": "parse-error-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": "bad"
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V2"
+   ]
+  }
+ },
+ {
+  "case": "wrong-colour-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [
+     {
+      "key": "editor.background",
+      "role": "view_bg",
+      "got": "#fff",
+      "want": "#000"
+     }
+    ],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V3"
+   ]
+  }
+ },
+ {
+  "case": "wrong-token-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [
+     {
+      "name": "string",
+      "role": "ansi.green",
+      "got": "#1",
+      "want": "#2"
+     }
+    ],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V3"
+   ]
+  }
+ },
+ {
+  "case": "unmapped-key-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [
+     "madeUp.key"
+    ],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V3"
+   ]
+  }
+ },
+ {
+  "case": "wrong-polarity-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "light",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V4"
+   ]
+  }
+ },
+ {
+  "case": "low-contrast-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 2.0,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V5"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-pair-withheld-not-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "p",
+      "ratio": null,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "withheld": [
+    "V5"
+   ]
+  }
+ },
+ {
+  "case": "stale-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": false,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V6"
+   ]
+  }
+ },
+ {
+  "case": "package-missing-variant-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [
+    "EL-Azure"
+   ],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "package-wrong-ui-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [
+    "EL-Azure"
+   ],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "package-stale-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": false
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V7"
+   ]
+  }
+ },
+ {
+  "case": "vsix-unopenable-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": false,
+   "why": "not a zip"
+  },
+  "expect": {
+   "deny": [
+    "V8"
+   ]
+  }
+ },
+ {
+  "case": "vsix-missing-entry-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [],
+   "required": [
+    "extension.vsixmanifest"
+   ]
+  },
+  "expect": {
+   "deny": [
+    "V8"
+   ]
+  }
+ },
+ {
+  "case": "vsix-differing-entry-denied",
+  "roster": [
+   "EL-Azure"
+  ],
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "present": true,
+    "parse_error": null,
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "wrong_tokens": [],
+    "type": "dark",
+    "want_type": "dark",
+    "current": true,
+    "contrast": [
+     {
+      "pair": "editor.foreground on editor.background",
+      "ratio": 9.1,
+      "floor": 4.5
+     }
+    ]
+   }
+  ],
+  "orphans": [],
+  "package": {
+   "present": true,
+   "parse_error": null,
+   "missing": [],
+   "extra": [],
+   "missing_files": [],
+   "wrong_ui": [],
+   "current": true
+  },
+  "vsix": {
+   "opens": true,
+   "corrupt_member": null,
+   "missing": [],
+   "extra": [],
+   "differs": [
+    "extension/package.json"
+   ],
+   "required": []
+  },
+  "expect": {
+   "deny": [
+    "V8"
+   ]
+  }
+ }
+]
