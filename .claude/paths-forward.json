@@ -13136,11 +13136,11 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "Make the sandbox build see mikemol.cvdcore: candidate is a second git-r3 checkout of mtools at a pinned sha with cvdcore/src on PYTHONPATH in src_compile and src_install; first measure whether a live ebuild may fetch a second repo and what src_install imports beyond src_compile.",
-      "evidence": "",
+      "evidence": "2026-10-17: 2026-10-16: landed as the ebuild fix; follow-up here derives the mtools sha in src_unpack from the checked-out pyproject.toml mikemol-cvdcore pin (one copy, a repin moves it; sed extraction run on the real pyproject returned 6fba7de before the repin); pins moved to mtools 1f4581f3c939330758001f723f11ff693035414f for mtools W1420 (bump-blocked prunes only); emerge proof is luthen next host apply record",
       "issued_at": "2026-10-17T01:56:55Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability",
-      "last_worked": "2026-10-17T01:57:01Z",
+      "last_worked": "2026-10-17T02:30:43Z",
       "ticks_blocked": 0,
       "completed": null
     }
