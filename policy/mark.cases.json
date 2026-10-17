@@ -1,0 +1,279 @@
+[
+ {
+  "case": "admits-a-scrubbed-tree",
+  "mark": "m",
+  "source": "git",
+  "cases": [
+   {
+    "path": "README.md",
+    "lines": []
+   },
+   {
+    "path": "scripts/check_mark.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   },
+   {
+    "path": "catalog/design.md",
+    "lines": [
+     {
+      "line": 4,
+      "count": 1,
+      "attribution": true
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "k0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k0-refuses-an-empty-scan",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "K0"
+   ]
+  }
+ },
+ {
+  "case": "k2-refuses-self-naming",
+  "mark": "m",
+  "source": "git",
+  "cases": [
+   {
+    "path": "README.md",
+    "lines": []
+   },
+   {
+    "path": "scripts/check_mark.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   },
+   {
+    "path": "catalog/design.md",
+    "lines": [
+     {
+      "line": 4,
+      "count": 1,
+      "attribution": true
+     }
+    ]
+   },
+   {
+    "path": "selfname.md",
+    "lines": [
+     {
+      "line": 1,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "k2-an-attribution-line-does-not-excuse-its-neighbour",
+  "mark": "m",
+  "source": "git",
+  "cases": [
+   {
+    "path": "README.md",
+    "lines": []
+   },
+   {
+    "path": "scripts/check_mark.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   },
+   {
+    "path": "catalog/design.md",
+    "lines": [
+     {
+      "line": 4,
+      "count": 1,
+      "attribution": true
+     }
+    ]
+   },
+   {
+    "path": "notes.md",
+    "lines": [
+     {
+      "line": 1,
+      "count": 1,
+      "attribution": true
+     },
+     {
+      "line": 2,
+      "count": 2,
+      "attribution": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "mark": "m",
+  "source": "git",
+  "cases": [
+   {
+    "path": "README.md",
+    "lines": []
+   },
+   {
+    "path": "scripts/check_mark.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   },
+   {
+    "path": "catalog/design.md",
+    "lines": [
+     {
+      "line": 4,
+      "count": 1,
+      "attribution": true
+     }
+    ]
+   },
+   {
+    "path": "notes.md",
+    "lines": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "null-attribution-is-withheld",
+  "mark": "m",
+  "source": "git",
+  "cases": [
+   {
+    "path": "README.md",
+    "lines": []
+   },
+   {
+    "path": "scripts/check_mark.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   },
+   {
+    "path": "catalog/design.md",
+    "lines": [
+     {
+      "line": 4,
+      "count": 1,
+      "attribution": true
+     }
+    ]
+   },
+   {
+    "path": "notes.md",
+    "lines": [
+     {
+      "line": 2,
+      "count": 2,
+      "attribution": null
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "K3"
+   ]
+  }
+ },
+ {
+  "case": "k1-the-exclusion-is-by-path-only",
+  "mark": "m",
+  "source": "git",
+  "cases": [
+   {
+    "path": "README.md",
+    "lines": []
+   },
+   {
+    "path": "scripts/check_mark.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   },
+   {
+    "path": "catalog/design.md",
+    "lines": [
+     {
+      "line": 4,
+      "count": 1,
+      "attribution": true
+     }
+    ]
+   },
+   {
+    "path": "scripts/check_mark_copy.py",
+    "lines": [
+     {
+      "line": 32,
+      "count": 1,
+      "attribution": false
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ }
+]
