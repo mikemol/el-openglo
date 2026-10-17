@@ -1,0 +1,121 @@
+[
+ {
+  "case": "admits-a-faithful-adapter",
+  "present": true,
+  "names": [
+   {
+    "name": "netlist",
+    "module": "gcalc.solver.netlist",
+    "defined": true,
+    "why": ""
+   },
+   {
+    "name": "freeze",
+    "module": "gcalc.solver.driver",
+    "defined": true,
+    "why": ""
+   }
+  ],
+  "callers": [
+   {
+    "file": "scripts/check_nodal.py",
+    "line": 60,
+    "name": "netlist",
+    "declared": true
+   }
+  ]
+ },
+ {
+  "case": "g0-refuses-an-empty-population",
+  "present": true,
+  "names": [],
+  "callers": [],
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g0-absent-population-is-empty",
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-a-name-the-sibling-no-longer-defines",
+  "present": true,
+  "names": [
+   {
+    "name": "freeze",
+    "module": "gcalc.solver",
+    "defined": false,
+    "why": "gcalc.solver defines no freeze"
+   }
+  ],
+  "callers": [
+   {
+    "file": "scripts/check_nodal.py",
+    "line": 60,
+    "name": "netlist",
+    "declared": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-an-undeclared-caller-read",
+  "present": true,
+  "names": [
+   {
+    "name": "netlist",
+    "module": "gcalc.solver.netlist",
+    "defined": true,
+    "why": ""
+   },
+   {
+    "name": "freeze",
+    "module": "gcalc.solver.driver",
+    "defined": true,
+    "why": ""
+   }
+  ],
+  "callers": [
+   {
+    "file": "scripts/check_nodal.py",
+    "line": 61,
+    "name": "elimination_tree",
+    "declared": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "absent-sibling-is-withheld-not-judged",
+  "present": false,
+  "names": [
+   {
+    "name": "netlist",
+    "module": "gcalc.solver.netlist",
+    "defined": false,
+    "why": ""
+   }
+  ],
+  "callers": [],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
