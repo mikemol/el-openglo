@@ -1,0 +1,137 @@
+[
+ {
+  "case": "admits-clean-when-control-provokes",
+  "control_provokes_unplaced": true,
+  "pages": [
+   {
+    "page": "clock-config.qml",
+    "unplaced": 0,
+    "load_status": 1,
+    "other_stderr": []
+   }
+  ]
+ },
+ {
+  "case": "clean-without-a-provoking-control-is-withheld-not-admitted",
+  "control_provokes_unplaced": false,
+  "pages": [
+   {
+    "page": "clock-config.qml",
+    "unplaced": 0,
+    "load_status": 1,
+    "other_stderr": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "clock-config.qml"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-control-is-withheld",
+  "control_provokes_unplaced": null,
+  "pages": [
+   {
+    "page": "clock-config.qml",
+    "unplaced": 0,
+    "load_status": 1,
+    "other_stderr": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "clock-config.qml"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-the-line",
+  "control_provokes_unplaced": true,
+  "pages": [
+   {
+    "page": "clock-config.qml",
+    "unplaced": 0,
+    "load_status": 1,
+    "other_stderr": []
+   },
+   {
+    "page": "marquee-config.qml",
+    "unplaced": 2,
+    "load_status": 1,
+    "other_stderr": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ]
+  }
+ },
+ {
+  "case": "l2-refuses-even-without-a-control",
+  "control_provokes_unplaced": false,
+  "pages": [
+   {
+    "page": "marquee-config.qml",
+    "unplaced": 2,
+    "load_status": 1,
+    "other_stderr": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L2"
+   ]
+  }
+ },
+ {
+  "case": "l1-refuses-a-page-not-ready",
+  "control_provokes_unplaced": true,
+  "pages": [
+   {
+    "page": "clock-config.qml",
+    "unplaced": 0,
+    "load_status": 3,
+    "other_stderr": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "L1"
+   ]
+  }
+ },
+ {
+  "case": "l0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "l0-refuses-an-empty-population",
+  "pages": [],
+  "expect": {
+   "deny": [
+    "L0"
+   ]
+  }
+ },
+ {
+  "case": "withheld-only",
+  "control_provokes_unplaced": null,
+  "pages": [
+   {
+    "page": "clock-config.qml",
+    "withheld": "OSError: no kwin"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "clock-config.qml"
+   ]
+  }
+ }
+]
