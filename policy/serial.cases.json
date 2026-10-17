@@ -1,0 +1,491 @@
+[
+ {
+  "case": "admits-a-complete-p2",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ]
+ },
+ {
+  "case": "s3-refuses-a-p1-whose-greeter-appeared-but-no-login",
+  "cases": [
+   {
+    "boot": "b-p1",
+    "probe": "P1",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.greeter": 1,
+     "el.journal": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 9,
+     "probe": "P1",
+     "records": 9
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "admits-a-p1-that-logged-in",
+  "cases": [
+   {
+    "boot": "b-p1",
+    "probe": "P1",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.greeter": 1,
+     "el.journal": 1,
+     "el.done": 1,
+     "el.session": 1
+    },
+    "done": {
+     "seq": 9,
+     "probe": "P1",
+     "records": 9
+    }
+   }
+  ]
+ },
+ {
+  "case": "withholds-a-boot-that-cannot-name-its-build",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "git_rev": "4abcb5b",
+     "snapshot": ""
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "boot b-1"
+   ]
+  }
+ },
+ {
+  "case": "withholds-a-boot-with-no-guest-object",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "boot b-1"
+   ]
+  }
+ },
+ {
+  "case": "s0-refuses-an-empty-population",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s1-refuses-a-boot-without-done",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1"
+   ]
+  }
+ },
+ {
+  "case": "s2-refuses-an-unknown-probe",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P9",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S2",
+    "S4"
+   ]
+  }
+ },
+ {
+  "case": "s3-refuses-a-missing-required-kind",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "admits-p3-without-session-kinds",
+  "cases": [
+   {
+    "boot": "b-3",
+    "probe": "P3",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.journal": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 9,
+     "probe": "P3",
+     "records": 9
+    }
+   }
+  ]
+ },
+ {
+  "case": "s4-refuses-a-probe-mismatch",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P4",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S4"
+   ]
+  }
+ },
+ {
+  "case": "gap-is-withheld-not-denied",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [
+     "gap: seq 1 missing"
+    ],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "boot b-1"
+   ]
+  }
+ },
+ {
+  "case": "null-kinds-withheld-not-s3",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": null,
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "boot b-1"
+   ]
+  }
+ },
+ {
+  "case": "null-withheld-list-is-admitted",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": null,
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ]
+ },
+ {
+  "case": "a-withheld-boot-is-not-also-denied",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [
+     "gap: seq 20 missing"
+    ],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "boot b-1"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": null,
+    "kinds": null,
+    "done": null,
+    "withheld": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "boot b-1"
+   ]
+  }
+ },
+ {
+  "case": "log-level-withheld-beside-an-admitted-boot",
+  "cases": [
+   {
+    "boot": "b-1",
+    "probe": "P2",
+    "withheld": [],
+    "guest": {
+     "deb_sha256": "ab",
+     "git_rev": "4abcb5b",
+     "snapshot": "20260920T000000Z"
+    },
+    "kinds": {
+     "el.ident": 1,
+     "el.session": 1,
+     "el.settled": 1,
+     "el.journal": 1,
+     "el.file": 1,
+     "el.done": 1
+    },
+    "done": {
+     "seq": 20,
+     "probe": "P2",
+     "records": 20
+    }
+   }
+  ],
+  "withheld": [
+   "line 7: malformed frame"
+  ],
+  "expect": {
+   "withheld": [
+    "log"
+   ]
+  }
+ }
+]
