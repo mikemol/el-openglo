@@ -1,0 +1,539 @@
+[
+ {
+  "case": "admits-well-formed-themes",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ]
+ },
+ {
+  "case": "i0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "I0"
+   ]
+  }
+ },
+ {
+  "case": "i0-refuses-a-variant-the-emitter-dropped",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "missing": "declared by make_schemes.GRID but make_inherit.VARIANTS does not emit it"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I0"
+   ]
+  }
+ },
+ {
+  "case": "i0-refuses-a-declared-variant-not-measured-at-all",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I0"
+   ]
+  }
+ },
+ {
+  "case": "i1-refuses-a-chain-without-hicolor",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I1"
+   ]
+  }
+ },
+ {
+  "case": "i1-refuses-a-swapped-polarity",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I1"
+   ]
+  }
+ },
+ {
+  "case": "i2-refuses-no-directories",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I2"
+   ]
+  }
+ },
+ {
+  "case": "i3-refuses-no-cursor-parent",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I3"
+   ]
+  }
+ },
+ {
+  "case": "i4-refuses-defaults-that-select-another-theme",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": false,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I4"
+   ]
+  }
+ },
+ {
+  "case": "i5-an-uninstalled-parent-is-withheld-not-denied",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze-dark": false,
+     "breeze_cursors_light": false
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "I5"
+   ]
+  }
+ },
+ {
+  "case": "null-defaults-ok-does-not-fire",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": null,
+    "missing": null,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "I6"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": null,
+    "cursor_parent": null,
+    "icon_dirs": null,
+    "defaults_ok": null,
+    "missing": null,
+    "installed": null
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "I6"
+   ]
+  }
+ },
+ {
+  "case": "absent-missing-is-withheld",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "icon_parents": [
+     "breeze-dark",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors_light",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "installed": {
+     "breeze-dark": true,
+     "breeze_cursors_light": true
+    }
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "icon_parents": [
+     "breeze",
+     "hicolor"
+    ],
+    "cursor_parent": "breeze_cursors",
+    "icon_dirs": [
+     "scalable"
+    ],
+    "defaults_ok": true,
+    "missing": null,
+    "installed": {
+     "breeze": true,
+     "breeze_cursors": true
+    }
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "I6"
+   ]
+  }
+ }
+]
