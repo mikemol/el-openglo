@@ -57,7 +57,10 @@ if [ -n "$advisory" ]; then
 
 post-commit advisory (auto-captured):
 $(printf '%s\n' "$advisory" | sed 's/^/    /')"
-  _POST_COMMIT_AMENDING=1 git commit --amend --no-verify -F - <<<"$msg" >/dev/null 2>&1 || true
+  # --only: reword the message and NOTHING else. A plain --amend commits the whole index, so a file staged
+  # while a gate ran (a `git add` for the next stack) was folded into the tip (W561: root_helpers and
+  # urgency_cues cases files landed in the config_page commit; mtools:W1434 found the bug was this line).
+  _POST_COMMIT_AMENDING=1 git commit --amend --only --no-verify -F - <<<"$msg" >/dev/null 2>&1 || true
 fi
 
 # AUTO-PUSH (operator, 2026-09-25). AFTER the amend, so the marker is in HEAD; in the
