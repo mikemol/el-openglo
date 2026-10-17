@@ -257,5 +257,73 @@
     "L4"
    ]
   }
+ },
+ {
+  "case": "l6-refuses-a-dangling-load",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "tree": {
+   "nodes": 3,
+   "dangling": [
+    "pytestspec -> pytestspec_gate"
+   ],
+   "orphans": []
+  },
+  "expect": {
+   "deny": [
+    "L6"
+   ]
+  }
+ },
+ {
+  "case": "l7-refuses-an-orphan-node",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "tree": {
+   "nodes": 3,
+   "dangling": [],
+   "orphans": [
+    "pytestspec_lost"
+   ]
+  },
+  "expect": {
+   "deny": [
+    "L7"
+   ]
+  }
+ },
+ {
+  "case": "a-clean-tree-adds-no-denial",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "tree": {
+   "nodes": 8,
+   "dangling": [],
+   "orphans": []
+  }
  }
 ]

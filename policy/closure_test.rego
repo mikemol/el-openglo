@@ -71,6 +71,23 @@ test_a_known_failure_is_withheld_with_its_reason if {
 	"W: worklist passes its witness except the claims @EBUILD: needs a clone" in p.withheld with input as k
 }
 
+test_l6_refuses_a_dangling_load if {
+	bad := object.union(good, {"tree": {"nodes": 3, "dangling": ["pytestspec -> pytestspec_gate"], "orphans": []}})
+	some msg in p.deny with input as bad
+	startswith(msg, "L6: pytestspec -> pytestspec_gate")
+}
+
+test_l7_refuses_an_orphan_node if {
+	bad := object.union(good, {"tree": {"nodes": 3, "dangling": [], "orphans": ["pytestspec_lost"]}})
+	some msg in p.deny with input as bad
+	startswith(msg, "L7: closures_pytestspec_lost.bzl")
+}
+
+test_a_clean_tree_adds_no_denial if {
+	ok := object.union(good, {"tree": {"nodes": 8, "dangling": [], "orphans": []}})
+	count(p.deny) == 0 with input as ok
+}
+
 test_l4_refuses_a_closure_for_a_gone_stage if {
 	bad := object.union(good, {"stale": ["scripts/check_gone.py"]})
 	some msg in p.deny with input as bad

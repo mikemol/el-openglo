@@ -185,6 +185,13 @@ def expand(files, root=ROOT):
     return files
 
 
+def holding(closures, path):
+    """(keys, whole): the stage keys whose stored closure lists `path`, and how many closures are the whole-tree
+    marker. A whole-tree closure follows the tree by construction, so it is counted and never listed."""
+    keys = sorted(k for k, v in closures.items() if v != [WHOLE] and path in v)
+    return keys, sum(1 for v in closures.values() if v == [WHOLE])
+
+
 MAX_VICTIMS = 12
 
 
@@ -366,24 +373,61 @@ def render(closures):
     return "\n".join(out) + "\n"
 
 
-def load_closures(text):
-    """{script: [files]} from closures.bzl's text (Starlark dict literal; read with ast, not run)."""
+def write_closures(closures, root=ROOT):
+    """Write the closure declaration as the nested tree (closures/ and the root closures.bzl; W662).
+
+    Each policy spec's family comes from its rego METADATA (scripts/spec_families.py), so a spec with no
+    family is a ValueError, never filed under the machinery. Returns (changed, stale): the repo paths written,
+    and the closures/*.bzl files the declaration no longer names (the caller removes those from git)."""
+    import closure_tree
+    import spec_families
+
+    population = spec_families.specs(root)
+    tags = spec_families.read_tags(population, root)
+    family_of = {s: f for s, f in tags.items() if f}
+    plan = closure_tree.plan_tree(closures, family_of, EXTRA_NAMED, population)
+    return closure_tree.write_tree(plan, root)
+
+
+def load_closures(text, root=ROOT):
+    """{script: [files]} from closures.bzl's text, read with ast and never run.
+
+    Two forms: a Starlark dict literal (the flat file, and the fixtures), or the ROOT of the closure tree (it
+    `load()`s closures/*.bzl; W662), in which case the tree under `root` is read. A text in neither form is a
+    ValueError: an unreadable declaration must never read as an empty one."""
     import ast
 
+    import closure_tree
+
     tree = ast.parse(text)
+    loads = [
+        n
+        for n in tree.body
+        if isinstance(n, ast.Expr)
+        and isinstance(n.value, ast.Call)
+        and isinstance(n.value.func, ast.Name)
+        and n.value.func.id == "load"
+    ]
+    if loads:
+        return closure_tree.load_tree(root)
     for node in tree.body:
         if isinstance(node, ast.Assign) and any(
             isinstance(t, ast.Name) and t.id == "CLOSURES" for t in node.targets
         ):
             return ast.literal_eval(node.value)
-    return {}
+    msg = "closures.bzl is neither a CLOSURES literal nor the root of the closure tree"
+    raise ValueError(msg)
 
 
-def measure(closures=None, scripts=None, tracked=None, with_witness=False):
+def measure(
+    closures=None, scripts=None, tracked=None, with_witness=False, with_tree=False
+):
     """The MEASUREMENT policy/closure.rego decides: per stage script whether it has a closure, and
     which listed files are not tracked; keys no stage uses are stale. `with_witness` adds the
     sufficiency witness's cases (minutes of work: only the gate stage that asks for it pays, and an
-    EXPLICIT argument, not the environment, so a fixture call in a selftest cannot start it)."""
+    EXPLICIT argument, not the environment, so a fixture call in a selftest cannot start it).
+    `with_tree` adds the closure tree's own shape (dangling loads, orphan nodes: L6, L7), read from
+    the disk, so a fixture call does not ask for it either."""
     import git_tracked
 
     if closures is None:
@@ -412,6 +456,10 @@ def measure(closures=None, scripts=None, tracked=None, with_witness=False):
             }
         )
     result = {"cases": cases, "stale": sorted(set(closures) - set(scripts))}
+    if with_tree:
+        import closure_tree
+
+        result["tree"] = closure_tree.shape()
     if with_witness:
         result["witness"] = witness_all(
             [s for s in scripts if s in closures], closures
@@ -453,10 +501,16 @@ def main(argv):
             closures[s] = [WHOLE] if s in CLONING else compress(closure, every)
             note = " (whole tree: recorded as *)" if closures[s] == [WHOLE] else ""
             print(f"check_closure: {s}: {len(closure)} file(s){note}")
-        with open(CLOSURES, "w", encoding="utf-8") as fh:
-            fh.write(render(closures))
-        print(f"check_closure: wrote {len(closures)} closure(s) to closures.bzl")
-        return 0
+        changed, stale = write_closures(closures)
+        for path in stale:
+            print(
+                f"check_closure: STALE {path}: no longer named; git rm it",
+                file=sys.stderr,
+            )
+        print(
+            f"check_closure: wrote {len(closures)} closure(s); {len(changed)} file(s) changed in the tree"
+        )
+        return 1 if stale else 0
     if args[:1] in (["--witness"], ["--witness-json"]):
         with open(CLOSURES, encoding="utf-8") as fh:
             closures = load_closures(fh.read())
@@ -497,11 +551,27 @@ def main(argv):
                 else compress(expand(v) if v == [WHOLE] else v, every)
                 for k, v in load_closures(fh.read()).items()
             }
-        with open(CLOSURES, "w", encoding="utf-8") as fh:
-            fh.write(render(closures))
+        write_closures(closures)
         whole = sorted(k for k, v in closures.items() if v == [WHOLE])
         print(
             f"check_closure: {len(whole)} of {len(closures)} closure(s) are the whole tree: {whole}"
+        )
+        return 0
+    if args[:1] == ["--holding"] and len(args) == 2:
+        with open(CLOSURES, encoding="utf-8") as fh:
+            closures = load_closures(fh.read())
+        if not closures:
+            print(
+                "check_closure: no closure was read; the search is broken",
+                file=sys.stderr,
+            )
+            return 2
+        keys, whole = holding(closures, args[1])
+        print("\n".join(keys))
+        print(
+            f"check_closure: {len(keys)} of {len(closures)} closure(s) hold {args[1]} "
+            f"({whole} whole-tree closure(s) follow the tree and are not listed)",
+            file=sys.stderr,
         )
         return 0
     if args == ["--unnamed"]:
@@ -524,7 +594,7 @@ def main(argv):
         import json
 
         asked = os.environ.get("CLOSURE_WITNESS") == "1"
-        print(json.dumps(measure(with_witness=asked), indent=1))
+        print(json.dumps(measure(with_witness=asked, with_tree=True), indent=1))
         return 0
     if args == []:
         import opa_gate
@@ -618,6 +688,32 @@ def _selftest():
         load_closures(text),
         {"scripts/check_x.py": ["a.py", "scripts/check_x.py"]},
     )
+    chk(
+        "holding: the narrow closures that list the file, the whole-tree ones counted and not listed",
+        holding({"a": ["x", "f"], "b": ["x"], "c": [WHOLE], "d": ["f"]}, "f"),
+        (["a", "d"], 1),
+    )
+    import closure_tree
+
+    sample = {
+        "scripts/check_a.py": ["a.py"],
+        "worklist": ["w"],
+        "pytestspec": ["policy/x.rego"],
+    }
+    with tempfile.TemporaryDirectory() as td:
+        plan = closure_tree.plan_tree(sample, {"x": "gate"}, ["BUILD.bazel"])
+        closure_tree.write_tree(plan, td)
+        chk(
+            "the root of the closure tree reads as the closures it was made from",
+            load_closures(plan["closures.bzl"], td),
+            sample,
+        )
+    try:
+        load_closures("x = 1\n")
+        refused = False
+    except ValueError:
+        refused = True
+    chk("a text in neither form is refused, never read as empty", refused, True)
     m = measure(
         {"s.py": ["s.py", "gone.py"], "old.py": ["old.py"]},
         ["s.py", "new.py"],

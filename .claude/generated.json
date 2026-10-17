@@ -2,6 +2,14 @@
   "version": 1,
   "generated": [
     {"path": "closures.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_selftest.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_stages.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_pytestspec.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_pytestspec_machinery.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_pytestspec_palette.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_pytestspec_targets.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_pytestspec_display.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "closures_pytestspec_gate.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
     {"path": "catalog/worklist/WORKLIST.md", "generator": ".venv/bin/python3 scripts/worklist_gate.py --project"},
     {"path": "COTYPE-WORKLIST.md", "generator": ".venv/bin/python3 scripts/worklist_gate.py --project"},
     {"path": "README.md", "generator": ".venv/bin/python3 scripts/worklist_gate.py --project"}

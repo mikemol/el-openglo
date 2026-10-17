@@ -63,6 +63,27 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L6 — a closure node that loads a node that is not there"
+# description: |
+#   W662: the closure declaration is a tree of closures_*.bzl nodes (closures.bzl is the root). A load of a
+#   node file that does not exist is a declaration Bazel cannot analyse and the reader cannot follow.
+#   `tree` is absent in a fixture and then says nothing.
+deny contains msg if {
+	some d in object.get(object.get(input, "tree", {}), "dangling", [])
+	msg := sprintf("L6: %s: the loaded node file is absent; regenerate (check_closure.py --write)", [d])
+}
+
+# METADATA
+# title: "L7 — a closure node nothing loads"
+# description: |
+#   A node file no other node (and not the root) loads is stale: a spec or family that went away and left its
+#   leaf behind, which the tree would keep reading as part of no closure.
+deny contains msg if {
+	some o in object.get(object.get(input, "tree", {}), "orphans", [])
+	msg := sprintf("L7: closures_%s.bzl is a closure node nothing loads; git rm it or regenerate (check_closure.py --write)", [o])
+}
+
+# METADATA
 # title: "W — a witness that could not judge"
 # description: |
 #   NOT CONFIRMED IS NOT FAILED: a stage that needs a git work tree is exempt from arm 1 (WITH its
