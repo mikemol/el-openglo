@@ -1,0 +1,421 @@
+[
+ {
+  "case": "admits-a-total-agreeing-authority",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ]
+    ]
+   },
+   "surfaced": {
+    "authority": [],
+    "declared": []
+   }
+  }
+ },
+ {
+  "case": "g0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g0-refuses-zero-emitted-keys",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   }
+  ],
+  "emitted": [],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ]
+    ]
+   },
+   "surfaced": {
+    "authority": [],
+    "declared": []
+   }
+  },
+  "expect": {
+   "deny": [
+    "G0",
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g0-refuses-zero-edges",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 0,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ]
+    ]
+   },
+   "surfaced": {
+    "authority": [],
+    "declared": []
+   }
+  },
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-a-key-nothing-emits",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   },
+   {
+    "id": "no_such_token",
+    "gate": null
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ]
+    ]
+   },
+   "surfaced": {
+    "authority": [],
+    "declared": []
+   }
+  },
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-gate-name-cvd-gate-does-not-use",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": "no_such_gate_name"
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ]
+    ]
+   },
+   "surfaced": {
+    "authority": [],
+    "declared": []
+   }
+  },
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-gate-name-no-node-claims",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg",
+   "visited"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ]
+    ]
+   },
+   "surfaced": {
+    "authority": [],
+    "declared": []
+   }
+  },
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-a-pair-only-cvd-gate-declares",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": [
+     [
+      "fg",
+      "neg"
+     ],
+     [
+      "neg",
+      "visited"
+     ]
+    ]
+   }
+  },
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-a-pair-only-the-authority-declares",
+  "cases": [
+   {
+    "id": "fg",
+    "gate": "fg"
+   },
+   {
+    "id": "neg",
+    "gate": "neg"
+   },
+   {
+    "id": "view",
+    "gate": null
+   }
+  ],
+  "emitted": [
+   "fg",
+   "fg_in",
+   "neg",
+   "view"
+  ],
+  "gate_names": [
+   "fg",
+   "neg"
+  ],
+  "edges": 3,
+  "pairs": {
+   "enforced": {
+    "authority": [
+     [
+      "fg",
+      "neg"
+     ]
+    ],
+    "declared": []
+   }
+  },
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ }
+]
