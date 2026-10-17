@@ -1,0 +1,177 @@
+[
+ {
+  "case": "admits-a-clean-tree",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [],
+  "cases": [
+   {
+    "id": "make_wallpaper.py",
+    "found": []
+   },
+   {
+    "id": "make_clock.py",
+    "found": []
+   }
+  ]
+ },
+ {
+  "case": "e0-refuses-an-empty-population",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [],
+  "cases": [],
+  "expect": {
+   "deny": [
+    "E0"
+   ]
+  }
+ },
+ {
+  "case": "e0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "E0"
+   ],
+   "withheld": [
+    "E0"
+   ]
+  }
+ },
+ {
+  "case": "e0-withholds-a-scan-without-the-identifier",
+  "identifier": false,
+  "document_lines": 8,
+  "waivers": [],
+  "cases": [
+   {
+    "id": "make_wallpaper.py",
+    "found": []
+   },
+   {
+    "id": "make_clock.py",
+    "found": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "E0"
+   ]
+  }
+ },
+ {
+  "case": "e1-refuses-an-embedded-document",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [],
+  "cases": [
+   {
+    "id": "make_wallpaper.py",
+    "found": [
+     {
+      "line": 12,
+      "kind": "image/svg+xml",
+      "lines": 40
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "E1"
+   ]
+  }
+ },
+ {
+  "case": "e1-admits-a-waived-embedding",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [
+   {
+    "path": "make_wallpaper.py",
+    "why": "the SVG is the test fixture itself"
+   }
+  ],
+  "cases": [
+   {
+    "id": "make_wallpaper.py",
+    "found": [
+     {
+      "line": 12,
+      "kind": "image/svg+xml",
+      "lines": 40
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "e2-refuses-a-blank-waiver-reason",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [
+   {
+    "path": "make_clock.py",
+    "why": "  "
+   }
+  ],
+  "cases": [
+   {
+    "id": "make_wallpaper.py",
+    "found": []
+   },
+   {
+    "id": "make_clock.py",
+    "found": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "E2"
+   ]
+  }
+ },
+ {
+  "case": "e2-refuses-a-null-waiver-reason",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [
+   {
+    "path": "make_clock.py",
+    "why": null
+   }
+  ],
+  "cases": [
+   {
+    "id": "make_wallpaper.py",
+    "found": []
+   },
+   {
+    "id": "make_clock.py",
+    "found": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "E2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "identifier": true,
+  "document_lines": 8,
+  "waivers": [],
+  "cases": [
+   {
+    "id": "make_clock.py",
+    "found": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
