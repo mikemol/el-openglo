@@ -1,0 +1,129 @@
+[
+ {
+  "case": "admits-modules-that-import",
+  "cases": [
+   {
+    "id": "cvd_gate",
+    "present": true,
+    "imported": true,
+    "error": null,
+    "missing": null,
+    "missing_is_ours": null
+   },
+   {
+    "id": "make_palette",
+    "present": true,
+    "imported": true,
+    "error": null,
+    "missing": null,
+    "missing_is_ours": null
+   }
+  ]
+ },
+ {
+  "case": "i0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "I0"
+   ]
+  }
+ },
+ {
+  "case": "i1-refuses-an-absent-module-file",
+  "cases": [
+   {
+    "id": "glyph_match",
+    "present": false,
+    "imported": null,
+    "error": null,
+    "missing": null,
+    "missing_is_ours": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I1"
+   ]
+  }
+ },
+ {
+  "case": "i2-refuses-a-top-level-failure",
+  "cases": [
+   {
+    "id": "make_palette",
+    "present": true,
+    "imported": false,
+    "error": "AttributeError: module 'cvd_gate' has no attribute 'stretch_lit'",
+    "missing": null,
+    "missing_is_ours": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I2"
+   ]
+  }
+ },
+ {
+  "case": "i2-refuses-a-missing-module-of-this-tree",
+  "cases": [
+   {
+    "id": "make_schemes",
+    "present": true,
+    "imported": false,
+    "error": "ModuleNotFoundError: No module named 'palette_graph'",
+    "missing": "palette_graph",
+    "missing_is_ours": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "I2"
+   ]
+  }
+ },
+ {
+  "case": "i2-withholds-a-missing-third-party",
+  "cases": [
+   {
+    "id": "cvd_gate",
+    "present": true,
+    "imported": true,
+    "error": null,
+    "missing": null,
+    "missing_is_ours": null
+   },
+   {
+    "id": "render_showcase",
+    "present": true,
+    "imported": false,
+    "error": "ModuleNotFoundError: No module named 'matplotlib'",
+    "missing": "matplotlib",
+    "missing_is_ours": false
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "I2"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "id": "cvd_gate",
+    "present": null,
+    "imported": null,
+    "error": null,
+    "missing": null,
+    "missing_is_ours": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
