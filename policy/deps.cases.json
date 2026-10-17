@@ -1,0 +1,114 @@
+[
+ {
+  "case": "admits-declared-and-recorded-imports",
+  "manifest": true,
+  "cases": [
+   {
+    "id": "numpy",
+    "dist": "numpy",
+    "files": [
+     "make_palette.py"
+    ],
+    "declared": true,
+    "recorded": true
+   },
+   {
+    "id": "gcalc",
+    "dist": "gcalc",
+    "files": [
+     "make_palette.py"
+    ],
+    "declared": false,
+    "recorded": true
+   }
+  ]
+ },
+ {
+  "case": "d0-refuses-an-empty-walk",
+  "manifest": true,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "d0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "D0"
+   ],
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "d0-refuses-no-manifest",
+  "manifest": false,
+  "cases": [
+   {
+    "id": "numpy",
+    "dist": "numpy",
+    "files": [
+     "make_palette.py"
+    ],
+    "declared": true,
+    "recorded": true
+   },
+   {
+    "id": "gcalc",
+    "dist": "gcalc",
+    "files": [
+     "make_palette.py"
+    ],
+    "declared": false,
+    "recorded": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "d1-refuses-an-unaccounted-import",
+  "manifest": true,
+  "cases": [
+   {
+    "id": "magic",
+    "dist": "magic",
+    "files": [
+     "make_palette.py"
+    ],
+    "declared": false,
+    "recorded": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "D1"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "manifest": true,
+  "cases": [
+   {
+    "id": "numpy",
+    "dist": "numpy",
+    "files": [],
+    "declared": null,
+    "recorded": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
