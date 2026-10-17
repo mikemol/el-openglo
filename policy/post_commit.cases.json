@@ -1,0 +1,115 @@
+[
+ {
+  "case": "admits-a-hook-that-leaves-the-index-alone",
+  "hook": ".githooks/post-commit",
+  "hook_present": true,
+  "cases": [
+   {
+    "scenario": "staged-beside-the-committed-file",
+    "amended": true,
+    "folded": false,
+    "still_staged": true
+   }
+  ]
+ },
+ {
+  "case": "p0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "p0-refuses-an-empty-population-with-a-hook",
+  "hook_present": true,
+  "cases": [],
+  "expect": {
+   "deny": [
+    "P0"
+   ]
+  }
+ },
+ {
+  "case": "an-absent-hook-is-withheld-not-denied",
+  "hook_present": false,
+  "cases": [],
+  "expect": {
+   "withheld": [
+    "P3"
+   ]
+  }
+ },
+ {
+  "case": "p1-refuses-a-folded-staged-file",
+  "hook": ".githooks/post-commit",
+  "hook_present": true,
+  "cases": [
+   {
+    "scenario": "staged-beside-the-committed-file",
+    "amended": true,
+    "folded": true,
+    "still_staged": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P1"
+   ]
+  }
+ },
+ {
+  "case": "p2-refuses-a-staged-file-removed-from-the-index",
+  "hook": ".githooks/post-commit",
+  "hook_present": true,
+  "cases": [
+   {
+    "scenario": "staged-beside-the-committed-file",
+    "amended": true,
+    "folded": false,
+    "still_staged": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "P2"
+   ]
+  }
+ },
+ {
+  "case": "p3-withholds-a-hook-that-did-not-amend",
+  "hook": ".githooks/post-commit",
+  "hook_present": true,
+  "cases": [
+   {
+    "scenario": "staged-beside-the-committed-file",
+    "amended": false,
+    "folded": false,
+    "still_staged": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P3"
+   ]
+  }
+ },
+ {
+  "case": "p3-withholds-an-unmeasured-fact",
+  "hook": ".githooks/post-commit",
+  "hook_present": true,
+  "cases": [
+   {
+    "scenario": "staged-beside-the-committed-file",
+    "amended": true,
+    "folded": null,
+    "still_staged": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "P3"
+   ]
+  }
+ }
+]
