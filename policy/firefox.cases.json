@@ -1,0 +1,904 @@
+[
+ {
+  "case": "admits-a-clean-manifest",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  }
+ },
+ {
+  "case": "x7-refuses-a-missing-variant",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [
+    "EL-Amber"
+   ],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X7"
+   ]
+  }
+ },
+ {
+  "case": "x7-refuses-an-extra-variant",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [
+    "EL-Nope"
+   ],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X7"
+   ]
+  }
+ },
+ {
+  "case": "x7-refuses-drift",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [
+    "EL-Openglo"
+   ],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X7"
+   ]
+  }
+ },
+ {
+  "case": "x9-refuses-a-blocking-warning-on-a-theme",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": [],
+    "lint_warnings": [
+     "MISSING_DATA_COLLECTION_PERMISSIONS"
+    ]
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X9"
+   ]
+  }
+ },
+ {
+  "case": "x9-refuses-a-blocking-warning-on-the-dynamic-extension",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": [],
+   "lint_warnings": [
+    "MISSING_DATA_COLLECTION_PERMISSIONS"
+   ]
+  },
+  "expect": {
+   "deny": [
+    "X9"
+   ]
+  }
+ },
+ {
+  "case": "x9-admits-an-ordinary-warning",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": [],
+    "lint_warnings": [
+     "UNSAFE_VAR_ASSIGNMENT"
+    ]
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  }
+ },
+ {
+  "case": "x8-refuses-a-missing-permission",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X8"
+   ]
+  }
+ },
+ {
+  "case": "x8-refuses-an-unshipped-options-page",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": false,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X8"
+   ]
+  }
+ },
+ {
+  "case": "x6-dynamic-withheld-without-web-ext",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": null
+  },
+  "expect": {
+   "withheld": [
+    "X6"
+   ]
+  }
+ },
+ {
+  "case": "dynamic-unmeasured-is-withheld",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "x0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "X0"
+   ]
+  }
+ },
+ {
+  "case": "x0-refuses-emitter-drift",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [
+   {
+    "variant": "EL-Amber",
+    "why": "in GRID, not in make_firefox.VARIANTS"
+   }
+  ],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X0"
+   ]
+  }
+ },
+ {
+  "case": "x1-refuses-unparsable-json-and-admits-nothing",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": "Expecting value: line 1",
+    "missing_required": null,
+    "wrong_colours": null,
+    "unmapped_keys": null,
+    "color_scheme": null,
+    "want_scheme": "dark",
+    "gecko_id": null,
+    "lint_errors": null
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X1"
+   ]
+  }
+ },
+ {
+  "case": "x2-refuses-a-missing-frame",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [
+     "frame"
+    ],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X2"
+   ]
+  }
+ },
+ {
+  "case": "x3-refuses-an-authored-colour",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [
+     {
+      "key": "toolbar",
+      "role": "bg",
+      "got": [
+       1,
+       2,
+       3
+      ],
+      "want": [
+       9,
+       9,
+       9
+      ]
+     }
+    ],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X3"
+   ]
+  }
+ },
+ {
+  "case": "x3-refuses-an-unmapped-key",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [
+     "accentcolor"
+    ],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X3"
+   ]
+  }
+ },
+ {
+  "case": "x4-refuses-the-wrong-polarity",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "light",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X4"
+   ]
+  }
+ },
+ {
+  "case": "x5-refuses-an-id-not-naming-the-variant",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "theme@example.org",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X5"
+   ]
+  }
+ },
+ {
+  "case": "x5-refuses-an-empty-id",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "",
+    "lint_errors": []
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X5"
+   ]
+  }
+ },
+ {
+  "case": "x6-refuses-a-lint-error",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": [
+     "MANIFEST_FIELD_INVALID"
+    ]
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "deny": [
+    "X6"
+   ]
+  }
+ },
+ {
+  "case": "x6-withholds-the-lint-without-web-ext",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": null
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "withheld": [
+    "X6"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "roster": [
+   "EL-Openglo"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": null,
+    "wrong_colours": null,
+    "unmapped_keys": null,
+    "color_scheme": null,
+    "want_scheme": null,
+    "gecko_id": null,
+    "lint_errors": null
+   }
+  ],
+  "dynamic": {
+   "id": "dynamic",
+   "missing_variants": [],
+   "extra_variants": [],
+   "drifted": [],
+   "permissions": [
+    "storage",
+    "theme"
+   ],
+   "options_page": "options.html",
+   "options_page_shipped": true,
+   "lint_errors": []
+  },
+  "expect": {
+   "withheld": [
+    "W",
+    "X6"
+   ]
+  }
+ },
+ {
+  "case": "a-prefixed-variant-denial-does-not-leak",
+  "roster": [
+   "EL-Openglo",
+   "EL-Openglo-Lit"
+  ],
+  "roster_drift": [],
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "dark",
+    "gecko_id": "el-openglo@el-openglo.theme",
+    "lint_errors": []
+   },
+   {
+    "id": "EL-Openglo-Lit",
+    "parse_error": null,
+    "missing_required": [],
+    "wrong_colours": [],
+    "unmapped_keys": [],
+    "color_scheme": "dark",
+    "want_scheme": "light",
+    "gecko_id": "el-openglo-lit@x",
+    "lint_errors": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "X4"
+   ],
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]

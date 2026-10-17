@@ -13099,9 +13099,6 @@
       ],
       "blocked_on": [
         "W569",
-        "W573",
-        "W574",
-        "W575",
         "W576",
         "W577",
         "W578",
@@ -13456,7 +13453,7 @@
     {
       "symbol": "W573",
       "title": "Port plasma_air to pytestspec: policy/plasma_air.cases.json, 5 of 8 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13466,20 +13463,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/plasma_air.cases.json from policy/plasma_air_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 80c490a: policy/plasma_air.cases.json, 8 cases, P2 mutation control held",
       "issued_at": "2026-10-17T08:32:22Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T11:56:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T115658Z"
     },
     {
       "symbol": "W574",
       "title": "Port scope_recorded to pytestspec: policy/scope_recorded.cases.json, 5 of 8 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13489,20 +13487,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/scope_recorded.cases.json from policy/scope_recorded_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at aca646e: policy/scope_recorded.cases.json, 8 cases, S1 mutation control held",
       "issued_at": "2026-10-17T08:32:22Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T11:56:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T115658Z"
     },
     {
       "symbol": "W575",
       "title": "Port legibility to pytestspec: policy/legibility.cases.json, 9 of 15 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13512,15 +13511,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/legibility.cases.json from policy/legibility_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at fe8425d: policy/legibility.cases.json, 16 cases, G3 mutation control held; first stack queued behind a gate with files frozen at submit (mtools W1447), not refused",
       "issued_at": "2026-10-17T08:32:23Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T11:56:58Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T115658Z"
     },
     {
       "symbol": "W576",
@@ -15274,7 +15274,7 @@
     {
       "symbol": "W657",
       "title": "Repin mtools to 52de4de so queued stacks freeze their files at submit (mtools W1447)",
-      "status": "working",
+      "status": "done",
       "enables": [],
       "touches": [
         "file:pyproject.toml!w",
@@ -15282,14 +15282,14 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Resolve 52de4de to its full sha in the mtools checkout, run mikemol-repin --write --sha <full>, uv sync --extra tooling --extra research, then commit pyproject.toml and uv.lock alone; afterwards test two real queued stacks and tell mtools-ad if a run reads a late edit",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at a172d5c: every mikemol pin at mtools 52de4def1586e5b2e685e5f27e0883229b0784d6 (W1420 prune-only bump-blocked, W1447 queued stacks freeze files at submit); venv re-synced with the extras before the commit; two queued stacks (W573 to W575, W576 to W578) submitted after the sync are the test of the freeze and are in the lease",
       "issued_at": "2026-10-17T10:31:30Z",
       "minted_during": "interrupt",
       "caused_by": "mtools-ad",
-      "last_worked": "2026-10-17T10:52:31Z",
+      "last_worked": "2026-10-17T11:26:53Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": "20261017T112653Z"
     }
   ],
   "residue": [
@@ -15382,26 +15382,7 @@
     "A CONTRADICTION IS A GRAPH EDIT WAITING, NEVER A TIE TO BREAK (operator 2026-10-01: \"find the structural agreement, don't just bulldoze\"). When the order disagrees with an operator ruling or with itself, find which edit restores agreement: (a) a missing dependency edge (--enables / blocked_on), (b) a vector metric mis-scored (the vector is rich for this; re-read .claude/vector-calibration.md), or (c) the ruling itself is wrong - then make that edit, ledger which one and why, and re-sync. (c) goes to the operator as a question, never applied silently. Only a defect in the ranking machinery itself goes to nemik-00."
   ],
   "predecessor_job_id": "6adeda42",
-  "leases": [
-    {
-      "tag": "file:pyproject.toml!w",
-      "holder": "(unlocked)",
-      "waypoint": "W657",
-      "base_sha": "76c013939adc4730b18d9b906b92edb91b692a2f",
-      "taken_at": "2026-10-17T10:52:31Z",
-      "renewed_at": "2026-10-17T10:52:31Z",
-      "expires_at": "2026-10-17T11:22:31Z"
-    },
-    {
-      "tag": "file:uv.lock!w",
-      "holder": "(unlocked)",
-      "waypoint": "W657",
-      "base_sha": "76c013939adc4730b18d9b906b92edb91b692a2f",
-      "taken_at": "2026-10-17T10:52:31Z",
-      "renewed_at": "2026-10-17T10:52:31Z",
-      "expires_at": "2026-10-17T11:22:31Z"
-    }
-  ],
+  "leases": [],
   "advice": [
     {
       "tool": "block-matching",
