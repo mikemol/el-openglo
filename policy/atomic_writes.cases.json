@@ -1,0 +1,221 @@
+[
+ {
+  "case": "a0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "A0"
+   ]
+  }
+ },
+ {
+  "case": "a0-refuses-an-empty-population",
+  "cases": [],
+  "helper_present": true,
+  "expect": {
+   "deny": [
+    "A0"
+   ]
+  }
+ },
+ {
+  "case": "a1-refuses-a-plain-write",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 1,
+    "kind": "atomic_write",
+    "atomic": true,
+    "exempt": false,
+    "reason": null
+   },
+   {
+    "module": "make_x",
+    "line": 2,
+    "kind": "open",
+    "atomic": false,
+    "exempt": false,
+    "reason": null
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "deny": [
+    "A1"
+   ]
+  }
+ },
+ {
+  "case": "a2-refuses-an-exemption-without-a-reason",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 4,
+    "kind": "open",
+    "atomic": false,
+    "exempt": true,
+    "reason": ""
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "deny": [
+    "A2"
+   ]
+  }
+ },
+ {
+  "case": "null-exempt-is-withheld-not-an-exemption",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 4,
+    "kind": "open",
+    "atomic": false,
+    "exempt": null,
+    "reason": ""
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "withheld": [
+    "A4"
+   ]
+  }
+ },
+ {
+  "case": "null-atomic-is-withheld-not-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 2,
+    "kind": "open",
+    "atomic": null,
+    "exempt": false,
+    "reason": null
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "withheld": [
+    "A4"
+   ]
+  }
+ },
+ {
+  "case": "null-exempt-on-a-plain-site-is-withheld-not-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 2,
+    "kind": "open",
+    "atomic": false,
+    "exempt": null,
+    "reason": null
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "withheld": [
+    "A4"
+   ]
+  }
+ },
+ {
+  "case": "null-helper-present-is-withheld-not-denied",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 1,
+    "kind": "atomic_write",
+    "atomic": true,
+    "exempt": false,
+    "reason": null
+   }
+  ],
+  "helper_present": null,
+  "expect": {
+   "withheld": [
+    "A3"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 9,
+    "kind": null,
+    "atomic": null,
+    "exempt": null,
+    "reason": null
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "withheld": [
+    "A4"
+   ]
+  }
+ },
+ {
+  "case": "atomic-with-a-bare-exemption-is-denied-once",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 1,
+    "kind": "atomic_write",
+    "atomic": true,
+    "exempt": true,
+    "reason": ""
+   }
+  ],
+  "helper_present": true,
+  "expect": {
+   "deny": [
+    "A2"
+   ]
+  }
+ },
+ {
+  "case": "a3-refuses-a-missing-helper",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 1,
+    "kind": "atomic_write",
+    "atomic": true,
+    "exempt": false,
+    "reason": null
+   }
+  ],
+  "helper_present": false,
+  "expect": {
+   "deny": [
+    "A3"
+   ]
+  }
+ },
+ {
+  "case": "admits-atomic-and-reasoned-exempt",
+  "cases": [
+   {
+    "module": "make_x",
+    "line": 1,
+    "kind": "atomic_write",
+    "atomic": true,
+    "exempt": false,
+    "reason": null
+   },
+   {
+    "module": "make_x",
+    "line": 3,
+    "kind": "open",
+    "atomic": false,
+    "exempt": true,
+    "reason": "a private tempdir"
+   }
+  ],
+  "helper_present": true
+ }
+]

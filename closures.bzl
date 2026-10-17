@@ -463,6 +463,7 @@ CLOSURES = {
         "policy/aperture.cases.json",
         "policy/aperture.rego",
         "policy/aperture_test.rego",
+        "policy/atomic_writes.cases.json",
         "policy/atomic_writes.rego",
         "policy/atomic_writes_test.rego",
         "policy/bazel_build.cases.json",
