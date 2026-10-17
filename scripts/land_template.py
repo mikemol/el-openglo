@@ -429,6 +429,20 @@ def git_head(rev="HEAD"):
     return fmt("%s"), fmt("%b")
 
 
+def git_sha(rev="HEAD"):
+    """The short sha of `rev`. Read only AFTER verify_commit has seen the post-commit advisory marker: the
+    amend that folds the advisory in rewrites the tip, so a sha read earlier is a pre-amend sha (W664: the
+    repin was cited as ec02a92 and landed as 420375a)."""
+    import subprocess
+
+    return subprocess.run(
+        ["git", "-C", ROOT, "rev-parse", "--short", rev],
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.strip()
+
+
 def stack_entries(path):
     """The commits of a stack file, validated: a JSON list of {waypoint, subject, paths[, body]}.
 
@@ -476,7 +490,13 @@ def commit_runner(argv):
 
 
 def commit_report(
-    waypoint, subject, paths, run=commit_runner, head=git_head, status=git_porcelain
+    waypoint,
+    subject,
+    paths,
+    run=commit_runner,
+    head=git_head,
+    status=git_porcelain,
+    sha=git_sha,
 ):
     """Stage the named paths (default: every tracked change) and commit them under `waypoint`, then compare
     what landed with what was asked. Exit 0 when the commit landed and matches, 1 when the gate refused it or
@@ -511,12 +531,14 @@ def commit_report(
     if problems:
         return 1
     print(
-        f"land_template --commit: {waypoint} landed, {len(paths)} path(s), HEAD matches the ask"
+        f"land_template --commit: {waypoint} landed as {sha()}, {len(paths)} path(s), HEAD matches the ask"
     )
     return 0
 
 
-def stack_report(path, run=commit_runner, head=git_head, status=git_porcelain):
+def stack_report(
+    path, run=commit_runner, head=git_head, status=git_porcelain, sha=git_sha
+):
     """Commit a STACK through ONE gate and compare each landed commit with its entry; the exit code.
 
     Stages every entry's paths, runs `mikemol-commit el-openglo --stack FILE`, then reads entry k at
@@ -552,8 +574,12 @@ def stack_report(path, run=commit_runner, head=git_head, status=git_porcelain):
         print(f"land_template: MISMATCH: {p}")
     if problems:
         return 1
+    landed = ", ".join(
+        f"{e['waypoint']} {sha(f'HEAD~{n - 1 - k}' if n - 1 - k else 'HEAD')}"
+        for k, e in enumerate(entries)
+    )
     print(
-        f"land_template --stack: {n} commit(s) landed through one gate, each matches its entry"
+        f"land_template --stack: {n} commit(s) landed through one gate, each matches its entry: {landed}"
     )
     return 0
 
@@ -1050,7 +1076,8 @@ def _selftest():
 
     bad_gate = False
     quiet = io.StringIO()
-    with contextlib.redirect_stdout(quiet):
+    printed = io.StringIO()
+    with contextlib.redirect_stdout(printed):
         good = commit_report(
             "W9",
             "subj",
@@ -1058,7 +1085,13 @@ def _selftest():
             run=fake_run,
             head=lambda: ("subj", body),
             status=lambda: "",
+            sha=lambda rev="HEAD": "abc1234",
         )
+    chk(
+        "commit_report: the success line names the final sha it read after verifying the marker",
+        "W9 landed as abc1234" in printed.getvalue(),
+        True,
+    )
     chk(
         "commit_report: stages the named paths with -A, then commits, and a matching HEAD is exit 0",
         (good, [r[:3] for r in ran]),
@@ -1180,7 +1213,11 @@ def _selftest():
 
         with contextlib.redirect_stdout(quiet), contextlib.redirect_stderr(quiet):
             rc = stack_report(
-                path, run=fake, head=lambda rev="HEAD": heads_[rev], status=lambda: ""
+                path,
+                run=fake,
+                head=lambda rev="HEAD": heads_[rev],
+                status=lambda: "",
+                sha=lambda rev="HEAD": f"sha-of-{rev}",
             )
         return rc, ran
 
@@ -1190,6 +1227,11 @@ def _selftest():
             "stack_report: stages every entry's paths once, runs the stack through one commit call, and a matching depth is exit 0",
             (rc, ran[0][:3], ran[0][-2:], len(ran)),
             (0, ["git", "add", "-A"], ["a.py", "b.py"], 2),
+        )
+        chk(
+            "stack_report: the success line names each entry's final sha at its own depth, tip last",
+            "W1 sha-of-HEAD~1, W2 sha-of-HEAD" in quiet.getvalue(),
+            True,
         )
         wrong = {**heads, "HEAD~1": ("another", "Waypoint: W1\n")}
         chk(
