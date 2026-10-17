@@ -504,6 +504,7 @@ CLOSURES = {
         "policy/deb_test.rego",
         "policy/deps.rego",
         "policy/deps_test.rego",
+        "policy/display_registry.cases.json",
         "policy/display_registry.rego",
         "policy/display_registry_test.rego",
         "policy/ebuild.cases.json",
