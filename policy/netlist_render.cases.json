@@ -1,0 +1,332 @@
+[
+ {
+  "case": "admits-a-rendered-graph",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ]
+ },
+ {
+  "case": "n0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "N0"
+   ],
+   "withheld": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "n0-refuses-an-empty-sequence",
+  "frames": 0,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N0"
+   ]
+  }
+ },
+ {
+  "case": "n2-refuses-a-node-missing-from-the-render",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N2"
+   ]
+  }
+ },
+ {
+  "case": "n3-refuses-a-colour-lost-in-the-svg",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": false
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "n1-refuses-stuck-interior",
+  "frames": 3,
+  "stuck": [
+   "hover"
+  ],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N1"
+   ]
+  }
+ },
+ {
+  "case": "null-in-dot-does-not-fire",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "N2"
+   ]
+  }
+ },
+ {
+  "case": "population-flags-null-withheld",
+  "frames": null,
+  "stuck": null,
+  "render": {
+   "ok": null,
+   "detail": null
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "N0",
+    "N1",
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "null-family-in-dot-is-withheld",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": null,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "n3-refuses-a-colour-absent-from-the-dot",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": true,
+   "detail": ""
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": false,
+    "in_svg": true
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "deny": [
+    "N3"
+   ]
+  }
+ },
+ {
+  "case": "graphviz-absent-is-withheld-beside-admitted",
+  "frames": 3,
+  "stuck": [],
+  "render": {
+   "ok": null,
+   "detail": "graphviz `dot` is not installed"
+  },
+  "families": [
+   {
+    "family": "geometry",
+    "colour": "#4080ff",
+    "in_dot": true,
+    "in_svg": null
+   }
+  ],
+  "cases": [
+   {
+    "node": "view",
+    "in_dot": true
+   },
+   {
+    "node": "fg",
+    "in_dot": true
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "N3"
+   ]
+  }
+ }
+]
