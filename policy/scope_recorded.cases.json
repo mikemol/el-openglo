@@ -1,0 +1,114 @@
+[
+ {
+  "case": "admits-a-recorded-decision",
+  "cases": [
+   {
+    "record": "RECOVERY-NOTES.md",
+    "present": true,
+    "evidence": [
+     {
+      "line": 12,
+      "text": "retired because of a trademark concern; the rename"
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "s0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s0-refuses-an-empty-population",
+  "cases": [],
+  "expect": {
+   "deny": [
+    "S0"
+   ]
+  }
+ },
+ {
+  "case": "s1-refuses-an-absent-record",
+  "cases": [
+   {
+    "record": "RECOVERY-NOTES.md",
+    "present": false,
+    "evidence": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S1"
+   ]
+  }
+ },
+ {
+  "case": "s2-refuses-a-record-without-the-rationale",
+  "cases": [
+   {
+    "record": "RECOVERY-NOTES.md",
+    "present": true,
+    "evidence": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "S2"
+   ]
+  }
+ },
+ {
+  "case": "null-present-withheld-not-s1",
+  "cases": [
+   {
+    "record": "RECOVERY-NOTES.md",
+    "present": null,
+    "evidence": [
+     {
+      "line": 12,
+      "text": "retired because of a trademark concern; the rename"
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "all-null-case-withheld-only",
+  "cases": [
+   {
+    "record": "RECOVERY-NOTES.md",
+    "present": null,
+    "evidence": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S3"
+   ]
+  }
+ },
+ {
+  "case": "null-present-does-not-fire-s2",
+  "cases": [
+   {
+    "record": "RECOVERY-NOTES.md",
+    "present": null,
+    "evidence": []
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "S3"
+   ]
+  }
+ }
+]
