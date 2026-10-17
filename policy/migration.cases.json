@@ -1,0 +1,442 @@
+[
+ {
+  "case": "admits-a-landed-migration",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "withholds-without-the-runner",
+  "runner": false,
+  "why": "/usr/bin/qml not present",
+  "expect": {
+   "withheld": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "withholds-an-absent-runner-fact",
+  "expect": {
+   "withheld": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g0-refuses-an-empty-shell",
+  "runner": true,
+  "desktops": [],
+  "panels": [],
+  "expect": {
+   "deny": [
+    "G0"
+   ]
+  }
+ },
+ {
+  "case": "g1-refuses-a-legacy-wallpaper",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live.elazure"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G1"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-surviving-legacy-applet",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock.elazure",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       1,
+       1
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-duplicated-applet",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g2-refuses-a-missing-applet",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G2"
+   ]
+  }
+ },
+ {
+  "case": "g3-refuses-a-lost-stock-widget",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G3"
+   ]
+  }
+ },
+ {
+  "case": "g4-refuses-dropped-settings",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {},
+      "geometry": [
+       300,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G4"
+   ]
+  }
+ },
+ {
+  "case": "g4-refuses-a-moved-marquee",
+  "runner": true,
+  "desktops": [
+   {
+    "wallpaper": "org.el.openglo.live"
+   }
+  ],
+  "panels": [
+   {
+    "widgets": [
+     {
+      "type": "org.kde.plasma.kickoff",
+      "config": {},
+      "geometry": [
+       0,
+       0,
+       30,
+       30
+      ]
+     },
+     {
+      "type": "org.el.segclock",
+      "config": {},
+      "geometry": [
+       800,
+       0,
+       120,
+       30
+      ]
+     },
+     {
+      "type": "org.el.notifymarquee",
+      "config": {
+       "hoverPause": "false"
+      },
+      "geometry": [
+       0,
+       0,
+       420,
+       30
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "G4"
+   ]
+  }
+ }
+]
