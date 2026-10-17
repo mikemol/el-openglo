@@ -1,0 +1,705 @@
+[
+ {
+  "case": "y5-admits-a-centre-fed-profile",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12
+ },
+ {
+  "case": "y5-refuses-a-one-sided-profile",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.3,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": true
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y5"
+   ]
+  }
+ },
+ {
+  "case": "y5-refuses-a-stop-mirrored-at-the-wrong-fade",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 1.0,
+      "lit": true
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y5"
+   ]
+  }
+ },
+ {
+  "case": "y5-refuses-no-profile-population",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [],
+  "expect": {
+   "deny": [
+    "Y5"
+   ]
+  }
+ },
+ {
+  "case": "y5-refuses-an-absent-profile-population",
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "expect": {
+   "deny": [
+    "Y5"
+   ]
+  }
+ },
+ {
+  "case": "y5-withholds-an-unreadable-profile",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": null
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "mirror-regions-never-deny",
+  "cases": [
+   {
+    "label": "face-0000",
+    "scope": "face",
+    "planes": {
+     "h": {
+      "regions": [
+       {
+        "box": [
+         0,
+         0,
+         9,
+         9
+        ],
+        "pixels": 40,
+        "worst": 200,
+        "where": "upper-left"
+       }
+      ],
+      "pixels": 40
+     }
+    }
+   }
+  ],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12
+ },
+ {
+  "case": "y3-admits-a-clean-fit",
+  "cases": [
+   {
+    "label": "glyph-8",
+    "scope": "glyph",
+    "planes": {},
+    "segment_fit": {
+     "fit": {
+      "ox": 4.5,
+      "oy": 4.5,
+      "segLen": 50
+     },
+     "residuals": {
+      "A": 0,
+      "B": 0
+     },
+     "absent": [],
+     "offenders": []
+    }
+   }
+  ],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12
+ },
+ {
+  "case": "y3-refuses-a-named-offender",
+  "cases": [
+   {
+    "label": "glyph-8",
+    "scope": "glyph",
+    "planes": {},
+    "segment_fit": {
+     "fit": {
+      "ox": 4.5,
+      "oy": 4.5,
+      "segLen": 50
+     },
+     "residuals": {
+      "A": 0,
+      "B": 3.1
+     },
+     "absent": [],
+     "offenders": [
+      "B"
+     ]
+    }
+   }
+  ],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y3"
+   ]
+  }
+ },
+ {
+  "case": "y4-refuses-an-absent-segment",
+  "cases": [
+   {
+    "label": "glyph-8",
+    "scope": "glyph",
+    "planes": {},
+    "segment_fit": {
+     "fit": {
+      "ox": 4.5,
+      "oy": 4.5,
+      "segLen": 50
+     },
+     "residuals": {
+      "A": 0,
+      "B": 0
+     },
+     "absent": [
+      "G"
+     ],
+     "offenders": []
+    }
+   }
+  ],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y4"
+   ]
+  }
+ },
+ {
+  "case": "y0-refuses-no-grid",
+  "cases": [],
+  "grids": [],
+  "expect": {
+   "deny": [
+    "Y0",
+    "Y5"
+   ]
+  }
+ },
+ {
+  "case": "y0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "Y0",
+    "Y5"
+   ]
+  }
+ },
+ {
+  "case": "y2-refuses-an-uneven-pitch",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     3
+    ],
+    "gaps": [
+     1,
+     2
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y2"
+   ]
+  }
+ },
+ {
+  "case": "y2-refuses-uneven-pips",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [
+     2,
+     3
+    ],
+    "gaps": [
+     1
+    ],
+    "columns": 105
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y2"
+   ]
+  }
+ },
+ {
+  "case": "y1-refuses-a-blank-board",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": [],
+    "gaps": [],
+    "columns": 0
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "deny": [
+    "Y1"
+   ]
+  }
+ },
+ {
+  "case": "withholds-without-the-renderer",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "withheld": "/usr/bin/qml is not installed"
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "withheld": [
+    "Y0"
+   ]
+  }
+ },
+ {
+  "case": "all-null-grid-withheld-only",
+  "cases": [],
+  "grids": [
+   {
+    "label": "marquee-field",
+    "variant": "EL-Amber",
+    "pip_widths": null,
+    "gaps": null,
+    "columns": null
+   }
+  ],
+  "gradients": [
+   {
+    "label": "gradient-d0.2",
+    "depth": 0.2,
+    "stops": [
+     {
+      "pos": 0.0,
+      "lit": false
+     },
+     {
+      "pos": 0.2,
+      "lit": true
+     },
+     {
+      "pos": 0.8,
+      "lit": true
+     },
+     {
+      "pos": 1.0,
+      "lit": false
+     }
+    ]
+   }
+  ],
+  "noise": 12,
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
