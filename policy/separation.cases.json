@@ -1,0 +1,429 @@
+[
+ {
+  "case": "admits-separated-pairs",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 14.2,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 9.1,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 12.7,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-neu",
+    "variant": "EL-Azure",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   }
+  ]
+ },
+ {
+  "case": "d0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "d0-refuses-a-shrunk-population",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 14.2,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 9.1,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 12.7,
+    "view": "deuteranomaly",
+    "why": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "d0-refuses-an-unreadable-pair",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 14.2,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 9.1,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 12.7,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-neu",
+    "variant": "EL-Azure",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": null,
+    "view": null,
+    "why": "the variant carries no token 'neutral'"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "D0"
+   ]
+  }
+ },
+ {
+  "case": "d1-refuses-identical-colours",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 0,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 0,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 0,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-neu",
+    "variant": "EL-Azure",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 0,
+    "view": "deuteranomaly",
+    "why": null
+   }
+  ],
+  "expect": {
+   "deny": [
+    "D1"
+   ]
+  }
+ },
+ {
+  "case": "w1-withholds-a-variant-filled-by-the-fallback",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 14.2,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 9.1,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 12.7,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-neu",
+    "variant": "EL-Azure",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   }
+  ],
+  "infeasible": [
+   {
+    "variant": "EL-Azure",
+    "slots": [
+     "neu",
+     "pos"
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W1"
+   ]
+  }
+ },
+ {
+  "case": "w1-a-feasible-palette-withholds-nothing",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 14.2,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 9.1,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 12.7,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-neu",
+    "variant": "EL-Azure",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   }
+  ],
+  "infeasible": []
+ },
+ {
+  "case": "d1-the-floor-is-inclusive",
+  "variants": [
+   "EL-Openglo",
+   "EL-Azure"
+  ],
+  "enforced": [
+   "neg-pos",
+   "neg-neu"
+  ],
+  "surfaced": [
+   "focus"
+  ],
+  "floor": 11.0,
+  "cases": [
+   {
+    "id": "EL-Openglo/neg-pos",
+    "variant": "EL-Openglo",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Openglo/neg-neu",
+    "variant": "EL-Openglo",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-pos",
+    "variant": "EL-Azure",
+    "pair": "neg-pos",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   },
+   {
+    "id": "EL-Azure/neg-neu",
+    "variant": "EL-Azure",
+    "pair": "neg-neu",
+    "a": "x",
+    "b": "y",
+    "dE": 8.8,
+    "view": "deuteranomaly",
+    "why": null
+   }
+  ]
+ }
+]
