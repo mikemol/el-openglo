@@ -1,0 +1,227 @@
+[
+ {
+  "case": "admits-a-ghost-on-target",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.566,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.7
+   },
+   {
+    "id": "EL-Azure",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.5
+   }
+  ]
+ },
+ {
+  "case": "c0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "C0"
+   ]
+  }
+ },
+ {
+  "case": "c1-refuses-a-ghost-under-its-floor",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.566,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 8.0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C1",
+    "C3"
+   ]
+  }
+ },
+ {
+  "case": "c1-message-formats-a-whole-number",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.566,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 8
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C1",
+    "C3"
+   ]
+  }
+ },
+ {
+  "case": "c2-refuses-a-ghost-that-reads-as-text",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.566,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 35.0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C2"
+   ]
+  }
+ },
+ {
+  "case": "c3-refuses-azure-on-its-floor-not-its-target",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.566,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.7
+   },
+   {
+    "id": "EL-Azure",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 25.0
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C3"
+   ]
+  }
+ },
+ {
+  "case": "c3-glanced-mode-is-not-held-to-the-ceiling",
+  "mode": "glanced_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": null,
+  "cases": [
+   {
+    "id": "EL-Azure",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 25.0
+   }
+  ]
+ },
+ {
+  "case": "c4-refuses-a-stale-emitted-alpha",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.45,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.7
+   },
+   {
+    "id": "EL-Azure",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.5
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C4"
+   ]
+  }
+ },
+ {
+  "case": "c4-refuses-a-component-with-no-ghost-alpha",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": null,
+  "cases": [
+   {
+    "id": "EL-Openglo",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.7
+   },
+   {
+    "id": "EL-Azure",
+    "wcag_declared": 9.0,
+    "wcag_composited": 4.0,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.5
+   }
+  ],
+  "expect": {
+   "deny": [
+    "C4"
+   ]
+  }
+ },
+ {
+  "case": "a-light-ground-ghost-at-lc-29-7-passes",
+  "mode": "looked_at",
+  "alpha": 0.566,
+  "ceiling": 30.0,
+  "rendered_alpha": 0.566,
+  "cases": [
+   {
+    "id": "EL-Openglo-Lit",
+    "wcag_declared": 9.0,
+    "wcag_composited": 1.9,
+    "floor_lc": 25.0,
+    "lc_declared": 60.0,
+    "lc_composited": 29.7
+   }
+  ]
+ }
+]
