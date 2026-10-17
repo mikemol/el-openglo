@@ -1,0 +1,218 @@
+[
+ {
+  "case": "admits-a-discriminating-projection",
+  "font": "/usr/share/fonts/LiberationMono-Regular.ttf",
+  "fmt": "16",
+  "frame": "stretch",
+  "glyphs": [
+   {
+    "ch": "A",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "a",
+     "b"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "ch": "B",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "c"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "ch": "C",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "d",
+     "e"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "ch": "D",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "f"
+    ],
+    "jaccard": 0.5
+   }
+  ]
+ },
+ {
+  "case": "low-agreement-is-not-denied",
+  "font": "/usr/share/fonts/LiberationMono-Regular.ttf",
+  "fmt": "16",
+  "frame": "stretch",
+  "glyphs": [
+   {
+    "ch": "A",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "a",
+     "b"
+    ],
+    "jaccard": 0
+   },
+   {
+    "ch": "B",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "c"
+    ],
+    "jaccard": 0
+   },
+   {
+    "ch": "C",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "d",
+     "e"
+    ],
+    "jaccard": 0
+   },
+   {
+    "ch": "D",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "f"
+    ],
+    "jaccard": 0
+   }
+  ]
+ },
+ {
+  "case": "v0-withholds-without-a-font",
+  "font": null,
+  "fmt": "16",
+  "frame": "stretch",
+  "glyphs": [],
+  "expect": {
+   "withheld": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "v0-withholds-an-absent-measurement",
+  "expect": {
+   "withheld": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "v0-refuses-an-empty-projection",
+  "font": "/usr/share/fonts/LiberationMono-Regular.ttf",
+  "fmt": "16",
+  "frame": "stretch",
+  "glyphs": [],
+  "expect": {
+   "deny": [
+    "V0"
+   ]
+  }
+ },
+ {
+  "case": "v1-refuses-a-blind-matcher",
+  "font": "/usr/share/fonts/LiberationMono-Regular.ttf",
+  "fmt": "16",
+  "frame": "stretch",
+  "glyphs": [
+   {
+    "ch": "A",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "x"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "ch": "B",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "x"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "ch": "C",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "x"
+    ],
+    "jaccard": 0.5
+   },
+   {
+    "ch": "D",
+    "authored": [
+     "a",
+     "b"
+    ],
+    "projected": [
+     "x"
+    ],
+    "jaccard": 0.5
+   }
+  ],
+  "expect": {
+   "deny": [
+    "V1"
+   ]
+  }
+ },
+ {
+  "case": "all-null-glyph-withheld-only",
+  "font": "/usr/share/fonts/LiberationMono-Regular.ttf",
+  "fmt": "16",
+  "frame": "stretch",
+  "glyphs": [
+   {
+    "ch": "A",
+    "authored": null,
+    "projected": null,
+    "jaccard": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
