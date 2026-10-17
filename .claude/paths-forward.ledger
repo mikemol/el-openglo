@@ -1048,3 +1048,4 @@
 2026-10-17T09:40:15Z  interrupt W655 minted    -         "Port ghost_balance to pytestspec"
 2026-10-17T09:40:16Z  interrupt W656 minted    -         "Port tree_writes to pytestspec"
 2026-10-17T10:31:30Z  interrupt W657 minted    -         "Repin mtools to 52de4de so queued stacks freeze their files at submit (mtools W1447)"  evidence=mtools-ad
+2026-10-17T12:13:08Z  interrupt W658 minted    -         "Check that every file in .claude/generated.json is rewritten byte-identically by its generator"  evidence=nemik:W624

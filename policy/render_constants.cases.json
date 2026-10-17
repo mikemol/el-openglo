@@ -1,0 +1,274 @@
+[
+ {
+  "case": "admits-configured-state-mount-and-withheld-with-reason",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "glow",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": true,
+      "disposition": null
+     },
+     {
+      "name": "timeStr",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "STATE"
+     },
+     {
+      "name": "segLen",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "MOUNT"
+     },
+     {
+      "name": "fill",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "WITHHELD:derived from the panel height"
+     }
+    ]
+   }
+  ],
+  "registry_stale": []
+ },
+ {
+  "case": "c0-refuses-an-empty-population",
+  "cases": [],
+  "registry_stale": [],
+  "expect": {
+   "deny": [
+    "C0"
+   ]
+  }
+ },
+ {
+  "case": "c0-absent-population-is-empty",
+  "expect": {
+   "deny": [
+    "C0"
+   ],
+   "withheld": [
+    "O"
+   ]
+  }
+ },
+ {
+  "case": "c1-refuses-an-undeclared-literal",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "gamma",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": null
+     }
+    ]
+   }
+  ],
+  "registry_stale": [],
+  "expect": {
+   "deny": [
+    "C1"
+   ]
+  }
+ },
+ {
+  "case": "c2-refuses-an-unknown-kind",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "x",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "LATER"
+     }
+    ]
+   }
+  ],
+  "registry_stale": [],
+  "expect": {
+   "deny": [
+    "C2"
+   ]
+  }
+ },
+ {
+  "case": "c2-refuses-a-withheld-without-a-reason",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "x",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "WITHHELD"
+     }
+    ]
+   }
+  ],
+  "registry_stale": [],
+  "expect": {
+   "deny": [
+    "C2"
+   ]
+  }
+ },
+ {
+  "case": "c3-refuses-a-stale-registry-entry",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "glow",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": true,
+      "disposition": null
+     },
+     {
+      "name": "timeStr",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "STATE"
+     },
+     {
+      "name": "segLen",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "MOUNT"
+     },
+     {
+      "name": "fill",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "WITHHELD:derived from the panel height"
+     }
+    ]
+   }
+  ],
+  "registry_stale": [
+   "t.qml:ghost"
+  ],
+  "expect": {
+   "deny": [
+    "C3"
+   ]
+  }
+ },
+ {
+  "case": "open-is-debt-not-a-pass",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "glow",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": true,
+      "disposition": null
+     },
+     {
+      "name": "scale",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "OPEN:W268"
+     }
+    ]
+   }
+  ],
+  "registry_stale": [],
+  "expect": {
+   "withheld": [
+    "O"
+   ]
+  }
+ },
+ {
+  "case": "unmeasured-registry-is-withheld",
+  "cases": [
+   {
+    "template": "t.qml",
+    "keys": [],
+    "props": [
+     {
+      "name": "glow",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": true,
+      "disposition": null
+     },
+     {
+      "name": "timeStr",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "STATE"
+     },
+     {
+      "name": "segLen",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "MOUNT"
+     },
+     {
+      "name": "fill",
+      "type": "real",
+      "literal": "1.0",
+      "line": 7,
+      "configurable": false,
+      "disposition": "WITHHELD:derived from the panel height"
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "O"
+   ]
+  }
+ }
+]
