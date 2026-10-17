@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "generated": [
+    {"path": "closures.bzl", "generator": ".venv/bin/python3 scripts/check_closure.py --write"},
+    {"path": "catalog/worklist/WORKLIST.md", "generator": ".venv/bin/python3 scripts/worklist_gate.py --project"},
+    {"path": "COTYPE-WORKLIST.md", "generator": ".venv/bin/python3 scripts/worklist_gate.py --project"},
+    {"path": "README.md", "generator": ".venv/bin/python3 scripts/worklist_gate.py --project"}
+  ]
+}
