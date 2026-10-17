@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 656,
+  "counter": 657,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-16T17:49:03Z",
   "job_id": "a10b866f",
@@ -13099,9 +13099,6 @@
       ],
       "blocked_on": [
         "W569",
-        "W570",
-        "W571",
-        "W572",
         "W573",
         "W574",
         "W575",
@@ -13387,7 +13384,7 @@
     {
       "symbol": "W570",
       "title": "Port census to pytestspec: policy/census.cases.json, 5 of 8 tests are input-only",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13397,21 +13394,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/census.cases.json from policy/census_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 0183ab8: policy/census.cases.json, 8 cases, N3 mutation control held",
       "issued_at": "2026-10-17T08:32:21Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": "2026-10-17T10:15:39Z",
+      "last_worked": "2026-10-17T10:52:30Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
       "vector_source": "agent",
-      "completed": null
+      "completed": "20261017T105230Z"
     },
     {
       "symbol": "W571",
       "title": "Port mark to pytestspec: policy/mark.cases.json, 5 of 8 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13421,20 +13418,21 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/mark.cases.json from policy/mark_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at eb6a6ab: policy/mark.cases.json, 8 cases, K2 mutation control held",
       "issued_at": "2026-10-17T08:32:22Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T10:52:31Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T105231Z"
     },
     {
       "symbol": "W572",
       "title": "Port package_load to pytestspec: policy/package_load.cases.json, 5 of 8 tests are input-only",
-      "status": "ready",
+      "status": "done",
       "enables": [
         "W558"
       ],
@@ -13444,15 +13442,16 @@
       ],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "Write policy/package_load.cases.json from policy/package_load_test.rego (cases = the input, expect = deny/withheld ids), mutate one rule id, regenerate the pytestspec closure, land through land_template --stack",
-      "evidence": "",
+      "next_bounded_step": null,
+      "evidence": "2026-10-17: landed at 76c0139: policy/package_load.cases.json, 8 cases, D2 mutation control held",
       "issued_at": "2026-10-17T08:32:22Z",
       "minted_during": "interrupt",
       "caused_by": null,
-      "last_worked": null,
+      "last_worked": "2026-10-17T10:52:31Z",
       "ticks_blocked": 0,
       "vector": "WV:1/R:L/E:N/C:N/I:L/A:N/X:N/S:U/F:K/W:Y",
-      "vector_source": "agent"
+      "vector_source": "agent",
+      "completed": "20261017T105231Z"
     },
     {
       "symbol": "W573",
@@ -15271,6 +15270,26 @@
       "last_worked": "2026-10-17T09:40:16Z",
       "ticks_blocked": 0,
       "completed": "20261017T094016Z"
+    },
+    {
+      "symbol": "W657",
+      "title": "Repin mtools to 52de4de so queued stacks freeze their files at submit (mtools W1447)",
+      "status": "working",
+      "enables": [],
+      "touches": [
+        "file:pyproject.toml!w",
+        "file:uv.lock!w"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Resolve 52de4de to its full sha in the mtools checkout, run mikemol-repin --write --sha <full>, uv sync --extra tooling --extra research, then commit pyproject.toml and uv.lock alone; afterwards test two real queued stacks and tell mtools-ad if a run reads a late edit",
+      "evidence": "",
+      "issued_at": "2026-10-17T10:31:30Z",
+      "minted_during": "interrupt",
+      "caused_by": "mtools-ad",
+      "last_worked": "2026-10-17T10:52:31Z",
+      "ticks_blocked": 0,
+      "completed": null
     }
   ],
   "residue": [
@@ -15365,22 +15384,22 @@
   "predecessor_job_id": "6adeda42",
   "leases": [
     {
-      "tag": "file:policy/census.cases.json!w",
+      "tag": "file:pyproject.toml!w",
       "holder": "(unlocked)",
-      "waypoint": "W570",
-      "base_sha": "5c4eaf44031159db813642bcb6254f830ef8fd4c",
-      "taken_at": "2026-10-17T10:15:39Z",
-      "renewed_at": "2026-10-17T10:15:39Z",
-      "expires_at": "2026-10-17T10:45:39Z"
+      "waypoint": "W657",
+      "base_sha": "76c013939adc4730b18d9b906b92edb91b692a2f",
+      "taken_at": "2026-10-17T10:52:31Z",
+      "renewed_at": "2026-10-17T10:52:31Z",
+      "expires_at": "2026-10-17T11:22:31Z"
     },
     {
-      "tag": "file:closures.bzl!w",
+      "tag": "file:uv.lock!w",
       "holder": "(unlocked)",
-      "waypoint": "W570",
-      "base_sha": "5c4eaf44031159db813642bcb6254f830ef8fd4c",
-      "taken_at": "2026-10-17T10:15:39Z",
-      "renewed_at": "2026-10-17T10:15:39Z",
-      "expires_at": "2026-10-17T10:45:39Z"
+      "waypoint": "W657",
+      "base_sha": "76c013939adc4730b18d9b906b92edb91b692a2f",
+      "taken_at": "2026-10-17T10:52:31Z",
+      "renewed_at": "2026-10-17T10:52:31Z",
+      "expires_at": "2026-10-17T11:22:31Z"
     }
   ],
   "advice": [
