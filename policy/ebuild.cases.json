@@ -1,0 +1,732 @@
+[
+ {
+  "case": "admits-a-sound-overlay",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  }
+ },
+ {
+  "case": "b0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "B0"
+   ],
+   "withheld": [
+    "W"
+   ]
+  }
+ },
+ {
+  "case": "b0-refuses-a-missing-marker",
+  "markers": [
+   {
+    "path": "profiles/repo_name",
+    "present": false
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B0"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-unset-variables",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [
+    "LICENSE",
+    "SLOT"
+   ],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-a-pkgcheck-error",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 1,
+    "errors": true,
+    "output": "Error: MissingSlotDep"
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b1-refuses-an-unparsable-ebuild",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 2,
+    "stderr": "syntax error: unexpected end of file"
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b1-withholds-without-pkgcheck",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": null,
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "withheld": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b1-withholds-a-host-load-failure",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 2,
+    "errors": false,
+    "output": "pkgcheck: error: repos.conf: default repo gentoo",
+    "env_error": true
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "withheld": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b1-still-refuses-a-real-error-beside-env-false",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 1,
+    "errors": true,
+    "output": "Error: X",
+    "env_error": false
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B1"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-an-atom-nobody-provides",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-nonesuch/absent",
+     "resolves": false
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-refuses-a-vacuous-atom-list",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": []
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b2-withholds-off-gentoo",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": false,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": null
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "withheld": [
+    "B2"
+   ]
+  }
+ },
+ {
+  "case": "b3-refuses-a-failed-stage",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": "RuntimeError: make_deb --stage failed",
+   "files": null,
+   "missing_dests": null,
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B3"
+   ]
+  }
+ },
+ {
+  "case": "b3-refuses-an-empty-tree",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 0,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B3"
+   ]
+  }
+ },
+ {
+  "case": "b3-refuses-a-missing-destination",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [
+    "usr/share/aurorae/themes/EL-Openglo"
+   ],
+   "sandboxed": true
+  },
+  "expect": {
+   "deny": [
+    "B3"
+   ]
+  }
+ },
+ {
+  "case": "b3-withholds-without-sandbox",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": false
+  },
+  "expect": {
+   "withheld": [
+    "B3"
+   ]
+  }
+ },
+ {
+  "case": "withholds-an-unmeasured-part",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "expect": {
+   "withheld": [
+    "W"
+   ]
+  }
+ }
+]
