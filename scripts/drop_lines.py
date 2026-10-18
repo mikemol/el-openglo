@@ -23,7 +23,7 @@ import os
 import sys
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     show = "--show" in argv
     args = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
@@ -70,10 +70,10 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
@@ -86,11 +86,11 @@ def _selftest():
     with tempfile.TemporaryDirectory() as td:
         p = os.path.join(td, "a.py")
 
-        def slurp(q):
+        def slurp(q: str) -> str:
             with open(q) as fh:
                 return fh.read()
 
-        def put(q, s):
+        def put(q: str, s: str) -> None:
             with open(q, "w") as fh:
                 fh.write(s)
 
