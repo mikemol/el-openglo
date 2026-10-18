@@ -95,9 +95,26 @@ def runner_unavailable():
     return None
 
 
-def run_check(src, entry, out):
+HOSTS = {"tabbox": "kwin-tabbox"}
+
+
+def host_of(kind):
+    """The KDE host luthen loads a package kind under: KWin's own org.kde.kwin module is registered
+    in-process by kwin-tabbox-preview, so a switcher loads there; every other kind needs none."""
+    return HOSTS.get(kind, "none")
+
+
+def command(src, entry, out, host="none"):
+    """The shell line that runs luthen checks.qml_check on one directory."""
+    return (
+        f"cd {LUTHEN} && python3 -m checks.qml_check --src {src} --entry {entry} "
+        f"--out {out} --host {host}"
+    )
+
+
+def run_check(src, entry, out, host="none"):
     """luthen checks.qml_check on one directory: (verdict dict, exit code)."""
-    cmd = f"cd {LUTHEN} && python3 -m checks.qml_check --src {src} --entry {entry} --out {out}"
+    cmd = command(src, entry, out, host)
     r = subprocess.run(
         ["sg", "k3s", "-c", cmd], capture_output=True, text=True, check=False
     )
@@ -138,7 +155,8 @@ def measure(stage_dir=None):
                     withheld=rep.get("withheld"),
                 )
             else:
-                verdict, rc, tail = run_check(d, entry, os.path.join(td, "out-" + pkg))
+                out = os.path.join(td, "out-" + pkg)
+                verdict, rc, tail = run_check(d, entry, out, host_of(kind))
                 if rc == 2 or not verdict:
                     case["withheld"] = f"qml_check could not run (exit {rc}): {tail}"
                 else:
@@ -192,11 +210,21 @@ def _selftest():
         )
         ok = ok and got == want
 
+    chk(
+        "a tabbox loads under luthen's kwin-tabbox host, every other kind under none",
+        [host_of(k) for k, _s, _e in ENTRIES],
+        ["none", "none", "kwin-tabbox", "none", "none"],
+    )
+    chk(
+        "the runner line carries the host",
+        command("/s", "main.qml", "/o", "kwin-tabbox").endswith("--host kwin-tabbox"),
+        True,
+    )
     why = runner_unavailable()
     if why:
         print(f"  SKIP the runner cannot run here: {why}")
-        print("check_qml_target selftest: PASS (1 skip(s))")
-        return True
+        print(f"check_qml_target selftest: {'PASS' if ok else 'FAIL'} (1 skip(s))")
+        return ok
     with tempfile.TemporaryDirectory() as td:
         clean = os.path.join(td, "clean")
         os.makedirs(clean)
@@ -214,8 +242,8 @@ def _selftest():
             # (W454, 2026-10-10: after the host reboot k3s was not up, the runner printed
             # no verdict, and this selftest FAILED the gate for a fact about the machine).
             print(f"  SKIP the runner produced no verdict (exit {rc}): {tail}")
-            print("check_qml_target selftest: PASS (1 skip(s))")
-            return True
+            print(f"check_qml_target selftest: {'PASS' if ok else 'FAIL'} (1 skip(s))")
+            return ok
         chk(
             "a clean document is ok under the target Qt",
             (rc, v.get("state")),
