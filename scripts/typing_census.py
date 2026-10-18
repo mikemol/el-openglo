@@ -15,6 +15,7 @@ fix (mtools, via github-8f).
 
     scripts/typing_census.py             # findings per file (largest first), then n of m files and the total
     scripts/typing_census.py --codes     # the same findings per mypy error code and per idiom (message shape)
+    scripts/typing_census.py --by-file-idiom   # per file: count, dominant code, its count, its idiom (the W676 plan)
     scripts/typing_census.py --json      # {files, codes, passes, withheld}
     scripts/typing_census.py --selftest
 
@@ -109,13 +110,37 @@ def by_idiom(records):
     return Counter((r[3], idiom(r[4])) for r in records)
 
 
+def by_file_idiom(records):
+    """{file: {count, code, idiom, idiom_count}}: each file's distinct findings and the idiom that dominates it
+    (ties go to the smaller code then message, so the plan is the same on every run)."""
+    per = {}
+    for path, _line, _col, code, message in records:
+        per.setdefault(path, Counter())[(code, idiom(message))] += 1
+    out = {}
+    for path, counts in per.items():
+        (code, shape), top = min(counts.items(), key=lambda kv: (-kv[1], kv[0]))
+        out[path] = {
+            "count": sum(counts.values()),
+            "code": code,
+            "idiom": shape,
+            "idiom_count": top,
+        }
+    return out
+
+
 def main(argv):
     args = argv[1:]
-    if args not in ([], ["--json"], ["--codes"]):
+    if args not in ([], ["--json"], ["--codes"], ["--by-file-idiom"]):
         print(f"typing_census: unknown arguments {args!r}", file=sys.stderr)
         return 2
     files, withheld, n, records = census()
-    if args == ["--json"]:
+    if args == ["--by-file-idiom"]:
+        plan = by_file_idiom(records)
+        for path, row in sorted(plan.items(), key=lambda kv: (-kv[1]["count"], kv[0])):
+            print(
+                f"{row['count']}\t{path}\t{row['code']}\t{row['idiom_count']}\t{row['idiom']}"
+            )
+    elif args == ["--json"]:
         out = {
             "files": files,
             "codes": dict(by_code(records)),
@@ -213,6 +238,17 @@ def _selftest():
         "the idiom view counts per code and message shape",
         by_code(records),
         Counter({"misc": 1, "no-untyped-def": 1}),
+    )
+    plan = by_file_idiom(records)
+    chk(
+        "a file's dominant idiom is its most frequent (code, shape), ties to the smaller",
+        plan[rel],
+        {
+            "count": 2,
+            "code": "misc",
+            "idiom": 'Expression has type "…"',
+            "idiom_count": 1,
+        },
     )
     print("typing_census selftest:", "PASS" if ok else "FAIL")
     return ok
