@@ -1,0 +1,87 @@
+[
+ {
+  "case": "admits-packages-that-load",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "kind": "plasmoid",
+    "entry": "main.qml",
+    "state": "ok"
+   },
+   {
+    "id": "org.el.taskswitch",
+    "kind": "tabbox",
+    "entry": "main.qml",
+    "state": "ok"
+   }
+  ]
+ },
+ {
+  "case": "q0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "Q0"
+   ]
+  }
+ },
+ {
+  "case": "q1-refuses-a-package-that-fails-to-load",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "kind": "plasmoid",
+    "entry": "main.qml",
+    "state": "ok"
+   },
+   {
+    "id": "org.el.metrics",
+    "kind": "plasmoid",
+    "entry": "main.qml",
+    "state": "refused",
+    "step": "lint"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "Q1"
+   ]
+  }
+ },
+ {
+  "case": "q2-refuses-a-package-with-no-verdict-and-no-reason",
+  "cases": [
+   {
+    "id": "org.el.x",
+    "kind": "wallpaper",
+    "entry": "main.qml"
+   }
+  ],
+  "expect": {
+   "deny": [
+    "Q2"
+   ]
+  }
+ },
+ {
+  "case": "q3-withholds-a-package-the-runner-could-not-measure",
+  "cases": [
+   {
+    "id": "org.el.segclock",
+    "kind": "plasmoid",
+    "entry": "main.qml",
+    "state": "ok"
+   },
+   {
+    "id": "org.el.taskswitch",
+    "kind": "tabbox",
+    "entry": "main.qml",
+    "withheld": "qml_check could not run (exit 2)"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "Q3"
+   ]
+  }
+ }
+]
