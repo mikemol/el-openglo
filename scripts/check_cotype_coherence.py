@@ -41,6 +41,24 @@ import json
 import os
 import subprocess
 import sys
+from typing import TypedDict, cast
+
+
+class SymInfo(TypedDict):
+    """One symbol's row in cotype_index --json."""
+
+    closed: bool
+    by: str
+    buckets: list[str]
+    gates: int
+
+
+class IndexDoc(TypedDict):
+    """The slice of cotype_index --json this check reads."""
+
+    symbols: dict[str, SymInfo]
+    open: dict[str, list[str]]
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 INDEX = os.path.join(ROOT, "scripts", "cotype_index.py")
@@ -88,8 +106,8 @@ WAIVERS = {
 }
 
 
-def findings():
-    """{class: {symbol: detail}} — the coherence findings, from the index."""
+def _load_index() -> IndexDoc | None:
+    """cotype_index --json, or None when the index would not run."""
     r = subprocess.run(
         [sys.executable, INDEX, "--json"],
         capture_output=True,
@@ -99,11 +117,22 @@ def findings():
     )
     if r.returncode != 0:
         return None
-    d = json.loads(r.stdout)
+    return cast(IndexDoc, json.loads(r.stdout))
+
+
+def findings() -> dict[str, dict[str, str]] | None:
+    """{class: {symbol: detail}} — the coherence findings, from the index."""
+    d = _load_index()
+    if d is None:
+        return None
     syms, opn = d["symbols"], d["open"]
     open_all = {s for v in opn.values() for s in v}
 
-    out = {"CONTRADICTION": {}, "UNGATED": {}, "UNRESOLVED": {}}
+    out: dict[str, dict[str, str]] = {
+        "CONTRADICTION": {},
+        "UNGATED": {},
+        "UNRESOLVED": {},
+    }
     for s, info in syms.items():
         if info["closed"] and s in open_all:
             buckets = ",".join(info["buckets"])
@@ -117,7 +146,7 @@ def findings():
     return out
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     known = {"--report", "--waivers"}
     for a in argv[1:]:
         if a not in known:
@@ -184,10 +213,10 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
@@ -215,18 +244,7 @@ def _selftest():
         check("finds ungated closures", len(f["UNGATED"]) > 0, True)
         # A contradiction must be RECOGNISED when one exists: closed-and-open is
         # the predicate, so a symbol in both sets must land in CONTRADICTION.
-        import json as _json
-        import subprocess as _sp
-
-        d = _json.loads(
-            _sp.run(
-                [sys.executable, INDEX, "--json"],
-                capture_output=True,
-                text=True,
-                cwd=ROOT,
-                check=False,
-            ).stdout
-        )
+        d = _load_index() or IndexDoc(symbols={}, open={})
         open_all = {s for v in d["open"].values() for s in v}
         closed = {s for s, x in d["symbols"].items() if x["closed"]}
         check(
