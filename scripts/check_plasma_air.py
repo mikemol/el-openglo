@@ -31,6 +31,8 @@ import json
 import os
 import re
 import sys
+from collections.abc import Sequence
+from typing import NotRequired, TypedDict
 
 BASE = "/usr/share/plasma/desktoptheme"
 STYLE = re.compile(r"<style\b.*?</style>", re.DOTALL | re.IGNORECASE)
@@ -41,7 +43,28 @@ BAKED = re.compile(
 SECTION = re.compile(r"^\[(Colors:\w+)\]", re.MULTILINE)
 
 
-def read_svg(path):
+class SvgCount(TypedDict):
+    scheme_classed: int
+    baked: int
+
+
+class SvgEntry(SvgCount):
+    path: str
+
+
+class ThemeMeasure(TypedDict):
+    id: str
+    withheld: NotRequired[str]
+    has_colors_file: NotRequired[bool]
+    colors_sections: NotRequired[list[str]]
+    svgs: NotRequired[list[SvgEntry]]
+
+
+class Measurement(TypedDict):
+    themes: list[ThemeMeasure]
+
+
+def read_svg(path: str) -> str:
     with open(path, "rb") as fh:
         raw = fh.read()
     return (gzip.decompress(raw) if path.endswith("z") else raw).decode(
@@ -49,30 +72,37 @@ def read_svg(path):
     )
 
 
-def measure_svg(text):
+def measure_svg(text: str) -> SvgCount:
     body = STYLE.sub("", text)
     return {
-        "scheme_classed": len(SCHEME.findall(body)),
-        "baked": len(BAKED.findall(body)),
+        "scheme_classed": sum(1 for _ in SCHEME.finditer(body)),
+        "baked": sum(1 for _ in BAKED.finditer(body)),
     }
 
 
-def measure_theme(base, tid):
+def measure_theme(base: str, tid: str) -> ThemeMeasure:
     d = os.path.join(base, tid)
     if not os.path.isdir(d):
         return {"id": tid, "withheld": f"{d} is not on this host"}
     colors = os.path.join(d, "colors")
-    sections = []
+    sections: list[str] = []
     if os.path.exists(colors):
         with open(colors) as fh:
             sections = SECTION.findall(fh.read())
-    svgs = []
+    svgs: list[SvgEntry] = []
     # population: the host's installed Plasma theme directory (a system tree, not tracked files)
     for dp, _dn, fns in sorted(os.walk(d)):
         for fn in sorted(fns):
             if fn.endswith((".svg", ".svgz")):
                 p = os.path.join(dp, fn)
-                svgs.append({"path": os.path.relpath(p, d), **measure_svg(read_svg(p))})
+                c = measure_svg(read_svg(p))
+                svgs.append(
+                    {
+                        "path": os.path.relpath(p, d),
+                        "scheme_classed": c["scheme_classed"],
+                        "baked": c["baked"],
+                    }
+                )
     return {
         "id": tid,
         "has_colors_file": os.path.exists(colors),
@@ -81,14 +111,14 @@ def measure_theme(base, tid):
     }
 
 
-def measure(base=BASE, tid="air"):
+def measure(base: str = BASE, tid: str = "air") -> Measurement:
     return {"themes": [measure_theme(base, tid)]}
 
 
-def _selftest():
+def _selftest() -> bool:
     import tempfile
 
-    seen = {
+    seen: dict[str, bool] = {
         "a literal fill is baked": measure_svg('<rect fill="#ff0000"/>')
         == {"scheme_classed": 0, "baked": 1},
         "a classed element is scheme-driven": measure_svg(
@@ -110,9 +140,9 @@ def _selftest():
             f.write(b'<svg><rect fill="#abc"/></svg>')
         m = measure_theme(t, "x")
         seen["a svgz is read and a colors file seen"] = (
-            m["has_colors_file"]
-            and m["colors_sections"] == ["Colors:View"]
-            and m["svgs"][0]["baked"] == 1
+            m.get("has_colors_file", False)
+            and m.get("colors_sections") == ["Colors:View"]
+            and [s["baked"] for s in m.get("svgs", [])] == [1]
         )
         seen["an absent theme is withheld, not clean"] = "withheld" in measure_theme(
             t, "nope"
@@ -123,8 +153,10 @@ def _selftest():
     return all(seen.values())
 
 
-def main(argv):
-    tid, rest, i = "air", [], 1
+def main(argv: Sequence[str]) -> int:
+    tid: str = "air"
+    rest: list[str] = []
+    i = 1
     while i < len(argv):
         a = argv[i]
         if a == "--theme" and i + 1 < len(argv):
@@ -147,11 +179,12 @@ def main(argv):
         if "withheld" in t:
             print(f"  {t['id']}: WITHHELD {t['withheld']}")
             continue
-        n = len(t["svgs"])
-        sc = sum(1 for s in t["svgs"] if s["scheme_classed"])
-        bk = sum(1 for s in t["svgs"] if s["baked"])
+        svgs = t.get("svgs", [])
+        n = len(svgs)
+        sc = sum(1 for s in svgs if s["scheme_classed"])
+        bk = sum(1 for s in svgs if s["baked"])
         print(
-            f"  {t['id']}: colors file {'present' if t['has_colors_file'] else 'absent'}; "
+            f"  {t['id']}: colors file {'present' if t.get('has_colors_file') else 'absent'}; "
             f"{sc} of {n} svgs use ColorScheme classes; {bk} of {n} carry literal colours; verdict is `opa_gate.py plasma_air`"
         )
     return 0
