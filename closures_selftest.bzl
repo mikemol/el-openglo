@@ -5921,6 +5921,7 @@ CLOSURES = {
     ],
     "scripts/check_wall_limits.py": [
         ".bazelrc",
+        "catalog/worklist/warrants.bib",
         "cvd_gate.py",
         "emitters.py",
         "gate/stage.sh",

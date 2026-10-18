@@ -25,7 +25,7 @@ A bound that is not a literal, arithmetic of literals, or a module-level constan
 the same file is `dynamic`.
 
 CLAIMS. A site serves a gate claim when its file is REACHABLE from that claim's
-`tool:` command (catalog/worklist/warrants.bib, read with substrate's bibstruct):
+`tool:` command (catalog/worklist/warrants.bib, read with mikemol-bibparse):
 reach = static imports (including function-local ones) plus any string constant that
 names a tree module (`make_schemes`, `render_screens.py`), transitively; an
 `opa_gate.py <name>` command also reaches `check_<name>.py`.
@@ -46,7 +46,6 @@ names a tree module (`make_schemes`, `render_screens.py`), transitively; an
 """
 
 import ast
-import importlib.util
 import json
 import os
 import re
@@ -56,8 +55,11 @@ import subprocess
 import sys
 import time
 from collections.abc import Collection, Iterable, Mapping
-from types import ModuleType
-from typing import Protocol, TypedDict, cast
+from pathlib import Path
+from typing import TypedDict, cast
+
+from mikemol.bibparse.bibparse import BibSyntaxError
+from mikemol.bibparse.fields import EmptyPopulationError, field_values
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BIB = os.path.join(ROOT, "catalog", "worklist", "warrants.bib")
@@ -99,12 +101,6 @@ class Run(TypedDict):
     cpu_s: float
     rc: int
     tail: str
-
-
-class Bibstruct(Protocol):
-    """The slice of substrate's bibstruct module this tool calls."""
-
-    def entries(self, path: str) -> dict[str, dict[str, str]]: ...
 
 
 def _const(node: ast.Constant) -> object:
@@ -371,31 +367,14 @@ def reach(roots: Iterable[str], graph: Mapping[str, set[str]]) -> set[str]:
     return seen
 
 
-def _bibstruct() -> Bibstruct | None:
-    for d in (
-        os.path.join(ROOT, "..", "substrate"),
-        os.path.expanduser("~/github/substrate"),
-    ):
-        p = os.path.join(d, "scratch", "bibstruct.py")
-        if os.path.isfile(p):
-            spec = importlib.util.spec_from_file_location("bibstruct", p)
-            if spec is None or spec.loader is None:
-                continue
-            mod: ModuleType = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(mod)
-            return cast(Bibstruct, mod)
-    return None
-
-
 def claims() -> tuple[dict[str, str], str | None]:
-    """({claim: 'tool:… args'}, withheld reason or None) from warrants.bib."""
-    bs = _bibstruct()
-    if bs is None:
-        return {}, "substrate's bibstruct.py is absent — claims unresolved"
-    ents = bs.entries(BIB)
-    return {
-        k: v["check"] for k, v in ents.items() if v.get("check", "").startswith("tool:")
-    }, None
+    """({claim: 'tool:… args'}, withheld reason or None) from warrants.bib, read with
+    mikemol-bibparse's strict parser; a bib it cannot read is withheld with the reason."""
+    try:
+        reading = field_values([Path(BIB)], "check")
+    except (OSError, BibSyntaxError, EmptyPopulationError) as exc:
+        return {}, f"warrants.bib was not readable: {exc}"
+    return {k: v for k, v in reading.values.items() if v.startswith("tool:")}, None
 
 
 def claim_roots(check: str) -> set[str]:
@@ -642,6 +621,12 @@ def _selftest() -> bool:
         "opa_gate reaches its check",
         claim_roots("tool:opa_gate.py screens"),
         {"opa_gate", "check_screens"},
+    )
+    cl, why = claims()
+    chk(
+        "the claims are read from the real bib through mikemol-bibparse",
+        (len(cl) > 0, why),
+        (True, None),
     )
     chk("an unknown flag is refused", main(["x", "--queit"]), 2)
     print("check_wall_limits selftest:", "PASS" if ok else "FAIL")
