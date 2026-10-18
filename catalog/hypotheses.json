@@ -1,0 +1,12 @@
+[
+ {
+  "id": "W200-frame-18-tear",
+  "status": "open",
+  "question": "what a capture series contains at a run boundary",
+  "rule": "S: a capture series is exactly one run, its last frame the run end",
+  "structure": "captureRuns marks the run end on every path",
+  "boundary": [
+   "what a series that contains no complete run is"
+  ]
+ }
+]
