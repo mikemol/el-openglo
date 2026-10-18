@@ -53,6 +53,24 @@ test_k3_refuses_a_declared_field_not_emitted if {
 	contains(msg, "tears")
 }
 
+still := "render_screens.still"
+
+still_emits := ["file", "variant", "exists", "grounds", "width", "height", "modal", "distinct"]
+
+# the still rows have no Python consumer (policy/screens.rego reads them, W246): a producer that emits every
+# declared field is admitted with an empty consumer list
+test_admits_the_still_rows_when_every_declared_field_is_emitted if {
+	inp := {"surfaces": [{"surface": still, "emitted": still_emits, "consumers": []}]}
+	count(p.deny) == 0 with input as inp
+	still in p.admitted with input as inp
+}
+
+test_k3_refuses_a_still_row_that_drops_a_declared_field if {
+	bad := {"surfaces": [{"surface": still, "emitted": ["file", "variant", "exists", "width", "height", "modal", "distinct"], "consumers": []}]}
+	"K3: render_screens.still declares grounds but its producer does not emit it" in p.deny with input as bad
+	not still in p.admitted with input as bad
+}
+
 test_unreadable_producer_is_withheld_not_judged if {
 	inp := {"surfaces": [{"surface": name, "emitted": null, "consumers": [{"file": "c.py", "reads": []}]}]}
 	count(p.deny) == 0 with input as inp

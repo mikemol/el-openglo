@@ -1,5 +1,47 @@
 [
  {
+  "case": "admits-the-still-rows-when-every-declared-field-is-emitted",
+  "surfaces": [
+   {
+    "surface": "render_screens.still",
+    "emitted": [
+     "file",
+     "variant",
+     "exists",
+     "grounds",
+     "width",
+     "height",
+     "modal",
+     "distinct"
+    ],
+    "consumers": []
+   }
+  ]
+ },
+ {
+  "case": "k3-refuses-a-still-row-that-drops-a-declared-field",
+  "surfaces": [
+   {
+    "surface": "render_screens.still",
+    "emitted": [
+     "file",
+     "variant",
+     "exists",
+     "width",
+     "height",
+     "modal",
+     "distinct"
+    ],
+    "consumers": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
+ },
+ {
   "case": "admits-a-kept-contract",
   "surfaces": [
    {

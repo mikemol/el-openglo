@@ -45,6 +45,16 @@ SURFACES = {
         },
         "consumers": {"scripts/check_screens.py": ["a", "anim"]},
     },
+    # the still rows of the same measure(): their consumer is policy/screens.rego, which this reader cannot
+    # see (W246 reads Rego consumers), so no Python consumer is listed and K2 has nothing to judge here
+    "render_screens.still": {
+        "producer": {
+            "file": "catalog/library/render_screens.py",
+            "func": "measure",
+            "loop_calls": "plan",
+        },
+        "consumers": {},
+    },
 }
 
 
@@ -106,7 +116,7 @@ def emitted(source, spec):
             isinstance(n, ast.Call)
             and getattr(n.func, "attr", None) == "update"
             and any(
-                getattr(a.func, "id", None) == spec["merges"]
+                getattr(a.func, "id", None) == spec.get("merges")
                 for a in n.args
                 if isinstance(a, ast.Call)
             )
@@ -114,6 +124,13 @@ def emitted(source, spec):
             merged = _func(tree, spec["merges"])
             if merged is not None:
                 keys.update(_returned_keys(merged))
+        elif (
+            isinstance(n, ast.Call)
+            and getattr(n.func, "attr", None) == "update"
+            and n.keywords
+        ):
+            # row.update(width=..., modal=...): the keyword NAMES are the keys it stamps
+            keys.update(k.arg for k in n.keywords if k.arg)
     return sorted(keys)
 
 
@@ -217,6 +234,20 @@ def _selftest():
         "emitted sees the literal, the update merge and the store, not another loop",
         emitted(prod, spec),
         ["exists", "file", "frames", "logged", "tears"],
+    )
+    kw_prod = (
+        "def measure():\n"
+        "    for fn, v in plan():\n"
+        "        row = {'file': fn, 'exists': True}\n"
+        "        if row['exists']:\n"
+        "            row.update(width=1, modal='#000')\n"
+        "    for fn in plan_animations():\n"
+        "        row = {'other': 1}\n"
+    )
+    chk(
+        "emitted reads the keyword names of row.update(...), with no merged function, in its own loop only",
+        emitted(kw_prod, {"func": "measure", "loop_calls": "plan"}),
+        ["exists", "file", "modal", "width"],
     )
     chk(
         "a producer without the loop is unreadable (None)",

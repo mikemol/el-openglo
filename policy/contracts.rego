@@ -13,14 +13,21 @@ package el.contracts
 
 import rego.v1
 
-declared := {"render_screens.animation": {
-	"always": {"file", "variant", "exists"},
-	"when_exists": {
-		"frames", "width", "axis", "pips", "floor", "shifts", "tears", "seamless",
-		"fractional_share", "dominant_period", "dominant_line_share", "spectral_power",
-		"period2_share", "logged_steps",
+declared := {
+	"render_screens.animation": {
+		"always": {"file", "variant", "exists"},
+		"when_exists": {
+			"frames", "width", "axis", "pips", "floor", "shifts", "tears", "seamless",
+			"fractional_share", "dominant_period", "dominant_line_share", "spectral_power",
+			"period2_share", "logged_steps",
+		},
 	},
-}}
+	# the still rows of the same measure() (W688): the picture's facts exist only once the file does
+	"render_screens.still": {
+		"always": {"file", "variant", "exists", "grounds"},
+		"when_exists": {"width", "height", "modal", "distinct"},
+	},
+}
 
 guaranteed(name) := object.get(declared, [name, "always"], set()) | object.get(declared, [name, "when_exists"], set())
 
