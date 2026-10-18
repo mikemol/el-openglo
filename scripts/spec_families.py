@@ -52,7 +52,7 @@ FAMILIES = {
     ),
     "gate": (
         "action_key atomic_writes bazel_build census closure compiles consumers contracts deb deps "
-        "ebuild embedded_markup emitters_run gcalc_api guest_recipe hooks inherit license log_content "
+        "ebuild embedded_markup emitters_run gcalc_api guest_recipe hooks hypotheses inherit license log_content "
         "qt_sandbox mark migration package_imports package_load partial plugin_ids "
         "populations post_commit publishing qml_lint readme rego_lint root_helpers routes "
         "runtime_warnings scope_recorded solver_roots st_api standards template_parity tree_writes"

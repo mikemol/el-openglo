@@ -1,0 +1,119 @@
+[
+ {
+  "case": "admits-a-closed-hypothesis",
+  "hypotheses": [
+   {
+    "id": "W200-frame-18-tear",
+    "status": "closed",
+    "question": "what a capture series contains at a run boundary",
+    "rule": "S: a capture series is exactly one run, its last frame the run end",
+    "structure": "captureRuns marks the run end on every path",
+    "boundary": []
+   }
+  ]
+ },
+ {
+  "case": "h0-refuses-an-absent-population",
+  "expect": {
+   "deny": [
+    "H0"
+   ]
+  }
+ },
+ {
+  "case": "h1-refuses-a-hypothesis-with-no-question",
+  "hypotheses": [
+   {
+    "id": "W200-frame-18-tear",
+    "status": "closed",
+    "question": "",
+    "rule": "S: a capture series is exactly one run, its last frame the run end",
+    "structure": "captureRuns marks the run end on every path",
+    "boundary": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H1"
+   ]
+  }
+ },
+ {
+  "case": "h2-refuses-a-close-on-a-verdict-alone",
+  "hypotheses": [
+   {
+    "id": "W200-frame-18-tear",
+    "status": "closed",
+    "question": "what a capture series contains at a run boundary",
+    "rule": "",
+    "structure": "captureRuns marks the run end on every path",
+    "boundary": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H2"
+   ]
+  }
+ },
+ {
+  "case": "h3-refuses-a-rule-nothing-can-check",
+  "hypotheses": [
+   {
+    "id": "W200-frame-18-tear",
+    "status": "closed",
+    "question": "what a capture series contains at a run boundary",
+    "rule": "S: a capture series is exactly one run, its last frame the run end",
+    "boundary": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H3"
+   ]
+  }
+ },
+ {
+  "case": "h4-refuses-a-close-with-an-open-edge",
+  "hypotheses": [
+   {
+    "id": "W200-frame-18-tear",
+    "status": "closed",
+    "question": "what a capture series contains at a run boundary",
+    "rule": "S: a capture series is exactly one run, its last frame the run end",
+    "structure": "captureRuns marks the run end on every path",
+    "boundary": [
+     "a series that contains no complete run"
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "H4"
+   ]
+  }
+ },
+ {
+  "case": "h5-withholds-an-open-hypothesis",
+  "hypotheses": [
+   {
+    "id": "W200-frame-18-tear",
+    "status": "closed",
+    "question": "what a capture series contains at a run boundary",
+    "rule": "S: a capture series is exactly one run, its last frame the run end",
+    "structure": "captureRuns marks the run end on every path",
+    "boundary": []
+   },
+   {
+    "id": "W201-x",
+    "status": "open",
+    "question": "an unsettled thing"
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "H5"
+   ]
+  }
+ }
+]
