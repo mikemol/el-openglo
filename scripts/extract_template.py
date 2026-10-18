@@ -20,12 +20,20 @@ rewrite did not change the artifact.
 import importlib
 import os
 import sys
+from collections.abc import Callable
+from typing import Protocol, cast
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMPLATES = os.path.join(ROOT, "templates")
 
 
-def value_of(module, accessor, arg=None):
+class _Generator(Protocol):
+    """A module's artifact function: any positional arguments, an object back."""
+
+    def __call__(self, *args: object) -> object: ...
+
+
+def value_of(module: str, accessor: str, arg: str | None = None) -> object:
     """The artifact a module holds: a constant, or a function of zero or one arg.
 
     ⚑ ONE ARGUMENT, BECAUSE THE GENERATORS TAKE ONE.  main_qml(variant) and
@@ -36,20 +44,23 @@ def value_of(module, accessor, arg=None):
     never has to know what a token dict is."""
     sys.path.insert(0, ROOT)
     mod = importlib.import_module(module)
-    obj = getattr(mod, accessor)
+    obj = cast(object, getattr(mod, accessor))
     if not callable(obj):
         return obj
+    fn = cast(_Generator, obj)
     if arg is None:
-        return obj()
+        return fn()
     # A bare LITERAL is the common case (a variant name); a module attribute is
     # for arguments the caller cannot spell, like a solved token dict.
     if hasattr(mod, arg):
-        supplied = getattr(mod, arg)
-        return obj(supplied() if callable(supplied) else supplied)
-    return obj(arg)
+        supplied = cast(object, getattr(mod, arg))
+        if callable(supplied):
+            return fn(cast(Callable[[], object], supplied)())
+        return fn(supplied)
+    return fn(arg)
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     verify = "--verify" in argv
     args = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
@@ -113,10 +124,10 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
