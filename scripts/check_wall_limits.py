@@ -55,6 +55,9 @@ import shlex
 import subprocess
 import sys
 import time
+from collections.abc import Collection, Iterable, Mapping
+from types import ModuleType
+from typing import Protocol, TypedDict, cast
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BIB = os.path.join(ROOT, "catalog", "worklist", "warrants.bib")
@@ -62,9 +65,65 @@ FLAKED = ("EMITTERS", "SCREENS", "TASKSWITCH")  # W68: the three that failed ton
 CLOCKS = {"time", "monotonic", "perf_counter"}
 
 
-def population(root=ROOT):
+class Site(TypedDict):
+    """One wall-clock bound; bound_s is seconds or the string "dynamic"."""
+
+    file: str
+    line: int
+    kind: str
+    callee: str
+    bound_s: float | str
+
+
+class ClaimedSite(Site):
+    """A Site plus the gate claims whose command reaches its file."""
+
+    claims: list[str]
+    flaked_path: list[str]
+
+
+class _MeasureBase(TypedDict):
+    population: int
+    files_with_sites: int
+    sites: list[ClaimedSite]
+    flaked: list[str]
+    flaked_commands: dict[str, str]
+
+
+class Measure(_MeasureBase, total=False):
+    withheld: str
+
+
+class Run(TypedDict):
+    wall_s: float
+    cpu_s: float
+    rc: int
+    tail: str
+
+
+class Bibstruct(Protocol):
+    """The slice of substrate's bibstruct module this tool calls."""
+
+    def entries(self, path: str) -> dict[str, dict[str, str]]: ...
+
+
+def _const(node: ast.Constant) -> object:
+    """A Constant's value; typeshed types it Any, the cast keeps it out of the census."""
+    return cast(object, node.value)
+
+
+def _str_of(node: ast.AST) -> str | None:
+    """The text of a string Constant, else None."""
+    if isinstance(node, ast.Constant):
+        v = _const(node)
+        if isinstance(v, str):
+            return v
+    return None
+
+
+def population(root: str = ROOT) -> list[str]:
     """[relpath] — scripts/*.py, catalog/library/*.py and the top-level *.py."""
-    out = []
+    out: list[str] = []
     for d in ("", "scripts", os.path.join("catalog", "library")):
         full = os.path.join(root, d)
         if os.path.isdir(full):
@@ -76,9 +135,9 @@ def population(root=ROOT):
     return out
 
 
-def _consts(tree):
+def _consts(tree: ast.Module) -> dict[str, float]:
     """{name: number} for module-level `NAME = <numeric expression>`."""
-    out = {}
+    out: dict[str, float] = {}
     for n in tree.body:
         if (
             isinstance(n, ast.Assign)
@@ -91,14 +150,12 @@ def _consts(tree):
     return out
 
 
-def _num(node, consts):
+def _num(node: ast.AST, consts: Mapping[str, float]) -> float | None:
     """A number, or None when the expression is not static."""
-    if (
-        isinstance(node, ast.Constant)
-        and isinstance(node.value, (int, float))
-        and not isinstance(node.value, bool)
-    ):
-        return node.value
+    if isinstance(node, ast.Constant):
+        cv = _const(node)
+        if isinstance(cv, (int, float)) and not isinstance(cv, bool):
+            return cv
     if isinstance(node, ast.Name) and node.id in consts:
         return consts[node.id]
     if isinstance(node, ast.UnaryOp) and isinstance(node.op, ast.USub):
@@ -112,18 +169,20 @@ def _num(node, consts):
         a, b = _num(node.left, consts), _num(node.right, consts)
         if a is None or b is None:
             return None
-        ops = {
-            ast.Add: lambda: a + b,
-            ast.Sub: lambda: a - b,
-            ast.Mult: lambda: a * b,
-            ast.Div: lambda: a / b if b else None,
-        }
-        f = ops.get(type(node.op))
-        return f() if f else None
+        op = node.op
+        if isinstance(op, ast.Add):
+            return a + b
+        if isinstance(op, ast.Sub):
+            return a - b
+        if isinstance(op, ast.Mult):
+            return a * b
+        if isinstance(op, ast.Div):
+            return a / b if b else None
+        return None
     return None
 
 
-def _callee(call):
+def _callee(call: ast.Call) -> tuple[str, str]:
     f = call.func
     if isinstance(f, ast.Attribute):
         base = f.value.id if isinstance(f.value, ast.Name) else "?"
@@ -133,49 +192,37 @@ def _callee(call):
     return "?", "?"
 
 
-def _is_clock(node):
+def _is_clock(node: ast.AST) -> bool:
     return isinstance(node, ast.Call) and _callee(node)[1] in CLOCKS and not node.args
 
 
-def _strings(tree):
+def _strings(tree: ast.AST) -> list[tuple[int, str]]:
     """[(lineno, text)] — every string constant; an f-string's literal pieces joined.
     Docstrings (a bare string statement) are prose, not templates, and are skipped."""
-    out, inner = [], set()
+    out: list[tuple[int, str]] = []
+    inner: set[int] = set()
     for n in ast.walk(tree):
-        if (
-            isinstance(n, ast.Expr)
-            and isinstance(n.value, ast.Constant)
-            and isinstance(n.value.value, str)
-        ):
+        if isinstance(n, ast.Expr) and _str_of(n.value) is not None:
             inner.add(id(n.value))
     for n in ast.walk(tree):
         if isinstance(n, ast.JoinedStr):
-            out.append(
-                (
-                    n.lineno,
-                    "".join(
-                        v.value if isinstance(v, ast.Constant) else "0"
-                        for v in n.values
-                    ),
-                )
-            )
+            pieces = [_str_of(v) for v in n.values]
+            out.append((n.lineno, "".join("0" if p is None else p for p in pieces)))
             inner.update(id(v) for v in n.values)
     for n in ast.walk(tree):
-        if (
-            isinstance(n, ast.Constant)
-            and isinstance(n.value, str)
-            and id(n) not in inner
-        ):
-            out.append((n.lineno, n.value))
+        if isinstance(n, ast.Constant) and id(n) not in inner:
+            text = _str_of(n)
+            if text is not None:
+                out.append((n.lineno, text))
     return out
 
 
 QML_TIMER = re.compile(r"\bTimer\s*\{")
 
 
-def _qml_timers(text):
+def _qml_timers(text: str) -> list[tuple[int, float | None]]:
     """[(line offset, interval ms or None)] for each `Timer { … }` block (brace-matched)."""
-    out = []
+    out: list[tuple[int, float | None]] = []
     for m in QML_TIMER.finditer(text):
         depth, i = 1, m.end()
         while i < len(text) and depth:
@@ -183,11 +230,16 @@ def _qml_timers(text):
             i += 1
         body = text[m.end() : i - 1]
         iv = re.search(r"\binterval\s*:\s*([0-9.]+)\s*(?:[;\n}]|$)", body)
-        out.append((text.count("\n", 0, m.start()), float(iv.group(1)) if iv else None))
+        out.append(
+            (
+                text.count("\n", 0, m.start()),
+                float(body[iv.start(1) : iv.end(1)]) if iv else None,
+            )
+        )
     return out
 
 
-def sites_of(path, src):
+def sites_of(path: str, src: str) -> list[Site]:
     """[{file, line, kind, callee, bound_s}] — every wall-clock bound in one file."""
     try:
         tree = ast.parse(src)
@@ -206,7 +258,7 @@ def sites_of(path, src):
     # (check_marquee_live: `Timer(wall_cap, …)` with `wall_cap=WALL_CAP_S`) — the
     # bound a caller that omits the argument gets. Same-name params in two functions:
     # the last default wins (weakness).
-    defaults = {}
+    defaults: dict[str, float] = {}
     for n in ast.walk(tree):
         if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef)):
             pos = n.args.posonlyargs + n.args.args
@@ -220,10 +272,12 @@ def sites_of(path, src):
                 v = _num(d, consts)
                 if v is not None:
                     defaults[arg.arg] = v
-    out = []
+    out: list[Site] = []
 
-    def add(node, kind, callee, value):
-        v = _num(value, consts) if isinstance(value, ast.AST) else value
+    def add(
+        node: ast.expr | ast.stmt, kind: str, callee: str, value: ast.expr | None
+    ) -> None:
+        v = _num(value, consts) if value is not None else None
         if v is None and isinstance(value, ast.Name) and value.id in defaults:
             v, callee = defaults[value.id], f"{callee} (via default {value.id})"
         out.append(
@@ -258,18 +312,13 @@ def sites_of(path, src):
             ]
             for arg, d in pairs:
                 if arg.arg == "timeout" and not (
-                    isinstance(d, ast.Constant) and d.value is None
+                    isinstance(d, ast.Constant) and _const(d) is None
                 ):
                     add(n, "timeout-default", n.name, d)
         elif isinstance(n, ast.BinOp) and isinstance(n.op, ast.Add):
-            if _is_clock(n.left) or _is_clock(n.right):
-                other = n.right if _is_clock(n.left) else n.left
-                add(
-                    n,
-                    "deadline",
-                    _callee(n.left if _is_clock(n.left) else n.right)[0],
-                    other,
-                )
+            clock, other = (n.left, n.right) if _is_clock(n.left) else (n.right, n.left)
+            if isinstance(clock, ast.Call) and _is_clock(clock):
+                add(n, "deadline", _callee(clock)[0], other)
     for line, text in _strings(tree):
         for off, ms in _qml_timers(text):
             out.append(
@@ -281,16 +330,20 @@ def sites_of(path, src):
                     "bound_s": "dynamic" if ms is None else ms / 1000.0,
                 }
             )
-    return sorted(out, key=lambda s: s["line"])
+    return sorted(out, key=_line_of)
 
 
-def _edges(path, src, stems):
+def _line_of(site: Site) -> int:
+    return site["line"]
+
+
+def _edges(path: str, src: str, stems: Collection[str]) -> set[str]:
     """{stem} this file reaches: imports + string constants naming a tree module."""
     try:
         tree = ast.parse(src)
     except SyntaxError:
         return set()
-    out = set()
+    out: set[str] = set()
     for n in ast.walk(tree):
         if isinstance(n, ast.Import):
             out.update(a.name.split(".")[-1] for a in n.names)
@@ -305,9 +358,10 @@ def _edges(path, src, stems):
     return {s for s in out if s in stems and s != me}
 
 
-def reach(roots, graph):
+def reach(roots: Iterable[str], graph: Mapping[str, set[str]]) -> set[str]:
     """Transitive closure of stems from `roots` over `graph`."""
-    seen, todo = set(), list(roots)
+    seen: set[str] = set()
+    todo = list(roots)
     while todo:
         s = todo.pop()
         if s in seen or s not in graph:
@@ -317,7 +371,7 @@ def reach(roots, graph):
     return seen
 
 
-def _bibstruct():
+def _bibstruct() -> Bibstruct | None:
     for d in (
         os.path.join(ROOT, "..", "substrate"),
         os.path.expanduser("~/github/substrate"),
@@ -325,13 +379,15 @@ def _bibstruct():
         p = os.path.join(d, "scratch", "bibstruct.py")
         if os.path.isfile(p):
             spec = importlib.util.spec_from_file_location("bibstruct", p)
-            mod = importlib.util.module_from_spec(spec)
+            if spec is None or spec.loader is None:
+                continue
+            mod: ModuleType = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)
-            return mod
+            return cast(Bibstruct, mod)
     return None
 
 
-def claims():
+def claims() -> tuple[dict[str, str], str | None]:
     """({claim: 'tool:… args'}, withheld reason or None) from warrants.bib."""
     bs = _bibstruct()
     if bs is None:
@@ -342,7 +398,7 @@ def claims():
     }, None
 
 
-def claim_roots(check):
+def claim_roots(check: str) -> set[str]:
     """The stems a `tool:` command starts from."""
     argv = shlex.split(check[len("tool:") :])
     roots = {os.path.splitext(argv[0])[0]}
@@ -351,26 +407,40 @@ def claim_roots(check):
     return roots
 
 
-def measure(root=ROOT):
+def measure(root: str = ROOT) -> Measure:
     pop = population(root)
-    srcs = {}
+    srcs: dict[str, str] = {}
     for p in pop:
         with open(os.path.join(root, p), encoding="utf-8", errors="replace") as f:
             srcs[p] = f.read()
     stems = {os.path.splitext(os.path.basename(p))[0]: p for p in pop}
     graph = {s: _edges(p, srcs[p], stems) for s, p in stems.items()}
-    cl, why = claims() if root == ROOT else ({}, "fixture tree — no bib")
-    served = {}
+    cl: dict[str, str]
+    why: str | None
+    if root == ROOT:
+        cl, why = claims()
+    else:
+        cl, why = {}, "fixture tree — no bib"
+    served: dict[str, list[str]] = {}
     for key, check in cl.items():
-        for s in reach(claim_roots(check), graph):
-            served.setdefault(stems[s], []).append(key)
-    sites = []
+        for stem in reach(claim_roots(check), graph):
+            served.setdefault(stems[stem], []).append(key)
+    sites: list[ClaimedSite] = []
     for p in pop:
-        for s in sites_of(p, srcs[p]):
-            s["claims"] = sorted(served.get(p, []))
-            s["flaked_path"] = sorted(set(s["claims"]) & set(FLAKED))
-            sites.append(s)
-    out = {
+        for site in sites_of(p, srcs[p]):
+            claimed = sorted(served.get(p, []))
+            sites.append(
+                ClaimedSite(
+                    file=site["file"],
+                    line=site["line"],
+                    kind=site["kind"],
+                    callee=site["callee"],
+                    bound_s=site["bound_s"],
+                    claims=claimed,
+                    flaked_path=sorted(set(claimed) & set(FLAKED)),
+                )
+            )
+    out: Measure = {
         "population": len(pop),
         "files_with_sites": len({s["file"] for s in sites}),
         "sites": sites,
@@ -382,7 +452,7 @@ def measure(root=ROOT):
     return out
 
 
-def run_unloaded(check):
+def run_unloaded(check: str) -> Run:
     """{wall_s, cpu_s, rc} for one gate command: wall plus RUSAGE_CHILDREN user+sys delta."""
     argv = shlex.split(check[len("tool:") :])
     before = resource.getrusage(resource.RUSAGE_CHILDREN)
@@ -405,26 +475,29 @@ def run_unloaded(check):
     }
 
 
-def headroom(m, runs):
+def headroom(
+    m: Measure, runs: Mapping[str, Run]
+) -> list[tuple[float, str, ClaimedSite]]:
     """[(ratio, claim, site)] — each numeric on-path bound over that claim's measured wall."""
-    rows = []
+    rows: list[tuple[float, str, ClaimedSite]] = []
     for s in m["sites"]:
+        bound = s["bound_s"]
         for c in s["flaked_path"]:
-            if (
-                c in runs
-                and isinstance(s["bound_s"], (int, float))
-                and runs[c]["wall_s"] > 0
-            ):
-                rows.append((s["bound_s"] / runs[c]["wall_s"], c, s))
-    return sorted(rows, key=lambda r: r[0])
+            if c in runs and isinstance(bound, (int, float)) and runs[c]["wall_s"] > 0:
+                rows.append((bound / runs[c]["wall_s"], c, s))
+    return sorted(rows, key=_ratio)
 
 
-def _fmt(s):
+def _ratio(row: tuple[float, str, ClaimedSite]) -> float:
+    return row[0]
+
+
+def _fmt(s: Site) -> str:
     b = s["bound_s"]
     return f"{s['file']}:{s['line']:<5} {s['kind']:16s} {b if b == 'dynamic' else f'{b:g}s':>9}  {s['callee']}"
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     known = {"--json", "--list", "--measure", "--selftest"}
     for a in argv[1:]:
         if a not in known:
@@ -455,7 +528,8 @@ def main(argv):
         for s in dyn:
             print(f"  {','.join(s['flaked_path']):20s} {_fmt(s)}")
         if "--json" in argv:
-            print(json.dumps({"runs": runs}, indent=1))
+            payload: dict[str, dict[str, Run]] = {"runs": runs}
+            print(json.dumps(payload, indent=1))
         return 0
     if "--json" in argv:
         print(json.dumps(m, indent=1))
@@ -490,12 +564,12 @@ QML = """Item { Timer { interval: 2500; running: true; onTriggered: Qt.quit() } 
 '''
 
 
-def _selftest():
+def _selftest() -> bool:
     import tempfile
 
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             f"  {'ok  ' if got == want else 'FAIL'} {label}"
