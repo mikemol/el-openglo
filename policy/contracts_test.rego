@@ -71,6 +71,35 @@ test_k3_refuses_a_still_row_that_drops_a_declared_field if {
 	not still in p.admitted with input as bad
 }
 
+scheme := "make_preview.parse_scheme"
+
+scheme_emits := [
+	"ground", "panel", "phosphor", "accent", "sel", "window_fg", "focus", "view_bg", "sel_fg", "ghost",
+	"ghost_alpha", "ghost_alpha_glanced",
+]
+
+# the palette record (W689): a consumer reading declared keys of the returned record is admitted
+test_admits_the_palette_record_when_consumers_read_declared_keys if {
+	inp := {"surfaces": [{"surface": scheme, "emitted": scheme_emits, "consumers": [
+		{"file": "scripts/check_aperture.py", "reads": [{"field": "ground", "line": 48}]},
+	]}]}
+	count(p.deny) == 0 with input as inp
+	scheme in p.admitted with input as inp
+}
+
+test_k2_refuses_a_read_of_a_palette_key_parse_scheme_does_not_return if {
+	bad := {"surfaces": [{"surface": scheme, "emitted": scheme_emits, "consumers": [
+		{"file": "scripts/check_aperture.py", "reads": [{"field": "glow", "line": 48}]},
+	]}]}
+	"K2: scripts/check_aperture.py:48 reads glow, which make_preview.parse_scheme does not declare" in p.deny with input as bad
+	not scheme in p.admitted with input as bad
+}
+
+test_k3_refuses_a_palette_key_the_producer_drops if {
+	bad := {"surfaces": [{"surface": scheme, "emitted": ["ground"], "consumers": []}]}
+	"K3: make_preview.parse_scheme declares sel_fg but its producer does not emit it" in p.deny with input as bad
+}
+
 test_unreadable_producer_is_withheld_not_judged if {
 	inp := {"surfaces": [{"surface": name, "emitted": null, "consumers": [{"file": "c.py", "reads": []}]}]}
 	count(p.deny) == 0 with input as inp

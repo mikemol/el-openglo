@@ -55,6 +55,29 @@ SURFACES = {
         },
         "consumers": {},
     },
+    # the palette record every emission target reads (W689): one dict literal returned by parse_scheme;
+    # each consumer's receivers are the names bound to a call of it ("@parse_scheme")
+    "make_preview.parse_scheme": {
+        "producer": {
+            "file": "make_preview.py",
+            "func": "parse_scheme",
+            "returns": True,
+        },
+        "consumers": {
+            rel: "@parse_scheme"
+            for rel in (
+                "scripts/check_aperture.py",
+                "scripts/check_ghost_surfaces.py",
+                "scripts/check_marquee_live.py",
+                "scripts/check_monet.py",
+                "scripts/check_screens.py",
+                "scripts/check_urgency_cues.py",
+                "scripts/check_windows.py",
+                "scripts/readme_fragments.py",
+                "scripts/render_qml.py",
+            )
+        },
+    },
 }
 
 
@@ -91,6 +114,9 @@ def emitted(source, spec):
     fn = _func(tree, spec["func"])
     if fn is None:
         return None
+    if spec.get("returns"):
+        # a producer that hands back one record: the keys of the dict literals it returns
+        return sorted(_returned_keys(fn)) or None
     loops = [
         n
         for n in ast.walk(fn)
@@ -161,6 +187,42 @@ def reads(source, receivers):
     return sorted(out, key=lambda r: (r["line"], r["field"]))
 
 
+def assigned_from(source, func):
+    """[(first, last, names)]: the names bound to a call of `func` (bare or attribute), with the line
+    span of the def holding the binding (the whole module at top level): a receiver name reused for
+    something else in another def is not this record."""
+    tree = ast.parse(source)
+    spans = []
+    for scope in [tree, *(n for n in ast.walk(tree) if isinstance(n, ast.FunctionDef))]:
+        inner = {
+            id(x)
+            for f in ast.walk(scope)
+            if f is not scope and isinstance(f, ast.FunctionDef)
+            for x in ast.walk(f)
+        }
+        names = set()
+        for n in ast.walk(scope):
+            if (
+                id(n) not in inner
+                and isinstance(n, ast.Assign)
+                and isinstance(n.value, ast.Call)
+                and (
+                    getattr(n.value.func, "id", None) == func
+                    or getattr(n.value.func, "attr", None) == func
+                )
+            ):
+                names.update(t.id for t in n.targets if isinstance(t, ast.Name))
+        if names:
+            spans.append(
+                (
+                    getattr(scope, "lineno", 1),
+                    getattr(scope, "end_lineno", 10**9),
+                    names,
+                )
+            )
+    return spans
+
+
 def _read(rel):
     try:
         with open(os.path.join(ROOT, rel), encoding="utf-8") as f:
@@ -179,12 +241,22 @@ def measure(surfaces=None, read=_read):
         cons = []
         for rel, recv in sorted(spec["consumers"].items()):
             csrc = read(rel)
-            cons.append(
-                {
-                    "file": rel,
-                    "reads": reads(csrc, set(recv)) if csrc is not None else None,
-                }
-            )
+            if csrc is None:
+                got = None
+            elif isinstance(recv, str):
+                # "@func": the receivers are the names bound to a call of func, within the def that binds them
+                got = sorted(
+                    (
+                        r
+                        for first, last, names in assigned_from(csrc, recv[1:])
+                        for r in reads(csrc, names)
+                        if first <= r["line"] <= last
+                    ),
+                    key=lambda r: (r["line"], r["field"]),
+                )
+            else:
+                got = reads(csrc, set(recv))
+            cons.append({"file": rel, "reads": got})
         out.append({"surface": name, "emitted": keys, "consumers": cons})
     return {"surfaces": out}
 
@@ -279,6 +351,32 @@ def _selftest():
         "an unreadable producer is null, not empty",
         gone["surfaces"][0]["emitted"],
         None,
+    )
+    chk(
+        "a returns producer emits the keys of the dict it returns",
+        emitted(
+            "def rec(v):\n    def inner():\n        return 1\n    return {'a': 1, 'b': 2}\n",
+            {"func": "rec", "returns": True},
+        ),
+        ["a", "b"],
+    )
+    chk(
+        "a returns producer whose function returns no literal is unreadable (None)",
+        emitted("def rec(v):\n    return v\n", {"func": "rec", "returns": True}),
+        None,
+    )
+    bound = (
+        "def one(v):\n    s = rec(v)\n    return s['a']\n"
+        "def two(v):\n    s = {'id': v}\n    return s['id']\n"
+    )
+    scoped = measure(
+        {"r": {"producer": spec, "consumers": {"c.py": "@rec"}}},
+        read={"p.py": prod, "c.py": bound}.get,
+    )
+    chk(
+        "an @func consumer reads only the def that binds the name, not another def reusing it",
+        [r["field"] for r in scoped["surfaces"][0]["consumers"][0]["reads"]],
+        ["a"],
     )
     real = measure()
     chk(

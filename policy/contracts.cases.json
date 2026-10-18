@@ -236,5 +236,65 @@
     "render_screens.animation"
    ]
   }
+ },
+ {
+  "case": "admits-the-palette-record-when-consumers-read-declared-keys",
+  "surfaces": [
+   {
+    "surface": "make_preview.parse_scheme",
+    "emitted": ["ground", "panel", "phosphor", "accent", "sel", "window_fg", "focus", "view_bg", "sel_fg", "ghost", "ghost_alpha", "ghost_alpha_glanced"],
+    "consumers": [
+     {
+      "file": "scripts/check_aperture.py",
+      "reads": [
+       {
+        "field": "ground",
+        "line": 48
+       }
+      ]
+     }
+    ]
+   }
+  ]
+ },
+ {
+  "case": "k2-refuses-a-read-of-a-palette-key-parse-scheme-does-not-return",
+  "surfaces": [
+   {
+    "surface": "make_preview.parse_scheme",
+    "emitted": ["ground", "panel", "phosphor", "accent", "sel", "window_fg", "focus", "view_bg", "sel_fg", "ghost", "ghost_alpha", "ghost_alpha_glanced"],
+    "consumers": [
+     {
+      "file": "scripts/check_aperture.py",
+      "reads": [
+       {
+        "field": "glow",
+        "line": 48
+       }
+      ]
+     }
+    ]
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K2"
+   ]
+  }
+ },
+ {
+  "case": "k3-refuses-a-palette-key-the-producer-drops",
+  "surfaces": [
+   {
+    "surface": "make_preview.parse_scheme",
+    "emitted": ["ground"],
+    "consumers": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
  }
 ]

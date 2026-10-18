@@ -27,6 +27,14 @@ declared := {
 		"always": {"file", "variant", "exists", "grounds"},
 		"when_exists": {"width", "height", "modal", "distinct"},
 	},
+	# the palette record parse_scheme returns (W689): every key is always present, it is one literal
+	"make_preview.parse_scheme": {
+		"always": {
+			"ground", "panel", "phosphor", "accent", "sel", "window_fg", "focus", "view_bg",
+			"sel_fg", "ghost", "ghost_alpha", "ghost_alpha_glanced",
+		},
+		"when_exists": set(),
+	},
 }
 
 guaranteed(name) := object.get(declared, [name, "always"], set()) | object.get(declared, [name, "when_exists"], set())
