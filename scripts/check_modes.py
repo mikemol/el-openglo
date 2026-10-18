@@ -38,6 +38,53 @@ import sys
 import tempfile
 import time
 from concurrent.futures import ThreadPoolExecutor
+from typing import NotRequired, TypedDict, cast
+
+
+class Mode(TypedDict):
+    mode: str
+    plan: str
+    reason: NotRequired[str]
+    exit: NotRequired[int | None]
+    timeout: NotRequired[bool]
+    traceback: NotRequired[bool]
+    wall_s: NotRequired[float]
+    cpu_s: NotRequired[float]
+    stderr_tail: NotRequired[str]
+    verdict: NotRequired[str]
+
+
+class Check(TypedDict):
+    check: str
+    path: NotRequired[str]
+    declares_known: bool
+    modes: list[Mode]
+
+
+class Measurement(TypedDict):
+    checks: list[Check]
+
+
+class RunResult(TypedDict):
+    exit: int | None
+    timeout: bool
+    traceback: bool
+    wall_s: float
+    cpu_s: float
+    stderr_tail: NotRequired[str]
+
+
+class Summary(TypedDict):
+    K: int
+    k_declaring: int
+    m_declared: int
+    ran: int
+    clean: int
+    failed: list[tuple[str, Mode]]
+    timeout: list[tuple[str, Mode]]
+    skipped: int
+    excluded: int
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SCRIPTS = os.path.join(ROOT, "scripts")
@@ -46,7 +93,7 @@ TIMEOUT = 300.0
 
 # EXCLUDE BY DECLARATION. Each flag here is not read-only (or would recurse),
 # and says why. Add a row when a new mutating mode is declared; never infer.
-EXCLUDE = {
+EXCLUDE: dict[str | tuple[str, str], str] = {
     # asserts a build: records keys/manifests saying outputs were built
     "--write": "mutates: records state asserting a build happened",
     # mutate the tree
@@ -76,7 +123,7 @@ EXCLUDE = {
 
 # Arguments read positionally (not by .index), which the AST scan cannot see.
 # Declared, per check, from reading its main().
-POSITIONAL = {
+POSITIONAL: dict[tuple[str, str], str] = {
     (
         "check_template_parity.py",
         "--diff",
@@ -92,11 +139,20 @@ POSITIONAL = {
 }
 
 
-def excluded(check, flag):
+def excluded(check: str, flag: str) -> str | None:
     return EXCLUDE.get((check, flag)) or EXCLUDE.get(flag)
 
 
-def declared_known(path):
+def _str_const(node: ast.expr) -> str | None:
+    """The str value of a string literal node, or None for anything else."""
+    if isinstance(node, ast.Constant):
+        v = cast(object, node.value)
+        if isinstance(v, str):
+            return v
+    return None
+
+
+def declared_known(path: str) -> tuple[list[str] | None, ast.Module]:
     """The `known` literal in `path`, found by AST at any depth, or None."""
     with open(path, encoding="utf-8") as f:
         tree = ast.parse(f.read(), filename=path)
@@ -106,40 +162,38 @@ def declared_known(path):
         if not any(isinstance(t, ast.Name) and t.id == "known" for t in node.targets):
             continue
         if isinstance(node.value, (ast.Set, ast.List, ast.Tuple)):
-            elts = node.value.elts
-            if all(
-                isinstance(e, ast.Constant) and isinstance(e.value, str) for e in elts
-            ):
-                return sorted(e.value for e in elts), tree
+            vals = [_str_const(e) for e in node.value.elts]
+            strs = [v for v in vals if v is not None]
+            if len(strs) == len(vals):
+                return sorted(strs), tree
     return None, tree
 
 
-def arg_taking(tree):
+def arg_taking(tree: ast.Module) -> set[str]:
     """Flags the source reads an argument for: `<x>.index("--flag")` calls."""
-    out = set()
+    out: set[str] = set()
     for node in ast.walk(tree):
         if (
             isinstance(node, ast.Call)
             and isinstance(node.func, ast.Attribute)
             and node.func.attr == "index"
             and len(node.args) == 1
-            and isinstance(node.args[0], ast.Constant)
-            and isinstance(node.args[0].value, str)
-            and node.args[0].value.startswith("-")
         ):
-            out.add(node.args[0].value)
+            flag = _str_const(node.args[0])
+            if flag is not None and flag.startswith("-"):
+                out.add(flag)
     return out
 
 
-def discover(scripts_dir, exclude=SELF):
+def discover(scripts_dir: str, exclude: str | None = SELF) -> list[Check]:
     """Per check: its declared modes, each classified run / excluded / skipped."""
-    checks = []
+    checks: list[Check] = []
     for name in sorted(os.listdir(scripts_dir)):
         if not (name.startswith("check_") and name.endswith(".py")) or name == exclude:
             continue
         path = os.path.join(scripts_dir, name)
         known, tree = declared_known(path)
-        rec = {
+        rec: Check = {
             "check": name,
             "path": path,
             "declares_known": known is not None,
@@ -148,12 +202,13 @@ def discover(scripts_dir, exclude=SELF):
         if known is not None:
             takes = arg_taking(tree)
             for flag in known:
-                if excluded(name, flag):
+                why = excluded(name, flag)
+                if why:
                     rec["modes"].append(
                         {
                             "mode": flag,
                             "plan": "excluded",
-                            "reason": excluded(name, flag),
+                            "reason": why,
                         }
                     )
                 elif (name, flag) in POSITIONAL:
@@ -178,7 +233,7 @@ def discover(scripts_dir, exclude=SELF):
     return checks
 
 
-def run_mode(path, mode, cwd, timeout=TIMEOUT):
+def run_mode(path: str, mode: str, cwd: str, timeout: float = TIMEOUT) -> RunResult:
     """Run one mode; per-child CPU from wait4, wall from the clock."""
     with tempfile.TemporaryFile() as out, tempfile.TemporaryFile() as err:
         t0 = time.monotonic()
@@ -222,7 +277,7 @@ def run_mode(path, mode, cwd, timeout=TIMEOUT):
     }
 
 
-def verdict(r):
+def verdict(r: RunResult) -> str:
     if r["timeout"]:
         return "timeout"
     if r["traceback"]:
@@ -232,24 +287,36 @@ def verdict(r):
     return "ok"
 
 
-def measure(scripts_dir=SCRIPTS, cwd=ROOT, exclude=SELF, jobs=4, timeout=TIMEOUT):
+def measure(
+    scripts_dir: str = SCRIPTS,
+    cwd: str = ROOT,
+    exclude: str | None = SELF,
+    jobs: int = 4,
+    timeout: float = TIMEOUT,
+) -> Measurement:
     checks = discover(scripts_dir, exclude)
     todo = [(c, m) for c in checks for m in c["modes"] if m["plan"] == "run"]
+
+    def one(cm: tuple[Check, Mode]) -> RunResult:
+        return run_mode(cm[0].get("path", ""), cm[1]["mode"], cwd, timeout)
+
     with ThreadPoolExecutor(max_workers=jobs) as ex:
-        results = list(
-            ex.map(
-                lambda cm: run_mode(cm[0]["path"], cm[1]["mode"], cwd, timeout), todo
-            )
-        )
+        results = list(ex.map(one, todo))
     for (c, m), r in zip(todo, results):
-        m.update(r)
+        m["exit"] = r["exit"]
+        m["timeout"] = r["timeout"]
+        m["traceback"] = r["traceback"]
+        m["wall_s"] = r["wall_s"]
+        m["cpu_s"] = r["cpu_s"]
+        if "stderr_tail" in r:
+            m["stderr_tail"] = r["stderr_tail"]
         m["verdict"] = verdict(r)
     for c in checks:
         c.pop("path")
     return {"checks": checks}
 
 
-def summarize(m):
+def summarize(m: Measurement) -> Summary:
     checks = m["checks"]
     modes = [x for c in checks for x in c["modes"]]
     ran = [x for x in modes if x["plan"] == "run"]
@@ -276,7 +343,7 @@ def summarize(m):
     }
 
 
-def report(m):
+def report(m: Measurement) -> int:
     s = summarize(m)
     if s["ran"] == 0:
         print(
@@ -313,10 +380,10 @@ def report(m):
     return 1 if s["failed"] else 0
 
 
-def _selftest():
+def _selftest() -> int:
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         good = got == want
         ok &= good
@@ -353,7 +420,7 @@ def _selftest():
     return 0 if ok else 1
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     known = {"--list", "--json", "--selftest"}
     for a in argv[1:]:
         if a not in known:
