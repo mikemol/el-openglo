@@ -395,9 +395,11 @@ def _reexec_under_uv():
     """Re-run this script inside the project venv, if there is one and we're outside it."""
     if os.environ.get("_WORKLIST_IN_UV") or os.environ.get("VIRTUAL_ENV"):
         return None
-    if not os.path.isdir(os.path.join(ROOT, ".venv")):
+    from check_venv_path import venv
+
+    if not os.path.isdir(venv(ROOT)):
         return None
-    env = dict(os.environ, _WORKLIST_IN_UV="1")
+    env = dict(os.environ, _WORKLIST_IN_UV="1", UV_PROJECT_ENVIRONMENT=venv(ROOT))
     return subprocess.run(
         ["uv", "run", "--no-sync", "python3", os.path.abspath(__file__)] + sys.argv[1:],
         cwd=ROOT,
@@ -669,9 +671,11 @@ def main(argv):
                     f"project: {name:9} {path}"
                     f"{'' if os.path.isdir(path) else '  (ABSENT)'}"
                 )
+            from check_venv_path import venv
+
             print(
-                f"venv:    {os.path.join(ROOT, '.venv')}"
-                f"{'' if os.path.isdir(os.path.join(ROOT, '.venv')) else ' (absent)'}"
+                f"venv:    {venv(ROOT)}"
+                f"{'' if os.path.isdir(venv(ROOT)) else ' (absent)'}"
             )
             return 0
         if a in ENTRY:

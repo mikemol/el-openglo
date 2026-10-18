@@ -28,12 +28,15 @@ import json
 import os
 import sys
 
+from check_venv_path import venv
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # ⚑ THE HOOK IS mtools' INSTALLED COMMAND SINCE W99 (2026-10-02), not a symlinked
 # script. It has no --routes flag (it reads a hook event from stdin and ignores argv),
 # so the table is read through the SAME function the hook calls, from the installed
 # package: mikemol.hooks.routing_table.routes - asking the tool, not re-parsing the skill.
-HOOK = os.path.join(ROOT, ".venv", "bin", "mikemol-hook-structural-query")
+# The environment is venv(ROOT): EL_VENV when the gate built a snapshot venv (W698), else .venv.
+HOOK = os.path.join(venv(ROOT), "bin", "mikemol-hook-structural-query")
 SKILL = os.path.join(ROOT, ".claude", "skills", "struct-tools", "SKILL.md")
 
 
@@ -90,7 +93,11 @@ def _selftest():
         ok = ok and got == want
 
     check("SKILL path is repo-local", SKILL.startswith(ROOT), True)
-    check("HOOK path is repo-local", HOOK.startswith(ROOT), True)
+    check(
+        "HOOK path is the gate venv's (EL_VENV when set, else the repo's .venv)",
+        HOOK,
+        os.path.join(venv(ROOT), "bin", "mikemol-hook-structural-query"),
+    )
     gone = measure(
         hook=os.path.join(ROOT, ".venv", "bin", "mikemol-hook-no-such"),
         skill=os.path.join(ROOT, "no_such_skill.md"),
