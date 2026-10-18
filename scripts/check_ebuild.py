@@ -492,6 +492,44 @@ def deps_facts(path=EBUILD):
     return {"portageq": True, "atoms": res}
 
 
+PYPROJECT = os.path.join(ROOT, "pyproject.toml")
+# the ebuild's own extraction, taken out of the ebuild TEXT so the check follows the ebuild and keeps no copy
+EBUILD_SED = re.compile(r"""sed -n '([^']+)' "\$\{S\}/pyproject\.toml\"""")
+PIN = re.compile(
+    r"mikemol-cvdcore @ git\+https://github\.com/mikemol/mtools\.git@([0-9a-f]{40})#"
+)
+
+
+def pin_facts(ebuild=EBUILD, pyproject=PYPROJECT):
+    """Does the ebuild's mtools-sha extraction agree with the pyproject pin? (W674, under W560)
+
+    src_unpack derives the mtools commit it fetches with a shell sed over pyproject.toml, so a repin moves
+    it. The sed is taken out of the ebuild text and RUN on the pyproject, beside an independent Python read
+    of the same pin: `extracted` is what the build would fetch, `pinned` what the pin says, `sed_found`
+    whether the extraction is still in the ebuild. `pinned` is "" with no pin and "ambiguous" with several;
+    either is null when the file could not be read. WEAKNESS: it runs the sed, not the whole src_unpack."""
+    out = {"sed_found": False, "extracted": None, "pinned": None}
+    if os.path.isfile(ebuild):
+        with open(ebuild, encoding="utf-8") as fh:
+            found = EBUILD_SED.search(fh.read())
+        out["sed_found"] = found is not None
+    else:
+        found = None
+    if os.path.isfile(pyproject):
+        with open(pyproject, encoding="utf-8") as fh:
+            pins = PIN.findall(fh.read())
+        out["pinned"] = pins[0] if len(pins) == 1 else ("ambiguous" if pins else "")
+        if found:
+            r = subprocess.run(
+                ["sed", "-n", found.group(1), pyproject],
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            out["extracted"] = r.stdout.strip() if r.returncode == 0 else None
+    return out
+
+
 def staging_facts():
     """Stage from the index under sandbox (staged_tree) and report what came out:
     the error if it failed, else the file count, the mapped destinations absent,
@@ -522,6 +560,7 @@ def measure():
         "ebuild": lint_facts(),
         "deps": deps_facts(),
         "staging": staging_facts(),
+        "mtools_pin": pin_facts(),
     }
 
 
@@ -758,6 +797,58 @@ def _selftest():
             check("...and allows a write inside SANDBOX_WRITE", r.returncode, 0)
     else:
         print("  SKIP sandbox arms — sys-apps/sandbox not on PATH")
+    # ⚑ W674: THE PIN ARM MUST SEE A DRIFT between the ebuild's extraction and the pyproject pin.
+    real_pin = pin_facts()
+    check(
+        "the real ebuild extracts exactly the sha the real pyproject pins",
+        (real_pin["sed_found"], real_pin["extracted"] == real_pin["pinned"]),
+        (True, True),
+    )
+    sha = "0123456789abcdef0123456789abcdef01234567"
+    pin_line = f'    "mikemol-cvdcore @ git+https://github.com/mikemol/mtools.git@{sha}#subdirectory=cvdcore",\n'
+    with open(EBUILD, encoding="utf-8") as fh:
+        real_text = fh.read()
+    with tempfile.TemporaryDirectory() as td:
+        eb = os.path.join(td, "x-9999.ebuild")
+        py = os.path.join(td, "pyproject.toml")
+        with open(eb, "w", encoding="utf-8") as fh:
+            fh.write(real_text)
+        with open(py, "w", encoding="utf-8") as fh:
+            fh.write(pin_line)
+        good = pin_facts(eb, py)
+        check(
+            "a planted 40-hex pin is extracted and read back the same",
+            (good["extracted"], good["pinned"]),
+            (sha, sha),
+        )
+        with open(py, "w", encoding="utf-8") as fh:
+            fh.write(pin_line.replace(sha, sha[:12]))
+        short = pin_facts(eb, py)
+        check(
+            "a short sha is no pin: pinned and extracted are both empty",
+            (short["pinned"], short["extracted"]),
+            ("", ""),
+        )
+        with open(py, "w", encoding="utf-8") as fh:
+            fh.write(pin_line)
+        with open(eb, "w", encoding="utf-8") as fh:
+            fh.write("src_unpack() {\n\tgit-r3_src_unpack\n}\n")
+        gone = pin_facts(eb, py)
+        check(
+            "an ebuild that lost its extraction is seen (sed_found false, nothing extracted)",
+            (gone["sed_found"], gone["extracted"]),
+            (False, None),
+        )
+        with open(eb, "w", encoding="utf-8") as fh:
+            fh.write(
+                'x="$(sed -n \'s|.*zzz@\\([0-9a-f]\\{40\\}\\)#.*|\\1|p\' "${S}/pyproject.toml")"\n'
+            )
+        drift = pin_facts(eb, py)
+        check(
+            "an extraction that no longer matches the pin disagrees with it",
+            (drift["sed_found"], drift["extracted"] == drift["pinned"]),
+            (True, False),
+        )
     # ⚑ THE STAGING ARM MUST REFUSE AN EMPTY TREE, and must see a missing dest.
     files, missing = staged_tree()
     check("staging is non-empty", len(files) > 0, True)

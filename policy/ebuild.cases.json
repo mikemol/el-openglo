@@ -38,6 +38,11 @@
    "files": 312,
    "missing_dests": [],
    "sandboxed": true
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -91,6 +96,11 @@
    "deny": [
     "B0"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -140,6 +150,11 @@
    "deny": [
     "B1"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -186,6 +201,11 @@
    "deny": [
     "B1"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -232,6 +252,11 @@
    "deny": [
     "B1"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -274,6 +299,11 @@
    "withheld": [
     "B1"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -321,6 +351,11 @@
    "withheld": [
     "B1"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -368,6 +403,11 @@
    "deny": [
     "B1"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -414,6 +454,11 @@
    "deny": [
     "B2"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -455,6 +500,11 @@
    "deny": [
     "B2"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -501,6 +551,11 @@
    "withheld": [
     "B2"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -547,6 +602,11 @@
    "deny": [
     "B3"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -593,6 +653,11 @@
    "deny": [
     "B3"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -641,6 +706,11 @@
    "deny": [
     "B3"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  },
  {
@@ -687,6 +757,266 @@
    "withheld": [
     "B3"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
+  }
+ },
+ {
+  "case": "b4-refuses-an-ebuild-that-lost-its-extraction",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "mtools_pin": {
+   "sed_found": false,
+   "extracted": null,
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
+  },
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-a-pyproject-with-no-valid-pin",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "",
+   "pinned": ""
+  },
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-an-ambiguous-pin",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "",
+   "pinned": "ambiguous"
+  },
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-refuses-an-extraction-that-disagrees-with-the-pin",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "0123456789abcdef0123456789abcdef01234567",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
+  },
+  "expect": {
+   "deny": [
+    "B4"
+   ]
+  }
+ },
+ {
+  "case": "b4-withholds-an-unreadable-pyproject",
+  "markers": [
+   {
+    "path": "metadata/layout.conf",
+    "present": true
+   },
+   {
+    "path": "profiles/repo_name",
+    "present": true
+   }
+  ],
+  "ebuild": {
+   "present": true,
+   "missing_vars": [],
+   "pkgcheck": {
+    "rc": 0,
+    "errors": false,
+    "output": ""
+   },
+   "bash_parse": {
+    "rc": 0,
+    "stderr": ""
+   }
+  },
+  "deps": {
+   "portageq": true,
+   "atoms": [
+    {
+     "atom": "dev-python/numpy",
+     "resolves": true
+    }
+   ]
+  },
+  "staging": {
+   "error": null,
+   "files": 312,
+   "missing_dests": [],
+   "sandboxed": true
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": null,
+   "pinned": null
+  },
+  "expect": {
+   "withheld": [
+    "B4"
+   ]
   }
  },
  {
@@ -727,6 +1057,11 @@
    "withheld": [
     "W"
    ]
+  },
+  "mtools_pin": {
+   "sed_found": true,
+   "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa",
+   "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"
   }
  }
 ]

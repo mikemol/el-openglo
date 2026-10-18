@@ -8,6 +8,7 @@ good := {
 	"ebuild": {"present": true, "missing_vars": [], "pkgcheck": {"rc": 0, "errors": false, "output": ""}, "bash_parse": {"rc": 0, "stderr": ""}},
 	"deps": {"portageq": true, "atoms": [{"atom": "dev-python/numpy", "resolves": true}]},
 	"staging": {"error": null, "files": 312, "missing_dests": [], "sandboxed": true},
+	"mtools_pin": {"sed_found": true, "extracted": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa", "pinned": "3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa"},
 }
 
 test_admits_a_sound_overlay if {
@@ -98,6 +99,33 @@ test_b3_refuses_a_missing_destination if {
 test_b3_withholds_without_sandbox if {
 	inp := object.union(good, {"staging": {"sandboxed": false}})
 	"B3: sys-apps/sandbox is not on PATH; writes outside the tree are unchecked" in p.withheld with input as inp
+}
+
+test_b4_refuses_an_ebuild_that_lost_its_extraction if {
+	inp := object.union(good, {"mtools_pin": {"sed_found": false, "extracted": null}})
+	"B4: the ebuild no longer extracts the mtools sha from pyproject.toml; the live build would not know which mtools to fetch" in p.deny with input as inp
+	count(p.admitted) == 0 with input as inp
+}
+
+test_b4_refuses_a_pyproject_with_no_valid_pin if {
+	inp := object.union(good, {"mtools_pin": {"pinned": "", "extracted": ""}})
+	"B4: pyproject.toml has no single 40-hex mikemol-cvdcore pin (read \"\")" in p.deny with input as inp
+}
+
+test_b4_refuses_an_ambiguous_pin if {
+	inp := object.union(good, {"mtools_pin": {"pinned": "ambiguous", "extracted": ""}})
+	"B4: pyproject.toml has no single 40-hex mikemol-cvdcore pin (read \"ambiguous\")" in p.deny with input as inp
+}
+
+test_b4_refuses_an_extraction_that_disagrees_with_the_pin if {
+	inp := object.union(good, {"mtools_pin": {"extracted": "0123456789abcdef0123456789abcdef01234567"}})
+	"B4: the ebuild extracts 0123456789abcdef0123456789abcdef01234567 but pyproject.toml pins 3a1116883c0c1b9a5ea0d651e1b9bd06c0df35aa" in p.deny with input as inp
+}
+
+test_b4_withholds_an_unreadable_pyproject if {
+	inp := object.union(good, {"mtools_pin": {"pinned": null, "extracted": null}})
+	"B4: pyproject.toml was not readable; the mtools pin is unmeasured" in p.withheld with input as inp
+	count(p.deny) == 0 with input as inp
 }
 
 test_withholds_an_unmeasured_part if {

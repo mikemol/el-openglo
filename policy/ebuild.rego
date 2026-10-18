@@ -111,8 +111,39 @@ withheld contains "B3: sys-apps/sandbox is not on PATH; writes outside the tree 
 	input.staging.sandboxed == false
 }
 
+# METADATA
+# title: "B4 — the ebuild fetches the mtools commit pyproject.toml pins"
+# description: |
+#   W674, under W560. src_unpack derives the mtools commit it fetches with a shell sed over
+#   pyproject.toml's mikemol-cvdcore pin, so a repin moves it and the ebuild cannot be left behind.
+#   `mtools_pin` is that sed taken out of the ebuild text and run on the real pyproject, beside an
+#   independent Python read of the same pin. Weakness: it runs the sed, not the whole src_unpack.
+deny contains "B4: the ebuild no longer extracts the mtools sha from pyproject.toml; the live build would not know which mtools to fetch" if {
+	input.ebuild.present == true
+	input.mtools_pin.sed_found == false
+}
+
+deny contains msg if {
+	is_string(input.mtools_pin.pinned)
+	not regex.match(`^[0-9a-f]{40}$`, input.mtools_pin.pinned)
+	msg := sprintf("B4: pyproject.toml has no single 40-hex mikemol-cvdcore pin (read %q)", [input.mtools_pin.pinned])
+}
+
+deny contains msg if {
+	input.mtools_pin.sed_found == true
+	is_string(input.mtools_pin.pinned)
+	regex.match(`^[0-9a-f]{40}$`, input.mtools_pin.pinned)
+	input.mtools_pin.extracted != input.mtools_pin.pinned
+	msg := sprintf("B4: the ebuild extracts %v but pyproject.toml pins %v", [input.mtools_pin.extracted, input.mtools_pin.pinned])
+}
+
+withheld contains "B4: pyproject.toml was not readable; the mtools pin is unmeasured" if {
+	is_object(input.mtools_pin)
+	object.get(input.mtools_pin, "pinned", null) == null
+}
+
 withheld contains msg if {
-	some k in ["markers", "ebuild", "deps", "staging"]
+	some k in ["markers", "ebuild", "deps", "staging", "mtools_pin"]
 	object.get(input, k, null) == null
 	msg := sprintf("W: %s was not measured", [k])
 }
@@ -120,7 +151,7 @@ withheld contains msg if {
 # one case: the package. Admitted when nothing denies and every part was measured.
 admitted contains "el-openglo-9999" if {
 	count(deny) == 0
-	every k in ["markers", "ebuild", "deps", "staging"] {
+	every k in ["markers", "ebuild", "deps", "staging", "mtools_pin"] {
 		object.get(input, k, null) != null
 	}
 }
