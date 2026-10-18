@@ -24,6 +24,7 @@ modules; it does not exercise a live Plasma shell (applet containment, real noti
 model). It is the laptop's parser and type system, not the laptop's session.
 """
 
+import grp
 import hashlib
 import json
 import os
@@ -86,9 +87,23 @@ def tree_digest(d):
     return h.hexdigest()
 
 
+def in_group(name):
+    """True when this process already holds the group `name` (a supplementary group of the session)."""
+    try:
+        return grp.getgrnam(name).gr_gid in os.getgroups()
+    except KeyError:
+        return False
+
+
 def runner_unavailable():
-    """None when luthen's runner can be invoked here, else the reason it cannot."""
-    if not shutil.which("sg"):
+    """None when luthen's runner can be invoked here, else the reason it cannot.
+
+    ⚑ `sg k3s` IS ONLY FOR A SESSION THAT DOES NOT YET HOLD THE GROUP (measured 2026-10-18): a session started
+    after the user joined k3s already has it (`id` lists 998(k3s)), and runs the runner directly. `sg` is
+    newgrp, a setuid binary, and under no_new_privs (the agent's shell has NoNewPrivs 1) the setuid bit is
+    ignored, so it fails with `setgroups: Operation not permitted`, a fact about the wrapper and not about k3s.
+    """
+    if not in_group("k3s") and not shutil.which("sg"):
         return "sg is not installed (the k3s group runner needs it)"
     if not os.path.isfile(os.path.join(LUTHEN, "checks", "qml_check.py")):
         return f"luthen's checks/qml_check.py is not at {LUTHEN}"
@@ -115,9 +130,8 @@ def command(src, entry, out, host="none"):
 def run_check(src, entry, out, host="none"):
     """luthen checks.qml_check on one directory: (verdict dict, exit code)."""
     cmd = command(src, entry, out, host)
-    r = subprocess.run(
-        ["sg", "k3s", "-c", cmd], capture_output=True, text=True, check=False
-    )
+    argv = ["bash", "-c", cmd] if in_group("k3s") else ["sg", "k3s", "-c", cmd]
+    r = subprocess.run(argv, capture_output=True, text=True, check=False)
     line = next(
         (ln for ln in reversed(r.stdout.splitlines()) if ln.startswith("{")), None
     )
@@ -219,6 +233,12 @@ def _selftest():
         "the runner line carries the host",
         command("/s", "main.qml", "/o", "kwin-tabbox").endswith("--host kwin-tabbox"),
         True,
+    )
+    held = grp.getgrgid(os.getgroups()[0]).gr_name if os.getgroups() else None
+    chk(
+        "in_group is true for a group the process holds and false for one that is not there",
+        (held is None or in_group(held), in_group("no-such-group-zz9")),
+        (True, False),
     )
     why = runner_unavailable()
     if why:
