@@ -48,8 +48,12 @@ _LINE = re.compile(
 )
 
 
-def parse_trace(text, root, tracked):
-    """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0)."""
+def parse_trace(text, root, tracked, import_only=frozenset()):
+    """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0).
+
+    `import_only` is the set of repo-relative directories whose listing was made by Python's import system and
+    by nothing else (see import_only_dirs): such a listing is how `import` finds a module, not an input of the
+    stage, so it does not declare the files in the directory."""
     seen = set()
     children = {}
     first_under = {}
@@ -75,7 +79,8 @@ def parse_trace(text, root, tracked):
             # make_*.py the tree holds) reads the NAMES of what is in it. Declare the tracked files directly
             # inside (the names are the input; over-approximate on content), or a closure-only tree
             # silently loses a file the scan would have found (found by the W494 witness, check_discriminates)
-            seen.update(children.get(rel, ()))
+            if rel not in import_only:
+                seen.update(children.get(rel, ()))
         elif m.group(1) in _STAT and rel in first_under:
             # a stat of a directory (os.path.isdir) reads that it EXISTS: one tracked file under it
             # keeps it in a closure-only tree (W494, worklist_gate's "every project dir exists")
@@ -93,6 +98,50 @@ def stage_args(key):
     return ["selftest", key] if key.endswith(".py") else [key]
 
 
+# ⚑ WHO LISTED THE DIRECTORY? (W666) strace sees a directory read but not WHY. Python's import system lists every
+# sys.path directory to find a module (importlib's FileFinder), so a stage that imports one root module opens
+# the repo root as a directory, and the rule "a listed directory declares the tracked files inside it" then
+# declared EVERY root-level file for 101 of 110 stages. The audit hook below is placed on PYTHONPATH as a
+# sitecustomize for the stage under observation: each os.listdir / os.scandir appends `I<TAB>dir` when its
+# immediate caller is importlib, else `R<TAB>dir`, to the file named by CLOSURE_LISTINGS.
+LISTING_HOOK = """import os
+import sys
+
+_LOG = os.environ.get("CLOSURE_LISTINGS")
+
+
+def _hook(event, args):
+    if event not in ("os.listdir", "os.scandir") or not args:
+        return
+    path = "." if args[0] is None else args[0]
+    if not isinstance(path, (str, bytes, os.PathLike)):
+        return
+    via = "I" if "importlib" in sys._getframe(1).f_code.co_filename else "R"
+    line = f"{via}\\t{os.path.abspath(os.fsdecode(path))}\\n"
+    fd = os.open(_LOG, os.O_WRONLY | os.O_APPEND | os.O_CREAT)
+    try:
+        os.write(fd, line.encode())
+    finally:
+        os.close(fd)
+
+
+if _LOG:
+    sys.addaudithook(_hook)
+"""
+
+
+def import_only_dirs(text, root):
+    """The repo-relative directories only the import system listed, from the hook's log: a directory any
+    other caller also listed stays declared. WEAKNESS: a non-Python tool (git, opa, bash) listing a
+    directory the import system also listed is invisible to the hook, so that listing is dropped too."""
+    imported, real = set(), set()
+    for line in text.splitlines():
+        via, _, path = line.partition("\t")
+        if path:
+            (imported if via == "I" else real).add(os.path.relpath(path, root))
+    return imported - real
+
+
 def observe(script, root=ROOT):
     """(closure, why): the tracked files `gate/stage.sh` opens for the stage `script` names (a check's
     selftest, or one of STAGE_KINDS), or (None, reason)."""
@@ -103,6 +152,15 @@ def observe(script, root=ROOT):
     tracked = set(git_tracked.files(root=root))
     with tempfile.TemporaryDirectory() as td:
         log = os.path.join(td, "trace.txt")
+        hook = os.path.join(td, "hook")
+        listings = os.path.join(td, "listings.txt")
+        os.makedirs(hook)
+        with open(os.path.join(hook, "sitecustomize.py"), "w", encoding="utf-8") as fh:
+            fh.write(LISTING_HOOK)
+        env = dict(os.environ, CLOSURE_LISTINGS=listings)
+        env["PYTHONPATH"] = os.pathsep.join(
+            p for p in (hook, os.environ.get("PYTHONPATH", "")) if p
+        )
         r = subprocess.run(
             ["strace", "-f", "-qq", "-e", f"trace={SYSCALLS}", "-o", log]
             + [os.path.join(root, "gate", "stage.sh"), *stage_args(script)],
@@ -110,14 +168,19 @@ def observe(script, root=ROOT):
             capture_output=True,
             text=True,
             check=False,
+            env=env,
         )
         if not os.path.isfile(log) or os.path.getsize(log) == 0:
             return (
                 None,
                 f"strace wrote no trace (exit {r.returncode}): {r.stderr[-200:]}",
             )
+        skip = set()
+        if os.path.isfile(listings):
+            with open(listings, encoding="utf-8", errors="replace") as fh:
+                skip = import_only_dirs(fh.read(), root)
         with open(log, encoding="utf-8", errors="replace") as fh:
-            closure = parse_trace(fh.read(), root, tracked)
+            closure = parse_trace(fh.read(), root, tracked, skip)
     closure.add(script if script.endswith(".py") else "gate/stage.sh")
     return sorted(closure), ""
 
@@ -652,6 +715,50 @@ def _selftest():
         ),
         {"d/b.json"},
     )
+    chk(
+        "a directory only the import system listed declares none of its files (W666)",
+        parse_trace(
+            '1 openat(AT_FDCWD, "/r/d", O_RDONLY|O_NONBLOCK|O_DIRECTORY) = 5\n',
+            "/r",
+            tracked,
+            {"d"},
+        ),
+        set(),
+    )
+    chk(
+        "import_only_dirs: a directory another caller also listed stays declared",
+        import_only_dirs("I\t/r/d\nI\t/r/e\nR\t/r/e\n", "/r"),
+        {"d"},
+    )
+    with tempfile.TemporaryDirectory() as td:
+        mod = os.path.join(td, "mod")
+        scan = os.path.join(td, "scan")
+        hook = os.path.join(td, "hook")
+        for d in (mod, scan, hook):
+            os.makedirs(d)
+        with open(os.path.join(mod, "zz_mod.py"), "w", encoding="utf-8") as fh:
+            fh.write("X = 1\n")
+        with open(os.path.join(hook, "sitecustomize.py"), "w", encoding="utf-8") as fh:
+            fh.write(LISTING_HOOK)
+        listings = os.path.join(td, "listings.txt")
+        prog = (
+            f"import sys; sys.path.insert(0, {mod!r}); import zz_mod; import os; "
+            f"os.listdir({scan!r})"
+        )
+        env = dict(os.environ, CLOSURE_LISTINGS=listings, PYTHONPATH=hook)
+        subprocess.run([sys.executable, "-c", prog], env=env, check=True)
+        with open(listings, encoding="utf-8") as fh:
+            seen_listings = fh.read()
+        chk(
+            "the hook marks the import system's listing of a sys.path directory I and an explicit listdir R",
+            (f"I\t{mod}" in seen_listings, f"R\t{scan}" in seen_listings),
+            (True, True),
+        )
+        chk(
+            "...so only the directory the import system alone listed is dropped",
+            import_only_dirs(seen_listings, td) & {"mod", "scan"},
+            {"mod"},
+        )
     chk(
         "an untracked file and a host binary are not inputs",
         sorted(p for p in parse_trace(log, "/r", tracked) if p not in tracked),
