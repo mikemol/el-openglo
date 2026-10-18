@@ -7,7 +7,7 @@ planted by `check_deps.py --json catalog/fixtures/deps/undeclared.py`.
 `opa_gate.py deps <this> --expect denied:D1` must hold."""
 
 
-def uses_an_undeclared_dependency():
+def uses_an_undeclared_dependency() -> object:
     import el_openglo_w75_undeclared_dep
 
     return el_openglo_w75_undeclared_dep
