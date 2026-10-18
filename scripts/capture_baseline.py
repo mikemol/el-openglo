@@ -24,24 +24,39 @@ finding. Delete it deliberately if the output is MEANT to change.
 import importlib
 import os
 import sys
+from collections.abc import Sequence
+from types import ModuleType
+from typing import Protocol, cast
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASELINES = os.path.join(ROOT, "catalog", "baselines")
 
 
-def _resolve(mod, token):
+class _Accessor(Protocol):
+    """A module attribute that can be called with positional arguments."""
+
+    def __call__(self, *args: object) -> object: ...
+
+
+def _resolve(mod: ModuleType, token: str) -> object:
     """A module attribute if it names one, else the literal token."""
     if hasattr(mod, token):
-        v = getattr(mod, token)
-        return v() if callable(v) else v
+        v = cast(object, getattr(mod, token))
+        return cast(_Accessor, v)() if callable(v) else v
     return token
 
 
-def capture(module, accessor, name, args=()):
+def capture(
+    module: str, accessor: str, name: str, args: Sequence[str] = ()
+) -> tuple[str, int]:
     sys.path.insert(0, ROOT)
     mod = importlib.import_module(module)
-    obj = getattr(mod, accessor)
-    text = obj(*[_resolve(mod, a) for a in args]) if callable(obj) else obj
+    obj = cast(object, getattr(mod, accessor))
+    text = (
+        cast(_Accessor, obj)(*[_resolve(mod, a) for a in args])
+        if callable(obj)
+        else obj
+    )
     if not isinstance(text, str):
         raise TypeError(f"{module}.{accessor} is {type(text).__name__}, not a string")
     os.makedirs(BASELINES, exist_ok=True)
@@ -53,7 +68,7 @@ def capture(module, accessor, name, args=()):
     return path, len(text)
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     args = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
         if a.startswith("--"):
@@ -86,10 +101,11 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
+    global BASELINES
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
@@ -101,10 +117,10 @@ def _selftest():
     # ⚑ REFUSING TO OVERWRITE IS THE POINT, so it is asserted.
     import tempfile
 
-    saved = globals()["BASELINES"]
+    saved = BASELINES
     try:
         with tempfile.TemporaryDirectory() as td:
-            globals()["BASELINES"] = td
+            BASELINES = td
             capture("templates.loader", "names", "first.txt")
             check(
                 "a second capture refuses",
@@ -115,7 +131,7 @@ def _selftest():
         # names() returns a list, not a str — that refusal is also correct
         check("a non-string accessor refuses", True, True)
     finally:
-        globals()["BASELINES"] = saved
+        BASELINES = saved
     print("capture_baseline selftest:", "PASS" if ok else "FAIL")
     return ok
 
