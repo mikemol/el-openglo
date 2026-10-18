@@ -36,6 +36,16 @@ handler. Position and parse are the caller's guards; kind is only the first.
 
 import os
 import sys
+from typing import Protocol
+
+
+class Identifier(Protocol):
+    """The two libmagic calls this module makes."""
+
+    def from_buffer(self, buffer: bytes) -> str: ...
+
+    def from_file(self, filename: str) -> str: ...
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPO_DB = os.path.join(ROOT, "magic", "el-openglo.magic")
@@ -44,12 +54,12 @@ REPO_DB = os.path.join(ROOT, "magic", "el-openglo.magic")
 SYSTEM_DB = ("/usr/share/misc/magic.mgc", "/usr/share/file/magic.mgc", "/etc/magic")
 
 
-def system_db():
+def system_db() -> str | None:
     """The system magic database in play, or None if none is found."""
     return next((p for p in SYSTEM_DB if os.path.exists(p)), None)
 
 
-def magic_path():
+def magic_path() -> str:
     """The colon-joined database list: repo signatures FIRST, then the system.
 
     ⚑ ORDER AND PRESENCE BOTH MATTER.  Repo-first so a local signature can win a
@@ -58,13 +68,13 @@ def magic_path():
     return ":".join(parts)
 
 
-def _magic(mime=True):
+def _magic(mime: bool = True) -> Identifier:
     import magic
 
     return magic.Magic(mime=mime, magic_file=magic_path() or None)
 
 
-def of_bytes(data, mime=True):
+def of_bytes(data: bytes, mime: bool = True) -> str:
     """The kind of a byte string — the mode a string literal needs."""
     try:
         return _magic(mime).from_buffer(data)
@@ -72,20 +82,20 @@ def of_bytes(data, mime=True):
         return f"(unidentifiable: {type(e).__name__})"
 
 
-def of_string(text, mime=True):
+def of_string(text: str, mime: bool = True) -> str:
     return of_bytes(text.encode("utf-8", "replace"), mime)
 
 
-def of_file(path, mime=True):
+def of_file(path: str, mime: bool = True) -> str:
     try:
         return _magic(mime).from_file(path)
     except Exception as e:  # noqa: BLE001
         return f"(unidentifiable: {type(e).__name__})"
 
 
-def kinds():
+def kinds() -> list[tuple[str, str]]:
     """[(mime, description)] this repo declares signatures for."""
-    out = []
+    out: list[tuple[str, str]] = []
     if not os.path.exists(REPO_DB):
         return out
     desc = None
@@ -100,7 +110,7 @@ def kinds():
     return out
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     known = {"--string", "--db", "--kinds", "--describe"}
     flags = [a for a in argv[1:] if a.startswith("--")]
     args = [a for a in argv[1:] if not a.startswith("--")]
@@ -141,10 +151,10 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
