@@ -52,12 +52,24 @@ def step_text(path, row):
     )
 
 
+SMALL_MAX = 50
+MEDIUM_MAX = 300
+
+
+def size_of(count):
+    """The size class of a file's debt: small up to 50 findings, medium up to 300, else large."""
+    if count <= SMALL_MAX:
+        return "small"
+    return "medium" if count <= MEDIUM_MAX else "large"
+
+
 def plan(cards, rows):
-    """(writes, cleared): [(symbol, text)] for files the census reports, [(symbol, file)] for the rest."""
+    """(writes, cleared): [(symbol, text, file, size)] for files the census reports, [(symbol, file)] else."""
     writes, cleared = [], []
     for symbol, path in cards:
         if path in rows:
-            writes.append((symbol, step_text(path, rows[path])))
+            text = step_text(path, rows[path])
+            writes.append((symbol, text, path, size_of(rows[path]["count"])))
         else:
             cleared.append((symbol, path))
     return writes, cleared
@@ -86,10 +98,11 @@ def main(argv):
             f"{len(withheld)} census pass(es) withheld; no plan on a partial measure", 3
         )
     writes, cleared = plan(cards, typing_census.by_file_idiom(records))
-    for symbol, text in writes:
-        print(f"{symbol}\t{text}")
+    for symbol, text, path, size in writes:
+        print(f"{symbol}\t{size}\t{text}")
         if args == ["--apply"]:
             argv_w = [WRITER, "--state", STATE, "--update", symbol, "--next", text]
+            argv_w += ["--manifest", path, "--size", size]
             subprocess.run(argv_w, check=True)
     for symbol, path in cleared:
         print(
@@ -139,6 +152,12 @@ def _selftest():
     chk("the text carries the dominant idiom", "misc x4: Any" in writes[0][1], True)
     chk("a file no longer reported is cleared, not written", cleared, [("W3", "c.py")])
     chk("no open debt card means nothing to plan", debt_cards([]), [])
+    chk("the card's manifest is its file", writes[0][2], "a.py")
+    chk(
+        "size bands: 50 small, 51 medium, 300 medium, 301 large",
+        [size_of(n) for n in (50, 51, 300, 301)],
+        ["small", "medium", "medium", "large"],
+    )
     print("typing_plan selftest:", "PASS" if ok else "FAIL")
     return ok
 
