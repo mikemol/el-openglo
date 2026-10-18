@@ -1,0 +1,10 @@
+{
+ "repo": "luthen-observability",
+ "sha": "4045597b5992128fba2b2bf5354416576620a5d9",
+ "paths": [
+  "checks",
+  "images/qml-check",
+  "images.json"
+ ],
+ "why": "check_qml_target runs luthen's checks.qml_check; the gate reads this recorded commit out of git objects, never luthen's working tree (mtools:W797)"
+}

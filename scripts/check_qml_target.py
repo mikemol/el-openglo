@@ -26,15 +26,79 @@ model). It is the laptop's parser and type system, not the laptop's session.
 
 import grp
 import hashlib
+import io
 import json
 import os
 import shutil
 import subprocess
 import sys
+import tarfile
 import tempfile
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LUTHEN = os.path.join(os.path.dirname(ROOT), "luthen-observability")
+PIN_FILE = os.path.join(ROOT, "catalog", "luthen_pin.json")
+HEX = set("0123456789abcdef")
+
+
+def read_pin(path=PIN_FILE):
+    """(pin, None) with the repo name, the 40-hex sha and the paths, or (None, why) when it cannot be read.
+
+    ⚑ THE RUNNER IS READ AT A RECORDED COMMIT, NEVER FROM LUTHEN'S WORKING TREE (mtools:W797, rosettapkg:W121,
+    github-8f 2026-10-18): a gate that executes whatever luthen has checked out lets luthen's uncommitted edits
+    change this repo's verdict. The pin names the commit and the paths of luthen the runner needs."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            pin = json.load(fh)
+    except (OSError, ValueError) as err:
+        return None, f"{os.path.relpath(path, ROOT)} is unreadable: {err}"
+    sha = pin.get("sha") if isinstance(pin, dict) else None
+    paths = pin.get("paths") if isinstance(pin, dict) else None
+    if not (isinstance(sha, str) and len(sha) == 40 and set(sha) <= HEX):
+        return None, "the luthen pin has no 40-hex sha"
+    if not (
+        isinstance(paths, list) and paths and all(isinstance(p, str) for p in paths)
+    ):
+        return None, "the luthen pin lists no paths"
+    return pin, None
+
+
+def object_stores(root=ROOT, environ=None):
+    """Where a git repository holding luthen's objects may be, in order: LUTHEN_OBSERVABILITY, the sibling of
+    this checkout, then ~/github. Only its OBJECT DATABASE is read (`git archive <sha>`), so which working tree
+    it has checked out, and what is uncommitted in it, cannot reach the verdict."""
+    env = os.environ if environ is None else environ
+    return [
+        c
+        for c in (
+            env.get("LUTHEN_OBSERVABILITY"),
+            os.path.join(os.path.dirname(root), "luthen-observability"),
+            os.path.expanduser("~/github/luthen-observability"),
+        )
+        if c
+    ]
+
+
+def materialize(pin, dest, stores=None):
+    """(dest, None) after the pinned paths are extracted at the pinned sha into `dest`, else (None, why)."""
+    tried = object_stores() if stores is None else stores
+    for store in tried:
+        argv = ["git", "-c", "safe.directory=*", "-C", store, "archive"]
+        r = subprocess.run(
+            [*argv, "--format=tar", pin["sha"], *pin["paths"]],
+            capture_output=True,
+            check=False,
+        )
+        if r.returncode != 0:
+            continue
+        with tarfile.open(fileobj=io.BytesIO(r.stdout)) as tar:
+            tar.extractall(dest, filter="data")
+        return dest, None
+    return None, (
+        f"commit {pin['sha'][:12]} of luthen is in none of: "
+        + ", ".join(tried)
+        + " (set LUTHEN_OBSERVABILITY to a clone that holds it)"
+    )
+
 
 # (kind, glob relative to <stage>/usr/share, entry file name)
 ENTRIES = (
@@ -105,8 +169,6 @@ def runner_unavailable():
     """
     if not in_group("k3s") and not shutil.which("sg"):
         return "sg is not installed (the k3s group runner needs it)"
-    if not os.path.isfile(os.path.join(LUTHEN, "checks", "qml_check.py")):
-        return f"luthen's checks/qml_check.py is not at {LUTHEN}"
     return None
 
 
@@ -119,17 +181,17 @@ def host_of(kind):
     return HOSTS.get(kind, "none")
 
 
-def command(src, entry, out, host="none"):
-    """The shell line that runs luthen checks.qml_check on one directory."""
+def command(src, entry, out, host, luthen):
+    """The shell line that runs luthen checks.qml_check on one directory, from the pinned copy `luthen`."""
     return (
-        f"cd {LUTHEN} && python3 -m checks.qml_check --src {src} --entry {entry} "
+        f"cd {luthen} && python3 -m checks.qml_check --src {src} --entry {entry} "
         f"--out {out} --host {host}"
     )
 
 
-def run_check(src, entry, out, host="none"):
+def run_check(src, entry, out, host, luthen):
     """luthen checks.qml_check on one directory: (verdict dict, exit code)."""
-    cmd = command(src, entry, out, host)
+    cmd = command(src, entry, out, host, luthen)
     argv = ["bash", "-c", cmd] if in_group("k3s") else ["sg", "k3s", "-c", cmd]
     r = subprocess.run(argv, capture_output=True, text=True, check=False)
     line = next(
@@ -149,6 +211,11 @@ def measure(stage_dir=None):
         if stage_dir is None:
             stage(sd)
         why = runner_unavailable()
+        luthen = None
+        if not why:
+            pin, why = read_pin()
+            if pin:
+                luthen, why = materialize(pin, os.path.join(td, "luthen"))
         seen = {}
         for kind, pkg, d, entry in entries(sd):
             case = {
@@ -170,7 +237,7 @@ def measure(stage_dir=None):
                 )
             else:
                 out = os.path.join(td, "out-" + pkg)
-                verdict, rc, tail = run_check(d, entry, out, host_of(kind))
+                verdict, rc, tail = run_check(d, entry, out, host_of(kind), luthen)
                 if rc == 2 or not verdict:
                     case["withheld"] = f"qml_check could not run (exit {rc}): {tail}"
                 else:
@@ -230,10 +297,62 @@ def _selftest():
         ["none", "none", "kwin-tabbox", "none", "none"],
     )
     chk(
-        "the runner line carries the host",
-        command("/s", "main.qml", "/o", "kwin-tabbox").endswith("--host kwin-tabbox"),
+        "the runner line carries the host and runs from the pinned copy",
+        command("/s", "main.qml", "/o", "kwin-tabbox", "/l").startswith("cd /l && ")
+        and command("/s", "main.qml", "/o", "kwin-tabbox", "/l").endswith(
+            "--host kwin-tabbox"
+        ),
         True,
     )
+    with tempfile.TemporaryDirectory() as td:
+        pin_file = os.path.join(td, "pin.json")
+        for label, text in (
+            ("a pin that is not JSON", "{"),
+            ("a pin whose sha is not 40 hex", '{"sha": "abc", "paths": ["a"]}'),
+            ("a pin that lists no paths", f'{{"sha": "{"a" * 40}", "paths": []}}'),
+        ):
+            with open(pin_file, "w", encoding="utf-8") as fh:
+                fh.write(text)
+            chk(f"read_pin refuses {label}", read_pin(pin_file)[0], None)
+        chk("read_pin reads the real pin", read_pin()[0] is not None, True)
+        repo = os.path.join(td, "luthen")
+        os.makedirs(os.path.join(repo, "checks"))
+        gitc = ["git", "-C", repo, "-c", "user.name=t", "-c", "user.email=t@t"]
+        runner = os.path.join(repo, "checks", "qml_check.py")
+        subprocess.run(["git", "-C", repo, "init", "-q"], check=True)
+        with open(runner, "w", encoding="utf-8") as fh:
+            fh.write("COMMITTED\n")
+        subprocess.run([*gitc, "add", "checks"], check=True)
+        subprocess.run([*gitc, "commit", "-q", "-m", "c"], check=True)
+        sha = subprocess.run(
+            [*gitc, "rev-parse", "HEAD"], capture_output=True, text=True, check=True
+        ).stdout.strip()
+        with open(runner, "w", encoding="utf-8") as fh:
+            fh.write("UNCOMMITTED EDIT\n")
+        out = os.path.join(td, "out")
+        got, _why = materialize({"sha": sha, "paths": ["checks"]}, out, [repo])
+        with open(os.path.join(out, "checks", "qml_check.py"), encoding="utf-8") as fh:
+            copied = fh.read()
+        chk(
+            "materialize reads the pinned commit, not the working tree's uncommitted edit",
+            (got, copied),
+            (out, "COMMITTED\n"),
+        )
+        missing = materialize({"sha": "0" * 40, "paths": ["checks"]}, out, [repo])
+        chk(
+            "a sha no store holds is None and names the commit and every store tried",
+            (missing[0], "000000000000" in missing[1], repo in missing[1]),
+            (None, True, True),
+        )
+        chk(
+            "object_stores: the env var first, then the sibling, then ~/github",
+            object_stores("/a/b/el", {"LUTHEN_OBSERVABILITY": "/x/l"}),
+            [
+                "/x/l",
+                "/a/b/luthen-observability",
+                os.path.expanduser("~/github/luthen-observability"),
+            ],
+        )
     held = grp.getgrgid(os.getgroups()[0]).gr_name if os.getgroups() else None
     chk(
         "in_group is true for a group the process holds and false for one that is not there",
@@ -256,7 +375,10 @@ def _selftest():
             f.write(
                 "import QtQuick\nItem { function f() { var byte = 1; return byte; } }\n"
             )
-        v, rc, tail = run_check(clean, "main.qml", os.path.join(td, "o1"))
+        pinned, _why = materialize(read_pin()[0], os.path.join(td, "pinned"))
+        v, rc, tail = run_check(
+            clean, "main.qml", os.path.join(td, "o1"), "none", pinned
+        )
         if not v:
             # ⚑ NO VERDICT AT ALL IS "COULD NOT MEASURE", as `measure` already reads it
             # (W454, 2026-10-10: after the host reboot k3s was not up, the runner printed
@@ -269,7 +391,7 @@ def _selftest():
             (rc, v.get("state")),
             (0, "ok"),
         )
-        v, rc, _ = run_check(bad, "main.qml", os.path.join(td, "o2"))
+        v, rc, _ = run_check(bad, "main.qml", os.path.join(td, "o2"), "none", pinned)
         chk(
             "`var byte` fails at lint under the target Qt (the laptop's 2026-09-26 error)",
             (rc, v.get("step")),
