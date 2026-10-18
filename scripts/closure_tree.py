@@ -73,8 +73,9 @@ def spec_of(path, specs):
     return None
 
 
-def partition(files, family_of, specs=None):
-    """{leaf node name: sorted files}: each family's spec files in its leaf, the rest in the machinery.
+def partition(files, family_of, specs=None, by_spec=False):
+    """{leaf node name: sorted files}: the spec files in a leaf per family (or per SPEC when `by_spec`), the rest
+    in the machinery.
 
     `specs` is the population of policy specs (default: the keys of `family_of`). A spec in the population
     with no family is a ValueError: it must not fall into the machinery unseen."""
@@ -88,7 +89,8 @@ def partition(files, family_of, specs=None):
             msg = f"{spec}: a policy spec with no family (set custom.family in its rego METADATA)"
             raise ValueError(msg)
         else:
-            out.setdefault(f"{PYTESTSPEC}_{family_of[spec]}", []).append(path)
+            leaf = f"{PYTESTSPEC}_{family_of[spec]}" + (f"_{spec}" if by_spec else "")
+            out.setdefault(leaf, []).append(path)
     return out
 
 
@@ -140,24 +142,40 @@ def render_root(extra_named):
     return "\n".join(lines) + "\n"
 
 
-def plan_tree(closures, family_of, extra_named, specs=None):
+def family_nodes(leaves, family_of):
+    """{family node name: [its spec leaf names]} for the per-spec leaves (the machinery belongs to none)."""
+    out = {}
+    for leaf in sorted(leaves):
+        for family in sorted(set(family_of.values())):
+            if leaf.startswith(f"{PYTESTSPEC}_{family}_"):
+                out.setdefault(f"{PYTESTSPEC}_{family}", []).append(leaf)
+                break
+    return out
+
+
+def plan_tree(closures, family_of, extra_named, specs=None, by_spec=False):
     """{repo path: file text}: the whole declaration for `closures` ({stage key: [files]}).
 
     `specs` is the policy-spec population (default: the keys of `family_of`). Refuses (ValueError) a spec
-    with no family: a leaf needs its parent."""
+    with no family: a leaf needs its parent. With `by_spec` every spec is a leaf of its own and each family
+    is a composite over its specs, so a port adds one leaf and edits only its family node."""
     selftest = {k: v for k, v in closures.items() if k.endswith(".py")}
     stages = {
         k: v for k, v in closures.items() if k not in selftest and k != PYTESTSPEC
     }
-    leaves = partition(closures[PYTESTSPEC], family_of, specs)
+    leaves = partition(closures[PYTESTSPEC], family_of, specs, by_spec)
+    fams = family_nodes(leaves, family_of) if by_spec else {}
+    top = [MACHINERY, *sorted(fams)] if by_spec else sorted(leaves)
     out = {
         "closures.bzl": render_root(extra_named),
         node_path("selftest"): render_dict(selftest),
         node_path("stages"): render_dict(stages),
-        node_path(PYTESTSPEC): render_composite(sorted(leaves)),
+        node_path(PYTESTSPEC): render_composite(top),
     }
     for name, files in leaves.items():
         out[node_path(name)] = render_leaf(files)
+    for name, kids in fams.items():
+        out[node_path(name)] = render_composite(kids)
     return out
 
 
@@ -436,6 +454,46 @@ def _selftest():
             "a family leaf split into children reads as the union, without changing its parent",
             load_tree(td)[PYTESTSPEC],
             ["policy/a.rego", "policy/b.rego"],
+        )
+    with tempfile.TemporaryDirectory() as td:
+        spec_plan = plan_tree(closures, fam, ["BUILD.bazel"], by_spec=True)
+        chk(
+            "by spec: every spec is a leaf and each family a composite over its specs",
+            sorted(spec_plan),
+            sorted(
+                [
+                    "closures.bzl",
+                    "closures_selftest.bzl",
+                    "closures_stages.bzl",
+                    "closures_pytestspec.bzl",
+                    "closures_pytestspec_machinery.bzl",
+                    "closures_pytestspec_gate.bzl",
+                    "closures_pytestspec_gate_census.bzl",
+                    "closures_pytestspec_palette.bzl",
+                    "closures_pytestspec_palette_tokens.bzl",
+                ]
+            ),
+        )
+        write_tree(spec_plan, td)
+        chk(
+            "by spec: the tree reads back as the same closures",
+            load_tree(td),
+            {**closures, PYTESTSPEC: sorted(files)},
+        )
+        more = {**closures, PYTESTSPEC: [*files, "policy/census_test.rego"]}
+        more_plan = plan_tree(more, fam, ["BUILD.bazel"], by_spec=True)
+        chk(
+            "by spec: a new file of a spec edits only that spec's leaf",
+            write_tree(more_plan, td)[0],
+            ["closures_pytestspec_gate_census.bzl"],
+        )
+        fam2 = {**fam, "kerning": "gate"}
+        grown = {**more, PYTESTSPEC: [*more[PYTESTSPEC], "policy/kerning.rego"]}
+        grown_plan = plan_tree(grown, fam2, ["BUILD.bazel"], by_spec=True)
+        chk(
+            "by spec: a new spec adds its own leaf and edits only its family composite",
+            write_tree(grown_plan, td)[0],
+            ["closures_pytestspec_gate.bzl", "closures_pytestspec_gate_kerning.bzl"],
         )
     with tempfile.TemporaryDirectory() as td:
         write_tree(plan, td)

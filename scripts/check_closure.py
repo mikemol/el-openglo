@@ -448,7 +448,9 @@ def write_closures(closures, root=ROOT):
     population = spec_families.specs(root)
     tags = spec_families.read_tags(population, root)
     family_of = {s: f for s, f in tags.items() if f}
-    plan = closure_tree.plan_tree(closures, family_of, EXTRA_NAMED, population)
+    plan = closure_tree.plan_tree(
+        closures, family_of, EXTRA_NAMED, population, by_spec=True
+    )
     return closure_tree.write_tree(plan, root)
 
 
