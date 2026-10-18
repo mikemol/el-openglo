@@ -31,14 +31,21 @@ import sys
 _MARK = re.compile(r"<(polygon|rect|circle|path|text|line|ellipse)\b([^>]*)>")
 
 
-def marks(path):
+def marks(path: str) -> list[tuple[str, str]]:
     """[(tag, attrs)] in document order."""
     with open(path, encoding="utf-8", errors="replace") as fh:
         text = fh.read()
-    return [(m.group(1), m.group(2).strip()) for m in _MARK.finditer(text)]
+    out: list[tuple[str, str]] = []
+    for m in _MARK.finditer(text):
+        t0, t1 = m.span(1)
+        a0, a1 = m.span(2)
+        out.append((text[t0:t1], text[a0:a1].strip()))
+    return out
 
 
-def compare(a, b):
+def compare(
+    a: str, b: str
+) -> tuple[bool, list[tuple[str, str]], list[tuple[str, str]], int]:
     """(same_set, only_a, only_b, moved) for two SVGs."""
     ma, mb = marks(a), marks(b)
     sa, sb = sorted(ma), sorted(mb)
@@ -48,7 +55,7 @@ def compare(a, b):
     return (sa == sb, only_a, only_b, moved)
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     known = {"--marks"}
     args = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
@@ -62,7 +69,7 @@ def main(argv):
         if not os.path.isfile(p):
             print(f"svg_setdiff: REFUSED — no such file {p}", file=sys.stderr)
             return 2
-    same, only_a, only_b, moved = compare(*args)
+    same, only_a, only_b, moved = compare(args[0], args[1])
     na, nb = len(marks(args[0])), len(marks(args[1]))
     if not na or not nb:
         print(
@@ -96,10 +103,10 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
