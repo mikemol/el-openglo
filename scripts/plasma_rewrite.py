@@ -45,14 +45,21 @@ SUBSTITUTIONS = (
 )
 
 
-def _kcfg_defaults(xml_text):
+def _kcfg_defaults(xml_text: str) -> dict[str, bool | float | int | str]:
     """{name: default} from a kcfg, typed."""
-    out = {}
+    out: dict[str, bool | float | int | str] = {}
     for m in re.finditer(
         r'<entry name="(\w+)" type="(\w+)"><default>([^<]*)</default>', xml_text
     ):
-        name, typ, val = m.groups()
-        out[name] = (
-            {"Bool": lambda v: v == "true", "Double": float, "Int": int}.get(typ, str)
-        )(val)
+        name = xml_text[m.start(1) : m.end(1)]
+        typ = xml_text[m.start(2) : m.end(2)]
+        val = xml_text[m.start(3) : m.end(3)]
+        if typ == "Bool":
+            out[name] = val == "true"
+        elif typ == "Double":
+            out[name] = float(val)
+        elif typ == "Int":
+            out[name] = int(val)
+        else:
+            out[name] = val
     return out
