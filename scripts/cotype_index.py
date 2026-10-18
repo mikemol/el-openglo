@@ -35,6 +35,15 @@ import json
 import os
 import re
 import sys
+from typing import TypedDict
+
+
+class SymbolInfo(TypedDict):
+    closed: bool
+    by: str | None
+    gates: int
+    buckets: list[str]
+
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 COTYPE = os.path.join(ROOT, "COTYPE.md")
@@ -52,59 +61,72 @@ _QUALIFIED_TICK = re.compile(r"✓\s*(PoC|partial|WIP|\(\d+\s*/\s*\d+\))", re.IG
 BUCKETS = ("BUILD", "RESEARCH", "LIVE", "TUNE", "TIER 3", "RESIDUE", "OPEN")
 
 
-def _text():
+def _text() -> str | None:
     if not os.path.exists(COTYPE):
         return None
     return open(COTYPE, encoding="utf-8", errors="replace").read()
 
 
-def sessions(text=None):
+def _resolve(text: str | None) -> str:
+    """The given text, else the log on disk (absent reads as empty)."""
+    if text is not None:
+        return text
+    return _text() or ""
+
+
+def _syms(s: str) -> list[str]:
+    """Every ⊕symbol in `s`, in order (finditer, so no Any from findall)."""
+    return [s[m.start() : m.end()] for m in SYMBOL.finditer(s)]
+
+
+def sessions(text: str | None = None) -> list[tuple[int, str]]:
     """[(lineno, title)] — every session heading, in order."""
-    text = _text() if text is None else text
-    out = []
+    text = _resolve(text)
+    out: list[tuple[int, str]] = []
     for i, line in enumerate(text.splitlines(), 1):
         if line.startswith("## Session"):
             out.append((i, line[3:].strip()))
     return out
 
 
-def closures(text=None):
+def closures(text: str | None = None) -> dict[str, list[int]]:
     """{symbol: [lineno]} — symbols carrying a `### ⊕X closure` section."""
-    text = _text() if text is None else text
-    out = {}
+    text = _resolve(text)
+    out: dict[str, list[int]] = {}
     for i, line in enumerate(text.splitlines(), 1):
         if line.startswith("###") and "closure" in line:
             m = SYMBOL.search(line)
             if m:
-                out.setdefault(m.group(0), []).append(i)
+                out.setdefault(line[m.start() : m.end()], []).append(i)
     return out
 
 
-def gates(text=None):
+def gates(text: str | None = None) -> dict[str, int]:
     """{symbol: n} — how many four-gate verdicts each symbol's closure carries.
 
     The log writes gates as `- Four gates: …` / `- Gate (four): …` inside a
     closure.  Attribution is to the nearest preceding closure heading, because a
     gate line names no symbol of its own."""
-    text = _text() if text is None else text
-    out, current = {}, None
+    text = _resolve(text)
+    out: dict[str, int] = {}
+    current: str | None = None
     for line in text.splitlines():
         if line.startswith("###") and "closure" in line:
             m = SYMBOL.search(line)
-            current = m.group(0) if m else None
+            current = line[m.start() : m.end()] if m else None
         elif current and re.match(r"^- (Four gates|Gates? \(four\))", line.strip()):
             out[current] = out.get(current, 0) + 1
     return out
 
 
-def ledger_blocks(text=None):
+def ledger_blocks(text: str | None = None) -> list[tuple[int, str]]:
     """[(lineno, body)] — every `## Symbol ledger` block, in order.  A SERIES."""
-    text = _text() if text is None else text
+    text = _resolve(text)
     lines = text.splitlines()
-    out = []
+    out: list[tuple[int, str]] = []
     for i, line in enumerate(lines):
         if line.startswith("## Symbol ledger"):
-            body = []
+            body: list[str] = []
             for nxt in lines[i + 1 :]:
                 if nxt.startswith(("## ", "# ")):
                     break
@@ -113,13 +135,14 @@ def ledger_blocks(text=None):
     return out
 
 
-def open_set(text=None):
+def open_set(text: str | None = None) -> dict[str, list[str]]:
     """{bucket: [symbols]} from the LAST ledger block — the only current one."""
     blocks = ledger_blocks(text)
     if not blocks:
         return {}
     _, body = blocks[-1]
-    found, bucket = {}, None
+    found: dict[str, list[str]] = {}
+    bucket: str | None = None
     for line in body.splitlines():
         stripped = line.strip()
         if not stripped.startswith("-"):
@@ -139,11 +162,11 @@ def open_set(text=None):
             # that decompose HOW the item proceeds and name its dependencies.
             # So: continuation lines contribute, EXCEPT a numbered sub-step.
             if bucket and not re.match(r"^\d+\.\s", stripped):
-                for s in SYMBOL.findall(line):
+                for s in _syms(line):
                     found.setdefault(bucket, []).append(s)
             continue
         head = stripped.lstrip("- ").strip()
-        hit = None
+        hit: str | None = None
         for b in BUCKETS:
             if head.upper().startswith(b):
                 hit = b
@@ -156,12 +179,12 @@ def open_set(text=None):
                     break
         bucket = hit or bucket
         if bucket:
-            for s in SYMBOL.findall(line):
+            for s in _syms(line):
                 found.setdefault(bucket, []).append(s)
     return {k: sorted(set(v)) for k, v in found.items()}
 
 
-def ledger_closed(text=None):
+def ledger_closed(text: str | None = None) -> set[str]:
     """Symbols the FINAL ledger marks closed — its `… ✓ (n)` line.
 
     ⚑ A CLOSURE SECTION IS NOT THE ONLY EVIDENCE OF CLOSURE.  Early symbols were
@@ -173,7 +196,7 @@ def ledger_closed(text=None):
     if not blocks:
         return set()
 
-    def _ticked(body):
+    def _ticked(body: str) -> set[str]:
         """Symbols on this block's ✓ ENTRIES — entry-wise, not line-wise.
 
         ⚑ A LEDGER ENTRY WRAPS, AND THE ✓ LANDS WHEREVER THE PROSE PUT IT.  Read
@@ -182,7 +205,9 @@ def ledger_closed(text=None):
         symbols above it — so a symbol the log plainly closed reported as never
         resolved. Join each `-` bullet with its continuation lines first, then
         look for the tick."""
-        got, entries, cur = set(), [], None
+        got: set[str] = set()
+        entries: list[str] = []
+        cur: str | None = None
         for line in body.splitlines():
             if line.strip().startswith("-"):
                 if cur is not None:
@@ -205,11 +230,11 @@ def ledger_closed(text=None):
                 # Only the symbol the qualifier attaches to is excluded — the
                 # nearest one before it. The rest of the entry still ticks.
                 head = entry[: m.start()]
-                syms = SYMBOL.findall(head)
+                syms = _syms(head)
                 got |= set(syms[:-1])
                 continue
             if "✓" in entry:
-                got |= set(SYMBOL.findall(entry.split("✓")[0]))
+                got |= set(_syms(entry.split("✓")[0]))
         return got
 
     out = _ticked(blocks[-1][1])
@@ -226,20 +251,19 @@ def ledger_closed(text=None):
     # the present, not about the log.
     current_open = {s for v in open_set(text).values() for s in v}
     return out - current_open
-    return out
 
 
-def symbols(text=None):
+def symbols(text: str | None = None) -> dict[str, SymbolInfo]:
     """{symbol: {"closed": bool, "gates": int, "buckets": [...]}} for every symbol."""
-    text = _text() if text is None else text
+    text = _resolve(text)
     clo, gts, opn = closures(text), gates(text), open_set(text)
     tick = ledger_closed(text)
-    where = {}
+    where: dict[str, list[str]] = {}
     for bucket, syms in opn.items():
         for s in syms:
             where.setdefault(s, []).append(bucket)
-    out = {}
-    for s in sorted(set(SYMBOL.findall(text))):
+    out: dict[str, SymbolInfo] = {}
+    for s in sorted(set(_syms(text))):
         out[s] = {
             "closed": s in clo or s in tick,
             "by": ("closure" if s in clo else ("ledger-tick" if s in tick else None)),
@@ -249,7 +273,7 @@ def symbols(text=None):
     return out
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     known = {
         "--symbols",
         "--open",
@@ -313,19 +337,15 @@ def main(argv):
             print(f"{s}\t{state}\tgates={d['gates']}")
         return 0
     if "--json" in argv:
-        print(
-            json.dumps(
-                {
-                    "sessions": len(sess),
-                    "ledger_blocks": len(blocks),
-                    "closures": {k: v for k, v in clo.items()},
-                    "gates": gts,
-                    "open": opn,
-                    "symbols": syms,
-                },
-                indent=2,
-            )
-        )
+        payload: dict[str, object] = {
+            "sessions": len(sess),
+            "ledger_blocks": len(blocks),
+            "closures": {k: v for k, v in clo.items()},
+            "gates": gts,
+            "open": opn,
+            "symbols": syms,
+        }
+        print(json.dumps(payload, indent=2))
         return 0
 
     n_open = sum(len(v) for v in opn.values())
@@ -345,10 +365,10 @@ def main(argv):
     return 0
 
 
-def _selftest():
+def _selftest() -> bool:
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
