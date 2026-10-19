@@ -491,3 +491,18 @@ function rollDuration(queued, base, floor, full) {
     var t = full > 0 ? Math.max(0, Math.min(1, queued / full)) : 1;
     return base + (floor - base) * (t * t * (3 - 2 * t));
 }
+
+// ⚑ THE GLYPH COVERAGE RULE (W512), the QML twin of display_types.coverage_columns. `hits[c][r]` is how
+// many of a cell's sub x sub sample points a glyph covers; a cell is lit when at least `threshold` of
+// them are, and bit r of column c is that cell. Python samples an outline's winding to make `hits`, a
+// Canvas would count lit pixels; the RULE from hits to columns is this one statement on both sides, and
+// scripts/check_marquee_body.py asks both for the same columns from the same grid.
+function coverageColumns(hits, sub, threshold) {
+    var need = threshold * sub * sub, out = [];
+    for (var c = 0; c < hits.length; c++) {
+        var b = 0;
+        for (var r = 0; r < hits[c].length; r++) if (hits[c][r] >= need) b += Math.pow(2, r);
+        out.push(b);
+    }
+    return out;
+}

@@ -18,6 +18,27 @@ deny contains msg if {
 }
 
 # METADATA
+# title: MC1 — the JS coverage rule gives the Python rule's columns
+# description: |
+#   W512: marquee-body.js coverageColumns and display_types.coverage_columns are asked for the columns of the
+#   same real coverage grids; a grid on which they differ is the glyph rule drifting between the two
+#   languages. `coverage.checked` is how many grids were compared, `coverage.problems` the ones that differed.
+deny contains msg if {
+	some p in object.get(object.get(input, "coverage", {}), "problems", [])
+	msg := sprintf("MC1: the coverage rule differs between Python and the marquee: %v", [p])
+}
+
+# METADATA
+# title: MC2 — a coverage comparison that compared nothing is withheld, not a pass
+withheld contains msg if {
+	input.runner == true
+	coverage := object.get(input, "coverage", null)
+	is_object(coverage)
+	object.get(coverage, "checked", 0) == 0
+	msg := "MC2: the coverage rule was not compared (the host has no font): nothing was checked"
+}
+
+# METADATA
 # title: M1 — a body parses to the stated text, with the stated style runs, and no tag survives
 # description: |
 #   The freedesktop spec's legal set (<b> <i> <u> <a href> <img alt>) plus

@@ -3412,6 +3412,7 @@ STATS = {
         "vscode/themes/EL-Azure-Lit-color-theme.json",
     ],
     "scripts/check_marquee_body.py": [
+        "uv.lock",
     ],
     "scripts/check_marquee_host.py": [
     ],

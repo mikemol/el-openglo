@@ -2911,6 +2911,7 @@ CLOSURES = {
         "gate/stage.sh",
         "ghost_solve.py",
         "glance_audit.py",
+        "make_glyph_ink.py",
         "make_notify_marquee.py",
         "make_palette.py",
         "make_schemes.py",
@@ -2926,7 +2927,6 @@ CLOSURES = {
         "templates/__init__.py",
         "templates/loader.py",
         "templates/marquee-body.js",
-        "uv.lock",
     ],
     "scripts/check_marquee_host.py": [
         ".bazelrc",

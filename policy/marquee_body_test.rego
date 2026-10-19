@@ -18,6 +18,34 @@ sweep_real := {"args": [400, 120, 6, 0.5], "values": [400, 394.49074074074076, 3
 
 m14(inp) := [m | some m in mb.deny with input as inp; startswith(m, "M14:")]
 
+# W512 / MC1, MC2: the coverage rule agrees between Python and the marquee, and a comparison of nothing is withheld
+mc1(inp) := [m | some m in mb.deny with input as inp; startswith(m, "MC1:")]
+
+test_mc1_admits_a_coverage_comparison_with_no_problems if {
+	count(mc1(object.union(clean, {"coverage": {"checked": 7, "problems": [], "font": "f.ttf"}}))) == 0
+}
+
+test_mc1_refuses_a_grid_on_which_the_two_differ if {
+	inp := object.union(clean, {"coverage": {"checked": 7, "problems": ["grid 2: python [1] but marquee-body.js [3]"], "font": "f.ttf"}})
+	mc1(inp) == ["MC1: the coverage rule differs between Python and the marquee: grid 2: python [1] but marquee-body.js [3]"]
+}
+
+test_mc2_withholds_a_comparison_that_checked_nothing if {
+	inp := object.union(clean, {"coverage": {"checked": 0, "problems": [], "font": null}})
+	"MC2: the coverage rule was not compared (the host has no font): nothing was checked" in mb.withheld with input as inp
+}
+
+test_mc2_does_not_withhold_a_real_comparison if {
+	inp := object.union(clean, {"coverage": {"checked": 7, "problems": [], "font": "f.ttf"}})
+	not "MC2: the coverage rule was not compared (the host has no font): nothing was checked" in mb.withheld with input as inp
+}
+
+# an input with no coverage fact makes no coverage claim: the measurement always emits one
+# (check_marquee_body's selftest asserts it), so the older spec cases stay valid
+test_mc2_says_nothing_when_the_fact_is_absent if {
+	count([m | some m in mb.withheld with input as clean; startswith(m, "MC2:")]) == 0
+}
+
 test_m14_admits_a_correct_duration_and_sweep if {
 	count(m14(clean)) == 0
 }
@@ -288,8 +316,9 @@ test_m5_refuses_no_series_cases if {
 }
 
 test_admits_clean if {
-	count(mb.deny) == 0 with input as clean
-	count(mb.withheld) == 0 with input as clean
+	compared := object.union(clean, {"coverage": {"checked": 7, "problems": [], "font": "f.ttf"}})
+	count(mb.deny) == 0 with input as compared
+	count(mb.withheld) == 0 with input as compared
 }
 
 test_m0_refuses_empty if {

@@ -390,6 +390,16 @@ MATRIX_CHARSET = "".join(chr(c) for c in range(0x20, 0x7F)) + "".join(
 )
 
 
+def coverage_columns(hits, sub=4, threshold=0.5):
+    """Column bytes from a grid of coverage counts (W512): `hits[c][r]` is how many of a cell's sub x sub
+    sample points a glyph covers, and a cell is lit when at least `threshold` of them are. This is THE
+    statement of the rule: make_glyph_ink samples outlines into `hits`, the marquee's JS
+    (templates/marquee-body.js coverageColumns) applies the same threshold to its own, and
+    scripts/check_marquee_body.py asks the two for the same columns from the same grid."""
+    need = threshold * sub * sub
+    return [sum(1 << r for r, h in enumerate(col) if h >= need) for col in hits]
+
+
 def font_extension(
     path,
     cols=5,

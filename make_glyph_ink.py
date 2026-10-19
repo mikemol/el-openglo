@@ -315,26 +315,22 @@ def font_xheight(path):
     return None
 
 
-def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
-    """Rasterise one glyph of an outline font into column bytes in the
-    display_types convention (bit r of column c = row r lit), or None when the
-    font has no glyph for `ch` — the caller decides the fallback ('?' per the
-    log, blank per MatrixDisplay.glyph today), not this function.
-
-    A cell is lit when at least `threshold` of its sub x sub sample points are
-    inside the winding (a COVERAGE threshold, not a centre sample — a thin
-    stroke that misses every cell centre would otherwise vanish)."""
+def coverage_hits(path, ch, cols=5, rows=8, baseline=6, sub=4):
+    """The coverage grid of one glyph: `hits[c][r]` = how many of the cell's sub x sub sample points are
+    inside the outline winding, or None when the font has no glyph for `ch`. A space is present with
+    nothing covered. The threshold that turns this into column bytes is display_types.coverage_columns."""
     _f, _gs, cmap = _font(path)
     if ord(ch) not in cmap:
         return None
+    blank = [[0] * rows for _ in range(cols)]
     polys = contours(path, ch)
     if not polys:
-        return [0] * cols  # a space: present, nothing lit
+        return blank
     cap, desc = font_frame(path)
     xs = [p[0] for pl in polys for p in pl]
     x0, x1 = min(xs), max(xs)
     if x1 - x0 <= 0:
-        return [0] * cols
+        return blank
     body = baseline + 1
     below = rows - body
 
@@ -343,19 +339,31 @@ def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
             return cap - cell_y / body * cap
         return (cell_y - body) / max(1, below) * desc
 
-    out = [0] * cols
     for c in range(cols):
         for r in range(rows):
-            hits = 0
             for i in range(sub):
                 for j in range(sub):
                     fx = x0 + (c + (i + 0.5) / sub) / cols * (x1 - x0)
                     fy = font_y(r + (j + 0.5) / sub)
                     if _winding(fx, fy, polys) != 0:
-                        hits += 1
-            if hits >= threshold * sub * sub:
-                out[c] |= 1 << r
-    return out
+                        blank[c][r] += 1
+    return blank
+
+
+def matrix_glyph(path, ch, cols=5, rows=8, baseline=6, threshold=0.5, sub=4):
+    """Rasterise one glyph of an outline font into column bytes in the
+    display_types convention (bit r of column c = row r lit), or None when the
+    font has no glyph for `ch` — the caller decides the fallback ('?' per the
+    log, blank per MatrixDisplay.glyph today), not this function.
+
+    A cell is lit when at least `threshold` of its sub x sub sample points are
+    inside the winding (a COVERAGE threshold, not a centre sample — a thin
+    stroke that misses every cell centre would otherwise vanish). The threshold
+    rule itself lives in display_types.coverage_columns (W512)."""
+    from display_types import coverage_columns
+
+    hits = coverage_hits(path, ch, cols, rows, baseline, sub)
+    return None if hits is None else coverage_columns(hits, sub, threshold)
 
 
 def matrix_rows(colbytes, rows=8):

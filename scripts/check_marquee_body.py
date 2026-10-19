@@ -565,6 +565,60 @@ def glyph_census(font, chars):
     )
 
 
+COVERAGE_HARNESS = """import QtQuick
+import "marquee-body.js" as Body
+QtObject {
+    Component.onCompleted: {
+        var grids = %s, sub = %s, threshold = %s, out = [];
+        for (var i = 0; i < grids.length; i++) out.push(Body.coverageColumns(grids[i], sub, threshold));
+        console.log("RESULT " + JSON.stringify(out));
+        Qt.quit();
+    }
+}
+"""
+
+
+def coverage_census(grids, sub=4, threshold=0.5):
+    """W512: the columns the SHIPPED marquee-body.js coverageColumns gives for each coverage grid
+    (hits[c][r]); None when the runner is absent. Run under Qt's qml like run()."""
+    if not os.path.isfile(QML):
+        return None
+    with open(
+        os.path.join(ROOT, "templates", "marquee-body.js"), encoding="utf-8"
+    ) as fh:
+        src = fh.read()
+    with tempfile.TemporaryDirectory() as td:
+        with open(os.path.join(td, "marquee-body.js"), "w", encoding="utf-8") as fh:
+            fh.write(src)
+        h = os.path.join(td, "harness.qml")
+        with open(h, "w", encoding="utf-8") as fh:
+            fh.write(COVERAGE_HARNESS % (json.dumps(grids), sub, json.dumps(threshold)))
+        r = QT.run([QML, h], capture_output=True, text=True, cpu=60, timeout=600)
+    for line in (r.stdout + r.stderr).splitlines():
+        if "RESULT " in line:
+            return json.loads(line.split("RESULT ", 1)[1])
+    raise RuntimeError(
+        f"no RESULT from the coverage harness (rc={r.returncode}): {(r.stderr or r.stdout)[:300]}"
+    )
+
+
+def coverage_problems(grids, sub=4, threshold=0.5):
+    """(checked, [problem]): each grid's columns by display_types.coverage_columns against the JS twin's,
+    one problem per grid whose columns differ. (0, []) is NOT a pass: it means the runner is absent or
+    there was nothing to check, and the caller must count it as such."""
+    import display_types as DT
+
+    got = coverage_census(grids, sub, threshold)
+    if got is None:
+        return 0, []
+    bad = []
+    for i, g in enumerate(grids):
+        want = DT.coverage_columns(g, sub, threshold)
+        if got[i] != want:
+            bad.append(f"grid {i}: python {want} but marquee-body.js {got[i]}")
+    return len(grids), bad
+
+
 def _styled(got):
     return [(r["start"], r["end"], _flag(r)) for r in got["runs"] if _flag(r)]
 
@@ -645,6 +699,23 @@ N_CASES = (
 )
 
 
+COVERAGE_FONT = "/usr/share/fonts/liberation-fonts/LiberationMono-Regular.ttf"
+COVERAGE_CHARS = "AHgeQ%@"
+
+
+def coverage_fact():
+    """W512: {checked, problems, font}: the coverage rule's Python and JS columns compared over the real
+    coverage grids of COVERAGE_CHARS. `font` is null when the host lacks it, and then nothing was checked
+    (a fact about the host, which the policy must count as withheld, never as agreement)."""
+    if not os.path.isfile(COVERAGE_FONT):
+        return {"checked": 0, "problems": [], "font": None}
+    import make_glyph_ink as GI
+
+    grids = [GI.coverage_hits(COVERAGE_FONT, ch) for ch in COVERAGE_CHARS]
+    checked, bad = coverage_problems(grids)
+    return {"checked": checked, "problems": bad, "font": COVERAGE_FONT}
+
+
 def measure(res):
     """The MEASUREMENT, as policy/marquee_body.rego reads it (W50): every case
     with what was EXPECTED beside what the shipped parser RETURNED, and every ring
@@ -652,6 +723,7 @@ def measure(res):
     runner's absence is a `withheld` fact, not a pass."""
     if res is None:
         return {
+            "coverage": {"checked": 0, "problems": [], "font": None},
             "runner": False,
             "parse": [],
             "join": [],
@@ -667,6 +739,7 @@ def measure(res):
             "sweep": None,
         }
     out = {
+        "coverage": coverage_fact(),
         "runner": True,
         "parse": [],
         "join": [],
@@ -874,6 +947,11 @@ def _selftest():
     )
     chk("a runner-less host is withheld", measure(None)["runner"], False)
     chk(
+        "the measurement always carries a coverage fact (policy MC1 and MC2 read it)",
+        sorted(m["coverage"]),
+        ["checked", "font", "problems"],
+    )
+    chk(
         "every replaceSpan case carries expected and the span returned",
         len(
             [
@@ -921,6 +999,26 @@ def _selftest():
         [[f["key"] for f in row["forms"]] for row in g["chars"]],
         [["a", "A", "A"], ["?", "?", "?"]],
     )
+    font = "/usr/share/fonts/liberation-fonts/LiberationMono-Regular.ttf"
+    if not os.path.isfile(font):
+        print(f"  SKIP — {font} is absent (2 coverage arms not run)")
+    else:
+        import display_types as DT
+        import make_glyph_ink as GI
+
+        grids = [GI.coverage_hits(font, ch) for ch in "AHgeQ%@"]
+        checked, bad = coverage_problems(grids)
+        chk(
+            "the JS coverage rule gives the Python rule's columns for 7 of 7 real glyph grids",
+            (checked, bad),
+            (7, []),
+        )
+        loose = coverage_census(grids, 4, 0.25)
+        chk(
+            "a planted mismatch is SEEN: the JS twin at threshold 0.25 differs from Python at 0.5",
+            loose != [DT.coverage_columns(g, 4, 0.5) for g in grids],
+            True,
+        )
     two = results[-1]["runs"]
     links = [r["link"] for r in two if r["link"]]
     chk("two links carry two distinct hrefs", links, ["http://a/", "http://b/"])
