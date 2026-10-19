@@ -5,5 +5,4 @@
 FILES = [
     "policy/config_reach.cases.json",
     "policy/config_reach.rego",
-    "policy/config_reach_test.rego",
 ]

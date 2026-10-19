@@ -5,5 +5,4 @@
 FILES = [
     "policy/cursors.cases.json",
     "policy/cursors.rego",
-    "policy/cursors_test.rego",
 ]

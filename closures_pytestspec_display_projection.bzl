@@ -5,5 +5,4 @@
 FILES = [
     "policy/projection.cases.json",
     "policy/projection.rego",
-    "policy/projection_test.rego",
 ]

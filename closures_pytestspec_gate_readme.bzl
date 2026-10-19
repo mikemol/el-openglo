@@ -5,5 +5,4 @@
 FILES = [
     "policy/readme.cases.json",
     "policy/readme.rego",
-    "policy/readme_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/vscode.cases.json",
     "policy/vscode.rego",
-    "policy/vscode_test.rego",
 ]

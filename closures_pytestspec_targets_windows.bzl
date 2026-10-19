@@ -5,5 +5,4 @@
 FILES = [
     "policy/windows.cases.json",
     "policy/windows.rego",
-    "policy/windows_test.rego",
 ]

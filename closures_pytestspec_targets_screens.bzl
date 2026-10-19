@@ -5,5 +5,4 @@
 FILES = [
     "policy/screens.cases.json",
     "policy/screens.rego",
-    "policy/screens_test.rego",
 ]

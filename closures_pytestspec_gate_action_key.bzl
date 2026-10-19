@@ -5,5 +5,4 @@
 FILES = [
     "policy/action_key.cases.json",
     "policy/action_key.rego",
-    "policy/action_key_test.rego",
 ]

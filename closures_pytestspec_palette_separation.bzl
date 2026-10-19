@@ -5,5 +5,4 @@
 FILES = [
     "policy/separation.cases.json",
     "policy/separation.rego",
-    "policy/separation_test.rego",
 ]

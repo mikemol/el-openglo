@@ -5,5 +5,4 @@
 FILES = [
     "policy/css.cases.json",
     "policy/css.rego",
-    "policy/css_test.rego",
 ]

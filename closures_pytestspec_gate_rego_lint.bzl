@@ -5,5 +5,4 @@
 FILES = [
     "policy/rego_lint.cases.json",
     "policy/rego_lint.rego",
-    "policy/rego_lint_test.rego",
 ]

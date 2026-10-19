@@ -5,5 +5,4 @@
 FILES = [
     "policy/bazel_build.cases.json",
     "policy/bazel_build.rego",
-    "policy/bazel_build_test.rego",
 ]

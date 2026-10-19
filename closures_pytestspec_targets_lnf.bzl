@@ -5,5 +5,4 @@
 FILES = [
     "policy/lnf.cases.json",
     "policy/lnf.rego",
-    "policy/lnf_test.rego",
 ]

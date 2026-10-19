@@ -5,5 +5,4 @@
 FILES = [
     "policy/sddm.cases.json",
     "policy/sddm.rego",
-    "policy/sddm_test.rego",
 ]

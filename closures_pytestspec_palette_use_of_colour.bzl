@@ -5,5 +5,4 @@
 FILES = [
     "policy/use_of_colour.cases.json",
     "policy/use_of_colour.rego",
-    "policy/use_of_colour_test.rego",
 ]

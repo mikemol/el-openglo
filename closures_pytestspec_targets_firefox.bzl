@@ -5,5 +5,4 @@
 FILES = [
     "policy/firefox.cases.json",
     "policy/firefox.rego",
-    "policy/firefox_test.rego",
 ]

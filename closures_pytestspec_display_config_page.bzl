@@ -5,5 +5,4 @@
 FILES = [
     "policy/config_page.cases.json",
     "policy/config_page.rego",
-    "policy/config_page_test.rego",
 ]

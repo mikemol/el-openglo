@@ -5,5 +5,4 @@
 FILES = [
     "policy/render_constants.cases.json",
     "policy/render_constants.rego",
-    "policy/render_constants_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/marquee_live.cases.json",
     "policy/marquee_live.rego",
-    "policy/marquee_live_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/urgency_cues.cases.json",
     "policy/urgency_cues.rego",
-    "policy/urgency_cues_test.rego",
 ]

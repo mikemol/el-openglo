@@ -5,5 +5,4 @@
 FILES = [
     "policy/glb.cases.json",
     "policy/glb.rego",
-    "policy/glb_test.rego",
 ]

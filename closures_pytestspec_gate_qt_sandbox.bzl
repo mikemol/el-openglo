@@ -5,5 +5,4 @@
 FILES = [
     "policy/qt_sandbox.cases.json",
     "policy/qt_sandbox.rego",
-    "policy/qt_sandbox_test.rego",
 ]

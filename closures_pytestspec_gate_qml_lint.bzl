@@ -5,5 +5,4 @@
 FILES = [
     "policy/qml_lint.cases.json",
     "policy/qml_lint.rego",
-    "policy/qml_lint_test.rego",
 ]

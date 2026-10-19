@@ -5,5 +5,4 @@
 FILES = [
     "policy/selection_contrast.cases.json",
     "policy/selection_contrast.rego",
-    "policy/selection_contrast_test.rego",
 ]

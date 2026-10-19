@@ -5,5 +5,4 @@
 FILES = [
     "policy/nodal.cases.json",
     "policy/nodal.rego",
-    "policy/nodal_test.rego",
 ]

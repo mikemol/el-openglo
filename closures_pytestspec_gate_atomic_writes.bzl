@@ -5,5 +5,4 @@
 FILES = [
     "policy/atomic_writes.cases.json",
     "policy/atomic_writes.rego",
-    "policy/atomic_writes_test.rego",
 ]

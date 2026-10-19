@@ -5,5 +5,4 @@
 FILES = [
     "policy/ghost_balance.cases.json",
     "policy/ghost_balance.rego",
-    "policy/ghost_balance_test.rego",
 ]

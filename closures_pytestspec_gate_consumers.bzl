@@ -5,5 +5,4 @@
 FILES = [
     "policy/consumers.cases.json",
     "policy/consumers.rego",
-    "policy/consumers_test.rego",
 ]

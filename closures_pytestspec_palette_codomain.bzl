@@ -5,5 +5,4 @@
 FILES = [
     "policy/codomain.cases.json",
     "policy/codomain.rego",
-    "policy/codomain_test.rego",
 ]

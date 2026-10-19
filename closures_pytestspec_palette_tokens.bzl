@@ -5,5 +5,4 @@
 FILES = [
     "policy/tokens.cases.json",
     "policy/tokens.rego",
-    "policy/tokens_test.rego",
 ]

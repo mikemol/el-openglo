@@ -5,5 +5,4 @@
 FILES = [
     "policy/compiles.cases.json",
     "policy/compiles.rego",
-    "policy/compiles_test.rego",
 ]

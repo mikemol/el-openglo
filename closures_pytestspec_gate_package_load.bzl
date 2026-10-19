@@ -5,5 +5,4 @@
 FILES = [
     "policy/package_load.cases.json",
     "policy/package_load.rego",
-    "policy/package_load_test.rego",
 ]

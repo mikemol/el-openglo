@@ -5,5 +5,4 @@
 FILES = [
     "policy/union.cases.json",
     "policy/union.rego",
-    "policy/union_test.rego",
 ]

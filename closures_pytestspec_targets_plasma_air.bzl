@@ -5,5 +5,4 @@
 FILES = [
     "policy/plasma_air.cases.json",
     "policy/plasma_air.rego",
-    "policy/plasma_air_test.rego",
 ]

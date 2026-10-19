@@ -5,5 +5,4 @@
 FILES = [
     "policy/kerning.cases.json",
     "policy/kerning.rego",
-    "policy/kerning_test.rego",
 ]

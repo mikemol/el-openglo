@@ -5,5 +5,4 @@
 FILES = [
     "policy/migration.cases.json",
     "policy/migration.rego",
-    "policy/migration_test.rego",
 ]

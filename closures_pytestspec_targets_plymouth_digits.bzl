@@ -5,5 +5,4 @@
 FILES = [
     "policy/plymouth_digits.cases.json",
     "policy/plymouth_digits.rego",
-    "policy/plymouth_digits_test.rego",
 ]

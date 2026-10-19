@@ -5,5 +5,4 @@
 FILES = [
     "policy/rehue.cases.json",
     "policy/rehue.rego",
-    "policy/rehue_test.rego",
 ]

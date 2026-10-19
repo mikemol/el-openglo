@@ -5,5 +5,4 @@
 FILES = [
     "policy/emitters_run.cases.json",
     "policy/emitters_run.rego",
-    "policy/emitters_run_test.rego",
 ]

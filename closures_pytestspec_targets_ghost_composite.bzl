@@ -5,5 +5,4 @@
 FILES = [
     "policy/ghost_composite.cases.json",
     "policy/ghost_composite.rego",
-    "policy/ghost_composite_test.rego",
 ]

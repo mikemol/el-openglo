@@ -5,5 +5,4 @@
 FILES = [
     "policy/geometry_source.cases.json",
     "policy/geometry_source.rego",
-    "policy/geometry_source_test.rego",
 ]

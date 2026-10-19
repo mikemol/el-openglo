@@ -5,5 +5,4 @@
 FILES = [
     "policy/android_clock.cases.json",
     "policy/android_clock.rego",
-    "policy/android_clock_test.rego",
 ]

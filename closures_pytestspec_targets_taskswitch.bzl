@@ -5,5 +5,4 @@
 FILES = [
     "policy/taskswitch.cases.json",
     "policy/taskswitch.rego",
-    "policy/taskswitch_test.rego",
 ]

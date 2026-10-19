@@ -5,5 +5,4 @@
 FILES = [
     "policy/deb.cases.json",
     "policy/deb.rego",
-    "policy/deb_test.rego",
 ]

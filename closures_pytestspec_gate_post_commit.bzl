@@ -5,5 +5,4 @@
 FILES = [
     "policy/post_commit.cases.json",
     "policy/post_commit.rego",
-    "policy/post_commit_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/palette_graph.cases.json",
     "policy/palette_graph.rego",
-    "policy/palette_graph_test.rego",
 ]

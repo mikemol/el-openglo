@@ -5,5 +5,4 @@
 FILES = [
     "policy/gcalc_api.cases.json",
     "policy/gcalc_api.rego",
-    "policy/gcalc_api_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/log_content.cases.json",
     "policy/log_content.rego",
-    "policy/log_content_test.rego",
 ]

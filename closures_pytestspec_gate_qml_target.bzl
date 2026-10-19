@@ -5,5 +5,4 @@
 FILES = [
     "policy/qml_target.cases.json",
     "policy/qml_target.rego",
-    "policy/qml_target_test.rego",
 ]

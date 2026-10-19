@@ -5,5 +5,4 @@
 FILES = [
     "policy/ebuild.cases.json",
     "policy/ebuild.rego",
-    "policy/ebuild_test.rego",
 ]

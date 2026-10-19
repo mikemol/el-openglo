@@ -5,5 +5,4 @@
 FILES = [
     "policy/st_api.cases.json",
     "policy/st_api.rego",
-    "policy/st_api_test.rego",
 ]

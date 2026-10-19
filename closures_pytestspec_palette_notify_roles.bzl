@@ -5,5 +5,4 @@
 FILES = [
     "policy/notify_roles.cases.json",
     "policy/notify_roles.rego",
-    "policy/notify_roles_test.rego",
 ]

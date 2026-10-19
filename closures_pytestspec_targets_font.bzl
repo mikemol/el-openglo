@@ -5,5 +5,4 @@
 FILES = [
     "policy/font.cases.json",
     "policy/font.rego",
-    "policy/font_test.rego",
 ]

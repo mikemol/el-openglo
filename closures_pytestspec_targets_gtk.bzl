@@ -5,5 +5,4 @@
 FILES = [
     "policy/gtk.cases.json",
     "policy/gtk.rego",
-    "policy/gtk_test.rego",
 ]

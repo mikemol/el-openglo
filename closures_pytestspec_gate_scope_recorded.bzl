@@ -5,5 +5,4 @@
 FILES = [
     "policy/scope_recorded.cases.json",
     "policy/scope_recorded.rego",
-    "policy/scope_recorded_test.rego",
 ]

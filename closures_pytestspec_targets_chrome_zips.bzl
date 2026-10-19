@@ -5,5 +5,4 @@
 FILES = [
     "policy/chrome_zips.cases.json",
     "policy/chrome_zips.rego",
-    "policy/chrome_zips_test.rego",
 ]

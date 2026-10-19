@@ -5,5 +5,4 @@
 FILES = [
     "policy/engines_recipe.cases.json",
     "policy/engines_recipe.rego",
-    "policy/engines_recipe_test.rego",
 ]

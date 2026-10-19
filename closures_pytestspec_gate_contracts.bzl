@@ -5,5 +5,4 @@
 FILES = [
     "policy/contracts.cases.json",
     "policy/contracts.rego",
-    "policy/contracts_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/serial.cases.json",
     "policy/serial.rego",
-    "policy/serial_test.rego",
 ]

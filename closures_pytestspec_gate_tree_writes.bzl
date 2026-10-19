@@ -5,5 +5,4 @@
 FILES = [
     "policy/tree_writes.cases.json",
     "policy/tree_writes.rego",
-    "policy/tree_writes_test.rego",
 ]

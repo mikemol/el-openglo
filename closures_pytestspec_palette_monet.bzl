@@ -5,5 +5,4 @@
 FILES = [
     "policy/monet.cases.json",
     "policy/monet.rego",
-    "policy/monet_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/marquee_body.cases.json",
     "policy/marquee_body.rego",
-    "policy/marquee_body_test.rego",
 ]

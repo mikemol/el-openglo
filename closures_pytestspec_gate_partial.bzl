@@ -5,5 +5,4 @@
 FILES = [
     "policy/partial.cases.json",
     "policy/partial.rego",
-    "policy/partial_test.rego",
 ]

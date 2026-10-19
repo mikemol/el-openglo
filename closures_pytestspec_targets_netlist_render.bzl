@@ -5,5 +5,4 @@
 FILES = [
     "policy/netlist_render.cases.json",
     "policy/netlist_render.rego",
-    "policy/netlist_render_test.rego",
 ]

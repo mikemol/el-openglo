@@ -5,5 +5,4 @@
 FILES = [
     "policy/solver_roots.cases.json",
     "policy/solver_roots.rego",
-    "policy/solver_roots_test.rego",
 ]

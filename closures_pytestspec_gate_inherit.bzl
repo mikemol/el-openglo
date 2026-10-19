@@ -5,5 +5,4 @@
 FILES = [
     "policy/inherit.cases.json",
     "policy/inherit.rego",
-    "policy/inherit_test.rego",
 ]

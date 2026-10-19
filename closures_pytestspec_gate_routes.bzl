@@ -5,5 +5,4 @@
 FILES = [
     "policy/routes.cases.json",
     "policy/routes.rego",
-    "policy/routes_test.rego",
 ]

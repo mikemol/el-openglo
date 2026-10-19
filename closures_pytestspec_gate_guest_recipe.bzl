@@ -5,5 +5,4 @@
 FILES = [
     "policy/guest_recipe.cases.json",
     "policy/guest_recipe.rego",
-    "policy/guest_recipe_test.rego",
 ]

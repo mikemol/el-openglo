@@ -5,5 +5,4 @@
 FILES = [
     "policy/template_parity.cases.json",
     "policy/template_parity.rego",
-    "policy/template_parity_test.rego",
 ]

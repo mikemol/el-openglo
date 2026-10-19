@@ -5,5 +5,4 @@
 FILES = [
     "policy/aperture.cases.json",
     "policy/aperture.rego",
-    "policy/aperture_test.rego",
 ]

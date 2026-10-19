@@ -5,5 +5,4 @@
 FILES = [
     "policy/legibility.cases.json",
     "policy/legibility.rego",
-    "policy/legibility_test.rego",
 ]

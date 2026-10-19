@@ -5,5 +5,4 @@
 FILES = [
     "policy/role_theme.cases.json",
     "policy/role_theme.rego",
-    "policy/role_theme_test.rego",
 ]

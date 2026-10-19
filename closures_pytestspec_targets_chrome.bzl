@@ -5,5 +5,4 @@
 FILES = [
     "policy/chrome.cases.json",
     "policy/chrome.rego",
-    "policy/chrome_test.rego",
 ]

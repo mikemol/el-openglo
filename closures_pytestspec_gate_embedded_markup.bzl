@@ -5,5 +5,4 @@
 FILES = [
     "policy/embedded_markup.cases.json",
     "policy/embedded_markup.rego",
-    "policy/embedded_markup_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/metrics.cases.json",
     "policy/metrics.rego",
-    "policy/metrics_test.rego",
 ]

@@ -5,5 +5,4 @@
 FILES = [
     "policy/symmetry.cases.json",
     "policy/symmetry.rego",
-    "policy/symmetry_test.rego",
 ]

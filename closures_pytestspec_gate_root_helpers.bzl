@@ -5,5 +5,4 @@
 FILES = [
     "policy/root_helpers.cases.json",
     "policy/root_helpers.rego",
-    "policy/root_helpers_test.rego",
 ]

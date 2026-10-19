@@ -5,5 +5,4 @@
 FILES = [
     "policy/runtime_warnings.cases.json",
     "policy/runtime_warnings.rego",
-    "policy/runtime_warnings_test.rego",
 ]
