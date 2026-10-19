@@ -129,6 +129,20 @@ def by_file_idiom(records):
     return out
 
 
+UNTYPED_CALLEE = re.compile(r'Call to untyped function "([^"]+)" in typed context')
+
+
+def callees_of(records):
+    """Counter of the untyped function NAMES the no-untyped-call findings name: the hub finder (W743).
+    One signature on a name that many files call clears all of its findings at once."""
+    out = Counter()
+    for _file, _line, _col, code, message in records:
+        m = UNTYPED_CALLEE.match(message) if code == "no-untyped-call" else None
+        if m:
+            out[m.group(1)] += 1
+    return out
+
+
 def findings_of(records, path):
     """The distinct findings of one file, in line order: [(line, column, code, message)]."""
     return sorted(
@@ -147,6 +161,16 @@ def main(argv):
             print(f"{args[1]}:{line}:{col}\t{code}\t{message}")
         print(
             f"typing_census: {len(rows)} finding(s) in {args[1]}; {len(withheld)} pass(es) withheld",
+            file=sys.stderr,
+        )
+        return 3 if withheld else 0
+    if args == ["--callees"]:
+        _files, withheld, _n, records = census()
+        ranked = callees_of(records).most_common()
+        for name, count in ranked:
+            print(f"{count}\t{name}")
+        print(
+            f"typing_census: {len(ranked)} untyped callee name(s) cause {sum(c for _n, c in ranked)} finding(s); {len(withheld)} pass(es) withheld",
             file=sys.stderr,
         )
         return 3 if withheld else 0
@@ -277,6 +301,18 @@ def _selftest():
             (3, 0, "misc", 'Expression has type "Any"'),
             (9, 0, "no-untyped-def", "Function is missing a type annotation"),
         ],
+    )
+
+    def call(line, name):
+        text = f'Call to untyped function "{name}" in typed context'
+        return (rel, line, 0, "no-untyped-call", text)
+
+    named = {call(5, "gate"), call(6, "gate"), call(7, "main")}
+    named.add((rel, 8, 0, "misc", 'Expression has type "Any"'))
+    chk(
+        "the hub finder counts untyped callee names and ignores other findings (W743)",
+        callees_of(named),
+        Counter({"gate": 2, "main": 1}),
     )
     chk(
         "a file with no findings gives an empty list, never an error",
