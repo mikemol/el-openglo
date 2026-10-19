@@ -283,6 +283,31 @@
   }
  },
  {
+  "case": "admits-the-grid-token-record-when-every-declared-key-is-emitted",
+  "surfaces": [
+   {
+    "surface": "make_schemes.GRID",
+    "emitted": ["button", "button_alt", "comp", "comp_alt", "fg", "fg_act", "fg_in", "focus", "fx_dis", "fx_in", "ghost_alpha", "ghost_alpha_glanced", "ghost_alpha_glanced_infeasible", "hdr_in_alt", "hdr_in_bg", "header", "header_alt", "hover", "id", "link", "name", "neg", "neu", "pos", "sel_act", "sel_alt", "sel_bg", "sel_fg", "sel_in", "sel_link", "sel_neg", "sel_neu", "sel_pos", "sel_vis", "state_sep_infeasible", "state_step", "tt_alt", "tt_bg", "tt_is_sel", "view", "view_alt", "visited", "window", "window_alt"],
+    "consumers": []
+   }
+  ]
+ },
+ {
+  "case": "k3-refuses-a-grid-token-record-that-drops-declared-keys",
+  "surfaces": [
+   {
+    "surface": "make_schemes.GRID",
+    "emitted": ["id", "name"],
+    "consumers": []
+   }
+  ],
+  "expect": {
+   "deny": [
+    "K3"
+   ]
+  }
+ },
+ {
   "case": "k3-refuses-a-palette-key-the-producer-drops",
   "surfaces": [
    {

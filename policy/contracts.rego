@@ -27,6 +27,19 @@ declared := {
 		"always": {"file", "variant", "exists", "grounds"},
 		"when_exists": {"width", "height", "modal", "distinct"},
 	},
+	# the token record every variant of make_schemes.GRID carries (W690): solved at run time by make_palette,
+	# read by importing the module (W701), the same 44 keys in every variant and both of its dicts
+	"make_schemes.GRID": {
+		"always": {
+			"button", "button_alt", "comp", "comp_alt", "fg", "fg_act", "fg_in", "focus", "fx_dis", "fx_in",
+			"ghost_alpha", "ghost_alpha_glanced", "ghost_alpha_glanced_infeasible", "hdr_in_alt", "hdr_in_bg",
+			"header", "header_alt", "hover", "id", "link", "name", "neg", "neu", "pos", "sel_act", "sel_alt",
+			"sel_bg", "sel_fg", "sel_in", "sel_link", "sel_neg", "sel_neu", "sel_pos", "sel_vis",
+			"state_sep_infeasible", "state_step", "tt_alt", "tt_bg", "tt_is_sel", "view", "view_alt", "visited",
+			"window", "window_alt",
+		},
+		"when_exists": set(),
+	},
 	# the palette record parse_scheme returns (W689): every key is always present, it is one literal
 	"make_preview.parse_scheme": {
 		"always": {

@@ -97,6 +97,13 @@ SURFACES = {
         },
         "consumers": {},
     },
+    # the token record of every variant of make_schemes.GRID (W690): built at run time, so read by importing
+    # the module (W701). Its readers bind the record with `for t, dark in GRID.values()`, which the receiver
+    # reader does not follow yet (W712), so no consumer is listed and K2 has nothing to judge here.
+    "make_schemes.GRID": {
+        "producer": {"file": "make_schemes.py", "attr": "GRID"},
+        "consumers": {},
+    },
     # the palette record every emission target reads (W689): one dict literal returned by parse_scheme;
     # each consumer's receivers are the names bound to a call of it ("@parse_scheme")
     "make_preview.parse_scheme": {

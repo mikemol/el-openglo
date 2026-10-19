@@ -100,6 +100,21 @@ test_k3_refuses_a_palette_key_the_producer_drops if {
 	"K3: make_preview.parse_scheme declares sel_fg but its producer does not emit it" in p.deny with input as bad
 }
 
+grid := "make_schemes.GRID"
+
+# the token record of every GRID variant (W690): a producer that emits every declared key is admitted with no consumer
+test_admits_the_token_record_when_every_declared_key_is_emitted if {
+	inp := {"surfaces": [{"surface": grid, "emitted": [k | some k in p.declared[grid].always], "consumers": []}]}
+	count(p.deny) == 0 with input as inp
+	grid in p.admitted with input as inp
+}
+
+test_k3_refuses_a_token_record_that_drops_a_declared_key if {
+	bad := {"surfaces": [{"surface": grid, "emitted": [k | some k in p.declared[grid].always; k != "sel_neg"], "consumers": []}]}
+	"K3: make_schemes.GRID declares sel_neg but its producer does not emit it" in p.deny with input as bad
+	not grid in p.admitted with input as bad
+}
+
 test_unreadable_producer_is_withheld_not_judged if {
 	inp := {"surfaces": [{"surface": name, "emitted": null, "consumers": [{"file": "c.py", "reads": []}]}]}
 	count(p.deny) == 0 with input as inp
