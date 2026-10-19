@@ -126,7 +126,6 @@ DIRS = {
     "scripts/check_legibility.py": [
     ],
     "scripts/check_license.py": [
-        "overlay/dev-python/colorspacious",
         "overlay/x11-themes/el-openglo",
     ],
     "scripts/check_lnf.py": [
@@ -2548,10 +2547,13 @@ STATS = {
         "catalog/engines/el-seg22.glb",
         "catalog/engines/el-seg7.glb",
         "catalog/engines/el-segment.glsl",
+        "catalog/fixtures/mark/self-named.md",
+        "catalog/fixtures/routes/outside-root.md",
         "catalog/fixtures/serial/clean.log",
         "catalog/fixtures/serial/corrupt.log",
         "catalog/fixtures/serial/gap.log",
         "catalog/fixtures/serial/noise-only.log",
+        "catalog/fixtures/use_of_colour/colour-only.js",
         "catalog/guest-image.md",
         "catalog/library/concepts.bib",
         "catalog/library/library.md",
@@ -2783,9 +2785,6 @@ STATS = {
         "oci/engines/Containerfile",
         "oci/guest/Containerfile",
         "oci/guest/customize.sh",
-        "overlay/dev-python/colorspacious/Manifest",
-        "overlay/dev-python/colorspacious/colorspacious-1.1.2.ebuild",
-        "overlay/dev-python/colorspacious/metadata.xml",
         "overlay/metadata/layout.conf",
         "overlay/profiles/repo_name",
         "overlay/x11-themes/el-openglo/metadata.xml",

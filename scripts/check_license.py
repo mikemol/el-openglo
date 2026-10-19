@@ -509,6 +509,23 @@ def write_headers(root=None):
     return r.returncode
 
 
+def measure_fixture(path, root=None):
+    """The tree's measurement plus the licence declarations of ONE fixture file (W742).
+
+    The fixture is a JSON document (a `.txt` name keeps the live emitted scan, which reads only *.json and
+    *.desktop, from counting it); each `License` key in it joins the cases as an emitted declaration under
+    the logical name "fixture", so a wrong id reaches policy L1 end to end. The rest of the tree is
+    measured as it is, which is what makes a denial specific to the fixture."""
+    m = measure(root)
+    with open(path, encoding="utf-8") as fh:
+        found = list(_json_licences(json.load(fh)))
+    m["cases"] += [
+        {"kind": "emitted", "where": f"fixture {k}", "id": v, "via": "json"}
+        for k, v in found
+    ]
+    return m
+
+
 def main(argv):
     known = {"--json", "--list", "--selftest", "--gate", "--write-headers"}
     args, root = list(argv[1:]), None
@@ -519,14 +536,24 @@ def main(argv):
             return 2
         root = args[i + 1]
         del args[i : i + 2]
+    operands = [a for a in args if not a.startswith("--")]
     for a in args:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_license: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in args):
+        print("check_license: --json takes at most one fixture file", file=sys.stderr)
+        return 2
     if "--selftest" in args:
         return 0 if _selftest() else 1
     if "--write-headers" in args:
         return write_headers(root)
+    if "--json" in args and operands:
+        if not os.path.isfile(operands[0]):
+            print(f"check_license: no such fixture {operands[0]!r}", file=sys.stderr)
+            return 2
+        print(json.dumps(measure_fixture(operands[0], root), indent=1))
+        return 0
     if "--json" in args:
         print(json.dumps(measure(root), indent=1))
         return 0
@@ -784,6 +811,12 @@ def _selftest():
         False,
     )
     m = measure()
+    fx = measure_fixture(os.path.join(ROOT, "catalog/fixtures/license/wrong-spdx.txt"))
+    chk(
+        "a fixture's wrong id joins the cases as one emitted declaration (W742)",
+        [(c["where"], c["id"]) for c in fx["cases"][len(m["cases"]) :]],
+        [("fixture KPlugin.License", "GPLv3")],
+    )
     chk(
         "the real tree's authored-source population is non-empty",
         m["headers"]["population"] > 0,

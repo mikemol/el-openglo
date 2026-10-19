@@ -1087,3 +1087,10 @@
   claim    = {The retired-mark gate DENIES a known-bad file end to end: a document that calls the project by the retired mark rather than naming the product it imitates is refused by the measurement, the policy and the exit (K2), so the gate is shown to fail and not only to admit (W75, W741)},
   check    = {tool:opa_gate.py mark catalog/fixtures/mark/self-named.md --expect denied:K2}
 }
+
+@misc{LICENSE-DENIES,
+  section  = {tooling},
+  rests-on = {LICENSE},
+  claim    = {The licence gate DENIES a known-bad declaration end to end: an emitted metadata document whose License is GPLv3 instead of the declared Apache-2.0 is refused by the measurement, the policy and the exit (L1), with the rest of the tree measured as it is, so the gate is shown to fail and not only to admit (W75, W742)},
+  check    = {tool:opa_gate.py license catalog/fixtures/license/wrong-spdx.txt --expect denied:L1}
+}

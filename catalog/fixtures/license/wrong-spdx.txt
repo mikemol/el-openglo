@@ -1,0 +1,1 @@
+{"KPlugin": {"Id": "org.fixture", "License": "GPLv3"}}
