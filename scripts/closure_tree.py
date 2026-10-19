@@ -46,6 +46,7 @@ MACHINERY = "pytestspec_machinery"
 KINDS = ("selftest", "stages")
 SPEC_SUFFIXES = ("_test.rego", ".cases.json", ".rego")
 PREFIX = "closures_"
+NON_NODES = ("closures_dirs.bzl",)
 HEADER = [
     "# SPDX-License-Identifier: Apache-2.0",
     "# Copyright (c) 2026 Mike Mol",
@@ -180,8 +181,13 @@ def plan_tree(closures, family_of, extra_named, specs=None, by_spec=False):
 
 
 def _on_disk(root):
+    """The closures_*.bzl NODE files on disk. A NON_NODES file shares the prefix but is not a node: it is not
+    loaded by the root, holds no FILES and is never an orphan or stale (W693: closures_dirs.bzl records the
+    directories a stage listed, beside the closures)."""
     return sorted(
-        n for n in os.listdir(root) if n.startswith(PREFIX) and n.endswith(".bzl")
+        n
+        for n in os.listdir(root)
+        if n.startswith(PREFIX) and n.endswith(".bzl") and n not in NON_NODES
     )
 
 
@@ -516,6 +522,18 @@ def _selftest():
             "shape: a node nothing loads is an orphan",
             shape(td)["orphans"],
             ["pytestspec_lost"],
+        )
+        dirs_file = os.path.join(td, "closures_dirs.bzl")
+        with open(dirs_file, "w", encoding="utf-8") as fh:
+            fh.write("DIRS = {}\n")
+        chk(
+            "closures_dirs.bzl is a known non-node: not on disk as a node, not an orphan, not stale (W693)",
+            (
+                "closures_dirs.bzl" in _on_disk(td),
+                shape(td)["orphans"],
+                write_tree(plan, td)[1],
+            ),
+            (False, ["pytestspec_lost"], ["closures_pytestspec_lost.bzl"]),
         )
     live = (
         load_tree()
