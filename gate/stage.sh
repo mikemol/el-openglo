@@ -47,7 +47,32 @@ cd "$ROOT" || exit 1
 
 LEDGER="$ROOT/.gate-outcomes.tsv"
 
-if [ -d "$ROOT/.venv" ] && command -v uv >/dev/null 2>&1; then
+# ⚑ THE ENVIRONMENT IS KEYED BY THE LOCK THE STAGE IS GATING, NOT BY THE LIVE REPO VENV (W699, under W677).
+# `uv sync` (a repin) swaps ROOT/.venv under a gate in flight, so a repin queued behind a running gate could
+# change that gate's result. A stage builds, once and under a lock, a venv named by the sha of the uv.lock it
+# holds (measured: 6.5 s CPU, 361 MB) and runs from it; EL_VENV tells the readers of ROOT/.venv
+# (scripts/check_venv_path.py, W698) where it is. A crashed build leaves no .complete marker and is rebuilt.
+snapshot_venv() {
+  local lock="$ROOT/uv.lock" key dir
+  [ -f "$lock" ] && command -v uv >/dev/null 2>&1 || return 1
+  key="$(sha256sum "$lock" | cut -c1-16)"
+  dir="${EL_VENV_CACHE:-$HOME/.cache/el-openglo-venv}/$key"
+  mkdir -p "$(dirname "$dir")" || return 1
+  (
+    flock 9
+    if [ ! -f "$dir/.complete" ]; then
+      rm -rf "$dir"
+      UV_PROJECT_ENVIRONMENT="$dir" uv sync --frozen --compile-bytecode --extra tooling --extra research --project "$ROOT" >&2 || exit 1
+      touch "$dir/.complete"
+    fi
+  ) 9>"$dir.lock" || return 1
+  printf '%s\n' "$dir"
+}
+
+if SNAPSHOT_VENV="$(snapshot_venv)"; then
+  export EL_VENV="$SNAPSHOT_VENV"
+  RUNNER=(env UV_PROJECT_ENVIRONMENT="$SNAPSHOT_VENV" uv run --no-sync python3)
+elif [ -d "$ROOT/.venv" ] && command -v uv >/dev/null 2>&1; then
   RUNNER=(uv run --no-sync python3)
 else
   RUNNER=(python3)
