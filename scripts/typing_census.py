@@ -17,6 +17,7 @@ fix (mtools, via github-8f).
     scripts/typing_census.py --codes     # the same findings per mypy error code and per idiom (message shape)
     scripts/typing_census.py --by-file-idiom   # per file: count, dominant code, its count, its idiom (the W676 plan)
     scripts/typing_census.py --json      # {files, codes, passes, withheld}
+    scripts/typing_census.py --findings FILE   # one file's findings: path:line:col, code, message (W743)
     scripts/typing_census.py --selftest
 
 ⚑ WEAKNESS, STATED. It measures with the kata's flags, so it is exactly as strict as the kata; it is an interim
@@ -128,8 +129,27 @@ def by_file_idiom(records):
     return out
 
 
+def findings_of(records, path):
+    """The distinct findings of one file, in line order: [(line, column, code, message)]."""
+    return sorted(
+        (line, col, code, message)
+        for file, line, col, code, message in records
+        if file == path
+    )
+
+
 def main(argv):
     args = argv[1:]
+    if args[:1] == ["--findings"] and len(args) == 2:
+        _files, withheld, _n, records = census()
+        rows = findings_of(records, args[1])
+        for line, col, code, message in rows:
+            print(f"{args[1]}:{line}:{col}\t{code}\t{message}")
+        print(
+            f"typing_census: {len(rows)} finding(s) in {args[1]}; {len(withheld)} pass(es) withheld",
+            file=sys.stderr,
+        )
+        return 3 if withheld else 0
     if args not in ([], ["--json"], ["--codes"], ["--by-file-idiom"]):
         print(f"typing_census: unknown arguments {args!r}", file=sys.stderr)
         return 2
@@ -249,6 +269,19 @@ def _selftest():
             "idiom": 'Expression has type "…"',
             "idiom_count": 1,
         },
+    )
+    chk(
+        "one file's findings come back in line order with their code and message (W743)",
+        findings_of(records, rel),
+        [
+            (3, 0, "misc", 'Expression has type "Any"'),
+            (9, 0, "no-untyped-def", "Function is missing a type annotation"),
+        ],
+    )
+    chk(
+        "a file with no findings gives an empty list, never an error",
+        findings_of(records, "no/such/file.py"),
+        [],
     )
     print("typing_census selftest:", "PASS" if ok else "FAIL")
     return ok

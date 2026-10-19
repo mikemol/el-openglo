@@ -37,8 +37,11 @@ def parse(text: str) -> object:
     lines = text.splitlines()
     for i, line in enumerate(lines):
         if line.startswith("{"):
-            value, _end = json.JSONDecoder().raw_decode("\n".join(lines[i:]))
-            return cast(object, value)
+            value, _end = cast(
+                "tuple[object, int]",
+                json.JSONDecoder().raw_decode("\n".join(lines[i:])),
+            )
+            return value
     msg = "no JSON object in the output"
     raise ValueError(msg)
 

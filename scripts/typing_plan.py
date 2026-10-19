@@ -25,6 +25,7 @@ import os
 import re
 import subprocess
 import sys
+from typing import cast
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(ROOT, "scripts"))
@@ -34,13 +35,13 @@ WRITER = os.path.join(ROOT, ".venv", "bin", "mikemol-paths-forward")
 TITLE = re.compile(r"^el-openglo typing: (\S+) \((\d+) findings\)$")
 
 
-def debt_cards(waypoints):
+def debt_cards(waypoints: list[dict[str, str]]) -> list[tuple[str, str]]:
     """[(symbol, file)] for each open debt card, in queue order."""
-    out = []
+    out: list[tuple[str, str]] = []
     for w in waypoints:
         m = TITLE.match(w.get("title", ""))
         if m and w.get("status") != "done":
-            out.append((w["symbol"], m.group(1)))
+            out.append((w["symbol"], cast("str", m.group(1))))
     return out
 
 
