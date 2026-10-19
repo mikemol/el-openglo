@@ -26,11 +26,53 @@ Declaring that a field is guaranteed is not a proof it is guaranteed on every pa
 """
 
 import ast
+import importlib
 import json
 import os
 import sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def runtime_report(spec, load=importlib.import_module):
+    """(keys, why): the sorted keys every record of a run-time built mapping carries, else (None, the reason).
+
+    ⚑ A RECORD BUILT AT RUN TIME HAS NO KEYS IN ITS SOURCE (W701, under W690): make_schemes.GRID maps each
+    variant to token dicts that make_palette solves, so the AST reader of `emitted` sees no dict literal.
+    This imports the module and reads the keys of the dicts inside each value. It is None (withheld, never
+    an empty record) when the module will not import, the attribute is missing or holds no dict, or the
+    records DISAGREE on their keys: a surface whose records differ has no single contract to judge, and the
+    reason names the keys they disagree on."""
+    name = os.path.splitext(spec["file"])[0]
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
+    try:
+        value = getattr(load(name), spec["attr"])
+    except (ImportError, AttributeError) as err:
+        return None, f"{spec['file']} {spec['attr']} cannot be read: {err}"
+    records = value.values() if isinstance(value, dict) else []
+    keysets = {
+        frozenset(part)
+        for record in records
+        for part in (record if isinstance(record, (tuple, list)) else (record,))
+        if isinstance(part, dict)
+    }
+    if not keysets:
+        first = next(iter(records), None)
+        held = f"{type(value).__name__} of {type(first).__name__}"
+        return None, f"{spec['attr']} holds no dict record (it is a {held})"
+    if len(keysets) > 1:
+        every = frozenset.union(*keysets)
+        shared = frozenset.intersection(*keysets)
+        differing = ", ".join(sorted(every - shared))
+        return None, f"{len(keysets)} different key sets; keys not in all: {differing}"
+    return sorted(next(iter(keysets))), None
+
+
+def runtime_keys(spec, load=importlib.import_module):
+    """The sorted keys of runtime_report, or None when they cannot be read."""
+    return runtime_report(spec, load)[0]
+
 
 # WHAT to measure per surface (not what is required: the requirement is the policy's).
 # producer: file, the function holding the surface's row loop, the loop's planner name,
@@ -237,7 +279,10 @@ def measure(surfaces=None, read=_read):
     out = []
     for name, spec in sorted((SURFACES if surfaces is None else surfaces).items()):
         src = read(spec["producer"]["file"])
-        keys = emitted(src, spec["producer"]) if src is not None else None
+        if spec["producer"].get("attr"):
+            keys = runtime_keys(spec["producer"]) if src is not None else None
+        else:
+            keys = emitted(src, spec["producer"]) if src is not None else None
         cons = []
         for rel, recv in sorted(spec["consumers"].items()):
             csrc = read(rel)
@@ -262,6 +307,11 @@ def measure(surfaces=None, read=_read):
 
 
 def main(argv):
+    if argv[1:2] == ["--runtime"] and len(argv) == 4:
+        # --runtime FILE ATTR: the keys of a run-time built record, or why they cannot be read
+        keys, why = runtime_report({"file": argv[2], "attr": argv[3]})
+        print("\n".join(keys) if keys is not None else f"withheld: {why}")
+        return 0 if keys is not None else 3
     for a in argv[1:]:
         if a != "--json":
             print(f"check_contracts: unknown flag {a!r}", file=sys.stderr)
@@ -377,6 +427,59 @@ def _selftest():
         "an @func consumer reads only the def that binds the name, not another def reusing it",
         [r["field"] for r in scoped["surfaces"][0]["consumers"][0]["reads"]],
         ["a"],
+    )
+    import types
+
+    def fake(value):
+        return lambda _name: types.SimpleNamespace(GRID=value)
+
+    spec_rt = {"file": "m.py", "attr": "GRID"}
+    same = {("a",): ({"x": 1, "y": 2}, {"x": 3, "y": 4}), ("b",): ({"x": 5, "y": 6},)}
+    chk(
+        "runtime_keys: the keys every record of every variant carries, sorted",
+        runtime_keys(spec_rt, fake(same)),
+        ["x", "y"],
+    )
+    chk(
+        "runtime_keys: a list of dicts reads the same as a tuple of them (the real GRID values are lists)",
+        runtime_keys(spec_rt, fake({("a",): [{"x": 1}, {"x": 2}]})),
+        ["x"],
+    )
+    chk(
+        "runtime_report: a disagreement names the keys not in every record",
+        runtime_report(spec_rt, fake({("a",): ({"x": 1},), ("b",): ({"y": 2},)})),
+        (None, "2 different key sets; keys not in all: x, y"),
+    )
+    chk(
+        "runtime_keys: variants that disagree on their keys are None, not a guess",
+        runtime_keys(spec_rt, fake({("a",): ({"x": 1},), ("b",): ({"y": 2},)})),
+        None,
+    )
+    chk("runtime_keys: an empty mapping is None", runtime_keys(spec_rt, fake({})), None)
+    chk(
+        "runtime_keys: values that hold no dict are None",
+        runtime_keys(spec_rt, fake({("a",): "text"})),
+        None,
+    )
+
+    def refuse(_name):
+        raise ImportError("no such module")
+
+    chk(
+        "runtime_keys: a module that will not import is None",
+        runtime_keys(spec_rt, refuse),
+        None,
+    )
+    chk(
+        "runtime_keys: a missing attribute is None",
+        runtime_keys({"file": "m.py", "attr": "NOPE"}, fake(same)),
+        None,
+    )
+    live = runtime_keys({"file": "make_schemes.py", "attr": "GRID"})
+    chk(
+        "runtime_keys: the real make_schemes.GRID yields one non-empty token key set",
+        bool(live),
+        True,
     )
     real = measure()
     chk(
