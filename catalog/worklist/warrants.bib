@@ -51,6 +51,15 @@
   check   = {tool:opa_gate.py metrics}
 }
 
+% W214, 2026-10-18: every QML package the .deb stages loads under the OPERATOR'S Qt (luthen's
+% qml_check image, Qt 6.10.2), the tabbox under luthen's kwin-tabbox host. The `var byte` .deb
+% (2026-09-26) passed every gate here on host Qt 6.11.2 and failed on the laptop.
+@misc{QML-TARGET,
+  section = {emitters},
+  claim   = {every staged QML package lints and loads under the operator's Qt: none is refused, and at least one was measured},
+  check   = {tool:opa_gate.py qml_target}
+}
+
 % W160, 2026-10-02: the palette as W3C DTCG design tokens, one file for design tools
 % and the engine adapters (W151 adds the material group).
 @misc{DTCG,
