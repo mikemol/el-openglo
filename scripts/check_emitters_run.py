@@ -198,7 +198,30 @@ def adopt_drift(root, copy, drift, cases):
 
 
 def measure(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None, adopt=False):
-    """The --json document. `mutate(copy)` runs after the emitters (selftest hook).
+    """The --json document: one pass, and a SECOND only when the first saw the real tree change.
+
+    ⚑ A WRITE IS DENIED ONLY IF IT REPRODUCES (W212, 2026-10-18). The emitters run in a private copy, so
+    they cannot write the real tree; every `tree_touched` file is something else changing the gate's tree
+    while this check ran, and the fingerprint (inode, mtime, size) cannot tell a concurrent writer from
+    this check's own. Two refused gates (the kept accounts 20261018T230048 and 20261018T231701) named the
+    same 22 generated files as written, each passing on replay. A write the run really makes recurs on a
+    second pass; one made by a concurrent stage does not. So `tree_touched` is the files changed in BOTH
+    passes, and `touch_retries` records that a second pass was made. Weakness: a writer that fires every
+    time is still denied, a concurrent writer that fires on both passes is too, and the concurrent writer
+    itself is not found here (a card, not this check)."""
+    doc = one_pass(root, order, external, mutate, adopt)
+    doc["touch_retries"] = 0
+    if doc["tree_touched"] and not adopt:
+        again = one_pass(root, order, external, mutate, adopt)
+        doc["tree_touched"] = sorted(
+            set(doc["tree_touched"]) & set(again["tree_touched"])
+        )
+        doc["touch_retries"] = 1
+    return doc
+
+
+def one_pass(root=ROOT, order=ORDER, external=EXTERNAL, mutate=None, adopt=False):
+    """One pass of the document. `mutate(copy)` runs after the emitters (selftest hook).
     `adopt` (the --apply mode) writes each drifted tracked file into the real tree
     after the comparison; those writes are intended and not reported as tree_touched."""
     paths = tracked(root)
@@ -376,6 +399,29 @@ def _selftest():
         see(
             "a same-bytes write into the REAL tree is SEEN",
             t["tree_touched"] == ["out.colors"],
+        )
+        see(
+            "...and a write that recurs on the second pass is denied, the retry recorded",
+            t["touch_retries"] == 1,
+        )
+        passes = []
+
+        def write_once(_copy):
+            passes.append(1)
+            if len(passes) == 1:
+                with open(
+                    os.path.join(repo, "out.colors"), "w"
+                ) as fh:  # atomic-write: exempt — selftest simulates a concurrent stage
+                    fh.write("A=1\n")
+
+        n = measure(repo, order, {}, mutate=write_once)
+        see(
+            "a write made only once (a concurrent stage) is NOT denied; a second pass ran",
+            n["tree_touched"] == [] and n["touch_retries"] == 1 and len(passes) == 2,
+        )
+        see(
+            "a clean run makes no second pass",
+            clean["touch_retries"] == 0,
         )
         # --apply: refuses when an emitter FAILED (nothing adopted, file untouched) ...
         with open(
