@@ -527,7 +527,7 @@ def specs_gate(policy_dir=POLICY, run=None, closure="stored"):
     return rc
 
 
-def gate(name, operands=()):
+def gate(name: str, operands: list[str] | tuple[str, ...] = ()) -> int:
     """Measure, decide, print the verdict; the exit code. A migrated check's bare mode
     is exactly this call — it prints what the policy decided and decides nothing."""
     if not OPA:
