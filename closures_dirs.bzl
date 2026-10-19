@@ -13,6 +13,9 @@ DIRS = {
     "scripts/check_closure.py": [
         "gate",
     ],
+    "scripts/check_use_of_colour.py": [
+        "templates",
+    ],
 }
 
 STATS = {
@@ -199,5 +202,7 @@ STATS = {
         "stages.bzl",
         "templates/__init__.py",
         "theme_probe.py",
+    ],
+    "scripts/check_use_of_colour.py": [
     ],
 }

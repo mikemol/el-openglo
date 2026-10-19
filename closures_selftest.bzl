@@ -5828,6 +5828,7 @@ CLOSURES = {
     ],
     "scripts/check_use_of_colour.py": [
         ".bazelrc",
+        "catalog/fixtures/use_of_colour/colour-only.js",
         "cvd_gate.py",
         "emitters.py",
         "gate/stage.sh",
@@ -5867,6 +5868,7 @@ CLOSURES = {
         "templates/splash.qml",
         "templates/taskswitch-main.qml",
         "templates/theme-probe.qml",
+        "uv.lock",
     ],
     "scripts/check_venv_path.py": [
         ".bazelrc",

@@ -620,16 +620,55 @@ def measure():
     }
 
 
+def measure_fixture(path):
+    """The measurement of ONE painter file (W75): its `paint` function read as the surface "fixture", so a
+    known-bad painter can be put through the whole path (measurement, policy, exit) by
+    `opa_gate.py use_of_colour FIXTURE --expect denied:U1`. An unreadable or function-less file is a
+    `withheld` fact with the reason, never an empty population that reads as clean."""
+    rel = os.path.relpath(os.path.abspath(path), ROOT)
+    got = None
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as fh:
+            got = measure_painter(fh.read(), "paint", "fixture", rel)
+    withheld = (
+        []
+        if got is not None
+        else [
+            {
+                "id": "fixture",
+                "file": rel,
+                "line": 0,
+                "reason": "painter function paint not found, or the file is unreadable",
+            }
+        ]
+    )
+    return {
+        "cases": got or [],
+        "withheld": withheld,
+        "painters": 1,
+        "conditions": len(CONDITIONS),
+        "aperture_components": [],
+    }
+
+
 def main(argv):
     known = {"--json", "--list", "--selftest"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_use_of_colour: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if operands and (len(operands) > 1 or "--json" not in argv):
+        print(
+            f"check_use_of_colour: operands {operands!r}: only `--json FIXTURE` takes one",
+            file=sys.stderr,
+        )
+        return 2
     if "--selftest" in argv:
         return 0 if _selftest() else 1
     if "--json" in argv:
-        print(json.dumps(measure(), indent=1))
+        got = measure_fixture(operands[0]) if operands else measure()
+        print(json.dumps(got, indent=1))
         return 0
     if "--list" in argv:
         m = measure()
@@ -756,6 +795,24 @@ def _selftest():
         (["opacity"], []),
     )
     chk("colour-only: bold is still weight", kinds(bad, "C10", "cues"), ["weight"])
+    fixture = measure_fixture(
+        os.path.join(ROOT, "catalog", "fixtures", "use_of_colour", "colour-only.js")
+    )
+    chk(
+        "a fixture FILE is measured as one painter: critical is hue with no cue, nothing withheld (W75)",
+        (
+            kinds(fixture["cases"], "C6", "colour"),
+            kinds(fixture["cases"], "C6", "cues"),
+            fixture["withheld"],
+        ),
+        (["hue"], [], []),
+    )
+    gone = measure_fixture(os.path.join(ROOT, "catalog", "fixtures", "no-such.js"))
+    chk(
+        "an absent fixture is withheld with its reason and measures no case, never a clean empty",
+        (len(gone["cases"]), [w["id"] for w in gone["withheld"]]),
+        (0, ["fixture"]),
+    )
     good = measure_painter(WITH_CUES, "paint", "fixture", "fixture.qml")
     chk(
         "with cues: critical is weight + shape",

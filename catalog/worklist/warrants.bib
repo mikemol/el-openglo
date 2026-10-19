@@ -1066,3 +1066,10 @@
   claim    = {the post-commit measurement can SEE the defect it exists for: a hook whose amend commits the whole index is seen folding the staged file, and an absent hook is seen as absent rather than clean},
   check    = {tool:check_post_commit.py --selftest}
 }
+
+@misc{USE-OF-COLOUR-DENIES,
+  section  = {tooling},
+  rests-on = {USE-OF-COLOUR},
+  claim    = {The use-of-colour gate DENIES a known-bad painter end to end: a painter that carries critical urgency by hue and low urgency by opacity alone, with no weight, shape, text or animation cue, is refused by the measurement, the policy and the exit (U1), so the gate is shown to fail and not only to admit (W75)},
+  check    = {tool:opa_gate.py use_of_colour catalog/fixtures/use_of_colour/colour-only.js --expect denied:U1}
+}
