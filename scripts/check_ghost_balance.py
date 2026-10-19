@@ -118,7 +118,7 @@ def _selftest():
     the two sides are EQUAL, which is what the optimum means."""
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")

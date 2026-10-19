@@ -1168,7 +1168,7 @@ def _selftest():
     authored sets are unambiguous (H L T) and tells a stroke from a serif."""
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             f"  {'ok  ' if got == want else 'FAIL'} {label}"

@@ -213,7 +213,7 @@ def _selftest():
     global compare
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")

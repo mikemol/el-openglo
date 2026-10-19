@@ -402,7 +402,7 @@ def _selftest():
     stderr; a stub's argv reaches the log; a seamless helper is withheld, not run."""
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             f"  {'ok  ' if got == want else 'FAIL'} {label}"

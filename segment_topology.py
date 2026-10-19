@@ -485,7 +485,7 @@ def _selftest():
     """The 22->16 invariant the design log states, asserted rather than assumed."""
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")

@@ -116,7 +116,7 @@ def _selftest():
     """The measurement SEES a hook that folds the index (a plain amend) and the real hook that does not."""
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             f"  {'ok  ' if got == want else 'FAIL'} {label}"

@@ -629,7 +629,7 @@ def _selftest():
     GPL; and the real tree's population is non-empty in every kind."""
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             f"  {'ok  ' if got == want else 'FAIL'} {label}"

@@ -95,7 +95,7 @@ def measure(outdir, stage, verdict_path=None):
 def _selftest():
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         good = got == want
         ok &= good

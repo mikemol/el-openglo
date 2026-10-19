@@ -113,7 +113,7 @@ def _selftest():
     token names everything; a fragment that differs from its generation is not current."""
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             f"  {'ok  ' if got == want else 'FAIL'} {label}"

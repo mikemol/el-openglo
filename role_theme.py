@@ -360,7 +360,7 @@ def _selftest():
     """Prove the solve is a solve, and that it can be shown wrong."""
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")

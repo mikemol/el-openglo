@@ -128,7 +128,7 @@ def measure(root=ROOT):
 def _selftest():
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         print(
             ("  ok   " if got == want else "  FAIL ")

@@ -298,7 +298,7 @@ def _selftest():
     """Prove the check can SEE a theme that is admissible but not optimal."""
     ok = True
 
-    def check(label, got, want):
+    def check(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")

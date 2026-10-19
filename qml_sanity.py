@@ -138,7 +138,7 @@ def render_nonempty(surface, variant="EL-Openglo", min_lit=20):
 def _selftest():
     ok = True
 
-    def chk(label, got, want):
+    def chk(label: str, got: object, want: object) -> None:
         nonlocal ok
         if got != want:
             print(f"  FAIL {label}: got {got!r} want {want!r}")
