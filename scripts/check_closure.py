@@ -48,12 +48,17 @@ _LINE = re.compile(
 )
 
 
-def parse_trace(text, root, tracked, import_only=frozenset()):
+def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
     """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0).
 
     `import_only` is the set of repo-relative directories whose listing was made by Python's import system and
     by nothing else (see import_only_dirs): such a listing is how `import` finds a module, not an input of the
-    stage, so it does not declare the files in the directory."""
+    stage, so it does not declare the files in the directory.
+
+    `dirs` (W692) is None for the old rule, where a listed directory declares the tracked files directly
+    inside it. With a set, a listing that is not import-only of a directory holding tracked files is collected
+    into `dirs` (the root is ".") and declares none of its children: the NAMES are structure, kept apart from
+    the CONTENT of the files the stage actually opened. A file opened inside a listed directory is still content."""
     seen = set()
     children = {}
     first_under = {}
@@ -80,7 +85,10 @@ def parse_trace(text, root, tracked, import_only=frozenset()):
             # inside (the names are the input; over-approximate on content), or a closure-only tree
             # silently loses a file the scan would have found (found by the W494 witness, check_discriminates)
             if rel not in import_only:
-                seen.update(children.get(rel, ()))
+                if dirs is not None and rel in children:
+                    dirs.add(rel)
+                else:
+                    seen.update(children.get(rel, ()))
         elif m.group(1) in _STAT and rel in first_under:
             # a stat of a directory (os.path.isdir) reads that it EXISTS: one tracked file under it
             # keeps it in a closure-only tree (W494, worklist_gate's "every project dir exists")
@@ -142,9 +150,10 @@ def import_only_dirs(text, root):
     return imported - real
 
 
-def observe(script, root=ROOT):
+def observe(script, root=ROOT, dirs=None):
     """(closure, why): the tracked files `gate/stage.sh` opens for the stage `script` names (a check's
-    selftest, or one of STAGE_KINDS), or (None, reason)."""
+    selftest, or one of STAGE_KINDS), or (None, reason). With a set for `dirs` (W692) the directories the
+    stage listed are added to it, and the listing no longer declares their children (see parse_trace)."""
     if shutil.which("strace") is None:
         return None, "strace is not installed"
     import git_tracked
@@ -180,7 +189,7 @@ def observe(script, root=ROOT):
             with open(listings, encoding="utf-8", errors="replace") as fh:
                 skip = import_only_dirs(fh.read(), root)
         with open(log, encoding="utf-8", errors="replace") as fh:
-            closure = parse_trace(fh.read(), root, tracked, skip)
+            closure = parse_trace(fh.read(), root, tracked, skip, dirs)
     closure.add(script if script.endswith(".py") else "gate/stage.sh")
     return sorted(closure), ""
 
@@ -726,6 +735,36 @@ def _selftest():
             {"d"},
         ),
         set(),
+    )
+    listed = '1 openat(AT_FDCWD, "/r/d", O_RDONLY|O_NONBLOCK|O_DIRECTORY) = 5\n'
+    got_dirs = set()
+    chk(
+        "with dirs, a listed directory is collected and declares none of its children (W692)",
+        (parse_trace(listed, "/r", tracked, frozenset(), got_dirs), got_dirs),
+        (set(), {"d"}),
+    )
+    got_dirs = set()
+    chk(
+        "with dirs, a file opened inside a listed directory is still content",
+        parse_trace(
+            listed + '2 openat(AT_FDCWD, "/r/d/b.json", O_RDONLY) = 6\n',
+            "/r",
+            tracked,
+            frozenset(),
+            got_dirs,
+        ),
+        {"d/b.json"},
+    )
+    got_dirs = set()
+    chk(
+        "with dirs, an import-only listing is neither a dir nor content",
+        (parse_trace(listed, "/r", tracked, {"d"}, got_dirs), got_dirs),
+        (set(), set()),
+    )
+    chk(
+        "without dirs the old rule holds: the listing declares the files directly inside",
+        parse_trace(listed, "/r", tracked, frozenset(), None),
+        {"d/b.json"},
     )
     chk(
         "import_only_dirs: a directory another caller also listed stays declared",
