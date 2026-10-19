@@ -141,6 +141,25 @@
   }
  },
  {
+  "case": "r4-refuses-a-row-outside-the-repo-root",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": "x\t../paperkit/tools/bibstruct.py",
+    "tool": "../paperkit/tools/bibstruct.py",
+    "resolves": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
   "case": "r4-withholds-a-row-that-names-no-path",
   "hook": "scripts/hook_structural_query.py",
   "hook_present": true,

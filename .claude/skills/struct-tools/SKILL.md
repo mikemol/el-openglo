@@ -35,7 +35,10 @@ cleaner versions"). Python and markdown have installed structural readers from m
 (`mikemol-pycodemod`, `mdstruct`, both in the `tooling` extra), built precisely because
 someone kept reaching for `grep` at them. Do not grep those artifacts here and do not
 reimplement a reader for them — point outward, exactly as the two PreToolUse hooks do.
-A row still naming `../substrate/scratch/` is a reader mtools has not ported yet.
+⚑ **NO ROW NAMES A PATH OUTSIDE THIS REPO** (operator, 2026-10-19: repos must not know
+sibling checkouts exist; policy R4 denies one). A reader arrives as an installed console
+script in the venv or not at all: BibTeX (paperkit's bibstruct) and Agda have no such
+reader here yet, so their rows are absent until one ships (W738).
 This repo's own `check_*.py` answer questions about THIS project (is the mark gone, do
 the emitters agree on one palette); they are not general readers and do not replace these.
 
@@ -43,7 +46,6 @@ the emitters agree on one palette); they are not general readers and do not repl
 |---|---|---|---|
 | Python — structure of any module; subcommands, not flags, each with its own `--help` (`calls --target NAME PATHS`; a bare `calls PATHS` lists EVERY call); the cleanroom `mikemol-pycodemod` from mtools, installed by `uv sync --extra tooling` (W144) | `mikemol-pycodemod` | `uv run --no-sync mikemol-pycodemod --help` | `.py` `.pyi` |
 | markdown — headers, tables, cells; `append-section`/`replace-section --apply` WRITE (the published `mikemol-mdstruct`, installed by `uv sync --extra tooling`; substrate's scratch copy is retired) | `mdstruct` | `uv run --no-sync mdstruct` | `.md` |
-| BibTeX — the claim-DAG, not its text (paperkit's own reader, which imports under the repo venv; give the bib as an ABSOLUTE path, a relative one resolves against the venv; substrate's copy fails on import, W234) | `../paperkit/tools/bibstruct.py` | `.venv/bin/python ../paperkit/tools/bibstruct.py` | `.bib` |
 | this repo's Python: does it compile / import (compile: `--json` is what policy/compiles.rego decides) | `scripts/check_compiles.py` + `scripts/check_consumers.py` | `python3 scripts/check_compiles.py --list` | `opa_gate.py compiles` |
 | the claim graph's STATUS (are claims discharged) | `scripts/worklist_gate.py` | `python3 scripts/worklist_gate.py --summary` | — |
 | **what to work on next** | `scripts/worklist_gate.py --next` | `python3 scripts/worklist_gate.py --next` | — |
@@ -88,7 +90,6 @@ the emitters agree on one palette); they are not general readers and do not repl
 | the browser theme's emitted manifests (`--json` is what policy/chrome.rego decides; the verdict is `scripts/opa_gate.py chrome`) | `scripts/check_chrome.py` | `python3 scripts/check_chrome.py --dump` | `.json` |
 | the partial-recovery record (`--json` is what policy/partial.rego decides) | `scripts/check_partial.py` | `python3 scripts/check_partial.py --list` | `opa_gate.py partial` |
 | the segment lattice's own invariants | `segment_topology.py` | `python3 segment_topology.py --selftest` | — |
-| Agda source (`ELProjection.agda`) | `../substrate/scratch/agda_defs.py` + `agda_lex.py` | `python3 ../substrate/scratch/agda_defs.py <name>` | `.agda` `.agdai` `.lagda` |
 | the git hooks: which are installed, where each resolves | `scripts/check_hooks.py` | `python3 scripts/check_hooks.py --list` | `pre-commit` `post-commit` `pre-push` |
 | the paths-forward queue (symbols, order, lock, residue, ledger) | `.venv/bin/mikemol-paths-forward` (mtools; the ONE writer, paths-forward-loop §0) | `.venv/bin/mikemol-paths-forward --state .claude/paths-forward.json --queue` | `paths-forward.json` `paths-forward.ledger` |
 | the Gentoo overlay: markers, the ebuild, the staged install tree | `scripts/check_ebuild.py` | `python3 scripts/check_ebuild.py --tree` | `.ebuild` `layout.conf` `repo_name` |

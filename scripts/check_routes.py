@@ -22,9 +22,9 @@ local skill present, and which rows does the hook itself report.
     scripts/check_routes.py --selftest
 
 Weakness: a row's tool is read as its FIRST word (W243): a path in the repo or a console script in the gate
-venv's bin must exist (policy R4 denies a miss); a sibling-checkout path (`../paperkit/...`) that is absent
-is not judged, because the gate runs from a clone whose siblings are not the operator's; a column whose first
-word names no path is withheld, counted and printed.
+venv's bin must exist (policy R4 denies a miss); a path outside the repo root (`../...`) is denied outright,
+present or not (W738, operator ruling 2026-10-19: repos must not know sibling checkouts exist); a column
+whose first word names no path is withheld, counted and printed.
 """
 
 import json
@@ -59,8 +59,8 @@ def routes(hook=HOOK, skill=SKILL):
 def tool_resolution(tool, root=ROOT):
     """(token, resolves): the first word of a row's tool column and whether it exists here (W243).
 
-    A word with a "/" or ending in ".py" is a PATH, read against the repo root (a sibling checkout is
-    `../paperkit/...`); a bare word that is a file in the gate venv's bin is a console script, and a
+    A word with a "/" or ending in ".py" is a PATH, read against the repo root; a path outside the repo
+    root (`../...`) never resolves (W738); a bare word that is a file in the gate venv's bin is a console script, and a
     "mikemol-" word that is not there does not resolve. A column whose first word names neither is
     (word, None): it names no path, so nothing is judged and the row is counted, never admitted as
     resolved. Weakness: only the FIRST word is read, so a row that joins two tools with ` + ` is judged
@@ -70,9 +70,9 @@ def tool_resolution(tool, root=ROOT):
         return "", None
     word = words[0]
     if word.startswith("../"):
-        # a SIBLING checkout (paperkit, substrate): present or not depends on where this tree sits, and the
-        # gate runs from a clone whose siblings are not those, so absence is not judged (None), presence is
-        return word, True if os.path.exists(os.path.join(root, word)) else None
+        # W738, operator ruling 2026-10-19: a repo must not know sibling checkouts exist, so a path outside
+        # the repo root never resolves, whether or not the sibling is present on this machine
+        return word, False
     if "/" in word or word.endswith(".py"):
         return word, os.path.exists(os.path.join(root, word))
     if os.path.exists(os.path.join(venv(root), "bin", word)):
@@ -150,9 +150,12 @@ def _selftest():
         (True, False, "scripts/check_routes.py"),
     )
     check(
-        "a sibling checkout path that is absent is NOT judged (None), the gate clone cannot see siblings",
-        tool_resolution("../no_such_sibling/tool.py")[1],
-        None,
+        "a path outside the repo root never resolves, present or not (W738)",
+        (
+            tool_resolution("../no_such_sibling/tool.py")[1],
+            tool_resolution("../el-openglo/scripts/check_routes.py")[1],
+        ),
+        (False, False),
     )
     check(
         "a mikemol- console script that is not installed does not resolve; a word naming no path is not judged",
