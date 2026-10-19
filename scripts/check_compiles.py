@@ -80,19 +80,37 @@ def measure(src=None):
     }
 
 
+def measure_fixture(path):
+    """The tree's measurement plus ONE fixture file compiled under the id "fixture" (W749).
+
+    A known-bad fixture has a syntax error, so it reaches policy K1 end to end; it is named .txt so the
+    tracked-source scan (*.py) never counts it, and the rest of the tree is measured as it is."""
+    m = measure()
+    m["cases"].append({"id": "fixture", "error": compile_error(path)})
+    return m
+
+
 def main(argv):
     known = {"--list", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_compiles: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_compiles: --json takes at most one fixture file", file=sys.stderr)
+        return 2
+    if operands and not os.path.isfile(operands[0]):
+        print(f"check_compiles: no such fixture {operands[0]!r}", file=sys.stderr)
+        return 2
     if "--list" in argv:
         print("\n".join(sources()))
         return 0
     if "--json" in argv:
         import json
 
-        print(json.dumps(measure(), indent=1))
+        doc = measure_fixture(operands[0]) if operands else measure()
+        print(json.dumps(doc, indent=1))
         return 0
     import opa_gate
 
@@ -130,6 +148,13 @@ def _selftest():
         with open(good, "w", encoding="utf-8") as fh:
             fh.write("x = 1\n")
         chk("a clean file measures no error", compile_error(good), None)
+    fixture = os.path.join(ROOT, "catalog/fixtures/compiles/syntax-error.txt")
+    added = measure_fixture(fixture)["cases"][-1]
+    chk(
+        "a fixture with a syntax error joins the cases as 'fixture' and carries the error (W749)",
+        (added["id"], added["error"] is not None),
+        ("fixture", True),
+    )
     print("check_compiles selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -1115,3 +1115,10 @@
   claim    = {The hooks gate DENIES a known-bad roster end to end: a settings file whose PreToolUse hooks include one that is not installed is refused by the measurement, the policy and the exit (H1), the installed hooks in it still measured by their probes, so the gate is shown to fail and not only to admit (W75, W748)},
   check    = {tool:opa_gate.py hooks catalog/fixtures/hooks/phantom-hook.json --expect denied:H1}
 }
+
+@misc{COMPILES-DENIES,
+  section  = {tooling},
+  rests-on = {COMPILES},
+  claim    = {The byte-compile gate DENIES a known-bad source end to end: a file with a syntax error is refused by the measurement, the policy and the exit (K1), with every tracked source measured as it is, so the gate is shown to fail and not only to admit (W75, W749)},
+  check    = {tool:opa_gate.py compiles catalog/fixtures/compiles/syntax-error.txt --expect denied:K1}
+}
