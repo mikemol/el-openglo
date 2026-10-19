@@ -84,6 +84,17 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "L8 — a listed directory with no tracked file"
+# description: |
+#   W693: closures_dirs.bzl records the directories each stage LISTED. A listed directory that holds no
+#   tracked file directly inside it names something a checkout does not carry, so the record cannot be
+#   reproduced from the repo. `empty_dirs` is absent in a fixture and then says nothing.
+deny contains msg if {
+	some d in object.get(object.get(input, "tree", {}), "empty_dirs", [])
+	msg := sprintf("L8: %s: the listed directory holds no tracked file; regenerate (check_closure.py --write)", [d])
+}
+
+# METADATA
 # title: "W — a witness that could not judge"
 # description: |
 #   NOT CONFIRMED IS NOT FAILED: a stage that needs a git work tree is exempt from arm 1 (WITH its

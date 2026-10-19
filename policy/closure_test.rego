@@ -83,6 +83,17 @@ test_l7_refuses_an_orphan_node if {
 	startswith(msg, "L7: closures_pytestspec_lost.bzl")
 }
 
+test_l8_refuses_a_listed_directory_with_no_tracked_file if {
+	bad := object.union(good, {"tree": {"nodes": 3, "dangling": [], "orphans": [], "empty_dirs": ["pytestspec -> gone"]}})
+	some msg in p.deny with input as bad
+	startswith(msg, "L8: pytestspec -> gone")
+}
+
+test_a_tree_with_no_empty_listed_dir_adds_no_denial if {
+	ok := object.union(good, {"tree": {"nodes": 3, "dangling": [], "orphans": [], "empty_dirs": []}})
+	count(p.deny) == 0 with input as ok
+}
+
 test_a_clean_tree_adds_no_denial if {
 	ok := object.union(good, {"tree": {"nodes": 8, "dangling": [], "orphans": []}})
 	count(p.deny) == 0 with input as ok

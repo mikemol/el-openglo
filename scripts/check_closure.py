@@ -538,6 +538,16 @@ def load_dirs(text):
     raise ValueError(msg)
 
 
+def empty_dirs(dirs_map, tracked):
+    """["stage -> dir"] for every listed directory holding no tracked file directly inside
+    it (W693, policy L8): a listing the stage made of a directory the repo does not carry cannot be reproduced
+    from a checkout, so the record names something that is not there."""
+    held = {os.path.dirname(p) or "." for p in tracked}
+    return sorted(
+        f"{s} -> {d}" for s, dirs in dirs_map.items() for d in dirs if d not in held
+    )
+
+
 def measure(
     closures=None, scripts=None, tracked=None, with_witness=False, with_tree=False
 ):
@@ -579,6 +589,11 @@ def measure(
         import closure_tree
 
         result["tree"] = closure_tree.shape()
+        dirs_map = {}
+        if os.path.isfile(DIRS_FILE):
+            with open(DIRS_FILE, encoding="utf-8") as fh:
+                dirs_map = load_dirs(fh.read())
+        result["tree"]["empty_dirs"] = empty_dirs(dirs_map, tracked)
     if with_witness:
         result["witness"] = witness_all(
             [s for s in scripts if s in closures], closures
@@ -914,6 +929,13 @@ def _selftest():
         "widen puts back the old rule: the narrow closure plus the tracked files directly inside each listed dir",
         widen(["a.py"], {"d", "."}, {"a.py", "c.rego", "d/b.json", "d/e/f.txt"}),
         ["a.py", "c.rego", "d/b.json"],
+    )
+    chk(
+        "empty_dirs names a listed directory with no tracked file directly inside it, and only that (L8)",
+        empty_dirs(
+            {"s": [".", "d", "gone"], "t": ["d/e"]}, {"a.py", "d/b.json", "d/e/f.txt"}
+        ),
+        ["s -> gone"],
     )
     chk(
         "holding: the narrow closures that list the file, the whole-tree ones counted and not listed",

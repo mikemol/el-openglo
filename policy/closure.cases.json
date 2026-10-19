@@ -325,5 +325,50 @@
    "dangling": [],
    "orphans": []
   }
+ },
+ {
+  "case": "l8-refuses-a-listed-directory-with-no-tracked-file",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "tree": {
+   "nodes": 8,
+   "dangling": [],
+   "orphans": [],
+   "empty_dirs": [
+    "pytestspec -> gone"
+   ]
+  },
+  "expect": {
+   "deny": [
+    "L8"
+   ]
+  }
+ },
+ {
+  "case": "a-tree-with-no-empty-listed-dir-adds-no-denial",
+  "cases": [
+   {
+    "script": "scripts/check_a.py",
+    "has_closure": true,
+    "files": 12,
+    "self_listed": true,
+    "untracked": []
+   }
+  ],
+  "stale": [],
+  "tree": {
+   "nodes": 8,
+   "dangling": [],
+   "orphans": [],
+   "empty_dirs": []
+  }
  }
 ]
