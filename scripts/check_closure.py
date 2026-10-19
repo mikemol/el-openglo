@@ -48,6 +48,18 @@ _LINE = re.compile(
 )
 
 
+def pyc_source(rel):
+    """The source path a compiled module names, or None (W730): `<dir>/__pycache__/<stem>.cpython-NNN.pyc` is
+    the compiled form of `<dir>/<stem>.py`. The import system validates a cached .pyc by stat-ing the source and
+    never opening it, so a module whose .pyc was OPENED supplied the running code from that source even when
+    the source itself was only stat-ed: the source is content, not structure."""
+    head, name = os.path.split(rel)
+    if os.path.basename(head) != "__pycache__" or not name.endswith(".pyc"):
+        return None
+    stem = name.split(".", 1)[0]
+    return os.path.join(os.path.dirname(head), f"{stem}.py")
+
+
 def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
     """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0).
 
@@ -77,6 +89,9 @@ def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
         path = m.group(2)
         full = path if os.path.isabs(path) else os.path.join(root, path)
         rel = os.path.relpath(os.path.normpath(full), root)
+        compiled = pyc_source(rel)
+        if compiled in tracked:
+            seen.add(compiled)
         if rel in tracked:
             seen.add(rel)
         elif "O_DIRECTORY" in line:
@@ -836,6 +851,32 @@ def _selftest():
         "without dirs the old rule holds: the listing declares the files directly inside",
         parse_trace(listed, "/r", tracked, frozenset(), None),
         {"d/b.json"},
+    )
+    chk(
+        "pyc_source: a compiled module names its source, and nothing else does (W730)",
+        (
+            pyc_source("d/__pycache__/m.cpython-314.pyc"),
+            pyc_source("__pycache__/m.cpython-314.pyc"),
+            pyc_source("d/m.py"),
+            pyc_source("d/__pycache__/notes.txt"),
+        ),
+        ("d/m.py", "m.py", None, None),
+    )
+    chk(
+        "an opened .pyc declares its tracked source as content, an untracked source nothing",
+        (
+            parse_trace(
+                '1 openat(AT_FDCWD, "/r/d/__pycache__/m.cpython-314.pyc", O_RDONLY) = 7\n',
+                "/r",
+                {"d/m.py"},
+            ),
+            parse_trace(
+                '1 openat(AT_FDCWD, "/r/d/__pycache__/m.cpython-314.pyc", O_RDONLY) = 7\n',
+                "/r",
+                {"d/other.py"},
+            ),
+        ),
+        ({"d/m.py"}, set()),
     )
     chk(
         "import_only_dirs: a directory another caller also listed stays declared",
