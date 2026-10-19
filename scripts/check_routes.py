@@ -97,12 +97,18 @@ def measure(hook=HOOK, skill=SKILL):
 
 def main(argv):
     known = {"--routes", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_routes: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_routes: --json takes at most one skill file", file=sys.stderr)
+        return 2
     if "--json" in argv:
-        print(json.dumps(measure(), indent=1))
+        # W75: one operand is a FIXTURE skill, measured instead of this repo's own table
+        doc = measure(skill=operands[0]) if operands else measure()
+        print(json.dumps(doc, indent=1))
         return 0
     if "--routes" in argv:
         print("\n".join(routes() or []))
@@ -140,6 +146,14 @@ def _selftest():
         (False, False, []),
     )
     check("the live hook reports rows", len(measure()["cases"]) > 0, True)
+    fixture = measure(
+        skill=os.path.join(ROOT, "catalog/fixtures/routes/outside-root.md")
+    )
+    check(
+        "a fixture skill with a row outside the repo root is SEEN as unresolved (W75)",
+        [c["resolves"] for c in fixture["cases"]],
+        [False],
+    )
     check(
         "a path that exists resolves, one that does not does not, and a wrapped column reads its first word (W243)",
         (

@@ -66,6 +66,15 @@ test_null_attribution_is_withheld if {
 	count(k.deny) == 0 with input as inp
 }
 
+# W741: the known-bad fixture is excluded by its real path, and judged under the logical path "fixture"
+test_k1_the_fixture_is_excluded_by_its_real_path_and_judged_as_fixture if {
+	real := {"path": "catalog/fixtures/mark/self-named.md", "lines": [{"line": 1, "count": 1, "attribution": false}]}
+	count(k.deny) == 0 with input as with_case(real)
+	judged := {"path": "fixture", "lines": [{"line": 1, "count": 1, "attribution": false}]}
+	some msg in k.deny with input as with_case(judged)
+	msg == "K2: the retired mark appears 1× in fixture"
+}
+
 test_k1_the_exclusion_is_by_path_only if {
 	moved := {"path": "scripts/check_mark_copy.py", "lines": [self_line]}
 	some msg in k.deny with input as with_case(moved)

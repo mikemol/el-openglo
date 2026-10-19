@@ -160,17 +160,39 @@ def measure(root=ROOT):
     }
 
 
+def measure_fixture(path):
+    """The measurement over ONE file, reported under the logical path "fixture" (W741).
+
+    A known-bad fixture holds the mark, so the live scan excludes its real path (policy K1); reporting it
+    as "fixture" is what lets the policy judge it. An absent file measures an empty population, which
+    policy K0 refuses: a fixture that cannot be read is never a clean tree."""
+    if not os.path.isfile(path):
+        return {"mark": MARK, "source": "fixture", "cases": []}
+    root, name = os.path.split(os.path.abspath(path))
+    lines = _lines_walk(root, [name]).get(name, [])
+    return {
+        "mark": MARK,
+        "source": "fixture",
+        "cases": [{"path": "fixture", "lines": lines}],
+    }
+
+
 def main(argv):
     known = {"--count", "--files", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(
                 f"check_mark: unknown flag {a!r} (known: {', '.join(sorted(known))})",
                 file=sys.stderr,
             )
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_mark: --json takes at most one fixture file", file=sys.stderr)
+        return 2
     if "--json" in argv:
-        print(json.dumps(measure(), indent=1))
+        doc = measure_fixture(operands[0]) if operands else measure()
+        print(json.dumps(doc, indent=1))
         return 0
     import opa_gate
 
@@ -232,6 +254,17 @@ def _selftest():
             "the walk SEES a planted mark",
             hits(m),
             {"planted.txt": [{"line": 1, "count": 1, "attribution": False}]},
+        )
+        fx = measure_fixture(os.path.join(td, "planted.txt"))
+        check(
+            "a fixture is measured under the logical path 'fixture' and SEEN",
+            [(c["path"], len(c["lines"])) for c in fx["cases"]],
+            [("fixture", 1)],
+        )
+        check(
+            "an absent fixture is an EMPTY population, never a clean one",
+            measure_fixture(os.path.join(td, "absent.txt"))["cases"],
+            [],
         )
         # a worktree copy inside the sandbox is not the tree (2026-09-23)
         wt = os.path.join(td, ".claude", "worktrees", "a")

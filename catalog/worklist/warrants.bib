@@ -1073,3 +1073,17 @@
   claim    = {The use-of-colour gate DENIES a known-bad painter end to end: a painter that carries critical urgency by hue and low urgency by opacity alone, with no weight, shape, text or animation cue, is refused by the measurement, the policy and the exit (U1), so the gate is shown to fail and not only to admit (W75)},
   check    = {tool:opa_gate.py use_of_colour catalog/fixtures/use_of_colour/colour-only.js --expect denied:U1}
 }
+
+@misc{ROUTES-DENIES,
+  section  = {tooling},
+  rests-on = {ROUTES},
+  claim    = {The routing gate DENIES a known-bad table end to end: a struct-tools skill whose row names a tool outside the repo root (../paperkit/tools/bibstruct.py) is refused by the measurement, the policy and the exit (R4), so the gate is shown to fail and not only to admit (W75, W738)},
+  check    = {tool:opa_gate.py routes catalog/fixtures/routes/outside-root.md --expect denied:R4}
+}
+
+@misc{MARK-DENIES,
+  section  = {tooling},
+  rests-on = {MARK},
+  claim    = {The retired-mark gate DENIES a known-bad file end to end: a document that calls the project by the retired mark rather than naming the product it imitates is refused by the measurement, the policy and the exit (K2), so the gate is shown to fail and not only to admit (W75, W741)},
+  check    = {tool:opa_gate.py mark catalog/fixtures/mark/self-named.md --expect denied:K2}
+}

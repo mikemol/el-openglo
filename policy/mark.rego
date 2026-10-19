@@ -21,6 +21,7 @@ deny contains msg if {
 excluded := {
 	"scripts/check_mark.py": "this file must name the mark to look for it",
 	"RECOVERY-NOTES.md": "verbatim provenance record of the pre-rename recovery",
+	"catalog/fixtures/mark/self-named.md": "the known-bad fixture the negative claim feeds the gate, which reports it under the path fixture (W741)",
 }
 
 # METADATA
