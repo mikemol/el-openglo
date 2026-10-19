@@ -185,12 +185,36 @@ def borrowed(root=ROOT):
     return names, out
 
 
+def measure_fixture(path):
+    """The hooks a FIXTURE settings file runs, measured as measure() measures the real roster (W748).
+
+    The fixture has settings.json's shape; a hook it names that is not installed is the H1 defect, so a
+    known-bad roster reaches the policy end to end. A file whose PreToolUse roster is empty is refused
+    (ValueError): it would measure nothing and the policy's own empty-population denial is not the claim."""
+    hooks = roster(path)
+    if not hooks:
+        raise ValueError(f"{path}: no PreToolUse hook command")
+    return measure(hooks)
+
+
 def main(argv):
     known = {"--list", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_hooks: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_hooks: --json takes at most one fixture file", file=sys.stderr)
+        return 2
+    if operands and not os.path.isfile(operands[0]):
+        print(f"check_hooks: no such fixture {operands[0]!r}", file=sys.stderr)
+        return 2
+    if "--json" in argv and operands:
+        import json
+
+        print(json.dumps(measure_fixture(operands[0]), indent=1))
+        return 0
     if "--list" in argv:
         for name, hargv, _env in roster():
             where = hargv[0] if os.path.isfile(hargv[0]) else "(ABSENT)"
@@ -265,6 +289,15 @@ def _selftest():
         f"  {'ok  ' if planted else 'FAIL'} a planted out-of-tree symlink is counted, an in-tree one is not (got {got})"
     )
     ok = ok and planted
+    fixture = measure_fixture(
+        os.path.join(ROOT, "catalog", "fixtures", "hooks", "phantom-hook.json")
+    )
+    absent = [c["hook"] for c in fixture["cases"] if c["present"] is False]
+    seen_phantom = absent == ["mikemol-hook-phantom"]
+    print(
+        f"  {'ok  ' if seen_phantom else 'FAIL'} a fixture roster naming a hook that is not installed is measured absent (W748; got {absent})"
+    )
+    ok = ok and seen_phantom
     print("check_hooks selftest:", "PASS" if ok else "FAIL")
     return ok
 

@@ -1838,6 +1838,8 @@ CLOSURES = {
     "scripts/check_hooks.py": [
         ".bazelrc",
         ".claude/settings.json",
+        ".claude/skills/struct-tools/SKILL.md",
+        "catalog/fixtures/hooks/phantom-hook.json",
         "cvd_gate.py",
         "emitters.py",
         "gate/stage.sh",
@@ -3260,6 +3262,8 @@ CLOSURES = {
     ],
     "scripts/check_partial.py": [
         ".bazelrc",
+        "RECOVERY-NOTES.md",
+        "catalog/fixtures/partial/unnamed-file.json",
         "cvd_gate.py",
         "emitters.py",
         "gate/stage.sh",
@@ -4718,6 +4722,7 @@ CLOSURES = {
     ],
     "scripts/check_st_api.py": [
         ".bazelrc",
+        "catalog/fixtures/st_api/unexported-use.txt",
         "cvd_gate.py",
         "display_params.py",
         "display_types.py",

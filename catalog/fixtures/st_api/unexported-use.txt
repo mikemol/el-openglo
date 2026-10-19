@@ -1,0 +1,3 @@
+import segment_topology as ST
+
+x = ST.NO_SUCH_SYMBOL_FIXTURE

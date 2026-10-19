@@ -84,16 +84,42 @@ def measure(used=_READ, have=_READ):
     }
 
 
+def measure_fixture(path):
+    """The tree's measurement plus the `ST.<name>` references of ONE fixture consumer (W747).
+
+    The fixture is a text file that imports segment_topology as ST; its references join the discovered
+    set under the file name "fixture", so a symbol the module does not export reaches policy A2 end to
+    end. A file that does not import the module as ST is refused (ValueError): it would reference
+    nothing and the measurement would pass for the wrong reason. Named .txt so the tree scan, which reads
+    tracked *.py, never counts it."""
+    with open(path, encoding="utf-8") as fh:
+        text = fh.read()
+    if not re.search(r"import\s+segment_topology\s+as\s+ST\b", text):
+        raise ValueError(f"{path}: does not import segment_topology as ST")
+    used = referenced()
+    for m in re.finditer(r"\bST\.([A-Za-z_][A-Za-z0-9_]*)", text):
+        used.setdefault(m.group(1), []).append("fixture")
+    return measure(used)
+
+
 def main(argv):
     known = {"--used", "--missing", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_st_api: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_st_api: --json takes at most one fixture file", file=sys.stderr)
+        return 2
     if "--json" in argv:
         import json
 
-        print(json.dumps(measure(), indent=1))
+        if operands and not os.path.isfile(operands[0]):
+            print(f"check_st_api: no such fixture {operands[0]!r}", file=sys.stderr)
+            return 2
+        doc = measure_fixture(operands[0]) if operands else measure()
+        print(json.dumps(doc, indent=1))
         return 0
     if "--used" in argv or "--missing" in argv:
         # listings of the measured facts; `!` / --missing is `exported: false`
@@ -148,6 +174,30 @@ def _selftest():
         measure({"GEOM16": ["a.py"]}, None)["module_present"],
         False,
     )
+    import tempfile
+
+    fixture = os.path.join(ROOT, "catalog/fixtures/st_api/unexported-use.txt")
+    check(
+        "a fixture consumer's unexported symbol joins the cases and is seen as unexported (W747)",
+        [
+            (c["symbol"], c["files"], c["exported"])
+            for c in measure_fixture(fixture)["cases"]
+            if c["symbol"] == "NO_SUCH_SYMBOL_FIXTURE"
+        ],
+        [("NO_SUCH_SYMBOL_FIXTURE", ["fixture"], False)],
+    )
+    with tempfile.TemporaryDirectory() as td:
+        plain = os.path.join(td, "plain.txt")
+        with open(plain, "w", encoding="utf-8") as fh:
+            fh.write("ST.GEOM16\n")
+        try:
+            measure_fixture(plain)
+            refused = False
+        except ValueError:
+            refused = True
+        check(
+            "a fixture that does not import the module as ST is REFUSED", refused, True
+        )
     print("check_st_api selftest:", "PASS" if ok else "FAIL")
     return ok
 

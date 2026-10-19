@@ -71,14 +71,36 @@ def measure(root=ROOT, roster=PARTIAL):
     }
 
 
+def measure_fixture(path):
+    """The live tree measured against ONE fixture roster (W746): a JSON document {"roster": [file, ...]}
+    replaces PARTIAL, so a known-bad record reaches the policy end to end. The notes and the files are the
+    live tree's, which is what makes a denial specific to the roster. A document with no non-empty
+    roster is refused (ValueError), never read as a clean record."""
+    with open(path, encoding="utf-8") as fh:
+        roster = json.load(fh).get("roster")
+    if not isinstance(roster, list) or not roster:
+        raise ValueError(f"{path}: no non-empty roster")
+    return measure(ROOT, tuple(roster))
+
+
 def main(argv):
     known = {"--list", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_partial: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_partial: --json takes at most one fixture file", file=sys.stderr)
+        return 2
     if "--list" in argv:
         print("\n".join(PARTIAL))
+        return 0
+    if "--json" in argv and operands:
+        if not os.path.isfile(operands[0]):
+            print(f"check_partial: no such fixture {operands[0]!r}", file=sys.stderr)
+            return 2
+        print(json.dumps(measure_fixture(operands[0]), indent=1))
         return 0
     if "--json" in argv:
         print(json.dumps(measure(), indent=1))
@@ -120,6 +142,26 @@ def _selftest():
             "a vanished, unnamed file is SEEN",
             m["cases"][1],
             {"file": "b.py", "exists": False, "named": False},
+        )
+    fixture = "catalog/fixtures/partial/unnamed-file.json"
+    check(
+        "a fixture roster naming a present file the notes do not mention is SEEN (W746)",
+        measure_fixture(os.path.join(ROOT, fixture))["cases"],
+        [{"file": fixture, "exists": True, "named": False}],
+    )
+    with tempfile.TemporaryDirectory() as td:
+        empty = os.path.join(td, "empty.json")
+        with open(empty, "w", encoding="utf-8") as fh:
+            fh.write('{"roster": []}')
+        try:
+            measure_fixture(empty)
+            refused = False
+        except ValueError:
+            refused = True
+        check(
+            "a fixture with an empty roster is REFUSED, never read as clean",
+            refused,
+            True,
         )
     print("check_partial selftest:", "PASS" if ok else "FAIL")
     return ok

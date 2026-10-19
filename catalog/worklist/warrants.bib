@@ -1094,3 +1094,24 @@
   claim    = {The licence gate DENIES a known-bad declaration end to end: an emitted metadata document whose License is GPLv3 instead of the declared Apache-2.0 is refused by the measurement, the policy and the exit (L1), with the rest of the tree measured as it is, so the gate is shown to fail and not only to admit (W75, W742)},
   check    = {tool:opa_gate.py license catalog/fixtures/license/wrong-spdx.txt --expect denied:L1}
 }
+
+@misc{PARTIAL-DENIES,
+  section  = {tooling},
+  rests-on = {PARTIAL},
+  claim    = {The partial-recovery gate DENIES a known-bad record end to end: a roster naming a file the provenance notes do not mention is refused by the measurement, the policy and the exit (P2), with the notes and the files measured as they are, so the gate is shown to fail and not only to admit (W75, W746)},
+  check    = {tool:opa_gate.py partial catalog/fixtures/partial/unnamed-file.json --expect denied:P2}
+}
+
+@misc{ST-API-DENIES,
+  section  = {tooling},
+  rests-on = {ST22},
+  claim    = {The segment-API gate DENIES a known-bad consumer end to end: a file that imports segment_topology as ST and references a symbol the module does not export is refused by the measurement, the policy and the exit (A2), with the rest of the tree measured as it is, so the gate is shown to fail and not only to admit (W75, W747)},
+  check    = {tool:opa_gate.py st_api catalog/fixtures/st_api/unexported-use.txt --expect denied:A2}
+}
+
+@misc{HOOKS-DENIES,
+  section  = {tooling},
+  rests-on = {HOOKS},
+  claim    = {The hooks gate DENIES a known-bad roster end to end: a settings file whose PreToolUse hooks include one that is not installed is refused by the measurement, the policy and the exit (H1), the installed hooks in it still measured by their probes, so the gate is shown to fail and not only to admit (W75, W748)},
+  check    = {tool:opa_gate.py hooks catalog/fixtures/hooks/phantom-hook.json --expect denied:H1}
+}

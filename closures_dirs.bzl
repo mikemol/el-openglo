@@ -116,6 +116,11 @@ DIRS = {
     "scripts/check_guest_recipe.py": [
     ],
     "scripts/check_hooks.py": [
+        ".",
+        "catalog/library",
+        "scripts",
+        "stubs",
+        "templates",
     ],
     "scripts/check_hypotheses.py": [
     ],
