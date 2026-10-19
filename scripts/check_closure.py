@@ -60,8 +60,15 @@ def pyc_source(rel):
     return os.path.join(os.path.dirname(head), f"{stem}.py")
 
 
-def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None, stats=None):
+def parse_trace(
+    text, root, tracked, import_only=frozenset(), dirs=None, stats=None, hook_dirs=None
+):
     """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0).
+
+    `hook_dirs` (W737) is None for no filter. With a set, a directory is collected into `dirs` ONLY if the Python
+    audit hook logged a real listing of it (an R row): a listing the hook never saw was made by a tool it cannot
+    attribute (opa, git, bash), which read the children's CONTENT through a descriptor, so it keeps declaring
+    every child as before.
 
     `stats` (W731) is None for the old rule, where a stat of a tracked file declares it. With a set, a
     tracked file that was only STAT-ed (never opened, and not the source of an opened .pyc) is collected into
@@ -108,7 +115,11 @@ def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None, stats=N
             # inside (the names are the input; over-approximate on content), or a closure-only tree
             # silently loses a file the scan would have found (found by the W494 witness, check_discriminates)
             if rel not in import_only:
-                if dirs is not None and rel in children:
+                if (
+                    dirs is not None
+                    and rel in children
+                    and (hook_dirs is None or rel in hook_dirs)
+                ):
                     dirs.add(rel)
                 else:
                     seen.update(children.get(rel, ()))
@@ -175,6 +186,17 @@ def import_only_dirs(text, root):
     return imported - real
 
 
+def hook_listed_dirs(text, root):
+    """The repo-relative directories the Python audit hook logged a REAL listing of (an R row), W737. A directory
+    listed by a tool the hook cannot see (opa, git, bash) is absent here, so its children stay declared."""
+    real = set()
+    for line in text.splitlines():
+        via, _, path = line.partition("\t")
+        if path and via == "R":
+            real.add(os.path.relpath(path, root))
+    return real
+
+
 def observe(script, root=ROOT, dirs=None, stats=None):
     """(closure, why): the tracked files `gate/stage.sh` opens for the stage `script` names (a check's
     selftest, or one of STAGE_KINDS), or (None, reason). With a set for `dirs` (W692) the directories the
@@ -209,12 +231,14 @@ def observe(script, root=ROOT, dirs=None, stats=None):
                 None,
                 f"strace wrote no trace (exit {r.returncode}): {r.stderr[-200:]}",
             )
-        skip = set()
+        skip, real = set(), set()
         if os.path.isfile(listings):
             with open(listings, encoding="utf-8", errors="replace") as fh:
-                skip = import_only_dirs(fh.read(), root)
+                seen_listings = fh.read()
+            skip = import_only_dirs(seen_listings, root)
+            real = hook_listed_dirs(seen_listings, root)
         with open(log, encoding="utf-8", errors="replace") as fh:
-            closure = parse_trace(fh.read(), root, tracked, skip, dirs, stats)
+            closure = parse_trace(fh.read(), root, tracked, skip, dirs, stats, real)
     closure.add(script if script.endswith(".py") else "gate/stage.sh")
     return sorted(closure), ""
 
@@ -916,6 +940,29 @@ def _selftest():
         "with dirs, an import-only listing is neither a dir nor content",
         (parse_trace(listed, "/r", tracked, {"d"}, got_dirs), got_dirs),
         (set(), set()),
+    )
+    got_dirs = set()
+    chk(
+        "with hook_dirs, a listing the audit hook never logged (opa, git, bash) still declares its children (W737)",
+        (
+            parse_trace(listed, "/r", tracked, frozenset(), got_dirs, None, set()),
+            got_dirs,
+        ),
+        ({"d/b.json"}, set()),
+    )
+    got_dirs = set()
+    chk(
+        "with hook_dirs, a listing the audit hook logged is collected as structure",
+        (
+            parse_trace(listed, "/r", tracked, frozenset(), got_dirs, None, {"d"}),
+            got_dirs,
+        ),
+        (set(), {"d"}),
+    )
+    chk(
+        "hook_listed_dirs reads the R rows and not the I rows",
+        hook_listed_dirs("I\t/r/a\nR\t/r/d\nR\t/r/e\n", "/r"),
+        {"d", "e"},
     )
     chk(
         "without dirs the old rule holds: the listing declares the files directly inside",
