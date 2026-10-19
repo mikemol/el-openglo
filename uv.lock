@@ -323,6 +323,7 @@ tooling = [
     { name = "mikemol-pycodemod" },
     { name = "mikemol-pytestspec" },
     { name = "mikemol-ratchet" },
+    { name = "mikemol-waldo" },
     { name = "networkx" },
     { name = "panflute" },
     { name = "paperkit" },
@@ -350,6 +351,7 @@ requires-dist = [
     { name = "mikemol-pycodemod", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pycodemod&rev=b0497960186d69c64b2edf21753e547fcf2a85db" },
     { name = "mikemol-pytestspec", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=pytestspec&rev=b0497960186d69c64b2edf21753e547fcf2a85db" },
     { name = "mikemol-ratchet", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=ratchet&rev=b0497960186d69c64b2edf21753e547fcf2a85db" },
+    { name = "mikemol-waldo", marker = "extra == 'tooling'", git = "https://github.com/mikemol/mtools.git?subdirectory=waldo&rev=b0497960186d69c64b2edf21753e547fcf2a85db" },
     { name = "networkx", marker = "extra == 'tooling'" },
     { name = "numpy" },
     { name = "panflute", marker = "extra == 'tooling'" },
@@ -761,6 +763,11 @@ source = { git = "https://github.com/mikemol/mtools.git?subdirectory=ratchet&rev
 dependencies = [
     { name = "mikemol-atomicwrite" },
 ]
+
+[[package]]
+name = "mikemol-waldo"
+version = "0.1.0"
+source = { git = "https://github.com/mikemol/mtools.git?subdirectory=waldo&rev=b0497960186d69c64b2edf21753e547fcf2a85db#b0497960186d69c64b2edf21753e547fcf2a85db" }
 
 [[package]]
 name = "mypy"

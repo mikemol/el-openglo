@@ -106,6 +106,10 @@ tooling = [
     # (9a4be98) with parity checked on five pairs and the Okabe-Ito floor. WCAG and APCA stay in cvd_gate.
     # Pinned at the commit that landed it; the next fleet repin moves it with every other spec.
     "mikemol-cvdcore @ git+https://github.com/mikemol/mtools.git@b0497960186d69c64b2edf21753e547fcf2a85db#subdirectory=cvdcore",
+    # ⚑ THE LANDING CHAIN AS A RECIPE (W714, from W555; mtools:W1355 landed Phase.act): waldo's phases carry
+    # an act and a done witness read off the world, so the land_template chain can be expressed as one recipe.
+    # Standard library only; the same par sha as every other spec.
+    "mikemol-waldo @ git+https://github.com/mikemol/mtools.git@b0497960186d69c64b2edf21753e547fcf2a85db#subdirectory=waldo",
     # W85 (2026-10-02): past paperkit 0249924 (W50 there: the Δ scratch honours TMPDIR)
     "paperkit @ git+https://github.com/mikemol/paperkit.git@b5877102af3b48005fde814416bff5b8f06ba5cd",
     "panflute",         # mdstruct's parser (pandoc itself is on PATH)
