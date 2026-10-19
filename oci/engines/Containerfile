@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2026 Mike Mol
+#
+# The headless engine image (W257): Blender and Godot, the caller's Containerfile for luthen's generic
+# self-serve runner (luthen-observability:W328 takes the caller's Containerfile; the engine packages
+# belong in this repo, not in anything luthen writes per tool).
+#
+# Reproducible the way oci/guest/recipe.json is: every package comes from snapshot.debian.org at ONE
+# pinned instant, and it is the SAME instant as the guest recipe (scripts/check_engines_recipe.py
+# refuses a different one, so there is one pin and not two).
+#
+# [unverified] The package names are Debian trixie's as best known here (blender, godot3-server for a
+# headless Godot): this host has no apt, so nothing below has been resolved. The first W328 run does
+# that. The base image is a tag, not a digest: the digest is a registry lookup this host cannot make.
+FROM docker.io/library/debian:trixie-slim
+ARG SNAPSHOT=20260920T000000Z
+RUN printf 'Types: deb\nURIs: https://snapshot.debian.org/archive/debian/%s/\nSuites: trixie\nComponents: main\nCheck-Valid-Until: no\nSigned-By: /usr/share/keyrings/debian-archive-keyring.gpg\n' "${SNAPSHOT}" > /etc/apt/sources.list.d/debian.sources \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends blender godot3-server \
+ && rm -rf /var/lib/apt/lists/*
+ENTRYPOINT ["sh", "-c", "blender --version && godot3-server --version"]

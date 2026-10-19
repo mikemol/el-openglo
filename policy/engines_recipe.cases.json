@@ -1,0 +1,60 @@
+[
+  {
+    "case": "e0-refuses-an-empty-input: no recipe measured admits nothing",
+    "expect": {"deny": ["E0"]}
+  },
+  {
+    "case": "good-admitted: pinned to the guest snapshot, through it, no recommends, both engines, versions printed",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": true, "mirror_through_snapshot": true, "no_recommends": true, "missing": [], "entry_prints_versions": true}
+    ]
+  },
+  {
+    "case": "e1-unpinned-snapshot-denied: latest is not a pinned timestamp",
+    "cases": [
+      {"recipe": "r", "snapshot": "latest", "snapshot_pinned": false, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": true, "mirror_through_snapshot": true, "no_recommends": true, "missing": [], "entry_prints_versions": true}
+    ],
+    "expect": {"deny": ["E1"]}
+  },
+  {
+    "case": "e2-pin-that-is-not-the-guests-denied: one pin, not two",
+    "cases": [
+      {"recipe": "r", "snapshot": "20250101T000000Z", "snapshot_pinned": true, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": false, "mirror_through_snapshot": true, "no_recommends": true, "missing": [], "entry_prints_versions": true}
+    ],
+    "expect": {"deny": ["E2"]}
+  },
+  {
+    "case": "e3-live-mirror-denied: apt does not read through the snapshot",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": true, "mirror_through_snapshot": false, "no_recommends": true, "missing": [], "entry_prints_versions": true}
+    ],
+    "expect": {"deny": ["E3"]}
+  },
+  {
+    "case": "e4-recommends-denied: an install that takes recommended packages",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": true, "mirror_through_snapshot": true, "no_recommends": false, "missing": [], "entry_prints_versions": true}
+    ],
+    "expect": {"deny": ["E4"]}
+  },
+  {
+    "case": "e5-missing-engine-denied: Blender is not in the install",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": true, "mirror_through_snapshot": true, "no_recommends": true, "missing": ["blender"], "entry_prints_versions": true}
+    ],
+    "expect": {"deny": ["E5"]}
+  },
+  {
+    "case": "e6-silent-entrypoint-denied: the entrypoint prints neither version",
+    "cases": [
+      {"recipe": "r", "snapshot": "20260920T000000Z", "snapshot_pinned": true, "guest_snapshot": "20260920T000000Z", "snapshot_is_guests": true, "mirror_through_snapshot": true, "no_recommends": true, "missing": [], "entry_prints_versions": false}
+    ],
+    "expect": {"deny": ["E6"]}
+  },
+  {
+    "case": "unreadable-withheld: an unreadable Containerfile is withheld, never a deny",
+    "cases": [],
+    "withheld": ["Containerfile unreadable: x"],
+    "expect": {"withheld": ["Containerfile unreadable"]}
+  }
+]
