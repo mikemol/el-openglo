@@ -60,8 +60,12 @@ def pyc_source(rel):
     return os.path.join(os.path.dirname(head), f"{stem}.py")
 
 
-def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
+def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None, stats=None):
     """The tracked repo-relative paths a strace log shows SUCCESSFULLY touched (return value >= 0).
+
+    `stats` (W731) is None for the old rule, where a stat of a tracked file declares it. With a set, a
+    tracked file that was only STAT-ed (never opened, and not the source of an opened .pyc) is collected into
+    `stats` and not declared: that it exists is structure, what it holds is not read.
 
     `import_only` is the set of repo-relative directories whose listing was made by Python's import system and
     by nothing else (see import_only_dirs): such a listing is how `import` finds a module, not an input of the
@@ -72,6 +76,7 @@ def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
     into `dirs` (the root is ".") and declares none of its children: the NAMES are structure, kept apart from
     the CONTENT of the files the stage actually opened. A file opened inside a listed directory is still content."""
     seen = set()
+    stat_only = set()
     children = {}
     first_under = {}
     for p in sorted(tracked):
@@ -93,7 +98,10 @@ def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
         if compiled in tracked:
             seen.add(compiled)
         if rel in tracked:
-            seen.add(rel)
+            if stats is not None and m.group(1) in _STAT:
+                stat_only.add(rel)
+            else:
+                seen.add(rel)
         elif "O_DIRECTORY" in line:
             # ⚑ A DIRECTORY LISTING IS AN INPUT: a stage that scans for names (emitters --drift counts the
             # make_*.py the tree holds) reads the NAMES of what is in it. Declare the tracked files directly
@@ -108,6 +116,8 @@ def parse_trace(text, root, tracked, import_only=frozenset(), dirs=None):
             # a stat of a directory (os.path.isdir) reads that it EXISTS: one tracked file under it
             # keeps it in a closure-only tree (W494, worklist_gate's "every project dir exists")
             seen.add(first_under[rel])
+    if stats is not None:
+        stats.update(stat_only - seen)
     return seen
 
 
@@ -165,7 +175,7 @@ def import_only_dirs(text, root):
     return imported - real
 
 
-def observe(script, root=ROOT, dirs=None):
+def observe(script, root=ROOT, dirs=None, stats=None):
     """(closure, why): the tracked files `gate/stage.sh` opens for the stage `script` names (a check's
     selftest, or one of STAGE_KINDS), or (None, reason). With a set for `dirs` (W692) the directories the
     stage listed are added to it, and the listing no longer declares their children (see parse_trace)."""
@@ -204,7 +214,7 @@ def observe(script, root=ROOT, dirs=None):
             with open(listings, encoding="utf-8", errors="replace") as fh:
                 skip = import_only_dirs(fh.read(), root)
         with open(log, encoding="utf-8", errors="replace") as fh:
-            closure = parse_trace(fh.read(), root, tracked, skip, dirs)
+            closure = parse_trace(fh.read(), root, tracked, skip, dirs, stats)
     closure.add(script if script.endswith(".py") else "gate/stage.sh")
     return sorted(closure), ""
 
@@ -307,7 +317,7 @@ def _victims(script, closure, root):
 WITNESS_DIR = os.path.join(os.path.expanduser("~"), ".cache", "el-openglo-witness")
 
 
-def witness(script, closure, defect_in=None, root=ROOT):
+def witness(script, closure, defect_in=None, root=ROOT, stubs=()):
     """(rc, tail): run `gate/stage.sh selftest SCRIPT` in a temp tree holding ONLY its closure
     (plus MODULE.bazel, which locates the root, the venv by symlink and the warm palette cache: the
     host's, declared). Arm 1 (defect_in None): it must pass, or the closure is incomplete and the missing
@@ -319,6 +329,14 @@ def witness(script, closure, defect_in=None, root=ROOT):
             dst = os.path.join(td, rel)
             os.makedirs(os.path.dirname(dst), exist_ok=True)
             shutil.copy2(os.path.join(root, rel), dst)
+        # W731: a NAME the stage listed or stat-ed but never read is a plain EMPTY file (not mode 000, which breaks
+        # access(R_OK) and pytest's own stat checks). WEAKNESS: a stage that opens a stub on a path the observation
+        # never took reads it empty.
+        for rel in sorted(set(stubs) - set(closure)):
+            dst = os.path.join(td, rel)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            with open(dst, "w", encoding="utf-8"):
+                pass
         cache = os.path.join(root, ".palette-cache.json")
         if os.path.isfile(cache):
             shutil.copy2(cache, os.path.join(td, ".palette-cache.json"))
@@ -334,7 +352,7 @@ def witness(script, closure, defect_in=None, root=ROOT):
         # the same stage writing bytecode and caches into the tree: @LICENSE failed once and passed on
         # replay inside the witness (0 of 40 under contention in the real tree). The staged tree
         # (gate/staged.sh) is a repository for the same reason; the closure-only tree now is too.
-        names = "\0".join(sorted(set(closure) | {"MODULE.bazel"})).encode()
+        names = "\0".join(sorted(set(closure) | set(stubs) | {"MODULE.bazel"})).encode()
         subprocess.run(["git", "-C", td, "init", "-q"], env=env, check=True)
         subprocess.run(
             [
@@ -365,9 +383,20 @@ def witness(script, closure, defect_in=None, root=ROOT):
     return r.returncode, (r.stderr or r.stdout)[-30000:]
 
 
-def judge(script, closure):
+def stubs_for(script, closure, dirs_map, stats_map, tracked):
+    """The NAMES a narrow closure needs as empty stubs in the witness tree (W731): the tracked files directly
+    inside each directory the stage listed, plus the tracked files it only stat-ed, that the closure does not
+    already hold. A wide closure holds them all, so it needs none."""
+    named = set(widen([], dirs_map.get(script, ()), tracked)) | set(
+        stats_map.get(script, ())
+    )
+    return sorted(named - set(closure))
+
+
+def judge(script, closure, stubs=()):
     """One stage's witness case: {script, arm1, arm2, victim, detail}. arm1 is pass / fail / exempt;
-    arm2 is refused (the planted defect reached the verdict) / survived / none (no module to plant in)."""
+    arm2 is refused (the planted defect reached the verdict) / survived / none (no module to plant in).
+    `stubs` are the names the closure holds only as empty files (see stubs_for)."""
     if script in WITNESS_EXEMPT:
         return {
             "script": script,
@@ -377,7 +406,7 @@ def judge(script, closure):
             "detail": WITNESS_EXEMPT[script],
         }
     closure = expand(closure, ROOT)
-    rc1, tail1 = witness(script, closure)
+    rc1, tail1 = witness(script, closure, stubs=stubs)
     arm1, detail = "pass" if rc1 == 0 else "fail", "" if rc1 == 0 else tail1
     if rc1 != 0 and script in WITNESS_KNOWN:
         # the failing claims, read from the engine's own `check FAILED for [@KEY]` lines: sufficient
@@ -401,7 +430,7 @@ def judge(script, closure):
         # takes) - NOT CONFIRMED IS NOT FAILED, so it is counted and printed, never denied
         case["arm2"] = "unproven" if victims else "none"
         for v in victims:
-            rc2, _tail2 = witness(script, closure, defect_in=v)
+            rc2, _tail2 = witness(script, closure, defect_in=v, stubs=stubs)
             if rc2 != 0:
                 case["arm2"] = "refused"
                 case["victim"] = v
@@ -414,8 +443,21 @@ def witness_all(scripts, closures, jobs=4):
     (each runs in its own temp tree, so they cannot interfere)."""
     from concurrent.futures import ThreadPoolExecutor
 
+    import git_tracked
+
+    dirs_map, stats_map = {}, {}
+    if os.path.isfile(DIRS_FILE):
+        with open(DIRS_FILE, encoding="utf-8") as fh:
+            text = fh.read()
+        dirs_map, stats_map = load_dirs(text), load_stats(text)
+    tracked = set(git_tracked.files())
+
+    def one(s):
+        held = expand(closures[s], ROOT)
+        return judge(s, closures[s], stubs_for(s, held, dirs_map, stats_map, tracked))
+
     with ThreadPoolExecutor(max_workers=jobs) as ex:
-        cases = list(ex.map(lambda s: judge(s, closures[s]), scripts))
+        cases = list(ex.map(one, scripts))
     return {"cases": cases}
 
 
@@ -520,23 +562,46 @@ def widen(narrow, dirs, tracked):
     )
 
 
-def render_dirs(dirs_map):
-    """closures_dirs.bzl's text: the directories each stage listed, deterministic and sorted."""
+def _render_map(name, mapping):
+    """The Starlark literal `NAME = {stage: [sorted strings]}`, deterministic, as lines."""
+    out = [f"{name} = {{"]
+    for script in sorted(mapping):
+        out.append(f'    "{script}": [')
+        out += [f'        "{d}",' for d in sorted(mapping[script])]
+        out.append("    ],")
+    out.append("}")
+    return out
+
+
+def render_dirs(dirs_map, stats_map=None):
+    """closures_dirs.bzl's text, deterministic and sorted: the directories each stage listed (DIRS), and the
+    tracked files it only stat-ed (STATS, W731). A listing and a stat are structure (names), an open is content."""
     out = [
         "# SPDX-License-Identifier: Apache-2.0",
         "# Copyright (c) 2026 Mike Mol",
-        '"""GENERATED by scripts/check_closure.py --write (W693): the directories each selftest stage LISTED, beside',
-        "the files it opened (closures.bzl). A listing is structure (names), an open is content. Never edit.",
-        '"""',
+        '"""GENERATED by scripts/check_closure.py --write (W693): the directories each selftest stage LISTED and the',
+        "files it only STAT-ed, beside the files it opened (closures.bzl). Names are structure, an open is content.",
+        'Never edit."""',
         "",
-        "DIRS = {",
+        *_render_map("DIRS", dirs_map),
+        "",
+        *_render_map("STATS", stats_map or {}),
     ]
-    for script in sorted(dirs_map):
-        out.append(f'    "{script}": [')
-        out += [f'        "{d}",' for d in sorted(dirs_map[script])]
-        out.append("    ],")
-    out.append("}")
     return "\n".join(out) + "\n"
+
+
+def load_stats(text):
+    """{script: [files]} from closures_dirs.bzl's STATS literal, read with ast and never run. A file with no STATS
+    literal is an older one written before stats were recorded: {} (nothing recorded), which the witness reads as
+    no stubs to build, so a wide closure is unaffected."""
+    import ast
+
+    for node in ast.parse(text).body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(t, ast.Name) and t.id == "STATS" for t in node.targets
+        ):
+            return ast.literal_eval(node.value)
+    return {}
 
 
 def load_dirs(text):
@@ -625,9 +690,12 @@ def main(argv):
             return 3
         print("\n".join(closure))
         return 0
-    if args[:1] == ["--write"]:
+    if args[:1] in (["--write"], ["--write-narrow"]):
         # `--write` regenerates every closure; `--write SCRIPT...` re-observes only those and keeps the
-        # rest (a NEW check needs its closure the commit it is added; the whole sweep takes ~10 min)
+        # rest (a NEW check needs its closure the commit it is added; the whole sweep takes ~10 min).
+        # `--write-narrow` (W731) stores the NARROW closure (what the stage opened) and leaves the listed
+        # directories (DIRS) and the stat-only files (STATS) to closures_dirs.bzl, where the witness stubs them.
+        narrow = args[0] == "--write-narrow"
         stages = stage_keys()
         unknown = [s for s in args[1:] if s not in stages]
         if unknown:
@@ -642,26 +710,28 @@ def main(argv):
         import git_tracked
 
         every = git_tracked.files()
-        dirs_map = {}
+        dirs_map, stats_map = {}, {}
         if args[1:] and os.path.isfile(DIRS_FILE):
             with open(DIRS_FILE, encoding="utf-8") as fh:
-                dirs_map = {
-                    k: v for k, v in load_dirs(fh.read()).items() if k in stages
-                }
+                text = fh.read()
+            dirs_map = {k: v for k, v in load_dirs(text).items() if k in stages}
+            stats_map = {k: v for k, v in load_stats(text).items() if k in stages}
         for s in args[1:] or stages:
-            listed = set()
-            closure, why = observe(s, dirs=listed)
+            listed, statted = set(), set()
+            closure, why = observe(s, dirs=listed, stats=statted)
             if closure is None:
                 print(f"check_closure: WITHHELD {s} — {why}", file=sys.stderr)
                 return 3
             dirs_map[s] = sorted(listed)
-            closure = widen(closure, listed, every)
+            stats_map[s] = sorted(statted)
+            if not narrow:
+                closure = sorted(set(widen(closure, listed, every)) | statted)
             closures[s] = [WHOLE] if s in CLONING else compress(closure, every)
             note = " (whole tree: recorded as *)" if closures[s] == [WHOLE] else ""
             print(f"check_closure: {s}: {len(closure)} file(s){note}")
         changed, stale = write_closures(closures)
         with open(DIRS_FILE, "w", encoding="utf-8") as fh:
-            fh.write(render_dirs(dirs_map))
+            fh.write(render_dirs(dirs_map, stats_map))
         for path in stale:
             print(
                 f"check_closure: STALE {path}: no longer named; git rm it",
@@ -878,6 +948,46 @@ def _selftest():
         ),
         ({"d/m.py"}, set()),
     )
+    got_stats = set()
+    statted = '1 newfstatat(AT_FDCWD, "/r/a.py", {st_mode=S_IFREG}, 0) = 0\n'
+    chk(
+        "with stats, a tracked file only stat-ed is structure: collected, not declared (W731)",
+        (parse_trace(statted, "/r", tracked, frozenset(), None, got_stats), got_stats),
+        (set(), {"a.py"}),
+    )
+    got_stats = set()
+    chk(
+        "with stats, a file that was also opened is content and not in stats",
+        (
+            parse_trace(
+                statted + '2 openat(AT_FDCWD, "/r/a.py", O_RDONLY) = 6\n',
+                "/r",
+                tracked,
+                frozenset(),
+                None,
+                got_stats,
+            ),
+            got_stats,
+        ),
+        ({"a.py"}, set()),
+    )
+    got_stats = set()
+    chk(
+        "with stats, a source whose .pyc was opened is content though it was only stat-ed",
+        (
+            parse_trace(
+                '1 newfstatat(AT_FDCWD, "/r/d/m.py", {st_mode=S_IFREG}, 0) = 0\n'
+                '2 openat(AT_FDCWD, "/r/d/__pycache__/m.cpython-314.pyc", O_RDONLY) = 7\n',
+                "/r",
+                {"d/m.py"},
+                frozenset(),
+                None,
+                got_stats,
+            ),
+            got_stats,
+        ),
+        ({"d/m.py"}, set()),
+    )
     chk(
         "import_only_dirs: a directory another caller also listed stays declared",
         import_only_dirs("I\t/r/d\nI\t/r/e\nR\t/r/e\n", "/r"),
@@ -954,6 +1064,18 @@ def _selftest():
         {"scripts/check_x.py": [".", "d", "policy"]},
     )
 
+    both = render_dirs({"s": ["d"]}, {"s": ["z.py", "a.py"]})
+    chk(
+        "STATS round-trips beside DIRS, sorted; a file with no STATS literal reads as nothing recorded (W731)",
+        (load_dirs(both), load_stats(both), load_stats(render_dirs({"s": ["d"]}))),
+        ({"s": ["d"]}, {"s": ["a.py", "z.py"]}, {}),
+    )
+    chk(
+        "an older closures_dirs.bzl text with only DIRS has no stats",
+        load_stats('DIRS = {"s": ["d"]}\n'),
+        {},
+    )
+
     def refused(text):
         try:
             load_dirs(text)
@@ -970,6 +1092,28 @@ def _selftest():
         "widen puts back the old rule: the narrow closure plus the tracked files directly inside each listed dir",
         widen(["a.py"], {"d", "."}, {"a.py", "c.rego", "d/b.json", "d/e/f.txt"}),
         ["a.py", "c.rego", "d/b.json"],
+    )
+    chk(
+        "stubs_for: the children of a listed dir and the stat-only files the closure does not hold, and none it holds (W731)",
+        stubs_for(
+            "s",
+            ["a.py"],
+            {"s": ["d"]},
+            {"s": ["a.py", "z.json"]},
+            {"a.py", "d/b.json", "d/c.json", "z.json", "x.py"},
+        ),
+        ["d/b.json", "d/c.json", "z.json"],
+    )
+    chk(
+        "stubs_for: a wide closure that holds every child and stat needs no stub",
+        stubs_for(
+            "s",
+            ["a.py", "d/b.json", "z.json"],
+            {"s": ["d"]},
+            {"s": ["z.json"]},
+            {"a.py", "d/b.json", "z.json"},
+        ),
+        [],
     )
     chk(
         "empty_dirs names a listed directory with no tracked file directly inside it, and only that (L8)",
