@@ -120,5 +120,43 @@
     "R1"
    ]
   }
+ },
+ {
+  "case": "r4-refuses-a-row-whose-tool-does-not-exist",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": "x\tscripts/gone.py",
+    "tool": "scripts/gone.py",
+    "resolves": false
+   }
+  ],
+  "expect": {
+   "deny": [
+    "R4"
+   ]
+  }
+ },
+ {
+  "case": "r4-withholds-a-row-that-names-no-path",
+  "hook": "scripts/hook_structural_query.py",
+  "hook_present": true,
+  "skill": ".claude/skills/struct-tools/SKILL.md",
+  "skill_present": true,
+  "cases": [
+   {
+    "row": "x\t(none)",
+    "tool": "(none)",
+    "resolves": null
+   }
+  ],
+  "expect": {
+   "withheld": [
+    "R4"
+   ]
+  }
  }
 ]

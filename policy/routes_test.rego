@@ -61,6 +61,24 @@ test_all_null_case_withheld_only if {
 	count(r.deny) == 0 with input as inp
 }
 
+test_r4_refuses_a_row_whose_tool_does_not_exist if {
+	bad := object.union(good, {"cases": [{"row": "x\tscripts/gone.py", "tool": "scripts/gone.py", "resolves": false}]})
+	some msg in r.deny with input as bad
+	msg == "R4: a routing row names scripts/gone.py, which does not exist here"
+}
+
+test_r4_admits_a_row_whose_tool_exists if {
+	ok := object.union(good, {"cases": [{"row": "x\tscripts/here.py", "tool": "scripts/here.py", "resolves": true}]})
+	count(r.deny) == 0 with input as ok
+	count(r.withheld) == 0 with input as ok
+}
+
+test_r4_withholds_a_row_that_names_no_path if {
+	inp := object.union(good, {"cases": [{"row": "x\t(none)", "tool": "(none)", "resolves": null}]})
+	count(r.deny) == 0 with input as inp
+	r.withheld == {"R4: row 0: (none) names no path this machine can check (a sibling checkout or no path)"} with input as inp
+}
+
 test_r2_refuses_an_absent_skill if {
 	some msg in r.deny with input as object.union(good, {"skill_present": false})
 	startswith(msg, "R2:")

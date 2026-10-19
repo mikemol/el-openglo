@@ -49,6 +49,25 @@ deny contains msg if {
 }
 
 # METADATA
+# title: "R4 — a row's tool must exist on this machine"
+# description: |
+#   W243: a route naming a tool that cannot start is the failure the pyproject tooling-extra comment records
+#   (the table named a capability the machine lacked). `resolves` is true, false, or null (the row names no path,
+#   or a sibling checkout the gate clone cannot see): null is withheld below, never judged.
+deny contains msg if {
+	some c in object.get(input, "cases", [])
+	c.resolves == false
+	msg := sprintf("R4: a routing row names %v, which does not exist here", [object.get(c, "tool", "?")])
+}
+
+withheld contains msg if {
+	some i, c in object.get(input, "cases", [])
+	object.get(c, "row", null) != null
+	object.get(c, "resolves", "unset") == null
+	msg := sprintf("R4: row %d: %v names no path this machine can check (a sibling checkout or no path)", [i, object.get(c, "tool", "?")])
+}
+
+# METADATA
 # title: "R3 — a presence the measurement did not state is withheld, not judged"
 withheld contains msg if {
 	some f in flags

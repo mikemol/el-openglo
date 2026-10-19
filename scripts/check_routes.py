@@ -21,7 +21,10 @@ local skill present, and which rows does the hook itself report.
     scripts/check_routes.py --routes   # the rows, as the hook sees them
     scripts/check_routes.py --selftest
 
-Weakness: it counts rows; it does not check a row names a tool that exists.
+Weakness: a row's tool is read as its FIRST word (W243): a path in the repo or a console script in the gate
+venv's bin must exist (policy R4 denies a miss); a sibling-checkout path (`../paperkit/...`) that is absent
+is not judged, because the gate runs from a clone whose siblings are not the operator's; a column whose first
+word names no path is withheld, counted and printed.
 """
 
 import json
@@ -53,13 +56,42 @@ def routes(hook=HOOK, skill=SKILL):
     return [f"{a}\t{t}" for a, t in routing_table.routes(Path(skill))]
 
 
+def tool_resolution(tool, root=ROOT):
+    """(token, resolves): the first word of a row's tool column and whether it exists here (W243).
+
+    A word with a "/" or ending in ".py" is a PATH, read against the repo root (a sibling checkout is
+    `../paperkit/...`); a bare word that is a file in the gate venv's bin is a console script, and a
+    "mikemol-" word that is not there does not resolve. A column whose first word names neither is
+    (word, None): it names no path, so nothing is judged and the row is counted, never admitted as
+    resolved. Weakness: only the FIRST word is read, so a row that joins two tools with ` + ` is judged
+    by the first."""
+    words = tool.replace("`", " ").split()
+    if not words:
+        return "", None
+    word = words[0]
+    if word.startswith("../"):
+        # a SIBLING checkout (paperkit, substrate): present or not depends on where this tree sits, and the
+        # gate runs from a clone whose siblings are not those, so absence is not judged (None), presence is
+        return word, True if os.path.exists(os.path.join(root, word)) else None
+    if "/" in word or word.endswith(".py"):
+        return word, os.path.exists(os.path.join(root, word))
+    if os.path.exists(os.path.join(venv(root), "bin", word)):
+        return word, True
+    return word, False if word.startswith("mikemol-") else None
+
+
 def measure(hook=HOOK, skill=SKILL):
+    cases = []
+    for r in routes(hook, skill) or []:
+        _artifact, _, tool = r.partition("\t")
+        word, resolves = tool_resolution(tool)
+        cases.append({"row": r, "tool": word, "resolves": resolves})
     return {
         "hook": os.path.relpath(hook, ROOT),
         "hook_present": os.path.exists(hook),
         "skill": os.path.relpath(skill, ROOT),
         "skill_present": os.path.exists(skill),
-        "cases": [{"row": r} for r in (routes(hook, skill) or [])],
+        "cases": cases,
     }
 
 
@@ -108,6 +140,34 @@ def _selftest():
         (False, False, []),
     )
     check("the live hook reports rows", len(measure()["cases"]) > 0, True)
+    check(
+        "a path that exists resolves, one that does not does not, and a wrapped column reads its first word (W243)",
+        (
+            tool_resolution("scripts/check_routes.py")[1],
+            tool_resolution("scripts/no_such_tool.py")[1],
+            tool_resolution("`scripts/check_routes.py` + `x`")[0],
+        ),
+        (True, False, "scripts/check_routes.py"),
+    )
+    check(
+        "a sibling checkout path that is absent is NOT judged (None), the gate clone cannot see siblings",
+        tool_resolution("../no_such_sibling/tool.py")[1],
+        None,
+    )
+    check(
+        "a mikemol- console script that is not installed does not resolve; a word naming no path is not judged",
+        (
+            tool_resolution("mikemol-no-such-tool")[1],
+            tool_resolution("(none)")[1],
+            tool_resolution("")[1],
+        ),
+        (False, None, None),
+    )
+    check(
+        "an installed console script resolves",
+        tool_resolution("mikemol-paths-forward")[1],
+        True,
+    )
     print("check_routes selftest:", "PASS" if ok else "FAIL")
     return ok
 
