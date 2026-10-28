@@ -932,7 +932,7 @@ def _stage(root, out_root):
     failed = [
         (m, rc, err)
         for m, rc, err in emitters.run_all(
-            ROOT, only=emitters.STAGE_BUILD, hold=False, out_root=out_root
+            ROOT, only=emitters.STAGE_BUILD, out_root=out_root
         )
         if rc != 0
     ]
