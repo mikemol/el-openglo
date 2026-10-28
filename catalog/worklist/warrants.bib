@@ -1129,3 +1129,17 @@
   claim    = {The token-file gate DENIES a known-bad file end to end: a DTCG document holding one variant with a non-hex colour leaf and nothing else is refused by the measurement, the policy and the exit (D1 absent variants, D2 the bad leaf, D3 no alphas, D4 stale against a fresh emission, D5 missing material slots), so the gate is shown to fail and not only to admit (W75)},
   check    = {tool:opa_gate.py tokens catalog/fixtures/tokens/bad-leaf.txt --expect denied:D1,D2,D3,D4,D5}
 }
+
+@misc{STANDARDS-DENIES,
+  section  = {tooling},
+  rests-on = {STANDARDS},
+  claim    = {The standards gate DENIES a known-bad document end to end: a standards document crediting an applier its module does not carry is refused by the measurement, the policy and the exit (T2), so the gate is shown to fail and not only to admit (W75)},
+  check    = {tool:opa_gate.py standards catalog/fixtures/standards/absent-applier.md --expect denied:T2}
+}
+
+@misc{CSS-DENIES,
+  section  = {tooling},
+  rests-on = {CSS},
+  claim    = {The stylesheet gate DENIES a known-bad sheet end to end: a stylesheet with a :root block and no variant blocks is refused by the measurement, the policy and the exit (K1 every variant block missing, K4 the polarity map unmet), so the gate is shown to fail and not only to admit (W75)},
+  check    = {tool:opa_gate.py css catalog/fixtures/css/no-variant-blocks.txt --expect denied:K1,K4}
+}

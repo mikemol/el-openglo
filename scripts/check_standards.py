@@ -104,12 +104,19 @@ def measure(doc=DOC):
 
 def main(argv):
     known = {"--cited", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_standards: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_standards: --json takes at most one fixture file", file=sys.stderr)
+        return 2
+    if operands and not os.path.isfile(operands[0]):
+        print(f"check_standards: no such fixture {operands[0]!r}", file=sys.stderr)
+        return 2
     if "--json" in argv:
-        print(json.dumps(measure(), indent=1))
+        print(json.dumps(measure(operands[0] if operands else DOC), indent=1))
         return 0
     if "--cited" in argv:
         for mod, attr in cited() or []:
@@ -154,6 +161,11 @@ def _selftest():
             got,
             {("apca_Lc", True), ("no_such_applier", False)},
         )
+    check(
+        "a fixture operand without --json is refused, not read as the live document",
+        main(["check_standards", os.path.join(ROOT, "catalog", "fixtures")]),
+        2,
+    )
     print("check_standards selftest:", "PASS" if ok else "FAIL")
     return ok
 

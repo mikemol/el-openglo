@@ -1336,3 +1336,4 @@
 2026-10-28T00:57:46Z  status W752 ready>done writer    "ready -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-28T01:05:20Z  interrupt W755 minted    -         "Flake: ENOSYS spawning /usr/bin/git inside land_template (posix_spawn errno 38), found by proof not reruns"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0  evidence=github-8f
 2026-10-28T02:04:15Z  status W75  ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T02:26:17Z  tick  W75  advanced  sweep     "tokens W75 slice gating (b92c1webo); standards slice built in scratch W75b (patch w75-standards.patch); top-ranked W275 waits on the annotate defects reported to mtools-ad (W743 carries them) [blocked by W743]"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0

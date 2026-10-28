@@ -123,14 +123,25 @@ def measure(text=None):
 
 def main(argv):
     known = {"--map", "--selftest", "--json"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_css: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if len(operands) > 1 or (operands and "--json" not in argv):
+        print("check_css: --json takes at most one fixture file", file=sys.stderr)
+        return 2
+    if operands and not os.path.isfile(operands[0]):
+        print(f"check_css: no such fixture {operands[0]!r}", file=sys.stderr)
+        return 2
     if "--json" in argv:
         import json
 
-        print(json.dumps(measure(), indent=1))
+        text = None
+        if operands:
+            with open(operands[0], encoding="utf-8") as fh:
+                text = fh.read()
+        print(json.dumps(measure(text), indent=1))
         return 0
     if "--map" in argv:
         m = measure()
@@ -209,6 +220,11 @@ def _selftest():
         "a changed light scheme is measured",
         measure(swapped)["light"]["--el-fg"],
         "rgb(1 2 3)",
+    )
+    check(
+        "a fixture operand without --json is refused, not read as the live sheet",
+        main(["check_css", os.path.join(ROOT, "catalog", "fixtures", "css")]),
+        2,
     )
     print("check_css selftest:", "PASS" if ok else "FAIL")
     return ok
