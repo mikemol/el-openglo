@@ -347,6 +347,15 @@ STAGE = (
     "make_font",
 )
 
+# ⚑ W776: WHAT A STAGING GENERATES, versus what it only READS. make_schemes and make_clock write
+# TRACKED files (the 12 EL-*.colors and .colorscheme, the 10 under plasma-clock/org.el.segclock:
+# check_tree_writes --generators, W775), which are checked in and kept current by @EMITTERS and
+# @CURRENCY; a staging that regenerated them rewrote the real tree under every gated reader of
+# them. The four that remain write GITIGNORED products only (aurorae/, plasma/, the wallpapers,
+# fonts/), and run into a private output root, so nothing a staging does is visible to a
+# concurrent one or to the tree.
+STAGE_BUILD = tuple(m for m in STAGE if m not in ("make_schemes", "make_clock"))
+
 
 LOCK_NAME = ".emitters.lock"
 
@@ -391,24 +400,31 @@ class tree_lock:
         return False
 
 
-def run_all(root, python=None, quiet=True, only=None, hold=True):
+def run_all(root, python=None, quiet=True, only=None, hold=True, out_root=None):
     """Run every emitter in ORDER (or the `only` subset) from `root`.
 
     Returns [(module, returncode, stderr_tail)]. A non-zero rc is returned, not
     raised, so a caller can report n of m rather than stop at the first.
 
     `hold` takes tree_lock(root) for the run (the default). A caller that already holds it,
-    because it also reads the outputs, passes hold=False."""
-    if hold:
+    because it also reads the outputs, passes hold=False.
+
+    `out_root` (W776) runs each generator with that directory as its working directory and as
+    EL_OUT_ROOT, so everything it writes lands there and the tree at `root` is only read. The
+    generators write cwd-relative paths; make_font, which writes beside its own script, reads
+    EL_OUT_ROOT. Default None: the tree itself, as before. A private root needs no lock."""
+    if hold and out_root is None:
         with tree_lock(root):
             return run_all(root, python, quiet, only, hold=False)
     out = []
+    env = None if out_root is None else dict(os.environ, EL_OUT_ROOT=out_root)
     for mod, _why in ORDER:
         if only is not None and mod not in only:
             continue
         r = subprocess.run(
             [python or sys.executable, os.path.join(root, mod + ".py")],
-            cwd=root,
+            cwd=root if out_root is None else out_root,
+            env=env,
             capture_output=True,
             text=True,
             check=False,

@@ -380,7 +380,9 @@ if __name__ == "__main__":
     import os
     import sys
 
-    here = os.path.dirname(os.path.abspath(__file__))
+    # W776: a staging runs this with EL_OUT_ROOT set to its private output root, so the fonts land
+    # there and not beside the script in the real tree; unset, the old place
+    here = os.environ.get("EL_OUT_ROOT") or os.path.dirname(os.path.abspath(__file__))
     out = render_all(os.path.join(here, "fonts"))
     atomic_write(os.path.join(here, "fonts", "README-DSEG.txt"), DSEG_NOTE)
     print(f"make_font: wrote {len(out)} fonts under fonts/")

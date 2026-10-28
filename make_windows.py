@@ -106,8 +106,12 @@ def theme_ini(variant, wallpaper_rel):
     return "\n".join(lines)
 
 
-def render_all(variants, out_map):
-    """Write EL-<variant>.theme + DesktopBackground/<variant>.png into out_map[variant]."""
+def render_all(variants, out_map, wallpaper_root=None):
+    """Write EL-<variant>.theme + DesktopBackground/<variant>.png into out_map[variant].
+
+    `wallpaper_root` (W776) is where the emitted wallpaper PNG is looked for first: a staging
+    generates its wallpapers into a private output root, not the tree. Without it, or without the
+    file there, the tree is read, and failing that the picture is rendered at its default size."""
     import make_wallpaper as MW
 
     written = []
@@ -119,6 +123,10 @@ def render_all(variants, out_map):
         src = os.path.join(
             ROOT, MW.output_name(v) + ".png"
         )  # the emitted wallpaper PNG
+        if wallpaper_root is not None:
+            staged = os.path.join(wallpaper_root, MW.output_name(v) + ".png")
+            if os.path.isfile(staged):
+                src = staged
         dst = os.path.join(bg, png_name)
         from emitters import atomic_path, atomic_write
 

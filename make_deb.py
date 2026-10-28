@@ -806,8 +806,19 @@ def copyright_text():
     return "\n".join(out)
 
 
-def copy_into(src_rel, dst_rel, root=None):
-    src = os.path.join(ROOT, src_rel)
+def source_path(src_rel, out_root=None):
+    """The file or directory a mapping source names (W776): the staging's private output root first,
+    where the generated products are (aurorae/, plasma/, the wallpapers, fonts/), then the tree,
+    where the tracked ones are (the schemes, plasma-clock/, the helpers)."""
+    if out_root is not None:
+        generated = os.path.join(out_root, src_rel)
+        if os.path.exists(generated):
+            return generated
+    return os.path.join(ROOT, src_rel)
+
+
+def copy_into(src_rel, dst_rel, root=None, out_root=None):
+    src = source_path(src_rel, out_root)
     dst = os.path.join(root or DEB_ROOT, dst_rel)
     os.makedirs(os.path.dirname(dst), exist_ok=True)
     if os.path.isdir(src):
@@ -876,6 +887,18 @@ def one_theme_update_js():
 def stage(root):
     """Lay the whole install tree under `root` (a DESTDIR), and return the mapping.
 
+    The generated products (aurorae/, plasma/, the wallpapers, fonts/) are built into a private
+    output root that lives exactly as long as this staging (W776), so a staging writes nothing
+    into the tree and none is visible to a concurrent one; _stage is the body."""
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix="el-stage-") as private:
+        return _stage(root, private)
+
+
+def _stage(root, out_root):
+    """The body of stage(), reading the generated products from `out_root`.
+
     ⚑ ONE STAGING, TWO PACKAGERS.  `build()` used to do this inline against the
     module-level DEB_ROOT and then run dpkg-deb, so there was no way to ask "what
     does this theme install?" without building a Debian package on a Debian box.
@@ -899,38 +922,41 @@ def stage(root):
     # emitters.ORDER, the same list the @EMITTERS gate runs.
     import emitters
 
-    # ⚑ ONE STAGING AT A TIME READS THE GENERATORS' OUTPUT DIRS (W760): the emitters clear and
-    # rewrite plasma/, plasma-clock/ ... in the real tree, and the copies below read them; two
-    # stagings in parallel (the gate runs several) deleted each other's files mid-copy. The lock
-    # spans the generation AND every copy from the tree; the rest of the staging writes only
-    # into DEB_ROOT, which is private.
-    with emitters.tree_lock(ROOT):
-        failed = [
-            (m, rc, err)
-            for m, rc, err in emitters.run_all(ROOT, only=emitters.STAGE, hold=False)
-            if rc != 0
-        ]
-        if failed:
-            raise SystemExit(
-                "make_deb: emitter(s) failed before staging:\n  "
-                + "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed)
-            )
+    # ⚑ A STAGING WRITES NOTHING OUTSIDE ITS OWN DIRECTORIES (W776, W762). The generators it needs
+    # run into a PRIVATE output root (their cwd and EL_OUT_ROOT), so they no longer rmtree and
+    # rewrite plasma/, aurorae/, fonts/ in the real tree under a concurrent staging, and the two
+    # that write TRACKED files (make_schemes, make_clock: emitters.STAGE_BUILD leaves them out)
+    # are read from the tree as checked in, where @EMITTERS and @CURRENCY keep them current.
+    # The mapping resolves each source against the private root first, then the tree. Nothing
+    # shared is written, so there is no lock.
+    failed = [
+        (m, rc, err)
+        for m, rc, err in emitters.run_all(
+            ROOT, only=emitters.STAGE_BUILD, hold=False, out_root=out_root
+        )
+        if rc != 0
+    ]
+    if failed:
+        raise SystemExit(
+            "make_deb: emitter(s) failed before staging:\n  "
+            + "\n  ".join(f"{m}: exit {rc}: {err}" for m, rc, err in failed)
+        )
 
-        mapping = system_mapping() + helper_source_mapping()
-        missing = [s for s, _ in mapping if not os.path.exists(os.path.join(ROOT, s))]
-        if missing:
-            raise SystemExit(f"payload sources missing: {missing}")
-        for src, dst in mapping:
-            copy_into(src, dst)
+    mapping = system_mapping() + helper_source_mapping()
+    missing = [s for s, _ in mapping if not os.path.exists(source_path(s, out_root))]
+    if missing:
+        raise SystemExit(f"payload sources missing: {missing}")
+    for src, dst in mapping:
+        copy_into(src, dst, out_root=out_root)
 
-        # Look-and-Feel packages (staged absolute sources; built after the rmtree)
-        lnf_mapping = build_lnf_packages()
-        for abs_src, dst in lnf_mapping:
-            d = os.path.join(DEB_ROOT, dst)
-            os.makedirs(os.path.dirname(d), exist_ok=True)
-            # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
-            shutil.copytree(abs_src, d, dirs_exist_ok=True)
-        mapping = mapping + lnf_mapping
+    # Look-and-Feel packages (staged absolute sources; built after the rmtree)
+    lnf_mapping = build_lnf_packages()
+    for abs_src, dst in lnf_mapping:
+        d = os.path.join(DEB_ROOT, dst)
+        os.makedirs(os.path.dirname(d), exist_ok=True)
+        # atomic-write: exempt — into the staging DESTDIR, not the tree; its caller owns it
+        shutil.copytree(abs_src, d, dirs_exist_ok=True)
+    mapping = mapping + lnf_mapping
 
     # the widget icon: a phosphor segment-clock rendered from each variant's
     # tokens (make_preview.icon_svg — a recovery gap until W25; its absence is a
@@ -1036,7 +1062,7 @@ def stage(root):
     wdirs_ = {
         v: os.path.join(DEB_ROOT, "usr/share/el-openglo/windows", v) for v in VARIANTS
     }
-    _win.render_all(VARIANTS, wdirs_)
+    _win.render_all(VARIANTS, wdirs_, wallpaper_root=out_root)
 
     # Union styles (W14): Breeze with its composited alphas solved, one style per
     # variant, rendered straight into the DESTDIR like the other render_all()
