@@ -154,7 +154,22 @@ def hunt(cmd, cwd, n, jobs, shell, wall_cap=None):
     return runs, note
 
 
-def report(runs, note, jobs):
+def shares(runs, cpu_cap, wall_cap):
+    """(cpu share, wall share): the slowest run's fraction of each cap, None where the cap is off.
+
+    ⚑ The two are different kinds of margin (github-8f, W773). A CPU share is what the check
+    consumed against RLIMIT_CPU and moves little with the host; a WALL share is how close it ran
+    to the backstop and moves with the load the host carried, so it is a reading, not a bound."""
+    cpu = max(r[2] for r in runs) / cpu_cap if cpu_cap else None
+    wall = max(r[3] for r in runs) / wall_cap if wall_cap else None
+    return cpu, wall
+
+
+def share_text(share, cap, none_text):
+    return none_text if share is None else f"{share:.0%} of {cap} s"
+
+
+def report(runs, note, jobs, cpu_cap=None, wall_cap=None):
     """Print the n-of-m and every failing run's account; return the exit code."""
     failed = [(i, r) for i, r in enumerate(runs) if r[0] != 0]
     cpus = sorted(r[2] for r in runs)
@@ -162,6 +177,12 @@ def report(runs, note, jobs):
     print(
         f"  cpu seconds (user+sys): min {cpus[0]:.1f} median {cpus[len(cpus) // 2]:.1f} "
         f"max {cpus[-1]:.1f}; wall seconds of the slowest: {max(r[3] for r in runs):.1f}"
+    )
+    cpu_share, wall_share = shares(runs, cpu_cap, wall_cap)
+    print(
+        f"  slowest run's share of the CPU cap {share_text(cpu_share, cpu_cap, 'n/a (no cap)')} "
+        f"(load-agnostic); of the wall backstop "
+        f"{share_text(wall_share, wall_cap, 'n/a (backstop off)')} (LOAD-DEPENDENT)"
     )
     for i, (rc, sig, cpu, wall, lines) in failed:
         how = f"signal {signal.Signals(sig).name}" if sig else f"exit {rc}"
@@ -211,7 +232,7 @@ def main(argv):
         runs, note = hunt(text, cwd, n, jobs, True, wall)
     else:
         runs, note = hunt(cmd, ROOT, n, jobs, False, wall)
-    return report(runs, note, jobs)
+    return report(runs, note, jobs, limits()[1], wall or None)
 
 
 def _selftest():
@@ -265,6 +286,12 @@ def _selftest():
         "a run inside the wall backstop passes with no backstop line",
         (fast[0][0], any("wall backstop" in ln for ln in fast[0][4])),
         (0, False),
+    )
+    probe = [(0, None, 30.0, 300.0, [])]
+    chk(
+        "shares are the slowest run's fraction of each cap, None where a cap is off",
+        (shares(probe, 120, 600), shares(probe, None, None)),
+        ((0.25, 0.5), (None, None)),
     )
     for bad in ((["true"], 0, 1), ([], 1, 1), (["true"], 1, 0)):
         try:

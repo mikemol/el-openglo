@@ -1454,3 +1454,6 @@
 2026-10-28T17:41:29Z  status W775 working>done writer    "working -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-28T18:02:12Z  status W776 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
 2026-10-28T19:09:29Z  status W776 working>done writer    "working -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T22:41:48Z  status W773 ready>working writer    "ready -> working"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T23:03:33Z  status W766 blocked>ready writer    "blocked -> ready"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
+2026-10-28T23:03:33Z  status W777 ready>done writer    "ready -> done"  session=ef09ca0b-8451-42eb-955e-c3022c21c0f0
