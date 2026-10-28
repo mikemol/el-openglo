@@ -780,9 +780,16 @@
 }
 
 @misc{CONFIG-REACH,
-  claim    = {Every setting of the configuration dialog of the clock and of the live wallpaper (24 keys; the marquee acts over time and is not measured yet) changes what the mount draws: rendered at the low and at the high end of its control (frozen instant, every other key at its default) the two pictures differ, or the key is declared inert with the reason it cannot show in one still - the lit and unlit stroke weights and the unlit opacity were dead at panel size and every other gate was green (operator, 2026-10-03: does lit stroke weight even do anything), R0-R2},
+  claim    = {Every setting of the configuration dialog of the clock and of the live wallpaper (24 keys; the marquee is the claim CONFIG-REACH-MARQUEE, sampled over time) changes what the mount draws: rendered at the low and at the high end of its control (frozen instant, every other key at its default) the two pictures differ, or the key is declared inert with the reason it cannot show in one still - the lit and unlit stroke weights and the unlit opacity were dead at panel size and every other gate was green (operator, 2026-10-03: does lit stroke weight even do anything), R0-R2},
   rests-on = {CONFIG-PAGE},
-  check    = {tool:opa_gate.py config_reach},
+  check    = {tool:opa_gate.py config_reach clock wallpaper},
+  section  = {emitters}
+}
+
+@misc{CONFIG-REACH-MARQUEE,
+  claim    = {Every setting of the marquee's configuration dialog changes what the marquee draws: its own harness is run at the low and at the high end of each key and the stepped-capture frame at a fixed scroll offset is compared, a key that acts only while another is on measured with that one on, the halo keys on the RHI inside a held kwin, or the key is declared inert with its reason (W503, R0-R2); a SHARD of CONFIG-REACH (W771) because the whole took 537 to 579 s of wall against paperkit's 600 s wall backstop, and standalone this one takes 219 s},
+  rests-on = {CONFIG-PAGE},
+  check    = {tool:opa_gate.py config_reach marquee},
   section  = {emitters}
 }
 

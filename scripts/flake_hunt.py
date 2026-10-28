@@ -64,14 +64,21 @@ def limits():
     return env, cpu, f"paperkit's clean env (+ .venv/bin) and RLIMIT_CPU {cpu} s"
 
 
-def run_one(cmd, cwd, env, cpu, shell):
+def run_one(cmd, cwd, env, cpu, shell, wall_cap=None):
     """One run: (rc, signal-or-None, cpu_s, wall_s, output lines). The CPU cap is set by
     qt_sandbox's launcher (a child that sets its own limits and execs), never a preexec_fn:
-    that is unsafe under threads, and these runs are threaded."""
+    that is unsafe under threads, and these runs are threaded.
+
+    `wall_cap` is the gate's WALL backstop (paperkit PAPERKIT_CHECK_TIMEOUT, 600 s): a run still
+    going at that many wall seconds has its process group killed, and the account says so, because
+    paperkit's run_ok turns exactly that into a FAIL with no account of its own (W762)."""
+    import threading
+
     import qt_sandbox as QT
 
     started = time.monotonic()
     argv = ["sh", "-c", cmd] if shell else list(cmd)
+    fired = []
     with tempfile.TemporaryFile() as out:
         proc = subprocess.Popen(
             QT.launch_argv(argv, cpu=cpu),
@@ -81,11 +88,25 @@ def run_one(cmd, cwd, env, cpu, shell):
             stderr=subprocess.STDOUT,
             start_new_session=True,
         )
+
+        def backstop():
+            fired.append(True)
+            os.killpg(proc.pid, signal.SIGKILL)
+
+        timer = threading.Timer(wall_cap, backstop) if wall_cap else None
+        if timer is not None:
+            timer.start()
         _pid, status, rusage = os.wait4(proc.pid, 0)
+        if timer is not None:
+            timer.cancel()
         proc.returncode = 0  # reaped by wait4; the status below is authoritative
         wall = time.monotonic() - started
         out.seek(0)
         lines = out.read().decode("utf-8", "replace").splitlines()
+    if fired:
+        lines.append(
+            f"KILLED by the wall backstop at {wall_cap} s (paperkit run_capped: rc None -> FAIL, no account)"
+        )
     sig = os.WTERMSIG(status) if os.WIFSIGNALED(status) else None
     rc = -sig if sig is not None else os.WEXITSTATUS(status)
     return rc, sig, rusage.ru_utime + rusage.ru_stime, wall, lines
@@ -119,7 +140,7 @@ def resolve_key(key):
     return tmpl.replace("{target}", target.strip()), PROJ
 
 
-def hunt(cmd, cwd, n, jobs, shell):
+def hunt(cmd, cwd, n, jobs, shell, wall_cap=None):
     """The measurement: every run's record, in order."""
     if n < 1 or jobs < 1:
         raise SystemExit("flake_hunt: REFUSED — n and j must be at least 1")
@@ -127,7 +148,9 @@ def hunt(cmd, cwd, n, jobs, shell):
         raise SystemExit("flake_hunt: REFUSED — no command: the population is empty")
     env, cpu, note = limits()
     with ThreadPoolExecutor(max_workers=jobs) as ex:
-        runs = list(ex.map(lambda _i: run_one(cmd, cwd, env, cpu, shell), range(n)))
+        runs = list(
+            ex.map(lambda _i: run_one(cmd, cwd, env, cpu, shell, wall_cap), range(n))
+        )
     return runs, note
 
 
@@ -154,7 +177,10 @@ def report(runs, note, jobs):
 def main(argv):
     args = argv[1:]
     n, jobs, key, cmd = 20, 1, None, []
-    known = {"-n", "-j", "--key", "--selftest", "--"}
+    # the gate's wall backstop (paperkit resolver CHECK_TIMEOUT = 600): a hunt that does not enforce it
+    # measures a different check than the one the gate runs; --wall 0 turns it off
+    wall = int(os.environ.get("PAPERKIT_CHECK_TIMEOUT", "600"))
+    known = {"-n", "-j", "--key", "--wall", "--selftest", "--"}
     i = 0
     while i < len(args):
         a = args[i]
@@ -175,14 +201,16 @@ def main(argv):
             n = int(v)
         elif a == "-j":
             jobs = int(v)
+        elif a == "--wall":
+            wall = int(v)
         else:
             key = v
         i += 2
     if key is not None:
         text, cwd = resolve_key(key)
-        runs, note = hunt(text, cwd, n, jobs, True)
+        runs, note = hunt(text, cwd, n, jobs, True, wall)
     else:
-        runs, note = hunt(cmd, ROOT, n, jobs, False)
+        runs, note = hunt(cmd, ROOT, n, jobs, False, wall)
     return report(runs, note, jobs)
 
 
@@ -223,6 +251,20 @@ def _selftest():
         "a child killed by a signal is named as one (negative rc, signal set)",
         (killed[0][0], killed[0][1]),
         (-9, 9),
+    )
+    # W762: the gate kills a check at its wall backstop with no account of its own; the hunt does the
+    # same and SAYS so, and a run that finishes inside the cap is untouched
+    slow, _note = hunt("sleep 30", ROOT, 1, 1, True, 1)
+    chk(
+        "a run past the wall backstop is killed and the account names the backstop",
+        (slow[0][0], any("wall backstop" in ln for ln in slow[0][4])),
+        (-9, True),
+    )
+    fast, _note = hunt("true", ROOT, 1, 1, True, 30)
+    chk(
+        "a run inside the wall backstop passes with no backstop line",
+        (fast[0][0], any("wall backstop" in ln for ln in fast[0][4])),
+        (0, False),
     )
     for bad in ((["true"], 0, 1), ([], 1, 1), (["true"], 1, 0)):
         try:

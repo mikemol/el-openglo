@@ -1,7 +1,7 @@
 {
   "version": 1,
   "project_root": "/home/mikemol/github/el-openglo",
-  "counter": 764,
+  "counter": 773,
   "armed_at": "2026-09-20T18:45:21+00:00",
   "heartbeat": "2026-10-19T23:30:08Z",
   "job_id": "d70a38f0",
@@ -19504,11 +19504,11 @@
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "scripts/check_gtk.py: measure(texts=None) reads a {variant: [gtk4, gtk3] css} fixture instead of make_gtk, --json takes one fixture file, catalog/fixtures/gtk/*.txt is denied with the policy rule id it names, @GTK-DENIES in catalog/worklist/warrants.bib, one selftest arm",
-      "evidence": "2026-10-28: 2026-10-28: built: check_gtk.measure_fixture (one JSON case {variant, gtk4, gtk3}), --json FIXTURE, catalog/fixtures/gtk/typo-and-wrong-role.txt denied with K2,K3,K4 (86 denials), @GTK-DENIES, 2 selftest arms; a selftest arm that READ the committed fixture failed the closure witness arm 1 (closure observation sees imports, not file opens), so the arm writes its fixture to a temp dir.",
+      "evidence": "2026-10-28: 2026-10-28: built: check_gtk.measure_fixture (one JSON case {variant, gtk4, gtk3}), --json FIXTURE, catalog/fixtures/gtk/typo-and-wrong-role.txt denied with K2,K3,K4 (86 denials), @GTK-DENIES, 2 selftest arms; a selftest arm that READ the committed fixture failed the closure witness arm 1 (closure observation sees imports, not file opens), so the arm writes its fixture to a temp dir. | 2026-10-28: 2026-10-28: the GTK-DENIES entry was REMOVED from the working-tree warrants.bib so the W771 stack does not land a claim without its files (catalog/fixtures/gtk-sheets/ and the check_gtk.py changes are still uncommitted). Entry text saved at scratchpad/gtk-denies-entry.bib (the session scratchpad); re-add it with the gtk files when W756 is unblocked.",
       "issued_at": "2026-10-28T03:31:33Z",
       "minted_during": "interrupt",
       "caused_by": "W75",
-      "last_worked": "2026-10-28T09:39:15Z",
+      "last_worked": "2026-10-28T15:43:43Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_gtk.py",
@@ -19599,7 +19599,7 @@
         "file:scripts/check_qml_target.py"
       ],
       "blocked_on": [
-        "paperkit:W32"
+        "paperkit:W567"
       ],
       "blocked_kind": "agent",
       "next_bounded_step": "Implement emitters.tree_lock(root) (fcntl.flock on <root>/.emitters.lock, gitignored), run_all(hold=True) default, make_deb.stage wraps run_all(hold=False) through the mapping copies, emitters selftest arm for mutual exclusion, .gitignore the lock file; then hunt QML-TARGET -n 16 -j 4 for 0 failures as the bar (W454).",
@@ -19607,7 +19607,7 @@
       "issued_at": "2026-10-28T06:21:39Z",
       "minted_during": "interrupt",
       "caused_by": "W754",
-      "last_worked": "2026-10-28T09:07:17Z",
+      "last_worked": "2026-10-28T14:48:53Z",
       "ticks_blocked": 0
     },
     {
@@ -19642,34 +19642,62 @@
         "file:scripts/worklist_gate.py"
       ],
       "blocked_on": [
-        "luthen-observability:W1713"
+        "paperkit:W567"
       ],
       "blocked_kind": "agent",
-      "next_bounded_step": "When luthen-observability sends the card symbol for the buildctl classification, cite it in W762 blocked_on and repin to the commit that carries it (catalog/luthen_pin.json); meanwhile W763 (self-sufficient @CURRENCY) is the el-openglo-side step and the witness for it is the first thing to write.",
-      "evidence": "2026-10-28: 2026-10-28: github-8f reviewer ruled (pass 45): line 27 governs; W757+W756+W759 do not go in as one stack; the fix is by PROOF from the code and is NOT blocked on paperkit:W32 (that would only speed it). Tool already exists: scripts/flake_hunt.py (N runs, J at a time, the gate own env and RLIMIT_CPU, keeps the first failing run account). Started: flake_hunt --key QML-TARGET -n 12 -j 4 under systemd-run MemoryMax=12G. | 2026-10-28: 2026-10-28 FIRST HARD EVIDENCE: the gate keeps first-failure accounts under /var/tmp/el-openglo-gate-accounts/ (so W32 is not the only route). The @CURRENCY one (20261028T023121-460805.log, 9907 bytes; the same size at 00:09 and 23:22, i.e. three gate runs): \"action screens output <every png> is STALE: its inputs moved since it was built\" (55 deny) while on replay the same check admits (0 deny, 3 admitted): so a hashed input of the screens action differed DURING the check and not after. Hypothesis to prove: a check running in parallel in the same tree rewrites an input in the screens domain and restores it. Tool: check_tree_writes.py (who writes tracked files), started under systemd-run MemoryMax=12G. Also: flake_hunt --key QML-TARGET fails 12 of 12 with ModuleNotFoundError mikemol because its clean env has no venv on PATH: a harness gap to fix (not the flake). | 2026-10-28: 2026-10-28 check_tree_writes (full run, 28 min, 129 of 129 claims measured, 937 tracked files fingerprinted): exactly 1 of 129 claims WRITES THE TRACKED TREE: QML-TARGET (tool:opa_gate.py qml_target) rewrites EL-<variant>.colors and EL-<variant>.colorscheme for all six variants and plasma-clock/org.el.segclock/{metadata.json, contents/ui/*.qml, contents/config/*}, through make_deb --stage -> emitters.run_all(ROOT) (the W68 rule says no gated check writes the real tree). That is the link between the three flakes: @CURRENCY keys the screens/schemes actions over inputs that include the EL-*.colors files, and a parallel qml_target rewrites them under it (\"inputs moved since it was built\", 55 stale, replay admits). The tree_lock (W760) stops stage-vs-stage races but NOT a reader of the same tracked files, so it does not close @CURRENCY or @CONFIG-REACH. The root fix is that a staging must not generate into the real tree at all: run_all into a private copy (or make_deb.stage render straight into DEB_ROOT, as the other emitters already do). Card that as the real fix and keep the lock as the interim. | 2026-10-28: 2026-10-28: flake_hunt --key QML-TARGET -n 16 -j 4 WITH the tree_lock: 0 of 16 FAILED (cpu 62.4-64.6 s each, slowest wall 1138.8 s because the stagings now serialize); before the lock: 2 of 12 and 2 of 16. 16 is short of the 30-run bar of W454, so this is evidence, not closure. Action keys schemes and wallpapers went stale (emitters.py is in their domain): rebuilt make_schemes.py and make_wallpaper.py under systemd-run MemoryMax=12G (outputs byte-identical, no tracked file changed), check_action_key --write re-recorded. Submitted as the fix stack, alone (without the held W756/W757/W759 content). | 2026-10-28: 2026-10-28 W762 fix stack (b6rt6qu6x) REFUSED at //:closure_witness (invocation aa3547eb-7b66-4b68-9d19-2e09b99dd4c2, 1138 s): the failed-log blob is BYTE-IDENTICAL (same digest b790474447..., 2813 bytes) to the W756 refusal, i.e. the same [@QML-TARGET] and [@CURRENCY] first-run failures and replays, with the tree_lock in the commit. So the lock does not touch the closure-witness failure: it is not the same race. Findings since: (1) @CURRENCY is a COLD-ORDER dependency, proved both ways (W761); (2) QML-TARGET PASSES cold in a fresh worktree (opa_gate qml_target in el-openglo-cold: 41 admitted, 114 s wall, 70.7 s CPU), so QML-TARGET failing first in the closure-only tree is not a plain cold start either; the kept-accounts dir holds no QML-TARGET account from the gate, consistent with a first run that died without output (a kill or a missing tool in that tree) and not with a Python traceback. Started: check_closure --witness scripts/worklist_gate.py locally under MemoryMax=14G to reproduce the closure-only run with its own account. | 2026-10-28: 2026-10-28: opa_gate closure locally = admitted, 116 admitted in 2.6 s (it reads the recorded closures; it does NOT run the witnesses), and check_closure --witness scripts/worklist_gate.py = arm1 pass in 2 s (the stage selftest). The failing //:closure_witness runs the WORKLIST inside a tree holding only the worklist stage closure (L5). Started the local equivalent: check_closure --witness worklist (MemoryMax=14G). | 2026-10-28: 2026-10-28: check_closure --witness worklist (the local equivalent of //:closure_witness, 9 min, 17 min CPU) PASSES arm 1: \"arm1 known ... (@CURRENCY: reads the untracked emitted outputs (screens, wallpapers): a closure of TRACKED)\". I.e. in a closure-only tree the ONLY expected red is @CURRENCY (declared known; this is the cold-order dependency proved on W761), and L5 denies when anything else is red. In the bazel gate @QML-TARGET (and once @CONFIG-REACH) are ALSO red on their first run, and not locally, in the same tree: so the cause is specific to the bazel test environment (hermetic sandbox, the test_env list in .bazelrc, 117 targets in parallel), not to the tree. The tree_lock is irrelevant to it (byte-identical failing log with and without). No QML-TARGET account is kept by the gate, consistent with a first run that dies without output. | 2026-10-28: Card W763 minted for the @CURRENCY self-sufficiency step (github-8f ask). | 2026-10-28: 2026-10-28 FORCED-FAILURE WITNESS (no load, no buildkit), per github-8f: a stub buildctl that exits 1 placed first on PATH, then python3 -m checks.qml_check --src S --entry main.qml --out O run from luthen-observability: prints {\"state\": \"refused\", \"step\": \"buildctl\", \"why\": \"error: failed to solve: transient buildkitd failure (stub)\"} and exits 1. El-openglo check_qml_target treats exit 2 as withheld and any other verdict as a result, so a failed buildctl is a DENY of @QML-TARGET, though the lint and load results live in the status file and a QML defect never fails buildctl. Whether that is what happened in the four gate first runs is unproven (first-run output not kept, paperkit:W32); the classification is wrong either way. Letter with the reproducer: luthen-observability/inbox/2026-10-28-el-openglo-qml-check-buildctl-failure-is-a-deny.md, and a message to luthen-observability-ab. Stub files are in the session scratchpad (stub-bin/buildctl is a python script: the shellcheck hook could not render a verdict on a sh stub, an infrastructure fault noted, not routed around). | 2026-10-28: 2026-10-28: luthen-observability carded the buildctl classification as luthen-observability:W1713 and decided from images/qml-check/Containerfile (\"No RUN step in the check stage may fail\"; lint and load record their exit in the status file): any non-zero buildctl, and an unreadable status file after a built image, becomes state cannot-run, step buildctl, exit 2; a QML defect still refuses with exit 1. Test: a faked buildctl exiting 1 gives cannot-run/2. They keep 2 (not the fleet 7) because check_qml_target reads exactly 2 as withheld. They will send the commit sha; we repin catalog/luthen_pin.json ourselves. Meanwhile W763 (self-sufficient @CURRENCY) is the el-openglo-side step. | 2026-10-28: 2026-10-28: luthen-observability:W1713 landed as c2c505b7 (a failed buildctl, and a built image with no status file, give cannot-run exit 2; a QML defect still refuses exit 1). Moved catalog/luthen_pin.json to c2c505b76aa4e7817f30b7a59f45e7e058c627ef; check_qml_target --selftest PASS and opa_gate qml_target admitted (exit 0) at the new pin. The fix stack now carries: the tree_lock (stage-vs-stage race), W763 (@CURRENCY self-sufficient), the luthen pin.",
+      "next_bounded_step": "Cards: shard @CONFIG-REACH per mount so each shard is under 50 percent of the cap; bound the lock hold time of make_deb.stage (or remove it by the root fix W766) so @QML-TARGET wall stays under 50 percent; a witness that prints each claim standalone wall against PAPERKIT_CHECK_TIMEOUT (flake_hunt already measures it).",
+      "evidence": "2026-10-28: 2026-10-28: github-8f reviewer ruled (pass 45): line 27 governs; W757+W756+W759 do not go in as one stack; the fix is by PROOF from the code and is NOT blocked on paperkit:W32 (that would only speed it). Tool already exists: scripts/flake_hunt.py (N runs, J at a time, the gate own env and RLIMIT_CPU, keeps the first failing run account). Started: flake_hunt --key QML-TARGET -n 12 -j 4 under systemd-run MemoryMax=12G. | 2026-10-28: 2026-10-28 FIRST HARD EVIDENCE: the gate keeps first-failure accounts under /var/tmp/el-openglo-gate-accounts/ (so W32 is not the only route). The @CURRENCY one (20261028T023121-460805.log, 9907 bytes; the same size at 00:09 and 23:22, i.e. three gate runs): \"action screens output <every png> is STALE: its inputs moved since it was built\" (55 deny) while on replay the same check admits (0 deny, 3 admitted): so a hashed input of the screens action differed DURING the check and not after. Hypothesis to prove: a check running in parallel in the same tree rewrites an input in the screens domain and restores it. Tool: check_tree_writes.py (who writes tracked files), started under systemd-run MemoryMax=12G. Also: flake_hunt --key QML-TARGET fails 12 of 12 with ModuleNotFoundError mikemol because its clean env has no venv on PATH: a harness gap to fix (not the flake). | 2026-10-28: 2026-10-28 check_tree_writes (full run, 28 min, 129 of 129 claims measured, 937 tracked files fingerprinted): exactly 1 of 129 claims WRITES THE TRACKED TREE: QML-TARGET (tool:opa_gate.py qml_target) rewrites EL-<variant>.colors and EL-<variant>.colorscheme for all six variants and plasma-clock/org.el.segclock/{metadata.json, contents/ui/*.qml, contents/config/*}, through make_deb --stage -> emitters.run_all(ROOT) (the W68 rule says no gated check writes the real tree). That is the link between the three flakes: @CURRENCY keys the screens/schemes actions over inputs that include the EL-*.colors files, and a parallel qml_target rewrites them under it (\"inputs moved since it was built\", 55 stale, replay admits). The tree_lock (W760) stops stage-vs-stage races but NOT a reader of the same tracked files, so it does not close @CURRENCY or @CONFIG-REACH. The root fix is that a staging must not generate into the real tree at all: run_all into a private copy (or make_deb.stage render straight into DEB_ROOT, as the other emitters already do). Card that as the real fix and keep the lock as the interim. | 2026-10-28: 2026-10-28: flake_hunt --key QML-TARGET -n 16 -j 4 WITH the tree_lock: 0 of 16 FAILED (cpu 62.4-64.6 s each, slowest wall 1138.8 s because the stagings now serialize); before the lock: 2 of 12 and 2 of 16. 16 is short of the 30-run bar of W454, so this is evidence, not closure. Action keys schemes and wallpapers went stale (emitters.py is in their domain): rebuilt make_schemes.py and make_wallpaper.py under systemd-run MemoryMax=12G (outputs byte-identical, no tracked file changed), check_action_key --write re-recorded. Submitted as the fix stack, alone (without the held W756/W757/W759 content). | 2026-10-28: 2026-10-28 W762 fix stack (b6rt6qu6x) REFUSED at //:closure_witness (invocation aa3547eb-7b66-4b68-9d19-2e09b99dd4c2, 1138 s): the failed-log blob is BYTE-IDENTICAL (same digest b790474447..., 2813 bytes) to the W756 refusal, i.e. the same [@QML-TARGET] and [@CURRENCY] first-run failures and replays, with the tree_lock in the commit. So the lock does not touch the closure-witness failure: it is not the same race. Findings since: (1) @CURRENCY is a COLD-ORDER dependency, proved both ways (W761); (2) QML-TARGET PASSES cold in a fresh worktree (opa_gate qml_target in el-openglo-cold: 41 admitted, 114 s wall, 70.7 s CPU), so QML-TARGET failing first in the closure-only tree is not a plain cold start either; the kept-accounts dir holds no QML-TARGET account from the gate, consistent with a first run that died without output (a kill or a missing tool in that tree) and not with a Python traceback. Started: check_closure --witness scripts/worklist_gate.py locally under MemoryMax=14G to reproduce the closure-only run with its own account. | 2026-10-28: 2026-10-28: opa_gate closure locally = admitted, 116 admitted in 2.6 s (it reads the recorded closures; it does NOT run the witnesses), and check_closure --witness scripts/worklist_gate.py = arm1 pass in 2 s (the stage selftest). The failing //:closure_witness runs the WORKLIST inside a tree holding only the worklist stage closure (L5). Started the local equivalent: check_closure --witness worklist (MemoryMax=14G). | 2026-10-28: 2026-10-28: check_closure --witness worklist (the local equivalent of //:closure_witness, 9 min, 17 min CPU) PASSES arm 1: \"arm1 known ... (@CURRENCY: reads the untracked emitted outputs (screens, wallpapers): a closure of TRACKED)\". I.e. in a closure-only tree the ONLY expected red is @CURRENCY (declared known; this is the cold-order dependency proved on W761), and L5 denies when anything else is red. In the bazel gate @QML-TARGET (and once @CONFIG-REACH) are ALSO red on their first run, and not locally, in the same tree: so the cause is specific to the bazel test environment (hermetic sandbox, the test_env list in .bazelrc, 117 targets in parallel), not to the tree. The tree_lock is irrelevant to it (byte-identical failing log with and without). No QML-TARGET account is kept by the gate, consistent with a first run that dies without output. | 2026-10-28: Card W763 minted for the @CURRENCY self-sufficiency step (github-8f ask). | 2026-10-28: 2026-10-28 FORCED-FAILURE WITNESS (no load, no buildkit), per github-8f: a stub buildctl that exits 1 placed first on PATH, then python3 -m checks.qml_check --src S --entry main.qml --out O run from luthen-observability: prints {\"state\": \"refused\", \"step\": \"buildctl\", \"why\": \"error: failed to solve: transient buildkitd failure (stub)\"} and exits 1. El-openglo check_qml_target treats exit 2 as withheld and any other verdict as a result, so a failed buildctl is a DENY of @QML-TARGET, though the lint and load results live in the status file and a QML defect never fails buildctl. Whether that is what happened in the four gate first runs is unproven (first-run output not kept, paperkit:W32); the classification is wrong either way. Letter with the reproducer: luthen-observability/inbox/2026-10-28-el-openglo-qml-check-buildctl-failure-is-a-deny.md, and a message to luthen-observability-ab. Stub files are in the session scratchpad (stub-bin/buildctl is a python script: the shellcheck hook could not render a verdict on a sh stub, an infrastructure fault noted, not routed around). | 2026-10-28: 2026-10-28: luthen-observability carded the buildctl classification as luthen-observability:W1713 and decided from images/qml-check/Containerfile (\"No RUN step in the check stage may fail\"; lint and load record their exit in the status file): any non-zero buildctl, and an unreadable status file after a built image, becomes state cannot-run, step buildctl, exit 2; a QML defect still refuses with exit 1. Test: a faked buildctl exiting 1 gives cannot-run/2. They keep 2 (not the fleet 7) because check_qml_target reads exactly 2 as withheld. They will send the commit sha; we repin catalog/luthen_pin.json ourselves. Meanwhile W763 (self-sufficient @CURRENCY) is the el-openglo-side step. | 2026-10-28: 2026-10-28: luthen-observability:W1713 landed as c2c505b7 (a failed buildctl, and a built image with no status file, give cannot-run exit 2; a QML defect still refuses exit 1). Moved catalog/luthen_pin.json to c2c505b76aa4e7817f30b7a59f45e7e058c627ef; check_qml_target --selftest PASS and opa_gate qml_target admitted (exit 0) at the new pin. The fix stack now carries: the tree_lock (stage-vs-stage race), W763 (@CURRENCY self-sufficient), the luthen pin. | 2026-10-28: 2026-10-28: the fix stack (tree_lock, W763 @CURRENCY, luthen pin c2c505b7) LANDED as 9d5dd20 (13 paths, HEAD matches the ask). That is ONE gate pass, not a proof: line 27 forbids closing a race on passes, and the cause of the four first-run bazel reds is still unproven (no first-run account kept). W762 stays OPEN. Reviewer correction applied: the stale blocked_on luthen-observability:W1713 (landed as c2c505b7) is cleared. Open under W762 with their own cards below: the root fix, @CONFIG-REACH, a deterministic interleave test for the lock, and a kept first-run account of a failing QML-TARGET. | 2026-10-28: 2026-10-28 OPERATOR RULING, verified (mikemol-transcriptstruct --verify: ok, kind human, line 113449, 2026-10-28T13:16:43Z, uuid b8e7f302-7371-4980-9746-9545172b3a8b) and attached as this card warrant: \"it cannot be known to be the fix if the cause is not known, and knowing and naming the cause are the same.\" CONSEQUENCE: the landing of 9d5dd20 does NOT unblock the 76 feature cards; a NAMED cause does, carried by a witness that fails before the fix and passes after it. Order of work: W767 (prove @CONFIG-REACH), W768 (forced-interleave proof of the lock), W766 (root fix), a kept first-run account of QML-TARGET or a forced reproduction of it (W768 pattern applied to QML-TARGET), W764. No feature stack meanwhile. | 2026-10-28: 2026-10-28 CAUSE CANDIDATE WITH A DIRECT MECHANISM (not a run count): paperkit resolver.run_ok bounds every check by a WALL backstop, CHECK_TIMEOUT = 600 s (paperkit/resolver.py:433, overridable by PAPERKIT_CHECK_TIMEOUT; worklist_gate.py:63 states \"600 matches the resolver own wall-clock backstop\"); checkenv.run_capped returns rc None when it fires and run_ok turns that into FAIL with NO account (\"did not terminate -> FAIL\"), while worklist_gate._replay re-runs with NO wall cap. That reproduces every symptom at once: red on the first run, PASSED ON REPLAY, no kept account for QML-TARGET and CONFIG-REACH, only under the full gate load (virtual time costs wall in proportion to load, check_marquee_live.py:395). The margins, measured standalone by flake_hunt: @CONFIG-REACH wall 537.4 to 578.8 s = 90 to 96 percent of the 600 s backstop (loop prompt line 25: shard at 50 percent, not after it fails); @QML-TARGET 211 to 215 s before the tree_lock but 1138.8 s after it (16 runs at j=4, slowest single run) because stagings now queue on the lock: MY LOCK RAISES ITS WALL, a regression risk against the same 600 s cap that the one gate pass of 9d5dd20 does not rule out. Not yet a closed proof: still needed is the witness that FAILS before the fix and PASSES after (shorten PAPERKIT_CHECK_TIMEOUT below a claim measured wall and show FAIL without account; then the sharded or shortened claim passes under the same cap). | 2026-10-28: 2026-10-28: paperkit owns the wall-backstop defect as paperkit:W567 (checkenv.py:241 returns Capped(None, b\"\", b\"\") on TimeoutExpired and discards all output after the group kill; resolver.run_ok maps rc None to a bare FAIL). Their plan: collect the partial out/err and return an UNAVAILABLE verdict naming the elapsed cap and the last output line, not a FAIL; open design question they will put to mtools/the operator (a zero-CPU hang would read UNAVAILABLE and change sensitivity grading; dropping the backstop and bounding by RLIMIT_CPU is also on the table). They have NOT verified my replay behaviour or my wall and CPU figures (they did not run my checks); they cited them as mine. W567 is upstream of paperkit:W32 for the wall-kill case. The 76 feature cards stay blocked until the cause is named with the paperkit-side witness.",
       "issued_at": "2026-10-28T08:02:04Z",
       "minted_during": "interrupt",
       "caused_by": "W760",
-      "last_worked": "2026-10-28T12:07:04Z",
+      "last_worked": "2026-10-28T14:48:51Z",
       "ticks_blocked": 0,
-      "completed": null
+      "completed": null,
+      "warrants": [
+        {
+          "@context": {
+            "prov": "http://www.w3.org/ns/prov#",
+            "xsd": "http://www.w3.org/2001/XMLSchema#",
+            "mtools": "urn:mtools:warrant#"
+          },
+          "@id": "urn:nemik:el-openglo/W762",
+          "prov:wasDerivedFrom": {
+            "@id": "urn:claude:transcript:-home-mikemol-github/695f3e0a-d36f-4080-9c67-7548978cd99e#b8e7f302-7371-4980-9746-9545172b3a8b",
+            "@type": "prov:Entity",
+            "prov:generatedAtTime": {
+              "@value": "2026-10-28T13:16:43.361Z",
+              "@type": "xsd:dateTime"
+            },
+            "prov:wasAttributedTo": {
+              "@id": "urn:nemik:operator",
+              "@type": "prov:Agent"
+            },
+            "prov:wasGeneratedBy": {
+              "@id": "urn:nemik:utterance/b8e7f302-7371-4980-9746-9545172b3a8b",
+              "@type": "prov:Activity"
+            },
+            "mtools:line": 113449,
+            "mtools:reader": "mikemol-transcriptstruct claude:transcript:-home-mikemol-github/695f3e0a-d36f-4080-9c67-7548978cd99e --verify b8e7f302-7371-4980-9746-9545172b3a8b --claim operator --line 113449"
+          }
+        }
+      ]
     },
     {
       "symbol": "W763",
       "title": "Make @CURRENCY self-sufficient: gitignored emitted outputs entirely absent from a clean tree are WITHHELD, not denied, before any staging stops writing the real tree",
-      "status": "working",
+      "status": "done",
       "enables": [
         "W762"
       ],
       "touches": [],
       "blocked_on": [],
       "blocked_kind": null,
-      "next_bounded_step": "After it lands: the root fix (stagings must not write the real tree) is safe to build; and W764 (reader takes exit 7).",
-      "evidence": "2026-10-28: 2026-10-28 DONE LOCALLY, in the fix stack: witness first (policy/action_key_test.rego test_cold_tree_gitignored_outputs_withheld_not_denied FAILED on the old policy, 1 of 1305), then policy/action_key.rego built_elsewhere plus a withheld rule (n_outputs 0 and outputs_gitignored: withheld; tracked-absent and a partly built set still deny; 1305 of 1305 pass), scripts/check_action_key.py BUILD_PRODUCTS = {wallpapers} declared (not asked of git: the witness tree has an EMPTY .gitignore stub, which failed arm 1 of the closure witness until the selftest arm learned to require a usable canary), measurement emits outputs_gitignored. Cold-tree proof: a fresh worktree (HEAD plus the patch, no emitted outputs) opa_gate.py action_key = admitted (0 deny, 5 withheld, 2 admitted) with the line \"wallpapers: its outputs are gitignored build products and none are built in this tree\"; the unpatched cold tree DENIED. Closure witness check_action_key arm1 pass arm2 refused; selftest PASS; action keys still current.",
+      "next_bounded_step": null,
+      "evidence": "2026-10-28: 2026-10-28 DONE LOCALLY, in the fix stack: witness first (policy/action_key_test.rego test_cold_tree_gitignored_outputs_withheld_not_denied FAILED on the old policy, 1 of 1305), then policy/action_key.rego built_elsewhere plus a withheld rule (n_outputs 0 and outputs_gitignored: withheld; tracked-absent and a partly built set still deny; 1305 of 1305 pass), scripts/check_action_key.py BUILD_PRODUCTS = {wallpapers} declared (not asked of git: the witness tree has an EMPTY .gitignore stub, which failed arm 1 of the closure witness until the selftest arm learned to require a usable canary), measurement emits outputs_gitignored. Cold-tree proof: a fresh worktree (HEAD plus the patch, no emitted outputs) opa_gate.py action_key = admitted (0 deny, 5 withheld, 2 admitted) with the line \"wallpapers: its outputs are gitignored build products and none are built in this tree\"; the unpatched cold tree DENIED. Closure witness check_action_key arm1 pass arm2 refused; selftest PASS; action keys still current. | 2026-10-28: landed inside 9d5dd20 (the W762 fix stack). Its own witness: the Rego test that failed on the old policy now passes (1305 of 1305), and a cold worktree that DENIED now ADMITS with the not-built-here withheld line. Done means @CURRENCY no longer depends on a producer having run; it does not close the screens STALE account of W761 (inputs moved), which is a different failure.",
       "issued_at": "2026-10-28T11:01:36Z",
       "minted_during": "interrupt",
       "caused_by": "W761",
-      "last_worked": "2026-10-28T12:07:27Z",
+      "last_worked": "2026-10-28T12:57:31Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_action_key.py",
@@ -19678,7 +19706,7 @@
         "policy/action_key.cases.json"
       ],
       "size_class": "medium",
-      "completed": null
+      "completed": "20261028T125731Z"
     },
     {
       "symbol": "W764",
@@ -19691,16 +19719,194 @@
       "blocked_on": [],
       "blocked_kind": null,
       "next_bounded_step": "scripts/check_qml_target.py measure(): the runner exit that means withheld is rc in (2, 7), named once as a constant with the fleet table cited (mtools corpus/exit-table.json: CANNOT_RUN=7; 2 is USAGE/BLOCK there and stays only until luthen-observability:W1714 moves qml_check to 7); selftest arm that a verdict-less run with exit 7 is withheld and exit 2 still is, and that exit 1 with a refused verdict is still a result. Step order (luthen): this card first, then luthen-observability:W1714, then a follow-up here that drops 2. Not gate-blocked work in itself, but it lands through the gate: it waits on W762 like the rest.",
-      "evidence": "",
+      "evidence": "2026-10-28: 2026-10-28 BUILT, NOT SUBMITTED (held behind W762 per the pass-45 ruling): scripts/check_qml_target.py gains RUNNER_CANNOT_RUN = (2, 7) and runner_withheld(rc, verdict) (the one place the \"could not run\" exits are read), used in measure(); one selftest arm (7 and 2 withheld, 1 and 0 results, an empty verdict withheld); check_qml_target --selftest PASS (14 ok). The file is not carried by the in-flight W762 stack, so it is disjoint. To do before submit: closure witness, then --commit W764 after W762 lands.",
       "issued_at": "2026-10-28T11:14:14Z",
       "minted_during": "interrupt",
       "caused_by": "luthen-observability:W1714",
-      "last_worked": "2026-10-28T11:14:23Z",
+      "last_worked": "2026-10-28T12:26:12Z",
       "ticks_blocked": 0,
       "manifest": [
         "scripts/check_qml_target.py"
       ],
       "size_class": "small"
+    },
+    {
+      "symbol": "W765",
+      "title": "I still need to adopt the reviewed-loop skill: spawn the persistent reviewer over this session control law, write G0 before each --tick-open and send G0 and G1 after each --tick-close, then idle until it returns (loop prompt line 31)",
+      "status": "working",
+      "enables": [],
+      "touches": [],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-10-28: G0 (2026-10-28, before the first reviewed tick): advances W765. Actuator: spawn ONE persistent reviewer subagent (Agent tool) seeded with ~/.claude/skills/reviewed-loop/SKILL.md, the queue render and the state file, and send it G0 and G1 for the work since the last --tick-close (W760-W764 flake proof, W762 fix stack in the gate as background bqwcqobjr, W764 built and held). Sensor: the reviewer returns retro JSON. Expected reading: findings that each name a card with an owner, a due date and a witness, or a certify_change; the writer --add-retro accepts it. Claim that would fail it: the reviewer returns prose, or findings with no card (the writer refuses those). | 2026-10-28: RETRO pass 1 (warm reviewer, fixpoint=false), recorded here because the installed writer has no --add-retro (it arrives with the W754 repin). Findings, each answered: (1) root fix and @CONFIG-REACH had no card -> W766, W767. (2) fix stack submitted on a run-count (flake_hunt 0 of 16) not a forced interleave, against line 27 -> W768 (deterministic interleave test) and the W454 N-run bar is not used as proof. (3) cause of the four first-run reds unproven but the stack framed as the fix -> W762 says passed ONCE, stays open; close needs a kept first-run account of a failing QML-TARGET. (4) stale blocked_on on W762 -> cleared (W1713 landed). W761 blocked_on paperkit:W32 stays: its screens STALE (inputs moved) account is still unexplained, W763 fixed only the cold-order part. (5) W754 commit subject asserted flake: prefix acceptance that was false; rule adopted: run the capability before a subject asserts it (check --check on the touched card); W755 tag re-checked after the mtools-ad repin. (6) editing tracked files in the main tree while a gate runs -> W770 (hook with a refusing fixture). (7) repeated hook refusals -> memory hook-refusal-shapes. (8) the W764 follow-up that drops exit 2 had no card -> W769 (blocked on luthen-observability:W1714). Subtracted set: root fix card; run-count proof; cause-unproven framing; stale blockers; false subject claim; main-tree edits; refusal friction; W764 follow-up. Retro JSON accepted as the reviewer returned it (not hand-edited); it is in the session transcript.",
+      "issued_at": "2026-10-28T12:36:18Z",
+      "minted_during": "interrupt",
+      "caused_by": "github-8f",
+      "last_worked": "2026-10-28T12:58:40Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W766",
+      "title": "Root fix: make_deb --stage generates into a private copy so no gated check writes the real tree (check_tree_writes: QML-TARGET is the only one of 129)",
+      "status": "ready",
+      "enables": [
+        "W762"
+      ],
+      "touches": [
+        "file:make_deb.py",
+        "file:emitters.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T12:57:39Z",
+      "minted_during": "interrupt",
+      "caused_by": "W762",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W767",
+      "title": "Prove the @CONFIG-REACH first-run red: it failed once and passed on replay in the W759 refusal (invocation 7d9b56ed) and nothing explains it yet",
+      "status": "working",
+      "enables": [
+        "W762"
+      ],
+      "touches": [
+        "file:scripts/check_config_reach.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "2026-10-28: 2026-10-28: started flake_hunt --key CONFIG-REACH -n 12 -j 4 under systemd-run MemoryMax=12G (first-run failures of the claim are what to capture, the way the QML-TARGET hunt captured make_deb --stage FileNotFoundError); reading scripts/check_config_reach.py for shared writers meanwhile. | 2026-10-28: 2026-10-28: flake_hunt --key CONFIG-REACH -n 12 -j 4: 0 of 12 FAILED (cpu 125.9-128.7 s each against a 600 s cap, slowest wall 578.8 s). So the claim does not fail against ITSELF under contention and a CPU-cap kill is ruled out. Hypothesis to force, not to wait for: the three first-run reds (QML-TARGET, CURRENCY, CONFIG-REACH) are one cause, the single tracked-tree writer (check_tree_writes: QML-TARGET via make_deb --stage -> emitters.run_all(ROOT)) rewriting files the other two read (EL-*.colors/.colorscheme feed theme_probe and the renders; CURRENCY keys them). Forced interleave started: flake_hunt --key CONFIG-REACH -n 6 -j 1 WHILE flake_hunt --key QML-TARGET -n 8 -j 2 runs as the writer (systemd unit w767-writer). A CONFIG-REACH failure there gives the first-run account the gate never kept. | 2026-10-28: 2026-10-28: forced interleave result: flake_hunt --key CONFIG-REACH -n 6 -j 1 WHILE flake_hunt --key QML-TARGET -n 8 -j 2 ran as the writer for about 12 min: 0 of 6 FAILED (cpu 122.8 to 124.2 s, slowest wall 537.4 s). The writer-vs-reader hypothesis is NOT supported by it (and an overlap of unknown depth is not a proof either way). What the numbers DO show: the claim takes 537 to 579 s of wall standalone against paperkit wall backstop of 600 s (paperkit/resolver.py:433), so any slowdown of 4 to 12 percent under the gate parallel load kills it with rc None -> FAIL and no account. That is the named mechanism (W762 evidence). Fix by line 25: shard per mount. | 2026-10-28: 2026-10-28: the failing-before reading is on W771 (CONFIG-REACH killed at --wall 300 with no account of its own, wall, load-dependent). W767 (prove the CONFIG-REACH red) is answered by the wall-backstop mechanism plus that reading; the load-agnostic witness remains paperkit:W567.",
+      "issued_at": "2026-10-28T12:57:40Z",
+      "minted_during": "interrupt",
+      "caused_by": "W762",
+      "last_worked": "2026-10-28T14:50:23Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W768",
+      "title": "Prove emitters.tree_lock by a forced interleave, not by run counts: a deterministic test where two make_deb.stage calls are made to overlap and the second is shown to wait (replaces the 30-run bar of W454 for this race, loop prompt line 27)",
+      "status": "ready",
+      "enables": [
+        "W762"
+      ],
+      "touches": [
+        "file:scripts/check_emitters_run.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T12:57:49Z",
+      "minted_during": "interrupt",
+      "caused_by": "W762",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W769",
+      "title": "Follow-up to W764: after luthen-observability:W1714 moves qml_check to exit 7, drop 2 from RUNNER_CANNOT_RUN in check_qml_target (selftest arm: exit 2 becomes a result)",
+      "status": "blocked",
+      "enables": [],
+      "touches": [
+        "file:scripts/check_qml_target.py"
+      ],
+      "blocked_on": [
+        "luthen-observability:W1714"
+      ],
+      "blocked_kind": "agent",
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T12:57:57Z",
+      "minted_during": "interrupt",
+      "caused_by": "W764",
+      "last_worked": "2026-10-28T12:58:03Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W770",
+      "title": "Stop editing tracked files in the main tree while a gate runs: a tick hook or check that reads the commit lease and refuses it, witnessed by a refusing fixture (W754 and W719 recorded the habit, no rule enforces it)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "file:.claude/settings.json"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T12:58:05Z",
+      "minted_during": "interrupt",
+      "caused_by": "W762",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W771",
+      "title": "Shard @CONFIG-REACH per mount so each shard stays under 50 percent of the 600 s wall backstop (loop prompt line 25): it takes 537 to 579 s standalone today and is killed with no account the first time the gate load adds 4 to 12 percent",
+      "status": "working",
+      "enables": [
+        "W762"
+      ],
+      "touches": [
+        "file:scripts/check_config_reach.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "Read the two shard readings; run check_config_reach --selftest and time it; closure witness; then land. Card the bib-side guard and the CONFIG-REACH-SEES wall measurement.",
+      "evidence": "2026-10-28: 2026-10-28 FAILING-BEFORE READING (wall, load-dependent; interim until paperkit:W567): flake_hunt --key CONFIG-REACH -n 1 -j 1 --wall 300 -> 1 of 1 FAILED: signal SIGKILL at wall 300.0 s, the account is ONLY the hunt own line \"KILLED by the wall backstop at 300 s (paperkit run_capped: rc None -> FAIL, no account)\" (1 line captured): a wall-killed check leaves no output of its own, the same nothing the gate account store holds for QML-TARGET and CONFIG-REACH. The shard must pass the same command per mount (each shard well under 300 s wall standalone). Caveat on the tool: the killed run reports 0.1 s CPU because only the wrapper is reaped by wait4; the service-level CPU was 77.9 s. | 2026-10-28: 2026-10-28: scripts/check_config_reach.py measure(only=None) and main take mount operands: --json clock|marquee|wallpaper (the registry names; an unknown mount is refused, exit 2, listing the registry; an operand without --json is refused). The policy needs no change (it judges the cases it is given; R0 still denies an empty shard). So a shard claim is tool:opa_gate.py config_reach MOUNT (opa_gate passes operands to --json). Not yet landed, no warrant shards yet, no selftest arm yet. Timing each shard standalone with flake_hunt (marquee first, task b3n36bs8j) to see which mount carries the 537 to 579 s. | 2026-10-28: 2026-10-28 SHARD WALLS, standalone (flake_hunt, wall, load-dependent): marquee 218.9 s wall / 72.0 s CPU; clock 137.4 s / 27.0 s; wallpaper 127.6 s / 25.9 s; the whole claim 537 to 579 s. So two claims, not three: CONFIG-REACH = clock + wallpaper (about 265 s, 44 percent of the 600 s backstop) and CONFIG-REACH-MARQUEE (219 s, 36 percent), both under the 50 percent bar. warrants.bib edited: CONFIG-REACH check is now opa_gate.py config_reach clock wallpaper (its claim text no longer says the marquee is unmeasured), new CONFIG-REACH-MARQUEE (rests-on CONFIG-PAGE, check opa_gate.py config_reach marquee); WORKLIST.md projected. check_config_reach.py: SHARDS = ((\"clock\",\"wallpaper\"),(\"marquee\",)) declared, selftest arms: shards partition the registry exactly, unknown mount refused (2), operand without --json refused (2). RUNNING: flake_hunt --key CONFIG-REACH -n 1 --wall 300 (the passing reading for the same command that was killed whole), then the marquee claim, then the full selftest. NOT done: the bib-side guard that every SHARDS entry has a warrant (the selftest checks the declaration, not the bib), and CONFIG-REACH-SEES (check_config_reach --selftest) wall is unmeasured against the same backstop.",
+      "issued_at": "2026-10-28T14:44:34Z",
+      "minted_during": "interrupt",
+      "caused_by": "W767",
+      "last_worked": "2026-10-28T15:29:05Z",
+      "ticks_blocked": 0,
+      "completed": null
+    },
+    {
+      "symbol": "W772",
+      "title": "Bound make_deb.stage lock hold time (or remove the lock by the root fix W766): after the tree_lock the slowest @QML-TARGET run took 1138.8 s wall against 215 s before, past the 600 s backstop that kills it with no account in the gate",
+      "status": "ready",
+      "enables": [
+        "W762"
+      ],
+      "touches": [
+        "file:make_deb.py",
+        "file:emitters.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T14:44:41Z",
+      "minted_during": "interrupt",
+      "caused_by": "W762",
+      "last_worked": null,
+      "ticks_blocked": 0
+    },
+    {
+      "symbol": "W773",
+      "title": "flake_hunt reports each claim CPU share of the CPU cap and WALL share of the wall backstop, the wall one labelled load-dependent (github-8f: a CPU-time margin is load-agnostic, a wall bar moves with the host)",
+      "status": "ready",
+      "enables": [],
+      "touches": [
+        "file:scripts/flake_hunt.py"
+      ],
+      "blocked_on": [],
+      "blocked_kind": null,
+      "next_bounded_step": "",
+      "evidence": "",
+      "issued_at": "2026-10-28T14:46:38Z",
+      "minted_during": "interrupt",
+      "caused_by": "W762",
+      "last_worked": null,
+      "ticks_blocked": 0
     }
   ],
   "residue": [

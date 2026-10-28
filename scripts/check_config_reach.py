@@ -111,6 +111,14 @@ SAMPLED_TEXT = " ".join(["Hello World"] * 9)
 PIN = {"blinkColon": False}
 
 
+# ⚑ W771: THE CLAIMS THIS CHECK IS RUN AS, a partition of the mount registry. The whole check took
+# 537 to 579 s of wall against paperkit's 600 s wall backstop (a check past it is killed with no
+# account), so warrants.bib runs it per shard: `config_reach clock wallpaper` and `config_reach
+# marquee`, standalone 265 and 219 s. A mount added to the registry must be given a shard here, or
+# the selftest fails; the warrants name the same shards (CONFIG-REACH, CONFIG-REACH-MARQUEE).
+SHARDS = (("clock", "wallpaper"), ("marquee",))
+
+
 def ends(entries, holes, mount="clock"):
     """[(key, type, low, high)] for every kcfg key of `mount`: a Bool's two values, a
     Double's control ends (display rows) or its default and its double + 1 (a row with
@@ -285,10 +293,14 @@ def sampled_cases(mount, entries, holes, td):
     return cases, None
 
 
-def measure():
+def measure(only=None):
     """The MEASUREMENT policy/config_reach.rego decides: per mount and key, whether the
     render at its low end differs from the render at its high end; `withheld` says why
-    nothing could be measured (no qml runner)."""
+    nothing could be measured (no qml runner).
+
+    `only` names the mounts to measure (a SHARD, W771): the whole check took 537 to 579 s of wall
+    against paperkit's 600 s wall backstop, so a claim per mount keeps each under half of it. The
+    policy judges the cases it is given, so a shard needs no policy of its own."""
     import plasma_rewrite
     import render_qml
 
@@ -302,6 +314,8 @@ def measure():
     unmeasured = []
     with tempfile.TemporaryDirectory() as td:
         for mount, spec in specs().items():
+            if only is not None and mount not in only:
+                continue
             if spec.sampled:
                 kcfg, holes = mount_inputs(spec)
                 got, why = sampled_cases(
@@ -355,14 +369,26 @@ def measure():
 
 def main(argv):
     known = {"--json", "--selftest"}
+    operands = [a for a in argv[1:] if not a.startswith("--")]
     for a in argv[1:]:
-        if a not in known:
+        if a.startswith("--") and a not in known:
             print(f"check_config_reach: unknown flag {a!r}", file=sys.stderr)
             return 2
+    if operands and "--json" not in argv:
+        print("check_config_reach: mount operands go with --json", file=sys.stderr)
+        return 2
+    mounts = list(specs())
+    unknown = [m for m in operands if m not in mounts]
+    if unknown:
+        print(
+            f"check_config_reach: no such mount {unknown!r} (the registry has {mounts})",
+            file=sys.stderr,
+        )
+        return 2
     if "--json" in argv:
         import json
 
-        print(json.dumps(measure(), indent=1))
+        print(json.dumps(measure(operands or None), indent=1))
         return 0
     import opa_gate
 
@@ -380,6 +406,20 @@ def _selftest():
         )
         ok = ok and got == want
 
+    # W771: the shards partition the registry exactly (a mount added without a shard, or listed twice,
+    # fails here), and a mount operand is checked before anything renders
+    in_shards = sorted(m for shard in SHARDS for m in shard)
+    chk("the shards partition the mount registry exactly", in_shards, sorted(specs()))
+    chk(
+        "an unknown mount operand is refused (2), before anything renders",
+        main(["check_config_reach", "--json", "no-such-mount"]),
+        2,
+    )
+    chk(
+        "a mount operand without --json is refused (2)",
+        main(["check_config_reach", "clock"]),
+        2,
+    )
     chk("identical pictures do not differ", differs(b"png", b"png"), False)
     chk("different pictures differ", differs(b"png", b"pnG"), True)
     import io
